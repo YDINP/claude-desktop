@@ -15,6 +15,7 @@ interface SavedHost {
   user: string
   port: number
   identityFile?: string
+  lastUsed?: number
 }
 
 type ToastType = 'info' | 'error'
@@ -56,12 +57,17 @@ export function RemotePanel() {
     window.api.getSavedRemoteHosts().then(setSavedHosts).catch(() => setSavedHosts([]))
   }, [])
 
-  const handleConnect = async (user: string, hostname: string, port: number) => {
+  const handleConnect = async (user: string, hostname: string, port: number, savedId?: string) => {
     const portPart = port !== 22 ? ` -p ${port}` : ''
     const cmd = `ssh${portPart} ${user}@${hostname}`
     try {
       await navigator.clipboard.writeText(cmd)
       showToast(`SSH 명령어가 클립보드에 복사되었습니다: ${cmd}`)
+      if (savedId) {
+        const updated = savedHosts.map(h => h.id === savedId ? { ...h, lastUsed: Date.now() } : h)
+        setSavedHosts(updated)
+        window.api.saveRemoteHost(updated.find(h => h.id === savedId)!)
+      }
     } catch {
       showToast('클립보드 복사에 실패했습니다.', 'error')
     }
@@ -163,9 +169,10 @@ export function RemotePanel() {
   const filteredSsh = q ? sshHosts.filter(h =>
     h.alias.toLowerCase().includes(q) || h.hostname.toLowerCase().includes(q) || h.user.toLowerCase().includes(q)
   ) : sshHosts
-  const filteredSaved = q ? savedHosts.filter(h =>
+  const sortedSaved = [...savedHosts].sort((a, b) => (b.lastUsed ?? 0) - (a.lastUsed ?? 0))
+  const filteredSaved = q ? sortedSaved.filter(h =>
     h.label.toLowerCase().includes(q) || h.hostname.toLowerCase().includes(q) || h.user.toLowerCase().includes(q)
-  ) : savedHosts
+  ) : sortedSaved
   const isEmpty = sshHosts.length === 0 && savedHosts.length === 0
 
   return (
@@ -224,14 +231,17 @@ export function RemotePanel() {
           {filteredSaved.map((h) => (
             <div key={h.id} style={rowStyle}>
               <div style={hostInfoStyle}>
-                <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
                   {h.label}
+                  {h.lastUsed && Date.now() - h.lastUsed < 86400000 && (
+                    <span style={{ fontSize: 9, padding: '0 4px', borderRadius: 8, background: 'var(--accent)', color: '#fff', flexShrink: 0 }}>최근</span>
+                  )}
                 </div>
                 <div style={{ fontSize: 10, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {h.user}@{h.hostname}{h.port !== 22 ? `:${h.port}` : ''}
                 </div>
               </div>
-              <button style={connectBtn} onClick={() => handleConnect(h.user, h.hostname, h.port)}>
+              <button style={connectBtn} onClick={() => handleConnect(h.user, h.hostname, h.port, h.id)}>
                 연결
               </button>
               <button style={iconBtn} onClick={() => handleEdit(h)} title="편집">✏️</button>

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 247: R345 신규 기능 ───────────────────────────────
+console.log('\n## 247. 신규 기능 파일 검사 (R345)')
+// RemotePanel 최근 접속 순 정렬 (Round 345)
+const rmt345Path = join(ROOT, 'src/renderer/src/components/sidebar/RemotePanel.tsx')
+if (existsSync(rmt345Path)) {
+  const rmt345 = readFileSync(rmt345Path, 'utf-8')
+  if (rmt345.includes('lastUsed') && rmt345.includes('sortedSaved') && rmt345.includes('savedId')) {
+    log('pass', 'Round345', 'RemotePanel: 최근 접속 순 정렬 (lastUsed/sortedSaved/savedId) 존재')
+  } else {
+    log('warning', 'Round345', 'RemotePanel 최근 접속 순 정렬 미구현', 'sidebar/RemotePanel.tsx')
+  }
+}
+
 // ── Section 246: R344 신규 기능 ───────────────────────────────
 console.log('\n## 246. 신규 기능 파일 검사 (R344)')
 // GitPanel 전체 스테이지/해제 (Round 344)

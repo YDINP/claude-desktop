@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 344 완료 — GitPanel 전체 스테이지/해제, Pass 364)
+> 마지막 업데이트: 2026-03-13 (Round 345 완료 — RemotePanel 최근 접속 순 정렬, Pass 365)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 345 | dev | RemotePanel 최근 접속 순 정렬 — lastUsed 타임스탬프, 최근 사용 순 정렬, 24h 이내 "최근" 배지 | ✅ |
 | Round 344 | dev | GitPanel 전체 스테이지/해제 — 변경사항 섹션 "전체 +" 버튼, 스테이징됨 섹션 "전체 해제" 버튼 | ✅ |
 | Round 343 | dev | SnippetPanel 카테고리 퀵 필터 — 카테고리 칩 버튼(2개↑ 시 표시), 선택 시 해당 카테고리만 필터 | ✅ |
 | Round 342 | dev | ConnectionPanel 자동 핑 토글 — ⟳ ON/OFF, 활성 시 30초 간격 자동 전체 핑 | ✅ |
