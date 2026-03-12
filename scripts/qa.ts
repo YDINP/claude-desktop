@@ -134,6 +134,63 @@ for (const rf of routerFiles) {
   }
 }
 
+// ── 6. 신규 기능 파일 검사 (Round 83-88) ─────────────────────────────
+console.log('\n## 6. 신규 기능 파일 검사')
+
+// AssetBrowserPanel (Round 84)
+const assetBrowserPath = join(ROOT, 'src/renderer/src/components/sidebar/AssetBrowserPanel.tsx')
+if (existsSync(assetBrowserPath)) {
+  log('pass', 'Round84', 'AssetBrowserPanel.tsx 존재')
+} else {
+  log('warning', 'Round84', 'AssetBrowserPanel.tsx 미존재', 'sidebar/AssetBrowserPanel.tsx')
+}
+
+// CC Extension assets/tree 엔드포인트 (Round 84)
+const ext3xPath = join(ROOT, 'extensions/cc-ws-extension-3x/main.js')
+if (existsSync(ext3xPath)) {
+  const ext3x = readFileSync(ext3xPath, 'utf-8')
+  if (ext3x.includes('/assets/tree')) {
+    log('pass', 'Round84', 'CC 3x /assets/tree 엔드포인트 존재')
+  } else {
+    log('warning', 'Round84', 'CC 3x /assets/tree 엔드포인트 미존재', 'extensions/cc-ws-extension-3x/main.js')
+  }
+}
+
+// cost-tracker.ts (Round 86)
+const costTrackerPath = join(ROOT, 'src/renderer/src/utils/cost-tracker.ts')
+if (existsSync(costTrackerPath)) {
+  const ct = readFileSync(costTrackerPath, 'utf-8')
+  if (ct.includes('recordCost') && ct.includes('getMonthlyCost')) {
+    log('pass', 'Round86', 'cost-tracker.ts: recordCost + getMonthlyCost 존재')
+  } else {
+    log('warning', 'Round86', 'cost-tracker.ts 핵심 함수 누락', 'utils/cost-tracker.ts')
+  }
+} else {
+  log('warning', 'Round86', 'cost-tracker.ts 미존재', 'utils/cost-tracker.ts')
+}
+
+// CommandPalette recent-action (Round 87)
+const cpPath = join(ROOT, 'src/renderer/src/components/shared/CommandPalette.tsx')
+if (existsSync(cpPath)) {
+  const cp = readFileSync(cpPath, 'utf-8')
+  if (cp.includes('recent-action') && cp.includes('addRecentAction')) {
+    log('pass', 'Round87', 'CommandPalette recent-action 구현 존재')
+  } else {
+    log('warning', 'Round87', 'CommandPalette recent-action 미구현', 'shared/CommandPalette.tsx')
+  }
+}
+
+// PromptChain 템플릿 라이브러리 (Round 88)
+const pcPath = join(ROOT, 'src/renderer/src/components/sidebar/PromptChainPanel.tsx')
+if (existsSync(pcPath)) {
+  const pc = readFileSync(pcPath, 'utf-8')
+  if (pc.includes('PRESET_TEMPLATES') && pc.includes('importTemplate')) {
+    log('pass', 'Round88', 'PromptChainPanel 템플릿 라이브러리 존재')
+  } else {
+    log('warning', 'Round88', 'PromptChainPanel 템플릿 라이브러리 미구현', 'sidebar/PromptChainPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
