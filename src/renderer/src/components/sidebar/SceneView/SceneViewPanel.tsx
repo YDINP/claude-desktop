@@ -36,6 +36,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [hoverTooltipPos, setHoverTooltipPos] = useState<{ x: number; y: number } | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [inspectorNameFocus, setInspectorNameFocus] = useState(0)
+  const [showMinimap, setShowMinimap] = useState(true)
   const [svgContextMenu, setSvgContextMenu] = useState<{ uuid: string | null; x: number; y: number } | null>(null)
   const [bgLight, setBgLight] = useState(false)
 
@@ -1371,6 +1372,103 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             </div>
           )
         })()}
+
+        {/* 미니맵 오버레이 */}
+        {showMinimap && nodeMap.size > 0 && (() => {
+          const MM_W = 120, MM_H = 80
+          // 씬 전체 노드 bounding box 계산 (디자인 좌표 기준)
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+          nodeMap.forEach(n => {
+            const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+            minX = Math.min(minX, sx - n.width / 2)
+            minY = Math.min(minY, sy - n.height / 2)
+            maxX = Math.max(maxX, sx + n.width / 2)
+            maxY = Math.max(maxY, sy + n.height / 2)
+          })
+          // 기본 씬 영역 포함
+          minX = Math.min(minX, 0); minY = Math.min(minY, 0)
+          maxX = Math.max(maxX, DESIGN_W); maxY = Math.max(maxY, DESIGN_H)
+          const scW = maxX - minX || DESIGN_W
+          const scH = maxY - minY || DESIGN_H
+          const sx = MM_W / scW, sy = MM_H / scH
+          return (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 28,
+                right: 6,
+                width: MM_W,
+                height: MM_H,
+                background: 'rgba(15,15,20,0.82)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: 4,
+                overflow: 'hidden',
+                cursor: 'pointer',
+                userSelect: 'none',
+              }}
+              title="미니맵 (클릭하여 숨기기)"
+              onClick={() => setShowMinimap(false)}
+            >
+              <svg width={MM_W} height={MM_H} style={{ display: 'block' }}>
+                {/* 디자인 캔버스 경계 */}
+                <rect
+                  x={(0 - minX) * sx} y={(0 - minY) * sy}
+                  width={DESIGN_W * sx} height={DESIGN_H * sy}
+                  fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth={1}
+                />
+                {/* 노드 표시 */}
+                {[...nodeMap.values()].map(n => {
+                  const { sx: nsx, sy: nsy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+                  const mx = (nsx - n.width / 2 - minX) * sx
+                  const my = (nsy - n.height / 2 - minY) * sy
+                  const mw = Math.max(1, n.width * sx)
+                  const mh = Math.max(1, n.height * sy)
+                  const isSelected = selectedUuids.has(n.uuid)
+                  const color = n.color ? `rgba(${n.color.r ?? 255},${n.color.g ?? 255},${n.color.b ?? 255},0.7)` : 'rgba(100,180,255,0.5)'
+                  return (
+                    <rect key={n.uuid} x={mx} y={my} width={mw} height={mh}
+                      fill={isSelected ? '#60a5fa' : color}
+                      stroke={isSelected ? '#60a5fa' : 'none'}
+                      strokeWidth={isSelected ? 0.5 : 0}
+                      opacity={n.active ? 1 : 0.3}
+                    />
+                  )
+                })}
+                {/* 현재 뷰포트 표시 */}
+                {containerRef.current && (() => {
+                  const cw = containerRef.current!.clientWidth
+                  const ch = containerRef.current!.clientHeight
+                  const vx = (-view.offsetX / view.zoom - minX) * sx
+                  const vy = (-view.offsetY / view.zoom - minY) * sy
+                  const vw = (cw / view.zoom) * sx
+                  const vh = (ch / view.zoom) * sy
+                  return (
+                    <rect x={vx} y={vy} width={vw} height={vh}
+                      fill="none" stroke="rgba(250,200,50,0.7)" strokeWidth={1}
+                    />
+                  )
+                })()}
+              </svg>
+            </div>
+          )
+        })()}
+
+        {/* 미니맵 숨겨진 경우 복원 버튼 */}
+        {!showMinimap && (
+          <button
+            onClick={() => setShowMinimap(true)}
+            title="미니맵 표시"
+            style={{
+              position: 'absolute', bottom: 28, right: 6,
+              fontSize: 9, padding: '1px 4px',
+              background: 'rgba(15,15,20,0.8)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer',
+            }}
+          >
+            ⊞
+          </button>
+        )}
 
         {/* 드래그/리사이즈 좌표 오버레이 */}
         {(isDragging || isResizing) && selectedNode && (

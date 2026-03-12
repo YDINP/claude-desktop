@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 184] — 2026-03-13
+### Added
+- SceneView: 미니맵 오버레이 — 우하단 축소 맵에 전체 노드 + 뷰포트 표시, 클릭으로 토글
+
 ## [Round 183] — 2026-03-13
 ### Added
 - SceneInspector: 조상 Breadcrumb 경로 표시 — 부모/조부모 전체 클릭 가능한 체인으로 표시 (Canvas › Panel › Button)

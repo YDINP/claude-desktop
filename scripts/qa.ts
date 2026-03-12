@@ -1862,6 +1862,19 @@ if (existsSync(sceneInspectorPath20)) {
   }
 }
 
+// ── Section 86: R184 신규 기능 ───────────────────────────────
+console.log('\n## 86. 신규 기능 파일 검사 (R184)')
+// SceneView 미니맵 오버레이 (Round 184)
+const svp184Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp184Path)) {
+  const svp184 = readFileSync(svp184Path, 'utf-8')
+  if (svp184.includes('showMinimap') && svp184.includes('미니맵 오버레이') && svp184.includes('MM_W')) {
+    log('pass', 'Round184', 'SceneView: 미니맵 오버레이 존재')
+  } else {
+    log('warning', 'Round184', 'SceneView 미니맵 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
