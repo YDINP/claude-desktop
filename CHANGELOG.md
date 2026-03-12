@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 265] — 2026-03-13
+### Added
+- CalendarPanel: 커스텀 이벤트 추가 — 날짜 클릭 시 이벤트 입력, 컬러 선택, localStorage 저장, 캘린더 셀에 컬러 점 표시
+
 ## [Round 264] — 2026-03-13
 ### Improved
 - SceneView: 북마크 목록 클릭 시 카메라 자동 포커스 — 선택과 동시에 노드 bounding box로 뷰 이동

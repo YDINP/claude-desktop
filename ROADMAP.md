@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 264 완료 — SceneView 북마크 클릭 카메라 포커스, Pass 284)
+> 마지막 업데이트: 2026-03-13 (Round 265 완료 — CalendarPanel 커스텀 이벤트, Pass 285)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 265 | dev | CalendarPanel 커스텀 이벤트 — localStorage, 컬러 선택, 셀 컬러 점 표시 | ✅ |
 | Round 264 | dev | SceneView 북마크 클릭 카메라 포커스 — setView bounding box 계산으로 북마크 노드 자동 이동 | ✅ |
 | Round 263 | dev | SceneView 검색 조상 자동 펼치기 — handleSearchNav에서 ancestors collapsedUuids 제거 | ✅ |
 

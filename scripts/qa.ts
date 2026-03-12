@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 167: R265 신규 기능 ───────────────────────────────
+console.log('\n## 167. 신규 기능 파일 검사 (R265)')
+// CalendarPanel 커스텀 이벤트 추가 (Round 265)
+const cal265Path = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(cal265Path)) {
+  const cal265 = readFileSync(cal265Path, 'utf-8')
+  if (cal265.includes('CalendarEvent') && cal265.includes('calendarEvents') && cal265.includes('addEvent')) {
+    log('pass', 'Round265', 'CalendarPanel: 커스텀 이벤트 추가 (CalendarEvent/localStorage) 존재')
+  } else {
+    log('warning', 'Round265', 'CalendarPanel 커스텀 이벤트 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── Section 166: R264 신규 기능 ───────────────────────────────
 console.log('\n## 166. 신규 기능 파일 검사 (R264)')
 // SceneView 북마크 클릭 시 카메라 포커스 (Round 264)

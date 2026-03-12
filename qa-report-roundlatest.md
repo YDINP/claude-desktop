@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T18:58:55.909Z
+> 2026-03-12T19:03:11.842Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- CalendarPanel: 커스텀 이벤트 추가 (CalendarEvent/localStorage) 존재
 - SceneViewPanel: 북마크 클릭 시 카메라 포커스 이동 존재
 - SceneViewPanel: 검색 노드 조상 자동 펼치기 (ancestors) 존재
 - SceneViewPanel: 호버 툴팁 memo 표시 존재
