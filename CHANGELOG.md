@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 280] — 2026-03-13
+### Added
+- NotesPanel: 선택된 노트 클립보드 복사 버튼 (📋) — `# title\n\ncontent` Markdown 형식으로 복사, 복사 후 ✓ 표시
+
 ## [Round 279] — 2026-03-13
 ### Improved
 - TasksPanel: 우선순위 점 클릭으로 순환 변경 — 컬러 점 클릭 시 low→medium→high→low 순환 (PRIORITY_CYCLE)

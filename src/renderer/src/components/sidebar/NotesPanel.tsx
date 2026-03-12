@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface Note {
   id: string
@@ -21,6 +21,8 @@ export function NotesPanel() {
   const [title, setTitle] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOrder, setSortOrder] = useState<'latest' | 'oldest' | 'title'>('latest')
+  const [noteCopied, setNoteCopied] = useState(false)
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const selected = notes.find(n => n.id === selectedId) ?? null
 
@@ -64,6 +66,18 @@ export function NotesPanel() {
     e.stopPropagation()
     save(notes.map(n => n.id === id ? { ...n, pinned: !n.pinned } : n))
   }, [notes, save])
+
+  const copyNoteToClipboard = useCallback(() => {
+    if (!selectedId) return
+    const note = notes.find(n => n.id === selectedId)
+    if (!note) return
+    const md = note.title ? `# ${note.title}\n\n${note.content}` : note.content
+    navigator.clipboard.writeText(md).then(() => {
+      setNoteCopied(true)
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+      copyTimerRef.current = setTimeout(() => setNoteCopied(false), 1500)
+    })
+  }, [selectedId, notes])
 
   const highlightText = (text: string, query: string) => {
     if (!query.trim()) return text
@@ -179,8 +193,12 @@ export function NotesPanel() {
                 color: 'var(--text-primary)', outline: 'none', fontFamily: 'inherit',
               }}
             />
-            <div style={{ padding: '2px 8px', fontSize: 9, color: 'var(--text-muted)', textAlign: 'right', borderTop: '1px solid var(--border)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
-              {content.length}자 · {content.trim() ? content.trim().split(/\s+/).length : 0}단어
+            <div style={{ padding: '2px 8px', fontSize: 9, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+              <button onClick={copyNoteToClipboard} title="노트를 Markdown으로 클립보드 복사"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: noteCopied ? 'var(--success)' : 'var(--text-muted)', padding: '0 2px', transition: 'color 0.15s' }}>
+                {noteCopied ? '✓' : '📋'}
+              </button>
+              <span>{content.length}자 · {content.trim() ? content.trim().split(/\s+/).length : 0}단어</span>
             </div>
           </div>
         ) : (

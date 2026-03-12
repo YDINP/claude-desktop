@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 182: R280 신규 기능 ───────────────────────────────
+console.log('\n## 182. 신규 기능 파일 검사 (R280)')
+// NotesPanel 노트 클립보드 복사 (Round 280)
+const np280Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np280Path)) {
+  const np280 = readFileSync(np280Path, 'utf-8')
+  if (np280.includes('copyNoteToClipboard') && np280.includes('noteCopied') && np280.includes('노트를 Markdown으로')) {
+    log('pass', 'Round280', 'NotesPanel: 노트 클립보드 복사 (copyNoteToClipboard/noteCopied) 존재')
+  } else {
+    log('warning', 'Round280', 'NotesPanel 노트 클립보드 복사 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 181: R279 신규 기능 ───────────────────────────────
 console.log('\n## 181. 신규 기능 파일 검사 (R279)')
 // TasksPanel 우선순위 점 클릭 순환 (Round 279)
