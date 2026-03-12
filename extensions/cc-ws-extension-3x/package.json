@@ -1,0 +1,14 @@
+{
+  "name": "cc-ws-extension",
+  "version": "1.0.0",
+  "description": "Claude Desktop WebSocket Bridge for Cocos Creator 3.x",
+  "main": "main.js",
+  "contributions": {
+    "messages": {
+      "get-status": { "methods": ["main"] }
+    }
+  },
+  "dependencies": {
+    "ws": "^8.0.0"
+  }
+}
