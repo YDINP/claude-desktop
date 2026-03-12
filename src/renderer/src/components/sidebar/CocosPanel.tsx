@@ -220,6 +220,12 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
             }}
             placeholder="포트"
           />
+          {([9090, 9091] as const).map(p => (
+            <button key={p} onClick={() => setPort(p)} title={p === 9090 ? 'CC 2.x' : 'CC 3.x'}
+              style={{ padding: '2px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: port === p ? 'var(--accent)' : 'none', color: port === p ? '#fff' : 'var(--text-muted)', flexShrink: 0 }}>
+              {p}
+            </button>
+          ))}
           <button
             onClick={handleConnect}
             disabled={connecting}

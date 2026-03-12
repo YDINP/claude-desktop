@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 367] — 2026-03-13
+### Added
+- CocosPanel: 빠른 포트 선택 버튼 — 포트 입력 옆 9090(CC 2.x)/9091(CC 3.x) 버튼, 현재 포트 강조 표시
+
 ## [Round 366] — 2026-03-13
 ### Added
 - RunTimeline: 진행 중 런 필터 토글 — 활성+완료 런이 혼재할 때 ⟳ 버튼으로 진행 중만 표시

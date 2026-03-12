@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 269: R367 신규 기능 ───────────────────────────────
+console.log('\n## 269. 신규 기능 파일 검사 (R367)')
+// CocosPanel 빠른 포트 버튼 (Round 367)
+const cocos367Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos367Path)) {
+  const cocos367 = readFileSync(cocos367Path, 'utf-8')
+  if (cocos367.includes('9090, 9091') && cocos367.includes('CC 2.x') && cocos367.includes('CC 3.x')) {
+    log('pass', 'Round367', 'CocosPanel: 빠른 포트 버튼 (9090/9091, CC 2.x/3.x) 존재')
+  } else {
+    log('warning', 'Round367', 'CocosPanel 빠른 포트 버튼 미구현', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── Section 268: R366 신규 기능 ───────────────────────────────
 console.log('\n## 268. 신규 기능 파일 검사 (R366)')
 // RunTimeline 진행 중 필터 (Round 366)

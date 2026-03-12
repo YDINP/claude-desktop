@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 366 완료 — RunTimeline 진행 중 런 필터, Pass 386)
+> 마지막 업데이트: 2026-03-13 (Round 367 완료 — CocosPanel 빠른 포트 버튼, Pass 387)
 
 ## 완료된 라운드
 
