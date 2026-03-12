@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 213: R311 신규 기능 ───────────────────────────────
+console.log('\n## 213. 신규 기능 파일 검사 (R311)')
+// RunTimeline 완료 런 삭제 버튼 (Round 311)
+const rt311Path = join(ROOT, 'src/renderer/src/components/sidebar/RunTimeline.tsx')
+if (existsSync(rt311Path)) {
+  const rt311 = readFileSync(rt311Path, 'utf-8')
+  if (rt311.includes('clearedAt') && rt311.includes('setClearedAt') && rt311.includes('완료된 런 지우기')) {
+    log('pass', 'Round311', 'RunTimeline: 완료 런 삭제 버튼 (clearedAt/setClearedAt) 존재')
+  } else {
+    log('warning', 'Round311', 'RunTimeline 완료 삭제 미구현', 'sidebar/RunTimeline.tsx')
+  }
+}
+
 // ── Section 212: R310 신규 기능 ───────────────────────────────
 console.log('\n## 212. 신규 기능 파일 검사 (R310)')
 // GlobalSearchPanel 역할 필터 (Round 310)

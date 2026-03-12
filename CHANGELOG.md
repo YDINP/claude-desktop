@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 311] — 2026-03-13
+### Added
+- RunTimeline: 완료된 런 삭제 버튼 — 🗑 클릭으로 `clearedAt` 타임스탬프 이전 완료 런 화면에서 제거
+
 ## [Round 310] — 2026-03-13
 ### Added
 - GlobalSearchPanel: 역할 필터 버튼 — 전체/나/Claude 토글로 검색 결과 필터링, 결과 수 실시간 업데이트

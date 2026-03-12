@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 310 완료 — GlobalSearchPanel 역할 필터, Pass 330)
+> 마지막 업데이트: 2026-03-13 (Round 311 완료 — RunTimeline 완료 런 삭제 버튼, Pass 331)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 311 | dev | RunTimeline 완료 런 삭제 버튼 — 🗑 clearedAt 타임스탬프로 완료 런 필터링 제거 | ✅ |
 | Round 310 | dev | GlobalSearchPanel 역할 필터 — roleFilter(all/user/assistant) 토글 버튼 + 필터된 결과 수 표시 | ✅ |
 | Round 309 | dev | AssetBrowserPanel 에셋 수 배지 — totalAssets/allFlat으로 non-folder 수 집계, 검색 시 N/M 표시 | ✅ |
 | Round 308 | dev | OutlinePanel 아웃라인 복사 버튼 — 📋 copyOutline으로 필터된 헤딩을 마크다운 형식으로 클립보드 복사 | ✅ |

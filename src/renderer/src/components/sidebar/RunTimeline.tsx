@@ -51,12 +51,14 @@ function RunCard({ run }: { run: AguiRun }) {
 
 export function RunTimeline() {
   const [runs, setRuns] = useState<AguiRun[]>([])
+  const [clearedAt, setClearedAt] = useState(0)
 
   useEffect(() => {
     return aguiSubscribe(setRuns)
   }, [])
 
-  const displayRuns = [...runs].reverse()
+  const allRuns = [...runs].reverse()
+  const displayRuns = allRuns.filter(r => !r.finishedAt || r.finishedAt > clearedAt)
   const finishedRuns = displayRuns.filter(r => r.finishedAt)
   const totalCostUsd = finishedRuns.reduce((s, r) => s + (r.costUsd ?? 0), 0)
 
@@ -65,7 +67,16 @@ export function RunTimeline() {
       {displayRuns.length > 0 && (
         <div style={{ padding: '4px 10px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', flexShrink: 0 }}>
           <span>런 {displayRuns.length}건 · 완료 {finishedRuns.length}건</span>
-          {totalCostUsd > 0 && <span style={{ color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>총 ${totalCostUsd.toFixed(4)}</span>}
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            {totalCostUsd > 0 && <span style={{ color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>총 ${totalCostUsd.toFixed(4)}</span>}
+            {finishedRuns.length > 0 && (
+              <button
+                onClick={() => setClearedAt(Date.now())}
+                title="완료된 런 지우기"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 10, padding: 0 }}
+              >🗑</button>
+            )}
+          </div>
         </div>
       )}
       <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
