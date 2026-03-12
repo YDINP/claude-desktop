@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 257] — 2026-03-13
+### Added
+- TasksPanel: 마감일(dueDate) 필드 — 날짜 선택기 입력, 마감 초과 시 ⚠빨간 강조, 📅 날짜 표시
+
 ## [Round 256] — 2026-03-13
 ### Added
 - SceneView: Alt 홀드 스냅 일시 비활성화 — 드래그 중 Alt 키를 누르면 스냅 그리드를 건너뜀

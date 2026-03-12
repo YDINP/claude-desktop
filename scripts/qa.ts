@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 159: R257 신규 기능 ───────────────────────────────
+console.log('\n## 159. 신규 기능 파일 검사 (R257)')
+// TasksPanel 마감일 기능 (Round 257)
+const tp257Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp257Path)) {
+  const tp257 = readFileSync(tp257Path, 'utf-8')
+  if (tp257.includes('dueDate') && tp257.includes('마감일') && tp257.includes('overdue')) {
+    log('pass', 'Round257', 'TasksPanel: 마감일 기능 (dueDate + overdue 강조) 존재')
+  } else {
+    log('warning', 'Round257', 'TasksPanel 마감일 기능 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 158: R256 신규 기능 ───────────────────────────────
 console.log('\n## 158. 신규 기능 파일 검사 (R256)')
 // SceneView Alt 홀드 스냅 일시 비활성화 (Round 256)

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 256 완료 — SceneView Alt 홀드 스냅 일시 비활성화, Pass 276)
+> 마지막 업데이트: 2026-03-13 (Round 257 완료 — TasksPanel 마감일 기능, Pass 277)
 
 ## 완료된 라운드
 
@@ -208,6 +208,7 @@
 | Round 254 | dev | SceneView 씬 통계 컴포넌트 분포 — 상위 5개 컴포넌트 타입별 사용 수 (topComps) | ✅ |
 | Round 255 | dev | SceneView P키 부모 노드 선택 — selectedUuid의 parentUuid로 이동 | ✅ |
 | Round 256 | dev | SceneView Alt 홀드 스냅 일시 비활성화 — 드래그 중 Alt키로 snapGrid 일시 무효화 | ✅ |
+| Round 257 | dev | TasksPanel 마감일 기능 — dueDate 날짜 입력, 마감 초과 ⚠ 빨간 강조 (overdue) | ✅ |
 
 ## 전략 로드맵 (Phase)
 

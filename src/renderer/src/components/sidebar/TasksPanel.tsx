@@ -6,6 +6,7 @@ interface Task {
   done: boolean
   createdAt: number
   priority?: 'low' | 'medium' | 'high'
+  dueDate?: string
 }
 
 const PRIORITY_COLORS = { high: '#f44336', medium: '#ff9800', low: '#4caf50' }
@@ -17,6 +18,7 @@ export function TasksPanel() {
   const [filter, setFilter] = useState<'all' | 'active' | 'done'>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
+  const [dueDate, setDueDate] = useState('')
 
   useEffect(() => {
     window.api.getTasks().then(setTasks)
@@ -29,9 +31,10 @@ export function TasksPanel() {
 
   const addTask = () => {
     if (!input.trim()) return
-    const task: Task = { id: Date.now().toString(), text: input.trim(), done: false, createdAt: Date.now(), priority }
+    const task: Task = { id: Date.now().toString(), text: input.trim(), done: false, createdAt: Date.now(), priority, dueDate: dueDate || undefined }
     save([task, ...tasks])
     setInput('')
+    setDueDate('')
   }
 
   const toggleDone = (id: string) => {
@@ -70,6 +73,9 @@ export function TasksPanel() {
           placeholder="새 할 일..."
           style={{ flex: 1, padding: '4px 8px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, color: 'inherit', fontSize: 12 }}
         />
+        <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
+          title="마감일 (선택)"
+          style={{ padding: '4px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, color: 'inherit', fontSize: 10, width: 32, cursor: 'pointer', opacity: 0.7 }} />
         <button onClick={addTask} style={{ padding: '4px 8px', background: 'var(--accent)', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer', fontSize: 12 }}>+</button>
       </div>
 
@@ -111,6 +117,11 @@ export function TasksPanel() {
                 {task.text}
               </span>
             )}
+            {task.dueDate && !task.done && (() => {
+              const today = new Date().toISOString().slice(0, 10)
+              const overdue = task.dueDate < today
+              return <span style={{ fontSize: 9, color: overdue ? '#f87171' : 'var(--text-muted)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }} title={overdue ? '마감 초과' : '마감일'}>{overdue ? '⚠' : '📅'}{task.dueDate.slice(5)}</span>
+            })()}
             <button onClick={() => deleteTask(task.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, flexShrink: 0 }}>×</button>
           </div>
         ))}
