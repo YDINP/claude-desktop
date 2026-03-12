@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T21:08:52.364Z
+> 2026-03-12T21:10:18.664Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- SceneTreePanel: 비활성 노드 수 표시 (countInactive/inactiveNodes) 존재
 - PromptChainPanel: 체인 복제 버튼 (duplicateChain/복사/📋) 존재
 - NodePropertyPanel: 컴포넌트 전체 펼치기/접기 (allOpen/⊕/⊖) 존재
 - ChangedFilesPanel: 정렬 토글 (sortAsc/↑/↓) 존재

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 327] — 2026-03-13
+### Added
+- SceneTreePanel: 헤더에 비활성 노드 수 표시 — `비활성 N개` 빨간 텍스트 (active: false 재귀 카운트)
+
 ## [Round 326] — 2026-03-13
 ### Added
 - PromptChainPanel: 체인 탭에 📋 복제 버튼 추가 — 스텝 전체 복사 후 `(복사)` 접미사로 새 체인 생성

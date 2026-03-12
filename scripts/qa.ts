@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 229: R327 신규 기능 ───────────────────────────────
+console.log('\n## 229. 신규 기능 파일 검사 (R327)')
+// SceneTreePanel 비활성 노드 수 (Round 327)
+const stp327Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneTreePanel.tsx')
+if (existsSync(stp327Path)) {
+  const stp327 = readFileSync(stp327Path, 'utf-8')
+  if (stp327.includes('countInactive') && stp327.includes('inactiveNodes') && stp327.includes('비활성')) {
+    log('pass', 'Round327', 'SceneTreePanel: 비활성 노드 수 표시 (countInactive/inactiveNodes) 존재')
+  } else {
+    log('warning', 'Round327', 'SceneTreePanel 비활성 수 미구현', 'sidebar/SceneTreePanel.tsx')
+  }
+}
+
 // ── Section 228: R326 신규 기능 ───────────────────────────────
 console.log('\n## 228. 신규 기능 파일 검사 (R326)')
 // PromptChainPanel 체인 복제 버튼 (Round 326)
