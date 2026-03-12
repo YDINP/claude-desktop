@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 393] — 2026-03-13
+### Added
+- FileTree: 파일 검색 결과 카운트 표시 — 검색 시 N개 파일/파일 없음 표시, ESC 키로 검색 초기화
+
 ## [Round 392] — 2026-03-13
 ### Added
 - CocosPanel: 프로젝트 경로 복사 버튼 — pathCopied 상태, 프로젝트명 옆 📋 버튼, currentPath 복사

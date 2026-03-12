@@ -616,6 +616,7 @@ export function FileTree({ rootPath, onFileClick, activeFilePath, onOpenInSplit,
         <input
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
+          onKeyDown={e => e.key === 'Escape' && setSearchQuery('')}
           placeholder="파일 검색..."
           style={{
             width: '100%', background: 'var(--bg-input)', color: 'var(--text-primary)',
@@ -623,6 +624,11 @@ export function FileTree({ rootPath, onFileClick, activeFilePath, onOpenInSplit,
             fontSize: 11, outline: 'none', boxSizing: 'border-box',
           }}
         />
+        {isSearching && (
+          <div style={{ fontSize: 9, color: searchResults.length > 0 ? 'var(--accent)' : '#f87171', marginTop: 2, paddingLeft: 2 }}>
+            {searchResults.length > 0 ? `${searchResults.length}개 파일` : '파일 없음'}
+          </div>
+        )}
       </div>
       {inlineInput && (
         <div style={{ padding: '4px 8px', background: 'var(--bg-hover)', borderBottom: '1px solid var(--border)' }}>

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 295: R393 신규 기능 ───────────────────────────────
+console.log('\n## 295. 신규 기능 파일 검사 (R393)')
+// FileTree 파일 검색 결과 카운트 (Round 393)
+const ft393Path = join(ROOT, 'src/renderer/src/components/sidebar/FileTree.tsx')
+if (existsSync(ft393Path)) {
+  const ft393 = readFileSync(ft393Path, 'utf-8')
+  if (ft393.includes('개 파일') && ft393.includes('파일 없음') && ft393.includes("'Escape'")) {
+    log('pass', 'Round393', 'FileTree: 파일 검색 결과 카운트 + ESC 초기화 존재')
+  } else {
+    log('warning', 'Round393', 'FileTree 검색 카운트 미구현', 'sidebar/FileTree.tsx')
+  }
+}
+
 // ── Section 294: R392 신규 기능 ───────────────────────────────
 console.log('\n## 294. 신규 기능 파일 검사 (R392)')
 // CocosPanel 프로젝트 경로 복사 버튼 (Round 392)
