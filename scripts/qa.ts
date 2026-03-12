@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 153: R251 신규 기능 ───────────────────────────────
+console.log('\n## 153. 신규 기능 파일 검사 (R251)')
+// SceneView 노드 정보 오버레이 I키 (Round 251)
+const svp251Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp251Path)) {
+  const svp251 = readFileSync(svp251Path, 'utf-8')
+  if (svp251.includes('showNodeInfo') && svp251.includes('노드 정보 오버레이') && svp251.includes("key === 'i'")) {
+    log('pass', 'Round251', 'SceneViewPanel: I키 노드 정보 오버레이 (showNodeInfo) 구현 존재')
+  } else {
+    log('warning', 'Round251', 'SceneViewPanel I키 노드 정보 오버레이 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 152: R250 신규 기능 ───────────────────────────────
 console.log('\n## 152. 신규 기능 파일 검사 (R250)')
 // SceneView 앵커 포인트 십자 마커 (Round 250)

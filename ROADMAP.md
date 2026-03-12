@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 250 완료 — SceneView 앵커 포인트 마커, Pass 270)
+> 마지막 업데이트: 2026-03-13 (Round 251 완료 — SceneView I키 노드 정보 오버레이, Pass 271)
 
 ## 완료된 라운드
 
@@ -202,6 +202,7 @@
 | Round 248 | dev | NotesPanel 노트 검색 — 제목/내용 통합 검색 입력, 결과 수 N/전체 표시 | ✅ |
 | Round 249 | dev | NotesPanel 정렬 — 최신/오래됨/제목순 순환 버튼 (cycleSortOrder) | ✅ |
 | Round 250 | dev | SceneView 앵커 포인트 십자 마커 — 선택 노드 pivot 위치에 #a78bfa crosshair 오버레이 | ✅ |
+| Round 251 | dev | SceneView I키 노드 정보 오버레이 — pos/size/rot/anchor/opacity/visible/locked 패널 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

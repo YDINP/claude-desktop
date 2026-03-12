@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 251] — 2026-03-13
+### Added
+- SceneView: I키 노드 정보 오버레이 — 선택 노드의 pos/size/rot/anchor/opacity/visible/locked 정보 패널
+
 ## [Round 250] — 2026-03-13
 ### Added
 - SceneView: 선택 노드 앵커 포인트 십자 마커 — anchor(pivot) 위치에 보라색 crosshair(+원) 오버레이

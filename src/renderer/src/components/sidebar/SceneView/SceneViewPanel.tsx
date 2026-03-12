@@ -55,6 +55,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [alignGuides, setAlignGuides] = useState<{ x?: number; y?: number }[]>([])
   const [showConnections, setShowConnections] = useState(false)
   const [showStats, setShowStats] = useState(false)
+  const [showNodeInfo, setShowNodeInfo] = useState(false)
   const [showChangeHistory, setShowChangeHistory] = useState(false)
   const [componentFilter, setComponentFilter] = useState<string>('all')
   const [tagFilter, setTagFilter] = useState<string>('all')
@@ -295,6 +296,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         viewHistIdxRef.current = viewHistoryRef.current.length - 1
         handleFocusSelected()
       }
+      if (e.key === 'i' || e.key === 'I') setShowNodeInfo(v => !v)
       if (e.key === 'm' || e.key === 'M') setShowMinimap(v => !v)
       if (e.key === 'r' || e.key === 'R') setShowRuler(v => !v)
       if (e.key === 'n' || e.key === 'N') handleCreateNode()
@@ -2366,6 +2368,26 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             </>
           )}
         </div>
+
+        {/* 노드 정보 오버레이 (I키) */}
+        {showNodeInfo && selectedNode && (
+          <div style={{
+            position: 'absolute', bottom: 28, right: 6, zIndex: 90,
+            background: 'rgba(10,10,15,0.92)', border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 4, padding: '5px 8px', fontSize: 9, color: 'var(--text-muted)',
+            fontFamily: 'var(--font-mono)', lineHeight: 1.7, pointerEvents: 'none',
+            minWidth: 140,
+          }}>
+            <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: 2 }}>{selectedNode.name}</div>
+            <div>pos: {Math.round(selectedNode.x)}, {Math.round(selectedNode.y)}</div>
+            <div>size: {Math.round(selectedNode.width)} × {Math.round(selectedNode.height)}</div>
+            <div>rot: {selectedNode.rotation.toFixed(1)}°</div>
+            <div>anchor: {selectedNode.anchorX.toFixed(2)}, {selectedNode.anchorY.toFixed(2)}</div>
+            <div>opacity: {selectedNode.opacity ?? 255}</div>
+            {selectedNode.visible === false && <div style={{ color: '#f87171' }}>hidden</div>}
+            {selectedNode.locked && <div style={{ color: '#fbbf24' }}>locked</div>}
+          </div>
+        )}
 
         {/* 씬 캔버스 검색 오버레이 */}
         {showCanvasSearch && (
