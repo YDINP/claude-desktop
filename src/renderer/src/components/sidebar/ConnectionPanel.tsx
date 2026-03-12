@@ -40,6 +40,7 @@ export function ConnectionPanel() {
   const [loading, setLoading] = useState(false)
   const [autoPing, setAutoPing] = useState(false)
   const [cfgCopied, setCfgCopied] = useState(false)
+  const [copiedServerIdx, setCopiedServerIdx] = useState<number | null>(null)
   const autoPingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const pingAllRef = useRef<() => void>(() => {})
 
@@ -241,11 +242,26 @@ export function ConnectionPanel() {
             </div>
 
             {/* Command */}
-            <div style={{ color: 'var(--text-muted)', fontFamily: 'monospace', fontSize: 10, marginBottom: 2 }}>
-              {server.command}
-              {server.args.length > 0 && (
-                <span style={{ opacity: 0.7 }}> {truncateArgs(server.args)}</span>
-              )}
+            <div style={{ color: 'var(--text-muted)', fontFamily: 'monospace', fontSize: 10, marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {server.command}
+                {server.args.length > 0 && (
+                  <span style={{ opacity: 0.7 }}> {truncateArgs(server.args)}</span>
+                )}
+              </span>
+              <button
+                onClick={() => {
+                  const cmd = [server.command, ...server.args].join(' ')
+                  navigator.clipboard.writeText(cmd).then(() => {
+                    setCopiedServerIdx(index)
+                    setTimeout(() => setCopiedServerIdx(i => i === index ? null : i), 1500)
+                  })
+                }}
+                title="명령어 복사"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, padding: '0 2px', color: copiedServerIdx === index ? '#4caf50' : 'var(--border)', flexShrink: 0 }}
+              >
+                {copiedServerIdx === index ? '✓' : '📋'}
+              </button>
             </div>
 
             {/* Status */}

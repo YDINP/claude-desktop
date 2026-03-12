@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 380] — 2026-03-13
+### Added
+- ConnectionPanel: 서버 명령어 복사 버튼 — 각 서버 행에 📋 버튼, copiedServerIdx 상태, command+args 클립보드 복사
+
 ## [Round 379] — 2026-03-13
 ### Added
 - WebPreviewPanel: URL 방문 기록 드롭다운 — uniqueHistory(중복제거), showHistory 상태, 🕐N 버튼, 클릭 시 빠른 재방문

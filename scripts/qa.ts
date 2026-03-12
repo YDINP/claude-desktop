@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 282: R380 신규 기능 ───────────────────────────────
+console.log('\n## 282. 신규 기능 파일 검사 (R380)')
+// ConnectionPanel 서버 명령어 복사 버튼 (Round 380)
+const cp380Path = join(ROOT, 'src/renderer/src/components/sidebar/ConnectionPanel.tsx')
+if (existsSync(cp380Path)) {
+  const cp380 = readFileSync(cp380Path, 'utf-8')
+  if (cp380.includes('copiedServerIdx') && cp380.includes('명령어 복사')) {
+    log('pass', 'Round380', 'ConnectionPanel: 서버 명령어 복사 버튼 존재')
+  } else {
+    log('warning', 'Round380', 'ConnectionPanel 명령어 복사 미구현', 'sidebar/ConnectionPanel.tsx')
+  }
+}
+
 // ── Section 281: R379 신규 기능 ───────────────────────────────
 console.log('\n## 281. 신규 기능 파일 검사 (R379)')
 // WebPreviewPanel URL 방문 기록 드롭다운 (Round 379)
