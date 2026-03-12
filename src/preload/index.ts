@@ -3,7 +3,7 @@ import type { CCEvent, CCNode, CCStatus } from '../shared/ipc-schema'
 
 contextBridge.exposeInMainWorld('api', {
   // Claude
-  claudeSend: (payload: { text: string; cwd: string; model: string }) =>
+  claudeSend: (payload: { text: string; cwd: string; model: string; extraSystemPrompt?: string }) =>
     ipcRenderer.send('claude:send', payload),
   claudeInterrupt: () => ipcRenderer.send('claude:interrupt'),
   claudeClose: () => ipcRenderer.send('claude:close'),
@@ -266,7 +266,7 @@ contextBridge.exposeInMainWorld('api', {
 declare global {
   interface Window {
     api: {
-      claudeSend: (payload: { text: string; cwd: string; model: string }) => void
+      claudeSend: (payload: { text: string; cwd: string; model: string; extraSystemPrompt?: string }) => void
       claudeInterrupt: () => void
       claudeClose: () => void
       claudeResume: (sessionId: string) => void

@@ -3,8 +3,11 @@ import { AgentBridge } from '../claude/agent-bridge'
 import { AppConfig, PromptTemplate } from '../store/app-config'
 
 export function registerClaudeHandlers(bridge: AgentBridge) {
-  ipcMain.on('claude:send', (_, { text, cwd, model }: { text: string; cwd: string; model: string }) => {
-    const systemPrompt = AppConfig.getInstance().getProjectSystemPrompt(cwd)
+  ipcMain.on('claude:send', (_, { text, cwd, model, extraSystemPrompt }: { text: string; cwd: string; model: string; extraSystemPrompt?: string }) => {
+    const basePrompt = AppConfig.getInstance().getProjectSystemPrompt(cwd)
+    const systemPrompt = extraSystemPrompt
+      ? [basePrompt, extraSystemPrompt].filter(Boolean).join('\n\n')
+      : basePrompt
     bridge.setSystemPrompt(systemPrompt)
     const temperature = AppConfig.getInstance().getTemperature()
     bridge.setTemperature(temperature)

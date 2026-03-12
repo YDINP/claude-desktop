@@ -7,6 +7,8 @@ import type { useProject } from '../../stores/project-store'
 import type { ChatMessage } from '../../stores/chat-store'
 import { getActiveTerminalId } from '../../stores/terminal-store'
 import { WelcomeScreen } from '../shared/WelcomeScreen'
+import { useCCContext } from '../../hooks/useCCContext'
+import { parseCCActions, executeCCActions } from '../../utils/cc-action-parser'
 
 function ExportConversationButton({ messages }: { messages: ChatMessage[] }) {
   if (!messages.length) return null
@@ -303,6 +305,7 @@ const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, total
 })
 
 export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession }: ChatPanelProps) {
+  const ccCtx = useCCContext()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const minimapRef = useRef<HTMLDivElement>(null)
   const isAtBottomRef = useRef(true)
@@ -465,16 +468,26 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     prevMsgCountRef.current = messageCount
   }, [chat.messages, messageCount, virtualizer])
 
-  // Scroll to bottom when streaming finishes
+  // Scroll to bottom when streaming finishes + CC action execution
   const prevStreamingRef = useRef(chat.isStreaming)
   useEffect(() => {
     if (prevStreamingRef.current && !chat.isStreaming && messageCount > 0) {
       if (isAtBottomRef.current) {
         virtualizer.scrollToIndex(messageCount - 1, { align: 'end', behavior: 'smooth' })
       }
+      // CC 액션 자동 실행
+      if (ccCtx.connected) {
+        const lastMsg = chat.messages[messageCount - 1]
+        if (lastMsg?.role === 'assistant' && lastMsg.text) {
+          const actions = parseCCActions(lastMsg.text)
+          if (actions.length > 0) {
+            executeCCActions(actions).catch(() => {})
+          }
+        }
+      }
     }
     prevStreamingRef.current = chat.isStreaming
-  }, [chat.isStreaming, messageCount, virtualizer])
+  }, [chat.isStreaming, messageCount, virtualizer, ccCtx.connected, chat.messages])
 
   const bookmarkIdxRef = useRef(0)
 
@@ -518,8 +531,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       text,
       cwd: project.currentPath,
       model: project.selectedModel,
+      ...(ccCtx.contextString ? { extraSystemPrompt: ccCtx.contextString } : {}),
     })
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage])
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, ccCtx.contextString])
 
   const handleInterrupt = useCallback(() => {
     window.api.claudeInterrupt()
@@ -1064,6 +1078,22 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         </div>
       )}
 
+      {ccCtx.connected && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '3px 10px', fontSize: 10, color: 'var(--success, #26a641)',
+          borderTop: '1px solid var(--border)',
+          background: 'rgba(38,166,65,0.06)',
+        }}>
+          <span>CC</span>
+          <span>연결됨</span>
+          {ccCtx.selectedNode && (
+            <span style={{ color: 'var(--text-muted)' }}>
+              — 선택: {ccCtx.selectedNode.name}
+            </span>
+          )}
+        </div>
+      )}
       <InputBar
         onSend={handleSend}
         onInterrupt={handleInterrupt}

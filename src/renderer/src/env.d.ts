@@ -2,7 +2,7 @@
 
 interface Window {
   api: {
-    claudeSend: (payload: { text: string; cwd: string; model: string }) => void
+    claudeSend: (payload: { text: string; cwd: string; model: string; extraSystemPrompt?: string }) => void
     claudeInterrupt: () => void
     claudeClose: () => void
     claudeResume: (sessionId: string) => void
