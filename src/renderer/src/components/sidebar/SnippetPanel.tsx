@@ -46,6 +46,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [catFilter, setCatFilter] = useState<string | null>(null)
 
   useEffect(() => {
     window.api.snippetList().then(list => setSnippets(list as Snippet[]))
@@ -204,8 +205,13 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
     URL.revokeObjectURL(url)
   }
 
+  const availableCategories = useMemo(() => {
+    const cats = new Set(snippets.map(s => s.category ?? '기타'))
+    return [...cats].sort()
+  }, [snippets])
+
   const filtered = useMemo(() => {
-    const list = filter.trim()
+    let list = filter.trim()
       ? snippets.filter(s =>
           s.name.toLowerCase().includes(filter.toLowerCase()) ||
           s.content.toLowerCase().includes(filter.toLowerCase()) ||
@@ -213,10 +219,11 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
           (s.shortcut ?? '').toLowerCase().includes(filter.toLowerCase())
         )
       : [...snippets]
+    if (catFilter) list = list.filter(s => (s.category ?? '기타') === catFilter)
     if (sortOrder === 'name') list.sort((a, b) => a.name.localeCompare(b.name))
     else list.sort((a, b) => b.createdAt - a.createdAt)
     return list
-  }, [snippets, filter, sortOrder])
+  }, [snippets, filter, sortOrder, catFilter])
 
   const grouped = useMemo(() => {
     const map = new Map<string, Snippet[]>()
@@ -390,6 +397,26 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
           onChange={handleFileChange}
         />
       </div>
+
+      {/* 카테고리 퀵 필터 */}
+      {availableCategories.length > 1 && (
+        <div style={{ display: 'flex', gap: 3, padding: '3px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0, flexWrap: 'wrap' }}>
+          {availableCategories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setCatFilter(f => f === cat ? null : cat)}
+              style={{
+                padding: '0 6px', fontSize: 9, borderRadius: 8, cursor: 'pointer',
+                border: `1px solid ${catFilter === cat ? 'var(--accent)' : 'var(--border)'}`,
+                background: catFilter === cat ? 'var(--accent)' : 'none',
+                color: catFilter === cat ? '#fff' : 'var(--text-muted)',
+              }}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* 토스트 메시지 */}
       {toast && (

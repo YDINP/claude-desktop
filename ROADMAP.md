@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 342 완료 — ConnectionPanel 자동 핑 토글, Pass 362)
+> 마지막 업데이트: 2026-03-13 (Round 343 완료 — SnippetPanel 카테고리 퀵 필터, Pass 363)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 343 | dev | SnippetPanel 카테고리 퀵 필터 — 카테고리 칩 버튼(2개↑ 시 표시), 선택 시 해당 카테고리만 필터 | ✅ |
 | Round 342 | dev | ConnectionPanel 자동 핑 토글 — ⟳ ON/OFF, 활성 시 30초 간격 자동 전체 핑 | ✅ |
 | Round 329 | dev | NotesPanel 노트 목록 글자 수 — content.length/1000 기반 N자/N.Nk 표시 | ✅ |
 | Round 328 | dev | CalendarPanel 다음 이벤트 미리보기 — 날짜 미선택 시 오늘 이후 이벤트 3개 표시 | ✅ |

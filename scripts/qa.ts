@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 245: R343 신규 기능 ───────────────────────────────
+console.log('\n## 245. 신규 기능 파일 검사 (R343)')
+// SnippetPanel 카테고리 퀵 필터 (Round 343)
+const snp343Path = join(ROOT, 'src/renderer/src/components/sidebar/SnippetPanel.tsx')
+if (existsSync(snp343Path)) {
+  const snp343 = readFileSync(snp343Path, 'utf-8')
+  if (snp343.includes('catFilter') && snp343.includes('availableCategories') && snp343.includes('setCatFilter')) {
+    log('pass', 'Round343', 'SnippetPanel: 카테고리 퀵 필터 (catFilter/availableCategories) 존재')
+  } else {
+    log('warning', 'Round343', 'SnippetPanel 카테고리 필터 미구현', 'sidebar/SnippetPanel.tsx')
+  }
+}
+
 // ── Section 244: R342 신규 기능 ───────────────────────────────
 console.log('\n## 244. 신규 기능 파일 검사 (R342)')
 // ConnectionPanel 자동 핑 토글 (Round 342)

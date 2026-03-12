@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 343] — 2026-03-13
+### Added
+- SnippetPanel: 카테고리 퀵 필터 칩 — 카테고리별 필터 칩 버튼 표시(2개↑ 시), 선택 시 해당 카테고리 스니펫만 표시
+
 ## [Round 342] — 2026-03-13
 ### Added
 - ConnectionPanel: 자동 핑 토글 버튼 — ⟳ ON/OFF 전환, 활성 시 30초 간격 자동 전체 핑
