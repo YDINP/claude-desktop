@@ -16,6 +16,7 @@ export function TasksPanel() {
   const [input, setInput] = useState('')
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium')
   const [filter, setFilter] = useState<'all' | 'active' | 'done'>('all')
+  const [sortBy, setSortBy] = useState<'created' | 'priority' | 'due'>('created')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
   const [dueDate, setDueDate] = useState('')
@@ -53,7 +54,16 @@ export function TasksPanel() {
     setEditingId(null)
   }
 
-  const filtered = filter === 'all' ? tasks : filter === 'active' ? tasks.filter(t => !t.done) : tasks.filter(t => t.done)
+  const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 }
+  const filtered = (filter === 'all' ? tasks : filter === 'active' ? tasks.filter(t => !t.done) : tasks.filter(t => t.done))
+    .slice().sort((a, b) => {
+      if (sortBy === 'priority') return (PRIORITY_ORDER[a.priority ?? 'medium'] - PRIORITY_ORDER[b.priority ?? 'medium']) || (b.createdAt - a.createdAt)
+      if (sortBy === 'due') {
+        const ad = a.dueDate ?? '9999', bd = b.dueDate ?? '9999'
+        return ad < bd ? -1 : ad > bd ? 1 : b.createdAt - a.createdAt
+      }
+      return b.createdAt - a.createdAt
+    })
   const doneCount = tasks.filter(t => t.done).length
 
   const progressPct = tasks.length > 0 ? Math.round(doneCount / tasks.length * 100) : 0
@@ -103,7 +113,12 @@ export function TasksPanel() {
             {f === 'all' ? `전체 ${tasks.length}` : f === 'active' ? `진행 ${tasks.length - doneCount}` : `완료 ${doneCount}`}
           </button>
         ))}
-        {doneCount > 0 && <button onClick={clearDone} style={{ marginLeft: 'auto', fontSize: 11, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>완료 정리</button>}
+        <button onClick={() => setSortBy(s => s === 'created' ? 'priority' : s === 'priority' ? 'due' : 'created')}
+          title={`정렬: ${sortBy === 'created' ? '최신순' : sortBy === 'priority' ? '우선순위' : '마감일'}`}
+          style={{ marginLeft: 'auto', fontSize: 10, background: 'none', border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer', color: 'var(--text-muted)', padding: '1px 6px' }}>
+          {sortBy === 'created' ? '⏱' : sortBy === 'priority' ? '🔴' : '📅'}
+        </button>
+        {doneCount > 0 && <button onClick={clearDone} style={{ fontSize: 11, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>완료 정리</button>}
       </div>
 
       {/* Task list */}

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 168: R266 신규 기능 ───────────────────────────────
+console.log('\n## 168. 신규 기능 파일 검사 (R266)')
+// TasksPanel 정렬 기능 (Round 266)
+const tp266Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp266Path)) {
+  const tp266 = readFileSync(tp266Path, 'utf-8')
+  if (tp266.includes('sortBy') && tp266.includes('PRIORITY_ORDER') && tp266.includes('created')) {
+    log('pass', 'Round266', 'TasksPanel: 정렬 기능 (sortBy/PRIORITY_ORDER) 존재')
+  } else {
+    log('warning', 'Round266', 'TasksPanel 정렬 기능 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 167: R265 신규 기능 ───────────────────────────────
 console.log('\n## 167. 신규 기능 파일 검사 (R265)')
 // CalendarPanel 커스텀 이벤트 추가 (Round 265)

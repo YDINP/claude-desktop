@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 266] — 2026-03-13
+### Added
+- TasksPanel: 태스크 정렬 기능 — ⏱최신순 / 🔴우선순위 / 📅마감일 순 사이클 버튼
+
 ## [Round 265] — 2026-03-13
 ### Added
 - CalendarPanel: 커스텀 이벤트 추가 — 날짜 클릭 시 이벤트 입력, 컬러 선택, localStorage 저장, 캘린더 셀에 컬러 점 표시
