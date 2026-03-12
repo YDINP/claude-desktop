@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 108: R206 신규 기능 ───────────────────────────────
+console.log('\n## 108. 신규 기능 파일 검사 (R206)')
+// SceneView 정렬 가이드라인 (Round 206)
+const svp206Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp206Path)) {
+  const svp206 = readFileSync(svp206Path, 'utf-8')
+  if (svp206.includes('alignGuides') && svp206.includes('정렬 가이드라인')) {
+    log('pass', 'Round206', 'SceneView: 드래그 중 정렬 가이드라인 존재')
+  } else {
+    log('warning', 'Round206', 'SceneView 정렬 가이드라인 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 107: R205 신규 기능 ───────────────────────────────
 console.log('\n## 107. 신규 기능 파일 검사 (R205)')
 // NotesPanel 신규 패널 (Round 205)

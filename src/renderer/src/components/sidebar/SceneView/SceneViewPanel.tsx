@@ -41,6 +41,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showMinimap, setShowMinimap] = useState(true)
   const [svgContextMenu, setSvgContextMenu] = useState<{ uuid: string | null; x: number; y: number } | null>(null)
   const [bgLight, setBgLight] = useState(false)
+  const [alignGuides, setAlignGuides] = useState<{ x?: number; y?: number }[]>([])
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -616,6 +617,40 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         newY = Math.round(newY / SNAP_GRID) * SNAP_GRID
       }
 
+      // 정렬 가이드라인 계산 (드래그 중 타 노드와 정렬 감지)
+      if (!drag.groupOffsets) {
+        const dragNode = nodeMap.get(drag.uuid)
+        const threshold = 8 / view.zoom
+        const guides: { x?: number; y?: number }[] = []
+        if (dragNode) {
+          const hw = dragNode.width / 2; const hh = dragNode.height / 2
+          const myXs = [newX - hw, newX, newX + hw]
+          const myYs = [newY - hh, newY, newY + hh]
+          nodeMap.forEach((n, uid) => {
+            if (uid === drag.uuid || selectedUuids.has(uid)) return
+            const nXs = [n.x - n.width / 2, n.x, n.x + n.width / 2]
+            const nYs = [n.y - n.height / 2, n.y, n.y + n.height / 2]
+            for (const nx2 of nXs) {
+              for (const mx of myXs) {
+                if (Math.abs(nx2 - mx) < threshold) {
+                  guides.push({ x: nx2 })
+                  if (snapEnabled) newX = nx2 - (mx - newX)
+                }
+              }
+            }
+            for (const ny2 of nYs) {
+              for (const my of myYs) {
+                if (Math.abs(ny2 - my) < threshold) {
+                  guides.push({ y: ny2 })
+                  if (snapEnabled) newY = ny2 - (my - newY)
+                }
+              }
+            }
+          })
+        }
+        setAlignGuides(guides)
+      }
+
       if (drag.groupOffsets) {
         // 그룹 드래그: 모든 선택 노드를 같은 델타만큼 이동
         for (const [uid, { startX, startY }] of Object.entries(drag.groupOffsets)) {
@@ -632,9 +667,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         updateNode(drag.uuid, { x: newX, y: newY })
       }
     }
-  }, [view.zoom, snapEnabled, getSvgCoords, svgToScene, updateNode])
+  }, [view.zoom, snapEnabled, getSvgCoords, svgToScene, updateNode, nodeMap, selectedUuids])
 
   const handleMouseUp = useCallback(async () => {
+    setAlignGuides([])
     // 마퀴 종료 → 히트 테스트
     if (marqueeRef.current && marquee) {
       marqueeRef.current = null
@@ -1164,6 +1200,24 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 <circle cx={ox} cy={oy} r={3} fill="none" stroke="rgba(96,165,250,0.35)" strokeWidth={1} />
               </g>
             )
+          })()}
+
+          {/* 정렬 가이드라인 */}
+          {alignGuides.length > 0 && (() => {
+            const ox = DESIGN_W / 2 * view.zoom + view.offsetX
+            const oy = DESIGN_H / 2 * view.zoom + view.offsetY
+            return <g style={{ pointerEvents: 'none' }}>
+              {alignGuides.map((g, i) => {
+                if (g.x !== undefined) {
+                  const px = g.x * view.zoom + ox
+                  return <line key={i} x1={px} y1={0} x2={px} y2="100%" stroke="rgba(250,100,100,0.7)" strokeWidth={1} strokeDasharray="4 3" />
+                } else if (g.y !== undefined) {
+                  const py = -g.y * view.zoom + oy
+                  return <line key={i} x1={0} y1={py} x2="100%" y2={py} stroke="rgba(250,100,100,0.7)" strokeWidth={1} strokeDasharray="4 3" />
+                }
+                return null
+              })}
+            </g>
           })()}
 
           {/* 픽셀 눈금자 (R 키 토글) */}

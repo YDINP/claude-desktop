@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 206] — 2026-03-13
+### Added
+- SceneView: 드래그 중 정렬 가이드라인 — 타 노드와 경계/중앙 정렬 시 빨간 점선 표시, snap 활성화 시 자동 스냅
+
 ## [Round 205] — 2026-03-13
 ### Added
 - NotesPanel: 📝 노트 탭 — 여러 노트 생성/편집/삭제, 제목+본문, localStorage 저장
