@@ -196,7 +196,7 @@ export function AgentBay({ sessions = [], activeSessionId, isStreaming = false, 
   const hasActiveError = toolUses?.some(t => t.status === 'error') ?? false
 
   return (
-    <div style={{
+    <div className="hq-agent-bay" style={{
       width: 240,
       flexShrink: 0,
       display: 'flex',

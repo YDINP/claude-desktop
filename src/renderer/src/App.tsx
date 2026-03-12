@@ -1051,6 +1051,9 @@ function AppContent() {
           ? (idx - 1 + wsList.length) % wsList.length
           : (idx + 1) % wsList.length
         switchWorkspace(wsList[nextIdx].id)
+      } else if (e.ctrlKey && e.shiftKey && e.key === 'H') {
+        e.preventDefault()
+        handleToggleHQ()
       } else if (e.ctrlKey && e.shiftKey && e.key === 'W') {
         e.preventDefault()
         const wsList = workspacesRef.current
@@ -1061,7 +1064,7 @@ function AppContent() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [chat.clearMessages, shortcutsOpen])
+  }, [chat.clearMessages, shortcutsOpen, handleToggleHQ])
 
   // ── Sidebar drag ──
   const handleSidebarDragMouseDown = (e: React.MouseEvent) => {

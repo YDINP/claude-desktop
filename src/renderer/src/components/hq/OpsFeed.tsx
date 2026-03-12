@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import type { ToolUseItem } from '../../stores/chat-store'
 
 interface OpsFeedProps {
@@ -34,8 +34,15 @@ function summarizeToolInput(name: string, input: unknown): string {
   }
 }
 
-export function OpsFeed({ toolUses = [], isStreaming = false, onToolClick, sessionId: _sessionId }: OpsFeedProps) {
+export function OpsFeed({ toolUses = [], isStreaming = false, onToolClick, sessionId }: OpsFeedProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    setVisible(false)
+    const t = setTimeout(() => setVisible(true), 150)
+    return () => clearTimeout(t)
+  }, [sessionId])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -49,7 +56,7 @@ export function OpsFeed({ toolUses = [], isStreaming = false, onToolClick, sessi
   const statusColor = { running: '#ffa500', done: 'var(--success, #3fb950)', error: 'var(--error, #f85149)' }
 
   return (
-    <div style={{
+    <div className="hq-ops-feed" style={{
       height: 36,
       background: '#080810',
       borderTop: '1px solid rgba(0,152,255,0.15)',
@@ -59,6 +66,8 @@ export function OpsFeed({ toolUses = [], isStreaming = false, onToolClick, sessi
       gap: 0,
       overflow: 'hidden',
       flexShrink: 0,
+      opacity: visible ? 1 : 0,
+      transition: 'opacity 0.15s ease',
     }}>
       <span style={{ color: '#0098ff', fontSize: 10, fontFamily: 'var(--font-mono)', marginRight: 10, flexShrink: 0 }}>
         OPS ▶

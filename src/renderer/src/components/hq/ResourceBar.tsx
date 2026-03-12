@@ -55,7 +55,7 @@ export function ResourceBar({
   const tokStr = sessionTokens > 1000 ? `${(sessionTokens / 1000).toFixed(1)}k` : `${sessionTokens}`
 
   return (
-    <div style={{
+    <div className="hq-resource-bar" style={{
       height: 32,
       background: '#0a0a1a',
       borderBottom: '1px solid rgba(0,152,255,0.2)',

@@ -51,9 +51,42 @@
   flex-shrink: 0;
 }
 
-/* HQ 모드 전환 트랜지션 */
+/* AgentBay 슬라이드인 */
+.hq-agent-bay {
+  animation: hq-slide-in-left 0.2s ease;
+}
+
+@keyframes hq-slide-in-left {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ResourceBar 페이드인 */
+.hq-resource-bar {
+  animation: hq-fade-in 0.2s ease;
+}
+
+@keyframes hq-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* OpsFeed 슬라이드업 */
+.hq-ops-feed {
+  animation: hq-slide-up 0.2s ease;
+}
+
+@keyframes hq-slide-up {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* HQ 모드 색상 변수 — 라이트/다크 무관하게 dark 톤 유지 */
 [data-hq="true"] {
-  transition: all 0.25s ease;
+  --hq-bg-deep: #080810;
+  --hq-bg-bar: #0a0a1a;
+  --hq-accent: #0098ff;
+  --hq-cyan: #00d4ff;
 }
 
 /* HQ 모드 레이아웃 조정 */
