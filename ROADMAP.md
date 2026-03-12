@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 237 완료 — SceneView 노드 경로 브레드크럼, Pass 256)
+> 마지막 업데이트: 2026-03-13 (Round 238 완료 — SceneView G키 멀티셀렉트 bbox 줌, Pass 257)
 
 ## 완료된 라운드
 
@@ -189,6 +189,7 @@
 | Round 235 | dev | SceneView 노드 잠금 — Alt+L 단축키, 🔒 SVG 아이콘, 툴바 잠금 버튼, 드래그/리사이즈 차단 | ✅ |
 | Round 236 | dev | SceneView 태그 필터 — 씬 내 태그 드롭다운, 선택 태그 없는 노드 dimmed 처리 | ✅ |
 | Round 237 | dev | SceneView 노드 경로 브레드크럼 — Root→…→선택 노드 경로 상태바 위 표시, 클릭 선택 | ✅ |
+| Round 238 | dev | SceneView G키 멀티셀렉트 bbox 줌 — 멀티셀렉트 시 bounding box에 맞춰 카메라 자동 맞춤 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

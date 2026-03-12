@@ -119,23 +119,42 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setView({ offsetX, offsetY, zoom })
   }, [canvasSize])
 
-  // 선택 노드로 카메라 이동 (G키)
+  // 선택 노드로 카메라 이동 (G키) — 멀티셀렉트 bounding box 줌 지원
   const handleFocusSelected = useCallback(() => {
     if (!containerRef.current) return
-    const node = selectedUuid ? nodeMap.get(selectedUuid) : null
-    if (!node) { handleFit(); return }
     const { width, height } = containerRef.current.getBoundingClientRect()
-    const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
     const padding = 60
+    // 선택 노드 목록 (멀티셀렉트 우선)
+    const uuids = selectedUuids.size > 1 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
+    if (uuids.length === 0) { handleFit(); return }
+    const nodes = uuids.map(u => nodeMap.get(u)).filter(Boolean) as SceneNode[]
+    if (nodes.length === 0) { handleFit(); return }
+    // 선택 노드들의 scene 좌표 bounding box 계산
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    nodes.forEach(n => {
+      const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+      const pw = n.width * Math.abs(n.scaleX)
+      const ph = n.height * Math.abs(n.scaleY)
+      const rx = sx - pw * n.anchorX
+      const ry = sy - ph * (1 - n.anchorY)
+      minX = Math.min(minX, rx); minY = Math.min(minY, ry)
+      maxX = Math.max(maxX, rx + pw); maxY = Math.max(maxY, ry + ph)
+    })
+    const bboxW = Math.max(maxX - minX, 40)
+    const bboxH = Math.max(maxY - minY, 40)
+    const centerX = (minX + maxX) / 2
+    const centerY = (minY + maxY) / 2
     const targetZoom = Math.min(
-      (width - padding * 2) / Math.max(node.width, 40),
-      (height - padding * 2) / Math.max(node.height, 40),
+      (width - padding * 2) / bboxW,
+      (height - padding * 2) / bboxH,
       4
     )
-    const offsetX = width / 2 - sx * targetZoom
-    const offsetY = height / 2 - sy * targetZoom
-    setView({ offsetX, offsetY, zoom: targetZoom })
-  }, [selectedUuid, nodeMap, handleFit])
+    setView({
+      offsetX: width / 2 - centerX * targetZoom,
+      offsetY: height / 2 - centerY * targetZoom,
+      zoom: targetZoom,
+    })
+  }, [selectedUuid, selectedUuids, nodeMap, handleFit, canvasSize])
 
   // 최초 마운트 시 Fit
   useEffect(() => {

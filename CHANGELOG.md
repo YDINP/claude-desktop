@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 238] — 2026-03-13
+### Improved
+- SceneView: G키 멀티셀렉트 bbox 줌 — 멀티셀렉트 시 선택 노드들의 bounding box에 맞춰 카메라 자동 맞춤
+
 ## [Round 237] — 2026-03-13
 ### Added
 - SceneView: 노드 경로 브레드크럼 — 선택 노드의 Root→…→현재 경로를 상태바 위에 표시, 각 항목 클릭 시 해당 노드 선택

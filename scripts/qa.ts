@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 140: R238 신규 기능 ───────────────────────────────
+console.log('\n## 140. 신규 기능 파일 검사 (R238)')
+// SceneView 멀티셀렉트 G키 bounding box 줌 (Round 238)
+const svp238Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp238Path)) {
+  const svp238 = readFileSync(svp238Path, 'utf-8')
+  if (svp238.includes('selectedUuids.size > 1') && svp238.includes('bboxW') && svp238.includes('bounding box')) {
+    log('pass', 'Round238', 'SceneViewPanel: 멀티셀렉트 bounding box 줌 구현 존재')
+  } else {
+    log('warning', 'Round238', 'SceneViewPanel 멀티셀렉트 bbox 줌 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 139: R237 신규 기능 ───────────────────────────────
 console.log('\n## 139. 신규 기능 파일 검사 (R237)')
 // SceneView 노드 경로 브레드크럼 (Round 237)
