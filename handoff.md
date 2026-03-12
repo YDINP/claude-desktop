@@ -1,15 +1,23 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 112 완료)
+> 마지막 업데이트: 2026-03-12 (Round 113 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 112 (NodePropertyPanel 슬라이더 + QA Pass 46)
+- 마지막 커밋: Round 113 (재생성 이력 보존 + QA Pass 48)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 46
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 48
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 112 완료 항목 (최근 세션)
+## Round 113 완료 항목 (최근 세션)
+
+### Round 113 — 메시지 재생성 이력 보존
+- `stores/chat-store.ts`: ChatMessage에 `alternatives?: string[]`, `altIndex?: number` 추가; `saveAlternative(id)` — 현재 text를 배열에 push 후 text 초기화; `setAltIndex(id, idx)` — 이력 인덱스 업데이트
+- `ChatPanel.tsx`: `handleRegenerate` — 재생성 전 lastAssistant.text를 `saveAlternative` 호출로 보존
+- `MessageBubble.tsx`: `onPrevAlt`/`altIndex`/`altCount` props 추가; `effectiveText` 변수로 altIndex 시 alternatives[altIndex] 표시; 재생성 버튼 다음에 `◂ N/M ▸` 네비게이션 렌더링
+- `scripts/qa.ts`: Section 18 추가 (saveAlternative, MessageBubble 네비게이션 체크, Pass 46→48)
+
+## Round 112 완료 항목 (이전 세션)
 
 ### Round 112 — NodePropertyPanel 슬라이더 PropRow
 - `src/renderer/src/components/sidebar/NodePropertyPanel.tsx`: `PropRow`에 `sliderMin`/`sliderMax` optional props 추가 → `type="range"` 슬라이더 + 숫자 input 나란히 렌더링, 슬라이더 변경 시 즉시 save 호출

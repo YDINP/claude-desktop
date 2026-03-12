@@ -693,11 +693,14 @@ interface ContextMenu {
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '🤔', '🎉']
 
-export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onSetNote }: {
+export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onSetNote, onPrevAlt, altIndex, altCount }: {
   msg: ChatMessage
   isLast?: boolean
   isStreaming?: boolean
   onRegenerate?: () => void
+  onPrevAlt?: (index: number) => void
+  altIndex?: number
+  altCount?: number
   isMatched?: boolean
   isCurrentMatch?: boolean
   highlightText?: string
@@ -798,10 +801,11 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
 
   // Defer markdown rendering for completed non-streaming messages to avoid
   // blocking the UI thread when many messages render simultaneously.
-  const deferredText = useDeferredValue(msg.text)
-  const isStale = deferredText !== msg.text
+  const effectiveText = (altIndex !== undefined && msg.alternatives?.[altIndex]) ? msg.alternatives[altIndex] : msg.text
+  const deferredText = useDeferredValue(effectiveText)
+  const isStale = deferredText !== effectiveText
   // During streaming the last message uses pre (plain text), so deferral is irrelevant there.
-  const displayText = (isStreaming && isLast) ? msg.text : deferredText
+  const displayText = (isStreaming && isLast) ? effectiveText : deferredText
 
   // Cache parsed markdown for completed messages — avoids re-parsing when
   // unrelated state (hover, context menu) triggers a re-render.
@@ -1028,6 +1032,29 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
                 border: 'none', borderRadius: 3, padding: '2px 8px', fontSize: 11, cursor: 'pointer',
               }}
             >&#8634; 재생성</button>
+          )}
+          {!isUser && isLast && (altCount ?? 0) > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--text-muted)' }}>
+              <button
+                onClick={() => onPrevAlt?.((altIndex ?? (altCount ?? 0)) - 1)}
+                disabled={(altIndex ?? (altCount ?? 0)) <= 0}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--text-muted)', fontSize: 12, padding: '0 2px',
+                  opacity: (altIndex ?? (altCount ?? 0)) <= 0 ? 0.3 : 1,
+                }}
+              >&#9664;</button>
+              <span>{(altIndex ?? (altCount ?? 0)) + 1}/{(altCount ?? 0) + 1}</span>
+              <button
+                onClick={() => onPrevAlt?.(altIndex !== undefined ? altIndex + 1 : (altCount ?? 0))}
+                disabled={altIndex === undefined || altIndex >= (altCount ?? 0)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--text-muted)', fontSize: 12, padding: '0 2px',
+                  opacity: (altIndex === undefined || altIndex >= (altCount ?? 0)) ? 0.3 : 1,
+                }}
+              >&#9654;</button>
+            </div>
           )}
           {!isUser && onReaction && REACTION_EMOJIS.map(emoji => {
             const count = msg.reactions?.filter(r => r === emoji).length ?? 0
@@ -1597,6 +1624,8 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
     (prev.onSetNote === undefined) === (next.onSetNote === undefined) &&
     JSON.stringify(prev.msg.reactions) === JSON.stringify(next.msg.reactions) &&
     prev.msg.note === next.msg.note &&
-    (prev.msg.editHistory?.length ?? 0) === (next.msg.editHistory?.length ?? 0)
+    (prev.msg.editHistory?.length ?? 0) === (next.msg.editHistory?.length ?? 0) &&
+    prev.msg.altIndex === next.msg.altIndex &&
+    (prev.msg.alternatives?.length ?? 0) === (next.msg.alternatives?.length ?? 0)
   )
 })

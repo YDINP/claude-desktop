@@ -22,6 +22,8 @@ export interface ChatMessage {
   model?: string
   editHistory?: string[]
   thinkingText?: string
+  alternatives?: string[]
+  altIndex?: number
 }
 
 export function useChatStore() {
@@ -259,6 +261,28 @@ export function useChatStore() {
     )
   }, [])
 
+  const saveAlternative = useCallback((messageId: string) => {
+    setMessages(prev => {
+      const idx = prev.findIndex(m => m.id === messageId)
+      if (idx < 0) return prev
+      const msg = prev[idx]
+      if (msg.role !== 'assistant' || !msg.text) return prev
+      const alts = [...(msg.alternatives ?? []), msg.text]
+      return [...prev.slice(0, idx), { ...msg, alternatives: alts, text: '', altIndex: undefined }, ...prev.slice(idx + 1)]
+    })
+  }, [])
+
+  const setAltIndex = useCallback((messageId: string, index: number) => {
+    setMessages(prev => {
+      const idx = prev.findIndex(m => m.id === messageId)
+      if (idx < 0) return prev
+      const msg = prev[idx]
+      const alts = msg.alternatives ?? []
+      if (index < 0 || index >= alts.length) return prev
+      return [...prev.slice(0, idx), { ...msg, altIndex: index }, ...prev.slice(idx + 1)]
+    })
+  }, [])
+
   const compressMessages = useCallback((summary: string, compressedCount: number) => {
     setMessages(prev => {
       const kept = prev.slice(compressedCount)
@@ -309,5 +333,7 @@ export function useChatStore() {
     compressMessages,
     hydrate,
     addUsage,
+    saveAlternative,
+    setAltIndex,
   }
 }

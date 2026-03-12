@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T11:35:44.783Z
+> 2026-03-12T11:41:09.209Z
 
 ## Critical
 _없음_
@@ -54,3 +54,5 @@ _없음_
 - NodePropertyPanel 슬라이더 PropRow 존재
 - Opacity 슬라이더 (0-255) 존재
 - Rotation 슬라이더 (-180~180) 존재
+- chat-store: saveAlternative + alternatives 필드 존재
+- MessageBubble alternatives 네비게이션 존재

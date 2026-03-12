@@ -652,7 +652,11 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
 
   const handleRegenerate = useCallback(() => {
     const lastUser = [...chat.messages].reverse().find(m => m.role === 'user')
+    const lastAssistant = [...chat.messages].reverse().find(m => m.role === 'assistant')
     if (lastUser && project.currentPath) {
+      if (lastAssistant && lastAssistant.text) {
+        chat.saveAlternative(lastAssistant.id)
+      }
       window.api.claudeSend({
         text: lastUser.text,
         cwd: project.currentPath,
@@ -661,7 +665,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       chat.ensureAssistantMessage()
       chat.appendText('')
     }
-  }, [chat.messages, project.currentPath, project.selectedModel, chat.ensureAssistantMessage, chat.appendText])
+  }, [chat.messages, project.currentPath, project.selectedModel, chat.ensureAssistantMessage, chat.appendText, chat.saveAlternative])
 
   const handleRunInTerminal = useCallback((code: string) => {
     const id = getActiveTerminalId()
@@ -1103,6 +1107,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                     isLast={isLast}
                     isStreaming={chat.isStreaming}
                     onRegenerate={isLast && msg.role === 'assistant' && !chat.isStreaming ? handleRegenerate : undefined}
+                    onPrevAlt={(msg.alternatives?.length ?? 0) > 0 ? (idx: number) => chat.setAltIndex(msg.id, idx) : undefined}
+                    altIndex={msg.altIndex}
+                    altCount={(msg.alternatives?.length ?? 0)}
                     isMatched={matchedMessageIds.has(msg.id)}
                     isCurrentMatch={currentMatchId === msg.id}
                     highlightText={searchQuery || undefined}

@@ -585,6 +585,28 @@ if (existsSync(nodePropPath2)) {
   }
 }
 
+// ── Section 18: R113 신규 기능 ───────────────────────────────
+console.log('\n## 18. 신규 기능 파일 검사 (R113)')
+// 메시지 재생성 이력 보존 (Round 113)
+const chatStorePath2 = join(ROOT, 'src/renderer/src/stores/chat-store.ts')
+if (existsSync(chatStorePath2)) {
+  const cs2 = readFileSync(chatStorePath2, 'utf-8')
+  if (cs2.includes('saveAlternative') && cs2.includes('alternatives')) {
+    log('pass', 'Round113', 'chat-store: saveAlternative + alternatives 필드 존재')
+  } else {
+    log('warning', 'Round113', 'chat-store alternatives 미구현', 'stores/chat-store.ts')
+  }
+}
+const msgBubblePath2 = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(msgBubblePath2)) {
+  const mb2 = readFileSync(msgBubblePath2, 'utf-8')
+  if (mb2.includes('altIndex') && mb2.includes('altCount') && mb2.includes('onPrevAlt')) {
+    log('pass', 'Round113', 'MessageBubble alternatives 네비게이션 존재')
+  } else {
+    log('warning', 'Round113', 'MessageBubble alternatives 네비게이션 미구현', 'chat/MessageBubble.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
