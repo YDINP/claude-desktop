@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 267: R365 신규 기능 ───────────────────────────────
+console.log('\n## 267. 신규 기능 파일 검사 (R365)')
+// ConnectionPanel 설정 파일 경로 복사 (Round 365)
+const cp365Path = join(ROOT, 'src/renderer/src/components/sidebar/ConnectionPanel.tsx')
+if (existsSync(cp365Path)) {
+  const cp365 = readFileSync(cp365Path, 'utf-8')
+  if (cp365.includes('cfgCopied') && cp365.includes('setCfgCopied') && cp365.includes('경로 복사')) {
+    log('pass', 'Round365', 'ConnectionPanel: 설정 파일 경로 복사 (cfgCopied/setCfgCopied/경로 복사) 존재')
+  } else {
+    log('warning', 'Round365', 'ConnectionPanel 설정 파일 경로 복사 미구현', 'sidebar/ConnectionPanel.tsx')
+  }
+}
+
 // ── Section 266: R364 신규 기능 ───────────────────────────────
 console.log('\n## 266. 신규 기능 파일 검사 (R364)')
 // WebPreviewPanel URL 복사 버튼 (Round 364)

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 365] — 2026-03-13
+### Added
+- ConnectionPanel: 설정 파일 경로 복사 버튼 — 푸터 경로 옆 📋 버튼, 복사 후 ✓ 피드백
+
 ## [Round 364] — 2026-03-13
 ### Added
 - WebPreviewPanel: URL 복사 버튼 — 현재 URL을 클립보드에 복사, 1.5초 ✓ 피드백

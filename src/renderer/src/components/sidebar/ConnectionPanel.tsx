@@ -39,6 +39,7 @@ export function ConnectionPanel() {
   const [configFile, setConfigFile] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [autoPing, setAutoPing] = useState(false)
+  const [cfgCopied, setCfgCopied] = useState(false)
   const autoPingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const pingAllRef = useRef<() => void>(() => {})
 
@@ -263,11 +264,18 @@ export function ConnectionPanel() {
           color: 'var(--text-muted)',
           fontSize: 10,
           flexShrink: 0,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
+          display: 'flex', alignItems: 'center', gap: 4,
         }}>
-          설정 파일: {configFile}
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+            설정 파일: {configFile}
+          </span>
+          <button
+            onClick={() => navigator.clipboard.writeText(configFile).then(() => { setCfgCopied(true); setTimeout(() => setCfgCopied(false), 1500) })}
+            title="경로 복사"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: cfgCopied ? '#4caf50' : 'var(--text-muted)', flexShrink: 0, padding: '0 2px' }}
+          >
+            {cfgCopied ? '✓' : '📋'}
+          </button>
         </div>
       )}
     </div>
