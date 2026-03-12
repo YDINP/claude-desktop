@@ -2,14 +2,21 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 101 (메모리 누수 수정 + SceneView 복사/붙여넣기)
+- 마지막 커밋: Round 102 (QA R101 + SceneInspector 가시성 토글 + ccSetProperty 버그 수정)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 26
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 29
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 101 완료 항목 (최근 세션)
+## Round 102 완료 항목 (최근 세션)
+
+### Round 102 — QA + SceneInspector 가시성 토글 + 버그 수정
+- `scripts/qa.ts`: Section 10 추가 (R101 체크 3종), Pass 26→29
+- `src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx`: `isActive` state + `handleActiveToggle` + 눈 아이콘 토글 버튼
+- `src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx`: **버그 수정** — `ccSetProperty(uuid, ...)` → `ccSetProperty(port, uuid, ...)` (drag 완료 시 x/y 저장 + inspector 업데이트 모두 수정)
+
+## Round 101 완료 항목 (이전 세션)
 
 ### Round 101 — 메모리 누수 수정 + SceneView 노드 복사/붙여넣기
 - `src/main/ollama/ollama-bridge.ts`: AbortSignal `onAbort` cleanup 분리 (모든 경로에서 removeEventListener)

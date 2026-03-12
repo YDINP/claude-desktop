@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 101 완료 — 메모리 누수 수정 + SceneView 복사/붙여넣기)
+> 마지막 업데이트: 2026-03-12 (Round 102 완료 — QA R101 체크 + SceneView 노드 가시성 토글 + ccSetProperty 버그 수정)
 
 ## 완료된 라운드
 
@@ -48,13 +48,14 @@
 | Round 99 | dev | 멀티 AI 프로바이더 추상화 — AIProvider 인터페이스, openai-bridge.ts, SettingsPanel API Key UI | ✅ |
 | Round 100 | dev | QA R98~99 체크 추가 (Pass 21→26) + 핸드오프 갱신 | ✅ |
 | Round 101 | dev | 메모리 누수 수정 (bridge addEventListener) + SceneView 노드 복사/붙여넣기 (Ctrl+C/V) + CHANGELOG 갱신 | ✅ |
+| Round 102 | dev | QA R101 체크 (Pass→29) + SceneInspector 노드 가시성 토글 + ccSetProperty port 버그 수정 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 102 | dev | QA R101 체크 + SceneView 레이어 가시성 패널 + 노드 Z-order 제어 |
 | Round 103 | dev | ChatPanel 성능 — 긴 대화 content-visibility + 메시지 lazy 렌더링 |
+| Round 104 | dev | SceneView Z-order 제어 (앞으로/뒤로 이동) + 레이어 패널 |
 
 ## 전략 로드맵 (Phase)
 

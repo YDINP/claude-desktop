@@ -324,8 +324,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           setRedoStack([])
         }
         try {
-          await window.api.ccSetProperty?.(drag.uuid, 'x', node.x)
-          await window.api.ccSetProperty?.(drag.uuid, 'y', node.y)
+          await window.api.ccSetProperty?.(port, drag.uuid, 'x', node.x)
+          await window.api.ccSetProperty?.(port, drag.uuid, 'y', node.y)
         } catch (e) {
           console.error('[SceneView] setProperty failed:', e)
         }
@@ -353,7 +353,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const handleInspectorUpdate = useCallback(async (uuid: string, prop: string, value: number | boolean) => {
     updateNode(uuid, { [prop]: value } as Partial<SceneNode>)
     try {
-      await window.api.ccSetProperty?.(uuid, prop, value)
+      await window.api.ccSetProperty?.(port, uuid, prop, value)
     } catch (e) {
       console.error('[SceneView] inspector update failed:', e)
     }

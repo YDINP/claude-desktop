@@ -117,6 +117,19 @@ function SectionHeader({ label }: { label: string }) {
 }
 
 export function SceneInspector({ node, onUpdate, onClose, selectionCount }: SceneInspectorProps) {
+  const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
+
+  useEffect(() => {
+    if (node) setIsActive(node.active)
+  }, [node?.uuid, node?.active])
+
+  const handleActiveToggle = () => {
+    if (!node) return
+    const next = !isActive
+    setIsActive(next)
+    onUpdate(node.uuid, 'active', next)
+  }
+
   // 다중 선택 시 집계 뷰
   if (selectionCount !== undefined && selectionCount > 1) {
     return (
@@ -215,12 +228,12 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount }: Scen
             }}
           >
             <div
-              onClick={() => onUpdate(node.uuid, 'active', !node.active)}
+              onClick={handleActiveToggle}
               style={{
                 width: 24,
                 height: 12,
                 borderRadius: 6,
-                background: node.active ? 'var(--success)' : 'var(--border)',
+                background: isActive ? 'var(--success)' : 'var(--border)',
                 position: 'relative',
                 cursor: 'pointer',
                 transition: 'background 0.15s',
@@ -231,7 +244,7 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount }: Scen
                 style={{
                   position: 'absolute',
                   top: 2,
-                  left: node.active ? 14 : 2,
+                  left: isActive ? 14 : 2,
                   width: 8,
                   height: 8,
                   borderRadius: '50%',

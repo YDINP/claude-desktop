@@ -368,6 +368,40 @@ if (existsSync(inputBarPath)) {
   }
 }
 
+console.log('\n## 10. 신규 기능 파일 검사 (R101)')
+
+// SceneView clipboard (Round 101)
+const sceneTypesPath2 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/types.ts')
+if (existsSync(sceneTypesPath2)) {
+  const st = readFileSync(sceneTypesPath2, 'utf-8')
+  if (st.includes('ClipboardEntry')) {
+    log('pass', 'Round101', 'SceneView ClipboardEntry 타입 존재')
+  } else {
+    log('warning', 'Round101', 'SceneView ClipboardEntry 타입 누락', 'SceneView/types.ts')
+  }
+}
+
+const sceneViewPath2 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPath2)) {
+  const sv = readFileSync(sceneViewPath2, 'utf-8')
+  if (sv.includes('clipboard') && sv.includes('handleCopy')) {
+    log('pass', 'Round101', 'SceneView 노드 복사/붙여넣기 존재')
+  } else {
+    log('warning', 'Round101', 'SceneView 복사/붙여넣기 누락', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// Memory leak fix (Round 101)
+const ollamaBridgePath2 = join(ROOT, 'src/main/ollama/ollama-bridge.ts')
+if (existsSync(ollamaBridgePath2)) {
+  const ob = readFileSync(ollamaBridgePath2, 'utf-8')
+  if (ob.includes('removeEventListener')) {
+    log('pass', 'Round101', 'ollama-bridge addEventListener 메모리 누수 수정됨')
+  } else {
+    log('warning', 'Round101', 'ollama-bridge 메모리 누수 미수정', 'main/ollama/ollama-bridge.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
