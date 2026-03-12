@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 225] — 2026-03-13
+### Added
+- SceneView: Focus Mode (Alt+Z) — 선택 노드만 강조, 나머지 희미하게 처리하는 집중 편집 모드
+
 ## [Round 224] — 2026-03-13
 ### Added
 - SceneView: 노드 그룹 접기/펼치기 — Alt+클릭으로 자식 노드 숨기기, 접힘 상태 시각 표시 (▶ 아이콘)

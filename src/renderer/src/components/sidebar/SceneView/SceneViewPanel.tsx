@@ -57,6 +57,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showChangeHistory, setShowChangeHistory] = useState(false)
   const [componentFilter, setComponentFilter] = useState<string>('all')
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(new Set())
+  const [focusMode, setFocusMode] = useState(false)
   const [changeHistory, setChangeHistory] = useState<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
   const changeHistoryRef = useRef<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
   changeHistoryRef.current = changeHistory
@@ -349,6 +350,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const handleNudge = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).tagName === 'INPUT') return
       // Alt+Up: 부모 선택, Alt+Down: 첫 자식 선택
+      if (e.altKey && (e.key === 'z' || e.key === 'Z')) {
+        e.preventDefault()
+        setFocusMode(v => !v)
+        return
+      }
       if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && selectedUuid) {
         e.preventDefault()
         const node = nodeMap.get(selectedUuid)
@@ -1257,6 +1263,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         componentFilter={componentFilter}
         componentTypes={componentTypes}
         onComponentFilterChange={setComponentFilter}
+        focusMode={focusMode}
+        onFocusModeToggle={() => setFocusMode(v => !v)}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -1508,7 +1516,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   hovered={hoveredUuid === uuid}
                   multiSelected={selectedUuids.has(uuid)}
                   showLabel={showLabels}
-                  dimmed={componentFilter !== 'all' && !node.components.some(c => c.type === componentFilter)}
+                  dimmed={
+                    (componentFilter !== 'all' && !node.components.some(c => c.type === componentFilter)) ||
+                    (focusMode && !selectedUuids.has(uuid) && selectedUuid !== uuid)
+                  }
                   hasChildren={node.childUuids.length > 0}
                   collapsed={collapsedUuids.has(uuid)}
                   onMouseDown={handleNodeMouseDown}

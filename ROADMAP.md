@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 224 완료 — SceneView 노드 그룹 접기/펼치기, Pass 234)
+> 마지막 업데이트: 2026-03-13 (Round 225 완료 — SceneView Focus Mode, Pass 236)
 
 ## 완료된 라운드
 
@@ -176,6 +176,7 @@
 | Round 222 | dev | SceneView 노드 이동 히스토리 — ↕ 버튼, 최근 20개 기록 팝업, 클릭 선택 | ✅ |
 | Round 223 | dev | SceneView 컴포넌트 타입 필터 — 툴바 드롭다운, 미매칭 노드 dimmed 처리 | ✅ |
 | Round 224 | dev | SceneView 노드 그룹 접기/펼치기 — Alt+클릭 toggle, collapsed 자식 숨김, ▶ 표시 | ✅ |
+| Round 225 | dev | SceneView Focus Mode — Alt+Z 토글, 선택 노드 강조/나머지 dimmed, 툴바 버튼 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

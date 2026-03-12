@@ -58,6 +58,11 @@ interface SceneToolbarProps {
   onConnectionsToggle?: () => void
   showStats?: boolean
   onStatsToggle?: () => void
+  componentFilter?: string
+  componentTypes?: string[]
+  onComponentFilterChange?: (type: string) => void
+  focusMode?: boolean
+  onFocusModeToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -120,6 +125,11 @@ export function SceneToolbar({
   onConnectionsToggle,
   showStats,
   onStatsToggle,
+  componentFilter,
+  componentTypes,
+  onComponentFilterChange,
+  focusMode,
+  onFocusModeToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -278,6 +288,28 @@ export function SceneToolbar({
             <option key={v} value={v}>{v}px</option>
           ))}
         </select>
+      )}
+
+      {/* 컴포넌트 타입 필터 */}
+      {onComponentFilterChange && componentTypes && componentTypes.length > 0 && (
+        <select
+          value={componentFilter ?? 'all'}
+          onChange={e => onComponentFilterChange(e.target.value)}
+          title="컴포넌트 타입 필터"
+          style={{ fontSize: 9, padding: '1px 2px', background: componentFilter !== 'all' ? 'var(--accent-dim)' : 'var(--bg-secondary)', border: `1px solid ${componentFilter !== 'all' ? 'var(--accent)' : 'var(--border)'}`, borderRadius: 2, color: componentFilter !== 'all' ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer' }}
+        >
+          <option value="all">전체</option>
+          {componentTypes.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+      )}
+
+      {/* 포커스 모드 */}
+      {onFocusModeToggle && (
+        <button
+          style={focusMode ? btnActive : btnBase}
+          onClick={onFocusModeToggle}
+          title="포커스 모드 — 선택 노드만 강조 (Alt+Z)"
+        >◎ Focus</button>
       )}
 
       {/* 캔버스 크기 프리셋 */}

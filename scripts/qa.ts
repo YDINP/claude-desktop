@@ -2036,6 +2036,26 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 127: R225 신규 기능 ───────────────────────────────
+console.log('\n## 127. 신규 기능 파일 검사 (R225)')
+// SceneView Focus Mode (Round 225)
+const svp225Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const st225Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(svp225Path) && existsSync(st225Path)) {
+  const svp225 = readFileSync(svp225Path, 'utf-8')
+  const st225 = readFileSync(st225Path, 'utf-8')
+  if (svp225.includes('focusMode') && svp225.includes('onFocusModeToggle') && svp225.includes('포커스')) {
+    log('pass', 'Round225', 'SceneViewPanel: Focus Mode 상태 + 단축키 + 툴바 연결 존재')
+  } else {
+    log('warning', 'Round225', 'SceneViewPanel Focus Mode 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (st225.includes('focusMode') && st225.includes('onFocusModeToggle') && st225.includes('포커스')) {
+    log('pass', 'Round225', 'SceneToolbar: Focus Mode 버튼 존재')
+  } else {
+    log('warning', 'Round225', 'SceneToolbar Focus Mode 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 126: R224 신규 기능 ───────────────────────────────
 console.log('\n## 126. 신규 기능 파일 검사 (R224)')
 // SceneView 노드 그룹 접기/펼치기 (Round 224)
