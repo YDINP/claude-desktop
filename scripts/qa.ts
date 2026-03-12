@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 255: R353 신규 기능 ───────────────────────────────
+console.log('\n## 255. 신규 기능 파일 검사 (R353)')
+// SceneTreePanel 비활성 노드 숨기기 (Round 353)
+const stp353Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneTreePanel.tsx')
+if (existsSync(stp353Path)) {
+  const stp353 = readFileSync(stp353Path, 'utf-8')
+  if (stp353.includes('hideInactive') && stp353.includes('setHideInactive') && stp353.includes('filterTree')) {
+    log('pass', 'Round353', 'SceneTreePanel: 비활성 노드 숨기기 (hideInactive/setHideInactive/filterTree) 존재')
+  } else {
+    log('warning', 'Round353', 'SceneTreePanel 비활성 노드 숨기기 미구현', 'sidebar/SceneTreePanel.tsx')
+  }
+}
+
 // ── Section 254: R352 신규 기능 ───────────────────────────────
 console.log('\n## 254. 신규 기능 파일 검사 (R352)')
 // PromptChainPanel 결과 복사 버튼 (Round 352)

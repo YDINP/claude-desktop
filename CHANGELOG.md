@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 353] — 2026-03-13
+### Added
+- SceneTreePanel: 비활성 노드 숨기기 토글 — "비활성 N" 배지 클릭 시 비활성 노드 필터링, 재클릭 시 복원
+
 ## [Round 352] — 2026-03-13
 ### Added
 - PromptChainPanel: 스텝 결과 복사 버튼 — 실행 완료 후 각 스텝 결과에 📋 복사 버튼 추가, 복사 시 ✓ 피드백

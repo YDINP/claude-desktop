@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 352 완료 — PromptChainPanel 결과 복사 버튼, Pass 372)
+> 마지막 업데이트: 2026-03-13 (Round 353 완료 — SceneTreePanel 비활성 노드 숨기기, Pass 373)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 353 | dev | SceneTreePanel 비활성 노드 숨기기 — "비활성 N" 배지 버튼으로 토글, filterTree로 즉시 필터 | ✅ |
 | Round 352 | dev | PromptChainPanel 결과 복사 — 스텝 결과에 📋 복사 버튼, 복사 시 ✓ 피드백 | ✅ |
 | Round 351 | dev | GlobalSearchPanel 검색 히스토리 — 최근 검색어 5개 저장, 포커스 시 드롭다운, 클릭 재검색 | ✅ |
 | Round 350 | dev | AgentPanel 태스크 검색 필터 — 태스크 검색 입력창, 이름/프롬프트 대상 실시간 필터 | ✅ |

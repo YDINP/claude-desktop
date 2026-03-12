@@ -94,6 +94,7 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
   const [loading, setLoading] = useState(false)
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
   const [nodeSearch, setNodeSearch] = useState('')
+  const [hideInactive, setHideInactive] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const refresh = useCallback(async () => {
@@ -159,7 +160,13 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
     if (node.name.toLowerCase().includes(searchLower)) return true
     return (node.children ?? []).some(matchesSearch)
   }
-  const visibleRoots = tree ? [tree].filter(matchesSearch) : []
+  const filterTree = (node: CCNode): CCNode | null => {
+    if (hideInactive && !node.active) return null
+    const filteredChildren = (node.children ?? []).map(filterTree).filter((c): c is CCNode => c !== null)
+    return { ...node, children: filteredChildren }
+  }
+  const filteredTree = tree && hideInactive ? filterTree(tree) : tree
+  const visibleRoots = filteredTree ? [filteredTree].filter(matchesSearch) : []
 
   return (
     <div style={{ borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -170,7 +177,13 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
         <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           씬 트리{totalNodes > 0 ? ` (${totalNodes})` : ''}
           {inactiveNodes > 0 && (
-            <span style={{ fontSize: 9, color: '#f87171' }}>비활성 {inactiveNodes}</span>
+            <button
+              onClick={() => setHideInactive(v => !v)}
+              title={hideInactive ? '비활성 노드 표시' : '비활성 노드 숨기기'}
+              style={{ background: hideInactive ? '#f87171' : 'none', color: hideInactive ? '#fff' : '#f87171', border: `1px solid #f87171`, borderRadius: 3, cursor: 'pointer', fontSize: 9, padding: '0 4px', lineHeight: '14px' }}
+            >
+              {hideInactive ? '숨김' : `비활성 ${inactiveNodes}`}
+            </button>
           )}
         </span>
         <button
