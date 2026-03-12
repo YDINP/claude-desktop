@@ -51,6 +51,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 드래그 상태 ────────────────────────────────────────────
   const dragRef = useRef<DragState | null>(null)
   const resizeRef = useRef<ResizeState | null>(null)
+  const rotateRef = useRef<{ uuid: string; anchorSx: number; anchorSy: number; startRotation: number } | null>(null)
   const isPanning = useRef(false)
   const panStart = useRef<{ mx: number; my: number; ox: number; oy: number } | null>(null)
 
@@ -385,6 +386,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setIsResizing(true)
   }, [nodeMap, getSvgCoords])
 
+  const handleRotateMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (e.button !== 0) return
+    const node = nodeMap.get(uuid)
+    if (!node) return
+    const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
+    // anchor 점의 SVG 화면 좌표
+    const anchorSx = sx * view.zoom + view.offsetX
+    const anchorSy = sy * view.zoom + view.offsetY
+    rotateRef.current = { uuid, anchorSx, anchorSy, startRotation: node.rotation }
+  }, [nodeMap, view])
+
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // 커서 씬 좌표 업데이트
     const svgPos = getSvgCoords(e)
@@ -404,6 +418,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         endY: svgCoords.y,
         active: true,
       })
+      return
+    }
+
+    // 회전
+    if (rotateRef.current) {
+      const rt = rotateRef.current
+      const dx = e.clientX - rt.anchorSx
+      const dy = e.clientY - rt.anchorSy
+      const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI
+      // SVG Y-down이므로 Cocos rotation = -angleDeg - 90 (핸들이 위쪽에 있으므로)
+      const newRotation = parseFloat((-angleDeg - 90).toFixed(1))
+      updateNode(rt.uuid, { rotation: newRotation })
       return
     }
 
@@ -598,6 +624,20 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       }
       resizeRef.current = null
       setIsResizing(false)
+    }
+
+    // 회전 종료 → IPC 전송
+    if (rotateRef.current) {
+      const rt = rotateRef.current
+      const node = nodeMap.get(rt.uuid)
+      if (node) {
+        try {
+          await window.api.ccSetProperty?.(port, rt.uuid, 'rotation', node.rotation)
+        } catch (e) {
+          console.error('[SceneView] rotate failed:', e)
+        }
+      }
+      rotateRef.current = null
     }
   }, [nodeMap, marquee, view, port])
 
@@ -1065,6 +1105,36 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   onMouseDown={e => handleResizeMouseDown(e, n.uuid, h.id)}
                 />
               ))
+            })()}
+
+            {/* 선택 노드 회전 핸들 */}
+            {selectedNode && selectedUuids.size <= 1 && !isDragging && !isResizing && (() => {
+              const n = selectedNode
+              const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+              const hh = n.height * Math.abs(n.scaleY) * (1 - n.anchorY)
+              const rotHandleOffset = 18 / view.zoom
+              const rhx = sx
+              const rhy = sy - hh - rotHandleOffset
+              const r = 4 / view.zoom
+              return (
+                <>
+                  <line
+                    x1={sx} y1={sy - hh}
+                    x2={rhx} y2={rhy}
+                    stroke="rgba(255,165,0,0.6)"
+                    strokeWidth={1 / view.zoom}
+                    style={{ pointerEvents: 'none' }}
+                  />
+                  <circle
+                    cx={rhx} cy={rhy} r={r}
+                    fill="rgba(255,165,0,0.9)"
+                    stroke="white"
+                    strokeWidth={1 / view.zoom}
+                    style={{ cursor: 'crosshair', pointerEvents: 'all' }}
+                    onMouseDown={e => handleRotateMouseDown(e, n.uuid)}
+                  />
+                </>
+              )
             })()}
 
             {/* 선택 노드 size 레이블 */}

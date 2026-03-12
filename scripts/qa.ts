@@ -1602,6 +1602,24 @@ if (existsSync(sceneInspectorPath11)) {
   }
 }
 
+// ── Section 70: R168 신규 기능 ───────────────────────────────
+console.log('\n## 70. 신규 기능 파일 검사 (R168)')
+// SceneView 회전 핸들 (Round 168)
+const svp168Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp168Path)) {
+  const svp168 = readFileSync(svp168Path, 'utf-8')
+  if (svp168.includes('rotateRef') && svp168.includes('handleRotateMouseDown')) {
+    log('pass', 'Round168', 'SceneViewPanel: rotateRef + handleRotateMouseDown 존재')
+  } else {
+    log('warning', 'Round168', 'SceneViewPanel 회전 핸들 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp168.includes('회전 핸들') && svp168.includes('crosshair')) {
+    log('pass', 'Round168', 'SceneViewPanel: 회전 핸들 SVG 존재')
+  } else {
+    log('warning', 'Round168', 'SceneViewPanel 회전 핸들 SVG 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

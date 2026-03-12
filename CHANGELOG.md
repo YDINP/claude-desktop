@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 168] — 2026-03-12
+### Added
+- SceneView: 선택 노드 회전 핸들 — 상단 오렌지 원형 핸들 드래그로 실시간 rotation 변경
+
 ## [Round 167] — 2026-03-12
 ### Added
 - SceneInspector: Scale 비율 유지 잠금 버튼 (∝) — Sx/Sy 중 하나 편집 시 비율 유지 자동 연동
