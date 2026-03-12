@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 403 완료 — BookmarksPanel 정렬 토글, Pass 423)
+> 마지막 업데이트: 2026-03-13 (Round 404 완료 — OutlinePanel TDZ 수정 + ESC, Pass 424)
 
 ## 완료된 라운드
 

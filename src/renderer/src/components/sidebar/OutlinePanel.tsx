@@ -40,6 +40,7 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
 
   const allItems = useMemo(() => extractOutline(messages), [messages])
 
+  const [reversed, setReversed] = useState(false)
   const items = useMemo(() => {
     let list = allItems
     if (levelFilter !== 0) list = list.filter(it => it.level === levelFilter)
@@ -50,8 +51,6 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
     if (reversed) list = [...list].reverse()
     return list
   }, [allItems, search, levelFilter, reversed])
-
-  const [reversed, setReversed] = useState(false)
   const [copied, setCopied] = useState(false)
   const [copiedItemKey, setCopiedItemKey] = useState<string | null>(null)
   const copyOutline = useCallback(() => {
@@ -123,6 +122,7 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
+          onKeyDown={e => e.key === 'Escape' && setSearch('')}
           placeholder="헤딩 검색..."
           style={{
             width: '100%',

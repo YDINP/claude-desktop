@@ -2036,6 +2036,20 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 306: R404 신규 기능 ───────────────────────────────
+console.log('\n## 306. 신규 기능 파일 검사 (R404)')
+// OutlinePanel reversed 선언 순서 수정 + ESC (Round 404)
+const op404Path = join(ROOT, 'src/renderer/src/components/sidebar/OutlinePanel.tsx')
+if (existsSync(op404Path)) {
+  const op404 = readFileSync(op404Path, 'utf-8')
+  const reversedBeforeMemo = op404.indexOf("const [reversed, setReversed]") < op404.indexOf("}, [allItems, search, levelFilter, reversed])")
+  if (reversedBeforeMemo && op404.includes("'Escape'") && op404.includes('setSearch')) {
+    log('pass', 'Round404', 'OutlinePanel: reversed 선언 순서 수정 + ESC 검색 초기화 존재')
+  } else {
+    log('warning', 'Round404', 'OutlinePanel reversed 순서 또는 ESC 미구현', 'sidebar/OutlinePanel.tsx')
+  }
+}
+
 // ── Section 305: R403 신규 기능 ───────────────────────────────
 console.log('\n## 305. 신규 기능 파일 검사 (R403)')
 // BookmarksPanel 정렬 토글 + ESC (Round 403)

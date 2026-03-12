@@ -1,5 +1,11 @@
 # Changelog — Claude Desktop
 
+## [Round 404] — 2026-03-13
+### Fixed
+- OutlinePanel: `reversed` 상태 선언을 `items` useMemo 이전으로 이동 (TDZ 참조 순서 버그 수정)
+### Added
+- OutlinePanel: ESC 키로 헤딩 검색 초기화
+
 ## [Round 403] — 2026-03-13
 ### Added
 - BookmarksPanel: 정렬 토글 — sortOrder 상태(기본/최신/오래된), ↕/🔽/🔼 버튼, ESC 검색 초기화
