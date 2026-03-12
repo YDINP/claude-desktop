@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 276 완료 — SceneView UUID/경로 복사, Pass 296)
+> 마지막 업데이트: 2026-03-13 (Round 277 완료 — NotesPanel 노트 복제, Pass 297)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 277 | dev | NotesPanel 노트 복제 — duplicateNote/⊕ 버튼, 제목+복사 자동 생성 | ✅ |
 | Round 276 | dev | SceneView 컨텍스트 메뉴 UUID/경로 복사 — pathParts/clipboard.writeText | ✅ |
 | Round 275 | dev | TasksPanel 태스크 메모 필드 — expandedMemoId/updateMemo, 📝 토글 버튼 | ✅ |
 | Round 274 | dev | CalendarPanel 이벤트 인라인 편집 — 더블클릭 editingEventId/commitEventEdit | ✅ |

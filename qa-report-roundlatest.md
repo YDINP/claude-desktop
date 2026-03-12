@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T19:31:03.359Z
+> 2026-03-12T19:33:12.715Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- NotesPanel: 노트 복제 (duplicateNote/복사) 존재
 - SceneViewPanel: 컨텍스트 메뉴 UUID/경로 복사 (clipboard.writeText) 존재
 - TasksPanel: 태스크 메모 필드 (expandedMemoId/updateMemo) 존재
 - CalendarPanel: 이벤트 인라인 편집 (editingEventId/commitEventEdit) 존재

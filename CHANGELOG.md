@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 277] — 2026-03-13
+### Added
+- NotesPanel: 노트 복제 버튼 (⊕) — 제목 + " 복사"로 핀 미설정 복제본 생성
+
 ## [Round 276] — 2026-03-13
 ### Added
 - SceneView: 컨텍스트 메뉴 "📋 UUID 복사" + "📋 경로 복사" 항목 — navigator.clipboard.writeText

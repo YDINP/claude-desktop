@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 179: R277 신규 기능 ───────────────────────────────
+console.log('\n## 179. 신규 기능 파일 검사 (R277)')
+// NotesPanel 노트 복제 (Round 277)
+const np277Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np277Path)) {
+  const np277 = readFileSync(np277Path, 'utf-8')
+  if (np277.includes('duplicateNote') && np277.includes('복사') && np277.includes('pinned: false')) {
+    log('pass', 'Round277', 'NotesPanel: 노트 복제 (duplicateNote/복사) 존재')
+  } else {
+    log('warning', 'Round277', 'NotesPanel 노트 복제 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 178: R276 신규 기능 ───────────────────────────────
 console.log('\n## 178. 신규 기능 파일 검사 (R276)')
 // SceneView 컨텍스트 메뉴 UUID/경로 복사 (Round 276)
