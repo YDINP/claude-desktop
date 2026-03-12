@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 280: R378 신규 기능 ───────────────────────────────
+console.log('\n## 280. 신규 기능 파일 검사 (R378)')
+// DiffPanel 언어 오버라이드 (Round 378)
+const dp378Path = join(ROOT, 'src/renderer/src/components/sidebar/DiffPanel.tsx')
+if (existsSync(dp378Path)) {
+  const dp378 = readFileSync(dp378Path, 'utf-8')
+  if (dp378.includes('langOverride') && dp378.includes('setLangOverride') && dp378.includes('언어 오버라이드')) {
+    log('pass', 'Round378', 'DiffPanel: 언어 오버라이드 select 존재')
+  } else {
+    log('warning', 'Round378', 'DiffPanel 언어 오버라이드 미구현', 'sidebar/DiffPanel.tsx')
+  }
+}
+
 // ── Section 279: R377 신규 기능 ───────────────────────────────
 console.log('\n## 279. 신규 기능 파일 검사 (R377)')
 // BookmarksPanel 전체 복사 버튼 (Round 377)

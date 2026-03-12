@@ -37,6 +37,7 @@ export function DiffPanel() {
   const [diffHistory, setDiffHistory] = useState<DiffPair[]>(loadDiffHistory)
   const [showHistory, setShowHistory] = useState(false)
   const [diffStats, setDiffStats] = useState<{ added: number; removed: number } | null>(null)
+  const [langOverride, setLangOverride] = useState('')
 
   useEffect(() => {
     if (leftContent === null || rightContent === null || leftContent === rightContent) {
@@ -82,7 +83,7 @@ export function DiffPanel() {
     setRightContent(leftContent)
   }
 
-  const lang = getLangFromPath(rightPath || leftPath)
+  const lang = langOverride || getLangFromPath(rightPath || leftPath)
   const identical = leftContent !== null && rightContent !== null && leftContent === rightContent
 
   return (
@@ -153,6 +154,17 @@ export function DiffPanel() {
             fontFamily: 'monospace', minWidth: 0,
           }}
         />
+        <select
+          value={langOverride}
+          onChange={e => setLangOverride(e.target.value)}
+          title="언어 오버라이드"
+          style={{ padding: '3px 4px', background: 'var(--bg-input)', color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 10, flexShrink: 0, cursor: 'pointer' }}
+        >
+          <option value="">자동</option>
+          {['typescript', 'javascript', 'python', 'json', 'html', 'css', 'markdown', 'shell', 'sql', 'plaintext'].map(l => (
+            <option key={l} value={l}>{l}</option>
+          ))}
+        </select>
         <button
           onClick={handleSwap}
           title="원본/수정 경로 교체"
