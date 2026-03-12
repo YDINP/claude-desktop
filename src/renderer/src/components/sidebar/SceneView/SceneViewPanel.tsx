@@ -30,6 +30,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showLabels, setShowLabels] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
+  const [isRotating, setIsRotating] = useState(false)
   const [isPanningActive, setIsPanningActive] = useState(false)
   const [spaceDown, setSpaceDown] = useState(false)
   const [cursorScenePos, setCursorScenePos] = useState<{ x: number; y: number } | null>(null)
@@ -417,6 +418,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const anchorSx = sx * view.zoom + view.offsetX
     const anchorSy = sy * view.zoom + view.offsetY
     rotateRef.current = { uuid, anchorSx, anchorSy, startRotation: node.rotation }
+    setIsRotating(true)
   }, [nodeMap, view])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -658,6 +660,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         }
       }
       rotateRef.current = null
+      setIsRotating(false)
     }
   }, [nodeMap, marquee, view, port])
 
@@ -1488,6 +1491,30 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           >
             ⊞
           </button>
+        )}
+
+        {/* 회전 각도 오버레이 */}
+        {isRotating && selectedNode && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#fb923c',
+              background: 'rgba(0,0,0,0.65)',
+              padding: '3px 10px',
+              borderRadius: 4,
+              pointerEvents: 'none',
+              fontFamily: 'monospace',
+              fontVariantNumeric: 'tabular-nums',
+              letterSpacing: 1,
+            }}
+          >
+            {selectedNode.rotation.toFixed(1)}°
+          </div>
         )}
 
         {/* 드래그/리사이즈 좌표 오버레이 */}

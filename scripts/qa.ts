@@ -1901,6 +1901,19 @@ if (existsSync(sceneToolbar186Path)) {
   }
 }
 
+// ── Section 89: R187 신규 기능 ───────────────────────────────
+console.log('\n## 89. 신규 기능 파일 검사 (R187)')
+// SceneView 회전 각도 오버레이 (Round 187)
+const svp187Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp187Path)) {
+  const svp187 = readFileSync(svp187Path, 'utf-8')
+  if (svp187.includes('isRotating') && svp187.includes('회전 각도 오버레이') && svp187.includes("selectedNode.rotation.toFixed(1)}°")) {
+    log('pass', 'Round187', 'SceneView: 회전 각도 오버레이 존재')
+  } else {
+    log('warning', 'Round187', 'SceneView 회전 각도 오버레이 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

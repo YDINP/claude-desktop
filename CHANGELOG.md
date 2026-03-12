@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 187] — 2026-03-13
+### Added
+- SceneView: 회전 중 각도 오버레이 — 회전 드래그 시 중앙에 현재 각도(XX.X°) 실시간 표시
+
 ## [Round 186] — 2026-03-13
 ### Added
 - SceneToolbar: ⊡ 미니맵 토글 버튼 — 툴바에서 미니맵 표시/숨기기 직접 제어

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 186 완료 — SceneToolbar 미니맵 토글, Pass 180)
+> 마지막 업데이트: 2026-03-13 (Round 187 완료 — SceneView 회전 각도 오버레이, Pass 181)
 
 ## 완료된 라운드
 
@@ -138,6 +138,7 @@
 | Round 184 | dev | SceneView 미니맵 오버레이 — 우하단 전체 씬 축소 맵 + 뷰포트 표시 + 토글 | ✅ |
 | Round 185 | dev | SceneView 미니맵 클릭 네비게이션 — 클릭 시 뷰포트 이동, 더블클릭 숨기기 | ✅ |
 | Round 186 | dev | SceneToolbar ⊡ 미니맵 토글 버튼 — 툴바에서 미니맵 표시/숨기기 직접 제어 | ✅ |
+| Round 187 | dev | SceneView 회전 각도 오버레이 — 회전 드래그 중 중앙에 현재 각도 실시간 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 
