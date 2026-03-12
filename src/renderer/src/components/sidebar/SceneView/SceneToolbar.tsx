@@ -45,6 +45,8 @@ interface SceneToolbarProps {
   onBgToggle?: () => void
   showMinimap?: boolean
   onMinimapToggle?: () => void
+  canvasSize?: { w: number; h: number }
+  onCanvasSizeChange?: (w: number, h: number) => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -94,6 +96,8 @@ export function SceneToolbar({
   onBgToggle,
   showMinimap,
   onMinimapToggle,
+  canvasSize,
+  onCanvasSizeChange,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -239,6 +243,30 @@ export function SceneToolbar({
       >
         ⊕ Snap
       </button>
+
+      {/* 캔버스 크기 프리셋 */}
+      {onCanvasSizeChange && (
+        <select
+          value={`${canvasSize?.w ?? 960}x${canvasSize?.h ?? 640}`}
+          onChange={e => {
+            const [w, h] = e.target.value.split('x').map(Number)
+            onCanvasSizeChange(w, h)
+          }}
+          title="캔버스 크기 프리셋"
+          style={{ fontSize: 9, padding: '1px 2px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
+        >
+          {[
+            { label: '960×640', w: 960, h: 640 },
+            { label: '1280×720', w: 1280, h: 720 },
+            { label: '1920×1080', w: 1920, h: 1080 },
+            { label: '750×1334', w: 750, h: 1334 },
+            { label: '1334×750', w: 1334, h: 750 },
+            { label: '480×320', w: 480, h: 320 },
+          ].map(p => (
+            <option key={p.label} value={`${p.w}x${p.h}`}>{p.label}</option>
+          ))}
+        </select>
+      )}
 
       <div style={{ flex: 1 }} />
 

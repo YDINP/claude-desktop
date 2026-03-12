@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 206 완료 — SceneView 정렬 가이드라인, Pass 201)
+> 마지막 업데이트: 2026-03-13 (Round 207 완료 — SceneView 캔버스 크기 프리셋, Pass 202)
 
 ## 완료된 라운드
 
@@ -158,6 +158,7 @@
 | Round 204 | dev | SceneInspector 노드 메모 — 텍스트 메모 입력, Enter 저장, 노드 전환 자동 초기화 | ✅ |
 | Round 205 | dev | NotesPanel 📝 — 사이드바 자유 메모장, 다중 노트 생성/편집/삭제, localStorage | ✅ |
 | Round 206 | dev | SceneView 정렬 가이드라인 — 드래그 중 타 노드 경계/중앙 정렬 시 빨간 점선 + snap | ✅ |
+| Round 207 | dev | SceneView 캔버스 크기 프리셋 — 툴바 드롭다운으로 DESIGN_W/H 동적 변경 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 109: R207 신규 기능 ───────────────────────────────
+console.log('\n## 109. 신규 기능 파일 검사 (R207)')
+// SceneView 캔버스 크기 프리셋 (Round 207)
+const stb207Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb207Path)) {
+  const stb207 = readFileSync(stb207Path, 'utf-8')
+  if (stb207.includes('canvasSize') && stb207.includes('onCanvasSizeChange') && stb207.includes('960×640')) {
+    log('pass', 'Round207', 'SceneToolbar: 캔버스 크기 프리셋 드롭다운 존재')
+  } else {
+    log('warning', 'Round207', 'SceneToolbar 캔버스 크기 프리셋 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 108: R206 신규 기능 ───────────────────────────────
 console.log('\n## 108. 신규 기능 파일 검사 (R206)')
 // SceneView 정렬 가이드라인 (Round 206)

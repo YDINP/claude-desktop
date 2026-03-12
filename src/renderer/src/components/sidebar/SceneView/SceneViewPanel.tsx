@@ -13,9 +13,15 @@ interface SceneViewPanelProps {
   port?: number
 }
 
-const DESIGN_W = 960
-const DESIGN_H = 640
 const SNAP_GRID = 4
+const CANVAS_PRESETS = [
+  { label: '960×640 (기본)', w: 960, h: 640 },
+  { label: '1280×720 (HD)', w: 1280, h: 720 },
+  { label: '1920×1080 (FHD)', w: 1920, h: 1080 },
+  { label: '750×1334 (iPhone)', w: 750, h: 1334 },
+  { label: '1334×750 (iPhone 가로)', w: 1334, h: 750 },
+  { label: '480×320 (소형)', w: 480, h: 320 },
+]
 
 export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) {
   // ── 씬 데이터 ──────────────────────────────────────────────
@@ -25,6 +31,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 1 })
   const [activeTool, setActiveTool] = useState<'select' | 'move'>('select')
   const [showRuler, setShowRuler] = useState(false)
+  const [canvasSize, setCanvasSize] = useState({ w: 960, h: 640 })
+  const DESIGN_W = canvasSize.w
+  const DESIGN_H = canvasSize.h
   const [gridVisible, setGridVisible] = useState(true)
   const [snapEnabled, setSnapEnabled] = useState(false)
   const [showHierarchy, setShowHierarchy] = useState(false)
@@ -78,7 +87,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const offsetX = (width - DESIGN_W * zoom) / 2
     const offsetY = (height - DESIGN_H * zoom) / 2
     setView({ offsetX, offsetY, zoom })
-  }, [])
+  }, [canvasSize])
 
   // 선택 노드로 카메라 이동 (G키)
   const handleFocusSelected = useCallback(() => {
@@ -429,7 +438,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       setSelectedUuid(null)
       setSelectedUuids(new Set())
     }
-  }, [activeTool, view, getSvgCoords])
+  }, [activeTool, view, getSvgCoords, canvasSize])
 
   const handleNodeMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
     e.stopPropagation()
@@ -482,7 +491,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       groupOffsets,
     }
     setIsDragging(true)
-  }, [nodeMap, getSvgCoords, selectedUuids])
+  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize])
 
   const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w') => {
     e.stopPropagation()
@@ -502,7 +511,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       startNodeY: node.y,
     }
     setIsResizing(true)
-  }, [nodeMap, getSvgCoords])
+  }, [nodeMap, getSvgCoords, canvasSize])
 
   const handleRotateMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
     e.stopPropagation()
@@ -667,7 +676,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         updateNode(drag.uuid, { x: newX, y: newY })
       }
     }
-  }, [view.zoom, snapEnabled, getSvgCoords, svgToScene, updateNode, nodeMap, selectedUuids])
+  }, [view.zoom, snapEnabled, getSvgCoords, svgToScene, updateNode, nodeMap, selectedUuids, canvasSize])
 
   const handleMouseUp = useCallback(async () => {
     setAlignGuides([])
@@ -1059,6 +1068,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onBgToggle={() => setBgLight(v => !v)}
         showMinimap={showMinimap}
         onMinimapToggle={() => setShowMinimap(v => !v)}
+        canvasSize={canvasSize}
+        onCanvasSizeChange={(w, h) => { setCanvasSize({ w, h }); setTimeout(handleFit, 50) }}
         onCopy={handleCopy}
         onPaste={handlePaste}
         onZOrderFront={() => handleZOrder('front')}
