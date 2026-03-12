@@ -77,6 +77,10 @@ const TEXT_EXTS = new Set([
   'toml', 'ini', 'conf', 'env', 'gitignore',
 ])
 
+function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 3.5)
+}
+
 const isTextFile = (filename: string) => {
   const ext = filename.split('.').pop()?.toLowerCase() ?? ''
   return TEXT_EXTS.has(ext)
@@ -1160,6 +1164,19 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           <span style={{ color: text.length > 8000 ? 'var(--error, #f44336)' : undefined }}>
             {text.length}
           </span>
+          {(() => {
+            const tokenCount = estimateTokens(text)
+            return (
+              <span style={{
+                fontSize: 9,
+                color: tokenCount > 8000 ? '#f87171' : tokenCount > 2000 ? '#fbbf24' : 'var(--text-muted)',
+                flexShrink: 0,
+                userSelect: 'none',
+              }}>
+                ~{tokenCount > 999 ? `${(tokenCount / 1000).toFixed(1)}k` : tokenCount} 토큰
+              </span>
+            )
+          })()}
         </div>
       )}
       </div>

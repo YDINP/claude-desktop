@@ -1177,6 +1177,15 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
             {timestamp}
           </span>
         )}
+        {(() => {
+          const approxTokens = Math.ceil((msg.text?.length ?? 0) / 3.5)
+          if (approxTokens <= 0) return null
+          return (
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', opacity: 0.7 }}>
+              ~{approxTokens > 999 ? `${(approxTokens / 1000).toFixed(1)}k` : approxTokens}t
+            </span>
+          )
+        })()}
         {msgStats && (msgStats.readTimeSec > 15 || msgStats.tokenEstimate > 100) && (
           <span style={{
             display: 'flex',

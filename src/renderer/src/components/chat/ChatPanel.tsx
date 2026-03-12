@@ -317,6 +317,18 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showTopBtn, setShowTopBtn] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [pinnedOpen, setPinnedOpen] = useState(true)
+  const [customSystemPrompt, setCustomSystemPromptRaw] = useState(() => {
+    try { return localStorage.getItem('custom-system-prompt') ?? '' } catch { return '' }
+  })
+  const [showSystemPrompt, setShowSystemPrompt] = useState(false)
+  const customSystemPromptDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const setCustomSystemPrompt = useCallback((value: string) => {
+    setCustomSystemPromptRaw(value)
+    if (customSystemPromptDebounceRef.current) clearTimeout(customSystemPromptDebounceRef.current)
+    customSystemPromptDebounceRef.current = setTimeout(() => {
+      try { localStorage.setItem('custom-system-prompt', value) } catch { /* ignore */ }
+    }, 500)
+  }, [])
   const [showMinimap, setShowMinimap] = useState(false)
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [summaryText, setSummaryText] = useState('')
@@ -531,7 +543,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const handleSend = useCallback((text: string) => {
     if (!project.currentPath) return
     chat.addUserMessage(text)
-    const parts = [projectSummary, ccCtx.contextString].filter(Boolean)
+    const parts = [customSystemPrompt, projectSummary, ccCtx.contextString].filter(Boolean)
     const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
     window.api.claudeSend({
       text,
@@ -539,7 +551,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       model: project.selectedModel,
       ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
     })
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage, ccCtx.contextString, projectSummary])
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, ccCtx.contextString, projectSummary, customSystemPrompt])
 
   const PAUSE_STATE_KEY = 'claude:pause-state'
   const [isPaused, setIsPaused] = useState(() => {
@@ -758,7 +770,64 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             </span>
           </>
         )}
+        <button
+          onClick={() => setShowSystemPrompt(v => !v)}
+          style={{
+            fontSize: 10,
+            padding: '2px 8px',
+            background: customSystemPrompt ? 'var(--accent)' : 'var(--bg-secondary)',
+            color: customSystemPrompt ? '#fff' : 'var(--text-muted)',
+            border: '1px solid var(--border)',
+            borderRadius: 3,
+            cursor: 'pointer',
+          }}
+        >
+          {customSystemPrompt ? '⚙ 시스템 ✓' : '⚙ 시스템 프롬프트'}
+        </button>
       </div>
+
+      {/* Custom system prompt editor */}
+      {showSystemPrompt && (
+        <div style={{
+          borderBottom: '1px solid var(--border)',
+          padding: '8px',
+          background: 'var(--bg-secondary)',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>커스텀 시스템 프롬프트</span>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+              <span style={{ fontSize: 9, color: customSystemPrompt.length > 1800 ? '#f87171' : 'var(--text-muted)' }}>
+                {customSystemPrompt.length} / 2000
+              </span>
+              {customSystemPrompt && (
+                <button onClick={() => setCustomSystemPrompt('')} style={{ fontSize: 10, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
+              )}
+            </div>
+          </div>
+          <textarea
+            value={customSystemPrompt}
+            onChange={e => setCustomSystemPrompt(e.target.value.slice(0, 2000))}
+            placeholder="Claude에게 항상 적용할 지침을 입력하세요... (예: 한국어로 답변해줘, 코드는 TypeScript로)"
+            rows={3}
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              background: 'var(--bg-primary)',
+              border: '1px solid var(--border)',
+              borderRadius: 3,
+              color: 'var(--text-primary)',
+              fontSize: 11,
+              padding: '4px 8px',
+              resize: 'vertical',
+              fontFamily: 'inherit',
+              outline: 'none',
+              minHeight: 48,
+              maxHeight: 160,
+            }}
+          />
+        </div>
+      )}
 
       {/* Session summary panel */}
       {summaryOpen && (
@@ -911,6 +980,22 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           </div>
         )
       })()}
+
+      {/* Context usage bar */}
+      {chat.sessionInputTokens > 0 && (
+        <div
+          title={`컨텍스트: ${chat.sessionInputTokens.toLocaleString()} / 200,000 토큰`}
+          style={{ height: 3, background: 'var(--border)', flexShrink: 0, cursor: 'default' }}
+        >
+          <div style={{
+            height: '100%',
+            width: `${Math.min(chat.sessionInputTokens / 200000 * 100, 100)}%`,
+            background: chat.sessionInputTokens > 160000 ? '#f87171' :
+                        chat.sessionInputTokens > 100000 ? '#fbbf24' : 'var(--accent)',
+            transition: 'width 0.3s ease',
+          }} />
+        </div>
+      )}
 
       {/* Messages - virtualized */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex' }}>

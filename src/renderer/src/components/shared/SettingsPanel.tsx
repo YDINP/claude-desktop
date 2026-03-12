@@ -123,6 +123,8 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
   const [loaded, setLoaded] = useState(false)
   const [customHex, setCustomHex] = useState('')
   const [localSystemPrompt, setLocalSystemPrompt] = useState('')
+  const [globalSystemPrompt, setGlobalSystemPrompt] = useState('')
+  const [preferredLanguage, setPreferredLanguage] = useState('auto')
   const [notifSettings, setNotifSettings] = useState({ responseComplete: true, backgroundOnly: true, longSession: false, contextWarning: true })
   const [profiles, setProfiles] = useState<Array<{ id: string; name: string; content: string }>>([])
   const [profileName, setProfileName] = useState('')
@@ -140,6 +142,8 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
       setLocalSystemPrompt('')
     }
     window.api?.getSystemPromptProfiles().then(setProfiles)
+    setGlobalSystemPrompt(localStorage.getItem('custom-system-prompt') ?? '')
+    setPreferredLanguage(localStorage.getItem('preferred-language') ?? 'auto')
     setTimeout(() => modalRef.current?.querySelector<HTMLElement>('button, input')?.focus(), 50)
   }, [open, currentProject])
 
@@ -187,6 +191,9 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
     }
     // Apply custom CSS
     applyCustomCSS(settings.customCSS)
+    // Save global system prompt and language preference
+    localStorage.setItem('custom-system-prompt', globalSystemPrompt)
+    localStorage.setItem('preferred-language', preferredLanguage)
     // Dispatch event so App can sync model state
     window.dispatchEvent(new CustomEvent('settings:changed', { detail: settings }))
     onClose()
@@ -687,6 +694,68 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                   {m.label}
                 </label>
               ))}
+            </div>
+
+            {/* Global System Prompt */}
+            <div style={sectionStyle}>
+              <div style={sectionTitleStyle}>글로벌 시스템 프롬프트</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
+                모든 채팅에 공통으로 적용되는 시스템 프롬프트입니다. 채팅창 상단 ⚙ 버튼으로도 편집 가능합니다.
+              </div>
+              <textarea
+                value={globalSystemPrompt}
+                onChange={e => setGlobalSystemPrompt(e.target.value.slice(0, 2000))}
+                placeholder="Claude에게 항상 전달할 전역 지침을 입력하세요..."
+                rows={5}
+                style={{
+                  width: '100%', background: 'var(--bg-input, var(--bg-tertiary))', color: 'var(--text-primary)',
+                  border: '1px solid var(--border)', borderRadius: 4, padding: '6px 10px',
+                  fontSize: 12, resize: 'vertical', fontFamily: 'var(--font-ui, inherit)',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                <span style={{ fontSize: 11, color: globalSystemPrompt.length >= 2000 ? 'var(--color-error, #e74c3c)' : 'var(--text-muted)' }}>
+                  {globalSystemPrompt.length} / 2000
+                </span>
+                <button
+                  onClick={() => setGlobalSystemPrompt('')}
+                  style={{
+                    fontSize: 10, padding: '3px 8px',
+                    border: '1px solid var(--border)', borderRadius: 3,
+                    background: 'var(--bg-tertiary)', color: 'var(--text-muted)', cursor: 'pointer',
+                  }}
+                >
+                  초기화
+                </button>
+              </div>
+            </div>
+
+            {/* AI Behavior */}
+            <div style={sectionStyle}>
+              <div style={sectionTitleStyle}>AI 동작 설정</div>
+              <div style={rowStyle}>
+                <span style={labelStyle}>응답 언어</span>
+                <select
+                  value={preferredLanguage}
+                  onChange={e => setPreferredLanguage(e.target.value)}
+                  style={{
+                    padding: '4px 8px', fontSize: 12, borderRadius: 4,
+                    border: '1px solid var(--border)', background: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)', cursor: 'pointer',
+                  }}
+                >
+                  {[
+                    { value: 'auto', label: '자동' },
+                    { value: 'ko',   label: '한국어' },
+                    { value: 'en',   label: 'English' },
+                    { value: 'ja',   label: '日本語' },
+                    { value: 'zh',   label: '中文' },
+                  ].map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Project System Prompt */}
