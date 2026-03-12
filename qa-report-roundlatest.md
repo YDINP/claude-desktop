@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T23:49:38.817Z
+> 2026-03-12T23:52:41.537Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- BookmarksPanel: 정렬 토글(기본/최신/오래된) + ESC 검색 초기화 존재
 - WebPreviewPanel: iframe 줌 컨트롤 존재 (+/-/% 버튼)
 - ConnectionPanel: 서버 이름 검색 필터 존재
 - NotesPanel: 노트 템플릿 기능 존재 (미팅/할일/버그/아이디어)

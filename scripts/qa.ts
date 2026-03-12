@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 305: R403 신규 기능 ───────────────────────────────
+console.log('\n## 305. 신규 기능 파일 검사 (R403)')
+// BookmarksPanel 정렬 토글 + ESC (Round 403)
+const bp403Path = join(ROOT, 'src/renderer/src/components/sidebar/BookmarksPanel.tsx')
+if (existsSync(bp403Path)) {
+  const bp403 = readFileSync(bp403Path, 'utf-8')
+  if (bp403.includes('sortOrder') && bp403.includes('cycleSortOrder') && bp403.includes("'Escape'")) {
+    log('pass', 'Round403', 'BookmarksPanel: 정렬 토글(기본/최신/오래된) + ESC 검색 초기화 존재')
+  } else {
+    log('warning', 'Round403', 'BookmarksPanel 정렬 토글 미구현', 'sidebar/BookmarksPanel.tsx')
+  }
+}
+
 // ── Section 304: R402 신규 기능 ───────────────────────────────
 console.log('\n## 304. 신규 기능 파일 검사 (R402)')
 // WebPreviewPanel 줌 컨트롤 (Round 402)

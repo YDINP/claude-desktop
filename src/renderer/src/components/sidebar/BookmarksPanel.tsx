@@ -13,6 +13,9 @@ export function BookmarksPanel({
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [copiedAll, setCopiedAll] = useState(false)
+  const [sortOrder, setSortOrder] = useState<'default' | 'newest' | 'oldest'>('default')
+  const cycleSortOrder = () => setSortOrder(s => s === 'default' ? 'newest' : s === 'newest' ? 'oldest' : 'default')
+  const SORT_ICONS: Record<typeof sortOrder, string> = { default: '↕', newest: '🔽', oldest: '🔼' }
 
   const copyBookmark = useCallback((id: string, text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -27,8 +30,10 @@ export function BookmarksPanel({
       ? bookmarked.filter(b => b.text.toLowerCase().includes(query.toLowerCase()))
       : bookmarked
     if (roleFilter !== 'all') list = list.filter(b => b.role === roleFilter)
+    if (sortOrder === 'newest') list = [...list].sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0))
+    else if (sortOrder === 'oldest') list = [...list].sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
     return list
-  }, [bookmarked, query, roleFilter])
+  }, [bookmarked, query, roleFilter, sortOrder])
 
   const ROLE_LABELS: Record<typeof roleFilter, string> = { all: '전체', user: '나', assistant: 'Claude' }
   const cycleRole = () => setRoleFilter(r => r === 'all' ? 'user' : r === 'user' ? 'assistant' : 'all')
@@ -67,6 +72,10 @@ export function BookmarksPanel({
           style={{ background: roleFilter !== 'all' ? 'var(--accent-dim)' : 'none', border: `1px solid ${roleFilter !== 'all' ? 'var(--accent)' : 'transparent'}`, borderRadius: 4, cursor: 'pointer', color: roleFilter !== 'all' ? 'var(--accent)' : 'var(--text-muted)', fontSize: 10, padding: '1px 5px' }}>
           {ROLE_LABELS[roleFilter]}
         </button>
+        <button onClick={cycleSortOrder} title={`정렬: ${sortOrder === 'default' ? '기본순' : sortOrder === 'newest' ? '최신순' : '오래된순'}`}
+          style={{ background: sortOrder !== 'default' ? 'var(--accent-dim)' : 'none', border: `1px solid ${sortOrder !== 'default' ? 'var(--accent)' : 'transparent'}`, borderRadius: 4, cursor: 'pointer', color: sortOrder !== 'default' ? 'var(--accent)' : 'var(--text-muted)', fontSize: 10, padding: '1px 4px' }}>
+          {SORT_ICONS[sortOrder]}
+        </button>
         <button
           onClick={() => {
             const md = filtered.map(b => `### ${b.role === 'assistant' ? 'Claude' : '사용자'}\n\n${b.text}`).join('\n\n---\n\n')
@@ -95,6 +104,7 @@ export function BookmarksPanel({
           placeholder="북마크 검색..."
           value={query}
           onChange={e => setQuery(e.target.value)}
+          onKeyDown={e => e.key === 'Escape' && setQuery('')}
           style={{
             width: '100%', padding: '6px 8px', boxSizing: 'border-box',
             background: 'var(--bg-secondary)', border: '1px solid var(--border)',

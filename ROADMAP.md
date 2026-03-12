@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 402 완료 — WebPreviewPanel iframe 줌 컨트롤, Pass 422)
+> 마지막 업데이트: 2026-03-13 (Round 403 완료 — BookmarksPanel 정렬 토글, Pass 423)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 403 | dev | BookmarksPanel 정렬 토글 — sortOrder(기본/최신/오래된), ↕/🔽/🔼, ESC 초기화 | ✅ |
 | Round 402 | dev | WebPreviewPanel 줌 컨트롤 — zoom, +/-/% 버튼, 0.5x-2.0x 단계별 스케일 | ✅ |
 | Round 401 | dev | ConnectionPanel 서버 검색 필터 — serverSearch, 3개 초과 시 검색 입력, ESC 초기화 | ✅ |
 | Round 400 | dev | NotesPanel 노트 템플릿 — showTemplates, ✦ 버튼, 4종 프리셋(미팅/할일/버그/아이디어) | ✅ |

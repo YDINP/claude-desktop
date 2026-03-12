@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 403] — 2026-03-13
+### Added
+- BookmarksPanel: 정렬 토글 — sortOrder 상태(기본/최신/오래된), ↕/🔽/🔼 버튼, ESC 검색 초기화
+
 ## [Round 402] — 2026-03-13
 ### Added
 - WebPreviewPanel: iframe 줌 컨트롤 — zoom 상태, +/-/% 버튼, 0.5x-2.0x 단계별 스케일
