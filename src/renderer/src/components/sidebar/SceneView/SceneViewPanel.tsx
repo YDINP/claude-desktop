@@ -892,6 +892,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           selectedUuids={selectedUuids}
           focusUuid={selectedUuid}
           onToggleActive={handleHierarchyToggleActive}
+          onCopyNode={(uuid) => {
+            setSelectedUuid(uuid)
+            setSelectedUuids(new Set([uuid]))
+            const n = nodeMap.get(uuid)
+            if (n) setClipboard([{ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 }])
+          }}
           onSelect={(uuid, multi) => {
             if (multi) {
               setSelectedUuids(prev => {

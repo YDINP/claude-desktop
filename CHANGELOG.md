@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 166] — 2026-03-12
+### Added
+- NodeHierarchyList: 우클릭 컨텍스트 메뉴 — 선택/복사/활성화 메뉴 (이벤트 위임 방식)
+
 ## [Round 165] — 2026-03-12
 ### Added
 - SceneInspector: JSON 내보내기 버튼 — 노드 정보 전체를 pretty JSON으로 클립보드 복사

@@ -1557,6 +1557,33 @@ if (existsSync(sceneInspectorPath10)) {
   }
 }
 
+// ── Section 68: R166 신규 기능 ───────────────────────────────
+console.log('\n## 68. 신규 기능 파일 검사 (R166)')
+// NodeHierarchyList 우클릭 컨텍스트 메뉴 (Round 166)
+const nodeHierarchyPath11 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath11)) {
+  const nh11 = readFileSync(nodeHierarchyPath11, 'utf-8')
+  if (nh11.includes('contextMenu') && nh11.includes('handleContextMenu')) {
+    log('pass', 'Round166', 'NodeHierarchyList: contextMenu state + handleContextMenu 존재')
+  } else {
+    log('warning', 'Round166', 'NodeHierarchyList contextMenu 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+  if (nh11.includes('onCopyNode') && nh11.includes('data-uuid')) {
+    log('pass', 'Round166', 'NodeHierarchyList: onCopyNode prop + data-uuid 존재')
+  } else {
+    log('warning', 'Round166', 'NodeHierarchyList onCopyNode/data-uuid 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+const svp166Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp166Path)) {
+  const svp166 = readFileSync(svp166Path, 'utf-8')
+  if (svp166.includes('onCopyNode')) {
+    log('pass', 'Round166', 'SceneViewPanel: onCopyNode prop 연결됨')
+  } else {
+    log('warning', 'Round166', 'SceneViewPanel onCopyNode 미연결', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

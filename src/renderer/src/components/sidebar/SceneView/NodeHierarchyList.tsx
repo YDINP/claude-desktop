@@ -9,6 +9,7 @@ interface NodeHierarchyListProps {
   onSelect: (uuid: string, multi: boolean) => void
   focusUuid?: string | null
   onToggleActive?: (uuid: string, active: boolean) => void
+  onCopyNode?: (uuid: string) => void
 }
 
 function NodeRow({
@@ -130,10 +131,19 @@ function NodeRow({
   )
 }
 
-export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive }: NodeHierarchyListProps) {
+export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode }: NodeHierarchyListProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [contextMenu, setContextMenu] = useState<{ uuid: string; x: number; y: number } | null>(null)
+
+  const handleContextMenu = (e: React.MouseEvent, uuid: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setContextMenu({ uuid, x: e.clientX, y: e.clientY })
+  }
+
+  const closeContextMenu = () => setContextMenu(null)
 
   // focusUuid 변경 시 해당 노드로 자동 스크롤
   useEffect(() => {
@@ -224,7 +234,14 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
       </div>
 
       {/* 트리 / 검색 결과 */}
-      <div ref={scrollContainerRef} style={{ flex: 1, overflowY: 'auto' }}>
+      <div
+        ref={scrollContainerRef}
+        style={{ flex: 1, overflowY: 'auto' }}
+        onContextMenu={e => {
+          const el = (e.target as HTMLElement).closest('[data-uuid]') as HTMLElement | null
+          if (el?.dataset.uuid) handleContextMenu(e, el.dataset.uuid)
+        }}
+      >
         {filteredNodes ? (
           filteredNodes.length === 0 ? (
             <div style={{ padding: '6px', fontSize: 10, color: 'var(--text-muted)', textAlign: 'center' }}>
@@ -236,6 +253,7 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
               return (
                 <div
                   key={node.uuid}
+                  data-uuid={node.uuid}
                   onClick={e => onSelect(node.uuid, e.metaKey || e.ctrlKey)}
                   style={{
                     padding: '2px 6px',
@@ -274,6 +292,47 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
           />
         )}
       </div>
+
+      {/* 컨텍스트 메뉴 */}
+      {contextMenu && (() => {
+        const ctxNode = nodeMap.get(contextMenu.uuid)
+        if (!ctxNode) return null
+        return (
+          <>
+            <div style={{ position: 'fixed', inset: 0, zIndex: 999 }} onClick={closeContextMenu} />
+            <div
+              style={{
+                position: 'fixed',
+                left: contextMenu.x,
+                top: contextMenu.y,
+                zIndex: 1000,
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                minWidth: 140,
+                fontSize: 11,
+              }}
+            >
+              <div style={{ padding: '3px 6px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
+                {ctxNode.name}
+              </div>
+              <button onClick={() => { onSelect(contextMenu.uuid, false); closeContextMenu() }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '4px 10px', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 11 }}>
+                선택
+              </button>
+              <button onClick={() => { onCopyNode?.(contextMenu.uuid); closeContextMenu() }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '4px 10px', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 11 }}>
+                복사 (Ctrl+C)
+              </button>
+              <button onClick={() => { onToggleActive?.(contextMenu.uuid, !ctxNode.active); closeContextMenu() }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '4px 10px', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 11 }}>
+                {ctxNode.active ? '비활성화' : '활성화'}
+              </button>
+            </div>
+          </>
+        )
+      })()}
     </div>
   )
 }
