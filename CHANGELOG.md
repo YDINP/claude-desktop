@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 358] — 2026-03-13
+### Added
+- StatsPanel: 히트맵 요일 레이블 — 활동 히트맵 좌측에 일/화/목/토 레이블 추가 (GitHub contribution chart 스타일)
+
 ## [Round 357] — 2026-03-13
 ### Added
 - OutlinePanel: 역순 정렬 토글 — ↓/↑ 버튼으로 아웃라인 항목 순서 반전, 최신 헤딩 먼저 보기

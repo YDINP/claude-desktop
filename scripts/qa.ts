@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 260: R358 신규 기능 ───────────────────────────────
+console.log('\n## 260. 신규 기능 파일 검사 (R358)')
+// StatsPanel 히트맵 요일 레이블 (Round 358)
+const sp358Path = join(ROOT, 'src/renderer/src/components/sidebar/StatsPanel.tsx')
+if (existsSync(sp358Path)) {
+  const sp358 = readFileSync(sp358Path, 'utf-8')
+  if (sp358.includes("'일', '', '화', '', '목', '', '토'") && sp358.includes('요일 레이블')) {
+    log('pass', 'Round358', 'StatsPanel: 히트맵 요일 레이블 (일/화/목/토) 존재')
+  } else {
+    log('warning', 'Round358', 'StatsPanel 히트맵 요일 레이블 미구현', 'sidebar/StatsPanel.tsx')
+  }
+}
+
 // ── Section 259: R357 신규 기능 ───────────────────────────────
 console.log('\n## 259. 신규 기능 파일 검사 (R357)')
 // OutlinePanel 역순 정렬 (Round 357)

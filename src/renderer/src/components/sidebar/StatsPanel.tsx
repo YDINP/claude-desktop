@@ -360,22 +360,33 @@ export function StatsPanel() {
             </span>
           )}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 2 }}>
-          {Array.from({ length: 12 }, (_, weekIdx) => (
-            <div key={weekIdx} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {heatmapDays.slice(weekIdx * 7, weekIdx * 7 + 7).map(day => (
-                <div
-                  key={day.date}
-                  title={`${day.date}: ${day.count}개 세션`}
-                  style={{
-                    width: '100%', aspectRatio: '1', borderRadius: 2,
-                    background: getColor(day.count),
-                    cursor: 'default'
-                  }}
-                />
-              ))}
-            </div>
-          ))}
+        <div style={{ display: 'flex', gap: 2 }}>
+          {/* 요일 레이블 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, justifyContent: 'space-around', paddingTop: 2 }}>
+            {['일', '', '화', '', '목', '', '토'].map((label, i) => (
+              <div key={i} style={{ fontSize: 8, color: 'var(--text-muted)', textAlign: 'right', lineHeight: 1, height: '14.3%', display: 'flex', alignItems: 'center', minWidth: 10 }}>
+                {label}
+              </div>
+            ))}
+          </div>
+          {/* 히트맵 그리드 */}
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 2 }}>
+            {Array.from({ length: 12 }, (_, weekIdx) => (
+              <div key={weekIdx} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {heatmapDays.slice(weekIdx * 7, weekIdx * 7 + 7).map(day => (
+                  <div
+                    key={day.date}
+                    title={`${day.date}: ${day.count}개 세션`}
+                    style={{
+                      width: '100%', aspectRatio: '1', borderRadius: 2,
+                      background: getColor(day.count),
+                      cursor: 'default'
+                    }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4, fontSize: 10, color: 'var(--text-muted)' }}>
           <span>적음</span>
