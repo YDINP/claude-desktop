@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 148 완료 — SceneView 줌 인디케이터 클릭 리셋, Pass 114)
+> 마지막 업데이트: 2026-03-12 (Round 149 완료 — NodeHierarchyList 검색 결과 카운트, Pass 116)
 
 ## 완료된 라운드
 
@@ -100,6 +100,7 @@
 | Round 146 | dev | SceneInspector 부모 노드 표시 — "in: ParentName" 클릭 시 부모 노드 선택 + dep 수정 | ✅ |
 | Round 147 | dev | SceneView 씬 해상도 레이블 — SVG 씬 경계 우상단에 "960 × 640" 표시, 줌 보정 폰트 크기 | ✅ |
 | Round 148 | dev | SceneView 줌 인디케이터 클릭 → 1:1 리셋, 더블클릭 → Fit 전환 | ✅ |
+| Round 149 | dev | NodeHierarchyList 검색 결과 카운트 — 검색창 우측 "N/total" 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

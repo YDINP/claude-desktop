@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T13:56:12.603Z
+> 2026-03-12T13:57:45.141Z
 
 ## Critical
 _없음_
@@ -122,3 +122,5 @@ _없음_
 - SceneView: DESIGN_W × DESIGN_H 해상도 텍스트 존재
 - SceneView: 줌 인디케이터 클릭/더블클릭 tooltip 존재
 - SceneView: 1:1 줌 리셋 로직 존재
+- NodeHierarchyList: 검색 결과 카운트 N/total 표시 존재
+- NodeHierarchyList: 검색 중에만 카운트 표시 조건 존재

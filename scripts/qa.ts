@@ -1247,6 +1247,24 @@ if (existsSync(sceneViewPanelPath19)) {
   }
 }
 
+// ── Section 51: R149 신규 기능 ───────────────────────────────
+console.log('\n## 51. 신규 기능 파일 검사 (R149)')
+// NodeHierarchyList 검색 결과 카운트 (Round 149)
+const nodeHierarchyPath8 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath8)) {
+  const nh8 = readFileSync(nodeHierarchyPath8, 'utf-8')
+  if (nh8.includes('filteredNodes.length}/{nodeMap.size}') || nh8.includes('filteredNodes.length} / {nodeMap.size}') || nh8.includes('filteredNodes.length}/{nodeMap.size}')) {
+    log('pass', 'Round149', 'NodeHierarchyList: 검색 결과 카운트 N/total 표시 존재')
+  } else {
+    log('warning', 'Round149', 'NodeHierarchyList 검색 결과 카운트 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+  if (nh8.includes('filteredNodes && (')) {
+    log('pass', 'Round149', 'NodeHierarchyList: 검색 중에만 카운트 표시 조건 존재')
+  } else {
+    log('warning', 'Round149', 'NodeHierarchyList 카운트 조건 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

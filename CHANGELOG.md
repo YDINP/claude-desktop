@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 149] — 2026-03-12
+### Added
+- NodeHierarchyList: 검색 결과 카운트 표시 — 검색 중 "N/total" 형태로 검색창 우측 표시, 결과 없을 시 warning 색상
+
 ## [Round 148] — 2026-03-12
 ### Added
 - SceneView: 줌 인디케이터 클릭 → 1:1(100%) 리셋, 더블클릭 → Fit 전환 / cursor:pointer + tooltip 추가

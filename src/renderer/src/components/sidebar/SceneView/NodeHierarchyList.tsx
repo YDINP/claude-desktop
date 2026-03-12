@@ -188,6 +188,17 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
             minWidth: 0,
           }}
         />
+        {filteredNodes && (
+          <span style={{
+            fontSize: 9,
+            color: filteredNodes.length === 0 ? 'var(--warning)' : 'var(--text-muted)',
+            flexShrink: 0,
+            fontVariantNumeric: 'tabular-nums',
+            whiteSpace: 'nowrap',
+          }}>
+            {filteredNodes.length}/{nodeMap.size}
+          </span>
+        )}
         <button
           onClick={() => setCollapsed(new Set())}
           title="전체 펼치기"
