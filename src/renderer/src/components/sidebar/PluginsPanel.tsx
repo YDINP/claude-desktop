@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 interface PluginMeta {
   filename: string
@@ -22,6 +22,14 @@ export function PluginsPanel() {
   })
   const [expandedCode, setExpandedCode] = useState<string | null>(null)
   const [codeContent, setCodeContent] = useState<Record<string, string>>({})
+  const [sortMode, setSortMode] = useState<'default' | 'name' | 'enabled'>('default')
+
+  const sortedPlugins = useMemo(() => {
+    const list = [...plugins]
+    if (sortMode === 'name') list.sort((a, b) => (a.name || a.filename).localeCompare(b.name || b.filename))
+    else if (sortMode === 'enabled') list.sort((a, b) => (enabledSet.has(b.filename) ? 1 : 0) - (enabledSet.has(a.filename) ? 1 : 0))
+    return list
+  }, [plugins, sortMode, enabledSet])
 
   const load = async () => {
     setLoading(true)
@@ -74,6 +82,13 @@ export function PluginsPanel() {
             </span>
           )}
         </div>
+        {plugins.length > 1 && (
+          <button
+            onClick={() => setSortMode(m => m === 'default' ? 'name' : m === 'name' ? 'enabled' : 'default')}
+            title={`정렬: ${sortMode === 'default' ? '기본' : sortMode === 'name' ? '이름순' : '활성 먼저'}`}
+            style={{ background: sortMode !== 'default' ? 'var(--accent-dim)' : 'var(--bg-hover)', color: sortMode !== 'default' ? 'var(--accent)' : 'var(--text-muted)', border: `1px solid ${sortMode !== 'default' ? 'var(--accent)' : 'var(--border)'}`, borderRadius: 4, padding: '3px 8px', fontSize: 10, cursor: 'pointer' }}
+          >{sortMode === 'default' ? '↕' : sortMode === 'name' ? 'A↓' : '●↑'}</button>
+        )}
         <button
           onClick={() => window.api.pluginsOpenFolder()}
           style={{
@@ -109,7 +124,7 @@ export function PluginsPanel() {
             </div>
           </div>
         ) : (
-          plugins.map(plugin => {
+          sortedPlugins.map(plugin => {
             const enabled = enabledSet.has(plugin.filename)
             const codeOpen = expandedCode === plugin.filename
             return (

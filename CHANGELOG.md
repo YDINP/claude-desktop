@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 318] — 2026-03-13
+### Added
+- PluginsPanel: 플러그인 정렬 토글 — 기본/이름순(A↓)/활성 먼저(●↑) 3단계 순환, sortedPlugins useMemo
+
 ## [Round 317] — 2026-03-13
 ### Added
 - ClipboardPanel: 검색 시 필터 결과 수 헤더 표시 — 검색 활성 시 `N/M개 항목` 형태로 업데이트

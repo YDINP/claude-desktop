@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 220: R318 신규 기능 ───────────────────────────────
+console.log('\n## 220. 신규 기능 파일 검사 (R318)')
+// PluginsPanel 정렬 토글 (Round 318)
+const pp318Path = join(ROOT, 'src/renderer/src/components/sidebar/PluginsPanel.tsx')
+if (existsSync(pp318Path)) {
+  const pp318 = readFileSync(pp318Path, 'utf-8')
+  if (pp318.includes('sortMode') && pp318.includes('sortedPlugins') && pp318.includes('활성 먼저')) {
+    log('pass', 'Round318', 'PluginsPanel: 정렬 토글 (sortMode/sortedPlugins/활성 먼저) 존재')
+  } else {
+    log('warning', 'Round318', 'PluginsPanel 정렬 토글 미구현', 'sidebar/PluginsPanel.tsx')
+  }
+}
+
 // ── Section 219: R317 신규 기능 ───────────────────────────────
 console.log('\n## 219. 신규 기능 파일 검사 (R317)')
 // ClipboardPanel 검색 시 필터 결과 수 (Round 317)
