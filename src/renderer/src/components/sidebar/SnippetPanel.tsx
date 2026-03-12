@@ -41,6 +41,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
   const [filter, setFilter] = useState('')
   const [sortOrder, setSortOrder] = useState<'created' | 'name'>('created')
   const [toast, setToast] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
   const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([])
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
@@ -267,6 +268,22 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
         {s.content.slice(0, 120)}{s.content.length > 120 ? '…' : ''}
       </div>
       <div style={{ display: 'flex', gap: 4 }}>
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(s.content).then(() => {
+              setCopiedId(s.id)
+              setTimeout(() => setCopiedId(id => id === s.id ? null : id), 1500)
+            })
+          }}
+          title="클립보드에 복사"
+          style={{
+            padding: '3px 6px', background: 'transparent',
+            color: copiedId === s.id ? '#4ade80' : 'var(--text-muted)',
+            borderRadius: 3, fontSize: 11, flexShrink: 0,
+          }}
+        >
+          {copiedId === s.id ? '✓' : '📋'}
+        </button>
         <button
           onClick={() => onInsert(s.content)}
           style={{

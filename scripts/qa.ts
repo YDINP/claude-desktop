@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 224: R322 신규 기능 ───────────────────────────────
+console.log('\n## 224. 신규 기능 파일 검사 (R322)')
+// SnippetPanel 스니펫 복사 버튼 (Round 322)
+const sp322Path = join(ROOT, 'src/renderer/src/components/sidebar/SnippetPanel.tsx')
+if (existsSync(sp322Path)) {
+  const sp322 = readFileSync(sp322Path, 'utf-8')
+  if (sp322.includes('copiedId') && sp322.includes('클립보드에 복사') && sp322.includes('setCopiedId')) {
+    log('pass', 'Round322', 'SnippetPanel: 스니펫 복사 버튼 (copiedId/📋/✓) 존재')
+  } else {
+    log('warning', 'Round322', 'SnippetPanel 복사 버튼 미구현', 'sidebar/SnippetPanel.tsx')
+  }
+}
+
 // ── Section 223: R321 신규 기능 ───────────────────────────────
 console.log('\n## 223. 신규 기능 파일 검사 (R321)')
 // ConnectionPanel 헤더 활성 서버 수 배지 (Round 321)
