@@ -32,6 +32,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [isResizing, setIsResizing] = useState(false)
   const [cursorScenePos, setCursorScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverTooltipPos, setHoverTooltipPos] = useState<{ x: number; y: number } | null>(null)
+  const [showShortcuts, setShowShortcuts] = useState(false)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -131,6 +132,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.key === 'w' || e.key === 'W') setActiveTool('move')
       if (e.key === 'f' || e.key === 'F') handleFit()
       if (e.key === 'g' || e.key === 'G') handleFocusSelected()
+      if (e.key === '?') setShowShortcuts(v => !v)
       if (e.key === 'Escape') {
         setSelectedUuid(null)
         setSelectedUuids(new Set())
@@ -709,6 +711,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         height: '100%',
         overflow: 'hidden',
         background: 'var(--bg-primary)',
+        position: 'relative',
       }}
     >
       {/* 툴바 */}
@@ -1068,6 +1071,55 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </div>
         )}
       </div>
+
+      {/* 단축키 도움말 오버레이 */}
+      {showShortcuts && (
+        <div
+          onClick={() => setShowShortcuts(false)}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 50,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              padding: '12px 16px',
+              fontSize: 10,
+              color: 'var(--text-primary)',
+              minWidth: 200,
+            }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 8, fontSize: 11 }}>단축키 도움말</div>
+            {[
+              ['V', '선택 도구'],
+              ['W', '이동 도구'],
+              ['F', '화면 맞추기'],
+              ['G', '선택 노드 포커스'],
+              ['Ctrl+Z', '실행 취소'],
+              ['Ctrl+Y', '다시 실행'],
+              ['Ctrl+C', '복사'],
+              ['Ctrl+V', '붙여넣기'],
+              ['Escape', '선택 해제'],
+              ['?', '단축키 도움말 토글'],
+            ].map(([key, desc]) => (
+              <div key={key} style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
+                <span style={{ fontFamily: 'monospace', color: 'var(--accent)', minWidth: 60, flexShrink: 0 }}>{key}</span>
+                <span style={{ color: 'var(--text-muted)' }}>{desc}</span>
+              </div>
+            ))}
+            <div style={{ marginTop: 8, fontSize: 9, color: 'var(--text-muted)', textAlign: 'center' }}>클릭하거나 ? 키로 닫기</div>
+          </div>
+        </div>
+      )}
 
       {/* Inspector */}
       <SceneInspector

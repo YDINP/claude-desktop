@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 144] — 2026-03-12
+### Added
+- SceneViewPanel: 단축키 도움말 오버레이 — ? 키로 토글, 클릭으로 닫기, 전체 단축키 목록 표시
+
 ## [Round 143] — 2026-03-12
 ### Added
 - NodeHierarchyList: 전체 펼치기(▾▾) / 전체 접기(▸▸) 버튼 — 검색창 우측 배치, 씬 전체 트리 즉시 토글

@@ -1157,6 +1157,24 @@ if (existsSync(nodeHierarchyPath7)) {
   }
 }
 
+// ── Section 46: R144 신규 기능 ───────────────────────────────
+console.log('\n## 46. 신규 기능 파일 검사 (R144)')
+// SceneView 단축키 도움말 오버레이 (Round 144)
+const sceneViewPanelPath16 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath16)) {
+  const svp16 = readFileSync(sceneViewPanelPath16, 'utf-8')
+  if (svp16.includes('showShortcuts') && svp16.includes('setShowShortcuts') && svp16.includes("'?'")) {
+    log('pass', 'Round144', 'SceneViewPanel: showShortcuts 상태 + ? 키 토글 존재')
+  } else {
+    log('warning', 'Round144', 'SceneViewPanel 단축키 오버레이 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp16.includes('단축키 도움말') && svp16.includes('클릭하거나 ? 키로 닫기')) {
+    log('pass', 'Round144', 'SceneViewPanel: 단축키 오버레이 콘텐츠 존재')
+  } else {
+    log('warning', 'Round144', 'SceneViewPanel 단축키 오버레이 콘텐츠 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
