@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 385] — 2026-03-13
+### Added
+- OutlinePanel: 개별 헤딩 복사 버튼 — hover 시 📋 표시, copiedItemKey 상태, "#".repeat(level) 포함 복사
+
 ## [Round 384] — 2026-03-13
 ### Added
 - TasksPanel: 태스크 텍스트 복사 버튼 — 각 행 📋 버튼, copiedTaskId 상태, 태스크 제목 클립보드 복사

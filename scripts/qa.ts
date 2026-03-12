@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 287: R385 신규 기능 ───────────────────────────────
+console.log('\n## 287. 신규 기능 파일 검사 (R385)')
+// OutlinePanel 개별 헤딩 복사 버튼 (Round 385)
+const op385Path = join(ROOT, 'src/renderer/src/components/sidebar/OutlinePanel.tsx')
+if (existsSync(op385Path)) {
+  const op385 = readFileSync(op385Path, 'utf-8')
+  if (op385.includes('copiedItemKey') && op385.includes('헤딩 복사')) {
+    log('pass', 'Round385', 'OutlinePanel: 개별 헤딩 복사 버튼 존재')
+  } else {
+    log('warning', 'Round385', 'OutlinePanel 개별 헤딩 복사 미구현', 'sidebar/OutlinePanel.tsx')
+  }
+}
+
 // ── Section 286: R384 신규 기능 ───────────────────────────────
 console.log('\n## 286. 신규 기능 파일 검사 (R384)')
 // TasksPanel 태스크 텍스트 복사 버튼 (Round 384)
