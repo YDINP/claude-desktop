@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 139: R237 신규 기능 ───────────────────────────────
+console.log('\n## 139. 신규 기능 파일 검사 (R237)')
+// SceneView 노드 경로 브레드크럼 (Round 237)
+const svp237Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp237Path)) {
+  const svp237 = readFileSync(svp237Path, 'utf-8')
+  if (svp237.includes('nodePath') && svp237.includes('브레드크럼') && svp237.includes('parentUuid')) {
+    log('pass', 'Round237', 'SceneViewPanel: 노드 경로 브레드크럼 구현 존재')
+  } else {
+    log('warning', 'Round237', 'SceneViewPanel 브레드크럼 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 138: R236 신규 기능 ───────────────────────────────
 console.log('\n## 138. 신규 기능 파일 검사 (R236)')
 // SceneView 태그 필터 (Round 236)

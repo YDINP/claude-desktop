@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 236 완료 — SceneView 태그 필터 드롭다운, Pass 255)
+> 마지막 업데이트: 2026-03-13 (Round 237 완료 — SceneView 노드 경로 브레드크럼, Pass 256)
 
 ## 완료된 라운드
 
@@ -188,6 +188,7 @@
 | Round 234 | dev | SceneView 노드 크기 맞추기 — 선택 기준 노드 W/H/both 동일화, 툴바 ↔W/↕H/⊞ 버튼 | ✅ |
 | Round 235 | dev | SceneView 노드 잠금 — Alt+L 단축키, 🔒 SVG 아이콘, 툴바 잠금 버튼, 드래그/리사이즈 차단 | ✅ |
 | Round 236 | dev | SceneView 태그 필터 — 씬 내 태그 드롭다운, 선택 태그 없는 노드 dimmed 처리 | ✅ |
+| Round 237 | dev | SceneView 노드 경로 브레드크럼 — Root→…→선택 노드 경로 상태바 위 표시, 클릭 선택 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

@@ -1153,6 +1153,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return [...types].sort()
   }, [nodeMap])
 
+  // 선택 노드 경로 (브레드크럼용: root → … → 선택 노드)
+  const nodePath = useMemo(() => {
+    if (!selectedUuid) return []
+    const path: { uuid: string; name: string }[] = []
+    let cur = nodeMap.get(selectedUuid)
+    while (cur) {
+      path.unshift({ uuid: cur.uuid, name: cur.name })
+      cur = cur.parentUuid ? nodeMap.get(cur.parentUuid) : undefined
+    }
+    return path
+  }, [selectedUuid, nodeMap])
+
   // 씬 내 모든 태그 목록 (태그 필터 드롭다운용)
   const allTags = useMemo(() => {
     const tags = new Set<string>()
@@ -2162,6 +2174,49 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   }}
                 />
               </label>
+            ))}
+          </div>
+        )}
+
+        {/* 노드 경로 브레드크럼 */}
+        {nodePath.length > 1 && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 18,
+              left: 0,
+              right: 0,
+              height: 16,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              padding: '0 8px',
+              background: 'rgba(10,10,15,0.7)',
+              borderTop: '1px solid rgba(255,255,255,0.05)',
+              fontSize: 9,
+              color: 'var(--text-muted)',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {nodePath.map((item, idx) => (
+              <span key={item.uuid} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                {idx > 0 && <span style={{ opacity: 0.4 }}>/</span>}
+                <span
+                  style={{
+                    cursor: 'pointer',
+                    color: idx === nodePath.length - 1 ? 'var(--accent)' : 'var(--text-muted)',
+                    fontWeight: idx === nodePath.length - 1 ? 600 : 400,
+                    maxWidth: 80,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                  onClick={() => { setSelectedUuid(item.uuid); setSelectedUuids(new Set([item.uuid])) }}
+                  title={item.name}
+                >
+                  {item.name.length > 12 ? item.name.slice(0, 10) + '…' : item.name}
+                </span>
+              </span>
             ))}
           </div>
         )}

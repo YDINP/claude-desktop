@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 237] — 2026-03-13
+### Added
+- SceneView: 노드 경로 브레드크럼 — 선택 노드의 Root→…→현재 경로를 상태바 위에 표시, 각 항목 클릭 시 해당 노드 선택
+
 ## [Round 236] — 2026-03-13
 ### Added
 - SceneView: 태그 기반 노드 필터 — 씬 내 태그 목록 드롭다운, 선택 태그 없는 노드 dimmed 처리
