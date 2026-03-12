@@ -442,9 +442,16 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
 
       {/* Position */}
       <SectionHeader label="Position" />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
-        <NumInput label="X" value={node.x} uuid={node.uuid} prop="x" onSave={onUpdate} />
-        <NumInput label="Y" value={node.y} uuid={node.uuid} prop="y" onSave={onUpdate} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+          <NumInput label="X" value={node.x} uuid={node.uuid} prop="x" onSave={onUpdate} />
+          <NumInput label="Y" value={node.y} uuid={node.uuid} prop="y" onSave={onUpdate} />
+        </div>
+        <button
+          onClick={() => { onUpdate(node.uuid, 'x', 0); onUpdate(node.uuid, 'y', 0) }}
+          title="X, Y 위치를 (0, 0)으로 초기화"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.x !== 0 || node.y !== 0) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+        >⊙</button>
       </div>
 
       {/* Size */}

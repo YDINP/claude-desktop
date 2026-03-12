@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 178 완료 — Alt+Up/Down 계층 탐색, Pass 172)
+> 마지막 업데이트: 2026-03-13 (Round 179 완료 — SceneInspector Position 리셋, Pass 173)
 
 ## 완료된 라운드
 
@@ -130,6 +130,7 @@
 | Round 176 | dev | SceneView 드래그/리사이즈 중 선택 노드 x,y,w,h 실시간 정보 표시 | ✅ |
 | Round 177 | dev | SceneView 배경 밝기 토글 — ◑ 버튼으로 체크패턴 어두운/밝은 전환 | ✅ |
 | Round 178 | dev | SceneView Alt+↑/↓ 계층 탐색 — 부모/첫자식 노드로 선택 이동 | ✅ |
+| Round 179 | dev | SceneInspector Position ⊙ 리셋 버튼 — X,Y를 (0,0)으로 즉시 초기화 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

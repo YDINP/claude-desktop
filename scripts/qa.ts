@@ -1797,6 +1797,19 @@ if (existsSync(svp178Path)) {
   }
 }
 
+// ── Section 81: R179 신규 기능 ───────────────────────────────
+console.log('\n## 81. 신규 기능 파일 검사 (R179)')
+// SceneInspector Position 리셋 버튼 (Round 179)
+const sceneInspectorPath16 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath16)) {
+  const si16 = readFileSync(sceneInspectorPath16, 'utf-8')
+  if (si16.includes('X, Y 위치를 (0, 0)으로 초기화') && si16.includes("onUpdate(node.uuid, 'x', 0)")) {
+    log('pass', 'Round179', 'SceneInspector: Position 리셋 버튼 존재')
+  } else {
+    log('warning', 'Round179', 'SceneInspector Position 리셋 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

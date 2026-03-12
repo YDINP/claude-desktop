@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 179] — 2026-03-13
+### Added
+- SceneInspector: Position ⊙ 버튼 — 클릭 시 X, Y를 (0, 0)으로 즉시 초기화
+
 ## [Round 178] — 2026-03-13
 ### Added
 - SceneView: Alt+↑ 부모 노드 선택, Alt+↓ 첫 자식 노드 선택 단축키
