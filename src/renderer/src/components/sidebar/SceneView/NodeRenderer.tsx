@@ -13,6 +13,7 @@ interface NodeRendererProps {
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
+  onDoubleClick?: (uuid: string) => void
 }
 
 // 디자인 해상도 (씬 좌표 기준 — 추후 SceneViewPanel에서 주입할 것)
@@ -41,6 +42,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
+  onDoubleClick,
 }: NodeRendererProps) {
   // 씬 좌표 → SVG 좌표 변환
   const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
@@ -76,6 +78,7 @@ export const NodeRenderer = memo(function NodeRenderer({
       opacity={opacity}
       transform={`rotate(${-node.rotation} ${cx} ${cy})`}
       onMouseDown={e => onMouseDown(e, node.uuid)}
+      onDoubleClick={() => onDoubleClick?.(node.uuid)}
       onMouseEnter={() => onMouseEnter(node.uuid)}
       onMouseLeave={onMouseLeave}
       style={{ cursor: 'move' }}

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 170] — 2026-03-12
+### Added
+- SceneView: 노드 더블클릭 → SceneInspector 이름 편집 자동 포커스 (SVG → Inspector 연동)
+
 ## [Round 169] — 2026-03-12
 ### Added
 - SceneInspector: 컬러 피커 — 색상 스워치 클릭 시 native color picker 열림, 변경 즉시 반영

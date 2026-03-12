@@ -35,6 +35,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [cursorScenePos, setCursorScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverTooltipPos, setHoverTooltipPos] = useState<{ x: number; y: number } | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [inspectorNameFocus, setInspectorNameFocus] = useState(0)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -1082,6 +1083,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={setHoveredUuid}
                   onMouseLeave={() => setHoveredUuid(null)}
+                  onDoubleClick={() => { setInspectorNameFocus(v => v + 1) }}
                 />
               )
             })}
@@ -1409,6 +1411,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         selectionCount={selectionCount}
         onRename={handleRename}
         onColorUpdate={handleColorUpdate}
+        focusNameTrigger={inspectorNameFocus}
         nodeMap={nodeMap}
         onSelectParent={uuid => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
       />

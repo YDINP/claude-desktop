@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 169 완료 — SceneInspector 컬러 피커, Pass 157)
+> 마지막 업데이트: 2026-03-12 (Round 170 완료 — 노드 더블클릭 Inspector 이름 편집, Pass 159)
 
 ## 완료된 라운드
 
@@ -121,6 +121,7 @@
 | Round 167 | dev | SceneInspector Scale 비율 유지 잠금 — ∝ 버튼으로 Sx/Sy 연동 | ✅ |
 | Round 168 | dev | SceneView 선택 노드 회전 핸들 — 오렌지 원형 핸들 드래그로 rotation 변경 | ✅ |
 | Round 169 | dev | SceneInspector 컬러 피커 — 스워치 클릭 → native color picker, 즉시 반영 | ✅ |
+| Round 170 | dev | SceneView 노드 더블클릭 → Inspector 이름 편집 포커스 자동 전환 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

@@ -1642,6 +1642,28 @@ if (existsSync(svp169Path)) {
   }
 }
 
+// ── Section 72: R170 신규 기능 ───────────────────────────────
+console.log('\n## 72. 신규 기능 파일 검사 (R170)')
+// NodeRenderer 더블클릭 → SceneInspector 이름 편집 포커스 (Round 170)
+const nodeRendererPath2 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nodeRendererPath2)) {
+  const nr2 = readFileSync(nodeRendererPath2, 'utf-8')
+  if (nr2.includes('onDoubleClick')) {
+    log('pass', 'Round170', 'NodeRenderer: onDoubleClick prop 존재')
+  } else {
+    log('warning', 'Round170', 'NodeRenderer onDoubleClick 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+const sceneInspectorPath13 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath13)) {
+  const si13 = readFileSync(sceneInspectorPath13, 'utf-8')
+  if (si13.includes('focusNameTrigger') && si13.includes('nameInputRef')) {
+    log('pass', 'Round170', 'SceneInspector: focusNameTrigger + nameInputRef 존재')
+  } else {
+    log('warning', 'Round170', 'SceneInspector focusNameTrigger 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

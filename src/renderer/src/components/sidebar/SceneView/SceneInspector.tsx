@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { SceneNode } from './types'
 import { getComponentIcon } from './utils'
 
@@ -11,6 +11,7 @@ interface SceneInspectorProps {
   onRename?: (uuid: string, name: string) => void
   nodeMap?: Map<string, SceneNode>
   onSelectParent?: (uuid: string) => void
+  focusNameTrigger?: number
 }
 
 // 개별 수치 입력 필드
@@ -124,12 +125,21 @@ function SectionHeader({ label }: { label: string }) {
   )
 }
 
-export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, nodeMap, onSelectParent }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
   const [uuidCopied, setUuidCopied] = useState(false)
   const [scaleLocked, setScaleLocked] = useState(false)
+  const nameInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!focusNameTrigger || !node) return
+    setNameDraft(node.name)
+    setNameEditing(true)
+    // 렌더 후 포커스
+    setTimeout(() => nameInputRef.current?.focus(), 50)
+  }, [focusNameTrigger])
 
   const handleScaleUpdate = (uuid: string, prop: string, value: number) => {
     onUpdate(uuid, prop, value)
@@ -245,6 +255,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
       >
         {nameEditing ? (
           <input
+            ref={nameInputRef}
             autoFocus
             value={nameDraft}
             onChange={e => setNameDraft(e.target.value)}
