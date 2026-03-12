@@ -406,20 +406,28 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
   }, [spaceDown])
 
-  // ── Ctrl+A 전체 선택 ──────────────────────────────────────
+  // ── Ctrl+A 전체 선택 / Ctrl+Shift+A 선택 반전 ─────────────
   useEffect(() => {
     const handleSelectAll = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).tagName === 'INPUT') return
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && !e.shiftKey) {
         e.preventDefault()
         const all = new Set(nodeMap.keys())
         setSelectedUuids(all)
         setSelectedUuid(rootUuid || null)
       }
+      // Ctrl+Shift+A — 선택 반전
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && e.shiftKey) {
+        e.preventDefault()
+        const all = new Set(nodeMap.keys())
+        const inverted = new Set([...all].filter(u => !selectedUuids.has(u)))
+        setSelectedUuids(inverted)
+        setSelectedUuid(inverted.size > 0 ? [...inverted][0] : null)
+      }
     }
     window.addEventListener('keydown', handleSelectAll)
     return () => window.removeEventListener('keydown', handleSelectAll)
-  }, [nodeMap, rootUuid])
+  }, [nodeMap, rootUuid, selectedUuids])
 
   // ── 방향키 nudge: 선택 노드 1px / Shift+10px 이동 ─────────
   useEffect(() => {
@@ -2779,6 +2787,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Ctrl+Z', '실행 취소'],
               ['Ctrl+Y', '다시 실행'],
               ['Ctrl+A', '전체 선택'],
+              ['Ctrl+Shift+A', '선택 반전 (비선택 ↔ 선택)'],
               ['Ctrl+C', '복사'],
               ['Ctrl+V', '붙여넣기'],
               ['Ctrl+D', '복제 (클립보드 유지)'],

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 245 완료 — SceneView 인라인 편집바 rotation 필드, Pass 265)
+> 마지막 업데이트: 2026-03-13 (Round 246 완료 — SceneView 선택 반전 Ctrl+Shift+A, Pass 266)
 
 ## 완료된 라운드
 
@@ -197,6 +197,7 @@
 | Round 243 | dev | SceneView 드래그 델타 오버레이 — 드래그 중 Δx/Δy 이동량 커서 옆 실시간 표시 | ✅ |
 | Round 244 | dev | SceneView 연결선 개선 — cubic bezier 곡선 + 화살표 마커 (부모→자식 방향) | ✅ |
 | Round 245 | dev | SceneView 인라인 편집바 rotation(R) 필드 — X/Y/W/H에 R 추가, 회전값 직접 편집 | ✅ |
+| Round 246 | dev | SceneView 선택 반전 — Ctrl+Shift+A로 선택/비선택 상태 반전 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

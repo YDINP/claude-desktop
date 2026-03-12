@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 246] — 2026-03-13
+### Added
+- SceneView: 선택 반전 (Ctrl+Shift+A) — 현재 선택 상태를 반전, 비선택 노드 모두 선택
+
 ## [Round 245] — 2026-03-13
 ### Improved
 - SceneView: 인라인 편집바에 회전(R) 필드 추가 — X/Y/W/H/R 5개 필드로 회전값 직접 편집 지원

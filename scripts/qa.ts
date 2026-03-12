@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 148: R246 신규 기능 ───────────────────────────────
+console.log('\n## 148. 신규 기능 파일 검사 (R246)')
+// SceneView 선택 반전 Ctrl+Shift+A (Round 246)
+const svp246Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp246Path)) {
+  const svp246 = readFileSync(svp246Path, 'utf-8')
+  if (svp246.includes('선택 반전') && svp246.includes('shiftKey') && svp246.includes('inverted')) {
+    log('pass', 'Round246', 'SceneViewPanel: Ctrl+Shift+A 선택 반전 구현 존재')
+  } else {
+    log('warning', 'Round246', 'SceneViewPanel 선택 반전 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 147: R245 신규 기능 ───────────────────────────────
 console.log('\n## 147. 신규 기능 파일 검사 (R245)')
 // SceneView 인라인 편집바 rotation 필드 (Round 245)
