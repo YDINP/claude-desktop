@@ -966,6 +966,25 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ))
             })()}
 
+            {/* 선택 노드 size 레이블 */}
+            {selectedNode && selectedUuids.size <= 1 && !isDragging && !isResizing && (() => {
+              const n = selectedNode
+              const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+              const hw = n.width / 2
+              const hh = n.height / 2
+              return (
+                <text
+                  x={sx + hw + 4 / view.zoom}
+                  y={sy - hh - 3 / view.zoom}
+                  fontSize={9 / view.zoom}
+                  fill="rgba(96,165,250,0.85)"
+                  style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'monospace' }}
+                >
+                  {Math.round(n.width)}×{Math.round(n.height)}
+                </text>
+              )
+            })()}
+
             {/* 멀티셀렉트 그룹 bbox */}
             {groupBbox && (
               <rect

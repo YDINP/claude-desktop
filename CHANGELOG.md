@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 152] — 2026-03-12
+### Added
+- SceneView: 선택 노드 size 레이블 — 단일 선택 시 bounding box 우상단에 "W×H" SVG 텍스트 표시 (드래그/리사이즈 중 숨김)
+
 ## [Round 151] — 2026-03-12
 ### Added
 - SceneView: 방향키로 선택 노드 1px nudge, Shift+방향키 10px 이동 + 단축키 도움말에 항목 추가

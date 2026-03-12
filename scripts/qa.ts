@@ -1301,6 +1301,24 @@ if (existsSync(sceneViewPanelPath20)) {
   }
 }
 
+// ── Section 54: R152 신규 기능 ───────────────────────────────
+console.log('\n## 54. 신규 기능 파일 검사 (R152)')
+// 선택 노드 size 레이블 (Round 152)
+const sceneViewPanelPath21 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath21)) {
+  const svp21 = readFileSync(sceneViewPanelPath21, 'utf-8')
+  if (svp21.includes('선택 노드 size 레이블') && svp21.includes('Math.round(n.width)')) {
+    log('pass', 'Round152', 'SceneView: 선택 노드 size 레이블 W×H 표시 존재')
+  } else {
+    log('warning', 'Round152', 'SceneView 선택 노드 size 레이블 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp21.includes('!isDragging && !isResizing') && svp21.includes('9 / view.zoom')) {
+    log('pass', 'Round152', 'SceneView: 드래그/리사이즈 중 숨김 + zoom 보정 폰트 적용')
+  } else {
+    log('warning', 'Round152', 'SceneView size 레이블 zoom 보정 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
