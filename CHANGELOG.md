@@ -1,5 +1,20 @@
 # Changelog — Claude Desktop
 
+## [Round 119] — 2026-03-12
+### Added
+- InputBar: text useEffect → adjustHeight() 자동 호출 (Shift+Enter 줄바꿈 auto-resize)
+- InputBar: placeholder에 Shift+Enter 힌트, 100자 이상 시 문자/줄 수 표시
+
+## [Round 118] — 2026-03-12
+### Added
+- SceneViewPanel: groupBbox useMemo — 멀티셀렉트 노드 전체 bbox 계산 (패딩 8px)
+- SVG 황색 점선 rect 렌더링 (strokeWidth/dasharray zoom 보정)
+
+## [Round 117] — 2026-03-12
+### Added
+- SceneView DragState: groupOffsets? 필드 추가
+- SceneViewPanel: isGroupDrag 감지 + 선택 노드 동시 이동 + undo/IPC 배치 처리
+
 ## [Round 115] — 2026-03-12
 ### Added
 - SessionList: 커스텀 텍스트 태그 시스템 — 자유 텍스트 태그 입력 + 자동완성 드롭다운

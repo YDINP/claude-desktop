@@ -1,8 +1,8 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 119 완료)
+> 마지막 업데이트: 2026-03-12 (Round 120 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 119 (InputBar 멀티라인 + QA Pass 57)
+- 마지막 커밋: Round 120 (QA + CHANGELOG 갱신, Pass 57)
 - 빌드: `npm run build` ✅
 - QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 57
 - 브랜치: `dev`

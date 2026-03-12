@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 119 완료 — InputBar 멀티라인 auto-resize + 문자/줄 수 표시 + QA Pass 57)
+> 마지막 업데이트: 2026-03-12 (Round 120 완료 — QA 통합 + CHANGELOG R117~119 갱신, Pass 57)
 
 ## 완료된 라운드
 
@@ -66,13 +66,14 @@
 | Round 117 | dev | SceneView 멀티셀렉트 그룹 드래그 — DragState groupOffsets, 선택 노드 동시 이동 + undo/redo (Pass→54) | ✅ |
 | Round 118 | dev | SceneView 그룹 bbox 점선 박스 — 멀티셀렉트 시 노드 둘레 황색 점선 bbox 렌더링 (Pass→55) | ✅ |
 | Round 119 | dev | InputBar 멀티라인 auto-resize (text useEffect) + Shift+Enter 힌트 + 문자/줄 수 표시 (Pass→57) | ✅ |
+| Round 120 | dev | QA 통합 + CHANGELOG R117~119 갱신 (Pass 57 유지) | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 120 | dev | QA + CHANGELOG R117~119 갱신 |
-| Round 121 | dev | ChatPanel 메시지 검색 하이라이트 개선 + 검색 결과 개수 표시 |
+| Round 121 | dev | CC Extension 노드 컴포넌트 목록 개선 — cc.Label/cc.Sprite 등 주요 컴포넌트 props 추출 강화 |
+| Round 122 | dev | SessionList 날짜 그룹 헤더 — 오늘/어제/이번주/이번달/이전 섹션 구분 |
 
 ## 전략 로드맵 (Phase)
 
