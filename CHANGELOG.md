@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 245] — 2026-03-13
+### Improved
+- SceneView: 인라인 편집바에 회전(R) 필드 추가 — X/Y/W/H/R 5개 필드로 회전값 직접 편집 지원
+
 ## [Round 244] — 2026-03-13
 ### Improved
 - SceneView: 부모-자식 연결선 개선 — 직선→cubic bezier 곡선, 화살표 마커 추가

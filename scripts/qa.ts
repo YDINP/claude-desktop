@@ -2036,6 +2036,21 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 147: R245 신규 기능 ───────────────────────────────
+console.log('\n## 147. 신규 기능 파일 검사 (R245)')
+// SceneView 인라인 편집바 rotation 필드 (Round 245)
+const svp245Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp245Path)) {
+  const svp245 = readFileSync(svp245Path, 'utf-8')
+  if (svp245.includes("'r': string") && svp245.includes("'rotation'") && svp245.includes("'r'] as const")) {
+    log('pass', 'Round245', 'SceneViewPanel: 인라인 편집바 rotation(r) 필드 구현 존재')
+  } else if (svp245.includes('r: string') && svp245.includes("=== 'r' ? 'rotation'") && svp245.includes("'r'] as const")) {
+    log('pass', 'Round245', 'SceneViewPanel: 인라인 편집바 rotation(r) 필드 구현 존재')
+  } else {
+    log('warning', 'Round245', 'SceneViewPanel 인라인 편집바 rotation 필드 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 146: R244 신규 기능 ───────────────────────────────
 console.log('\n## 146. 신규 기능 파일 검사 (R244)')
 // SceneView 연결선 커브 + 화살표 (Round 244)

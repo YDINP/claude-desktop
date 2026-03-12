@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 244 완료 — SceneView 연결선 cubic bezier + 화살표, Pass 264)
+> 마지막 업데이트: 2026-03-13 (Round 245 완료 — SceneView 인라인 편집바 rotation 필드, Pass 265)
 
 ## 완료된 라운드
 
@@ -196,6 +196,7 @@
 | Round 242 | dev | SceneView 그룹 해제 — Ctrl+Shift+G 자식 노드 상위 레벨 이동, handleUngroup | ✅ |
 | Round 243 | dev | SceneView 드래그 델타 오버레이 — 드래그 중 Δx/Δy 이동량 커서 옆 실시간 표시 | ✅ |
 | Round 244 | dev | SceneView 연결선 개선 — cubic bezier 곡선 + 화살표 마커 (부모→자식 방향) | ✅ |
+| Round 245 | dev | SceneView 인라인 편집바 rotation(R) 필드 — X/Y/W/H에 R 추가, 회전값 직접 편집 | ✅ |
 
 ## 전략 로드맵 (Phase)
 
