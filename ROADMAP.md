@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 210 완료 — SceneView Shift 비례 리사이즈, Pass 205)
+> 마지막 업데이트: 2026-03-13 (Round 211 완료 — SceneView 씬 저장/로드, Pass 206)
 
 ## 완료된 라운드
 
@@ -162,6 +162,7 @@
 | Round 208 | dev | SceneView SVG 씬 내보내기 — ⬇ 버튼으로 씬 노드 레이아웃 SVG 다운로드 | ✅ |
 | Round 209 | dev | SceneView 노드 가시성 토글 — 계층 트리 👁 아이콘으로 숨기기/표시 | ✅ |
 | Round 210 | dev | SceneView Shift+리사이즈 비례 리사이즈 — 코너 핸들에서 aspect ratio 유지 | ✅ |
+| Round 211 | dev | SceneView 씬 레이아웃 저장/로드 — 💾/📂 버튼, localStorage 저장·복원 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

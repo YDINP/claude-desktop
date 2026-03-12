@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 211] — 2026-03-13
+### Added
+- SceneView: 씬 레이아웃 저장/로드 — 💾/📂 버튼으로 nodeMap을 localStorage에 저장·복원
+
 ## [Round 210] — 2026-03-13
 ### Added
 - SceneView: Shift+리사이즈 비례 리사이즈 — 코너 핸들 드래그 중 Shift 키로 aspect ratio 유지

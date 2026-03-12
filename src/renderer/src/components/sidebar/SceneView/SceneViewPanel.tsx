@@ -879,6 +879,26 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     URL.revokeObjectURL(url)
   }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
 
+  // ── 씬 저장 / 로드 (localStorage) ──────────────────────────
+  const SCENE_STORAGE_KEY = 'claude-desktop-scene-layout'
+
+  const handleSaveScene = useCallback(() => {
+    const data = JSON.stringify([...nodeMap.entries()])
+    localStorage.setItem(SCENE_STORAGE_KEY, data)
+  }, [nodeMap])
+
+  const handleLoadScene = useCallback(() => {
+    try {
+      const raw = localStorage.getItem(SCENE_STORAGE_KEY)
+      if (!raw) return
+      const entries: [string, import('./types').SceneNode][] = JSON.parse(raw)
+      const next = new Map<string, import('./types').SceneNode>(entries)
+      next.forEach((node, uuid) => { updateNode(uuid, node) })
+    } catch {
+      // 파싱 실패 무시
+    }
+  }, [updateNode])
+
   // 비패시브 wheel 이벤트 등록 (passive: false 없이는 preventDefault 무시됨)
   useEffect(() => {
     const el = svgRef.current
@@ -1125,6 +1145,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         canvasSize={canvasSize}
         onCanvasSizeChange={(w, h) => { setCanvasSize({ w, h }); setTimeout(handleFit, 50) }}
         onExportSvg={handleExportSvg}
+        onSaveScene={handleSaveScene}
+        onLoadScene={handleLoadScene}
         onCopy={handleCopy}
         onPaste={handlePaste}
         onZOrderFront={() => handleZOrder('front')}

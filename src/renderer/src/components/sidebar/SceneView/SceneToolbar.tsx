@@ -48,6 +48,8 @@ interface SceneToolbarProps {
   canvasSize?: { w: number; h: number }
   onCanvasSizeChange?: (w: number, h: number) => void
   onExportSvg?: () => void
+  onSaveScene?: () => void
+  onLoadScene?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -100,6 +102,8 @@ export function SceneToolbar({
   canvasSize,
   onCanvasSizeChange,
   onExportSvg,
+  onSaveScene,
+  onLoadScene,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -400,6 +404,14 @@ export function SceneToolbar({
       {/* SVG 내보내기 */}
       {onExportSvg && (
         <button style={btnBase} onClick={onExportSvg} title="씬 SVG 내보내기">⬇</button>
+      )}
+
+      {/* 씬 저장 / 로드 */}
+      {onSaveScene && (
+        <button style={btnBase} onClick={onSaveScene} title="씬 레이아웃 저장 (localStorage)">💾</button>
+      )}
+      {onLoadScene && (
+        <button style={btnBase} onClick={onLoadScene} title="씬 레이아웃 로드 (localStorage)">📂</button>
       )}
 
       {/* 새로고침 */}

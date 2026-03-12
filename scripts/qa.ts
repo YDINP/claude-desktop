@@ -2036,6 +2036,28 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 113: R211 신규 기능 ───────────────────────────────
+console.log('\n## 113. 신규 기능 파일 검사 (R211)')
+// SceneView 씬 저장/로드 localStorage (Round 211)
+const svp211Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp211Path)) {
+  const svp211 = readFileSync(svp211Path, 'utf-8')
+  if (svp211.includes('handleSaveScene') && svp211.includes('claude-desktop-scene-layout')) {
+    log('pass', 'Round211', 'SceneViewPanel: 씬 저장/로드 localStorage 구현 존재')
+  } else {
+    log('warning', 'Round211', 'SceneViewPanel 씬 저장/로드 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+const stb211Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb211Path)) {
+  const stb211 = readFileSync(stb211Path, 'utf-8')
+  if (stb211.includes('onSaveScene') && stb211.includes('onLoadScene')) {
+    log('pass', 'Round211', 'SceneToolbar: 💾 저장 / 📂 로드 버튼 존재')
+  } else {
+    log('warning', 'Round211', 'SceneToolbar 저장/로드 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 112: R210 신규 기능 ───────────────────────────────
 console.log('\n## 112. 신규 기능 파일 검사 (R210)')
 // SceneView 비례 리사이즈 Shift+드래그 (Round 210)
