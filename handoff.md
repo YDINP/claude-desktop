@@ -1,8 +1,8 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 68 완료)
+> 마지막 업데이트: 2026-03-12 (Round 69 완료)
 
 ## 현재 상태
-- Round 68까지 완료 (CC UX 완성 — 프로젝트 자동감지/재연결 UI/포트 저장/debounce)
+- Round 69까지 완료 (Adaptive Thinking 시각화 + ToolUse 입력 포맷터)
 - 브랜치: `feature/cocos-integration` (Round 64~67 CC 통합 작업)
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`

@@ -1,4 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+
+import { AgentBay } from './components/hq/AgentBay'
+import { ResourceBar } from './components/hq/ResourceBar'
+import { OpsFeed } from './components/hq/OpsFeed'
+import './styles/hq.css'
 import { ProjectProvider, useProject } from './stores/project-store'
 import { useChatStore } from './stores/chat-store'
 import { ChatMessage } from './stores/chat-store'
@@ -424,6 +429,25 @@ function AppContent() {
 
   // ── Settings panel ──
   const [settingsOpen, setSettingsOpen] = useState(false)
+
+  // ── HQ mode ──
+  const [hqMode, setHqMode] = useState(false)
+
+  useEffect(() => {
+    window.api?.settingsGet().then((s: Record<string, unknown>) => {
+      if (s?.hqMode) setHqMode(true)
+    }).catch(() => {})
+  }, [])
+
+  const handleToggleHQ = useCallback(() => {
+    setHqMode(prev => {
+      const next = !prev
+      window.api?.settingsGet().then(settings => {
+        window.api?.settingsSave({ ...settings, hqMode: next })
+      }).catch(() => {})
+      return next
+    })
+  }, [])
 
   // ── Focus mode ──
   const [focusMode, setFocusMode] = useState(false)
@@ -1150,8 +1174,8 @@ function AppContent() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-      <TitleBar onOpenFolder={handleOpenFolder} onOpenPalette={() => setPaletteOpen(true)} theme={theme} onToggleTheme={toggleTheme} sidebarCollapsed={sidebarCollapsed} onToggleSidebar={() => setSidebarCollapsed(c => !c)} onOpenSettings={() => setSettingsOpen(true)} />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }} data-hq={hqMode ? 'true' : undefined}>
+      <TitleBar onOpenFolder={handleOpenFolder} onOpenPalette={() => setPaletteOpen(true)} theme={theme} onToggleTheme={toggleTheme} sidebarCollapsed={sidebarCollapsed} onToggleSidebar={() => setSidebarCollapsed(c => !c)} onOpenSettings={() => setSettingsOpen(true)} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
 
       {/* Workspace tabs */}
       {workspaces.length > 0 && (
@@ -1175,49 +1199,79 @@ function AppContent() {
           transition: 'width 0.15s ease',
         }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: sidebarWidth }}>
-            <Sidebar
-              activeSessionId={chat.sessionId}
-              changedFiles={changedFiles}
-              onClearChangedFiles={() => setChangedFiles([])}
-              onRemoveChangedFile={(path) => setChangedFiles(prev => prev.filter(f => f.path !== path))}
-              messages={chat.messages}
-              onScrollToMessage={messageId => {
-                setScrollToMessageId(messageId)
-                // Switch to chat tab and reset the id after a tick so re-triggering works
-                switchToChat()
-                setTimeout(() => setScrollToMessageId(null), 500)
-              }}
-              onSessionSelect={async sid => {
-                // Load saved messages immediately for instant display
-                const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number } | null
-                if (saved?.messages?.length) {
-                  chat.hydrate(saved.messages as ChatMessage[], sid)
-                } else {
+            {hqMode ? (
+              <AgentBay
+                sessions={[]}
+                activeSessionId={chat.sessionId ?? null}
+                isStreaming={chat.isStreaming}
+                toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-5)}
+                onSelectSession={async (sid: string) => {
+                  const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number } | null
+                  if (saved?.messages?.length) {
+                    chat.hydrate(saved.messages as ChatMessage[], sid)
+                  } else {
+                    chat.clearMessages()
+                    chat.setSessionId(sid)
+                  }
+                  setSessionTitle(saved?.title)
+                  setSessionCreatedAt(saved?.createdAt)
+                  window.api.claudeResume(sid)
+                  switchToChat()
+                }}
+                onNewSession={() => {
                   chat.clearMessages()
-                  chat.setSessionId(sid)
-                }
-                setSessionTitle(saved?.title)
-                setSessionCreatedAt(saved?.createdAt)
-                window.api.claudeResume(sid)
-                switchToChat()
-              }}
-              onNewChat={() => {
-                chat.clearMessages()
-                setSessionTitle(undefined)
-                setSessionCreatedAt(undefined)
-                window.api.claudeClose()
-                switchToChat(true)
-              }}
-              onFileClick={openFile}
-              activeFilePath={activeTab !== 'chat' ? activeTab : undefined}
-              onOpenInSplit={(path) => setSplitFilePath(path)}
-              switchTabRef={sidebarSwitchTabRef}
-              onInsertSnippet={(content) => {
-                setPendingInsert(content)
-                if (sidebarCollapsed) setSidebarCollapsed(false)
-                switchToChat()
-              }}
-            />
+                  setSessionTitle(undefined)
+                  setSessionCreatedAt(undefined)
+                  window.api.claudeClose()
+                  switchToChat(true)
+                }}
+                onToggleHQ={handleToggleHQ}
+              />
+            ) : (
+              <Sidebar
+                activeSessionId={chat.sessionId}
+                changedFiles={changedFiles}
+                onClearChangedFiles={() => setChangedFiles([])}
+                onRemoveChangedFile={(path) => setChangedFiles(prev => prev.filter(f => f.path !== path))}
+                messages={chat.messages}
+                onScrollToMessage={messageId => {
+                  setScrollToMessageId(messageId)
+                  // Switch to chat tab and reset the id after a tick so re-triggering works
+                  switchToChat()
+                  setTimeout(() => setScrollToMessageId(null), 500)
+                }}
+                onSessionSelect={async sid => {
+                  // Load saved messages immediately for instant display
+                  const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number } | null
+                  if (saved?.messages?.length) {
+                    chat.hydrate(saved.messages as ChatMessage[], sid)
+                  } else {
+                    chat.clearMessages()
+                    chat.setSessionId(sid)
+                  }
+                  setSessionTitle(saved?.title)
+                  setSessionCreatedAt(saved?.createdAt)
+                  window.api.claudeResume(sid)
+                  switchToChat()
+                }}
+                onNewChat={() => {
+                  chat.clearMessages()
+                  setSessionTitle(undefined)
+                  setSessionCreatedAt(undefined)
+                  window.api.claudeClose()
+                  switchToChat(true)
+                }}
+                onFileClick={openFile}
+                activeFilePath={activeTab !== 'chat' ? activeTab : undefined}
+                onOpenInSplit={(path) => setSplitFilePath(path)}
+                switchTabRef={sidebarSwitchTabRef}
+                onInsertSnippet={(content) => {
+                  setPendingInsert(content)
+                  if (sidebarCollapsed) setSidebarCollapsed(false)
+                  switchToChat()
+                }}
+              />
+            )}
           </div>
           {/* Sidebar resize handle */}
           {!sidebarCollapsed && !focusMode && (
@@ -1304,22 +1358,41 @@ function AppContent() {
         </div>
       </div>
 
-      <StatusBar
-        model={project.selectedModel}
-        totalCost={project.totalCost}
-        totalInputTokens={project.totalInputTokens}
-        totalOutputTokens={project.totalOutputTokens}
-        inputTokens={chat.sessionInputTokens}
-        outputTokens={chat.sessionOutputTokens}
-        cwd={project.currentPath}
-        onShowShortcuts={() => setShortcutsOpen(true)}
-        contextUsage={Math.min((project.totalInputTokens + project.totalOutputTokens) / 200000, 1)}
-        messageCount={chat.messages.length}
-        chatFontSize={chatFontSize}
-        sessionId={chat.sessionId ?? undefined}
-        sessionTitle={sessionTitle}
-        sessionCreatedAt={sessionCreatedAt}
-      />
+      {hqMode ? (
+        <ResourceBar
+          contextUsage={Math.min((project.totalInputTokens + project.totalOutputTokens) / 200000, 1)}
+          sessionTokens={chat.sessionOutputTokens + chat.sessionInputTokens}
+          totalCost={project.totalCost}
+          isStreaming={chat.isStreaming}
+          model={project.selectedModel ?? ''}
+          onToggleHQ={handleToggleHQ}
+          hqMode={hqMode}
+        />
+      ) : (
+        <StatusBar
+          model={project.selectedModel}
+          totalCost={project.totalCost}
+          totalInputTokens={project.totalInputTokens}
+          totalOutputTokens={project.totalOutputTokens}
+          inputTokens={chat.sessionInputTokens}
+          outputTokens={chat.sessionOutputTokens}
+          cwd={project.currentPath}
+          onShowShortcuts={() => setShortcutsOpen(true)}
+          contextUsage={Math.min((project.totalInputTokens + project.totalOutputTokens) / 200000, 1)}
+          messageCount={chat.messages.length}
+          chatFontSize={chatFontSize}
+          sessionId={chat.sessionId ?? undefined}
+          sessionTitle={sessionTitle}
+          sessionCreatedAt={sessionCreatedAt}
+        />
+      )}
+
+      {hqMode && (
+        <OpsFeed
+          toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-10)}
+          isStreaming={chat.isStreaming}
+        />
+      )}
 
       {chat.pendingPermission && (
         <PermissionModal

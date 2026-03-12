@@ -1,0 +1,23 @@
+/* HQ Mode CSS */
+
+@keyframes hq-blink {
+  0%, 85%, 100% { ry: 6px; }
+  90% { ry: 1px; }
+}
+
+@keyframes hq-slide-in {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* HQ 모드 전환 트랜지션 */
+[data-hq="true"] {
+  transition: all 0.25s ease;
+}
+
+/* HQ 모드 레이아웃 조정 */
+[data-hq="true"] .hq-main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 74~82 로드맵 추가)
+> 마지막 업데이트: 2026-03-12 (Round 69 완료 + 트렌드 리서치 반영)
 
 ## 완료된 라운드
 
@@ -14,13 +14,13 @@
 | Round 65 | feature/cocos-integration | claude-desktop CC 패널 (SceneTree/Property/WebPreview) | ✅ |
 | Round 66 | feature/cocos-integration | Claude 자연어 씬 편집 연동 (컨텍스트 주입/액션 파서) | ✅ |
 | Round 67 | feature/cocos-integration | QA 자동화 + 전체 검수 + Critical/Warning 수정 | ✅ |
+| Round 68 | feature/cocos-integration | CC UX 완성 (프로젝트 자동감지/재연결 UI/포트 저장/debounce) | ✅ |
+| Round 69 | feature/cocos-integration | Adaptive Thinking 시각화 + ThinkingPanel + ToolUse 입력 포맷터 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 68 | feature/cocos-integration | CC UX 완성 (프로젝트 자동감지/Extension 설치 가이드/실시간 갱신) |
-| Round 69 | main | Adaptive Thinking 시각화 + Effort 레벨 UI + ToolUse 고도화 |
 | Round 70 | main | **HQ Mode Phase 1** — TitleBar 토글, App.tsx hqMode state, hq.css dot grid, AgentBay/ResourceBar 쉘 |
 | Round 71 | main | **HQ Mode Phase 2** — AgentCard 로봇 SVG 눈 + idle/active/tool/error 애니메이션 + 토큰 게이지 |
 | Round 72 | main | **HQ Mode Phase 3** — ResourceBar 라이브 데이터 바인딩 + OpsFeed 툴콜 스트림 + 세션 전환 처리 |
@@ -59,3 +59,20 @@
 ## QA 프로세스
 
 매 라운드 완료 후 `npm run qa` 실행하여 검증.
+
+---
+
+## 트렌드 리서치 인사이트 (2026-03-12)
+
+AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
+
+| 항목 | 우선순위 | 적용 예정 라운드 |
+|------|----------|-----------------|
+| Tool call 타임라인 카드 UI (Cursor 2.0 패턴) | HIGH | Round 74 통합 |
+| Inline diff 렌더링 (file write 변경 시각화) | HIGH | Round 78 |
+| IPC 스트리밍 배치화 (토큰별 IPC 금지) | HIGH | Round 77 QA 시 |
+| 에이전트 사이드바 (병렬 실행 시각화) | HIGH | Round 81 |
+| AG-UI 이벤트 모델 (미래 호환성) | MEDIUM | Round 82+ |
+| React 18 virtual scroll 추가 최적화 | MEDIUM | Round 77 |
+| Cocos MCP 서버 (DaxianLee/cocos-mcp-server) | MEDIUM | CC 브랜치 검토 |
+| DXT 플러그인 패키징 | LOW | 장기 검토 |
