@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 198: R296 신규 기능 ───────────────────────────────
+console.log('\n## 198. 신규 기능 파일 검사 (R296)')
+// ClipboardPanel 글자 수 표시 (Round 296)
+const cp296Path = join(ROOT, 'src/renderer/src/components/sidebar/ClipboardPanel.tsx')
+if (existsSync(cp296Path)) {
+  const cp296 = readFileSync(cp296Path, 'utf-8')
+  if (cp296.includes('text.length') && cp296.includes('toLocaleString') && cp296.includes('자')) {
+    log('pass', 'Round296', 'ClipboardPanel: 글자 수 표시 (text.length/toLocaleString/자) 존재')
+  } else {
+    log('warning', 'Round296', 'ClipboardPanel 글자 수 표시 미구현', 'sidebar/ClipboardPanel.tsx')
+  }
+}
+
 // ── Section 197: R295 신규 기능 ───────────────────────────────
 console.log('\n## 197. 신규 기능 파일 검사 (R295)')
 // SnippetPanel 정렬 토글 (Round 295)

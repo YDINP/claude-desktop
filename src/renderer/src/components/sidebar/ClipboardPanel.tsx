@@ -55,8 +55,9 @@ export function ClipboardPanel() {
             onClick={() => copyEntry(entry)}
             onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-secondary)')}
             onMouseLeave={e => (e.currentTarget.style.background = '')}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2 }}>
-              {new Date(entry.timestamp).toLocaleTimeString('ko-KR')} · {entry.source}
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2, display: 'flex', justifyContent: 'space-between' }}>
+              <span>{new Date(entry.timestamp).toLocaleTimeString('ko-KR')} · {entry.source}</span>
+              <span style={{ flexShrink: 0 }}>{entry.text.length.toLocaleString()}자</span>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', maxHeight: 60, lineHeight: 1.4, textOverflow: 'ellipsis', WebkitLineClamp: 3, display: '-webkit-box', WebkitBoxOrient: 'vertical' }}>
               {entry.text}

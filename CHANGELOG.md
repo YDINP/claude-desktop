@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 296] — 2026-03-13
+### Added
+- ClipboardPanel: 각 항목 글자 수 표시 — 타임스탬프 옆에 `N자` 우측 정렬 표시
+
 ## [Round 295] — 2026-03-13
 ### Added
 - SnippetPanel: 정렬 토글 버튼 — 생성 순(최신 우선) / 이름 순(가나다) 전환, ↕️/🔤 버튼
