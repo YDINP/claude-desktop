@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 185] — 2026-03-13
+### Added
+- SceneView: 미니맵 클릭 네비게이션 — 클릭 위치로 뷰포트 즉시 이동, 더블클릭으로 숨기기
+
 ## [Round 184] — 2026-03-13
 ### Added
 - SceneView: 미니맵 오버레이 — 우하단 축소 맵에 전체 노드 + 뷰포트 표시, 클릭으로 토글

@@ -1875,6 +1875,19 @@ if (existsSync(svp184Path)) {
   }
 }
 
+// ── Section 87: R185 신규 기능 ───────────────────────────────
+console.log('\n## 87. 신규 기능 파일 검사 (R185)')
+// SceneView 미니맵 클릭 네비게이션 (Round 185)
+const svp185Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp185Path)) {
+  const svp185 = readFileSync(svp185Path, 'utf-8')
+  if (svp185.includes('미니맵 — 클릭: 뷰포트 이동') && svp185.includes('cw / 2 - sceneX * prev.zoom')) {
+    log('pass', 'Round185', 'SceneView: 미니맵 클릭 뷰포트 이동 존재')
+  } else {
+    log('warning', 'Round185', 'SceneView 미니맵 클릭 네비게이션 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

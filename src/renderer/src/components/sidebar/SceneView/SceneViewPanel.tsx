@@ -1403,11 +1403,29 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 border: '1px solid rgba(255,255,255,0.12)',
                 borderRadius: 4,
                 overflow: 'hidden',
-                cursor: 'pointer',
+                cursor: 'crosshair',
                 userSelect: 'none',
               }}
-              title="미니맵 (클릭하여 숨기기)"
-              onClick={() => setShowMinimap(false)}
+              title="미니맵 — 클릭: 뷰포트 이동 / 더블클릭: 숨기기"
+              onDoubleClick={e => { e.stopPropagation(); setShowMinimap(false) }}
+              onClick={e => {
+                // 미니맵 좌표 → 씬 좌표 → 뷰포트 오프셋 계산
+                const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
+                const mmX = e.clientX - rect.left
+                const mmY = e.clientY - rect.top
+                // 씬 좌표 (SVG 공간)
+                const sceneX = mmX / sx + minX
+                const sceneY = mmY / sy + minY
+                if (containerRef.current) {
+                  const cw = containerRef.current.clientWidth
+                  const ch = containerRef.current.clientHeight
+                  setView(prev => ({
+                    ...prev,
+                    offsetX: cw / 2 - sceneX * prev.zoom,
+                    offsetY: ch / 2 - sceneY * prev.zoom,
+                  }))
+                }
+              }}
             >
               <svg width={MM_W} height={MM_H} style={{ display: 'block' }}>
                 {/* 디자인 캔버스 경계 */}
