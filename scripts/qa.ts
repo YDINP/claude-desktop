@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 143: R241 신규 기능 ───────────────────────────────
+console.log('\n## 143. 신규 기능 파일 검사 (R241)')
+// SceneView Alt+1~9 색상 레이블 (Round 241)
+const svp241Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp241Path)) {
+  const svp241 = readFileSync(svp241Path, 'utf-8')
+  if (svp241.includes('LABEL_COLORS') && svp241.includes('Alt+0~9') && svp241.includes('labelColor')) {
+    log('pass', 'Round241', 'SceneViewPanel: Alt+1~9 빠른 색상 레이블 구현 존재')
+  } else {
+    log('warning', 'Round241', 'SceneViewPanel 색상 레이블 단축키 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 142: R240 신규 기능 ───────────────────────────────
 console.log('\n## 142. 신규 기능 파일 검사 (R240)')
 // SceneView 호버 툴팁 개선 (Round 240)

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 241] — 2026-03-13
+### Added
+- SceneView: Alt+1~9 빠른 색상 레이블 — 9가지 미리 정의된 색상을 키보드로 즉시 지정, Alt+0으로 초기화
+
 ## [Round 240] — 2026-03-13
 ### Improved
 - SceneView: 호버 툴팁 리치 정보 — 노드 이름 외 pos/size/컴포넌트 목록·잠금·숨김 상태 멀티라인 표시
