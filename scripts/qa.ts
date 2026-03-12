@@ -1481,6 +1481,28 @@ if (existsSync(sceneInspectorPath9)) {
   }
 }
 
+// ── Section 64: R162 신규 기능 ───────────────────────────────
+console.log('\n## 64. 신규 기능 파일 검사 (R162)')
+// 균등 분포 배치 (Round 162)
+const sceneViewPanelPath27 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath27)) {
+  const svp27 = readFileSync(sceneViewPanelPath27, 'utf-8')
+  if (svp27.includes('handleDistribute') && svp27.includes("axis: 'H' | 'V'")) {
+    log('pass', 'Round162', 'SceneView: handleDistribute(H/V) 함수 존재')
+  } else {
+    log('warning', 'Round162', 'SceneView 균등 분포 배치 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+const sceneToolbarPath4 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(sceneToolbarPath4)) {
+  const st4 = readFileSync(sceneToolbarPath4, 'utf-8')
+  if (st4.includes('onDistributeH') && st4.includes('onDistributeV')) {
+    log('pass', 'Round162', 'SceneToolbar: Distribute H/V props + 버튼 존재')
+  } else {
+    log('warning', 'Round162', 'SceneToolbar Distribute 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:16:38.863Z
+> 2026-03-12T14:20:20.308Z
 
 ## Critical
 _없음_
@@ -148,3 +148,5 @@ _없음_
 - SceneView: Ctrl+D 단축키 도움말 항목 존재
 - SceneInspector: 자식 노드 수 ↳N 표시 존재
 - SceneInspector: 자식 노드 수 tooltip 존재
+- SceneView: handleDistribute(H/V) 함수 존재
+- SceneToolbar: Distribute H/V props + 버튼 존재

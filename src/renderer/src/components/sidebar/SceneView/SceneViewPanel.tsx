@@ -723,6 +723,37 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [selectedUuids, nodeMap, port, updateNode])
 
+  // ── 균등 분포 배치 ────────────────────────────────────────
+  const handleDistribute = useCallback(async (axis: 'H' | 'V') => {
+    if (selectedUuids.size < 3) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 3) return
+
+    if (axis === 'H') {
+      const sorted = [...nodes].sort((a, b) => a.x - b.x)
+      const minX = sorted[0].x
+      const maxX = sorted[sorted.length - 1].x
+      const step = (maxX - minX) / (sorted.length - 1)
+      for (let i = 1; i < sorted.length - 1; i++) {
+        const n = sorted[i]
+        const newX = minX + step * i
+        updateNode(n.uuid, { x: newX })
+        try { await window.api.ccSetProperty?.(port, n.uuid, 'x', newX) } catch (_) {}
+      }
+    } else {
+      const sorted = [...nodes].sort((a, b) => a.y - b.y)
+      const minY = sorted[0].y
+      const maxY = sorted[sorted.length - 1].y
+      const step = (maxY - minY) / (sorted.length - 1)
+      for (let i = 1; i < sorted.length - 1; i++) {
+        const n = sorted[i]
+        const newY = minY + step * i
+        updateNode(n.uuid, { y: newY })
+        try { await window.api.ccSetProperty?.(port, n.uuid, 'y', newY) } catch (_) {}
+      }
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
+
   // ── 멀티셀렉트 그룹 bbox 계산 ──────────────────────────────
   const groupBbox = useMemo(() => {
     if (selectedUuids.size < 2) return null
@@ -816,6 +847,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onAlignTop={() => handleAlign('top')}
         onAlignCenterV={() => handleAlign('centerV')}
         onAlignBottom={() => handleAlign('bottom')}
+        onDistributeH={() => handleDistribute('H')}
+        onDistributeV={() => handleDistribute('V')}
         onUndo={() => {
           setUndoStack(prev => {
             if (prev.length === 0) return prev

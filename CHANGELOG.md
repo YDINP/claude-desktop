@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 162] — 2026-03-12
+### Added
+- SceneView: 균등 분포 배치 — 멀티셀렉트 3개 이상 시 수평(⊢⊣)/수직(⊤⊥) 균등 배치 버튼
+
 ## [Round 161] — 2026-03-12
 ### Added
 - SceneInspector: 자식 노드 수 표시 — "↳N" 형태로 헤더 하단에 표시, 부모/자식 정보 한 줄에 통합

@@ -18,6 +18,8 @@ interface SceneToolbarProps {
   onAlignTop?: () => void
   onAlignCenterV?: () => void
   onAlignBottom?: () => void
+  onDistributeH?: () => void
+  onDistributeV?: () => void
   selectedUuid?: string | null
   onCreateNode?: () => void
   onDeleteNode?: () => void
@@ -61,6 +63,8 @@ export function SceneToolbar({
   onAlignTop,
   onAlignCenterV,
   onAlignBottom,
+  onDistributeH,
+  onDistributeV,
   selectedUuid,
   onCreateNode,
   onDeleteNode,
@@ -277,6 +281,9 @@ export function SceneToolbar({
           <button onClick={onAlignTop}   title="위쪽 정렬" style={btnBase}>↑T</button>
           <button onClick={onAlignCenterV} title="수직 중앙 정렬" style={btnBase}>↕</button>
           <button onClick={onAlignBottom} title="아래쪽 정렬" style={btnBase}>B↓</button>
+          <div style={divider} />
+          <button onClick={onDistributeH} title="수평 균등 배치 (3개 이상)" style={btnBase}>⊢⊣</button>
+          <button onClick={onDistributeV} title="수직 균등 배치 (3개 이상)" style={btnBase}>⊤⊥</button>
         </>
       )}
 
