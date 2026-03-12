@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 122: R220 신규 기능 ───────────────────────────────
+console.log('\n## 122. 신규 기능 파일 검사 (R220)')
+// SceneView Ctrl+F 검색 하이라이트 (Round 220)
+const svp220Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp220Path)) {
+  const svp220 = readFileSync(svp220Path, 'utf-8')
+  if (svp220.includes('canvasSearch') && svp220.includes('showCanvasSearch') && svp220.includes('검색 하이라이트 링')) {
+    log('pass', 'Round220', 'SceneViewPanel: Ctrl+F 검색 + 하이라이트 링 구현 존재')
+  } else {
+    log('warning', 'Round220', 'SceneViewPanel Ctrl+F 검색 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 121: R219 신규 기능 ───────────────────────────────
 console.log('\n## 121. 신규 기능 파일 검사 (R219)')
 // SceneView 하단 상태바 (Round 219)

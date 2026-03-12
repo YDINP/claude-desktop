@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 220] — 2026-03-13
+### Added
+- SceneView: Ctrl+F 씬 검색 + 하이라이트 — 매칭 노드에 황색 점선 링 표시, Esc로 닫기
+
 ## [Round 219] — 2026-03-13
 ### Added
 - SceneView: 하단 상태바 — 현재 도구/줌/Snap/선택수/드래그상태 표시, Space 시 패닝 힌트

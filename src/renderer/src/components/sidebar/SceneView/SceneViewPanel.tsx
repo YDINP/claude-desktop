@@ -54,6 +54,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [alignGuides, setAlignGuides] = useState<{ x?: number; y?: number }[]>([])
   const [showConnections, setShowConnections] = useState(false)
   const [showStats, setShowStats] = useState(false)
+  const [canvasSearch, setCanvasSearch] = useState('')
+  const [showCanvasSearch, setShowCanvasSearch] = useState(false)
+  const canvasSearchRef = useRef<HTMLInputElement>(null)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -204,6 +207,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 단축키 ────────────────────────────────────────────────
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      // Ctrl+F: 씬 검색
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault()
+        setShowCanvasSearch(v => !v)
+        setTimeout(() => canvasSearchRef.current?.focus(), 50)
+        return
+      }
       if ((e.target as HTMLElement).tagName === 'INPUT') return
       if (e.key === 'v' || e.key === 'V') setActiveTool('select')
       if (e.key === 'w' || e.key === 'W') setActiveTool('move')
@@ -1459,6 +1469,29 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               )
             })}
 
+            {/* 검색 하이라이트 링 */}
+            {canvasSearch.trim() && [...nodeMap.values()]
+              .filter(n => n.name.toLowerCase().includes(canvasSearch.toLowerCase()))
+              .map(n => {
+                const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+                const rx = sx - n.width / 2 - 3
+                const ry = sy - n.height / 2 - 3
+                return (
+                  <rect
+                    key={`hl-${n.uuid}`}
+                    x={rx} y={ry}
+                    width={n.width + 6} height={n.height + 6}
+                    fill="none"
+                    stroke="#fbbf24"
+                    strokeWidth={2 / view.zoom}
+                    strokeDasharray={`${4 / view.zoom} ${2 / view.zoom}`}
+                    rx={4}
+                    style={{ pointerEvents: 'none' }}
+                  />
+                )
+              })
+            }
+
             {/* 선택 노드 리사이즈 핸들 (단일 선택 시) */}
             {selectedNode && selectedUuids.size <= 1 && (() => {
               const n = selectedNode
@@ -1774,6 +1807,50 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             </>
           )}
         </div>
+
+        {/* 씬 캔버스 검색 오버레이 */}
+        {showCanvasSearch && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 6,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              background: 'rgba(10,10,15,0.92)',
+              border: '1px solid var(--accent)',
+              borderRadius: 5,
+              padding: '3px 8px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
+            }}
+          >
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>🔍</span>
+            <input
+              ref={canvasSearchRef}
+              value={canvasSearch}
+              onChange={e => setCanvasSearch(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Escape') { setShowCanvasSearch(false); setCanvasSearch('') }
+                e.stopPropagation()
+              }}
+              placeholder="노드 이름 검색..."
+              style={{
+                width: 140, fontSize: 10, background: 'transparent', border: 'none',
+                color: 'var(--text-primary)', outline: 'none',
+              }}
+            />
+            {canvasSearch && (
+              <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                {[...nodeMap.values()].filter(n => n.name.toLowerCase().includes(canvasSearch.toLowerCase())).length}개
+              </span>
+            )}
+            <button onClick={() => { setShowCanvasSearch(false); setCanvasSearch('') }}
+              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 11, padding: '0 2px' }}>×</button>
+          </div>
+        )}
 
         {/* 마우스 씬 좌표 표시 */}
         {cursorScenePos && !isDragging && !isResizing && (
