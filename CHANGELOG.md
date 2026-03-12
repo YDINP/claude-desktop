@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 335] — 2026-03-13
+### Added
+- TasksPanel: 기한 초과(overdue) 빠른 필터 배지 — 초과 태스크 존재 시 `⚠ 초과 N` 빨간 버튼 표시, 클릭 토글
+
 ## [Round 334] — 2026-03-13
 ### Added
 - StatsPanel: 새로고침 버튼 추가 — 클릭 시 세션 통계/비용 재로드, `refreshing` 상태로 로딩 표시

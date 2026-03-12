@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 334 완료 — StatsPanel 새로고침 버튼, Pass 354)
+> 마지막 업데이트: 2026-03-13 (Round 335 완료 — TasksPanel 기한 초과 필터, Pass 355)
 
 ## 완료된 라운드
 
@@ -219,6 +219,7 @@
 | Round 332 | dev | BookmarksPanel 북마크별 📋 복사 버튼 — 전체 텍스트 클립보드 복사, 1.5초 ✓ 피드백 | ✅ |
 | Round 333 | dev | RunTimeline RunCard 스텝 접기/펼치기 — 4개↑ 시 기본 접힘, 진행 중 런은 항상 펼침 | ✅ |
 | Round 334 | dev | StatsPanel 새로고침 버튼 — 세션 통계/비용 재로드, refreshing 스피너 표시 | ✅ |
+| Round 335 | dev | TasksPanel 기한 초과 필터 배지 — ⚠ 초과 N 빨간 버튼, 토글 클릭으로 overdue만 표시 | ✅ |
 | Round 329 | dev | NotesPanel 노트 목록 글자 수 — content.length/1000 기반 N자/N.Nk 표시 | ✅ |
 | Round 328 | dev | CalendarPanel 다음 이벤트 미리보기 — 날짜 미선택 시 오늘 이후 이벤트 3개 표시 | ✅ |
 | Round 327 | dev | SceneTreePanel 비활성 노드 수 — active:false 재귀 카운트, 헤더 빨간 텍스트 | ✅ |

@@ -17,7 +17,7 @@ export function TasksPanel() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [input, setInput] = useState('')
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium')
-  const [filter, setFilter] = useState<'all' | 'active' | 'done'>('all')
+  const [filter, setFilter] = useState<'all' | 'active' | 'done' | 'overdue'>('all')
   const [sortBy, setSortBy] = useState<'created' | 'priority' | 'due'>('created')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
@@ -62,9 +62,17 @@ export function TasksPanel() {
     setEditingId(null)
   }
 
+  const today = new Date().toISOString().slice(0, 10)
+  const overdueCount = tasks.filter(t => !t.done && t.dueDate && t.dueDate < today).length
+
   const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 }
   const searchLower = taskSearch.trim().toLowerCase()
-  const filtered = (filter === 'all' ? tasks : filter === 'active' ? tasks.filter(t => !t.done) : tasks.filter(t => t.done))
+  const filtered = (
+    filter === 'all' ? tasks
+    : filter === 'active' ? tasks.filter(t => !t.done)
+    : filter === 'done' ? tasks.filter(t => t.done)
+    : tasks.filter(t => !t.done && t.dueDate && t.dueDate < today)
+  )
     .filter(t => !searchLower || t.text.toLowerCase().includes(searchLower))
     .slice().sort((a, b) => {
       if (sortBy === 'priority') return (PRIORITY_ORDER[a.priority ?? 'medium'] - PRIORITY_ORDER[b.priority ?? 'medium']) || (b.createdAt - a.createdAt)
@@ -167,7 +175,7 @@ export function TasksPanel() {
       )}
 
       {/* Filter tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
         {(['all', 'active', 'done'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
             style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, cursor: 'pointer', border: '1px solid var(--border)',
@@ -176,6 +184,16 @@ export function TasksPanel() {
             {f === 'all' ? `전체 ${tasks.length}` : f === 'active' ? `진행 ${tasks.length - doneCount}` : `완료 ${doneCount}`}
           </button>
         ))}
+        {overdueCount > 0 && (
+          <button onClick={() => setFilter(f => f === 'overdue' ? 'all' : 'overdue')}
+            title="기한 초과 태스크만 표시"
+            style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, cursor: 'pointer',
+              border: `1px solid ${filter === 'overdue' ? '#f87171' : 'var(--border)'}`,
+              background: filter === 'overdue' ? '#f87171' : 'var(--bg-secondary)',
+              color: filter === 'overdue' ? '#fff' : '#f87171', fontWeight: 600 }}>
+            ⚠ 초과 {overdueCount}
+          </button>
+        )}
         <button onClick={() => setSortBy(s => s === 'created' ? 'priority' : s === 'priority' ? 'due' : 'created')}
           title={`정렬: ${sortBy === 'created' ? '최신순' : sortBy === 'priority' ? '우선순위' : '마감일'}`}
           style={{ marginLeft: 'auto', fontSize: 10, background: 'none', border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer', color: 'var(--text-muted)', padding: '1px 6px' }}>

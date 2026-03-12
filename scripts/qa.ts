@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 237: R335 신규 기능 ───────────────────────────────
+console.log('\n## 237. 신규 기능 파일 검사 (R335)')
+// TasksPanel overdue 필터 (Round 335)
+const tp335Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp335Path)) {
+  const tp335 = readFileSync(tp335Path, 'utf-8')
+  if (tp335.includes('overdueCount') && tp335.includes('overdue') && tp335.includes('초과')) {
+    log('pass', 'Round335', 'TasksPanel: 기한 초과 필터 배지 (overdueCount/overdue/초과) 존재')
+  } else {
+    log('warning', 'Round335', 'TasksPanel 기한 초과 필터 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 236: R334 신규 기능 ───────────────────────────────
 console.log('\n## 236. 신규 기능 파일 검사 (R334)')
 // StatsPanel 새로고침 버튼 (Round 334)
