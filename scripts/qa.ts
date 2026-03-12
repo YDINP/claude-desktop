@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 149: R247 신규 기능 ───────────────────────────────
+console.log('\n## 149. 신규 기능 파일 검사 (R247)')
+// SceneView Alt+[/] 투명도 조절 (Round 247)
+const svp247Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp247Path)) {
+  const svp247 = readFileSync(svp247Path, 'utf-8')
+  if (svp247.includes("key === '['") && svp247.includes('투명도') && svp247.includes('opacity + delta')) {
+    log('pass', 'Round247', 'SceneViewPanel: Alt+[/] 투명도 조절 단축키 구현 존재')
+  } else {
+    log('warning', 'Round247', 'SceneViewPanel Alt+[/] 투명도 단축키 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 148: R246 신규 기능 ───────────────────────────────
 console.log('\n## 148. 신규 기능 파일 검사 (R246)')
 // SceneView 선택 반전 Ctrl+Shift+A (Round 246)

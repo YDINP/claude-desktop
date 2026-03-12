@@ -442,6 +442,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         setFocusMode(v => !v)
         return
       }
+      // Alt+[ / Alt+] — 선택 노드 투명도 -10 / +10 (0~255)
+      if (e.altKey && (e.key === '[' || e.key === ']') && selectedUuid) {
+        e.preventDefault()
+        const node = nodeMap.get(selectedUuid)
+        if (node) {
+          const delta = e.key === '[' ? -10 : 10
+          updateNode(selectedUuid, { opacity: Math.min(255, Math.max(0, node.opacity + delta)) })
+        }
+        return
+      }
       // Alt+0~9 — 빠른 색상 레이블 (Alt+0: 초기화)
       if (e.altKey && /^[0-9]$/.test(e.key) && selectedUuid) {
         e.preventDefault()
@@ -2809,6 +2819,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['H', '선택 노드 숨기기/보이기 토글'],
               ['Alt+L', '선택 노드 잠금/해제'],
               ['Alt+1~9', '색상 레이블 지정 (Alt+0: 초기화)'],
+              ['Alt+[ / Alt+]', '선택 노드 투명도 -10 / +10'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
               <div key={key} style={{ display: 'flex', gap: 10, marginBottom: 4 }}>

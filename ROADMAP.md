@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 246 완료 — SceneView 선택 반전 Ctrl+Shift+A, Pass 266)
+> 마지막 업데이트: 2026-03-13 (Round 247 완료 — SceneView Alt+[/] 투명도 조절, Pass 267)
 
 ## 완료된 라운드
 
@@ -198,6 +198,7 @@
 | Round 244 | dev | SceneView 연결선 개선 — cubic bezier 곡선 + 화살표 마커 (부모→자식 방향) | ✅ |
 | Round 245 | dev | SceneView 인라인 편집바 rotation(R) 필드 — X/Y/W/H에 R 추가, 회전값 직접 편집 | ✅ |
 | Round 246 | dev | SceneView 선택 반전 — Ctrl+Shift+A로 선택/비선택 상태 반전 | ✅ |
+| Round 247 | dev | SceneView Alt+[/] 투명도 조절 — 선택 노드 opacity -10/+10 단축키 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

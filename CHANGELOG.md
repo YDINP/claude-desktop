@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 247] — 2026-03-13
+### Added
+- SceneView: Alt+[/] 투명도 조절 단축키 — 선택 노드 opacity를 10씩 감소/증가 (0~255)
+
 ## [Round 246] — 2026-03-13
 ### Added
 - SceneView: 선택 반전 (Ctrl+Shift+A) — 현재 선택 상태를 반전, 비선택 노드 모두 선택
