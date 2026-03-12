@@ -1539,6 +1539,24 @@ if (existsSync(sceneViewPanelPath29)) {
   }
 }
 
+// ── Section 67: R165 신규 기능 ───────────────────────────────
+console.log('\n## 67. 신규 기능 파일 검사 (R165)')
+// SceneInspector JSON 내보내기 (Round 165)
+const sceneInspectorPath10 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath10)) {
+  const si10 = readFileSync(sceneInspectorPath10, 'utf-8')
+  if (si10.includes('JSON 내보내기') && si10.includes('JSON.stringify')) {
+    log('pass', 'Round165', 'SceneInspector: JSON 내보내기 버튼 + stringify 존재')
+  } else {
+    log('warning', 'Round165', 'SceneInspector JSON 내보내기 미구현', 'SceneView/SceneInspector.tsx')
+  }
+  if (si10.includes('JSON 복사') && si10.includes('navigator.clipboard.writeText')) {
+    log('pass', 'Round165', 'SceneInspector: JSON 복사 버튼 + clipboard API 존재')
+  } else {
+    log('warning', 'Round165', 'SceneInspector JSON clipboard 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

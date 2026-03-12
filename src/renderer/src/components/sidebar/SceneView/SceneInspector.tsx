@@ -458,6 +458,39 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
           </div>
         </>
       )}
+
+      {/* JSON 내보내기 */}
+      <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+        <button
+          onClick={() => {
+            const json = JSON.stringify({
+              uuid: node.uuid, name: node.name, active: node.active,
+              position: { x: node.x, y: node.y },
+              size: { width: node.width, height: node.height },
+              anchor: { x: node.anchorX, y: node.anchorY },
+              scale: { x: node.scaleX, y: node.scaleY },
+              rotation: node.rotation,
+              color: node.color,
+              components: node.components.map(c => c.type),
+            }, null, 2)
+            navigator.clipboard.writeText(json)
+          }}
+          style={{
+            width: '100%',
+            background: 'none',
+            border: '1px solid var(--border)',
+            borderRadius: 3,
+            color: 'var(--text-muted)',
+            cursor: 'pointer',
+            fontSize: 9,
+            padding: '2px 0',
+            textAlign: 'center',
+          }}
+          title="노드 정보를 JSON으로 복사"
+        >
+          {'{ } JSON 복사'}
+        </button>
+      </div>
     </div>
   )
 }

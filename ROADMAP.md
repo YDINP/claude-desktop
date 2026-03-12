@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 164 완료 — SceneView 총 노드 수 표시, Pass 146)
+> 마지막 업데이트: 2026-03-12 (Round 165 완료 — SceneInspector JSON 내보내기, Pass 148)
 
 ## 완료된 라운드
 
@@ -116,6 +116,7 @@
 | Round 162 | dev | SceneView 균등 분포 배치 — 멀티셀렉트 3개↑ 수평(⊢⊣)/수직(⊤⊥) 균등 배치 | ✅ |
 | Round 163 | dev | SceneView Space 키 임시 패닝 — Space 홀드로 grab 커서 패닝 모드 | ✅ |
 | Round 164 | dev | SceneView 총 노드 수 표시 — 좌하단 "N개 노드", 멀티셀렉트 시 "· M 선택" 추가 | ✅ |
+| Round 165 | dev | SceneInspector JSON 내보내기 — 노드 전체 정보 pretty JSON 클립보드 복사 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

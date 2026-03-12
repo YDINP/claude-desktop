@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 165] — 2026-03-12
+### Added
+- SceneInspector: JSON 내보내기 버튼 — 노드 정보 전체를 pretty JSON으로 클립보드 복사
+
 ## [Round 164] — 2026-03-12
 ### Added
 - SceneView: 씬 좌하단 총 노드 수 표시 — "N개 노드", 멀티셀렉트 시 "· M 선택" 추가

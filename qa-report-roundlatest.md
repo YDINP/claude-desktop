@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:24:13.152Z
+> 2026-03-12T14:25:56.117Z
 
 ## Critical
 _없음_
@@ -154,3 +154,5 @@ _없음_
 - SceneView: spaceDown state + 마우스다운 조건 존재
 - SceneView: 총 노드 수 표시 존재
 - SceneView: 멀티셀렉트 시 선택 수 추가 표시
+- SceneInspector: JSON 내보내기 버튼 + stringify 존재
+- SceneInspector: JSON 복사 버튼 + clipboard API 존재
