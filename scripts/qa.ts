@@ -463,6 +463,30 @@ if (existsSync(ext2xMainPath)) {
   }
 }
 
+console.log('\n## 13. 신규 기능 파일 검사 (R106-107)')
+
+// Quick action slots (Round 106)
+const inputBarPath2 = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(inputBarPath2)) {
+  const ib = readFileSync(inputBarPath2, 'utf-8')
+  if (ib.includes('DEFAULT_QUICK_ACTIONS') && ib.includes('quickActions')) {
+    log('pass', 'Round106', 'InputBar 빠른 액션 슬롯 존재')
+  } else {
+    log('warning', 'Round106', 'InputBar 빠른 액션 누락', 'chat/InputBar.tsx')
+  }
+}
+
+// Session auto-title (Round 107)
+const chatPanelPath2 = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(chatPanelPath2)) {
+  const cp = readFileSync(chatPanelPath2, 'utf-8')
+  if (cp.includes('autoTitle') || cp.includes('auto-title') || cp.includes('sessionRename')) {
+    log('pass', 'Round107', '세션 자동 제목 기능 존재')
+  } else {
+    log('warning', 'Round107', '세션 자동 제목 미구현', 'chat/ChatPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

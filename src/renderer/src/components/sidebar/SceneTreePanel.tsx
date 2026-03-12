@@ -7,11 +7,11 @@ interface SceneTreePanelProps {
 }
 
 const NodeRow = memo(function NodeRow({
-  node, depth, selectedUuid, onSelect
+  node, depth, selectedUuid, onSelect, forceExpand
 }: {
-  node: CCNode; depth: number; selectedUuid: string | null; onSelect: (n: CCNode) => void
+  node: CCNode; depth: number; selectedUuid: string | null; onSelect: (n: CCNode) => void; forceExpand?: boolean
 }) {
-  const [expanded, setExpanded] = useState(depth < 2)
+  const [expanded, setExpanded] = useState(forceExpand !== undefined ? forceExpand : depth < 2)
   const hasChildren = (node.children?.length ?? 0) > 0
 
   return (
@@ -46,7 +46,7 @@ const NodeRow = memo(function NodeRow({
         </span>
       </div>
       {expanded && hasChildren && (node.children ?? []).map(child => (
-        <NodeRow key={child.uuid} node={child} depth={depth + 1} selectedUuid={selectedUuid} onSelect={onSelect} />
+        <NodeRow key={child.uuid} node={child} depth={depth + 1} selectedUuid={selectedUuid} onSelect={onSelect} forceExpand={forceExpand} />
       ))}
     </>
   )
@@ -56,6 +56,7 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
   const [tree, setTree] = useState<CCNode | null>(null)
   const [loading, setLoading] = useState(false)
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
+  const [nodeSearch, setNodeSearch] = useState('')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const refresh = useCallback(async () => {
@@ -92,8 +93,17 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
     onSelectNode(node)
   }
 
+  // 노드 이름 검색: 검색어 있으면 매칭 노드만 표시
+  const searchLower = nodeSearch.toLowerCase()
+  const matchesSearch = (node: CCNode): boolean => {
+    if (!searchLower) return true
+    if (node.name.toLowerCase().includes(searchLower)) return true
+    return (node.children ?? []).some(matchesSearch)
+  }
+  const visibleRoots = tree ? [tree].filter(matchesSearch) : []
+
   return (
-    <div style={{ borderBottom: '1px solid var(--border)' }}>
+    <div style={{ borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '6px 10px', fontSize: 10, fontWeight: 600, color: 'var(--text-muted)',
@@ -108,16 +118,29 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
           {loading ? '⟳' : '↺'}
         </button>
       </div>
-      <div style={{ maxHeight: 300, overflow: 'auto' }}>
+      <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)' }}>
+        <input
+          value={nodeSearch}
+          onChange={e => setNodeSearch(e.target.value)}
+          placeholder="노드 검색..."
+          style={{
+            width: '100%', boxSizing: 'border-box',
+            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+            borderRadius: 4, padding: '4px 8px', color: 'var(--text-primary)',
+            fontSize: 11, outline: 'none',
+          }}
+        />
+      </div>
+      <div style={{ maxHeight: 300, overflow: 'auto', flex: 1 }}>
         {loading && !tree && (
           <div style={{ padding: '8px 10px', color: 'var(--text-muted)', fontSize: 11 }}>로딩 중...</div>
         )}
         {!loading && !tree && (
           <div style={{ padding: '8px 10px', color: 'var(--text-muted)', fontSize: 11 }}>씬 없음</div>
         )}
-        {tree && (
-          <NodeRow node={tree} depth={0} selectedUuid={selectedUuid} onSelect={handleSelect} />
-        )}
+        {tree && visibleRoots.map(root => (
+          <NodeRow key={root.uuid} node={root} depth={0} selectedUuid={selectedUuid} onSelect={handleSelect} forceExpand={nodeSearch !== ''} />
+        ))}
       </div>
     </div>
   )

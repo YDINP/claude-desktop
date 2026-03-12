@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 106 완료 — InputBar 빠른 액션 슬롯 4개 + 우클릭 편집)
+> 마지막 업데이트: 2026-03-12 (Round 107 완료 — 세션 자동 제목 + SceneTreePanel 노드 검색 + QA Pass→36)
 
 ## 완료된 라운드
 
@@ -53,13 +53,14 @@
 | Round 104 | dev | QA R102~103 체크 (Pass→32) + SceneView Z-order (⬆⬆⬆⬇⬇ 버튼) + CC extension /node/:uuid/zorder 엔드포인트 | ✅ |
 | Round 105 | dev | CC 2x Extension Z-order 고도화 (scene-script setNodeZOrder + /zorder 라우트) + QA Section 12 (Pass→34) | ✅ |
 | Round 106 | dev | InputBar 빠른 액션 슬롯 — 4개 프리셋 버튼 (요약/코드리뷰/설명/계속), 우클릭 편집, localStorage 저장 | ✅ |
+| Round 107 | dev | QA R106~107 체크 (Pass→36) + ChatPanel 세션 자동 제목 + SceneTreePanel 노드 이름 검색 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 107 | dev | QA R106 체크 + 세션 컬렉션(폴더) 관리 UI |
-| Round 108 | dev | ChatPanel 메시지 인라인 편집 — 사용자 메시지 더블클릭 편집 후 재전송 |
+| Round 108 | dev | CC 3x Extension 컴포넌트 접기/펼치기 UI + 노드 추가/삭제 기능 |
+| Round 109 | dev | 응답 스트리밍 중 Stop 버튼 시각 개선 + 진행률 표시 |
 
 ## 전략 로드맵 (Phase)
 

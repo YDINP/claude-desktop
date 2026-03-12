@@ -2,14 +2,21 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 106 (InputBar 빠른 액션 슬롯)
+- 마지막 커밋: Round 107 (세션 자동 제목 + SceneTreePanel 검색 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 34
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 36
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 106 완료 항목 (최근 세션)
+## Round 107 완료 항목 (최근 세션)
+
+### Round 107 — 세션 자동 제목 + SceneTreePanel 노드 검색 + QA
+- `src/renderer/src/components/chat/ChatPanel.tsx`: `autoSetTitle` callback — 첫 메시지 전송 시 50자 추출해 `sessionRename` 호출
+- `src/renderer/src/components/sidebar/SceneTreePanel.tsx`: `nodeSearch` 상태, `matchesSearch` 필터, 검색 input UI, `forceExpand` prop으로 매칭 노드 자동 펼침
+- `scripts/qa.ts`: Section 13 추가 (quick actions + autoSetTitle 체크, Pass 34→36)
+
+## Round 106 완료 항목 (이전 세션)
 
 ### Round 106 — InputBar 빠른 액션 슬롯
 - `src/renderer/src/components/chat/InputBar.tsx`: `DEFAULT_QUICK_ACTIONS` 4개 프리셋 (요약/코드리뷰/설명/계속), `quickActions`/`editingAction` 상태, `handleQuickAction`/`saveQuickActionEdit` 핸들러, 빠른 액션 바 UI (우클릭 편집 팝오버 포함), localStorage 영구 저장

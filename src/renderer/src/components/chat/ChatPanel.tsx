@@ -543,10 +543,23 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     }
   }, [messageCount, virtualizer])
 
+  const autoSetTitle = useCallback(async (userText: string) => {
+    if (!chat.sessionId) return
+    const userMsgCount = chat.messages.filter(m => m.role === 'user').length
+    if (userMsgCount > 0) return
+    const newTitle = userText.slice(0, 50).replace(/\n/g, ' ')
+    try {
+      await window.api.sessionRename?.(chat.sessionId, newTitle)
+    } catch {
+      // 조용히 실패
+    }
+  }, [chat.sessionId, chat.messages])
+
   const handleSend = useCallback((text: string) => {
     if (!project.currentPath) return
     const model = project.selectedModel
     const prevMessages = chat.messages
+    autoSetTitle(text)
     chat.addUserMessage(text)
     if (model.startsWith('ollama:')) {
       const ollamaModel = model.replace('ollama:', '')
@@ -573,7 +586,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
       })
     }
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString])
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle])
 
   const PAUSE_STATE_KEY = 'claude:pause-state'
   const [isPaused, setIsPaused] = useState(() => {
