@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 172] — 2026-03-12
+### Added
+- SceneInspector: Size W/H 비율 유지 잠금 버튼 — Scale 잠금과 동일하게 ∝ 토글
+
 ## [Round 171] — 2026-03-12
 ### Added
 - SceneView: SVG 캔버스 우클릭 컨텍스트 메뉴 — 선택/복사/붙여넣기/복제/삭제

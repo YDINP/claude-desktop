@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 171 완료 — SceneView 우클릭 컨텍스트 메뉴, Pass 161)
+> 마지막 업데이트: 2026-03-12 (Round 172 완료 — SceneInspector Size 비율 잠금, Pass 163)
 
 ## 완료된 라운드
 
@@ -123,6 +123,7 @@
 | Round 169 | dev | SceneInspector 컬러 피커 — 스워치 클릭 → native color picker, 즉시 반영 | ✅ |
 | Round 170 | dev | SceneView 노드 더블클릭 → Inspector 이름 편집 포커스 자동 전환 | ✅ |
 | Round 171 | dev | SceneView SVG 우클릭 컨텍스트 메뉴 — 선택/복사/붙여넣기/복제/삭제 | ✅ |
+| Round 172 | dev | SceneInspector Size W/H 비율 잠금 — ∝ 버튼으로 W/H 연동 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

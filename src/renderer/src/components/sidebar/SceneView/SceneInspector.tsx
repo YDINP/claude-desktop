@@ -131,6 +131,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
   const [nameDraft, setNameDraft] = useState('')
   const [uuidCopied, setUuidCopied] = useState(false)
   const [scaleLocked, setScaleLocked] = useState(false)
+  const [sizeLocked, setSizeLocked] = useState(false)
   const nameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -148,6 +149,17 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         onUpdate(uuid, 'scaleY', parseFloat((value * node.scaleY / node.scaleX).toFixed(4)))
       } else if (prop === 'scaleY' && node.scaleY !== 0) {
         onUpdate(uuid, 'scaleX', parseFloat((value * node.scaleX / node.scaleY).toFixed(4)))
+      }
+    }
+  }
+
+  const handleSizeUpdate = (uuid: string, prop: string, value: number) => {
+    onUpdate(uuid, prop, value)
+    if (sizeLocked && node) {
+      if (prop === 'width' && node.width !== 0) {
+        onUpdate(uuid, 'height', parseFloat((value * node.height / node.width).toFixed(0)))
+      } else if (prop === 'height' && node.height !== 0) {
+        onUpdate(uuid, 'width', parseFloat((value * node.width / node.height).toFixed(0)))
       }
     }
   }
@@ -407,9 +419,16 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
 
       {/* Size */}
       <SectionHeader label="Size" />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
-        <NumInput label="W" value={node.width} uuid={node.uuid} prop="width" onSave={onUpdate} />
-        <NumInput label="H" value={node.height} uuid={node.uuid} prop="height" onSave={onUpdate} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+          <NumInput label="W" value={node.width} uuid={node.uuid} prop="width" onSave={handleSizeUpdate} />
+          <NumInput label="H" value={node.height} uuid={node.uuid} prop="height" onSave={handleSizeUpdate} />
+        </div>
+        <button
+          onClick={() => setSizeLocked(v => !v)}
+          title={sizeLocked ? '비율 잠금 해제' : '비율 유지 잠금'}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: sizeLocked ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+        >∝</button>
       </div>
 
       {/* Scale */}

@@ -1682,6 +1682,24 @@ if (existsSync(svp171Path)) {
   }
 }
 
+// ── Section 74: R172 신규 기능 ───────────────────────────────
+console.log('\n## 74. 신규 기능 파일 검사 (R172)')
+// SceneInspector Size W/H 비율 잠금 (Round 172)
+const sceneInspectorPath14 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath14)) {
+  const si14 = readFileSync(sceneInspectorPath14, 'utf-8')
+  if (si14.includes('sizeLocked') && si14.includes('handleSizeUpdate')) {
+    log('pass', 'Round172', 'SceneInspector: sizeLocked state + handleSizeUpdate 존재')
+  } else {
+    log('warning', 'Round172', 'SceneInspector size lock 미구현', 'SceneView/SceneInspector.tsx')
+  }
+  if (si14.includes('비율 유지 잠금') && (si14.match(/비율 유지 잠금/g) || []).length >= 2) {
+    log('pass', 'Round172', 'SceneInspector: Size + Scale 비율 잠금 버튼 모두 존재')
+  } else {
+    log('warning', 'Round172', 'SceneInspector 비율 잠금 버튼 불완전', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
