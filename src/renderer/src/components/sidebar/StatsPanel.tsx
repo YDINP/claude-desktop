@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { getDailyCosts, getTodayCost, getMonthlyCost } from '../../utils/cost-tracker'
 
 interface StatsData {
   totalSessions: number
@@ -40,6 +41,15 @@ export function StatsPanel() {
   const [insightLoading, setInsightLoading] = useState(false)
   const [wordFreqOpen, setWordFreqOpen] = useState(false)
   const [sessionTitles, setSessionTitles] = useState<string[]>([])
+  const [dailyCosts, setDailyCosts] = useState<{ date: string; usd: number }[]>([])
+  const [todayCost, setTodayCost] = useState(0)
+  const [monthlyCost, setMonthlyCost] = useState(0)
+
+  useEffect(() => {
+    setTodayCost(getTodayCost())
+    setMonthlyCost(getMonthlyCost())
+    setDailyCosts(getDailyCosts(7))
+  }, [])
 
   useEffect(() => {
     window.api.sessionGlobalStats().then(setStats)
@@ -163,6 +173,48 @@ export function StatsPanel() {
           ))}
         </div>
       </div>
+
+      {/* API 비용 */}
+      {(monthlyCost > 0 || todayCost > 0) && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>💰 API 비용</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+            <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>${todayCost.toFixed(4)}</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>오늘</div>
+            </div>
+            <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>${monthlyCost.toFixed(4)}</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>이번달</div>
+            </div>
+          </div>
+          {dailyCosts.length > 0 && (
+            <div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>최근 7일 비용</div>
+              {(() => {
+                const maxCost = Math.max(...dailyCosts.map(d => d.usd), 0.0001)
+                return (
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 40 }}>
+                    {dailyCosts.map(d => (
+                      <div key={d.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                        <div style={{
+                          width: '100%',
+                          height: `${(d.usd / maxCost) * 32 + (d.usd > 0 ? 4 : 0)}px`,
+                          background: d.usd > 0 ? '#f59e0b' : 'var(--bg-tertiary)',
+                          borderRadius: 2, minHeight: 2, transition: 'height 0.3s',
+                        }} title={`${d.date}: $${d.usd.toFixed(4)}`} />
+                        <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>
+                          {d.date.slice(5)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 활동 히트맵 */}
       <div style={{ marginBottom: 16 }}>

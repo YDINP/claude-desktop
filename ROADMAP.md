@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 91 완료 — 네이티브 파일 다이얼로그 IPC)
+> 마지막 업데이트: 2026-03-12 (Round 92 완료 — StatsPanel API 비용 섹션)
 
 ## 완료된 라운드
 
@@ -38,12 +38,13 @@
 | Round 89 | dev | QA 강화 — scripts/qa.ts에 R83~88 신규 기능 5종 체크 추가, Pass 5→10, handoff.md 전체 갱신 | ✅ |
 | Round 90 | dev | 파일 컨텍스트 패널 — useContextFiles hook(localStorage, IPC readFile), ChatPanel 📎 UI, system prompt 주입 | ✅ |
 | Round 91 | dev | 네이티브 파일 다이얼로그 — fs:open-file-dialog IPC, preload openFileDialog, ChatPanel 📎 네이티브 피커 | ✅ |
+| Round 92 | dev | StatsPanel API 비용 섹션 — cost-tracker 통합, 오늘/이번달 카드, 7일 비용 바 차트 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 92 | dev | 세션 통계 대시보드 — cost-tracker 기반 일별 비용 바 차트, 모델별 사용량, 총 세션 통계 |
+| Round 93 | dev | 스트리밍 배치 렌더링 최적화 — IPC throttling, React 렌더 배치 |
 | Round 93 | dev | 스트리밍 배치 렌더링 최적화 — IPC throttling, React 렌더 배치 |
 | Round 94 | dev | AG-UI 이벤트 모델 — 에이전트 실행 표준화, RunStarted/StepFinished/TextDelta |
 
