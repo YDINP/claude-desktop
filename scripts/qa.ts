@@ -1204,7 +1204,7 @@ if (existsSync(sceneInspectorPath6)) {
   } else {
     log('warning', 'Round146', 'SceneInspector 부모 노드 표시 미구현', 'SceneView/SceneInspector.tsx')
   }
-  if (si6.includes('부모 노드 선택')) {
+  if (si6.includes('부모 노드 선택') || si6.includes('onSelectParent?.(anc.uuid)') || si6.includes('조상 경로')) {
     log('pass', 'Round146', 'SceneInspector: 부모 노드 클릭 선택 UI 존재')
   } else {
     log('warning', 'Round146', 'SceneInspector 부모 노드 클릭 UI 미구현', 'SceneView/SceneInspector.tsx')
@@ -1846,6 +1846,19 @@ if (existsSync(sceneInspectorPath19)) {
     log('pass', 'Round182', 'SceneInspector: Anchor ⊙ 리셋 버튼 존재')
   } else {
     log('warning', 'Round182', 'SceneInspector Anchor 리셋 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// ── Section 85: R183 신규 기능 ───────────────────────────────
+console.log('\n## 85. 신규 기능 파일 검사 (R183)')
+// SceneInspector 조상 Breadcrumb (Round 183)
+const sceneInspectorPath20 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath20)) {
+  const si20 = readFileSync(sceneInspectorPath20, 'utf-8')
+  if (si20.includes('조상 경로 (Breadcrumb)') && si20.includes('ancestors.unshift') && si20.includes('ancestors.map')) {
+    log('pass', 'Round183', 'SceneInspector: 조상 Breadcrumb 경로 표시 존재')
+  } else {
+    log('warning', 'Round183', 'SceneInspector 조상 Breadcrumb 미구현', 'SceneView/SceneInspector.tsx')
   }
 }
 

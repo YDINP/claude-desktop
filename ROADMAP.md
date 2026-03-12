@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 182 완료 — SceneInspector Anchor 리셋, Pass 176)
+> 마지막 업데이트: 2026-03-13 (Round 183 완료 — SceneInspector 조상 Breadcrumb, Pass 177)
 
 ## 완료된 라운드
 
@@ -134,6 +134,7 @@
 | Round 180 | dev | SceneInspector Rotation ⊙ 리셋 버튼 — rotation을 0으로 즉시 초기화 | ✅ |
 | Round 181 | dev | SceneInspector Scale ⊙ 리셋 버튼 — scaleX,Y를 1로 즉시 초기화 | ✅ |
 | Round 182 | dev | SceneInspector Anchor ⊙ 리셋 버튼 — anchorX,Y를 0.5로 즉시 초기화 | ✅ |
+| Round 183 | dev | SceneInspector 조상 Breadcrumb — 전체 부모 체인 클릭 가능한 경로로 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

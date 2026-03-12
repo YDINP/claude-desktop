@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 183] — 2026-03-13
+### Added
+- SceneInspector: 조상 Breadcrumb 경로 표시 — 부모/조부모 전체 클릭 가능한 체인으로 표시 (Canvas › Panel › Button)
+
 ## [Round 182] — 2026-03-13
 ### Added
 - SceneInspector: Anchor ⊙ 버튼 — 클릭 시 anchorX, anchorY를 0.5로 즉시 초기화

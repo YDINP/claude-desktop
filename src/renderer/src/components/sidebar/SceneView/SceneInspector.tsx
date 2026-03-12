@@ -417,21 +417,31 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         </div>
       </div>
 
-      {/* 부모 노드 경로 + 자식/depth 정보 */}
-      <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+      {/* 조상 경로 (Breadcrumb) + 자식/depth 정보 */}
+      <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         {node.parentUuid && nodeMap && (() => {
-          const parent = nodeMap.get(node.parentUuid!)
-          if (!parent) return null
+          // 조상 체인 수집 (루트 → 부모 순)
+          const ancestors: Array<{ uuid: string; name: string }> = []
+          let cur = nodeMap.get(node.parentUuid!)
+          while (cur) {
+            ancestors.unshift({ uuid: cur.uuid, name: cur.name })
+            cur = cur.parentUuid ? nodeMap.get(cur.parentUuid) : undefined
+          }
+          if (ancestors.length === 0) return null
           return (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-              <span>in:</span>
-              <span
-                style={{ color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }}
-                onClick={() => onSelectParent?.(node.parentUuid!)}
-                title={`부모 노드 선택: ${parent.name}`}
-              >
-                {parent.name}
-              </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              {ancestors.map((anc, i) => (
+                <span key={anc.uuid} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {i > 0 && <span style={{ opacity: 0.4 }}>›</span>}
+                  <span
+                    style={{ color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', maxWidth: 70, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}
+                    onClick={() => onSelectParent?.(anc.uuid)}
+                    title={`선택: ${anc.name}`}
+                  >
+                    {anc.name}
+                  </span>
+                </span>
+              ))}
             </span>
           )
         })()}
