@@ -1031,6 +1031,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               setSelectedUuids(new Set([uuid]))
             }
           }}
+          onRename={handleRename}
         />
       )}
 

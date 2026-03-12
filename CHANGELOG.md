@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 199] — 2026-03-13
+### Added
+- NodeHierarchyList: 노드 이름 인라인 편집 — 더블클릭 또는 컨텍스트 메뉴 "이름 변경", Enter/blur로 저장
+
 ## [Round 198] — 2026-03-13
 ### Added
 - SceneView: Ctrl+] / Ctrl+[ 로 노드 z-order 변경 (앞으로/뒤로 한 단계)

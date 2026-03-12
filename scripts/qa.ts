@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 101: R199 신규 기능 ───────────────────────────────
+console.log('\n## 101. 신규 기능 파일 검사 (R199)')
+// NodeHierarchyList 인라인 이름 편집 (Round 199)
+const nhl199Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nhl199Path)) {
+  const nhl199 = readFileSync(nhl199Path, 'utf-8')
+  if (nhl199.includes('onRename') && nhl199.includes('editingUuid') && nhl199.includes('이름 변경')) {
+    log('pass', 'Round199', 'NodeHierarchyList: 인라인 이름 편집 (더블클릭/컨텍스트메뉴) 존재')
+  } else {
+    log('warning', 'Round199', 'NodeHierarchyList 인라인 이름 편집 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── Section 100: R198 신규 기능 ───────────────────────────────
 console.log('\n## 100. 신규 기능 파일 검사 (R198)')
 // SceneView Ctrl+]/Ctrl+[ z-order 변경 (Round 198)

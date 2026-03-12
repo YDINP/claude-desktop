@@ -10,6 +10,7 @@ interface NodeHierarchyListProps {
   focusUuid?: string | null
   onToggleActive?: (uuid: string, active: boolean) => void
   onCopyNode?: (uuid: string) => void
+  onRename?: (uuid: string, name: string) => void
 }
 
 function NodeRow({
@@ -21,6 +22,11 @@ function NodeRow({
   onSelect,
   onToggleCollapse,
   onToggleActive,
+  editingUuid,
+  editDraft,
+  onEditDraftChange,
+  onEditCommit,
+  onEditStart,
 }: {
   uuid: string
   depth: number
@@ -30,6 +36,11 @@ function NodeRow({
   onSelect: (uuid: string, multi: boolean) => void
   onToggleCollapse: (uuid: string) => void
   onToggleActive?: (uuid: string, active: boolean) => void
+  editingUuid?: string | null
+  editDraft?: string
+  onEditDraftChange?: (v: string) => void
+  onEditCommit?: (uuid: string) => void
+  onEditStart?: (uuid: string, name: string) => void
 }) {
   const node = nodeMap.get(uuid)
   if (!node) return null
@@ -100,19 +111,40 @@ function NodeRow({
           </span>
         )}
         {/* 노드 이름 */}
-        <span
-          onClick={e => onSelect(uuid, e.metaKey || e.ctrlKey)}
-          style={{
-            flex: 1,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            cursor: 'pointer',
-            paddingLeft: 2,
-          }}
-        >
-          {node.name}
-        </span>
+        {editingUuid === uuid ? (
+          <input
+            autoFocus
+            value={editDraft ?? ''}
+            onChange={e => onEditDraftChange?.(e.target.value)}
+            onBlur={() => onEditCommit?.(uuid)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') onEditCommit?.(uuid)
+              else if (e.key === 'Escape') onEditCommit?.(uuid)
+              e.stopPropagation()
+            }}
+            style={{
+              flex: 1, fontSize: 11, padding: '0 2px',
+              background: 'var(--bg-primary)', border: '1px solid var(--accent)',
+              borderRadius: 2, color: 'var(--text-primary)', outline: 'none', minWidth: 0,
+            }}
+          />
+        ) : (
+          <span
+            onClick={e => onSelect(uuid, e.metaKey || e.ctrlKey)}
+            onDoubleClick={e => { e.stopPropagation(); onEditStart?.(uuid, node.name) }}
+            title="더블클릭하여 이름 변경"
+            style={{
+              flex: 1,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              cursor: 'pointer',
+              paddingLeft: 2,
+            }}
+          >
+            {node.name}
+          </span>
+        )}
       </div>
       {hasChildren && !isCollapsed && node.childUuids.map(childUuid => (
         <NodeRow
@@ -125,17 +157,32 @@ function NodeRow({
           onSelect={onSelect}
           onToggleCollapse={onToggleCollapse}
           onToggleActive={onToggleActive}
+          editingUuid={editingUuid}
+          editDraft={editDraft}
+          onEditDraftChange={onEditDraftChange}
+          onEditCommit={onEditCommit}
+          onEditStart={onEditStart}
         />
       ))}
     </>
   )
 }
 
-export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode }: NodeHierarchyListProps) {
+export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode, onRename }: NodeHierarchyListProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [contextMenu, setContextMenu] = useState<{ uuid: string; x: number; y: number } | null>(null)
+  const [editingUuid, setEditingUuid] = useState<string | null>(null)
+  const [editDraft, setEditDraft] = useState('')
+
+  const startEdit = (uuid: string, name: string) => { setEditingUuid(uuid); setEditDraft(name) }
+  const commitEdit = (uuid: string) => {
+    if (editDraft.trim() && editDraft.trim() !== nodeMap.get(uuid)?.name) {
+      onRename?.(uuid, editDraft.trim())
+    }
+    setEditingUuid(null)
+  }
 
   const handleContextMenu = (e: React.MouseEvent, uuid: string) => {
     e.preventDefault()
@@ -289,6 +336,11 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
             onSelect={onSelect}
             onToggleCollapse={toggleCollapse}
             onToggleActive={onToggleActive}
+            editingUuid={editingUuid}
+            editDraft={editDraft}
+            onEditDraftChange={setEditDraft}
+            onEditCommit={commitEdit}
+            onEditStart={startEdit}
           />
         )}
       </div>
@@ -324,6 +376,10 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
               <button onClick={() => { onCopyNode?.(contextMenu.uuid); closeContextMenu() }}
                 style={{ display: 'block', width: '100%', textAlign: 'left', padding: '4px 10px', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 11 }}>
                 복사 (Ctrl+C)
+              </button>
+              <button onClick={() => { startEdit(contextMenu.uuid, ctxNode.name); closeContextMenu() }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '4px 10px', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 11 }}>
+                이름 변경 (더블클릭)
               </button>
               <button onClick={() => { onToggleActive?.(contextMenu.uuid, !ctxNode.active); closeContextMenu() }}
                 style={{ display: 'block', width: '100%', textAlign: 'left', padding: '4px 10px', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 11 }}>
