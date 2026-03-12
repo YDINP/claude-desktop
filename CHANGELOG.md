@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 362] — 2026-03-13
+### Added
+- PluginsPanel: 코드 복사 버튼 — 코드 뷰 헤더에 📋 복사 버튼, 복사 후 "✓ 복사됨" 피드백
+
 ## [Round 361] — 2026-03-13
 ### Added
 - BookmarksPanel: 미리보기 확장 토글 — ▼/▲ 버튼으로 북마크 전체 텍스트 인라인 펼치기/접기
