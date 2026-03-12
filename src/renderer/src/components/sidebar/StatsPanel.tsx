@@ -103,6 +103,22 @@ export function StatsPanel() {
 
   const topWords = useMemo(() => getTopWords(sessionTitles), [sessionTitles])
 
+  // 연속 사용일 스트릭 계산
+  const { currentStreak, longestStreak } = useMemo(() => {
+    const days = [...heatmapDays].reverse() // 최신 → 과거
+    let cur = 0
+    for (const d of days) {
+      if (d.count > 0) cur++
+      else break
+    }
+    let maxStreak = 0, run = 0
+    for (const d of heatmapDays) {
+      if (d.count > 0) { run++; maxStreak = Math.max(maxStreak, run) }
+      else run = 0
+    }
+    return { currentStreak: cur, longestStreak: maxStreak }
+  }, [heatmapDays])
+
   if (!stats) return <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 12 }}>로딩 중...</div>
 
   const maxDay = Math.max(...stats.dailyCounts, 1)
@@ -168,6 +184,22 @@ export function StatsPanel() {
           </div>
         )}
       </div>
+
+      {/* 연속 사용일 스트릭 */}
+      {(currentStreak > 0 || longestStreak > 0) && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <div style={{ flex: 1, background: 'var(--bg-tertiary)', borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: currentStreak >= 7 ? '#fbbf24' : 'var(--accent)' }}>
+              {currentStreak > 0 ? `🔥 ${currentStreak}` : '0'}
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>현재 연속</div>
+          </div>
+          <div style={{ flex: 1, background: 'var(--bg-tertiary)', borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-secondary)' }}>{longestStreak}</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>최장 연속</div>
+          </div>
+        </div>
+      )}
 
       {/* 7일 활동 바 차트 */}
       <div style={{ marginBottom: 16 }}>

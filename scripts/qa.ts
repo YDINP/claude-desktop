@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 174: R272 신규 기능 ───────────────────────────────
+console.log('\n## 174. 신규 기능 파일 검사 (R272)')
+// StatsPanel 연속 사용일 스트릭 (Round 272)
+const sp272Path = join(ROOT, 'src/renderer/src/components/sidebar/StatsPanel.tsx')
+if (existsSync(sp272Path)) {
+  const sp272 = readFileSync(sp272Path, 'utf-8')
+  if (sp272.includes('currentStreak') && sp272.includes('longestStreak') && sp272.includes('연속 사용일')) {
+    log('pass', 'Round272', 'StatsPanel: 연속 사용일 스트릭 (currentStreak/longestStreak) 존재')
+  } else {
+    log('warning', 'Round272', 'StatsPanel 연속 사용일 스트릭 미구현', 'sidebar/StatsPanel.tsx')
+  }
+}
+
 // ── Section 173: R271 신규 기능 ───────────────────────────────
 console.log('\n## 173. 신규 기능 파일 검사 (R271)')
 // TasksPanel 검색 필터 (Round 271)

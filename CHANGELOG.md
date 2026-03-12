@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 272] — 2026-03-13
+### Added
+- StatsPanel: 연속 사용일 스트릭 표시 — 현재 연속일(🔥) + 최장 연속일 카드
+
 ## [Round 271] — 2026-03-13
 ### Added
 - TasksPanel: 태스크 검색 필터 — 3개 이상 시 검색 입력창 표시, Escape로 초기화
