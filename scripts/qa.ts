@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 184: R282 신규 기능 ───────────────────────────────
+console.log('\n## 184. 신규 기능 파일 검사 (R282)')
+// TasksPanel 빠른 마감일 버튼 (Round 282)
+const tp282Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp282Path)) {
+  const tp282 = readFileSync(tp282Path, 'utf-8')
+  if (tp282.includes('빠른 마감일') && tp282.includes('오늘') && tp282.includes('7일')) {
+    log('pass', 'Round282', 'TasksPanel: 빠른 마감일 버튼 (오늘/내일/7일) 존재')
+  } else {
+    log('warning', 'Round282', 'TasksPanel 빠른 마감일 버튼 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 183: R281 신규 기능 ───────────────────────────────
 console.log('\n## 183. 신규 기능 파일 검사 (R281)')
 // StatsPanel 요일별 활동 분포 (Round 281)

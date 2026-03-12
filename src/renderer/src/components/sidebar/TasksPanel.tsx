@@ -112,6 +112,21 @@ export function TasksPanel() {
           style={{ padding: '4px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, color: 'inherit', fontSize: 10, width: 32, cursor: 'pointer', opacity: 0.7 }} />
         <button onClick={addTask} style={{ padding: '4px 8px', background: 'var(--accent)', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer', fontSize: 12 }}>+</button>
       </div>
+      {/* 빠른 마감일 버튼 */}
+      <div style={{ display: 'flex', gap: 3, marginBottom: 6, marginTop: -4 }}>
+        {([['오늘', 0], ['내일', 1], ['7일', 7]] as [string, number][]).map(([label, days]) => {
+          const d = new Date(); d.setDate(d.getDate() + days)
+          const val = d.toISOString().slice(0, 10)
+          return (
+            <button key={label} onClick={() => setDueDate(v => v === val ? '' : val)}
+              title={`마감일: ${val}`}
+              style={{ padding: '1px 6px', fontSize: 9, borderRadius: 8, cursor: 'pointer', border: '1px solid var(--border)', background: dueDate === val ? 'var(--accent)' : 'var(--bg-secondary)', color: dueDate === val ? '#fff' : 'var(--text-muted)' }}>
+              {label}
+            </button>
+          )
+        })}
+        {dueDate && <button onClick={() => setDueDate('')} title="마감일 초기화" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 8, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>×</button>}
+      </div>
 
       {/* 검색 필터 */}
       {tasks.length > 3 && (

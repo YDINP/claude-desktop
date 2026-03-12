@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 282] — 2026-03-13
+### Added
+- TasksPanel: 빠른 마감일 설정 버튼 — 오늘/내일/7일 후 토글 버튼, 재클릭 시 해제, × 초기화
+
 ## [Round 281] — 2026-03-13
 ### Added
 - StatsPanel: 요일별 활동 분포 차트 — 최근 12주 요일별 누적 세션 바 차트, 최다 요일 황색 하이라이트
