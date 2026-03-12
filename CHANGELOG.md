@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 157] — 2026-03-12
+### Added
+- SceneInspector: 컴포넌트 목록에 타입별 아이콘 표시 — getComponentIcon 재사용, accent 색상
+
 ## [Round 156] — 2026-03-12
 ### Added
 - SceneView: 씬 원점 (0,0) 레이블 — 중앙 십자 우상단에 "(0,0)" SVG 텍스트 표시, zoom 보정

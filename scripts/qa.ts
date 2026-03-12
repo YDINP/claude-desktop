@@ -1391,6 +1391,24 @@ if (existsSync(sceneViewPanelPath23)) {
   }
 }
 
+// ── Section 59: R157 신규 기능 ───────────────────────────────
+console.log('\n## 59. 신규 기능 파일 검사 (R157)')
+// SceneInspector 컴포넌트 아이콘 (Round 157)
+const sceneInspectorPath8 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath8)) {
+  const si8 = readFileSync(sceneInspectorPath8, 'utf-8')
+  if (si8.includes('getComponentIcon') && si8.includes("import { getComponentIcon }")) {
+    log('pass', 'Round157', 'SceneInspector: getComponentIcon import + 사용 존재')
+  } else {
+    log('warning', 'Round157', 'SceneInspector 컴포넌트 아이콘 미구현', 'SceneView/SceneInspector.tsx')
+  }
+  if (si8.includes("color: 'var(--accent)'") && si8.includes("getComponentIcon([c])")) {
+    log('pass', 'Round157', 'SceneInspector: 컴포넌트별 accent 아이콘 렌더링 존재')
+  } else {
+    log('warning', 'Round157', 'SceneInspector 컴포넌트 아이콘 렌더링 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

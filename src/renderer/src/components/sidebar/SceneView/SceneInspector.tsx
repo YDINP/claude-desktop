@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { SceneNode } from './types'
+import { getComponentIcon } from './utils'
 
 interface SceneInspectorProps {
   node: SceneNode | null
@@ -434,9 +435,19 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
         <>
           <SectionHeader label="Components" />
           <div style={{ fontSize: 9, color: 'var(--text-muted)', lineHeight: 1.9 }}>
-            {node.components.map((c, i) => (
-              <div key={i}>{c.type}</div>
-            ))}
+            {node.components.map((c, i) => {
+              const icon = getComponentIcon([c])
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {icon && (
+                    <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: 8, width: 10, flexShrink: 0 }}>
+                      {icon}
+                    </span>
+                  )}
+                  <span>{c.type}</span>
+                </div>
+              )
+            })}
           </div>
         </>
       )}
