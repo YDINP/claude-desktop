@@ -433,6 +433,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const handleNodeMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
     e.stopPropagation()
     if (e.button !== 0) return
+    // 잠긴 노드는 드래그/선택 불가
+    if (nodeMap.get(uuid)?.locked) return
 
     if (e.shiftKey) {
       // Shift 클릭: 멀티 선택 토글
@@ -1083,6 +1085,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             }
           }}
           onRename={handleRename}
+          onToggleLock={(uuid, locked) => updateNode(uuid, { locked })}
         />
       )}
 

@@ -17,6 +17,7 @@ export interface SceneNode {
   parentUuid: string | null
   childUuids: string[]
   components: { type: string }[]
+  locked?: boolean
 }
 
 // SVG 뷰포트 변환

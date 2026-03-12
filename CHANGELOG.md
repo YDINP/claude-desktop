@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 203] — 2026-03-13
+### Added
+- SceneView: 노드 잠금(Lock) — 🔒 아이콘 클릭으로 토글, 잠긴 노드는 드래그/선택 불가
+
 ## [Round 202] — 2026-03-13
 ### Added
 - SceneView: 픽셀 눈금자 (R 키 토글) — 상단/좌측 Cocos 좌표 눈금자, 줌 반응형 틱 간격

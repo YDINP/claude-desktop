@@ -11,6 +11,7 @@ interface NodeHierarchyListProps {
   onToggleActive?: (uuid: string, active: boolean) => void
   onCopyNode?: (uuid: string) => void
   onRename?: (uuid: string, name: string) => void
+  onToggleLock?: (uuid: string, locked: boolean) => void
 }
 
 function NodeRow({
@@ -36,6 +37,7 @@ function NodeRow({
   onSelect: (uuid: string, multi: boolean) => void
   onToggleCollapse: (uuid: string) => void
   onToggleActive?: (uuid: string, active: boolean) => void
+  onToggleLock?: (uuid: string, locked: boolean) => void
   editingUuid?: string | null
   editDraft?: string
   onEditDraftChange?: (v: string) => void
@@ -83,6 +85,12 @@ function NodeRow({
             display: 'inline-block',
           }}
         />
+        {/* 잠금 아이콘 */}
+        <span
+          onClick={e => { e.stopPropagation(); onToggleLock?.(uuid, !node.locked) }}
+          title={node.locked ? '잠금 해제' : '잠금'}
+          style={{ flexShrink: 0, marginRight: 2, cursor: 'pointer', fontSize: 9, opacity: node.locked ? 1 : 0.2, color: node.locked ? '#f59e0b' : 'var(--text-muted)' }}
+        >🔒</span>
         {/* 펼치기/접기 버튼 */}
         <span
           onClick={e => { e.stopPropagation(); if (hasChildren) onToggleCollapse(uuid) }}
@@ -157,6 +165,7 @@ function NodeRow({
           onSelect={onSelect}
           onToggleCollapse={onToggleCollapse}
           onToggleActive={onToggleActive}
+          onToggleLock={onToggleLock}
           editingUuid={editingUuid}
           editDraft={editDraft}
           onEditDraftChange={onEditDraftChange}
@@ -168,7 +177,7 @@ function NodeRow({
   )
 }
 
-export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode, onRename }: NodeHierarchyListProps) {
+export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode, onRename, onToggleLock }: NodeHierarchyListProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -336,6 +345,7 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
             onSelect={onSelect}
             onToggleCollapse={toggleCollapse}
             onToggleActive={onToggleActive}
+            onToggleLock={onToggleLock}
             editingUuid={editingUuid}
             editDraft={editDraft}
             onEditDraftChange={setEditDraft}

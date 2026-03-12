@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 202 완료 — SceneView 픽셀 눈금자, Pass 197)
+> 마지막 업데이트: 2026-03-13 (Round 203 완료 — SceneView 노드 잠금, Pass 198)
 
 ## 완료된 라운드
 
@@ -154,6 +154,7 @@
 | Round 200 | dev | SceneView Ctrl+G 그룹화 — 다중 선택 노드를 Group 부모로 묶기, upsert 지원 | ✅ |
 | Round 201 | dev | SceneView N/E/S/W 측면 리사이즈 핸들 — 단일 축 크기 조절 (파란 핸들) | ✅ |
 | Round 202 | dev | SceneView 픽셀 눈금자 — R 키 토글, 상단/좌측 Cocos 좌표 눈금자, 줌 반응형 틱 | ✅ |
+| Round 203 | dev | SceneView 노드 잠금 — 🔒 아이콘 토글, 잠긴 노드 드래그/선택 방어 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 105: R203 신규 기능 ───────────────────────────────
+console.log('\n## 105. 신규 기능 파일 검사 (R203)')
+// SceneView 노드 잠금 (Round 203)
+const nhl203Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nhl203Path)) {
+  const nhl203 = readFileSync(nhl203Path, 'utf-8')
+  if (nhl203.includes('onToggleLock') && nhl203.includes('node.locked') && nhl203.includes('잠금')) {
+    log('pass', 'Round203', 'SceneView: 노드 잠금 아이콘 + 드래그 방어 존재')
+  } else {
+    log('warning', 'Round203', 'SceneView 노드 잠금 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── Section 104: R202 신규 기능 ───────────────────────────────
 console.log('\n## 104. 신규 기능 파일 검사 (R202)')
 // SceneView 픽셀 눈금자 (Round 202)
