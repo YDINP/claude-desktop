@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 215 완료 — SceneView 노드 라벨 색상, Pass 210)
+> 마지막 업데이트: 2026-03-13 (Round 216 완료 — SceneView 부모-자식 연결선, Pass 211)
 
 ## 완료된 라운드
 
@@ -167,6 +167,7 @@
 | Round 213 | dev | SceneView 스냅 그리드 크기 조정 — 드롭다운으로 1~50px 선택 | ✅ |
 | Round 214 | dev | SceneView 노드 태그 — Inspector 태그 추가/삭제, 계층 트리 tag: 필터 | ✅ |
 | Round 215 | dev | SceneView 노드 라벨 색상 — Inspector 컬러 피커, SVG fill + 계층 인디케이터 반영 | ✅ |
+| Round 216 | dev | SceneView 부모-자식 연결선 — ⤻ 토글 버튼, 계층 관계 반투명 점선 시각화 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

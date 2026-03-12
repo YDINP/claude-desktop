@@ -54,6 +54,8 @@ interface SceneToolbarProps {
   onSlotChange?: (slot: number) => void
   snapGrid?: number
   onSnapGridChange?: (size: number) => void
+  showConnections?: boolean
+  onConnectionsToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -112,6 +114,8 @@ export function SceneToolbar({
   onSlotChange,
   snapGrid,
   onSnapGridChange,
+  showConnections,
+  onConnectionsToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -421,6 +425,15 @@ export function SceneToolbar({
         title="노드 계층 트리 표시"
       >
         ≡
+      </button>
+
+      {/* 연결선 토글 */}
+      <button
+        style={showConnections ? btnActive : btnBase}
+        onClick={onConnectionsToggle}
+        title="부모-자식 연결선 표시"
+      >
+        ⤻
       </button>
 
       {/* SVG 내보내기 */}

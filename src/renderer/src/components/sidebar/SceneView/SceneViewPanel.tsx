@@ -52,6 +52,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [svgContextMenu, setSvgContextMenu] = useState<{ uuid: string | null; x: number; y: number } | null>(null)
   const [bgLight, setBgLight] = useState(false)
   const [alignGuides, setAlignGuides] = useState<{ x?: number; y?: number }[]>([])
+  const [showConnections, setShowConnections] = useState(false)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -1149,6 +1150,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onRefresh={refresh}
         showHierarchy={showHierarchy}
         onHierarchyToggle={() => setShowHierarchy(v => !v)}
+        showConnections={showConnections}
+        onConnectionsToggle={() => setShowConnections(v => !v)}
         showLabels={showLabels}
         onLabelsToggle={() => setShowLabels(v => !v)}
         bgLight={bgLight}
@@ -1411,6 +1414,25 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             >
               (0,0)
             </text>
+
+            {/* 부모-자식 연결선 */}
+            {showConnections && [...nodeMap.values()].map(node => {
+              if (!node.parentUuid) return null
+              const parent = nodeMap.get(node.parentUuid)
+              if (!parent) return null
+              const { sx: x1, sy: y1 } = cocosToSvg(parent.x, parent.y, DESIGN_W, DESIGN_H)
+              const { sx: x2, sy: y2 } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
+              return (
+                <line
+                  key={`conn-${node.uuid}`}
+                  x1={x1} y1={y1} x2={x2} y2={y2}
+                  stroke="rgba(96,165,250,0.35)"
+                  strokeWidth={1 / view.zoom}
+                  strokeDasharray={`${4 / view.zoom} ${3 / view.zoom}`}
+                  style={{ pointerEvents: 'none' }}
+                />
+              )
+            })}
 
             {/* 노드 렌더링 */}
             {renderOrder.map(uuid => {

@@ -2036,6 +2036,28 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 118: R216 신규 기능 ───────────────────────────────
+console.log('\n## 118. 신규 기능 파일 검사 (R216)')
+// SceneView 부모-자식 연결선 (Round 216)
+const svp216Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp216Path)) {
+  const svp216 = readFileSync(svp216Path, 'utf-8')
+  if (svp216.includes('showConnections') && svp216.includes('부모-자식 연결선')) {
+    log('pass', 'Round216', 'SceneViewPanel: 부모-자식 연결선 SVG 렌더링 존재')
+  } else {
+    log('warning', 'Round216', 'SceneViewPanel 연결선 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+const stb216Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb216Path)) {
+  const stb216 = readFileSync(stb216Path, 'utf-8')
+  if (stb216.includes('onConnectionsToggle') && stb216.includes('연결선')) {
+    log('pass', 'Round216', 'SceneToolbar: 연결선 토글 버튼 존재')
+  } else {
+    log('warning', 'Round216', 'SceneToolbar 연결선 토글 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 117: R215 신규 기능 ───────────────────────────────
 console.log('\n## 117. 신규 기능 파일 검사 (R215)')
 // SceneView 노드 라벨 색상 (Round 215)

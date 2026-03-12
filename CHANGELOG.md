@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 216] — 2026-03-13
+### Added
+- SceneView: 부모-자식 연결선 — ⤻ 버튼 토글, 계층 관계를 반투명 파란 점선으로 시각화
+
 ## [Round 215] — 2026-03-13
 ### Added
 - SceneView: 노드 라벨 색상 — Inspector 컬러 피커로 노드 표시 색상 지정, 계층 트리 인디케이터에도 반영
