@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 250: R348 신규 기능 ───────────────────────────────
+console.log('\n## 250. 신규 기능 파일 검사 (R348)')
+// NotesPanel 파일 가져오기 (Round 348)
+const notes348Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(notes348Path)) {
+  const notes348 = readFileSync(notes348Path, 'utf-8')
+  if (notes348.includes('importFromFile') && notes348.includes('fileInputRef') && notes348.includes("accept=")) {
+    log('pass', 'Round348', 'NotesPanel: 파일 가져오기 (importFromFile/fileInputRef/accept) 존재')
+  } else {
+    log('warning', 'Round348', 'NotesPanel 파일 가져오기 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 249: R347 신규 기능 ───────────────────────────────
 console.log('\n## 249. 신규 기능 파일 검사 (R347)')
 // CalendarPanel 연도 빠른 이동 (Round 347)

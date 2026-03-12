@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 348] — 2026-03-13
+### Added
+- NotesPanel: .txt/.md 파일 가져오기 — 📥 버튼 클릭으로 텍스트/마크다운 파일 임포트, 첫 줄 # 헤딩을 제목으로, 파일명 폴백
+
 ## [Round 347] — 2026-03-13
 ### Added
 - CalendarPanel: 연도 빠른 이동 — 연도 클릭 시 드롭다운으로 ±5년 범위 연도 선택 가능

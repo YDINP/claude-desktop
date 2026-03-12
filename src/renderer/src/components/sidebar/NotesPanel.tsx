@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react'
 
 interface Note {
   id: string
@@ -24,6 +24,7 @@ export function NotesPanel() {
   const [noteCopied, setNoteCopied] = useState(false)
   const [codeMode, setCodeMode] = useState(false)
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const selected = notes.find(n => n.id === selectedId) ?? null
 
@@ -102,6 +103,23 @@ export function NotesPanel() {
   const SORT_LABELS: Record<typeof sortOrder, string> = { latest: '최신', oldest: '오래됨', title: '제목' }
   const cycleSortOrder = () => setSortOrder(s => s === 'latest' ? 'oldest' : s === 'oldest' ? 'title' : 'latest')
 
+  const importFromFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      const text = ev.target?.result as string
+      const lines = text.split('\n')
+      const title = (lines[0].startsWith('#') ? lines[0].replace(/^#+\s*/, '') : file.name.replace(/\.[^.]+$/, '')).trim() || '가져온 노트'
+      const contentStart = lines[0].startsWith('#') ? lines.slice(1).join('\n').replace(/^\n+/, '') : text
+      const note: Note = { id: Date.now().toString(), title, content: contentStart, updatedAt: Date.now() }
+      save([note, ...notes])
+      setSelectedId(note.id)
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+
   const exportNotes = () => {
     const md = sortedNotes.map(n => `# ${n.title || '(제목 없음)'}\n\n${n.content}`).join('\n\n---\n\n')
     const blob = new Blob([md], { type: 'text/markdown' })
@@ -132,6 +150,11 @@ export function NotesPanel() {
           style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 9, padding: '2px 5px', flexShrink: 0, whiteSpace: 'nowrap' }}>
           ↕{SORT_LABELS[sortOrder]}
         </button>
+        <button onClick={() => fileInputRef.current?.click()} title=".txt/.md 파일 가져오기"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-muted)', flexShrink: 0, padding: '0 2px' }}>
+          📥
+        </button>
+        <input ref={fileInputRef} type="file" accept=".txt,.md" onChange={importFromFile} style={{ display: 'none' }} />
         {notes.length > 0 && (
           <button onClick={exportNotes} title="Markdown으로 내보내기"
             style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-muted)', flexShrink: 0, padding: '0 2px' }}>
