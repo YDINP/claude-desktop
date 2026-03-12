@@ -30,6 +30,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showLabels, setShowLabels] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
+  const [isPanningActive, setIsPanningActive] = useState(false)
   const [cursorScenePos, setCursorScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverTooltipPos, setHoverTooltipPos] = useState<{ x: number; y: number } | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
@@ -238,6 +239,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     // 빈 영역 클릭 → 패닝 (middle btn 또는 space + left)
     if (e.button === 1 || (e.button === 0 && activeTool === 'move')) {
       isPanning.current = true
+      setIsPanningActive(true)
       panStart.current = {
         mx: e.clientX,
         my: e.clientY,
@@ -474,6 +476,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     // 패닝 종료
     if (isPanning.current) {
       isPanning.current = false
+      setIsPanningActive(false)
       panStart.current = null
       return
     }
@@ -829,7 +832,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           flex: 1,
           position: 'relative',
           overflow: 'hidden',
-          cursor: activeTool === 'move' ? 'grab' : 'default',
+          cursor: isPanningActive ? 'grabbing' : activeTool === 'move' ? 'grab' : 'default',
         }}
       >
         <svg

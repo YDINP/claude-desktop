@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 155] — 2026-03-12
+### Added
+- SceneView: 패닝 중 커서 grab → grabbing 변경 — isPanningActive 상태로 동적 커서 제어
+
 ## [Round 154] — 2026-03-12
 ### Added
 - SceneInspector: UUID 복사 버튼 — 헤더 # 버튼 클릭 시 UUID 클립보드 복사, 복사 완료 시 ✓ 피드백

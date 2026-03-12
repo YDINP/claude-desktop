@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:05:03.639Z
+> 2026-03-12T14:07:02.407Z
 
 ## Critical
 _없음_
@@ -134,3 +134,5 @@ _없음_
 - NodeHierarchyList: ESC 시 포커스 해제 존재
 - SceneInspector: UUID 복사 함수 + clipboard API 존재
 - SceneInspector: 복사 완료 피드백 (✓/#) 존재
+- SceneView: isPanningActive 상태 + grabbing 커서 존재
+- SceneView: isPanningActive on/off 토글 존재

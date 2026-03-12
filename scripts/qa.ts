@@ -1355,6 +1355,24 @@ if (existsSync(sceneInspectorPath7)) {
   }
 }
 
+// ── Section 57: R155 신규 기능 ───────────────────────────────
+console.log('\n## 57. 신규 기능 파일 검사 (R155)')
+// SceneView 패닝 커서 grabbing (Round 155)
+const sceneViewPanelPath22 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath22)) {
+  const svp22 = readFileSync(sceneViewPanelPath22, 'utf-8')
+  if (svp22.includes('isPanningActive') && svp22.includes("'grabbing'")) {
+    log('pass', 'Round155', 'SceneView: isPanningActive 상태 + grabbing 커서 존재')
+  } else {
+    log('warning', 'Round155', 'SceneView 패닝 grabbing 커서 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp22.includes('setIsPanningActive(true)') && svp22.includes('setIsPanningActive(false)')) {
+    log('pass', 'Round155', 'SceneView: isPanningActive on/off 토글 존재')
+  } else {
+    log('warning', 'Round155', 'SceneView isPanningActive 토글 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

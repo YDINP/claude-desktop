@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 154 완료 — SceneInspector UUID 복사 버튼, Pass 126)
+> 마지막 업데이트: 2026-03-12 (Round 155 완료 — SceneView 패닝 커서 grabbing, Pass 128)
 
 ## 완료된 라운드
 
@@ -106,6 +106,7 @@
 | Round 152 | dev | SceneView 선택 노드 size 레이블 — 단일 선택 시 bounding box 우상단 W×H 표시 | ✅ |
 | Round 153 | dev | NodeHierarchyList 검색창 ESC 키 → 검색어 초기화 + 포커스 해제 | ✅ |
 | Round 154 | dev | SceneInspector UUID 복사 버튼 — # 클릭 시 UUID 복사, ✓ 피드백 | ✅ |
+| Round 155 | dev | SceneView 패닝 커서 — 이동 도구 grab, 패닝 중 grabbing 동적 전환 | ✅ |
 
 ## 전략 로드맵 (Phase)
 
