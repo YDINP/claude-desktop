@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 111 완료 — StatsPanel 고도화: 전체 메시지/일별 메시지 차트/TOP 5 세션 + QA Pass 43)
+> 마지막 업데이트: 2026-03-12 (Round 112 완료 — NodePropertyPanel 슬라이더 (Opacity/Rotation) + QA Pass 46)
 
 ## 완료된 라운드
 
@@ -58,13 +58,14 @@
 | Round 109 | dev | QA R108~109 체크 (Pass→38) + 스트리밍 경과 시간 표시 + CC 노드 생성/삭제 (POST /scene/new-node, DELETE /node/:uuid) | ✅ |
 | Round 110 | dev | NodePropertyPanel 색상 스왓치/Vec2/Vec3/Boolean 디스플레이 고도화 + QA 색상 스왓치 체크 수정 (Pass→40) | ✅ |
 | Round 111 | dev | StatsPanel 고도화 — 전체 메시지 수/일별 메시지 차트/TOP 5 세션, globalStats IPC 확장 (Pass→43) | ✅ |
+| Round 112 | dev | NodePropertyPanel 슬라이더 PropRow — Opacity(0~255)/Rotation(-180~180) range input + 숫자 입력 연동 (Pass→46) | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 112 | dev | NodePropertyPanel 인라인 편집 (숫자 슬라이더/색상피커/벡터 입력) |
-| Round 113 | dev | 메시지 재생성 버튼 (↺) + 스트리밍 중 Stop 버튼 UX 개선 |
+| Round 113 | dev | 메시지 재생성 버튼 (↺) — 버블 하단 재생성/복사 버튼, 이전 응답 히스토리 보존 |
+| Round 114 | dev | QA + CC Extension 색상피커 — 컴포넌트 color prop 클릭 시 native color picker |
 
 ## 전략 로드맵 (Phase)
 

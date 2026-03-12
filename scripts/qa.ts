@@ -562,6 +562,29 @@ if (existsSync(statsPanelPath2)) {
   }
 }
 
+// ── Section 17: R112 신규 기능 ───────────────────────────────
+console.log('\n## 17. 신규 기능 파일 검사 (R112)')
+// NodePropertyPanel 슬라이더 (Round 112)
+const nodePropPath2 = join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx')
+if (existsSync(nodePropPath2)) {
+  const np2 = readFileSync(nodePropPath2, 'utf-8')
+  if (np2.includes('sliderMin') && np2.includes('sliderMax') && np2.includes('type="range"')) {
+    log('pass', 'Round112', 'NodePropertyPanel 슬라이더 PropRow 존재')
+  } else {
+    log('warning', 'Round112', 'NodePropertyPanel 슬라이더 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+  if (np2.includes('sliderMin={0}') && np2.includes('sliderMax={255}')) {
+    log('pass', 'Round112', 'Opacity 슬라이더 (0-255) 존재')
+  } else {
+    log('warning', 'Round112', 'Opacity 슬라이더 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+  if (np2.includes('sliderMin={-180}') && np2.includes('sliderMax={180}')) {
+    log('pass', 'Round112', 'Rotation 슬라이더 (-180~180) 존재')
+  } else {
+    log('warning', 'Round112', 'Rotation 슬라이더 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

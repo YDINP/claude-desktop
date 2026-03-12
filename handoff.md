@@ -1,15 +1,22 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 111 완료)
+> 마지막 업데이트: 2026-03-12 (Round 112 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 111 (StatsPanel 고도화 + QA Pass 43)
+- 마지막 커밋: Round 112 (NodePropertyPanel 슬라이더 + QA Pass 46)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 43
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 46
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 111 완료 항목 (최근 세션)
+## Round 112 완료 항목 (최근 세션)
+
+### Round 112 — NodePropertyPanel 슬라이더 PropRow
+- `src/renderer/src/components/sidebar/NodePropertyPanel.tsx`: `PropRow`에 `sliderMin`/`sliderMax` optional props 추가 → `type="range"` 슬라이더 + 숫자 input 나란히 렌더링, 슬라이더 변경 시 즉시 save 호출
+- Rotation에 `sliderMin={-180} sliderMax={180}`, Opacity에 `sliderMin={0} sliderMax={255}` 적용
+- `scripts/qa.ts`: Section 17 추가 (슬라이더 PropRow/Opacity/Rotation 체크, Pass 43→46)
+
+## Round 111 완료 항목 (이전 세션)
 
 ### Round 111 — StatsPanel 고도화 (세션별 통계 + 일별 메시지 차트 + TOP 5)
 - `src/main/ipc/session-handlers.ts`: `session:globalStats` 핸들러 확장 — `totalMessages`, `avgMessagesPerSession`, `dailyMessageCounts` (7일), `topSessions` (messageCount 상위 5개) 반환

@@ -7,10 +7,12 @@ interface NodePropertyPanelProps {
   onUpdate: () => void
 }
 
-function PropRow({ label, value, decimals = 0, onSave }: {
+function PropRow({ label, value, decimals = 0, sliderMin, sliderMax, onSave }: {
   label: string
   value: number
   decimals?: number
+  sliderMin?: number
+  sliderMax?: number
   onSave: (v: number) => void
 }) {
   // trailing zero 제거: 1.00→"1", 0.50→"0.5", 0.12→"0.12"
@@ -22,9 +24,26 @@ function PropRow({ label, value, decimals = 0, onSave }: {
     if (!editing) setDraft(fmt(value))
   }, [value, editing])
 
+  const hasSlider = sliderMin !== undefined && sliderMax !== undefined
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0' }}>
       <span style={{ width: 56, color: 'var(--text-muted)', fontSize: 10, flexShrink: 0 }}>{label}</span>
+      {hasSlider && (
+        <input
+          type="range"
+          min={sliderMin}
+          max={sliderMax}
+          step={decimals > 0 ? Math.pow(10, -decimals) : 1}
+          value={isNaN(parseFloat(draft)) ? value : parseFloat(draft)}
+          onChange={e => {
+            const num = parseFloat(e.target.value)
+            setDraft(fmt(num))
+            onSave(num)
+          }}
+          style={{ flex: 1, accentColor: 'var(--accent)', cursor: 'pointer', height: 4 }}
+        />
+      )}
       <input
         value={draft}
         onChange={e => setDraft(e.target.value)}
@@ -39,7 +58,9 @@ function PropRow({ label, value, decimals = 0, onSave }: {
           if (e.key === 'Escape') { setEditing(false); setDraft(fmt(value)) }
         }}
         style={{
-          flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',
+          width: hasSlider ? 46 : undefined,
+          flex: hasSlider ? undefined : 1,
+          background: 'var(--bg-input)', color: 'var(--text-primary)',
           border: '1px solid var(--border)', borderRadius: 3, padding: '2px 6px', fontSize: 11,
         }}
       />
@@ -179,7 +200,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
       <GroupHeader label="Node" />
       <PropRow label="Position X" value={node.position?.x ?? 0} onSave={v => save('x', v)} />
       <PropRow label="Position Y" value={node.position?.y ?? 0} onSave={v => save('y', v)} />
-      <PropRow label="Rotation"   value={node.rotation ?? 0}    decimals={2} onSave={v => save('rotation', v)} />
+      <PropRow label="Rotation"   value={node.rotation ?? 0}    decimals={2} sliderMin={-180} sliderMax={180} onSave={v => save('rotation', v)} />
       <PropRow label="Scale X"    value={scale.x ?? 1}          decimals={2} onSave={v => save('scaleX', v)} />
       <PropRow label="Scale Y"    value={scale.y ?? 1}          decimals={2} onSave={v => save('scaleY', v)} />
 
@@ -194,7 +215,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
       {hasUIOpacity && (
         <>
           <GroupHeader label="cc.UIOpacity" />
-          <PropRow label="Opacity" value={node.opacity ?? 255} onSave={v => save('opacity', Math.min(255, Math.max(0, v)))} />
+          <PropRow label="Opacity" value={node.opacity ?? 255} sliderMin={0} sliderMax={255} onSave={v => save('opacity', Math.min(255, Math.max(0, Math.round(v))))} />
         </>
       )}
 

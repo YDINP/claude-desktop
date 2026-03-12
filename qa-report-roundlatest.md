@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T11:33:19.876Z
+> 2026-03-12T11:35:44.783Z
 
 ## Critical
 _없음_
@@ -51,3 +51,6 @@ _없음_
 - globalStats: totalMessages/dailyMessageCounts/topSessions 존재
 - StatsPanel 일별 메시지 수 차트 존재
 - StatsPanel 상위 세션 TOP 5 존재
+- NodePropertyPanel 슬라이더 PropRow 존재
+- Opacity 슬라이더 (0-255) 존재
+- Rotation 슬라이더 (-180~180) 존재
