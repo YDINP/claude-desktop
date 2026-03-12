@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T21:50:23.932Z
+> 2026-03-12T21:51:51.982Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- CalendarPanel: 연도 빠른 이동 (yearPickerOpen/setYearPickerOpen) 존재
 - ChangedFilesPanel: W/E 오퍼레이션 필터 (opFilter/setOpFilter) 존재
 - RemotePanel: 최근 접속 순 정렬 (lastUsed/sortedSaved/savedId) 존재
 - GitPanel: 전체 스테이지/해제 (handleStageAll/handleUnstageAll/stageAllLoading) 존재

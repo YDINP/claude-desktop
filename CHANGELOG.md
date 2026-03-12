@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 347] — 2026-03-13
+### Added
+- CalendarPanel: 연도 빠른 이동 — 연도 클릭 시 드롭다운으로 ±5년 범위 연도 선택 가능
+
 ## [Round 346] — 2026-03-13
 ### Added
 - ChangedFilesPanel: W/E 오퍼레이션 필터 버튼 — W(Write)/E(Edit) 배지 버튼 클릭 시 해당 타입만 필터, 재클릭 시 해제

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 249: R347 신규 기능 ───────────────────────────────
+console.log('\n## 249. 신규 기능 파일 검사 (R347)')
+// CalendarPanel 연도 빠른 이동 (Round 347)
+const cal347Path = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(cal347Path)) {
+  const cal347 = readFileSync(cal347Path, 'utf-8')
+  if (cal347.includes('yearPickerOpen') && cal347.includes('setYearPickerOpen')) {
+    log('pass', 'Round347', 'CalendarPanel: 연도 빠른 이동 (yearPickerOpen/setYearPickerOpen) 존재')
+  } else {
+    log('warning', 'Round347', 'CalendarPanel 연도 빠른 이동 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── Section 248: R346 신규 기능 ───────────────────────────────
 console.log('\n## 248. 신규 기능 파일 검사 (R346)')
 // ChangedFilesPanel W/E 오퍼레이션 필터 (Round 346)

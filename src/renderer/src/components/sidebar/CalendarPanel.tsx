@@ -32,6 +32,7 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
   const [eventColor, setEventColor] = useState(EVENT_COLORS[0])
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [editingEventDraft, setEditingEventDraft] = useState('')
+  const [yearPickerOpen, setYearPickerOpen] = useState(false)
 
   const commitEventEdit = (id: string) => {
     if (editingEventDraft.trim()) saveEvents(events.map(e => e.id === id ? { ...e, title: editingEventDraft.trim() } : e))
@@ -106,8 +107,34 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
       {/* Navigation */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <button onClick={() => setViewDate(d => new Date(d.getFullYear(), d.getMonth() - 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 16 }}>‹</button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontWeight: 600 }}>{year}년 {MONTHS[month]}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'relative' }}>
+          <button
+            onClick={() => setYearPickerOpen(v => !v)}
+            title="연도 선택"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, color: 'var(--text-primary)', fontSize: 12, padding: 0 }}
+          >
+            {year}년
+          </button>
+          <span style={{ fontWeight: 600 }}>{MONTHS[month]}</span>
+          {yearPickerOpen && (
+            <div style={{
+              position: 'absolute', top: '100%', left: 0, zIndex: 100,
+              background: 'var(--bg-primary)', border: '1px solid var(--border)',
+              borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              padding: 4, display: 'flex', flexDirection: 'column', gap: 1, marginTop: 2,
+            }}>
+              {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(y => (
+                <button key={y} onClick={() => { setViewDate(new Date(y, month)); setYearPickerOpen(false) }}
+                  style={{
+                    background: y === year ? 'var(--accent)' : 'none',
+                    color: y === year ? '#fff' : 'var(--text-primary)',
+                    border: 'none', borderRadius: 4, padding: '3px 12px',
+                    cursor: 'pointer', fontSize: 11, textAlign: 'left',
+                  }}
+                >{y}년</button>
+              ))}
+            </div>
+          )}
           {(year !== new Date().getFullYear() || month !== new Date().getMonth()) && (
             <button
               onClick={() => { setViewDate(new Date()); setSelectedDay(today) }}
