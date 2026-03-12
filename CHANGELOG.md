@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 233] — 2026-03-13
+### Added
+- SceneView: 씬 변경 감지 (Dirty 표시) — nodeMap 변경 시 상태바에 "● 저장 안됨" 표시, 저장 시 초기화
+
 ## [Round 232] — 2026-03-13
 ### Added
 - SceneView: PNG 내보내기 — SVG→Canvas→PNG 변환 후 scene.png 다운로드, 툴바 ⬇ PNG 버튼

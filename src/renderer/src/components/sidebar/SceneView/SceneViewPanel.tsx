@@ -66,6 +66,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
   viewRef.current = view
+  const [isDirty, setIsDirty] = useState(false)
+  const nodeMapInitRef = useRef(false)
   const [refImageOpacity, setRefImageOpacity] = useState(0.3)
   const [showRefImagePanel, setShowRefImagePanel] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
@@ -1057,6 +1059,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const saveToSlot = useCallback((slot: number) => {
     const data = JSON.stringify([...nodeMap.entries()])
     localStorage.setItem(slotKey(slot), data)
+    setIsDirty(false)
   }, [nodeMap])
 
   const loadFromSlot = useCallback((slot: number) => {
@@ -1151,6 +1154,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   )
 
   useEffect(() => { setSearchMatchIndex(0) }, [canvasSearch])
+
+  // 씬 변경 감지 — 최초 로드 이후 nodeMap 변경 시 dirty 표시
+  useEffect(() => {
+    if (!nodeMapInitRef.current) {
+      if (nodeMap.size > 0) nodeMapInitRef.current = true
+      return
+    }
+    setIsDirty(true)
+  }, [nodeMap])
 
   const handleSearchNav = useCallback((dir: 1 | -1) => {
     if (searchMatches.length === 0) return
@@ -2141,6 +2153,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               {selectedUuids.size > 0 && <><span>|</span><span style={{ color: '#60a5fa' }}>{selectedUuids.size}개 선택</span></>}
               {isDragging && <><span>|</span><span style={{ color: '#f59e0b' }}>드래그 중</span></>}
               {isResizing && <><span>|</span><span style={{ color: '#f59e0b' }}>리사이즈 중</span></>}
+              {isDirty && <><span>|</span><span style={{ color: '#f97316' }} title="저장되지 않은 변경 사항">● 저장 안됨</span></>}
             </>
           )}
         </div>

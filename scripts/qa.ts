@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 135: R233 신규 기능 ───────────────────────────────
+console.log('\n## 135. 신규 기능 파일 검사 (R233)')
+// SceneView Dirty 표시 (Round 233)
+const svp233Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp233Path)) {
+  const svp233 = readFileSync(svp233Path, 'utf-8')
+  if (svp233.includes('isDirty') && svp233.includes('저장 안됨') && svp233.includes('nodeMapInitRef')) {
+    log('pass', 'Round233', 'SceneViewPanel: 씬 변경 감지 + Dirty 표시 구현 존재')
+  } else {
+    log('warning', 'Round233', 'SceneViewPanel Dirty 표시 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 134: R232 신규 기능 ───────────────────────────────
 console.log('\n## 134. 신규 기능 파일 검사 (R232)')
 // SceneView PNG 내보내기 (Round 232)
