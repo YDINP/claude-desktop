@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 171: R269 신규 기능 ───────────────────────────────
+console.log('\n## 171. 신규 기능 파일 검사 (R269)')
+// SceneView 리사이즈 중 Escape 취소 (Round 269)
+const svp269Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp269Path)) {
+  const svp269 = readFileSync(svp269Path, 'utf-8')
+  if (svp269.includes('리사이즈 중 Escape') && svp269.includes('rs.startWidth') && svp269.includes('setIsResizing(false)')) {
+    log('pass', 'Round269', 'SceneViewPanel: 리사이즈 중 Escape 취소 (startWidth/Height 복원) 존재')
+  } else {
+    log('warning', 'Round269', 'SceneViewPanel 리사이즈 Escape 취소 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 170: R268 신규 기능 ───────────────────────────────
 console.log('\n## 170. 신규 기능 파일 검사 (R268)')
 // SceneView 드래그 중 Escape 취소 (Round 268)

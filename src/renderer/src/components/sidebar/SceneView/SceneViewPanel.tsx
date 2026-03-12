@@ -344,6 +344,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           }
           dragRef.current = null
           setIsDragging(false)
+        } else if (isResizing && resizeRef.current) {
+          // 리사이즈 중 Escape → 원래 크기/위치로 복원 (리사이즈 취소)
+          const rs = resizeRef.current
+          updateNode(rs.uuid, { width: rs.startWidth, height: rs.startHeight, x: rs.startNodeX, y: rs.startNodeY })
+          resizeRef.current = null
+          setIsResizing(false)
         } else {
           setSelectedUuid(null)
           setSelectedUuids(new Set())
@@ -2927,7 +2933,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Ctrl+C', '복사'],
               ['Ctrl+V', '붙여넣기'],
               ['Ctrl+D', '복제 (클립보드 유지)'],
-              ['Escape', '선택 해제 (드래그 중: 취소 복원)'],
+              ['Escape', '선택 해제 (드래그/리사이즈 중: 취소 복원)'],
               ['Shift+리사이즈', '비례 리사이즈 (코너 핸들)'],
               ['↑↓←→', '선택 노드 1px 이동'],
               ['Shift+↑↓←→', '선택 노드 10px 이동'],

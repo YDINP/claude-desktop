@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 269] — 2026-03-13
+### Added
+- SceneView: 리사이즈 중 Escape 키로 취소 — startWidth/Height/NodeX/Y로 원래 크기 복원
+
 ## [Round 268] — 2026-03-13
 ### Added
 - SceneView: 드래그 중 Escape 키로 취소 — groupOffsets/startNodeX/Y를 사용해 원래 위치로 복원
