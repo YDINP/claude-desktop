@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 281: R379 신규 기능 ───────────────────────────────
+console.log('\n## 281. 신규 기능 파일 검사 (R379)')
+// WebPreviewPanel URL 방문 기록 드롭다운 (Round 379)
+const wp379Path = join(ROOT, 'src/renderer/src/components/sidebar/WebPreviewPanel.tsx')
+if (existsSync(wp379Path)) {
+  const wp379 = readFileSync(wp379Path, 'utf-8')
+  if (wp379.includes('uniqueHistory') && wp379.includes('showHistory') && wp379.includes('방문 기록')) {
+    log('pass', 'Round379', 'WebPreviewPanel: URL 방문 기록 드롭다운 존재')
+  } else {
+    log('warning', 'Round379', 'WebPreviewPanel URL 방문 기록 미구현', 'sidebar/WebPreviewPanel.tsx')
+  }
+}
+
 // ── Section 280: R378 신규 기능 ───────────────────────────────
 console.log('\n## 280. 신규 기능 파일 검사 (R378)')
 // DiffPanel 언어 오버라이드 (Round 378)

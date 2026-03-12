@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 379] — 2026-03-13
+### Added
+- WebPreviewPanel: URL 방문 기록 드롭다운 — uniqueHistory(중복제거), showHistory 상태, 🕐N 버튼, 클릭 시 빠른 재방문
+
 ## [Round 378] — 2026-03-13
 ### Added
 - DiffPanel: 언어 오버라이드 선택 — langOverride 상태, "자동" + 10개 언어 드롭다운

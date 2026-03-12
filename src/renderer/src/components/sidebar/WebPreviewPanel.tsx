@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 
 interface WebPreviewPanelProps {
   defaultUrl?: string
@@ -12,7 +12,13 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
   const [history, setHistory] = useState<string[]>(defaultUrl ? [defaultUrl] : [])
   const [histIdx, setHistIdx] = useState(defaultUrl ? 0 : -1)
   const [urlCopied, setUrlCopied] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  const uniqueHistory = useMemo(() => {
+    const seen = new Set<string>()
+    return [...history].reverse().filter(u => seen.has(u) ? false : (seen.add(u), true))
+  }, [history])
 
   const navigate = (target: string) => {
     if (!target) return
@@ -91,6 +97,27 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12 }}
             title="새로고침"
           >↺</button>
+          {uniqueHistory.length > 1 && (
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setShowHistory(h => !h)}
+                title="방문 기록"
+                style={{ background: showHistory ? 'var(--accent)' : 'none', border: `1px solid ${showHistory ? 'var(--accent)' : 'transparent'}`, borderRadius: 3, cursor: 'pointer', color: showHistory ? '#fff' : 'var(--text-muted)', fontSize: 9, padding: '1px 4px' }}
+              >🕐{uniqueHistory.length}</button>
+              {showHistory && (
+                <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 2, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, zIndex: 50, minWidth: 220, maxHeight: 160, overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+                  {uniqueHistory.map((u, i) => (
+                    <div key={i} onClick={() => { navigate(u); setShowHistory(false) }}
+                      title={u}
+                      style={{ padding: '4px 8px', cursor: 'pointer', fontSize: 10, color: u === url ? 'var(--accent)' : 'var(--text-secondary)', borderBottom: '1px solid var(--border)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >{u}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           <button
             onClick={() => setUrl('')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11 }}

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 378 완료 — DiffPanel 언어 오버라이드, Pass 398)
+> 마지막 업데이트: 2026-03-13 (Round 379 완료 — WebPreviewPanel URL 방문 기록 드롭다운, Pass 399)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 379 | dev | WebPreviewPanel URL 방문 기록 드롭다운 — uniqueHistory(중복제거), showHistory, 🕐N 버튼 | ✅ |
 | Round 378 | dev | DiffPanel 언어 오버라이드 — langOverride 상태, 자동+10개 언어 select, lang 연산에 우선 적용 | ✅ |
 | Round 377 | dev | BookmarksPanel 전체 북마크 복사 — copiedAll 상태, 📋 버튼, 필터된 북마크 마크다운 복사 | ✅ |
 | Round 376 | dev | PluginsPanel 전체 켜기/끄기 버튼 — allEnabled 조건 일괄 saveEnabled | ✅ |
