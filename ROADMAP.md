@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 203 완료 — SceneView 노드 잠금, Pass 198)
+> 마지막 업데이트: 2026-03-13 (Round 204 완료 — SceneInspector 노드 메모, Pass 199)
 
 ## 완료된 라운드
 
@@ -155,6 +155,7 @@
 | Round 201 | dev | SceneView N/E/S/W 측면 리사이즈 핸들 — 단일 축 크기 조절 (파란 핸들) | ✅ |
 | Round 202 | dev | SceneView 픽셀 눈금자 — R 키 토글, 상단/좌측 Cocos 좌표 눈금자, 줌 반응형 틱 | ✅ |
 | Round 203 | dev | SceneView 노드 잠금 — 🔒 아이콘 토글, 잠긴 노드 드래그/선택 방어 | ✅ |
+| Round 204 | dev | SceneInspector 노드 메모 — 텍스트 메모 입력, Enter 저장, 노드 전환 자동 초기화 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

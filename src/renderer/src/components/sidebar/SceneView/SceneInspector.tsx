@@ -9,6 +9,7 @@ interface SceneInspectorProps {
   onClose: () => void
   selectionCount?: number
   onRename?: (uuid: string, name: string) => void
+  onMemo?: (uuid: string, memo: string) => void
   nodeMap?: Map<string, SceneNode>
   onSelectParent?: (uuid: string) => void
   focusNameTrigger?: number
@@ -157,14 +158,17 @@ function ChildList({ childUuids, nodeMap, onSelect }: { childUuids: string[]; no
   )
 }
 
-export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
   const [uuidCopied, setUuidCopied] = useState(false)
   const [scaleLocked, setScaleLocked] = useState(false)
   const [sizeLocked, setSizeLocked] = useState(false)
+  const [memoDraft, setMemoDraft] = useState(node?.memo ?? '')
   const nameInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { setMemoDraft(node?.memo ?? '') }, [node?.uuid])
 
   useEffect(() => {
     if (!focusNameTrigger || !node) return
@@ -597,6 +601,26 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           </div>
         </>
       )}
+
+      {/* 노드 메모 */}
+      <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>메모</div>
+        <textarea
+          value={memoDraft}
+          onChange={e => setMemoDraft(e.target.value)}
+          onBlur={() => { if (node) onMemo?.(node.uuid, memoDraft) }}
+          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && node) { e.preventDefault(); onMemo?.(node.uuid, memoDraft) } }}
+          placeholder="노드에 메모 추가..."
+          rows={2}
+          style={{
+            width: '100%', resize: 'vertical', fontSize: 10, padding: '3px 5px',
+            background: 'var(--bg-primary)', border: '1px solid var(--border)',
+            borderRadius: 3, color: 'var(--text-primary)', outline: 'none',
+            boxSizing: 'border-box', fontFamily: 'inherit',
+          }}
+          onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+        />
+      </div>
 
       {/* JSON 내보내기 */}
       <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>

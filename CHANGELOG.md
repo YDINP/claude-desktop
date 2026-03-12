@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 204] — 2026-03-13
+### Added
+- SceneInspector: 노드 메모 입력란 — 텍스트 메모 추가, Enter 저장, 노드 전환 시 자동 초기화
+
 ## [Round 203] — 2026-03-13
 ### Added
 - SceneView: 노드 잠금(Lock) — 🔒 아이콘 클릭으로 토글, 잠긴 노드는 드래그/선택 불가

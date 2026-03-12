@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 106: R204 신규 기능 ───────────────────────────────
+console.log('\n## 106. 신규 기능 파일 검사 (R204)')
+// SceneInspector 노드 메모 (Round 204)
+const si204Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(si204Path)) {
+  const si204 = readFileSync(si204Path, 'utf-8')
+  if (si204.includes('onMemo') && si204.includes('memoDraft') && si204.includes('노드에 메모 추가')) {
+    log('pass', 'Round204', 'SceneInspector: 노드 메모 입력란 존재')
+  } else {
+    log('warning', 'Round204', 'SceneInspector 노드 메모 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── Section 105: R203 신규 기능 ───────────────────────────────
 console.log('\n## 105. 신규 기능 파일 검사 (R203)')
 // SceneView 노드 잠금 (Round 203)
