@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 230] — 2026-03-13
+### Added
+- SceneView: 즐겨찾기 노드 (Ctrl+B) — 노드에 ★ 표시, 툴바 목록 팝업에서 빠른 선택
+
 ## [Round 229] — 2026-03-13
 ### Added
 - SceneView: 참조 이미지 오버레이 — URL 입력해 씬 배경에 반투명 이미지 표시, 투명도 슬라이더 조절

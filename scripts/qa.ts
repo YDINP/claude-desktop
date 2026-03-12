@@ -2036,6 +2036,26 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 132: R230 신규 기능 ───────────────────────────────
+console.log('\n## 132. 신규 기능 파일 검사 (R230)')
+// SceneView 즐겨찾기 노드 (Round 230)
+const svp230Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const nr230Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(svp230Path) && existsSync(nr230Path)) {
+  const svp230 = readFileSync(svp230Path, 'utf-8')
+  const nr230 = readFileSync(nr230Path, 'utf-8')
+  if (svp230.includes('bookmarkedUuids') && svp230.includes('즐겨찾기') && svp230.includes('Ctrl+B')) {
+    log('pass', 'Round230', 'SceneViewPanel: 즐겨찾기 상태 + 목록 팝업 + Ctrl+B 단축키 존재')
+  } else {
+    log('warning', 'Round230', 'SceneViewPanel 즐겨찾기 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (nr230.includes('bookmarked') && nr230.includes('★')) {
+    log('pass', 'Round230', 'NodeRenderer: 즐겨찾기 별 표시 존재')
+  } else {
+    log('warning', 'Round230', 'NodeRenderer 즐겨찾기 표시 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
 // ── Section 131: R229 신규 기능 ───────────────────────────────
 console.log('\n## 131. 신규 기능 파일 검사 (R229)')
 // SceneView 참조 이미지 오버레이 (Round 229)

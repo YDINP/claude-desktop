@@ -13,6 +13,7 @@ interface NodeRendererProps {
   dimmed?: boolean
   hasChildren?: boolean
   collapsed?: boolean
+  bookmarked?: boolean
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
@@ -45,6 +46,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   dimmed = false,
   hasChildren = false,
   collapsed = false,
+  bookmarked = false,
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
@@ -172,6 +174,17 @@ export const NodeRenderer = memo(function NodeRenderer({
           strokeWidth={1}
           style={{ pointerEvents: 'none' }}
         />
+      )}
+
+      {/* 즐겨찾기 별 표시 */}
+      {bookmarked && lod === 0 && (
+        <text
+          x={rx + 2}
+          y={ry + ph - 2}
+          fontSize={8 / 1}
+          fill="#fbbf24"
+          style={{ pointerEvents: 'none', userSelect: 'none' }}
+        >★</text>
       )}
 
       {/* 자식 그룹 접힘 표시 — Alt+클릭으로 토글 */}

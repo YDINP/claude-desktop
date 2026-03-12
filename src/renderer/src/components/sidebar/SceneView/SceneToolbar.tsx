@@ -67,6 +67,9 @@ interface SceneToolbarProps {
   onMeasureModeToggle?: () => void
   hasRefImage?: boolean
   onRefImageToggle?: () => void
+  bookmarkCount?: number
+  showBookmarkList?: boolean
+  onBookmarkListToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -138,6 +141,9 @@ export function SceneToolbar({
   onMeasureModeToggle,
   hasRefImage,
   onRefImageToggle,
+  bookmarkCount,
+  showBookmarkList,
+  onBookmarkListToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -336,6 +342,15 @@ export function SceneToolbar({
           onClick={onRefImageToggle}
           title="참조 이미지 오버레이"
         >📷</button>
+      )}
+
+      {/* 즐겨찾기 목록 */}
+      {onBookmarkListToggle && (
+        <button
+          style={showBookmarkList ? btnActive : btnBase}
+          onClick={onBookmarkListToggle}
+          title="즐겨찾기 목록 (Ctrl+B 현재 노드 토글)"
+        >★{bookmarkCount ? ` ${bookmarkCount}` : ''}</button>
       )}
 
       {/* 캔버스 크기 프리셋 */}

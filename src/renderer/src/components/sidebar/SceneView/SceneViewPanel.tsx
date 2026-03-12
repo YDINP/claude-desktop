@@ -60,6 +60,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [focusMode, setFocusMode] = useState(false)
   const [measureMode, setMeasureMode] = useState(false)
   const [refImageUrl, setRefImageUrl] = useState('')
+  const [bookmarkedUuids, setBookmarkedUuids] = useState<Set<string>>(new Set())
+  const [showBookmarkList, setShowBookmarkList] = useState(false)
   const [refImageOpacity, setRefImageOpacity] = useState(0.3)
   const [showRefImagePanel, setShowRefImagePanel] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
@@ -361,6 +363,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.altKey && (e.key === 'z' || e.key === 'Z')) {
         e.preventDefault()
         setFocusMode(v => !v)
+        return
+      }
+      // Ctrl+B — 즐겨찾기 토글
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B') && selectedUuid) {
+        e.preventDefault()
+        setBookmarkedUuids(prev => {
+          const next = new Set(prev)
+          if (next.has(selectedUuid)) next.delete(selectedUuid)
+          else next.add(selectedUuid)
+          return next
+        })
         return
       }
       if (e.altKey && (e.key === 'm' || e.key === 'M')) {
@@ -1336,6 +1349,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onMeasureModeToggle={() => { setMeasureMode(v => !v); setMeasureLine(null); measureStartRef.current = null }}
         hasRefImage={!!refImageUrl}
         onRefImageToggle={() => setShowRefImagePanel(v => !v)}
+        bookmarkCount={bookmarkedUuids.size}
+        showBookmarkList={showBookmarkList}
+        onBookmarkListToggle={() => setShowBookmarkList(v => !v)}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -1605,6 +1621,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   }
                   hasChildren={node.childUuids.length > 0}
                   collapsed={collapsedUuids.has(uuid)}
+                  bookmarked={bookmarkedUuids.has(uuid)}
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={setHoveredUuid}
                   onMouseLeave={() => setHoveredUuid(null)}
@@ -2093,6 +2110,34 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             )}
             <button onClick={() => { setShowCanvasSearch(false); setCanvasSearch('') }}
               style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 11, padding: '0 2px' }}>×</button>
+          </div>
+        )}
+
+        {/* 즐겨찾기 목록 */}
+        {showBookmarkList && bookmarkedUuids.size > 0 && (
+          <div style={{
+            position: 'absolute', top: 6, left: 6, zIndex: 100,
+            background: 'rgba(10,10,15,0.92)', border: '1px solid var(--accent)',
+            borderRadius: 5, padding: '6px 8px', minWidth: 160, maxHeight: 200,
+            overflowY: 'auto', boxShadow: '0 2px 10px rgba(0,0,0,0.5)', fontSize: 9,
+          }}>
+            <div style={{ color: 'var(--accent)', fontWeight: 600, marginBottom: 4 }}>★ 즐겨찾기</div>
+            {[...bookmarkedUuids].map(uuid => {
+              const n = nodeMap.get(uuid)
+              if (!n) return null
+              return (
+                <div key={uuid}
+                  onClick={() => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])); setShowBookmarkList(false) }}
+                  style={{ padding: '2px 4px', cursor: 'pointer', borderRadius: 2, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.07)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none' }}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.name}</span>
+                  <span onClick={e => { e.stopPropagation(); setBookmarkedUuids(prev => { const s = new Set(prev); s.delete(uuid); return s }) }}
+                    style={{ color: 'var(--text-muted)', cursor: 'pointer', flexShrink: 0 }}>×</span>
+                </div>
+              )
+            })}
           </div>
         )}
 
