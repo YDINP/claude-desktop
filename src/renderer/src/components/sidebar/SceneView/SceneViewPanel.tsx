@@ -332,9 +332,23 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       }
       if (e.key === '?') setShowShortcuts(v => !v)
       if (e.key === 'Escape') {
-        setSelectedUuid(null)
-        setSelectedUuids(new Set())
-        setMarquee(null)
+        if (isDragging && dragRef.current) {
+          // 드래그 중 Escape → 원래 위치로 복원 (드래그 취소)
+          const drag = dragRef.current
+          if (drag.groupOffsets) {
+            Object.entries(drag.groupOffsets).forEach(([u, { startX, startY }]) => {
+              updateNode(u, { x: startX, y: startY })
+            })
+          } else {
+            updateNode(drag.uuid, { x: drag.startNodeX, y: drag.startNodeY })
+          }
+          dragRef.current = null
+          setIsDragging(false)
+        } else {
+          setSelectedUuid(null)
+          setSelectedUuids(new Set())
+          setMarquee(null)
+        }
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault()
@@ -2913,7 +2927,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Ctrl+C', '복사'],
               ['Ctrl+V', '붙여넣기'],
               ['Ctrl+D', '복제 (클립보드 유지)'],
-              ['Escape', '선택 해제'],
+              ['Escape', '선택 해제 (드래그 중: 취소 복원)'],
               ['Shift+리사이즈', '비례 리사이즈 (코너 핸들)'],
               ['↑↓←→', '선택 노드 1px 이동'],
               ['Shift+↑↓←→', '선택 노드 10px 이동'],

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 268] — 2026-03-13
+### Added
+- SceneView: 드래그 중 Escape 키로 취소 — groupOffsets/startNodeX/Y를 사용해 원래 위치로 복원
+
 ## [Round 267] — 2026-03-13
 ### Added
 - NotesPanel: 편집 영역 하단에 글자 수 / 단어 수 실시간 표시 상태바

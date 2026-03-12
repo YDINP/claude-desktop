@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 170: R268 신규 기능 ───────────────────────────────
+console.log('\n## 170. 신규 기능 파일 검사 (R268)')
+// SceneView 드래그 중 Escape 취소 (Round 268)
+const svp268Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp268Path)) {
+  const svp268 = readFileSync(svp268Path, 'utf-8')
+  if (svp268.includes('드래그 중 Escape') && svp268.includes('drag.groupOffsets') && svp268.includes('setIsDragging(false)')) {
+    log('pass', 'Round268', 'SceneViewPanel: 드래그 중 Escape 취소 (groupOffsets 복원) 존재')
+  } else {
+    log('warning', 'Round268', 'SceneViewPanel 드래그 Escape 취소 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 169: R267 신규 기능 ───────────────────────────────
 console.log('\n## 169. 신규 기능 파일 검사 (R267)')
 // NotesPanel 글자/단어 수 표시 (Round 267)
