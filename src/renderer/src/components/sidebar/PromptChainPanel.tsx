@@ -1,5 +1,58 @@
 import { useState, useEffect, useCallback } from 'react'
 
+const PRESET_TEMPLATES = [
+  {
+    id: 'code-review',
+    name: '코드 리뷰',
+    desc: '코드 분석 → 버그 탐지 → 개선안',
+    steps: [
+      { label: '코드 분석', prompt: '다음 코드를 분석해줘:\n\n{{코드를 여기에 붙여넣기}}' },
+      { label: '버그 탐지', prompt: '위 분석({{step1}})을 바탕으로 버그와 잠재적 문제를 나열해줘.' },
+      { label: '개선안 작성', prompt: '{{step2}}를 참고해 문제를 해결하는 개선된 코드를 작성해줘.' },
+    ],
+  },
+  {
+    id: 'debug-flow',
+    name: '디버깅 플로우',
+    desc: '에러 분석 → 원인 파악 → 수정 코드',
+    steps: [
+      { label: '에러 분석', prompt: '다음 에러를 분석해줘:\n\n{{에러 메시지를 여기에 붙여넣기}}' },
+      { label: '원인 파악', prompt: '{{step1}}를 바탕으로 이 에러의 근본 원인은 무엇인가?' },
+      { label: '수정 코드', prompt: '{{step2}}를 참고해 이 문제를 수정하는 코드를 제공해줘.' },
+    ],
+  },
+  {
+    id: 'content-draft',
+    name: '콘텐츠 작성',
+    desc: '아이디어 → 개요 → 초안',
+    steps: [
+      { label: '아이디어', prompt: '{{주제}}에 대한 글 아이디어 5개를 제안해줘.' },
+      { label: '개요 작성', prompt: '{{step1}}에서 가장 좋은 아이디어로 상세 개요를 만들어줘.' },
+      { label: '초안 작성', prompt: '{{step2}} 개요를 바탕으로 1000자 분량의 초안을 작성해줘.' },
+    ],
+  },
+  {
+    id: 'translation-polish',
+    name: '번역 + 다듬기',
+    desc: '초벌 번역 → 자연스럽게 → 최종 검토',
+    steps: [
+      { label: '초벌 번역', prompt: '다음 텍스트를 한국어로 번역해줘:\n\n{{원문}}' },
+      { label: '자연스럽게', prompt: '{{step1}} 위 번역을 더 자연스러운 한국어로 다듬어줘.' },
+      { label: '최종 검토', prompt: '{{step2}} 번역의 정확성과 자연스러움을 검토하고 최종본을 제공해줘.' },
+    ],
+  },
+  {
+    id: 'feature-spec',
+    name: '기능 명세 작성',
+    desc: '요구사항 분석 → 기술 설계 → 태스크 분해',
+    steps: [
+      { label: '요구사항 분석', prompt: '다음 기능 아이디어를 분석하고 요구사항을 정리해줘:\n\n{{기능 아이디어}}' },
+      { label: '기술 설계', prompt: '{{step1}} 요구사항을 구현하기 위한 기술 설계를 작성해줘.' },
+      { label: '태스크 분해', prompt: '{{step2}} 설계를 개발 태스크 목록으로 분해해줘.' },
+    ],
+  },
+] as const
+
 interface ChainStep {
   id: string
   prompt: string
@@ -84,6 +137,7 @@ export function PromptChainPanel() {
   const [chains, setChains] = useState<PromptChain[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isRunning, setIsRunning] = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
 
   useEffect(() => {
     const loaded = loadChains()
@@ -97,6 +151,23 @@ export function PromptChainPanel() {
   }, [])
 
   const selectedChain = chains.find(c => c.id === selectedId) ?? null
+
+  const importTemplate = (t: typeof PRESET_TEMPLATES[number]) => {
+    const chain: PromptChain = {
+      id: `chain-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      name: t.name,
+      steps: t.steps.map(s => ({
+        id: `step-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        prompt: s.prompt,
+        label: s.label,
+        status: 'idle' as const,
+      })),
+    }
+    const next = [...chains, chain]
+    persist(next)
+    setSelectedId(chain.id)
+    setShowTemplates(false)
+  }
 
   // ── Chain CRUD ──────────────────────────────────────────────────────────
   const addChain = () => {
@@ -252,19 +323,28 @@ export function PromptChainPanel() {
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative' }}>
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '6px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0,
       }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>프롬프트 체이닝</span>
-        <button
-          onClick={addChain}
-          style={{ ...btnBase, padding: '3px 8px', background: 'var(--accent)', color: '#fff' }}
-        >
-          + 새 체인
-        </button>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button
+            onClick={() => setShowTemplates(true)}
+            style={{ ...btnBase, padding: '3px 8px', background: 'var(--bg-secondary)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+            title="템플릿 라이브러리"
+          >
+            📚
+          </button>
+          <button
+            onClick={addChain}
+            style={{ ...btnBase, padding: '3px 8px', background: 'var(--accent)', color: '#fff' }}
+          >
+            + 새 체인
+          </button>
+        </div>
       </div>
 
       {/* Chain selector tabs */}
@@ -384,6 +464,42 @@ export function PromptChainPanel() {
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
             + 새 체인 버튼으로 체인을 만드세요
           </span>
+        </div>
+      )}
+
+      {showTemplates && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 100,
+          background: 'var(--bg-primary)', overflowY: 'auto', padding: 12,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <span style={{ fontWeight: 600, fontSize: 13 }}>📚 템플릿 라이브러리</span>
+            <button
+              onClick={() => setShowTemplates(false)}
+              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16 }}
+            >×</button>
+          </div>
+          {PRESET_TEMPLATES.map(t => (
+            <div key={t.id} style={{
+              border: '1px solid var(--border)', borderRadius: 6, padding: 10,
+              marginBottom: 8, background: 'var(--bg-secondary)',
+            }}>
+              <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 2 }}>{t.name}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>{t.desc}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 8 }}>
+                {t.steps.map((s, i) => (
+                  <span key={i}>{i > 0 ? ' → ' : ''}{s.label}</span>
+                ))}
+              </div>
+              <button
+                onClick={() => importTemplate(t)}
+                style={{
+                  background: 'var(--accent)', color: '#fff', border: 'none',
+                  borderRadius: 4, padding: '4px 10px', fontSize: 11, cursor: 'pointer',
+                }}
+              >가져오기</button>
+            </div>
+          ))}
         </div>
       )}
     </div>
