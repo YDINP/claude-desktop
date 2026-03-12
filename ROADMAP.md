@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 166 완료 — NodeHierarchyList 우클릭 컨텍스트 메뉴, Pass 151)
+> 마지막 업데이트: 2026-03-12 (Round 167 완료 — SceneInspector Scale 비율 잠금, Pass 153)
 
 ## 완료된 라운드
 
@@ -118,6 +118,7 @@
 | Round 164 | dev | SceneView 총 노드 수 표시 — 좌하단 "N개 노드", 멀티셀렉트 시 "· M 선택" 추가 | ✅ |
 | Round 165 | dev | SceneInspector JSON 내보내기 — 노드 전체 정보 pretty JSON 클립보드 복사 | ✅ |
 | Round 166 | dev | NodeHierarchyList 우클릭 컨텍스트 메뉴 — 선택/복사/활성화 (이벤트 위임) | ✅ |
+| Round 167 | dev | SceneInspector Scale 비율 유지 잠금 — ∝ 버튼으로 Sx/Sy 연동 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

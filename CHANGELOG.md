@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 167] — 2026-03-12
+### Added
+- SceneInspector: Scale 비율 유지 잠금 버튼 (∝) — Sx/Sy 중 하나 편집 시 비율 유지 자동 연동
+
 ## [Round 166] — 2026-03-12
 ### Added
 - NodeHierarchyList: 우클릭 컨텍스트 메뉴 — 선택/복사/활성화 메뉴 (이벤트 위임 방식)

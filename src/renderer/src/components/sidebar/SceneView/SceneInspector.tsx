@@ -128,6 +128,18 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
   const [uuidCopied, setUuidCopied] = useState(false)
+  const [scaleLocked, setScaleLocked] = useState(false)
+
+  const handleScaleUpdate = (uuid: string, prop: string, value: number) => {
+    onUpdate(uuid, prop, value)
+    if (scaleLocked && node) {
+      if (prop === 'scaleX' && node.scaleX !== 0) {
+        onUpdate(uuid, 'scaleY', parseFloat((value * node.scaleY / node.scaleX).toFixed(4)))
+      } else if (prop === 'scaleY' && node.scaleY !== 0) {
+        onUpdate(uuid, 'scaleX', parseFloat((value * node.scaleX / node.scaleY).toFixed(4)))
+      }
+    }
+  }
 
   const handleCopyUuid = () => {
     if (!node) return
@@ -390,9 +402,16 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
 
       {/* Scale */}
       <SectionHeader label="Scale" />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
-        <NumInput label="Sx" value={node.scaleX} decimals={2} uuid={node.uuid} prop="scaleX" onSave={onUpdate} />
-        <NumInput label="Sy" value={node.scaleY} decimals={2} uuid={node.uuid} prop="scaleY" onSave={onUpdate} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+          <NumInput label="Sx" value={node.scaleX} decimals={2} uuid={node.uuid} prop="scaleX" onSave={handleScaleUpdate} />
+          <NumInput label="Sy" value={node.scaleY} decimals={2} uuid={node.uuid} prop="scaleY" onSave={handleScaleUpdate} />
+        </div>
+        <button
+          onClick={() => setScaleLocked(v => !v)}
+          title={scaleLocked ? '비율 잠금 해제' : '비율 유지 잠금'}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: scaleLocked ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+        >∝</button>
       </div>
 
       {/* Rotation */}
