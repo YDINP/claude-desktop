@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T21:34:33.656Z
+> 2026-03-12T21:36:52.099Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- DiffPanel: 최근 비교 히스토리 (diffHistory/DIFF_HISTORY_KEY/showHistory) 존재
 - SearchPanel: 검색 결과 파일 그룹 접기/펼치기 (collapsedFiles/toggleCollapse) 존재
 - AssetBrowserPanel: 타입 필터 버튼 (typeFilter/availableTypes) 존재
 - PluginsPanel: 플러그인 검색 필터 (pluginSearch/플러그인 검색) 존재

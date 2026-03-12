@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 340] — 2026-03-13
+### Added
+- DiffPanel: 최근 비교 파일 쌍 히스토리 — 비교 시 localStorage 저장(최대 8개), 🕐 버튼 드롭다운으로 재사용
+
 ## [Round 339] — 2026-03-13
 ### Added
 - SearchPanel: 검색 결과 파일 그룹 ▾/▸ 접기/펼치기 — 파일명 옆 토글로 매치 목록 숨김/표시, 접힌 상태에서 매치 수 표시

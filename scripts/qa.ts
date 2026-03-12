@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 242: R340 신규 기능 ───────────────────────────────
+console.log('\n## 242. 신규 기능 파일 검사 (R340)')
+// DiffPanel 최근 비교 히스토리 (Round 340)
+const dp340Path = join(ROOT, 'src/renderer/src/components/sidebar/DiffPanel.tsx')
+if (existsSync(dp340Path)) {
+  const dp340 = readFileSync(dp340Path, 'utf-8')
+  if (dp340.includes('diffHistory') && dp340.includes('DIFF_HISTORY_KEY') && dp340.includes('showHistory')) {
+    log('pass', 'Round340', 'DiffPanel: 최근 비교 히스토리 (diffHistory/DIFF_HISTORY_KEY/showHistory) 존재')
+  } else {
+    log('warning', 'Round340', 'DiffPanel 최근 비교 히스토리 미구현', 'sidebar/DiffPanel.tsx')
+  }
+}
+
 // ── Section 241: R339 신규 기능 ───────────────────────────────
 console.log('\n## 241. 신규 기능 파일 검사 (R339)')
 // SearchPanel 파일 그룹 접기/펼치기 (Round 339)

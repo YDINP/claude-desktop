@@ -15,6 +15,16 @@ function getLangFromPath(path: string): string {
   return map[ext] ?? 'plaintext'
 }
 
+const DIFF_HISTORY_KEY = 'diff-history'
+type DiffPair = { left: string; right: string }
+
+function loadDiffHistory(): DiffPair[] {
+  try { return JSON.parse(localStorage.getItem(DIFF_HISTORY_KEY) ?? '[]') } catch { return [] }
+}
+function saveDiffHistory(pairs: DiffPair[]) {
+  localStorage.setItem(DIFF_HISTORY_KEY, JSON.stringify(pairs.slice(0, 8)))
+}
+
 export function DiffPanel() {
   const [leftPath, setLeftPath] = useState('')
   const [rightPath, setRightPath] = useState('')
@@ -24,6 +34,8 @@ export function DiffPanel() {
   const [error, setError] = useState<string | null>(null)
   const [sideBySide, setSideBySide] = useState(true)
   const editorRef = useRef<MonacoType.editor.IStandaloneDiffEditor | null>(null)
+  const [diffHistory, setDiffHistory] = useState<DiffPair[]>(loadDiffHistory)
+  const [showHistory, setShowHistory] = useState(false)
 
   async function handleCompare() {
     if (!leftPath.trim() || !rightPath.trim()) return
@@ -36,6 +48,11 @@ export function DiffPanel() {
       ])
       setLeftContent(left)
       setRightContent(right)
+      // Save to history
+      const pair: DiffPair = { left: leftPath.trim(), right: rightPath.trim() }
+      const next = [pair, ...diffHistory.filter(p => p.left !== pair.left || p.right !== pair.right)]
+      saveDiffHistory(next)
+      setDiffHistory(next)
     } catch (e) {
       setError(String(e))
     } finally {
@@ -59,10 +76,40 @@ export function DiffPanel() {
       <div style={{
         fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
         textTransform: 'uppercase', letterSpacing: '0.5px',
-        padding: '8px 8px 4px',
-        flexShrink: 0,
+        padding: '8px 8px 4px', flexShrink: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        파일 비교
+        <span>파일 비교</span>
+        {diffHistory.length > 0 && (
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowHistory(h => !h)}
+              title="최근 비교 목록"
+              style={{ background: showHistory ? 'var(--accent)' : 'none', border: `1px solid ${showHistory ? 'var(--accent)' : 'var(--border)'}`, borderRadius: 4, cursor: 'pointer', color: showHistory ? '#fff' : 'var(--text-muted)', fontSize: 9, padding: '1px 5px' }}
+            >
+              🕐 {diffHistory.length}
+            </button>
+            {showHistory && (
+              <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 2, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, zIndex: 50, minWidth: 240, boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+                {diffHistory.map((p, i) => {
+                  const lname = p.left.split(/[/\\]/).pop() ?? p.left
+                  const rname = p.right.split(/[/\\]/).pop() ?? p.right
+                  return (
+                    <div key={i} onClick={() => { setLeftPath(p.left); setRightPath(p.right); setShowHistory(false) }}
+                      style={{ padding: '5px 8px', cursor: 'pointer', fontSize: 10, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border)' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <span style={{ color: 'var(--text-muted)' }}>{lname}</span>
+                      <span style={{ color: 'var(--accent)', margin: '0 4px' }}>↔</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{rname}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Inputs */}
