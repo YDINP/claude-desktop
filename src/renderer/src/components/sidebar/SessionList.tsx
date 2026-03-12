@@ -13,6 +13,7 @@ interface SessionMeta {
   tags?: string[]
   locked?: boolean
   collection?: string
+  forkedFrom?: string
 }
 
 const TAG_COLORS = ['red', 'orange', 'yellow', 'green', 'blue', 'purple'] as const
@@ -352,6 +353,27 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     return map
   }, [activeSessions])
 
+  const forkMap = useMemo(() => {
+    const map = new Map<string, SessionMeta[]>()
+    const sessionIdSet = new Set(sessions.map(s => s.id))
+    for (const s of sessions) {
+      if (s.forkedFrom && sessionIdSet.has(s.forkedFrom)) {
+        if (!map.has(s.forkedFrom)) map.set(s.forkedFrom, [])
+        map.get(s.forkedFrom)!.push(s)
+      }
+    }
+    return map
+  }, [sessions])
+
+  const forkedIds = useMemo(() => {
+    const sessionIdSet = new Set(sessions.map(s => s.id))
+    const ids = new Set<string>()
+    for (const s of sessions) {
+      if (s.forkedFrom && sessionIdSet.has(s.forkedFrom)) ids.add(s.id)
+    }
+    return ids
+  }, [sessions])
+
   if (loading) {
     return (
       <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
@@ -368,11 +390,11 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     )
   }
 
-  const pinnedFiltered = activeSessions.filter(s => s.pinned && !s.collection)
-  const unpinnedFiltered = activeSessions.filter(s => !s.pinned && !s.collection)
+  const pinnedFiltered = activeSessions.filter(s => s.pinned && !s.collection && !forkedIds.has(s.id))
+  const unpinnedFiltered = activeSessions.filter(s => !s.pinned && !s.collection && !forkedIds.has(s.id))
   const groups = groupSessions(unpinnedFiltered)
 
-  const renderSessionItem = (s: SessionMeta) => {
+  const renderSessionItem = (s: SessionMeta, depth: number = 0) => {
     const isActive = s.id === activeSessionId
     const isSelected = selectedIds.has(s.id)
     const sessionTags = (s.tags ?? []).slice(0, 3)
@@ -426,10 +448,10 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
         }}
         className="session-item"
         style={{
-          padding: '8px 12px',
+          padding: `8px 12px 8px ${depth > 0 ? depth * 16 + 12 : 12}px`,
           cursor: 'pointer',
           borderBottom: '1px solid var(--border)',
-          borderLeft: isActive ? '3px solid var(--accent)' : '3px solid transparent',
+          borderLeft: isActive ? '3px solid var(--accent)' : depth > 0 ? '3px solid rgba(0,152,255,0.3)' : '3px solid transparent',
           borderTop: dragOverId === s.id ? '2px solid var(--accent)' : '2px solid transparent',
           display: 'flex',
           alignItems: 'flex-start',
@@ -500,6 +522,9 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
                 <span style={{ display: 'inline-flex', gap: 2, flexShrink: 0 }}>
                   {sessionTags.map((t, i) => <TagDot key={i} color={t} />)}
                 </span>
+              )}
+              {s.forkedFrom && (
+                <span style={{ fontSize: 9, color: '#0098ff', flexShrink: 0, letterSpacing: 0 }}>⎇</span>
               )}
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {s.title || 'Untitled'}
@@ -714,6 +739,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           </div>
         </div>
       )}
+      {/* Fork children */}
+      {depth < 10 && (forkMap.get(s.id) ?? []).map(child => renderSessionItem(child, depth + 1))}
       </div>
     )
   }
@@ -911,7 +938,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           }}>
             {'\uACE0\uC815\uB428'}
           </div>
-          {pinnedFiltered.map(renderSessionItem)}
+          {pinnedFiltered.map(s => renderSessionItem(s))}
         </div>
       )}
       {/* Regular sessions grouped by time */}
@@ -930,7 +957,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           }}>
             {group.label}
           </div>
-          {group.items.map(renderSessionItem)}
+          {group.items.map(s => renderSessionItem(s))}
         </div>
       ))}
       {/* Archive section */}
@@ -954,7 +981,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           >
             {'\uD83D\uDCE6'} {'\uC544\uCE74\uC774\uBC0C'} ({archivedSessions.length}) {archiveOpen ? '\u25B4' : '\u25BE'}
           </div>
-          {archiveOpen && archivedSessions.map(renderSessionItem)}
+          {archiveOpen && archivedSessions.map(s => renderSessionItem(s))}
         </div>
       )}
       {filtered.length === 0 && search && (

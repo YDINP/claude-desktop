@@ -233,8 +233,8 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
 
     try {
       const prompt = targetLang === 'en'
-        ? `Translate the following Korean text to English. Output only the translation, no explanations:\n\n${text.slice(0, 2000)}`
-        : `다음 영어 텍스트를 한국어로 번역해줘. 번역문만 출력해:\n\n${text.slice(0, 2000)}`
+        ? `Translate the following text to English. Output only the translation:\n\n${text.slice(0, 2000)}`
+        : `다음 텍스트를 한국어로 번역해줘. 번역문만 출력해:\n\n${text.slice(0, 2000)}`
 
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',

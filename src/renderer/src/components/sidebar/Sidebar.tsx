@@ -36,17 +36,23 @@ interface SidebarProps {
   onScrollToMessage?: (messageId: string) => void
   switchTabRef?: React.MutableRefObject<((tab: Tab) => void) | null>
   onInsertSnippet?: (content: string) => void
+  onTabChange?: (tab: Tab) => void
+  wsKey?: string
+  ccPort?: number
+  onCCPortChange?: (port: number) => void
+  onCCConnectedChange?: (connected: boolean) => void
 }
 
 export type { Tab as SidebarTab }
 
 type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'cocos'
 
-export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet }: SidebarProps) {
+export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet, onTabChange, wsKey, ccPort, onCCPortChange, onCCConnectedChange }: SidebarProps) {
   const [tab, setTab] = useState<Tab>('files')
+  const switchTab = (t: Tab) => { setTab(t); onTabChange?.(t) }
 
   useEffect(() => {
-    if (switchTabRef) switchTabRef.current = setTab
+    if (switchTabRef) switchTabRef.current = switchTab
     return () => { if (switchTabRef) switchTabRef.current = null }
   }, [switchTabRef])
   const { currentPath } = useProject()
@@ -72,7 +78,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Tab bar — 2 rows: text tabs + icon tabs */}
       <div style={{ flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
-        {/* Row 1: text tabs */}
+        {/* Row 1: text tabs — 균등 분배 */}
         <div style={{ display: 'flex' }}>
           {([
             { id: 'files', label: 'Files' },
@@ -83,57 +89,22 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           ] as { id: Tab; label: string }[]).map((t) => (
             <button
               key={t.id}
-              onClick={() => setTab(t.id)}
+              onClick={() => switchTab(t.id)}
               title={t.id}
               style={{
                 flex: 1,
-                padding: '5px 4px',
+                padding: '5px 2px',
                 background: tab === t.id ? 'var(--bg-primary)' : 'transparent',
                 color: tab === t.id ? 'var(--text-primary)' : t.id === 'changes' && changedFiles.length > 0 ? 'var(--warning)' : 'var(--text-muted)',
                 borderBottom: tab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
                 fontSize: 10,
                 textTransform: 'uppercase',
-                letterSpacing: '0.5px',
+                letterSpacing: '0.3px',
                 transition: 'all 0.1s',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        {/* Row 2: icon tabs (scrollable) */}
-        <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', borderTop: '1px solid var(--border)' }}>
-          {([
-            { id: 'bookmarks', label: '★', title: '북마크' },
-            { id: 'stats', label: '📊', title: '통계' },
-            { id: 'snippets', label: '📎', title: '스니펫' },
-            { id: 'tasks', label: '📋', title: '태스크' },
-            { id: 'calendar', label: '📅', title: '캘린더' },
-            { id: 'clipboard', label: '🗂️', title: '클립보드' },
-            { id: 'diff', label: '🔀', title: '파일 비교' },
-            { id: 'outline', label: '📑', title: '아웃라인' },
-            { id: 'plugins', label: '🧩', title: '플러그인' },
-            { id: 'connections', label: '🔌', title: 'MCP 연결' },
-            { id: 'agent', label: '🤖', title: '에이전트' },
-            { id: 'remote', label: '🖥️', title: '원격' },
-            { id: 'cocos', label: '🎮', title: 'Cocos Creator' },
-          ] as { id: Tab; label: string; title: string }[]).map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              title={t.title}
-              style={{
-                flexShrink: 0,
-                width: 32,
-                padding: '5px 0',
-                background: tab === t.id ? 'var(--bg-primary)' : 'transparent',
-                color: tab === t.id ? 'var(--text-primary)' : t.id === 'bookmarks' && messages.some(m => m.bookmarked) ? '#fbbf24' : 'var(--text-muted)',
-                borderBottom: tab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
-                fontSize: 14,
-                transition: 'all 0.1s',
+                minWidth: 0,
               }}
             >
               {t.label}
@@ -281,7 +252,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           <RemotePanel />
         )}
         {tab === 'cocos' && (
-          <CocosPanel />
+          <CocosPanel key={wsKey} defaultPort={ccPort} onPortChange={onCCPortChange} onConnectedChange={onCCConnectedChange} />
         )}
       </div>
     </div>

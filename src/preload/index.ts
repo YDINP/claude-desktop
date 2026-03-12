@@ -245,12 +245,14 @@ contextBridge.exposeInMainWorld('api', {
 
   // Cocos Creator
   ccConnect: (port?: number) => ipcRenderer.invoke('cc:connect', port),
-  ccDisconnect: () => ipcRenderer.invoke('cc:disconnect'),
+  ccDisconnect: (port?: number) => ipcRenderer.invoke('cc:disconnect', port),
   ccStatus: () => ipcRenderer.invoke('cc:status'),
-  ccGetTree: () => ipcRenderer.invoke('cc:getTree'),
-  ccGetNode: (uuid: string) => ipcRenderer.invoke('cc:getNode', uuid),
-  ccSetProperty: (uuid: string, key: string, value: unknown) => ipcRenderer.invoke('cc:setProperty', uuid, key, value),
-  ccMoveNode: (uuid: string, x: number, y: number) => ipcRenderer.invoke('cc:moveNode', uuid, x, y),
+  ccGetTree: (port: number) => ipcRenderer.invoke('cc:getTree', port),
+  ccGetCanvasSize: (port: number): Promise<import('../shared/ipc-schema').CanvasSize | null> =>
+    ipcRenderer.invoke('cc:getCanvasSize', port),
+  ccGetNode: (port: number, uuid: string) => ipcRenderer.invoke('cc:getNode', port, uuid),
+  ccSetProperty: (port: number, uuid: string, key: string, value: unknown) => ipcRenderer.invoke('cc:setProperty', port, uuid, key, value),
+  ccMoveNode: (port: number, uuid: string, x: number, y: number) => ipcRenderer.invoke('cc:moveNode', port, uuid, x, y),
   onCCEvent: (cb: (event: CCEvent) => void) => {
     const handler = (_e: Electron.IpcRendererEvent, data: unknown) => cb(data as CCEvent)
     ipcRenderer.on('cc:event', handler)
@@ -264,6 +266,8 @@ contextBridge.exposeInMainWorld('api', {
   ccDetectProject: (rootPath: string): Promise<CCProjectInfo> => ipcRenderer.invoke('cc:detectProject', rootPath),
   ccGetPort: (): Promise<number> => ipcRenderer.invoke('cc:getPort'),
   ccSetPort: (port: number): Promise<boolean> => ipcRenderer.invoke('cc:setPort', port),
+  ccInstallExtension: (projectPath: string, version: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:installExtension', projectPath, version),
+  ccOpenEditor: (projectPath: string, version: string, creatorVersion?: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:openEditor', projectPath, version, creatorVersion),
 })
 
 declare global {
@@ -437,17 +441,20 @@ declare global {
       removeRemoteHost: (id: string) => Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>
       // Cocos Creator
       ccConnect: (port?: number) => Promise<boolean>
-      ccDisconnect: () => Promise<boolean>
+      ccDisconnect: (port?: number) => Promise<boolean>
       ccStatus: () => Promise<import('../shared/ipc-schema').CCStatus>
-      ccGetTree: () => Promise<unknown>
-      ccGetNode: (uuid: string) => Promise<unknown>
-      ccSetProperty: (uuid: string, key: string, value: unknown) => Promise<unknown>
-      ccMoveNode: (uuid: string, x: number, y: number) => Promise<unknown>
+      ccGetTree: (port: number) => Promise<unknown>
+      ccGetCanvasSize: (port: number) => Promise<import('../shared/ipc-schema').CanvasSize | null>
+      ccGetNode: (port: number, uuid: string) => Promise<unknown>
+      ccSetProperty: (port: number, uuid: string, key: string, value: unknown) => Promise<unknown>
+      ccMoveNode: (port: number, uuid: string, x: number, y: number) => Promise<unknown>
       onCCEvent: (cb: (event: import('../shared/ipc-schema').CCEvent) => void) => () => void
-      onCCStatusChange: (cb: (status: { connected: boolean }) => void) => () => void
+      onCCStatusChange: (cb: (status: { connected: boolean; port?: number }) => void) => () => void
       ccDetectProject: (rootPath: string) => Promise<{ detected: boolean; version?: string; port?: number; name?: string }>
       ccGetPort: () => Promise<number>
       ccSetPort: (port: number) => Promise<boolean>
+      ccInstallExtension?: (projectPath: string, version: string) => Promise<{ success: boolean; message: string }>
+      ccOpenEditor?: (projectPath: string, version: string, creatorVersion?: string) => Promise<{ success: boolean; message: string }>
     }
   }
 }

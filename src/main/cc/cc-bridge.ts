@@ -73,6 +73,12 @@ class CCBridge {
     this._connected = false
   }
 
+  async getCanvasSize(): Promise<{ width: number; height: number }> {
+    const resp = await fetch(`http://127.0.0.1:${this._port}/scene/canvas-size`)
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+    return resp.json()
+  }
+
   async getTree() {
     const resp = await fetch(`http://127.0.0.1:${this._port}/scene/tree`)
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
@@ -123,4 +129,11 @@ class CCBridge {
   }
 }
 
-export const ccBridge = new CCBridge()
+const _bridges = new Map<number, CCBridge>()
+
+export function getCCBridge(port: number): CCBridge {
+  if (!_bridges.has(port)) {
+    _bridges.set(port, new CCBridge())
+  }
+  return _bridges.get(port)!
+}

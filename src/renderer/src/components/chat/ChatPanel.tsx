@@ -147,6 +147,8 @@ interface ChatPanelProps {
   onDismissSuggestions?: () => void
   recentSessions?: Array<{ id: string; title: string }>
   onSelectSession?: (id: string) => void
+  hqMode?: boolean
+  onToggleHQ?: () => void
 }
 
 const CONTEXT_WINDOW = 200000
@@ -304,7 +306,7 @@ const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, total
   )
 })
 
-export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession }: ChatPanelProps) {
+export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ }: ChatPanelProps) {
   const ccCtx = useCCContext()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const minimapRef = useRef<HTMLDivElement>(null)
@@ -313,7 +315,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showTopBtn, setShowTopBtn] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [pinnedOpen, setPinnedOpen] = useState(true)
-  const [showMinimap, setShowMinimap] = useState(true)
+  const [showMinimap, setShowMinimap] = useState(false)
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [summaryText, setSummaryText] = useState('')
   const [summaryLoading, setSummaryLoading] = useState(false)
@@ -535,10 +537,61 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     })
   }, [project.currentPath, project.selectedModel, chat.addUserMessage, ccCtx.contextString])
 
+  const PAUSE_STATE_KEY = 'claude:pause-state'
+  const [isPaused, setIsPaused] = useState(() => {
+    try { return !!localStorage.getItem(PAUSE_STATE_KEY) } catch { return false }
+  })
+  const [pausedTask, setPausedTask] = useState<string | null>(() => {
+    try {
+      const s = localStorage.getItem(PAUSE_STATE_KEY)
+      return s ? JSON.parse(s).taskTitle : null
+    } catch { return null }
+  })
+
   const handleInterrupt = useCallback(() => {
+    setIsPaused(false)
+    setPausedTask(null)
+    localStorage.removeItem(PAUSE_STATE_KEY)
     window.api.claudeInterrupt()
     chat.finishStreaming()
   }, [chat.finishStreaming])
+
+  const handlePause = useCallback(() => {
+    window.api.claudeInterrupt()
+    chat.finishStreaming()
+
+    const msgs = chat.messages
+    const lastUser = [...msgs].reverse().find(m => m.role === 'user')
+    const lastAssistant = [...msgs].reverse().find(m => m.role === 'assistant')
+    const taskTitle = lastUser?.text?.slice(0, 120) ?? '(작업 내용 없음)'
+    const progressSnippet = lastAssistant?.text?.slice(-200) ?? ''
+
+    const state = {
+      sessionId: chat.sessionId,
+      cwd: project.currentPath,
+      taskTitle,
+      progressSnippet,
+      timestamp: Date.now(),
+    }
+    localStorage.setItem(PAUSE_STATE_KEY, JSON.stringify(state))
+    setIsPaused(true)
+    setPausedTask(taskTitle)
+  }, [chat.messages, chat.sessionId, chat.finishStreaming, project.currentPath])
+
+  const handleResume = useCallback(() => {
+    try {
+      const raw = localStorage.getItem(PAUSE_STATE_KEY)
+      if (!raw || !project.currentPath) return
+      const state = JSON.parse(raw) as { taskTitle: string; progressSnippet: string; cwd?: string }
+      const resumePrompt = `이전에 하던 작업을 이어서 진행해줘.\n\n[이전 요청]\n${state.taskTitle}${state.progressSnippet ? `\n\n[마지막 진행 상태]\n...${state.progressSnippet}` : ''}\n\n계속 진행해줘.`
+      window.api.claudeSend({ text: resumePrompt, cwd: project.currentPath, model: project.selectedModel })
+      chat.addUserMessage(resumePrompt)
+      chat.ensureAssistantMessage()
+      localStorage.removeItem(PAUSE_STATE_KEY)
+      setIsPaused(false)
+      setPausedTask(null)
+    } catch { /* ignore */ }
+  }, [chat, project.currentPath, project.selectedModel])
 
   const handleRegenerate = useCallback(() => {
     const lastUser = [...chat.messages].reverse().find(m => m.role === 'user')
@@ -1099,6 +1152,10 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       <InputBar
         onSend={handleSend}
         onInterrupt={handleInterrupt}
+        onPause={handlePause}
+        onResume={handleResume}
+        isPaused={isPaused}
+        pausedTask={pausedTask}
         isStreaming={chat.isStreaming}
         disabled={!project.currentPath}
         focusTrigger={focusTrigger}

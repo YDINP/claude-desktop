@@ -102,26 +102,6 @@ export function TitleBar({ onOpenFolder, onOpenPalette, theme, onToggleTheme, si
         </button>
       )}
 
-      {onToggleHQ && (
-        <button
-          onClick={onToggleHQ}
-          title={hqMode ? '기본 모드로 전환 (Ctrl+Shift+H)' : 'HQ Mode 전환 (Ctrl+Shift+H)'}
-          style={{
-            WebkitAppRegion: 'no-drag',
-            background: hqMode ? 'rgba(0,152,255,0.2)' : 'transparent',
-            color: hqMode ? '#0098ff' : 'var(--text-muted)',
-            fontSize: 12,
-            padding: '2px 8px',
-            borderRadius: 'var(--radius-sm)',
-            border: hqMode ? '1px solid rgba(0,152,255,0.4)' : '1px solid var(--border)',
-            cursor: 'pointer',
-            fontFamily: 'var(--font-mono)',
-            letterSpacing: '0.5px',
-          } as React.CSSProperties}
-        >
-          ⬡ HQ
-        </button>
-      )}
 
       {onToggleTheme && (
         <button

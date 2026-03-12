@@ -2,9 +2,10 @@ import { useState, useRef } from 'react'
 
 interface WebPreviewPanelProps {
   defaultUrl?: string
+  onUrlChange?: (url: string) => void
 }
 
-export function WebPreviewPanel({ defaultUrl = '' }: WebPreviewPanelProps) {
+export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPanelProps) {
   const [url, setUrl] = useState(defaultUrl)
   const [inputUrl, setInputUrl] = useState(defaultUrl)
   const [loading, setLoading] = useState(false)
@@ -14,6 +15,7 @@ export function WebPreviewPanel({ defaultUrl = '' }: WebPreviewPanelProps) {
   const handleNavigate = () => {
     setLoading(true)
     setUrl(inputUrl)
+    onUrlChange?.(inputUrl)
   }
   const handleRefresh = () => {
     setLoading(true)
@@ -21,7 +23,7 @@ export function WebPreviewPanel({ defaultUrl = '' }: WebPreviewPanelProps) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{
         fontSize: 10, fontWeight: 600, color: 'var(--text-muted)',
         padding: '6px 10px 4px', borderBottom: '1px solid var(--border)',
@@ -66,7 +68,7 @@ export function WebPreviewPanel({ defaultUrl = '' }: WebPreviewPanelProps) {
       </div>
 
       {/* iframe 영역 */}
-      <div style={{ position: 'relative', height: 300 }}>
+      <div style={{ position: 'relative', flex: 1, minHeight: 0 }}>
         {loading && (
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
@@ -98,7 +100,10 @@ export function WebPreviewPanel({ defaultUrl = '' }: WebPreviewPanelProps) {
               </code>
             </div>
             <button
-              onClick={() => { setInputUrl('http://localhost:7456'); setUrl('http://localhost:7456'); setLoading(true) }}
+              onClick={() => {
+                const u = 'http://localhost:7456'
+                setInputUrl(u); setUrl(u); setLoading(true); onUrlChange?.(u)
+              }}
               style={{
                 marginTop: 4, padding: '4px 12px', background: 'var(--accent)', color: '#fff',
                 borderRadius: 4, fontSize: 11, cursor: 'pointer',

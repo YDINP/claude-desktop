@@ -4,19 +4,28 @@ import { NodePropertyPanel } from './NodePropertyPanel'
 import { useProject } from '../../stores/project-store'
 import type { CCNode } from '../../../../shared/ipc-schema'
 
-export function CocosPanel() {
+export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
+  defaultPort?: number
+  onPortChange?: (port: number) => void
+  onConnectedChange?: (connected: boolean) => void
+} = {}) {
   const { currentPath } = useProject()
+  const mountedRef = useRef(true)
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false } }, [])
   const [connected, setConnected] = useState(false)
   const [connecting, setConnecting] = useState(false)
-  const [port, setPort] = useState(9090)
+  const [port, setPort] = useState(defaultPort ?? 9090)
   const [selectedNode, setSelectedNode] = useState<CCNode | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [detectedProject, setDetectedProject] = useState<{ name: string; version: string } | null>(null)
+  const [detectedProject, setDetectedProject] = useState<{ name: string; version: string; creatorVersion?: string } | null>(null)
   const [reconnectCountdown, setReconnectCountdown] = useState<number | null>(null)
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const portRef = useRef(port)
+  portRef.current = port
 
-  // 포트 로드 (마운트 시)
+  // 포트 로드 (마운트 시) — defaultPort 우선, 없으면 저장값
   useEffect(() => {
+    if (defaultPort) { setPort(defaultPort); return }
     window.api.ccGetPort?.().then(p => { if (p) setPort(p) }).catch(() => {})
   }, [])
 
@@ -25,8 +34,9 @@ export function CocosPanel() {
     if (!currentPath) return
     window.api.ccDetectProject?.(currentPath).then(info => {
       if (info?.detected && info.version && info.port) {
-        setDetectedProject({ name: info.name || 'CC Project', version: info.version })
+        setDetectedProject({ name: info.name || 'CC Project', version: info.version, creatorVersion: info.creatorVersion })
         setPort(info.port)
+        onPortChange?.(info.port)
         window.api.ccSetPort?.(info.port).catch(() => {})
       }
     }).catch(() => {})
@@ -52,11 +62,14 @@ export function CocosPanel() {
     setReconnectCountdown(null)
     setConnecting(true)
     setError(null)
+    const currentPort = portRef.current
     try {
-      const ok = await window.api.ccConnect?.(port)
+      const ok = await window.api.ccConnect?.(currentPort)
       setConnected(!!ok)
+      if (mountedRef.current) onConnectedChange?.(!!ok)
       if (ok) {
-        window.api.ccSetPort?.(port).catch(() => {})
+        window.api.ccSetPort?.(currentPort).catch(() => {})
+        onPortChange?.(currentPort)
       } else {
         setError('CC Extension에 연결할 수 없습니다. Extension이 실행 중인지 확인하세요.')
       }
@@ -65,22 +78,24 @@ export function CocosPanel() {
     } finally {
       setConnecting(false)
     }
-  }, [port])
+  }, [])
 
   useEffect(() => {
     let cancelled = false
     handleConnect()
     const unsub = window.api.onCCEvent?.((event) => {
       if (cancelled) return
+      if ((event as any)._ccPort !== undefined && (event as any)._ccPort !== portRef.current) return
       if (event.type === 'node:select' && event.uuids?.[0]) {
-        window.api.ccGetNode?.(event.uuids[0]).then(n => { if (!cancelled) setSelectedNode(n) }).catch(() => {})
-      } else if (event.type === 'node:deselect') {
-        setSelectedNode(null)
+        window.api.ccGetNode?.(portRef.current, event.uuids[0]).then(n => { if (!cancelled) setSelectedNode(n) }).catch(() => {})
       }
+      // node:deselect — 마지막 선택 노드를 유지 (패널을 지우지 않음)
     })
     const unsubStatus = window.api.onCCStatusChange?.((s) => {
       if (cancelled) return
+      if (s.port !== undefined && s.port !== portRef.current) return
       setConnected(s.connected)
+      if (!cancelled) onConnectedChange?.(s.connected)
       if (!s.connected) startCountdown()
     })
     return () => {
@@ -89,10 +104,37 @@ export function CocosPanel() {
       unsub?.()
       unsubStatus?.()
     }
-  }, [handleConnect, startCountdown])
+  }, [])
 
   const extName = detectedProject?.version === '3x' ? 'cc-ws-extension-3x' : 'cc-ws-extension-2x'
   const extPort = detectedProject?.version === '3x' ? 9091 : 9090
+  const [installing, setInstalling] = useState(false)
+  const [installMsg, setInstallMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [opening, setOpening] = useState(false)
+
+  const handleOpenEditor = useCallback(async () => {
+    if (!currentPath || !detectedProject) return
+    setOpening(true)
+    try {
+      await window.api.ccOpenEditor?.(currentPath, detectedProject.version, detectedProject.creatorVersion)
+    } finally {
+      setOpening(false)
+    }
+  }, [currentPath, detectedProject])
+
+  const handleInstall = useCallback(async () => {
+    if (!currentPath || !detectedProject) return
+    setInstalling(true)
+    setInstallMsg(null)
+    try {
+      const result = await window.api.ccInstallExtension?.(currentPath, detectedProject.version)
+      setInstallMsg({ ok: !!result?.success, text: result?.message ?? '알 수 없는 오류' })
+    } catch (e) {
+      setInstallMsg({ ok: false, text: String(e) })
+    } finally {
+      setInstalling(false)
+    }
+  }, [currentPath, detectedProject])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontSize: 12 }}>
@@ -109,8 +151,36 @@ export function CocosPanel() {
           </span>
           {detectedProject && (
             <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 'auto' }}>
-              {detectedProject.version}
+              {detectedProject.creatorVersion ?? detectedProject.version}
             </span>
+          )}
+          {detectedProject && currentPath && (
+            <>
+              <button
+                onClick={handleOpenEditor}
+                disabled={opening}
+                title="Cocos Creator 열기"
+                style={{
+                  background: 'none', border: '1px solid var(--border)', borderRadius: 4,
+                  color: 'var(--text-muted)', fontSize: 10, padding: '1px 5px', cursor: opening ? 'not-allowed' : 'pointer',
+                  opacity: opening ? 0.5 : 1,
+                }}
+              >
+                {opening ? '...' : '▶ CC 열기'}
+              </button>
+              <button
+                onClick={handleInstall}
+                disabled={installing}
+                title="Extension 업데이트 (재설치)"
+                style={{
+                  background: 'none', border: '1px solid var(--border)', borderRadius: 4,
+                  color: 'var(--text-muted)', fontSize: 10, padding: '1px 5px', cursor: installing ? 'not-allowed' : 'pointer',
+                  opacity: installing ? 0.5 : 1,
+                }}
+              >
+                {installing ? '...' : '↺ 업데이트'}
+              </button>
+            </>
           )}
         </div>
         {detectedProject && (
@@ -151,38 +221,62 @@ export function CocosPanel() {
       {/* 본문 */}
       {connected ? (
         <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-          <SceneTreePanel onSelectNode={setSelectedNode} />
+          <SceneTreePanel port={port} onSelectNode={(node) => {
+            window.api.ccGetNode?.(port, node.uuid)
+              .then(n => setSelectedNode((n as CCNode) ?? node))
+              .catch(() => setSelectedNode(node))
+          }} />
           {selectedNode && (
-            <NodePropertyPanel node={selectedNode} onUpdate={() => {}} />
+            <NodePropertyPanel port={port} node={selectedNode} onUpdate={() => {}} />
           )}
         </div>
       ) : (
         <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, lineHeight: 1.7 }}>
-          <div style={{ marginBottom: 10, fontWeight: 600, color: 'var(--text-primary)' }}>Extension 설치 안내</div>
+          <div style={{ marginBottom: 10, fontWeight: 600, color: 'var(--text-primary)' }}>Extension 설치</div>
           <div style={{ marginBottom: 8, padding: '6px 8px', background: 'var(--bg-tertiary)', borderRadius: 4, fontSize: 10 }}>
-            <strong>Extension 이름:</strong>{' '}
+            <strong>Extension:</strong>{' '}
             <code style={{ color: 'var(--accent)' }}>{extName}</code>
             {' '}(포트 {extPort})
           </div>
-          <ol style={{ paddingLeft: 16, margin: 0 }}>
-            <li>
-              CC 프로젝트의{' '}
-              <code style={{ fontSize: 10, background: 'var(--bg-tertiary)', padding: '1px 4px', borderRadius: 2 }}>
-                {detectedProject?.version === '3x' ? 'extensions/' : 'packages/'}
-              </code>{' '}
-              폴더에{' '}
-              <code style={{ fontSize: 10, background: 'var(--bg-tertiary)', padding: '1px 4px', borderRadius: 2 }}>
-                {extName}
-              </code>{' '}
-              복사
-            </li>
-            <li>
-              Extension 폴더 내{' '}
-              <code style={{ fontSize: 10, background: 'var(--bg-tertiary)', padding: '1px 4px', borderRadius: 2 }}>npm install</code>
-            </li>
-            <li>Cocos Creator 재시작</li>
-            <li>연결 버튼 클릭</li>
-          </ol>
+          {detectedProject && currentPath ? (
+            <>
+              <button
+                onClick={handleInstall}
+                disabled={installing}
+                style={{
+                  width: '100%', padding: '6px 0', marginBottom: 8,
+                  background: installing ? 'var(--bg-tertiary)' : 'var(--accent)',
+                  color: installing ? 'var(--text-muted)' : '#fff',
+                  borderRadius: 4, fontSize: 11, cursor: installing ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {installing ? '설치 중...' : '⚡ 자동 설치'}
+              </button>
+              {installMsg && (
+                <div style={{
+                  marginBottom: 8, padding: '6px 8px', borderRadius: 4, fontSize: 10, lineHeight: 1.5,
+                  background: installMsg.ok ? 'rgba(63,185,80,0.1)' : 'rgba(248,81,73,0.1)',
+                  color: installMsg.ok ? 'var(--success, #3fb950)' : 'var(--error, #f85149)',
+                }}>
+                  {installMsg.text}
+                  {installMsg.ok && <div style={{ marginTop: 4, color: 'var(--text-muted)' }}>CC를 재시작 후 연결하세요.</div>}
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ marginBottom: 8, fontSize: 10, color: 'var(--warning, #d29922)' }}>
+              CC 프로젝트 폴더를 열면 자동 설치 버튼이 활성화됩니다.
+            </div>
+          )}
+          <details style={{ marginTop: 4 }}>
+            <summary style={{ cursor: 'pointer', fontSize: 10, color: 'var(--text-muted)' }}>수동 설치 방법</summary>
+            <ol style={{ paddingLeft: 16, margin: '6px 0 0', fontSize: 10 }}>
+              <li>CC 프로젝트의 <code style={{ background: 'var(--bg-tertiary)', padding: '1px 3px', borderRadius: 2 }}>{detectedProject?.version === '3x' ? 'extensions/' : 'packages/'}</code> 폴더에 <code style={{ background: 'var(--bg-tertiary)', padding: '1px 3px', borderRadius: 2 }}>{extName}</code> 복사</li>
+              <li>Extension 폴더 내 <code style={{ background: 'var(--bg-tertiary)', padding: '1px 3px', borderRadius: 2 }}>npm install</code></li>
+              <li>Cocos Creator 재시작</li>
+              <li>연결 버튼 클릭</li>
+            </ol>
+          </details>
         </div>
       )}
     </div>

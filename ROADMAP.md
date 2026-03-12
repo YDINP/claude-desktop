@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 73 완료 — HQ Mode 전체 완성)
+> 마지막 업데이트: 2026-03-12 (Round 78 완료 — 인라인 AI 어시스턴트 + Monaco DiffEditor)
 
 ## 완료된 라운드
 
@@ -20,16 +20,16 @@
 | Round 71 | feature/cocos-integration | HQ Mode Phase 2 — AgentCard 4종 상태 애니메이션 (idle/active/tool_running/error) | ✅ |
 | Round 72 | feature/cocos-integration | HQ Mode Phase 3 — ResourceBar 라이브 git/memory + OpsFeed 자동스크롤/입력요약 | ✅ |
 | Round 73 | feature/cocos-integration | HQ Mode Phase 4 — Ctrl+Shift+H 단축키 + 트랜지션 폴리싱 + CSS 변수 | ✅ |
+| Round 74 | main | 대화 UX 고도화 — 메시지 검색(Ctrl+F) + 결과 하이라이트/점프, 코드블록 복사/실행 버튼 개선 | ✅ |
+| Round 75 | main | 대화 브랜치 UI — forkedFrom 인덱스 저장, SessionList forkMap + ⎇ 배지 + 들여쓰기 트리 렌더링 | ✅ |
+| Round 76 | main | Monaco Editor 통합 — FileViewer 코드뷰/편집 Monaco 교체, 내장 검색/미니맵/goto줄, 1000→561줄 간소화 | ✅ |
+| Round 77 | main | QA + 안정성 — Critical 4건 수정(forkMap 순환참조/save forkedFrom/defaultValue/import 순서), ws 패키지 추가, SyntaxHighlighter import 경로 수정, 빌드 성공 | ✅ |
+| Round 78 | main | 코드 편집기 Phase 2 — 인라인 AI 어시스턴트(선택 영역 설명/수정 패널), Monaco DiffEditor로 DiffPanel 교체(나란히/인라인 뷰 토글) | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 74 | main | **대화 UX 고도화** — 메시지 검색(Ctrl+F) + 결과 하이라이트/점프, 대화 내 코드블록 복사/실행 버튼 개선 |
-| Round 75 | main | **대화 브랜치 UI** — session:fork IPC 연동, 메시지 우클릭 "여기서 분기" 메뉴, 브랜치 트리 시각화(SessionList 확장) |
-| Round 76 | main | **코드 편집기 Phase 1** — Monaco Editor 통합, FileViewer를 Monaco 기반으로 교체, 구문 강조/미니맵/검색 |
-| Round 77 | main | **QA + 안정성** — Round 74~76 통합 QA, HQ Mode 회귀 테스트, 메모리 프로파일링, 접근성(WCAG AA) 검수 |
-| Round 78 | main | **코드 편집기 Phase 2** — 인라인 AI 어시스턴트(선택 영역 설명/수정), Monaco diff viewer로 DiffPanel 교체 |
 | Round 79 | main | **터미널 + AI 연동** — 터미널 출력 자동 캡처 + Claude 에러 분석 제안, 빠른 명령어 팔레트 개선 |
 | Round 80 | main | **프로젝트 인텔리전스** — 프로젝트별 자동 시스템 프롬프트(파일 구조 기반), 자주 사용 명령어 학습/추천 |
 | Round 81 | main | **AI 워크플로우 고도화** — Subagent 실행 시각화(AgentPanel 리빌드), Prompt 체이닝 UI, 작업 히스토리 저장 |

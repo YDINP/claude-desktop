@@ -59,6 +59,28 @@ module.exports = {
     event.reply(null, { ok: true });
   },
 
+  // Canvas designResolution 반환
+  getCanvasSize(event) {
+    const scene = cc.director.getScene();
+    if (!scene) { event.reply('No scene loaded'); return; }
+
+    function findCanvas(node) {
+      const canvas = node.getComponent(cc.Canvas);
+      if (canvas) return canvas;
+      for (const child of node.children) {
+        const found = findCanvas(child);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    const canvas = findCanvas(scene);
+    if (!canvas) { event.reply('Canvas component not found'); return; }
+
+    const dr = canvas.designResolution;
+    event.reply(null, { width: dr.width, height: dr.height });
+  },
+
   // 노드 이동
   moveNode(event, options) {
     const node = findByUUID(cc.director.getScene(), options.uuid);

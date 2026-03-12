@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, memo, useRef } from 'react'
 import type { CCNode } from '../../../../shared/ipc-schema'
 
 interface SceneTreePanelProps {
+  port: number
   onSelectNode: (node: CCNode | null) => void
 }
 
@@ -51,7 +52,7 @@ const NodeRow = memo(function NodeRow({
   )
 })
 
-export function SceneTreePanel({ onSelectNode }: SceneTreePanelProps) {
+export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
   const [tree, setTree] = useState<CCNode | null>(null)
   const [loading, setLoading] = useState(false)
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -60,18 +61,19 @@ export function SceneTreePanel({ onSelectNode }: SceneTreePanelProps) {
   const refresh = useCallback(async () => {
     setLoading(true)
     try {
-      const result = await window.api.ccGetTree?.()
+      const result = await window.api.ccGetTree?.(port)
       setTree(result ?? null)
     } catch (e) {
       console.error('[SceneTree] getTree failed:', e)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [port])
 
   useEffect(() => {
     refresh()
     const unsub = window.api.onCCEvent?.((event) => {
+      if ((event as any)._ccPort !== undefined && (event as any)._ccPort !== port) return
       if (event.type === 'scene:ready' || event.type === 'scene:saved') {
         if (debounceRef.current) clearTimeout(debounceRef.current)
         debounceRef.current = setTimeout(() => { debounceRef.current = null; refresh() }, 500)
@@ -83,7 +85,7 @@ export function SceneTreePanel({ onSelectNode }: SceneTreePanelProps) {
       if (debounceRef.current) clearTimeout(debounceRef.current)
       unsub?.()
     }
-  }, [refresh])
+  }, [refresh, port])
 
   const handleSelect = (node: CCNode) => {
     setSelectedUuid(node.uuid)

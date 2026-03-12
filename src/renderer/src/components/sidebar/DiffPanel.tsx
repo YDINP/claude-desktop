@@ -1,68 +1,41 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import '../../utils/monaco-setup'
+import { DiffEditor } from '@monaco-editor/react'
+import type * as MonacoType from 'monaco-editor'
 
-type DiffLine = {
-  type: 'same' | 'add' | 'remove'
-  content: string
-  leftNum?: number
-  rightNum?: number
-}
-
-function computeDiff(aLines: string[], bLines: string[]): DiffLine[] {
-  const n = aLines.length
-  const m = bLines.length
-
-  // Build LCS table
-  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0))
-  for (let i = 1; i <= n; i++) {
-    for (let j = 1; j <= m; j++) {
-      if (aLines[i - 1] === bLines[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1] + 1
-      } else {
-        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1])
-      }
-    }
+function getLangFromPath(path: string): string {
+  const ext = path.split('.').pop()?.toLowerCase() ?? ''
+  const map: Record<string, string> = {
+    ts: 'typescript', tsx: 'typescript', js: 'javascript', jsx: 'javascript',
+    py: 'python', rs: 'rust', go: 'go', java: 'java', c: 'c', cpp: 'cpp',
+    cs: 'csharp', html: 'html', css: 'css', json: 'json', yaml: 'yaml',
+    yml: 'yaml', md: 'markdown', sh: 'shell', bash: 'shell', xml: 'xml',
+    sql: 'sql', php: 'php', rb: 'ruby', kt: 'kotlin', swift: 'swift',
   }
-
-  // Backtrack to produce diff
-  const result: DiffLine[] = []
-  let i = n
-  let j = m
-  while (i > 0 || j > 0) {
-    if (i > 0 && j > 0 && aLines[i - 1] === bLines[j - 1]) {
-      result.push({ type: 'same', content: aLines[i - 1], leftNum: i, rightNum: j })
-      i--
-      j--
-    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-      result.push({ type: 'add', content: bLines[j - 1], rightNum: j })
-      j--
-    } else {
-      result.push({ type: 'remove', content: aLines[i - 1], leftNum: i })
-      i--
-    }
-  }
-  return result.reverse()
+  return map[ext] ?? 'plaintext'
 }
 
 export function DiffPanel() {
   const [leftPath, setLeftPath] = useState('')
   const [rightPath, setRightPath] = useState('')
-  const [diffLines, setDiffLines] = useState<DiffLine[] | null>(null)
+  const [leftContent, setLeftContent] = useState<string | null>(null)
+  const [rightContent, setRightContent] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [sideBySide, setSideBySide] = useState(true)
+  const editorRef = useRef<MonacoType.editor.IStandaloneDiffEditor | null>(null)
 
   async function handleCompare() {
     if (!leftPath.trim() || !rightPath.trim()) return
     setLoading(true)
     setError(null)
-    setDiffLines(null)
     try {
-      const [leftContent, rightContent] = await Promise.all([
+      const [left, right] = await Promise.all([
         window.api.readFile(leftPath.trim()),
         window.api.readFile(rightPath.trim()),
       ])
-      const aLines = leftContent.split('\n')
-      const bLines = rightContent.split('\n')
-      setDiffLines(computeDiff(aLines, bLines))
+      setLeftContent(left)
+      setRightContent(right)
     } catch (e) {
       setError(String(e))
     } finally {
@@ -70,64 +43,65 @@ export function DiffPanel() {
     }
   }
 
-  const identical = diffLines !== null && diffLines.every(l => l.type === 'same')
+  const lang = getLangFromPath(rightPath || leftPath)
+  const identical = leftContent !== null && rightContent !== null && leftContent === rightContent
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '8px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
-      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8, flexShrink: 0 }}>
+      <div style={{
+        fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
+        textTransform: 'uppercase', letterSpacing: '0.5px',
+        padding: '8px 8px 4px',
+        flexShrink: 0,
+      }}>
         파일 비교
       </div>
 
       {/* Inputs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 6, flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: 4, padding: '0 8px 6px', flexShrink: 0 }}>
         <input
           value={leftPath}
           onChange={e => setLeftPath(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleCompare()}
-          placeholder="왼쪽 파일 경로..."
+          placeholder="원본 파일 경로..."
           style={{
-            flex: 1,
-            background: 'var(--bg-input)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border)',
-            borderRadius: 4,
-            padding: '3px 6px',
-            fontSize: 11,
-            outline: 'none',
-            fontFamily: 'monospace',
-            minWidth: 0,
+            flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',
+            border: '1px solid var(--border)', borderRadius: 4,
+            padding: '3px 6px', fontSize: 11, outline: 'none',
+            fontFamily: 'monospace', minWidth: 0,
           }}
         />
         <input
           value={rightPath}
           onChange={e => setRightPath(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleCompare()}
-          placeholder="오른쪽 파일 경로..."
+          placeholder="수정 파일 경로..."
           style={{
-            flex: 1,
-            background: 'var(--bg-input)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border)',
-            borderRadius: 4,
-            padding: '3px 6px',
-            fontSize: 11,
-            outline: 'none',
-            fontFamily: 'monospace',
-            minWidth: 0,
+            flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',
+            border: '1px solid var(--border)', borderRadius: 4,
+            padding: '3px 6px', fontSize: 11, outline: 'none',
+            fontFamily: 'monospace', minWidth: 0,
           }}
         />
+        <button
+          onClick={() => setSideBySide(p => !p)}
+          title={sideBySide ? '인라인 뷰로 전환' : '나란히 뷰로 전환'}
+          style={{
+            padding: '3px 8px', background: 'var(--bg-tertiary)',
+            color: 'var(--text-muted)', border: '1px solid var(--border)',
+            borderRadius: 4, fontSize: 10, cursor: 'pointer', flexShrink: 0,
+          }}
+        >
+          {sideBySide ? '⇔' : '↕'}
+        </button>
         <button
           onClick={handleCompare}
           disabled={loading || !leftPath.trim() || !rightPath.trim()}
           style={{
-            padding: '3px 10px',
-            background: 'var(--accent)',
-            color: '#fff',
-            borderRadius: 4,
-            fontSize: 11,
-            fontWeight: 500,
-            flexShrink: 0,
+            padding: '3px 10px', background: 'var(--accent)', color: '#fff',
+            borderRadius: 4, fontSize: 11, fontWeight: 500, flexShrink: 0,
+            border: 'none',
             opacity: loading || !leftPath.trim() || !rightPath.trim() ? 0.5 : 1,
             cursor: loading || !leftPath.trim() || !rightPath.trim() ? 'default' : 'pointer',
           }}
@@ -137,7 +111,7 @@ export function DiffPanel() {
       </div>
 
       {/* Diff output */}
-      <div style={{ flex: 1, overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
+      <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
         {error && (
           <div style={{ padding: 8, color: '#f88', fontSize: 11, fontFamily: 'monospace' }}>
             오류: {error}
@@ -148,57 +122,24 @@ export function DiffPanel() {
             ✅ 파일이 동일합니다
           </div>
         )}
-        {diffLines !== null && !identical && (
-          <div style={{ fontFamily: 'monospace', fontSize: 12 }}>
-            {diffLines.map((line, idx) => {
-              const bg =
-                line.type === 'remove' ? 'rgba(255,0,0,0.15)' :
-                line.type === 'add' ? 'rgba(0,255,0,0.1)' :
-                'transparent'
-              const textColor =
-                line.type === 'remove' ? '#f88' :
-                line.type === 'add' ? '#8f8' :
-                '#ccc'
-              const prefix =
-                line.type === 'remove' ? '-' :
-                line.type === 'add' ? '+' :
-                ' '
-              const lineNum =
-                line.type === 'remove' ? line.leftNum :
-                line.type === 'add' ? line.rightNum :
-                line.leftNum
-
-              return (
-                <div
-                  key={idx}
-                  style={{
-                    display: 'flex',
-                    background: bg,
-                    color: textColor,
-                    whiteSpace: 'pre',
-                    lineHeight: '1.4',
-                  }}
-                >
-                  <span style={{
-                    width: '3ch',
-                    textAlign: 'right',
-                    color: '#666',
-                    borderRight: '1px solid #333',
-                    paddingRight: 4,
-                    marginRight: 4,
-                    flexShrink: 0,
-                    userSelect: 'none',
-                  }}>
-                    {lineNum ?? ''}
-                  </span>
-                  <span style={{ marginRight: 4, flexShrink: 0, userSelect: 'none' }}>{prefix}</span>
-                  <span style={{ overflow: 'hidden' }}>{line.content}</span>
-                </div>
-              )
-            })}
-          </div>
+        {leftContent !== null && rightContent !== null && !identical && (
+          <DiffEditor
+            original={leftContent}
+            modified={rightContent}
+            language={lang}
+            theme="vs-dark"
+            options={{
+              readOnly: true,
+              renderSideBySide: sideBySide,
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              fontSize: 12,
+              automaticLayout: true,
+            }}
+            onMount={(editor) => { editorRef.current = editor }}
+          />
         )}
-        {diffLines === null && !loading && !error && (
+        {leftContent === null && !loading && !error && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, textAlign: 'center' }}>
             두 파일 경로를 입력하고 비교 버튼을 누르세요
           </div>

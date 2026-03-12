@@ -58,9 +58,31 @@ export class AgentBridge {
         options.resume = this.currentSessionId
       }
 
-      for await (const msg of sdkQuery!({ prompt: text, options })) {
-        this.processMessage(msg as Record<string, unknown>)
-        if (this.abortController.signal.aborted) break
+      try {
+        for await (const msg of sdkQuery!({ prompt: text, options })) {
+          this.processMessage(msg as Record<string, unknown>)
+          if (this.abortController.signal.aborted) break
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'AbortError') return
+        // resume 실패(포크된 세션 등) 시 세션 없이 재시도
+        const errMsg = String(err)
+        if (this.currentSessionId && (errMsg.includes('exit') || errMsg.includes('code 1') || errMsg.includes('session'))) {
+          this.currentSessionId = null
+          delete options.resume
+          try {
+            for await (const m of sdkQuery!({ prompt: text, options })) {
+              this.processMessage(m as Record<string, unknown>)
+              if (this.abortController.signal.aborted) break
+            }
+          } catch (err2: unknown) {
+            if (!(err2 instanceof Error && err2.name === 'AbortError')) {
+              this.emit({ type: 'error', message: String(err2) })
+            }
+          }
+        } else {
+          this.emit({ type: 'error', message: errMsg })
+        }
       }
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') return

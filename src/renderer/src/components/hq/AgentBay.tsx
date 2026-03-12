@@ -10,11 +10,21 @@ interface SessionMeta {
   outputTokens?: number
 }
 
+interface ActiveAgent {
+  id: string
+  description: string
+  status: 'running' | 'completed' | 'error'
+  startTime: number
+  output?: string
+}
+
 interface AgentBayProps {
   sessions?: SessionMeta[]
+  agents?: ActiveAgent[]
   activeSessionId: string | null
   isStreaming?: boolean
   toolUses?: ToolUseItem[]
+  width?: number
   onSelectSession: (id: string) => void
   onNewSession: () => void
   onToggleHQ?: () => void
@@ -111,10 +121,10 @@ function AgentCard({ session, isActive, isStreaming, lastToolName, hasError, onC
 
         {/* 입 (상태별) */}
         {state === 'error' && (
-          <div style={{ flex: 1, fontSize: 9, color: '#f44747', letterSpacing: 2 }}>∧∧∧∧∧</div>
+          <div style={{ flex: 1, fontSize: 11, color: '#f44747', letterSpacing: 2 }}>∧∧∧∧∧</div>
         )}
         {state === 'tool_running' && (
-          <div style={{ flex: 1, fontSize: 9, color: '#d4d46e', letterSpacing: 2, overflow: 'hidden' }}>
+          <div style={{ flex: 1, fontSize: 11, color: '#d4d46e', letterSpacing: 2, overflow: 'hidden' }}>
             <span className="hq-dots-scroll">·····</span>
           </div>
         )}
@@ -135,19 +145,19 @@ function AgentCard({ session, isActive, isStreaming, lastToolName, hasError, onC
         )}
       </div>
 
-      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#e8e8f8', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {title}
       </div>
 
       {state === 'tool_running' && lastToolName && (
-        <div style={{ fontSize: 9, color: '#d4d46e', fontFamily: 'var(--font-mono)', marginTop: 2 }}>
+        <div style={{ fontSize: 11, color: '#d4d46e', fontFamily: 'var(--font-mono)', marginTop: 3 }}>
           ↻ {lastToolName}
         </div>
       )}
 
       {/* 토큰 게이지 */}
       {tokens > 0 && (
-        <div style={{ marginTop: 4 }}>
+        <div style={{ marginTop: 6 }}>
           <div style={{
             height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.1)',
             overflow: 'hidden',
@@ -159,45 +169,30 @@ function AgentCard({ session, isActive, isStreaming, lastToolName, hasError, onC
               transition: 'width 0.3s ease',
             }} />
           </div>
-          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>{tokStr} tok</div>
+          <div style={{ fontSize: 11, color: 'rgba(200,200,230,0.7)', marginTop: 3 }}>{tokStr} tok</div>
         </div>
       )}
 
-      <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 4 }}>{timeAgo()}</div>
+      <div style={{ fontSize: 11, color: 'rgba(200,200,230,0.65)', marginTop: 4 }}>{timeAgo()}</div>
     </div>
   )
 }
 
-export function AgentBay({ sessions = [], activeSessionId, isStreaming = false, toolUses, onSelectSession, onNewSession, onToggleHQ }: AgentBayProps) {
+export function AgentBay({ sessions = [], agents = [], activeSessionId, isStreaming = false, toolUses, width = 260, onSelectSession, onNewSession, onToggleHQ }: AgentBayProps) {
   const [localSessions, setLocalSessions] = useState<SessionMeta[]>(sessions)
 
   useEffect(() => {
-    let cancelled = false
-    const load = () => {
-      if (sessions.length > 0) {
-        setLocalSessions(sessions)
-        return
-      }
-      window.api.sessionList?.()
-        .then((list: SessionMeta[]) => {
-          if (!cancelled) setLocalSessions(list ?? [])
-        })
-        .catch(() => {})
+    if (sessions.length > 0) {
+      setLocalSessions(sessions)
     }
-    load()
-    const interval = setInterval(load, 30000)
-    return () => {
-      cancelled = true
-      clearInterval(interval)
-    }
-  }, [sessions, activeSessionId])
+  }, [sessions])
 
   const runningTool = toolUses?.find(t => t.status === 'running')
   const hasActiveError = toolUses?.some(t => t.status === 'error') ?? false
 
   return (
     <div className="hq-agent-bay" style={{
-      width: 240,
+      width,
       flexShrink: 0,
       display: 'flex',
       flexDirection: 'column',
@@ -209,33 +204,70 @@ export function AgentBay({ sessions = [], activeSessionId, isStreaming = false, 
     }}>
       {/* 헤더 */}
       <div style={{
-        padding: '10px 12px',
+        padding: '10px 14px',
         borderBottom: '1px solid var(--border)',
         display: 'flex',
         alignItems: 'center',
         gap: 8,
         flexShrink: 0,
       }}>
-        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(200,210,240,0.9)', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>
           AGENT BAY
         </span>
         <span style={{
-          fontSize: 9, padding: '1px 5px', borderRadius: 8,
-          background: 'rgba(0,152,255,0.15)', color: '#0098ff',
+          fontSize: 11, padding: '1px 6px', borderRadius: 8,
+          background: 'rgba(0,152,255,0.15)', color: '#4db8ff',
         }}>
-          ● {localSessions.length}
+          ● {localSessions.length + agents.length}
         </span>
-        <button
-          onClick={onToggleHQ}
-          title="기본 모드로 전환"
-          style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12 }}
-        >
-          ✕
-        </button>
       </div>
 
-      {/* 카드 리스트 */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '8px 10px' }}>
+      {/* 서브에이전트 카드 */}
+      <div style={{ flex: 1, overflow: 'auto', padding: '10px 12px' }}>
+        {agents.length === 0 && localSessions.length === 0 && (
+          <div style={{ padding: '24px 8px', textAlign: 'center', color: 'rgba(200,210,240,0.65)', fontSize: 12, fontFamily: 'var(--font-mono)' }}>
+            <div style={{ marginBottom: 10, fontSize: 20, opacity: 0.4 }}>◌</div>
+            NO ACTIVE AGENTS
+            <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(200,210,240,0.5)', lineHeight: 1.6 }}>
+              Claude가 Task 툴을 사용할 때<br/>서브에이전트가 여기에 표시됩니다
+            </div>
+          </div>
+        )}
+        {agents.map(agent => (
+          <div
+            key={agent.id}
+            style={{
+              border: `1px solid ${agent.status === 'running' ? 'rgba(0,152,255,0.5)' : agent.status === 'error' ? 'rgba(244,71,71,0.4)' : 'rgba(63,185,80,0.4)'}`,
+              borderRadius: 6,
+              padding: '10px 12px',
+              marginBottom: 8,
+              background: agent.status === 'running' ? 'rgba(0,152,255,0.06)' : 'rgba(0,0,0,0.2)',
+              boxShadow: agent.status === 'running' ? '0 0 12px rgba(0,152,255,0.2)' : 'none',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <span style={{
+                fontSize: 10,
+                color: agent.status === 'running' ? '#4db8ff' : agent.status === 'error' ? '#f44747' : '#3fb950',
+                animation: agent.status === 'running' ? 'hq-blink 0.6s infinite' : 'none',
+              }}>●</span>
+              <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-mono)', color: '#e0e8ff', letterSpacing: '0.5px' }}>
+                {agent.status === 'running' ? 'RUNNING' : agent.status === 'error' ? 'ERROR' : 'DONE'}
+              </span>
+              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(200,210,240,0.65)' }}>
+                {Math.floor((Date.now() - agent.startTime) / 1000)}s
+              </span>
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(225,230,255,0.85)', lineHeight: 1.5, wordBreak: 'break-word' }}>
+              {agent.description}
+            </div>
+            {agent.output && agent.status !== 'running' && (
+              <div style={{ marginTop: 5, fontSize: 11, color: 'rgba(200,210,240,0.65)', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                → {agent.output}
+              </div>
+            )}
+          </div>
+        ))}
         {localSessions.map(s => (
           <AgentCard
             key={s.id}
@@ -249,25 +281,21 @@ export function AgentBay({ sessions = [], activeSessionId, isStreaming = false, 
         ))}
       </div>
 
-      {/* SPAWN AGENT 버튼 */}
-      <button
-        onClick={onNewSession}
-        style={{
-          margin: '8px 10px',
-          padding: '8px',
-          border: '1px dashed rgba(0,152,255,0.4)',
-          borderRadius: 6,
-          background: 'transparent',
-          color: '#0098ff',
-          fontSize: 11,
-          cursor: 'pointer',
-          fontFamily: 'var(--font-mono)',
-          letterSpacing: '0.5px',
-          flexShrink: 0,
-        }}
-      >
-        + SPAWN AGENT
-      </button>
+      {/* 안내 메시지 */}
+      <div style={{
+        margin: '0 12px 10px',
+        padding: '8px 10px',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 4,
+        background: 'rgba(255,255,255,0.03)',
+        fontSize: 11,
+        color: 'rgba(200,210,240,0.6)',
+        fontFamily: 'var(--font-mono)',
+        lineHeight: 1.6,
+        flexShrink: 0,
+      }}>
+        Claude가 Task 툴을 사용하면<br/>서브에이전트가 자동 등록됩니다
+      </div>
     </div>
   )
 }

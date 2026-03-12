@@ -83,6 +83,15 @@ function routeRequest(method, url, body, res) {
     return;
   }
 
+  // GET /scene/canvas-size
+  if (method === 'GET' && url === '/scene/canvas-size') {
+    Editor.Scene.callSceneScript('cc-ws-extension', 'getCanvasSize', {}, (err, result) => {
+      if (err) { res.writeHead(500); res.end(JSON.stringify({ error: String(err) })); return; }
+      res.writeHead(200); res.end(JSON.stringify(result));
+    });
+    return;
+  }
+
   // GET /status
   if (method === 'GET' && url === '/status') {
     res.writeHead(200); res.end(JSON.stringify({ ok: true, version: '2x', port: PORT }));

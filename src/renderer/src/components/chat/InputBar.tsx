@@ -44,6 +44,10 @@ declare global {
 interface InputBarProps {
   onSend: (text: string) => void
   onInterrupt: () => void
+  onPause?: () => void
+  onResume?: () => void
+  isPaused?: boolean
+  pausedTask?: string | null
   isStreaming: boolean
   disabled: boolean
   focusTrigger?: number
@@ -141,7 +145,7 @@ function parseMention(text: string, cursorPos: number): string | null {
   return atMatch ? atMatch[1] : null
 }
 
-export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrigger, pendingInsert, onPendingInsertConsumed }: InputBarProps) {
+export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pausedTask, isStreaming, disabled, focusTrigger, pendingInsert, onPendingInsertConsumed }: InputBarProps) {
   const [text, setText] = useState<string>(() => localStorage.getItem(DRAFT_KEY) ?? '')
   const [slashSelected, setSlashSelected] = useState(0)
   const [previewImages, setPreviewImages] = useState<{ dataUrl: string; path: string }[]>([])
@@ -614,6 +618,39 @@ export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrig
   const isNavigating = historyIdxRef.current >= 0
 
   return (
+    <>
+    {isPaused && (
+      <div style={{
+        padding: '8px 12px',
+        background: 'rgba(251,191,36,0.08)',
+        borderTop: '1px solid rgba(251,191,36,0.3)',
+        display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
+      }}>
+        <span style={{ fontSize: 13 }}>⏸</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 10, color: '#fbbf24', fontWeight: 600, marginBottom: 2 }}>작업 저장됨</div>
+          {pausedTask && (
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {pausedTask}
+            </div>
+          )}
+        </div>
+        <button
+          onClick={onResume}
+          style={{
+            padding: '4px 12px', background: '#fbbf24', color: '#000',
+            borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer', flexShrink: 0,
+          }}
+        >▶ 재개</button>
+        <button
+          onClick={onInterrupt}
+          style={{
+            padding: '4px 8px', background: 'transparent', color: 'var(--text-muted)',
+            border: '1px solid var(--border)', borderRadius: 4, fontSize: 11, cursor: 'pointer', flexShrink: 0,
+          }}
+        >✕ 취소</button>
+      </div>
+    )}
     <div
       onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
       onDragLeave={() => setIsDragging(false)}
@@ -1196,19 +1233,37 @@ export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrig
       </select>
 
       {isStreaming ? (
-        <button
-          onClick={onInterrupt}
-          style={{
-            padding: '8px 14px',
-            background: 'var(--error)',
-            color: '#fff',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: 12,
-            flexShrink: 0,
-          }}
-        >
-          Stop
-        </button>
+        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+          <button
+            onClick={isPaused ? onResume : onPause}
+            style={{
+              padding: '8px 12px',
+              background: isPaused ? 'var(--accent)' : 'var(--bg-tertiary)',
+              color: isPaused ? '#fff' : 'var(--text-muted)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: 12,
+              cursor: 'pointer',
+            }}
+            title={isPaused ? '재개 (Resume)' : '일시정지 (Pause)'}
+          >
+            {isPaused ? '▶ Resume' : '⏸ Pause'}
+          </button>
+          <button
+            onClick={onInterrupt}
+            style={{
+              padding: '8px 12px',
+              background: 'var(--error)',
+              color: '#fff',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: 12,
+              cursor: 'pointer',
+            }}
+            title="중지 (Stop)"
+          >
+            ⏹ Stop
+          </button>
+        </div>
       ) : (
         <button
           onClick={handleSend}
@@ -1227,6 +1282,7 @@ export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrig
         </button>
       )}
     </div>
+    </>
   )
 }
 

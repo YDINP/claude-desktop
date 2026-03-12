@@ -21,6 +21,7 @@ export default defineConfig({
             'vendor-markdown': ['react-markdown', 'remark-gfm'],
             'vendor-terminal': ['@xterm/xterm', '@xterm/addon-fit'],
             'vendor-mermaid': ['mermaid'],
+            'vendor-monaco': ['monaco-editor', '@monaco-editor/react'],
           }
         }
       }

@@ -10,12 +10,12 @@ export interface CCContext {
 
 function nodeToContextString(node: CCNode, depth = 0): string {
   const indent = '  '.repeat(depth)
-  const components = node.components.map(c => c.type.replace('cc.', '')).join(', ')
-  let line = `${indent}├── ${node.name}`
+  const components = (node.components ?? []).map(c => c.type.replace('cc.', '')).join(', ')
+  let line = `${indent}├── ${node.name ?? '?'}`
   if (components) line += ` [${components}]`
-  line += ` (${Math.round(node.position.x)}, ${Math.round(node.position.y)})`
+  if (node.position) line += ` (${Math.round(node.position.x)}, ${Math.round(node.position.y)})`
   if (!node.active) line += ' [inactive]'
-  const children = node.children.map(c => nodeToContextString(c, depth + 1)).join('\n')
+  const children = (node.children ?? []).map(c => nodeToContextString(c, depth + 1)).join('\n')
   return children ? `${line}\n${children}` : line
 }
 
@@ -61,7 +61,7 @@ export function useCCContext(): CCContext {
         `Scene Root: ${sceneTree.name}`,
         nodeToContextString(sceneTree),
         selectedNode
-          ? `\nSelected Node: ${selectedNode.name} (uuid: ${selectedNode.uuid})\n  position: (${Math.round(selectedNode.position.x)}, ${Math.round(selectedNode.position.y)})\n  size: ${Math.round(selectedNode.size.width)}x${Math.round(selectedNode.size.height)}\n  opacity: ${selectedNode.opacity}`
+          ? `\nSelected Node: ${selectedNode.name} (uuid: ${selectedNode.uuid})${selectedNode.position ? `\n  position: (${Math.round(selectedNode.position.x)}, ${Math.round(selectedNode.position.y)})` : ''}${selectedNode.size ? `\n  size: ${Math.round(selectedNode.size.width)}x${Math.round(selectedNode.size.height)}` : ''}\n  opacity: ${selectedNode.opacity ?? 255}`
           : '',
       ].filter(Boolean).join('\n')
     : ''

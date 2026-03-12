@@ -53,6 +53,7 @@ interface SessionMeta {
   tags?: string[]
   locked?: boolean
   collection?: string
+  forkedFrom?: string
 }
 
 async function readIndex(): Promise<SessionMeta[]> {
@@ -72,8 +73,8 @@ async function buildIndexFromDisk(): Promise<SessionMeta[]> {
   const results = await Promise.all(
     files.map(async f => {
       try {
-        const s = JSON.parse(await readFile(join(sessionsDir, f), 'utf8')) as StoredSession & { pinned?: boolean; tags?: string[]; locked?: boolean; collection?: string }
-        return { id: s.id, title: s.title, cwd: s.cwd, model: s.model, updatedAt: s.updatedAt, createdAt: s.createdAt, messageCount: s.messages.length, pinned: s.pinned, tags: s.tags, locked: s.locked, collection: s.collection }
+        const s = JSON.parse(await readFile(join(sessionsDir, f), 'utf8')) as StoredSession & { pinned?: boolean; tags?: string[]; locked?: boolean; collection?: string; forkedFrom?: string }
+        return { id: s.id, title: s.title, cwd: s.cwd, model: s.model, updatedAt: s.updatedAt, createdAt: s.createdAt, messageCount: s.messages.length, pinned: s.pinned, tags: s.tags, locked: s.locked, collection: s.collection, forkedFrom: s.forkedFrom }
       } catch { return null }
     })
   )
@@ -111,6 +112,7 @@ export function registerSessionHandlers() {
       pinned: existingEntry?.pinned,
       tags: existingEntry?.tags,
       locked: existingEntry?.locked,
+      forkedFrom: existingEntry?.forkedFrom,
     }
     const idx = index.findIndex(s => s.id === session.id)
     if (idx >= 0) index[idx] = meta
@@ -333,6 +335,7 @@ export function registerSessionHandlers() {
         updatedAt: now,
         createdAt: now,
         messageCount: messages.length,
+        forkedFrom: sourceSessionId,
       }
       index.unshift(meta)
       await writeIndex(index)

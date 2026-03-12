@@ -20,6 +20,8 @@ import { CommandPalette } from './components/shared/CommandPalette'
 import { KeyboardShortcutsOverlay } from './components/shared/KeyboardShortcutsOverlay'
 import { SettingsPanel } from './components/shared/SettingsPanel'
 import { Lightbox } from './components/shared/Lightbox'
+import { WebPreviewPanel } from './components/sidebar/WebPreviewPanel'
+import { SceneViewPanel } from './components/sidebar/SceneView/SceneViewPanel'
 import { playCompletionSound } from './utils/sound'
 import { applyCustomCSS } from './utils/css'
 import { ToastContainer } from './components/shared/ToastContainer'
@@ -28,13 +30,23 @@ import { toast } from './utils/toast'
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type FileTab = string  // file path
-type MainTab = 'chat' | FileTab
+type MainTab = 'chat' | 'scene' | 'preview' | FileTab
+
+interface ActiveAgent {
+  id: string
+  description: string
+  status: 'running' | 'completed' | 'error'
+  startTime: number
+  output?: string
+}
 
 interface WorkspaceSnapshot {
   messages: ChatMessage[]
   sessionId: string | null
   openTabs: MainTab[]
   activeTab: MainTab
+  ccPort?: number
+  webPreviewUrl?: string
 }
 
 interface Workspace {
@@ -329,7 +341,10 @@ function FileTabBar({ tabs, active, onSelect, onClose }: {
     }}>
       {tabs.map(t => {
         const isActive = t === active
-        const label = t === 'chat' ? 'Claude' : (t.split(/[\\/]/).pop() ?? t)
+        const label = t === 'chat' ? 'Claude'
+          : t === 'scene' ? '⬡ 씬뷰'
+          : t === 'preview' ? '🌐 프리뷰'
+          : (t.split(/[\\/]/).pop() ?? t)
         return (
           <div
             key={t}
@@ -349,7 +364,7 @@ function FileTabBar({ tabs, active, onSelect, onClose }: {
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {label}
             </span>
-            {t !== 'chat' && (
+            {t !== 'chat' && t !== 'scene' && t !== 'preview' && (
               <span
                 onClick={e => { e.stopPropagation(); onClose(t) }}
                 style={{ opacity: 0.4, fontSize: 14, lineHeight: 1, padding: '0 1px', flexShrink: 0 }}
@@ -380,6 +395,33 @@ function AppContent() {
   const [openTabs, setOpenTabs] = useState<MainTab[]>(['chat'])
   const [activeTab, setActiveTab] = useState<MainTab>('chat')
   const activeTabRef = useRef<MainTab>('chat')
+
+  // ── Per-workspace CC / Preview state ──
+  const [wsCCPort, setWsCCPort] = useState<number>(9090)
+  const [wsWebPreviewUrl, setWsWebPreviewUrl] = useState<string>('')
+  const [wsCCConnected, setWsCCConnected] = useState(false)
+
+  // CC 연결 상태에 따라 scene + preview 탭 추가/제거
+  useEffect(() => {
+    setOpenTabs(prev => {
+      if (wsCCConnected) {
+        let next = prev
+        if (!next.includes('scene')) {
+          next = ['chat', 'scene', ...next.filter(t => t !== 'chat')]
+        }
+        if (!next.includes('preview')) {
+          next = [next[0], next[1], 'preview', ...next.slice(2)]
+        }
+        return next
+      }
+      // 연결 해제 시
+      if (activeTabRef.current === 'scene' || activeTabRef.current === 'preview') {
+        activeTabRef.current = 'chat'
+        setActiveTab('chat')
+      }
+      return prev.filter(t => t !== 'scene' && t !== 'preview')
+    })
+  }, [wsCCConnected])
 
   // ── Terminal ──
   const [terminalOpen, setTerminalOpen] = useState(false)
@@ -432,6 +474,11 @@ function AppContent() {
 
   // ── HQ mode ──
   const [hqMode, setHqMode] = useState(false)
+  const [activeAgents, setActiveAgents] = useState<ActiveAgent[]>([])
+  const [agentBayWidth, setAgentBayWidth] = useState(260)
+  const [isAgentBayDragging, setIsAgentBayDragging] = useState(false)
+  const agentBayDragStartX = useRef(0)
+  const agentBayDragStartW = useRef(0)
 
   useEffect(() => {
     window.api?.settingsGet().then((s: Record<string, unknown>) => {
@@ -442,6 +489,7 @@ function AppContent() {
   const handleToggleHQ = useCallback(() => {
     setHqMode(prev => {
       const next = !prev
+      if (next) setActiveTab('chat')  // HQ 켤 때 chat 탭으로 전환
       window.api?.settingsGet().then(settings => {
         window.api?.settingsSave({ ...settings, hqMode: next })
       }).catch(() => {})
@@ -512,6 +560,7 @@ function AppContent() {
 
   // ── Sidebar tab switcher ref ──
   const sidebarSwitchTabRef = useRef<((tab: SidebarTab) => void) | null>(null)
+  const [activeSidebarIconTab, setActiveSidebarIconTab] = useState<SidebarTab | null>(null)
 
   // ── Session metadata for StatusBar ──
   const [sessionTitle, setSessionTitle] = useState<string | undefined>(undefined)
@@ -605,7 +654,7 @@ function AppContent() {
   projectRef.current = project
 
   // Keep wsStateRef in sync for snapshot saving
-  wsStateRef.current = { messages: chat.messages, sessionId: chat.sessionId, openTabs, activeTab }
+  wsStateRef.current = { messages: chat.messages, sessionId: chat.sessionId, openTabs, activeTab, ccPort: wsCCPort, webPreviewUrl: wsWebPreviewUrl }
 
   // Init: restore all saved workspaces
   useEffect(() => {
@@ -625,7 +674,7 @@ function AppContent() {
         snapshot: {
           messages: [],
           sessionId: null,
-          openTabs: ws.openTabs.length > 0 ? ws.openTabs : ['chat'],
+          openTabs: ws.openTabs.length > 0 ? ws.openTabs.filter((t: string) => t !== 'preview' && t !== 'scene') : ['chat'],
           activeTab: ws.activeTab || 'chat',
         },
       }))
@@ -652,9 +701,12 @@ function AppContent() {
 
   const applySnapshot = (snap: WorkspaceSnapshot, path: string) => {
     chat.hydrate(snap.messages, snap.sessionId)
-    setOpenTabs(snap.openTabs)
+    setOpenTabs(snap.openTabs.filter(t => t !== 'preview' && t !== 'scene'))
     activeTabRef.current = snap.activeTab
     setActiveTab(snap.activeTab)
+    setWsCCPort(snap.ccPort ?? 9090)
+    setWsWebPreviewUrl(snap.webPreviewUrl ?? '')
+    setWsCCConnected(false)
     window.api?.setProject(path)
     project.setProject(path)
   }
@@ -886,11 +938,19 @@ function AppContent() {
         updatedAt: Date.now(),
       }).then(() => window.dispatchEvent(new CustomEvent('session:saved')))
 
-      // Desktop notification when window is not focused
-      if (!document.hasFocus() && 'Notification' in window) {
+      // Desktop notification on session complete
+      if ('Notification' in window) {
         const last = chat.messages.filter(m => m.role === 'assistant').pop()
-        const preview = last?.text?.slice(0, 80)?.replace(/\n/g, ' ') ?? '응답이 완료되었습니다'
-        new window.Notification('Claude', { body: preview, silent: true })
+        const preview = last?.text?.slice(0, 100)?.replace(/\n/g, ' ') ?? '응답이 완료되었습니다'
+        if (Notification.permission === 'granted') {
+          new window.Notification('클로드', { body: preview, silent: false })
+        } else if (Notification.permission === 'default') {
+          Notification.requestPermission().then(perm => {
+            if (perm === 'granted') {
+              new window.Notification('클로드', { body: preview, silent: false })
+            }
+          })
+        }
       }
 
       // Follow-up suggestions
@@ -921,9 +981,25 @@ function AppContent() {
         if (ev.toolName === 'Write' || ev.toolName === 'Edit') {
           trackChangedFile(ev.toolName as string, ev.toolInput)
         }
+        if (ev.toolName === 'Task') {
+          const input = ev.toolInput as Record<string, unknown> | undefined
+          const desc = (input?.description ?? input?.prompt ?? 'Task') as string
+          setActiveAgents(prev => [...prev, {
+            id: ev.toolId as string,
+            description: desc.slice(0, 100),
+            status: 'running',
+            startTime: Date.now(),
+          }])
+        }
       } else if (ev.type === 'tool_end') {
         chat.updateToolUse(ev.toolId as string, ev.toolOutput as string, ev.isError as boolean)
+        setActiveAgents(prev => prev.map(a =>
+          a.id === (ev.toolId as string)
+            ? { ...a, status: (ev.isError as boolean) ? 'error' : 'completed', output: (ev.toolOutput as string)?.slice(0, 200) }
+            : a
+        ))
       } else if (ev.type === 'result') {
+        setTimeout(() => setActiveAgents([]), 5000)
         project.addCost(
           (ev.costUsd as number) ?? 0,
           (ev.inputTokens as number) ?? 0,
@@ -960,6 +1036,7 @@ function AppContent() {
       } else if (ev.type === 'status') {
         // compacting 상태 — 현재는 무시
       } else if (ev.type === 'interrupted') {
+        setActiveAgents([])
         chat.finishStreaming()
       } else if (ev.type === 'error') {
         chat.ensureAssistantMessage()
@@ -1068,21 +1145,46 @@ function AppContent() {
 
   // ── Sidebar drag ──
   const handleSidebarDragMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
     setIsSidebarDragging(true)
     sidebarDragStartX.current = e.clientX
     sidebarDragStartW.current = sidebarWidth
   }
   useEffect(() => {
     if (!isSidebarDragging) return
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'col-resize'
     const onMove = (e: MouseEvent) => {
       const delta = e.clientX - sidebarDragStartX.current
       setSidebarWidth(Math.max(160, Math.min(500, sidebarDragStartW.current + delta)))
     }
-    const onUp = () => setIsSidebarDragging(false)
+    const onUp = () => {
+      setIsSidebarDragging(false)
+      document.body.style.userSelect = ''
+      document.body.style.cursor = ''
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      document.body.style.userSelect = ''
+      document.body.style.cursor = ''
+    }
+  }, [isSidebarDragging])
+
+  // ── AgentBay resize drag ──
+  useEffect(() => {
+    if (!isAgentBayDragging) return
+    const onMove = (e: MouseEvent) => {
+      const delta = e.clientX - agentBayDragStartX.current
+      setAgentBayWidth(Math.max(180, Math.min(480, agentBayDragStartW.current + delta)))
+    }
+    const onUp = () => setIsAgentBayDragging(false)
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)
     return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
-  }, [isSidebarDragging])
+  }, [isAgentBayDragging])
 
   // ── Splitter drag ──
   const handleSplitterMouseDown = (e: React.MouseEvent) => {
@@ -1139,10 +1241,34 @@ function AppContent() {
         chat.clearMessages()
         chat.setSessionId(newId)
       }
-      window.api.claudeResume(newId)
+      // 포크된 세션은 SDK가 UUID를 모르므로 resume 대신 새 세션으로 시작
+      window.api.claudeClose()
       switchToChat()
     }
   }, [chat.sessionId, chat.hydrate, chat.clearMessages, chat.setSessionId])
+
+  // ── Auto-resume last session on startup ──
+  const autoResumedRef = useRef(false)
+  useEffect(() => {
+    if (autoResumedRef.current || workspaces.length === 0 || !activeWsId) return
+    if (chat.messages.length > 0 || chat.sessionId) return
+    autoResumedRef.current = true
+    const activeWs = workspaces.find(w => w.id === activeWsId)
+    if (!activeWs?.path) return
+    window.api?.sessionList().then(async (list: unknown) => {
+      const sessions = (list as Array<{ id: string; updatedAt: number; cwd: string; forkedFrom?: string }>)
+        .filter(s => !s.forkedFrom && s.cwd === activeWs.path)
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+      const recent = sessions[0]
+      if (!recent) return
+      const saved = await window.api.sessionLoad(recent.id) as { messages: ChatMessage[]; title?: string; createdAt?: number } | null
+      if (!saved?.messages?.length) return
+      chat.hydrate(saved.messages as ChatMessage[], recent.id)
+      setSessionTitle(saved.title)
+      setSessionCreatedAt(saved.createdAt)
+      window.api.claudeResume(recent.id)
+    }).catch(() => {})
+  }, [workspaces, activeWsId])
 
   // ── Context compression ──
   const handleCompressContext = useCallback(async () => {
@@ -1180,6 +1306,55 @@ function AppContent() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }} data-hq={hqMode ? 'true' : undefined}>
       <TitleBar onOpenFolder={handleOpenFolder} onOpenPalette={() => setPaletteOpen(true)} theme={theme} onToggleTheme={toggleTheme} sidebarCollapsed={sidebarCollapsed} onToggleSidebar={() => setSidebarCollapsed(c => !c)} onOpenSettings={() => setSettingsOpen(true)} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
 
+      {/* Icon bar — sidebar panel shortcuts + HQ */}
+      <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', flexShrink: 0, height: 28, overflowX: 'auto', scrollbarWidth: 'none' }}>
+        {([
+          { id: 'bookmarks' as SidebarTab, label: '★', title: '북마크' },
+          { id: 'stats' as SidebarTab, label: '📊', title: '통계' },
+          { id: 'snippets' as SidebarTab, label: '📎', title: '스니펫' },
+          { id: 'tasks' as SidebarTab, label: '📋', title: '태스크' },
+          { id: 'calendar' as SidebarTab, label: '📅', title: '캘린더' },
+          { id: 'clipboard' as SidebarTab, label: '🗂️', title: '클립보드' },
+          { id: 'diff' as SidebarTab, label: '🔀', title: '파일 비교' },
+          { id: 'outline' as SidebarTab, label: '📑', title: '아웃라인' },
+          { id: 'plugins' as SidebarTab, label: '🧩', title: '플러그인' },
+          { id: 'connections' as SidebarTab, label: '🔌', title: 'MCP 연결' },
+          { id: 'agent' as SidebarTab, label: '🤖', title: '에이전트' },
+          { id: 'remote' as SidebarTab, label: '🖥️', title: '원격' },
+          { id: 'cocos' as SidebarTab, label: '🎮', title: 'Cocos Creator' },
+
+        ]).map(t => (
+          <button
+            key={t.id}
+            onClick={() => {
+              if (sidebarCollapsed) setSidebarCollapsed(false)
+              sidebarSwitchTabRef.current?.(t.id)
+              setActiveSidebarIconTab(t.id)
+            }}
+            title={t.title}
+            style={{
+              flexShrink: 0, width: 32, height: 28,
+              background: activeSidebarIconTab === t.id ? 'var(--bg-primary)' : 'transparent',
+              color: activeSidebarIconTab === t.id ? 'var(--text-primary)' : t.id === 'bookmarks' && chat.messages.some((m: any) => m.bookmarked) ? '#fbbf24' : 'var(--text-muted)',
+              borderBottom: activeSidebarIconTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
+              fontSize: 14, cursor: 'pointer', transition: 'all 0.1s',
+            }}
+          >{t.label}</button>
+        ))}
+        <div style={{ flex: 1 }} />
+        <button
+          onClick={handleToggleHQ}
+          title={hqMode ? '기본 모드로 전환 (Ctrl+Shift+H)' : 'HQ Mode (Ctrl+Shift+H)'}
+          style={{
+            flexShrink: 0, padding: '0 10px', height: 28,
+            background: hqMode ? 'rgba(0,152,255,0.15)' : 'transparent',
+            color: hqMode ? '#0098ff' : 'var(--text-muted)',
+            borderBottom: hqMode ? '2px solid #0098ff' : '2px solid transparent',
+            fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px',
+          }}
+        >⬡ HQ</button>
+      </div>
+
       {/* Workspace tabs */}
       {workspaces.length > 0 && (
         <WorkspaceTabBar
@@ -1198,39 +1373,11 @@ function AppContent() {
         <div style={{
           width: (sidebarCollapsed || focusMode) ? 0 : sidebarWidth,
           background: 'var(--bg-secondary)',
-          display: 'flex', flexShrink: 0, overflow: 'hidden', position: 'relative',
-          transition: 'width 0.15s ease',
+          flexShrink: 0, overflow: 'hidden', position: 'relative',
+          transition: isSidebarDragging ? 'none' : 'width 0.15s ease',
         }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: sidebarWidth }}>
-            {hqMode ? (
-              <AgentBay
-                sessions={[]}
-                activeSessionId={chat.sessionId ?? null}
-                isStreaming={chat.isStreaming}
-                toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-5)}
-                onSelectSession={async (sid: string) => {
-                  const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number } | null
-                  if (saved?.messages?.length) {
-                    chat.hydrate(saved.messages as ChatMessage[], sid)
-                  } else {
-                    chat.clearMessages()
-                    chat.setSessionId(sid)
-                  }
-                  setSessionTitle(saved?.title)
-                  setSessionCreatedAt(saved?.createdAt)
-                  window.api.claudeResume(sid)
-                  switchToChat()
-                }}
-                onNewSession={() => {
-                  chat.clearMessages()
-                  setSessionTitle(undefined)
-                  setSessionCreatedAt(undefined)
-                  window.api.claudeClose()
-                  switchToChat(true)
-                }}
-                onToggleHQ={handleToggleHQ}
-              />
-            ) : (
+          <div style={{ width: sidebarWidth, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+            {(
               <Sidebar
                 activeSessionId={chat.sessionId}
                 changedFiles={changedFiles}
@@ -1245,7 +1392,7 @@ function AppContent() {
                 }}
                 onSessionSelect={async sid => {
                   // Load saved messages immediately for instant display
-                  const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number } | null
+                  const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
                   if (saved?.messages?.length) {
                     chat.hydrate(saved.messages as ChatMessage[], sid)
                   } else {
@@ -1254,7 +1401,12 @@ function AppContent() {
                   }
                   setSessionTitle(saved?.title)
                   setSessionCreatedAt(saved?.createdAt)
-                  window.api.claudeResume(sid)
+                  // 포크된 세션은 SDK가 UUID를 모르므로 새 세션으로 시작
+                  if (saved?.forkedFrom) {
+                    window.api.claudeClose()
+                  } else {
+                    window.api.claudeResume(sid)
+                  }
                   switchToChat()
                 }}
                 onNewChat={() => {
@@ -1268,28 +1420,59 @@ function AppContent() {
                 activeFilePath={activeTab !== 'chat' ? activeTab : undefined}
                 onOpenInSplit={(path) => setSplitFilePath(path)}
                 switchTabRef={sidebarSwitchTabRef}
+                onTabChange={(t) => {
+                  const textTabs: SidebarTab[] = ['files', 'search', 'sessions', 'changes', 'git']
+                  if (textTabs.includes(t)) setActiveSidebarIconTab(null)
+                  else setActiveSidebarIconTab(t)
+                }}
                 onInsertSnippet={(content) => {
                   setPendingInsert(content)
                   if (sidebarCollapsed) setSidebarCollapsed(false)
                   switchToChat()
                 }}
+                wsKey={activeWsId}
+                ccPort={wsCCPort}
+                onCCPortChange={setWsCCPort}
+                onCCConnectedChange={setWsCCConnected}
               />
             )}
           </div>
-          {/* Sidebar resize handle */}
-          {!sidebarCollapsed && !focusMode && (
-            <div
-              onMouseDown={handleSidebarDragMouseDown}
-              onDoubleClick={() => setSidebarWidth(220)}
-              style={{
-                width: 4, flexShrink: 0, cursor: 'col-resize', position: 'relative', zIndex: 10,
-                background: isSidebarDragging ? 'rgba(82,139,255,0.5)' : 'transparent',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(82,139,255,0.5)' }}
-              onMouseLeave={e => { if (!isSidebarDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-            />
-          )}
         </div>
+
+        {/* Sidebar resize handle — 사이드바 밖, 메인 영역 앞 */}
+        {!sidebarCollapsed && !focusMode && (
+          <div
+            onMouseDown={handleSidebarDragMouseDown}
+            onDoubleClick={() => setSidebarWidth(220)}
+            style={{
+              width: 6, flexShrink: 0, cursor: 'col-resize',
+              position: 'relative', zIndex: 20,
+              background: isSidebarDragging ? 'rgba(82,139,255,0.3)' : 'transparent',
+              transition: 'background 0.1s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(82,139,255,0.3)' }}
+            onMouseLeave={e => { if (!isSidebarDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+          >
+            {/* 경계선 */}
+            <div style={{
+              position: 'absolute', top: 0, bottom: 0, left: 2, width: 1,
+              background: isSidebarDragging ? 'var(--accent)' : 'var(--border)',
+              pointerEvents: 'none',
+            }} />
+            {/* 드래그 중 width 툴팁 */}
+            {isSidebarDragging && (
+              <div style={{
+                position: 'absolute', top: 8, left: 8,
+                background: 'var(--accent)', color: '#fff',
+                fontSize: 10, padding: '2px 5px', borderRadius: 3,
+                whiteSpace: 'nowrap', pointerEvents: 'none',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+              }}>
+                {sidebarWidth}px
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Main area */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -1304,15 +1487,91 @@ function AppContent() {
           {/* Content */}
           <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
             <div style={{ position: 'absolute', inset: 0, display: activeTab === 'chat' ? 'flex' : 'none', flexDirection: 'column' }}>
-              <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} />
+              {hqMode ? (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#080810' }}>
+                  <ResourceBar
+                    contextUsage={Math.min(chat.sessionInputTokens / 200000, 1)}
+                    sessionTokens={chat.sessionOutputTokens + chat.sessionInputTokens}
+                    totalCost={project.totalCost}
+                    isStreaming={chat.isStreaming}
+                    model={project.selectedModel ?? ''}
+                    onToggleHQ={handleToggleHQ}
+                    hqMode={hqMode}
+                    cwd={project.currentPath}
+                  />
+                  {/* HQ 중단 영역: AgentBay(좌) + ChatPanel(우) */}
+                  <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+                    <AgentBay
+                      sessions={[]}
+                      agents={activeAgents}
+                      activeSessionId={chat.sessionId ?? null}
+                      isStreaming={chat.isStreaming}
+                      toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-5)}
+                      width={agentBayWidth}
+                      onSelectSession={async (sid: string) => {
+                        const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
+                        if (saved?.messages?.length) {
+                          chat.hydrate(saved.messages as ChatMessage[], sid)
+                        } else {
+                          chat.clearMessages()
+                          chat.setSessionId(sid)
+                        }
+                        setSessionTitle(saved?.title)
+                        setSessionCreatedAt(saved?.createdAt)
+                        if (saved?.forkedFrom) {
+                          window.api.claudeClose()
+                        } else {
+                          window.api.claudeResume(sid)
+                        }
+                        // HQ 모드 유지 — 우측 ChatPanel에 로드됨
+                      }}
+                      onNewSession={() => {
+                        chat.clearMessages()
+                        setSessionTitle(undefined)
+                        setSessionCreatedAt(undefined)
+                        window.api.claudeClose()
+                        // HQ 모드 유지
+                      }}
+                      onToggleHQ={handleToggleHQ}
+                    />
+                    {/* AgentBay 리사이즈 핸들 */}
+                    <div
+                      onMouseDown={(e) => { setIsAgentBayDragging(true); agentBayDragStartX.current = e.clientX; agentBayDragStartW.current = agentBayWidth }}
+                      style={{ width: 4, flexShrink: 0, cursor: 'col-resize', background: isAgentBayDragging ? 'rgba(82,139,255,0.5)' : 'transparent' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(82,139,255,0.5)' }}
+                      onMouseLeave={e => { if (!isAgentBayDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                    />
+                    {/* 우측: 실제 채팅 패널 */}
+                    <div style={{ flex: 1, overflow: 'hidden', borderLeft: '1px solid var(--border)' }}>
+                      <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
+                    </div>
+                  </div>
+                  <OpsFeed
+                    toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-10)}
+                    isStreaming={chat.isStreaming}
+                    onToolClick={(toolId) => console.log('tool clicked:', toolId)}
+                  />
+                </div>
+              ) : (
+                <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
+              )}
             </div>
-            {openTabs.filter(t => t !== 'chat').map(path => (
+            {/* 씬뷰 탭 */}
+            <div style={{ position: 'absolute', inset: 0, display: activeTab === 'scene' ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden' }}>
+              <SceneViewPanel connected={wsCCConnected} wsKey={activeWsId} port={wsCCPort} />
+            </div>
+            {/* 웹 프리뷰 탭 */}
+            <div style={{ position: 'absolute', inset: 0, display: activeTab === 'preview' ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden' }}>
+              <WebPreviewPanel key={activeWsId} defaultUrl={wsWebPreviewUrl} onUrlChange={setWsWebPreviewUrl} />
+            </div>
+            {openTabs.filter(t => t !== 'chat' && t !== 'scene' && t !== 'preview').map(path => (
               <div key={path} style={{ position: 'absolute', inset: 0, display: activeTab === path ? 'flex' : 'none', overflow: 'hidden' }}>
                 <div style={{ flex: 1, overflow: 'hidden', minWidth: 0, position: 'relative' }}>
                   <FileViewer
                     path={path}
                     cwd={project.currentPath ?? undefined}
                     onSplitView={splitFilePath ? undefined : (p) => setSplitFilePath(p)}
+                    onAskAI={(prompt) => { setActiveTab('chat'); setPendingInsert(prompt) }}
                   />
                 </div>
                 {splitFilePath && activeTab === path && (
@@ -1321,6 +1580,7 @@ function AppContent() {
                       path={splitFilePath}
                       cwd={project.currentPath ?? undefined}
                       onClose={() => setSplitFilePath(null)}
+                      onAskAI={(prompt) => { setActiveTab('chat'); setPendingInsert(prompt) }}
                     />
                   </div>
                 )}
@@ -1361,43 +1621,22 @@ function AppContent() {
         </div>
       </div>
 
-      {hqMode ? (
-        <ResourceBar
-          contextUsage={Math.min((project.totalInputTokens + project.totalOutputTokens) / 200000, 1)}
-          sessionTokens={chat.sessionOutputTokens + chat.sessionInputTokens}
-          totalCost={project.totalCost}
-          isStreaming={chat.isStreaming}
-          model={project.selectedModel ?? ''}
-          onToggleHQ={handleToggleHQ}
-          hqMode={hqMode}
-          cwd={project.currentPath}
-        />
-      ) : (
-        <StatusBar
-          model={project.selectedModel}
-          totalCost={project.totalCost}
-          totalInputTokens={project.totalInputTokens}
-          totalOutputTokens={project.totalOutputTokens}
-          inputTokens={chat.sessionInputTokens}
-          outputTokens={chat.sessionOutputTokens}
-          cwd={project.currentPath}
-          onShowShortcuts={() => setShortcutsOpen(true)}
-          contextUsage={Math.min((project.totalInputTokens + project.totalOutputTokens) / 200000, 1)}
-          messageCount={chat.messages.length}
-          chatFontSize={chatFontSize}
-          sessionId={chat.sessionId ?? undefined}
-          sessionTitle={sessionTitle}
-          sessionCreatedAt={sessionCreatedAt}
-        />
-      )}
-
-      {hqMode && (
-        <OpsFeed
-          toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-10)}
-          isStreaming={chat.isStreaming}
-          onToolClick={(toolId) => console.log('tool clicked:', toolId)}
-        />
-      )}
+      <StatusBar
+        model={project.selectedModel}
+        totalCost={project.totalCost}
+        totalInputTokens={project.totalInputTokens}
+        totalOutputTokens={project.totalOutputTokens}
+        inputTokens={chat.sessionInputTokens}
+        outputTokens={chat.sessionOutputTokens}
+        cwd={project.currentPath}
+        onShowShortcuts={() => setShortcutsOpen(true)}
+        contextUsage={Math.min(chat.sessionInputTokens / 200000, 1)}
+        messageCount={chat.messages.length}
+        chatFontSize={chatFontSize}
+        sessionId={chat.sessionId ?? undefined}
+        sessionTitle={sessionTitle}
+        sessionCreatedAt={sessionCreatedAt}
+      />
 
       {chat.pendingPermission && (
         <PermissionModal
@@ -1420,7 +1659,7 @@ function AppContent() {
       {paletteOpen && (
         <CommandPalette
           onClose={() => setPaletteOpen(false)}
-          openTabs={openTabs.filter(t => t !== 'chat')}
+          openTabs={openTabs.filter(t => t !== 'chat' && t !== 'preview' && t !== 'scene')}
           onSelectSession={async sid => {
             const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[] } | null
             if (saved?.messages?.length) {

@@ -6,7 +6,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter/dist/esm/prism'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 const MermaidBlock = lazy(() => import('./MermaidBlock').then(m => ({ default: m.MermaidBlock })))
 import { clipboardStore } from '../../utils/clipboard-store'
@@ -693,7 +693,7 @@ interface ContextMenu {
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '🤔', '🎉']
 
-export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo }: {
+export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onSetNote }: {
   msg: ChatMessage
   isLast?: boolean
   isStreaming?: boolean
@@ -771,9 +771,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
     if (translated) { setTranslated(null); return }
     setTranslateLoading(true)
     try {
-      const korCount = (msg.text.match(/[가-힣]/g) ?? []).length
-      const targetLang = korCount > msg.text.length * 0.1 ? 'en' : 'ko'
-      const result = await window.api.translate(msg.text, targetLang)
+      const result = await window.api.translate(msg.text, 'ko')
       setTranslated(result)
     } catch (e) {
       console.error('translate failed', e)
