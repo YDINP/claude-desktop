@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 228: R326 신규 기능 ───────────────────────────────
+console.log('\n## 228. 신규 기능 파일 검사 (R326)')
+// PromptChainPanel 체인 복제 버튼 (Round 326)
+const pcp326Path = join(ROOT, 'src/renderer/src/components/sidebar/PromptChainPanel.tsx')
+if (existsSync(pcp326Path)) {
+  const pcp326 = readFileSync(pcp326Path, 'utf-8')
+  if (pcp326.includes('duplicateChain') && pcp326.includes('(복사)') && pcp326.includes('체인 복제')) {
+    log('pass', 'Round326', 'PromptChainPanel: 체인 복제 버튼 (duplicateChain/복사/📋) 존재')
+  } else {
+    log('warning', 'Round326', 'PromptChainPanel 복제 버튼 미구현', 'sidebar/PromptChainPanel.tsx')
+  }
+}
+
 // ── Section 227: R325 신규 기능 ───────────────────────────────
 console.log('\n## 227. 신규 기능 파일 검사 (R325)')
 // NodePropertyPanel 컴포넌트 전체 펼치기/접기 (Round 325)

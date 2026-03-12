@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 326] — 2026-03-13
+### Added
+- PromptChainPanel: 체인 탭에 📋 복제 버튼 추가 — 스텝 전체 복사 후 `(복사)` 접미사로 새 체인 생성
+
 ## [Round 325] — 2026-03-13
 ### Added
 - NodePropertyPanel: 컴포넌트 2개 이상일 때 ⊕/⊖ 전체 펼치기/접기 버튼 추가 (allOpen 기반)

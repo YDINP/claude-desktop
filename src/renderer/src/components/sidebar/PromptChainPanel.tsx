@@ -197,6 +197,26 @@ export function PromptChainPanel() {
     persist(chains.map(c => c.id === id ? { ...c, name } : c))
   }
 
+  const duplicateChain = (id: string) => {
+    const chain = chains.find(c => c.id === id)
+    if (!chain) return
+    const ts = Date.now()
+    const copy: PromptChain = {
+      id: `chain-${ts}-${Math.random().toString(36).slice(2, 6)}`,
+      name: `${chain.name} (복사)`,
+      steps: chain.steps.map(s => ({
+        ...s,
+        id: `step-${ts}-${Math.random().toString(36).slice(2, 6)}`,
+        status: 'idle' as const,
+        result: undefined,
+        elapsed: undefined,
+      })),
+    }
+    const next = [...chains, copy]
+    persist(next)
+    setSelectedId(copy.id)
+  }
+
   // ── Step helpers ────────────────────────────────────────────────────────
   const updateChain = (chainId: string, updater: (c: PromptChain) => PromptChain) => {
     persist(chains.map(c => c.id === chainId ? updater(c) : c))
@@ -372,6 +392,16 @@ export function PromptChainPanel() {
                 onDoubleClick={() => renameChain(c.id)}
               >
                 {c.name}
+              </button>
+              <button
+                onClick={() => duplicateChain(c.id)}
+                style={{
+                  ...btnBase, padding: '2px 4px', fontSize: 10,
+                  background: 'transparent', color: 'var(--text-muted)',
+                }}
+                title="체인 복제"
+              >
+                📋
               </button>
               <button
                 onClick={() => deleteChain(c.id)}
