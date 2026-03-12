@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 104: R202 신규 기능 ───────────────────────────────
+console.log('\n## 104. 신규 기능 파일 검사 (R202)')
+// SceneView 픽셀 눈금자 (Round 202)
+const svp202Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp202Path)) {
+  const svp202 = readFileSync(svp202Path, 'utf-8')
+  if (svp202.includes('showRuler') && svp202.includes('눈금자') && svp202.includes('RULER_SIZE')) {
+    log('pass', 'Round202', 'SceneView: 픽셀 눈금자 (R 키 토글) 존재')
+  } else {
+    log('warning', 'Round202', 'SceneView 픽셀 눈금자 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 103: R201 신규 기능 ───────────────────────────────
 console.log('\n## 103. 신규 기능 파일 검사 (R201)')
 // SceneView N/E/S/W 측면 리사이즈 핸들 (Round 201)

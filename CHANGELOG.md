@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 202] — 2026-03-13
+### Added
+- SceneView: 픽셀 눈금자 (R 키 토글) — 상단/좌측 Cocos 좌표 눈금자, 줌 반응형 틱 간격
+
 ## [Round 201] — 2026-03-13
 ### Added
 - SceneView: N/E/S/W 측면 리사이즈 핸들 추가 — 파란 핸들로 단일 축 크기 조절

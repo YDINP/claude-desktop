@@ -24,6 +24,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 뷰 상태 ────────────────────────────────────────────────
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 1 })
   const [activeTool, setActiveTool] = useState<'select' | 'move'>('select')
+  const [showRuler, setShowRuler] = useState(false)
   const [gridVisible, setGridVisible] = useState(true)
   const [snapEnabled, setSnapEnabled] = useState(false)
   const [showHierarchy, setShowHierarchy] = useState(false)
@@ -196,6 +197,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.key === 'f' || e.key === 'F') handleFit()
       if (e.key === 'g' || e.key === 'G') handleFocusSelected()
       if (e.key === 'm' || e.key === 'M') setShowMinimap(v => !v)
+      if (e.key === 'r' || e.key === 'R') setShowRuler(v => !v)
       if (e.key === 'n' || e.key === 'N') handleCreateNode()
       // Tab / Shift+Tab: 형제 노드 순환 선택
       if (e.key === 'Tab' && selectedUuid) {
@@ -1161,6 +1163,47 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             )
           })()}
 
+          {/* 픽셀 눈금자 (R 키 토글) */}
+          {showRuler && containerRef.current && (() => {
+            const cw = containerRef.current!.clientWidth
+            const ch = containerRef.current!.clientHeight
+            const RULER_SIZE = 16
+            const ox = DESIGN_W / 2 * view.zoom + view.offsetX
+            const oy = DESIGN_H / 2 * view.zoom + view.offsetY
+            // 줌에 맞춰 적당한 틱 간격 계산 (10, 20, 50, 100, ...)
+            const steps = [5, 10, 20, 50, 100, 200, 500]
+            const minPx = 40
+            const step = steps.find(s => s * view.zoom >= minPx) ?? 500
+            const hTicks: Array<{ cocos: number; px: number }> = []
+            const startX = Math.ceil((-ox / view.zoom) / step) * step
+            for (let cx2 = startX; cx2 * view.zoom + ox <= cw; cx2 += step) hTicks.push({ cocos: cx2, px: cx2 * view.zoom + ox })
+            const vTicks: Array<{ cocos: number; py: number }> = []
+            const startY = Math.ceil((-oy / view.zoom) / step) * step
+            for (let cy2 = startY; cy2 * view.zoom + oy <= ch; cy2 += step) vTicks.push({ cocos: -cy2, py: cy2 * view.zoom + oy })
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                {/* 수평 눈금자 (상단) */}
+                <rect x={RULER_SIZE} y={0} width={cw} height={RULER_SIZE} fill="rgba(30,30,35,0.85)" />
+                {hTicks.map(t => (
+                  <g key={`h${t.cocos}`}>
+                    <line x1={t.px} y1={RULER_SIZE - 6} x2={t.px} y2={RULER_SIZE} stroke="rgba(180,180,200,0.7)" strokeWidth={1} />
+                    <text x={t.px + 2} y={RULER_SIZE - 7} fill="rgba(180,180,200,0.7)" fontSize={8} fontFamily="monospace">{t.cocos}</text>
+                  </g>
+                ))}
+                {/* 수직 눈금자 (좌측) */}
+                <rect x={0} y={RULER_SIZE} width={RULER_SIZE} height={ch} fill="rgba(30,30,35,0.85)" />
+                {vTicks.map(t => (
+                  <g key={`v${t.cocos}`} transform={`translate(${RULER_SIZE},${t.py}) rotate(-90)`}>
+                    <line x1={0} y1={0} x2={0} y2={-6} stroke="rgba(180,180,200,0.7)" strokeWidth={1} />
+                    <text x={2} y={-7} fill="rgba(180,180,200,0.7)" fontSize={8} fontFamily="monospace">{t.cocos}</text>
+                  </g>
+                ))}
+                {/* 코너 사각형 */}
+                <rect x={0} y={0} width={RULER_SIZE} height={RULER_SIZE} fill="rgba(30,30,35,0.95)" />
+              </g>
+            )
+          })()}
+
           {/* 씬 그룹 */}
           <g transform={sceneTransform}>
             {/* 씬 경계 */}
@@ -1728,6 +1771,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Alt+↑/↓', '부모/첫 자식 노드 선택'],
               ['Ctrl+←/→', '회전 1° (Shift: 10°)'],
               ['M', '미니맵 토글'],
+              ['R', '눈금자 토글'],
               ['N', '새 노드 생성'],
               ['Tab/Shift+Tab', '다음/이전 형제 노드 선택'],
               ['Ctrl+G', '선택 노드 그룹화'],
