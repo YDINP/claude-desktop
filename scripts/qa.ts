@@ -2036,6 +2036,37 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 116: R214 신규 기능 ───────────────────────────────
+console.log('\n## 116. 신규 기능 파일 검사 (R214)')
+// SceneView 노드 태그 (Round 214)
+const types214Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/types.ts')
+if (existsSync(types214Path)) {
+  const types214 = readFileSync(types214Path, 'utf-8')
+  if (types214.includes('tags?: string[]')) {
+    log('pass', 'Round214', 'types.ts: SceneNode.tags 필드 존재')
+  } else {
+    log('warning', 'Round214', 'SceneNode tags 필드 미구현', 'SceneView/types.ts')
+  }
+}
+const insp214Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(insp214Path)) {
+  const insp214 = readFileSync(insp214Path, 'utf-8')
+  if (insp214.includes('onTagsUpdate') && insp214.includes('tagDraft') && insp214.includes('태그')) {
+    log('pass', 'Round214', 'SceneInspector: 태그 입력/삭제 UI 존재')
+  } else {
+    log('warning', 'Round214', 'SceneInspector 태그 UI 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+const nhl214Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nhl214Path)) {
+  const nhl214 = readFileSync(nhl214Path, 'utf-8')
+  if (nhl214.includes('tag:')) {
+    log('pass', 'Round214', 'NodeHierarchyList: tag: 프리픽스 태그 필터 존재')
+  } else {
+    log('warning', 'Round214', 'NodeHierarchyList tag: 필터 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── Section 115: R213 신규 기능 ───────────────────────────────
 console.log('\n## 115. 신규 기능 파일 검사 (R213)')
 // SceneView 스냅 그리드 크기 조정 (Round 213)

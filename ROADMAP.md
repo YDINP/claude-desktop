@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 213 완료 — SceneView 스냅 그리드 크기 조정, Pass 208)
+> 마지막 업데이트: 2026-03-13 (Round 214 완료 — SceneView 노드 태그, Pass 209)
 
 ## 완료된 라운드
 
@@ -165,6 +165,7 @@
 | Round 211 | dev | SceneView 씬 레이아웃 저장/로드 — 💾/📂 버튼, localStorage 저장·복원 | ✅ |
 | Round 212 | dev | SceneView 씬 저장 슬롯 3개 — 슬롯 드롭다운, 전환 시 자동 저장 | ✅ |
 | Round 213 | dev | SceneView 스냅 그리드 크기 조정 — 드롭다운으로 1~50px 선택 | ✅ |
+| Round 214 | dev | SceneView 노드 태그 — Inspector 태그 추가/삭제, 계층 트리 tag: 필터 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

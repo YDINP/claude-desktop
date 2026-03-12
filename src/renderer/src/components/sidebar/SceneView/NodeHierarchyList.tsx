@@ -231,9 +231,18 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
   }
 
   const filteredNodes = searchQuery.trim()
-    ? [...nodeMap.values()].filter(n =>
-        n.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    ? (() => {
+        const q = searchQuery.trim()
+        if (q.startsWith('tag:')) {
+          const tag = q.slice(4).trim().toLowerCase()
+          return [...nodeMap.values()].filter(n =>
+            (n.tags ?? []).some(t => t.toLowerCase().includes(tag))
+          )
+        }
+        return [...nodeMap.values()].filter(n =>
+          n.name.toLowerCase().includes(q.toLowerCase())
+        )
+      })()
     : null
 
   return (

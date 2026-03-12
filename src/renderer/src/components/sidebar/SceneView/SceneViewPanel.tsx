@@ -1960,6 +1960,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         selectionCount={selectionCount}
         onRename={handleRename}
         onMemo={(uuid, memo) => updateNode(uuid, { memo })}
+        onTagsUpdate={(uuid, tags) => updateNode(uuid, { tags })}
         onColorUpdate={handleColorUpdate}
         focusNameTrigger={inspectorNameFocus}
         nodeMap={nodeMap}

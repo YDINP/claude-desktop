@@ -10,6 +10,7 @@ interface SceneInspectorProps {
   selectionCount?: number
   onRename?: (uuid: string, name: string) => void
   onMemo?: (uuid: string, memo: string) => void
+  onTagsUpdate?: (uuid: string, tags: string[]) => void
   nodeMap?: Map<string, SceneNode>
   onSelectParent?: (uuid: string) => void
   focusNameTrigger?: number
@@ -158,7 +159,7 @@ function ChildList({ childUuids, nodeMap, onSelect }: { childUuids: string[]; no
   )
 }
 
-export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, onTagsUpdate, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -166,6 +167,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
   const [scaleLocked, setScaleLocked] = useState(false)
   const [sizeLocked, setSizeLocked] = useState(false)
   const [memoDraft, setMemoDraft] = useState(node?.memo ?? '')
+  const [tagDraft, setTagDraft] = useState('')
   const nameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { setMemoDraft(node?.memo ?? '') }, [node?.uuid])
@@ -619,6 +621,43 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             boxSizing: 'border-box', fontFamily: 'inherit',
           }}
           onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+        />
+      </div>
+
+      {/* 노드 태그 */}
+      <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>태그</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 4 }}>
+          {(node.tags ?? []).map(tag => (
+            <span key={tag} style={{ fontSize: 9, background: 'var(--accent-dim)', color: 'var(--accent)', borderRadius: 10, padding: '1px 6px', display: 'flex', alignItems: 'center', gap: 2 }}>
+              {tag}
+              <span
+                style={{ cursor: 'pointer', opacity: 0.7, fontSize: 9 }}
+                onClick={() => onTagsUpdate?.(node.uuid, (node.tags ?? []).filter(t => t !== tag))}
+              >×</span>
+            </span>
+          ))}
+        </div>
+        <input
+          value={tagDraft}
+          onChange={e => setTagDraft(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && tagDraft.trim()) {
+              e.preventDefault()
+              const trimmed = tagDraft.trim()
+              if (!(node.tags ?? []).includes(trimmed)) {
+                onTagsUpdate?.(node.uuid, [...(node.tags ?? []), trimmed])
+              }
+              setTagDraft('')
+            }
+          }}
+          placeholder="태그 입력 후 Enter..."
+          style={{
+            width: '100%', fontSize: 10, padding: '2px 5px',
+            background: 'var(--bg-primary)', border: '1px solid var(--border)',
+            borderRadius: 3, color: 'var(--text-primary)', outline: 'none',
+            boxSizing: 'border-box',
+          }}
         />
       </div>
 

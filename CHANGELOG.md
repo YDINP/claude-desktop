@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 214] — 2026-03-13
+### Added
+- SceneView: 노드 태그 — Inspector에서 태그 추가/삭제, 계층 검색에서 `tag:` 프리픽스로 태그 필터
+
 ## [Round 213] — 2026-03-13
 ### Added
 - SceneView: 스냅 그리드 크기 조정 — 1/2/4/5/8/10/16/20/50px 드롭다운 선택, SNAP_GRID를 동적 상태로 전환
