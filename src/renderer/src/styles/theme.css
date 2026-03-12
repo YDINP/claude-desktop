@@ -23,6 +23,7 @@
   --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
   --font-ui: -apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif;
   --chat-font-size: 13px;
+  --chat-line-height: 1.65;
   --radius-sm: 3px;
   --radius-md: 6px;
   --sidebar-width: 240px;

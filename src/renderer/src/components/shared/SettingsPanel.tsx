@@ -317,7 +317,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
         </div>
 
         {/* Tab bar */}
-        <div style={{ display: 'flex', borderBottom: '1px solid #333', marginBottom: 16 }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
           {TABS.map(tab => (
             <button
               key={tab.id}
@@ -328,8 +328,8 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                 cursor: 'pointer',
                 background: 'none',
                 border: 'none',
-                borderBottom: settingsTab === tab.id ? '2px solid var(--accent, #527bff)' : '2px solid transparent',
-                color: settingsTab === tab.id ? '#fff' : '#888',
+                borderBottom: settingsTab === tab.id ? '2px solid var(--accent)' : '2px solid transparent',
+                color: settingsTab === tab.id ? 'var(--text-primary)' : 'var(--text-muted)',
                 marginBottom: -1,
                 transition: 'color 0.15s',
               }}

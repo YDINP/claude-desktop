@@ -112,6 +112,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const contextMenuRef = useRef<HTMLDivElement>(null)
   const [templates, setTemplates] = useState<Array<{ id: string; name: string; description?: string; createdAt: number; messageCount: number }>>([])
   const [templateOpen, setTemplateOpen] = useState(false)
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const refreshTemplates = useCallback(async () => {
     try {
@@ -173,6 +175,18 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [contextMenu])
+
+  // Close more-menu on outside click
+  useEffect(() => {
+    if (!menuOpenId) return
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpenId(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [menuOpenId])
 
   // Escape key to exit selection mode or merge mode
   useEffect(() => {
@@ -424,46 +438,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           background: isSelected ? 'var(--bg-hover)' : isActive ? 'var(--bg-hover)' : 'transparent',
           opacity: dragId === s.id ? 0.4 : 1,
         }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'
-          const btn = (e.currentTarget as HTMLElement).querySelector('.pin-btn') as HTMLElement | null
-          if (btn) btn.style.opacity = '1'
-          const tagBtn = (e.currentTarget as HTMLElement).querySelector('.tag-btn') as HTMLElement | null
-          if (tagBtn) tagBtn.style.opacity = '1'
-          const noteBtn = (e.currentTarget as HTMLElement).querySelector('.note-btn') as HTMLElement | null
-          if (noteBtn) noteBtn.style.opacity = '1'
-          const mdBtn = (e.currentTarget as HTMLElement).querySelector('.export-md-btn') as HTMLElement | null
-          if (mdBtn) mdBtn.style.opacity = '1'
-          const pdfBtn = (e.currentTarget as HTMLElement).querySelector('.export-pdf-btn') as HTMLElement | null
-          if (pdfBtn) pdfBtn.style.opacity = '1'
-          const dupBtn = (e.currentTarget as HTMLElement).querySelector('.duplicate-btn') as HTMLElement | null
-          if (dupBtn) dupBtn.style.opacity = '1'
-          const mergeBtn = (e.currentTarget as HTMLElement).querySelector('.merge-btn') as HTMLElement | null
-          if (mergeBtn) mergeBtn.style.opacity = '1'
-          const lockBtn = (e.currentTarget as HTMLElement).querySelector('.lock-btn') as HTMLElement | null
-          if (lockBtn) lockBtn.style.opacity = '1'
-          handleSessionMouseEnter(s.id)
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLElement).style.background = isActive ? 'var(--bg-hover)' : 'transparent'
-          const btn = (e.currentTarget as HTMLElement).querySelector('.pin-btn') as HTMLElement | null
-          if (btn) btn.style.opacity = s.pinned ? '1' : '0'
-          const tagBtn = (e.currentTarget as HTMLElement).querySelector('.tag-btn') as HTMLElement | null
-          if (tagBtn) tagBtn.style.opacity = '0'
-          const noteBtn = (e.currentTarget as HTMLElement).querySelector('.note-btn') as HTMLElement | null
-          if (noteBtn) noteBtn.style.opacity = noteOpenId === s.id ? '1' : '0'
-          const mdBtn = (e.currentTarget as HTMLElement).querySelector('.export-md-btn') as HTMLElement | null
-          if (mdBtn) mdBtn.style.opacity = '0'
-          const pdfBtn = (e.currentTarget as HTMLElement).querySelector('.export-pdf-btn') as HTMLElement | null
-          if (pdfBtn) pdfBtn.style.opacity = '0'
-          const dupBtn = (e.currentTarget as HTMLElement).querySelector('.duplicate-btn') as HTMLElement | null
-          if (dupBtn) dupBtn.style.opacity = '0'
-          const mergeBtn = (e.currentTarget as HTMLElement).querySelector('.merge-btn') as HTMLElement | null
-          if (mergeBtn) mergeBtn.style.opacity = mergeSourceId === s.id ? '1' : '0'
-          const lockBtn = (e.currentTarget as HTMLElement).querySelector('.lock-btn') as HTMLElement | null
-          if (lockBtn) lockBtn.style.opacity = s.locked ? '1' : '0'
-          handleSessionMouseLeave()
-        }}
+        onMouseEnter={() => handleSessionMouseEnter(s.id)}
+        onMouseLeave={() => handleSessionMouseLeave()}
       >
         {selectionMode && (
           <input
@@ -550,145 +526,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             </div>
           )}
         </div>
+        {/* Pin button */}
         <button
-          className="tag-btn"
-          onClick={(e) => openTagPicker(e, s.id)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-            fontSize: 12,
-            padding: '0 2px',
-            lineHeight: 1,
-            flexShrink: 0,
-            opacity: 0,
-            transition: 'opacity 0.1s',
-          }}
-          title={'\uD0DC\uADF8 \uC124\uC815'}
-        >
-          {'\uD83C\uDFF7'}
-        </button>
-        <button
-          className="note-btn"
-          onClick={(e) => handleNoteOpen(e, s.id)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: noteOpenId === s.id ? 'var(--accent)' : 'var(--text-muted)',
-            cursor: 'pointer',
-            fontSize: 12,
-            padding: '0 2px',
-            lineHeight: 1,
-            flexShrink: 0,
-            opacity: noteOpenId === s.id ? 1 : 0,
-            transition: 'opacity 0.1s',
-          }}
-          title="세션 메모"
-        >
-          {'\uD83D\uDCDD'}
-        </button>
-        <button
-          className="export-md-btn"
-          onClick={async (e) => {
-            e.stopPropagation()
-            const result = await window.api.sessionExportMarkdown(s.id)
-            if (result.success) toast('내보내기 완료', 'success')
-            else if (result.error) toast('내보내기 실패: ' + result.error, 'error')
-          }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-            fontSize: 12,
-            padding: '0 2px',
-            lineHeight: 1,
-            flexShrink: 0,
-            opacity: 0,
-            transition: 'opacity 0.1s',
-          }}
-          title="마크다운으로 내보내기"
-        >
-          {'\uD83D\uDCC4'}
-        </button>
-        <button
-          className="export-pdf-btn"
-          onClick={async (e) => {
-            e.stopPropagation()
-            const result = await window.api.sessionExportPdf(s.id)
-            if (result.success) toast('PDF 내보내기 완료', 'success')
-            else if (result.error) toast('PDF 내보내기 실패: ' + result.error, 'error')
-          }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-            fontSize: 12,
-            padding: '0 2px',
-            lineHeight: 1,
-            flexShrink: 0,
-            opacity: 0,
-            transition: 'opacity 0.1s',
-          }}
-          title="PDF로 내보내기"
-        >
-          {'\uD83D\uDDB8'}
-        </button>
-        <button
-          className="duplicate-btn"
-          onClick={async (e) => {
-            e.stopPropagation()
-            const result = await window.api.sessionDuplicate(s.id)
-            if (result.success) {
-              await refresh()
-              toast('세션이 복제되었습니다', 'success')
-            } else {
-              toast('복제 실패: ' + (result.error ?? ''), 'error')
-            }
-          }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-            fontSize: 12,
-            padding: '0 2px',
-            lineHeight: 1,
-            flexShrink: 0,
-            opacity: 0,
-            transition: 'opacity 0.1s',
-          }}
-          title="세션 복제"
-        >
-          {'\uD83D\uDCC2'}
-        </button>
-        <button
-          className="merge-btn"
-          onClick={(e) => {
-            e.stopPropagation()
-            setMergeMode(true)
-            setMergeSourceId(s.id)
-          }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: mergeSourceId === s.id ? 'var(--accent)' : 'var(--text-muted)',
-            cursor: 'pointer',
-            fontSize: 11,
-            padding: '0 2px',
-            lineHeight: 1,
-            flexShrink: 0,
-            opacity: mergeSourceId === s.id ? 1 : 0,
-            transition: 'opacity 0.1s',
-          }}
-          title="다른 세션에 병합..."
-        >
-          &#x2387;
-        </button>
-        <button
-          className="pin-btn"
           onClick={(e) => handlePin(e, s)}
           style={{
             background: 'none',
@@ -699,53 +538,135 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             padding: '0 2px',
             lineHeight: 1,
             flexShrink: 0,
-            opacity: s.pinned ? 1 : 0,
+            opacity: hoveredSession === s.id || s.pinned ? 1 : 0,
             transition: 'opacity 0.1s',
           }}
-          title={s.pinned ? '\uACE0\uC815 \uD574\uC81C' : '\uC138\uC158 \uACE0\uC815'}
+          title={s.pinned ? '고정 해제' : '세션 고정'}
         >
           {'\uD83D\uDCCC'}
         </button>
-        <button
-          className="lock-btn"
-          onClick={(e) => { e.stopPropagation(); handleToggleLock(s.id, !s.locked) }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: s.locked ? 'var(--accent)' : 'var(--text-muted)',
-            cursor: 'pointer',
-            fontSize: 12,
-            padding: '0 2px',
-            lineHeight: 1,
-            flexShrink: 0,
-            opacity: s.locked ? 1 : 0,
-            transition: 'opacity 0.1s',
-          }}
-          title={s.locked ? '\uC78A\uAE08 \uD574\uC81C' : '\uC138\uC158 \uC78A\uAE08'}
-        >
-          {s.locked ? '\uD83D\uDD12' : '\uD83D\uDD13'}
-        </button>
-        {!s.locked && (
-        <button
-          onClick={(e) => handleDelete(e, s.id)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-            fontSize: 14,
-            padding: '0 4px',
-            lineHeight: 1,
-            flexShrink: 0,
-            opacity: 0.5,
-          }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.color = 'var(--error)' }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.5'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
-          title="Delete session"
-        >
-          &#x2715;
-        </button>
-        )}
+        {/* More menu button */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === s.id ? null : s.id) }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: 14,
+              padding: '0 4px',
+              lineHeight: 1,
+              opacity: hoveredSession === s.id || menuOpenId === s.id ? 1 : 0,
+              transition: 'opacity 0.1s',
+            }}
+            title="더보기"
+          >
+            ⋯
+          </button>
+          {menuOpenId === s.id && (
+            <div
+              ref={menuRef}
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: '100%',
+                zIndex: 100,
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                padding: '4px 0',
+                minWidth: 140,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              }}
+            >
+              {[
+                {
+                  label: '이름 변경',
+                  icon: '✏️',
+                  action: (e: React.MouseEvent) => { setMenuOpenId(null); startRename(e, s) },
+                  disabled: s.locked,
+                },
+                {
+                  label: '복제',
+                  icon: '📂',
+                  action: async (e: React.MouseEvent) => {
+                    e.stopPropagation(); setMenuOpenId(null)
+                    const result = await window.api.sessionDuplicate(s.id)
+                    if (result.success) { await refresh(); toast('세션이 복제되었습니다', 'success') }
+                    else toast('복제 실패: ' + (result.error ?? ''), 'error')
+                  },
+                  disabled: false,
+                },
+                {
+                  label: '병합...',
+                  icon: '⎇',
+                  action: (e: React.MouseEvent) => { e.stopPropagation(); setMenuOpenId(null); setMergeMode(true); setMergeSourceId(s.id) },
+                  disabled: false,
+                },
+                {
+                  label: '메모',
+                  icon: '📝',
+                  action: (e: React.MouseEvent) => { setMenuOpenId(null); handleNoteOpen(e, s.id) },
+                  disabled: false,
+                },
+                {
+                  label: '태그 설정',
+                  icon: '🏷',
+                  action: (e: React.MouseEvent) => { setMenuOpenId(null); openTagPicker(e, s.id) },
+                  disabled: false,
+                },
+                {
+                  label: s.locked ? '잠금 해제' : '세션 잠금',
+                  icon: s.locked ? '🔓' : '🔒',
+                  action: (e: React.MouseEvent) => { e.stopPropagation(); setMenuOpenId(null); handleToggleLock(s.id, !s.locked) },
+                  disabled: false,
+                },
+                {
+                  label: 'MD 내보내기',
+                  icon: '📄',
+                  action: async (e: React.MouseEvent) => {
+                    e.stopPropagation(); setMenuOpenId(null)
+                    const result = await window.api.sessionExportMarkdown(s.id)
+                    if (result.success) toast('내보내기 완료', 'success')
+                    else if (result.error) toast('내보내기 실패: ' + result.error, 'error')
+                  },
+                  disabled: false,
+                },
+                {
+                  label: '삭제',
+                  icon: '✕',
+                  action: (e: React.MouseEvent) => { setMenuOpenId(null); handleDelete(e, s.id) },
+                  disabled: s.locked,
+                  danger: true,
+                },
+              ].map(({ label, icon, action, disabled, danger }) => (
+                <button
+                  key={label}
+                  onClick={action}
+                  disabled={disabled}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '6px 12px',
+                    background: 'none',
+                    border: 'none',
+                    cursor: disabled ? 'default' : 'pointer',
+                    fontSize: 12,
+                    color: disabled ? 'var(--text-muted)' : danger ? 'var(--error)' : 'var(--text-primary)',
+                    opacity: disabled ? 0.4 : 1,
+                    gap: 8,
+                  }}
+                  onMouseEnter={e => { if (!disabled) (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none' }}
+                >
+                  <span style={{ marginRight: 8 }}>{icon}</span>{label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       {noteOpenId === s.id && (
         <div style={{ padding: '6px 12px', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
@@ -806,7 +727,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             position: 'absolute',
             left: 7,
             fontSize: 11,
-            color: '#888',
+            color: 'var(--text-muted)',
             pointerEvents: 'none',
             lineHeight: 1,
           }}>🔍</span>
@@ -816,9 +737,9 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             placeholder="세션 검색..."
             style={{
               width: '100%',
-              background: '#2a2a2a',
-              color: '#ffffff',
-              border: '1px solid #666',
+              background: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
               padding: '4px 24px 4px 24px',
               fontSize: 11,
@@ -834,7 +755,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
                 right: 4,
                 background: 'none',
                 border: 'none',
-                color: '#888',
+                color: 'var(--text-muted)',
                 cursor: 'pointer',
                 fontSize: 13,
                 padding: '0 2px',
@@ -849,7 +770,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           )}
         </div>
         {search && (
-          <div style={{ fontSize: 10, color: '#888', marginTop: 3, paddingLeft: 2 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, paddingLeft: 2 }}>
             {filtered.length}개
           </div>
         )}

@@ -685,8 +685,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       {summaryOpen && (
         <div style={{
           borderBottom: '1px solid var(--border)',
-          background: '#1a2a3a',
-          borderLeft: '4px solid #527bff',
+          background: 'var(--bg-secondary)',
+          borderLeft: '4px solid var(--accent)',
           flexShrink: 0,
         }}>
           <div style={{
@@ -694,16 +694,16 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            borderBottom: summaryLoading ? 'none' : '1px solid rgba(82,123,255,0.2)',
+            borderBottom: summaryLoading ? 'none' : '1px solid var(--border)',
           }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#89b4fa' }}>📝 세션 요약</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)' }}>📝 세션 요약</span>
             <button
               onClick={handleSummarize}
               disabled={summaryLoading}
               title="재생성"
               style={{
                 background: 'none', border: 'none',
-                color: summaryLoading ? 'var(--text-muted)' : '#89b4fa',
+                color: summaryLoading ? 'var(--text-muted)' : 'var(--accent)',
                 fontSize: 11, cursor: summaryLoading ? 'default' : 'pointer', padding: '1px 6px',
               }}
             >🔄 재생성</button>

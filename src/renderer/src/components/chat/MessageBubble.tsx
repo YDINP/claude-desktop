@@ -1220,7 +1220,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
             style={{
               color: 'var(--text-primary)',
               fontSize: 'var(--chat-font-size, 13px)',
-              lineHeight: 1.6,
+              lineHeight: 'var(--chat-line-height, 1.65)',
               wordBreak: 'break-word',
               fontFamily: 'var(--font-ui)',
               cursor: onEditResend && !isStreaming ? 'default' : undefined,
@@ -1237,7 +1237,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
         <div style={{
           color: 'var(--text-primary)',
           fontSize: 'var(--chat-font-size, 13px)',
-          lineHeight: 1.6,
+          lineHeight: 'var(--chat-line-height, 1.65)',
           wordBreak: 'break-word',
           fontFamily: 'var(--font-ui)',
         }}>
