@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 217: R315 신규 기능 ───────────────────────────────
+console.log('\n## 217. 신규 기능 파일 검사 (R315)')
+// TasksPanel 내보내기 버튼 (Round 315)
+const tp315Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp315Path)) {
+  const tp315 = readFileSync(tp315Path, 'utf-8')
+  if (tp315.includes('exportTasks') && tp315.includes('text/markdown') && tp315.includes('Markdown으로 내보내기')) {
+    log('pass', 'Round315', 'TasksPanel: 내보내기 버튼 (exportTasks/text/markdown) 존재')
+  } else {
+    log('warning', 'Round315', 'TasksPanel 내보내기 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 216: R314 신규 기능 ───────────────────────────────
 console.log('\n## 216. 신규 기능 파일 검사 (R314)')
 // StatsPanel 히트맵 활동 일수 표시 (Round 314)

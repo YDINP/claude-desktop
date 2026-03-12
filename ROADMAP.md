@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 314 완료 — StatsPanel 히트맵 활동 일수 표시, Pass 334)
+> 마지막 업데이트: 2026-03-13 (Round 315 완료 — TasksPanel 태스크 내보내기 버튼, Pass 335)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 315 | dev | TasksPanel 내보내기 버튼 — 📤 exportTasks로 우선순위·마감일·메모 포함 Markdown 다운로드 | ✅ |
 | Round 314 | dev | StatsPanel 히트맵 활동 일수 표시 — totalDays/heatmapDays.length로 N일·X% 활동률 헤더 표시 | ✅ |
 | Round 313 | dev | FileTree 전체 접기 버튼 — ⊖ expandedDirs.size>0 일 때 표시, 클릭 시 전체 초기화 | ✅ |
 | Round 312 | dev | NotesPanel 줄 수 표시 — 편집기 하단 N자·M단어 옆에 L줄 추가 (split('\n').length) | ✅ |

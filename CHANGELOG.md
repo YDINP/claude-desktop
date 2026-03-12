@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 315] — 2026-03-13
+### Added
+- TasksPanel: 태스크 Markdown 내보내기 버튼 — 📤 클릭으로 우선순위·마감일·메모 포함한 MD 파일 다운로드
+
 ## [Round 314] — 2026-03-13
 ### Added
 - StatsPanel: 히트맵 헤더에 활동 일수 + 활동률 표시 — `N일 · X%` 형태로 활동 밀도 시각화

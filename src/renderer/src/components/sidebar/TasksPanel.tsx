@@ -75,8 +75,24 @@ export function TasksPanel() {
       return b.createdAt - a.createdAt
     })
   const doneCount = tasks.filter(t => t.done).length
-
   const progressPct = tasks.length > 0 ? Math.round(doneCount / tasks.length * 100) : 0
+
+  const exportTasks = () => {
+    const PRIORITY_LABEL = { high: '🔴', medium: '🟡', low: '🟢' }
+    const lines = tasks.map(t => {
+      const check = t.done ? '[x]' : '[ ]'
+      const prio = PRIORITY_LABEL[t.priority ?? 'medium']
+      const due = t.dueDate ? ` 📅${t.dueDate}` : ''
+      const memo = t.memo ? `\n   > ${t.memo}` : ''
+      return `- ${check} ${prio} ${t.text}${due}${memo}`
+    })
+    const md = `# 태스크 (${new Date().toLocaleDateString('ko-KR')})\n\n${lines.join('\n')}`
+    const blob = new Blob([md], { type: 'text/markdown' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `tasks-${new Date().toISOString().slice(0, 10)}.md`; a.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 8 }}>
@@ -166,6 +182,7 @@ export function TasksPanel() {
           {sortBy === 'created' ? '⏱' : sortBy === 'priority' ? '🔴' : '📅'}
         </button>
         {doneCount > 0 && <button onClick={clearDone} style={{ fontSize: 11, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>완료 정리</button>}
+        {tasks.length > 0 && <button onClick={exportTasks} title="Markdown으로 내보내기" style={{ fontSize: 12, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>📤</button>}
       </div>
 
       {/* Task list */}
