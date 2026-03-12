@@ -173,3 +173,8 @@ export interface AguiRunFinished {
 }
 
 export type AguiEvent = AguiRunStarted | AguiStepStarted | AguiStepFinished | AguiRunFinished
+
+// ── Ollama Local LLM ──────────────────────────────────────────────────────────
+export const OLLAMA_LIST = 'ollama:list'
+export const OLLAMA_SEND = 'ollama:send'
+export const OLLAMA_INTERRUPT = 'ollama:interrupt'

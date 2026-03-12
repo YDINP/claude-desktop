@@ -545,16 +545,27 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
 
   const handleSend = useCallback((text: string) => {
     if (!project.currentPath) return
+    const model = project.selectedModel
+    const prevMessages = chat.messages
     chat.addUserMessage(text)
-    const parts = [customSystemPrompt, projectSummary, ccCtx.contextString, ctxFiles.contextString].filter(Boolean)
-    const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
-    window.api.claudeSend({
-      text,
-      cwd: project.currentPath,
-      model: project.selectedModel,
-      ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
-    })
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage, ccCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString])
+    if (model.startsWith('ollama:')) {
+      const ollamaModel = model.replace('ollama:', '')
+      const history = prevMessages
+        .filter(m => m.text.trim())
+        .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }))
+      history.push({ role: 'user', content: text })
+      window.api.ollamaSend?.({ model: ollamaModel, messages: history })
+    } else {
+      const parts = [customSystemPrompt, projectSummary, ccCtx.contextString, ctxFiles.contextString].filter(Boolean)
+      const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
+      window.api.claudeSend({
+        text,
+        cwd: project.currentPath,
+        model,
+        ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
+      })
+    }
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString])
 
   const PAUSE_STATE_KEY = 'claude:pause-state'
   const [isPaused, setIsPaused] = useState(() => {
@@ -571,9 +582,13 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     setIsPaused(false)
     setPausedTask(null)
     localStorage.removeItem(PAUSE_STATE_KEY)
-    window.api.claudeInterrupt()
+    if (project.selectedModel.startsWith('ollama:')) {
+      window.api.ollamaInterrupt?.()
+    } else {
+      window.api.claudeInterrupt()
+    }
     chat.finishStreaming()
-  }, [chat.finishStreaming])
+  }, [chat.finishStreaming, project.selectedModel])
 
   const handlePause = useCallback(() => {
     window.api.claudeInterrupt()

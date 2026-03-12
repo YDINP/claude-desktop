@@ -6,6 +6,10 @@ contextBridge.exposeInMainWorld('api', {
   claudeSend: (payload: { text: string; cwd: string; model: string; extraSystemPrompt?: string }) =>
     ipcRenderer.send('claude:send', payload),
   claudeInterrupt: () => ipcRenderer.send('claude:interrupt'),
+  ollamaList: () => ipcRenderer.invoke('ollama:list'),
+  ollamaSend: (payload: { model: string; messages: Array<{ role: string; content: string }> }) =>
+    ipcRenderer.send('ollama:send', payload),
+  ollamaInterrupt: () => ipcRenderer.send('ollama:interrupt'),
   claudeClose: () => ipcRenderer.send('claude:close'),
   claudeResume: (sessionId: string) => ipcRenderer.send('claude:resume', { sessionId }),
   claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) =>
@@ -281,6 +285,9 @@ declare global {
     api: {
       claudeSend: (payload: { text: string; cwd: string; model: string; extraSystemPrompt?: string }) => void
       claudeInterrupt: () => void
+      ollamaList: () => Promise<string[]>
+      ollamaSend: (payload: { model: string; messages: Array<{ role: string; content: string }> }) => void
+      ollamaInterrupt: () => void
       claudeClose: () => void
       claudeResume: (sessionId: string) => void
       claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) => void

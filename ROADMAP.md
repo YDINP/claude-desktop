@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 96 완료 — CC SceneView 다중 노드 선택)
+> 마지막 업데이트: 2026-03-12 (Round 97 완료 — Ollama 로컬 LLM 연동)
 
 ## 완료된 라운드
 
@@ -43,14 +43,14 @@
 | Round 94 | dev | AG-UI 이벤트 모델 — run_started/step_started/step_finished/run_finished, agui-store, RunTimeline 탭 | ✅ |
 | Round 95 | dev | QA 강화 — R90~94 신규 기능 7종 체크 추가 (Pass 10→17), Critical 0 / Warning 0 | ✅ |
 | Round 96 | dev | CC SceneView 다중 노드 선택 — Shift-click 멀티셀렉트, 마퀴 선택 rect, 배지/인스펙터 갱신 + CHANGELOG.md 생성 | ✅ |
+| Round 97 | dev | Ollama 로컬 LLM 연동 — ollama-bridge.ts, IPC handlers, InputBar 모델 피커, ChatPanel 라우팅 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 97 | dev | CC 씬뷰 복사/붙여넣기 + 노드 Undo/Redo 스택 |
-| Round 98 | dev | 멀티 AI 프로바이더 — OpenAI/Gemini provider 추상화 레이어 |
-| Round 99 | dev | 로컬 LLM 지원 — Ollama HTTP API 연동, 오프라인 모드 |
+| Round 98 | dev | QA Round 96~97 기능 체크 추가 + SceneView undo/redo 스택 |
+| Round 99 | dev | 멀티 AI 프로바이더 추상화 — provider 인터페이스 + OpenAI 연동 |
 
 ## 전략 로드맵 (Phase)
 

@@ -168,6 +168,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [selectedModel, setSelectedModel] = useState<string>(
     () => localStorage.getItem('selected-model') ?? 'claude-opus-4-6'
   )
+  const [ollamaModels, setOllamaModels] = useState<string[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -182,6 +183,12 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           setSelectedModel(s.selectedModel)
         }
       }
+    }).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    window.api.ollamaList?.().then(models => {
+      setOllamaModels(models)
     }).catch(() => {})
   }, [])
 
@@ -1247,6 +1254,14 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         <option value="claude-opus-4-6">Opus 4</option>
         <option value="claude-sonnet-4-6">Sonnet 4</option>
         <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+        {ollamaModels.length > 0 && (
+          <>
+            <option disabled value="">── Ollama ──</option>
+            {ollamaModels.map(m => (
+              <option key={m} value={`ollama:${m}`}>{m}</option>
+            ))}
+          </>
+        )}
       </select>
 
       {isStreaming ? (

@@ -6,6 +6,7 @@ import { registerTerminalHandlers } from './terminal-handlers'
 import { registerFsHandlers } from './fs-handlers'
 import { registerSessionHandlers } from './session-handlers'
 import { registerCCHandlers } from './cc-handlers'
+import { registerOllamaHandlers } from './ollama-handlers'
 
 export function registerAllHandlers(win: BrowserWindow) {
   const agentBridge = new AgentBridge(win)
@@ -16,6 +17,7 @@ export function registerAllHandlers(win: BrowserWindow) {
   registerFsHandlers(win)
   registerSessionHandlers()
   registerCCHandlers(win)
+  registerOllamaHandlers(win)
 
   win.on('closed', () => {
     ptyManager.closeAll()
