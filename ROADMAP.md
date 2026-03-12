@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 391 완료 — SnippetPanel 내용 펼치기, Pass 411)
+> 마지막 업데이트: 2026-03-13 (Round 392 완료 — CocosPanel 프로젝트 경로 복사, Pass 412)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 392 | dev | CocosPanel 프로젝트 경로 복사 — pathCopied, 프로젝트명 옆 📋, currentPath 복사 | ✅ |
 | Round 391 | dev | SnippetPanel 내용 펼치기 — expandedSnippetId, ▼/▲ 토글, 120자 초과 시 표시 | ✅ |
 | Round 390 | dev | ChangedFilesPanel 전체 경로 복사 — copiedAll, 헤더 📋 버튼, 경로 줄바꿈 복사 | ✅ |
 | Round 389 | dev | SearchPanel 검색 결과 전체 복사 — resultsCopied, 파일경로+L행+내용 형식 클립보드 복사 | ✅ |

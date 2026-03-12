@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 392] — 2026-03-13
+### Added
+- CocosPanel: 프로젝트 경로 복사 버튼 — pathCopied 상태, 프로젝트명 옆 📋 버튼, currentPath 복사
+
 ## [Round 391] — 2026-03-13
 ### Added
 - SnippetPanel: 스니펫 전체 내용 펼치기 — expandedSnippetId 상태, ▼ 펼치기/▲ 접기 토글 (120자 초과 시)

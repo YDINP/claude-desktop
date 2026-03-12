@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 294: R392 신규 기능 ───────────────────────────────
+console.log('\n## 294. 신규 기능 파일 검사 (R392)')
+// CocosPanel 프로젝트 경로 복사 버튼 (Round 392)
+const ccp392Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp392Path)) {
+  const ccp392 = readFileSync(ccp392Path, 'utf-8')
+  if (ccp392.includes('pathCopied') && ccp392.includes('프로젝트 경로 복사')) {
+    log('pass', 'Round392', 'CocosPanel: 프로젝트 경로 복사 버튼 존재')
+  } else {
+    log('warning', 'Round392', 'CocosPanel 경로 복사 미구현', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── Section 293: R391 신규 기능 ───────────────────────────────
 console.log('\n## 293. 신규 기능 파일 검사 (R391)')
 // SnippetPanel 스니펫 전체 내용 펼치기 (Round 391)

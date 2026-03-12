@@ -21,6 +21,7 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
   const [error, setError] = useState<string | null>(null)
   const [detectedProject, setDetectedProject] = useState<{ name: string; version: string; creatorVersion?: string } | null>(null)
   const [reconnectCountdown, setReconnectCountdown] = useState<number | null>(null)
+  const [pathCopied, setPathCopied] = useState(false)
   const [connectedAt, setConnectedAt] = useState<number | null>(null)
   const [uptime, setUptime] = useState<string>('')
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -205,8 +206,17 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
           )}
         </div>
         {detectedProject && (
-          <div style={{ fontSize: 10, color: 'var(--accent)', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            📁 {detectedProject.name}
+          <div style={{ fontSize: 10, color: 'var(--accent)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4, overflow: 'hidden' }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={currentPath ?? ''}>
+              📁 {detectedProject.name}
+            </span>
+            {currentPath && (
+              <button
+                onClick={() => { navigator.clipboard.writeText(currentPath).then(() => { setPathCopied(true); setTimeout(() => setPathCopied(false), 1500) }) }}
+                title="프로젝트 경로 복사"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, padding: '0 2px', color: pathCopied ? '#4caf50' : 'var(--text-muted)', flexShrink: 0 }}
+              >{pathCopied ? '✓' : '📋'}</button>
+            )}
           </div>
         )}
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
