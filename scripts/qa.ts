@@ -2036,6 +2036,21 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 223: R321 신규 기능 ───────────────────────────────
+console.log('\n## 223. 신규 기능 파일 검사 (R321)')
+// ConnectionPanel 헤더 활성 서버 수 배지 (Round 321)
+const cp321Path = join(ROOT, 'src/renderer/src/components/sidebar/ConnectionPanel.tsx')
+if (existsSync(cp321Path)) {
+  const cp321 = readFileSync(cp321Path, 'utf-8')
+  if (cp321.includes("status === 'alive'") && cp321.includes('alive/total') === false && cp321.includes('alive}') && cp321.includes('pinged')) {
+    log('pass', 'Round321', 'ConnectionPanel: 헤더 활성 서버 수 배지 (alive/pinged) 존재')
+  } else if (cp321.includes("status === 'alive'") && cp321.includes('alive') && cp321.includes('pinged')) {
+    log('pass', 'Round321', 'ConnectionPanel: 헤더 활성 서버 수 배지 (alive/pinged) 존재')
+  } else {
+    log('warning', 'Round321', 'ConnectionPanel 헤더 배지 미구현', 'sidebar/ConnectionPanel.tsx')
+  }
+}
+
 // ── Section 222: R320 신규 기능 ───────────────────────────────
 console.log('\n## 222. 신규 기능 파일 검사 (R320)')
 // GitPanel 헤더 변경 파일 수 배지 (Round 320)

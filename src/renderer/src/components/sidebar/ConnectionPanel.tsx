@@ -112,7 +112,20 @@ export function ConnectionPanel() {
         borderBottom: '1px solid var(--border)',
         flexShrink: 0,
       }}>
-        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>MCP 서버</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>MCP 서버</span>
+          {servers.length > 0 && servers.some(s => s.status !== 'unknown') && (() => {
+            const pinged = servers.filter(s => s.status !== 'unknown' && s.status !== 'checking').length
+            const alive = servers.filter(s => s.status === 'alive').length
+            if (pinged === 0) return null
+            const bg = alive === pinged ? '#16a34a' : alive === 0 ? '#dc2626' : '#ca8a04'
+            return (
+              <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 8, background: bg, color: '#fff', fontWeight: 600 }}>
+                {alive}/{pinged}
+              </span>
+            )
+          })()}
+        </div>
         <div style={{ display: 'flex', gap: 4 }}>
           {servers.length > 0 && (
             <button

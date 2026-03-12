@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 321] — 2026-03-13
+### Added
+- ConnectionPanel: 핑 후 헤더에 `N/M 활성` 배지 — 전체 활성 시 초록, 0개 활성 시 빨강, 일부 활성 시 노랑
+
 ## [Round 320] — 2026-03-13
 ### Added
 - GitPanel: 헤더에 변경 파일 수 배지 — staged 있을 때 `N↑` (초록), 없을 때 `N` (회색) 표시
