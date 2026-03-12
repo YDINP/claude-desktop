@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 274: R372 신규 기능 ───────────────────────────────
+console.log('\n## 274. 신규 기능 파일 검사 (R372)')
+// RemotePanel 섹션 호스트 수 (Round 372)
+const rp372Path = join(ROOT, 'src/renderer/src/components/sidebar/RemotePanel.tsx')
+if (existsSync(rp372Path)) {
+  const rp372 = readFileSync(rp372Path, 'utf-8')
+  if (rp372.includes('filteredSsh.length}') && rp372.includes('filteredSaved.length}')) {
+    log('pass', 'Round372', 'RemotePanel: 섹션 레이블에 호스트 수 배지 존재')
+  } else {
+    log('warning', 'Round372', 'RemotePanel 섹션 호스트 수 미구현', 'sidebar/RemotePanel.tsx')
+  }
+}
+
 // ── Section 273: R371 신규 기능 ───────────────────────────────
 console.log('\n## 273. 신규 기능 파일 검사 (R371)')
 // ClipboardPanel 텍스트 확장 (Round 371)

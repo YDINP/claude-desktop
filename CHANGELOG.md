@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 372] — 2026-03-13
+### Added
+- RemotePanel: 섹션 레이블에 호스트 수 배지 — SSH Config/저장된 호스트 섹션에 필터 결과 카운트 표시
+
 ## [Round 371] — 2026-03-13
 ### Added
 - ClipboardPanel: 항목 텍스트 확장/접기 — 120자 초과 항목에 "▼ 펼치기/▲ 접기" 버튼, expandedId 상태

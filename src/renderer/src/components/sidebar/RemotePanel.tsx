@@ -205,7 +205,10 @@ export function RemotePanel() {
       {/* SSH Config hosts */}
       {filteredSsh.length > 0 && (
         <>
-          <div style={labelStyle}>~/.ssh/config 호스트</div>
+          <div style={{ ...labelStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>~/.ssh/config 호스트</span>
+            <span style={{ fontSize: 9, background: 'var(--bg-hover)', borderRadius: 8, padding: '0 5px' }}>{filteredSsh.length}</span>
+          </div>
           {filteredSsh.map((h) => (
             <div key={h.alias} style={rowStyle}>
               <div style={hostInfoStyle}>
@@ -227,7 +230,10 @@ export function RemotePanel() {
       {/* Saved hosts */}
       {filteredSaved.length > 0 && (
         <>
-          <div style={labelStyle}>저장된 호스트</div>
+          <div style={{ ...labelStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>저장된 호스트</span>
+            <span style={{ fontSize: 9, background: 'var(--bg-hover)', borderRadius: 8, padding: '0 5px' }}>{filteredSaved.length}</span>
+          </div>
           {filteredSaved.map((h) => (
             <div key={h.id} style={rowStyle}>
               <div style={hostInfoStyle}>
