@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 224] — 2026-03-13
+### Added
+- SceneView: 노드 그룹 접기/펼치기 — Alt+클릭으로 자식 노드 숨기기, 접힘 상태 시각 표시 (▶ 아이콘)
+
 ## [Round 223] — 2026-03-13
 ### Added
 - SceneView: 컴포넌트 타입 필터 — 툴바 드롭다운으로 특정 컴포넌트 유형 노드 강조, 미매칭 노드 희미하게 처리

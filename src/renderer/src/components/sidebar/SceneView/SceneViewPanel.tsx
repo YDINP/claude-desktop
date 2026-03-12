@@ -56,6 +56,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showStats, setShowStats] = useState(false)
   const [showChangeHistory, setShowChangeHistory] = useState(false)
   const [componentFilter, setComponentFilter] = useState<string>('all')
+  const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(new Set())
   const [changeHistory, setChangeHistory] = useState<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
   const changeHistoryRef = useRef<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
   changeHistoryRef.current = changeHistory
@@ -463,6 +464,20 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     if (e.button !== 0) return
     // 잠긴 노드는 드래그/선택 불가
     if (nodeMap.get(uuid)?.locked) return
+
+    if (e.altKey) {
+      // Alt 클릭: 자식 그룹 접기/펼치기
+      const node = nodeMap.get(uuid)
+      if (node && node.childUuids.length > 0) {
+        setCollapsedUuids(prev => {
+          const next = new Set(prev)
+          if (next.has(uuid)) next.delete(uuid)
+          else next.add(uuid)
+          return next
+        })
+      }
+      return
+    }
 
     if (e.shiftKey) {
       // Shift 클릭: 멀티 선택 토글
@@ -978,8 +993,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 렌더 순서 ────────────────────────────────────────────
   const renderOrder = useMemo(() => {
     if (!rootUuid) return []
-    return getRenderOrder(rootUuid, nodeMap)
-  }, [rootUuid, nodeMap])
+    const result: string[] = []
+    function dfs(uuid: string) {
+      result.push(uuid)
+      if (collapsedUuids.has(uuid)) return
+      const node = nodeMap.get(uuid)
+      if (!node) return
+      for (const childUuid of node.childUuids) dfs(childUuid)
+    }
+    dfs(rootUuid)
+    return result
+  }, [rootUuid, nodeMap, collapsedUuids])
 
   // 씬 내 컴포넌트 타입 목록 (필터 드롭다운용)
   const componentTypes = useMemo(() => {
@@ -1485,6 +1509,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   multiSelected={selectedUuids.has(uuid)}
                   showLabel={showLabels}
                   dimmed={componentFilter !== 'all' && !node.components.some(c => c.type === componentFilter)}
+                  hasChildren={node.childUuids.length > 0}
+                  collapsed={collapsedUuids.has(uuid)}
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={setHoveredUuid}
                   onMouseLeave={() => setHoveredUuid(null)}

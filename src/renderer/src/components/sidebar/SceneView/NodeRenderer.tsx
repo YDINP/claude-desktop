@@ -11,6 +11,8 @@ interface NodeRendererProps {
   multiSelected?: boolean
   showLabel?: boolean
   dimmed?: boolean
+  hasChildren?: boolean
+  collapsed?: boolean
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
@@ -41,6 +43,8 @@ export const NodeRenderer = memo(function NodeRenderer({
   multiSelected,
   showLabel = true,
   dimmed = false,
+  hasChildren = false,
+  collapsed = false,
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
@@ -166,6 +170,41 @@ export const NodeRenderer = memo(function NodeRenderer({
           fill="var(--accent)"
           stroke="var(--bg-secondary)"
           strokeWidth={1}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+
+      {/* 자식 그룹 접힘 표시 — Alt+클릭으로 토글 */}
+      {hasChildren && collapsed && lod === 0 && (
+        <g style={{ pointerEvents: 'none' }}>
+          <rect
+            x={rx + pw - 10}
+            y={ry + ph - 10}
+            width={9}
+            height={9}
+            fill="var(--accent)"
+            rx={1}
+          />
+          <text
+            x={rx + pw - 6}
+            y={ry + ph - 3}
+            fontSize={7}
+            fill="white"
+            fontFamily="var(--font-mono)"
+            style={{ userSelect: 'none' }}
+          >▶</text>
+        </g>
+      )}
+      {hasChildren && !collapsed && lod === 0 && (
+        <rect
+          x={rx + pw - 8}
+          y={ry + ph - 8}
+          width={7}
+          height={7}
+          fill="none"
+          stroke="rgba(96,165,250,0.5)"
+          strokeWidth={0.8}
+          rx={1}
           style={{ pointerEvents: 'none' }}
         />
       )}

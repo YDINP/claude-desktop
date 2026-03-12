@@ -2036,6 +2036,26 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 126: R224 신규 기능 ───────────────────────────────
+console.log('\n## 126. 신규 기능 파일 검사 (R224)')
+// SceneView 노드 그룹 접기/펼치기 (Round 224)
+const svp224Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const nr224Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(svp224Path) && existsSync(nr224Path)) {
+  const svp224 = readFileSync(svp224Path, 'utf-8')
+  const nr224 = readFileSync(nr224Path, 'utf-8')
+  if (svp224.includes('collapsedUuids') && svp224.includes('e.altKey') && svp224.includes('접기')) {
+    log('pass', 'Round224', 'SceneViewPanel: Alt+클릭 그룹 접기/펼치기 구현 존재')
+  } else {
+    log('warning', 'Round224', 'SceneViewPanel 그룹 접기 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (nr224.includes('collapsed') && nr224.includes('hasChildren')) {
+    log('pass', 'Round224', 'NodeRenderer: collapsed/hasChildren 표시 구현 존재')
+  } else {
+    log('warning', 'Round224', 'NodeRenderer 접힘 표시 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
 // ── Section 125: R223 신규 기능 ───────────────────────────────
 console.log('\n## 125. 신규 기능 파일 검사 (R223)')
 // SceneView 컴포넌트 타입 필터 (Round 223)
