@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T22:16:49.566Z
+> 2026-03-12T22:18:43.774Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- BookmarksPanel: 미리보기 확장 토글 (expandedId/접기/펼치기) 존재
 - TasksPanel: 전부 완료 버튼 (모두 완료 처리/✓ 전부) 존재
 - SearchPanel: 전체 접기/펼치기 버튼 (collapsedFiles.size < grouped.length) 존재
 - StatsPanel: 히트맵 요일 레이블 (일/화/목/토) 존재

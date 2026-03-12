@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 361] — 2026-03-13
+### Added
+- BookmarksPanel: 미리보기 확장 토글 — ▼/▲ 버튼으로 북마크 전체 텍스트 인라인 펼치기/접기
+
 ## [Round 360] — 2026-03-13
 ### Added
 - TasksPanel: 전부 완료 버튼 — 활성 태스크가 있을 때 "✓ 전부" 버튼으로 모든 태스크를 완료 처리

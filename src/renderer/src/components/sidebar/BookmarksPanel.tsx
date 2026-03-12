@@ -11,6 +11,7 @@ export function BookmarksPanel({
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'assistant'>('all')
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const copyBookmark = useCallback((id: string, text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -119,6 +120,13 @@ export function BookmarksPanel({
                 </span>
               )}
               <button
+                onClick={e => { e.stopPropagation(); setExpandedId(id => id === m.id ? null : m.id) }}
+                title={expandedId === m.id ? '접기' : '펼치기'}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', color: 'var(--text-muted)', fontSize: 9, lineHeight: 1, flexShrink: 0 }}
+              >
+                {expandedId === m.id ? '▲' : '▼'}
+              </button>
+              <button
                 onClick={e => { e.stopPropagation(); copyBookmark(m.id, m.text) }}
                 title="클립보드에 복사"
                 style={{
@@ -134,12 +142,14 @@ export function BookmarksPanel({
               fontSize: 11,
               color: 'var(--text-secondary)',
               overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-              lineHeight: 1.5,
+              ...(expandedId === m.id ? { lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-word' } : {
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                lineHeight: 1.5,
+              }),
             } as React.CSSProperties}>
-              {m.text.slice(0, 200)}{m.text.length > 200 ? '\u2026' : ''}
+              {expandedId === m.id ? m.text : (m.text.slice(0, 200) + (m.text.length > 200 ? '\u2026' : ''))}
             </div>
           </div>
         ))}

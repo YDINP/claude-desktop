@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 263: R361 신규 기능 ───────────────────────────────
+console.log('\n## 263. 신규 기능 파일 검사 (R361)')
+// BookmarksPanel 미리보기 확장 토글 (Round 361)
+const bp361Path = join(ROOT, 'src/renderer/src/components/sidebar/BookmarksPanel.tsx')
+if (existsSync(bp361Path)) {
+  const bp361 = readFileSync(bp361Path, 'utf-8')
+  if (bp361.includes('expandedId') && bp361.includes('setExpandedId') && bp361.includes('접기') && bp361.includes('펼치기')) {
+    log('pass', 'Round361', 'BookmarksPanel: 미리보기 확장 토글 (expandedId/접기/펼치기) 존재')
+  } else {
+    log('warning', 'Round361', 'BookmarksPanel 미리보기 확장 토글 미구현', 'sidebar/BookmarksPanel.tsx')
+  }
+}
+
 // ── Section 262: R360 신규 기능 ───────────────────────────────
 console.log('\n## 262. 신규 기능 파일 검사 (R360)')
 // TasksPanel 전부 완료 버튼 (Round 360)
