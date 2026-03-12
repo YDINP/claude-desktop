@@ -1,15 +1,22 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 113 완료)
+> 마지막 업데이트: 2026-03-12 (Round 114 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 113 (재생성 이력 보존 + QA Pass 48)
+- 마지막 커밋: Round 114 (CC 색상피커 + QA Pass 50)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 48
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 50
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 113 완료 항목 (최근 세션)
+## Round 114 완료 항목 (최근 세션)
+
+### Round 114 — CC Extension 색상피커
+- `extensions/cc-ws-extension-3x/main.js`: `POST /node/:uuid/property`에 `color` 케이스 추가 — `cc.Color` 타입으로 `set-property` 호출 (r/g/b/a 지원)
+- `src/renderer/src/components/sidebar/NodePropertyPanel.tsx`: `ComponentSection`에 `onSaveProp` prop 추가; color swatch 클릭 시 hidden `<input type="color">` 열림; onChange에서 hex → {r,g,b,a} 변환 후 `onSaveProp('color', ...)` 호출; ComponentSection 호출부에 `onSaveProp={(k, v) => save(k, v)}` 전달
+- `scripts/qa.ts`: Section 19 추가 (CC 3x color key, NodePropertyPanel 색상피커 체크, Pass 48→50)
+
+## Round 113 완료 항목 (이전 세션)
 
 ### Round 113 — 메시지 재생성 이력 보존
 - `stores/chat-store.ts`: ChatMessage에 `alternatives?: string[]`, `altIndex?: number` 추가; `saveAlternative(id)` — 현재 text를 배열에 push 후 text 초기화; `setAltIndex(id, idx)` — 이력 인덱스 업데이트

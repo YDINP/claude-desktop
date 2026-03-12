@@ -607,6 +607,28 @@ if (existsSync(msgBubblePath2)) {
   }
 }
 
+// ── Section 19: R114 신규 기능 ───────────────────────────────
+console.log('\n## 19. 신규 기능 파일 검사 (R114)')
+// CC Extension 색상피커 (Round 114)
+const cc3xPath2 = join(ROOT, 'extensions/cc-ws-extension-3x/main.js')
+if (existsSync(cc3xPath2)) {
+  const c3 = readFileSync(cc3xPath2, 'utf-8')
+  if (c3.includes("key === 'color'") && c3.includes('cc.Color')) {
+    log('pass', 'Round114', 'CC 3x extension: color key 지원 존재')
+  } else {
+    log('warning', 'Round114', 'CC 3x extension: color key 미지원', 'extensions/cc-ws-extension-3x/main.js')
+  }
+}
+const nodePropPath3 = join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx')
+if (existsSync(nodePropPath3)) {
+  const np3 = readFileSync(nodePropPath3, 'utf-8')
+  if (np3.includes('onSaveProp') && np3.includes('type="color"')) {
+    log('pass', 'Round114', 'NodePropertyPanel 색상피커 input 존재')
+  } else {
+    log('warning', 'Round114', 'NodePropertyPanel 색상피커 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

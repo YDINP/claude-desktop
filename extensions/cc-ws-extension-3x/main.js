@@ -302,6 +302,12 @@ async function routeRequest3x(method, url, body, res) {
         uuid, path: 'name',
         dump: { type: 'string', value: String(value) }
       });
+    } else if (key === 'color') {
+      const c = value; // { r, g, b, a }
+      await Editor.Message.request('scene', 'set-property', {
+        uuid, path: 'color',
+        dump: { type: 'cc.Color', value: { r: c.r ?? 255, g: c.g ?? 255, b: c.b ?? 255, a: c.a ?? 255 } }
+      });
     }
 
     res.writeHead(200); res.end(JSON.stringify({ ok: true }));

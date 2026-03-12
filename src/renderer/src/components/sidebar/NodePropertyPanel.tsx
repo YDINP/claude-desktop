@@ -98,11 +98,12 @@ function formatPropValue(value: unknown): string | null {
   return String(value)
 }
 
-function ComponentSection({ type, props, open, onToggle }: {
+function ComponentSection({ type, props, open, onToggle, onSaveProp }: {
   type: string
   props?: Record<string, unknown>
   open: boolean
   onToggle: () => void
+  onSaveProp?: (key: string, value: unknown) => void
 }) {
   const rows = props
     ? Object.entries(props).map(([k, v]) => ({ k, v: formatPropValue(v) })).filter(r => r.v !== null)
@@ -133,11 +134,28 @@ function ComponentSection({ type, props, open, onToggle }: {
                 <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 72 }}>{k}</span>
                 {isColor && colorParts ? (
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{
-                      width: 14, height: 14, borderRadius: 2, flexShrink: 0,
-                      background: `rgb(${colorParts[0]}, ${colorParts[1]}, ${colorParts[2]})`,
-                      border: '1px solid var(--border)',
-                    }} />
+                    <span style={{ position: 'relative', display: 'inline-block' }}>
+                      <span style={{
+                        width: 14, height: 14, borderRadius: 2, flexShrink: 0, display: 'block',
+                        background: `rgb(${colorParts[0]}, ${colorParts[1]}, ${colorParts[2]})`,
+                        border: '1px solid var(--border)',
+                        cursor: onSaveProp ? 'pointer' : 'default',
+                      }} onClick={e => onSaveProp && (e.currentTarget.nextElementSibling as HTMLInputElement)?.click()} />
+                      {onSaveProp && (
+                        <input
+                          type="color"
+                          defaultValue={`#${colorParts.map(c => Math.round(c).toString(16).padStart(2, '0')).join('')}`}
+                          style={{ position: 'absolute', width: 0, height: 0, opacity: 0, top: 0, left: 0, padding: 0, border: 'none' }}
+                          onChange={e => {
+                            const hex = e.target.value.slice(1)
+                            const r = parseInt(hex.slice(0, 2), 16)
+                            const g = parseInt(hex.slice(2, 4), 16)
+                            const b = parseInt(hex.slice(4, 6), 16)
+                            onSaveProp('color', { r, g, b, a: 255 })
+                          }}
+                        />
+                      )}
+                    </span>
                     <span style={{ color: 'var(--text-primary)' }}>
                       #{colorParts.map(c => Math.round(c).toString(16).padStart(2, '0')).join('')}
                     </span>
@@ -230,6 +248,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
               props={c.props}
               open={!!openState[i]}
               onToggle={() => toggleOpen(i)}
+              onSaveProp={(k, v) => save(k, v)}
             />
           ))}
         </>
