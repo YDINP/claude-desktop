@@ -155,6 +155,7 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
   const fileName = (fp: string) => fp.split(/[/\\]/).pop() ?? fp
   const totalMatches = filteredResults.length
   const [collapsedFiles, setCollapsedFiles] = useState<Set<string>>(new Set())
+  const [resultsCopied, setResultsCopied] = useState(false)
   const toggleCollapse = (filePath: string) => {
     setCollapsedFiles(prev => {
       const next = new Set(prev)
@@ -338,6 +339,14 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
         <div style={{ padding: '3px 8px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{grouped.length}개 파일 · {totalMatches}개 매치</span>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <button
+              onClick={() => {
+                const lines = grouped.flatMap(g => [g.filePath, ...g.matches.map(m => `  L${m.lineNum}: ${m.lineContent.trim()}`)]).join('\n')
+                navigator.clipboard.writeText(lines).then(() => { setResultsCopied(true); setTimeout(() => setResultsCopied(false), 1500) })
+              }}
+              title="검색 결과 전체 복사"
+              style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', color: resultsCopied ? '#4caf50' : 'var(--text-muted)', fontSize: 9, padding: '1px 4px', lineHeight: 1 }}
+            >{resultsCopied ? '✓' : '📋'}</button>
             {selectedExts.size > 0 && <span style={{ color: 'var(--accent)' }}>{selectedExts.size}개 확장자 필터</span>}
             {grouped.length > 1 && (
               <button

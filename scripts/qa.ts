@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 291: R389 신규 기능 ───────────────────────────────
+console.log('\n## 291. 신규 기능 파일 검사 (R389)')
+// SearchPanel 검색 결과 전체 복사 (Round 389)
+const sp389Path = join(ROOT, 'src/renderer/src/components/sidebar/SearchPanel.tsx')
+if (existsSync(sp389Path)) {
+  const sp389 = readFileSync(sp389Path, 'utf-8')
+  if (sp389.includes('resultsCopied') && sp389.includes('검색 결과 전체 복사')) {
+    log('pass', 'Round389', 'SearchPanel: 검색 결과 전체 복사 버튼 존재')
+  } else {
+    log('warning', 'Round389', 'SearchPanel 결과 복사 미구현', 'sidebar/SearchPanel.tsx')
+  }
+}
+
 // ── Section 290: R388 신규 기능 ───────────────────────────────
 console.log('\n## 290. 신규 기능 파일 검사 (R388)')
 // GlobalSearchPanel 검색 결과 발췌 복사 버튼 (Round 388)

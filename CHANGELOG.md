@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 389] — 2026-03-13
+### Added
+- SearchPanel: 검색 결과 전체 복사 버튼 — resultsCopied 상태, 파일경로+L행+내용 형식 텍스트 복사
+
 ## [Round 388] — 2026-03-13
 ### Added
 - GlobalSearchPanel: 검색 결과 발췌 복사 버튼 — copiedResultKey 상태, 📋 버튼, excerpt 텍스트 복사
