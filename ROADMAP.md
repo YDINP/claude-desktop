@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 78 완료 — 인라인 AI 어시스턴트 + Monaco DiffEditor)
+> 마지막 업데이트: 2026-03-12 (Round 79 완료 — 터미널 AI 연동)
 
 ## 완료된 라운드
 
@@ -25,12 +25,13 @@
 | Round 76 | main | Monaco Editor 통합 — FileViewer 코드뷰/편집 Monaco 교체, 내장 검색/미니맵/goto줄, 1000→561줄 간소화 | ✅ |
 | Round 77 | main | QA + 안정성 — Critical 4건 수정(forkMap 순환참조/save forkedFrom/defaultValue/import 순서), ws 패키지 추가, SyntaxHighlighter import 경로 수정, 빌드 성공 | ✅ |
 | Round 78 | main | 코드 편집기 Phase 2 — 인라인 AI 어시스턴트(선택 영역 설명/수정 패널), Monaco DiffEditor로 DiffPanel 교체(나란히/인라인 뷰 토글) | ✅ |
+| Round 79 | main | 터미널 + AI 연동 — 출력 캡처/에러 감지 배너/Claude 분석 버튼, App 채팅 연결 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 79 | main | **터미널 + AI 연동** — 터미널 출력 자동 캡처 + Claude 에러 분석 제안, 빠른 명령어 팔레트 개선 |
+
 | Round 80 | main | **프로젝트 인텔리전스** — 프로젝트별 자동 시스템 프롬프트(파일 구조 기반), 자주 사용 명령어 학습/추천 |
 | Round 81 | main | **AI 워크플로우 고도화** — Subagent 실행 시각화(AgentPanel 리빌드), Prompt 체이닝 UI, 작업 히스토리 저장 |
 | Round 82 | main | **QA + Phase 3 마무리** — Round 78~81 통합 QA, CSS 모듈 마이그레이션, 성능 벤치마크, 릴리스 준비 |

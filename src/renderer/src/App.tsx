@@ -1614,7 +1614,13 @@ function AppContent() {
                 onMouseLeave={e => { if (!isDragging) (e.target as HTMLElement).style.background = 'var(--border)' }}
               />
               <div style={{ height: bottomHeight, flexShrink: 0 }}>
-                <TerminalPanel cwd={project.currentPath || 'C:\\'} />
+                <TerminalPanel
+                  cwd={project.currentPath || 'C:\\'}
+                  onAskAI={(text) => {
+                    setPendingInsert(text)
+                    switchToChat()
+                  }}
+                />
               </div>
             </>
           )}

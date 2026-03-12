@@ -26,6 +26,7 @@ const saveQuickCmds = (cmds: QuickCmd[]) => {
 interface TerminalPanelProps {
   cwd: string
   available?: boolean
+  onAskAI?: (text: string) => void
 }
 
 interface TabInfo {
@@ -65,7 +66,11 @@ const TERM_THEME = {
   cyan: '#4fc1ff', white: '#d4d4d4',
 }
 
-export function TerminalPanel({ cwd, available = true }: TerminalPanelProps) {
+const ERROR_PATTERN = /error|FAILED|failed|npm ERR|SyntaxError|TypeError|ReferenceError|Cannot find|ENOENT|exit code [^0]/i
+
+const stripAnsi = (text: string) => text.replace(/\x1b\[[0-9;]*[mGKHF]/g, '')
+
+export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelProps) {
   const [tabs, setTabs] = useState<TabInfo[]>(() => [makeTab()])
   const [activeTabId, setActiveTabId] = useState<string>(() => {
     const initial = tabs[0].id
@@ -127,6 +132,18 @@ export function TerminalPanel({ cwd, available = true }: TerminalPanelProps) {
     })
   }
 
+  // AI error detection state
+  const [errorBanner, setErrorBanner] = useState(false)
+  const outputBufferRef = useRef<string[]>([])
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleAskClaude = () => {
+    const recentOutput = outputBufferRef.current.slice(-50).join('\n')
+    const prompt = `터미널 에러 분석해줘:\n\`\`\`\n${recentOutput}\n\`\`\``
+    onAskAI?.(prompt)
+    setErrorBanner(false)
+  }
+
   // Recording state
   const [recording, setRecording] = useState(false)
   const recordingRef = useRef(false)
@@ -176,6 +193,18 @@ export function TerminalPanel({ cwd, available = true }: TerminalPanelProps) {
       if (recordingRef.current && id === activeTabId) {
         const ts = new Date().toISOString()
         recordBufferRef.current.push(`[${ts}] ${data}`)
+      }
+      // Output buffer capture + error detection
+      const clean = stripAnsi(data)
+      const lines = clean.split(/\r?\n/)
+      outputBufferRef.current.push(...lines.filter(l => l.length > 0))
+      if (outputBufferRef.current.length > 100) {
+        outputBufferRef.current = outputBufferRef.current.slice(-100)
+      }
+      if (ERROR_PATTERN.test(clean)) {
+        setErrorBanner(true)
+        if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
+        errorTimerRef.current = setTimeout(() => setErrorBanner(false), 5000)
       }
     })
     return removeListener
@@ -659,6 +688,30 @@ export function TerminalPanel({ cwd, available = true }: TerminalPanelProps) {
             }}
           />
         ))}
+        {errorBanner && (
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            background: 'rgba(248,81,73,0.12)', borderTop: '1px solid rgba(248,81,73,0.4)',
+            display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px',
+            fontSize: 11, zIndex: 10,
+          }}>
+            <span style={{ color: 'var(--error, #f85149)' }}>⚠️ 에러 감지</span>
+            <button
+              onClick={handleAskClaude}
+              style={{
+                background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4,
+                padding: '2px 8px', fontSize: 11, cursor: 'pointer',
+              }}
+            >🤖 Claude에게 물어보기</button>
+            <button
+              onClick={() => setErrorBanner(false)}
+              style={{
+                marginLeft: 'auto', background: 'none', border: 'none',
+                color: 'var(--text-muted)', fontSize: 12, cursor: 'pointer',
+              }}
+            >✕</button>
+          </div>
+        )}
         {searchOpen && (
           <div style={{
             position: 'absolute',
