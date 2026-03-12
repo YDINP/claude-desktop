@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 128: R226 신규 기능 ───────────────────────────────
+console.log('\n## 128. 신규 기능 파일 검사 (R226)')
+// SceneView 검색 순환 네비게이션 (Round 226)
+const svp226Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp226Path)) {
+  const svp226 = readFileSync(svp226Path, 'utf-8')
+  if (svp226.includes('searchMatchIndex') && svp226.includes('searchMatches') && svp226.includes('handleSearchNav')) {
+    log('pass', 'Round226', 'SceneViewPanel: 검색 순환 네비게이션 구현 존재')
+  } else {
+    log('warning', 'Round226', 'SceneViewPanel 검색 순환 네비게이션 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 127: R225 신규 기능 ───────────────────────────────
 console.log('\n## 127. 신규 기능 파일 검사 (R225)')
 // SceneView Focus Mode (Round 225)

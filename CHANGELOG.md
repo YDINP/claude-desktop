@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 226] — 2026-03-13
+### Added
+- SceneView: 검색 결과 순환 네비게이션 — Enter/Shift+Enter로 매칭 노드 순환 선택, 현재/전체 카운트 표시, 현재 항목 주황색 강조
+
 ## [Round 225] — 2026-03-13
 ### Added
 - SceneView: Focus Mode (Alt+Z) — 선택 노드만 강조, 나머지 희미하게 처리하는 집중 편집 모드

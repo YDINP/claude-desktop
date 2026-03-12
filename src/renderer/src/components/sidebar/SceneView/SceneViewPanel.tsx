@@ -63,6 +63,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   changeHistoryRef.current = changeHistory
   const [canvasSearch, setCanvasSearch] = useState('')
   const [showCanvasSearch, setShowCanvasSearch] = useState(false)
+  const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
@@ -1018,6 +1019,35 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return [...types].sort()
   }, [nodeMap])
 
+  // 검색 매칭 노드 목록
+  const searchMatches = useMemo(() =>
+    canvasSearch.trim()
+      ? [...nodeMap.values()].filter(n => n.name.toLowerCase().includes(canvasSearch.toLowerCase()))
+      : [],
+    [canvasSearch, nodeMap]
+  )
+
+  useEffect(() => { setSearchMatchIndex(0) }, [canvasSearch])
+
+  const handleSearchNav = useCallback((dir: 1 | -1) => {
+    if (searchMatches.length === 0) return
+    const next = (searchMatchIndex + dir + searchMatches.length) % searchMatches.length
+    setSearchMatchIndex(next)
+    const node = searchMatches[next]
+    setSelectedUuid(node.uuid)
+    setSelectedUuids(new Set([node.uuid]))
+    if (containerRef.current) {
+      const { width, height } = containerRef.current.getBoundingClientRect()
+      const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
+      const targetZoom = Math.min(
+        (width - 120) / Math.max(node.width, 40),
+        (height - 120) / Math.max(node.height, 40),
+        4
+      )
+      setView({ offsetX: width / 2 - sx * targetZoom, offsetY: height / 2 - sy * targetZoom, zoom: targetZoom })
+    }
+  }, [searchMatches, searchMatchIndex, containerRef])
+
   const selectedNode = selectedUuid ? nodeMap.get(selectedUuid) ?? null : null
   const selectionCount = selectedUuids.size > 1 ? selectedUuids.size : undefined
   const canCopy = selectedUuids.size > 0 || selectedUuid !== null
@@ -1531,9 +1561,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             })}
 
             {/* 검색 하이라이트 링 */}
-            {canvasSearch.trim() && [...nodeMap.values()]
-              .filter(n => n.name.toLowerCase().includes(canvasSearch.toLowerCase()))
-              .map(n => {
+            {canvasSearch.trim() && searchMatches
+              .map((n, idx) => {
+                const isCurrent = idx === searchMatchIndex
                 const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
                 const rx = sx - n.width / 2 - 3
                 const ry = sy - n.height / 2 - 3
@@ -1543,8 +1573,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                     x={rx} y={ry}
                     width={n.width + 6} height={n.height + 6}
                     fill="none"
-                    stroke="#fbbf24"
-                    strokeWidth={2 / view.zoom}
+                    stroke={isCurrent ? '#f97316' : '#fbbf24'}
+                    strokeWidth={(isCurrent ? 2.5 : 2) / view.zoom}
                     strokeDasharray={`${4 / view.zoom} ${2 / view.zoom}`}
                     rx={4}
                     style={{ pointerEvents: 'none' }}
@@ -1895,6 +1925,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               onChange={e => setCanvasSearch(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Escape') { setShowCanvasSearch(false); setCanvasSearch('') }
+                else if (e.key === 'Enter') { e.preventDefault(); handleSearchNav(e.shiftKey ? -1 : 1) }
                 e.stopPropagation()
               }}
               placeholder="노드 이름 검색..."
@@ -1903,10 +1934,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 color: 'var(--text-primary)', outline: 'none',
               }}
             />
-            {canvasSearch && (
-              <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
-                {[...nodeMap.values()].filter(n => n.name.toLowerCase().includes(canvasSearch.toLowerCase())).length}개
+            {canvasSearch && searchMatches.length > 0 && (
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                {searchMatchIndex + 1}/{searchMatches.length}
               </span>
+            )}
+            {canvasSearch && searchMatches.length === 0 && (
+              <span style={{ fontSize: 9, color: 'var(--text-danger, #f87171)' }}>없음</span>
+            )}
+            {searchMatches.length > 1 && (
+              <button onClick={() => handleSearchNav(1)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 10, padding: '0 1px' }}>↓</button>
             )}
             <button onClick={() => { setShowCanvasSearch(false); setCanvasSearch('') }}
               style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 11, padding: '0 2px' }}>×</button>
