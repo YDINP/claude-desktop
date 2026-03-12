@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 375] — 2026-03-13
+### Added
+- NotesPanel: 검색 결과 콘텐츠 발췌 표시 — 검색어 위치 주변 텍스트를 이탤릭으로 인라인 표시
+
 ## [Round 374] — 2026-03-13
 ### Added
 - SceneTreePanel: 컴포넌트 수 초과 +N 표시 — 2개 초과 컴포넌트가 있을 때 `+N` 배지 표시
