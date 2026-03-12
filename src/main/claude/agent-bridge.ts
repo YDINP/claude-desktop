@@ -14,6 +14,8 @@ export class AgentBridge {
   private pendingPermissions = new Map<string, PendingPermissionEntry>()
   private sessionAllowlist = new Set<string>()
   private abortController: AbortController | null = null
+  private textBatch = ''
+  private textFlushTimer: ReturnType<typeof setTimeout> | null = null
   private currentCwd: string = process.env.HOME || process.env.USERPROFILE || 'C:\\Users'
   private systemPrompt: string = ''
   private temperature: number = 1.0
@@ -87,6 +89,17 @@ export class AgentBridge {
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') return
       this.emit({ type: 'error', message: String(err) })
+    }
+  }
+
+  private flushTextBatch(): void {
+    if (this.textFlushTimer !== null) {
+      clearTimeout(this.textFlushTimer)
+      this.textFlushTimer = null
+    }
+    if (this.textBatch) {
+      this.emit({ type: 'text_delta', text: this.textBatch })
+      this.textBatch = ''
     }
   }
 
@@ -194,8 +207,17 @@ export class AgentBridge {
         const delta = event.delta as Record<string, unknown> | undefined
         if (!delta) return
         if (delta.type === 'text_delta') {
-          // 스트리밍 텍스트 delta — 별도 이벤트로 전송
-          this.emit({ type: 'text_delta', text: delta.text as string ?? '' })
+          // 스트리밍 텍스트 delta — 16ms 배치 후 전송
+          this.textBatch += (delta.text as string) ?? ''
+          if (this.textFlushTimer === null) {
+            this.textFlushTimer = setTimeout(() => {
+              this.textFlushTimer = null
+              if (this.textBatch) {
+                this.emit({ type: 'text_delta', text: this.textBatch })
+                this.textBatch = ''
+              }
+            }, 16)
+          }
         } else if (delta.type === 'thinking_delta') {
           this.emit({ type: 'thinking_delta', text: delta.thinking as string ?? '' })
         } else if (delta.type === 'input_json_delta') {
@@ -233,6 +255,7 @@ export class AgentBridge {
         const errMsg = errors?.join('; ') ?? `Session ended: ${subtype2}`
         this.emit({ type: 'error', message: errMsg })
       }
+      this.flushTextBatch()
       this.emit({
         type: 'result',
         costUsd: msg.total_cost_usd as number ?? 0,

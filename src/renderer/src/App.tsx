@@ -530,6 +530,7 @@ function AppContent() {
 
   // ── Sound enabled ref + state for palette display ──
   const soundEnabledRef = useRef(true)
+  const isDeltaStreamingRef = useRef(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [compactMode, setCompactMode] = useState(false)
 
@@ -974,8 +975,12 @@ function AppContent() {
       if (ev.type === 'init') {
         chat.setSessionId(ev.sessionId as string)
       } else if (ev.type === 'text') {
-        chat.ensureAssistantMessage()
-        chat.appendText(ev.text as string)
+        if (isDeltaStreamingRef.current) {
+          chat.reconcileText(ev.text as string)
+        } else {
+          chat.ensureAssistantMessage()
+          chat.appendText(ev.text as string)
+        }
       } else if (ev.type === 'tool_start') {
         chat.ensureAssistantMessage()
         chat.addToolUse(ev.toolId as string, ev.toolName as string, ev.toolInput)
@@ -1016,6 +1021,7 @@ function AppContent() {
           (ev.outputTokens as number) ?? 0,
           project.selectedModel,
         )
+        isDeltaStreamingRef.current = false
         chat.finishStreaming()
         if (soundEnabledRef.current) {
           playCompletionSound()
@@ -1027,8 +1033,9 @@ function AppContent() {
         // thinking 스트리밍 delta
         if (ev.text) { chat.ensureAssistantMessage(); chat.appendThinking(ev.text as string) }
       } else if (ev.type === 'text_delta') {
-        // 스트리밍 text delta (stream_event에서 옴) — appendText와 중복될 수 있어 무시
-        // assistant 완성 메시지의 text가 이미 'text' 이벤트로 처리됨
+        isDeltaStreamingRef.current = true
+        chat.ensureAssistantMessage()
+        chat.appendText(ev.text as string)
       } else if (ev.type === 'input_json_delta') {
         // tool input 스트리밍 — 현재는 무시
       } else if (ev.type === 'usage') {

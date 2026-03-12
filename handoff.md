@@ -1,15 +1,22 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 88 완료)
+> 마지막 업데이트: 2026-03-12 (Round 93 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 88 (PromptChain 템플릿 라이브러리)
+- 마지막 커밋: Round 93 (스트리밍 배치 렌더링 최적화)
 - 빌드: `npm run build` ✅
 - QA: `npm run qa` ✅ Critical 0, Warning 0
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 83~88 완료 항목 (최근 세션)
+## Round 93 완료 항목 (최근 세션)
+
+### Round 93 — 스트리밍 배치 렌더링 최적화
+- `agent-bridge.ts`: `text_delta` 이벤트 16ms 배치 (textBatch + setTimeout 플러시), `result` 직전 `flushTextBatch()` 호출
+- `chat-store.ts`: `reconcileText(fullText)` 추가 — RAF 취소 후 정규 전체 텍스트로 교체
+- `App.tsx`: `isDeltaStreamingRef` 추적, `text_delta` 실시간 렌더링 활성화, `text` 이벤트는 `reconcileText`로 최종 정합
+
+## Round 83~88 완료 항목 (이전 세션)
 
 ### Round 83 — 시스템 프롬프트 UI + 토큰 카운터
 - `ChatPanel.tsx`: 커스텀 시스템 프롬프트 에디터 (localStorage), 컨텍스트 윈도우 진행 바

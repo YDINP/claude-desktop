@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 92 완료 — StatsPanel API 비용 섹션)
+> 마지막 업데이트: 2026-03-12 (Round 93 완료 — 스트리밍 배치 렌더링 최적화)
 
 ## 완료된 라운드
 
@@ -39,13 +39,12 @@
 | Round 90 | dev | 파일 컨텍스트 패널 — useContextFiles hook(localStorage, IPC readFile), ChatPanel 📎 UI, system prompt 주입 | ✅ |
 | Round 91 | dev | 네이티브 파일 다이얼로그 — fs:open-file-dialog IPC, preload openFileDialog, ChatPanel 📎 네이티브 피커 | ✅ |
 | Round 92 | dev | StatsPanel API 비용 섹션 — cost-tracker 통합, 오늘/이번달 카드, 7일 비용 바 차트 | ✅ |
+| Round 93 | dev | 스트리밍 배치 렌더링 최적화 — agent-bridge 16ms 배치, reconcileText, text_delta 실시간 렌더링 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 93 | dev | 스트리밍 배치 렌더링 최적화 — IPC throttling, React 렌더 배치 |
-| Round 93 | dev | 스트리밍 배치 렌더링 최적화 — IPC throttling, React 렌더 배치 |
 | Round 94 | dev | AG-UI 이벤트 모델 — 에이전트 실행 표준화, RunStarted/StepFinished/TextDelta |
 
 ## 전략 로드맵 (Phase)

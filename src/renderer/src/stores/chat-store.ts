@@ -84,6 +84,19 @@ export function useChatStore() {
     }
   }, [])
 
+  const reconcileText = useCallback((fullText: string) => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+    textBufRef.current = ''
+    setMessages((prev) => {
+      const last = prev[prev.length - 1]
+      if (!last || last.role !== 'assistant') return prev
+      return [...prev.slice(0, -1), { ...last, text: fullText }]
+    })
+  }, [])
+
   const appendThinking = useCallback((text: string) => {
     thinkBufRef.current += text
     if (thinkRafRef.current === null) {
@@ -280,6 +293,7 @@ export function useChatStore() {
     addUserMessage,
     ensureAssistantMessage,
     appendText,
+    reconcileText,
     appendThinking,
     addToolUse,
     updateToolUse,
