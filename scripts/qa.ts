@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 238: R336 신규 기능 ───────────────────────────────
+console.log('\n## 238. 신규 기능 파일 검사 (R336)')
+// WebPreviewPanel 뒤로/앞으로 히스토리 (Round 336)
+const wp336Path = join(ROOT, 'src/renderer/src/components/sidebar/WebPreviewPanel.tsx')
+if (existsSync(wp336Path)) {
+  const wp336 = readFileSync(wp336Path, 'utf-8')
+  if (wp336.includes('histIdx') && wp336.includes('handleBack') && wp336.includes('handleForward')) {
+    log('pass', 'Round336', 'WebPreviewPanel: 뒤로/앞으로 히스토리 탐색 (histIdx/handleBack/handleForward) 존재')
+  } else {
+    log('warning', 'Round336', 'WebPreviewPanel 히스토리 탐색 미구현', 'sidebar/WebPreviewPanel.tsx')
+  }
+}
+
 // ── Section 237: R335 신규 기능 ───────────────────────────────
 console.log('\n## 237. 신규 기능 파일 검사 (R335)')
 // TasksPanel overdue 필터 (Round 335)

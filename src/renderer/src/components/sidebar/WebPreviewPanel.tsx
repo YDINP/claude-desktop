@@ -9,18 +9,51 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
   const [url, setUrl] = useState(defaultUrl)
   const [inputUrl, setInputUrl] = useState(defaultUrl)
   const [loading, setLoading] = useState(false)
+  const [history, setHistory] = useState<string[]>(defaultUrl ? [defaultUrl] : [])
+  const [histIdx, setHistIdx] = useState(defaultUrl ? 0 : -1)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  const handleLoad = () => setLoading(false)
-  const handleNavigate = () => {
+  const navigate = (target: string) => {
+    if (!target) return
     setLoading(true)
-    setUrl(inputUrl)
-    onUrlChange?.(inputUrl)
+    setUrl(target)
+    setInputUrl(target)
+    onUrlChange?.(target)
+    setHistory(h => {
+      const trimmed = h.slice(0, histIdx + 1)
+      const next = [...trimmed, target]
+      setHistIdx(next.length - 1)
+      return next
+    })
   }
+
+  const handleLoad = () => setLoading(false)
+  const handleNavigate = () => navigate(inputUrl)
   const handleRefresh = () => {
     setLoading(true)
     if (iframeRef.current) iframeRef.current.src = iframeRef.current.src
   }
+  const handleBack = () => {
+    const prev = history[histIdx - 1]
+    if (!prev) return
+    setHistIdx(i => i - 1)
+    setLoading(true)
+    setUrl(prev)
+    setInputUrl(prev)
+    onUrlChange?.(prev)
+  }
+  const handleForward = () => {
+    const next = history[histIdx + 1]
+    if (!next) return
+    setHistIdx(i => i + 1)
+    setLoading(true)
+    setUrl(next)
+    setInputUrl(next)
+    onUrlChange?.(next)
+  }
+
+  const canBack = histIdx > 0
+  const canForward = histIdx < history.length - 1
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -31,6 +64,12 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
       }}>
         <span>웹 프리뷰</span>
         <div style={{ display: 'flex', gap: 4 }}>
+          <button onClick={handleBack} disabled={!canBack}
+            title="뒤로"
+            style={{ background: 'none', border: 'none', cursor: canBack ? 'pointer' : 'default', color: canBack ? 'var(--text-muted)' : 'var(--border)', fontSize: 13 }}>←</button>
+          <button onClick={handleForward} disabled={!canForward}
+            title="앞으로"
+            style={{ background: 'none', border: 'none', cursor: canForward ? 'pointer' : 'default', color: canForward ? 'var(--text-muted)' : 'var(--border)', fontSize: 13 }}>→</button>
           {url && (
             <button
               onClick={() => window.open(url, '_blank')}
@@ -65,7 +104,7 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
           }}
         />
         <button
-          onClick={handleNavigate}
+          onClick={() => navigate(inputUrl)}
           disabled={!inputUrl}
           style={{
             padding: '3px 8px', background: 'var(--accent)', color: '#fff',
@@ -109,7 +148,7 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
             <button
               onClick={() => {
                 const u = 'http://localhost:7456'
-                setInputUrl(u); setUrl(u); setLoading(true); onUrlChange?.(u)
+                navigate(u)
               }}
               style={{
                 marginTop: 4, padding: '4px 12px', background: 'var(--accent)', color: '#fff',

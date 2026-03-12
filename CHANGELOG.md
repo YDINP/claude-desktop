@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 336] — 2026-03-13
+### Added
+- WebPreviewPanel: ← → 뒤로/앞으로 탐색 버튼 — URL 히스토리 스택 관리, 비활성 상태 시 회색 처리
+
 ## [Round 335] — 2026-03-13
 ### Added
 - TasksPanel: 기한 초과(overdue) 빠른 필터 배지 — 초과 태스크 존재 시 `⚠ 초과 N` 빨간 버튼 표시, 클릭 토글
