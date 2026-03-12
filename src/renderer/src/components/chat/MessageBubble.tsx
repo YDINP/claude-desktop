@@ -162,13 +162,31 @@ const CodeBlock = memo(function CodeBlock({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Code block header bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: 'var(--bg-tertiary)',
+        borderBottom: '1px solid var(--border)',
+        borderRadius: '4px 4px 0 0',
+        padding: '4px 12px',
+        fontSize: 11,
+      }}>
+        <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'lowercase' }}>
+          {language || 'text'}
+        </span>
+        <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>
+          {codeString.split('\n').length} lines
+        </span>
+      </div>
       <SyntaxHighlighter
         style={vscDarkPlus}
         language={language}
         PreTag="div"
         customStyle={{
           background: '#1e1e2e',
-          borderRadius: (explanation || hasOutput || docCode) ? '4px 4px 0 0' : 4,
+          borderRadius: (explanation || hasOutput || docCode) ? '0 0 0 0' : '0 0 4px 4px',
           padding: 12,
           fontSize: 12,
           margin: 0,
@@ -834,8 +852,14 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           : isMatched
           ? 'var(--warning-dim, rgba(251,191,36,0.07))'
           : isUser
-          ? 'var(--bg-tertiary)'
+          ? 'var(--bg-user, rgba(82,139,255,0.06))'
           : 'transparent',
+        borderLeft: isCurrentMatch
+          ? 'none'
+          : isUser
+          ? '3px solid var(--accent)'
+          : '3px solid var(--success, #26a641)',
+        paddingLeft: isCurrentMatch ? undefined : 28,
         borderBottom: '1px solid var(--border)',
         outline: isCurrentMatch ? '1px solid rgba(251,191,36,0.4)' : 'none',
         transition: 'background 0.15s',
@@ -1250,6 +1274,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               margin: 0,
             }}>
               {msg.text}
+              {msg.text && <span className="streaming-cursor" />}
             </pre>
           ) : (showCollapseToggle && collapsed) ? (
             <div style={{ position: 'relative' }}>
