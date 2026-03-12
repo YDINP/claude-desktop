@@ -25,6 +25,20 @@ function shortModelName(model: string): string {
 
 const FILE_PATH_REGEX = /([A-Za-z]:[\\\/][^\s"'`<>|?*\n,;]+|\/(?:[a-zA-Z0-9._\-]+\/)+[a-zA-Z0-9._\-]+)/g
 
+function highlightMatches(text: string, query: string): React.ReactNode {
+  if (!query) return text
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const regex = new RegExp(`(${escaped})`, 'gi')
+  const parts = text.split(regex)
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <mark key={i} style={{ background: 'rgba(255,200,0,0.35)', color: 'inherit', borderRadius: 2 }}>
+        {part}
+      </mark>
+    ) : part
+  )
+}
+
 function linkifyPaths(text: string, onOpenFile: (path: string) => void): React.ReactNode[] {
   const parts: React.ReactNode[] = []
   let last = 0
@@ -679,13 +693,15 @@ interface ContextMenu {
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '🤔', '🎉']
 
-export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo }: {
+export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo }: {
   msg: ChatMessage
   isLast?: boolean
   isStreaming?: boolean
   onRegenerate?: () => void
   isMatched?: boolean
   isCurrentMatch?: boolean
+  highlightText?: string
+  isSearchMatch?: boolean
   onRunInTerminal?: (code: string) => void
   onFork?: () => void
   onEditResend?: (newText: string) => void
@@ -863,6 +879,8 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
         paddingLeft: isCurrentMatch ? undefined : 28,
         borderBottom: '1px solid var(--border)',
         outline: isCurrentMatch ? '1px solid rgba(251,191,36,0.4)' : 'none',
+        border: isSearchMatch && !isCurrentMatch ? '1px solid var(--accent)' : undefined,
+        boxShadow: isSearchMatch && !isCurrentMatch ? '0 0 8px rgba(82,139,255,0.3)' : undefined,
         transition: 'background 0.15s',
       }}
     >
@@ -1254,7 +1272,9 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
             {/<image\s+path="[^"]+"\s*\/?>/.test(msg.text) ? (
               renderUserTextWithImages(msg.text, onImageClick)
             ) : (
-              <span style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</span>
+              <span style={{ whiteSpace: 'pre-wrap' }}>
+                {highlightText ? highlightMatches(msg.text, highlightText) : msg.text}
+              </span>
             )}
           </div>
         )
@@ -1553,6 +1573,8 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
     prev.isLast === next.isLast &&
     prev.isMatched === next.isMatched &&
     prev.isCurrentMatch === next.isCurrentMatch &&
+    prev.highlightText === next.highlightText &&
+    prev.isSearchMatch === next.isSearchMatch &&
     prev.onRunInTerminal === next.onRunInTerminal &&
     (prev.onFork === undefined) === (next.onFork === undefined) &&
     (prev.onEditResend === undefined) === (next.onEditResend === undefined) &&

@@ -922,6 +922,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                     onRegenerate={isLast && msg.role === 'assistant' && !chat.isStreaming ? handleRegenerate : undefined}
                     isMatched={matchedMessageIds.has(msg.id)}
                     isCurrentMatch={currentMatchId === msg.id}
+                    highlightText={searchQuery || undefined}
+                    isSearchMatch={currentMatchId === msg.id}
                     onRunInTerminal={handleRunInTerminal}
                     onFork={onFork && msg.role === 'user' ? () => onFork(virtualRow.index) : undefined}
                     onEditResend={msg.role === 'user' && onEditResend ? (newText) => onEditResend(msg.id, newText) : undefined}
