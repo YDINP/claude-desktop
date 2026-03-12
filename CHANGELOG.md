@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 175] — 2026-03-12
+### Added
+- SceneInspector: 자식 노드 목록 확장 — ↳N 클릭 시 자식 이름 목록 펼치기/접기, 클릭으로 선택
+
 ## [Round 174] — 2026-03-12
 ### Added
 - SceneToolbar: 줌 레벨 더블클릭 인라인 편집 — 숫자 직접 입력 후 Enter 적용

@@ -125,6 +125,38 @@ function SectionHeader({ label }: { label: string }) {
   )
 }
 
+function ChildList({ childUuids, nodeMap, onSelect }: { childUuids: string[]; nodeMap?: Map<string, SceneNode>; onSelect?: (uuid: string) => void }) {
+  const [expanded, setExpanded] = useState(false)
+  return (
+    <span>
+      <span
+        title={`자식 노드 ${childUuids.length}개 — 클릭으로 목록 펼치기`}
+        style={{ cursor: 'pointer', color: expanded ? 'var(--accent)' : undefined }}
+        onClick={() => setExpanded(v => !v)}
+      >
+        ↳{childUuids.length}
+      </span>
+      {expanded && (
+        <div style={{ marginTop: 2, paddingLeft: 6, borderLeft: '1px solid var(--border)' }}>
+          {childUuids.map(cid => {
+            const child = nodeMap?.get(cid)
+            return child ? (
+              <div
+                key={cid}
+                style={{ fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', padding: '1px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                onClick={() => onSelect?.(cid)}
+                title={child.name}
+              >
+                {child.name}
+              </div>
+            ) : null
+          })}
+        </div>
+      )}
+    </span>
+  )
+}
+
 export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
@@ -404,9 +436,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           )
         })()}
         {node.childUuids.length > 0 && (
-          <span title={`자식 노드 ${node.childUuids.length}개`}>
-            ↳{node.childUuids.length}
-          </span>
+          <ChildList childUuids={node.childUuids} nodeMap={nodeMap} onSelect={onSelectParent} />
         )}
       </div>
 

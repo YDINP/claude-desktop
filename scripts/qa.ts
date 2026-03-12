@@ -1731,6 +1731,24 @@ if (existsSync(sceneToolbarPath5)) {
   }
 }
 
+// ── Section 77: R175 신규 기능 ───────────────────────────────
+console.log('\n## 77. 신규 기능 파일 검사 (R175)')
+// SceneInspector 자식 노드 목록 확장 (Round 175)
+const sceneInspectorPath15 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath15)) {
+  const si15 = readFileSync(sceneInspectorPath15, 'utf-8')
+  if (si15.includes('ChildList') && si15.includes('expanded')) {
+    log('pass', 'Round175', 'SceneInspector: ChildList 컴포넌트 + expanded state 존재')
+  } else {
+    log('warning', 'Round175', 'SceneInspector ChildList 미구현', 'SceneView/SceneInspector.tsx')
+  }
+  if (si15.includes('목록 펼치기')) {
+    log('pass', 'Round175', 'SceneInspector: 자식 목록 펼치기 버튼 존재')
+  } else {
+    log('warning', 'Round175', 'SceneInspector 자식 목록 펼치기 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
