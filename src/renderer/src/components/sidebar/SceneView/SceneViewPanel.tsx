@@ -1275,6 +1275,25 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [selectedUuids, nodeMap, port, updateNode])
 
   // ── 균등 분포 배치 ────────────────────────────────────────
+  // 선택 노드 크기 맞추기 — 기준 노드(첫 번째 선택) 크기로 동일화
+  const handleMatchSize = useCallback(async (dim: 'W' | 'H' | 'both') => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 2) return
+    const ref = nodes[0]
+    for (let i = 1; i < nodes.length; i++) {
+      const n = nodes[i]
+      if (dim === 'W' || dim === 'both') {
+        updateNode(n.uuid, { width: ref.width })
+        try { await window.api.ccSetProperty?.(port, n.uuid, 'width', ref.width) } catch (_) {}
+      }
+      if (dim === 'H' || dim === 'both') {
+        updateNode(n.uuid, { height: ref.height })
+        try { await window.api.ccSetProperty?.(port, n.uuid, 'height', ref.height) } catch (_) {}
+      }
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
+
   const handleDistribute = useCallback(async (axis: 'H' | 'V') => {
     if (selectedUuids.size < 3) return
     const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
@@ -1418,6 +1437,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onAlignBottom={() => handleAlign('bottom')}
         onDistributeH={() => handleDistribute('H')}
         onDistributeV={() => handleDistribute('V')}
+        onMatchWidth={() => handleMatchSize('W')}
+        onMatchHeight={() => handleMatchSize('H')}
+        onMatchBoth={() => handleMatchSize('both')}
         onUndo={() => {
           setUndoStack(prev => {
             if (prev.length === 0) return prev

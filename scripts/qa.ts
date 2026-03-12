@@ -2036,6 +2036,26 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 136: R234 신규 기능 ───────────────────────────────
+console.log('\n## 136. 신규 기능 파일 검사 (R234)')
+// SceneView 노드 크기 맞추기 (Round 234)
+const svp234Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const st234Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(svp234Path) && existsSync(st234Path)) {
+  const svp234 = readFileSync(svp234Path, 'utf-8')
+  const st234 = readFileSync(st234Path, 'utf-8')
+  if (svp234.includes('handleMatchSize') && svp234.includes('onMatchWidth') && svp234.includes('크기 맞추기')) {
+    log('pass', 'Round234', 'SceneViewPanel: 노드 크기 맞추기 (W/H/both) 구현 존재')
+  } else {
+    log('warning', 'Round234', 'SceneViewPanel 크기 맞추기 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (st234.includes('onMatchWidth') && st234.includes('onMatchHeight') && st234.includes('onMatchBoth')) {
+    log('pass', 'Round234', 'SceneToolbar: 크기 맞추기 버튼 3종 존재')
+  } else {
+    log('warning', 'Round234', 'SceneToolbar 크기 맞추기 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 135: R233 신규 기능 ───────────────────────────────
 console.log('\n## 135. 신규 기능 파일 검사 (R233)')
 // SceneView Dirty 표시 (Round 233)

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 234] — 2026-03-13
+### Added
+- SceneView: 노드 크기 맞추기 — 선택 노드들을 기준 노드의 W/H/both 크기로 동일화, 툴바 버튼 3종
+
 ## [Round 233] — 2026-03-13
 ### Added
 - SceneView: 씬 변경 감지 (Dirty 표시) — nodeMap 변경 시 상태바에 "● 저장 안됨" 표시, 저장 시 초기화

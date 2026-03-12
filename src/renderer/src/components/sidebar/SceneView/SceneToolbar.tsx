@@ -20,6 +20,9 @@ interface SceneToolbarProps {
   onAlignBottom?: () => void
   onDistributeH?: () => void
   onDistributeV?: () => void
+  onMatchWidth?: () => void
+  onMatchHeight?: () => void
+  onMatchBoth?: () => void
   selectedUuid?: string | null
   onCreateNode?: () => void
   onDeleteNode?: () => void
@@ -95,6 +98,9 @@ export function SceneToolbar({
   onAlignBottom,
   onDistributeH,
   onDistributeV,
+  onMatchWidth,
+  onMatchHeight,
+  onMatchBoth,
   selectedUuid,
   onCreateNode,
   onDeleteNode,
@@ -452,6 +458,9 @@ export function SceneToolbar({
           <div style={divider} />
           <button onClick={onDistributeH} title="수평 균등 배치 (3개 이상)" style={btnBase}>⊢⊣</button>
           <button onClick={onDistributeV} title="수직 균등 배치 (3개 이상)" style={btnBase}>⊤⊥</button>
+          {onMatchWidth && <button onClick={onMatchWidth} title="같은 너비로 맞추기" style={btnBase}>↔W</button>}
+          {onMatchHeight && <button onClick={onMatchHeight} title="같은 높이로 맞추기" style={btnBase}>↕H</button>}
+          {onMatchBoth && <button onClick={onMatchBoth} title="같은 크기로 맞추기" style={btnBase}>⊞</button>}
         </>
       )}
 
