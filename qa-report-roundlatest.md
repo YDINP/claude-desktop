@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T11:51:02.952Z
+> 2026-03-12T11:55:32.149Z
 
 ## Critical
 _없음_
@@ -60,3 +60,5 @@ _없음_
 - NodePropertyPanel 색상피커 input 존재
 - SessionList 커스텀 태그 추가 기능 존재
 - SessionList 커스텀 태그 자동완성 + 필터 존재
+- SceneView DragState groupOffsets 필드 존재
+- SceneViewPanel 그룹 드래그 처리 존재

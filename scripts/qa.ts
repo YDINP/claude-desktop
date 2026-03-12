@@ -647,6 +647,28 @@ if (existsSync(sessionListPath)) {
   }
 }
 
+// ── Section 21: R117 신규 기능 ───────────────────────────────
+console.log('\n## 21. 신규 기능 파일 검사 (R117)')
+// SceneView 멀티셀렉트 그룹 드래그 (Round 117)
+const sceneTypesPath3 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/types.ts')
+if (existsSync(sceneTypesPath3)) {
+  const st3 = readFileSync(sceneTypesPath3, 'utf-8')
+  if (st3.includes('groupOffsets')) {
+    log('pass', 'Round117', 'SceneView DragState groupOffsets 필드 존재')
+  } else {
+    log('warning', 'Round117', 'SceneView DragState groupOffsets 미구현', 'SceneView/types.ts')
+  }
+}
+const sceneViewPanelPath3 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath3)) {
+  const svp3 = readFileSync(sceneViewPanelPath3, 'utf-8')
+  if (svp3.includes('groupOffsets') && svp3.includes('isGroupDrag')) {
+    log('pass', 'Round117', 'SceneViewPanel 그룹 드래그 처리 존재')
+  } else {
+    log('warning', 'Round117', 'SceneViewPanel 그룹 드래그 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

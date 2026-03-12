@@ -33,6 +33,8 @@ export interface DragState {
   startSvgY: number
   startNodeX: number
   startNodeY: number
+  // 그룹 드래그용: uuid → {startX, startY}
+  groupOffsets?: Record<string, { startX: number; startY: number }>
 }
 
 // 실행 취소/다시 실행 항목

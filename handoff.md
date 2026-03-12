@@ -1,15 +1,22 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 116 완료)
+> 마지막 업데이트: 2026-03-12 (Round 117 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 116 (QA 통합 검수 + CHANGELOG 갱신)
+- 마지막 커밋: Round 117 (SceneView 그룹 드래그 + QA Pass 54)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 52
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 54
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 115 완료 항목 (최근 세션)
+## Round 117 완료 항목 (최근 세션)
+
+### Round 117 — SceneView 멀티셀렉트 그룹 드래그
+- `SceneView/types.ts`: `DragState`에 `groupOffsets?: Record<string, {startX, startY}>` 추가
+- `SceneViewPanel.tsx`: `handleNodeMouseDown` — isGroupDrag 감지 시 groupOffsets 저장; `handleMouseMove` — 그룹 전체 동일 델타 이동; `handleMouseUp` — 그룹 노드 IPC 전송 + undoStack 배치 추가
+- `scripts/qa.ts`: Section 21 추가 (Pass 52→54)
+
+## Round 115 완료 항목 (이전 세션)
 
 ### Round 115 — 세션 커스텀 텍스트 태그 (자동완성 + 필터)
 - `SessionList.tsx`: `allCustomTags` useMemo (전체 세션 커스텀 태그 빈도 수집), `customTagInput`/`showTagSuggest`/`filterCustomTag` state 추가

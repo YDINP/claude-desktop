@@ -192,22 +192,36 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       return
     }
 
-    // 일반 클릭: 단일 선택
-    setSelectedUuid(uuid)
-    setSelectedUuids(new Set())
+    // 일반 클릭: 단일 선택 (멀티셀렉트 상태에서 선택된 노드를 클릭하면 그룹 드래그)
+    const isGroupDrag = selectedUuids.size > 1 && selectedUuids.has(uuid)
+
+    if (!isGroupDrag) {
+      setSelectedUuid(uuid)
+      setSelectedUuids(new Set())
+    }
 
     const node = nodeMap.get(uuid)
     if (!node) return
 
     const svgCoords = getSvgCoords(e)
+    const groupOffsets: Record<string, { startX: number; startY: number }> | undefined = isGroupDrag
+      ? Object.fromEntries(
+          [...selectedUuids].map(uid => {
+            const n = nodeMap.get(uid)
+            return [uid, { startX: n?.x ?? 0, startY: n?.y ?? 0 }]
+          })
+        )
+      : undefined
+
     dragRef.current = {
       uuid,
       startSvgX: svgCoords.x,
       startSvgY: svgCoords.y,
       startNodeX: node.x,
       startNodeY: node.y,
+      groupOffsets,
     }
-  }, [nodeMap, getSvgCoords])
+  }, [nodeMap, getSvgCoords, selectedUuids])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // 마퀴 업데이트
@@ -256,8 +270,21 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         newY = Math.round(newY / SNAP_GRID) * SNAP_GRID
       }
 
-      // 낙관적 업데이트 (즉시 반영)
-      updateNode(drag.uuid, { x: newX, y: newY })
+      if (drag.groupOffsets) {
+        // 그룹 드래그: 모든 선택 노드를 같은 델타만큼 이동
+        for (const [uid, { startX, startY }] of Object.entries(drag.groupOffsets)) {
+          let nx = startX + dSceneX
+          let ny = startY + dSceneY
+          if (snapEnabled) {
+            nx = Math.round(nx / SNAP_GRID) * SNAP_GRID
+            ny = Math.round(ny / SNAP_GRID) * SNAP_GRID
+          }
+          updateNode(uid, { x: nx, y: ny })
+        }
+      } else {
+        // 낙관적 업데이트 (즉시 반영)
+        updateNode(drag.uuid, { x: newX, y: newY })
+      }
     }
   }, [view.zoom, snapEnabled, getSvgCoords, updateNode])
 
@@ -310,24 +337,48 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     // 드래그 종료 → IPC 전송
     if (dragRef.current) {
       const drag = dragRef.current
-      const node = nodeMap.get(drag.uuid)
-      if (node) {
-        // 실제로 이동이 있었을 때만 undo 항목 추가
-        if (node.x !== drag.startNodeX || node.y !== drag.startNodeY) {
-          setUndoStack(prev => [...prev.slice(-49), {
-            uuid: drag.uuid,
-            prevX: drag.startNodeX,
-            prevY: drag.startNodeY,
-            nextX: node.x,
-            nextY: node.y,
-          }])
+
+      if (drag.groupOffsets) {
+        // 그룹 드래그 완료: 모든 선택 노드 저장
+        const entries: UndoEntry[] = []
+        for (const [uid, { startX, startY }] of Object.entries(drag.groupOffsets)) {
+          const n = nodeMap.get(uid)
+          if (!n) continue
+          if (n.x !== startX || n.y !== startY) {
+            entries.push({ uuid: uid, prevX: startX, prevY: startY, nextX: n.x, nextY: n.y })
+            try {
+              await window.api.ccSetProperty?.(port, uid, 'x', n.x)
+              await window.api.ccSetProperty?.(port, uid, 'y', n.y)
+            } catch (e) {
+              console.error('[SceneView] setProperty failed:', e)
+            }
+          }
+        }
+        if (entries.length > 0) {
+          setUndoStack(prev => [...prev.slice(-(50 - entries.length)), ...entries])
           setRedoStack([])
         }
-        try {
-          await window.api.ccSetProperty?.(port, drag.uuid, 'x', node.x)
-          await window.api.ccSetProperty?.(port, drag.uuid, 'y', node.y)
-        } catch (e) {
-          console.error('[SceneView] setProperty failed:', e)
+      } else {
+        // 단일 노드 처리
+        const node = nodeMap.get(drag.uuid)
+        if (node) {
+          // 실제로 이동이 있었을 때만 undo 항목 추가
+          if (node.x !== drag.startNodeX || node.y !== drag.startNodeY) {
+            setUndoStack(prev => [...prev.slice(-49), {
+              uuid: drag.uuid,
+              prevX: drag.startNodeX,
+              prevY: drag.startNodeY,
+              nextX: node.x,
+              nextY: node.y,
+            }])
+            setRedoStack([])
+          }
+          try {
+            await window.api.ccSetProperty?.(port, drag.uuid, 'x', node.x)
+            await window.api.ccSetProperty?.(port, drag.uuid, 'y', node.y)
+          } catch (e) {
+            console.error('[SceneView] setProperty failed:', e)
+          }
         }
       }
       dragRef.current = null
