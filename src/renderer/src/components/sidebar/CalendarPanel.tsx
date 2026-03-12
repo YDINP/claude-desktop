@@ -33,6 +33,7 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [editingEventDraft, setEditingEventDraft] = useState('')
   const [yearPickerOpen, setYearPickerOpen] = useState(false)
+  const [showAllUpcoming, setShowAllUpcoming] = useState(false)
 
   const commitEventEdit = (id: string) => {
     if (editingEventDraft.trim()) saveEvents(events.map(e => e.id === id ? { ...e, title: editingEventDraft.trim() } : e))
@@ -99,7 +100,6 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
     return events
       .filter(e => e.date >= today)
       .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(0, 3)
   }, [events, today])
 
   return (
@@ -221,10 +221,16 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
       {/* 다음 이벤트 미리보기 (날짜 미선택 시) */}
       {!selectedDay && upcomingEvents.length > 0 && (
         <div style={{ marginTop: 10 }}>
-          <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4, letterSpacing: '0.3px' }}>
-            다음 이벤트
+          <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4, letterSpacing: '0.3px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>다음 이벤트</span>
+            {upcomingEvents.length > 3 && (
+              <button onClick={() => setShowAllUpcoming(v => !v)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--accent)', padding: 0 }}>
+                {showAllUpcoming ? '접기' : `더 보기 (${upcomingEvents.length - 3}개)`}
+              </button>
+            )}
           </div>
-          {upcomingEvents.map(ev => (
+          {(showAllUpcoming ? upcomingEvents : upcomingEvents.slice(0, 3)).map(ev => (
             <div
               key={ev.id}
               onClick={() => setSelectedDay(ev.date)}

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 370] — 2026-03-13
+### Added
+- CalendarPanel: 다음 이벤트 "더 보기" 토글 — 3개 초과 시 "더 보기 (N개)" 버튼, 전체/접기 토글
+
 ## [Round 369] — 2026-03-13
 ### Added
 - SnippetPanel: 카테고리 필터 칩에 스니펫 수 표시 — 각 카테고리 버튼에 `(N)` 카운트 배지

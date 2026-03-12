@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 272: R370 신규 기능 ───────────────────────────────
+console.log('\n## 272. 신규 기능 파일 검사 (R370)')
+// CalendarPanel 다음 이벤트 더 보기 (Round 370)
+const cp370Path = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(cp370Path)) {
+  const cp370 = readFileSync(cp370Path, 'utf-8')
+  if (cp370.includes('showAllUpcoming') && cp370.includes('더 보기') && cp370.includes('접기')) {
+    log('pass', 'Round370', 'CalendarPanel: 다음 이벤트 더 보기 토글 존재')
+  } else {
+    log('warning', 'Round370', 'CalendarPanel 다음 이벤트 더 보기 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── Section 271: R369 신규 기능 ───────────────────────────────
 console.log('\n## 271. 신규 기능 파일 검사 (R369)')
 // SnippetPanel 카테고리 칩 스니펫 수 (Round 369)

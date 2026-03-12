@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T22:35:47.279Z
+> 2026-03-12T22:37:34.827Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- CalendarPanel: 다음 이벤트 더 보기 토글 존재
 - SnippetPanel: 카테고리 필터 칩 스니펫 수 표시 존재
 - GlobalSearchPanel: 검색 기록 삭제 (개별 × + 전체 삭제) 존재
 - CocosPanel: 빠른 포트 버튼 (9090/9091, CC 2.x/3.x) 존재

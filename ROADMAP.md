@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 369 완료 — SnippetPanel 카테고리 칩 수 표시, Pass 389)
+> 마지막 업데이트: 2026-03-13 (Round 370 완료 — CalendarPanel 다음 이벤트 더 보기, Pass 390)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 370 | dev | CalendarPanel 다음 이벤트 더 보기 — 3개 초과 시 showAllUpcoming 토글, "더 보기/접기" 버튼 | ✅ |
 | Round 369 | dev | SnippetPanel 카테고리 칩 스니펫 수 — 각 카테고리 버튼에 (N) 카운트 배지 | ✅ |
 | Round 368 | dev | GlobalSearchPanel 검색 기록 삭제 — 항목별 × 버튼, 헤더 "전체 삭제" 버튼 | ✅ |
 | Round 367 | dev | CocosPanel 빠른 포트 선택 버튼 — 포트 입력 옆 9090(CC 2.x)/9091(CC 3.x) 버튼, 현재 포트 강조 표시 | ✅ |
