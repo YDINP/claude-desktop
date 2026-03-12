@@ -999,8 +999,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </div>
         )}
 
-        {/* 줌 레벨 표시 */}
+        {/* 줌 레벨 표시 (클릭: 1:1, 더블클릭: fit) */}
         <div
+          title={`${Math.round(view.zoom * 100)}% — 클릭: 1:1 (100%) / 더블클릭: Fit`}
+          onClick={() => {
+            if (!containerRef.current) return
+            const { width, height } = containerRef.current.getBoundingClientRect()
+            setView({ zoom: 1, offsetX: (width - DESIGN_W) / 2, offsetY: (height - DESIGN_H) / 2 })
+          }}
+          onDoubleClick={e => { e.stopPropagation(); handleFit() }}
           style={{
             position: 'absolute',
             bottom: 6,
@@ -1010,7 +1017,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             background: 'rgba(0,0,0,0.5)',
             padding: '1px 5px',
             borderRadius: 3,
-            pointerEvents: 'none',
+            cursor: 'pointer',
+            userSelect: 'none',
           }}
         >
           {Math.round(view.zoom * 100)}%

@@ -1229,6 +1229,24 @@ if (existsSync(sceneViewPanelPath18)) {
   }
 }
 
+// ── Section 50: R148 신규 기능 ───────────────────────────────
+console.log('\n## 50. 신규 기능 파일 검사 (R148)')
+// 줌 인디케이터 클릭 리셋 (Round 148)
+const sceneViewPanelPath19 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath19)) {
+  const svp19 = readFileSync(sceneViewPanelPath19, 'utf-8')
+  if (svp19.includes('클릭: 1:1') && svp19.includes('더블클릭: Fit')) {
+    log('pass', 'Round148', 'SceneView: 줌 인디케이터 클릭/더블클릭 tooltip 존재')
+  } else {
+    log('warning', 'Round148', 'SceneView 줌 인디케이터 리셋 기능 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp19.includes('offsetX: (width - DESIGN_W) / 2') && svp19.includes('zoom: 1')) {
+    log('pass', 'Round148', 'SceneView: 1:1 줌 리셋 로직 존재')
+  } else {
+    log('warning', 'Round148', 'SceneView 1:1 리셋 로직 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

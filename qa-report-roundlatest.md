@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T13:53:46.845Z
+> 2026-03-12T13:56:12.603Z
 
 ## Critical
 _없음_
@@ -120,3 +120,5 @@ _없음_
 - SceneInspector: 부모 노드 클릭 선택 UI 존재
 - SceneView: 씬 해상도 레이블 <text> 엘리먼트 존재
 - SceneView: DESIGN_W × DESIGN_H 해상도 텍스트 존재
+- SceneView: 줌 인디케이터 클릭/더블클릭 tooltip 존재
+- SceneView: 1:1 줌 리셋 로직 존재
