@@ -55,6 +55,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showConnections, setShowConnections] = useState(false)
   const [showStats, setShowStats] = useState(false)
   const [showChangeHistory, setShowChangeHistory] = useState(false)
+  const [componentFilter, setComponentFilter] = useState<string>('all')
   const [changeHistory, setChangeHistory] = useState<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
   const changeHistoryRef = useRef<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
   changeHistoryRef.current = changeHistory
@@ -980,6 +981,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return getRenderOrder(rootUuid, nodeMap)
   }, [rootUuid, nodeMap])
 
+  // 씬 내 컴포넌트 타입 목록 (필터 드롭다운용)
+  const componentTypes = useMemo(() => {
+    const types = new Set<string>()
+    nodeMap.forEach(n => n.components.forEach(c => types.add(c.type)))
+    return [...types].sort()
+  }, [nodeMap])
+
   const selectedNode = selectedUuid ? nodeMap.get(selectedUuid) ?? null : null
   const selectionCount = selectedUuids.size > 1 ? selectedUuids.size : undefined
   const canCopy = selectedUuids.size > 0 || selectedUuid !== null
@@ -1222,6 +1230,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             return prev.slice(0, -1)
           })
         }}
+        componentFilter={componentFilter}
+        componentTypes={componentTypes}
+        onComponentFilterChange={setComponentFilter}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -1473,6 +1484,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   hovered={hoveredUuid === uuid}
                   multiSelected={selectedUuids.has(uuid)}
                   showLabel={showLabels}
+                  dimmed={componentFilter !== 'all' && !node.components.some(c => c.type === componentFilter)}
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={setHoveredUuid}
                   onMouseLeave={() => setHoveredUuid(null)}

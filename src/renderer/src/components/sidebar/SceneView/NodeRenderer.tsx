@@ -10,6 +10,7 @@ interface NodeRendererProps {
   hovered: boolean
   multiSelected?: boolean
   showLabel?: boolean
+  dimmed?: boolean
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
@@ -39,6 +40,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   hovered,
   multiSelected,
   showLabel = true,
+  dimmed = false,
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
@@ -59,7 +61,8 @@ export const NodeRenderer = memo(function NodeRenderer({
   const cx = sx
   const cy = sy
 
-  const opacity = node.visible === false ? 0.15 : node.active ? (node.opacity / 255) : 0.3
+  const baseOpacity = node.visible === false ? 0.15 : node.active ? (node.opacity / 255) : 0.3
+  const opacity = dimmed ? baseOpacity * 0.2 : baseOpacity
 
   // LOD: 줌 레벨에 따라 렌더링 디테일 단계
   // lod=0: 전체, lod=1: 라벨/아이콘 숨김, lod=2: fill 없음 (테두리만)

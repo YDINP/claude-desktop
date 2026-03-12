@@ -2036,6 +2036,33 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 125: R223 신규 기능 ───────────────────────────────
+console.log('\n## 125. 신규 기능 파일 검사 (R223)')
+// SceneView 컴포넌트 타입 필터 (Round 223)
+const svp223Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const st223Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+const nr223Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(svp223Path) && existsSync(st223Path) && existsSync(nr223Path)) {
+  const svp223 = readFileSync(svp223Path, 'utf-8')
+  const st223 = readFileSync(st223Path, 'utf-8')
+  const nr223 = readFileSync(nr223Path, 'utf-8')
+  if (svp223.includes('componentFilter') && svp223.includes('componentTypes') && svp223.includes('onComponentFilterChange')) {
+    log('pass', 'Round223', 'SceneViewPanel: 컴포넌트 필터 상태 + 툴바 연결 존재')
+  } else {
+    log('warning', 'Round223', 'SceneViewPanel 컴포넌트 필터 미연결', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (st223.includes('componentFilter') && st223.includes('onComponentFilterChange')) {
+    log('pass', 'Round223', 'SceneToolbar: 컴포넌트 필터 드롭다운 존재')
+  } else {
+    log('warning', 'Round223', 'SceneToolbar 컴포넌트 필터 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+  if (nr223.includes('dimmed') && nr223.includes('baseOpacity')) {
+    log('pass', 'Round223', 'NodeRenderer: dimmed prop으로 필터 미매칭 노드 희미하게 처리')
+  } else {
+    log('warning', 'Round223', 'NodeRenderer dimmed 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
 // ── Section 124: R222 신규 기능 ───────────────────────────────
 console.log('\n## 124. 신규 기능 파일 검사 (R222)')
 // SceneView 노드 이동 히스토리 (Round 222)
