@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import type { CCNode } from '../../../../shared/ipc-schema'
 
 interface SceneTreePanelProps {
   onSelectNode: (node: CCNode | null) => void
 }
 
-function NodeRow({
+const NodeRow = memo(function NodeRow({
   node, depth, selectedUuid, onSelect
 }: {
   node: CCNode; depth: number; selectedUuid: string | null; onSelect: (n: CCNode) => void
@@ -49,7 +49,7 @@ function NodeRow({
       ))}
     </>
   )
-}
+})
 
 export function SceneTreePanel({ onSelectNode }: SceneTreePanelProps) {
   const [tree, setTree] = useState<CCNode | null>(null)

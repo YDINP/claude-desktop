@@ -52,7 +52,8 @@ export async function executeCCActions(actions: CCAction[]): Promise<string[]> {
           results.push('웹빌드 트리거 (미구현)')
           break
         case 'refreshTree':
-          results.push('씬 트리 새로고침')
+          await window.api.ccGetTree?.()
+          results.push('↺ 씬 트리 새로고침 완료')
           break
       }
     } catch (e) {

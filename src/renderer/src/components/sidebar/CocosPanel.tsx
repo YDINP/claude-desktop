@@ -11,21 +11,27 @@ export function CocosPanel() {
   const [error, setError] = useState<string | null>(null)
 
   const handleConnect = useCallback(async () => {
+    let cancelled = false
     setConnecting(true)
     setError(null)
     try {
       const ok = await window.api.ccConnect?.(port)
-      setConnected(!!ok)
-      if (!ok) setError('CC Extension에 연결할 수 없습니다. Extension이 실행 중인지 확인하세요.')
+      if (!cancelled) {
+        setConnected(!!ok)
+        if (!ok) setError('CC Extension에 연결할 수 없습니다. Extension이 실행 중인지 확인하세요.')
+      }
     } catch (e) {
-      setError(String(e))
+      if (!cancelled) setError(String(e))
     } finally {
-      setConnecting(false)
+      if (!cancelled) setConnecting(false)
     }
+    return () => { cancelled = true }
   }, [port])
 
+  const handleNodeUpdate = useCallback(() => {}, [])
+
   useEffect(() => {
-    handleConnect()
+    const cleanup = handleConnect()
     const unsub = window.api.onCCEvent?.((event) => {
       if (event.type === 'node:select' && event.uuids?.[0]) {
         window.api.ccGetNode?.(event.uuids[0]).then(setSelectedNode).catch(() => {})
@@ -34,8 +40,8 @@ export function CocosPanel() {
       }
     })
     const unsubStatus = window.api.onCCStatusChange?.((s) => setConnected(s.connected))
-    return () => { unsub?.(); unsubStatus?.() }
-  }, [])
+    return () => { cleanup?.(); unsub?.(); unsubStatus?.() }
+  }, [handleConnect])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontSize: 12 }}>
@@ -86,7 +92,7 @@ export function CocosPanel() {
         <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
           <SceneTreePanel onSelectNode={setSelectedNode} />
           {selectedNode && (
-            <NodePropertyPanel node={selectedNode} onUpdate={() => {}} />
+            <NodePropertyPanel node={selectedNode} onUpdate={handleNodeUpdate} />
           )}
         </div>
       ) : (
