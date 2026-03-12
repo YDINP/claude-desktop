@@ -37,6 +37,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [inspectorNameFocus, setInspectorNameFocus] = useState(0)
   const [svgContextMenu, setSvgContextMenu] = useState<{ uuid: string | null; x: number; y: number } | null>(null)
+  const [bgLight, setBgLight] = useState(false)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -896,6 +897,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onHierarchyToggle={() => setShowHierarchy(v => !v)}
         showLabels={showLabels}
         onLabelsToggle={() => setShowLabels(v => !v)}
+        bgLight={bgLight}
+        onBgToggle={() => setBgLight(v => !v)}
         onCopy={handleCopy}
         onPaste={handlePaste}
         onZOrderFront={() => handleZOrder('front')}
@@ -994,10 +997,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               height="16"
               patternUnits="userSpaceOnUse"
             >
-              <rect width="8" height="8" fill="#242424" />
-              <rect x="8" y="0" width="8" height="8" fill="#1e1e1e" />
-              <rect x="0" y="8" width="8" height="8" fill="#1e1e1e" />
-              <rect x="8" y="8" width="8" height="8" fill="#242424" />
+              <rect width="8" height="8" fill={bgLight ? '#e0e0e0' : '#242424'} />
+              <rect x="8" y="0" width="8" height="8" fill={bgLight ? '#d0d0d0' : '#1e1e1e'} />
+              <rect x="0" y="8" width="8" height="8" fill={bgLight ? '#d0d0d0' : '#1e1e1e'} />
+              <rect x="8" y="8" width="8" height="8" fill={bgLight ? '#e0e0e0' : '#242424'} />
             </pattern>
 
             {/* 그리드 패턴 */}

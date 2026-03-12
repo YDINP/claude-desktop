@@ -1762,6 +1762,28 @@ if (existsSync(svp176Path)) {
   }
 }
 
+// ── Section 79: R177 신규 기능 ───────────────────────────────
+console.log('\n## 79. 신규 기능 파일 검사 (R177)')
+// SceneView 배경 밝기 토글 (Round 177)
+const sceneToolbarPath6 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(sceneToolbarPath6)) {
+  const st6 = readFileSync(sceneToolbarPath6, 'utf-8')
+  if (st6.includes('bgLight') && st6.includes('onBgToggle')) {
+    log('pass', 'Round177', 'SceneToolbar: bgLight + onBgToggle prop 존재')
+  } else {
+    log('warning', 'Round177', 'SceneToolbar bgLight 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+const svp177Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp177Path)) {
+  const svp177 = readFileSync(svp177Path, 'utf-8')
+  if (svp177.includes('bgLight') && svp177.includes('setBgLight')) {
+    log('pass', 'Round177', 'SceneViewPanel: bgLight state + 체크패턴 분기 존재')
+  } else {
+    log('warning', 'Round177', 'SceneViewPanel bgLight 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

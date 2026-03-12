@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 177] — 2026-03-13
+### Added
+- SceneView: 배경 밝기 토글 (◑) — 체크패턴 어두운/밝은 모드 전환
+
 ## [Round 176] — 2026-03-13
 ### Added
 - SceneView: 드래그/리사이즈 중 선택 노드 x,y,w,h 실시간 정보 표시

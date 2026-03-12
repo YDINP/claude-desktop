@@ -41,6 +41,8 @@ interface SceneToolbarProps {
   onHierarchyToggle?: () => void
   showLabels?: boolean
   onLabelsToggle?: () => void
+  bgLight?: boolean
+  onBgToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -86,6 +88,8 @@ export function SceneToolbar({
   onHierarchyToggle,
   showLabels,
   onLabelsToggle,
+  bgLight,
+  onBgToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -330,6 +334,15 @@ export function SceneToolbar({
         title="노드 이름 라벨 표시"
       >
         Aa
+      </button>
+
+      {/* 배경 밝기 토글 */}
+      <button
+        style={bgLight ? btnActive : btnBase}
+        onClick={onBgToggle}
+        title="배경 밝기 전환 (밝은/어두운)"
+      >
+        ◑
       </button>
 
       {/* 계층 트리 토글 */}
