@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 136 완료 — SceneView G키 선택 노드 포커스, Pass 92)
+> 마지막 업데이트: 2026-03-12 (Round 137 완료 — SceneInspector Scale 편집, Pass 93)
 
 ## 완료된 라운드
 
@@ -88,6 +88,7 @@
 | Round 134 | dev | NodeHierarchyList 선택 노드 자동 스크롤 — focusUuid로 계층 패널 동기화 | ✅ |
 | Round 135 | dev | NodePropertyPanel COMP_EDITABLE_KEYS 확장 — Slider/Toggle/ProgressBar/ScrollView/Animation | ✅ |
 | Round 136 | dev | SceneView 선택 노드 포커스 — G키로 선택 노드 중심 카메라 이동 | ✅ |
+| Round 137 | dev | SceneInspector Scale 편집 — scaleX/scaleY NumInput 섹션 추가 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 137] — 2026-03-12
+### Added
+- SceneInspector: Scale 섹션 추가 — scaleX(Sx)/scaleY(Sy) NumInput 편집 (decimals=2)
+
 ## [Round 136] — 2026-03-12
 ### Added
 - SceneViewPanel: handleFocusSelected() — 선택 노드 중심으로 카메라 이동 + 줌 조정

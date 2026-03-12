@@ -330,6 +330,13 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
         <NumInput label="H" value={node.height} uuid={node.uuid} prop="height" onSave={onUpdate} />
       </div>
 
+      {/* Scale */}
+      <SectionHeader label="Scale" />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+        <NumInput label="Sx" value={node.scaleX} decimals={2} uuid={node.uuid} prop="scaleX" onSave={onUpdate} />
+        <NumInput label="Sy" value={node.scaleY} decimals={2} uuid={node.uuid} prop="scaleY" onSave={onUpdate} />
+      </div>
+
       {/* Rotation */}
       <SectionHeader label="Rotation" />
       <NumInput label="Rot" value={node.rotation} decimals={2} uuid={node.uuid} prop="rotation" onSave={onUpdate} />

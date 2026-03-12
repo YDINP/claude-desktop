@@ -1037,6 +1037,19 @@ if (existsSync(sceneViewPanelPath13)) {
   }
 }
 
+// ── Section 39: R137 신규 기능 ───────────────────────────────
+console.log('\n## 39. 신규 기능 파일 검사 (R137)')
+// SceneInspector Scale 편집 (Round 137)
+const sceneInspectorPath3 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath3)) {
+  const si3 = readFileSync(sceneInspectorPath3, 'utf-8')
+  if (si3.includes("prop=\"scaleX\"") && si3.includes("prop=\"scaleY\"") && si3.includes('label="Scale"')) {
+    log('pass', 'Round137', 'SceneInspector: Scale 섹션 + scaleX/scaleY NumInput 존재')
+  } else {
+    log('warning', 'Round137', 'SceneInspector Scale 편집 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
