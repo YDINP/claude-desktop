@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 107: R205 신규 기능 ───────────────────────────────
+console.log('\n## 107. 신규 기능 파일 검사 (R205)')
+// NotesPanel 신규 패널 (Round 205)
+const notesPanelPath = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(notesPanelPath)) {
+  const np = readFileSync(notesPanelPath, 'utf-8')
+  if (np.includes('NotesPanel') && np.includes('claude-desktop-notes') && np.includes('새 노트')) {
+    log('pass', 'Round205', 'NotesPanel: 자유 메모장 패널 존재')
+  } else {
+    log('warning', 'Round205', 'NotesPanel 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 106: R204 신규 기능 ───────────────────────────────
 console.log('\n## 106. 신규 기능 파일 검사 (R204)')
 // SceneInspector 노드 메모 (Round 204)

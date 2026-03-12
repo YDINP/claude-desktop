@@ -11,6 +11,7 @@ import { SnippetPanel } from './SnippetPanel'
 import { TasksPanel } from './TasksPanel'
 import { CalendarPanel } from './CalendarPanel'
 import { ClipboardPanel } from './ClipboardPanel'
+import { NotesPanel } from './NotesPanel'
 import { DiffPanel } from './DiffPanel'
 import { OutlinePanel } from './OutlinePanel'
 import { PluginsPanel } from './PluginsPanel'
@@ -46,7 +47,7 @@ interface SidebarProps {
 
 export type { Tab as SidebarTab }
 
-type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'cocos' | 'globalsearch'
+type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'cocos' | 'globalsearch' | 'notes'
 
 export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet, onTabChange, wsKey, ccPort, onCCPortChange, onCCConnectedChange }: SidebarProps) {
   const [tab, setTab] = useState<Tab>('files')
@@ -88,6 +89,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             { id: 'changes', label: changedFiles.length > 0 ? `Changes (${changedFiles.length})` : 'Changes' },
             { id: 'git', label: '⎇ Git' },
           { id: 'globalsearch', label: '🔍 전체' },
+          { id: 'notes', label: '📝 노트' },
           ] as { id: Tab; label: string }[]).map((t) => (
             <button
               key={t.id}
@@ -255,6 +257,9 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
         )}
         {tab === 'cocos' && (
           <CocosPanel key={wsKey} defaultPort={ccPort} onPortChange={onCCPortChange} onConnectedChange={onCCConnectedChange} />
+        )}
+        {tab === 'notes' && (
+          <NotesPanel />
         )}
         {tab === 'globalsearch' && (
           <GlobalSearchPanel

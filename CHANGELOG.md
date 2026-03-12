@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 205] — 2026-03-13
+### Added
+- NotesPanel: 📝 노트 탭 — 여러 노트 생성/편집/삭제, 제목+본문, localStorage 저장
+
 ## [Round 204] — 2026-03-13
 ### Added
 - SceneInspector: 노드 메모 입력란 — 텍스트 메모 추가, Enter 저장, 노드 전환 시 자동 초기화

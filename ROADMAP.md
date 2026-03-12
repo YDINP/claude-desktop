@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 204 완료 — SceneInspector 노드 메모, Pass 199)
+> 마지막 업데이트: 2026-03-13 (Round 205 완료 — NotesPanel 자유 메모장, Pass 200)
 
 ## 완료된 라운드
 
@@ -156,6 +156,7 @@
 | Round 202 | dev | SceneView 픽셀 눈금자 — R 키 토글, 상단/좌측 Cocos 좌표 눈금자, 줌 반응형 틱 | ✅ |
 | Round 203 | dev | SceneView 노드 잠금 — 🔒 아이콘 토글, 잠긴 노드 드래그/선택 방어 | ✅ |
 | Round 204 | dev | SceneInspector 노드 메모 — 텍스트 메모 입력, Enter 저장, 노드 전환 자동 초기화 | ✅ |
+| Round 205 | dev | NotesPanel 📝 — 사이드바 자유 메모장, 다중 노트 생성/편집/삭제, localStorage | ✅ |
 
 ## 전략 로드맵 (Phase)
 
