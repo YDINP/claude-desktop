@@ -58,9 +58,30 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
       {/* Navigation */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <button onClick={() => setViewDate(d => new Date(d.getFullYear(), d.getMonth() - 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 16 }}>‹</button>
-        <span style={{ fontWeight: 600 }}>{year}년 {MONTHS[month]}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontWeight: 600 }}>{year}년 {MONTHS[month]}</span>
+          {(year !== new Date().getFullYear() || month !== new Date().getMonth()) && (
+            <button
+              onClick={() => { setViewDate(new Date()); setSelectedDay(today) }}
+              title="오늘로 이동"
+              style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent)', borderRadius: 3, cursor: 'pointer', color: 'var(--accent)', fontSize: 9, padding: '1px 5px', lineHeight: '14px' }}
+            >
+              오늘
+            </button>
+          )}
+        </div>
         <button onClick={() => setViewDate(d => new Date(d.getFullYear(), d.getMonth() + 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 16 }}>›</button>
       </div>
+      {/* 세션 수 합계 */}
+      {sessions.length > 0 && (
+        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, textAlign: 'center' }}>
+          전체 {sessions.length}개 세션 · 이번 달 {
+            [...sessionsByDate.entries()]
+              .filter(([k]) => k.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`))
+              .reduce((s, [, v]) => s + v.length, 0)
+          }개
+        </div>
+      )}
 
       {/* Day headers */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>

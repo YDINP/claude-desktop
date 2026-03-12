@@ -1992,6 +1992,24 @@ if (existsSync(svp193Path)) {
   }
 }
 
+// ── Section 96: R194 신규 기능 ───────────────────────────────
+console.log('\n## 96. 신규 기능 파일 검사 (R194)')
+// CalendarPanel 오늘 버튼 + 세션 통계 (Round 194)
+const calendarPath = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(calendarPath)) {
+  const cal = readFileSync(calendarPath, 'utf-8')
+  if (cal.includes('오늘으로 이동') || cal.includes('오늘로 이동')) {
+    log('pass', 'Round194', 'CalendarPanel: 오늘 빠른 이동 버튼 존재')
+  } else {
+    log('warning', 'Round194', 'CalendarPanel 오늘 버튼 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+  if (cal.includes('전체') && cal.includes('개 세션')) {
+    log('pass', 'Round194', 'CalendarPanel: 세션 수 합계 표시 존재')
+  } else {
+    log('warning', 'Round194', 'CalendarPanel 세션 통계 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

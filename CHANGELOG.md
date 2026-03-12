@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 194] — 2026-03-13
+### Added
+- CalendarPanel: "오늘" 버튼 — 다른 달 탐색 중 클릭 시 이번 달로 즉시 이동 + 오늘 날짜 선택
+- CalendarPanel: 세션 수 요약 — "전체 N개 세션 · 이번 달 M개" 텍스트 표시
+
 ## [Round 193] — 2026-03-13
 ### Added
 - SceneView: N 키 단축키 — 빠른 새 노드 생성 (선택 노드의 자식으로)

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 193 완료 — SceneView N키 노드 생성, Pass 187)
+> 마지막 업데이트: 2026-03-13 (Round 194 완료 — CalendarPanel 오늘 버튼 + 세션 통계, Pass 189)
 
 ## 완료된 라운드
 
@@ -145,6 +145,7 @@
 | Round 191 | dev | SceneView M키 미니맵 토글 + 단축키 도움말 업데이트 (Del/Backspace 추가) | ✅ |
 | Round 192 | dev | SceneView 원점(0,0) 십자선 가이드 — 그리드 활성 시 좌표 원점 파란 점선 십자선 | ✅ |
 | Round 193 | dev | SceneView N키 빠른 노드 생성 단축키 + 도움말 업데이트 | ✅ |
+| Round 194 | dev | CalendarPanel 오늘 버튼 + 세션 수 통계 (전체/이번 달) | ✅ |
 
 ## 전략 로드맵 (Phase)
 
