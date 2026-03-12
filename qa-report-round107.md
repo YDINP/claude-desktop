@@ -1,5 +1,5 @@
-# QA Report — Round latest
-> 2026-03-12T12:10:51.770Z
+# QA Report — Round 107
+> 2026-03-12T11:14:37.997Z
 
 ## Critical
 _없음_
@@ -44,28 +44,3 @@ _없음_
 - CC 2x extension Z-order 엔드포인트 존재
 - InputBar 빠른 액션 슬롯 존재
 - 세션 자동 제목 기능 존재
-- SceneTree 노드 인라인 이름 편집 존재
-- 스트리밍 경과 시간 표시 존재
-- cc-bridge.ts: createNode + deleteNode 존재
-- NodePropertyPanel 색상 스왓치 표시 존재
-- globalStats: totalMessages/dailyMessageCounts/topSessions 존재
-- StatsPanel 일별 메시지 수 차트 존재
-- StatsPanel 상위 세션 TOP 5 존재
-- NodePropertyPanel 슬라이더 PropRow 존재
-- Opacity 슬라이더 (0-255) 존재
-- Rotation 슬라이더 (-180~180) 존재
-- chat-store: saveAlternative + alternatives 필드 존재
-- MessageBubble alternatives 네비게이션 존재
-- CC 3x extension: color key 지원 존재
-- NodePropertyPanel 색상피커 input 존재
-- SessionList 커스텀 태그 추가 기능 존재
-- SessionList 커스텀 태그 자동완성 + 필터 존재
-- SceneView DragState groupOffsets 필드 존재
-- SceneViewPanel 그룹 드래그 처리 존재
-- SceneView 그룹 bbox 점선 박스 렌더링 존재
-- InputBar Shift+Enter 힌트 + adjustHeight useEffect 존재
-- InputBar 문자/줄 수 표시 존재
-- CC 3x extension: POST /node/:uuid/component 엔드포인트 존재
-- cc-bridge: setComponentProp 메서드 존재
-- NodePropertyPanel 컴포넌트별 편집 UI 존재 (cc.Label/cc.Button)
-- NodePropertyPanel saveComp + ccSetComponentProp 연동 존재

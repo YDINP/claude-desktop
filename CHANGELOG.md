@@ -1,5 +1,12 @@
 # Changelog — Claude Desktop
 
+## [Round 121] — 2026-03-12
+### Added
+- CC 3x Extension: POST /node/:uuid/component 엔드포인트 — cc.Label string/fontSize, cc.Button interactable 등 컴포넌트 props 직접 편집
+- cc-bridge.ts: setComponentProp() 메서드 추가
+- NodePropertyPanel: COMP_EDITABLE_KEYS 테이블 (cc.Label/cc.RichText/cc.Button/cc.EditBox), CompEditRow 인라인 편집 UI
+- saveComp() — ccSetComponentProp IPC 연동
+
 ## [Round 119] — 2026-03-12
 ### Added
 - InputBar: text useEffect → adjustHeight() 자동 호출 (Shift+Enter 줄바꿈 auto-resize)

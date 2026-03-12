@@ -98,15 +98,69 @@ function formatPropValue(value: unknown): string | null {
   return String(value)
 }
 
-function ComponentSection({ type, props, open, onToggle, onSaveProp }: {
+// cc.Label: string 편집, cc.Button: interactable 토글 등 컴포넌트별 특수 props 편집 행
+const COMP_EDITABLE_KEYS: Record<string, string[]> = {
+  'cc.Label':   ['string', 'fontSize', 'lineHeight'],
+  'cc.RichText': ['string', 'fontSize'],
+  'cc.Button':  ['interactable'],
+  'cc.EditBox': ['string', 'fontSize'],
+  'cc.Sprite':  [],
+}
+
+function CompEditRow({ label, value, onSave }: {
+  label: string
+  value: unknown
+  onSave: (v: unknown) => void
+}) {
+  const isBool = typeof value === 'boolean'
+  const isNum  = typeof value === 'number'
+  const [draft, setDraft] = useState(isBool ? String(value) : String(value ?? ''))
+
+  useEffect(() => {
+    setDraft(isBool ? String(value) : String(value ?? ''))
+  }, [value, isBool])
+
+  if (isBool) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 0', fontSize: 10 }}>
+        <span style={{ color: 'var(--text-muted)', minWidth: 72, flexShrink: 0 }}>{label}</span>
+        <input type="checkbox" checked={Boolean(value)} onChange={e => onSave(e.target.checked)}
+          style={{ cursor: 'pointer', accentColor: 'var(--accent)' }} />
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 0', fontSize: 10 }}>
+      <span style={{ color: 'var(--text-muted)', minWidth: 72, flexShrink: 0 }}>{label}</span>
+      <input
+        value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onBlur={() => {
+          const v = isNum ? parseFloat(draft) : draft
+          if (!isNum || !isNaN(v as number)) onSave(v)
+        }}
+        onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+        style={{
+          flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',
+          border: '1px solid var(--accent)', borderRadius: 3, padding: '2px 6px', fontSize: 10,
+        }}
+      />
+    </div>
+  )
+}
+
+function ComponentSection({ type, props, open, onToggle, onSaveProp, onSaveCompProp }: {
   type: string
   props?: Record<string, unknown>
   open: boolean
   onToggle: () => void
   onSaveProp?: (key: string, value: unknown) => void
+  onSaveCompProp?: (compType: string, key: string, value: unknown) => void
 }) {
+  const editableKeys = COMP_EDITABLE_KEYS[type] ?? []
   const rows = props
-    ? Object.entries(props).map(([k, v]) => ({ k, v: formatPropValue(v) })).filter(r => r.v !== null)
+    ? Object.entries(props).map(([k, v]) => ({ k, v: formatPropValue(v), raw: v })).filter(r => r.v !== null)
     : []
 
   return (
@@ -126,9 +180,16 @@ function ComponentSection({ type, props, open, onToggle, onSaveProp }: {
       </div>
       {open && rows.length > 0 && (
         <div style={{ paddingLeft: 14, paddingBottom: 2 }}>
-          {rows.map(({ k, v }) => {
+          {rows.map(({ k, v, raw }) => {
             const isColor = v?.startsWith('color:')
             const colorParts = isColor ? v!.slice(6).split(',').map(Number) : null
+            const isEditable = editableKeys.includes(k) && onSaveCompProp
+            if (isEditable) {
+              return (
+                <CompEditRow key={k} label={k} value={raw}
+                  onSave={val => onSaveCompProp!(type, k, val)} />
+              )
+            }
             return (
               <div key={k} style={{ display: 'flex', gap: 4, padding: '1px 0', fontSize: 10, alignItems: 'center' }}>
                 <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 72 }}>{k}</span>
@@ -199,6 +260,15 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
     }
   }
 
+  const saveComp = async (compType: string, key: string, value: unknown) => {
+    try {
+      await window.api.ccSetComponentProp?.(port, node.uuid, compType, key, value)
+      onUpdate()
+    } catch (e) {
+      console.error('[NodeProperty] setComponentProp failed:', e)
+    }
+  }
+
   const scale = node.scale ?? { x: 1, y: 1 }
   const hasUIOpacity = (node.components ?? []).some(c => c.type === 'cc.UIOpacity')
   const extraComponents = (node.components ?? []).filter(
@@ -249,6 +319,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
               open={!!openState[i]}
               onToggle={() => toggleOpen(i)}
               onSaveProp={(k, v) => save(k, v)}
+              onSaveCompProp={saveComp}
             />
           ))}
         </>

@@ -314,6 +314,38 @@ async function routeRequest3x(method, url, body, res) {
     return;
   }
 
+  // POST /node/:uuid/component { compType, key, value }
+  const compMatch = url.match(/^\/node\/([^\/]+)\/component$/);
+  if (method === 'POST' && compMatch) {
+    const uuid = compMatch[1];
+    const { compType, key, value } = body;
+    const raw = await Editor.Message.request('scene', 'query-node', uuid);
+    const comps = Array.isArray(raw?.__comps__) ? raw.__comps__ : [];
+    const idx = comps.findIndex(c => c.type === compType);
+    if (idx === -1) {
+      res.writeHead(404); res.end(JSON.stringify({ error: `Component ${compType} not found` }));
+      return;
+    }
+    // 키별 dump type 결정
+    let dumpType = 'String';
+    let dumpValue = value;
+    if (key === 'string' || typeof value === 'string') {
+      dumpType = 'String'; dumpValue = String(value);
+    } else if (key === 'fontSize' || key === 'lineHeight' || key === 'overflow' || key === 'horizontalAlign' || key === 'verticalAlign') {
+      dumpType = 'Float'; dumpValue = Number(value);
+    } else if (key === 'interactable' || typeof value === 'boolean') {
+      dumpType = 'Boolean'; dumpValue = Boolean(value);
+    } else if (typeof value === 'number') {
+      dumpType = 'Float'; dumpValue = Number(value);
+    }
+    await Editor.Message.request('scene', 'set-property', {
+      uuid, path: `__comps__.${idx}.${key}`,
+      dump: { type: dumpType, value: dumpValue }
+    });
+    res.writeHead(200); res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
   const moveMatch = url.match(/^\/node\/([^\/]+)\/move$/);
   if (method === 'POST' && moveMatch) {
     await Editor.Message.request('scene', 'set-property', {
@@ -426,7 +458,7 @@ async function routeRequest3x(method, url, body, res) {
   }
 
   if (method === 'GET' && url === '/status') {
-    res.writeHead(200); res.end(JSON.stringify({ ok: true, version: '3x', port: PORT, features: ['scene/tree', 'node', 'assets/tree'] }));
+    res.writeHead(200); res.end(JSON.stringify({ ok: true, version: '3x', port: PORT, features: ['scene/tree', 'node', 'node/component', 'assets/tree'] }));
     return;
   }
 

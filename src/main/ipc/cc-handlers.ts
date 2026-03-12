@@ -8,7 +8,7 @@ import {
   CC_CONNECT, CC_DISCONNECT, CC_STATUS,
   CC_GET_TREE, CC_GET_NODE, CC_SET_PROPERTY, CC_MOVE_NODE,
   CC_EVENT, CC_DETECT_PROJECT, CC_GET_PORT, CC_SET_PORT, CC_INSTALL_EXTENSION,
-  CC_GET_CANVAS_SIZE, CC_GET_ASSETS,
+  CC_GET_CANVAS_SIZE, CC_GET_ASSETS, CC_SET_COMP_PROP,
 } from '../../shared/ipc-schema'
 
 let _ccHandlersRegistered = false
@@ -74,6 +74,10 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
   ipcMain.handle('cc:deleteNode', async (_e, port: number, uuid: string) => {
     const bridge = getCCBridge(port)
     return bridge.deleteNode(uuid)
+  })
+
+  ipcMain.handle('cc:setComponentProp', async (_e, port: number, uuid: string, compType: string, key: string, value: unknown) => {
+    return getCCBridge(port).setComponentProp(uuid, compType, key, value)
   })
 
   ipcMain.handle(CC_MOVE_NODE, async (_e, port = 9090, uuid: string, x: number, y: number) => {

@@ -700,6 +700,42 @@ if (existsSync(inputBarPath4)) {
   }
 }
 
+// ── Section 24: R121 신규 기능 ───────────────────────────────
+console.log('\n## 24. 신규 기능 파일 검사 (R121)')
+// CC Extension 컴포넌트 props 편집 (Round 121)
+const cc3xPath3 = join(ROOT, 'extensions/cc-ws-extension-3x/main.js')
+if (existsSync(cc3xPath3)) {
+  const c3x = readFileSync(cc3xPath3, 'utf-8')
+  if (c3x.includes('/node/:uuid/component') || c3x.includes("url.match(/^\\/node\\/([^\\/]+)\\/component$/") || c3x.includes('compMatch')) {
+    log('pass', 'Round121', 'CC 3x extension: POST /node/:uuid/component 엔드포인트 존재')
+  } else {
+    log('warning', 'Round121', 'CC 3x extension: 컴포넌트 prop 설정 엔드포인트 미구현', 'extensions/cc-ws-extension-3x/main.js')
+  }
+}
+const ccBridgePath4 = join(ROOT, 'src/main/cc/cc-bridge.ts')
+if (existsSync(ccBridgePath4)) {
+  const cb4 = readFileSync(ccBridgePath4, 'utf-8')
+  if (cb4.includes('setComponentProp')) {
+    log('pass', 'Round121', 'cc-bridge: setComponentProp 메서드 존재')
+  } else {
+    log('warning', 'Round121', 'cc-bridge: setComponentProp 미구현', 'cc/cc-bridge.ts')
+  }
+}
+const nodePropPath5 = join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx')
+if (existsSync(nodePropPath5)) {
+  const np4 = readFileSync(nodePropPath5, 'utf-8')
+  if (np4.includes('COMP_EDITABLE_KEYS') && np4.includes('cc.Label') && np4.includes('CompEditRow')) {
+    log('pass', 'Round121', 'NodePropertyPanel 컴포넌트별 편집 UI 존재 (cc.Label/cc.Button)')
+  } else {
+    log('warning', 'Round121', 'NodePropertyPanel 컴포넌트별 편집 UI 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+  if (np4.includes('saveComp') && np4.includes('ccSetComponentProp')) {
+    log('pass', 'Round121', 'NodePropertyPanel saveComp + ccSetComponentProp 연동 존재')
+  } else {
+    log('warning', 'Round121', 'NodePropertyPanel saveComp 연동 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

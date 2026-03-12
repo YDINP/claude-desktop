@@ -107,6 +107,16 @@ class CCBridge {
     return resp.json()
   }
 
+  async setComponentProp(uuid: string, compType: string, key: string, value: unknown) {
+    const resp = await fetch(`http://127.0.0.1:${this._port}/node/${uuid}/component`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ compType, key, value }),
+    })
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+    return resp.json()
+  }
+
   async setZOrder(uuid: string, direction: string): Promise<void> {
     const resp = await fetch(`http://127.0.0.1:${this._port}/node/${uuid}/zorder`, {
       method: 'POST',

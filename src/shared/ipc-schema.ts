@@ -121,6 +121,7 @@ export const CC_SET_PORT = 'cc:setPort'
 export const CC_INSTALL_EXTENSION = 'cc:installExtension'
 export const CC_GET_CANVAS_SIZE = 'cc:getCanvasSize'
 export const CC_GET_ASSETS = 'cc:get-assets'
+export const CC_SET_COMP_PROP = 'cc:setComponentProp'
 
 export interface AssetItem {
   name: string
