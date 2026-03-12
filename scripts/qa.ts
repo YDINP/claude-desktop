@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 278: R376 신규 기능 ───────────────────────────────
+console.log('\n## 278. 신규 기능 파일 검사 (R376)')
+// PluginsPanel 전체 켜기/끄기 (Round 376)
+const pp376Path = join(ROOT, 'src/renderer/src/components/sidebar/PluginsPanel.tsx')
+if (existsSync(pp376Path)) {
+  const pp376 = readFileSync(pp376Path, 'utf-8')
+  if (pp376.includes('전부 켜기') && pp376.includes('전부 끄기') && pp376.includes('allEnabled')) {
+    log('pass', 'Round376', 'PluginsPanel: 전체 켜기/끄기 버튼 존재')
+  } else {
+    log('warning', 'Round376', 'PluginsPanel 전체 켜기/끄기 미구현', 'sidebar/PluginsPanel.tsx')
+  }
+}
+
 // ── Section 277: R375 신규 기능 ───────────────────────────────
 console.log('\n## 277. 신규 기능 파일 검사 (R375)')
 // NotesPanel 검색 결과 콘텐츠 발췌 (Round 375)

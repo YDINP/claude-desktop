@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T22:47:36.749Z
+> 2026-03-12T22:49:11.300Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- PluginsPanel: 전체 켜기/끄기 버튼 존재
 - NotesPanel: 검색 결과 콘텐츠 발췌 (이탤릭 인라인 표시) 존재
 - SceneTreePanel: 컴포넌트 수 초과 +N 표시 존재
 - ChangedFilesPanel: 파일 경로 복사 버튼 존재

@@ -93,6 +93,13 @@ export function PluginsPanel() {
         </div>
         {plugins.length > 1 && (
           <button
+            onClick={() => { const allEnabled = enabledSet.size >= plugins.length; saveEnabled(allEnabled ? new Set() : new Set(plugins.map(p => p.filename))) }}
+            title={enabledSet.size < plugins.length ? '모두 활성화' : '모두 비활성화'}
+            style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 6px', fontSize: 9, cursor: 'pointer' }}
+          >{enabledSet.size < plugins.length ? '전부 켜기' : '전부 끄기'}</button>
+        )}
+        {plugins.length > 1 && (
+          <button
             onClick={() => setSortMode(m => m === 'default' ? 'name' : m === 'name' ? 'enabled' : 'default')}
             title={`정렬: ${sortMode === 'default' ? '기본' : sortMode === 'name' ? '이름순' : '활성 먼저'}`}
             style={{ background: sortMode !== 'default' ? 'var(--accent-dim)' : 'var(--bg-hover)', color: sortMode !== 'default' ? 'var(--accent)' : 'var(--text-muted)', border: `1px solid ${sortMode !== 'default' ? 'var(--accent)' : 'var(--border)'}`, borderRadius: 4, padding: '3px 8px', fontSize: 10, cursor: 'pointer' }}
