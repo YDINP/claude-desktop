@@ -1,0 +1,80 @@
+import { useState, useEffect, memo } from 'react'
+import type { ToolUseItem } from '../../stores/chat-store'
+
+export const ToolUseIndicator = memo(function ToolUseIndicator({ tool }: { tool: ToolUseItem }) {
+  const [collapsed, setCollapsed] = useState(tool.status === 'done')
+
+  useEffect(() => {
+    if (tool.status === 'running') {
+      setCollapsed(false)
+    }
+  }, [tool.status])
+
+  const statusColor = {
+    running: 'var(--warning)',
+    done: 'var(--success)',
+    error: 'var(--error)',
+  }[tool.status]
+
+  const statusIcon = { running: '\u27F3', done: '\u2713', error: '\u2717' }[tool.status]
+
+  return (
+    <div style={{
+      background: 'var(--tool-bg)',
+      border: '1px solid var(--tool-border)',
+      borderLeft: `3px solid ${statusColor}`,
+      borderRadius: 'var(--radius-sm)',
+      padding: '6px 10px',
+      marginTop: 6,
+      fontSize: 12,
+    }}>
+      <div
+        onClick={() => setCollapsed((c) => !c)}
+        style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', userSelect: 'none' }}
+      >
+        <span style={{ color: statusColor, fontSize: 11 }}>{statusIcon}</span>
+        <span style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>{tool.name}</span>
+        <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+          {tool.status === 'running' ? 'running...' : tool.status}
+        </span>
+        <span style={{ color: 'var(--text-muted)', fontSize: 10, marginLeft: 'auto' }}>
+          {collapsed ? '\u25B8' : '\u25BE'}
+        </span>
+      </div>
+      {!collapsed && !!tool.input && (
+        <pre style={{
+          color: 'var(--text-secondary)',
+          fontSize: 11,
+          marginTop: 6,
+          overflow: 'auto',
+          maxHeight: 120,
+          fontFamily: 'var(--font-mono)',
+          background: 'var(--bg-tertiary)',
+          padding: '4px 6px',
+          borderRadius: 3,
+        }}>
+          {JSON.stringify(tool.input, null, 2)}
+        </pre>
+      )}
+      {!collapsed && tool.output && (
+        <div style={{ marginTop: 4 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>Output</div>
+          <pre style={{
+            color: tool.status === 'error' ? 'var(--error)' : 'var(--text-secondary)',
+            fontSize: 11,
+            overflow: 'auto',
+            maxHeight: 160,
+            fontFamily: 'var(--font-mono)',
+            background: 'var(--bg-tertiary)',
+            padding: '4px 6px',
+            borderRadius: 3,
+          }}>
+            {tool.output.length > 2000 ? tool.output.slice(0, 2000) + '\n… (truncated)' : tool.output}
+          </pre>
+        </div>
+      )}
+    </div>
+  )
+}, (prev, next) => {
+  return prev.tool.id === next.tool.id && prev.tool.status === next.tool.status && prev.tool.output === next.tool.output
+})

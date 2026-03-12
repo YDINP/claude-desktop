@@ -1,0 +1,415 @@
+import { contextBridge, ipcRenderer } from 'electron'
+
+contextBridge.exposeInMainWorld('api', {
+  // Claude
+  claudeSend: (payload: { text: string; cwd: string; model: string }) =>
+    ipcRenderer.send('claude:send', payload),
+  claudeInterrupt: () => ipcRenderer.send('claude:interrupt'),
+  claudeClose: () => ipcRenderer.send('claude:close'),
+  claudeResume: (sessionId: string) => ipcRenderer.send('claude:resume', { sessionId }),
+  claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) =>
+    ipcRenderer.send('claude:permission-reply', { requestId, allow, allowSession }),
+  onClaudeMessage: (cb: (event: unknown) => void) => {
+    ipcRenderer.on('claude:message', (_, data) => cb(data))
+  },
+  onClaudePermission: (cb: (req: unknown) => void) => {
+    ipcRenderer.on('claude:permission', (_, data) => cb(data))
+  },
+  removeClaudeListeners: () => {
+    ipcRenderer.removeAllListeners('claude:message')
+    ipcRenderer.removeAllListeners('claude:permission')
+  },
+  onCloseTab: (cb: () => void) => {
+    ipcRenderer.on('shortcut:close-tab', () => cb())
+  },
+  onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => {
+    const handler = (_: unknown, { delta, reset }: { delta: number; reset?: boolean }) => cb(delta, reset)
+    ipcRenderer.on('shortcut:font-size', handler as Parameters<typeof ipcRenderer.on>[1])
+    return () => ipcRenderer.removeListener('shortcut:font-size', handler as Parameters<typeof ipcRenderer.removeListener>[1])
+  },
+
+  // Terminal
+  terminalCreate: (id: string, cwd: string) =>
+    ipcRenderer.send('terminal:create', { id, cwd }),
+  terminalWrite: (id: string, data: string) =>
+    ipcRenderer.send('terminal:data', { id, data }),
+  terminalResize: (id: string, cols: number, rows: number) =>
+    ipcRenderer.send('terminal:resize', { id, cols, rows }),
+  terminalClose: (id: string) =>
+    ipcRenderer.send('terminal:close', { id }),
+  onTerminalData: (cb: (id: string, data: string) => void) => {
+    const listener = (_: unknown, { id, data }: { id: string; data: string }) => cb(id, data)
+    ipcRenderer.on('terminal:data', listener as Parameters<typeof ipcRenderer.on>[1])
+    return () => ipcRenderer.removeListener('terminal:data', listener as Parameters<typeof ipcRenderer.removeListener>[1])
+  },
+
+  // File system
+  saveFile: (content: string, defaultName: string) => ipcRenderer.invoke('fs:save-file', { content, defaultName }),
+  readDir: (path: string) => ipcRenderer.invoke('fs:read-dir', { path }),
+  readFile: (path: string) => ipcRenderer.invoke('fs:read-file', { path }),
+  readFileBase64: (path: string) => ipcRenderer.invoke('fs:read-file-base64', { path }),
+  searchFiles: (rootPath: string, query: string) =>
+    ipcRenderer.invoke('fs:search-files', { rootPath, query }),
+  openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url),
+  revealInExplorer: (path: string) => ipcRenderer.invoke('shell:reveal-in-explorer', path),
+  saveClipboardImage: (base64: string, ext: string) => ipcRenderer.invoke('clipboard:save-image', { base64, ext }),
+  exportHtml: (filePath: string, html: string) => ipcRenderer.invoke('fs:exportHtml', { filePath, html }),
+  writeTextFile: (filePath: string, content: string) => ipcRenderer.invoke('fs:writeTextFile', { filePath, content }),
+  showSaveDialog: (opts: { defaultPath: string; filters: Array<{name: string; extensions: string[]}> }) => ipcRenderer.invoke('fs:showSaveDialog', opts),
+  createFile: (dirPath: string, name: string) => ipcRenderer.invoke('fs:createFile', { dirPath, name }),
+  createDir: (dirPath: string, name: string) => ipcRenderer.invoke('fs:createDir', { dirPath, name }),
+  renameFile: (oldPath: string, newName: string) => ipcRenderer.invoke('fs:rename', { oldPath, newName }),
+  deleteFile: (filePath: string, isDir: boolean) => ipcRenderer.invoke('fs:delete', { filePath, isDir }),
+  grepSearch: (rootPath: string, query: string, options?: { caseSensitive?: boolean; useRegex?: boolean; includePattern?: string }) =>
+    ipcRenderer.invoke('fs:grepSearch', { rootPath, query, options }),
+  watchDir: (dirPath: string) => ipcRenderer.invoke('fs:watchDir', { dirPath }),
+  unwatchDir: (dirPath: string) => ipcRenderer.invoke('fs:unwatchDir', { dirPath }),
+  onDirChanged: (callback: (data: { dirPath: string; eventType: string; filename: string }) => void) => {
+    const handler = (_: unknown, data: { dirPath: string; eventType: string; filename: string }) => callback(data)
+    ipcRenderer.on('fs:dirChanged', handler)
+    return () => ipcRenderer.off('fs:dirChanged', handler)
+  },
+  recentFiles: () => ipcRenderer.invoke('fs:recentFiles'),
+  addRecentFile: (filePath: string) => ipcRenderer.invoke('fs:addRecentFile', filePath),
+  clearRecentFiles: () => ipcRenderer.invoke('fs:clearRecentFiles'),
+  getFavorites: () => ipcRenderer.invoke('fs:getFavorites'),
+  toggleFavorite: (path: string) => ipcRenderer.invoke('fs:toggleFavorite', { path }),
+  fsStat: (path: string) => ipcRenderer.invoke('fs:stat', { path }),
+
+  // Project
+  openFolder: () => ipcRenderer.invoke('project:open'),
+  getRecentProjects: () => ipcRenderer.invoke('project:recent'),
+  getCurrentProject: () => ipcRenderer.invoke('project:current'),
+  setProject: (path: string) => ipcRenderer.send('project:set', { path }),
+  getOpenWorkspaces: () => ipcRenderer.invoke('project:get-workspaces'),
+  setOpenWorkspaces: (workspaces: Array<{ path: string; openTabs: string[]; activeTab: string }>, activePath: string | null) =>
+    ipcRenderer.send('project:set-workspaces', { workspaces, activePath }),
+
+  // Project system prompt
+  getProjectSystemPrompt: (projectPath: string) => ipcRenderer.invoke('project:getSystemPrompt', projectPath),
+  setProjectSystemPrompt: (projectPath: string, prompt: string) => ipcRenderer.invoke('project:setSystemPrompt', { projectPath, prompt }),
+
+  // Git
+  gitStatus: (cwd: string) => ipcRenderer.invoke('git:status', { cwd }),
+  gitFileDiff: (cwd: string, filePath: string, staged: boolean) =>
+    ipcRenderer.invoke('git:fileDiff', { cwd, filePath, staged }),
+  gitDiff: (repoPath: string, filePath: string) => ipcRenderer.invoke('git:diff', { repoPath, filePath }),
+  gitStatusFull: (repoPath: string) => ipcRenderer.invoke('git:statusFull', { repoPath }),
+  gitStage: (repoPath: string, filePath: string) => ipcRenderer.invoke('git:stage', { repoPath, filePath }),
+  gitUnstage: (repoPath: string, filePath: string) => ipcRenderer.invoke('git:unstage', { repoPath, filePath }),
+  gitCommit: (repoPath: string, message: string) => ipcRenderer.invoke('git:commit', { repoPath, message }),
+  gitLog: (repoPath: string, limit?: number) => ipcRenderer.invoke('git:log', { repoPath, limit }),
+  gitGenerateCommitMessage: (repoPath: string) => ipcRenderer.invoke('git:generateCommitMessage', { repoPath }),
+  gitBranches: (cwd: string) => ipcRenderer.invoke('git:branches', { cwd }),
+  gitCheckout: (cwd: string, branch: string) => ipcRenderer.invoke('git:checkout', { cwd, branch }),
+  gitCreateBranch: (cwd: string, name: string) => ipcRenderer.invoke('git:createBranch', { cwd, name }),
+  gitDeleteBranch: (cwd: string, name: string, force?: boolean) => ipcRenderer.invoke('git:deleteBranch', { cwd, name, force }),
+  gitStashList: (cwd: string) => ipcRenderer.invoke('git:stashList', { cwd }),
+  gitStashPush: (cwd: string, message?: string) => ipcRenderer.invoke('git:stashPush', { cwd, message }),
+  gitStashPop: (cwd: string, ref?: string) => ipcRenderer.invoke('git:stashPop', { cwd, ref }),
+  gitStashDrop: (cwd: string, ref: string) => ipcRenderer.invoke('git:stashDrop', { cwd, ref }),
+  gitShow: (cwd: string, hash: string) => ipcRenderer.invoke('git:show', { cwd, hash }),
+  gitRestoreFile: (cwd: string, filePath: string) => ipcRenderer.invoke('git:restoreFile', { cwd, filePath }),
+  gitBlame: (cwd: string, filePath: string) => ipcRenderer.invoke('git:blame', { cwd, filePath }),
+  gitFetch: (cwd: string) => ipcRenderer.invoke('git:fetch', { cwd }),
+  gitUndoLastCommit: (cwd: string) => ipcRenderer.invoke('git:undoLastCommit', { cwd }),
+  gitCleanUntracked: (cwd: string) => ipcRenderer.invoke('git:cleanUntracked', { cwd }),
+  gitListTags: (cwd: string) => ipcRenderer.invoke('git:listTags', { cwd }),
+  gitCreateTag: (cwd: string, name: string, message?: string) => ipcRenderer.invoke('git:createTag', { cwd, name, message }),
+  gitDeleteTag: (cwd: string, name: string) => ipcRenderer.invoke('git:deleteTag', { cwd, name }),
+
+  // Sessions
+  sessionSave: (session: unknown) => ipcRenderer.invoke('session:save', session),
+  sessionList: () => ipcRenderer.invoke('session:list'),
+  sessionLoad: (id: string) => ipcRenderer.invoke('session:load', id),
+  sessionDelete: (id: string) => ipcRenderer.invoke('session:delete', id),
+  sessionRename: (id: string, title: string) => ipcRenderer.invoke('session:rename', { id, title }),
+  sessionPin: (id: string, pinned: boolean) => ipcRenderer.invoke('session:pin', { id, pinned }),
+  sessionTag: (id: string, tags: string[]) => ipcRenderer.invoke('session:tag', { id, tags }),
+  sessionGlobalSearch: (query: string, limit?: number) => ipcRenderer.invoke('session:globalSearch', { query, limit }),
+  sessionExportAll: () => ipcRenderer.invoke('session:exportAll'),
+  sessionImportBackup: () => ipcRenderer.invoke('session:importBackup'),
+  sessionFork: (sourceSessionId: string, upToMessageIndex: number, newTitle?: string) =>
+    ipcRenderer.invoke('session:fork', { sourceSessionId, upToMessageIndex, newTitle }),
+  sessionStats: (id: string) => ipcRenderer.invoke('session:stats', { id }),
+  sessionGlobalStats: () => ipcRenderer.invoke('session:globalStats'),
+  sessionExportMarkdown: (sessionId: string) => ipcRenderer.invoke('session:exportMarkdown', { sessionId }),
+  sessionExportPdf: (sessionId: string) => ipcRenderer.invoke('session:exportPdf', { sessionId }),
+  sessionGenerateTitle: (userMsg: string, assistantMsg: string) =>
+    ipcRenderer.invoke('session:generateTitle', { userMsg, assistantMsg }),
+  sessionGenerateTags: (userMsg: string, assistantMsg: string) =>
+    ipcRenderer.invoke('session:generateTags', { userMsg, assistantMsg }),
+  generateTitle: (data: { userMessage: string }) =>
+    ipcRenderer.invoke('claude:generateTitle', data),
+  compressContext: (messages: Array<{ role: string; text: string }>) =>
+    ipcRenderer.invoke('claude:compressContext', { messages }),
+  explainCode: (code: string, language: string) =>
+    ipcRenderer.invoke('claude:explainCode', { code, language }),
+  translate: (text: string, targetLang: 'ko' | 'en') =>
+    ipcRenderer.invoke('claude:translate', { text, targetLang }),
+  enhancePrompt: (prompt: string) => ipcRenderer.invoke('claude:enhancePrompt', { prompt }),
+  suggestFollowUps: (lastAssistantMsg: string, lastUserMsg: string) =>
+    ipcRenderer.invoke('claude:suggestFollowUps', { lastAssistantMsg, lastUserMsg }),
+  generateDocs: (data: { code: string; lang: string }) => ipcRenderer.invoke('claude:generateDocs', data),
+  summarizeSession: (data: { messages: Array<{ role: string; content: string }> }) =>
+    ipcRenderer.invoke('claude:summarizeSession', data),
+  generateInsights: (data: { totalSessions: number; totalTokens: number; avgTokensPerSession: number; topHours: number[]; peakDay: string; totalDays: number }) => ipcRenderer.invoke('claude:generateInsights', data),
+  suggestSnippets: (messages: Array<{ role: string; content: string }>) =>
+    ipcRenderer.invoke('claude:suggestSnippets', { messages }),
+  sessionGetNote: (sessionId: string) => ipcRenderer.invoke('session:getNote', { sessionId }),
+  sessionSetNote: (sessionId: string, note: string) => ipcRenderer.invoke('session:setNote', { sessionId, note }),
+  sessionDuplicate: (sessionId: string) => ipcRenderer.invoke('session:duplicate', { sessionId }),
+  sessionMerge: (sessionIds: string[], newTitle?: string) => ipcRenderer.invoke('session:merge', { sessionIds, newTitle }),
+  sessionReorder: (fromId: string, toId: string) => ipcRenderer.invoke('session:reorder', { fromId, toId }),
+  sessionSetLocked: (id: string, locked: boolean) => ipcRenderer.invoke('session:setLocked', { id, locked }),
+  sessionSetCollection: (id: string, collection: string | null) => ipcRenderer.invoke('session:setCollection', { id, collection }),
+  saveSessionAsTemplate: (sessionId: string, templateName?: string) => ipcRenderer.invoke('session:saveAsTemplate', { sessionId, templateName }),
+  listTemplates: () => ipcRenderer.invoke('session:listTemplates'),
+  createSessionFromTemplate: (templateId: string) => ipcRenderer.invoke('session:createFromTemplate', { templateId }),
+  deleteTemplate: (templateId: string) => ipcRenderer.invoke('session:deleteTemplate', { templateId }),
+
+  // Snippets
+  snippetList: () => ipcRenderer.invoke('snippet:list'),
+  snippetSave: (snippet: { id: string; name: string; content: string; language?: string; category?: string; shortcut?: string; createdAt: number }) =>
+    ipcRenderer.invoke('snippet:save', { snippet }),
+  snippetDelete: (id: string) => ipcRenderer.invoke('snippet:delete', { id }),
+
+  // Prompt templates
+  templateList: () => ipcRenderer.invoke('template:list'),
+  templateSave: (t: { id: string; name: string; prompt: string }) => ipcRenderer.invoke('template:save', t),
+  templateDelete: (id: string) => ipcRenderer.invoke('template:delete', id),
+
+  // Plugins
+  pluginsList: () => ipcRenderer.invoke('plugins:list'),
+  pluginsOpenFolder: () => ipcRenderer.invoke('plugins:openFolder'),
+  pluginsReadFile: (path: string) => ipcRenderer.invoke('plugins:readFile', { path }),
+
+  // Remote SSH
+  listSshHosts: () => ipcRenderer.invoke('remote:listHosts') as Promise<Array<{ alias: string; hostname: string; user: string; port: number; identityFile?: string }>>,
+  getSavedRemoteHosts: () => ipcRenderer.invoke('remote:getSavedHosts') as Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>,
+  saveRemoteHost: (host: { id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }) =>
+    ipcRenderer.invoke('remote:saveHost', host) as Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>,
+  removeRemoteHost: (id: string) => ipcRenderer.invoke('remote:removeHost', { id }) as Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>,
+
+  // MCP connections
+  getMcpServers: () => ipcRenderer.invoke('connections:getMcpServers') as Promise<{
+    servers: Array<{ name: string; command: string; args: string[]; status: 'unknown'; configFile: string }>
+    configFile: string | null
+  }>,
+  pingMcpServer: (server: { name: string; command: string; args: string[] }) =>
+    ipcRenderer.invoke('connections:pingServer', server) as Promise<{ alive: boolean; latency?: number }>,
+
+  // Settings
+  settingsGet: () => ipcRenderer.invoke('settings:get'),
+  settingsSet: (patch: Record<string, unknown>) => ipcRenderer.invoke('settings:set', patch),
+
+  // Memory
+  getMemoryUsage: (): Promise<{ rss: number; heapUsed: number; heapTotal: number }> =>
+    ipcRenderer.invoke('app:memoryUsage'),
+  onMemoryUpdate: (cb: (data: { rss: number; heapUsed: number }) => void) => {
+    const handler = (_: unknown, data: { rss: number; heapUsed: number }) => cb(data)
+    ipcRenderer.on('app:memoryUpdate', handler)
+    return () => ipcRenderer.removeListener('app:memoryUpdate', handler)
+  },
+
+  // Terminal theme
+  getTerminalTheme: () => ipcRenderer.invoke('app:getTerminalTheme'),
+  setTerminalTheme: (theme: string) => ipcRenderer.invoke('app:setTerminalTheme', theme),
+
+  // System prompt profiles
+  getSystemPromptProfiles: () => ipcRenderer.invoke('app:getSystemPromptProfiles'),
+  saveSystemPromptProfile: (profile: { id: string; name: string; content: string }) => ipcRenderer.invoke('app:saveSystemPromptProfile', profile),
+  deleteSystemPromptProfile: (id: string) => ipcRenderer.invoke('app:deleteSystemPromptProfile', id),
+
+  // Tasks
+  getTasks: () => ipcRenderer.invoke('app:getTasks'),
+  saveTasks: (tasks: Array<{ id: string; text: string; done: boolean; createdAt: number; priority?: string }>) => ipcRenderer.invoke('app:saveTasks', tasks),
+
+  // Notification settings
+  getNotificationSettings: () => ipcRenderer.invoke('app:getNotificationSettings'),
+  setNotificationSettings: (s: { responseComplete: boolean; backgroundOnly: boolean; longSession: boolean; contextWarning: boolean }) => ipcRenderer.invoke('app:setNotificationSettings', s),
+
+  // Window
+  newWindow: () => ipcRenderer.invoke('app:newWindow'),
+
+  // Native theme
+  getNativeTheme: (): Promise<{ isDark: boolean }> => ipcRenderer.invoke('native-theme:get'),
+  onNativeThemeChanged: (cb: (isDark: boolean) => void) => {
+    const handler = (_: unknown, { isDark }: { isDark: boolean }) => cb(isDark)
+    ipcRenderer.on('native-theme:changed', handler)
+    return () => ipcRenderer.removeListener('native-theme:changed', handler)
+  },
+})
+
+declare global {
+  interface Window {
+    api: {
+      claudeSend: (payload: { text: string; cwd: string; model: string }) => void
+      claudeInterrupt: () => void
+      claudeClose: () => void
+      claudeResume: (sessionId: string) => void
+      claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) => void
+      onClaudeMessage: (cb: (event: unknown) => void) => void
+      onClaudePermission: (cb: (req: unknown) => void) => void
+      removeClaudeListeners: () => void
+      terminalCreate: (id: string, cwd: string) => void
+      terminalWrite: (id: string, data: string) => void
+      terminalResize: (id: string, cols: number, rows: number) => void
+      terminalClose: (id: string) => void
+      onTerminalData: (cb: (id: string, data: string) => void) => () => void
+      saveFile: (content: string, defaultName: string) => Promise<boolean>
+      readDir: (path: string) => Promise<unknown[]>
+      readFile: (path: string) => Promise<string>
+      readFileBase64: (path: string) => Promise<string>
+      searchFiles: (rootPath: string, query: string) => Promise<{ name: string; path: string; relPath: string }[]>
+      openExternal: (url: string) => Promise<void>
+      revealInExplorer: (path: string) => Promise<void>
+      saveClipboardImage: (base64: string, ext: string) => Promise<string | null>
+      exportHtml: (filePath: string, html: string) => Promise<{ ok?: boolean; error?: string }>
+      writeTextFile: (filePath: string, content: string) => Promise<{ ok?: boolean; error?: string }>
+      showSaveDialog: (opts: { defaultPath: string; filters: Array<{name: string; extensions: string[]}> }) => Promise<string | null>
+      createFile: (dirPath: string, name: string) => Promise<{ ok?: boolean; filePath?: string; error?: string }>
+      createDir: (dirPath: string, name: string) => Promise<{ ok?: boolean; dirPath?: string; error?: string }>
+      renameFile: (oldPath: string, newName: string) => Promise<{ ok?: boolean; newPath?: string; error?: string }>
+      deleteFile: (filePath: string, isDir: boolean) => Promise<{ ok?: boolean; error?: string }>
+      grepSearch: (rootPath: string, query: string, options?: { caseSensitive?: boolean; useRegex?: boolean; includePattern?: string }) =>
+        Promise<{ results: Array<{ filePath: string; lineNum: number; lineContent: string; relPath: string }>; error?: string }>
+      watchDir: (dirPath: string) => Promise<{ ok?: boolean; error?: string }>
+      unwatchDir: (dirPath: string) => Promise<{ ok?: boolean }>
+      onDirChanged: (callback: (data: { dirPath: string; eventType: string; filename: string }) => void) => () => void
+      recentFiles: () => Promise<string[]>
+      addRecentFile: (filePath: string) => Promise<boolean>
+      clearRecentFiles: () => Promise<boolean>
+      getFavorites: () => Promise<string[]>
+      toggleFavorite: (path: string) => Promise<{ isFavorite: boolean }>
+      fsStat: (path: string) => Promise<{ size: number; mtime: number; isDirectory: boolean } | null>
+      openFolder: () => Promise<string | null>
+      getRecentProjects: () => Promise<string[]>
+      getCurrentProject: () => Promise<string | null>
+      setProject: (path: string) => void
+      getOpenWorkspaces: () => Promise<{ workspaces: Array<{ path: string; openTabs: string[]; activeTab: string }>; activePath: string | null }>
+      setOpenWorkspaces: (workspaces: Array<{ path: string; openTabs: string[]; activeTab: string }>, activePath: string | null) => void
+      getProjectSystemPrompt: (projectPath: string) => Promise<string>
+      setProjectSystemPrompt: (projectPath: string, prompt: string) => Promise<boolean>
+      gitStatus: (cwd: string) => Promise<{ branch: string | null; changed: number } | null>
+      gitFileDiff: (cwd: string, filePath: string, staged: boolean) => Promise<{ diff: string }>
+      gitDiff: (repoPath: string, filePath: string) => Promise<{ diff: string }>
+      gitStatusFull: (repoPath: string) => Promise<{ files: Array<{ path: string; status: string; staged: boolean; unstaged: boolean }>; branch: string; lastCommit: string; error?: string }>
+      gitStage: (repoPath: string, filePath: string) => Promise<{ ok?: boolean; error?: string }>
+      gitUnstage: (repoPath: string, filePath: string) => Promise<{ ok?: boolean; error?: string }>
+      gitCommit: (repoPath: string, message: string) => Promise<{ ok?: boolean; error?: string }>
+      gitLog: (repoPath: string, limit?: number) => Promise<{ commits: Array<{ hash?: string; short?: string; subject?: string; author?: string; date?: string }>; error?: string }>
+      gitShow: (cwd: string, hash: string) => Promise<string>
+      gitRestoreFile: (cwd: string, filePath: string) => Promise<{ success: boolean; error?: string }>
+      gitGenerateCommitMessage: (repoPath: string) => Promise<{ message: string }>
+      gitBranches: (cwd: string) => Promise<{ branches: Array<{ name: string; upstream: string; isCurrent: boolean; isRemote: boolean }> }>
+      gitCheckout: (cwd: string, branch: string) => Promise<{ success: boolean; error?: string }>
+      gitCreateBranch: (cwd: string, name: string) => Promise<{ success: boolean; error?: string }>
+      gitDeleteBranch: (cwd: string, name: string, force?: boolean) => Promise<{ success: boolean; error?: string }>
+      gitStashList: (cwd: string) => Promise<{ entries: Array<{ ref: string; message: string; date: string }> }>
+      gitStashPush: (cwd: string, message?: string) => Promise<{ success: boolean; error?: string }>
+      gitStashPop: (cwd: string, ref?: string) => Promise<{ success: boolean; error?: string }>
+      gitStashDrop: (cwd: string, ref: string) => Promise<{ success: boolean; error?: string }>
+      gitBlame: (cwd: string, filePath: string) => Promise<Array<{ hash: string; author: string; date: string; lineNo: number }>>
+      gitFetch: (cwd: string) => Promise<{ success: boolean; output?: string; error?: string }>
+      gitUndoLastCommit: (cwd: string) => Promise<{ success: boolean; output?: string; error?: string }>
+      gitCleanUntracked: (cwd: string) => Promise<{ success: boolean; output?: string; error?: string }>
+      gitListTags: (cwd: string) => Promise<string[]>
+      gitCreateTag: (cwd: string, name: string, message?: string) => Promise<{ success: boolean; error?: string }>
+      gitDeleteTag: (cwd: string, name: string) => Promise<{ success: boolean; error?: string }>
+      sessionSave: (session: unknown) => Promise<boolean>
+      sessionList: () => Promise<unknown[]>
+      sessionLoad: (id: string) => Promise<unknown>
+      sessionDelete: (id: string) => Promise<boolean>
+      sessionRename: (id: string, title: string) => Promise<boolean>
+      sessionPin: (id: string, pinned: boolean) => Promise<boolean>
+      sessionTag: (id: string, tags: string[]) => Promise<{ error?: string }>
+      sessionGlobalSearch: (query: string, limit?: number) => Promise<Array<{
+        sessionId: string
+        sessionName: string
+        snippet: string
+        matchCount: number
+      }>>
+      sessionExportAll: () => Promise<{ ok?: boolean; count?: number; filePath?: string; canceled?: boolean; error?: string }>
+      sessionImportBackup: () => Promise<{ ok?: boolean; imported?: number; canceled?: boolean; error?: string }>
+      sessionFork: (sourceSessionId: string, upToMessageIndex: number, newTitle?: string) => Promise<{ ok?: boolean; newSessionId?: string; error?: string }>
+      sessionStats: (id: string) => Promise<{
+        userMessages?: number
+        assistantMessages?: number
+        totalMessages?: number
+        estimatedTokens?: number
+        createdAt?: string | null
+        updatedAt?: string | null
+        error?: string
+      }>
+      sessionGlobalStats: () => Promise<{
+        totalSessions: number
+        topTags: { tag: string; count: number }[]
+        dailyCounts: number[]
+        dailyCountsMap: Record<string, number>
+        recentCount: number
+      }>
+      sessionExportMarkdown: (sessionId: string) => Promise<{ success: boolean; filePath?: string; error?: string }>
+      sessionExportPdf: (sessionId: string) => Promise<{ success: boolean; filePath?: string; error?: string }>
+      sessionGenerateTitle: (userMsg: string, assistantMsg: string) => Promise<{ title: string }>
+      sessionGenerateTags: (userMsg: string, assistantMsg: string) => Promise<{ tags: string[] }>
+      generateTitle: (data: { userMessage: string }) => Promise<string>
+      compressContext: (messages: Array<{ role: string; text: string }>) => Promise<{ summary: string; compressedCount: number; error?: string }>
+      explainCode: (code: string, language: string) => Promise<string>
+      translate: (text: string, targetLang: 'ko' | 'en') => Promise<string>
+      enhancePrompt: (prompt: string) => Promise<string>
+      suggestFollowUps: (lastAssistantMsg: string, lastUserMsg: string) => Promise<string[]>
+      generateDocs: (data: { code: string; lang: string }) => Promise<string>
+      summarizeSession: (data: { messages: Array<{ role: string; content: string }> }) => Promise<{ summary: string; error?: string }>
+      generateInsights: (data: { totalSessions: number; totalTokens: number; avgTokensPerSession: number; topHours: number[]; peakDay: string; totalDays: number }) => Promise<string>
+      suggestSnippets: (messages: Array<{ role: string; content: string }>) => Promise<Array<{ title: string; content: string; category: string }>>
+      sessionGetNote: (sessionId: string) => Promise<{ note: string }>
+      sessionSetNote: (sessionId: string, note: string) => Promise<{ success: boolean }>
+      sessionDuplicate: (sessionId: string) => Promise<{ success: boolean; sessionId?: string; error?: string }>
+      sessionMerge: (sessionIds: string[], newTitle?: string) => Promise<{ success: boolean; newSessionId?: string; error?: string }>
+      sessionReorder: (fromId: string, toId: string) => Promise<void>
+      sessionSetLocked: (id: string, locked: boolean) => Promise<boolean>
+      sessionSetCollection: (id: string, collection: string | null) => Promise<void>
+      saveSessionAsTemplate: (sessionId: string, templateName?: string) => Promise<{ templateId?: string; error?: string }>
+      listTemplates: () => Promise<Array<{ id: string; name: string; description?: string; createdAt: number; messageCount: number }>>
+      createSessionFromTemplate: (templateId: string) => Promise<{ sessionId?: string; error?: string }>
+      deleteTemplate: (templateId: string) => Promise<{ ok?: boolean; error?: string }>
+      snippetList: () => Promise<Array<{ id: string; name: string; content: string; language?: string; category?: string; shortcut?: string; createdAt: number }>>
+      snippetSave: (snippet: { id: string; name: string; content: string; language?: string; category?: string; shortcut?: string; createdAt: number }) => Promise<{ success: boolean }>
+      snippetDelete: (id: string) => Promise<{ success: boolean }>
+      templateList: () => Promise<Array<{ id: string; name: string; prompt: string }>>
+      templateSave: (t: { id: string; name: string; prompt: string }) => Promise<boolean>
+      templateDelete: (id: string) => Promise<boolean>
+      onCloseTab: (cb: () => void) => void
+      onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => () => void
+      settingsGet: () => Promise<{ theme: string; fontSize: number; maxTokensPerRequest: number; temperature: number; showTimestamps: boolean; selectedModel: string; accentColor: string; compactMode: boolean; soundEnabled: boolean; customCSS: string }>
+      settingsSet: (patch: Record<string, unknown>) => Promise<boolean>
+      getMemoryUsage: () => Promise<{ rss: number; heapUsed: number; heapTotal: number }>
+      onMemoryUpdate: (cb: (data: { rss: number; heapUsed: number }) => void) => () => void
+      getNativeTheme: () => Promise<{ isDark: boolean }>
+      onNativeThemeChanged: (cb: (isDark: boolean) => void) => () => void
+      newWindow: () => Promise<void>
+      getTerminalTheme: () => Promise<string>
+      setTerminalTheme: (theme: string) => Promise<void>
+      getSystemPromptProfiles: () => Promise<Array<{ id: string; name: string; content: string }>>
+      saveSystemPromptProfile: (profile: { id: string; name: string; content: string }) => Promise<void>
+      deleteSystemPromptProfile: (id: string) => Promise<void>
+      getTasks: () => Promise<Array<{ id: string; text: string; done: boolean; createdAt: number; priority?: 'low' | 'medium' | 'high' }>>
+      saveTasks: (tasks: Array<{ id: string; text: string; done: boolean; createdAt: number; priority?: string }>) => Promise<void>
+      getNotificationSettings: () => Promise<{ responseComplete: boolean; backgroundOnly: boolean; longSession: boolean; contextWarning: boolean }>
+      setNotificationSettings: (s: { responseComplete: boolean; backgroundOnly: boolean; longSession: boolean; contextWarning: boolean }) => Promise<void>
+      pluginsList: () => Promise<Array<{ filename: string; name: string; description: string; version: string; author: string; path: string }>>
+      pluginsOpenFolder: () => Promise<void>
+      pluginsReadFile: (path: string) => Promise<string>
+      getMcpServers: () => Promise<{
+        servers: Array<{ name: string; command: string; args: string[]; status: 'unknown'; configFile: string }>
+        configFile: string | null
+      }>
+      pingMcpServer: (server: { name: string; command: string; args: string[] }) => Promise<{ alive: boolean; latency?: number }>
+      listSshHosts: () => Promise<Array<{ alias: string; hostname: string; user: string; port: number; identityFile?: string }>>
+      getSavedRemoteHosts: () => Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>
+      saveRemoteHost: (host: { id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }) => Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>
+      removeRemoteHost: (id: string) => Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>
+    }
+  }
+}

@@ -1,0 +1,61 @@
+:root {
+  --msg-padding: 12px 16px;
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d30;
+  --bg-hover: #2a2d2e;
+  --bg-input: #3c3c3c;
+  --border: #3d3d3d;
+  --border-light: #4d4d4d;
+  --text-primary: #d4d4d4;
+  --text-secondary: #9d9d9d;
+  --text-muted: #6b6b6b;
+  --accent: #0098ff;
+  --accent-hover: #1a7fc1;
+  --accent-dim: rgba(0, 152, 255, 0.15);
+  --success: #4ec9b0;
+  --warning: #dcdcaa;
+  --error: #f44747;
+  --tool-bg: #1a1a2e;
+  --tool-border: #2d2d5e;
+  --scrollbar: #424242;
+  --scrollbar-hover: #686868;
+  --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  --font-ui: -apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --chat-font-size: 13px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --sidebar-width: 240px;
+  --titlebar-height: 32px;
+  --statusbar-height: 24px;
+  --bottom-panel-height: 240px;
+}
+
+/* Compact mode */
+:root[data-compact="true"] {
+  --msg-padding: 5px 16px;
+}
+
+/* Light theme overrides */
+:root[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f3f3;
+  --bg-tertiary: #e8e8e8;
+  --bg-hover: #e0e0e0;
+  --bg-input: #ffffff;
+  --border: #d1d1d1;
+  --border-light: #c0c0c0;
+  --text-primary: #1e1e1e;
+  --text-secondary: #4f4f4f;
+  --text-muted: #8b8b8b;
+  --accent: #0066cc;
+  --accent-hover: #0052a3;
+  --accent-dim: rgba(0, 102, 204, 0.12);
+  --success: #1a7f5f;
+  --warning: #7a6b00;
+  --error: #cc2222;
+  --tool-bg: #f0f0ff;
+  --tool-border: #c0c0e8;
+  --scrollbar: #c0c0c0;
+  --scrollbar-hover: #909090;
+}

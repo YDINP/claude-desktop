@@ -1,0 +1,145 @@
+import { useState, useMemo } from 'react'
+import type { ChatMessage } from '../../stores/chat-store'
+
+type OutlineItem = {
+  level: 1 | 2 | 3
+  text: string
+  msgIndex: number
+  lineIndex: number
+}
+
+function extractOutline(messages: ChatMessage[]): OutlineItem[] {
+  const items: OutlineItem[] = []
+  messages.forEach((msg, msgIndex) => {
+    if (msg.role !== 'assistant') return
+    const lines = msg.text.split('\n')
+    lines.forEach((line, lineIndex) => {
+      const match = /^(#{1,3})\s+(.+)$/.exec(line)
+      if (match) {
+        items.push({
+          level: match[1].length as 1 | 2 | 3,
+          text: match[2].trim(),
+          msgIndex,
+          lineIndex,
+        })
+      }
+    })
+  })
+  return items
+}
+
+interface OutlinePanelProps {
+  messages: ChatMessage[]
+  onScrollToMsg?: (msgIndex: number) => void
+}
+
+export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
+  const [search, setSearch] = useState('')
+  const [activeKey, setActiveKey] = useState<string | null>(null)
+
+  const allItems = useMemo(() => extractOutline(messages), [messages])
+
+  const items = useMemo(() => {
+    if (!search.trim()) return allItems
+    const q = search.toLowerCase()
+    return allItems.filter(it => it.text.toLowerCase().includes(q))
+  }, [allItems, search])
+
+  const indentMap: Record<1 | 2 | 3, number> = { 1: 0, 2: 12, 3: 24 }
+  const sizeMap: Record<1 | 2 | 3, number> = { 1: 13, 2: 12, 3: 11 }
+  const colorMap: Record<1 | 2 | 3, string> = { 1: '#e8e8e8', 2: '#aaa', 3: '#888' }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Header */}
+      <div style={{
+        padding: '8px 10px 6px',
+        borderBottom: '1px solid var(--border)',
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+      }}>
+        <span style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600 }}>
+          아웃라인
+        </span>
+        <span style={{
+          fontSize: 10,
+          color: 'var(--text-muted)',
+          background: 'var(--bg-hover)',
+          borderRadius: 8,
+          padding: '1px 6px',
+        }}>
+          {allItems.length}개
+        </span>
+      </div>
+
+      {/* Search */}
+      <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="헤딩 검색..."
+          style={{
+            width: '100%',
+            background: 'var(--bg-input)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border)',
+            borderRadius: 4,
+            padding: '3px 8px',
+            fontSize: 11,
+            outline: 'none',
+            boxSizing: 'border-box',
+          }}
+        />
+      </div>
+
+      {/* List */}
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        {items.length === 0 ? (
+          <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 11 }}>
+            {allItems.length === 0 ? '헤딩 없음' : '검색 결과 없음'}
+          </div>
+        ) : (
+          items.map((item, i) => {
+            const key = `${item.msgIndex}-${item.lineIndex}`
+            const isActive = activeKey === key
+            return (
+              <div
+                key={key}
+                onClick={() => {
+                  setActiveKey(key)
+                  onScrollToMsg?.(item.msgIndex)
+                }}
+                style={{
+                  paddingLeft: 10 + indentMap[item.level],
+                  paddingRight: 10,
+                  paddingTop: 4,
+                  paddingBottom: 4,
+                  cursor: 'pointer',
+                  fontSize: sizeMap[item.level],
+                  color: colorMap[item.level],
+                  background: isActive ? 'rgba(255,255,255,0.07)' : 'transparent',
+                  borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  transition: 'background 0.1s',
+                }}
+                onMouseEnter={e => {
+                  if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent'
+                }}
+                title={item.text}
+              >
+                {item.text}
+              </div>
+            )
+          })
+        )}
+      </div>
+    </div>
+  )
+}
