@@ -43,6 +43,7 @@ export function ConnectionPanel() {
   const [copiedServerIdx, setCopiedServerIdx] = useState<number | null>(null)
   const autoPingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const pingAllRef = useRef<() => void>(() => {})
+  const [serverSearch, setServerSearch] = useState('')
 
   const loadServers = useCallback(async () => {
     setLoading(true)
@@ -190,6 +191,19 @@ export function ConnectionPanel() {
         </div>
       </div>
 
+      {/* Server search */}
+      {servers.length > 3 && (
+        <div style={{ padding: '4px 10px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+          <input
+            value={serverSearch}
+            onChange={e => setServerSearch(e.target.value)}
+            onKeyDown={e => e.key === 'Escape' && setServerSearch('')}
+            placeholder="서버 검색..."
+            style={{ width: '100%', boxSizing: 'border-box', padding: '3px 6px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-primary)', fontSize: 11, outline: 'none' }}
+          />
+        </div>
+      )}
+
       {/* Server list */}
       <div style={{ flex: 1, overflow: 'auto' }}>
         {servers.length === 0 && !loading && (
@@ -198,7 +212,9 @@ export function ConnectionPanel() {
           </div>
         )}
 
-        {servers.map((server, index) => (
+        {servers.filter(s => !serverSearch.trim() || s.name.toLowerCase().includes(serverSearch.toLowerCase())).map((server) => {
+          const index = servers.indexOf(server)
+          return (
           <div
             key={server.name}
             style={{
@@ -269,7 +285,7 @@ export function ConnectionPanel() {
               상태: {statusLabel(server)}
             </div>
           </div>
-        ))}
+        )})}
       </div>
 
       {/* Footer */}

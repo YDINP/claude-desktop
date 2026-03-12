@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 401] — 2026-03-13
+### Added
+- ConnectionPanel: 서버 이름 검색 필터 — serverSearch 상태, 3개 초과 시 검색 입력, ESC 초기화
+
 ## [Round 400] — 2026-03-13 (마일스톤)
 ### Added
 - NotesPanel: 노트 템플릿 기능 — ✦ 버튼 + 드롭다운, 4종 프리셋(미팅/할일/버그/아이디어) 원클릭 삽입

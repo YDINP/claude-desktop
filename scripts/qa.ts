@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 303: R401 신규 기능 ───────────────────────────────
+console.log('\n## 303. 신규 기능 파일 검사 (R401)')
+// ConnectionPanel 서버 검색 필터 (Round 401)
+const conn401Path = join(ROOT, 'src/renderer/src/components/sidebar/ConnectionPanel.tsx')
+if (existsSync(conn401Path)) {
+  const conn401 = readFileSync(conn401Path, 'utf-8')
+  if (conn401.includes('serverSearch') && conn401.includes('서버 검색')) {
+    log('pass', 'Round401', 'ConnectionPanel: 서버 이름 검색 필터 존재')
+  } else {
+    log('warning', 'Round401', 'ConnectionPanel 서버 검색 미구현', 'sidebar/ConnectionPanel.tsx')
+  }
+}
+
 // ── Section 302: R400 신규 기능 (마일스톤) ─────────────────────
 console.log('\n## 302. 신규 기능 파일 검사 (R400 마일스톤)')
 // NotesPanel 노트 템플릿 (Round 400)
