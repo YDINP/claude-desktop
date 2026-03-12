@@ -329,9 +329,26 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
       )}
 
       {/* 컴포넌트 목록 */}
-      {extraComponents.length > 0 && (
+      {extraComponents.length > 0 && (() => {
+        const allOpen = extraComponents.every((_, i) => !!openState[i])
+        return (
         <>
-          <GroupHeader label={`Components (${extraComponents.length})`} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0 3px', borderTop: '1px solid var(--border)', marginTop: 4 }}>
+            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.3px' }}>Components ({extraComponents.length})</span>
+            {extraComponents.length > 1 && (
+              <button
+                onClick={() => {
+                  const next: Record<number, boolean> = {}
+                  extraComponents.forEach((_, i) => { next[i] = !allOpen })
+                  setOpenState(next)
+                }}
+                title={allOpen ? '전체 접기' : '전체 펼치기'}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--text-muted)', padding: '0 2px' }}
+              >
+                {allOpen ? '⊖' : '⊕'}
+              </button>
+            )}
+          </div>
           {extraComponents.map((c, i) => (
             <ComponentSection
               key={i}
@@ -344,7 +361,8 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
             />
           ))}
         </>
-      )}
+        )
+      })()}
     </div>
   )
 }

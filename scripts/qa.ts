@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 227: R325 신규 기능 ───────────────────────────────
+console.log('\n## 227. 신규 기능 파일 검사 (R325)')
+// NodePropertyPanel 컴포넌트 전체 펼치기/접기 (Round 325)
+const npp325Path = join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx')
+if (existsSync(npp325Path)) {
+  const npp325 = readFileSync(npp325Path, 'utf-8')
+  if (npp325.includes('allOpen') && npp325.includes('전체 접기') && npp325.includes('⊕')) {
+    log('pass', 'Round325', 'NodePropertyPanel: 컴포넌트 전체 펼치기/접기 (allOpen/⊕/⊖) 존재')
+  } else {
+    log('warning', 'Round325', 'NodePropertyPanel 컴포넌트 토글 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+}
+
 // ── Section 226: R324 신규 기능 ───────────────────────────────
 console.log('\n## 226. 신규 기능 파일 검사 (R324)')
 // ChangedFilesPanel 정렬 토글 (Round 324)

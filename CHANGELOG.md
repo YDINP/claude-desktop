@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 325] — 2026-03-13
+### Added
+- NodePropertyPanel: 컴포넌트 2개 이상일 때 ⊕/⊖ 전체 펼치기/접기 버튼 추가 (allOpen 기반)
+
 ## [Round 324] — 2026-03-13
 ### Added
 - ChangedFilesPanel: ↓/↑ 정렬 토글 버튼 — 최신순/오래된순 전환 (sortAsc)
