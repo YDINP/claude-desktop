@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 163: R261 신규 기능 ───────────────────────────────
+console.log('\n## 163. 신규 기능 파일 검사 (R261)')
+// TasksPanel 진행률 바 (Round 261)
+const tp261Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp261Path)) {
+  const tp261 = readFileSync(tp261Path, 'utf-8')
+  if (tp261.includes('progressPct') && tp261.includes('진행률') && tp261.includes('doneCount / tasks.length')) {
+    log('pass', 'Round261', 'TasksPanel: 진행률 바 (progressPct) 구현 존재')
+  } else {
+    log('warning', 'Round261', 'TasksPanel 진행률 바 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 162: R260 신규 기능 ───────────────────────────────
 console.log('\n## 162. 신규 기능 파일 검사 (R260)')
 // SceneView 다중 선택 bounding box 중앙 마커 (Round 260)

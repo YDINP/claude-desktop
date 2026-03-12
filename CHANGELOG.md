@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 261] — 2026-03-13
+### Added
+- TasksPanel: 진행률 바 — 완료/전체 비율 표시 (진행률 %, 완료 시 초록색)
+
 ## [Round 260] — 2026-03-13
 ### Added
 - SceneView: 다중 선택 bounding box 중앙 마커 — 2개+ 선택 시 bbox 중앙에 작은 + 십자 마커 표시

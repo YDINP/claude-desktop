@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 260 완료 — SceneView 다중 선택 bbox 중앙 마커, Pass 280)
+> 마지막 업데이트: 2026-03-13 (Round 261 완료 — TasksPanel 진행률 바, Pass 281)
 
 ## 완료된 라운드
 
@@ -212,6 +212,7 @@
 | Round 258 | dev | NotesPanel 📤 Markdown 내보내기 — 전체 노트 notes-날짜.md 다운로드 | ✅ |
 | Round 259 | dev | SceneView 드래그 고스트 박스 — 드래그 시작 위치에 반투명 파란 점선 박스 오버레이 | ✅ |
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
+| Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

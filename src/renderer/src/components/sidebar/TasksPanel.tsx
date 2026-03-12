@@ -56,8 +56,22 @@ export function TasksPanel() {
   const filtered = filter === 'all' ? tasks : filter === 'active' ? tasks.filter(t => !t.done) : tasks.filter(t => t.done)
   const doneCount = tasks.filter(t => t.done).length
 
+  const progressPct = tasks.length > 0 ? Math.round(doneCount / tasks.length * 100) : 0
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 8 }}>
+      {/* 진행률 바 */}
+      {tasks.length > 0 && (
+        <div style={{ marginBottom: 6 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: 'var(--text-muted)', marginBottom: 2 }}>
+            <span>진행률</span>
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{doneCount}/{tasks.length} ({progressPct}%)</span>
+          </div>
+          <div style={{ height: 4, background: 'var(--bg-secondary)', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${progressPct}%`, background: progressPct === 100 ? '#4ade80' : 'var(--accent)', borderRadius: 2, transition: 'width 0.3s' }} />
+          </div>
+        </div>
+      )}
       {/* Input area */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
         <select value={priority} onChange={e => setPriority(e.target.value as 'low' | 'medium' | 'high')}
