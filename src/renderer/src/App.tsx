@@ -24,6 +24,7 @@ import { WebPreviewPanel } from './components/sidebar/WebPreviewPanel'
 import { SceneViewPanel } from './components/sidebar/SceneView/SceneViewPanel'
 import { playCompletionSound } from './utils/sound'
 import { recordCost } from './utils/cost-tracker'
+import { aguiDispatch } from './utils/agui-store'
 import { applyCustomCSS } from './utils/css'
 import { ToastContainer } from './components/shared/ToastContainer'
 import { toast } from './utils/toast'
@@ -1062,6 +1063,10 @@ function AppContent() {
         }
         chat.markLastMessageError()
         chat.finishStreaming()
+      }
+
+      if (['run_started', 'step_started', 'step_finished', 'run_finished'].includes(ev.type)) {
+        aguiDispatch(ev)
       }
     })
     window.api.onClaudePermission((req: unknown) => {

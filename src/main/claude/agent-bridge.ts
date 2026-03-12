@@ -111,6 +111,7 @@ export class AgentBridge {
       if (subtype === 'init') {
         this.currentSessionId = msg.session_id as string
         this.emit({ type: 'init', sessionId: this.currentSessionId })
+        this.emit({ type: 'run_started', runId: this.currentSessionId, timestamp: Date.now() })
       } else if (subtype === 'status') {
         // compacting 상태 알림
         this.emit({ type: 'status', status: msg.status ?? null })
@@ -138,6 +139,7 @@ export class AgentBridge {
             toolName: b.name as string,
             toolInput: b.input
           })
+          this.emit({ type: 'step_started', runId: this.currentSessionId ?? '', stepId: b.id as string, stepName: b.name as string, timestamp: Date.now() })
         }
       }
 
@@ -167,6 +169,7 @@ export class AgentBridge {
             toolOutput: (textBlock as Record<string, unknown> | undefined)?.text as string ?? '',
             isError: it.is_error as boolean ?? false
           })
+          this.emit({ type: 'step_finished', runId: this.currentSessionId ?? '', stepId: toolUseId, success: !(it.is_error as boolean ?? false), timestamp: Date.now() })
         }
       }
       return
@@ -255,6 +258,7 @@ export class AgentBridge {
         const errMsg = errors?.join('; ') ?? `Session ended: ${subtype2}`
         this.emit({ type: 'error', message: errMsg })
       }
+      this.emit({ type: 'run_finished', runId: this.currentSessionId ?? '', costUsd: msg.total_cost_usd as number ?? 0, timestamp: Date.now() })
       this.flushTextBatch()
       this.emit({
         type: 'result',

@@ -1,15 +1,25 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 93 완료)
+> 마지막 업데이트: 2026-03-12 (Round 94 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 93 (스트리밍 배치 렌더링 최적화)
+- 마지막 커밋: Round 94 (AG-UI 이벤트 모델)
 - 빌드: `npm run build` ✅
 - QA: `npm run qa` ✅ Critical 0, Warning 0
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 93 완료 항목 (최근 세션)
+## Round 94 완료 항목 (최근 세션)
+
+### Round 94 — AG-UI 이벤트 모델
+- `ipc-schema.ts`: `AguiRunStarted`, `AguiStepStarted`, `AguiStepFinished`, `AguiRunFinished`, `AguiEvent` 타입 추가
+- `agent-bridge.ts`: `run_started`/`step_started`/`step_finished`/`run_finished` 이벤트 방출 (기존 이벤트와 병행)
+- `agui-store.ts` (신규): 인메모리 옵저버블 스토어 (`aguiSubscribe`, `aguiDispatch`)
+- `RunTimeline.tsx` (신규): `RunCard` + `RunTimeline` — 런/스텝 상태 시각화
+- `AgentPanel.tsx`: 런타임 탭 추가, `RunTimeline` 마운트
+- `App.tsx`: AG-UI 이벤트 타입 감지 후 `aguiDispatch` 호출
+
+## Round 93 완료 항목 (이전 세션)
 
 ### Round 93 — 스트리밍 배치 렌더링 최적화
 - `agent-bridge.ts`: `text_delta` 이벤트 16ms 배치 (textBatch + setTimeout 플러시), `result` 직전 `flushTextBatch()` 호출

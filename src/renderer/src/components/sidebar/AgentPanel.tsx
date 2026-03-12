@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, lazy, Suspense, Component } f
 import type { ReactNode } from 'react'
 import { saveRun, loadRuns } from '../../utils/work-history'
 import type { WorkRun } from '../../utils/work-history'
+import { RunTimeline } from './RunTimeline'
 
 // Lazy load to avoid circular deps
 const PromptChainPanel = lazy(() =>
@@ -10,7 +11,7 @@ const PromptChainPanel = lazy(() =>
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type AgentTab = 'tasks' | 'chains' | 'history'
+type AgentTab = 'tasks' | 'chains' | 'history' | 'timeline'
 
 type AgentTask = {
   id: string
@@ -423,6 +424,7 @@ export function AgentPanel() {
     { id: 'tasks', label: '태스크' },
     { id: 'chains', label: '체이닝' },
     { id: 'history', label: '히스토리' },
+    { id: 'timeline', label: '런타임' },
   ]
 
   return (
@@ -771,6 +773,9 @@ export function AgentPanel() {
             </div>
           </div>
         )}
+
+        {/* ── Timeline tab ── */}
+        {activeTab === 'timeline' && <RunTimeline />}
       </div>
     </div>
   )

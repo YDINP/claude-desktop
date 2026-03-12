@@ -141,3 +141,35 @@ export interface CCProjectInfo {
   port?: number
   name?: string
 }
+
+// ── AG-UI Protocol Events ─────────────────────────────────────────────────────
+export interface AguiRunStarted {
+  type: 'run_started'
+  runId: string
+  timestamp: number
+}
+
+export interface AguiStepStarted {
+  type: 'step_started'
+  runId: string
+  stepId: string
+  stepName: string
+  timestamp: number
+}
+
+export interface AguiStepFinished {
+  type: 'step_finished'
+  runId: string
+  stepId: string
+  success: boolean
+  timestamp: number
+}
+
+export interface AguiRunFinished {
+  type: 'run_finished'
+  runId: string
+  costUsd: number
+  timestamp: number
+}
+
+export type AguiEvent = AguiRunStarted | AguiStepStarted | AguiStepFinished | AguiRunFinished
