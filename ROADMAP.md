@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 261 완료 — TasksPanel 진행률 바, Pass 281)
+> 마지막 업데이트: 2026-03-13 (Round 262 완료 — SceneView 호버 툴팁 memo 표시, Pass 282)
 
 ## 완료된 라운드
 
@@ -213,6 +213,7 @@
 | Round 259 | dev | SceneView 드래그 고스트 박스 — 드래그 시작 위치에 반투명 파란 점선 박스 오버레이 | ✅ |
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
+| Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

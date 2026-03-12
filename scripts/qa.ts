@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 164: R262 신규 기능 ───────────────────────────────
+console.log('\n## 164. 신규 기능 파일 검사 (R262)')
+// SceneView 호버 툴팁 memo 표시 (Round 262)
+const svp262Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp262Path)) {
+  const svp262 = readFileSync(svp262Path, 'utf-8')
+  if (svp262.includes('hn.memo') && svp262.includes('📝') && svp262.includes('fbbf24')) {
+    log('pass', 'Round262', 'SceneViewPanel: 호버 툴팁 memo 표시 존재')
+  } else {
+    log('warning', 'Round262', 'SceneViewPanel 호버 툴팁 memo 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 163: R261 신규 기능 ───────────────────────────────
 console.log('\n## 163. 신규 기능 파일 검사 (R261)')
 // TasksPanel 진행률 바 (Round 261)

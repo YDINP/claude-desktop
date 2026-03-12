@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 262] — 2026-03-13
+### Improved
+- SceneView: 호버 툴팁에 노드 메모(memo) 표시 — 📝 황색으로 memo 내용 표시
+
 ## [Round 261] — 2026-03-13
 ### Added
 - TasksPanel: 진행률 바 — 완료/전체 비율 표시 (진행률 %, 완료 시 초록색)

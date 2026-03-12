@@ -2640,6 +2640,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               )}
               {hn.locked && <div style={{ color: '#f87171' }}>🔒 잠금됨</div>}
               {hn.visible === false && <div style={{ color: '#9ca3af' }}>숨김</div>}
+              {hn.memo && <div style={{ color: '#fbbf24', marginTop: 2, maxWidth: 180, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>📝 {hn.memo}</div>}
             </div>
           )
         })()}
