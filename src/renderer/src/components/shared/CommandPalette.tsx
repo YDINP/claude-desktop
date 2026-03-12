@@ -14,6 +14,7 @@ type PaletteResult =
   | { type: 'action'; actionId: string; label: string; sub: string; shortcut?: string }
   | { type: 'recent-file'; path: string; label: string; sub: string }
   | { type: 'recent-session'; id: string; label: string; sub: string }
+  | { type: 'recent-action'; actionId: string; label: string; sub: string }
   | { type: 'ai-suggest'; query: string; label: string; sub: string }
 
 interface CommandPaletteProps {
@@ -60,6 +61,18 @@ const getFavorites = (): string[] => {
   try { return JSON.parse(localStorage.getItem(favKey) ?? '[]') } catch { return [] }
 }
 
+// --- Recent Actions ---
+const recentActionsKey = 'cmdPaletteRecentActions'
+interface RecentActionEntry { id: string; label: string; sub: string; ts: number }
+const getRecentActions = (): RecentActionEntry[] => {
+  try { return JSON.parse(localStorage.getItem(recentActionsKey) ?? '[]') } catch { return [] }
+}
+const addRecentAction = (id: string, label: string, sub: string) => {
+  const list = getRecentActions().filter(e => e.id !== id)
+  list.unshift({ id, label, sub, ts: Date.now() })
+  localStorage.setItem(recentActionsKey, JSON.stringify(list.slice(0, 8)))
+}
+
 // --- Recent Files ---
 const recentFilesKey = 'recent-files'
 const getRecentFiles = (): string[] => {
@@ -77,6 +90,7 @@ function getResultId(r: PaletteResult): string {
   if (r.type === 'file') return `file:${r.path}`
   if (r.type === 'recent-file') return `recent-file:${r.path}`
   if (r.type === 'recent-session') return `recent-session:${r.id}`
+  if (r.type === 'recent-action') return `recent-action:${r.actionId}`
   if (r.type === 'ai-suggest') return `ai-suggest:${r.query}`
   return `action:${r.actionId}`
 }
@@ -200,6 +214,18 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, isActionMode])
 
+  // --- Recent Actions (shown when query is empty) ---
+  const recentActionResults: PaletteResult[] = useMemo(() => {
+    if (q) return []
+    return getRecentActions().map(e => ({
+      type: 'recent-action' as const,
+      actionId: e.id,
+      label: e.label,
+      sub: e.sub,
+    }))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q])
+
   // --- Recent Sessions (shown when query is empty) ---
   const recentSessionResults: PaletteResult[] = useMemo(() => {
     if (q || isActionMode) return []
@@ -230,6 +256,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
   const allFiltered: PaletteResult[] = isGlobalSearch ? [] : [
     ...recentFileResults,
     ...recentSessionResults,
+    ...recentActionResults,
     ...actionResults,
     ...tabResults,
     ...sessionResults,
@@ -245,11 +272,13 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
         if (a.type === 'ai-suggest') return 1
         if (b.type === 'ai-suggest') return -1
         // recent sections stay at top (don't sort them)
-        if (a.type === 'recent-file' || a.type === 'recent-session') {
-          if (b.type === 'recent-file' || b.type === 'recent-session') return 0
+        const aIsRecent = a.type === 'recent-file' || a.type === 'recent-session' || a.type === 'recent-action'
+        const bIsRecent = b.type === 'recent-file' || b.type === 'recent-session' || b.type === 'recent-action'
+        if (aIsRecent) {
+          if (bIsRecent) return 0
           return -1
         }
-        if (b.type === 'recent-file' || b.type === 'recent-session') return 1
+        if (bIsRecent) return 1
         const aId = getResultId(a)
         const bId = getResultId(b)
         const aPin = favorites.includes(aId) ? 1 : 0
@@ -289,7 +318,8 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
       onNewChat?.()
       onAskAI?.(r.query)
     }
-    else if (r.type === 'action') {
+    else if (r.type === 'action' || r.type === 'recent-action') {
+      addRecentAction(r.actionId, r.label, r.sub ?? '')
       incrementUsage(id)
       if (r.actionId === 'new-chat') onNewChat?.()
       else if (r.actionId === 'open-folder') onOpenFolder?.()
@@ -334,6 +364,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
   // Section header helpers
   const hasRecentFiles = results.some(r => r.type === 'recent-file')
   const hasRecentSessions = results.some(r => r.type === 'recent-session')
+  const hasRecentActions = results.some(r => r.type === 'recent-action')
 
   const getTypeLabel = (type: PaletteResult['type']) => {
     switch (type) {
@@ -342,6 +373,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
       case 'file': return 'file'
       case 'recent-file': return 'recent'
       case 'recent-session': return 'recent'
+      case 'recent-action': return '⚡'
       case 'ai-suggest': return '💡'
       default: return '▶ cmd'
     }
@@ -354,6 +386,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
       case 'session': return 'var(--success)'
       case 'recent-file': return 'var(--accent)'
       case 'recent-session': return 'var(--success)'
+      case 'recent-action': return 'var(--text-muted)'
       case 'ai-suggest': return 'var(--accent)'
       default: return 'var(--text-muted)'
     }
@@ -459,6 +492,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
                 const prevR = i > 0 ? results[i - 1] : null
                 const showRecentFilesHeader = r.type === 'recent-file' && (i === 0 || prevR?.type !== 'recent-file') && hasRecentFiles
                 const showRecentSessionsHeader = r.type === 'recent-session' && (prevR?.type !== 'recent-session') && hasRecentSessions
+                const showRecentActionsHeader = r.type === 'recent-action' && (prevR?.type !== 'recent-action') && hasRecentActions
                 const showFavoritesHeader = isPinned && i === 0
                 const showAiHeader = r.type === 'ai-suggest'
 
@@ -466,6 +500,8 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
                   ? '📂 최근 파일'
                   : showRecentSessionsHeader
                   ? '💬 최근 세션'
+                  : showRecentActionsHeader
+                  ? '⚡ 최근 실행 액션'
                   : showFavoritesHeader
                   ? '즐겨찾기'
                   : isFirstUnpinned
@@ -507,12 +543,12 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
                         {(r.type === 'session' || r.type === 'file' || r.type === 'recent-file' || r.type === 'recent-session') && (
                           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{r.sub}</div>
                         )}
-                        {(r.type === 'action' || r.type === 'ai-suggest') && (
+                        {(r.type === 'action' || r.type === 'recent-action' || r.type === 'ai-suggest') && (
                           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{r.sub}</div>
                         )}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                        {useCount > 0 && r.type !== 'recent-file' && r.type !== 'recent-session' && r.type !== 'ai-suggest' && (
+                        {useCount > 0 && r.type !== 'recent-file' && r.type !== 'recent-session' && r.type !== 'recent-action' && r.type !== 'ai-suggest' && (
                           <span style={{
                             fontSize: 10, color: 'var(--text-muted)',
                             background: 'var(--bg-primary)', borderRadius: 4,
@@ -530,7 +566,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
                             {r.shortcut}
                           </span>
                         )}
-                        {r.type !== 'recent-file' && r.type !== 'recent-session' && r.type !== 'ai-suggest' && (
+                        {r.type !== 'recent-file' && r.type !== 'recent-session' && r.type !== 'recent-action' && r.type !== 'ai-suggest' && (
                           <button
                             onClick={e => toggleFavorite(rid, e)}
                             title={isPinned ? '즐겨찾기 해제' : '즐겨찾기 추가'}
