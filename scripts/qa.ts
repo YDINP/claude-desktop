@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 264: R362 신규 기능 ───────────────────────────────
+console.log('\n## 264. 신규 기능 파일 검사 (R362)')
+// PluginsPanel 코드 복사 버튼 (Round 362)
+const pp362Path = join(ROOT, 'src/renderer/src/components/sidebar/PluginsPanel.tsx')
+if (existsSync(pp362Path)) {
+  const pp362 = readFileSync(pp362Path, 'utf-8')
+  if (pp362.includes('copiedCode') && pp362.includes('setCopiedCode') && pp362.includes('복사됨')) {
+    log('pass', 'Round362', 'PluginsPanel: 코드 복사 버튼 (copiedCode/setCopiedCode/복사됨) 존재')
+  } else {
+    log('warning', 'Round362', 'PluginsPanel 코드 복사 버튼 미구현', 'sidebar/PluginsPanel.tsx')
+  }
+}
+
 // ── Section 263: R361 신규 기능 ───────────────────────────────
 console.log('\n## 263. 신규 기능 파일 검사 (R361)')
 // BookmarksPanel 미리보기 확장 토글 (Round 361)

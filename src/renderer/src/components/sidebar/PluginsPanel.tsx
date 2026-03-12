@@ -24,6 +24,7 @@ export function PluginsPanel() {
   const [codeContent, setCodeContent] = useState<Record<string, string>>({})
   const [sortMode, setSortMode] = useState<'default' | 'name' | 'enabled'>('default')
   const [pluginSearch, setPluginSearch] = useState('')
+  const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
   const sortedPlugins = useMemo(() => {
     const q = pluginSearch.trim().toLowerCase()
@@ -210,16 +211,35 @@ export function PluginsPanel() {
                 {codeOpen && (
                   <div style={{
                     margin: '0 10px 8px', borderRadius: 4,
-                    border: '1px solid var(--border)', overflow: 'auto',
+                    border: '1px solid var(--border)', overflow: 'hidden',
                     maxHeight: 240, background: 'var(--bg-secondary)',
+                    display: 'flex', flexDirection: 'column',
                   }}>
-                    <pre style={{
-                      margin: 0, padding: '8px 10px', fontSize: 10,
-                      color: 'var(--text-primary)', fontFamily: 'monospace',
-                      whiteSpace: 'pre-wrap', wordBreak: 'break-all',
-                    }}>
-                      {codeContent[plugin.filename] ?? '로딩 중...'}
-                    </pre>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '3px 6px', borderBottom: '1px solid var(--border)', background: 'var(--bg-hover)', flexShrink: 0 }}>
+                      <button
+                        onClick={() => {
+                          const code = codeContent[plugin.filename]
+                          if (!code) return
+                          navigator.clipboard.writeText(code).then(() => {
+                            setCopiedCode(plugin.filename)
+                            setTimeout(() => setCopiedCode(f => f === plugin.filename ? null : f), 1500)
+                          })
+                        }}
+                        title="코드 복사"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: copiedCode === plugin.filename ? '#4caf50' : 'var(--text-muted)', padding: '0 3px' }}
+                      >
+                        {copiedCode === plugin.filename ? '✓ 복사됨' : '📋 복사'}
+                      </button>
+                    </div>
+                    <div style={{ overflow: 'auto', flex: 1 }}>
+                      <pre style={{
+                        margin: 0, padding: '8px 10px', fontSize: 10,
+                        color: 'var(--text-primary)', fontFamily: 'monospace',
+                        whiteSpace: 'pre-wrap', wordBreak: 'break-all',
+                      }}>
+                        {codeContent[plugin.filename] ?? '로딩 중...'}
+                      </pre>
+                    </div>
                   </div>
                 )}
               </div>
