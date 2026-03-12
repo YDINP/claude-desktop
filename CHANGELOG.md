@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 181] — 2026-03-13
+### Added
+- SceneInspector: Scale ⊙ 버튼 — 클릭 시 scaleX, scaleY를 1로 즉시 초기화, 비활성(1,1)일 때 muted 색상
+
 ## [Round 180] — 2026-03-13
 ### Added
 - SceneInspector: Rotation ⊙ 버튼 — 클릭 시 rotation을 0으로 즉시 초기화, 비활성(0)일 때 muted 색상

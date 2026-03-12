@@ -480,6 +480,11 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           title={scaleLocked ? '비율 잠금 해제' : '비율 유지 잠금'}
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: scaleLocked ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
         >∝</button>
+        <button
+          onClick={() => { onUpdate(node.uuid, 'scaleX', 1); onUpdate(node.uuid, 'scaleY', 1) }}
+          title="스케일을 (1, 1)로 초기화"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.scaleX !== 1 || node.scaleY !== 1) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+        >⊙</button>
       </div>
 
       {/* Rotation */}

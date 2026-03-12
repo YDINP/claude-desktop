@@ -1823,6 +1823,19 @@ if (existsSync(sceneInspectorPath17)) {
   }
 }
 
+// ── Section 83: R181 신규 기능 ───────────────────────────────
+console.log('\n## 83. 신규 기능 파일 검사 (R181)')
+// SceneInspector Scale 리셋 버튼 (Round 181)
+const sceneInspectorPath18 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath18)) {
+  const si18 = readFileSync(sceneInspectorPath18, 'utf-8')
+  if (si18.includes('스케일을 (1, 1)로 초기화') && si18.includes("onUpdate(node.uuid, 'scaleX', 1)")) {
+    log('pass', 'Round181', 'SceneInspector: Scale ⊙ 리셋 버튼 존재')
+  } else {
+    log('warning', 'Round181', 'SceneInspector Scale 리셋 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
