@@ -22,6 +22,7 @@ export function NotesPanel() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOrder, setSortOrder] = useState<'latest' | 'oldest' | 'title'>('latest')
   const [noteCopied, setNoteCopied] = useState(false)
+  const [codeMode, setCodeMode] = useState(false)
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const selected = notes.find(n => n.id === selectedId) ?? null
@@ -188,16 +189,23 @@ export function NotesPanel() {
               onChange={e => { setContent(e.target.value); updateCurrent(title, e.target.value) }}
               placeholder="노트 내용..."
               style={{
-                flex: 1, padding: '8px', fontSize: 11, lineHeight: 1.6,
+                flex: 1, padding: '8px', fontSize: codeMode ? 10 : 11, lineHeight: 1.6,
                 background: 'transparent', border: 'none', resize: 'none',
-                color: 'var(--text-primary)', outline: 'none', fontFamily: 'inherit',
+                color: 'var(--text-primary)', outline: 'none',
+                fontFamily: codeMode ? 'var(--font-mono, monospace)' : 'inherit',
               }}
             />
             <div style={{ padding: '2px 8px', fontSize: 9, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
-              <button onClick={copyNoteToClipboard} title="노트를 Markdown으로 클립보드 복사"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: noteCopied ? 'var(--success)' : 'var(--text-muted)', padding: '0 2px', transition: 'color 0.15s' }}>
-                {noteCopied ? '✓' : '📋'}
-              </button>
+              <div style={{ display: 'flex', gap: 2 }}>
+                <button onClick={copyNoteToClipboard} title="노트를 Markdown으로 클립보드 복사"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: noteCopied ? 'var(--success)' : 'var(--text-muted)', padding: '0 2px', transition: 'color 0.15s' }}>
+                  {noteCopied ? '✓' : '📋'}
+                </button>
+                <button onClick={() => setCodeMode(v => !v)} title={codeMode ? '일반 텍스트 모드' : '코드 모노스페이스 모드'}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: codeMode ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', fontFamily: 'monospace', fontWeight: codeMode ? 700 : 400 }}>
+                  {'</>'}
+                </button>
+              </div>
               <span>{content.length}자 · {content.trim() ? content.trim().split(/\s+/).length : 0}단어</span>
             </div>
           </div>

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 187: R285 신규 기능 ───────────────────────────────
+console.log('\n## 187. 신규 기능 파일 검사 (R285)')
+// NotesPanel 모노스페이스 코드 모드 (Round 285)
+const np285Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np285Path)) {
+  const np285 = readFileSync(np285Path, 'utf-8')
+  if (np285.includes('codeMode') && np285.includes('font-mono') && np285.includes('코드 모노스페이스')) {
+    log('pass', 'Round285', 'NotesPanel: 모노스페이스 코드 모드 (codeMode/font-mono) 존재')
+  } else {
+    log('warning', 'Round285', 'NotesPanel 모노스페이스 코드 모드 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 186: R284 신규 기능 ───────────────────────────────
 console.log('\n## 186. 신규 기능 파일 검사 (R284)')
 // SceneViewPanel 노드 정보 오버레이 컴포넌트 표시 (Round 284)

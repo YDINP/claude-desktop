@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 284 완료 — SceneView 노드 정보 오버레이 컴포넌트, Pass 304)
+> 마지막 업데이트: 2026-03-13 (Round 285 완료 — NotesPanel 모노스페이스 코드 모드, Pass 305)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 285 | dev | NotesPanel 모노스페이스 코드 모드 토글 — codeMode/font-mono, </> 버튼 | ✅ |
 | Round 284 | dev | SceneView 노드 정보 오버레이 컴포넌트 타입 — cc. 제거 후 쉼표 구분 목록 표시 | ✅ |
 | Round 283 | dev | CalendarPanel 이번 달 이벤트 수 요약 — monthEventCount/monthPrefix, 강조 표시 | ✅ |
 | Round 282 | dev | TasksPanel 빠른 마감일 버튼 — 오늘/내일/7일 후 토글, 재클릭 해제, × 초기화 | ✅ |

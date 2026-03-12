@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 285] — 2026-03-13
+### Added
+- NotesPanel: 모노스페이스 코드 모드 토글 (`</>` 버튼) — 코드/텍스트 폰트 전환, 활성 시 강조
+
 ## [Round 284] — 2026-03-13
 ### Improved
 - SceneView: 노드 정보 오버레이(I키)에 컴포넌트 타입 목록 추가 — `cc.` 접두사 제거 후 쉼표 구분 표시
