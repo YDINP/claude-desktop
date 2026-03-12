@@ -10,6 +10,7 @@ interface SceneToolbarProps {
   canRedo?: boolean
   canCopy?: boolean
   canPaste?: boolean
+  canZOrder?: boolean
   onToolChange: (tool: 'select' | 'move') => void
   onZoomChange: (zoom: number) => void
   onGridToggle: () => void
@@ -20,6 +21,10 @@ interface SceneToolbarProps {
   onRedo?: () => void
   onCopy?: () => void
   onPaste?: () => void
+  onZOrderFront?: () => void
+  onZOrderBack?: () => void
+  onZOrderUp?: () => void
+  onZOrderDown?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -34,6 +39,7 @@ export function SceneToolbar({
   canRedo,
   canCopy,
   canPaste,
+  canZOrder,
   onToolChange,
   onZoomChange,
   onGridToggle,
@@ -44,6 +50,10 @@ export function SceneToolbar({
   onRedo,
   onCopy,
   onPaste,
+  onZOrderFront,
+  onZOrderBack,
+  onZOrderUp,
+  onZOrderDown,
 }: SceneToolbarProps) {
   const zoomIn = () => {
     const next = ZOOM_STEPS.find(z => z > zoom) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]
@@ -197,6 +207,34 @@ export function SceneToolbar({
         title="붙여넣기 (Ctrl+V)"
         style={{ ...btnBase, opacity: canPaste ? 1 : 0.3 }}
       >V</button>
+
+      <div style={divider} />
+
+      {/* Z-order 버튼 — 단일 노드 선택 시에만 활성 */}
+      <button
+        onClick={onZOrderFront}
+        disabled={!canZOrder}
+        title="맨 앞으로 (Z-order)"
+        style={{ ...btnBase, opacity: canZOrder ? 1 : 0.3 }}
+      >⬆⬆</button>
+      <button
+        onClick={onZOrderUp}
+        disabled={!canZOrder}
+        title="앞으로"
+        style={{ ...btnBase, opacity: canZOrder ? 1 : 0.3 }}
+      >⬆</button>
+      <button
+        onClick={onZOrderDown}
+        disabled={!canZOrder}
+        title="뒤로"
+        style={{ ...btnBase, opacity: canZOrder ? 1 : 0.3 }}
+      >⬇</button>
+      <button
+        onClick={onZOrderBack}
+        disabled={!canZOrder}
+        title="맨 뒤로"
+        style={{ ...btnBase, opacity: canZOrder ? 1 : 0.3 }}
+      >⬇⬇</button>
 
       <div style={divider} />
 

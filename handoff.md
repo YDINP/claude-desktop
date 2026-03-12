@@ -2,14 +2,25 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 103 (전체 세션 메시지 검색 GlobalSearchPanel)
+- 마지막 커밋: Round 104 (QA R102~103 체크 + SceneView Z-order)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 29
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 32
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 103 완료 항목 (최근 세션)
+## Round 104 완료 항목 (최근 세션)
+
+### Round 104 — QA 강화 + SceneView Z-order 제어
+- `scripts/qa.ts`: Section 11 추가 (R102~103 체크 3종), Pass 29→32
+- `extensions/cc-ws-extension-3x/main.js`: `POST /node/:uuid/zorder` 엔드포인트 추가 (front/back/up/down)
+- `src/main/cc/cc-bridge.ts`: `setZOrder(uuid, direction)` 메서드
+- `src/main/ipc/cc-handlers.ts`: `cc:setZOrder` IPC 핸들러
+- `src/preload/index.ts`: `ccSetZOrder` contextBridge 노출
+- `src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx`: ⬆⬆/⬆/⬇/⬇⬇ Z-order 버튼 추가
+- `src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx`: `canZOrder`/`handleZOrder` 추가
+
+## Round 103 완료 항목 (이전 세션)
 
 ### Round 103 — 전체 세션 메시지 검색
 - `src/main/ipc/session-handlers.ts`: `session:searchAll` 핸들러 — 최근 100세션, 50건 제한, excerpt 추출

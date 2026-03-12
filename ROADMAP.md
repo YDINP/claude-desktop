@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 103 완료 — 전체 세션 메시지 검색 GlobalSearchPanel)
+> 마지막 업데이트: 2026-03-12 (Round 104 완료 — QA R102~103 체크 + SceneView Z-order 제어)
 
 ## 완료된 라운드
 
@@ -50,13 +50,14 @@
 | Round 101 | dev | 메모리 누수 수정 (bridge addEventListener) + SceneView 노드 복사/붙여넣기 (Ctrl+C/V) + CHANGELOG 갱신 | ✅ |
 | Round 102 | dev | QA R101 체크 (Pass→29) + SceneInspector 노드 가시성 토글 + ccSetProperty port 버그 수정 | ✅ |
 | Round 103 | dev | 전체 세션 메시지 검색 — session:searchAll IPC, GlobalSearchResult 타입, GlobalSearchPanel, Sidebar 탭 | ✅ |
+| Round 104 | dev | QA R102~103 체크 (Pass→32) + SceneView Z-order (⬆⬆⬆⬇⬇ 버튼) + CC extension /node/:uuid/zorder 엔드포인트 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 104 | dev | QA R103 체크 + SceneView Z-order 제어 (앞으로/뒤로 이동) |
-| Round 105 | dev | CC 2x Extension 고도화 — 3x와 기능 동등성 (active 토글, compProps 추출) |
+| Round 105 | dev | CC 2x Extension 고도화 — 3x와 기능 동등성 (active 토글, zorder, compProps 추출) |
+| Round 106 | dev | AI 프리셋 프롬프트 슬롯 — 4개 빠른 액션 버튼 (InputBar 하단 고정) |
 
 ## 전략 로드맵 (Phase)
 

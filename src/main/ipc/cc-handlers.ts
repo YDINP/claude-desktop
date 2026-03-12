@@ -62,6 +62,10 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
     return getCCBridge(port).setProperty(uuid, key, value)
   })
 
+  ipcMain.handle('cc:setZOrder', async (_e, port: number, uuid: string, direction: string) => {
+    return getCCBridge(port).setZOrder(uuid, direction)
+  })
+
   ipcMain.handle(CC_MOVE_NODE, async (_e, port = 9090, uuid: string, x: number, y: number) => {
     return getCCBridge(port).moveNode(uuid, x, y)
   })

@@ -402,6 +402,43 @@ if (existsSync(ollamaBridgePath2)) {
   }
 }
 
+console.log('\n## 11. 신규 기능 파일 검사 (R102-103)')
+
+// SceneInspector active toggle (Round 102)
+const sceneInspectorPath = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath)) {
+  const si = readFileSync(sceneInspectorPath, 'utf-8')
+  if (si.includes('isActive') && si.includes('handleActiveToggle')) {
+    log('pass', 'Round102', 'SceneInspector 노드 가시성 토글 존재')
+  } else {
+    log('warning', 'Round102', 'SceneInspector 가시성 토글 누락', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// GlobalSearchPanel (Round 103)
+const globalSearchPath = join(ROOT, 'src/renderer/src/components/sidebar/GlobalSearchPanel.tsx')
+if (existsSync(globalSearchPath)) {
+  const gs = readFileSync(globalSearchPath, 'utf-8')
+  if (gs.includes('sessionSearchAll') && gs.includes('GlobalSearchResult')) {
+    log('pass', 'Round103', 'GlobalSearchPanel: sessionSearchAll + 결과 타입 존재')
+  } else {
+    log('warning', 'Round103', 'GlobalSearchPanel 구현 불완전', 'sidebar/GlobalSearchPanel.tsx')
+  }
+} else {
+  log('warning', 'Round103', 'GlobalSearchPanel.tsx 미존재', 'sidebar/GlobalSearchPanel.tsx')
+}
+
+// session:searchAll IPC (Round 103)
+const sessionHandlersPath = join(ROOT, 'src/main/ipc/session-handlers.ts')
+if (existsSync(sessionHandlersPath)) {
+  const sh = readFileSync(sessionHandlersPath, 'utf-8')
+  if (sh.includes('session:searchAll')) {
+    log('pass', 'Round103', 'session:searchAll IPC 핸들러 존재')
+  } else {
+    log('warning', 'Round103', 'session:searchAll IPC 누락', 'ipc/session-handlers.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

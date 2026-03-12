@@ -369,6 +369,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const selectionCount = selectedUuids.size > 1 ? selectedUuids.size : undefined
   const canCopy = selectedUuids.size > 0 || selectedUuid !== null
   const canPaste = clipboard.length > 0
+  const canZOrder = selectedUuids.size === 1
 
   const handleCopy = useCallback(() => {
     const uuids = selectedUuids.size > 0 ? selectedUuids : (selectedUuid ? new Set([selectedUuid]) : new Set<string>())
@@ -399,6 +400,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       newNodes.forEach(n => updateNode(n.uuid, n))
     }
   }, [clipboard, nodeMap, updateNode])
+
+  const handleZOrder = useCallback(async (direction: 'front' | 'back' | 'up' | 'down') => {
+    if (selectedUuids.size !== 1) return
+    const uuid = [...selectedUuids][0]
+    try {
+      await window.api.ccSetZOrder?.(port, uuid, direction)
+      refresh()
+    } catch (e) {
+      console.error('[SceneView] zorder failed:', e)
+    }
+  }, [selectedUuids, port, refresh])
 
   // ── SVG viewBox ─────────────────────────────────────────
   // 고정 viewBox를 사용하지 않고 offsetX/Y + zoom을 transform으로 처리
@@ -445,6 +457,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         canRedo={redoStack.length > 0}
         canCopy={canCopy}
         canPaste={canPaste}
+        canZOrder={canZOrder}
         onToolChange={setActiveTool}
         onZoomChange={zoom => setView(prev => ({ ...prev, zoom }))}
         onGridToggle={() => setGridVisible(v => !v)}
@@ -453,6 +466,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onRefresh={refresh}
         onCopy={handleCopy}
         onPaste={handlePaste}
+        onZOrderFront={() => handleZOrder('front')}
+        onZOrderBack={() => handleZOrder('back')}
+        onZOrderUp={() => handleZOrder('up')}
+        onZOrderDown={() => handleZOrder('down')}
         onUndo={() => {
           setUndoStack(prev => {
             if (prev.length === 0) return prev

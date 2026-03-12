@@ -313,6 +313,36 @@ async function routeRequest3x(method, url, body, res) {
     return;
   }
 
+  // Z-order: POST /node/:uuid/zorder { direction: 'front'|'back'|'up'|'down' }
+  const zorderMatch = url.match(/^\/node\/([^\/]+)\/zorder$/);
+  if (method === 'POST' && zorderMatch) {
+    const uuid = zorderMatch[1];
+    const { direction } = body;
+    const raw = await Editor.Message.request('scene', 'query-node', uuid);
+    const node = enrichNode(raw);
+    const parentUuid = raw && (raw.parent?.value?.uuid || raw.parent?.uuid);
+    if (parentUuid) {
+      const parentRaw = await Editor.Message.request('scene', 'query-node', parentUuid);
+      const parentNode = enrichNode(parentRaw);
+      const children = parentNode ? parentNode.children : [];
+      const idx = children.findIndex(c => c.uuid === uuid);
+      const count = children.length;
+      let newIdx = idx;
+      if (direction === 'front') newIdx = count - 1;
+      else if (direction === 'back') newIdx = 0;
+      else if (direction === 'up') newIdx = Math.min(idx + 1, count - 1);
+      else if (direction === 'down') newIdx = Math.max(idx - 1, 0);
+      if (newIdx !== idx && idx !== -1) {
+        await Editor.Message.request('scene', 'set-property', {
+          uuid, path: 'siblingIndex',
+          dump: { type: 'cc.Integer', value: newIdx }
+        });
+      }
+    }
+    res.writeHead(200); res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
   if (method === 'GET' && url === '/scene/canvas-size') {
     function findCanvasInTree(node) {
       if (!node) return null;
