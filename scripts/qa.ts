@@ -1463,6 +1463,24 @@ if (existsSync(sceneViewPanelPath26)) {
   }
 }
 
+// ── Section 63: R161 신규 기능 ───────────────────────────────
+console.log('\n## 63. 신규 기능 파일 검사 (R161)')
+// SceneInspector 자식 노드 수 표시 (Round 161)
+const sceneInspectorPath9 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath9)) {
+  const si9 = readFileSync(sceneInspectorPath9, 'utf-8')
+  if (si9.includes('node.childUuids.length > 0') && si9.includes('↳')) {
+    log('pass', 'Round161', 'SceneInspector: 자식 노드 수 ↳N 표시 존재')
+  } else {
+    log('warning', 'Round161', 'SceneInspector 자식 노드 수 미구현', 'SceneView/SceneInspector.tsx')
+  }
+  if (si9.includes('자식 노드') && si9.includes('childUuids.length}개')) {
+    log('pass', 'Round161', 'SceneInspector: 자식 노드 수 tooltip 존재')
+  } else {
+    log('warning', 'Round161', 'SceneInspector 자식 수 tooltip 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

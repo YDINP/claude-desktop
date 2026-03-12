@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 161] — 2026-03-12
+### Added
+- SceneInspector: 자식 노드 수 표시 — "↳N" 형태로 헤더 하단에 표시, 부모/자식 정보 한 줄에 통합
+
 ## [Round 160] — 2026-03-12
 ### Added
 - SceneView: Ctrl+D 복제 단축키 — 클립보드 변경 없이 선택 노드 20px 오프셋 복제

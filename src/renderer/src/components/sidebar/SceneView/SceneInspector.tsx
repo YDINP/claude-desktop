@@ -349,23 +349,30 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
         </div>
       </div>
 
-      {/* 부모 노드 경로 */}
-      {node.parentUuid && nodeMap && (() => {
-        const parent = nodeMap.get(node.parentUuid!)
-        if (!parent) return null
-        return (
-          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
-            <span>in:</span>
-            <span
-              style={{ color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }}
-              onClick={() => onSelectParent?.(node.parentUuid!)}
-              title={`부모 노드 선택: ${parent.name}`}
-            >
-              {parent.name}
+      {/* 부모 노드 경로 + 자식/depth 정보 */}
+      <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+        {node.parentUuid && nodeMap && (() => {
+          const parent = nodeMap.get(node.parentUuid!)
+          if (!parent) return null
+          return (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              <span>in:</span>
+              <span
+                style={{ color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }}
+                onClick={() => onSelectParent?.(node.parentUuid!)}
+                title={`부모 노드 선택: ${parent.name}`}
+              >
+                {parent.name}
+              </span>
             </span>
-          </div>
-        )
-      })()}
+          )
+        })()}
+        {node.childUuids.length > 0 && (
+          <span title={`자식 노드 ${node.childUuids.length}개`}>
+            ↳{node.childUuids.length}
+          </span>
+        )}
+      </div>
 
       {/* Position */}
       <SectionHeader label="Position" />

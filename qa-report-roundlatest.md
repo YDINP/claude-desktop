@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:15:04.604Z
+> 2026-03-12T14:16:38.863Z
 
 ## Critical
 _없음_
@@ -146,3 +146,5 @@ _없음_
 - SceneView: anchor 다이아몬드 좌표 + zoom 보정 존재
 - SceneView: handleDuplicate + Ctrl+D 핸들러 존재
 - SceneView: Ctrl+D 단축키 도움말 항목 존재
+- SceneInspector: 자식 노드 수 ↳N 표시 존재
+- SceneInspector: 자식 노드 수 tooltip 존재
