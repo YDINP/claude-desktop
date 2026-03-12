@@ -1175,6 +1175,24 @@ if (existsSync(sceneViewPanelPath16)) {
   }
 }
 
+// ── Section 47: R145 신규 기능 ───────────────────────────────
+console.log('\n## 47. 신규 기능 파일 검사 (R145)')
+// SceneView passive wheel 수정 (Round 145)
+const sceneViewPanelPath17 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath17)) {
+  const svp17 = readFileSync(sceneViewPanelPath17, 'utf-8')
+  if (svp17.includes("{ passive: false }") && svp17.includes("addEventListener('wheel'")) {
+    log('pass', 'Round145', 'SceneViewPanel: passive:false wheel 이벤트 등록 존재')
+  } else {
+    log('warning', 'Round145', 'SceneViewPanel passive wheel 미수정', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (!svp17.includes('onWheel={handleWheel}')) {
+    log('pass', 'Round145', 'SceneViewPanel: JSX onWheel 제거 (passive 리스너로 대체됨)')
+  } else {
+    log('warning', 'Round145', 'SceneViewPanel onWheel JSX 미제거', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

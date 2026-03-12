@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 145] — 2026-03-12
+### Fixed
+- SceneView: passive wheel 이벤트 → `addEventListener('wheel', fn, {passive:false})` 로 교체, `preventDefault` 정상 동작
+
 ## [Round 144] — 2026-03-12
 ### Added
 - SceneViewPanel: 단축키 도움말 오버레이 — ? 키로 토글, 클릭으로 닫기, 전체 단축키 목록 표시

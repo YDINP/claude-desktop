@@ -529,20 +529,27 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [nodeMap, marquee, view, port])
 
-  // ── 줌 (wheel) ─────────────────────────────────────────────
-  const handleWheel = useCallback((e: React.WheelEvent) => {
+  // ── 줌 (wheel) — passive: false 필요 ───────────────────────
+  const handleWheel = useCallback((e: WheelEvent) => {
     if (!e.ctrlKey && !e.metaKey) return
     e.preventDefault()
     const factor = e.deltaY < 0 ? 1.1 : 0.9
-    const svgCoords = getSvgCoords(e as unknown as React.MouseEvent)
+    const svgCoords = getSvgCoords(e)
     setView(prev => {
       const newZoom = Math.min(8, Math.max(0.1, prev.zoom * factor))
-      // 마우스 위치 기준 줌
       const newOffsetX = svgCoords.x - (svgCoords.x - prev.offsetX) * (newZoom / prev.zoom)
       const newOffsetY = svgCoords.y - (svgCoords.y - prev.offsetY) * (newZoom / prev.zoom)
       return { zoom: newZoom, offsetX: newOffsetX, offsetY: newOffsetY }
     })
   }, [getSvgCoords])
+
+  // 비패시브 wheel 이벤트 등록 (passive: false 없이는 preventDefault 무시됨)
+  useEffect(() => {
+    const el = svgRef.current
+    if (!el) return
+    el.addEventListener('wheel', handleWheel, { passive: false })
+    return () => el.removeEventListener('wheel', handleWheel)
+  }, [handleWheel])
 
   // ── Inspector 업데이트 ─────────────────────────────────────
   const handleInspectorUpdate = useCallback(async (uuid: string, prop: string, value: number | boolean) => {
@@ -815,7 +822,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={() => { setCursorScenePos(null); setHoverTooltipPos(null); handleMouseUp() }}
-          onWheel={handleWheel}
         >
           <defs>
             {/* 체크패턴 배경 */}
