@@ -9,11 +9,16 @@ interface CCBridgeOptions {
 class CCBridge {
   private ws: WebSocket | null = null
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null
-  private _port = 9090
-  private _version = '2x'
+  private _port: number
+  private _version: string
   private _connected = false
   private _intentionalDisconnect = false
   private options: CCBridgeOptions = {}
+
+  constructor(port = 9090) {
+    this._port = port
+    this._version = port === 9091 ? '3x' : '2x'
+  }
 
   get connected() { return this._connected }
   get port() { return this._port }
@@ -176,7 +181,7 @@ const _bridges = new Map<number, CCBridge>()
 
 export function getCCBridge(port: number): CCBridge {
   if (!_bridges.has(port)) {
-    _bridges.set(port, new CCBridge())
+    _bridges.set(port, new CCBridge(port))
   }
   return _bridges.get(port)!
 }
