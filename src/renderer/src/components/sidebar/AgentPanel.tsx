@@ -420,10 +420,12 @@ export function AgentPanel() {
     boxSizing: 'border-box',
   }
 
-  const tabs: { id: AgentTab; label: string }[] = [
-    { id: 'tasks', label: '태스크' },
+  const enabledCount = tasks.filter(t => t.enabled).length
+
+  const tabs: { id: AgentTab; label: string; badge?: number }[] = [
+    { id: 'tasks', label: '태스크', badge: tasks.length > 0 ? enabledCount : undefined },
     { id: 'chains', label: '체이닝' },
-    { id: 'history', label: '히스토리' },
+    { id: 'history', label: '히스토리', badge: runs.length > 0 ? runs.length : undefined },
     { id: 'timeline', label: '런타임' },
   ]
 
@@ -456,6 +458,16 @@ export function AgentPanel() {
             }}
           >
             {tab.label}
+            {tab.badge !== undefined && (
+              <span style={{
+                marginLeft: 3, fontSize: 9, padding: '0 4px', borderRadius: 6,
+                background: activeTab === tab.id ? 'rgba(255,255,255,0.2)' : 'var(--bg-hover)',
+                color: activeTab === tab.id ? '#fff' : 'var(--text-muted)',
+                verticalAlign: 'middle',
+              }}>
+                {tab.badge}
+              </span>
+            )}
           </button>
         ))}
       </div>

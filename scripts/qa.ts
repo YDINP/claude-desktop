@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 204: R302 신규 기능 ───────────────────────────────
+console.log('\n## 204. 신규 기능 파일 검사 (R302)')
+// AgentPanel 탭 배지 (Round 302)
+const ap302Path = join(ROOT, 'src/renderer/src/components/sidebar/AgentPanel.tsx')
+if (existsSync(ap302Path)) {
+  const ap302 = readFileSync(ap302Path, 'utf-8')
+  if (ap302.includes('enabledCount') && ap302.includes('tab.badge') && ap302.includes('badge?:')) {
+    log('pass', 'Round302', 'AgentPanel: 탭 배지 (enabledCount/badge) 존재')
+  } else {
+    log('warning', 'Round302', 'AgentPanel 탭 배지 미구현', 'sidebar/AgentPanel.tsx')
+  }
+}
+
 // ── Section 203: R301 신규 기능 ───────────────────────────────
 console.log('\n## 203. 신규 기능 파일 검사 (R301)')
 // RemotePanel 총 호스트 수 배지 (Round 301)

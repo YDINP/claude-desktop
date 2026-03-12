@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 302] — 2026-03-13
+### Added
+- AgentPanel: 탭 배지 — 태스크 탭에 활성 수, 히스토리 탭에 런 수 배지 표시
+
 ## [Round 301] — 2026-03-13
 ### Added
 - RemotePanel: 헤더에 총 호스트 수 배지 — `N개` (ssh config + 저장 호스트 합산)
