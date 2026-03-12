@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 242] — 2026-03-13
+### Added
+- SceneView: 그룹 해제 (Ctrl+Shift+G) — 그룹 노드의 자식들을 상위 레벨로 올리고 그룹 노드 비활성화
+
 ## [Round 241] — 2026-03-13
 ### Added
 - SceneView: Alt+1~9 빠른 색상 레이블 — 9가지 미리 정의된 색상을 키보드로 즉시 지정, Alt+0으로 초기화

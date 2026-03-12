@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 144: R242 신규 기능 ───────────────────────────────
+console.log('\n## 144. 신규 기능 파일 검사 (R242)')
+// SceneView 그룹 해제 (Round 242)
+const svp242Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp242Path)) {
+  const svp242 = readFileSync(svp242Path, 'utf-8')
+  if (svp242.includes('handleUngroup') && svp242.includes('Ctrl+Shift+G') && svp242.includes('그룹 해제')) {
+    log('pass', 'Round242', 'SceneViewPanel: 그룹 해제 (handleUngroup + Ctrl+Shift+G) 구현 존재')
+  } else {
+    log('warning', 'Round242', 'SceneViewPanel 그룹 해제 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 143: R241 신규 기능 ───────────────────────────────
 console.log('\n## 143. 신규 기능 파일 검사 (R241)')
 // SceneView Alt+1~9 색상 레이블 (Round 241)
