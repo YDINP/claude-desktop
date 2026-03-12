@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 346] — 2026-03-13
+### Added
+- ChangedFilesPanel: W/E 오퍼레이션 필터 버튼 — W(Write)/E(Edit) 배지 버튼 클릭 시 해당 타입만 필터, 재클릭 시 해제
+
 ## [Round 345] — 2026-03-13
 ### Added
 - RemotePanel: 최근 접속 순 정렬 — 연결 클릭 시 lastUsed 타임스탬프 업데이트, 저장된 호스트 최근 사용 순 정렬, 24시간 이내 사용 호스트에 "최근" 배지

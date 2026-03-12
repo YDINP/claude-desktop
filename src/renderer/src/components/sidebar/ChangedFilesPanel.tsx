@@ -49,6 +49,7 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
   const [diffs, setDiffs] = useState<Record<string, string>>({})
   const [restoringFiles, setRestoringFiles] = useState<Set<string>>(new Set())
   const [sortAsc, setSortAsc] = useState(false)
+  const [opFilter, setOpFilter] = useState<'write' | 'edit' | null>(null)
 
   const handleClick = useCallback((path: string) => {
     onFileClick(path)
@@ -106,12 +107,19 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
         justifyContent: 'space-between',
         flexShrink: 0,
       }}>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-          {files.length}개 변경
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+          {files.length}개
           {' '}
-          <span style={{ color: 'var(--success)', fontFamily: 'monospace' }}>W:{files.filter(f => f.op === 'write').length}</span>
-          {' '}
-          <span style={{ color: 'var(--warning)', fontFamily: 'monospace' }}>E:{files.filter(f => f.op === 'edit').length}</span>
+          <button
+            onClick={() => setOpFilter(f => f === 'write' ? null : 'write')}
+            title="Write 필터"
+            style={{ background: opFilter === 'write' ? 'var(--success)' : 'none', color: opFilter === 'write' ? '#fff' : 'var(--success)', fontFamily: 'monospace', fontSize: 10, border: `1px solid var(--success)`, borderRadius: 3, padding: '0 4px', cursor: 'pointer', lineHeight: '15px' }}
+          >W:{files.filter(f => f.op === 'write').length}</button>
+          <button
+            onClick={() => setOpFilter(f => f === 'edit' ? null : 'edit')}
+            title="Edit 필터"
+            style={{ background: opFilter === 'edit' ? 'var(--warning)' : 'none', color: opFilter === 'edit' ? '#fff' : 'var(--warning)', fontFamily: 'monospace', fontSize: 10, border: `1px solid var(--warning)`, borderRadius: 3, padding: '0 4px', cursor: 'pointer', lineHeight: '15px' }}
+          >E:{files.filter(f => f.op === 'edit').length}</button>
         </span>
         <button
           onClick={() => setSortAsc(v => !v)}
@@ -141,7 +149,7 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
 
       {/* File list (newest first) */}
       <div style={{ flex: 1, overflow: 'auto' }}>
-        {(sortAsc ? [...files] : [...files].reverse()).map((f, i) => (
+        {(sortAsc ? [...files] : [...files].reverse()).filter(f => !opFilter || f.op === opFilter).map((f, i) => (
           <div key={`${f.path}-${f.ts}-${i}`} style={{ borderBottom: '1px solid var(--border)' }}>
             <div
               onClick={() => handleClick(f.path)}

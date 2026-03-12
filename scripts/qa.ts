@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 248: R346 신규 기능 ───────────────────────────────
+console.log('\n## 248. 신규 기능 파일 검사 (R346)')
+// ChangedFilesPanel W/E 오퍼레이션 필터 (Round 346)
+const cfp346Path = join(ROOT, 'src/renderer/src/components/sidebar/ChangedFilesPanel.tsx')
+if (existsSync(cfp346Path)) {
+  const cfp346 = readFileSync(cfp346Path, 'utf-8')
+  if (cfp346.includes('opFilter') && cfp346.includes('setOpFilter') && cfp346.includes("f.op === opFilter")) {
+    log('pass', 'Round346', 'ChangedFilesPanel: W/E 오퍼레이션 필터 (opFilter/setOpFilter) 존재')
+  } else {
+    log('warning', 'Round346', 'ChangedFilesPanel W/E 필터 미구현', 'sidebar/ChangedFilesPanel.tsx')
+  }
+}
+
 // ── Section 247: R345 신규 기능 ───────────────────────────────
 console.log('\n## 247. 신규 기능 파일 검사 (R345)')
 // RemotePanel 최근 접속 순 정렬 (Round 345)
