@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 350] — 2026-03-13
+### Added
+- AgentPanel: 태스크 검색 필터 — 태스크 1개↑ 시 검색 입력창 표시, 이름/프롬프트 대상 실시간 필터
+
 ## [Round 349] — 2026-03-13
 ### Added
 - ClipboardPanel: 항목 고정(pin) 기능 — 호버 시 📌 버튼 표시, 고정 항목은 상단 고정 + 배경 강조

@@ -223,6 +223,7 @@ export function AgentPanel() {
   const [formSchedule, setFormSchedule] = useState<AgentTask['schedule']>('manual')
   const [runningSteps, setRunningSteps] = useState<Record<string, WorkStep[]>>({})
   const [runs, setRuns] = useState<WorkRun[]>([])
+  const [taskSearch, setTaskSearch] = useState('')
   const onStartRanRef = useRef(false)
 
   const updateTasks = useCallback((next: AgentTask[]) => {
@@ -421,6 +422,9 @@ export function AgentPanel() {
   }
 
   const enabledCount = tasks.filter(t => t.enabled).length
+  const visibleTasks = taskSearch.trim()
+    ? tasks.filter(t => t.name.toLowerCase().includes(taskSearch.toLowerCase()) || t.prompt.toLowerCase().includes(taskSearch.toLowerCase()))
+    : tasks
 
   const tabs: { id: AgentTab; label: string; badge?: number }[] = [
     { id: 'tasks', label: '태스크', badge: tasks.length > 0 ? enabledCount : undefined },
@@ -559,6 +563,16 @@ export function AgentPanel() {
               </div>
             )}
 
+            {/* Search */}
+            {tasks.length > 0 && (
+              <input
+                value={taskSearch}
+                onChange={e => setTaskSearch(e.target.value)}
+                placeholder="태스크 검색..."
+                style={{ ...inputStyle, marginBottom: 8, fontSize: 11, padding: '3px 7px' }}
+              />
+            )}
+
             {/* Task list */}
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {tasks.length === 0 && (
@@ -573,7 +587,10 @@ export function AgentPanel() {
                   태스크가 없습니다
                 </div>
               )}
-              {tasks.map(task => (
+              {taskSearch.trim() && visibleTasks.length === 0 && (
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 16, fontSize: 11 }}>검색 결과 없음</div>
+              )}
+              {visibleTasks.map(task => (
                 <div
                   key={task.id}
                   style={{

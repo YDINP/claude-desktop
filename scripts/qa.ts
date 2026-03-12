@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 252: R350 신규 기능 ───────────────────────────────
+console.log('\n## 252. 신규 기능 파일 검사 (R350)')
+// AgentPanel 태스크 검색 필터 (Round 350)
+const agent350Path = join(ROOT, 'src/renderer/src/components/sidebar/AgentPanel.tsx')
+if (existsSync(agent350Path)) {
+  const agent350 = readFileSync(agent350Path, 'utf-8')
+  if (agent350.includes('taskSearch') && agent350.includes('visibleTasks') && agent350.includes('setTaskSearch')) {
+    log('pass', 'Round350', 'AgentPanel: 태스크 검색 필터 (taskSearch/visibleTasks/setTaskSearch) 존재')
+  } else {
+    log('warning', 'Round350', 'AgentPanel 태스크 검색 필터 미구현', 'sidebar/AgentPanel.tsx')
+  }
+}
+
 // ── Section 251: R349 신규 기능 ───────────────────────────────
 console.log('\n## 251. 신규 기능 파일 검사 (R349)')
 // ClipboardPanel 항목 고정 (Round 349)
