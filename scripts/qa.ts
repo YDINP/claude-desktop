@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 124: R222 신규 기능 ───────────────────────────────
+console.log('\n## 124. 신규 기능 파일 검사 (R222)')
+// SceneView 노드 이동 히스토리 (Round 222)
+const svp222Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp222Path)) {
+  const svp222 = readFileSync(svp222Path, 'utf-8')
+  if (svp222.includes('changeHistory') && svp222.includes('showChangeHistory') && svp222.includes('최근 이동 히스토리')) {
+    log('pass', 'Round222', 'SceneViewPanel: 노드 이동 히스토리 UI 구현 존재')
+  } else {
+    log('warning', 'Round222', 'SceneViewPanel 이동 히스토리 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 123: R221 신규 기능 ───────────────────────────────
 console.log('\n## 123. 신규 기능 파일 검사 (R221)')
 // SceneView LOD 렌더링 (Round 221)

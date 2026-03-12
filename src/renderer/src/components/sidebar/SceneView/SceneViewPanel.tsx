@@ -54,6 +54,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [alignGuides, setAlignGuides] = useState<{ x?: number; y?: number }[]>([])
   const [showConnections, setShowConnections] = useState(false)
   const [showStats, setShowStats] = useState(false)
+  const [showChangeHistory, setShowChangeHistory] = useState(false)
+  const [changeHistory, setChangeHistory] = useState<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
+  const changeHistoryRef = useRef<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
+  changeHistoryRef.current = changeHistory
   const [canvasSearch, setCanvasSearch] = useState('')
   const [showCanvasSearch, setShowCanvasSearch] = useState(false)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
@@ -795,6 +799,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             console.error('[SceneView] setProperty failed:', e)
           }
         }
+      }
+      // 이동 히스토리 기록
+      const draggedNode = nodeMap.get(drag.uuid)
+      if (draggedNode) {
+        setChangeHistory(prev => {
+          const entry = { uuid: drag.uuid, name: draggedNode.name, x: Math.round(draggedNode.x), y: Math.round(draggedNode.y), ts: Date.now() }
+          return [entry, ...prev.filter(e => e.uuid !== drag.uuid)].slice(0, 20)
+        })
       }
       dragRef.current = null
       setIsDragging(false)
@@ -2016,6 +2028,51 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           >
             ⊞
           </button>
+        )}
+
+        {/* 변경 히스토리 버튼 + 팝업 */}
+        {changeHistory.length > 0 && (
+          <div style={{ position: 'absolute', bottom: 52, right: 6 }}>
+            <button
+              onClick={() => setShowChangeHistory(v => !v)}
+              title="최근 노드 이동 히스토리"
+              style={{
+                fontSize: 9, padding: '1px 4px',
+                background: showChangeHistory ? 'var(--accent-dim)' : 'rgba(15,15,20,0.8)',
+                border: `1px solid ${showChangeHistory ? 'var(--accent)' : 'rgba(255,255,255,0.15)'}`,
+                borderRadius: 3, color: showChangeHistory ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer',
+              }}
+            >
+              ↕ {changeHistory.length}
+            </button>
+            {showChangeHistory && (
+              <div
+                style={{
+                  position: 'absolute', bottom: 22, right: 0,
+                  width: 180, maxHeight: 200, overflowY: 'auto',
+                  background: 'rgba(10,10,15,0.95)', border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                  fontSize: 9, color: 'var(--text-muted)',
+                }}
+              >
+                <div style={{ padding: '3px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-primary)', fontWeight: 600 }}>
+                  최근 이동 히스토리
+                </div>
+                {changeHistory.map((entry, i) => (
+                  <div
+                    key={i}
+                    onClick={() => { setSelectedUuid(entry.uuid); setSelectedUuids(new Set([entry.uuid])); setShowChangeHistory(false) }}
+                    style={{ padding: '3px 8px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{entry.name}</span>
+                    <span style={{ flexShrink: 0, marginLeft: 6, fontVariantNumeric: 'tabular-nums' }}>{entry.x}, {entry.y}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {/* 회전 각도 오버레이 */}

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 221 완료 — SceneView LOD 렌더링, Pass 216)
+> 마지막 업데이트: 2026-03-13 (Round 222 완료 — SceneView 노드 이동 히스토리, Pass 217)
 
 ## 완료된 라운드
 
@@ -173,6 +173,7 @@
 | Round 219 | dev | SceneView 하단 상태바 — 도구/줌/Snap/선택수, Space 패닝 힌트 | ✅ |
 | Round 220 | dev | SceneView Ctrl+F 검색 하이라이트 — 매칭 노드 황색 점선 링, Esc 닫기 | ✅ |
 | Round 221 | dev | SceneView LOD 렌더링 — 줌 레벨별 라벨/fill 숨김, 극소 노드 스킵 | ✅ |
+| Round 222 | dev | SceneView 노드 이동 히스토리 — ↕ 버튼, 최근 20개 기록 팝업, 클릭 선택 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

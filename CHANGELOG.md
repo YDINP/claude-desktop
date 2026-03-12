@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 222] — 2026-03-13
+### Added
+- SceneView: 노드 이동 히스토리 — ↕ 버튼으로 최근 20개 이동 기록 표시, 클릭 시 해당 노드 선택
+
 ## [Round 221] — 2026-03-13
 ### Added
 - SceneView: LOD 렌더링 — 줌 레벨에 따라 라벨/fill 숨김, 매우 작은 노드 스킵으로 성능 개선
