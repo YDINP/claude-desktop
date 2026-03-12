@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 259: R357 신규 기능 ───────────────────────────────
+console.log('\n## 259. 신규 기능 파일 검사 (R357)')
+// OutlinePanel 역순 정렬 (Round 357)
+const op357Path = join(ROOT, 'src/renderer/src/components/sidebar/OutlinePanel.tsx')
+if (existsSync(op357Path)) {
+  const op357 = readFileSync(op357Path, 'utf-8')
+  if (op357.includes('reversed') && op357.includes('setReversed') && op357.includes('reverse()')) {
+    log('pass', 'Round357', 'OutlinePanel: 역순 정렬 (reversed/setReversed/reverse) 존재')
+  } else {
+    log('warning', 'Round357', 'OutlinePanel 역순 정렬 미구현', 'sidebar/OutlinePanel.tsx')
+  }
+}
+
 // ── Section 258: R356 신규 기능 ───────────────────────────────
 console.log('\n## 258. 신규 기능 파일 검사 (R356)')
 // DiffPanel diff 통계 (Round 356)

@@ -47,9 +47,11 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
       const q = search.toLowerCase()
       list = list.filter(it => it.text.toLowerCase().includes(q))
     }
+    if (reversed) list = [...list].reverse()
     return list
-  }, [allItems, search, levelFilter])
+  }, [allItems, search, levelFilter, reversed])
 
+  const [reversed, setReversed] = useState(false)
   const [copied, setCopied] = useState(false)
   const copyOutline = useCallback(() => {
     const md = items.map(it => `${'#'.repeat(it.level)} ${it.text}`).join('\n')
@@ -87,6 +89,13 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
           {allItems.length}개
         </span>
         <div style={{ display: 'flex', gap: 2, marginLeft: 'auto', alignItems: 'center' }}>
+          {allItems.length > 0 && (
+            <button
+              onClick={() => setReversed(v => !v)}
+              title={reversed ? '오래된 항목 먼저' : '최신 항목 먼저'}
+              style={{ padding: '0 5px', fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', background: reversed ? 'var(--accent)' : 'none', color: reversed ? '#fff' : 'var(--text-muted)' }}
+            >{reversed ? '↑' : '↓'}</button>
+          )}
           {items.length > 0 && (
             <button
               onClick={copyOutline}

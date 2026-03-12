@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 357] — 2026-03-13
+### Added
+- OutlinePanel: 역순 정렬 토글 — ↓/↑ 버튼으로 아웃라인 항목 순서 반전, 최신 헤딩 먼저 보기
+
 ## [Round 356] — 2026-03-13
 ### Added
 - DiffPanel: diff 통계 표시 — 비교 후 추가/삭제 라인 수를 `getLineChanges()`로 계산해 "▲ N추가  ▼ N삭제" 표시
