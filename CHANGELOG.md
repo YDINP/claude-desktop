@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 173] — 2026-03-12
+### Added
+- 코드 블록: 4줄 이상 시 라인 번호 자동 표시 (react-syntax-highlighter showLineNumbers)
+
 ## [Round 172] — 2026-03-12
 ### Added
 - SceneInspector: Size W/H 비율 유지 잠금 버튼 — Scale 잠금과 동일하게 ∝ 토글

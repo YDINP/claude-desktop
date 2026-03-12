@@ -1700,6 +1700,19 @@ if (existsSync(sceneInspectorPath14)) {
   }
 }
 
+// ── Section 75: R173 신규 기능 ───────────────────────────────
+console.log('\n## 75. 신규 기능 파일 검사 (R173)')
+// 코드 블록 라인 번호 (Round 173)
+const messageBubblePath3 = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(messageBubblePath3)) {
+  const mb3 = readFileSync(messageBubblePath3, 'utf-8')
+  if (mb3.includes('showLineNumbers') && mb3.includes('lineNumberStyle')) {
+    log('pass', 'Round173', 'MessageBubble: showLineNumbers + lineNumberStyle 존재')
+  } else {
+    log('warning', 'Round173', 'MessageBubble 라인 번호 미구현', 'chat/MessageBubble.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

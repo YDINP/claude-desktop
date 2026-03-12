@@ -199,6 +199,8 @@ const CodeBlock = memo(function CodeBlock({
         style={vscDarkPlus}
         language={language}
         PreTag="div"
+        showLineNumbers={codeString.split('\n').length > 3}
+        lineNumberStyle={{ color: 'rgba(150,150,170,0.4)', fontSize: 10, minWidth: '2.5em', userSelect: 'none' }}
         customStyle={{
           background: '#1e1e2e',
           borderRadius: (explanation || hasOutput || docCode) ? '0 0 0 0' : '0 0 4px 4px',
