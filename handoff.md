@@ -1,5 +1,5 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 63 완료 / Round 64 진행 중)
+> 마지막 업데이트: 2026-03-12 (Round 66 완료)
 
 ## 현재 상태
 - Round 63까지 완료 (SDK 전수 파싱 + 버블 차별화 + 애니메이션)
@@ -31,10 +31,17 @@
 - [x] `extensions/README.md`
 - [x] 커밋
 
-## 다음 세션 작업 (Round 65~67)
+## Round 65 완료 (3팀 모두 완료, TS 오류 없음)
+- CC 패널 (SceneTreePanel / NodePropertyPanel / WebPreviewPanel)
 
-- Round 65: claude-desktop CC 패널 (SceneTree / Property / WebPreview)
-- Round 66: Claude 자연어 씬 편집 연동
+## Round 66 완료
+- [x] `src/renderer/src/hooks/useCCContext.ts` — 씬 트리 구독, contextString 생성
+- [x] `src/renderer/src/utils/cc-action-parser.ts` — cc-action 블록 파싱 및 실행
+- [x] `ChatPanel.tsx` — useCCContext 주입, handleSend에 extraSystemPrompt, 스트리밍 완료 후 cc-action 자동 실행, CC 연결 상태 배너
+- [x] `claude:send` IPC — extraSystemPrompt 필드 지원 (메인/preload/env.d.ts)
+- [x] TS 오류 없음, 커밋 완료
+
+## 다음 세션 작업 (Round 67)
 - Round 67: UX 완성 (자동감지, 재연결, 실시간 갱신)
 
 ## 알려진 이슈 (미수정, 검토 필요)
