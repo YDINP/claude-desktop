@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 232: R330 신규 기능 ───────────────────────────────
+console.log('\n## 232. 신규 기능 파일 검사 (R330)')
+// GlobalSearchPanel 결과 날짜순 정렬 (Round 330)
+const gsp330Path = join(ROOT, 'src/renderer/src/components/sidebar/GlobalSearchPanel.tsx')
+if (existsSync(gsp330Path)) {
+  const gsp330 = readFileSync(gsp330Path, 'utf-8')
+  if (gsp330.includes("sortOrder === 'date'") && gsp330.includes('setSortOrder') && gsp330.includes('updatedAt - a.updatedAt')) {
+    log('pass', 'Round330', 'GlobalSearchPanel: 날짜순 정렬 토글 (sortOrder/date/updatedAt) 존재')
+  } else {
+    log('warning', 'Round330', 'GlobalSearchPanel 날짜순 정렬 미구현', 'sidebar/GlobalSearchPanel.tsx')
+  }
+}
+
 // ── Section 231: R329 신규 기능 ───────────────────────────────
 console.log('\n## 231. 신규 기능 파일 검사 (R329)')
 // NotesPanel 노트 목록 글자 수 (Round 329)

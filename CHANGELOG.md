@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 330] — 2026-03-13
+### Added
+- GlobalSearchPanel: 검색 결과 날짜순/관련성순 정렬 토글 버튼 (📅/⭐) — updatedAt 기준 최신순
+
 ## [Round 329] — 2026-03-13
 ### Added
 - NotesPanel: 노트 목록 각 항목에 글자 수 표시 — 999자 이하 `N자`, 이상 `N.Nk` 형식

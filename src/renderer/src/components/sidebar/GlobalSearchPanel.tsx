@@ -19,6 +19,7 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'assistant'>('all')
+  const [sortOrder, setSortOrder] = useState<'relevance' | 'date'>('relevance')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const search = useCallback(async (q: string) => {
@@ -79,7 +80,18 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
                 </button>
               ))}
             </div>
-            <span>{loading ? '검색 중...' : searched ? `${results.filter(r => roleFilter === 'all' || r.role === roleFilter).length}건` : ''}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              {!loading && searched && (
+                <button
+                  onClick={() => setSortOrder(s => s === 'relevance' ? 'date' : 'relevance')}
+                  title={sortOrder === 'relevance' ? '날짜순으로 정렬' : '관련성순으로 정렬'}
+                  style={{ padding: '0 5px', fontSize: 9, borderRadius: 8, border: '1px solid var(--border)', cursor: 'pointer', background: sortOrder === 'date' ? 'var(--accent)' : 'var(--bg-secondary)', color: sortOrder === 'date' ? '#fff' : 'var(--text-muted)' }}
+                >
+                  {sortOrder === 'date' ? '📅' : '⭐'}
+                </button>
+              )}
+              <span>{loading ? '검색 중...' : searched ? `${results.filter(r => roleFilter === 'all' || r.role === roleFilter).length}건` : ''}</span>
+            </div>
           </div>
         )}
       </div>
@@ -90,7 +102,10 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
             결과 없음
           </div>
         )}
-        {results.filter(r => roleFilter === 'all' || r.role === roleFilter).map((r, i) => (
+        {(sortOrder === 'date'
+          ? [...results].sort((a, b) => b.updatedAt - a.updatedAt)
+          : results
+        ).filter(r => roleFilter === 'all' || r.role === roleFilter).map((r, i) => (
           <div
             key={`${r.sessionId}-${r.messageIndex}-${i}`}
             onClick={() => onSelectSession(r.sessionId)}
