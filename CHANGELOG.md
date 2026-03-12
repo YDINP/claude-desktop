@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 250] — 2026-03-13
+### Added
+- SceneView: 선택 노드 앵커 포인트 십자 마커 — anchor(pivot) 위치에 보라색 crosshair(+원) 오버레이
+
 ## [Round 249] — 2026-03-13
 ### Added
 - NotesPanel: 노트 정렬 기능 — 최신/오래됨/제목순 순환 버튼 (↕최신 / ↕오래됨 / ↕제목)

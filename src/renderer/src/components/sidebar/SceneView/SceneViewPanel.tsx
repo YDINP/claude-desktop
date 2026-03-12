@@ -1901,6 +1901,20 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               })
             }
 
+            {/* 선택 노드 앵커 포인트 십자 마커 */}
+            {selectedNode && (() => {
+              const { sx, sy } = cocosToSvg(selectedNode.x, selectedNode.y, DESIGN_W, DESIGN_H)
+              const r = 4 / view.zoom
+              const arm = 7 / view.zoom
+              return (
+                <g style={{ pointerEvents: 'none' }}>
+                  <line x1={sx - arm} y1={sy} x2={sx + arm} y2={sy} stroke="#a78bfa" strokeWidth={1 / view.zoom} />
+                  <line x1={sx} y1={sy - arm} x2={sx} y2={sy + arm} stroke="#a78bfa" strokeWidth={1 / view.zoom} />
+                  <circle cx={sx} cy={sy} r={r} fill="none" stroke="#a78bfa" strokeWidth={1 / view.zoom} />
+                </g>
+              )
+            })()}
+
             {/* 측정 도구 라인 */}
             {measureMode && measureLine && (() => {
               const dx = (measureLine.x2 - measureLine.x1) / view.zoom

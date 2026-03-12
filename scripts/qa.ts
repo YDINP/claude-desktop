@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 152: R250 신규 기능 ───────────────────────────────
+console.log('\n## 152. 신규 기능 파일 검사 (R250)')
+// SceneView 앵커 포인트 십자 마커 (Round 250)
+const svp250Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp250Path)) {
+  const svp250 = readFileSync(svp250Path, 'utf-8')
+  if (svp250.includes('앵커 포인트 십자 마커') && svp250.includes('#a78bfa') && svp250.includes('arm')) {
+    log('pass', 'Round250', 'SceneViewPanel: 선택 노드 앵커 포인트 십자 마커 구현 존재')
+  } else {
+    log('warning', 'Round250', 'SceneViewPanel 앵커 포인트 마커 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 151: R249 신규 기능 ───────────────────────────────
 console.log('\n## 151. 신규 기능 파일 검사 (R249)')
 // NotesPanel 정렬 기능 (Round 249)
