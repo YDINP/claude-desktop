@@ -164,7 +164,14 @@ export function RemotePanel() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'auto' }}>
       {/* Header */}
       <div style={{ padding: '8px 8px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>원격 접속</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>원격 접속</span>
+          {(sshHosts.length + savedHosts.length) > 0 && (
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', background: 'var(--bg-hover)', borderRadius: 8, padding: '1px 6px' }}>
+              {sshHosts.length + savedHosts.length}개
+            </span>
+          )}
+        </div>
         <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>SSH 원격 워크스페이스</div>
       </div>
 

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 301] — 2026-03-13
+### Added
+- RemotePanel: 헤더에 총 호스트 수 배지 — `N개` (ssh config + 저장 호스트 합산)
+
 ## [Round 300] — 2026-03-13
 ### Added
 - SearchPanel: 매치 줄 검색어 하이라이트 — `highlightLine` 함수로 `<mark>` 노란 배경 강조, 정규식 지원

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 203: R301 신규 기능 ───────────────────────────────
+console.log('\n## 203. 신규 기능 파일 검사 (R301)')
+// RemotePanel 총 호스트 수 배지 (Round 301)
+const rp301Path = join(ROOT, 'src/renderer/src/components/sidebar/RemotePanel.tsx')
+if (existsSync(rp301Path)) {
+  const rp301 = readFileSync(rp301Path, 'utf-8')
+  if (rp301.includes('sshHosts.length + savedHosts.length') && rp301.includes('개')) {
+    log('pass', 'Round301', 'RemotePanel: 총 호스트 수 배지 (sshHosts+savedHosts 합산) 존재')
+  } else {
+    log('warning', 'Round301', 'RemotePanel 호스트 수 배지 미구현', 'sidebar/RemotePanel.tsx')
+  }
+}
+
 // ── Section 202: R300 신규 기능 ───────────────────────────────
 console.log('\n## 202. 신규 기능 파일 검사 (R300)')
 // SearchPanel 검색어 하이라이트 (Round 300)
