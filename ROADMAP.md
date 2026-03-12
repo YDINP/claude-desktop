@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 288 완료 — TasksPanel D-Day 카운트다운, Pass 308)
+> 마지막 업데이트: 2026-03-13 (Round 289 완료 — StatsPanel 일평균 세션 카드, Pass 309)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 289 | dev | StatsPanel 일평균 세션 카드 — totalSessions/totalDays, 소수점 1자리 표시 | ✅ |
 | Round 288 | dev | TasksPanel 마감일 D-Day 카운트다운 — diffDays 계산, D-Day/⚠-N/D-N 색상 표시 | ✅ |
 | Round 287 | dev | CalendarPanel 선택 날짜 이벤트 전체 삭제 — "전체 삭제" 버튼, e.date !== selectedDay | ✅ |
 | Round 286 | dev | TasksPanel 전체 완료 배너 — progressPct===100 시 🎉 녹색 배너, 진행률 바 대체 | ✅ |

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 289] — 2026-03-13
+### Added
+- StatsPanel: 일평균 세션 수 카드 — 스트릭 섹션에 `totalSessions/totalDays` 소수점 1자리 카드 추가
+
 ## [Round 288] — 2026-03-13
 ### Improved
 - TasksPanel: 마감일 배지 D-Day 카운트다운 — `D-5`, `D-Day`, `⚠-3` 표시, 3일 이하 주황, 당일 노랑, 초과 빨강

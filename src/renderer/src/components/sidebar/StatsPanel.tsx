@@ -205,6 +205,14 @@ export function StatsPanel() {
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-secondary)' }}>{longestStreak}</div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>최장 연속</div>
           </div>
+          {totalDays > 0 && (
+            <div style={{ flex: 1, background: 'var(--bg-tertiary)', borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>
+                {(stats.totalSessions / totalDays).toFixed(1)}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>일평균 세션</div>
+            </div>
+          )}
         </div>
       )}
 

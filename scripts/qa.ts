@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 191: R289 신규 기능 ───────────────────────────────
+console.log('\n## 191. 신규 기능 파일 검사 (R289)')
+// StatsPanel 일평균 세션 카드 (Round 289)
+const sp289Path = join(ROOT, 'src/renderer/src/components/sidebar/StatsPanel.tsx')
+if (existsSync(sp289Path)) {
+  const sp289 = readFileSync(sp289Path, 'utf-8')
+  if (sp289.includes('일평균 세션') && sp289.includes('totalSessions / totalDays')) {
+    log('pass', 'Round289', 'StatsPanel: 일평균 세션 카드 (totalSessions/totalDays) 존재')
+  } else {
+    log('warning', 'Round289', 'StatsPanel 일평균 세션 카드 미구현', 'sidebar/StatsPanel.tsx')
+  }
+}
+
 // ── Section 190: R288 신규 기능 ───────────────────────────────
 console.log('\n## 190. 신규 기능 파일 검사 (R288)')
 // TasksPanel D-Day 카운트다운 (Round 288)
