@@ -1,5 +1,36 @@
 # Changelog — Claude Desktop
 
+## [Round 115] — 2026-03-12
+### Added
+- SessionList: 커스텀 텍스트 태그 시스템 — 자유 텍스트 태그 입력 + 자동완성 드롭다운
+- SessionList: filterCustomTag 필터 칩 + 태그 칩 클릭 시 필터 활성화
+
+## [Round 114] — 2026-03-12
+### Added
+- NodePropertyPanel: ComponentSection color swatch 클릭 시 native color picker 팝업
+- CC 3x extension: POST /node/:uuid/property에 color 케이스 (cc.Color) 추가
+
+## [Round 113] — 2026-03-12
+### Added
+- chat-store: ChatMessage에 alternatives[] + altIndex 필드, saveAlternative/setAltIndex 액션
+- ChatPanel: 재생성 전 현재 응답을 saveAlternative로 이력 보존
+- MessageBubble: ◂ N/M ▸ 이전 응답 네비게이션 UI (altCount > 0 시 표시)
+
+## [Round 112] — 2026-03-12
+### Added
+- NodePropertyPanel: PropRow에 sliderMin/sliderMax props → range 슬라이더 + 숫자 입력 연동
+- Rotation 슬라이더 (-180~180), Opacity 슬라이더 (0-255) 적용
+
+## [Round 111] — 2026-03-12
+### Added
+- session-handlers: globalStats에 totalMessages, avgMessagesPerSession, dailyMessageCounts, topSessions 반환
+- StatsPanel: 4열 요약 카드, 일별 메시지 수 바 차트(보라색), 상위 세션 TOP 5 collapsible 섹션
+
+## [Round 110] — 2026-03-12
+### Added
+- NodePropertyPanel: formatPropValue 강화 — Boolean(✓/✗), Vec2(x,y), Vec3(x,y,z), Color prefix
+- NodePropertyPanel: ComponentSection에 color: prefix 감지 시 컬러 스왓치(14×14px) + HEX 코드 표시
+
 ## [Round 101] — 2026-03-12
 ### Fixed
 - ollama-bridge.ts: AbortSignal addEventListener 메모리 누수 수정
