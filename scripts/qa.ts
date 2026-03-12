@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 212: R310 신규 기능 ───────────────────────────────
+console.log('\n## 212. 신규 기능 파일 검사 (R310)')
+// GlobalSearchPanel 역할 필터 (Round 310)
+const gs310Path = join(ROOT, 'src/renderer/src/components/sidebar/GlobalSearchPanel.tsx')
+if (existsSync(gs310Path)) {
+  const gs310 = readFileSync(gs310Path, 'utf-8')
+  if (gs310.includes('roleFilter') && gs310.includes("'user'") && gs310.includes("'assistant'")) {
+    log('pass', 'Round310', 'GlobalSearchPanel: 역할 필터 (roleFilter/user/assistant) 존재')
+  } else {
+    log('warning', 'Round310', 'GlobalSearchPanel 역할 필터 미구현', 'sidebar/GlobalSearchPanel.tsx')
+  }
+}
+
 // ── Section 211: R309 신규 기능 ───────────────────────────────
 console.log('\n## 211. 신규 기능 파일 검사 (R309)')
 // AssetBrowserPanel 에셋 수 배지 (Round 309)

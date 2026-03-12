@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 310] — 2026-03-13
+### Added
+- GlobalSearchPanel: 역할 필터 버튼 — 전체/나/Claude 토글로 검색 결과 필터링, 결과 수 실시간 업데이트
+
 ## [Round 309] — 2026-03-13
 ### Added
 - AssetBrowserPanel: 헤더 에셋 수 배지 — 전체 non-folder 에셋 수 표시, 검색 시 N/M 형태

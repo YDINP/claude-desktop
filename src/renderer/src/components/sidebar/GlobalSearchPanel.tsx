@@ -18,6 +18,7 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
   const [results, setResults] = useState<GlobalSearchResult[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
+  const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'assistant'>('all')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const search = useCallback(async (q: string) => {
@@ -69,8 +70,16 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
           }}
         />
         {query.length >= 2 && (
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4, textAlign: 'right' }}>
-            {loading ? '검색 중...' : searched ? `${results.length}건` : ''}
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 3 }}>
+              {(['all', 'user', 'assistant'] as const).map(r => (
+                <button key={r} onClick={() => setRoleFilter(r)}
+                  style={{ padding: '0 5px', fontSize: 9, borderRadius: 8, border: '1px solid var(--border)', cursor: 'pointer', background: roleFilter === r ? 'var(--accent)' : 'var(--bg-secondary)', color: roleFilter === r ? '#fff' : 'var(--text-muted)' }}>
+                  {r === 'all' ? '전체' : r === 'user' ? '나' : 'Claude'}
+                </button>
+              ))}
+            </div>
+            <span>{loading ? '검색 중...' : searched ? `${results.filter(r => roleFilter === 'all' || r.role === roleFilter).length}건` : ''}</span>
           </div>
         )}
       </div>
@@ -81,7 +90,7 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
             결과 없음
           </div>
         )}
-        {results.map((r, i) => (
+        {results.filter(r => roleFilter === 'all' || r.role === roleFilter).map((r, i) => (
           <div
             key={`${r.sessionId}-${r.messageIndex}-${i}`}
             onClick={() => onSelectSession(r.sessionId)}
