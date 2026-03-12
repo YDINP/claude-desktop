@@ -1810,6 +1810,19 @@ if (existsSync(sceneInspectorPath16)) {
   }
 }
 
+// ── Section 82: R180 신규 기능 ───────────────────────────────
+console.log('\n## 82. 신규 기능 파일 검사 (R180)')
+// SceneInspector Rotation 리셋 버튼 (Round 180)
+const sceneInspectorPath17 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath17)) {
+  const si17 = readFileSync(sceneInspectorPath17, 'utf-8')
+  if (si17.includes('회전을 0으로 초기화') && si17.includes("onUpdate(node.uuid, 'rotation', 0)")) {
+    log('pass', 'Round180', 'SceneInspector: Rotation ⊙ 리셋 버튼 존재')
+  } else {
+    log('warning', 'Round180', 'SceneInspector Rotation 리셋 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

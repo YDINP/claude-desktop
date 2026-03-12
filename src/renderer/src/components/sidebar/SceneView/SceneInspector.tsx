@@ -484,7 +484,16 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
 
       {/* Rotation */}
       <SectionHeader label="Rotation" />
-      <NumInput label="Rot" value={node.rotation} decimals={2} uuid={node.uuid} prop="rotation" onSave={onUpdate} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ flex: 1 }}>
+          <NumInput label="Rot" value={node.rotation} decimals={2} uuid={node.uuid} prop="rotation" onSave={onUpdate} />
+        </div>
+        <button
+          onClick={() => onUpdate(node.uuid, 'rotation', 0)}
+          title="회전을 0으로 초기화"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: node.rotation !== 0 ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+        >⊙</button>
+      </div>
 
       {/* Anchor */}
       <SectionHeader label="Anchor" />
