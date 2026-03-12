@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 301: R399 신규 기능 ───────────────────────────────
+console.log('\n## 301. 신규 기능 파일 검사 (R399)')
+// SearchPanel 단어 단위 검색 (Round 399)
+const sp399Path = join(ROOT, 'src/renderer/src/components/sidebar/SearchPanel.tsx')
+if (existsSync(sp399Path)) {
+  const sp399 = readFileSync(sp399Path, 'utf-8')
+  if (sp399.includes('wholeWord') && sp399.includes('단어 단위 검색') && sp399.includes('\\\\b')) {
+    log('pass', 'Round399', 'SearchPanel: 단어 단위 검색 Ww 토글 존재')
+  } else {
+    log('warning', 'Round399', 'SearchPanel 단어 단위 검색 미구현', 'sidebar/SearchPanel.tsx')
+  }
+}
+
 // ── Section 300: R398 신규 기능 ───────────────────────────────
 console.log('\n## 300. 신규 기능 파일 검사 (R398)')
 // CalendarPanel 이벤트 목록 복사 (Round 398)

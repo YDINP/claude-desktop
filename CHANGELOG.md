@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 399] — 2026-03-13
+### Added
+- SearchPanel: 단어 단위 검색 토글 — wholeWord 상태, Ww 체크박스, \b 정규식으로 정확한 단어 매칭
+
 ## [Round 398] — 2026-03-13
 ### Added
 - CalendarPanel: 이벤트 목록 복사 버튼 — eventsCopied 상태, 다음 이벤트 헤더 📋 버튼, 날짜+제목 텍스트 복사

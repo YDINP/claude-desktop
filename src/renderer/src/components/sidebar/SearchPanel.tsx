@@ -19,6 +19,7 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
   const [isSearching, setIsSearching] = useState(false)
   const [caseSensitive, setCaseSensitive] = useState(false)
   const [useRegex, setUseRegex] = useState(false)
+  const [wholeWord, setWholeWord] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedExts, setSelectedExts] = useState<Set<string>>(new Set())
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -64,14 +65,15 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
     setIsSearching(true)
     setError(null)
     try {
-      const res = await window.api.grepSearch(rootPath, q, { caseSensitive, useRegex })
+      const searchQ = wholeWord && !useRegex ? `\\b${q}\\b` : q
+      const res = await window.api.grepSearch(rootPath, searchQ, { caseSensitive, useRegex: useRegex || wholeWord })
       if (res.error) setError(res.error)
       setResults(res.results)
       setSelectedExts(new Set())
     } finally {
       setIsSearching(false)
     }
-  }, [rootPath, caseSensitive, useRegex])
+  }, [rootPath, caseSensitive, useRegex, wholeWord])
 
   const handleChange = (val: string) => {
     setQuery(val)
@@ -262,6 +264,10 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
           <label style={{ fontSize: 10, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }}>
             <input type="checkbox" checked={useRegex} onChange={e => setUseRegex(e.target.checked)} style={{ margin: 0 }} />
             .*
+          </label>
+          <label style={{ fontSize: 10, color: wholeWord ? 'var(--accent)' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }} title="단어 단위 검색">
+            <input type="checkbox" checked={wholeWord} onChange={e => { setWholeWord(e.target.checked); if (query.trim().length >= 2) doSearch(query) }} style={{ margin: 0 }} />
+            Ww
           </label>
           <button
             onClick={() => setReplaceMode(r => !r)}
