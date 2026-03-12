@@ -92,6 +92,37 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     if (rootUuid) handleFit()
   }, [rootUuid])
 
+  // ── copy / paste (키보드 useEffect보다 먼저 선언 필요) ──────
+  const handleCopy = useCallback(() => {
+    const uuids = selectedUuids.size > 0 ? selectedUuids : (selectedUuid ? new Set([selectedUuid]) : new Set<string>())
+    const copied: ClipboardEntry[] = []
+    uuids.forEach(uuid => {
+      const n = nodeMap.get(uuid)
+      if (n) copied.push({ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 })
+    })
+    if (copied.length > 0) setClipboard(copied)
+  }, [selectedUuids, selectedUuid, nodeMap])
+
+  const handlePaste = useCallback(() => {
+    if (clipboard.length === 0) return
+    const newNodes: SceneNode[] = []
+    clipboard.forEach(entry => {
+      const orig = nodeMap.get(entry.uuid)
+      if (orig) {
+        newNodes.push({
+          ...orig,
+          uuid: entry.uuid + '-copy-' + Date.now(),
+          name: entry.name + '_Copy',
+          x: (entry.x ?? 0) + 20,
+          y: (entry.y ?? 0) + 20,
+        })
+      }
+    })
+    if (newNodes.length > 0) {
+      newNodes.forEach(n => updateNode(n.uuid, n))
+    }
+  }, [clipboard, nodeMap, updateNode])
+
   // ── 단축키 ────────────────────────────────────────────────
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -551,36 +582,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const canPaste = clipboard.length > 0
   const canZOrder = selectedUuids.size === 1
   const canAlign = selectedUuids.size >= 2
-
-  const handleCopy = useCallback(() => {
-    const uuids = selectedUuids.size > 0 ? selectedUuids : (selectedUuid ? new Set([selectedUuid]) : new Set<string>())
-    const copied: ClipboardEntry[] = []
-    uuids.forEach(uuid => {
-      const n = nodeMap.get(uuid)
-      if (n) copied.push({ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 })
-    })
-    if (copied.length > 0) setClipboard(copied)
-  }, [selectedUuids, selectedUuid, nodeMap])
-
-  const handlePaste = useCallback(() => {
-    if (clipboard.length === 0) return
-    const newNodes: SceneNode[] = []
-    clipboard.forEach(entry => {
-      const orig = nodeMap.get(entry.uuid)
-      if (orig) {
-        newNodes.push({
-          ...orig,
-          uuid: entry.uuid + '-copy-' + Date.now(),
-          name: entry.name + '_Copy',
-          x: (entry.x ?? 0) + 20,
-          y: (entry.y ?? 0) + 20,
-        })
-      }
-    })
-    if (newNodes.length > 0) {
-      newNodes.forEach(n => updateNode(n.uuid, n))
-    }
-  }, [clipboard, nodeMap, updateNode])
 
   const handleCreateNode = useCallback(async () => {
     const name = 'NewNode'
