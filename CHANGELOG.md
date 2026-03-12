@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 255] — 2026-03-13
+### Added
+- SceneView: P키 부모 노드 선택 — 선택된 노드의 parentUuid로 이동, 단축키 도움말 업데이트
+
 ## [Round 254] — 2026-03-13
 ### Improved
 - SceneView: 씬 통계 패널에 컴포넌트 타입 분포 추가 — 상위 5개 컴포넌트 타입별 사용 수 표시

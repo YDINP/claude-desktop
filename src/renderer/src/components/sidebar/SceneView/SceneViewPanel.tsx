@@ -297,6 +297,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         handleFocusSelected()
       }
       if (e.key === 'i' || e.key === 'I') setShowNodeInfo(v => !v)
+      // P — 부모 노드 선택
+      if ((e.key === 'p' || e.key === 'P') && selectedUuid) {
+        const node = nodeMap.get(selectedUuid)
+        if (node?.parentUuid) {
+          setSelectedUuid(node.parentUuid)
+          setSelectedUuids(new Set([node.parentUuid]))
+        }
+      }
       if (e.key === 'm' || e.key === 'M') setShowMinimap(v => !v)
       if (e.key === 'r' || e.key === 'R') setShowRuler(v => !v)
       if (e.key === 'n' || e.key === 'N') handleCreateNode()
@@ -2874,6 +2882,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Alt+L', '선택 노드 잠금/해제'],
               ['Alt+1~9', '색상 레이블 지정 (Alt+0: 초기화)'],
               ['Alt+[ / Alt+]', '선택 노드 투명도 -10 / +10'],
+              ['I', '선택 노드 상세 정보 오버레이'],
+              ['P', '부모 노드 선택'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
               <div key={key} style={{ display: 'flex', gap: 10, marginBottom: 4 }}>

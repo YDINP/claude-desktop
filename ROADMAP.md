@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 254 완료 — SceneView 씬 통계 컴포넌트 분포, Pass 274)
+> 마지막 업데이트: 2026-03-13 (Round 255 완료 — SceneView P키 부모 노드 선택, Pass 275)
 
 ## 완료된 라운드
 
@@ -206,6 +206,7 @@
 | Round 252 | dev | NotesPanel 핀 고정 — 📌 토글, 핀 노드 목록 상단 고정 + 황금 border | ✅ |
 | Round 253 | dev | SceneView H키/Alt+L 다중 선택 일괄 — anyVisible/anyUnlocked 기준 가시성/잠금 일괄 토글 | ✅ |
 | Round 254 | dev | SceneView 씬 통계 컴포넌트 분포 — 상위 5개 컴포넌트 타입별 사용 수 (topComps) | ✅ |
+| Round 255 | dev | SceneView P키 부모 노드 선택 — selectedUuid의 parentUuid로 이동 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

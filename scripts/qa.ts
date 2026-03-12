@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 157: R255 신규 기능 ───────────────────────────────
+console.log('\n## 157. 신규 기능 파일 검사 (R255)')
+// SceneView P키 부모 노드 선택 (Round 255)
+const svp255Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp255Path)) {
+  const svp255 = readFileSync(svp255Path, 'utf-8')
+  if (svp255.includes("key === 'p'") && svp255.includes('부모 노드 선택') && svp255.includes('node.parentUuid')) {
+    log('pass', 'Round255', 'SceneViewPanel: P키 부모 노드 선택 (parentUuid) 존재')
+  } else {
+    log('warning', 'Round255', 'SceneViewPanel P키 부모 선택 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 156: R254 신규 기능 ───────────────────────────────
 console.log('\n## 156. 신규 기능 파일 검사 (R254)')
 // SceneView 씬 통계 컴포넌트 분포 (Round 254)
