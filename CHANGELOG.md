@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 142] — 2026-03-12
+### Added
+- NodeHierarchyList: 활성 인디케이터 dot — 각 노드 행 앞에 녹색(active)/회색(inactive) dot 클릭으로 즉시 토글
+- SceneViewPanel: handleHierarchyToggleActive → updateNode + ccSetProperty('active') 연결
+
 ## [Round 141] — 2026-03-12
 ### Added
 - SceneViewPanel: 노드 호버 툴팁 — 마우스 오버 시 컴포넌트 아이콘 + 노드 이름 툴팁 표시 (드래그·리사이즈 중 자동 숨김)

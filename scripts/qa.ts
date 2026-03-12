@@ -1117,6 +1117,28 @@ if (existsSync(sceneViewPanelPath14)) {
   }
 }
 
+// ── Section 44: R142 신규 기능 ───────────────────────────────
+console.log('\n## 44. 신규 기능 파일 검사 (R142)')
+// NodeHierarchyList 활성 인디케이터 토글 (Round 142)
+const nodeHierarchyPath6 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath6)) {
+  const nh6 = readFileSync(nodeHierarchyPath6, 'utf-8')
+  if (nh6.includes('onToggleActive') && nh6.includes('node.active ? \'var(--success)\'')) {
+    log('pass', 'Round142', 'NodeHierarchyList: onToggleActive prop + 활성 인디케이터 dot 존재')
+  } else {
+    log('warning', 'Round142', 'NodeHierarchyList 활성 토글 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+const sceneViewPanelPath15 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath15)) {
+  const svp15 = readFileSync(sceneViewPanelPath15, 'utf-8')
+  if (svp15.includes('handleHierarchyToggleActive') && svp15.includes('onToggleActive={handleHierarchyToggleActive}')) {
+    log('pass', 'Round142', 'SceneViewPanel: handleHierarchyToggleActive + NodeHierarchyList 연결 존재')
+  } else {
+    log('warning', 'Round142', 'SceneViewPanel 활성 토글 핸들러 미연결', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

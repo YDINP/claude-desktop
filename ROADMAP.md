@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 141 완료 — SceneView 호버 툴팁, Pass 100)
+> 마지막 업데이트: 2026-03-12 (Round 142 완료 — NodeHierarchyList 활성 토글 dot, Pass 102)
 
 ## 완료된 라운드
 
@@ -93,6 +93,7 @@
 | Round 139 | dev | NodeHierarchyList 컴포넌트 아이콘 — getComponentIcon(utils) 연동, 트리·검색 아이콘 표시 | ✅ |
 | Round 140 | dev | SceneInspector Color 섹션 — RGBA 스왓치 + hex + alpha% 표시 | ✅ |
 | Round 141 | dev | SceneView 노드 호버 툴팁 — 마우스 오버 시 컴포넌트 아이콘 + 이름 표시 | ✅ |
+| Round 142 | dev | NodeHierarchyList 활성 dot 토글 — 녹/회색 dot 클릭으로 노드 active 즉시 전환 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

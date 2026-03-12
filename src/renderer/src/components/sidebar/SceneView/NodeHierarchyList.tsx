@@ -8,6 +8,7 @@ interface NodeHierarchyListProps {
   selectedUuids: Set<string>
   onSelect: (uuid: string, multi: boolean) => void
   focusUuid?: string | null
+  onToggleActive?: (uuid: string, active: boolean) => void
 }
 
 function NodeRow({
@@ -18,6 +19,7 @@ function NodeRow({
   collapsed,
   onSelect,
   onToggleCollapse,
+  onToggleActive,
 }: {
   uuid: string
   depth: number
@@ -26,6 +28,7 @@ function NodeRow({
   collapsed: Set<string>
   onSelect: (uuid: string, multi: boolean) => void
   onToggleCollapse: (uuid: string) => void
+  onToggleActive?: (uuid: string, active: boolean) => void
 }) {
   const node = nodeMap.get(uuid)
   if (!node) return null
@@ -53,6 +56,21 @@ function NodeRow({
         title={node.name}
         data-uuid={uuid}
       >
+        {/* 활성 인디케이터 */}
+        <span
+          onClick={e => { e.stopPropagation(); onToggleActive?.(uuid, !node.active) }}
+          title={node.active ? '비활성화' : '활성화'}
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: node.active ? 'var(--success)' : 'var(--border)',
+            flexShrink: 0,
+            marginRight: 2,
+            cursor: 'pointer',
+            display: 'inline-block',
+          }}
+        />
         {/* 펼치기/접기 버튼 */}
         <span
           onClick={e => { e.stopPropagation(); if (hasChildren) onToggleCollapse(uuid) }}
@@ -105,13 +123,14 @@ function NodeRow({
           collapsed={collapsed}
           onSelect={onSelect}
           onToggleCollapse={onToggleCollapse}
+          onToggleActive={onToggleActive}
         />
       ))}
     </>
   )
 }
 
-export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid }: NodeHierarchyListProps) {
+export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive }: NodeHierarchyListProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -218,6 +237,7 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
             collapsed={collapsed}
             onSelect={onSelect}
             onToggleCollapse={toggleCollapse}
+            onToggleActive={onToggleActive}
           />
         )}
       </div>

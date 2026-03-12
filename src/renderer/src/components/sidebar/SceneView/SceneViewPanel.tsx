@@ -521,6 +521,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [updateNode])
 
+  const handleHierarchyToggleActive = useCallback(async (uuid: string, active: boolean) => {
+    updateNode(uuid, { active })
+    try {
+      await window.api.ccSetProperty?.(port, uuid, 'active', active)
+    } catch (e) {
+      console.error('[SceneView] toggleActive failed:', e)
+    }
+  }, [updateNode, port])
+
   const handleRename = useCallback(async (uuid: string, name: string) => {
     updateNode(uuid, { name })
     try {
@@ -766,6 +775,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           nodeMap={nodeMap}
           selectedUuids={selectedUuids}
           focusUuid={selectedUuid}
+          onToggleActive={handleHierarchyToggleActive}
           onSelect={(uuid, multi) => {
             if (multi) {
               setSelectedUuids(prev => {
