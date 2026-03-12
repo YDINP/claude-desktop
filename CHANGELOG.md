@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 338] — 2026-03-13
+### Added
+- AssetBrowserPanel: 에셋 타입 필터 칩 버튼 — script/prefab/texture 등 타입별 필터, 검색과 AND 조합
+
 ## [Round 337] — 2026-03-13
 ### Added
 - PluginsPanel: 플러그인 검색 필터 — 3개↑ 시 검색창 표시, 이름/설명/작성자 대상 검색

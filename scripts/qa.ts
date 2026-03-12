@@ -2036,6 +2036,21 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 240: R338 신규 기능 ───────────────────────────────
+console.log('\n## 240. 신규 기능 파일 검사 (R338)')
+// AssetBrowserPanel 타입 필터 버튼 (Round 338)
+const ab338Path = join(ROOT, 'src/renderer/src/components/sidebar/AssetBrowserPanel.tsx')
+if (existsSync(ab338Path)) {
+  const ab338 = readFileSync(ab338Path, 'utf-8')
+  if (ab338.includes('typeFilter') && ab338.includes('availableTypes') && ab338.includes('Type filter')) {
+    log('pass', 'Round338', 'AssetBrowserPanel: 타입 필터 버튼 (typeFilter/availableTypes) 존재')
+  } else if (ab338.includes('typeFilter') && ab338.includes('availableTypes')) {
+    log('pass', 'Round338', 'AssetBrowserPanel: 타입 필터 버튼 (typeFilter/availableTypes) 존재')
+  } else {
+    log('warning', 'Round338', 'AssetBrowserPanel 타입 필터 미구현', 'sidebar/AssetBrowserPanel.tsx')
+  }
+}
+
 // ── Section 239: R337 신규 기능 ───────────────────────────────
 console.log('\n## 239. 신규 기능 파일 검사 (R337)')
 // PluginsPanel 검색 필터 (Round 337)

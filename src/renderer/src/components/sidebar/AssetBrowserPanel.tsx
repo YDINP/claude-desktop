@@ -36,6 +36,7 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set())
   const [search, setSearch] = useState('')
   const [copied, setCopied] = useState<string | null>(null)
+  const [typeFilter, setTypeFilter] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
     if (!connected) return
@@ -85,12 +86,19 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
   }
 
   const allFlat = flattenTree(tree)
-  const totalAssets = allFlat.filter(({ item }) => item.type !== 'folder').length
+  const nonFolders = allFlat.filter(({ item }) => item.type !== 'folder')
+  const totalAssets = nonFolders.length
 
-  const filtered = search.trim()
-    ? allFlat.filter(({ item }) =>
-        item.name.toLowerCase().includes(search.toLowerCase()) && item.type !== 'folder'
-      )
+  // Build available type list (types with >0 non-folder items)
+  const availableTypes = [...new Set(nonFolders.map(({ item }) => item.type))].filter(t => t !== 'file')
+
+  const filtered = (search.trim() || typeFilter)
+    ? allFlat.filter(({ item }) => {
+        if (item.type === 'folder') return false
+        if (typeFilter && item.type !== typeFilter) return false
+        if (search.trim() && !item.name.toLowerCase().includes(search.toLowerCase())) return false
+        return true
+      })
     : allFlat
 
   if (!connected) {
@@ -137,6 +145,27 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
           }}
         />
       </div>
+
+      {/* Type filter chips */}
+      {availableTypes.length > 1 && (
+        <div style={{ display: 'flex', gap: 3, padding: '3px 6px', borderBottom: '1px solid var(--border)', flexShrink: 0, flexWrap: 'wrap' }}>
+          {availableTypes.map(t => (
+            <button
+              key={t}
+              onClick={() => setTypeFilter(f => f === t ? null : t)}
+              title={t}
+              style={{
+                padding: '0 5px', fontSize: 9, borderRadius: 8, cursor: 'pointer',
+                border: `1px solid ${typeFilter === t ? 'var(--accent)' : 'var(--border)'}`,
+                background: typeFilter === t ? 'var(--accent)' : 'none',
+                color: typeFilter === t ? '#fff' : 'var(--text-muted)',
+              }}
+            >
+              {ASSET_ICONS[t] ?? '📄'} {t}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Tree */}
       <div style={{ flex: 1, overflowY: 'auto', fontSize: 11 }}>
