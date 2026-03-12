@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 376 완료 — PluginsPanel 전체 켜기/끄기, Pass 396)
+> 마지막 업데이트: 2026-03-13 (Round 377 완료 — BookmarksPanel 전체 복사, Pass 397)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 377 | dev | BookmarksPanel 전체 북마크 복사 — copiedAll 상태, 📋 버튼, 필터된 북마크 마크다운 복사 | ✅ |
 | Round 376 | dev | PluginsPanel 전체 켜기/끄기 버튼 — allEnabled 조건 일괄 saveEnabled | ✅ |
 | Round 375 | dev | NotesPanel 검색 결과 콘텐츠 발췌 — 검색어 위치 주변 발췌 이탤릭 인라인 표시 | ✅ |
 | Round 374 | dev | SceneTreePanel 컴포넌트 초과 +N — 2개 초과 시 components.length - 2 배지 | ✅ |

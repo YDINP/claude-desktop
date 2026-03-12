@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 377] — 2026-03-13
+### Added
+- BookmarksPanel: 전체 북마크 클립보드 복사 버튼 — 📋 버튼, copiedAll 상태, 필터된 북마크 마크다운 복사
+
 ## [Round 376] — 2026-03-13
 ### Added
 - PluginsPanel: 전체 켜기/끄기 버튼 — 플러그인 2개 이상 시 일괄 활성화/비활성화 버튼
