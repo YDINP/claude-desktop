@@ -23,6 +23,7 @@ import { Lightbox } from './components/shared/Lightbox'
 import { WebPreviewPanel } from './components/sidebar/WebPreviewPanel'
 import { SceneViewPanel } from './components/sidebar/SceneView/SceneViewPanel'
 import { playCompletionSound } from './utils/sound'
+import { recordCost } from './utils/cost-tracker'
 import { applyCustomCSS } from './utils/css'
 import { ToastContainer } from './components/shared/ToastContainer'
 import { toast } from './utils/toast'
@@ -1001,6 +1002,11 @@ function AppContent() {
       } else if (ev.type === 'result') {
         setTimeout(() => setActiveAgents([]), 5000)
         project.addCost(
+          (ev.costUsd as number) ?? 0,
+          (ev.inputTokens as number) ?? 0,
+          (ev.outputTokens as number) ?? 0,
+        )
+        recordCost(
           (ev.costUsd as number) ?? 0,
           (ev.inputTokens as number) ?? 0,
           (ev.outputTokens as number) ?? 0,

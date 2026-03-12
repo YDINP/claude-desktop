@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 85 완료 — CC 컴포넌트 인스펙터 고도화)
+> 마지막 업데이트: 2026-03-12 (Round 86 완료 — 월별 비용 추적 cost-tracker)
 
 ## 완료된 라운드
 
@@ -32,13 +32,12 @@
 | Round 83 | dev | 사용자 정의 시스템 프롬프트 UI + InputBar 실시간 토큰 카운터 + 메시지 토큰 표시 + 컨텍스트 윈도우 진행 바 | ✅ |
 | Round 84 | dev | CC 에셋 브라우저 — AssetBrowserPanel(검색/폴더토글/아이콘), /assets/tree 엔드포인트(3x/2x), IPC 레이어(AssetItem/AssetTree) | ✅ |
 | Round 85 | dev | CC 컴포넌트 인스펙터 고도화 — NodePropertyPanel 콜랩서블 섹션, enrichNode compProps 추출, CCNode.components[].props 타입 | ✅ |
+| Round 86 | dev | 월별 비용 추적 — cost-tracker.ts(localStorage 집계), App.tsx recordCost 연동, StatusBar 세션팝업 오늘/이번달 비용 표시 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 86 | dev | StatusBar 고도화 — 실시간 입력 토큰 카운터(tiktoken), 응답 토큰 누적, API 비용 추산($/세션·$/월) |
-| Round 86 | dev | StatusBar 고도화 — 실시간 입력 토큰 카운터(tiktoken), 응답 토큰 누적, API 비용 추산($/세션·$/월) |
 | Round 87 | dev | 커맨드 팔레트 강화 — 최근 사용 명령어 이력, AI 제안 명령어(컨텍스트 기반), 알림·토스트 시스템(성공/에러/정보 컴포넌트) |
 | Round 88 | dev | 키보드 단축키 오버레이(? 키 토글) + PromptChain 템플릿 라이브러리(저장·공유·불러오기) |
 | Round 89 | dev | 채팅 인터랙션 — 메시지 재생성(↺), 스트리밍 중단(■), 스트리밍 UX 개선(자동스크롤 제어/▌커서) |

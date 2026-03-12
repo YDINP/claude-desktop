@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { getTodayCost, getMonthlyCost } from '../../utils/cost-tracker'
 
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'claude-opus-4-6': { input: 15, output: 75 },
@@ -45,6 +46,8 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
   const [memMB, setMemMB] = useState<number | null>(null)
   const [online, setOnline] = useState(navigator.onLine)
   const [showSessionInfo, setShowSessionInfo] = useState(false)
+  const [todayCost, setTodayCost] = useState(0)
+  const [monthlyCost, setMonthlyCost] = useState(0)
   const popupRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -68,6 +71,8 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
 
   useEffect(() => {
     if (!showSessionInfo) return
+    setTodayCost(getTodayCost())
+    setMonthlyCost(getMonthlyCost())
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowSessionInfo(false) }
     const handleClick = (e: MouseEvent) => {
       if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
@@ -255,6 +260,16 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
           {(totalCost > 0) && (
             <div style={{ marginBottom: 4, color: 'var(--text-secondary)', fontSize: 11 }}>
               누적 비용: ${totalCost.toFixed(4)}
+            </div>
+          )}
+          {todayCost > 0 && (
+            <div style={{ marginBottom: 4, color: 'var(--text-secondary)', fontSize: 11 }}>
+              오늘 사용: ${todayCost.toFixed(4)}
+            </div>
+          )}
+          {monthlyCost > 0 && (
+            <div style={{ marginBottom: 4, color: 'var(--text-secondary)', fontSize: 11 }}>
+              이번달 합계: ${monthlyCost.toFixed(4)}
             </div>
           )}
           <button
