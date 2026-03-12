@@ -47,6 +47,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
   const [aiLoading, setAiLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [catFilter, setCatFilter] = useState<string | null>(null)
+  const [expandedSnippetId, setExpandedSnippetId] = useState<string | null>(null)
 
   useEffect(() => {
     window.api.snippetList().then(list => setSnippets(list as Snippet[]))
@@ -269,11 +270,20 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
       </div>
       <div style={{
         fontSize: 10, color: 'var(--text-muted)', fontFamily: 'monospace',
-        maxHeight: 40, overflow: 'hidden', whiteSpace: 'pre-wrap',
-        wordBreak: 'break-all', marginBottom: 4,
+        ...(expandedSnippetId === s.id
+          ? { whiteSpace: 'pre-wrap', wordBreak: 'break-all', marginBottom: 4 }
+          : { maxHeight: 40, overflow: 'hidden', whiteSpace: 'pre-wrap', wordBreak: 'break-all', marginBottom: 2 }),
       }}>
-        {s.content.slice(0, 120)}{s.content.length > 120 ? '…' : ''}
+        {expandedSnippetId === s.id ? s.content : (s.content.slice(0, 120) + (s.content.length > 120 ? '…' : ''))}
       </div>
+      {s.content.length > 120 && (
+        <button
+          onClick={() => setExpandedSnippetId(id => id === s.id ? null : s.id)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--accent)', padding: '0 0 3px', display: 'block' }}
+        >
+          {expandedSnippetId === s.id ? '▲ 접기' : '▼ 펼치기'}
+        </button>
+      )}
       <div style={{ display: 'flex', gap: 4 }}>
         <button
           onClick={() => {

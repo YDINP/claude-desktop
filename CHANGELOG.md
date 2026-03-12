@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 391] — 2026-03-13
+### Added
+- SnippetPanel: 스니펫 전체 내용 펼치기 — expandedSnippetId 상태, ▼ 펼치기/▲ 접기 토글 (120자 초과 시)
+
 ## [Round 390] — 2026-03-13
 ### Added
 - ChangedFilesPanel: 전체 경로 복사 버튼 — copiedAll 상태, 헤더 📋 버튼, 모든 파일 경로 줄바꿈 복사

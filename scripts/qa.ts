@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 293: R391 신규 기능 ───────────────────────────────
+console.log('\n## 293. 신규 기능 파일 검사 (R391)')
+// SnippetPanel 스니펫 전체 내용 펼치기 (Round 391)
+const sp391Path = join(ROOT, 'src/renderer/src/components/sidebar/SnippetPanel.tsx')
+if (existsSync(sp391Path)) {
+  const sp391 = readFileSync(sp391Path, 'utf-8')
+  if (sp391.includes('expandedSnippetId') && sp391.includes('펼치기')) {
+    log('pass', 'Round391', 'SnippetPanel: 스니펫 전체 내용 펼치기 존재')
+  } else {
+    log('warning', 'Round391', 'SnippetPanel 내용 펼치기 미구현', 'sidebar/SnippetPanel.tsx')
+  }
+}
+
 // ── Section 292: R390 신규 기능 ───────────────────────────────
 console.log('\n## 292. 신규 기능 파일 검사 (R390)')
 // ChangedFilesPanel 전체 경로 복사 버튼 (Round 390)
