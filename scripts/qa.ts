@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 165: R263 신규 기능 ───────────────────────────────
+console.log('\n## 165. 신규 기능 파일 검사 (R263)')
+// SceneView 검색 조상 자동 펼치기 (Round 263)
+const svp263Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp263Path)) {
+  const svp263 = readFileSync(svp263Path, 'utf-8')
+  if (svp263.includes('조상 노드가 접혀 있으면 자동 펼치기') && svp263.includes('ancestors') && svp263.includes('next2.delete')) {
+    log('pass', 'Round263', 'SceneViewPanel: 검색 노드 조상 자동 펼치기 (ancestors) 존재')
+  } else {
+    log('warning', 'Round263', 'SceneViewPanel 검색 조상 자동 펼치기 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 164: R262 신규 기능 ───────────────────────────────
 console.log('\n## 164. 신규 기능 파일 검사 (R262)')
 // SceneView 호버 툴팁 memo 표시 (Round 262)

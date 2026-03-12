@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 263] — 2026-03-13
+### Improved
+- SceneView: 검색 이동 시 접힌 조상 노드 자동 펼치기 — handleSearchNav에서 parentUuid chain의 collapsedUuids 제거
+
 ## [Round 262] — 2026-03-13
 ### Improved
 - SceneView: 호버 툴팁에 노드 메모(memo) 표시 — 📝 황색으로 memo 내용 표시

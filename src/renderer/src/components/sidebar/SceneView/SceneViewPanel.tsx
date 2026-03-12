@@ -1293,6 +1293,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const node = searchMatches[next]
     setSelectedUuid(node.uuid)
     setSelectedUuids(new Set([node.uuid]))
+    // 조상 노드가 접혀 있으면 자동 펼치기
+    const ancestors: string[] = []
+    let cur = nodeMap.get(node.uuid)
+    while (cur?.parentUuid) { ancestors.push(cur.parentUuid); cur = nodeMap.get(cur.parentUuid) }
+    if (ancestors.length > 0) setCollapsedUuids(prev => { const next2 = new Set(prev); ancestors.forEach(u => next2.delete(u)); return next2 })
     if (containerRef.current) {
       const { width, height } = containerRef.current.getBoundingClientRect()
       const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
