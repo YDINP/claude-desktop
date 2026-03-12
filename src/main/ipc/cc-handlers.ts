@@ -6,7 +6,12 @@ import {
   CC_EVENT,
 } from '../../shared/ipc-schema'
 
+let _ccHandlersRegistered = false
+
 export function registerCCHandlers(mainWindow: BrowserWindow) {
+  if (_ccHandlersRegistered) return
+  _ccHandlersRegistered = true
+
   ccBridge.setOptions({
     onEvent: (event) => mainWindow.webContents.send(CC_EVENT, event),
     onStatusChange: (connected) => mainWindow.webContents.send('cc:statusChange', { connected }),
@@ -23,8 +28,8 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
 
   ipcMain.handle(CC_STATUS, async () => ({
     connected: ccBridge.connected,
-    port: 9090,
-    version: '2x',
+    port: ccBridge.port,
+    version: ccBridge.version,
   }))
 
   ipcMain.handle(CC_GET_TREE, async () => {
