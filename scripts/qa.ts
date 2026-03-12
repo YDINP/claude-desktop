@@ -191,6 +191,88 @@ if (existsSync(pcPath)) {
   }
 }
 
+// ── 7. 신규 기능 파일 검사 (Round 90-94) ─────────────────────────────
+console.log('\n## 7. 신규 기능 파일 검사 (R90-94)')
+
+// useContextFiles hook (Round 90)
+const ctxFilesPath = join(ROOT, 'src/renderer/src/hooks/useContextFiles.ts')
+if (existsSync(ctxFilesPath)) {
+  const cf = readFileSync(ctxFilesPath, 'utf-8')
+  if (cf.includes('useContextFiles') && cf.includes('contextString')) {
+    log('pass', 'Round90', 'useContextFiles hook 존재')
+  } else {
+    log('warning', 'Round90', 'useContextFiles hook 핵심 구현 누락', 'hooks/useContextFiles.ts')
+  }
+} else {
+  log('warning', 'Round90', 'useContextFiles.ts 미존재', 'hooks/useContextFiles.ts')
+}
+
+// fs:open-file-dialog IPC (Round 91)
+const fsHandlersPath = join(ROOT, 'src/main/ipc/fs-handlers.ts')
+if (existsSync(fsHandlersPath)) {
+  const fsh = readFileSync(fsHandlersPath, 'utf-8')
+  if (fsh.includes('open-file-dialog') && fsh.includes('showOpenDialog')) {
+    log('pass', 'Round91', 'fs:open-file-dialog IPC 핸들러 존재')
+  } else {
+    log('warning', 'Round91', 'fs:open-file-dialog 핸들러 누락', 'ipc/fs-handlers.ts')
+  }
+}
+
+// StatsPanel cost section (Round 92)
+const statsPanelPath = join(ROOT, 'src/renderer/src/components/sidebar/StatsPanel.tsx')
+if (existsSync(statsPanelPath)) {
+  const sp = readFileSync(statsPanelPath, 'utf-8')
+  if (sp.includes('getDailyCosts') && sp.includes('monthlyCost')) {
+    log('pass', 'Round92', 'StatsPanel API 비용 섹션 존재')
+  } else {
+    log('warning', 'Round92', 'StatsPanel 비용 섹션 누락', 'sidebar/StatsPanel.tsx')
+  }
+} else {
+  log('warning', 'Round92', 'StatsPanel.tsx 미존재', 'sidebar/StatsPanel.tsx')
+}
+
+// Streaming batch — reconcileText (Round 93)
+const chatStorePath = join(ROOT, 'src/renderer/src/stores/chat-store.ts')
+if (existsSync(chatStorePath)) {
+  const cs = readFileSync(chatStorePath, 'utf-8')
+  if (cs.includes('reconcileText')) {
+    log('pass', 'Round93', 'chat-store reconcileText 존재')
+  } else {
+    log('warning', 'Round93', 'chat-store reconcileText 누락', 'stores/chat-store.ts')
+  }
+}
+
+// agent-bridge text_delta batching (Round 93)
+const agentBridgePath = join(ROOT, 'src/main/claude/agent-bridge.ts')
+if (existsSync(agentBridgePath)) {
+  const ab = readFileSync(agentBridgePath, 'utf-8')
+  if (ab.includes('textBatch') && ab.includes('flushTextBatch')) {
+    log('pass', 'Round93', 'agent-bridge text_delta 16ms 배치 존재')
+  } else {
+    log('warning', 'Round93', 'agent-bridge text_delta 배치 누락', 'claude/agent-bridge.ts')
+  }
+}
+
+// AG-UI event model (Round 94)
+const aguiStorePath = join(ROOT, 'src/renderer/src/utils/agui-store.ts')
+if (existsSync(aguiStorePath)) {
+  const ags = readFileSync(aguiStorePath, 'utf-8')
+  if (ags.includes('aguiDispatch') && ags.includes('aguiSubscribe')) {
+    log('pass', 'Round94', 'agui-store: aguiDispatch + aguiSubscribe 존재')
+  } else {
+    log('warning', 'Round94', 'agui-store 핵심 함수 누락', 'utils/agui-store.ts')
+  }
+} else {
+  log('warning', 'Round94', 'agui-store.ts 미존재', 'utils/agui-store.ts')
+}
+
+const runTimelinePath = join(ROOT, 'src/renderer/src/components/sidebar/RunTimeline.tsx')
+if (existsSync(runTimelinePath)) {
+  log('pass', 'Round94', 'RunTimeline.tsx 존재')
+} else {
+  log('warning', 'Round94', 'RunTimeline.tsx 미존재', 'sidebar/RunTimeline.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
