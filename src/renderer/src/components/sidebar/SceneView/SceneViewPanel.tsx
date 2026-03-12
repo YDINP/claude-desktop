@@ -825,6 +825,50 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     })
   }, [getSvgCoords])
 
+  // ── SVG 씬 내보내기 ─────────────────────────────────────────
+  const handleExportSvg = useCallback(() => {
+    if (!svgRef.current) return
+    // 씬 콘텐츠만 포함하는 독립 SVG 생성
+    const ns = 'http://www.w3.org/2000/svg'
+    const exportSvg = document.createElementNS(ns, 'svg')
+    exportSvg.setAttribute('xmlns', ns)
+    exportSvg.setAttribute('width', String(DESIGN_W))
+    exportSvg.setAttribute('height', String(DESIGN_H))
+    exportSvg.setAttribute('viewBox', `${-DESIGN_W / 2} ${-DESIGN_H / 2} ${DESIGN_W} ${DESIGN_H}`)
+    // 배경
+    const bg = document.createElementNS(ns, 'rect')
+    bg.setAttribute('x', String(-DESIGN_W / 2)); bg.setAttribute('y', String(-DESIGN_H / 2))
+    bg.setAttribute('width', String(DESIGN_W)); bg.setAttribute('height', String(DESIGN_H))
+    bg.setAttribute('fill', '#1a1a2e')
+    exportSvg.appendChild(bg)
+    // 각 노드를 사각형으로 렌더
+    nodeMap.forEach(n => {
+      if (!n.active) return
+      const rect = document.createElementNS(ns, 'rect')
+      const hw = n.width / 2; const hh = n.height / 2
+      const cx = n.x - DESIGN_W / 2; const cy = -(n.y - DESIGN_H / 2)  // Cocos → SVG Y
+      rect.setAttribute('x', String(cx - hw)); rect.setAttribute('y', String(cy - hh))
+      rect.setAttribute('width', String(n.width)); rect.setAttribute('height', String(n.height))
+      const r = n.color.r; const g = n.color.g; const b = n.color.b; const a = (n.color.a / 255).toFixed(2)
+      rect.setAttribute('fill', `rgba(${r},${g},${b},${a})`)
+      rect.setAttribute('stroke', 'rgba(96,165,250,0.3)'); rect.setAttribute('stroke-width', '0.5')
+      exportSvg.appendChild(rect)
+      if (n.name) {
+        const text = document.createElementNS(ns, 'text')
+        text.setAttribute('x', String(cx)); text.setAttribute('y', String(cy + 4))
+        text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-size', '10')
+        text.setAttribute('fill', 'rgba(255,255,255,0.6)'); text.setAttribute('font-family', 'sans-serif')
+        text.textContent = n.name
+        exportSvg.appendChild(text)
+      }
+    })
+    const blob = new Blob([new XMLSerializer().serializeToString(exportSvg)], { type: 'image/svg+xml' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'scene.svg'; a.click()
+    URL.revokeObjectURL(url)
+  }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
+
   // 비패시브 wheel 이벤트 등록 (passive: false 없이는 preventDefault 무시됨)
   useEffect(() => {
     const el = svgRef.current
@@ -1070,6 +1114,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onMinimapToggle={() => setShowMinimap(v => !v)}
         canvasSize={canvasSize}
         onCanvasSizeChange={(w, h) => { setCanvasSize({ w, h }); setTimeout(handleFit, 50) }}
+        onExportSvg={handleExportSvg}
         onCopy={handleCopy}
         onPaste={handlePaste}
         onZOrderFront={() => handleZOrder('front')}

@@ -2036,6 +2036,28 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 110: R208 신규 기능 ───────────────────────────────
+console.log('\n## 110. 신규 기능 파일 검사 (R208)')
+// SceneView SVG 내보내기 (Round 208)
+const svp208Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp208Path)) {
+  const svp208 = readFileSync(svp208Path, 'utf-8')
+  if (svp208.includes('handleExportSvg') && svp208.includes('scene.svg')) {
+    log('pass', 'Round208', 'SceneViewPanel: SVG 씬 내보내기 구현 존재')
+  } else {
+    log('warning', 'Round208', 'SceneViewPanel SVG 내보내기 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+const stb208Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb208Path)) {
+  const stb208 = readFileSync(stb208Path, 'utf-8')
+  if (stb208.includes('onExportSvg')) {
+    log('pass', 'Round208', 'SceneToolbar: onExportSvg 버튼 prop 존재')
+  } else {
+    log('warning', 'Round208', 'SceneToolbar onExportSvg prop 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 109: R207 신규 기능 ───────────────────────────────
 console.log('\n## 109. 신규 기능 파일 검사 (R207)')
 // SceneView 캔버스 크기 프리셋 (Round 207)

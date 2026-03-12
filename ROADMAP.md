@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 207 완료 — SceneView 캔버스 크기 프리셋, Pass 202)
+> 마지막 업데이트: 2026-03-13 (Round 208 완료 — SceneView SVG 씬 내보내기, Pass 203)
 
 ## 완료된 라운드
 
@@ -159,6 +159,7 @@
 | Round 205 | dev | NotesPanel 📝 — 사이드바 자유 메모장, 다중 노트 생성/편집/삭제, localStorage | ✅ |
 | Round 206 | dev | SceneView 정렬 가이드라인 — 드래그 중 타 노드 경계/중앙 정렬 시 빨간 점선 + snap | ✅ |
 | Round 207 | dev | SceneView 캔버스 크기 프리셋 — 툴바 드롭다운으로 DESIGN_W/H 동적 변경 | ✅ |
+| Round 208 | dev | SceneView SVG 씬 내보내기 — ⬇ 버튼으로 씬 노드 레이아웃 SVG 다운로드 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

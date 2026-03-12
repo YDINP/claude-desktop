@@ -47,6 +47,7 @@ interface SceneToolbarProps {
   onMinimapToggle?: () => void
   canvasSize?: { w: number; h: number }
   onCanvasSizeChange?: (w: number, h: number) => void
+  onExportSvg?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -98,6 +99,7 @@ export function SceneToolbar({
   onMinimapToggle,
   canvasSize,
   onCanvasSizeChange,
+  onExportSvg,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -394,6 +396,11 @@ export function SceneToolbar({
       >
         ≡
       </button>
+
+      {/* SVG 내보내기 */}
+      {onExportSvg && (
+        <button style={btnBase} onClick={onExportSvg} title="씬 SVG 내보내기">⬇</button>
+      )}
 
       {/* 새로고침 */}
       <button

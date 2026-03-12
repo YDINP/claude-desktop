@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 208] — 2026-03-13
+### Added
+- SceneView: SVG 씬 내보내기 — ⬇ 버튼으로 씬 노드 레이아웃을 SVG 파일로 다운로드
+
 ## [Round 207] — 2026-03-13
 ### Added
 - SceneView: 캔버스 크기 프리셋 드롭다운 — 960×640/1280×720/1920×1080/750×1334 등 동적 변경
