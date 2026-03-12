@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 333] — 2026-03-13
+### Added
+- RunTimeline: RunCard 헤더 클릭으로 스텝 목록 접기/펼치기 — 4개 이상 스텝 시 기본 접힘, 진행 중 런은 항상 펼침
+
 ## [Round 332] — 2026-03-13
 ### Added
 - BookmarksPanel: 북마크 아이템별 📋 복사 버튼 — 클릭 시 전체 텍스트 클립보드 복사, 1.5초 ✓ 피드백

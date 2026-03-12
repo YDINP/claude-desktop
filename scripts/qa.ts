@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 235: R333 신규 기능 ───────────────────────────────
+console.log('\n## 235. 신규 기능 파일 검사 (R333)')
+// RunTimeline RunCard 스텝 접기/펼치기 (Round 333)
+const rt333Path = join(ROOT, 'src/renderer/src/components/sidebar/RunTimeline.tsx')
+if (existsSync(rt333Path)) {
+  const rt333 = readFileSync(rt333Path, 'utf-8')
+  if (rt333.includes('expanded') && rt333.includes('setExpanded') && rt333.includes('steps.length')) {
+    log('pass', 'Round333', 'RunTimeline: RunCard 스텝 접기/펼치기 (expanded/setExpanded) 존재')
+  } else {
+    log('warning', 'Round333', 'RunTimeline RunCard 접기/펼치기 미구현', 'sidebar/RunTimeline.tsx')
+  }
+}
+
 // ── Section 234: R332 신규 기능 ───────────────────────────────
 console.log('\n## 234. 신규 기능 파일 검사 (R332)')
 // BookmarksPanel 북마크 복사 버튼 (Round 332)
