@@ -1503,6 +1503,24 @@ if (existsSync(sceneToolbarPath4)) {
   }
 }
 
+// ── Section 65: R163 신규 기능 ───────────────────────────────
+console.log('\n## 65. 신규 기능 파일 검사 (R163)')
+// Space 키 임시 패닝 (Round 163)
+const sceneViewPanelPath28 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath28)) {
+  const svp28 = readFileSync(sceneViewPanelPath28, 'utf-8')
+  if (svp28.includes('Space 키 임시 패닝 모드') && svp28.includes("e.code === 'Space'")) {
+    log('pass', 'Round163', "SceneView: Space 키 패닝 모드 useEffect + 'Space' keyCode 존재")
+  } else {
+    log('warning', 'Round163', 'SceneView Space 패닝 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp28.includes('spaceDown') && svp28.includes("activeTool === 'move' || spaceDown")) {
+    log('pass', 'Round163', 'SceneView: spaceDown state + 마우스다운 조건 존재')
+  } else {
+    log('warning', 'Round163', 'SceneView spaceDown 패닝 조건 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

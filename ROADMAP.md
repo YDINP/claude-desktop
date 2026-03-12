@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 162 완료 — SceneView 균등 분포 배치, Pass 142)
+> 마지막 업데이트: 2026-03-12 (Round 163 완료 — SceneView Space 패닝, Pass 144)
 
 ## 완료된 라운드
 
@@ -114,6 +114,7 @@
 | Round 160 | dev | SceneView Ctrl+D 복제 — 클립보드 유지, 20px 오프셋 복제 | ✅ |
 | Round 161 | dev | SceneInspector 자식 노드 수 표시 — ↳N 형태, 부모/자식 정보 통합 | ✅ |
 | Round 162 | dev | SceneView 균등 분포 배치 — 멀티셀렉트 3개↑ 수평(⊢⊣)/수직(⊤⊥) 균등 배치 | ✅ |
+| Round 163 | dev | SceneView Space 키 임시 패닝 — Space 홀드로 grab 커서 패닝 모드 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

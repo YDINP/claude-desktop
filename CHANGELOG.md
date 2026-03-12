@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 163] — 2026-03-12
+### Added
+- SceneView: Space 키 임시 패닝 모드 — Space 홀드 시 현재 도구 유지하며 grab/grabbing 커서로 패닝 가능
+
 ## [Round 162] — 2026-03-12
 ### Added
 - SceneView: 균등 분포 배치 — 멀티셀렉트 3개 이상 시 수평(⊢⊣)/수직(⊤⊥) 균등 배치 버튼

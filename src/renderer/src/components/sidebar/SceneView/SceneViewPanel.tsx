@@ -31,6 +31,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [isPanningActive, setIsPanningActive] = useState(false)
+  const [spaceDown, setSpaceDown] = useState(false)
   const [cursorScenePos, setCursorScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverTooltipPos, setHoverTooltipPos] = useState<{ x: number; y: number } | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
@@ -192,6 +193,20 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return () => window.removeEventListener('keydown', handleKey)
   }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate])
 
+  // ── Space 키 임시 패닝 모드 ────────────────────────────────
+  useEffect(() => {
+    const onDown = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).tagName === 'INPUT') return
+      if (e.code === 'Space' && !spaceDown) { e.preventDefault(); setSpaceDown(true) }
+    }
+    const onUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') setSpaceDown(false)
+    }
+    window.addEventListener('keydown', onDown)
+    window.addEventListener('keyup', onUp)
+    return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
+  }, [spaceDown])
+
   // ── Ctrl+A 전체 선택 ──────────────────────────────────────
   useEffect(() => {
     const handleSelectAll = (e: KeyboardEvent) => {
@@ -272,7 +287,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 마우스 이벤트 ─────────────────────────────────────────
   const handleSvgMouseDown = useCallback((e: React.MouseEvent) => {
     // 빈 영역 클릭 → 패닝 (middle btn 또는 space + left)
-    if (e.button === 1 || (e.button === 0 && activeTool === 'move')) {
+    if (e.button === 1 || (e.button === 0 && (activeTool === 'move' || spaceDown))) {
       isPanning.current = true
       setIsPanningActive(true)
       panStart.current = {
@@ -900,7 +915,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           flex: 1,
           position: 'relative',
           overflow: 'hidden',
-          cursor: isPanningActive ? 'grabbing' : activeTool === 'move' ? 'grab' : 'default',
+          cursor: isPanningActive ? 'grabbing' : (activeTool === 'move' || spaceDown) ? 'grab' : 'default',
         }}
       >
         <svg

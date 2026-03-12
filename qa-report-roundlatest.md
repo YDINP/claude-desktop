@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:20:20.308Z
+> 2026-03-12T14:22:41.193Z
 
 ## Critical
 _없음_
@@ -150,3 +150,5 @@ _없음_
 - SceneInspector: 자식 노드 수 tooltip 존재
 - SceneView: handleDistribute(H/V) 함수 존재
 - SceneToolbar: Distribute H/V props + 버튼 존재
+- SceneView: Space 키 패닝 모드 useEffect + 'Space' keyCode 존재
+- SceneView: spaceDown state + 마우스다운 조건 존재
