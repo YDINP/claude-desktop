@@ -95,6 +95,9 @@ module.exports = {
     Editor.Message.addBroadcastListener('selection:select', (type, uuids) => {
       if (type === 'node') broadcast({ type: 'node:select', uuids });
     });
+    Editor.Message.addBroadcastListener('selection:unselect', (type, uuids) => {
+      if (type === 'node') broadcast({ type: 'node:deselect', uuids });
+    });
   },
 
   unload() {

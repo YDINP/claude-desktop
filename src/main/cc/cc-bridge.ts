@@ -9,18 +9,22 @@ interface CCBridgeOptions {
 class CCBridge {
   private ws: WebSocket | null = null
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null
-  private port = 9090
-  private version = '2x'
+  private _port = 9090
+  private _version = '2x'
   private _connected = false
+  private _intentionalDisconnect = false
   private options: CCBridgeOptions = {}
 
   get connected() { return this._connected }
+  get port() { return this._port }
+  get version() { return this._version }
 
   setOptions(opts: CCBridgeOptions) { this.options = opts }
 
   async connect(port = 9090): Promise<boolean> {
-    this.port = port
-    this.version = port === 9091 ? '3x' : '2x'
+    this._intentionalDisconnect = false
+    this._port = port
+    this._version = port === 9091 ? '3x' : '2x'
     if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); this.reconnectTimer = null }
     if (this.ws?.readyState === WebSocket.OPEN) return true
 
@@ -62,6 +66,7 @@ class CCBridge {
   }
 
   disconnect() {
+    this._intentionalDisconnect = true
     if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); this.reconnectTimer = null }
     this.ws?.close()
     this.ws = null
@@ -69,19 +74,19 @@ class CCBridge {
   }
 
   async getTree() {
-    const resp = await fetch(`http://127.0.0.1:${this.port}/scene/tree`)
+    const resp = await fetch(`http://127.0.0.1:${this._port}/scene/tree`)
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
     return resp.json()
   }
 
   async getNode(uuid: string) {
-    const resp = await fetch(`http://127.0.0.1:${this.port}/node/${uuid}`)
+    const resp = await fetch(`http://127.0.0.1:${this._port}/node/${uuid}`)
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
     return resp.json()
   }
 
   async setProperty(uuid: string, key: string, value: unknown) {
-    const resp = await fetch(`http://127.0.0.1:${this.port}/node/${uuid}/property`, {
+    const resp = await fetch(`http://127.0.0.1:${this._port}/node/${uuid}/property`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, value }),
@@ -91,7 +96,7 @@ class CCBridge {
   }
 
   async moveNode(uuid: string, x: number, y: number) {
-    const resp = await fetch(`http://127.0.0.1:${this.port}/node/${uuid}/move`, {
+    const resp = await fetch(`http://127.0.0.1:${this._port}/node/${uuid}/move`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ x, y }),
@@ -102,17 +107,18 @@ class CCBridge {
 
   async checkStatus() {
     try {
-      const resp = await fetch(`http://127.0.0.1:${this.port}/status`, { signal: AbortSignal.timeout(2000) })
+      const resp = await fetch(`http://127.0.0.1:${this._port}/status`, { signal: AbortSignal.timeout(2000) })
       if (!resp.ok) return null
       return resp.json()
     } catch { return null }
   }
 
   private scheduleReconnect() {
+    if (this._intentionalDisconnect) return
     if (this.reconnectTimer) return
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null
-      this.connect(this.port)
+      this.connect(this._port)
     }, 3000)
   }
 }

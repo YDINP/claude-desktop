@@ -252,14 +252,14 @@ contextBridge.exposeInMainWorld('api', {
   ccSetProperty: (uuid: string, key: string, value: unknown) => ipcRenderer.invoke('cc:setProperty', uuid, key, value),
   ccMoveNode: (uuid: string, x: number, y: number) => ipcRenderer.invoke('cc:moveNode', uuid, x, y),
   onCCEvent: (cb: (event: CCEvent) => void) => {
-    const handler = (_: unknown, data: CCEvent) => cb(data)
+    const handler = (_e: Electron.IpcRendererEvent, data: unknown) => cb(data as CCEvent)
     ipcRenderer.on('cc:event', handler)
-    return () => ipcRenderer.removeAllListeners('cc:event')
+    return () => ipcRenderer.removeListener('cc:event', handler)
   },
   onCCStatusChange: (cb: (status: { connected: boolean }) => void) => {
-    const handler = (_: unknown, data: { connected: boolean }) => cb(data)
+    const handler = (_e: Electron.IpcRendererEvent, data: unknown) => cb(data as { connected: boolean })
     ipcRenderer.on('cc:statusChange', handler)
-    return () => ipcRenderer.removeAllListeners('cc:statusChange')
+    return () => ipcRenderer.removeListener('cc:statusChange', handler)
   },
 })
 

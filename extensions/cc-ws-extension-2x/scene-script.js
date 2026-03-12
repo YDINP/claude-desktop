@@ -27,7 +27,7 @@ module.exports = {
 
   // 단일 노드 정보
   getNode(event, options) {
-    const node = cc.director.getScene().getChildByUUID ? findByUUID(cc.director.getScene(), options.uuid) : null;
+    const node = findByUUID(cc.director.getScene(), options.uuid);
     if (!node) { event.reply('Node not found'); return; }
     event.reply(null, {
       uuid: node.uuid, name: node.name,

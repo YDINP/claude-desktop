@@ -11,7 +11,7 @@ function NodeRow({
   node: CCNode; depth: number; selectedUuid: string | null; onSelect: (n: CCNode) => void
 }) {
   const [expanded, setExpanded] = useState(depth < 2)
-  const hasChildren = node.children.length > 0
+  const hasChildren = (node.children?.length ?? 0) > 0
 
   return (
     <>
@@ -44,7 +44,7 @@ function NodeRow({
           {node.components.map(c => c.type.replace('cc.', '')).slice(0, 2).join(' ')}
         </span>
       </div>
-      {expanded && hasChildren && node.children.map(child => (
+      {expanded && hasChildren && (node.children ?? []).map(child => (
         <NodeRow key={child.uuid} node={child} depth={depth + 1} selectedUuid={selectedUuid} onSelect={onSelect} />
       ))}
     </>

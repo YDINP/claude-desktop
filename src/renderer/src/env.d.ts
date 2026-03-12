@@ -6,7 +6,7 @@ interface Window {
     claudeInterrupt: () => void
     claudeClose: () => void
     claudeResume: (sessionId: string) => void
-    claudePermissionReply: (requestId: string, allow: boolean) => void
+    claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) => void
     onClaudeMessage: (cb: (event: unknown) => void) => void
     onClaudePermission: (cb: (req: unknown) => void) => void
     removeClaudeListeners: () => void
