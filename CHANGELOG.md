@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 371] — 2026-03-13
+### Added
+- ClipboardPanel: 항목 텍스트 확장/접기 — 120자 초과 항목에 "▼ 펼치기/▲ 접기" 버튼, expandedId 상태
+
 ## [Round 370] — 2026-03-13
 ### Added
 - CalendarPanel: 다음 이벤트 "더 보기" 토글 — 3개 초과 시 "더 보기 (N개)" 버튼, 전체/접기 토글

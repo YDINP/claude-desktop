@@ -10,6 +10,7 @@ export function ClipboardPanel() {
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [pinnedIds, setPinnedIds] = useState<Set<string>>(new Set())
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const togglePin = (id: string, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -76,9 +77,15 @@ export function ClipboardPanel() {
                 <span>{new Date(entry.timestamp).toLocaleTimeString('ko-KR')} · {entry.source}</span>
                 <span style={{ flexShrink: 0 }}>{entry.text.length.toLocaleString()}자</span>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', maxHeight: 60, lineHeight: 1.4, textOverflow: 'ellipsis', WebkitLineClamp: 3, display: '-webkit-box', WebkitBoxOrient: 'vertical' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', lineHeight: 1.4, ...(expandedId === entry.id ? { whiteSpace: 'pre-wrap', wordBreak: 'break-all' } : { maxHeight: 60, textOverflow: 'ellipsis', WebkitLineClamp: 3, display: '-webkit-box', WebkitBoxOrient: 'vertical' }) }}>
                 {entry.text}
               </div>
+              {entry.text.length > 120 && (
+                <button onClick={e => { e.stopPropagation(); setExpandedId(id => id === entry.id ? null : entry.id) }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--accent)', padding: '1px 0', display: 'block' }}>
+                  {expandedId === entry.id ? '▲ 접기' : '▼ 펼치기'}
+                </button>
+              )}
               {copiedId === entry.id && (
                 <div style={{ position: 'absolute', top: 4, right: 4, fontSize: 10, color: 'var(--accent)' }}>✓ 복사됨</div>
               )}

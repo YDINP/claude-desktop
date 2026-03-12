@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 273: R371 신규 기능 ───────────────────────────────
+console.log('\n## 273. 신규 기능 파일 검사 (R371)')
+// ClipboardPanel 텍스트 확장 (Round 371)
+const cbp371Path = join(ROOT, 'src/renderer/src/components/sidebar/ClipboardPanel.tsx')
+if (existsSync(cbp371Path)) {
+  const cbp371 = readFileSync(cbp371Path, 'utf-8')
+  if (cbp371.includes('expandedId') && cbp371.includes('▼ 펼치기') && cbp371.includes('▲ 접기')) {
+    log('pass', 'Round371', 'ClipboardPanel: 항목 텍스트 확장/접기 토글 존재')
+  } else {
+    log('warning', 'Round371', 'ClipboardPanel 텍스트 확장 미구현', 'sidebar/ClipboardPanel.tsx')
+  }
+}
+
 // ── Section 272: R370 신규 기능 ───────────────────────────────
 console.log('\n## 272. 신규 기능 파일 검사 (R370)')
 // CalendarPanel 다음 이벤트 더 보기 (Round 370)
