@@ -34,3 +34,12 @@ export interface DragState {
   startNodeX: number
   startNodeY: number
 }
+
+// 마퀴 선택 상태
+export interface MarqueeState {
+  startX: number
+  startY: number
+  endX: number
+  endY: number
+  active: boolean
+}

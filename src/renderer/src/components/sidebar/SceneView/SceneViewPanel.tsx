@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import type { SceneNode, ViewTransform, DragState } from './types'
+import type { SceneNode, ViewTransform, DragState, MarqueeState } from './types'
 import { useSceneSync } from './useSceneSync'
 import { NodeRenderer } from './NodeRenderer'
 import { SceneToolbar } from './SceneToolbar'
 import { SceneInspector } from './SceneInspector'
-import { getRenderOrder } from './utils'
+import { getRenderOrder, cocosToSvg } from './utils'
 
 interface SceneViewPanelProps {
   connected: boolean
@@ -28,7 +28,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
+  const [selectedUuids, setSelectedUuids] = useState<Set<string>>(new Set())
   const [hoveredUuid, setHoveredUuid] = useState<string | null>(null)
+
+  // ── 마퀴 선택 상태 ─────────────────────────────────────────
+  const [marquee, setMarquee] = useState<MarqueeState | null>(null)
+  const marqueeRef = useRef<{ startX: number; startY: number } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────
   const dragRef = useRef<DragState | null>(null)
@@ -65,7 +70,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.key === 'v' || e.key === 'V') setActiveTool('select')
       if (e.key === 'w' || e.key === 'W') setActiveTool('move')
       if (e.key === 'f' || e.key === 'F') handleFit()
-      if (e.key === 'Escape') setSelectedUuid(null)
+      if (e.key === 'Escape') {
+        setSelectedUuid(null)
+        setSelectedUuids(new Set())
+        setMarquee(null)
+      }
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
@@ -118,16 +127,44 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       e.preventDefault()
       return
     }
-    // 빈 배경 클릭 → 선택 해제
-    if (e.button === 0) {
+    // 빈 배경 클릭 → 선택 해제 + 마퀴 시작
+    if (e.button === 0 && activeTool === 'select') {
+      if (!e.shiftKey) {
+        setSelectedUuid(null)
+        setSelectedUuids(new Set())
+      }
+      const svgCoords = getSvgCoords(e)
+      marqueeRef.current = { startX: svgCoords.x, startY: svgCoords.y }
+      setMarquee({ startX: svgCoords.x, startY: svgCoords.y, endX: svgCoords.x, endY: svgCoords.y, active: true })
+    } else if (e.button === 0) {
       setSelectedUuid(null)
+      setSelectedUuids(new Set())
     }
-  }, [activeTool, view])
+  }, [activeTool, view, getSvgCoords])
 
   const handleNodeMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
     e.stopPropagation()
     if (e.button !== 0) return
+
+    if (e.shiftKey) {
+      // Shift 클릭: 멀티 선택 토글
+      setSelectedUuids(prev => {
+        const next = new Set(prev)
+        if (next.has(uuid)) {
+          next.delete(uuid)
+        } else {
+          next.add(uuid)
+        }
+        return next
+      })
+      setSelectedUuid(uuid)
+      return
+    }
+
+    // 일반 클릭: 단일 선택
     setSelectedUuid(uuid)
+    setSelectedUuids(new Set())
+
     const node = nodeMap.get(uuid)
     if (!node) return
 
@@ -142,6 +179,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [nodeMap, getSvgCoords])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // 마퀴 업데이트
+    if (marqueeRef.current) {
+      const svgCoords = getSvgCoords(e)
+      setMarquee({
+        startX: marqueeRef.current.startX,
+        startY: marqueeRef.current.startY,
+        endX: svgCoords.x,
+        endY: svgCoords.y,
+        active: true,
+      })
+      return
+    }
+
     // 패닝
     if (isPanning.current && panStart.current) {
       const ps = panStart.current  // setView 업데이터 호출 전에 캡처
@@ -181,6 +231,44 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [view.zoom, snapEnabled, getSvgCoords, updateNode])
 
   const handleMouseUp = useCallback(async () => {
+    // 마퀴 종료 → 히트 테스트
+    if (marqueeRef.current && marquee) {
+      marqueeRef.current = null
+      const mx1 = Math.min(marquee.startX, marquee.endX)
+      const my1 = Math.min(marquee.startY, marquee.endY)
+      const mx2 = Math.max(marquee.startX, marquee.endX)
+      const my2 = Math.max(marquee.startY, marquee.endY)
+
+      // 마퀴가 충분히 크면 노드 히트 테스트
+      if (mx2 - mx1 > 4 || my2 - my1 > 4) {
+        const hit = new Set<string>()
+        nodeMap.forEach((node) => {
+          const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
+          const pw = node.width * Math.abs(node.scaleX)
+          const ph = node.height * Math.abs(node.scaleY)
+          const rx = sx - pw * node.anchorX
+          const ry = sy - ph * (1 - node.anchorY)
+          // scene transform 적용 → SVG 화면 좌표
+          const nx1 = rx * view.zoom + view.offsetX
+          const ny1 = ry * view.zoom + view.offsetY
+          const nx2 = (rx + pw) * view.zoom + view.offsetX
+          const ny2 = (ry + ph) * view.zoom + view.offsetY
+          // 교차 판정
+          if (nx1 < mx2 && nx2 > mx1 && ny1 < my2 && ny2 > my1) {
+            hit.add(node.uuid)
+          }
+        })
+        if (hit.size > 0) {
+          setSelectedUuids(hit)
+          const first = hit.values().next().value
+          setSelectedUuid(first ?? null)
+        }
+      }
+
+      setMarquee(null)
+      return
+    }
+
     // 패닝 종료
     if (isPanning.current) {
       isPanning.current = false
@@ -202,7 +290,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       }
       dragRef.current = null
     }
-  }, [nodeMap])
+  }, [nodeMap, marquee, view])
 
   // ── 줌 (wheel) ─────────────────────────────────────────────
   const handleWheel = useCallback((e: React.WheelEvent) => {
@@ -236,6 +324,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [rootUuid, nodeMap])
 
   const selectedNode = selectedUuid ? nodeMap.get(selectedUuid) ?? null : null
+  const selectionCount = selectedUuids.size > 1 ? selectedUuids.size : undefined
 
   // ── SVG viewBox ─────────────────────────────────────────
   // 고정 viewBox를 사용하지 않고 offsetX/Y + zoom을 transform으로 처리
@@ -277,6 +366,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         zoom={view.zoom}
         gridVisible={gridVisible}
         snapEnabled={snapEnabled}
+        selectionCount={selectionCount}
         onToolChange={setActiveTool}
         onZoomChange={zoom => setView(prev => ({ ...prev, zoom }))}
         onGridToggle={() => setGridVisible(v => !v)}
@@ -384,6 +474,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   view={view}
                   selected={selectedUuid === uuid}
                   hovered={hoveredUuid === uuid}
+                  multiSelected={selectedUuids.has(uuid)}
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={setHoveredUuid}
                   onMouseLeave={() => setHoveredUuid(null)}
@@ -391,6 +482,21 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               )
             })}
           </g>
+
+          {/* 마퀴 선택 rect */}
+          {marquee && (
+            <rect
+              x={Math.min(marquee.startX, marquee.endX)}
+              y={Math.min(marquee.startY, marquee.endY)}
+              width={Math.abs(marquee.endX - marquee.startX)}
+              height={Math.abs(marquee.endY - marquee.startY)}
+              fill="rgba(96, 165, 250, 0.1)"
+              stroke="#60a5fa"
+              strokeWidth={1}
+              strokeDasharray="4 2"
+              style={{ pointerEvents: 'none' }}
+            />
+          )}
         </svg>
 
         {/* 로딩 오버레이 */}
@@ -434,7 +540,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       <SceneInspector
         node={selectedNode}
         onUpdate={handleInspectorUpdate}
-        onClose={() => setSelectedUuid(null)}
+        onClose={() => { setSelectedUuid(null); setSelectedUuids(new Set()) }}
+        selectionCount={selectionCount}
       />
     </div>
   )

@@ -8,6 +8,7 @@ interface NodeRendererProps {
   view: ViewTransform
   selected: boolean
   hovered: boolean
+  multiSelected?: boolean
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
@@ -34,6 +35,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   view,
   selected,
   hovered,
+  multiSelected,
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
@@ -88,6 +90,22 @@ export const NodeRenderer = memo(function NodeRenderer({
         strokeDasharray={strokeDash}
         rx={2}
       />
+
+      {/* 멀티 선택 하이라이트 */}
+      {multiSelected && !selected && (
+        <rect
+          x={rx - 1}
+          y={ry - 1}
+          width={pw + 2}
+          height={ph + 2}
+          fill="rgba(96, 165, 250, 0.08)"
+          stroke="#60a5fa"
+          strokeWidth={1.5}
+          strokeDasharray="4 2"
+          rx={2}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
 
       {/* 라벨 */}
       {(pw > 20 && ph > 12) && (

@@ -5,6 +5,7 @@ interface SceneToolbarProps {
   zoom: number
   gridVisible: boolean
   snapEnabled: boolean
+  selectionCount?: number
   onToolChange: (tool: 'select' | 'move') => void
   onZoomChange: (zoom: number) => void
   onGridToggle: () => void
@@ -20,6 +21,7 @@ export function SceneToolbar({
   zoom,
   gridVisible,
   snapEnabled,
+  selectionCount,
   onToolChange,
   onZoomChange,
   onGridToggle,
@@ -74,13 +76,31 @@ export function SceneToolbar({
       }}
     >
       {/* 도구 선택 */}
-      <button
-        style={activeTool === 'select' ? btnActive : btnBase}
-        onClick={() => onToolChange('select')}
-        title="선택 도구 (V)"
-      >
-        ↖ 선택
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <button
+          style={activeTool === 'select' ? btnActive : btnBase}
+          onClick={() => onToolChange('select')}
+          title="선택 도구 (V)"
+        >
+          ↖ 선택
+        </button>
+        {selectionCount !== undefined && selectionCount > 1 && (
+          <span
+            style={{
+              background: '#60a5fa',
+              color: '#fff',
+              fontSize: 9,
+              fontWeight: 600,
+              borderRadius: 8,
+              padding: '1px 5px',
+              lineHeight: '14px',
+              pointerEvents: 'none',
+            }}
+          >
+            {selectionCount}
+          </span>
+        )}
+      </div>
       <button
         style={activeTool === 'move' ? btnActive : btnBase}
         onClick={() => onToolChange('move')}

@@ -5,6 +5,7 @@ interface SceneInspectorProps {
   node: SceneNode | null
   onUpdate: (uuid: string, prop: string, value: number | boolean) => void
   onClose: () => void
+  selectionCount?: number
 }
 
 // 개별 수치 입력 필드
@@ -115,7 +116,54 @@ function SectionHeader({ label }: { label: string }) {
   )
 }
 
-export function SceneInspector({ node, onUpdate, onClose }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onClose, selectionCount }: SceneInspectorProps) {
+  // 다중 선택 시 집계 뷰
+  if (selectionCount !== undefined && selectionCount > 1) {
+    return (
+      <div
+        style={{
+          flexShrink: 0,
+          borderTop: '2px solid var(--border)',
+          background: 'var(--bg-secondary)',
+          padding: '6px 8px',
+          fontSize: 11,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 600,
+              color: '#60a5fa',
+            }}
+          >
+            {selectionCount}개 노드 선택됨
+          </span>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: 13,
+              padding: '0 2px',
+              lineHeight: 1,
+            }}
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!node) return null
 
   return (
