@@ -206,7 +206,7 @@ export function NotesPanel() {
                   {'</>'}
                 </button>
               </div>
-              <span>{content.length}자 · {content.trim() ? content.trim().split(/\s+/).length : 0}단어</span>
+              <span>{content.length}자 · {content.trim() ? content.trim().split(/\s+/).length : 0}단어 · {content.split('\n').length}줄</span>
             </div>
           </div>
         ) : (

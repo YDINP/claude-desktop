@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 214: R312 신규 기능 ───────────────────────────────
+console.log('\n## 214. 신규 기능 파일 검사 (R312)')
+// NotesPanel 줄 수 표시 (Round 312)
+const np312Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np312Path)) {
+  const np312 = readFileSync(np312Path, 'utf-8')
+  if (np312.includes("split('\\n').length") && np312.includes('줄')) {
+    log('pass', 'Round312', "NotesPanel: 편집기 하단 줄 수 표시 (split('\\n').length/줄) 존재")
+  } else {
+    log('warning', 'Round312', 'NotesPanel 줄 수 표시 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 213: R311 신규 기능 ───────────────────────────────
 console.log('\n## 213. 신규 기능 파일 검사 (R311)')
 // RunTimeline 완료 런 삭제 버튼 (Round 311)

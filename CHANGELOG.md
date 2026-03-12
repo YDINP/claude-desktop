@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 312] — 2026-03-13
+### Added
+- NotesPanel: 편집기 하단 줄 수 표시 — `N자 · M단어 · L줄` 형태로 줄 수 추가 표시
+
 ## [Round 311] — 2026-03-13
 ### Added
 - RunTimeline: 완료된 런 삭제 버튼 — 🗑 클릭으로 `clearedAt` 타임스탬프 이전 완료 런 화면에서 제거
