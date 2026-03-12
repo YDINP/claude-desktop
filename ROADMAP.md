@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 266 완료 — TasksPanel 정렬 기능, Pass 286)
+> 마지막 업데이트: 2026-03-13 (Round 267 완료 — NotesPanel 글자/단어 수 표시, Pass 287)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 267 | dev | NotesPanel 글자/단어 수 실시간 상태바 — content.length + split(/\s+/) | ✅ |
 | Round 266 | dev | TasksPanel 정렬 기능 — sortBy(created/priority/due) 사이클 버튼 | ✅ |
 | Round 265 | dev | CalendarPanel 커스텀 이벤트 — localStorage, 컬러 선택, 셀 컬러 점 표시 | ✅ |
 | Round 264 | dev | SceneView 북마크 클릭 카메라 포커스 — setView bounding box 계산으로 북마크 노드 자동 이동 | ✅ |

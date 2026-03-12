@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 267] — 2026-03-13
+### Added
+- NotesPanel: 편집 영역 하단에 글자 수 / 단어 수 실시간 표시 상태바
+
 ## [Round 266] — 2026-03-13
 ### Added
 - TasksPanel: 태스크 정렬 기능 — ⏱최신순 / 🔴우선순위 / 📅마감일 순 사이클 버튼

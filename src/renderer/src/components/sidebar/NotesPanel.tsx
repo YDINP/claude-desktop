@@ -161,6 +161,9 @@ export function NotesPanel() {
                 color: 'var(--text-primary)', outline: 'none', fontFamily: 'inherit',
               }}
             />
+            <div style={{ padding: '2px 8px', fontSize: 9, color: 'var(--text-muted)', textAlign: 'right', borderTop: '1px solid var(--border)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+              {content.length}자 · {content.trim() ? content.trim().split(/\s+/).length : 0}단어
+            </div>
           </div>
         ) : (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 11 }}>

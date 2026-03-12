@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 169: R267 신규 기능 ───────────────────────────────
+console.log('\n## 169. 신규 기능 파일 검사 (R267)')
+// NotesPanel 글자/단어 수 표시 (Round 267)
+const np267Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np267Path)) {
+  const np267 = readFileSync(np267Path, 'utf-8')
+  if (np267.includes('content.length') && np267.includes('단어') && np267.includes('자 ·')) {
+    log('pass', 'Round267', 'NotesPanel: 글자/단어 수 표시 존재')
+  } else {
+    log('warning', 'Round267', 'NotesPanel 글자/단어 수 표시 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 168: R266 신규 기능 ───────────────────────────────
 console.log('\n## 168. 신규 기능 파일 검사 (R266)')
 // TasksPanel 정렬 기능 (Round 266)
