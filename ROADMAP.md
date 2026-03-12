@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 251 완료 — SceneView I키 노드 정보 오버레이, Pass 271)
+> 마지막 업데이트: 2026-03-13 (Round 252 완료 — NotesPanel 핀 고정, Pass 272)
 
 ## 완료된 라운드
 
@@ -203,6 +203,7 @@
 | Round 249 | dev | NotesPanel 정렬 — 최신/오래됨/제목순 순환 버튼 (cycleSortOrder) | ✅ |
 | Round 250 | dev | SceneView 앵커 포인트 십자 마커 — 선택 노드 pivot 위치에 #a78bfa crosshair 오버레이 | ✅ |
 | Round 251 | dev | SceneView I키 노드 정보 오버레이 — pos/size/rot/anchor/opacity/visible/locked 패널 | ✅ |
+| Round 252 | dev | NotesPanel 핀 고정 — 📌 토글, 핀 노드 목록 상단 고정 + 황금 border | ✅ |
 
 ## 전략 로드맵 (Phase)
 

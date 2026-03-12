@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 252] — 2026-03-13
+### Added
+- NotesPanel: 노트 핀 고정 기능 — 📌 버튼으로 핀 토글, 핀 노드는 목록 상단 고정 + 황금 border
+
 ## [Round 251] — 2026-03-13
 ### Added
 - SceneView: I키 노드 정보 오버레이 — 선택 노드의 pos/size/rot/anchor/opacity/visible/locked 정보 패널

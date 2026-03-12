@@ -5,6 +5,7 @@ interface Note {
   title: string
   content: string
   updatedAt: number
+  pinned?: boolean
 }
 
 const STORAGE_KEY = 'claude-desktop-notes'
@@ -50,11 +51,18 @@ export function NotesPanel() {
     save(next)
   }, [selectedId, notes, save])
 
+  const togglePin = useCallback((id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    save(notes.map(n => n.id === id ? { ...n, pinned: !n.pinned } : n))
+  }, [notes, save])
+
   const filteredNotes = searchQuery.trim()
     ? notes.filter(n => n.title.toLowerCase().includes(searchQuery.toLowerCase()) || n.content.toLowerCase().includes(searchQuery.toLowerCase()))
     : notes
 
   const sortedNotes = [...filteredNotes].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1
+    if (!a.pinned && b.pinned) return 1
     if (sortOrder === 'latest') return b.updatedAt - a.updatedAt
     if (sortOrder === 'oldest') return a.updatedAt - b.updatedAt
     return a.title.localeCompare(b.title, 'ko')
@@ -98,13 +106,15 @@ export function NotesPanel() {
               style={{
                 padding: '5px 8px', cursor: 'pointer', fontSize: 11,
                 background: n.id === selectedId ? 'rgba(96,165,250,0.15)' : 'transparent',
-                borderLeft: n.id === selectedId ? '2px solid var(--accent)' : '2px solid transparent',
+                borderLeft: n.pinned ? '2px solid #fbbf24' : (n.id === selectedId ? '2px solid var(--accent)' : '2px solid transparent'),
                 borderBottom: '1px solid var(--border)',
                 position: 'relative',
               }}
             >
-              <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>{n.title || '(제목 없음)'}</div>
+              <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)', paddingRight: 28 }}>{n.title || '(제목 없음)'}</div>
               <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{new Date(n.updatedAt).toLocaleDateString('ko')}</div>
+              <button onClick={e => togglePin(n.id, e)} title={n.pinned ? '핀 해제' : '핀 고정'}
+                style={{ position: 'absolute', top: 3, right: 16, background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: n.pinned ? '#fbbf24' : 'var(--text-muted)', opacity: n.pinned ? 1 : 0.5, padding: '0 2px' }}>📌</button>
               <button onClick={e => { e.stopPropagation(); deleteNote(n.id) }}
                 style={{ position: 'absolute', top: 3, right: 3, background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: 'var(--text-muted)', opacity: 0.6, padding: '0 2px' }}>×</button>
             </div>

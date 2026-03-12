@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 154: R252 신규 기능 ───────────────────────────────
+console.log('\n## 154. 신규 기능 파일 검사 (R252)')
+// NotesPanel 핀 고정 기능 (Round 252)
+const np252Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np252Path)) {
+  const np252 = readFileSync(np252Path, 'utf-8')
+  if (np252.includes('pinned') && np252.includes('togglePin') && np252.includes('핀 고정')) {
+    log('pass', 'Round252', 'NotesPanel: 핀 고정 기능 (pinned + togglePin) 구현 존재')
+  } else {
+    log('warning', 'Round252', 'NotesPanel 핀 고정 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 153: R251 신규 기능 ───────────────────────────────
 console.log('\n## 153. 신규 기능 파일 검사 (R251)')
 // SceneView 노드 정보 오버레이 I키 (Round 251)
