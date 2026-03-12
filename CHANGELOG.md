@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 368] — 2026-03-13
+### Added
+- GlobalSearchPanel: 검색 기록 삭제 — 항목별 × 버튼으로 개별 삭제, 헤더 "전체 삭제" 버튼
+
 ## [Round 367] — 2026-03-13
 ### Added
 - CocosPanel: 빠른 포트 선택 버튼 — 포트 입력 옆 9090(CC 2.x)/9091(CC 3.x) 버튼, 현재 포트 강조 표시

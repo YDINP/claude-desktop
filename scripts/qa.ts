@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 270: R368 신규 기능 ───────────────────────────────
+console.log('\n## 270. 신규 기능 파일 검사 (R368)')
+// GlobalSearchPanel 검색 기록 삭제 (Round 368)
+const gsp368Path = join(ROOT, 'src/renderer/src/components/sidebar/GlobalSearchPanel.tsx')
+if (existsSync(gsp368Path)) {
+  const gsp368 = readFileSync(gsp368Path, 'utf-8')
+  if (gsp368.includes('전체 삭제') && gsp368.includes('saveSearchHistory') && gsp368.includes('filter((_, j) => j !== i)')) {
+    log('pass', 'Round368', 'GlobalSearchPanel: 검색 기록 삭제 (개별 × + 전체 삭제) 존재')
+  } else {
+    log('warning', 'Round368', 'GlobalSearchPanel 검색 기록 삭제 미구현', 'sidebar/GlobalSearchPanel.tsx')
+  }
+}
+
 // ── Section 269: R367 신규 기능 ───────────────────────────────
 console.log('\n## 269. 신규 기능 파일 검사 (R367)')
 // CocosPanel 빠른 포트 버튼 (Round 367)

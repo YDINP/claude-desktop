@@ -97,15 +97,21 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
             borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             marginTop: 2, overflow: 'hidden',
           }}>
-            <div style={{ padding: '3px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>최근 검색</div>
+            <div style={{ padding: '3px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>최근 검색</span>
+              <button onClick={() => { const next: string[] = []; setSearchHistory(next); saveSearchHistory(next); setShowHistory(false) }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: 0 }}>전체 삭제</button>
+            </div>
             {searchHistory.map((h, i) => (
-              <div key={i} onClick={() => { setQuery(h); setShowHistory(false); search(h) }}
+              <div key={i}
                 style={{ padding: '5px 8px', fontSize: 11, cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '' }}
               >
                 <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>🕐</span>
-                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{h}</span>
+                <span onClick={() => { setQuery(h); setShowHistory(false); search(h) }} style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{h}</span>
+                <button onClick={e => { e.stopPropagation(); const next = searchHistory.filter((_, j) => j !== i); setSearchHistory(next); saveSearchHistory(next) }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, padding: '0 2px', flexShrink: 0, lineHeight: 1 }}>×</button>
               </div>
             ))}
           </div>

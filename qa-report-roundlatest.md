@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T22:29:33.754Z
+> 2026-03-12T22:33:44.365Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- GlobalSearchPanel: 검색 기록 삭제 (개별 × + 전체 삭제) 존재
 - CocosPanel: 빠른 포트 버튼 (9090/9091, CC 2.x/3.x) 존재
 - RunTimeline: 진행 중 필터 (showOnlyActive/setShowOnlyActive/shownRuns) 존재
 - ConnectionPanel: 설정 파일 경로 복사 (cfgCopied/setCfgCopied/경로 복사) 존재
