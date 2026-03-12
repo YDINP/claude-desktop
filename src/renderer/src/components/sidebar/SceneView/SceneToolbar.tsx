@@ -43,6 +43,8 @@ interface SceneToolbarProps {
   onLabelsToggle?: () => void
   bgLight?: boolean
   onBgToggle?: () => void
+  showMinimap?: boolean
+  onMinimapToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -90,6 +92,8 @@ export function SceneToolbar({
   onLabelsToggle,
   bgLight,
   onBgToggle,
+  showMinimap,
+  onMinimapToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -343,6 +347,15 @@ export function SceneToolbar({
         title="배경 밝기 전환 (밝은/어두운)"
       >
         ◑
+      </button>
+
+      {/* 미니맵 토글 */}
+      <button
+        style={showMinimap ? btnActive : btnBase}
+        onClick={onMinimapToggle}
+        title="미니맵 표시/숨기기"
+      >
+        ⊡
       </button>
 
       {/* 계층 트리 토글 */}

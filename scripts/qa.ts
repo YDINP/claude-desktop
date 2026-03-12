@@ -1888,6 +1888,19 @@ if (existsSync(svp185Path)) {
   }
 }
 
+// ── Section 88: R186 신규 기능 ───────────────────────────────
+console.log('\n## 88. 신규 기능 파일 검사 (R186)')
+// SceneToolbar 미니맵 토글 버튼 (Round 186)
+const sceneToolbar186Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(sceneToolbar186Path)) {
+  const st186 = readFileSync(sceneToolbar186Path, 'utf-8')
+  if (st186.includes('showMinimap') && st186.includes('onMinimapToggle') && st186.includes('미니맵 표시/숨기기')) {
+    log('pass', 'Round186', 'SceneToolbar: 미니맵 토글 버튼 존재')
+  } else {
+    log('warning', 'Round186', 'SceneToolbar 미니맵 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

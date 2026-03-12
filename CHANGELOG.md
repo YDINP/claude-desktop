@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 186] — 2026-03-13
+### Added
+- SceneToolbar: ⊡ 미니맵 토글 버튼 — 툴바에서 미니맵 표시/숨기기 직접 제어
+
 ## [Round 185] — 2026-03-13
 ### Added
 - SceneView: 미니맵 클릭 네비게이션 — 클릭 위치로 뷰포트 즉시 이동, 더블클릭으로 숨기기

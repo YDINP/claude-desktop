@@ -916,6 +916,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onLabelsToggle={() => setShowLabels(v => !v)}
         bgLight={bgLight}
         onBgToggle={() => setBgLight(v => !v)}
+        showMinimap={showMinimap}
+        onMinimapToggle={() => setShowMinimap(v => !v)}
         onCopy={handleCopy}
         onPaste={handlePaste}
         onZOrderFront={() => handleZOrder('front')}
