@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 133: R231 신규 기능 ───────────────────────────────
+console.log('\n## 133. 신규 기능 파일 검사 (R231)')
+// SceneView 카메라 뷰 히스토리 (Round 231)
+const svp231Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp231Path)) {
+  const svp231 = readFileSync(svp231Path, 'utf-8')
+  if (svp231.includes('viewHistoryRef') && svp231.includes('viewHistIdxRef') && svp231.includes('ArrowLeft') && svp231.includes('카메라 히스토리')) {
+    log('pass', 'Round231', 'SceneViewPanel: 카메라 뷰 히스토리 + Alt+←/→ 네비게이션 존재')
+  } else {
+    log('warning', 'Round231', 'SceneViewPanel 카메라 히스토리 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 132: R230 신규 기능 ───────────────────────────────
 console.log('\n## 132. 신규 기능 파일 검사 (R230)')
 // SceneView 즐겨찾기 노드 (Round 230)

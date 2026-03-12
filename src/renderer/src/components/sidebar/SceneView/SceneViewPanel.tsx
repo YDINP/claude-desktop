@@ -62,6 +62,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [refImageUrl, setRefImageUrl] = useState('')
   const [bookmarkedUuids, setBookmarkedUuids] = useState<Set<string>>(new Set())
   const [showBookmarkList, setShowBookmarkList] = useState(false)
+  const viewHistoryRef = useRef<ViewTransform[]>([])
+  const viewHistIdxRef = useRef(-1)
+  const viewRef = useRef(view)
+  viewRef.current = view
   const [refImageOpacity, setRefImageOpacity] = useState(0.3)
   const [showRefImagePanel, setShowRefImagePanel] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
@@ -234,8 +238,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if ((e.target as HTMLElement).tagName === 'INPUT') return
       if (e.key === 'v' || e.key === 'V') setActiveTool('select')
       if (e.key === 'w' || e.key === 'W') setActiveTool('move')
-      if (e.key === 'f' || e.key === 'F') handleFit()
-      if (e.key === 'g' || e.key === 'G') handleFocusSelected()
+      if (e.key === 'f' || e.key === 'F') {
+        const arr = viewHistoryRef.current.slice(0, viewHistIdxRef.current + 1)
+        viewHistoryRef.current = [...arr, viewRef.current].slice(-20)
+        viewHistIdxRef.current = viewHistoryRef.current.length - 1
+        handleFit()
+      }
+      if (e.key === 'g' || e.key === 'G') {
+        const arr = viewHistoryRef.current.slice(0, viewHistIdxRef.current + 1)
+        viewHistoryRef.current = [...arr, viewRef.current].slice(-20)
+        viewHistIdxRef.current = viewHistoryRef.current.length - 1
+        handleFocusSelected()
+      }
       if (e.key === 'm' || e.key === 'M') setShowMinimap(v => !v)
       if (e.key === 'r' || e.key === 'R') setShowRuler(v => !v)
       if (e.key === 'n' || e.key === 'N') handleCreateNode()
@@ -363,6 +377,23 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.altKey && (e.key === 'z' || e.key === 'Z')) {
         e.preventDefault()
         setFocusMode(v => !v)
+        return
+      }
+      // Alt+← / Alt+→ — 카메라 히스토리 뒤로/앞으로
+      if (e.altKey && e.key === 'ArrowLeft') {
+        e.preventDefault()
+        if (viewHistIdxRef.current > 0) {
+          viewHistIdxRef.current--
+          setView(viewHistoryRef.current[viewHistIdxRef.current])
+        }
+        return
+      }
+      if (e.altKey && e.key === 'ArrowRight') {
+        e.preventDefault()
+        if (viewHistIdxRef.current < viewHistoryRef.current.length - 1) {
+          viewHistIdxRef.current++
+          setView(viewHistoryRef.current[viewHistIdxRef.current])
+        }
         return
       }
       // Ctrl+B — 즐겨찾기 토글
