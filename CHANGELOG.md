@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 258] — 2026-03-13
+### Added
+- NotesPanel: 📤 Markdown 내보내기 버튼 — 전체 노트를 `notes-날짜.md` 파일로 다운로드
+
 ## [Round 257] — 2026-03-13
 ### Added
 - TasksPanel: 마감일(dueDate) 필드 — 날짜 선택기 입력, 마감 초과 시 ⚠빨간 강조, 📅 날짜 표시

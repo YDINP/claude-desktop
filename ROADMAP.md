@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 257 완료 — TasksPanel 마감일 기능, Pass 277)
+> 마지막 업데이트: 2026-03-13 (Round 258 완료 — NotesPanel Markdown 내보내기, Pass 278)
 
 ## 완료된 라운드
 
@@ -209,6 +209,7 @@
 | Round 255 | dev | SceneView P키 부모 노드 선택 — selectedUuid의 parentUuid로 이동 | ✅ |
 | Round 256 | dev | SceneView Alt 홀드 스냅 일시 비활성화 — 드래그 중 Alt키로 snapGrid 일시 무효화 | ✅ |
 | Round 257 | dev | TasksPanel 마감일 기능 — dueDate 날짜 입력, 마감 초과 ⚠ 빨간 강조 (overdue) | ✅ |
+| Round 258 | dev | NotesPanel 📤 Markdown 내보내기 — 전체 노트 notes-날짜.md 다운로드 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

@@ -71,6 +71,17 @@ export function NotesPanel() {
   const SORT_LABELS: Record<typeof sortOrder, string> = { latest: '최신', oldest: '오래됨', title: '제목' }
   const cycleSortOrder = () => setSortOrder(s => s === 'latest' ? 'oldest' : s === 'oldest' ? 'title' : 'latest')
 
+  const exportNotes = () => {
+    const md = sortedNotes.map(n => `# ${n.title || '(제목 없음)'}\n\n${n.content}`).join('\n\n---\n\n')
+    const blob = new Blob([md], { type: 'text/markdown' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `notes-${new Date().toISOString().slice(0, 10)}.md`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* 헤더 */}
@@ -90,6 +101,12 @@ export function NotesPanel() {
           style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 9, padding: '2px 5px', flexShrink: 0, whiteSpace: 'nowrap' }}>
           ↕{SORT_LABELS[sortOrder]}
         </button>
+        {notes.length > 0 && (
+          <button onClick={exportNotes} title="Markdown으로 내보내기"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-muted)', flexShrink: 0, padding: '0 2px' }}>
+            📤
+          </button>
+        )}
         <button onClick={addNote}
           style={{ background: 'var(--accent)', border: 'none', borderRadius: 3, color: '#fff', cursor: 'pointer', fontSize: 11, padding: '2px 8px', flexShrink: 0 }}>
           +

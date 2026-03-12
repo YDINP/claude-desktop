@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 160: R258 신규 기능 ───────────────────────────────
+console.log('\n## 160. 신규 기능 파일 검사 (R258)')
+// NotesPanel 노트 내보내기 (Round 258)
+const np258Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np258Path)) {
+  const np258 = readFileSync(np258Path, 'utf-8')
+  if (np258.includes('exportNotes') && np258.includes('notes-') && np258.includes('text/markdown')) {
+    log('pass', 'Round258', 'NotesPanel: Markdown 내보내기 (exportNotes) 구현 존재')
+  } else {
+    log('warning', 'Round258', 'NotesPanel Markdown 내보내기 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 159: R257 신규 기능 ───────────────────────────────
 console.log('\n## 159. 신규 기능 파일 검사 (R257)')
 // TasksPanel 마감일 기능 (Round 257)
