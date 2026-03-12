@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 219: R317 신규 기능 ───────────────────────────────
+console.log('\n## 219. 신규 기능 파일 검사 (R317)')
+// ClipboardPanel 검색 시 필터 결과 수 (Round 317)
+const cp317Path = join(ROOT, 'src/renderer/src/components/sidebar/ClipboardPanel.tsx')
+if (existsSync(cp317Path)) {
+  const cp317 = readFileSync(cp317Path, 'utf-8')
+  if (cp317.includes('filtered.length') && cp317.includes('entries.length') && cp317.includes('query.trim()')) {
+    log('pass', 'Round317', 'ClipboardPanel: 검색 시 필터 결과 수 표시 (filtered.length/entries.length) 존재')
+  } else {
+    log('warning', 'Round317', 'ClipboardPanel 필터 결과 수 미구현', 'sidebar/ClipboardPanel.tsx')
+  }
+}
+
 // ── Section 218: R316 신규 기능 ───────────────────────────────
 console.log('\n## 218. 신규 기능 파일 검사 (R316)')
 // BookmarksPanel 필터 결과 수 표시 (Round 316)

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 317] — 2026-03-13
+### Added
+- ClipboardPanel: 검색 시 필터 결과 수 헤더 표시 — 검색 활성 시 `N/M개 항목` 형태로 업데이트
+
 ## [Round 316] — 2026-03-13
 ### Added
 - BookmarksPanel: 필터 시 결과 수 표시 — 검색/역할 필터 활성 시 `N/M개` 형태로 필터된/전체 수 표시

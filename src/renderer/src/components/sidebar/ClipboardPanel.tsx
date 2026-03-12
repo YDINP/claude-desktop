@@ -33,7 +33,11 @@ export function ClipboardPanel() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', borderBottom: '1px solid var(--border)' }}>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{entries.length}개 항목</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+          {query.trim() && filtered.length !== entries.length
+            ? <>{filtered.length}<span style={{ opacity: 0.6 }}>/{entries.length}</span></>
+            : entries.length}개 항목
+        </span>
         <button onClick={() => clipboardStore.clear()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11 }}>전체 삭제</button>
       </div>
       <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)' }}>
