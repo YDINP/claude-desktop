@@ -182,6 +182,7 @@ contextBridge.exposeInMainWorld('api', {
   listTemplates: () => ipcRenderer.invoke('session:listTemplates'),
   createSessionFromTemplate: (templateId: string) => ipcRenderer.invoke('session:createFromTemplate', { templateId }),
   deleteTemplate: (templateId: string) => ipcRenderer.invoke('session:deleteTemplate', { templateId }),
+  sessionSearchAll: (query: string) => ipcRenderer.invoke('session:searchAll', query),
 
   // Snippets
   snippetList: () => ipcRenderer.invoke('snippet:list'),
@@ -423,6 +424,14 @@ declare global {
       listTemplates: () => Promise<Array<{ id: string; name: string; description?: string; createdAt: number; messageCount: number }>>
       createSessionFromTemplate: (templateId: string) => Promise<{ sessionId?: string; error?: string }>
       deleteTemplate: (templateId: string) => Promise<{ ok?: boolean; error?: string }>
+      sessionSearchAll: (query: string) => Promise<Array<{
+        sessionId: string
+        sessionTitle: string
+        messageIndex: number
+        role: string
+        excerpt: string
+        updatedAt: number
+      }>>
       snippetList: () => Promise<Array<{ id: string; name: string; content: string; language?: string; category?: string; shortcut?: string; createdAt: number }>>
       snippetSave: (snippet: { id: string; name: string; content: string; language?: string; category?: string; shortcut?: string; createdAt: number }) => Promise<{ success: boolean }>
       snippetDelete: (id: string) => Promise<{ success: boolean }>

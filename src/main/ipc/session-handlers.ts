@@ -799,4 +799,57 @@ ${messages.map(m => `<div class="msg ${m.role === 'user' ? 'user' : 'assistant'}
       return { error: String(e) }
     }
   })
+
+  // session:searchAll — 모든 세션 파일에서 메시지 텍스트 검색
+  ipcMain.handle('session:searchAll', async (_, query: string) => {
+    if (!query || query.length < 2) return []
+
+    const index = await readIndex()
+    const q = query.toLowerCase()
+    const results: Array<{
+      sessionId: string
+      sessionTitle: string
+      messageIndex: number
+      role: string
+      excerpt: string
+      updatedAt: number
+    }> = []
+
+    // 세션 수가 많으면 성능 문제 → 최근 100개만 검색
+    const sessionsToSearch = [...index]
+      .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
+      .slice(0, 100)
+
+    for (const meta of sessionsToSearch) {
+      const filePath = join(sessionsDir, `${meta.id}.json`)
+      if (!await fileExists(filePath)) continue
+      try {
+        const session = JSON.parse(await readFile(filePath, 'utf-8'))
+        const messages: any[] = session.messages ?? []
+        messages.forEach((msg, idx) => {
+          const text = typeof msg.text === 'string' ? msg.text : ''
+          if (text.toLowerCase().includes(q)) {
+            // excerpt: 검색어 주변 80자
+            const pos = text.toLowerCase().indexOf(q)
+            const start = Math.max(0, pos - 40)
+            const end = Math.min(text.length, pos + query.length + 40)
+            const excerpt = (start > 0 ? '\u2026' : '') + text.slice(start, end) + (end < text.length ? '\u2026' : '')
+            results.push({
+              sessionId: meta.id,
+              sessionTitle: meta.title ?? 'Untitled',
+              messageIndex: idx,
+              role: msg.role ?? 'assistant',
+              excerpt,
+              updatedAt: meta.updatedAt ?? 0,
+            })
+          }
+        })
+      } catch {
+        // 파일 읽기 실패 시 스킵
+      }
+      if (results.length >= 50) break  // 최대 50건
+    }
+
+    return results
+  })
 }

@@ -182,3 +182,15 @@ export const OLLAMA_INTERRUPT = 'ollama:interrupt'
 // ── OpenAI ────────────────────────────────────────────────────────────────────
 export const OPENAI_SEND = 'openai:send'
 export const OPENAI_INTERRUPT = 'openai:interrupt'
+
+// ── Session Search ────────────────────────────────────────────────────────────
+export const SESSION_SEARCH_ALL = 'session:searchAll'
+
+export interface GlobalSearchResult {
+  sessionId: string
+  sessionTitle: string
+  messageIndex: number
+  role: string
+  excerpt: string
+  updatedAt: number
+}

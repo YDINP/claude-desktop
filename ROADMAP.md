@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 102 완료 — QA R101 체크 + SceneView 노드 가시성 토글 + ccSetProperty 버그 수정)
+> 마지막 업데이트: 2026-03-12 (Round 103 완료 — 전체 세션 메시지 검색 GlobalSearchPanel)
 
 ## 완료된 라운드
 
@@ -49,13 +49,14 @@
 | Round 100 | dev | QA R98~99 체크 추가 (Pass 21→26) + 핸드오프 갱신 | ✅ |
 | Round 101 | dev | 메모리 누수 수정 (bridge addEventListener) + SceneView 노드 복사/붙여넣기 (Ctrl+C/V) + CHANGELOG 갱신 | ✅ |
 | Round 102 | dev | QA R101 체크 (Pass→29) + SceneInspector 노드 가시성 토글 + ccSetProperty port 버그 수정 | ✅ |
+| Round 103 | dev | 전체 세션 메시지 검색 — session:searchAll IPC, GlobalSearchResult 타입, GlobalSearchPanel, Sidebar 탭 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 103 | dev | ChatPanel 성능 — 긴 대화 content-visibility + 메시지 lazy 렌더링 |
-| Round 104 | dev | SceneView Z-order 제어 (앞으로/뒤로 이동) + 레이어 패널 |
+| Round 104 | dev | QA R103 체크 + SceneView Z-order 제어 (앞으로/뒤로 이동) |
+| Round 105 | dev | CC 2x Extension 고도화 — 3x와 기능 동등성 (active 토글, compProps 추출) |
 
 ## 전략 로드맵 (Phase)
 

@@ -1,0 +1,112 @@
+import { useState, useCallback, useRef } from 'react'
+
+interface GlobalSearchResult {
+  sessionId: string
+  sessionTitle: string
+  messageIndex: number
+  role: string
+  excerpt: string
+  updatedAt: number
+}
+
+interface Props {
+  onSelectSession: (sessionId: string) => void
+}
+
+export function GlobalSearchPanel({ onSelectSession }: Props) {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<GlobalSearchResult[]>([])
+  const [loading, setLoading] = useState(false)
+  const [searched, setSearched] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const search = useCallback(async (q: string) => {
+    if (q.length < 2) { setResults([]); setSearched(false); return }
+    setLoading(true)
+    try {
+      const res = await window.api.sessionSearchAll(q)
+      setResults(res)
+      setSearched(true)
+    } catch {
+      setResults([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value
+    setQuery(v)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => search(v), 400)
+  }
+
+  const fmtDate = (ts: number) => {
+    const d = new Date(ts)
+    return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '8px' }}>
+      <div style={{ marginBottom: 8 }}>
+        <input
+          value={query}
+          onChange={handleChange}
+          placeholder="전체 세션 검색..."
+          autoFocus
+          style={{
+            width: '100%', boxSizing: 'border-box',
+            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+            borderRadius: 4, padding: '6px 8px', color: 'var(--text-primary)',
+            fontSize: 12, outline: 'none',
+          }}
+        />
+        {query.length >= 2 && (
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4, textAlign: 'right' }}>
+            {loading ? '검색 중...' : searched ? `${results.length}건` : ''}
+          </div>
+        )}
+      </div>
+
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        {results.length === 0 && searched && !loading && (
+          <div style={{ color: 'var(--text-muted)', fontSize: 11, textAlign: 'center', marginTop: 20 }}>
+            결과 없음
+          </div>
+        )}
+        {results.map((r, i) => (
+          <div
+            key={`${r.sessionId}-${r.messageIndex}-${i}`}
+            onClick={() => onSelectSession(r.sessionId)}
+            style={{
+              padding: '6px 8px', marginBottom: 4,
+              background: 'var(--bg-secondary)', borderRadius: 4,
+              cursor: 'pointer', border: '1px solid transparent',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--accent)')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+              <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 500,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                {r.sessionTitle}
+              </span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, marginLeft: 8 }}>
+                {fmtDate(r.updatedAt)}
+              </span>
+            </div>
+            <div style={{ fontSize: 10, color: r.role === 'user' ? 'var(--accent)' : 'var(--text-muted)',
+              marginBottom: 2 }}>
+              {r.role === 'user' ? '나' : 'Claude'}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.4,
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical' }}>
+              {r.excerpt}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

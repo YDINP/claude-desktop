@@ -2,14 +2,23 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 102 (QA R101 + SceneInspector 가시성 토글 + ccSetProperty 버그 수정)
+- 마지막 커밋: Round 103 (전체 세션 메시지 검색 GlobalSearchPanel)
 - 빌드: `npm run build` ✅
 - QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 29
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 102 완료 항목 (최근 세션)
+## Round 103 완료 항목 (최근 세션)
+
+### Round 103 — 전체 세션 메시지 검색
+- `src/main/ipc/session-handlers.ts`: `session:searchAll` 핸들러 — 최근 100세션, 50건 제한, excerpt 추출
+- `src/shared/ipc-schema.ts`: `SESSION_SEARCH_ALL` 상수, `GlobalSearchResult` 인터페이스
+- `src/preload/index.ts`: `sessionSearchAll` contextBridge 노출
+- `src/renderer/src/components/sidebar/GlobalSearchPanel.tsx` (신규): 400ms debounce 검색, 결과 카드 (세션명/날짜/role/excerpt), 클릭 시 해당 세션 이동
+- `src/renderer/src/components/sidebar/Sidebar.tsx`: `Tab`에 `globalsearch` 추가, `🔍 전체` 탭 버튼, GlobalSearchPanel 마운트
+
+## Round 102 완료 항목 (이전 세션)
 
 ### Round 102 — QA + SceneInspector 가시성 토글 + 버그 수정
 - `scripts/qa.ts`: Section 10 추가 (R101 체크 3종), Pass 26→29

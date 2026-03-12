@@ -18,6 +18,7 @@ import { ConnectionPanel } from './ConnectionPanel'
 import { AgentPanel } from './AgentPanel'
 import { RemotePanel } from './RemotePanel'
 import { CocosPanel } from './CocosPanel'
+import { GlobalSearchPanel } from './GlobalSearchPanel'
 import type { ChangedFile } from './ChangedFilesPanel'
 import type { ChatMessage } from '../../stores/chat-store'
 import { useProject } from '../../stores/project-store'
@@ -45,7 +46,7 @@ interface SidebarProps {
 
 export type { Tab as SidebarTab }
 
-type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'cocos'
+type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'cocos' | 'globalsearch'
 
 export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet, onTabChange, wsKey, ccPort, onCCPortChange, onCCConnectedChange }: SidebarProps) {
   const [tab, setTab] = useState<Tab>('files')
@@ -86,6 +87,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             { id: 'sessions', label: 'History' },
             { id: 'changes', label: changedFiles.length > 0 ? `Changes (${changedFiles.length})` : 'Changes' },
             { id: 'git', label: '⎇ Git' },
+          { id: 'globalsearch', label: '🔍 전체' },
           ] as { id: Tab; label: string }[]).map((t) => (
             <button
               key={t.id}
@@ -253,6 +255,14 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
         )}
         {tab === 'cocos' && (
           <CocosPanel key={wsKey} defaultPort={ccPort} onPortChange={onCCPortChange} onConnectedChange={onCCConnectedChange} />
+        )}
+        {tab === 'globalsearch' && (
+          <GlobalSearchPanel
+            onSelectSession={(sessionId) => {
+              switchTab('sessions')
+              onSessionSelect(sessionId)
+            }}
+          />
         )}
       </div>
     </div>
