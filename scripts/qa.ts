@@ -1927,6 +1927,19 @@ if (existsSync(svp188Path)) {
   }
 }
 
+// ── Section 91: R189 신규 기능 ───────────────────────────────
+console.log('\n## 91. 신규 기능 파일 검사 (R189)')
+// SceneView Ctrl+←→ 회전 단축키 (Round 189)
+const svp189Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp189Path)) {
+  const svp189 = readFileSync(svp189Path, 'utf-8')
+  if (svp189.includes('Ctrl+← →: 회전') && svp189.includes('rotStep') && svp189.includes("node.rotation + delta")) {
+    log('pass', 'Round189', 'SceneView: Ctrl+←→ 회전 단축키 존재')
+  } else {
+    log('warning', 'Round189', 'SceneView Ctrl+←→ 회전 단축키 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

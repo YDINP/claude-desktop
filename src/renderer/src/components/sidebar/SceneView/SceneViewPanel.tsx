@@ -250,8 +250,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         }
         return
       }
+      // Ctrl+← →: 회전 (1° / Shift+10°)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && selectedUuid) {
+        e.preventDefault()
+        const node = nodeMap.get(selectedUuid)
+        if (!node) return
+        const rotStep = e.shiftKey ? 10 : 1
+        const delta = e.key === 'ArrowLeft' ? rotStep : -rotStep
+        updateNode(selectedUuid, { rotation: parseFloat(((node.rotation + delta) % 360).toFixed(2)) })
+        return
+      }
       if (!selectedUuid || !(e.key in arrows)) return
-      if (e.altKey) return
+      if (e.altKey || e.ctrlKey || e.metaKey) return
       e.preventDefault()
       const step = e.shiftKey ? 10 : 1
       const node = nodeMap.get(selectedUuid)
@@ -1609,6 +1619,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Escape', '선택 해제'],
               ['↑↓←→', '선택 노드 1px 이동'],
               ['Shift+↑↓←→', '선택 노드 10px 이동'],
+              ['Alt+↑/↓', '부모/첫 자식 노드 선택'],
+              ['Ctrl+←/→', '회전 1° (Shift: 10°)'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
               <div key={key} style={{ display: 'flex', gap: 10, marginBottom: 4 }}>

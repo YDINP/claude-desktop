@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 189] — 2026-03-13
+### Added
+- SceneView: Ctrl+← → 회전 단축키 — 1°씩 회전, Ctrl+Shift+← → 10°씩 회전
+- SceneView: 단축키 도움말에 Alt+↑/↓, Ctrl+←/→ 항목 추가
+
 ## [Round 188] — 2026-03-13
 ### Added
 - SceneView: 다중 선택 시 합산 bounding box 표시 — 선택된 모든 노드를 감싸는 파란 점선 사각형
