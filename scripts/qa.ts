@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 112: R210 신규 기능 ───────────────────────────────
+console.log('\n## 112. 신규 기능 파일 검사 (R210)')
+// SceneView 비례 리사이즈 Shift+드래그 (Round 210)
+const svp210Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp210Path)) {
+  const svp210 = readFileSync(svp210Path, 'utf-8')
+  if (svp210.includes('e.shiftKey') && svp210.includes('비례 리사이즈')) {
+    log('pass', 'Round210', 'SceneViewPanel: Shift 비례 리사이즈 구현 존재')
+  } else {
+    log('warning', 'Round210', 'SceneViewPanel 비례 리사이즈 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 111: R209 신규 기능 ───────────────────────────────
 console.log('\n## 111. 신규 기능 파일 검사 (R209)')
 // SceneView 노드 가시성 토글 (Round 209)

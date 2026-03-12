@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 210] — 2026-03-13
+### Added
+- SceneView: Shift+리사이즈 비례 리사이즈 — 코너 핸들 드래그 중 Shift 키로 aspect ratio 유지
+
 ## [Round 209] — 2026-03-13
 ### Added
 - SceneView: 노드 가시성 토글 — 계층 트리 👁 아이콘으로 개별 노드 숨기기/표시, 숨겨진 노드 opacity 0.15

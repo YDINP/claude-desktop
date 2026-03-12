@@ -583,6 +583,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       else if (rs.handle === 's') { newH = rs.startHeight - dsceneY }
       else if (rs.handle === 'n') { newH = rs.startHeight + dsceneY }
 
+      // Shift: 비례 리사이즈 — 코너 핸들에서만 적용
+      if (e.shiftKey && ['nw', 'ne', 'se', 'sw'].includes(rs.handle) && rs.startHeight > 0) {
+        const aspect = rs.startWidth / rs.startHeight
+        if (Math.abs(newW - rs.startWidth) >= Math.abs(newH - rs.startHeight) * aspect) {
+          newH = newW / aspect
+        } else {
+          newW = newH * aspect
+        }
+      }
+
       newW = Math.max(4, newW)
       newH = Math.max(4, newH)
       // 측면 핸들은 해당 축만 위치 조정
@@ -1880,6 +1890,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Ctrl+V', '붙여넣기'],
               ['Ctrl+D', '복제 (클립보드 유지)'],
               ['Escape', '선택 해제'],
+              ['Shift+리사이즈', '비례 리사이즈 (코너 핸들)'],
               ['↑↓←→', '선택 노드 1px 이동'],
               ['Shift+↑↓←→', '선택 노드 10px 이동'],
               ['Alt+↑/↓', '부모/첫 자식 노드 선택'],
