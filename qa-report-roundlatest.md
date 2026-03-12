@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T09:42:42.757Z
+> 2026-03-12T09:56:04.085Z
 
 ## Critical
 _없음_
@@ -9,7 +9,7 @@ _없음_
 
 ## Pass
 - tsc --noEmit 오류 없음
-- 89개 소스 파일 검사 완료
+- 90개 소스 파일 검사 완료
 - 자동 재연결 로직 존재
 - cocos 탭 정상 등록
 - registerCCHandlers 정상 등록

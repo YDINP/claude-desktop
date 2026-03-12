@@ -9,6 +9,7 @@ import { getActiveTerminalId } from '../../stores/terminal-store'
 import { WelcomeScreen } from '../shared/WelcomeScreen'
 import { useCCContext } from '../../hooks/useCCContext'
 import { useProjectContext } from '../../hooks/useProjectContext'
+import { useContextFiles } from '../../hooks/useContextFiles'
 import { parseCCActions, executeCCActions } from '../../utils/cc-action-parser'
 
 function ExportConversationButton({ messages }: { messages: ChatMessage[] }) {
@@ -310,6 +311,7 @@ const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, total
 export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ }: ChatPanelProps) {
   const ccCtx = useCCContext()
   const projectSummary = useProjectContext(project.currentPath ?? null)
+  const ctxFiles = useContextFiles(project.currentPath ?? null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const minimapRef = useRef<HTMLDivElement>(null)
   const isAtBottomRef = useRef(true)
@@ -330,6 +332,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     }, 500)
   }, [])
   const [showMinimap, setShowMinimap] = useState(false)
+  const [showCtxFiles, setShowCtxFiles] = useState(false)
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [summaryText, setSummaryText] = useState('')
   const [summaryLoading, setSummaryLoading] = useState(false)
@@ -543,7 +546,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const handleSend = useCallback((text: string) => {
     if (!project.currentPath) return
     chat.addUserMessage(text)
-    const parts = [customSystemPrompt, projectSummary, ccCtx.contextString].filter(Boolean)
+    const parts = [customSystemPrompt, projectSummary, ccCtx.contextString, ctxFiles.contextString].filter(Boolean)
     const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
     window.api.claudeSend({
       text,
@@ -551,7 +554,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       model: project.selectedModel,
       ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
     })
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage, ccCtx.contextString, projectSummary, customSystemPrompt])
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, ccCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString])
 
   const PAUSE_STATE_KEY = 'claude:pause-state'
   const [isPaused, setIsPaused] = useState(() => {
@@ -1238,6 +1241,55 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           )}
         </div>
       )}
+      {/* 첨부 컨텍스트 파일 */}
+        <div style={{ flexShrink: 0, borderTop: '1px solid var(--border)' }}>
+          <div
+            onClick={() => setShowCtxFiles(v => !v)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '3px 12px', cursor: 'pointer',
+              fontSize: 10, color: 'var(--text-muted)',
+            }}
+          >
+            <span>📎</span>
+            <span>컨텍스트 파일 {ctxFiles.files.length > 0 ? `(${ctxFiles.files.length}개, ~${ctxFiles.totalTokens > 1000 ? (ctxFiles.totalTokens/1000).toFixed(1)+'k' : ctxFiles.totalTokens}토큰)` : ''}</span>
+            <span style={{ marginLeft: 'auto' }}>{showCtxFiles ? '▲' : '▼'}</span>
+          </div>
+          {showCtxFiles && (
+            <div style={{ padding: '4px 12px 6px', display: 'flex', flexWrap: 'wrap', gap: 4, maxHeight: 120, overflowY: 'auto' }}>
+              {ctxFiles.files.map(f => (
+                <span
+                  key={f.path}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                    background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                    borderRadius: 4, padding: '2px 6px', fontSize: 10,
+                    color: f.error ? 'var(--error)' : 'var(--text-secondary)',
+                  }}
+                  title={f.path}
+                >
+                  {f.name}
+                  <button
+                    onClick={e => { e.stopPropagation(); ctxFiles.removeFile(f.path) }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 10, padding: 0, lineHeight: 1 }}
+                  >×</button>
+                </span>
+              ))}
+              <button
+                onClick={e => {
+                  e.stopPropagation()
+                  const path = window.prompt('파일 경로:')?.trim()
+                  if (path) ctxFiles.addFile(path)
+                }}
+                style={{
+                  background: 'none', border: '1px dashed var(--border)',
+                  borderRadius: 4, padding: '2px 8px', fontSize: 10,
+                  color: 'var(--text-muted)', cursor: 'pointer',
+                }}
+              >+ 파일 추가</button>
+            </div>
+          )}
+        </div>
       <InputBar
         onSend={handleSend}
         onInterrupt={handleInterrupt}

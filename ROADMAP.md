@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 89 완료 — QA 강화 + 핸드오프 업데이트)
+> 마지막 업데이트: 2026-03-12 (Round 90 완료 — 파일 컨텍스트 패널)
 
 ## 완료된 라운드
 
@@ -36,16 +36,15 @@
 | Round 87 | dev | 커맨드 팔레트 최근 실행 액션 — recent-action 타입, ⚡ 섹션 헤더, 최대 8개 recency 순 정렬, 실행 시 addRecentAction 저장 | ✅ |
 | Round 88 | dev | PromptChain 템플릿 라이브러리 — 5개 프리셋(코드리뷰/디버깅/콘텐츠/번역/기능명세), 📚 버튼 토글, 가져오기로 체인 생성 | ✅ |
 | Round 89 | dev | QA 강화 — scripts/qa.ts에 R83~88 신규 기능 5종 체크 추가, Pass 5→10, handoff.md 전체 갱신 | ✅ |
+| Round 90 | dev | 파일 컨텍스트 패널 — useContextFiles hook(localStorage, IPC readFile), ChatPanel 📎 UI, system prompt 주입 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 90 | dev | 세션 관리 고도화 — 태그 시스템, 즐겨찾기 핀, 날짜별 그룹 헤더 |
-| Round 91 | dev | 파일 컨텍스트 패널 — 파일 명시적 첨부 관리, 파일 내용 system prompt 자동 주입 |
-| Round 92 | dev | AG-UI 이벤트 모델 — 에이전트 실행 표준화, 진행 상태 UI |
-| Round 90 | dev | 세션 관리 고도화 — 태그 시스템, 즐겨찾기 핀, 날짜별 그룹 헤더 |
-| Round 91 | dev | 파일 컨텍스트 패널 — 파일 명시적 첨부 관리, 파일 내용 system prompt 자동 주입 |
+| Round 91 | dev | AG-UI 이벤트 모델 — 에이전트 실행 표준화, RunStarted/StepFinished/TextDelta 이벤트 |
+| Round 92 | dev | 스니펫 관리 고도화 — 카테고리 분류, 검색, 즐겨찾기, 내보내기 |
+| Round 93 | dev | 채팅 테마 커스터마이징 — 배경색/폰트/버블 스타일 설정 |
 
 ## 전략 로드맵 (Phase)
 
