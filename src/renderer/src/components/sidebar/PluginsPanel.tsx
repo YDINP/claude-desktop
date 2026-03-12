@@ -63,7 +63,17 @@ export function PluginsPanel() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '8px 10px', borderBottom: '1px solid var(--border)', flexShrink: 0,
       }}>
-        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>플러그인</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>플러그인</span>
+          {plugins.length > 0 && (
+            <span style={{
+              fontSize: 10, color: 'var(--text-muted)',
+              background: 'var(--bg-hover)', borderRadius: 8, padding: '1px 6px',
+            }}>
+              {plugins.filter(p => enabledSet.has(p.filename)).length}/{plugins.length} 활성
+            </span>
+          )}
+        </div>
         <button
           onClick={() => window.api.pluginsOpenFolder()}
           style={{

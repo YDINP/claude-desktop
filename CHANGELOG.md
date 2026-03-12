@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 294] — 2026-03-13
+### Added
+- PluginsPanel: 활성화 플러그인 수 배지 — 헤더에 `N/M 활성` 배지 표시, 플러그인 토글 시 실시간 갱신
+
 ## [Round 293] — 2026-03-13
 ### Added
 - RunTimeline: 완료 런 합산 비용 표시 — 헤더에 총 `$X.XXXX` 비용 합산, 런/완료 건수 표시

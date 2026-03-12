@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 196: R294 신규 기능 ───────────────────────────────
+console.log('\n## 196. 신규 기능 파일 검사 (R294)')
+// PluginsPanel 활성화 플러그인 수 배지 (Round 294)
+const pp294Path = join(ROOT, 'src/renderer/src/components/sidebar/PluginsPanel.tsx')
+if (existsSync(pp294Path)) {
+  const pp294 = readFileSync(pp294Path, 'utf-8')
+  if (pp294.includes('활성') && pp294.includes('enabledSet.has') && pp294.includes('plugins.length')) {
+    log('pass', 'Round294', 'PluginsPanel: 활성 플러그인 수 배지 (활성/총개수) 존재')
+  } else {
+    log('warning', 'Round294', 'PluginsPanel 활성 배지 미구현', 'sidebar/PluginsPanel.tsx')
+  }
+}
+
 // ── Section 195: R293 신규 기능 ───────────────────────────────
 console.log('\n## 195. 신규 기능 파일 검사 (R293)')
 // RunTimeline 합산 비용 표시 (Round 293)
