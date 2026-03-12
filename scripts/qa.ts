@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 266: R364 신규 기능 ───────────────────────────────
+console.log('\n## 266. 신규 기능 파일 검사 (R364)')
+// WebPreviewPanel URL 복사 버튼 (Round 364)
+const wp364Path = join(ROOT, 'src/renderer/src/components/sidebar/WebPreviewPanel.tsx')
+if (existsSync(wp364Path)) {
+  const wp364 = readFileSync(wp364Path, 'utf-8')
+  if (wp364.includes('urlCopied') && wp364.includes('setUrlCopied') && wp364.includes('URL 복사')) {
+    log('pass', 'Round364', 'WebPreviewPanel: URL 복사 버튼 (urlCopied/setUrlCopied/URL 복사) 존재')
+  } else {
+    log('warning', 'Round364', 'WebPreviewPanel URL 복사 버튼 미구현', 'sidebar/WebPreviewPanel.tsx')
+  }
+}
+
 // ── Section 265: R363 신규 기능 ───────────────────────────────
 console.log('\n## 265. 신규 기능 파일 검사 (R363)')
 // AssetBrowserPanel 타입 카운트 (Round 363)

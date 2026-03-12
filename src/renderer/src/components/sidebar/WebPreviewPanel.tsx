@@ -11,6 +11,7 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
   const [loading, setLoading] = useState(false)
   const [history, setHistory] = useState<string[]>(defaultUrl ? [defaultUrl] : [])
   const [histIdx, setHistIdx] = useState(defaultUrl ? 0 : -1)
+  const [urlCopied, setUrlCopied] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const navigate = (target: string) => {
@@ -70,6 +71,13 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
           <button onClick={handleForward} disabled={!canForward}
             title="앞으로"
             style={{ background: 'none', border: 'none', cursor: canForward ? 'pointer' : 'default', color: canForward ? 'var(--text-muted)' : 'var(--border)', fontSize: 13 }}>→</button>
+          {url && (
+            <button
+              onClick={() => navigator.clipboard.writeText(url).then(() => { setUrlCopied(true); setTimeout(() => setUrlCopied(false), 1500) })}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: urlCopied ? '#4caf50' : 'var(--text-muted)', fontSize: 11 }}
+              title="URL 복사"
+            >{urlCopied ? '✓' : '📋'}</button>
+          )}
           {url && (
             <button
               onClick={() => window.open(url, '_blank')}

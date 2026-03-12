@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 364] — 2026-03-13
+### Added
+- WebPreviewPanel: URL 복사 버튼 — 현재 URL을 클립보드에 복사, 1.5초 ✓ 피드백
+
 ## [Round 363] — 2026-03-13
 ### Added
 - AssetBrowserPanel: 타입 필터 칩 카운트 표시 — "📝 script (3)" 형태로 에셋 수 표시
