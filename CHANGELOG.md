@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 178] — 2026-03-13
+### Added
+- SceneView: Alt+↑ 부모 노드 선택, Alt+↓ 첫 자식 노드 선택 단축키
+
 ## [Round 177] — 2026-03-13
 ### Added
 - SceneView: 배경 밝기 토글 (◑) — 체크패턴 어두운/밝은 모드 전환

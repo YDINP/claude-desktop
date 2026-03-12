@@ -1784,6 +1784,19 @@ if (existsSync(svp177Path)) {
   }
 }
 
+// ── Section 80: R178 신규 기능 ───────────────────────────────
+console.log('\n## 80. 신규 기능 파일 검사 (R178)')
+// Alt+Up/Down 계층 탐색 (Round 178)
+const svp178Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp178Path)) {
+  const svp178 = readFileSync(svp178Path, 'utf-8')
+  if (svp178.includes('e.altKey') && svp178.includes('parentUuid') && svp178.includes('childUuids[0]')) {
+    log('pass', 'Round178', 'SceneViewPanel: Alt+Up/Down 계층 탐색 존재')
+  } else {
+    log('warning', 'Round178', 'SceneViewPanel Alt+Up/Down 탐색 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

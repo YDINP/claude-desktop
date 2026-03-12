@@ -233,7 +233,23 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
     const handleNudge = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).tagName === 'INPUT') return
+      // Alt+Up: 부모 선택, Alt+Down: 첫 자식 선택
+      if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && selectedUuid) {
+        e.preventDefault()
+        const node = nodeMap.get(selectedUuid)
+        if (!node) return
+        if (e.key === 'ArrowUp' && node.parentUuid) {
+          setSelectedUuid(node.parentUuid)
+          setSelectedUuids(new Set([node.parentUuid]))
+        } else if (e.key === 'ArrowDown' && node.childUuids.length > 0) {
+          const firstChild = node.childUuids[0]
+          setSelectedUuid(firstChild)
+          setSelectedUuids(new Set([firstChild]))
+        }
+        return
+      }
       if (!selectedUuid || !(e.key in arrows)) return
+      if (e.altKey) return
       e.preventDefault()
       const step = e.shiftKey ? 10 : 1
       const node = nodeMap.get(selectedUuid)
@@ -243,7 +259,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
     window.addEventListener('keydown', handleNudge)
     return () => window.removeEventListener('keydown', handleNudge)
-  }, [selectedUuid, nodeMap, updateNode])
+  }, [selectedUuid, nodeMap, updateNode, setSelectedUuid, setSelectedUuids])
 
   // ── CC 이벤트: 외부 선택 동기화 + 노드 최신화 ───────────────
   useEffect(() => {
