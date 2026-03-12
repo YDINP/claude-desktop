@@ -673,6 +673,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [updateNode, port])
 
+  const handleColorUpdate = useCallback((uuid: string, color: { r: number; g: number; b: number }) => {
+    updateNode(uuid, { color: { ...((nodeMap.get(uuid)?.color) ?? { r: 255, g: 255, b: 255, a: 255 }), ...color } })
+  }, [updateNode, nodeMap])
+
   const handleHierarchyToggleActive = useCallback(async (uuid: string, active: boolean) => {
     updateNode(uuid, { active })
     try {
@@ -1404,6 +1408,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onClose={() => { setSelectedUuid(null); setSelectedUuids(new Set()) }}
         selectionCount={selectionCount}
         onRename={handleRename}
+        onColorUpdate={handleColorUpdate}
         nodeMap={nodeMap}
         onSelectParent={uuid => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
       />

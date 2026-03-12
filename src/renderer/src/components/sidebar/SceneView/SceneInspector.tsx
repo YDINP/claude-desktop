@@ -5,6 +5,7 @@ import { getComponentIcon } from './utils'
 interface SceneInspectorProps {
   node: SceneNode | null
   onUpdate: (uuid: string, prop: string, value: number | boolean) => void
+  onColorUpdate?: (uuid: string, color: { r: number; g: number; b: number }) => void
   onClose: () => void
   selectionCount?: number
   onRename?: (uuid: string, name: string) => void
@@ -123,7 +124,7 @@ function SectionHeader({ label }: { label: string }) {
   )
 }
 
-export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRename, nodeMap, onSelectParent }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, nodeMap, onSelectParent }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -428,16 +429,30 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
       {/* Color */}
       <SectionHeader label="Color" />
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0' }}>
-        <div
-          style={{
-            width: 20,
-            height: 14,
-            borderRadius: 2,
-            background: `rgba(${node.color.r},${node.color.g},${node.color.b},${node.color.a / 255})`,
-            border: '1px solid var(--border)',
-            flexShrink: 0,
-          }}
-        />
+        <label style={{ position: 'relative', flexShrink: 0, cursor: 'pointer', lineHeight: 0 }} title="클릭하여 색상 변경">
+          <div
+            style={{
+              width: 20,
+              height: 14,
+              borderRadius: 2,
+              background: `rgba(${node.color.r},${node.color.g},${node.color.b},${node.color.a / 255})`,
+              border: '1px solid var(--border)',
+            }}
+          />
+          <input
+            type="color"
+            value={`#${toHex(node.color.r)}${toHex(node.color.g)}${toHex(node.color.b)}`}
+            onChange={e => {
+              if (!onColorUpdate) return
+              const hex = e.target.value.slice(1)
+              const r = parseInt(hex.slice(0, 2), 16)
+              const g = parseInt(hex.slice(2, 4), 16)
+              const b = parseInt(hex.slice(4, 6), 16)
+              onColorUpdate(node.uuid, { r, g, b })
+            }}
+            style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', padding: 0, border: 'none' }}
+          />
+        </label>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'monospace', letterSpacing: '0.3px' }}>
           #{toHex(node.color.r)}{toHex(node.color.g)}{toHex(node.color.b)}
         </span>

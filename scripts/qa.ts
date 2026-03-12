@@ -1620,6 +1620,28 @@ if (existsSync(svp168Path)) {
   }
 }
 
+// ── Section 71: R169 신규 기능 ───────────────────────────────
+console.log('\n## 71. 신규 기능 파일 검사 (R169)')
+// SceneInspector 컬러 피커 (Round 169)
+const sceneInspectorPath12 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath12)) {
+  const si12 = readFileSync(sceneInspectorPath12, 'utf-8')
+  if (si12.includes('onColorUpdate') && si12.includes('type="color"')) {
+    log('pass', 'Round169', 'SceneInspector: onColorUpdate prop + input[type=color] 존재')
+  } else {
+    log('warning', 'Round169', 'SceneInspector 컬러 피커 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+const svp169Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp169Path)) {
+  const svp169 = readFileSync(svp169Path, 'utf-8')
+  if (svp169.includes('handleColorUpdate') && svp169.includes('onColorUpdate')) {
+    log('pass', 'Round169', 'SceneViewPanel: handleColorUpdate + onColorUpdate 연결됨')
+  } else {
+    log('warning', 'Round169', 'SceneViewPanel handleColorUpdate 미연결', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

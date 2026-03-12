@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 169] — 2026-03-12
+### Added
+- SceneInspector: 컬러 피커 — 색상 스워치 클릭 시 native color picker 열림, 변경 즉시 반영
+
 ## [Round 168] — 2026-03-12
 ### Added
 - SceneView: 선택 노드 회전 핸들 — 상단 오렌지 원형 핸들 드래그로 실시간 rotation 변경
