@@ -1099,6 +1099,24 @@ if (existsSync(sceneInspectorPath5)) {
   }
 }
 
+// ── Section 43: R141 신규 기능 ───────────────────────────────
+console.log('\n## 43. 신규 기능 파일 검사 (R141)')
+// SceneView 노드 호버 툴팁 (Round 141)
+const sceneViewPanelPath14 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath14)) {
+  const svp14 = readFileSync(sceneViewPanelPath14, 'utf-8')
+  if (svp14.includes('hoverTooltipPos') && svp14.includes('setHoverTooltipPos')) {
+    log('pass', 'Round141', 'SceneViewPanel: hoverTooltipPos 상태 + setter 존재')
+  } else {
+    log('warning', 'Round141', 'SceneViewPanel 호버 툴팁 상태 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp14.includes('hoveredUuid && hoverTooltipPos') && svp14.includes('!isDragging && !isResizing')) {
+    log('pass', 'Round141', 'SceneViewPanel: 호버 툴팁 렌더링 조건 + 드래그 중 숨김 존재')
+  } else {
+    log('warning', 'Round141', 'SceneViewPanel 호버 툴팁 렌더링 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

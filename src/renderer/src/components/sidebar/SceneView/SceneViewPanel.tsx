@@ -4,7 +4,7 @@ import { useSceneSync } from './useSceneSync'
 import { NodeRenderer } from './NodeRenderer'
 import { SceneToolbar } from './SceneToolbar'
 import { SceneInspector } from './SceneInspector'
-import { getRenderOrder, cocosToSvg } from './utils'
+import { getRenderOrder, cocosToSvg, getComponentIcon } from './utils'
 import { NodeHierarchyList } from './NodeHierarchyList'
 
 interface SceneViewPanelProps {
@@ -31,6 +31,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [cursorScenePos, setCursorScenePos] = useState<{ x: number; y: number } | null>(null)
+  const [hoverTooltipPos, setHoverTooltipPos] = useState<{ x: number; y: number } | null>(null)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -285,6 +286,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const svgPos = getSvgCoords(e)
     const { cx, cy } = svgToScene(svgPos.x, svgPos.y)
     setCursorScenePos({ x: Math.round(cx), y: Math.round(cy) })
+
+    // 호버 툴팁 위치
+    setHoverTooltipPos({ x: svgPos.x + 12, y: svgPos.y - 24 })
 
     // 마퀴 업데이트
     if (marqueeRef.current) {
@@ -796,7 +800,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           onMouseDown={handleSvgMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={() => { setCursorScenePos(null); handleMouseUp() }}
+          onMouseLeave={() => { setCursorScenePos(null); setHoverTooltipPos(null); handleMouseUp() }}
           onWheel={handleWheel}
         >
           <defs>
@@ -999,6 +1003,37 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             {cursorScenePos.x}, {cursorScenePos.y}
           </div>
         )}
+
+        {/* 노드 호버 툴팁 */}
+        {hoveredUuid && hoverTooltipPos && !isDragging && !isResizing && (() => {
+          const hn = nodeMap.get(hoveredUuid)
+          if (!hn) return null
+          const icon = getComponentIcon(hn.components)
+          return (
+            <div
+              style={{
+                position: 'absolute',
+                left: hoverTooltipPos.x,
+                top: hoverTooltipPos.y,
+                background: 'rgba(0,0,0,0.8)',
+                color: '#e5e5e5',
+                fontSize: 9,
+                padding: '2px 6px',
+                borderRadius: 3,
+                pointerEvents: 'none',
+                whiteSpace: 'nowrap',
+                maxWidth: 160,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                border: '1px solid rgba(255,255,255,0.1)',
+                zIndex: 10,
+              }}
+            >
+              {icon && <span style={{ color: 'var(--accent)', fontWeight: 700, marginRight: 4 }}>{icon}</span>}
+              {hn.name}
+            </div>
+          )
+        })()}
 
         {/* 드래그/리사이즈 좌표 오버레이 */}
         {(isDragging || isResizing) && selectedNode && (

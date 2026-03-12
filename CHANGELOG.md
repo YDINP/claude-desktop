@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 141] — 2026-03-12
+### Added
+- SceneViewPanel: 노드 호버 툴팁 — 마우스 오버 시 컴포넌트 아이콘 + 노드 이름 툴팁 표시 (드래그·리사이즈 중 자동 숨김)
+
 ## [Round 140] — 2026-03-12
 ### Added
 - SceneInspector: Color 섹션 — 노드 색상 RGBA 스왓치 + hex 코드 표시, alpha != 255 시 α% 표시
