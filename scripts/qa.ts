@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 199: R297 신규 기능 ───────────────────────────────
+console.log('\n## 199. 신규 기능 파일 검사 (R297)')
+// ChangedFilesPanel W/E 카운트 표시 (Round 297)
+const cf297Path = join(ROOT, 'src/renderer/src/components/sidebar/ChangedFilesPanel.tsx')
+if (existsSync(cf297Path)) {
+  const cf297 = readFileSync(cf297Path, 'utf-8')
+  if (cf297.includes("op === 'write'") && cf297.includes("op === 'edit'") && cf297.includes('W:') && cf297.includes('E:')) {
+    log('pass', 'Round297', 'ChangedFilesPanel: W/E 작업 구분 카운트 (W:N E:N) 존재')
+  } else {
+    log('warning', 'Round297', 'ChangedFilesPanel W/E 카운트 미구현', 'sidebar/ChangedFilesPanel.tsx')
+  }
+}
+
 // ── Section 198: R296 신규 기능 ───────────────────────────────
 console.log('\n## 198. 신규 기능 파일 검사 (R296)')
 // ClipboardPanel 글자 수 표시 (Round 296)

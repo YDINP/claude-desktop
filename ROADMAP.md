@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 296 완료 — ClipboardPanel 글자 수 표시, Pass 316)
+> 마지막 업데이트: 2026-03-13 (Round 297 완료 — ChangedFilesPanel W/E 카운트, Pass 317)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 297 | dev | ChangedFilesPanel W/E 카운트 — 헤더에 W:N E:N 색상 구분 표시 (write/edit 분리) | ✅ |
 | Round 296 | dev | ClipboardPanel 글자 수 표시 — 타임스탬프 우측에 N자 배지, toLocaleString 천 단위 구분 | ✅ |
 | Round 295 | dev | SnippetPanel 정렬 토글 — 생성 순(최신 우선)/이름 순(localeCompare) 전환, ↕️/🔤 버튼 | ✅ |
 | Round 294 | dev | PluginsPanel 활성 플러그인 수 배지 — 헤더에 N/M 활성 배지, 토글 시 실시간 갱신 | ✅ |

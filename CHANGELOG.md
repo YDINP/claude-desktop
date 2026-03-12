@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 297] — 2026-03-13
+### Added
+- ChangedFilesPanel: 헤더에 W/E 작업 구분 카운트 표시 — `W:N E:N` 색상 구분 (초록/노랑)
+
 ## [Round 296] — 2026-03-13
 ### Added
 - ClipboardPanel: 각 항목 글자 수 표시 — 타임스탬프 옆에 `N자` 우측 정렬 표시

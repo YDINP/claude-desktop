@@ -105,7 +105,13 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
         justifyContent: 'space-between',
         flexShrink: 0,
       }}>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{files.length}개 변경됨</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+          {files.length}개 변경
+          {' '}
+          <span style={{ color: 'var(--success)', fontFamily: 'monospace' }}>W:{files.filter(f => f.op === 'write').length}</span>
+          {' '}
+          <span style={{ color: 'var(--warning)', fontFamily: 'monospace' }}>E:{files.filter(f => f.op === 'edit').length}</span>
+        </span>
         <button
           onClick={onClear}
           title="목록 지우기"
