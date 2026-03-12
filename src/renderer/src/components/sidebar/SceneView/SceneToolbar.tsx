@@ -37,6 +37,8 @@ interface SceneToolbarProps {
   onZOrderDown?: () => void
   showHierarchy?: boolean
   onHierarchyToggle?: () => void
+  showLabels?: boolean
+  onLabelsToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -78,6 +80,8 @@ export function SceneToolbar({
   onZOrderDown,
   showHierarchy,
   onHierarchyToggle,
+  showLabels,
+  onLabelsToggle,
 }: SceneToolbarProps) {
   const zoomIn = () => {
     const next = ZOOM_STEPS.find(z => z > zoom) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]
@@ -290,6 +294,15 @@ export function SceneToolbar({
       >×</button>
 
       <div style={divider} />
+
+      {/* 노드 라벨 토글 */}
+      <button
+        style={showLabels !== false ? btnActive : btnBase}
+        onClick={onLabelsToggle}
+        title="노드 이름 라벨 표시"
+      >
+        Aa
+      </button>
 
       {/* 계층 트리 토글 */}
       <button

@@ -9,6 +9,7 @@ interface NodeRendererProps {
   selected: boolean
   hovered: boolean
   multiSelected?: boolean
+  showLabel?: boolean
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
@@ -36,6 +37,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   selected,
   hovered,
   multiSelected,
+  showLabel = true,
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
@@ -108,7 +110,7 @@ export const NodeRenderer = memo(function NodeRenderer({
       )}
 
       {/* 라벨 */}
-      {(pw > 20 && ph > 12) && (
+      {showLabel && (pw > 20 && ph > 12) && (
         <text
           x={rx + 4}
           y={ry + 11}

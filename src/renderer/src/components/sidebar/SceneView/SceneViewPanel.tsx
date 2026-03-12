@@ -27,6 +27,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [gridVisible, setGridVisible] = useState(true)
   const [snapEnabled, setSnapEnabled] = useState(false)
   const [showHierarchy, setShowHierarchy] = useState(false)
+  const [showLabels, setShowLabels] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [cursorScenePos, setCursorScenePos] = useState<{ x: number; y: number } | null>(null)
@@ -701,6 +702,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onRefresh={refresh}
         showHierarchy={showHierarchy}
         onHierarchyToggle={() => setShowHierarchy(v => !v)}
+        showLabels={showLabels}
+        onLabelsToggle={() => setShowLabels(v => !v)}
         onCopy={handleCopy}
         onPaste={handlePaste}
         onZOrderFront={() => handleZOrder('front')}
@@ -855,6 +858,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   selected={selectedUuid === uuid}
                   hovered={hoveredUuid === uuid}
                   multiSelected={selectedUuids.has(uuid)}
+                  showLabel={showLabels}
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={setHoveredUuid}
                   onMouseLeave={() => setHoveredUuid(null)}

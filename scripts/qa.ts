@@ -957,6 +957,37 @@ if (existsSync(sceneViewPanelPath11)) {
   }
 }
 
+// ── Section 35: R133 신규 기능 ───────────────────────────────
+console.log('\n## 35. 신규 기능 파일 검사 (R133)')
+// SceneView 노드 라벨 표시 토글 (Round 133)
+const nodeRendererPath = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nodeRendererPath)) {
+  const nr = readFileSync(nodeRendererPath, 'utf-8')
+  if (nr.includes('showLabel') && nr.includes('showLabel = true')) {
+    log('pass', 'Round133', 'NodeRenderer: showLabel prop (기본 true) 존재')
+  } else {
+    log('warning', 'Round133', 'NodeRenderer showLabel prop 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+const sceneToolbarPath3 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(sceneToolbarPath3)) {
+  const st3 = readFileSync(sceneToolbarPath3, 'utf-8')
+  if (st3.includes('showLabels') && st3.includes('onLabelsToggle') && st3.includes('Aa')) {
+    log('pass', 'Round133', 'SceneToolbar: showLabels + onLabelsToggle + Aa 버튼 존재')
+  } else {
+    log('warning', 'Round133', 'SceneToolbar 라벨 토글 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+const sceneViewPanelPath12 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath12)) {
+  const svp12 = readFileSync(sceneViewPanelPath12, 'utf-8')
+  if (svp12.includes('showLabels') && svp12.includes('showLabel={showLabels}')) {
+    log('pass', 'Round133', 'SceneViewPanel: showLabels 상태 + NodeRenderer에 showLabel 전달 존재')
+  } else {
+    log('warning', 'Round133', 'SceneViewPanel showLabels 통합 미완성', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

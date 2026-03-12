@@ -1,5 +1,11 @@
 # Changelog — Claude Desktop
 
+## [Round 133] — 2026-03-12
+### Added
+- SceneToolbar: "Aa" 라벨 토글 버튼 (showLabels/onLabelsToggle prop)
+- NodeRenderer: showLabel prop (기본 true) — false 시 노드 이름 텍스트 숨김
+- SceneViewPanel: showLabels 상태 + NodeRenderer에 showLabel={showLabels} 전달
+
 ## [Round 132] — 2026-03-12
 ### Added
 - SceneViewPanel: cursorScenePos 상태 — handleMouseMove에서 svgToScene 변환 후 씬 좌표 실시간 추적
