@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 195 완료 — ClipboardPanel 검색 필터, Pass 190)
+> 마지막 업데이트: 2026-03-13 (Round 196 완료 — TasksPanel 인라인 편집, Pass 191)
 
 ## 완료된 라운드
 
@@ -147,6 +147,7 @@
 | Round 193 | dev | SceneView N키 빠른 노드 생성 단축키 + 도움말 업데이트 | ✅ |
 | Round 194 | dev | CalendarPanel 오늘 버튼 + 세션 수 통계 (전체/이번 달) | ✅ |
 | Round 195 | dev | ClipboardPanel 검색 필터 — 텍스트/소스 실시간 검색 + Esc 초기화 | ✅ |
+| Round 196 | dev | TasksPanel 인라인 편집 — 더블클릭으로 텍스트 편집, Enter 저장, Esc 취소 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

@@ -2023,6 +2023,19 @@ if (existsSync(clipboardPanelPath)) {
   }
 }
 
+// ── Section 98: R196 신규 기능 ───────────────────────────────
+console.log('\n## 98. 신규 기능 파일 검사 (R196)')
+// TasksPanel 인라인 편집 (Round 196)
+const tasksPanelPath = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tasksPanelPath)) {
+  const tp = readFileSync(tasksPanelPath, 'utf-8')
+  if (tp.includes('editingId') && tp.includes('startEdit') && tp.includes('더블클릭하여 편집')) {
+    log('pass', 'Round196', 'TasksPanel: 인라인 태스크 편집 존재')
+  } else {
+    log('warning', 'Round196', 'TasksPanel 인라인 편집 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

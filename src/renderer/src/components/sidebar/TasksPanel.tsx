@@ -15,6 +15,8 @@ export function TasksPanel() {
   const [input, setInput] = useState('')
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium')
   const [filter, setFilter] = useState<'all' | 'active' | 'done'>('all')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editDraft, setEditDraft] = useState('')
 
   useEffect(() => {
     window.api.getTasks().then(setTasks)
@@ -41,6 +43,12 @@ export function TasksPanel() {
   }
 
   const clearDone = () => save(tasks.filter(t => !t.done))
+
+  const startEdit = (task: Task) => { setEditingId(task.id); setEditDraft(task.text) }
+  const commitEdit = (id: string) => {
+    if (editDraft.trim()) save(tasks.map(t => t.id === id ? { ...t, text: editDraft.trim() } : t))
+    setEditingId(null)
+  }
 
   const filtered = filter === 'all' ? tasks : filter === 'active' ? tasks.filter(t => !t.done) : tasks.filter(t => t.done)
   const doneCount = tasks.filter(t => t.done).length
@@ -85,9 +93,24 @@ export function TasksPanel() {
           <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 4px', borderBottom: '1px solid var(--border)' }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: PRIORITY_COLORS[task.priority ?? 'medium'] }} />
             <input type="checkbox" checked={task.done} onChange={() => toggleDone(task.id)} style={{ cursor: 'pointer' }} />
-            <span style={{ flex: 1, fontSize: 12, textDecoration: task.done ? 'line-through' : 'none', color: task.done ? 'var(--text-muted)' : 'var(--text-primary)', wordBreak: 'break-word' }}>
-              {task.text}
-            </span>
+            {editingId === task.id ? (
+              <input
+                autoFocus
+                value={editDraft}
+                onChange={e => setEditDraft(e.target.value)}
+                onBlur={() => commitEdit(task.id)}
+                onKeyDown={e => { if (e.key === 'Enter') commitEdit(task.id); else if (e.key === 'Escape') setEditingId(null) }}
+                style={{ flex: 1, fontSize: 12, background: 'var(--bg-primary)', border: '1px solid var(--accent)', borderRadius: 3, color: 'var(--text-primary)', padding: '1px 4px', outline: 'none' }}
+              />
+            ) : (
+              <span
+                onDoubleClick={() => startEdit(task)}
+                title="더블클릭하여 편집"
+                style={{ flex: 1, fontSize: 12, textDecoration: task.done ? 'line-through' : 'none', color: task.done ? 'var(--text-muted)' : 'var(--text-primary)', wordBreak: 'break-word', cursor: 'text' }}
+              >
+                {task.text}
+              </span>
+            )}
             <button onClick={() => deleteTask(task.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, flexShrink: 0 }}>×</button>
           </div>
         ))}

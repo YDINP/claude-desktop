@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 196] — 2026-03-13
+### Added
+- TasksPanel: 인라인 태스크 편집 — 더블클릭으로 편집 모드, Enter 저장, Esc 취소
+
 ## [Round 195] — 2026-03-13
 ### Added
 - ClipboardPanel: 검색 필터 — 텍스트/소스로 클립보드 항목 실시간 검색, Esc로 초기화
