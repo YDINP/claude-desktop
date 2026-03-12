@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import '../../utils/monaco-setup'
 import { DiffEditor } from '@monaco-editor/react'
 import type * as MonacoType from 'monaco-editor'
@@ -38,6 +38,19 @@ export function DiffPanel() {
   const [showHistory, setShowHistory] = useState(false)
   const [diffStats, setDiffStats] = useState<{ added: number; removed: number } | null>(null)
   const [langOverride, setLangOverride] = useState('')
+  const [diffCopied, setDiffCopied] = useState(false)
+
+  const copyDiffSummary = useCallback(() => {
+    const lname = leftPath.split(/[/\\]/).pop() ?? leftPath
+    const rname = rightPath.split(/[/\\]/).pop() ?? rightPath
+    const lines = [`${lname} ↔ ${rname}`]
+    if (diffStats) lines.push(`+${diffStats.added} 추가 / -${diffStats.removed} 삭제`)
+    if (identical) lines.push('파일 동일')
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setDiffCopied(true)
+      setTimeout(() => setDiffCopied(false), 1500)
+    })
+  }, [leftPath, rightPath, diffStats, identical])
 
   useEffect(() => {
     if (leftContent === null || rightContent === null || leftContent === rightContent) {
@@ -213,9 +226,14 @@ export function DiffPanel() {
           </div>
         )}
         {diffStats && !identical && (
-          <div style={{ padding: '3px 10px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 10, fontSize: 10, flexShrink: 0 }}>
+          <div style={{ padding: '3px 10px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 10, fontSize: 10, flexShrink: 0, alignItems: 'center' }}>
             <span style={{ color: '#4caf50' }}>▲ {diffStats.added} 추가</span>
             <span style={{ color: '#f44336' }}>▼ {diffStats.removed} 삭제</span>
+            <button
+              onClick={copyDiffSummary}
+              title="diff 요약 복사"
+              style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: diffCopied ? '#4ade80' : 'var(--text-muted)', fontSize: 11, padding: '0 2px', lineHeight: 1 }}
+            >{diffCopied ? '✓' : '📋'}</button>
           </div>
         )}
         {leftContent !== null && rightContent !== null && !identical && (

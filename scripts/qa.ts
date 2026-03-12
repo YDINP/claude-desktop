@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 297: R395 신규 기능 ───────────────────────────────
+console.log('\n## 297. 신규 기능 파일 검사 (R395)')
+// DiffPanel diff 결과 요약 복사 (Round 395)
+const dp395Path = join(ROOT, 'src/renderer/src/components/sidebar/DiffPanel.tsx')
+if (existsSync(dp395Path)) {
+  const dp395 = readFileSync(dp395Path, 'utf-8')
+  if (dp395.includes('diffCopied') && dp395.includes('copyDiffSummary') && dp395.includes('diff 요약 복사')) {
+    log('pass', 'Round395', 'DiffPanel: diff 결과 요약 복사 버튼 존재')
+  } else {
+    log('warning', 'Round395', 'DiffPanel diff 요약 복사 미구현', 'sidebar/DiffPanel.tsx')
+  }
+}
+
 // ── Section 296: R394 신규 기능 ───────────────────────────────
 console.log('\n## 296. 신규 기능 파일 검사 (R394)')
 // ClipboardPanel 핀 보호 스마트 삭제 (Round 394)

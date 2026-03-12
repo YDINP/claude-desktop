@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 395] — 2026-03-13
+### Added
+- DiffPanel: diff 결과 요약 복사 버튼 — diffCopied 상태, 📋 버튼, 파일명↔파일명+추가/삭제 통계 복사
+
 ## [Round 394] — 2026-03-13
 ### Added
 - ClipboardPanel: 핀 보호 스마트 삭제 — 핀 항목 있을 때 비핀 항목만 삭제, 핀 카운트 배지 표시
