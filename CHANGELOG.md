@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 135] — 2026-03-12
+### Added
+- NodePropertyPanel: COMP_EDITABLE_KEYS 5종 추가 — cc.Slider(progress/totalLength), cc.Toggle(isChecked), cc.ProgressBar(progress/reverse), cc.ScrollView(horizontal/vertical/inertia), cc.Animation(speed)
+
 ## [Round 134] — 2026-03-12
 ### Added
 - NodeHierarchyList: focusUuid prop — 선택 노드 변경 시 계층 패널 자동 스크롤 (scrollIntoView)

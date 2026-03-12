@@ -1006,6 +1006,24 @@ if (existsSync(nodeHierarchyPath4)) {
   }
 }
 
+// ── Section 37: R135 신규 기능 ───────────────────────────────
+console.log('\n## 37. 신규 기능 파일 검사 (R135)')
+// NodePropertyPanel COMP_EDITABLE_KEYS 확장 (Round 135)
+const nodePropPath6 = join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx')
+if (existsSync(nodePropPath6)) {
+  const np6 = readFileSync(nodePropPath6, 'utf-8')
+  if (np6.includes("'cc.Slider'") && np6.includes("'cc.Toggle'") && np6.includes("'cc.ProgressBar'")) {
+    log('pass', 'Round135', 'NodePropertyPanel: cc.Slider + cc.Toggle + cc.ProgressBar COMP_EDITABLE_KEYS 존재')
+  } else {
+    log('warning', 'Round135', 'NodePropertyPanel COMP_EDITABLE_KEYS 미확장', 'sidebar/NodePropertyPanel.tsx')
+  }
+  if (np6.includes("'cc.ScrollView'") && np6.includes("'cc.Animation'")) {
+    log('pass', 'Round135', 'NodePropertyPanel: cc.ScrollView + cc.Animation COMP_EDITABLE_KEYS 존재')
+  } else {
+    log('warning', 'Round135', 'NodePropertyPanel ScrollView/Animation 미지원', 'sidebar/NodePropertyPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

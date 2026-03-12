@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 134 완료 — NodeHierarchyList 선택 노드 자동 스크롤, Pass 89)
+> 마지막 업데이트: 2026-03-12 (Round 135 완료 — COMP_EDITABLE_KEYS 확장, Pass 91)
 
 ## 완료된 라운드
 
@@ -86,6 +86,7 @@
 | Round 132 | dev | SceneView 마우스 씬 좌표 표시 — 커서 위치의 Cocos 씬 X/Y 실시간 표시 | ✅ |
 | Round 133 | dev | SceneView 노드 라벨 표시 토글 — Aa 버튼으로 SVG 노드 이름 on/off | ✅ |
 | Round 134 | dev | NodeHierarchyList 선택 노드 자동 스크롤 — focusUuid로 계층 패널 동기화 | ✅ |
+| Round 135 | dev | NodePropertyPanel COMP_EDITABLE_KEYS 확장 — Slider/Toggle/ProgressBar/ScrollView/Animation | ✅ |
 
 ## 전략 로드맵 (Phase)
 

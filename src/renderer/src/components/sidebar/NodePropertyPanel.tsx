@@ -100,11 +100,16 @@ function formatPropValue(value: unknown): string | null {
 
 // cc.Label: string 편집, cc.Button: interactable 토글 등 컴포넌트별 특수 props 편집 행
 const COMP_EDITABLE_KEYS: Record<string, string[]> = {
-  'cc.Label':   ['string', 'fontSize', 'lineHeight'],
-  'cc.RichText': ['string', 'fontSize'],
-  'cc.Button':  ['interactable'],
-  'cc.EditBox': ['string', 'fontSize'],
-  'cc.Sprite':  [],
+  'cc.Label':      ['string', 'fontSize', 'lineHeight'],
+  'cc.RichText':   ['string', 'fontSize'],
+  'cc.Button':     ['interactable'],
+  'cc.EditBox':    ['string', 'fontSize'],
+  'cc.Sprite':     [],
+  'cc.Slider':     ['progress', 'totalLength'],
+  'cc.Toggle':     ['isChecked'],
+  'cc.ProgressBar': ['progress', 'reverse'],
+  'cc.ScrollView': ['horizontal', 'vertical', 'inertia'],
+  'cc.Animation':  ['speed'],
 }
 
 function CompEditRow({ label, value, onSave }: {
