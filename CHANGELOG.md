@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 339] — 2026-03-13
+### Added
+- SearchPanel: 검색 결과 파일 그룹 ▾/▸ 접기/펼치기 — 파일명 옆 토글로 매치 목록 숨김/표시, 접힌 상태에서 매치 수 표시
+
 ## [Round 338] — 2026-03-13
 ### Added
 - AssetBrowserPanel: 에셋 타입 필터 칩 버튼 — script/prefab/texture 등 타입별 필터, 검색과 AND 조합

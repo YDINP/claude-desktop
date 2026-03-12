@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 241: R339 신규 기능 ───────────────────────────────
+console.log('\n## 241. 신규 기능 파일 검사 (R339)')
+// SearchPanel 파일 그룹 접기/펼치기 (Round 339)
+const sp339Path = join(ROOT, 'src/renderer/src/components/sidebar/SearchPanel.tsx')
+if (existsSync(sp339Path)) {
+  const sp339 = readFileSync(sp339Path, 'utf-8')
+  if (sp339.includes('collapsedFiles') && sp339.includes('toggleCollapse') && sp339.includes('isCollapsed')) {
+    log('pass', 'Round339', 'SearchPanel: 검색 결과 파일 그룹 접기/펼치기 (collapsedFiles/toggleCollapse) 존재')
+  } else {
+    log('warning', 'Round339', 'SearchPanel 파일 그룹 접기 미구현', 'sidebar/SearchPanel.tsx')
+  }
+}
+
 // ── Section 240: R338 신규 기능 ───────────────────────────────
 console.log('\n## 240. 신규 기능 파일 검사 (R338)')
 // AssetBrowserPanel 타입 필터 버튼 (Round 338)

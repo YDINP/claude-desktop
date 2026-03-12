@@ -154,6 +154,15 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
 
   const fileName = (fp: string) => fp.split(/[/\\]/).pop() ?? fp
   const totalMatches = filteredResults.length
+  const [collapsedFiles, setCollapsedFiles] = useState<Set<string>>(new Set())
+  const toggleCollapse = (filePath: string) => {
+    setCollapsedFiles(prev => {
+      const next = new Set(prev)
+      if (next.has(filePath)) next.delete(filePath)
+      else next.add(filePath)
+      return next
+    })
+  }
 
   const highlightLine = (text: string, q: string): React.ReactNode => {
     if (!q.trim() || q.length < 2) return text
@@ -343,31 +352,43 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
         {!isSearching && query.length >= 2 && grouped.length === 0 && !error && (
           <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)' }}>결과 없음</div>
         )}
-        {grouped.map(group => (
-          <div key={group.filePath} style={{ marginBottom: 4 }}>
-            {/* File header */}
-            <div
-              style={{ padding: '3px 8px', fontSize: 11, fontWeight: 600, color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
-              onClick={() => onFileClick(group.filePath)}
-            >
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fileName(group.filePath)}</span>
-              <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 400, flexShrink: 0 }}>{group.relPath}</span>
-            </div>
-            {/* Match lines */}
-            {group.matches.map(m => (
-              <div
-                key={m.lineNum}
-                onClick={() => onFileClick(group.filePath, m.lineNum)}
-                style={{ padding: '1px 8px 1px 20px', fontSize: 11, cursor: 'pointer', display: 'flex', gap: 8, alignItems: 'baseline' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-              >
-                <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 28, textAlign: 'right', fontSize: 10 }}>{m.lineNum}</span>
-                <span style={{ color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{highlightLine(m.lineContent, query)}</span>
+        {grouped.map(group => {
+          const isCollapsed = collapsedFiles.has(group.filePath)
+          return (
+            <div key={group.filePath} style={{ marginBottom: 4 }}>
+              {/* File header */}
+              <div style={{ padding: '3px 8px', fontSize: 11, fontWeight: 600, color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span
+                  onClick={() => toggleCollapse(group.filePath)}
+                  style={{ flexShrink: 0, fontSize: 9, color: 'var(--text-muted)', userSelect: 'none' }}
+                >
+                  {isCollapsed ? '▸' : '▾'}
+                </span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}
+                  onClick={() => onFileClick(group.filePath)}>
+                  {fileName(group.filePath)}
+                </span>
+                <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 400, flexShrink: 0 }}
+                  onClick={() => toggleCollapse(group.filePath)}>
+                  {isCollapsed ? `(${group.matches.length})` : group.relPath}
+                </span>
               </div>
-            ))}
-          </div>
-        ))}
+              {/* Match lines */}
+              {!isCollapsed && group.matches.map(m => (
+                <div
+                  key={m.lineNum}
+                  onClick={() => onFileClick(group.filePath, m.lineNum)}
+                  style={{ padding: '1px 8px 1px 20px', fontSize: 11, cursor: 'pointer', display: 'flex', gap: 8, alignItems: 'baseline' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                >
+                  <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 28, textAlign: 'right', fontSize: 10 }}>{m.lineNum}</span>
+                  <span style={{ color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{highlightLine(m.lineContent, query)}</span>
+                </div>
+              ))}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
