@@ -1283,6 +1283,24 @@ if (existsSync(nodeHierarchyPath9)) {
   }
 }
 
+// ── Section 53: R151 신규 기능 ───────────────────────────────
+console.log('\n## 53. 신규 기능 파일 검사 (R151)')
+// 방향키 nudge (Round 151)
+const sceneViewPanelPath20 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath20)) {
+  const svp20 = readFileSync(sceneViewPanelPath20, 'utf-8')
+  if (svp20.includes('ArrowLeft') && svp20.includes('ArrowRight') && svp20.includes('ArrowUp') && svp20.includes('ArrowDown')) {
+    log('pass', 'Round151', 'SceneView: 방향키 nudge ArrowLeft/Right/Up/Down 정의 존재')
+  } else {
+    log('warning', 'Round151', 'SceneView 방향키 nudge 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp20.includes('e.shiftKey ? 10 : 1')) {
+    log('pass', 'Round151', 'SceneView: Shift+방향키 10px 이동 로직 존재')
+  } else {
+    log('warning', 'Round151', 'SceneView Shift 10px 이동 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

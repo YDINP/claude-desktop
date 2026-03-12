@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T13:58:59.444Z
+> 2026-03-12T14:00:43.741Z
 
 ## Critical
 _없음_
@@ -126,3 +126,5 @@ _없음_
 - NodeHierarchyList: 검색 중에만 카운트 표시 조건 존재
 - NodeHierarchyList: 검색 X 버튼 + 초기화 로직 존재
 - NodeHierarchyList: 검색어 있을 때만 X 버튼 표시 조건 존재
+- SceneView: 방향키 nudge ArrowLeft/Right/Up/Down 정의 존재
+- SceneView: Shift+방향키 10px 이동 로직 존재

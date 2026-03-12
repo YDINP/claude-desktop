@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 150 완료 — NodeHierarchyList 검색 X 버튼, Pass 118)
+> 마지막 업데이트: 2026-03-12 (Round 151 완료 — SceneView 방향키 nudge, Pass 120)
 
 ## 완료된 라운드
 
@@ -102,6 +102,7 @@
 | Round 148 | dev | SceneView 줌 인디케이터 클릭 → 1:1 리셋, 더블클릭 → Fit 전환 | ✅ |
 | Round 149 | dev | NodeHierarchyList 검색 결과 카운트 — 검색창 우측 "N/total" 표시 | ✅ |
 | Round 150 | dev | NodeHierarchyList 검색 X 버튼 — 검색어 있을 때 ×버튼 표시, 클릭으로 초기화 | ✅ |
+| Round 151 | dev | SceneView 방향키 nudge — 선택 노드 1px / Shift+10px 이동, 단축키 도움말 갱신 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

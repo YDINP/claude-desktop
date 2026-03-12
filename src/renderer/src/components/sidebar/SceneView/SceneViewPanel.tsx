@@ -171,6 +171,25 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return () => window.removeEventListener('keydown', handleKey)
   }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste])
 
+  // ── 방향키 nudge: 선택 노드 1px / Shift+10px 이동 ─────────
+  useEffect(() => {
+    const arrows: Record<string, [number, number]> = {
+      ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1],
+    }
+    const handleNudge = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).tagName === 'INPUT') return
+      if (!selectedUuid || !(e.key in arrows)) return
+      e.preventDefault()
+      const step = e.shiftKey ? 10 : 1
+      const node = nodeMap.get(selectedUuid)
+      if (!node) return
+      const [dx, dy] = arrows[e.key]
+      updateNode(selectedUuid, { x: node.x + dx * step, y: node.y + dy * step })
+    }
+    window.addEventListener('keydown', handleNudge)
+    return () => window.removeEventListener('keydown', handleNudge)
+  }, [selectedUuid, nodeMap, updateNode])
+
   // ── CC 이벤트: 외부 선택 동기화 + 노드 최신화 ───────────────
   useEffect(() => {
     const unsub = window.api.onCCEvent?.((event) => {
@@ -1135,6 +1154,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Ctrl+C', '복사'],
               ['Ctrl+V', '붙여넣기'],
               ['Escape', '선택 해제'],
+              ['↑↓←→', '선택 노드 1px 이동'],
+              ['Shift+↑↓←→', '선택 노드 10px 이동'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
               <div key={key} style={{ display: 'flex', gap: 10, marginBottom: 4 }}>

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 151] — 2026-03-12
+### Added
+- SceneView: 방향키로 선택 노드 1px nudge, Shift+방향키 10px 이동 + 단축키 도움말에 항목 추가
+
 ## [Round 150] — 2026-03-12
 ### Added
 - NodeHierarchyList: 검색창 X 지우기 버튼 — 검색어 입력 시 ×버튼 표시, 클릭으로 즉시 초기화
