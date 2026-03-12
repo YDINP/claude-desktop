@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 256] — 2026-03-13
+### Added
+- SceneView: Alt 홀드 스냅 일시 비활성화 — 드래그 중 Alt 키를 누르면 스냅 그리드를 건너뜀
+
 ## [Round 255] — 2026-03-13
 ### Added
 - SceneView: P키 부모 노드 선택 — 선택된 노드의 parentUuid로 이동, 단축키 도움말 업데이트

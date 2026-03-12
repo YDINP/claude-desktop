@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 158: R256 신규 기능 ───────────────────────────────
+console.log('\n## 158. 신규 기능 파일 검사 (R256)')
+// SceneView Alt 홀드 스냅 일시 비활성화 (Round 256)
+const svp256Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp256Path)) {
+  const svp256 = readFileSync(svp256Path, 'utf-8')
+  if (svp256.includes('!e.altKey') && svp256.includes('일시 비활성화')) {
+    log('pass', 'Round256', 'SceneViewPanel: Alt 홀드 스냅 일시 비활성화 (altKey 체크) 존재')
+  } else {
+    log('warning', 'Round256', 'SceneViewPanel Alt 스냅 오버라이드 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 157: R255 신규 기능 ───────────────────────────────
 console.log('\n## 157. 신규 기능 파일 검사 (R255)')
 // SceneView P키 부모 노드 선택 (Round 255)

@@ -845,8 +845,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       let newY = drag.startNodeY + dSceneY
       setDragDelta({ dx: Math.round(dSceneX), dy: Math.round(dSceneY) })
 
-      // 스냅
-      if (snapEnabled) {
+      // 스냅 (Alt 홀드 시 일시 비활성화)
+      if (snapEnabled && !e.altKey) {
         newX = Math.round(newX / snapGrid) * snapGrid
         newY = Math.round(newY / snapGrid) * snapGrid
       }
@@ -890,7 +890,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         for (const [uid, { startX, startY }] of Object.entries(drag.groupOffsets)) {
           let nx = startX + dSceneX
           let ny = startY + dSceneY
-          if (snapEnabled) {
+          if (snapEnabled && !e.altKey) {
             nx = Math.round(nx / snapGrid) * snapGrid
             ny = Math.round(ny / snapGrid) * snapGrid
           }

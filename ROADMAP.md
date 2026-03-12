@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 255 완료 — SceneView P키 부모 노드 선택, Pass 275)
+> 마지막 업데이트: 2026-03-13 (Round 256 완료 — SceneView Alt 홀드 스냅 일시 비활성화, Pass 276)
 
 ## 완료된 라운드
 
@@ -207,6 +207,7 @@
 | Round 253 | dev | SceneView H키/Alt+L 다중 선택 일괄 — anyVisible/anyUnlocked 기준 가시성/잠금 일괄 토글 | ✅ |
 | Round 254 | dev | SceneView 씬 통계 컴포넌트 분포 — 상위 5개 컴포넌트 타입별 사용 수 (topComps) | ✅ |
 | Round 255 | dev | SceneView P키 부모 노드 선택 — selectedUuid의 parentUuid로 이동 | ✅ |
+| Round 256 | dev | SceneView Alt 홀드 스냅 일시 비활성화 — 드래그 중 Alt키로 snapGrid 일시 무효화 | ✅ |
 
 ## 전략 로드맵 (Phase)
 
