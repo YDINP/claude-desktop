@@ -59,6 +59,8 @@ contextBridge.exposeInMainWorld('api', {
   exportHtml: (filePath: string, html: string) => ipcRenderer.invoke('fs:exportHtml', { filePath, html }),
   writeTextFile: (filePath: string, content: string) => ipcRenderer.invoke('fs:writeTextFile', { filePath, content }),
   showSaveDialog: (opts: { defaultPath: string; filters: Array<{name: string; extensions: string[]}> }) => ipcRenderer.invoke('fs:showSaveDialog', opts),
+  openFileDialog: (opts?: { title?: string; filters?: { name: string; extensions: string[] }[] }) =>
+    ipcRenderer.invoke('fs:open-file-dialog', opts),
   createFile: (dirPath: string, name: string) => ipcRenderer.invoke('fs:createFile', { dirPath, name }),
   createDir: (dirPath: string, name: string) => ipcRenderer.invoke('fs:createDir', { dirPath, name }),
   renameFile: (oldPath: string, newName: string) => ipcRenderer.invoke('fs:rename', { oldPath, newName }),
@@ -301,6 +303,7 @@ declare global {
       exportHtml: (filePath: string, html: string) => Promise<{ ok?: boolean; error?: string }>
       writeTextFile: (filePath: string, content: string) => Promise<{ ok?: boolean; error?: string }>
       showSaveDialog: (opts: { defaultPath: string; filters: Array<{name: string; extensions: string[]}> }) => Promise<string | null>
+      openFileDialog?: (opts?: { title?: string; filters?: { name: string; extensions: string[] }[] }) => Promise<string[]>
       createFile: (dirPath: string, name: string) => Promise<{ ok?: boolean; filePath?: string; error?: string }>
       createDir: (dirPath: string, name: string) => Promise<{ ok?: boolean; dirPath?: string; error?: string }>
       renameFile: (oldPath: string, newName: string) => Promise<{ ok?: boolean; newPath?: string; error?: string }>

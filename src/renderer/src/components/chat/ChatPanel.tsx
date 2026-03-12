@@ -1276,10 +1276,15 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                 </span>
               ))}
               <button
-                onClick={e => {
+                onClick={async e => {
                   e.stopPropagation()
-                  const path = window.prompt('파일 경로:')?.trim()
-                  if (path) ctxFiles.addFile(path)
+                  if (window.api.openFileDialog) {
+                    const paths = await window.api.openFileDialog({ title: '컨텍스트 파일 선택' })
+                    for (const p of paths) ctxFiles.addFile(p)
+                  } else {
+                    const path = window.prompt('파일 경로:')?.trim()
+                    if (path) ctxFiles.addFile(path)
+                  }
                 }}
                 style={{
                   background: 'none', border: '1px dashed var(--border)',

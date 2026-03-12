@@ -151,6 +151,18 @@ export function registerFsHandlers(_win: unknown) {
     return result.canceled ? null : result.filePath
   })
 
+  ipcMain.handle('fs:open-file-dialog', async (_event, opts?: { title?: string; filters?: Electron.FileFilter[] }) => {
+    const result = await dialog.showOpenDialog({
+      title: opts?.title ?? '파일 선택',
+      properties: ['openFile', 'multiSelections'],
+      filters: opts?.filters ?? [
+        { name: '텍스트 파일', extensions: ['ts', 'tsx', 'js', 'jsx', 'py', 'md', 'txt', 'json', 'yaml', 'yml', 'toml', 'css', 'html', 'xml', 'sh', 'env'] },
+        { name: '모든 파일', extensions: ['*'] },
+      ],
+    })
+    return result.canceled ? [] : result.filePaths
+  })
+
   ipcMain.handle('fs:writeTextFile', async (_, { filePath, content }: { filePath: string; content: string }) => {
     try {
       if (!path.isAbsolute(filePath)) throw new Error('absolute path required')

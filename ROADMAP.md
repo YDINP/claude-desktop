@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 90 완료 — 파일 컨텍스트 패널)
+> 마지막 업데이트: 2026-03-12 (Round 91 완료 — 네이티브 파일 다이얼로그 IPC)
 
 ## 완료된 라운드
 
@@ -37,14 +37,15 @@
 | Round 88 | dev | PromptChain 템플릿 라이브러리 — 5개 프리셋(코드리뷰/디버깅/콘텐츠/번역/기능명세), 📚 버튼 토글, 가져오기로 체인 생성 | ✅ |
 | Round 89 | dev | QA 강화 — scripts/qa.ts에 R83~88 신규 기능 5종 체크 추가, Pass 5→10, handoff.md 전체 갱신 | ✅ |
 | Round 90 | dev | 파일 컨텍스트 패널 — useContextFiles hook(localStorage, IPC readFile), ChatPanel 📎 UI, system prompt 주입 | ✅ |
+| Round 91 | dev | 네이티브 파일 다이얼로그 — fs:open-file-dialog IPC, preload openFileDialog, ChatPanel 📎 네이티브 피커 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 91 | dev | AG-UI 이벤트 모델 — 에이전트 실행 표준화, RunStarted/StepFinished/TextDelta 이벤트 |
-| Round 92 | dev | 스니펫 관리 고도화 — 카테고리 분류, 검색, 즐겨찾기, 내보내기 |
-| Round 93 | dev | 채팅 테마 커스터마이징 — 배경색/폰트/버블 스타일 설정 |
+| Round 92 | dev | 세션 통계 대시보드 — cost-tracker 기반 일별 비용 바 차트, 모델별 사용량, 총 세션 통계 |
+| Round 93 | dev | 스트리밍 배치 렌더링 최적화 — IPC throttling, React 렌더 배치 |
+| Round 94 | dev | AG-UI 이벤트 모델 — 에이전트 실행 표준화, RunStarted/StepFinished/TextDelta |
 
 ## 전략 로드맵 (Phase)
 
