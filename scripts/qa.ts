@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 254: R352 신규 기능 ───────────────────────────────
+console.log('\n## 254. 신규 기능 파일 검사 (R352)')
+// PromptChainPanel 결과 복사 버튼 (Round 352)
+const pcp352Path = join(ROOT, 'src/renderer/src/components/sidebar/PromptChainPanel.tsx')
+if (existsSync(pcp352Path)) {
+  const pcp352 = readFileSync(pcp352Path, 'utf-8')
+  if (pcp352.includes('resultCopied') && pcp352.includes('copyResult') && pcp352.includes('setResultCopied')) {
+    log('pass', 'Round352', 'PromptChainPanel: 결과 복사 버튼 (resultCopied/copyResult/setResultCopied) 존재')
+  } else {
+    log('warning', 'Round352', 'PromptChainPanel 결과 복사 버튼 미구현', 'sidebar/PromptChainPanel.tsx')
+  }
+}
+
 // ── Section 253: R351 신규 기능 ───────────────────────────────
 console.log('\n## 253. 신규 기능 파일 검사 (R351)')
 // GlobalSearchPanel 검색 히스토리 (Round 351)

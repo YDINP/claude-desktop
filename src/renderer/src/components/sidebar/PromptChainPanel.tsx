@@ -558,6 +558,15 @@ interface StepCardProps {
 
 function StepCard({ step, index, total, onUpdate, onDelete, onMoveUp, onMoveDown }: StepCardProps) {
   const statusColor = STATUS_COLOR[step.status]
+  const [resultCopied, setResultCopied] = useState(false)
+
+  const copyResult = () => {
+    if (!step.result) return
+    navigator.clipboard.writeText(step.result).then(() => {
+      setResultCopied(true)
+      setTimeout(() => setResultCopied(false), 1500)
+    })
+  }
 
   return (
     <div style={{
@@ -689,8 +698,12 @@ function StepCard({ step, index, total, onUpdate, onDelete, onMoveUp, onMoveDown
           padding: '4px 6px 6px',
           borderTop: '1px solid var(--border)',
         }}>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 3 }}>
-            결과
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>결과</span>
+            <button onClick={copyResult} title="결과 복사"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: resultCopied ? '#4ade80' : 'var(--text-muted)', padding: '0 2px' }}>
+              {resultCopied ? '✓' : '📋'}
+            </button>
           </div>
           <div style={{
             fontSize: 11,

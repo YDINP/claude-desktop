@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 352] — 2026-03-13
+### Added
+- PromptChainPanel: 스텝 결과 복사 버튼 — 실행 완료 후 각 스텝 결과에 📋 복사 버튼 추가, 복사 시 ✓ 피드백
+
 ## [Round 351] — 2026-03-13
 ### Added
 - GlobalSearchPanel: 검색 히스토리 — 최근 검색어 최대 5개 저장(localStorage), 포커스 시 히스토리 드롭다운 표시, 클릭 시 재검색
