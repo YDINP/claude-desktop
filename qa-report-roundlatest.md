@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T12:25:35.362Z
+> 2026-03-12T13:53:46.845Z
 
 ## Critical
 _없음_
@@ -9,7 +9,7 @@ _없음_
 
 ## Pass
 - tsc --noEmit 오류 없음
-- 98개 소스 파일 검사 완료
+- 99개 소스 파일 검사 완료
 - 자동 재연결 로직 존재
 - cocos 탭 정상 등록
 - registerCCHandlers 정상 등록
@@ -76,3 +76,47 @@ _없음_
 - SceneView ResizeState 타입 존재
 - SceneViewPanel 리사이즈 핸들 + handleResizeMouseDown 존재
 - SceneViewPanel 4방향 리사이즈 로직 존재 (nw/ne/se/sw)
+- useSceneSync: refreshNode() + ccGetNode 존재
+- SceneViewPanel: selectedUuid 변경 시 refreshNode 자동 호출 존재
+- SceneInspector: onRename + nameEditing + nameDraft 상태 존재
+- SceneInspector: 더블클릭 트리거 + commitRename 존재
+- SceneViewPanel: handleRename + ccSetProperty name 저장 존재
+- NodeHierarchyList: 재귀 트리 + childUuids 렌더링 존재
+- SceneToolbar: showHierarchy + onHierarchyToggle 버튼 존재
+- SceneViewPanel: showHierarchy 상태 + NodeHierarchyList 렌더링 존재
+- NodeHierarchyList: searchQuery + filteredNodes 검색 필터 존재
+- NodeHierarchyList: 검색 입력창 + 빈 결과 메시지 존재
+- SceneViewPanel: isDragging + isResizing 상태 + setter 존재
+- SceneViewPanel: 드래그/리사이즈 좌표 오버레이 렌더링 존재
+- NodeHierarchyList: collapsed 상태 + onToggleCollapse + isCollapsed 존재
+- NodeHierarchyList: ▸/▾ 토글 아이콘 존재
+- SceneViewPanel: cursorScenePos 상태 + svgToScene 연동 존재
+- SceneViewPanel: 씬 좌표 오버레이 + 드래그 중 숨김 존재
+- NodeRenderer: showLabel prop (기본 true) 존재
+- SceneToolbar: showLabels + onLabelsToggle + Aa 버튼 존재
+- SceneViewPanel: showLabels 상태 + NodeRenderer에 showLabel 전달 존재
+- NodeHierarchyList: focusUuid + scrollContainerRef + scrollIntoView 존재
+- NodeHierarchyList: 노드 행에 data-uuid 속성 존재
+- NodePropertyPanel: cc.Slider + cc.Toggle + cc.ProgressBar COMP_EDITABLE_KEYS 존재
+- NodePropertyPanel: cc.ScrollView + cc.Animation COMP_EDITABLE_KEYS 존재
+- SceneViewPanel: handleFocusSelected + targetZoom + G키 단축키 존재
+- SceneInspector: Scale 섹션 + scaleX/scaleY NumInput 존재
+- SceneInspector: UIOpacity 조건부 Opacity 섹션 + NumInput 존재
+- NodeHierarchyList: getComponentIcon import + utils 연결 존재
+- NodeHierarchyList: 컴포넌트 아이콘 렌더링 존재
+- SceneInspector: toHex 헬퍼 + node.color.r/g/b 사용 존재
+- SceneInspector: Color 섹션 헤더 + alpha 변환 존재
+- SceneViewPanel: hoverTooltipPos 상태 + setter 존재
+- SceneViewPanel: 호버 툴팁 렌더링 조건 + 드래그 중 숨김 존재
+- NodeHierarchyList: onToggleActive prop + 활성 인디케이터 dot 존재
+- SceneViewPanel: handleHierarchyToggleActive + NodeHierarchyList 연결 존재
+- NodeHierarchyList: 전체 펼치기 + 전체 접기 버튼 존재
+- NodeHierarchyList: 전체 펼치기(empty Set) + 전체 접기(allWithChildren) 로직 존재
+- SceneViewPanel: showShortcuts 상태 + ? 키 토글 존재
+- SceneViewPanel: 단축키 오버레이 콘텐츠 존재
+- SceneViewPanel: passive:false wheel 이벤트 등록 존재
+- SceneViewPanel: JSX onWheel 제거 (passive 리스너로 대체됨)
+- SceneInspector: onSelectParent + nodeMap prop + parentUuid 조회 존재
+- SceneInspector: 부모 노드 클릭 선택 UI 존재
+- SceneView: 씬 해상도 레이블 <text> 엘리먼트 존재
+- SceneView: DESIGN_W × DESIGN_H 해상도 텍스트 존재

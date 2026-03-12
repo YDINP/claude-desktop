@@ -877,6 +877,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               rx={1}
             />
 
+            {/* 씬 해상도 레이블 */}
+            <text
+              x={DESIGN_W}
+              y={-5}
+              textAnchor="end"
+              fontSize={10 / view.zoom}
+              fill="rgba(255,255,255,0.35)"
+              style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'monospace' }}
+            >
+              {DESIGN_W} × {DESIGN_H}
+            </text>
+
             {/* 원점 십자 */}
             <line
               x1={DESIGN_W / 2 - 10} y1={DESIGN_H / 2}

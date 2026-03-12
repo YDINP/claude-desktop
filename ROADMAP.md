@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 146 완료 — SceneInspector 부모 노드 표시, Pass 110)
+> 마지막 업데이트: 2026-03-12 (Round 147 완료 — SceneView 씬 해상도 레이블, Pass 112)
 
 ## 완료된 라운드
 
@@ -98,6 +98,7 @@
 | Round 144 | dev | SceneView 단축키 도움말 — ? 키 오버레이, 전체 단축키 목록 + 클릭 닫기 | ✅ |
 | Round 145 | dev | SceneView passive wheel 수정 — addEventListener({passive:false})로 preventDefault 정상화 | ✅ |
 | Round 146 | dev | SceneInspector 부모 노드 표시 — "in: ParentName" 클릭 시 부모 노드 선택 + dep 수정 | ✅ |
+| Round 147 | dev | SceneView 씬 해상도 레이블 — SVG 씬 경계 우상단에 "960 × 640" 표시, 줌 보정 폰트 크기 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

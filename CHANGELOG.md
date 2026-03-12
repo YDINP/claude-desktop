@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 147] — 2026-03-12
+### Added
+- SceneView: 씬 해상도 레이블 — SVG 씬 경계 우상단에 "960 × 640" 텍스트 표시, 줌에 무관하게 일정 크기 유지
+
 ## [Round 146] — 2026-03-12
 ### Added
 - SceneInspector: 부모 노드 표시 — 헤더 아래 "in: ParentName" 클릭 시 부모 선택

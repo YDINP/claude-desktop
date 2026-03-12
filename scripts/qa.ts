@@ -1211,6 +1211,24 @@ if (existsSync(sceneInspectorPath6)) {
   }
 }
 
+// ── Section 49: R147 신규 기능 ───────────────────────────────
+console.log('\n## 49. 신규 기능 파일 검사 (R147)')
+// SceneView 씬 해상도 레이블 (Round 147)
+const sceneViewPanelPath18 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath18)) {
+  const svp18 = readFileSync(sceneViewPanelPath18, 'utf-8')
+  if (svp18.includes('씬 해상도 레이블') && svp18.includes('textAnchor') && svp18.includes('10 / view.zoom')) {
+    log('pass', 'Round147', 'SceneView: 씬 해상도 레이블 <text> 엘리먼트 존재')
+  } else {
+    log('warning', 'Round147', 'SceneView 씬 해상도 레이블 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp18.includes('DESIGN_W} × {DESIGN_H') || svp18.includes('{DESIGN_W} × {DESIGN_H}')) {
+    log('pass', 'Round147', 'SceneView: DESIGN_W × DESIGN_H 해상도 텍스트 존재')
+  } else {
+    log('warning', 'Round147', 'SceneView 해상도 텍스트 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
