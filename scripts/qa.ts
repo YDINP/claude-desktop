@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 299: R397 신규 기능 ───────────────────────────────
+console.log('\n## 299. 신규 기능 파일 검사 (R397)')
+// AgentPanel 태스크 결과 복사 (Round 397)
+const ap397Path = join(ROOT, 'src/renderer/src/components/sidebar/AgentPanel.tsx')
+if (existsSync(ap397Path)) {
+  const ap397 = readFileSync(ap397Path, 'utf-8')
+  if (ap397.includes('copiedResultId') && ap397.includes('결과 전체 복사')) {
+    log('pass', 'Round397', 'AgentPanel: 태스크 마지막 결과 복사 버튼 존재')
+  } else {
+    log('warning', 'Round397', 'AgentPanel 결과 복사 미구현', 'sidebar/AgentPanel.tsx')
+  }
+}
+
 // ── Section 298: R396 신규 기능 ───────────────────────────────
 console.log('\n## 298. 신규 기능 파일 검사 (R396)')
 // GitPanel 커밋 해시 복사 버튼 (Round 396)

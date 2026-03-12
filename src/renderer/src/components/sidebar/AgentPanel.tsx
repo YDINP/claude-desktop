@@ -224,6 +224,7 @@ export function AgentPanel() {
   const [runningSteps, setRunningSteps] = useState<Record<string, WorkStep[]>>({})
   const [runs, setRuns] = useState<WorkRun[]>([])
   const [taskSearch, setTaskSearch] = useState('')
+  const [copiedResultId, setCopiedResultId] = useState<string | null>(null)
   const onStartRanRef = useRef(false)
 
   const updateTasks = useCallback((next: AgentTask[]) => {
@@ -704,20 +705,23 @@ export function AgentPanel() {
 
                   {/* Row 4: last result (colored by status) */}
                   {task.lastResult && task.status !== 'running' && (
-                    <div
-                      style={{
-                        fontSize: 11,
-                        color:
-                          task.status === 'error'
-                            ? STATUS_COLOR.error
-                            : 'var(--text-secondary, var(--text-muted))',
-                        marginTop: 4,
-                        paddingLeft: 18,
-                        wordBreak: 'break-word',
-                      }}
-                    >
-                      {task.lastResult.slice(0, 100)}
-                      {task.lastResult.length > 100 ? '…' : ''}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 4, marginTop: 4, paddingLeft: 18 }}>
+                      <div
+                        style={{
+                          flex: 1,
+                          fontSize: 11,
+                          color: task.status === 'error' ? STATUS_COLOR.error : 'var(--text-secondary, var(--text-muted))',
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        {task.lastResult.slice(0, 100)}
+                        {task.lastResult.length > 100 ? '…' : ''}
+                      </div>
+                      <button
+                        onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(task.lastResult!).then(() => { setCopiedResultId(task.id); setTimeout(() => setCopiedResultId(id => id === task.id ? null : id), 1500) }) }}
+                        title="결과 전체 복사"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: copiedResultId === task.id ? '#4ade80' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+                      >{copiedResultId === task.id ? '✓' : '📋'}</button>
                     </div>
                   )}
 

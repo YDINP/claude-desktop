@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 397] — 2026-03-13
+### Added
+- AgentPanel: 태스크 마지막 결과 복사 버튼 — copiedResultId 상태, 결과 영역 📋 버튼, 전체 텍스트 복사
+
 ## [Round 396] — 2026-03-13
 ### Added
 - GitPanel: 커밋 해시 복사 버튼 — copiedCommitHash 상태, 로그 각 커밋에 📋 버튼, 해시 클립보드 복사
