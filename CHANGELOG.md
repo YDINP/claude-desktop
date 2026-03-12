@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 355] — 2026-03-13
+### Added
+- FileTree: 숨김 파일 토글 — 헤더 `.` 버튼으로 `.`으로 시작하는 파일/폴더 표시/숨기기, 기본값 숨김(hideHidden=true)
+
 ## [Round 354] — 2026-03-13
 ### Added
 - NodePropertyPanel: 노드 활성화/비활성화 토글 버튼 — 이름 왼쪽에 ●/○ 버튼, 클릭 시 ccSetProperty('active') 호출

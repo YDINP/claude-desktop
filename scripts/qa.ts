@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 257: R355 신규 기능 ───────────────────────────────
+console.log('\n## 257. 신규 기능 파일 검사 (R355)')
+// FileTree 숨김 파일 토글 (Round 355)
+const ft355Path = join(ROOT, 'src/renderer/src/components/sidebar/FileTree.tsx')
+if (existsSync(ft355Path)) {
+  const ft355 = readFileSync(ft355Path, 'utf-8')
+  if (ft355.includes('hideHidden') && ft355.includes('setHideHidden') && ft355.includes("startsWith('.')")) {
+    log('pass', 'Round355', 'FileTree: 숨김 파일 토글 (hideHidden/setHideHidden/startsWith) 존재')
+  } else {
+    log('warning', 'Round355', 'FileTree 숨김 파일 토글 미구현', 'sidebar/FileTree.tsx')
+  }
+}
+
 // ── Section 256: R354 신규 기능 ───────────────────────────────
 console.log('\n## 256. 신규 기능 파일 검사 (R354)')
 // NodePropertyPanel 노드 활성화 토글 (Round 354)
