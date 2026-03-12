@@ -29,6 +29,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showHierarchy, setShowHierarchy] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
+  const [cursorScenePos, setCursorScenePos] = useState<{ x: number; y: number } | null>(null)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -260,6 +261,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [nodeMap, getSvgCoords])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // 커서 씬 좌표 업데이트
+    const svgPos = getSvgCoords(e)
+    const { cx, cy } = svgToScene(svgPos.x, svgPos.y)
+    setCursorScenePos({ x: Math.round(cx), y: Math.round(cy) })
+
     // 마퀴 업데이트
     if (marqueeRef.current) {
       const svgCoords = getSvgCoords(e)
@@ -348,7 +354,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         updateNode(drag.uuid, { x: newX, y: newY })
       }
     }
-  }, [view.zoom, snapEnabled, getSvgCoords, updateNode])
+  }, [view.zoom, snapEnabled, getSvgCoords, svgToScene, updateNode])
 
   const handleMouseUp = useCallback(async () => {
     // 마퀴 종료 → 히트 테스트
@@ -767,7 +773,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           onMouseDown={handleSvgMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          onMouseLeave={() => { setCursorScenePos(null); handleMouseUp() }}
           onWheel={handleWheel}
         >
           <defs>
@@ -949,6 +955,26 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         >
           {Math.round(view.zoom * 100)}%
         </div>
+
+        {/* 마우스 씬 좌표 표시 */}
+        {cursorScenePos && !isDragging && !isResizing && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 6,
+              right: 44,
+              fontSize: 9,
+              color: 'var(--text-muted)',
+              background: 'rgba(0,0,0,0.5)',
+              padding: '1px 5px',
+              borderRadius: 3,
+              pointerEvents: 'none',
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {cursorScenePos.x}, {cursorScenePos.y}
+          </div>
+        )}
 
         {/* 드래그/리사이즈 좌표 오버레이 */}
         {(isDragging || isResizing) && selectedNode && (

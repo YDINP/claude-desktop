@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 132] — 2026-03-12
+### Added
+- SceneViewPanel: cursorScenePos 상태 — handleMouseMove에서 svgToScene 변환 후 씬 좌표 실시간 추적
+- SceneViewPanel: 마우스 씬 좌표 오버레이 (우측 하단, 줌 표시 왼쪽) — 드래그/리사이즈 중 숨김
+
 ## [Round 131] — 2026-03-12
 ### Added
 - NodeHierarchyList: 노드 접기/펼치기 — ▸/▾ 토글 버튼 클릭으로 자식 노드 숨기기/표시

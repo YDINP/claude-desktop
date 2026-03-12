@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 131 완료 — NodeHierarchyList 접기/펼치기, Pass 82)
+> 마지막 업데이트: 2026-03-12 (Round 132 완료 — SceneView 마우스 씬 좌표 표시, Pass 84)
 
 ## 완료된 라운드
 
@@ -83,6 +83,7 @@
 | Round 129 | dev | NodeHierarchyList 검색 필터 — 이름 기반 실시간 검색, flat 결과 뷰 | ✅ |
 | Round 130 | dev | SceneView 드래그 좌표 오버레이 — 드래그 시 X/Y, 리사이즈 시 W/H 표시 | ✅ |
 | Round 131 | dev | NodeHierarchyList 접기/펼치기 — ▸/▾ 클릭으로 자식 토글, 선택과 분리 | ✅ |
+| Round 132 | dev | SceneView 마우스 씬 좌표 표시 — 커서 위치의 Cocos 씬 X/Y 실시간 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

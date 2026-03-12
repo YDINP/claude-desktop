@@ -939,6 +939,24 @@ if (existsSync(nodeHierarchyPath3)) {
   }
 }
 
+// ── Section 34: R132 신규 기능 ───────────────────────────────
+console.log('\n## 34. 신규 기능 파일 검사 (R132)')
+// SceneView 마우스 씬 좌표 표시 (Round 132)
+const sceneViewPanelPath11 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath11)) {
+  const svp11 = readFileSync(sceneViewPanelPath11, 'utf-8')
+  if (svp11.includes('cursorScenePos') && svp11.includes('setCursorScenePos') && svp11.includes('svgToScene')) {
+    log('pass', 'Round132', 'SceneViewPanel: cursorScenePos 상태 + svgToScene 연동 존재')
+  } else {
+    log('warning', 'Round132', 'SceneViewPanel 마우스 씬 좌표 추적 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp11.includes('cursorScenePos.x') && svp11.includes('cursorScenePos.y') && svp11.includes('isDragging && !isResizing')) {
+    log('pass', 'Round132', 'SceneViewPanel: 씬 좌표 오버레이 + 드래그 중 숨김 존재')
+  } else {
+    log('warning', 'Round132', 'SceneViewPanel 씬 좌표 오버레이 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
