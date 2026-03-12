@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 140] — 2026-03-12
+### Added
+- SceneInspector: Color 섹션 — 노드 색상 RGBA 스왓치 + hex 코드 표시, alpha != 255 시 α% 표시
+
 ## [Round 139] — 2026-03-12
 ### Added
 - NodeHierarchyList: 컴포넌트 아이콘 표시 — getComponentIcon(utils.ts) 연동, 트리·검색 결과 모두 노드명 앞에 B/T/S/L/V/E/P/G/C 아이콘 accent 색상 표시

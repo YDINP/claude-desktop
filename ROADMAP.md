@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 139 완료 — NodeHierarchyList 컴포넌트 아이콘, Pass 96)
+> 마지막 업데이트: 2026-03-12 (Round 140 완료 — SceneInspector Color 스왓치, Pass 98)
 
 ## 완료된 라운드
 
@@ -91,6 +91,7 @@
 | Round 137 | dev | SceneInspector Scale 편집 — scaleX/scaleY NumInput 섹션 추가 | ✅ |
 | Round 138 | dev | SceneInspector Opacity 편집 — UIOpacity 있을 때 조건부 섹션 | ✅ |
 | Round 139 | dev | NodeHierarchyList 컴포넌트 아이콘 — getComponentIcon(utils) 연동, 트리·검색 아이콘 표시 | ✅ |
+| Round 140 | dev | SceneInspector Color 섹션 — RGBA 스왓치 + hex + alpha% 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

@@ -1081,6 +1081,24 @@ if (existsSync(nodeHierarchyPath5)) {
   }
 }
 
+// ── Section 42: R140 신규 기능 ───────────────────────────────
+console.log('\n## 42. 신규 기능 파일 검사 (R140)')
+// SceneInspector Color 스왓치 (Round 140)
+const sceneInspectorPath5 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath5)) {
+  const si5 = readFileSync(sceneInspectorPath5, 'utf-8')
+  if (si5.includes('toHex') && si5.includes('node.color.r') && si5.includes('node.color.g')) {
+    log('pass', 'Round140', 'SceneInspector: toHex 헬퍼 + node.color.r/g/b 사용 존재')
+  } else {
+    log('warning', 'Round140', 'SceneInspector Color 스왓치 미구현', 'SceneView/SceneInspector.tsx')
+  }
+  if (si5.includes('label="Color"') && si5.includes('node.color.a / 255')) {
+    log('pass', 'Round140', 'SceneInspector: Color 섹션 헤더 + alpha 변환 존재')
+  } else {
+    log('warning', 'Round140', 'SceneInspector Color 섹션 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

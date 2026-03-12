@@ -97,6 +97,9 @@ function NumInput({
   )
 }
 
+// 헥스 변환 헬퍼
+const toHex = (v: number) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')
+
 // 섹션 헤더
 function SectionHeader({ label }: { label: string }) {
   return (
@@ -346,6 +349,29 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
         <NumInput label="Ax" value={node.anchorX} decimals={2} uuid={node.uuid} prop="anchorX" onSave={onUpdate} />
         <NumInput label="Ay" value={node.anchorY} decimals={2} uuid={node.uuid} prop="anchorY" onSave={onUpdate} />
+      </div>
+
+      {/* Color */}
+      <SectionHeader label="Color" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0' }}>
+        <div
+          style={{
+            width: 20,
+            height: 14,
+            borderRadius: 2,
+            background: `rgba(${node.color.r},${node.color.g},${node.color.b},${node.color.a / 255})`,
+            border: '1px solid var(--border)',
+            flexShrink: 0,
+          }}
+        />
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'monospace', letterSpacing: '0.3px' }}>
+          #{toHex(node.color.r)}{toHex(node.color.g)}{toHex(node.color.b)}
+        </span>
+        {node.color.a !== 255 && (
+          <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+            α{Math.round(node.color.a / 255 * 100)}%
+          </span>
+        )}
       </div>
 
       {/* Opacity (UIOpacity 컴포넌트 있을 때) */}
