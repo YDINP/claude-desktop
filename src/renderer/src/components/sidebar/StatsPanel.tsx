@@ -49,22 +49,26 @@ export function StatsPanel() {
   const [dailyCosts, setDailyCosts] = useState<{ date: string; usd: number }[]>([])
   const [todayCost, setTodayCost] = useState(0)
   const [monthlyCost, setMonthlyCost] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
+  const loadStats = useMemo(() => async () => {
+    setRefreshing(true)
     setTodayCost(getTodayCost())
     setMonthlyCost(getMonthlyCost())
     setDailyCosts(getDailyCosts(7))
+    await Promise.all([
+      window.api.sessionGlobalStats().then(setStats),
+      window.api.sessionList().then((sessions) => {
+        const titles = (sessions as Array<{ title?: string }>)
+          .map((s) => s.title ?? '')
+          .filter(Boolean)
+        setSessionTitles(titles)
+      }),
+    ])
+    setRefreshing(false)
   }, [])
 
-  useEffect(() => {
-    window.api.sessionGlobalStats().then(setStats)
-    window.api.sessionList().then((sessions) => {
-      const titles = (sessions as Array<{ title?: string }>)
-        .map((s) => s.title ?? '')
-        .filter(Boolean)
-      setSessionTitles(titles)
-    })
-  }, [])
+  useEffect(() => { loadStats() }, [loadStats])
 
   const heatmapDays = useMemo(() => {
     if (!stats) return []
@@ -168,6 +172,22 @@ export function StatsPanel() {
 
   return (
     <div style={{ padding: 12, fontSize: 12, color: 'var(--text-primary)' }}>
+      {/* 새로고침 버튼 */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+        <button
+          onClick={() => loadStats()}
+          disabled={refreshing}
+          title="통계 새로고침"
+          style={{
+            background: 'none', border: '1px solid var(--border)', borderRadius: 4,
+            cursor: refreshing ? 'not-allowed' : 'pointer', color: 'var(--text-muted)',
+            fontSize: 10, padding: '2px 7px', opacity: refreshing ? 0.5 : 1,
+          }}
+        >
+          {refreshing ? '⟳' : '↻'} 새로고침
+        </button>
+      </div>
+
       {/* 요약 카드 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
         <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 10, textAlign: 'center' }}>

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 334] — 2026-03-13
+### Added
+- StatsPanel: 새로고침 버튼 추가 — 클릭 시 세션 통계/비용 재로드, `refreshing` 상태로 로딩 표시
+
 ## [Round 333] — 2026-03-13
 ### Added
 - RunTimeline: RunCard 헤더 클릭으로 스텝 목록 접기/펼치기 — 4개 이상 스텝 시 기본 접힘, 진행 중 런은 항상 펼침

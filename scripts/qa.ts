@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 236: R334 신규 기능 ───────────────────────────────
+console.log('\n## 236. 신규 기능 파일 검사 (R334)')
+// StatsPanel 새로고침 버튼 (Round 334)
+const sp334Path = join(ROOT, 'src/renderer/src/components/sidebar/StatsPanel.tsx')
+if (existsSync(sp334Path)) {
+  const sp334 = readFileSync(sp334Path, 'utf-8')
+  if (sp334.includes('refreshing') && sp334.includes('loadStats') && sp334.includes('새로고침')) {
+    log('pass', 'Round334', 'StatsPanel: 새로고침 버튼 (refreshing/loadStats) 존재')
+  } else {
+    log('warning', 'Round334', 'StatsPanel 새로고침 버튼 미구현', 'sidebar/StatsPanel.tsx')
+  }
+}
+
 // ── Section 235: R333 신규 기능 ───────────────────────────────
 console.log('\n## 235. 신규 기능 파일 검사 (R333)')
 // RunTimeline RunCard 스텝 접기/펼치기 (Round 333)
