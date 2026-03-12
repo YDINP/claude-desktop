@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 156] — 2026-03-12
+### Added
+- SceneView: 씬 원점 (0,0) 레이블 — 중앙 십자 우상단에 "(0,0)" SVG 텍스트 표시, zoom 보정
+
 ## [Round 155] — 2026-03-12
 ### Added
 - SceneView: 패닝 중 커서 grab → grabbing 변경 — isPanningActive 상태로 동적 커서 제어

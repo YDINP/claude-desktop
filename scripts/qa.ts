@@ -1373,6 +1373,24 @@ if (existsSync(sceneViewPanelPath22)) {
   }
 }
 
+// ── Section 58: R156 신규 기능 ───────────────────────────────
+console.log('\n## 58. 신규 기능 파일 검사 (R156)')
+// 씬 origin (0,0) 레이블 (Round 156)
+const sceneViewPanelPath23 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath23)) {
+  const svp23 = readFileSync(sceneViewPanelPath23, 'utf-8')
+  if (svp23.includes('원점 십자 + (0,0) 레이블') && svp23.includes('(0,0)')) {
+    log('pass', 'Round156', 'SceneView: 원점 (0,0) 레이블 SVG text 존재')
+  } else {
+    log('warning', 'Round156', 'SceneView 원점 (0,0) 레이블 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp23.includes('8 / view.zoom') && svp23.includes('DESIGN_W / 2 + 5 / view.zoom')) {
+    log('pass', 'Round156', 'SceneView: 원점 레이블 zoom 보정 + 오프셋 적용')
+  } else {
+    log('warning', 'Round156', 'SceneView 원점 레이블 zoom 보정 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

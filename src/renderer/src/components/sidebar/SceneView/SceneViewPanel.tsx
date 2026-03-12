@@ -911,7 +911,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               {DESIGN_W} × {DESIGN_H}
             </text>
 
-            {/* 원점 십자 */}
+            {/* 원점 십자 + (0,0) 레이블 */}
             <line
               x1={DESIGN_W / 2 - 10} y1={DESIGN_H / 2}
               x2={DESIGN_W / 2 + 10} y2={DESIGN_H / 2}
@@ -922,6 +922,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               x2={DESIGN_W / 2} y2={DESIGN_H / 2 + 10}
               stroke="rgba(255,255,255,0.2)" strokeWidth={1}
             />
+            <text
+              x={DESIGN_W / 2 + 5 / view.zoom}
+              y={DESIGN_H / 2 - 5 / view.zoom}
+              fontSize={8 / view.zoom}
+              fill="rgba(255,255,255,0.2)"
+              style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'monospace' }}
+            >
+              (0,0)
+            </text>
 
             {/* 노드 렌더링 */}
             {renderOrder.map(uuid => {

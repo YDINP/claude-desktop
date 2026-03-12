@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:07:02.407Z
+> 2026-03-12T14:08:28.447Z
 
 ## Critical
 _없음_
@@ -136,3 +136,5 @@ _없음_
 - SceneInspector: 복사 완료 피드백 (✓/#) 존재
 - SceneView: isPanningActive 상태 + grabbing 커서 존재
 - SceneView: isPanningActive on/off 토글 존재
+- SceneView: 원점 (0,0) 레이블 SVG text 존재
+- SceneView: 원점 레이블 zoom 보정 + 오프셋 적용
