@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 189: R287 신규 기능 ───────────────────────────────
+console.log('\n## 189. 신규 기능 파일 검사 (R287)')
+// CalendarPanel 이벤트 전체 삭제 (Round 287)
+const cal287Path = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(cal287Path)) {
+  const cal287 = readFileSync(cal287Path, 'utf-8')
+  if (cal287.includes('이 날짜 이벤트 전체 삭제') && cal287.includes('전체 삭제') && cal287.includes("e.date !== selectedDay")) {
+    log('pass', 'Round287', 'CalendarPanel: 선택 날짜 이벤트 전체 삭제 버튼 존재')
+  } else {
+    log('warning', 'Round287', 'CalendarPanel 이벤트 전체 삭제 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── Section 188: R286 신규 기능 ───────────────────────────────
 console.log('\n## 188. 신규 기능 파일 검사 (R286)')
 // TasksPanel 전체 완료 배너 (Round 286)

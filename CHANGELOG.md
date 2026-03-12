@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 287] — 2026-03-13
+### Added
+- CalendarPanel: 선택 날짜 이벤트 전체 삭제 버튼 — 이벤트 있을 때 "전체 삭제" 버튼 표시
+
 ## [Round 286] — 2026-03-13
 ### Added
 - TasksPanel: 전체 완료 시 🎉 배너 표시 — 100% 완료 시 진행률 바 대신 녹색 완료 배너 표시

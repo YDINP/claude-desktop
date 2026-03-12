@@ -187,6 +187,16 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
       {/* 커스텀 이벤트 */}
       {selectedDay && (
         <div style={{ marginTop: 8 }}>
+          {events.filter(e => e.date === selectedDay).length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>이벤트 {events.filter(e => e.date === selectedDay).length}개</span>
+              <button
+                onClick={() => saveEvents(events.filter(e => e.date !== selectedDay))}
+                title="이 날짜 이벤트 전체 삭제"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--text-muted)', padding: '0 2px' }}
+              >전체 삭제</button>
+            </div>
+          )}
           {events.filter(e => e.date === selectedDay).map(ev => (
             <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 6px', marginBottom: 2, borderRadius: 3, background: 'var(--bg-secondary)', borderLeft: `3px solid ${ev.color}` }}>
               <div
