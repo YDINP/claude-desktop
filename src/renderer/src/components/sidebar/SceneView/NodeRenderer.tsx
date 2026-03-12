@@ -14,6 +14,7 @@ interface NodeRendererProps {
   hasChildren?: boolean
   collapsed?: boolean
   bookmarked?: boolean
+  locked?: boolean
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
@@ -47,6 +48,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   hasChildren = false,
   collapsed = false,
   bookmarked = false,
+  locked = false,
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
@@ -185,6 +187,17 @@ export const NodeRenderer = memo(function NodeRenderer({
           fill="#fbbf24"
           style={{ pointerEvents: 'none', userSelect: 'none' }}
         >★</text>
+      )}
+
+      {/* 잠금 아이콘 */}
+      {locked && lod === 0 && (
+        <text
+          x={rx + pw - 10}
+          y={ry + 10}
+          fontSize={8}
+          fill="#f87171"
+          style={{ pointerEvents: 'none', userSelect: 'none' }}
+        >🔒</text>
       )}
 
       {/* 자식 그룹 접힘 표시 — Alt+클릭으로 토글 */}

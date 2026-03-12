@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 234 완료 — SceneView 노드 크기 맞추기, Pass 250)
+> 마지막 업데이트: 2026-03-13 (Round 235 완료 — SceneView 노드 잠금 Alt+L + 🔒 아이콘, Pass 253)
 
 ## 완료된 라운드
 
@@ -186,6 +186,7 @@
 | Round 232 | dev | SceneView PNG 내보내기 — SVG→Canvas→PNG 변환, scene.png 다운로드, 툴바 버튼 | ✅ |
 | Round 233 | dev | SceneView Dirty 표시 — nodeMap 변경 시 상태바 "● 저장 안됨", saveToSlot 시 초기화 | ✅ |
 | Round 234 | dev | SceneView 노드 크기 맞추기 — 선택 기준 노드 W/H/both 동일화, 툴바 ↔W/↕H/⊞ 버튼 | ✅ |
+| Round 235 | dev | SceneView 노드 잠금 — Alt+L 단축키, 🔒 SVG 아이콘, 툴바 잠금 버튼, 드래그/리사이즈 차단 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

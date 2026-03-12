@@ -381,6 +381,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         setFocusMode(v => !v)
         return
       }
+      // Alt+L — 노드 잠금/해제
+      if (e.altKey && (e.key === 'l' || e.key === 'L') && selectedUuid) {
+        e.preventDefault()
+        const node = nodeMap.get(selectedUuid)
+        if (node) updateNode(selectedUuid, { locked: !node.locked })
+        return
+      }
       // Alt+← / Alt+→ — 카메라 히스토리 뒤로/앞으로
       if (e.altKey && e.key === 'ArrowLeft') {
         e.preventDefault()
@@ -1470,6 +1477,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         bookmarkCount={bookmarkedUuids.size}
         showBookmarkList={showBookmarkList}
         onBookmarkListToggle={() => setShowBookmarkList(v => !v)}
+        isSelectedLocked={selectedUuid ? nodeMap.get(selectedUuid)?.locked === true : false}
+        onLockToggle={() => {
+          if (!selectedUuid) return
+          const node = nodeMap.get(selectedUuid)
+          if (node) updateNode(selectedUuid, { locked: !node.locked })
+        }}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -1740,6 +1753,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   hasChildren={node.childUuids.length > 0}
                   collapsed={collapsedUuids.has(uuid)}
                   bookmarked={bookmarkedUuids.has(uuid)}
+                  locked={node.locked === true}
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={setHoveredUuid}
                   onMouseLeave={() => setHoveredUuid(null)}

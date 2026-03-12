@@ -74,6 +74,8 @@ interface SceneToolbarProps {
   bookmarkCount?: number
   showBookmarkList?: boolean
   onBookmarkListToggle?: () => void
+  isSelectedLocked?: boolean
+  onLockToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -152,6 +154,8 @@ export function SceneToolbar({
   bookmarkCount,
   showBookmarkList,
   onBookmarkListToggle,
+  isSelectedLocked,
+  onLockToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -476,6 +480,13 @@ export function SceneToolbar({
         title="선택 노드 삭제"
         style={{ opacity: selectedUuid ? 1 : 0.3, background: 'none', border: 'none', color: 'var(--error)', cursor: selectedUuid ? 'pointer' : 'default', fontSize: 14, padding: '2px 6px' }}
       >×</button>
+      {onLockToggle && (
+        <button
+          style={isSelectedLocked ? btnActive : btnBase}
+          onClick={onLockToggle}
+          title="노드 잠금/해제 (Alt+L) — 잠긴 노드는 드래그/리사이즈 불가"
+        >🔒</button>
+      )}
 
       <div style={divider} />
 

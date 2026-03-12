@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 235] — 2026-03-13
+### Added
+- SceneView: 노드 잠금 — Alt+L 단축키로 선택 노드 잠금/해제, 잠긴 노드는 드래그/리사이즈 차단, SVG 🔒 아이콘 표시, 툴바 잠금 버튼
+
 ## [Round 234] — 2026-03-13
 ### Added
 - SceneView: 노드 크기 맞추기 — 선택 노드들을 기준 노드의 W/H/both 크기로 동일화, 툴바 버튼 3종

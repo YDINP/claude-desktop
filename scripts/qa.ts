@@ -2036,6 +2036,33 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 137: R235 신규 기능 ───────────────────────────────
+console.log('\n## 137. 신규 기능 파일 검사 (R235)')
+// SceneView 노드 잠금 (Round 235)
+const svp235Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const nr235Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+const st235Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(svp235Path) && existsSync(nr235Path) && existsSync(st235Path)) {
+  const svp235 = readFileSync(svp235Path, 'utf-8')
+  const nr235 = readFileSync(nr235Path, 'utf-8')
+  const st235 = readFileSync(st235Path, 'utf-8')
+  if (svp235.includes("key === 'l'") && svp235.includes('Alt+L') && svp235.includes('잠금/해제')) {
+    log('pass', 'Round235', 'SceneViewPanel: Alt+L 노드 잠금 단축키 구현 존재')
+  } else {
+    log('warning', 'Round235', 'SceneViewPanel Alt+L 잠금 단축키 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (nr235.includes('locked') && nr235.includes('🔒')) {
+    log('pass', 'Round235', 'NodeRenderer: locked prop + 🔒 아이콘 구현 존재')
+  } else {
+    log('warning', 'Round235', 'NodeRenderer locked/🔒 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+  if (st235.includes('isSelectedLocked') && st235.includes('onLockToggle') && st235.includes('🔒')) {
+    log('pass', 'Round235', 'SceneToolbar: 잠금 버튼 구현 존재')
+  } else {
+    log('warning', 'Round235', 'SceneToolbar 잠금 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 136: R234 신규 기능 ───────────────────────────────
 console.log('\n## 136. 신규 기능 파일 검사 (R234)')
 // SceneView 노드 크기 맞추기 (Round 234)
