@@ -34,6 +34,7 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
   const [editingEventDraft, setEditingEventDraft] = useState('')
   const [yearPickerOpen, setYearPickerOpen] = useState(false)
   const [showAllUpcoming, setShowAllUpcoming] = useState(false)
+  const [eventsCopied, setEventsCopied] = useState(false)
 
   const commitEventEdit = (id: string) => {
     if (editingEventDraft.trim()) saveEvents(events.map(e => e.id === id ? { ...e, title: editingEventDraft.trim() } : e))
@@ -101,6 +102,15 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
       .filter(e => e.date >= today)
       .sort((a, b) => a.date.localeCompare(b.date))
   }, [events, today])
+
+  const copyUpcomingEvents = useCallback(() => {
+    const lines = upcomingEvents.map(ev => `${ev.date} ${ev.title}`)
+    if (lines.length === 0) return
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setEventsCopied(true)
+      setTimeout(() => setEventsCopied(false), 1500)
+    })
+  }, [upcomingEvents])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 8, fontSize: 12 }}>
@@ -223,12 +233,18 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
         <div style={{ marginTop: 10 }}>
           <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4, letterSpacing: '0.3px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>다음 이벤트</span>
-            {upcomingEvents.length > 3 && (
-              <button onClick={() => setShowAllUpcoming(v => !v)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--accent)', padding: 0 }}>
-                {showAllUpcoming ? '접기' : `더 보기 (${upcomingEvents.length - 3}개)`}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              {upcomingEvents.length > 3 && (
+                <button onClick={() => setShowAllUpcoming(v => !v)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--accent)', padding: 0 }}>
+                  {showAllUpcoming ? '접기' : `더 보기 (${upcomingEvents.length - 3}개)`}
+                </button>
+              )}
+              <button onClick={copyUpcomingEvents} title="이벤트 목록 복사"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: eventsCopied ? '#4ade80' : 'var(--text-muted)', padding: '0 2px', lineHeight: 1 }}>
+                {eventsCopied ? '✓' : '📋'}
               </button>
-            )}
+            </div>
           </div>
           {(showAllUpcoming ? upcomingEvents : upcomingEvents.slice(0, 3)).map(ev => (
             <div

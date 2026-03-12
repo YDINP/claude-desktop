@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 398] — 2026-03-13
+### Added
+- CalendarPanel: 이벤트 목록 복사 버튼 — eventsCopied 상태, 다음 이벤트 헤더 📋 버튼, 날짜+제목 텍스트 복사
+
 ## [Round 397] — 2026-03-13
 ### Added
 - AgentPanel: 태스크 마지막 결과 복사 버튼 — copiedResultId 상태, 결과 영역 📋 버튼, 전체 텍스트 복사

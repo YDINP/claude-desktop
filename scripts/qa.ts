@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 300: R398 신규 기능 ───────────────────────────────
+console.log('\n## 300. 신규 기능 파일 검사 (R398)')
+// CalendarPanel 이벤트 목록 복사 (Round 398)
+const cal398Path = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(cal398Path)) {
+  const cal398 = readFileSync(cal398Path, 'utf-8')
+  if (cal398.includes('eventsCopied') && cal398.includes('copyUpcomingEvents') && cal398.includes('이벤트 목록 복사')) {
+    log('pass', 'Round398', 'CalendarPanel: 이벤트 목록 복사 버튼 존재')
+  } else {
+    log('warning', 'Round398', 'CalendarPanel 이벤트 복사 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── Section 299: R397 신규 기능 ───────────────────────────────
 console.log('\n## 299. 신규 기능 파일 검사 (R397)')
 // AgentPanel 태스크 결과 복사 (Round 397)

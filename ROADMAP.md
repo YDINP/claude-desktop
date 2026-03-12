@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 397 완료 — AgentPanel 태스크 결과 복사, Pass 417)
+> 마지막 업데이트: 2026-03-13 (Round 398 완료 — CalendarPanel 이벤트 목록 복사, Pass 418)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 398 | dev | CalendarPanel 이벤트 목록 복사 — eventsCopied, 다음 이벤트 📋 버튼 | ✅ |
 | Round 397 | dev | AgentPanel 태스크 결과 복사 — copiedResultId, 결과 영역 📋 버튼 | ✅ |
 | Round 396 | dev | GitPanel 커밋 해시 복사 — copiedCommitHash, 로그 각 커밋 📋 버튼 | ✅ |
 | Round 395 | dev | DiffPanel diff 결과 요약 복사 — diffCopied, 📋 버튼, 파일명+통계 텍스트 | ✅ |
