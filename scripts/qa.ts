@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 155: R253 신규 기능 ───────────────────────────────
+console.log('\n## 155. 신규 기능 파일 검사 (R253)')
+// SceneView H키/Alt+L 다중 선택 일괄 처리 (Round 253)
+const svp253Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp253Path)) {
+  const svp253 = readFileSync(svp253Path, 'utf-8')
+  if (svp253.includes('anyVisible') && svp253.includes('anyUnlocked') && svp253.includes('다중 선택 일괄 처리')) {
+    log('pass', 'Round253', 'SceneViewPanel: H키/Alt+L 다중 선택 일괄 가시성/잠금 처리 존재')
+  } else {
+    log('warning', 'Round253', 'SceneViewPanel 다중 선택 일괄 처리 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 154: R252 신규 기능 ───────────────────────────────
 console.log('\n## 154. 신규 기능 파일 검사 (R252)')
 // NotesPanel 핀 고정 기능 (Round 252)

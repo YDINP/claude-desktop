@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 253] — 2026-03-13
+### Improved
+- SceneView: H키/Alt+L 다중 선택 일괄 처리 — 2개+ 선택 시 모든 노드 가시성/잠금 일괄 토글 (anyVisible/anyUnlocked 기준)
+
 ## [Round 252] — 2026-03-13
 ### Added
 - NotesPanel: 노트 핀 고정 기능 — 📌 버튼으로 핀 토글, 핀 노드는 목록 상단 고정 + 황금 border

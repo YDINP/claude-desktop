@@ -301,9 +301,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.key === 'r' || e.key === 'R') setShowRuler(v => !v)
       if (e.key === 'n' || e.key === 'N') handleCreateNode()
       // H — 선택 노드 가시성 토글
-      if ((e.key === 'h' || e.key === 'H') && selectedUuid) {
-        const node = nodeMap.get(selectedUuid)
-        if (node) updateNode(selectedUuid, { visible: node.visible === false ? true : false })
+      if ((e.key === 'h' || e.key === 'H') && (selectedUuids.size > 0 || selectedUuid)) {
+        const uuids = selectedUuids.size > 1 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
+        const anyVisible = uuids.some(u => nodeMap.get(u)?.visible !== false)
+        uuids.forEach(u => { const n = nodeMap.get(u); if (n) updateNode(u, { visible: !anyVisible }) })
       }
       // Tab / Shift+Tab: 형제 노드 순환 선택
       if (e.key === 'Tab' && selectedUuid) {
@@ -465,11 +466,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         updateNode(selectedUuid, { labelColor: LABEL_COLORS[e.key] })
         return
       }
-      // Alt+L — 노드 잠금/해제
-      if (e.altKey && (e.key === 'l' || e.key === 'L') && selectedUuid) {
+      // Alt+L — 노드 잠금/해제 (다중 선택 일괄 처리)
+      if (e.altKey && (e.key === 'l' || e.key === 'L') && (selectedUuids.size > 0 || selectedUuid)) {
         e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node) updateNode(selectedUuid, { locked: !node.locked })
+        const uuids = selectedUuids.size > 1 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
+        const anyUnlocked = uuids.some(u => !nodeMap.get(u)?.locked)
+        uuids.forEach(u => { const n = nodeMap.get(u); if (n) updateNode(u, { locked: anyUnlocked }) })
         return
       }
       // Alt+← / Alt+→ — 카메라 히스토리 뒤로/앞으로
