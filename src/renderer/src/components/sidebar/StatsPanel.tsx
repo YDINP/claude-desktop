@@ -103,6 +103,13 @@ export function StatsPanel() {
 
   const topWords = useMemo(() => getTopWords(sessionTitles), [sessionTitles])
 
+  // 요일별 누적 세션 수 (0=일 ~ 6=토)
+  const weekdayStats = useMemo(() => {
+    const sums = Array(7).fill(0)
+    heatmapDays.forEach(d => { sums[new Date(d.date).getDay()] += d.count })
+    return sums
+  }, [heatmapDays])
+
   // 연속 사용일 스트릭 계산
   const { currentStreak, longestStreak } = useMemo(() => {
     const days = [...heatmapDays].reverse() // 최신 → 과거
@@ -197,6 +204,31 @@ export function StatsPanel() {
           <div style={{ flex: 1, background: 'var(--bg-tertiary)', borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-secondary)' }}>{longestStreak}</div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>최장 연속</div>
+          </div>
+        </div>
+      )}
+
+      {/* 요일별 활동 분포 */}
+      {weekdayStats.some(v => v > 0) && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>요일별 활동 분포 (최근 12주)</div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 44 }}>
+            {weekdayStats.map((count, i) => {
+              const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+              const maxWd = Math.max(...weekdayStats, 1)
+              const isPeak = count === maxWd && count > 0
+              return (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <div style={{
+                    width: '100%',
+                    height: `${(count / maxWd) * 32 + (count > 0 ? 4 : 0)}px`,
+                    background: isPeak ? '#f59e0b' : count > 0 ? 'var(--accent)' : 'var(--bg-tertiary)',
+                    borderRadius: 2, minHeight: 2, transition: 'height 0.3s',
+                  }} title={`${dayNames[i]}요일: ${count}회`} />
+                  <span style={{ fontSize: 9, color: isPeak ? '#f59e0b' : 'var(--text-muted)', fontWeight: isPeak ? 700 : 400 }}>{dayNames[i]}</span>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}

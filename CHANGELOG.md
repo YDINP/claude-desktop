@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 281] — 2026-03-13
+### Added
+- StatsPanel: 요일별 활동 분포 차트 — 최근 12주 요일별 누적 세션 바 차트, 최다 요일 황색 하이라이트
+
 ## [Round 280] — 2026-03-13
 ### Added
 - NotesPanel: 선택된 노트 클립보드 복사 버튼 (📋) — `# title\n\ncontent` Markdown 형식으로 복사, 복사 후 ✓ 표시

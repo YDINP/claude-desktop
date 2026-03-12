@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 183: R281 신규 기능 ───────────────────────────────
+console.log('\n## 183. 신규 기능 파일 검사 (R281)')
+// StatsPanel 요일별 활동 분포 (Round 281)
+const sp281Path = join(ROOT, 'src/renderer/src/components/sidebar/StatsPanel.tsx')
+if (existsSync(sp281Path)) {
+  const sp281 = readFileSync(sp281Path, 'utf-8')
+  if (sp281.includes('weekdayStats') && sp281.includes('요일별 활동 분포') && sp281.includes('isPeak')) {
+    log('pass', 'Round281', 'StatsPanel: 요일별 활동 분포 차트 (weekdayStats/isPeak) 존재')
+  } else {
+    log('warning', 'Round281', 'StatsPanel 요일별 활동 분포 미구현', 'sidebar/StatsPanel.tsx')
+  }
+}
+
 // ── Section 182: R280 신규 기능 ───────────────────────────────
 console.log('\n## 182. 신규 기능 파일 검사 (R280)')
 // NotesPanel 노트 클립보드 복사 (Round 280)
