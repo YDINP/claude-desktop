@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 341] — 2026-03-13
+### Added
+- CocosPanel: 연결 유지 시간 표시 — 연결됨 배지에 uptime 표시 (`연결됨 5m`), 10초 갱신
+
 ## [Round 340] — 2026-03-13
 ### Added
 - DiffPanel: 최근 비교 파일 쌍 히스토리 — 비교 시 localStorage 저장(최대 8개), 🕐 버튼 드롭다운으로 재사용

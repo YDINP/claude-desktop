@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 243: R341 신규 기능 ───────────────────────────────
+console.log('\n## 243. 신규 기능 파일 검사 (R341)')
+// CocosPanel 연결 유지 시간 표시 (Round 341)
+const cp341Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp341Path)) {
+  const cp341 = readFileSync(cp341Path, 'utf-8')
+  if (cp341.includes('connectedAt') && cp341.includes('uptime') && cp341.includes('setUptime')) {
+    log('pass', 'Round341', 'CocosPanel: 연결 유지 시간 표시 (connectedAt/uptime) 존재')
+  } else {
+    log('warning', 'Round341', 'CocosPanel 연결 유지 시간 미구현', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── Section 242: R340 신규 기능 ───────────────────────────────
 console.log('\n## 242. 신규 기능 파일 검사 (R340)')
 // DiffPanel 최근 비교 히스토리 (Round 340)

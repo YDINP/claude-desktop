@@ -21,6 +21,8 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
   const [error, setError] = useState<string | null>(null)
   const [detectedProject, setDetectedProject] = useState<{ name: string; version: string; creatorVersion?: string } | null>(null)
   const [reconnectCountdown, setReconnectCountdown] = useState<number | null>(null)
+  const [connectedAt, setConnectedAt] = useState<number | null>(null)
+  const [uptime, setUptime] = useState<string>('')
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const portRef = useRef(port)
   portRef.current = port
@@ -70,6 +72,7 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
       setConnected(!!ok)
       if (mountedRef.current) onConnectedChange?.(!!ok)
       if (ok) {
+        setConnectedAt(Date.now())
         window.api.ccSetPort?.(currentPort).catch(() => {})
         onPortChange?.(currentPort)
       } else {
@@ -97,6 +100,8 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
       if (cancelled) return
       if (s.port !== undefined && s.port !== portRef.current) return
       setConnected(s.connected)
+      if (s.connected) setConnectedAt(Date.now())
+      else setConnectedAt(null)
       if (!cancelled) onConnectedChange?.(s.connected)
       if (!s.connected) startCountdown()
     })
@@ -107,6 +112,20 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
       unsubStatus?.()
     }
   }, [])
+
+  // 연결 유지 시간 업데이트
+  useEffect(() => {
+    if (!connected || !connectedAt) { setUptime(''); return }
+    const update = () => {
+      const sec = Math.floor((Date.now() - connectedAt) / 1000)
+      if (sec < 60) setUptime(`${sec}s`)
+      else if (sec < 3600) setUptime(`${Math.floor(sec / 60)}m`)
+      else setUptime(`${Math.floor(sec / 3600)}h${Math.floor((sec % 3600) / 60)}m`)
+    }
+    update()
+    const t = setInterval(update, 10000)
+    return () => clearInterval(t)
+  }, [connected, connectedAt])
 
   const extName = detectedProject?.version === '3x' ? 'cc-ws-extension-3x' : 'cc-ws-extension-2x'
   const extPort = detectedProject?.version === '3x' ? 9091 : 9090
@@ -149,7 +168,7 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
             background: connected ? 'rgba(63,185,80,0.15)' : reconnectCountdown !== null ? 'rgba(255,165,0,0.15)' : 'rgba(248,81,73,0.15)',
             color: connected ? 'var(--success, #3fb950)' : reconnectCountdown !== null ? '#ffa500' : 'var(--error, #f85149)',
           }}>
-            {connected ? '연결됨' : reconnectCountdown !== null ? `재연결 ${reconnectCountdown}s` : '연결 안됨'}
+            {connected ? `연결됨${uptime ? ` ${uptime}` : ''}` : reconnectCountdown !== null ? `재연결 ${reconnectCountdown}s` : '연결 안됨'}
           </span>
           {detectedProject && (
             <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 'auto' }}>
