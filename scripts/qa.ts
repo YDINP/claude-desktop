@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 253: R351 신규 기능 ───────────────────────────────
+console.log('\n## 253. 신규 기능 파일 검사 (R351)')
+// GlobalSearchPanel 검색 히스토리 (Round 351)
+const gs351Path = join(ROOT, 'src/renderer/src/components/sidebar/GlobalSearchPanel.tsx')
+if (existsSync(gs351Path)) {
+  const gs351 = readFileSync(gs351Path, 'utf-8')
+  if (gs351.includes('searchHistory') && gs351.includes('SEARCH_HISTORY_KEY') && gs351.includes('showHistory')) {
+    log('pass', 'Round351', 'GlobalSearchPanel: 검색 히스토리 (searchHistory/SEARCH_HISTORY_KEY/showHistory) 존재')
+  } else {
+    log('warning', 'Round351', 'GlobalSearchPanel 검색 히스토리 미구현', 'sidebar/GlobalSearchPanel.tsx')
+  }
+}
+
 // ── Section 252: R350 신규 기능 ───────────────────────────────
 console.log('\n## 252. 신규 기능 파일 검사 (R350)')
 // AgentPanel 태스크 검색 필터 (Round 350)

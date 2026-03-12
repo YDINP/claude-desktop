@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 351] — 2026-03-13
+### Added
+- GlobalSearchPanel: 검색 히스토리 — 최근 검색어 최대 5개 저장(localStorage), 포커스 시 히스토리 드롭다운 표시, 클릭 시 재검색
+
 ## [Round 350] — 2026-03-13
 ### Added
 - AgentPanel: 태스크 검색 필터 — 태스크 1개↑ 시 검색 입력창 표시, 이름/프롬프트 대상 실시간 필터

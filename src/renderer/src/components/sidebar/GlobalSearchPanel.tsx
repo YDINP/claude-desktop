@@ -1,4 +1,14 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
+
+const SEARCH_HISTORY_KEY = 'global-search-history'
+
+function loadSearchHistory(): string[] {
+  try { return JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) ?? '[]') } catch { return [] }
+}
+
+function saveSearchHistory(h: string[]) {
+  localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(h.slice(0, 5)))
+}
 
 interface GlobalSearchResult {
   sessionId: string
@@ -20,15 +30,23 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
   const [searched, setSearched] = useState(false)
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'assistant'>('all')
   const [sortOrder, setSortOrder] = useState<'relevance' | 'date'>('relevance')
+  const [searchHistory, setSearchHistory] = useState<string[]>(loadSearchHistory)
+  const [showHistory, setShowHistory] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const search = useCallback(async (q: string) => {
     if (q.length < 2) { setResults([]); setSearched(false); return }
     setLoading(true)
+    setShowHistory(false)
     try {
       const res = await window.api.sessionSearchAll(q)
       setResults(res)
       setSearched(true)
+      setSearchHistory(prev => {
+        const next = [q, ...prev.filter(h => h !== q)].slice(0, 5)
+        saveSearchHistory(next)
+        return next
+      })
     } catch {
       setResults([])
     } finally {
@@ -57,10 +75,12 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '8px' }}>
-      <div style={{ marginBottom: 8 }}>
+      <div style={{ marginBottom: 8, position: 'relative' }}>
         <input
           value={query}
           onChange={handleChange}
+          onFocus={() => { if (!query.trim() && searchHistory.length > 0) setShowHistory(true) }}
+          onBlur={() => setTimeout(() => setShowHistory(false), 150)}
           placeholder="전체 세션 검색..."
           autoFocus
           style={{
@@ -70,6 +90,26 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
             fontSize: 12, outline: 'none',
           }}
         />
+        {showHistory && searchHistory.length > 0 && (
+          <div style={{
+            position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
+            background: 'var(--bg-primary)', border: '1px solid var(--border)',
+            borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            marginTop: 2, overflow: 'hidden',
+          }}>
+            <div style={{ padding: '3px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>최근 검색</div>
+            {searchHistory.map((h, i) => (
+              <div key={i} onClick={() => { setQuery(h); setShowHistory(false); search(h) }}
+                style={{ padding: '5px 8px', fontSize: 11, cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '' }}
+              >
+                <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>🕐</span>
+                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{h}</span>
+              </div>
+            ))}
+          </div>
+        )}
         {query.length >= 2 && (
           <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: 3 }}>
