@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { aguiSubscribe } from '../../utils/agui-store'
 import type { AguiRun } from '../../utils/agui-store'
 
@@ -12,6 +12,19 @@ function RunCard({ run }: { run: AguiRun }) {
   const elapsed = run.finishedAt ? run.finishedAt - run.startedAt : now - run.startedAt
   const isActive = !run.finishedAt
   const [expanded, setExpanded] = useState(isActive || run.steps.length <= 3)
+  const [logCopied, setLogCopied] = useState(false)
+  const copyLog = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    const icon = (s: string) => s === 'done' ? '✓' : s === 'error' ? '✗' : '⟳'
+    const lines = [
+      `run/${run.id.slice(0, 8)} · ${fmtMs(elapsed)}${run.costUsd ? ` · $${run.costUsd.toFixed(4)}` : ''}`,
+      ...run.steps.map(s => `${icon(s.status)} ${s.name}${s.finishedAt ? ` (${fmtMs(s.finishedAt - s.startedAt)})` : ''}`),
+    ]
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setLogCopied(true)
+      setTimeout(() => setLogCopied(false), 1500)
+    })
+  }, [run, elapsed])
 
   return (
     <div style={{
@@ -32,9 +45,14 @@ function RunCard({ run }: { run: AguiRun }) {
             <span style={{ marginLeft: 5, fontSize: 10, opacity: 0.6 }}>{expanded ? '▾' : `▸${run.steps.length}`}</span>
           )}
         </span>
-        <span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {fmtMs(elapsed)}
           {run.costUsd ? ` · $${run.costUsd.toFixed(4)}` : ''}
+          <button
+            onClick={copyLog}
+            title="런 로그 복사"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', fontSize: 10, color: logCopied ? '#4caf50' : 'var(--border)' }}
+          >{logCopied ? '✓' : '📋'}</button>
         </span>
       </div>
       {expanded && (

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 383] — 2026-03-13
+### Added
+- RunTimeline RunCard: 런 로그 복사 버튼 — logCopied 상태, copyLog 콜백, 스텝 이름/상태/시간 텍스트 복사
+
 ## [Round 382] — 2026-03-13
 ### Added
 - StatsPanel: 통계 요약 복사 버튼 — 📋 버튼, statsCopied 상태, 세션/메시지/토큰/비용/스트릭 텍스트 복사

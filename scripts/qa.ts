@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 285: R383 신규 기능 ───────────────────────────────
+console.log('\n## 285. 신규 기능 파일 검사 (R383)')
+// RunTimeline RunCard 런 로그 복사 (Round 383)
+const rt383Path = join(ROOT, 'src/renderer/src/components/sidebar/RunTimeline.tsx')
+if (existsSync(rt383Path)) {
+  const rt383 = readFileSync(rt383Path, 'utf-8')
+  if (rt383.includes('logCopied') && rt383.includes('copyLog') && rt383.includes('런 로그 복사')) {
+    log('pass', 'Round383', 'RunTimeline: RunCard 런 로그 복사 버튼 존재')
+  } else {
+    log('warning', 'Round383', 'RunTimeline RunCard 로그 복사 미구현', 'sidebar/RunTimeline.tsx')
+  }
+}
+
 // ── Section 284: R382 신규 기능 ───────────────────────────────
 console.log('\n## 284. 신규 기능 파일 검사 (R382)')
 // StatsPanel 통계 요약 복사 버튼 (Round 382)

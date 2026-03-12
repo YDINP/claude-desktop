@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 382 완료 — StatsPanel 통계 요약 복사, Pass 402)
+> 마지막 업데이트: 2026-03-13 (Round 383 완료 — RunTimeline RunCard 런 로그 복사, Pass 403)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 383 | dev | RunTimeline RunCard 런 로그 복사 — logCopied, copyLog 콜백, 스텝 이름/상태/시간 텍스트 | ✅ |
 | Round 382 | dev | StatsPanel 통계 요약 복사 — 📋 버튼, statsCopied, 세션/메시지/토큰/비용/스트릭 텍스트 | ✅ |
 | Round 381 | dev | AssetBrowserPanel 전체 펼치기/접기 — ⊞/⊟ 버튼, getAllFolderPaths 재귀, allExpanded 계산 | ✅ |
 | Round 380 | dev | ConnectionPanel 서버 명령어 복사 — 각 행 📋 버튼, copiedServerIdx, command+args 클립보드 | ✅ |
