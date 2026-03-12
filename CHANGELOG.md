@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 402] — 2026-03-13
+### Added
+- WebPreviewPanel: iframe 줌 컨트롤 — zoom 상태, +/-/% 버튼, 0.5x-2.0x 단계별 스케일
+
 ## [Round 401] — 2026-03-13
 ### Added
 - ConnectionPanel: 서버 이름 검색 필터 — serverSearch 상태, 3개 초과 시 검색 입력, ESC 초기화

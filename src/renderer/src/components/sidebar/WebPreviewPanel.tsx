@@ -13,7 +13,12 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
   const [histIdx, setHistIdx] = useState(defaultUrl ? 0 : -1)
   const [urlCopied, setUrlCopied] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [zoom, setZoom] = useState(1.0)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  const ZOOM_STEPS = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
+  const zoomIn = () => setZoom(z => { const next = ZOOM_STEPS.find(s => s > z); return next ?? z })
+  const zoomOut = () => setZoom(z => { const arr = [...ZOOM_STEPS].reverse(); const next = arr.find(s => s < z); return next ?? z })
 
   const uniqueHistory = useMemo(() => {
     const seen = new Set<string>()
@@ -118,6 +123,14 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
               )}
             </div>
           )}
+          <button onClick={zoomOut} title="축소" disabled={zoom <= ZOOM_STEPS[0]}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: zoom <= ZOOM_STEPS[0] ? 'var(--border)' : 'var(--text-muted)', fontSize: 11 }}>−</button>
+          <button onClick={() => setZoom(1.0)} title={`줌 ${Math.round(zoom * 100)}% (클릭: 초기화)`}
+            style={{ background: zoom !== 1.0 ? 'var(--accent-dim)' : 'none', border: 'none', cursor: 'pointer', color: zoom !== 1.0 ? 'var(--accent)' : 'var(--text-muted)', fontSize: 9, padding: '1px 3px', borderRadius: 3 }}>
+            {Math.round(zoom * 100)}%
+          </button>
+          <button onClick={zoomIn} title="확대" disabled={zoom >= ZOOM_STEPS[ZOOM_STEPS.length - 1]}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: zoom >= ZOOM_STEPS[ZOOM_STEPS.length - 1] ? 'var(--border)' : 'var(--text-muted)', fontSize: 11 }}>+</button>
           <button
             onClick={() => setUrl('')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11 }}
@@ -160,14 +173,16 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
           </div>
         )}
         {url ? (
-          <iframe
-            ref={iframeRef}
-            src={url}
-            onLoad={handleLoad}
-            style={{ width: '100%', height: '100%', border: 'none', background: '#000' }}
-            title="CC Web Preview"
-            sandbox="allow-scripts allow-same-origin"
-          />
+          <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+            <iframe
+              ref={iframeRef}
+              src={url}
+              onLoad={handleLoad}
+              style={{ width: `${100 / zoom}%`, height: `${100 / zoom}%`, border: 'none', background: '#000', transform: `scale(${zoom})`, transformOrigin: '0 0' }}
+              title="CC Web Preview"
+              sandbox="allow-scripts allow-same-origin"
+            />
+          </div>
         ) : (
           <div style={{
             height: '100%', display: 'flex', flexDirection: 'column',

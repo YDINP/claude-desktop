@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 304: R402 신규 기능 ───────────────────────────────
+console.log('\n## 304. 신규 기능 파일 검사 (R402)')
+// WebPreviewPanel 줌 컨트롤 (Round 402)
+const wpp402Path = join(ROOT, 'src/renderer/src/components/sidebar/WebPreviewPanel.tsx')
+if (existsSync(wpp402Path)) {
+  const wpp402 = readFileSync(wpp402Path, 'utf-8')
+  if (wpp402.includes('zoom') && wpp402.includes('zoomIn') && wpp402.includes('zoomOut') && wpp402.includes('ZOOM_STEPS')) {
+    log('pass', 'Round402', 'WebPreviewPanel: iframe 줌 컨트롤 존재 (+/-/% 버튼)')
+  } else {
+    log('warning', 'Round402', 'WebPreviewPanel 줌 컨트롤 미구현', 'sidebar/WebPreviewPanel.tsx')
+  }
+}
+
 // ── Section 303: R401 신규 기능 ───────────────────────────────
 console.log('\n## 303. 신규 기능 파일 검사 (R401)')
 // ConnectionPanel 서버 검색 필터 (Round 401)
