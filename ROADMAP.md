@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 94 완료 — AG-UI 이벤트 모델)
+> 마지막 업데이트: 2026-03-12 (Round 95 완료 — QA 강화 Pass 10→17)
 
 ## 완료된 라운드
 
@@ -41,12 +41,13 @@
 | Round 92 | dev | StatsPanel API 비용 섹션 — cost-tracker 통합, 오늘/이번달 카드, 7일 비용 바 차트 | ✅ |
 | Round 93 | dev | 스트리밍 배치 렌더링 최적화 — agent-bridge 16ms 배치, reconcileText, text_delta 실시간 렌더링 | ✅ |
 | Round 94 | dev | AG-UI 이벤트 모델 — run_started/step_started/step_finished/run_finished, agui-store, RunTimeline 탭 | ✅ |
+| Round 95 | dev | QA 강화 — R90~94 신규 기능 7종 체크 추가 (Pass 10→17), Critical 0 / Warning 0 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 95 | dev | QA 강화 — R90~94 신규 기능 체크 추가, qa.ts 검증 항목 확장 |
+| Round 96 | dev | 메시지 재생성 + 스트리밍 중단 — ↺ 재생성 버튼, ■ Stop 버튼 InputBar 인라인 |
 
 ## 전략 로드맵 (Phase)
 
