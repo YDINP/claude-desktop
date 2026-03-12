@@ -1319,6 +1319,24 @@ if (existsSync(sceneViewPanelPath21)) {
   }
 }
 
+// ── Section 55: R153 신규 기능 ───────────────────────────────
+console.log('\n## 55. 신규 기능 파일 검사 (R153)')
+// NodeHierarchyList ESC 키 검색 초기화 (Round 153)
+const nodeHierarchyPath10 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath10)) {
+  const nh10 = readFileSync(nodeHierarchyPath10, 'utf-8')
+  if (nh10.includes("e.key === 'Escape'") && nh10.includes("setSearchQuery('')")) {
+    log('pass', 'Round153', 'NodeHierarchyList: ESC 키 검색 초기화 onKeyDown 존재')
+  } else {
+    log('warning', 'Round153', 'NodeHierarchyList ESC 검색 초기화 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+  if (nh10.includes('e.currentTarget.blur()')) {
+    log('pass', 'Round153', 'NodeHierarchyList: ESC 시 포커스 해제 존재')
+  } else {
+    log('warning', 'Round153', 'NodeHierarchyList ESC 포커스 해제 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

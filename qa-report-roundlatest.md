@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:02:16.107Z
+> 2026-03-12T14:03:31.377Z
 
 ## Critical
 _없음_
@@ -130,3 +130,5 @@ _없음_
 - SceneView: Shift+방향키 10px 이동 로직 존재
 - SceneView: 선택 노드 size 레이블 W×H 표시 존재
 - SceneView: 드래그/리사이즈 중 숨김 + zoom 보정 폰트 적용
+- NodeHierarchyList: ESC 키 검색 초기화 onKeyDown 존재
+- NodeHierarchyList: ESC 시 포커스 해제 존재

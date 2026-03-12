@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 153] — 2026-03-12
+### Added
+- NodeHierarchyList: 검색창 ESC 키 → 검색어 초기화 + 포커스 해제
+
 ## [Round 152] — 2026-03-12
 ### Added
 - SceneView: 선택 노드 size 레이블 — 단일 선택 시 bounding box 우상단에 "W×H" SVG 텍스트 표시 (드래그/리사이즈 중 숨김)

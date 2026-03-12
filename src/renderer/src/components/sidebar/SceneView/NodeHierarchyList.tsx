@@ -175,6 +175,7 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
         <input
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Escape') { setSearchQuery(''); e.currentTarget.blur() } }}
           placeholder="노드 검색..."
           style={{
             flex: 1,
