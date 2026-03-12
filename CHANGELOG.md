@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 240] — 2026-03-13
+### Improved
+- SceneView: 호버 툴팁 리치 정보 — 노드 이름 외 pos/size/컴포넌트 목록·잠금·숨김 상태 멀티라인 표시
+
 ## [Round 239] — 2026-03-13
 ### Added
 - SceneView: H키 가시성 토글 단축키, 컨텍스트 메뉴 확장 (숨기기/보이기·잠금/해제·즐겨찾기), 단축키 도움말 업데이트

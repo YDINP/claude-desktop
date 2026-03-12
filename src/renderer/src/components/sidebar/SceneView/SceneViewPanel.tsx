@@ -2422,28 +2422,43 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           const hn = nodeMap.get(hoveredUuid)
           if (!hn) return null
           const icon = getComponentIcon(hn.components)
+          const compList = hn.components.map(c => c.type).join(', ')
           return (
             <div
               style={{
                 position: 'absolute',
-                left: hoverTooltipPos.x,
-                top: hoverTooltipPos.y,
-                background: 'rgba(0,0,0,0.8)',
+                left: hoverTooltipPos.x + 8,
+                top: hoverTooltipPos.y - 8,
+                background: 'rgba(10,10,20,0.92)',
                 color: '#e5e5e5',
                 fontSize: 9,
-                padding: '2px 6px',
-                borderRadius: 3,
+                padding: '5px 8px',
+                borderRadius: 4,
                 pointerEvents: 'none',
                 whiteSpace: 'nowrap',
-                maxWidth: 160,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.15)',
                 zIndex: 10,
+                lineHeight: 1.6,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
               }}
             >
-              {icon && <span style={{ color: 'var(--accent)', fontWeight: 700, marginRight: 4 }}>{icon}</span>}
-              {hn.name}
+              <div style={{ fontWeight: 700, color: '#fff', marginBottom: 2 }}>
+                {icon && <span style={{ color: 'var(--accent)', marginRight: 4 }}>{icon}</span>}
+                {hn.name}
+              </div>
+              <div style={{ color: 'rgba(200,200,220,0.7)' }}>
+                pos: {Math.round(hn.x)}, {Math.round(hn.y)}
+              </div>
+              <div style={{ color: 'rgba(200,200,220,0.7)' }}>
+                size: {Math.round(hn.width)} × {Math.round(hn.height)}
+              </div>
+              {compList && (
+                <div style={{ color: 'var(--accent)', marginTop: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {compList}
+                </div>
+              )}
+              {hn.locked && <div style={{ color: '#f87171' }}>🔒 잠금됨</div>}
+              {hn.visible === false && <div style={{ color: '#9ca3af' }}>숨김</div>}
             </div>
           )
         })()}

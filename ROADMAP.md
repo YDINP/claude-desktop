@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 239 완료 — SceneView H키 가시성 + 컨텍스트 메뉴 확장, Pass 259)
+> 마지막 업데이트: 2026-03-13 (Round 240 완료 — SceneView 호버 툴팁 리치 정보, Pass 260)
 
 ## 완료된 라운드
 
@@ -191,6 +191,7 @@
 | Round 237 | dev | SceneView 노드 경로 브레드크럼 — Root→…→선택 노드 경로 상태바 위 표시, 클릭 선택 | ✅ |
 | Round 238 | dev | SceneView G키 멀티셀렉트 bbox 줌 — 멀티셀렉트 시 bounding box에 맞춰 카메라 자동 맞춤 | ✅ |
 | Round 239 | dev | SceneView H키 가시성 토글 + 컨텍스트 메뉴 확장 (숨기기/잠금/즐겨찾기) + 단축키 도움말 | ✅ |
+| Round 240 | dev | SceneView 호버 툴팁 리치 정보 — pos/size/컴포넌트 목록·잠금·숨김 멀티라인 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

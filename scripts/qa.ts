@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 142: R240 신규 기능 ───────────────────────────────
+console.log('\n## 142. 신규 기능 파일 검사 (R240)')
+// SceneView 호버 툴팁 개선 (Round 240)
+const svp240Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp240Path)) {
+  const svp240 = readFileSync(svp240Path, 'utf-8')
+  if (svp240.includes('compList') && svp240.includes('pos:') && svp240.includes('size:')) {
+    log('pass', 'Round240', 'SceneViewPanel: 호버 툴팁 리치 정보 (pos/size/components) 구현 존재')
+  } else {
+    log('warning', 'Round240', 'SceneViewPanel 리치 툴팁 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 141: R239 신규 기능 ───────────────────────────────
 console.log('\n## 141. 신규 기능 파일 검사 (R239)')
 // SceneView 컨텍스트 메뉴 확장 + H키 (Round 239)
