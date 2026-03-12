@@ -56,6 +56,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showStats, setShowStats] = useState(false)
   const [showChangeHistory, setShowChangeHistory] = useState(false)
   const [componentFilter, setComponentFilter] = useState<string>('all')
+  const [tagFilter, setTagFilter] = useState<string>('all')
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(new Set())
   const [focusMode, setFocusMode] = useState(false)
   const [measureMode, setMeasureMode] = useState(false)
@@ -1152,6 +1153,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return [...types].sort()
   }, [nodeMap])
 
+  // 씬 내 모든 태그 목록 (태그 필터 드롭다운용)
+  const allTags = useMemo(() => {
+    const tags = new Set<string>()
+    nodeMap.forEach(n => (n.tags ?? []).forEach(t => tags.add(t)))
+    return [...tags].sort()
+  }, [nodeMap])
+
   // 검색 매칭 노드 목록
   const searchMatches = useMemo(() =>
     canvasSearch.trim()
@@ -1468,6 +1476,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         componentFilter={componentFilter}
         componentTypes={componentTypes}
         onComponentFilterChange={setComponentFilter}
+        tagFilter={tagFilter}
+        allTags={allTags}
+        onTagFilterChange={setTagFilter}
         focusMode={focusMode}
         onFocusModeToggle={() => setFocusMode(v => !v)}
         measureMode={measureMode}
@@ -1748,6 +1759,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   showLabel={showLabels}
                   dimmed={
                     (componentFilter !== 'all' && !node.components.some(c => c.type === componentFilter)) ||
+                    (tagFilter !== 'all' && !(node.tags ?? []).includes(tagFilter)) ||
                     (focusMode && !selectedUuids.has(uuid) && selectedUuid !== uuid)
                   }
                   hasChildren={node.childUuids.length > 0}

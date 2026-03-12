@@ -76,6 +76,9 @@ interface SceneToolbarProps {
   onBookmarkListToggle?: () => void
   isSelectedLocked?: boolean
   onLockToggle?: () => void
+  tagFilter?: string
+  allTags?: string[]
+  onTagFilterChange?: (tag: string) => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -156,6 +159,9 @@ export function SceneToolbar({
   onBookmarkListToggle,
   isSelectedLocked,
   onLockToggle,
+  tagFilter,
+  allTags,
+  onTagFilterChange,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -326,6 +332,19 @@ export function SceneToolbar({
         >
           <option value="all">전체</option>
           {componentTypes.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+      )}
+
+      {/* 태그 필터 */}
+      {onTagFilterChange && allTags && allTags.length > 0 && (
+        <select
+          value={tagFilter ?? 'all'}
+          onChange={e => onTagFilterChange(e.target.value)}
+          title="태그 필터 — 선택한 태그가 없는 노드 dimmed 처리"
+          style={{ fontSize: 9, padding: '1px 2px', background: tagFilter !== 'all' ? 'var(--accent-dim)' : 'var(--bg-secondary)', border: `1px solid ${tagFilter !== 'all' ? 'var(--accent)' : 'var(--border)'}`, borderRadius: 2, color: tagFilter !== 'all' ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer' }}
+        >
+          <option value="all">#태그</option>
+          {allTags.map(t => <option key={t} value={t}>#{t}</option>)}
         </select>
       )}
 

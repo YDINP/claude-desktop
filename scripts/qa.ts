@@ -2036,6 +2036,26 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 138: R236 신규 기능 ───────────────────────────────
+console.log('\n## 138. 신규 기능 파일 검사 (R236)')
+// SceneView 태그 필터 (Round 236)
+const svp236Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const st236Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(svp236Path) && existsSync(st236Path)) {
+  const svp236 = readFileSync(svp236Path, 'utf-8')
+  const st236 = readFileSync(st236Path, 'utf-8')
+  if (svp236.includes('tagFilter') && svp236.includes('allTags') && svp236.includes('태그 필터')) {
+    log('pass', 'Round236', 'SceneViewPanel: 태그 필터 상태 및 dimmed 로직 구현 존재')
+  } else {
+    log('warning', 'Round236', 'SceneViewPanel 태그 필터 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (st236.includes('onTagFilterChange') && st236.includes('allTags') && st236.includes('#태그')) {
+    log('pass', 'Round236', 'SceneToolbar: 태그 필터 드롭다운 구현 존재')
+  } else {
+    log('warning', 'Round236', 'SceneToolbar 태그 필터 드롭다운 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 137: R235 신규 기능 ───────────────────────────────
 console.log('\n## 137. 신규 기능 파일 검사 (R235)')
 // SceneView 노드 잠금 (Round 235)

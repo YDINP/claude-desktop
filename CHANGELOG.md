@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 236] — 2026-03-13
+### Added
+- SceneView: 태그 기반 노드 필터 — 씬 내 태그 목록 드롭다운, 선택 태그 없는 노드 dimmed 처리
+
 ## [Round 235] — 2026-03-13
 ### Added
 - SceneView: 노드 잠금 — Alt+L 단축키로 선택 노드 잠금/해제, 잠긴 노드는 드래그/리사이즈 차단, SVG 🔒 아이콘 표시, 툴바 잠금 버튼
