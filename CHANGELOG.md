@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 283] — 2026-03-13
+### Improved
+- CalendarPanel: 이번 달 이벤트 수 요약 표시 — 세션 요약 라인에 `이벤트 N개` 강조 표시 추가
+
 ## [Round 282] — 2026-03-13
 ### Added
 - TasksPanel: 빠른 마감일 설정 버튼 — 오늘/내일/7일 후 토글 버튼, 재클릭 시 해제, × 초기화

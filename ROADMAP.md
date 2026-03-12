@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 282 완료 — TasksPanel 빠른 마감일 버튼, Pass 302)
+> 마지막 업데이트: 2026-03-13 (Round 283 완료 — CalendarPanel 이벤트 수 요약, Pass 303)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 283 | dev | CalendarPanel 이번 달 이벤트 수 요약 — monthEventCount/monthPrefix, 강조 표시 | ✅ |
 | Round 282 | dev | TasksPanel 빠른 마감일 버튼 — 오늘/내일/7일 후 토글, 재클릭 해제, × 초기화 | ✅ |
 | Round 281 | dev | StatsPanel 요일별 활동 분포 차트 — weekdayStats/isPeak, 최다 요일 황색 하이라이트 | ✅ |
 | Round 280 | dev | NotesPanel 노트 클립보드 복사 — copyNoteToClipboard/noteCopied, Markdown 형식 복사 | ✅ |

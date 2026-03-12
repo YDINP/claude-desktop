@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 185: R283 신규 기능 ───────────────────────────────
+console.log('\n## 185. 신규 기능 파일 검사 (R283)')
+// CalendarPanel 이번 달 이벤트 수 요약 (Round 283)
+const cal283Path = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(cal283Path)) {
+  const cal283 = readFileSync(cal283Path, 'utf-8')
+  if (cal283.includes('monthEventCount') && cal283.includes('monthPrefix') && cal283.includes('이벤트')) {
+    log('pass', 'Round283', 'CalendarPanel: 이번 달 이벤트 수 요약 (monthEventCount/monthPrefix) 존재')
+  } else {
+    log('warning', 'Round283', 'CalendarPanel 이번 달 이벤트 수 요약 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── Section 184: R282 신규 기능 ───────────────────────────────
 console.log('\n## 184. 신규 기능 파일 검사 (R282)')
 // TasksPanel 빠른 마감일 버튼 (Round 282)

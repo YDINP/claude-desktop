@@ -88,6 +88,12 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
 
   const selectedSessions = selectedDay ? (sessionsByDate.get(selectedDay) ?? []) : []
 
+  const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`
+  const monthEventCount = useMemo(
+    () => events.filter(e => e.date.startsWith(monthPrefix)).length,
+    [events, monthPrefix]
+  )
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 8, fontSize: 12 }}>
       {/* Navigation */}
@@ -112,9 +118,9 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
         <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, textAlign: 'center' }}>
           전체 {sessions.length}개 세션 · 이번 달 {
             [...sessionsByDate.entries()]
-              .filter(([k]) => k.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`))
+              .filter(([k]) => k.startsWith(monthPrefix))
               .reduce((s, [, v]) => s + v.length, 0)
-          }개
+          }개{monthEventCount > 0 && <> · <span style={{ color: 'var(--accent)' }}>이벤트 {monthEventCount}개</span></>}
         </div>
       )}
 
