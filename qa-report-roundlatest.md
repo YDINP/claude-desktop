@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T13:57:45.141Z
+> 2026-03-12T13:58:59.444Z
 
 ## Critical
 _없음_
@@ -124,3 +124,5 @@ _없음_
 - SceneView: 1:1 줌 리셋 로직 존재
 - NodeHierarchyList: 검색 결과 카운트 N/total 표시 존재
 - NodeHierarchyList: 검색 중에만 카운트 표시 조건 존재
+- NodeHierarchyList: 검색 X 버튼 + 초기화 로직 존재
+- NodeHierarchyList: 검색어 있을 때만 X 버튼 표시 조건 존재

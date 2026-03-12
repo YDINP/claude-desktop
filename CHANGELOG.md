@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 150] — 2026-03-12
+### Added
+- NodeHierarchyList: 검색창 X 지우기 버튼 — 검색어 입력 시 ×버튼 표시, 클릭으로 즉시 초기화
+
 ## [Round 149] — 2026-03-12
 ### Added
 - NodeHierarchyList: 검색 결과 카운트 표시 — 검색 중 "N/total" 형태로 검색창 우측 표시, 결과 없을 시 warning 색상

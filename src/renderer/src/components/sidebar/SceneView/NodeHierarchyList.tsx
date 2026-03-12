@@ -199,6 +199,13 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
             {filteredNodes.length}/{nodeMap.size}
           </span>
         )}
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            title="검색 초기화"
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 11, padding: '1px 2px', lineHeight: 1, flexShrink: 0 }}
+          >×</button>
+        )}
         <button
           onClick={() => setCollapsed(new Set())}
           title="전체 펼치기"

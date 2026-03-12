@@ -1265,6 +1265,24 @@ if (existsSync(nodeHierarchyPath8)) {
   }
 }
 
+// ── Section 52: R150 신규 기능 ───────────────────────────────
+console.log('\n## 52. 신규 기능 파일 검사 (R150)')
+// NodeHierarchyList 검색 X 버튼 (Round 150)
+const nodeHierarchyPath9 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath9)) {
+  const nh9 = readFileSync(nodeHierarchyPath9, 'utf-8')
+  if (nh9.includes("setSearchQuery('')") && nh9.includes('검색 초기화')) {
+    log('pass', 'Round150', 'NodeHierarchyList: 검색 X 버튼 + 초기화 로직 존재')
+  } else {
+    log('warning', 'Round150', 'NodeHierarchyList 검색 X 버튼 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+  if (nh9.includes('{searchQuery && (')) {
+    log('pass', 'Round150', 'NodeHierarchyList: 검색어 있을 때만 X 버튼 표시 조건 존재')
+  } else {
+    log('warning', 'Round150', 'NodeHierarchyList X 버튼 조건 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
