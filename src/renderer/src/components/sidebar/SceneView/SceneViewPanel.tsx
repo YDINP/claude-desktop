@@ -58,6 +58,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [componentFilter, setComponentFilter] = useState<string>('all')
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(new Set())
   const [focusMode, setFocusMode] = useState(false)
+  const [measureMode, setMeasureMode] = useState(false)
+  const [measureLine, setMeasureLine] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
+  const measureStartRef = useRef<{ x: number; y: number } | null>(null)
   const [nodeEditDraft, setNodeEditDraft] = useState<{ x: string; y: string; w: string; h: string } | null>(null)
   const [changeHistory, setChangeHistory] = useState<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
   const changeHistoryRef = useRef<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
@@ -357,6 +360,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         setFocusMode(v => !v)
         return
       }
+      if (e.altKey && (e.key === 'm' || e.key === 'M')) {
+        e.preventDefault()
+        setMeasureMode(v => !v)
+        setMeasureLine(null)
+        measureStartRef.current = null
+        return
+      }
       if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && selectedUuid) {
         e.preventDefault()
         const node = nodeMap.get(selectedUuid)
@@ -439,6 +449,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   // ── 마우스 이벤트 ─────────────────────────────────────────
   const handleSvgMouseDown = useCallback((e: React.MouseEvent) => {
+    // 측정 모드 — 클릭으로 측정 시작
+    if (measureMode && e.button === 0) {
+      const svgPos = getSvgCoords(e)
+      measureStartRef.current = { x: svgPos.x, y: svgPos.y }
+      setMeasureLine({ x1: svgPos.x, y1: svgPos.y, x2: svgPos.x, y2: svgPos.y })
+      return
+    }
     // 빈 영역 클릭 → 패닝 (middle btn 또는 space + left)
     if (e.button === 1 || (e.button === 0 && (activeTool === 'move' || spaceDown))) {
       isPanning.current = true
@@ -573,6 +590,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const svgPos = getSvgCoords(e)
     const { cx, cy } = svgToScene(svgPos.x, svgPos.y)
     setCursorScenePos({ x: Math.round(cx), y: Math.round(cy) })
+
+    // 측정 모드 드래그
+    if (measureMode && measureStartRef.current && e.buttons === 1) {
+      setMeasureLine({ x1: measureStartRef.current.x, y1: measureStartRef.current.y, x2: svgPos.x, y2: svgPos.y })
+      return
+    }
 
     // 호버 툴팁 위치
     setHoverTooltipPos({ x: svgPos.x + 12, y: svgPos.y - 24 })
@@ -727,7 +750,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         updateNode(drag.uuid, { x: newX, y: newY })
       }
     }
-  }, [view.zoom, snapEnabled, snapGrid, getSvgCoords, svgToScene, updateNode, nodeMap, selectedUuids, canvasSize])
+  }, [view.zoom, snapEnabled, snapGrid, getSvgCoords, svgToScene, updateNode, nodeMap, selectedUuids, canvasSize, measureMode])
 
   const handleMouseUp = useCallback(async () => {
     setAlignGuides([])
@@ -1306,6 +1329,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onComponentFilterChange={setComponentFilter}
         focusMode={focusMode}
         onFocusModeToggle={() => setFocusMode(v => !v)}
+        measureMode={measureMode}
+        onMeasureModeToggle={() => { setMeasureMode(v => !v); setMeasureLine(null); measureStartRef.current = null }}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -1593,6 +1618,36 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 )
               })
             }
+
+            {/* 측정 도구 라인 */}
+            {measureMode && measureLine && (() => {
+              const dx = (measureLine.x2 - measureLine.x1) / view.zoom
+              const dy = (measureLine.y2 - measureLine.y1) / view.zoom
+              const dist = Math.sqrt(dx * dx + dy * dy)
+              const angle = Math.atan2(dy, dx) * 180 / Math.PI
+              const mx = (measureLine.x1 + measureLine.x2) / 2
+              const my = (measureLine.y1 + measureLine.y2) / 2
+              return (
+                <g style={{ pointerEvents: 'none' }}>
+                  <line
+                    x1={measureLine.x1} y1={measureLine.y1}
+                    x2={measureLine.x2} y2={measureLine.y2}
+                    stroke="#f97316" strokeWidth={1.5 / view.zoom}
+                    strokeDasharray={`${4 / view.zoom} ${2 / view.zoom}`}
+                  />
+                  <circle cx={measureLine.x1} cy={measureLine.y1} r={3 / view.zoom} fill="#f97316" />
+                  <circle cx={measureLine.x2} cy={measureLine.y2} r={3 / view.zoom} fill="#f97316" />
+                  <rect x={mx - 28 / view.zoom} y={my - 8 / view.zoom}
+                    width={56 / view.zoom} height={16 / view.zoom}
+                    fill="rgba(0,0,0,0.7)" rx={2 / view.zoom} />
+                  <text x={mx} y={my + 4 / view.zoom}
+                    fontSize={9 / view.zoom} fill="#f97316" textAnchor="middle"
+                    fontFamily="var(--font-mono)" style={{ userSelect: 'none' }}>
+                    {Math.round(dist)}px {Math.round(angle)}°
+                  </text>
+                </g>
+              )
+            })()}
 
             {/* 선택 노드 리사이즈 핸들 (단일 선택 시) */}
             {selectedNode && selectedUuids.size <= 1 && (() => {

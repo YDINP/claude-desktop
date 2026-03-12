@@ -2036,6 +2036,26 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 130: R228 신규 기능 ───────────────────────────────
+console.log('\n## 130. 신규 기능 파일 검사 (R228)')
+// SceneView 측정 도구 (Round 228)
+const svp228Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const st228Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(svp228Path) && existsSync(st228Path)) {
+  const svp228 = readFileSync(svp228Path, 'utf-8')
+  const st228 = readFileSync(st228Path, 'utf-8')
+  if (svp228.includes('measureMode') && svp228.includes('measureLine') && svp228.includes('측정 도구')) {
+    log('pass', 'Round228', 'SceneViewPanel: 측정 도구 모드 + 라인 렌더링 존재')
+  } else {
+    log('warning', 'Round228', 'SceneViewPanel 측정 도구 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (st228.includes('measureMode') && st228.includes('onMeasureModeToggle') && st228.includes('Ruler')) {
+    log('pass', 'Round228', 'SceneToolbar: 측정 도구 버튼 존재')
+  } else {
+    log('warning', 'Round228', 'SceneToolbar 측정 도구 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 129: R227 신규 기능 ───────────────────────────────
 console.log('\n## 129. 신규 기능 파일 검사 (R227)')
 // SceneView 인라인 편집바 (Round 227)

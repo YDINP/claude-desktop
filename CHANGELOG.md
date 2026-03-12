@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 228] — 2026-03-13
+### Added
+- SceneView: 측정 도구 (Alt+M) — 드래그로 씬 좌표 거리·각도 측정, 라인+수치 오버레이 표시
+
 ## [Round 227] — 2026-03-13
 ### Added
 - SceneView: 선택 노드 인라인 편집바 — 캔버스 하단에 X/Y/W/H 직접 편집 입력, Enter 적용/Esc 취소

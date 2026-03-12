@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 227 완료 — SceneView 인라인 편집바, Pass 238)
+> 마지막 업데이트: 2026-03-13 (Round 228 완료 — SceneView 측정 도구, Pass 240)
 
 ## 완료된 라운드
 
@@ -179,6 +179,7 @@
 | Round 225 | dev | SceneView Focus Mode — Alt+Z 토글, 선택 노드 강조/나머지 dimmed, 툴바 버튼 | ✅ |
 | Round 226 | dev | SceneView 검색 순환 네비게이션 — Enter 다음/Shift+Enter 이전, 현재/전체 카운트, 현재 항목 주황 강조 | ✅ |
 | Round 227 | dev | SceneView 인라인 편집바 — 선택 노드 X/Y/W/H 캔버스 하단 인라인 편집, Enter 적용/Esc 취소 | ✅ |
+| Round 228 | dev | SceneView 측정 도구 — Alt+M 토글, 드래그로 씬 좌표 거리/각도 측정, 오렌지 라인+수치 오버레이 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

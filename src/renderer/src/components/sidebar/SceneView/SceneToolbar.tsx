@@ -63,6 +63,8 @@ interface SceneToolbarProps {
   onComponentFilterChange?: (type: string) => void
   focusMode?: boolean
   onFocusModeToggle?: () => void
+  measureMode?: boolean
+  onMeasureModeToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -130,6 +132,8 @@ export function SceneToolbar({
   onComponentFilterChange,
   focusMode,
   onFocusModeToggle,
+  measureMode,
+  onMeasureModeToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -310,6 +314,15 @@ export function SceneToolbar({
           onClick={onFocusModeToggle}
           title="포커스 모드 — 선택 노드만 강조 (Alt+Z)"
         >◎ Focus</button>
+      )}
+
+      {/* 측정 도구 */}
+      {onMeasureModeToggle && (
+        <button
+          style={measureMode ? btnActive : btnBase}
+          onClick={onMeasureModeToggle}
+          title="측정 도구 — 드래그로 거리 측정 (Alt+M)"
+        >📏 Ruler</button>
       )}
 
       {/* 캔버스 크기 프리셋 */}
