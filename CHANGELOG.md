@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 328] — 2026-03-13
+### Added
+- CalendarPanel: 날짜 미선택 시 오늘 이후 이벤트 최대 3개 "다음 이벤트" 미리보기 표시 (클릭 시 해당 날짜 선택)
+
 ## [Round 327] — 2026-03-13
 ### Added
 - SceneTreePanel: 헤더에 비활성 노드 수 표시 — `비활성 N개` 빨간 텍스트 (active: false 재귀 카운트)

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 230: R328 신규 기능 ───────────────────────────────
+console.log('\n## 230. 신규 기능 파일 검사 (R328)')
+// CalendarPanel 다음 이벤트 미리보기 (Round 328)
+const cap328Path = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(cap328Path)) {
+  const cap328 = readFileSync(cap328Path, 'utf-8')
+  if (cap328.includes('upcomingEvents') && cap328.includes('다음 이벤트') && cap328.includes('slice(0, 3)')) {
+    log('pass', 'Round328', 'CalendarPanel: 다음 이벤트 미리보기 (upcomingEvents/slice(0,3)) 존재')
+  } else {
+    log('warning', 'Round328', 'CalendarPanel 다음 이벤트 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── Section 229: R327 신규 기능 ───────────────────────────────
 console.log('\n## 229. 신규 기능 파일 검사 (R327)')
 // SceneTreePanel 비활성 노드 수 (Round 327)

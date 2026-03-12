@@ -94,6 +94,13 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
     [events, monthPrefix]
   )
 
+  const upcomingEvents = useMemo(() => {
+    return events
+      .filter(e => e.date >= today)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 3)
+  }, [events, today])
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 8, fontSize: 12 }}>
       {/* Navigation */}
@@ -182,6 +189,31 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
       )}
       {selectedDay && selectedSessions.length === 0 && (
         <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)' }}>이 날짜에 세션이 없습니다</div>
+      )}
+
+      {/* 다음 이벤트 미리보기 (날짜 미선택 시) */}
+      {!selectedDay && upcomingEvents.length > 0 && (
+        <div style={{ marginTop: 10 }}>
+          <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4, letterSpacing: '0.3px' }}>
+            다음 이벤트
+          </div>
+          {upcomingEvents.map(ev => (
+            <div
+              key={ev.id}
+              onClick={() => setSelectedDay(ev.date)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6, padding: '3px 4px',
+                borderRadius: 4, cursor: 'pointer', marginBottom: 2,
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+            >
+              <span style={{ fontSize: 8, color: ev.color, flexShrink: 0 }}>●</span>
+              <span style={{ flex: 1, fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{ev.date.slice(5)}</span>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* 커스텀 이벤트 */}
