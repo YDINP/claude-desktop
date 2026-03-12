@@ -406,12 +406,14 @@ export function registerSessionHandlers() {
 
     const now = Date.now()
     const dailyCounts: number[] = Array(7).fill(0)
+    const dailyMessageCounts: number[] = Array(7).fill(0)
     const dailyCountsMap: Record<string, number> = {}
     for (const s of sessions) {
       const ts = s.updatedAt ?? s.createdAt ?? 0
       const dayAgo = Math.floor((now - ts) / 86400000)
       if (dayAgo >= 0 && dayAgo < 7) {
         dailyCounts[6 - dayAgo]++
+        dailyMessageCounts[6 - dayAgo] += s.messageCount ?? 0
       }
       if (dayAgo >= 0 && dayAgo < 84) {
         const d = new Date(ts)
@@ -425,7 +427,16 @@ export function registerSessionHandlers() {
       return now - ts < 7 * 86400000
     }).length
 
-    return { totalSessions, topTags, dailyCounts, dailyCountsMap, recentCount }
+    const totalMessages = sessions.reduce((sum, s) => sum + (s.messageCount ?? 0), 0)
+    const avgMessagesPerSession = totalSessions === 0
+      ? 0
+      : Math.round((totalMessages / totalSessions) * 10) / 10
+    const topSessions = [...sessions]
+      .sort((a, b) => (b.messageCount ?? 0) - (a.messageCount ?? 0))
+      .slice(0, 5)
+      .map(s => ({ id: s.id, title: s.title, messageCount: s.messageCount ?? 0 }))
+
+    return { totalSessions, topTags, dailyCounts, dailyCountsMap, recentCount, totalMessages, avgMessagesPerSession, dailyMessageCounts, topSessions }
   })
 
   ipcMain.handle('session:stats', async (_, { id }: { id: string }) => {

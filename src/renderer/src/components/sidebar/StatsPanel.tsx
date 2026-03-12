@@ -7,6 +7,10 @@ interface StatsData {
   dailyCounts: number[]
   dailyCountsMap: Record<string, number>
   recentCount: number
+  totalMessages?: number
+  avgMessagesPerSession?: number
+  dailyMessageCounts?: number[]
+  topSessions?: Array<{ id: string; title: string; messageCount: number }>
 }
 
 const STOPWORDS = new Set([
@@ -40,6 +44,7 @@ export function StatsPanel() {
   const [insight, setInsight] = useState<string | null>(null)
   const [insightLoading, setInsightLoading] = useState(false)
   const [wordFreqOpen, setWordFreqOpen] = useState(false)
+  const [topSessionsOpen, setTopSessionsOpen] = useState(false)
   const [sessionTitles, setSessionTitles] = useState<string[]>([])
   const [dailyCosts, setDailyCosts] = useState<{ date: string; usd: number }[]>([])
   const [todayCost, setTodayCost] = useState(0)
@@ -141,7 +146,7 @@ export function StatsPanel() {
   return (
     <div style={{ padding: 12, fontSize: 12, color: 'var(--text-primary)' }}>
       {/* 요약 카드 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
         <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 10, textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--accent)' }}>{stats.totalSessions}</div>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>전체 세션</div>
@@ -150,6 +155,18 @@ export function StatsPanel() {
           <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--accent)' }}>{stats.recentCount}</div>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>최근 7일</div>
         </div>
+        {stats.totalMessages != null && (
+          <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 10, textAlign: 'center' }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--accent)' }}>{stats.totalMessages}</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>전체 메시지</div>
+          </div>
+        )}
+        {stats.avgMessagesPerSession != null && (
+          <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 10, textAlign: 'center' }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--accent)' }}>{stats.avgMessagesPerSession}</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>평균 메시지</div>
+          </div>
+        )}
       </div>
 
       {/* 7일 활동 바 차트 */}
@@ -173,6 +190,31 @@ export function StatsPanel() {
           ))}
         </div>
       </div>
+
+      {/* 7일 메시지 수 차트 */}
+      {stats.dailyMessageCounts && stats.dailyMessageCounts.some(v => v > 0) && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>최근 7일 메시지 수</div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 50 }}>
+            {stats.dailyMessageCounts.map((count, i) => {
+              const maxMsg = Math.max(...stats.dailyMessageCounts!, 1)
+              return (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <div style={{
+                    width: '100%',
+                    height: `${(count / maxMsg) * 40 + (count > 0 ? 4 : 0)}px`,
+                    background: count > 0 ? '#7c3aed' : 'var(--bg-tertiary)',
+                    borderRadius: 2, minHeight: 2, transition: 'height 0.3s',
+                  }} title={`${count}개 메시지`} />
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                    {days[(today - 6 + i + 7) % 7]}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* API 비용 */}
       {(monthlyCost > 0 || todayCost > 0) && (
@@ -355,6 +397,40 @@ export function StatsPanel() {
           </div>
         )}
       </div>
+
+      {/* 상위 세션 (메시지 수 기준) */}
+      {stats.topSessions && stats.topSessions.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <button
+            onClick={() => setTopSessionsOpen(v => !v)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4, width: '100%',
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--text-muted)', fontSize: 10, fontWeight: 600,
+              padding: '0 0 4px 0', textAlign: 'left',
+            }}
+          >
+            <span style={{ fontSize: 9 }}>{topSessionsOpen ? '▼' : '▶'}</span>
+            💬 메시지 많은 세션 TOP 5
+          </button>
+          {topSessionsOpen && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {stats.topSessions.map((s, i) => (
+                <div key={s.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: 'var(--bg-tertiary)', borderRadius: 4, padding: '4px 8px',
+                }}>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 10, minWidth: 14 }}>{i + 1}.</span>
+                  <span style={{ flex: 1, fontSize: 10, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {s.title || '제목 없음'}
+                  </span>
+                  <span style={{ fontSize: 10, color: 'var(--accent)', flexShrink: 0 }}>{s.messageCount}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 상위 태그 */}
       {stats.topTags.length > 0 && (

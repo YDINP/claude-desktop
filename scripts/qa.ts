@@ -535,6 +535,33 @@ if (existsSync(nodePropPath)) {
   }
 }
 
+// ── Section 16: R111 신규 기능 ───────────────────────────────
+console.log('\n## 16. 신규 기능 파일 검사 (R111)')
+// StatsPanel 고도화 (Round 111)
+const sessionHandlerPath = join(ROOT, 'src/main/ipc/session-handlers.ts')
+if (existsSync(sessionHandlerPath)) {
+  const sh = readFileSync(sessionHandlerPath, 'utf-8')
+  if (sh.includes('totalMessages') && sh.includes('dailyMessageCounts') && sh.includes('topSessions')) {
+    log('pass', 'Round111', 'globalStats: totalMessages/dailyMessageCounts/topSessions 존재')
+  } else {
+    log('warning', 'Round111', 'globalStats 확장 필드 누락', 'main/ipc/session-handlers.ts')
+  }
+}
+const statsPanelPath2 = join(ROOT, 'src/renderer/src/components/sidebar/StatsPanel.tsx')
+if (existsSync(statsPanelPath2)) {
+  const sp2 = readFileSync(statsPanelPath2, 'utf-8')
+  if (sp2.includes('dailyMessageCounts')) {
+    log('pass', 'Round111', 'StatsPanel 일별 메시지 수 차트 존재')
+  } else {
+    log('warning', 'Round111', 'StatsPanel 일별 메시지 수 차트 미구현', 'sidebar/StatsPanel.tsx')
+  }
+  if (sp2.includes('topSessions') && sp2.includes('TOP 5')) {
+    log('pass', 'Round111', 'StatsPanel 상위 세션 TOP 5 존재')
+  } else {
+    log('warning', 'Round111', 'StatsPanel 상위 세션 TOP 5 미구현', 'sidebar/StatsPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

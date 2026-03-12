@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T11:28:18.096Z
+> 2026-03-12T11:33:19.876Z
 
 ## Critical
 _없음_
@@ -48,3 +48,6 @@ _없음_
 - 스트리밍 경과 시간 표시 존재
 - cc-bridge.ts: createNode + deleteNode 존재
 - NodePropertyPanel 색상 스왓치 표시 존재
+- globalStats: totalMessages/dailyMessageCounts/topSessions 존재
+- StatsPanel 일별 메시지 수 차트 존재
+- StatsPanel 상위 세션 TOP 5 존재

@@ -1,15 +1,22 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 110 완료)
+> 마지막 업데이트: 2026-03-12 (Round 111 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 110 (NodePropertyPanel 색상 스왓치/Vec 디스플레이 + QA Pass 40)
+- 마지막 커밋: Round 111 (StatsPanel 고도화 + QA Pass 43)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 40
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 43
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 110 완료 항목 (최근 세션)
+## Round 111 완료 항목 (최근 세션)
+
+### Round 111 — StatsPanel 고도화 (세션별 통계 + 일별 메시지 차트 + TOP 5)
+- `src/main/ipc/session-handlers.ts`: `session:globalStats` 핸들러 확장 — `totalMessages`, `avgMessagesPerSession`, `dailyMessageCounts` (7일), `topSessions` (messageCount 상위 5개) 반환
+- `src/renderer/src/components/sidebar/StatsPanel.tsx`: StatsData 인터페이스 확장, 요약 카드 4열(전체 세션/최근7일/전체 메시지/평균 메시지), 일별 메시지 수 바 차트(보라색), 상위 세션 TOP 5 collapsible 섹션
+- `scripts/qa.ts`: Section 16 추가 (globalStats 확장 필드, StatsPanel 차트/TOP 5 체크, Pass 40→43)
+
+## Round 110 완료 항목 (이전 세션)
 
 ### Round 110 — NodePropertyPanel 디스플레이 고도화 + QA 수정
 - `src/renderer/src/components/sidebar/NodePropertyPanel.tsx`: `formatPropValue` 강화 (Boolean → ✓/✗, Vec2 → `(x,y)`, Vec3 → `(x,y,z)`, Color → `color:R,G,B`); ComponentSection 행 렌더링에서 `color:` prefix 감지 시 컬러 스왓치(14×14px rgb 박스) + HEX 코드 표시
