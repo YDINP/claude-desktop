@@ -56,6 +56,9 @@ function scanAssetDir(dirPath, rootPath, depth = 0) {
   }
 }
 
+// ── CC 2.x 참고: props 추출 (CC 3.x only)
+// CC 2.x는 enrichNode/dv 없이 scene script(getNode/getNodeTree)를 통해
+// 이미 직렬화된 플레인 값을 반환하므로, 컴포넌트 props 추출은 CC 3.x 전용임.
 // ── 브로드캐스트 ──────────────────────────────────────────
 function broadcast(data) {
   const msg = JSON.stringify(data);

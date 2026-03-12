@@ -94,7 +94,7 @@ export interface CCNode {
   opacity: number
   color: { r: number; g: number; b: number; a: number }
   children: CCNode[]
-  components: { type: string }[]
+  components: { type: string; props?: Record<string, unknown> }[]
 }
 
 export interface CCEvent {

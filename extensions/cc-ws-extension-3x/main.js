@@ -146,10 +146,20 @@ function enrichNode(raw) {
     opacity = dv(n.opacity) ?? 255;
   }
 
-  // components: query-node → __comps__.type, tree → components[].type
+  // components: query-node → __comps__.type + props, tree → components[].type
   const rawTreeComps = dv(n.__components) || dv(n.components) || [];
   const components = isNodeDump
-    ? compsArr.map(c => ({ type: c.type || 'unknown' }))
+    ? compsArr.map(c => {
+        const props = {};
+        if (c.value && typeof c.value === 'object') {
+          for (const [k, v] of Object.entries(c.value)) {
+            if (k.startsWith('_') || k === '__classname__' || k === 'node') continue;
+            const extracted = dv(v);
+            if (extracted !== null && extracted !== undefined) props[k] = extracted;
+          }
+        }
+        return { type: c.type || 'unknown', props };
+      })
     : (Array.isArray(rawTreeComps) ? rawTreeComps.map(c => ({ type: compType(c) })) : []);
 
   // children: query-node에서는 UUID ref만 있으므로 빈 배열, tree에서는 재귀

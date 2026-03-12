@@ -47,6 +47,65 @@ function PropRow({ label, value, decimals = 0, onSave }: {
   )
 }
 
+function formatPropValue(value: unknown): string | null {
+  if (value === null || value === undefined) return null
+  if (Array.isArray(value)) return `[${value.length} items]`
+  if (typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .filter(([, v]) => v !== null && v !== undefined)
+      .map(([k, v]) => `${k}: ${typeof v === 'number' ? parseFloat((v as number).toFixed(3)) : v}`)
+    return `{${entries.join(', ')}}`
+  }
+  if (typeof value === 'string') {
+    return value.length > 50 ? value.slice(0, 50) + '…' : value
+  }
+  return String(value)
+}
+
+function ComponentSection({ type, props, open, onToggle }: {
+  type: string
+  props?: Record<string, unknown>
+  open: boolean
+  onToggle: () => void
+}) {
+  const rows = props
+    ? Object.entries(props).map(([k, v]) => ({ k, v: formatPropValue(v) })).filter(r => r.v !== null)
+    : []
+
+  return (
+    <div style={{ marginTop: 2 }}>
+      <div
+        onClick={onToggle}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 4,
+          padding: '3px 0', cursor: 'pointer',
+          borderTop: '1px solid var(--border)',
+          fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.3px',
+          userSelect: 'none',
+        }}
+      >
+        <span style={{ fontSize: 9, width: 10 }}>{open ? '▾' : '▸'}</span>
+        {type}
+      </div>
+      {open && rows.length > 0 && (
+        <div style={{ paddingLeft: 14, paddingBottom: 2 }}>
+          {rows.map(({ k, v }) => (
+            <div key={k} style={{ display: 'flex', gap: 4, padding: '1px 0', fontSize: 10 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 72 }}>{k}</span>
+              <span style={{ color: 'var(--text-primary)', wordBreak: 'break-all' }}>{v}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {open && rows.length === 0 && (
+        <div style={{ paddingLeft: 14, fontSize: 10, color: 'var(--text-muted)', paddingBottom: 2 }}>
+          (no props)
+        </div>
+      )}
+    </div>
+  )
+}
+
 function GroupHeader({ label }: { label: string }) {
   return (
     <div style={{
@@ -71,6 +130,11 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
 
   const scale = node.scale ?? { x: 1, y: 1 }
   const hasUIOpacity = (node.components ?? []).some(c => c.type === 'cc.UIOpacity')
+  const extraComponents = (node.components ?? []).filter(
+    c => c.type !== 'cc.UITransform' && c.type !== 'cc.UIOpacity'
+  )
+  const [openState, setOpenState] = useState<Record<number, boolean>>({})
+  const toggleOpen = (i: number) => setOpenState(prev => ({ ...prev, [i]: !prev[i] }))
 
   return (
     <div style={{ padding: '8px 10px', fontSize: 12, borderTop: '2px solid var(--border)' }}>
@@ -103,14 +167,18 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
       )}
 
       {/* 컴포넌트 목록 */}
-      {(node.components ?? []).length > 0 && (
+      {extraComponents.length > 0 && (
         <>
           <GroupHeader label="Components" />
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.8 }}>
-            {(node.components ?? []).map((c, i) => (
-              <div key={i}>{c.type}</div>
-            ))}
-          </div>
+          {extraComponents.map((c, i) => (
+            <ComponentSection
+              key={i}
+              type={c.type}
+              props={c.props}
+              open={!!openState[i]}
+              onToggle={() => toggleOpen(i)}
+            />
+          ))}
         </>
       )}
     </div>
