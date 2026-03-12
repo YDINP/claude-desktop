@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { CCNode } from '../../../../shared/ipc-schema'
 
 interface NodePropertyPanelProps {
@@ -280,13 +280,29 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
     c => c.type !== 'cc.UITransform' && c.type !== 'cc.UIOpacity'
   )
   const [openState, setOpenState] = useState<Record<number, boolean>>({})
+  const [uuidCopied, setUuidCopied] = useState(false)
   const toggleOpen = (i: number) => setOpenState(prev => ({ ...prev, [i]: !prev[i] }))
+  const copyUuid = useCallback(() => {
+    navigator.clipboard.writeText(node.uuid).then(() => {
+      setUuidCopied(true)
+      setTimeout(() => setUuidCopied(false), 1500)
+    })
+  }, [node.uuid])
 
   return (
     <div style={{ padding: '8px 10px', fontSize: 12, borderTop: '2px solid var(--border)' }}>
       {/* 노드 이름 */}
-      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
-        {node.name}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {node.name}
+        </span>
+        <button
+          onClick={copyUuid}
+          title={`UUID 복사: ${node.uuid}`}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: uuidCopied ? '#4ade80' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0 }}
+        >
+          {uuidCopied ? '✓' : '📋'}
+        </button>
       </div>
 
       {/* Node 그룹 */}
@@ -315,7 +331,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
       {/* 컴포넌트 목록 */}
       {extraComponents.length > 0 && (
         <>
-          <GroupHeader label="Components" />
+          <GroupHeader label={`Components (${extraComponents.length})`} />
           {extraComponents.map((c, i) => (
             <ComponentSection
               key={i}

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 304] — 2026-03-13
+### Added
+- NodePropertyPanel: 노드 UUID 복사 버튼 — 📋 클릭으로 UUID 클립보드 복사, ✓ 피드백
+
 ## [Round 303] — 2026-03-13
 ### Added
 - PromptChainPanel: 체인 툴바에 마지막 실행 시간 + 단계 수 표시 — `마지막 실행: X분 전 · N단계`

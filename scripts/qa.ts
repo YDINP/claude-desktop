@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 206: R304 신규 기능 ───────────────────────────────
+console.log('\n## 206. 신규 기능 파일 검사 (R304)')
+// NodePropertyPanel UUID 복사 버튼 (Round 304)
+const np304Path = join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx')
+if (existsSync(np304Path)) {
+  const np304 = readFileSync(np304Path, 'utf-8')
+  if (np304.includes('copyUuid') && np304.includes('uuidCopied') && np304.includes('UUID 복사')) {
+    log('pass', 'Round304', 'NodePropertyPanel: UUID 복사 버튼 (copyUuid/uuidCopied) 존재')
+  } else {
+    log('warning', 'Round304', 'NodePropertyPanel UUID 복사 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+}
+
 // ── Section 205: R303 신규 기능 ───────────────────────────────
 console.log('\n## 205. 신규 기능 파일 검사 (R303)')
 // PromptChainPanel 마지막 실행 시간 (Round 303)
