@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 307] — 2026-03-13
+### Added
+- DiffPanel: 원본/수정 경로 교체 버튼 — ⇄ 클릭으로 `leftPath ↔ rightPath` + 콘텐츠 동시 교체
+
 ## [Round 306] — 2026-03-13
 ### Added
 - WebPreviewPanel: 외부 브라우저에서 열기 버튼 — ↗ 클릭으로 `window.open(_blank)` 외부 열기

@@ -43,6 +43,13 @@ export function DiffPanel() {
     }
   }
 
+  const handleSwap = () => {
+    setLeftPath(rightPath)
+    setRightPath(leftPath)
+    setLeftContent(rightContent)
+    setRightContent(leftContent)
+  }
+
   const lang = getLangFromPath(rightPath || leftPath)
   const identical = leftContent !== null && rightContent !== null && leftContent === rightContent
 
@@ -84,6 +91,15 @@ export function DiffPanel() {
             fontFamily: 'monospace', minWidth: 0,
           }}
         />
+        <button
+          onClick={handleSwap}
+          title="원본/수정 경로 교체"
+          style={{
+            padding: '3px 6px', background: 'var(--bg-tertiary)',
+            color: 'var(--text-muted)', border: '1px solid var(--border)',
+            borderRadius: 4, fontSize: 11, cursor: 'pointer', flexShrink: 0,
+          }}
+        >⇄</button>
         <button
           onClick={() => setSideBySide(p => !p)}
           title={sideBySide ? '인라인 뷰로 전환' : '나란히 뷰로 전환'}

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 209: R307 신규 기능 ───────────────────────────────
+console.log('\n## 209. 신규 기능 파일 검사 (R307)')
+// DiffPanel 경로 교체 버튼 (Round 307)
+const dp307Path = join(ROOT, 'src/renderer/src/components/sidebar/DiffPanel.tsx')
+if (existsSync(dp307Path)) {
+  const dp307 = readFileSync(dp307Path, 'utf-8')
+  if (dp307.includes('handleSwap') && dp307.includes('⇄') && dp307.includes('원본/수정 경로 교체')) {
+    log('pass', 'Round307', 'DiffPanel: 경로 교체 버튼 (handleSwap/⇄) 존재')
+  } else {
+    log('warning', 'Round307', 'DiffPanel 경로 교체 미구현', 'sidebar/DiffPanel.tsx')
+  }
+}
+
 // ── Section 208: R306 신규 기능 ───────────────────────────────
 console.log('\n## 208. 신규 기능 파일 검사 (R306)')
 // WebPreviewPanel 외부 열기 버튼 (Round 306)
