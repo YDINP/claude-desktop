@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 243] — 2026-03-13
+### Added
+- SceneView: 드래그 델타 오버레이 — 드래그 중 이동량(Δx, Δy)을 커서 옆에 실시간 표시
+
 ## [Round 242] — 2026-03-13
 ### Added
 - SceneView: 그룹 해제 (Ctrl+Shift+G) — 그룹 노드의 자식들을 상위 레벨로 올리고 그룹 노드 비활성화

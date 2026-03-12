@@ -41,6 +41,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showLabels, setShowLabels] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
+  const [dragDelta, setDragDelta] = useState<{ dx: number; dy: number } | null>(null)
   const [isRotating, setIsRotating] = useState(false)
   const [isPanningActive, setIsPanningActive] = useState(false)
   const [spaceDown, setSpaceDown] = useState(false)
@@ -812,6 +813,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
       let newX = drag.startNodeX + dSceneX
       let newY = drag.startNodeY + dSceneY
+      setDragDelta({ dx: Math.round(dSceneX), dy: Math.round(dSceneY) })
 
       // 스냅
       if (snapEnabled) {
@@ -976,6 +978,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       }
       dragRef.current = null
       setIsDragging(false)
+      setDragDelta(null)
     }
 
     // 리사이즈 종료 → IPC 전송
@@ -2452,6 +2455,30 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             }}
           >
             {cursorScenePos.x}, {cursorScenePos.y}
+          </div>
+        )}
+
+        {/* 드래그 델타 오버레이 */}
+        {isDragging && dragDelta && hoverTooltipPos && (
+          <div
+            style={{
+              position: 'absolute',
+              left: hoverTooltipPos.x + 8,
+              top: hoverTooltipPos.y - 30,
+              background: 'rgba(10,10,20,0.9)',
+              color: '#facc15',
+              fontSize: 9,
+              padding: '3px 7px',
+              borderRadius: 3,
+              pointerEvents: 'none',
+              border: '1px solid rgba(250,200,50,0.4)',
+              fontVariantNumeric: 'tabular-nums',
+              zIndex: 20,
+              lineHeight: 1.5,
+            }}
+          >
+            <div>Δx: {dragDelta.dx > 0 ? '+' : ''}{dragDelta.dx}</div>
+            <div>Δy: {dragDelta.dy > 0 ? '+' : ''}{dragDelta.dy}</div>
           </div>
         )}
 

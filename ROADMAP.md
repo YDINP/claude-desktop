@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 242 완료 — SceneView 그룹 해제 Ctrl+Shift+G, Pass 262)
+> 마지막 업데이트: 2026-03-13 (Round 243 완료 — SceneView 드래그 델타 오버레이, Pass 263)
 
 ## 완료된 라운드
 
@@ -194,6 +194,7 @@
 | Round 240 | dev | SceneView 호버 툴팁 리치 정보 — pos/size/컴포넌트 목록·잠금·숨김 멀티라인 표시 | ✅ |
 | Round 241 | dev | SceneView Alt+1~9 빠른 색상 레이블 — 9색 팔레트 키보드 지정, Alt+0 초기화 | ✅ |
 | Round 242 | dev | SceneView 그룹 해제 — Ctrl+Shift+G 자식 노드 상위 레벨 이동, handleUngroup | ✅ |
+| Round 243 | dev | SceneView 드래그 델타 오버레이 — 드래그 중 Δx/Δy 이동량 커서 옆 실시간 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

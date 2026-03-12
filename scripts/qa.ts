@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 145: R243 신규 기능 ───────────────────────────────
+console.log('\n## 145. 신규 기능 파일 검사 (R243)')
+// SceneView 드래그 델타 오버레이 (Round 243)
+const svp243Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp243Path)) {
+  const svp243 = readFileSync(svp243Path, 'utf-8')
+  if (svp243.includes('dragDelta') && svp243.includes('드래그 델타 오버레이') && svp243.includes('Δx')) {
+    log('pass', 'Round243', 'SceneViewPanel: 드래그 델타 오버레이 구현 존재')
+  } else {
+    log('warning', 'Round243', 'SceneViewPanel 드래그 델타 오버레이 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 144: R242 신규 기능 ───────────────────────────────
 console.log('\n## 144. 신규 기능 파일 검사 (R242)')
 // SceneView 그룹 해제 (Round 242)
