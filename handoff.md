@@ -2,14 +2,21 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 104 (QA R102~103 체크 + SceneView Z-order)
+- 마지막 커밋: Round 105 (CC 2x Extension Z-order + QA Section 12)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 32
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 34
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 104 완료 항목 (최근 세션)
+## Round 105 완료 항목 (최근 세션)
+
+### Round 105 — CC 2x Extension Z-order + QA Section 12
+- `extensions/cc-ws-extension-2x/scene-script.js`: `setNodeZOrder` 함수 추가 (front/back/up/down, getSiblingIndex/setSiblingIndex)
+- `extensions/cc-ws-extension-2x/main.js`: `POST /node/:uuid/zorder` 라우트 추가, status features에 'zorder' 추가
+- `scripts/qa.ts`: Section 12 추가 (cc-bridge setZOrder, 2x extension Z-order 체크, Pass 32→34)
+
+## Round 104 완료 항목 (이전 세션)
 
 ### Round 104 — QA 강화 + SceneView Z-order 제어
 - `scripts/qa.ts`: Section 11 추가 (R102~103 체크 3종), Pass 29→32

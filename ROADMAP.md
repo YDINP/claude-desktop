@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 104 완료 — QA R102~103 체크 + SceneView Z-order 제어)
+> 마지막 업데이트: 2026-03-12 (Round 105 완료 — CC 2x Extension Z-order 고도화 + QA Pass→34)
 
 ## 완료된 라운드
 
@@ -51,13 +51,14 @@
 | Round 102 | dev | QA R101 체크 (Pass→29) + SceneInspector 노드 가시성 토글 + ccSetProperty port 버그 수정 | ✅ |
 | Round 103 | dev | 전체 세션 메시지 검색 — session:searchAll IPC, GlobalSearchResult 타입, GlobalSearchPanel, Sidebar 탭 | ✅ |
 | Round 104 | dev | QA R102~103 체크 (Pass→32) + SceneView Z-order (⬆⬆⬆⬇⬇ 버튼) + CC extension /node/:uuid/zorder 엔드포인트 | ✅ |
+| Round 105 | dev | CC 2x Extension Z-order 고도화 (scene-script setNodeZOrder + /zorder 라우트) + QA Section 12 (Pass→34) | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 105 | dev | CC 2x Extension 고도화 — 3x와 기능 동등성 (active 토글, zorder, compProps 추출) |
-| Round 106 | dev | AI 프리셋 프롬프트 슬롯 — 4개 빠른 액션 버튼 (InputBar 하단 고정) |
+| Round 106 | dev | AI 빠른 액션 슬롯 — InputBar 하단 4개 프리셋 버튼 (커스터마이즈 가능) |
+| Round 107 | dev | 세션 컬렉션(폴더) 관리 UI — 드래그로 세션 그룹화, 컬렉션 생성/삭제 |
 
 ## 전략 로드맵 (Phase)
 

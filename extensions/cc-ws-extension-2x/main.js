@@ -133,6 +133,17 @@ function routeRequest(method, url, body, res) {
     return;
   }
 
+  // POST /node/:uuid/zorder
+  const zorderMatch = url.match(/^\/node\/([^\/]+)\/zorder$/);
+  if (method === 'POST' && zorderMatch) {
+    const uuid = zorderMatch[1];
+    Editor.Scene.callSceneScript('cc-ws-extension', 'setNodeZOrder', { uuid, direction: body.direction }, (err) => {
+      if (err) { res.writeHead(500); res.end(JSON.stringify({ error: String(err) })); return; }
+      res.writeHead(200); res.end(JSON.stringify({ ok: true }));
+    });
+    return;
+  }
+
   // GET /scene/canvas-size
   if (method === 'GET' && url === '/scene/canvas-size') {
     Editor.Scene.callSceneScript('cc-ws-extension', 'getCanvasSize', {}, (err, result) => {
@@ -164,7 +175,7 @@ function routeRequest(method, url, body, res) {
 
   // GET /status
   if (method === 'GET' && url === '/status') {
-    res.writeHead(200); res.end(JSON.stringify({ ok: true, version: '2x', port: PORT, features: ['scene/tree', 'node', 'assets/tree'] }));
+    res.writeHead(200); res.end(JSON.stringify({ ok: true, version: '2x', port: PORT, features: ['scene/tree', 'node', 'assets/tree', 'zorder'] }));
     return;
   }
 

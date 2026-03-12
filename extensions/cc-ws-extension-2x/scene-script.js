@@ -89,6 +89,27 @@ module.exports = {
     node.y = options.y;
     event.reply(null, { ok: true });
   },
+
+  // 노드 Z-order 조정
+  setNodeZOrder(event, options) {
+    const { uuid, direction } = options;
+    const scene = cc.director.getScene();
+    const target = findByUUID(scene, uuid);
+    if (!target || !target.parent) {
+      event.reply(null, { ok: false, error: 'Node not found' });
+      return;
+    }
+
+    const idx = target.getSiblingIndex();
+    const count = target.parent.childrenCount;
+
+    if (direction === 'front') target.setSiblingIndex(count - 1);
+    else if (direction === 'back') target.setSiblingIndex(0);
+    else if (direction === 'up') target.setSiblingIndex(Math.min(idx + 1, count - 1));
+    else if (direction === 'down') target.setSiblingIndex(Math.max(idx - 1, 0));
+
+    event.reply(null, { ok: true });
+  },
 };
 
 function findByUUID(node, uuid) {

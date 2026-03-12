@@ -439,6 +439,30 @@ if (existsSync(sessionHandlersPath)) {
   }
 }
 
+console.log('\n## 12. 신규 기능 파일 검사 (R104-105)')
+
+// SceneView Z-order (Round 104)
+const ccBridgePath2 = join(ROOT, 'src/main/cc/cc-bridge.ts')
+if (existsSync(ccBridgePath2)) {
+  const cb = readFileSync(ccBridgePath2, 'utf-8')
+  if (cb.includes('setZOrder')) {
+    log('pass', 'Round104', 'cc-bridge.ts: setZOrder 메서드 존재')
+  } else {
+    log('warning', 'Round104', 'cc-bridge.ts setZOrder 누락', 'main/cc/cc-bridge.ts')
+  }
+}
+
+// CC 2x Extension Z-order (Round 105)
+const ext2xMainPath = join(ROOT, 'extensions/cc-ws-extension-2x/main.js')
+if (existsSync(ext2xMainPath)) {
+  const ext = readFileSync(ext2xMainPath, 'utf-8')
+  if (ext.includes('zorder') && ext.includes('setNodeZOrder')) {
+    log('pass', 'Round105', 'CC 2x extension Z-order 엔드포인트 존재')
+  } else {
+    log('warning', 'Round105', 'CC 2x extension Z-order 누락', 'extensions/cc-ws-extension-2x/main.js')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
