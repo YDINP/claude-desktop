@@ -1749,6 +1749,19 @@ if (existsSync(sceneInspectorPath15)) {
   }
 }
 
+// ── Section 78: R176 신규 기능 ───────────────────────────────
+console.log('\n## 78. 신규 기능 파일 검사 (R176)')
+// 드래그/리사이즈 중 선택 노드 정보 상태바 (Round 176)
+const svp176Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp176Path)) {
+  const svp176 = readFileSync(svp176Path, 'utf-8')
+  if (svp176.includes('드래그/리사이즈 중 선택 노드 정보') && svp176.includes('isDragging || isResizing')) {
+    log('pass', 'Round176', 'SceneViewPanel: 드래그/리사이즈 중 노드 정보 상태바 존재')
+  } else {
+    log('warning', 'Round176', 'SceneViewPanel 드래그 정보 상태바 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

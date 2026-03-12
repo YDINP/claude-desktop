@@ -1281,6 +1281,27 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </div>
         )}
 
+        {/* 드래그/리사이즈 중 선택 노드 정보 */}
+        {(isDragging || isResizing) && selectedNode && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 6,
+              right: 44,
+              fontSize: 9,
+              color: 'rgba(250,200,50,0.9)',
+              background: 'rgba(0,0,0,0.6)',
+              padding: '1px 6px',
+              borderRadius: 3,
+              pointerEvents: 'none',
+              fontVariantNumeric: 'tabular-nums',
+              fontFamily: 'monospace',
+            }}
+          >
+            x:{Math.round(selectedNode.x)} y:{Math.round(selectedNode.y)} w:{Math.round(selectedNode.width)} h:{Math.round(selectedNode.height)}
+          </div>
+        )}
+
         {/* 마우스 씬 좌표 표시 */}
         {cursorScenePos && !isDragging && !isResizing && (
           <div

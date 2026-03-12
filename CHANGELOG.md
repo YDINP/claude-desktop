@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 176] — 2026-03-13
+### Added
+- SceneView: 드래그/리사이즈 중 선택 노드 x,y,w,h 실시간 정보 표시
+
 ## [Round 175] — 2026-03-12
 ### Added
 - SceneInspector: 자식 노드 목록 확장 — ↳N 클릭 시 자식 이름 목록 펼치기/접기, 클릭으로 선택

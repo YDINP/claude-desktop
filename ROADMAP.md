@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 175 완료 — SceneInspector 자식 노드 목록, Pass 168)
+> 마지막 업데이트: 2026-03-13 (Round 176 완료 — 드래그 중 노드 정보 표시, Pass 169)
 
 ## 완료된 라운드
 
@@ -127,6 +127,7 @@
 | Round 173 | dev | 코드 블록 라인 번호 — 4줄 이상 시 showLineNumbers 자동 표시 | ✅ |
 | Round 174 | dev | SceneToolbar 줌 레벨 더블클릭 인라인 편집 — 10%~800% 범위 직접 입력 | ✅ |
 | Round 175 | dev | SceneInspector 자식 노드 목록 — ↳N 클릭으로 펼치기/접기, 클릭 선택 | ✅ |
+| Round 176 | dev | SceneView 드래그/리사이즈 중 선택 노드 x,y,w,h 실시간 정보 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 
