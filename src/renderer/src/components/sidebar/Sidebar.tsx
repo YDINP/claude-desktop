@@ -158,7 +158,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
       </button>
 
       {/* Content */}
-      <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div key={tab} style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn 0.15s ease' }}>
         {tab === 'files' && currentPath && (
           <>
             {/* File search */}

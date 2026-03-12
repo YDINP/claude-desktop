@@ -41,6 +41,9 @@ export const ToolUseIndicator = memo(function ToolUseIndicator({ tool }: { tool:
           {collapsed ? '\u25B8' : '\u25BE'}
         </span>
       </div>
+      {tool.status === 'running' && (
+        <div className="tool-progress-bar" />
+      )}
       {!collapsed && !!tool.input && (
         <pre style={{
           color: 'var(--text-secondary)',

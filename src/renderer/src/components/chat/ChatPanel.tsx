@@ -203,6 +203,14 @@ const StreamingSpinner = memo(function StreamingSpinner() {
   return <span style={{ fontSize: 13, color: 'var(--warning)', marginLeft: 'auto', fontFamily: 'monospace' }}>{SPINNER_FRAMES[frameIdx]}</span>
 })
 
+function TypingIndicator() {
+  return (
+    <div className="typing-indicator">
+      <span /><span /><span />
+    </div>
+  )
+}
+
 function formatElapsed(s: number): string {
   if (s < 60) return `${s}s`
   return `${Math.floor(s / 60)}m ${s % 60}s`
@@ -919,9 +927,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           </div>
         )}
         {chat.isStreaming && messageCount > 0 && chat.messages[messageCount - 1]?.role === 'user' && (
-          <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ padding: '4px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Claude</span>
-            <StreamingSpinner />
+            <TypingIndicator />
             <span style={{ fontSize: 11, color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums' }}>
               {formatElapsed(streamingSeconds)}{tokenRate > 0 ? ` · ~${tokenRate} tok/s` : ''}
             </span>
