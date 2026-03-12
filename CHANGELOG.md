@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 190] — 2026-03-13
+### Added
+- SceneInspector: Color 섹션에 알파(α) 슬라이더 추가 — 0~255 범위 드래그로 색상 투명도 실시간 편집
+
 ## [Round 189] — 2026-03-13
 ### Added
 - SceneView: Ctrl+← → 회전 단축키 — 1°씩 회전, Ctrl+Shift+← → 10°씩 회전

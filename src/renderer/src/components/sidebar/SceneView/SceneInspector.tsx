@@ -5,7 +5,7 @@ import { getComponentIcon } from './utils'
 interface SceneInspectorProps {
   node: SceneNode | null
   onUpdate: (uuid: string, prop: string, value: number | boolean) => void
-  onColorUpdate?: (uuid: string, color: { r: number; g: number; b: number }) => void
+  onColorUpdate?: (uuid: string, color: Partial<{ r: number; g: number; b: number; a: number }>) => void
   onClose: () => void
   selectionCount?: number
   onRename?: (uuid: string, name: string) => void
@@ -554,11 +554,18 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'monospace', letterSpacing: '0.3px' }}>
           #{toHex(node.color.r)}{toHex(node.color.g)}{toHex(node.color.b)}
         </span>
-        {node.color.a !== 255 && (
-          <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
-            α{Math.round(node.color.a / 255 * 100)}%
-          </span>
-        )}
+        <input
+          type="range"
+          min={0}
+          max={255}
+          value={node.color.a}
+          onChange={e => onColorUpdate?.(node.uuid, { a: parseInt(e.target.value) })}
+          title={`알파: ${Math.round(node.color.a / 255 * 100)}%`}
+          style={{ flex: 1, height: 4, cursor: 'pointer', accentColor: 'var(--accent)', minWidth: 0 }}
+        />
+        <span style={{ fontSize: 9, color: node.color.a < 255 ? 'var(--accent)' : 'var(--text-muted)', fontVariantNumeric: 'tabular-nums', flexShrink: 0, minWidth: 26, textAlign: 'right' }}>
+          {Math.round(node.color.a / 255 * 100)}%
+        </span>
       </div>
 
       {/* Opacity (UIOpacity 컴포넌트 있을 때) */}

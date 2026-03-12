@@ -1940,6 +1940,19 @@ if (existsSync(svp189Path)) {
   }
 }
 
+// ── Section 92: R190 신규 기능 ───────────────────────────────
+console.log('\n## 92. 신규 기능 파일 검사 (R190)')
+// SceneInspector Color 알파 슬라이더 (Round 190)
+const sceneInspectorPath21 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath21)) {
+  const si21 = readFileSync(sceneInspectorPath21, 'utf-8')
+  if (si21.includes('알파:') && si21.includes("onColorUpdate?.(node.uuid, { a:") && si21.includes('type="range"')) {
+    log('pass', 'Round190', 'SceneInspector: Color 알파 슬라이더 존재')
+  } else {
+    log('warning', 'Round190', 'SceneInspector Color 알파 슬라이더 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

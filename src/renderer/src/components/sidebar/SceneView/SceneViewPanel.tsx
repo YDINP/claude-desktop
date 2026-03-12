@@ -706,7 +706,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [updateNode, port])
 
-  const handleColorUpdate = useCallback((uuid: string, color: { r: number; g: number; b: number }) => {
+  const handleColorUpdate = useCallback((uuid: string, color: Partial<{ r: number; g: number; b: number; a: number }>) => {
     updateNode(uuid, { color: { ...((nodeMap.get(uuid)?.color) ?? { r: 255, g: 255, b: 255, a: 255 }), ...color } })
   }, [updateNode, nodeMap])
 
