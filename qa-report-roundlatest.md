@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T19:23:36.044Z
+> 2026-03-12T19:26:43.541Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- CalendarPanel: 이벤트 인라인 편집 (editingEventId/commitEventEdit) 존재
 - NotesPanel: 검색 결과 하이라이트 (highlightText/<mark>) 존재
 - StatsPanel: 연속 사용일 스트릭 (currentStreak/longestStreak) 존재
 - TasksPanel: 검색 필터 (taskSearch/searchLower) 존재

@@ -30,6 +30,13 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
   })
   const [eventInput, setEventInput] = useState('')
   const [eventColor, setEventColor] = useState(EVENT_COLORS[0])
+  const [editingEventId, setEditingEventId] = useState<string | null>(null)
+  const [editingEventDraft, setEditingEventDraft] = useState('')
+
+  const commitEventEdit = (id: string) => {
+    if (editingEventDraft.trim()) saveEvents(events.map(e => e.id === id ? { ...e, title: editingEventDraft.trim() } : e))
+    setEditingEventId(null)
+  }
 
   const saveEvents = useCallback((next: CalendarEvent[]) => {
     setEvents(next)
@@ -176,7 +183,15 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
         <div style={{ marginTop: 8 }}>
           {events.filter(e => e.date === selectedDay).map(ev => (
             <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 6px', marginBottom: 2, borderRadius: 3, background: 'var(--bg-secondary)', borderLeft: `3px solid ${ev.color}` }}>
-              <span style={{ flex: 1, fontSize: 11 }}>{ev.title}</span>
+              {editingEventId === ev.id ? (
+                <input autoFocus value={editingEventDraft} onChange={e => setEditingEventDraft(e.target.value)}
+                  onBlur={() => commitEventEdit(ev.id)}
+                  onKeyDown={e => { if (e.key === 'Enter') commitEventEdit(ev.id); else if (e.key === 'Escape') setEditingEventId(null) }}
+                  style={{ flex: 1, fontSize: 11, background: 'var(--bg-primary)', border: '1px solid var(--accent)', borderRadius: 2, color: 'inherit', padding: '1px 3px', outline: 'none' }} />
+              ) : (
+                <span onDoubleClick={() => { setEditingEventId(ev.id); setEditingEventDraft(ev.title) }} title="더블클릭 편집"
+                  style={{ flex: 1, fontSize: 11, cursor: 'text' }}>{ev.title}</span>
+              )}
               <button onClick={() => deleteEvent(ev.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12 }}>×</button>
             </div>
           ))}

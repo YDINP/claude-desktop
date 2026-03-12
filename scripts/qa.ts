@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 176: R274 신규 기능 ───────────────────────────────
+console.log('\n## 176. 신규 기능 파일 검사 (R274)')
+// CalendarPanel 이벤트 인라인 편집 (Round 274)
+const cal274Path = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(cal274Path)) {
+  const cal274 = readFileSync(cal274Path, 'utf-8')
+  if (cal274.includes('editingEventId') && cal274.includes('commitEventEdit') && cal274.includes('더블클릭 편집')) {
+    log('pass', 'Round274', 'CalendarPanel: 이벤트 인라인 편집 (editingEventId/commitEventEdit) 존재')
+  } else {
+    log('warning', 'Round274', 'CalendarPanel 이벤트 인라인 편집 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── Section 175: R273 신규 기능 ───────────────────────────────
 console.log('\n## 175. 신규 기능 파일 검사 (R273)')
 // NotesPanel 검색 하이라이트 (Round 273)

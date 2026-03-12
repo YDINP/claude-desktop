@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 274] — 2026-03-13
+### Improved
+- CalendarPanel: 이벤트 인라인 편집 — 이벤트 더블클릭 시 제목 수정 입력창, Enter/Esc/blur로 확정
+
 ## [Round 273] — 2026-03-13
 ### Added
 - NotesPanel: 검색어 하이라이트 — 목록 제목에서 검색어 매칭 부분을 `<mark>` 황색 강조

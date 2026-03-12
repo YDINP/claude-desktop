@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 273 완료 — NotesPanel 검색 하이라이트, Pass 293)
+> 마지막 업데이트: 2026-03-13 (Round 274 완료 — CalendarPanel 이벤트 인라인 편집, Pass 294)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 274 | dev | CalendarPanel 이벤트 인라인 편집 — 더블클릭 editingEventId/commitEventEdit | ✅ |
 | Round 273 | dev | NotesPanel 검색어 하이라이트 — highlightText()/<mark> 황색 강조 | ✅ |
 | Round 272 | dev | StatsPanel 연속 사용일 스트릭 — currentStreak/longestStreak useMemo 계산 | ✅ |
 | Round 271 | dev | TasksPanel 검색 필터 — taskSearch + searchLower 필터링, Escape 초기화 | ✅ |
