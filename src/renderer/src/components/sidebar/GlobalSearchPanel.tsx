@@ -46,6 +46,13 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
     return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
   }
 
+  const highlightQuery = (text: string, q: string) => {
+    if (!q.trim() || q.length < 2) return <>{text}</>
+    const idx = text.toLowerCase().indexOf(q.toLowerCase())
+    if (idx < 0) return <>{text}</>
+    return <>{text.slice(0, idx)}<mark style={{ background: '#fbbf2466', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{text.slice(idx, idx + q.length)}</mark>{text.slice(idx + q.length)}</>
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '8px' }}>
       <div style={{ marginBottom: 8 }}>
@@ -102,7 +109,7 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
             <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.4,
               overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical' }}>
-              {r.excerpt}
+              {highlightQuery(r.excerpt, query)}
             </div>
           </div>
         ))}

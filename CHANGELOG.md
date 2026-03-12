@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 290] — 2026-03-13
+### Improved
+- GlobalSearchPanel: 검색 결과 발췌문에 검색어 하이라이트 — `<mark>` 노란 배경 강조 표시
+
 ## [Round 289] — 2026-03-13
 ### Added
 - StatsPanel: 일평균 세션 수 카드 — 스트릭 섹션에 `totalSessions/totalDays` 소수점 1자리 카드 추가

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 192: R290 신규 기능 ───────────────────────────────
+console.log('\n## 192. 신규 기능 파일 검사 (R290)')
+// GlobalSearchPanel 검색어 하이라이트 (Round 290)
+const gsp290Path = join(ROOT, 'src/renderer/src/components/sidebar/GlobalSearchPanel.tsx')
+if (existsSync(gsp290Path)) {
+  const gsp290 = readFileSync(gsp290Path, 'utf-8')
+  if (gsp290.includes('highlightQuery') && gsp290.includes('fbbf24') && gsp290.includes('<mark')) {
+    log('pass', 'Round290', 'GlobalSearchPanel: 검색어 하이라이트 (highlightQuery/<mark/fbbf24) 존재')
+  } else {
+    log('warning', 'Round290', 'GlobalSearchPanel 검색어 하이라이트 미구현', 'sidebar/GlobalSearchPanel.tsx')
+  }
+}
+
 // ── Section 191: R289 신규 기능 ───────────────────────────────
 console.log('\n## 191. 신규 기능 파일 검사 (R289)')
 // StatsPanel 일평균 세션 카드 (Round 289)
