@@ -479,7 +479,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setIsDragging(true)
   }, [nodeMap, getSvgCoords, selectedUuids])
 
-  const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw') => {
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w') => {
     e.stopPropagation()
     e.preventDefault()
     if (e.button !== 0) return
@@ -563,11 +563,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       else if (rs.handle === 'ne') { newW = rs.startWidth + dsceneX; newH = rs.startHeight + dsceneY }
       else if (rs.handle === 'sw') { newW = rs.startWidth - dsceneX; newH = rs.startHeight - dsceneY }
       else if (rs.handle === 'nw') { newW = rs.startWidth - dsceneX; newH = rs.startHeight + dsceneY }
+      // 측면 핸들: 단일 축만 변경
+      else if (rs.handle === 'e') { newW = rs.startWidth + dsceneX }
+      else if (rs.handle === 'w') { newW = rs.startWidth - dsceneX }
+      else if (rs.handle === 's') { newH = rs.startHeight - dsceneY }
+      else if (rs.handle === 'n') { newH = rs.startHeight + dsceneY }
 
       newW = Math.max(4, newW)
       newH = Math.max(4, newH)
-      const newX = rs.startNodeX + dsceneX / 2
-      const newY = rs.startNodeY + dsceneY / 2
+      // 측면 핸들은 해당 축만 위치 조정
+      const newX = (rs.handle === 'n' || rs.handle === 's') ? rs.startNodeX : rs.startNodeX + dsceneX / 2
+      const newY = (rs.handle === 'e' || rs.handle === 'w') ? rs.startNodeY : rs.startNodeY + dsceneY / 2
 
       updateNode(rs.uuid, { width: newW, height: newH, x: newX, y: newY })
       return
@@ -1231,18 +1237,22 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               const hw = n.width / 2
               const hh = n.height / 2
               const hs = 5 / view.zoom
-              const handles: Array<{ id: 'nw' | 'ne' | 'se' | 'sw'; cx: number; cy: number; cursor: string }> = [
+              const handles: Array<{ id: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w'; cx: number; cy: number; cursor: string; side?: boolean }> = [
                 { id: 'nw', cx: sx - hw, cy: sy - hh, cursor: 'nw-resize' },
                 { id: 'ne', cx: sx + hw, cy: sy - hh, cursor: 'ne-resize' },
                 { id: 'se', cx: sx + hw, cy: sy + hh, cursor: 'se-resize' },
                 { id: 'sw', cx: sx - hw, cy: sy + hh, cursor: 'sw-resize' },
+                { id: 'n', cx: sx, cy: sy - hh, cursor: 'n-resize', side: true },
+                { id: 's', cx: sx, cy: sy + hh, cursor: 's-resize', side: true },
+                { id: 'e', cx: sx + hw, cy: sy, cursor: 'e-resize', side: true },
+                { id: 'w', cx: sx - hw, cy: sy, cursor: 'w-resize', side: true },
               ]
               return handles.map(h => (
                 <rect
                   key={h.id}
                   x={h.cx - hs / 2} y={h.cy - hs / 2}
                   width={hs} height={hs}
-                  fill="white" stroke="#4096ff" strokeWidth={1 / view.zoom}
+                  fill={h.side ? '#4096ff' : 'white'} stroke="#4096ff" strokeWidth={1 / view.zoom}
                   style={{ cursor: h.cursor, pointerEvents: 'all' }}
                   onMouseDown={e => handleResizeMouseDown(e, n.uuid, h.id)}
                 />

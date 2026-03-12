@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 200 완료 — SceneView Ctrl+G 그룹화, Pass 195)
+> 마지막 업데이트: 2026-03-13 (Round 201 완료 — SceneView 측면 리사이즈 핸들, Pass 196)
 
 ## 완료된 라운드
 
@@ -152,6 +152,7 @@
 | Round 198 | dev | SceneView Ctrl+]/[ z-order 변경 — 부모 childUuids 배열에서 노드 순서 이동 | ✅ |
 | Round 199 | dev | NodeHierarchyList 인라인 이름 편집 — 더블클릭/컨텍스트메뉴, Enter 저장 | ✅ |
 | Round 200 | dev | SceneView Ctrl+G 그룹화 — 다중 선택 노드를 Group 부모로 묶기, upsert 지원 | ✅ |
+| Round 201 | dev | SceneView N/E/S/W 측면 리사이즈 핸들 — 단일 축 크기 조절 (파란 핸들) | ✅ |
 
 ## 전략 로드맵 (Phase)
 

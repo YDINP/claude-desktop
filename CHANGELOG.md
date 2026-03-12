@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 201] — 2026-03-13
+### Added
+- SceneView: N/E/S/W 측면 리사이즈 핸들 추가 — 파란 핸들로 단일 축 크기 조절
+
 ## [Round 200] — 2026-03-13
 ### Added
 - SceneView: Ctrl+G 노드 그룹화 — 다중 선택 노드를 새 Group 부모 노드로 묶기

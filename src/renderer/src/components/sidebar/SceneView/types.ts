@@ -40,7 +40,7 @@ export interface DragState {
 // 리사이즈 상태
 export interface ResizeState {
   uuid: string
-  handle: 'nw' | 'ne' | 'se' | 'sw'
+  handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w'
   startSvgX: number
   startSvgY: number
   startWidth: number

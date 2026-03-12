@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 103: R201 신규 기능 ───────────────────────────────
+console.log('\n## 103. 신규 기능 파일 검사 (R201)')
+// SceneView N/E/S/W 측면 리사이즈 핸들 (Round 201)
+const svp201Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp201Path)) {
+  const svp201 = readFileSync(svp201Path, 'utf-8')
+  if (svp201.includes("id: 'n'") && svp201.includes("id: 'e'") && svp201.includes("id: 's'") && svp201.includes("id: 'w'")) {
+    log('pass', 'Round201', 'SceneView: N/E/S/W 측면 리사이즈 핸들 존재')
+  } else {
+    log('warning', 'Round201', 'SceneView 측면 리사이즈 핸들 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 102: R200 신규 기능 ───────────────────────────────
 console.log('\n## 102. 신규 기능 파일 검사 (R200)')
 // SceneView Ctrl+G 그룹화 (Round 200)
