@@ -2102,17 +2102,24 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             })
             if (!isFinite(gbMinX)) return null
             const pad = 4 / view.zoom
+            const cx = (gbMinX + gbMaxX) / 2
+            const cy = (gbMinY + gbMaxY) / 2
+            const arm = 5 / view.zoom
             return (
-              <rect
-                x={gbMinX - pad} y={gbMinY - pad}
-                width={gbMaxX - gbMinX + pad * 2} height={gbMaxY - gbMinY + pad * 2}
-                fill="none"
-                stroke="rgba(96,165,250,0.5)"
-                strokeWidth={1.5 / view.zoom}
-                strokeDasharray={`${6 / view.zoom} ${3 / view.zoom}`}
-                rx={3 / view.zoom}
-                style={{ pointerEvents: 'none' }}
-              />
+              <g style={{ pointerEvents: 'none' }}>
+                <rect
+                  x={gbMinX - pad} y={gbMinY - pad}
+                  width={gbMaxX - gbMinX + pad * 2} height={gbMaxY - gbMinY + pad * 2}
+                  fill="none"
+                  stroke="rgba(96,165,250,0.5)"
+                  strokeWidth={1.5 / view.zoom}
+                  strokeDasharray={`${6 / view.zoom} ${3 / view.zoom}`}
+                  rx={3 / view.zoom}
+                />
+                {/* 중앙 마커 */}
+                <line x1={cx - arm} y1={cy} x2={cx + arm} y2={cy} stroke="rgba(96,165,250,0.6)" strokeWidth={1 / view.zoom} />
+                <line x1={cx} y1={cy - arm} x2={cx} y2={cy + arm} stroke="rgba(96,165,250,0.6)" strokeWidth={1 / view.zoom} />
+              </g>
             )
           })()}
 

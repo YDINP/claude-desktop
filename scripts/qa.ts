@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 162: R260 신규 기능 ───────────────────────────────
+console.log('\n## 162. 신규 기능 파일 검사 (R260)')
+// SceneView 다중 선택 bounding box 중앙 마커 (Round 260)
+const svp260Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp260Path)) {
+  const svp260 = readFileSync(svp260Path, 'utf-8')
+  if (svp260.includes('중앙 마커') && svp260.includes('cx - arm') && svp260.includes('cy - arm')) {
+    log('pass', 'Round260', 'SceneViewPanel: 다중 선택 bounding box 중앙 마커 존재')
+  } else {
+    log('warning', 'Round260', 'SceneViewPanel 다중 선택 중앙 마커 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 161: R259 신규 기능 ───────────────────────────────
 console.log('\n## 161. 신규 기능 파일 검사 (R259)')
 // SceneView 드래그 원본 위치 고스트 박스 (Round 259)

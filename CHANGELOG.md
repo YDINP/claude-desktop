@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 260] — 2026-03-13
+### Added
+- SceneView: 다중 선택 bounding box 중앙 마커 — 2개+ 선택 시 bbox 중앙에 작은 + 십자 마커 표시
+
 ## [Round 259] — 2026-03-13
 ### Added
 - SceneView: 드래그 원본 위치 고스트 박스 — 드래그 중 노드 시작 위치에 반투명 파란 점선 박스 오버레이

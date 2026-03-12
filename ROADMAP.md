@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 259 완료 — SceneView 드래그 고스트 박스, Pass 279)
+> 마지막 업데이트: 2026-03-13 (Round 260 완료 — SceneView 다중 선택 bbox 중앙 마커, Pass 280)
 
 ## 완료된 라운드
 
@@ -211,6 +211,7 @@
 | Round 257 | dev | TasksPanel 마감일 기능 — dueDate 날짜 입력, 마감 초과 ⚠ 빨간 강조 (overdue) | ✅ |
 | Round 258 | dev | NotesPanel 📤 Markdown 내보내기 — 전체 노트 notes-날짜.md 다운로드 | ✅ |
 | Round 259 | dev | SceneView 드래그 고스트 박스 — 드래그 시작 위치에 반투명 파란 점선 박스 오버레이 | ✅ |
+| Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 
 ## 전략 로드맵 (Phase)
 
