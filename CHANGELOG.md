@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 193] — 2026-03-13
+### Added
+- SceneView: N 키 단축키 — 빠른 새 노드 생성 (선택 노드의 자식으로)
+- SceneView: 단축키 도움말에 N(새 노드 생성) 항목 추가
+
 ## [Round 192] — 2026-03-13
 ### Added
 - SceneView: 원점(0,0) 십자선 가이드 — 그리드 활성 시 Cocos 좌표 원점에 파란 점선 십자선 + 원 표시

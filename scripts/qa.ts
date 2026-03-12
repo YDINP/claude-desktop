@@ -1979,6 +1979,19 @@ if (existsSync(svp192Path)) {
   }
 }
 
+// ── Section 95: R193 신규 기능 ───────────────────────────────
+console.log('\n## 95. 신규 기능 파일 검사 (R193)')
+// SceneView N키 빠른 노드 생성 (Round 193)
+const svp193Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp193Path)) {
+  const svp193 = readFileSync(svp193Path, 'utf-8')
+  if (svp193.includes("e.key === 'n' || e.key === 'N'") && svp193.includes('handleCreateNode()') && svp193.includes("'N', '새 노드 생성'")) {
+    log('pass', 'Round193', 'SceneView: N키 빠른 노드 생성 단축키 존재')
+  } else {
+    log('warning', 'Round193', 'SceneView N키 노드 생성 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
