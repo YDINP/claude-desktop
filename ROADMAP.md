@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 100 완료 — QA R98~99 체크 추가, Pass 21→26)
+> 마지막 업데이트: 2026-03-12 (Round 101 완료 — 메모리 누수 수정 + SceneView 복사/붙여넣기)
 
 ## 완료된 라운드
 
@@ -47,13 +47,14 @@
 | Round 98 | dev | QA R96~97 기능 체크 추가 (Pass 17→21) + SceneView undo/redo 스택 (UndoEntry/Ctrl+Z/Y) | ✅ |
 | Round 99 | dev | 멀티 AI 프로바이더 추상화 — AIProvider 인터페이스, openai-bridge.ts, SettingsPanel API Key UI | ✅ |
 | Round 100 | dev | QA R98~99 체크 추가 (Pass 21→26) + 핸드오프 갱신 | ✅ |
+| Round 101 | dev | 메모리 누수 수정 (bridge addEventListener) + SceneView 노드 복사/붙여넣기 (Ctrl+C/V) + CHANGELOG 갱신 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 101 | dev | 세션 태그 시스템 — 태그 추가/삭제/필터, SessionList 태그 배지 |
-| Round 102 | dev | 즐겨찾기 핀 + 날짜별 그룹 헤더 |
+| Round 102 | dev | QA R101 체크 + SceneView 레이어 가시성 패널 + 노드 Z-order 제어 |
+| Round 103 | dev | ChatPanel 성능 — 긴 대화 content-visibility + 메시지 lazy 렌더링 |
 
 ## 전략 로드맵 (Phase)
 

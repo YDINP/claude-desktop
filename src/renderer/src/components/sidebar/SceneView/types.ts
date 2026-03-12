@@ -44,6 +44,14 @@ export interface UndoEntry {
   nextY: number
 }
 
+// 클립보드 항목
+export interface ClipboardEntry {
+  uuid: string
+  name: string
+  x: number
+  y: number
+}
+
 // 마퀴 선택 상태
 export interface MarqueeState {
   startX: number

@@ -33,11 +33,21 @@ export function ollamaChat(
   const body = JSON.stringify({ model, messages, stream: true })
   const req = net.request({ method: 'POST', url: `${OLLAMA_BASE}/api/chat` })
 
-  signal.addEventListener('abort', () => req.abort())
+  if (signal.aborted) {
+    req.abort()
+    return
+  }
+
+  const onAbort = () => req.abort()
+  signal.addEventListener('abort', onAbort)
   req.setHeader('Content-Type', 'application/json')
 
   let buffer = ''
   let accumulated = ''
+
+  const cleanup = () => {
+    signal.removeEventListener('abort', onAbort)
+  }
 
   req.on('response', (res) => {
     res.on('data', (chunk) => {
@@ -52,14 +62,26 @@ export function ollamaChat(
             accumulated += obj.message.content
             onChunk(obj.message.content)
           }
-          if (obj.done) onDone(accumulated)
+          if (obj.done) {
+            cleanup()
+            onDone(accumulated)
+          }
         } catch { /* ignore parse errors */ }
       }
     })
-    res.on('end', () => onDone(accumulated))
-    res.on('error', (e) => onError(String(e)))
+    res.on('end', () => {
+      cleanup()
+      onDone(accumulated)
+    })
+    res.on('error', (e) => {
+      cleanup()
+      onError(String(e))
+    })
   })
-  req.on('error', (e) => onError(String(e)))
+  req.on('error', (e) => {
+    cleanup()
+    onError(String(e))
+  })
   req.write(body)
   req.end()
 }

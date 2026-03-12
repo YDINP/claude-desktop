@@ -8,6 +8,8 @@ interface SceneToolbarProps {
   selectionCount?: number
   canUndo?: boolean
   canRedo?: boolean
+  canCopy?: boolean
+  canPaste?: boolean
   onToolChange: (tool: 'select' | 'move') => void
   onZoomChange: (zoom: number) => void
   onGridToggle: () => void
@@ -16,6 +18,8 @@ interface SceneToolbarProps {
   onRefresh: () => void
   onUndo?: () => void
   onRedo?: () => void
+  onCopy?: () => void
+  onPaste?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -28,6 +32,8 @@ export function SceneToolbar({
   selectionCount,
   canUndo,
   canRedo,
+  canCopy,
+  canPaste,
   onToolChange,
   onZoomChange,
   onGridToggle,
@@ -36,6 +42,8 @@ export function SceneToolbar({
   onRefresh,
   onUndo,
   onRedo,
+  onCopy,
+  onPaste,
 }: SceneToolbarProps) {
   const zoomIn = () => {
     const next = ZOOM_STEPS.find(z => z > zoom) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]
@@ -176,6 +184,19 @@ export function SceneToolbar({
         title="다시 실행 (Ctrl+Y)"
         style={{ ...btnBase, opacity: canRedo ? 1 : 0.3 }}
       >↪</button>
+
+      <button
+        onClick={onCopy}
+        disabled={!canCopy}
+        title="복사 (Ctrl+C)"
+        style={{ ...btnBase, opacity: canCopy ? 1 : 0.3 }}
+      >C</button>
+      <button
+        onClick={onPaste}
+        disabled={!canPaste}
+        title="붙여넣기 (Ctrl+V)"
+        style={{ ...btnBase, opacity: canPaste ? 1 : 0.3 }}
+      >V</button>
 
       <div style={divider} />
 

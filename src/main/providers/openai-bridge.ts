@@ -14,13 +14,23 @@ export function openaiChat(
   const body = JSON.stringify({ model, messages, stream: true })
   const req = net.request({ method: 'POST', url: OPENAI_API_URL })
 
-  signal.addEventListener('abort', () => req.abort())
+  if (signal.aborted) {
+    req.abort()
+    return
+  }
+
+  const onAbort = () => req.abort()
+  signal.addEventListener('abort', onAbort)
   req.setHeader('Content-Type', 'application/json')
   req.setHeader('Authorization', `Bearer ${apiKey}`)
 
   let buffer = ''
   let accumulated = ''
   let doneFired = false
+
+  const cleanup = () => {
+    signal.removeEventListener('abort', onAbort)
+  }
 
   req.on('response', (res) => {
     res.on('data', (chunk) => {
@@ -34,6 +44,7 @@ export function openaiChat(
         if (data === '[DONE]') {
           if (!doneFired) {
             doneFired = true
+            cleanup()
             onDone(accumulated)
           }
           return
@@ -51,12 +62,19 @@ export function openaiChat(
     res.on('end', () => {
       if (!doneFired) {
         doneFired = true
+        cleanup()
         onDone(accumulated)
       }
     })
-    res.on('error', (e) => onError(String(e)))
+    res.on('error', (e) => {
+      cleanup()
+      onError(String(e))
+    })
   })
-  req.on('error', (e) => onError(String(e)))
+  req.on('error', (e) => {
+    cleanup()
+    onError(String(e))
+  })
   req.write(body)
   req.end()
 }

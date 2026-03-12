@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import type { SceneNode, ViewTransform, DragState, MarqueeState, UndoEntry } from './types'
+import type { SceneNode, ViewTransform, DragState, MarqueeState, UndoEntry, ClipboardEntry } from './types'
 import { useSceneSync } from './useSceneSync'
 import { NodeRenderer } from './NodeRenderer'
 import { SceneToolbar } from './SceneToolbar'
@@ -32,6 +32,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [hoveredUuid, setHoveredUuid] = useState<string | null>(null)
   const [undoStack, setUndoStack] = useState<UndoEntry[]>([])
   const [redoStack, setRedoStack] = useState<UndoEntry[]>([])
+  const [clipboard, setClipboard] = useState<ClipboardEntry[]>([])
 
   // ── 마퀴 선택 상태 ─────────────────────────────────────────
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)
@@ -97,10 +98,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           return prev.slice(0, -1)
         })
       }
+      if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+        handleCopy()
+        e.preventDefault()
+      }
+      if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
+        handlePaste()
+        e.preventDefault()
+      }
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit, updateNode])
+  }, [handleFit, updateNode, handleCopy, handlePaste])
 
   // ── CC 이벤트: 외부 선택 동기화 ───────────────────────────
   useEffect(() => {
@@ -358,6 +367,38 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   const selectedNode = selectedUuid ? nodeMap.get(selectedUuid) ?? null : null
   const selectionCount = selectedUuids.size > 1 ? selectedUuids.size : undefined
+  const canCopy = selectedUuids.size > 0 || selectedUuid !== null
+  const canPaste = clipboard.length > 0
+
+  const handleCopy = useCallback(() => {
+    const uuids = selectedUuids.size > 0 ? selectedUuids : (selectedUuid ? new Set([selectedUuid]) : new Set<string>())
+    const copied: ClipboardEntry[] = []
+    uuids.forEach(uuid => {
+      const n = nodeMap.get(uuid)
+      if (n) copied.push({ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 })
+    })
+    if (copied.length > 0) setClipboard(copied)
+  }, [selectedUuids, selectedUuid, nodeMap])
+
+  const handlePaste = useCallback(() => {
+    if (clipboard.length === 0) return
+    const newNodes: SceneNode[] = []
+    clipboard.forEach(entry => {
+      const orig = nodeMap.get(entry.uuid)
+      if (orig) {
+        newNodes.push({
+          ...orig,
+          uuid: entry.uuid + '-copy-' + Date.now(),
+          name: entry.name + '_Copy',
+          x: (entry.x ?? 0) + 20,
+          y: (entry.y ?? 0) + 20,
+        })
+      }
+    })
+    if (newNodes.length > 0) {
+      newNodes.forEach(n => updateNode(n.uuid, n))
+    }
+  }, [clipboard, nodeMap, updateNode])
 
   // ── SVG viewBox ─────────────────────────────────────────
   // 고정 viewBox를 사용하지 않고 offsetX/Y + zoom을 transform으로 처리
@@ -402,12 +443,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         selectionCount={selectionCount}
         canUndo={undoStack.length > 0}
         canRedo={redoStack.length > 0}
+        canCopy={canCopy}
+        canPaste={canPaste}
         onToolChange={setActiveTool}
         onZoomChange={zoom => setView(prev => ({ ...prev, zoom }))}
         onGridToggle={() => setGridVisible(v => !v)}
         onSnapToggle={() => setSnapEnabled(v => !v)}
         onFit={handleFit}
         onRefresh={refresh}
+        onCopy={handleCopy}
+        onPaste={handlePaste}
         onUndo={() => {
           setUndoStack(prev => {
             if (prev.length === 0) return prev

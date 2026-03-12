@@ -2,14 +2,25 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 100 (QA R98~99 체크 추가)
+- 마지막 커밋: Round 101 (메모리 누수 수정 + SceneView 복사/붙여넣기)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 26
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 26
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 100 완료 항목 (최근 세션)
+## Round 101 완료 항목 (최근 세션)
+
+### Round 101 — 메모리 누수 수정 + SceneView 노드 복사/붙여넣기
+- `src/main/ollama/ollama-bridge.ts`: AbortSignal `onAbort` cleanup 분리 (모든 경로에서 removeEventListener)
+- `src/main/providers/openai-bridge.ts`: 동일하게 수정
+- `src/renderer/src/components/sidebar/SceneView/types.ts`: `ClipboardEntry` 타입 추가
+- `src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx`: `clipboard` state, Ctrl+C/V 핸들러, 로컬 복제 로직
+- `src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx`: ⊡/⊞ 복사/붙여넣기 버튼
+- `CHANGELOG.md`: R87~R101 전체 갱신
+- QA: Warning 2→0 (메모리 누수 수정으로 해소)
+
+## Round 100 완료 항목 (이전 세션)
 
 ### Round 100 — QA 강화 + 핸드오프 갱신
 - `scripts/qa.ts`: Section 9 추가 (R98~99 체크 5종), Pass 21→26

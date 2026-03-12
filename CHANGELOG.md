@@ -1,5 +1,49 @@
 # Changelog — Claude Desktop
 
+## [Round 101] — 2026-03-12
+### Fixed
+- ollama-bridge.ts: AbortSignal addEventListener 메모리 누수 수정
+- openai-bridge.ts: AbortSignal addEventListener 메모리 누수 수정
+### Added
+- SceneView: 노드 복사/붙여넣기 (Ctrl+C/V), ClipboardEntry 타입
+- SceneToolbar: C 복사 / V 붙여넣기 버튼
+
+## [Round 100] — 2026-03-12
+### Added
+- QA Section 9: R98~99 체크 5종 추가 (Pass 21→26)
+
+## [Round 99] — 2026-03-12
+### Added
+- AIProvider 인터페이스 (src/main/providers/ai-provider.ts)
+- openai-bridge.ts: Electron net 기반 OpenAI SSE 스트리밍
+- openai-handlers.ts: openai:send/interrupt IPC 핸들러
+- SettingsPanel: OpenAI API Key 입력 UI
+- InputBar: gpt-4o/gpt-4o-mini/o3-mini 모델 옵션
+- ChatPanel: openai: prefix 라우팅
+
+## [Round 98] — 2026-03-12
+### Added
+- SceneView UndoEntry 타입, undo/redo 스택 (Ctrl+Z/Y)
+- SceneToolbar: ↩/↪ 실행취소/다시실행 버튼
+- QA Section 8: R96~97 체크 4종 추가 (Pass 17→21)
+
+## [Round 97] — 2026-03-12
+### Added
+- ollama-bridge.ts: Electron net NDJSON 스트리밍
+- ollama-handlers.ts: ollama:send/interrupt/list IPC
+- InputBar: Ollama 모델 피커 (동적 조회)
+- ChatPanel: ollama: prefix 라우팅
+- ipc-schema.ts: OLLAMA_* 상수
+
+## [Round 96] — 2026-03-12
+### Added
+- SceneView 다중 선택 (selectedUuids Set, Shift-click)
+- 마퀴 드래그 선택 (MarqueeState)
+- NodeRenderer: multiSelected 파란 점선 오버레이
+- SceneInspector: 다중 선택 요약 표시
+- SceneToolbar: 선택 수 배지
+- CHANGELOG.md 신규 생성
+
 ## [Round 95] — 2026-03-12
 ### Changed
 - QA 스크립트에 R90~94 신규 기능 7종 체크 추가 (Pass 10→17)
