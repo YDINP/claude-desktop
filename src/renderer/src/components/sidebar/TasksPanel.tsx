@@ -196,8 +196,11 @@ export function TasksPanel() {
             )}
             {task.dueDate && !task.done && (() => {
               const today = new Date().toISOString().slice(0, 10)
-              const overdue = task.dueDate < today
-              return <span style={{ fontSize: 9, color: overdue ? '#f87171' : 'var(--text-muted)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }} title={overdue ? '마감 초과' : '마감일'}>{overdue ? '⚠' : '📅'}{task.dueDate.slice(5)}</span>
+              const diffDays = Math.round((new Date(task.dueDate).getTime() - new Date(today).getTime()) / 86400000)
+              const overdue = diffDays < 0
+              const label = overdue ? `⚠${diffDays}` : diffDays === 0 ? '📅D-Day' : `📅D-${diffDays}`
+              const color = overdue ? '#f87171' : diffDays === 0 ? '#fbbf24' : diffDays <= 3 ? '#fb923c' : 'var(--text-muted)'
+              return <span style={{ fontSize: 9, color, flexShrink: 0, fontVariantNumeric: 'tabular-nums' }} title={`${task.dueDate} (${overdue ? `${Math.abs(diffDays)}일 초과` : diffDays === 0 ? '오늘 마감' : `${diffDays}일 남음`})`}>{label}</span>
             })()}
             <button onClick={() => setExpandedMemoId(expandedMemoId === task.id ? null : task.id)}
               title="메모" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, flexShrink: 0, color: task.memo ? '#fbbf24' : 'var(--text-muted)', opacity: 0.7 }}>📝</button>

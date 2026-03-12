@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 190: R288 신규 기능 ───────────────────────────────
+console.log('\n## 190. 신규 기능 파일 검사 (R288)')
+// TasksPanel D-Day 카운트다운 (Round 288)
+const tp288Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp288Path)) {
+  const tp288 = readFileSync(tp288Path, 'utf-8')
+  if (tp288.includes('D-Day') && tp288.includes('diffDays') && tp288.includes('86400000')) {
+    log('pass', 'Round288', 'TasksPanel: 마감일 D-Day 카운트다운 (diffDays/D-Day/86400000) 존재')
+  } else {
+    log('warning', 'Round288', 'TasksPanel D-Day 카운트다운 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 189: R287 신규 기능 ───────────────────────────────
 console.log('\n## 189. 신규 기능 파일 검사 (R287)')
 // CalendarPanel 이벤트 전체 삭제 (Round 287)

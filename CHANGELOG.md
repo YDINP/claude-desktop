@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 288] — 2026-03-13
+### Improved
+- TasksPanel: 마감일 배지 D-Day 카운트다운 — `D-5`, `D-Day`, `⚠-3` 표시, 3일 이하 주황, 당일 노랑, 초과 빨강
+
 ## [Round 287] — 2026-03-13
 ### Added
 - CalendarPanel: 선택 날짜 이벤트 전체 삭제 버튼 — 이벤트 있을 때 "전체 삭제" 버튼 표시
