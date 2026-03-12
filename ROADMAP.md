@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 99 완료 — 멀티 AI 프로바이더 추상화 + OpenAI 연동)
+> 마지막 업데이트: 2026-03-12 (Round 100 완료 — QA R98~99 체크 추가, Pass 21→26)
 
 ## 완료된 라운드
 
@@ -46,13 +46,14 @@
 | Round 97 | dev | Ollama 로컬 LLM 연동 — ollama-bridge.ts, IPC handlers, InputBar 모델 피커, ChatPanel 라우팅 | ✅ |
 | Round 98 | dev | QA R96~97 기능 체크 추가 (Pass 17→21) + SceneView undo/redo 스택 (UndoEntry/Ctrl+Z/Y) | ✅ |
 | Round 99 | dev | 멀티 AI 프로바이더 추상화 — AIProvider 인터페이스, openai-bridge.ts, SettingsPanel API Key UI | ✅ |
+| Round 100 | dev | QA R98~99 체크 추가 (Pass 21→26) + 핸드오프 갱신 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 100 | dev | QA R98~99 체크 추가 + 전체 핸드오프 갱신 |
-| Round 101 | dev | 세션 태그 시스템 + 즐겨찾기 핀 + 날짜별 그룹 헤더 |
+| Round 101 | dev | 세션 태그 시스템 — 태그 추가/삭제/필터, SessionList 태그 배지 |
+| Round 102 | dev | 즐겨찾기 핀 + 날짜별 그룹 헤더 |
 
 ## 전략 로드맵 (Phase)
 

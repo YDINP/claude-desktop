@@ -317,6 +317,57 @@ if (existsSync(inputBarPath)) {
   }
 }
 
+console.log('\n## 9. 신규 기능 파일 검사 (R98-99)')
+
+// SceneView undo/redo (Round 98)
+const sceneTypesPath = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/types.ts')
+if (existsSync(sceneTypesPath)) {
+  const st = readFileSync(sceneTypesPath, 'utf-8')
+  if (st.includes('UndoEntry')) {
+    log('pass', 'Round98', 'SceneView UndoEntry 타입 존재')
+  } else {
+    log('warning', 'Round98', 'SceneView UndoEntry 타입 누락', 'SceneView/types.ts')
+  }
+}
+
+if (existsSync(sceneViewPath)) {
+  const sv = readFileSync(sceneViewPath, 'utf-8')
+  if (sv.includes('undoStack') && sv.includes('redoStack')) {
+    log('pass', 'Round98', 'SceneView undo/redo 스택 존재')
+  } else {
+    log('warning', 'Round98', 'SceneView undo/redo 스택 누락', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// OpenAI provider (Round 99)
+const openAIBridgePath = join(ROOT, 'src/main/providers/openai-bridge.ts')
+if (existsSync(openAIBridgePath)) {
+  const ob = readFileSync(openAIBridgePath, 'utf-8')
+  if (ob.includes('openaiChat')) {
+    log('pass', 'Round99', 'openai-bridge.ts: openaiChat 존재')
+  } else {
+    log('warning', 'Round99', 'openai-bridge.ts openaiChat 누락', 'providers/openai-bridge.ts')
+  }
+} else {
+  log('warning', 'Round99', 'openai-bridge.ts 미존재', 'providers/openai-bridge.ts')
+}
+
+const openAIHandlersPath = join(ROOT, 'src/main/ipc/openai-handlers.ts')
+if (existsSync(openAIHandlersPath)) {
+  log('pass', 'Round99', 'openai-handlers.ts 존재')
+} else {
+  log('warning', 'Round99', 'openai-handlers.ts 미존재', 'ipc/openai-handlers.ts')
+}
+
+if (existsSync(inputBarPath)) {
+  const ib = readFileSync(inputBarPath, 'utf-8')
+  if (ib.includes('openai:gpt-4o')) {
+    log('pass', 'Round99', 'InputBar OpenAI 모델 옵션 존재')
+  } else {
+    log('warning', 'Round99', 'InputBar OpenAI 모델 옵션 누락', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
