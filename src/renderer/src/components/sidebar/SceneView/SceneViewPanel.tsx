@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import type { SceneNode, ViewTransform, DragState, MarqueeState } from './types'
+import type { SceneNode, ViewTransform, DragState, MarqueeState, UndoEntry } from './types'
 import { useSceneSync } from './useSceneSync'
 import { NodeRenderer } from './NodeRenderer'
 import { SceneToolbar } from './SceneToolbar'
@@ -30,6 +30,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
   const [selectedUuids, setSelectedUuids] = useState<Set<string>>(new Set())
   const [hoveredUuid, setHoveredUuid] = useState<string | null>(null)
+  const [undoStack, setUndoStack] = useState<UndoEntry[]>([])
+  const [redoStack, setRedoStack] = useState<UndoEntry[]>([])
 
   // ── 마퀴 선택 상태 ─────────────────────────────────────────
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)
@@ -75,10 +77,30 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         setSelectedUuids(new Set())
         setMarquee(null)
       }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        setUndoStack(prev => {
+          if (prev.length === 0) return prev
+          const entry = prev[prev.length - 1]
+          setRedoStack(r => [...r, entry])
+          updateNode(entry.uuid, { x: entry.prevX, y: entry.prevY })
+          return prev.slice(0, -1)
+        })
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault()
+        setRedoStack(prev => {
+          if (prev.length === 0) return prev
+          const entry = prev[prev.length - 1]
+          setUndoStack(u => [...u, entry])
+          updateNode(entry.uuid, { x: entry.nextX, y: entry.nextY })
+          return prev.slice(0, -1)
+        })
+      }
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit])
+  }, [handleFit, updateNode])
 
   // ── CC 이벤트: 외부 선택 동기화 ───────────────────────────
   useEffect(() => {
@@ -281,6 +303,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       const drag = dragRef.current
       const node = nodeMap.get(drag.uuid)
       if (node) {
+        // 실제로 이동이 있었을 때만 undo 항목 추가
+        if (node.x !== drag.startNodeX || node.y !== drag.startNodeY) {
+          setUndoStack(prev => [...prev.slice(-49), {
+            uuid: drag.uuid,
+            prevX: drag.startNodeX,
+            prevY: drag.startNodeY,
+            nextX: node.x,
+            nextY: node.y,
+          }])
+          setRedoStack([])
+        }
         try {
           await window.api.ccSetProperty?.(drag.uuid, 'x', node.x)
           await window.api.ccSetProperty?.(drag.uuid, 'y', node.y)
@@ -367,12 +400,32 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         gridVisible={gridVisible}
         snapEnabled={snapEnabled}
         selectionCount={selectionCount}
+        canUndo={undoStack.length > 0}
+        canRedo={redoStack.length > 0}
         onToolChange={setActiveTool}
         onZoomChange={zoom => setView(prev => ({ ...prev, zoom }))}
         onGridToggle={() => setGridVisible(v => !v)}
         onSnapToggle={() => setSnapEnabled(v => !v)}
         onFit={handleFit}
         onRefresh={refresh}
+        onUndo={() => {
+          setUndoStack(prev => {
+            if (prev.length === 0) return prev
+            const entry = prev[prev.length - 1]
+            setRedoStack(r => [...r, entry])
+            updateNode(entry.uuid, { x: entry.prevX, y: entry.prevY })
+            return prev.slice(0, -1)
+          })
+        }}
+        onRedo={() => {
+          setRedoStack(prev => {
+            if (prev.length === 0) return prev
+            const entry = prev[prev.length - 1]
+            setUndoStack(u => [...u, entry])
+            updateNode(entry.uuid, { x: entry.nextX, y: entry.nextY })
+            return prev.slice(0, -1)
+          })
+        }}
       />
 
       {/* SVG 뷰포트 */}

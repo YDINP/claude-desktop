@@ -35,6 +35,15 @@ export interface DragState {
   startNodeY: number
 }
 
+// 실행 취소/다시 실행 항목
+export interface UndoEntry {
+  uuid: string
+  prevX: number
+  prevY: number
+  nextX: number
+  nextY: number
+}
+
 // 마퀴 선택 상태
 export interface MarqueeState {
   startX: number

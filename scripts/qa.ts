@@ -273,6 +273,50 @@ if (existsSync(runTimelinePath)) {
   log('warning', 'Round94', 'RunTimeline.tsx 미존재', 'sidebar/RunTimeline.tsx')
 }
 
+// ── 8. 신규 기능 파일 검사 (Round 96-97) ─────────────────────────────
+console.log('\n## 8. 신규 기능 파일 검사 (R96-97)')
+
+// SceneView multi-select (Round 96)
+const sceneViewPath = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPath)) {
+  const sv = readFileSync(sceneViewPath, 'utf-8')
+  if (sv.includes('selectedUuids') && sv.includes('MarqueeState')) {
+    log('pass', 'Round96', 'SceneView 다중 선택 + MarqueeState 존재')
+  } else {
+    log('warning', 'Round96', 'SceneView 다중 선택 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// Ollama bridge (Round 97)
+const ollamaBridgePath = join(ROOT, 'src/main/ollama/ollama-bridge.ts')
+if (existsSync(ollamaBridgePath)) {
+  const ob = readFileSync(ollamaBridgePath, 'utf-8')
+  if (ob.includes('ollamaListModels') && ob.includes('ollamaChat')) {
+    log('pass', 'Round97', 'ollama-bridge.ts: ollamaListModels + ollamaChat 존재')
+  } else {
+    log('warning', 'Round97', 'ollama-bridge.ts 핵심 함수 누락', 'main/ollama/ollama-bridge.ts')
+  }
+} else {
+  log('warning', 'Round97', 'ollama-bridge.ts 미존재', 'main/ollama/ollama-bridge.ts')
+}
+
+const ollamaHandlersPath = join(ROOT, 'src/main/ipc/ollama-handlers.ts')
+if (existsSync(ollamaHandlersPath)) {
+  log('pass', 'Round97', 'ollama-handlers.ts 존재')
+} else {
+  log('warning', 'Round97', 'ollama-handlers.ts 미존재', 'ipc/ollama-handlers.ts')
+}
+
+const inputBarPath = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(inputBarPath)) {
+  const ib = readFileSync(inputBarPath, 'utf-8')
+  if (ib.includes('ollamaModels') && ib.includes('ollamaList')) {
+    log('pass', 'Round97', 'InputBar Ollama 모델 피커 존재')
+  } else {
+    log('warning', 'Round97', 'InputBar Ollama 피커 누락', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -6,12 +6,16 @@ interface SceneToolbarProps {
   gridVisible: boolean
   snapEnabled: boolean
   selectionCount?: number
+  canUndo?: boolean
+  canRedo?: boolean
   onToolChange: (tool: 'select' | 'move') => void
   onZoomChange: (zoom: number) => void
   onGridToggle: () => void
   onSnapToggle: () => void
   onFit: () => void
   onRefresh: () => void
+  onUndo?: () => void
+  onRedo?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -22,12 +26,16 @@ export function SceneToolbar({
   gridVisible,
   snapEnabled,
   selectionCount,
+  canUndo,
+  canRedo,
   onToolChange,
   onZoomChange,
   onGridToggle,
   onSnapToggle,
   onFit,
   onRefresh,
+  onUndo,
+  onRedo,
 }: SceneToolbarProps) {
   const zoomIn = () => {
     const next = ZOOM_STEPS.find(z => z > zoom) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]
@@ -154,6 +162,22 @@ export function SceneToolbar({
       </button>
 
       <div style={{ flex: 1 }} />
+
+      {/* 실행 취소 / 다시 실행 */}
+      <button
+        onClick={onUndo}
+        disabled={!canUndo}
+        title="실행 취소 (Ctrl+Z)"
+        style={{ ...btnBase, opacity: canUndo ? 1 : 0.3 }}
+      >↩</button>
+      <button
+        onClick={onRedo}
+        disabled={!canRedo}
+        title="다시 실행 (Ctrl+Y)"
+        style={{ ...btnBase, opacity: canRedo ? 1 : 0.3 }}
+      >↪</button>
+
+      <div style={divider} />
 
       {/* 새로고침 */}
       <button

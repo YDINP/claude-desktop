@@ -1,15 +1,42 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 94 완료)
+> 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 94 (AG-UI 이벤트 모델)
+- 마지막 커밋: Round 98 (QA R96~97 + SceneView undo/redo)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0
+- QA: `npm run qa` ✅ Critical 0, Warning 1 (ollama-bridge addEventListener — 기존 이슈), Pass 21
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 94 완료 항목 (최근 세션)
+## Round 98 완료 항목 (최근 세션)
+
+### Round 98 — QA 강화 + SceneView undo/redo 스택
+- `scripts/qa.ts`: Section 8 추가 (R96~97 체크 4종), Pass 17→21
+- `src/renderer/src/components/sidebar/SceneView/types.ts`: `UndoEntry { uuid, prevX, prevY, nextX, nextY }` 추가
+- `src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx`: `undoStack`/`redoStack` state, Ctrl+Z/Y 키보드 핸들러, 드래그 커밋 시 UndoEntry push
+- `src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx`: ↩/↪ 버튼 추가, `canUndo`/`canRedo` opacity 제어
+
+## Round 97 완료 항목 (이전 세션)
+
+### Round 97 — Ollama 로컬 LLM 연동
+- `src/main/ollama/ollama-bridge.ts` (신규): ollamaListModels, ollamaChat (Electron net, NDJSON 스트리밍)
+- `src/main/ipc/ollama-handlers.ts` (신규): ollama:list/send/interrupt IPC, claude:message 채널 라우팅
+- `src/main/ipc/router.ts`: registerOllamaHandlers 등록
+- `src/preload/index.ts`: ollamaList/ollamaSend/ollamaInterrupt contextBridge 노출
+- `src/renderer/src/components/chat/InputBar.tsx`: Ollama 모델 피커 (ollama:model prefix)
+- `src/renderer/src/components/chat/ChatPanel.tsx`: handleSend/handleInterrupt Ollama 라우팅
+
+## Round 96 완료 항목
+
+### Round 96 — CC SceneView 다중 노드 선택
+- SceneViewPanel: selectedUuids Set, shift-click 멀티셀렉트, 마퀴 rect 드래그
+- NodeRenderer: multiSelected prop → 파란 점선 오버레이
+- SceneInspector: selectionCount > 1 시 "N개 노드 선택됨" 표시
+- SceneToolbar: 선택 수 배지
+- CHANGELOG.md 신규 생성
+
+## Round 94 완료 항목 (이전 세션)
 
 ### Round 94 — AG-UI 이벤트 모델
 - `ipc-schema.ts`: `AguiRunStarted`, `AguiStepStarted`, `AguiStepFinished`, `AguiRunFinished`, `AguiEvent` 타입 추가
