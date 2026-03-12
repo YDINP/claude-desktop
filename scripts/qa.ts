@@ -1139,6 +1139,24 @@ if (existsSync(sceneViewPanelPath15)) {
   }
 }
 
+// ── Section 45: R143 신규 기능 ───────────────────────────────
+console.log('\n## 45. 신규 기능 파일 검사 (R143)')
+// NodeHierarchyList 전체 펼치기/접기 (Round 143)
+const nodeHierarchyPath7 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath7)) {
+  const nh7 = readFileSync(nodeHierarchyPath7, 'utf-8')
+  if (nh7.includes('전체 펼치기') && nh7.includes('전체 접기')) {
+    log('pass', 'Round143', 'NodeHierarchyList: 전체 펼치기 + 전체 접기 버튼 존재')
+  } else {
+    log('warning', 'Round143', 'NodeHierarchyList 전체 펼치기/접기 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+  if (nh7.includes('setCollapsed(new Set())') && nh7.includes('allWithChildren')) {
+    log('pass', 'Round143', 'NodeHierarchyList: 전체 펼치기(empty Set) + 전체 접기(allWithChildren) 로직 존재')
+  } else {
+    log('warning', 'Round143', 'NodeHierarchyList 펼치기/접기 로직 미완성', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

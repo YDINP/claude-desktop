@@ -170,14 +170,14 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
         flexShrink: 0,
       }}
     >
-      {/* 검색창 */}
-      <div style={{ padding: '3px 6px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+      {/* 검색창 + 전체 펼치기/접기 */}
+      <div style={{ padding: '3px 6px', borderBottom: '1px solid var(--border)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 3 }}>
         <input
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           placeholder="노드 검색..."
           style={{
-            width: '100%',
+            flex: 1,
             fontSize: 10,
             background: 'var(--bg-primary)',
             border: '1px solid var(--border)',
@@ -185,9 +185,23 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
             color: 'var(--text-primary)',
             padding: '2px 5px',
             outline: 'none',
-            boxSizing: 'border-box',
+            minWidth: 0,
           }}
         />
+        <button
+          onClick={() => setCollapsed(new Set())}
+          title="전체 펼치기"
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 10, padding: '1px 3px', lineHeight: 1, flexShrink: 0 }}
+        >▾▾</button>
+        <button
+          onClick={() => {
+            const allWithChildren = new Set<string>()
+            nodeMap.forEach((n) => { if (n.childUuids.length > 0) allWithChildren.add(n.uuid) })
+            setCollapsed(allWithChildren)
+          }}
+          title="전체 접기"
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 10, padding: '1px 3px', lineHeight: 1, flexShrink: 0 }}
+        >▸▸</button>
       </div>
 
       {/* 트리 / 검색 결과 */}

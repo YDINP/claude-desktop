@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 142 완료 — NodeHierarchyList 활성 토글 dot, Pass 102)
+> 마지막 업데이트: 2026-03-12 (Round 143 완료 — NodeHierarchyList 전체 펼치기/접기, Pass 104)
 
 ## 완료된 라운드
 
@@ -94,6 +94,7 @@
 | Round 140 | dev | SceneInspector Color 섹션 — RGBA 스왓치 + hex + alpha% 표시 | ✅ |
 | Round 141 | dev | SceneView 노드 호버 툴팁 — 마우스 오버 시 컴포넌트 아이콘 + 이름 표시 | ✅ |
 | Round 142 | dev | NodeHierarchyList 활성 dot 토글 — 녹/회색 dot 클릭으로 노드 active 즉시 전환 | ✅ |
+| Round 143 | dev | NodeHierarchyList 전체 펼치기/접기 — ▾▾/▸▸ 버튼으로 씬 트리 전체 즉시 토글 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

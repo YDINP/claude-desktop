@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 143] — 2026-03-12
+### Added
+- NodeHierarchyList: 전체 펼치기(▾▾) / 전체 접기(▸▸) 버튼 — 검색창 우측 배치, 씬 전체 트리 즉시 토글
+
 ## [Round 142] — 2026-03-12
 ### Added
 - NodeHierarchyList: 활성 인디케이터 dot — 각 노드 행 앞에 녹색(active)/회색(inactive) dot 클릭으로 즉시 토글
