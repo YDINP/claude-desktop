@@ -69,3 +69,43 @@ export const IPC = {
   PROJECT_CURRENT: 'project:current',
   PROJECT_SET: 'project:set',
 } as const
+
+// ── Cocos Creator Integration ─────────────────────────────
+export const CC_CONNECT = 'cc:connect'
+export const CC_DISCONNECT = 'cc:disconnect'
+export const CC_STATUS = 'cc:status'
+export const CC_GET_TREE = 'cc:getTree'
+export const CC_GET_NODE = 'cc:getNode'
+export const CC_SET_PROPERTY = 'cc:setProperty'
+export const CC_MOVE_NODE = 'cc:moveNode'
+export const CC_BUILD_WEB = 'cc:buildWeb'
+export const CC_BUILD_STATUS = 'cc:buildStatus'
+export const CC_EVENT = 'cc:event'
+
+export interface CCNode {
+  uuid: string
+  name: string
+  active: boolean
+  position: { x: number; y: number }
+  size: { width: number; height: number }
+  anchor: { x: number; y: number }
+  scale: { x: number; y: number }
+  rotation: number
+  opacity: number
+  color: { r: number; g: number; b: number; a: number }
+  children: CCNode[]
+  components: { type: string }[]
+}
+
+export interface CCEvent {
+  type: 'connected' | 'scene:ready' | 'scene:saved' | 'node:select' | 'node:deselect'
+  uuids?: string[]
+  version?: string
+}
+
+export interface CCStatus {
+  connected: boolean
+  port: number
+  version: string
+  clientCount?: number
+}

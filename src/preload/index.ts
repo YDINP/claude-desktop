@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import type { CCEvent } from '../shared/ipc-schema'
 
 contextBridge.exposeInMainWorld('api', {
   // Claude
@@ -241,6 +242,25 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.on('native-theme:changed', handler)
     return () => ipcRenderer.removeListener('native-theme:changed', handler)
   },
+
+  // Cocos Creator
+  ccConnect: (port?: number) => ipcRenderer.invoke('cc:connect', port),
+  ccDisconnect: () => ipcRenderer.invoke('cc:disconnect'),
+  ccStatus: () => ipcRenderer.invoke('cc:status'),
+  ccGetTree: () => ipcRenderer.invoke('cc:getTree'),
+  ccGetNode: (uuid: string) => ipcRenderer.invoke('cc:getNode', uuid),
+  ccSetProperty: (uuid: string, key: string, value: unknown) => ipcRenderer.invoke('cc:setProperty', uuid, key, value),
+  ccMoveNode: (uuid: string, x: number, y: number) => ipcRenderer.invoke('cc:moveNode', uuid, x, y),
+  onCCEvent: (cb: (event: CCEvent) => void) => {
+    const handler = (_: unknown, data: CCEvent) => cb(data)
+    ipcRenderer.on('cc:event', handler)
+    return () => ipcRenderer.removeAllListeners('cc:event')
+  },
+  onCCStatusChange: (cb: (status: { connected: boolean }) => void) => {
+    const handler = (_: unknown, data: { connected: boolean }) => cb(data)
+    ipcRenderer.on('cc:statusChange', handler)
+    return () => ipcRenderer.removeAllListeners('cc:statusChange')
+  },
 })
 
 declare global {
@@ -412,6 +432,16 @@ declare global {
       getSavedRemoteHosts: () => Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>
       saveRemoteHost: (host: { id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }) => Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>
       removeRemoteHost: (id: string) => Promise<Array<{ id: string; label: string; hostname: string; user: string; port: number; identityFile?: string }>>
+      // Cocos Creator
+      ccConnect: (port?: number) => Promise<boolean>
+      ccDisconnect: () => Promise<boolean>
+      ccStatus: () => Promise<import('../shared/ipc-schema').CCStatus>
+      ccGetTree: () => Promise<unknown>
+      ccGetNode: (uuid: string) => Promise<unknown>
+      ccSetProperty: (uuid: string, key: string, value: unknown) => Promise<unknown>
+      ccMoveNode: (uuid: string, x: number, y: number) => Promise<unknown>
+      onCCEvent: (cb: (event: import('../shared/ipc-schema').CCEvent) => void) => () => void
+      onCCStatusChange: (cb: (status: { connected: boolean }) => void) => () => void
     }
   }
 }
