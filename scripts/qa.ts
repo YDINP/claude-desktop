@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 276: R374 신규 기능 ───────────────────────────────
+console.log('\n## 276. 신규 기능 파일 검사 (R374)')
+// SceneTreePanel 컴포넌트 초과 +N (Round 374)
+const stp374Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneTreePanel.tsx')
+if (existsSync(stp374Path)) {
+  const stp374 = readFileSync(stp374Path, 'utf-8')
+  if (stp374.includes('components.length > 2') && stp374.includes('components.length - 2}')) {
+    log('pass', 'Round374', 'SceneTreePanel: 컴포넌트 수 초과 +N 표시 존재')
+  } else {
+    log('warning', 'Round374', 'SceneTreePanel 컴포넌트 초과 표시 미구현', 'sidebar/SceneTreePanel.tsx')
+  }
+}
+
 // ── Section 275: R373 신규 기능 ───────────────────────────────
 console.log('\n## 275. 신규 기능 파일 검사 (R373)')
 // ChangedFilesPanel 파일 경로 복사 (Round 373)

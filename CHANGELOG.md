@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 374] — 2026-03-13
+### Added
+- SceneTreePanel: 컴포넌트 수 초과 +N 표시 — 2개 초과 컴포넌트가 있을 때 `+N` 배지 표시
+
 ## [Round 373] — 2026-03-13
 ### Added
 - ChangedFilesPanel: 파일 경로 복사 버튼 — 각 파일 행에 📋 버튼, copiedPath 상태, 1.5s ✓ 피드백

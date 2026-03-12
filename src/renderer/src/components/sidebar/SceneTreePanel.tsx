@@ -79,7 +79,8 @@ const NodeRow = memo(function NodeRow({
           )}
         </span>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>
-          {node.components.map(c => c.type.replace('cc.', '')).slice(0, 2).join(' ')}
+          {node.components.slice(0, 2).map(c => c.type.replace('cc.', '')).join(' ')}
+          {node.components.length > 2 && <span style={{ opacity: 0.6 }}> +{node.components.length - 2}</span>}
         </span>
       </div>
       {expanded && hasChildren && (node.children ?? []).map(child => (
