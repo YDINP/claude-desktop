@@ -50,6 +50,7 @@ export function StatsPanel() {
   const [todayCost, setTodayCost] = useState(0)
   const [monthlyCost, setMonthlyCost] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
+  const [statsCopied, setStatsCopied] = useState(false)
 
   const loadStats = useMemo(() => async () => {
     setRefreshing(true)
@@ -173,7 +174,33 @@ export function StatsPanel() {
   return (
     <div style={{ padding: 12, fontSize: 12, color: 'var(--text-primary)' }}>
       {/* 새로고침 버튼 */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginBottom: 8 }}>
+        <button
+          onClick={() => {
+            const lines = [
+              `📊 Claude Desktop 통계 요약`,
+              `전체 세션: ${stats.totalSessions}`,
+              `최근 7일: ${stats.recentCount}`,
+              ...(stats.totalMessages != null ? [`전체 메시지: ${stats.totalMessages}`] : []),
+              ...(totalTokens > 0 ? [`총 토큰: ${totalTokens.toLocaleString()}`] : []),
+              `현재 연속: ${currentStreak}일 / 최장: ${longestStreak}일`,
+              ...(todayCost > 0 ? [`오늘 비용: $${todayCost.toFixed(4)}`] : []),
+              ...(monthlyCost > 0 ? [`이번 달: $${monthlyCost.toFixed(4)}`] : []),
+            ]
+            navigator.clipboard.writeText(lines.join('\n')).then(() => {
+              setStatsCopied(true)
+              setTimeout(() => setStatsCopied(false), 1500)
+            })
+          }}
+          title="통계 요약 복사"
+          style={{
+            background: 'none', border: '1px solid var(--border)', borderRadius: 4,
+            cursor: 'pointer', color: statsCopied ? '#4caf50' : 'var(--text-muted)',
+            fontSize: 10, padding: '2px 7px',
+          }}
+        >
+          {statsCopied ? '✓' : '📋'}
+        </button>
         <button
           onClick={() => loadStats()}
           disabled={refreshing}

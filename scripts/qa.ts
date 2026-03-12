@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 284: R382 신규 기능 ───────────────────────────────
+console.log('\n## 284. 신규 기능 파일 검사 (R382)')
+// StatsPanel 통계 요약 복사 버튼 (Round 382)
+const sp382Path = join(ROOT, 'src/renderer/src/components/sidebar/StatsPanel.tsx')
+if (existsSync(sp382Path)) {
+  const sp382 = readFileSync(sp382Path, 'utf-8')
+  if (sp382.includes('statsCopied') && sp382.includes('통계 요약 복사')) {
+    log('pass', 'Round382', 'StatsPanel: 통계 요약 복사 버튼 존재')
+  } else {
+    log('warning', 'Round382', 'StatsPanel 통계 복사 미구현', 'sidebar/StatsPanel.tsx')
+  }
+}
+
 // ── Section 283: R381 신규 기능 ───────────────────────────────
 console.log('\n## 283. 신규 기능 파일 검사 (R381)')
 // AssetBrowserPanel 전체 펼치기/접기 (Round 381)
