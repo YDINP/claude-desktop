@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 305] — 2026-03-13
+### Added
+- SceneTreePanel: 헤더에 총 노드 수 표시 — `씬 트리 (N)` countNodes 재귀 집계
+
 ## [Round 304] — 2026-03-13
 ### Added
 - NodePropertyPanel: 노드 UUID 복사 버튼 — 📋 클릭으로 UUID 클립보드 복사, ✓ 피드백

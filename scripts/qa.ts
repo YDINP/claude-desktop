@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 207: R305 신규 기능 ───────────────────────────────
+console.log('\n## 207. 신규 기능 파일 검사 (R305)')
+// SceneTreePanel 총 노드 수 (Round 305)
+const st305Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneTreePanel.tsx')
+if (existsSync(st305Path)) {
+  const st305 = readFileSync(st305Path, 'utf-8')
+  if (st305.includes('countNodes') && st305.includes('totalNodes') && st305.includes('씬 트리')) {
+    log('pass', 'Round305', 'SceneTreePanel: 총 노드 수 표시 (countNodes/totalNodes) 존재')
+  } else {
+    log('warning', 'Round305', 'SceneTreePanel 노드 수 미구현', 'sidebar/SceneTreePanel.tsx')
+  }
+}
+
 // ── Section 206: R304 신규 기능 ───────────────────────────────
 console.log('\n## 206. 신규 기능 파일 검사 (R304)')
 // NodePropertyPanel UUID 복사 버튼 (Round 304)

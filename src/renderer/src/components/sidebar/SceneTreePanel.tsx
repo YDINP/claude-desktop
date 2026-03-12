@@ -147,6 +147,9 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
     }
   }, [port])
 
+  const countNodes = (node: CCNode): number => 1 + (node.children ?? []).reduce((s, c) => s + countNodes(c), 0)
+  const totalNodes = tree ? countNodes(tree) : 0
+
   // 노드 이름 검색: 검색어 있으면 매칭 노드만 표시
   const searchLower = nodeSearch.toLowerCase()
   const matchesSearch = (node: CCNode): boolean => {
@@ -162,7 +165,7 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '6px 10px', fontSize: 10, fontWeight: 600, color: 'var(--text-muted)',
       }}>
-        <span>씬 트리</span>
+        <span>씬 트리{totalNodes > 0 ? ` (${totalNodes})` : ''}</span>
         <button
           onClick={refresh}
           disabled={loading}
