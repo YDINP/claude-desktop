@@ -479,6 +479,18 @@ export function FileTree({ rootPath, onFileClick, activeFilePath, onOpenInSplit,
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <span title="파일 변경 자동 감지 중" style={{ fontSize: 9, color: 'var(--success, #22c55e)' }}>●</span>
+          {expandedDirs.size > 0 && (
+            <button
+              onClick={() => { setExpandedDirs(new Set()); setChildrenMap(new Map()) }}
+              title="전체 접기"
+              style={{
+                background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer',
+                fontSize: 11, padding: '1px 4px', lineHeight: 1,
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+            >⊖</button>
+          )}
           <button
             onClick={() => setRefreshKey(k => k + 1)}
             title="새로고침"

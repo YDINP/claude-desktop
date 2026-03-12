@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 313] — 2026-03-13
+### Added
+- FileTree: 전체 접기 버튼 — ⊖ 클릭으로 expandedDirs + childrenMap 초기화, 펼친 폴더 있을 때만 표시
+
 ## [Round 312] — 2026-03-13
 ### Added
 - NotesPanel: 편집기 하단 줄 수 표시 — `N자 · M단어 · L줄` 형태로 줄 수 추가 표시

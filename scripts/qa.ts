@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 215: R313 신규 기능 ───────────────────────────────
+console.log('\n## 215. 신규 기능 파일 검사 (R313)')
+// FileTree 전체 접기 버튼 (Round 313)
+const ft313Path = join(ROOT, 'src/renderer/src/components/sidebar/FileTree.tsx')
+if (existsSync(ft313Path)) {
+  const ft313 = readFileSync(ft313Path, 'utf-8')
+  if (ft313.includes('전체 접기') && ft313.includes('expandedDirs.size') && ft313.includes('⊖')) {
+    log('pass', 'Round313', 'FileTree: 전체 접기 버튼 (expandedDirs.size/⊖/전체 접기) 존재')
+  } else {
+    log('warning', 'Round313', 'FileTree 전체 접기 미구현', 'sidebar/FileTree.tsx')
+  }
+}
+
 // ── Section 214: R312 신규 기능 ───────────────────────────────
 console.log('\n## 214. 신규 기능 파일 검사 (R312)')
 // NotesPanel 줄 수 표시 (Round 312)
