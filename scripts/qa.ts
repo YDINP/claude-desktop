@@ -1050,6 +1050,19 @@ if (existsSync(sceneInspectorPath3)) {
   }
 }
 
+// ── Section 40: R138 신규 기능 ───────────────────────────────
+console.log('\n## 40. 신규 기능 파일 검사 (R138)')
+// SceneInspector Opacity (Round 138)
+const sceneInspectorPath4 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath4)) {
+  const si4 = readFileSync(sceneInspectorPath4, 'utf-8')
+  if (si4.includes("'cc.UIOpacity'") && si4.includes("prop=\"opacity\"") && si4.includes('label="Opacity"')) {
+    log('pass', 'Round138', 'SceneInspector: UIOpacity 조건부 Opacity 섹션 + NumInput 존재')
+  } else {
+    log('warning', 'Round138', 'SceneInspector Opacity 편집 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 138] — 2026-03-12
+### Added
+- SceneInspector: Opacity 섹션 — UIOpacity 컴포넌트 있을 때만 표시, NumInput(α) 편집
+
 ## [Round 137] — 2026-03-12
 ### Added
 - SceneInspector: Scale 섹션 추가 — scaleX(Sx)/scaleY(Sy) NumInput 편집 (decimals=2)

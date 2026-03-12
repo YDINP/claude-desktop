@@ -348,6 +348,14 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
         <NumInput label="Ay" value={node.anchorY} decimals={2} uuid={node.uuid} prop="anchorY" onSave={onUpdate} />
       </div>
 
+      {/* Opacity (UIOpacity 컴포넌트 있을 때) */}
+      {node.components.some(c => c.type === 'cc.UIOpacity') && (
+        <>
+          <SectionHeader label="Opacity" />
+          <NumInput label="α" value={node.opacity} uuid={node.uuid} prop="opacity" onSave={onUpdate} />
+        </>
+      )}
+
       {/* 컴포넌트 목록 */}
       {node.components.length > 0 && (
         <>
