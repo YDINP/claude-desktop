@@ -1063,6 +1063,24 @@ if (existsSync(sceneInspectorPath4)) {
   }
 }
 
+// ── Section 41: R139 신규 기능 ───────────────────────────────
+console.log('\n## 41. 신규 기능 파일 검사 (R139)')
+// NodeHierarchyList 컴포넌트 아이콘 (Round 139)
+const nodeHierarchyPath5 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath5)) {
+  const nh5 = readFileSync(nodeHierarchyPath5, 'utf-8')
+  if (nh5.includes('getComponentIcon') && nh5.includes("from './utils'")) {
+    log('pass', 'Round139', 'NodeHierarchyList: getComponentIcon import + utils 연결 존재')
+  } else {
+    log('warning', 'Round139', 'NodeHierarchyList getComponentIcon 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+  if (nh5.includes("'var(--accent)'") && nh5.includes('getComponentIcon(node.components)')) {
+    log('pass', 'Round139', 'NodeHierarchyList: 컴포넌트 아이콘 렌더링 존재')
+  } else {
+    log('warning', 'Round139', 'NodeHierarchyList 아이콘 렌더링 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

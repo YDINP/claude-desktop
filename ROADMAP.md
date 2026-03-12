@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 138 완료 — SceneInspector Opacity 편집, Pass 94)
+> 마지막 업데이트: 2026-03-12 (Round 139 완료 — NodeHierarchyList 컴포넌트 아이콘, Pass 96)
 
 ## 완료된 라운드
 
@@ -90,6 +90,7 @@
 | Round 136 | dev | SceneView 선택 노드 포커스 — G키로 선택 노드 중심 카메라 이동 | ✅ |
 | Round 137 | dev | SceneInspector Scale 편집 — scaleX/scaleY NumInput 섹션 추가 | ✅ |
 | Round 138 | dev | SceneInspector Opacity 편집 — UIOpacity 있을 때 조건부 섹션 | ✅ |
+| Round 139 | dev | NodeHierarchyList 컴포넌트 아이콘 — getComponentIcon(utils) 연동, 트리·검색 아이콘 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

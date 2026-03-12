@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { SceneNode } from './types'
+import { getComponentIcon } from './utils'
 
 interface NodeHierarchyListProps {
   rootUuid: string
@@ -66,6 +67,19 @@ function NodeRow({
         >
           {hasChildren ? (isCollapsed ? '▸' : '▾') : ''}
         </span>
+        {/* 컴포넌트 아이콘 */}
+        {getComponentIcon(node.components) && (
+          <span style={{
+            fontSize: 9,
+            color: 'var(--accent)',
+            fontWeight: 700,
+            flexShrink: 0,
+            marginRight: 2,
+            opacity: 0.8,
+          }}>
+            {getComponentIcon(node.components)}
+          </span>
+        )}
         {/* 노드 이름 */}
         <span
           onClick={e => onSelect(uuid, e.metaKey || e.ctrlKey)}
@@ -185,6 +199,11 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
                   }}
                   title={node.name}
                 >
+                  {getComponentIcon(node.components) && (
+                    <span style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 700, marginRight: 3, opacity: 0.8 }}>
+                      {getComponentIcon(node.components)}
+                    </span>
+                  )}
                   {node.name}
                 </div>
               )

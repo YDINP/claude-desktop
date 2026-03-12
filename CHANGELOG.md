@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 139] — 2026-03-12
+### Added
+- NodeHierarchyList: 컴포넌트 아이콘 표시 — getComponentIcon(utils.ts) 연동, 트리·검색 결과 모두 노드명 앞에 B/T/S/L/V/E/P/G/C 아이콘 accent 색상 표시
+
 ## [Round 138] — 2026-03-12
 ### Added
 - SceneInspector: Opacity 섹션 — UIOpacity 컴포넌트 있을 때만 표시, NumInput(α) 편집
