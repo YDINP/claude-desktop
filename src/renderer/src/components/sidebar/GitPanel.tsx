@@ -779,6 +779,15 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
             }}
             onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') handleCommit() }}
           />
+          {commitMsg.length > 0 && (
+            <span style={{
+              position: 'absolute', bottom: 4, left: 6,
+              fontSize: 9, pointerEvents: 'none',
+              color: commitMsg.split('\n')[0].length > 72 ? '#f87171' : commitMsg.split('\n')[0].length > 60 ? '#fbbf24' : 'var(--text-muted)',
+            }}>
+              {commitMsg.split('\n')[0].length}/72
+            </span>
+          )}
           <button
             onClick={handleAiCommit}
             disabled={aiLoading || stagedFiles.length === 0}

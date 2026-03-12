@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 298] — 2026-03-13
+### Added
+- GitPanel: 커밋 메시지 글자 수 카운터 — 첫 번째 줄 N/72 표시, 60자 초과 시 노랑, 72자 초과 시 빨강
+
 ## [Round 297] — 2026-03-13
 ### Added
 - ChangedFilesPanel: 헤더에 W/E 작업 구분 카운트 표시 — `W:N E:N` 색상 구분 (초록/노랑)

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 200: R298 신규 기능 ───────────────────────────────
+console.log('\n## 200. 신규 기능 파일 검사 (R298)')
+// GitPanel 커밋 메시지 글자 수 카운터 (Round 298)
+const gp298Path = join(ROOT, 'src/renderer/src/components/sidebar/GitPanel.tsx')
+if (existsSync(gp298Path)) {
+  const gp298 = readFileSync(gp298Path, 'utf-8')
+  if (gp298.includes('72') && gp298.includes('split(') && gp298.includes('commitMsg.length')) {
+    log('pass', 'Round298', 'GitPanel: 커밋 메시지 글자 수 카운터 (/72 제한) 존재')
+  } else {
+    log('warning', 'Round298', 'GitPanel 커밋 메시지 카운터 미구현', 'sidebar/GitPanel.tsx')
+  }
+}
+
 // ── Section 199: R297 신규 기능 ───────────────────────────────
 console.log('\n## 199. 신규 기능 파일 검사 (R297)')
 // ChangedFilesPanel W/E 카운트 표시 (Round 297)
