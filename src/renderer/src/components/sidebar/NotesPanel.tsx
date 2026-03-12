@@ -23,6 +23,21 @@ export function NotesPanel() {
   const [sortOrder, setSortOrder] = useState<'latest' | 'oldest' | 'title'>('latest')
   const [noteCopied, setNoteCopied] = useState(false)
   const [codeMode, setCodeMode] = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
+
+  const NOTE_TEMPLATES = [
+    { icon: '📅', label: '미팅 노트', title: '미팅 노트', content: '## 참석자\n\n## 안건\n\n## 논의 내용\n\n## 액션 아이템\n- [ ] ' },
+    { icon: '✅', label: '할 일 목록', title: '할 일 목록', content: '## 오늘 할 일\n- [ ] \n- [ ] \n- [ ] \n\n## 나중에\n- [ ] ' },
+    { icon: '🐛', label: '버그 리포트', title: '버그 리포트', content: '## 문제 설명\n\n## 재현 방법\n1. \n2. \n\n## 예상 동작\n\n## 실제 동작\n\n## 환경\n' },
+    { icon: '💡', label: '아이디어', title: '아이디어', content: '## 개요\n\n## 동기\n\n## 구현 방안\n\n## 장단점\n- 장점: \n- 단점: \n' },
+  ]
+
+  const applyTemplate = (t: typeof NOTE_TEMPLATES[number]) => {
+    setTitle(t.title)
+    setContent(t.content)
+    updateCurrent(t.title, t.content)
+    setShowTemplates(false)
+  }
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -232,7 +247,7 @@ export function NotesPanel() {
                 fontFamily: codeMode ? 'var(--font-mono, monospace)' : 'inherit',
               }}
             />
-            <div style={{ padding: '2px 8px', fontSize: 9, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{ padding: '2px 8px', fontSize: 9, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', flexShrink: 0, fontVariantNumeric: 'tabular-nums', position: 'relative' }}>
               <div style={{ display: 'flex', gap: 2 }}>
                 <button onClick={copyNoteToClipboard} title="노트를 Markdown으로 클립보드 복사"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: noteCopied ? 'var(--success)' : 'var(--text-muted)', padding: '0 2px', transition: 'color 0.15s' }}>
@@ -242,6 +257,25 @@ export function NotesPanel() {
                   style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: codeMode ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', fontFamily: 'monospace', fontWeight: codeMode ? 700 : 400 }}>
                   {'</>'}
                 </button>
+                <div style={{ position: 'relative' }}>
+                  <button onClick={() => setShowTemplates(v => !v)} title="노트 템플릿 삽입"
+                    style={{ background: showTemplates ? 'var(--accent-dim)' : 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: showTemplates ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px' }}>
+                    ✦
+                  </button>
+                  {showTemplates && (
+                    <div style={{ position: 'absolute', bottom: '100%', left: 0, background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 50, minWidth: 140, padding: 4 }}>
+                      {NOTE_TEMPLATES.map(t => (
+                        <button key={t.label} onClick={() => applyTemplate(t)}
+                          style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', fontSize: 11, color: 'var(--text-primary)', borderRadius: 4 }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                        >
+                          {t.icon} {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <span>{content.length}자 · {content.trim() ? content.trim().split(/\s+/).length : 0}단어 · {content.split('\n').length}줄</span>
             </div>

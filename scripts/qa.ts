@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 302: R400 신규 기능 (마일스톤) ─────────────────────
+console.log('\n## 302. 신규 기능 파일 검사 (R400 마일스톤)')
+// NotesPanel 노트 템플릿 (Round 400)
+const np400Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np400Path)) {
+  const np400 = readFileSync(np400Path, 'utf-8')
+  if (np400.includes('showTemplates') && np400.includes('NOTE_TEMPLATES') && np400.includes('applyTemplate') && np400.includes('미팅 노트')) {
+    log('pass', 'Round400', 'NotesPanel: 노트 템플릿 기능 존재 (미팅/할일/버그/아이디어)')
+  } else {
+    log('warning', 'Round400', 'NotesPanel 템플릿 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 301: R399 신규 기능 ───────────────────────────────
 console.log('\n## 301. 신규 기능 파일 검사 (R399)')
 // SearchPanel 단어 단위 검색 (Round 399)

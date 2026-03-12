@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 399 완료 — SearchPanel 단어 단위 검색 Ww 토글, Pass 419)
+> 마지막 업데이트: 2026-03-13 (Round 400 완료 — NotesPanel 노트 템플릿 4종, Pass 420)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 400 | dev | NotesPanel 노트 템플릿 — showTemplates, ✦ 버튼, 4종 프리셋(미팅/할일/버그/아이디어) | ✅ |
 | Round 399 | dev | SearchPanel 단어 단위 검색 — wholeWord, Ww 토글, \b 정규식 매칭 | ✅ |
 | Round 398 | dev | CalendarPanel 이벤트 목록 복사 — eventsCopied, 다음 이벤트 📋 버튼 | ✅ |
 | Round 397 | dev | AgentPanel 태스크 결과 복사 — copiedResultId, 결과 영역 📋 버튼 | ✅ |

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 400] — 2026-03-13 (마일스톤)
+### Added
+- NotesPanel: 노트 템플릿 기능 — ✦ 버튼 + 드롭다운, 4종 프리셋(미팅/할일/버그/아이디어) 원클릭 삽입
+
 ## [Round 399] — 2026-03-13
 ### Added
 - SearchPanel: 단어 단위 검색 토글 — wholeWord 상태, Ww 체크박스, \b 정규식으로 정확한 단어 매칭
