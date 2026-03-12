@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 373] — 2026-03-13
+### Added
+- ChangedFilesPanel: 파일 경로 복사 버튼 — 각 파일 행에 📋 버튼, copiedPath 상태, 1.5s ✓ 피드백
+
 ## [Round 372] — 2026-03-13
 ### Added
 - RemotePanel: 섹션 레이블에 호스트 수 배지 — SSH Config/저장된 호스트 섹션에 필터 결과 카운트 표시

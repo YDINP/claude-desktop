@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 372 완료 — RemotePanel 섹션 호스트 수 배지, Pass 392)
+> 마지막 업데이트: 2026-03-13 (Round 373 완료 — ChangedFilesPanel 경로 복사, Pass 393)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 373 | dev | ChangedFilesPanel 파일 경로 복사 — copiedPath 상태, 📋 버튼, 1.5s ✓ 피드백 | ✅ |
 | Round 372 | dev | RemotePanel 섹션 레이블 호스트 수 배지 — SSH Config/저장된 호스트 섹션에 filteredN 카운트 | ✅ |
 | Round 371 | dev | ClipboardPanel 항목 텍스트 확장 — expandedId 상태, 120자 초과 항목 "▼ 펼치기/▲ 접기" 버튼 | ✅ |
 | Round 370 | dev | CalendarPanel 다음 이벤트 더 보기 — 3개 초과 시 showAllUpcoming 토글, "더 보기/접기" 버튼 | ✅ |
