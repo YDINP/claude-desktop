@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 191] — 2026-03-13
+### Added
+- SceneView: M 키 단축키 — 미니맵 표시/숨기기 토글
+- SceneView: 단축키 도움말에 M(미니맵), Del/Backspace(삭제) 항목 추가
+
 ## [Round 190] — 2026-03-13
 ### Added
 - SceneInspector: Color 섹션에 알파(α) 슬라이더 추가 — 0~255 범위 드래그로 색상 투명도 실시간 편집

@@ -1953,6 +1953,19 @@ if (existsSync(sceneInspectorPath21)) {
   }
 }
 
+// ── Section 93: R191 신규 기능 ───────────────────────────────
+console.log('\n## 93. 신규 기능 파일 검사 (R191)')
+// SceneView M 키 미니맵 토글 (Round 191)
+const svp191Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp191Path)) {
+  const svp191 = readFileSync(svp191Path, 'utf-8')
+  if (svp191.includes("e.key === 'm' || e.key === 'M'") && svp191.includes('setShowMinimap(v => !v)') && svp191.includes("'M', '미니맵 토글'")) {
+    log('pass', 'Round191', 'SceneView: M키 미니맵 토글 + 도움말 업데이트')
+  } else {
+    log('warning', 'Round191', 'SceneView M키 미니맵 토글 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

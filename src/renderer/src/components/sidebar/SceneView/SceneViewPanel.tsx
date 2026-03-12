@@ -156,6 +156,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.key === 'w' || e.key === 'W') setActiveTool('move')
       if (e.key === 'f' || e.key === 'F') handleFit()
       if (e.key === 'g' || e.key === 'G') handleFocusSelected()
+      if (e.key === 'm' || e.key === 'M') setShowMinimap(v => !v)
       if (e.key === '?') setShowShortcuts(v => !v)
       if (e.key === 'Escape') {
         setSelectedUuid(null)
@@ -1621,6 +1622,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Shift+↑↓←→', '선택 노드 10px 이동'],
               ['Alt+↑/↓', '부모/첫 자식 노드 선택'],
               ['Ctrl+←/→', '회전 1° (Shift: 10°)'],
+              ['M', '미니맵 토글'],
+              ['Del/Backspace', '선택 노드 삭제'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
               <div key={key} style={{ display: 'flex', gap: 10, marginBottom: 4 }}>

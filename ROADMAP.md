@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 190 완료 — SceneInspector Color 알파 슬라이더, Pass 184)
+> 마지막 업데이트: 2026-03-13 (Round 191 완료 — SceneView M키 미니맵 토글, Pass 185)
 
 ## 완료된 라운드
 
@@ -142,6 +142,7 @@
 | Round 188 | dev | SceneView 다중 선택 bounding box — 선택 노드 전체를 감싸는 파란 점선 박스 | ✅ |
 | Round 189 | dev | SceneView Ctrl+←→ 회전 단축키 — 1°/10° 단위 키보드 회전, 도움말 업데이트 | ✅ |
 | Round 190 | dev | SceneInspector Color 알파 슬라이더 — range input으로 α 0~255 실시간 편집 | ✅ |
+| Round 191 | dev | SceneView M키 미니맵 토글 + 단축키 도움말 업데이트 (Del/Backspace 추가) | ✅ |
 
 ## 전략 로드맵 (Phase)
 
