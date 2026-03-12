@@ -49,7 +49,9 @@ export function BookmarksPanel({
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', flex: 1 }}>
-          북마크 {bookmarked.length}개
+          북마크 {(query.trim() || roleFilter !== 'all') && filtered.length !== bookmarked.length
+            ? <>{filtered.length}<span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>/{bookmarked.length}</span></>
+            : bookmarked.length}개
         </span>
         <button onClick={cycleRole} title={`역할 필터: ${ROLE_LABELS[roleFilter]}`}
           style={{ background: roleFilter !== 'all' ? 'var(--accent-dim)' : 'none', border: `1px solid ${roleFilter !== 'all' ? 'var(--accent)' : 'transparent'}`, borderRadius: 4, cursor: 'pointer', color: roleFilter !== 'all' ? 'var(--accent)' : 'var(--text-muted)', fontSize: 10, padding: '1px 5px' }}>

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 218: R316 신규 기능 ───────────────────────────────
+console.log('\n## 218. 신규 기능 파일 검사 (R316)')
+// BookmarksPanel 필터 결과 수 표시 (Round 316)
+const bm316Path = join(ROOT, 'src/renderer/src/components/sidebar/BookmarksPanel.tsx')
+if (existsSync(bm316Path)) {
+  const bm316 = readFileSync(bm316Path, 'utf-8')
+  if (bm316.includes('filtered.length') && bm316.includes('bookmarked.length') && bm316.includes('roleFilter')) {
+    log('pass', 'Round316', 'BookmarksPanel: 필터 시 결과 수 표시 (filtered.length/bookmarked.length) 존재')
+  } else {
+    log('warning', 'Round316', 'BookmarksPanel 필터 결과 수 미구현', 'sidebar/BookmarksPanel.tsx')
+  }
+}
+
 // ── Section 217: R315 신규 기능 ───────────────────────────────
 console.log('\n## 217. 신규 기능 파일 검사 (R315)')
 // TasksPanel 내보내기 버튼 (Round 315)
