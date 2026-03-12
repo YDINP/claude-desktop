@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 180: R278 신규 기능 ───────────────────────────────
+console.log('\n## 180. 신규 기능 파일 검사 (R278)')
+// CalendarPanel 이벤트 색상 변경 (Round 278)
+const cal278Path = join(ROOT, 'src/renderer/src/components/sidebar/CalendarPanel.tsx')
+if (existsSync(cal278Path)) {
+  const cal278 = readFileSync(cal278Path, 'utf-8')
+  if (cal278.includes('클릭: 색상 변경') && cal278.includes('nextColor') && cal278.includes('EVENT_COLORS.indexOf')) {
+    log('pass', 'Round278', 'CalendarPanel: 이벤트 색상 변경 (nextColor/EVENT_COLORS.indexOf) 존재')
+  } else {
+    log('warning', 'Round278', 'CalendarPanel 이벤트 색상 변경 미구현', 'sidebar/CalendarPanel.tsx')
+  }
+}
+
 // ── Section 179: R277 신규 기능 ───────────────────────────────
 console.log('\n## 179. 신규 기능 파일 검사 (R277)')
 // NotesPanel 노트 복제 (Round 277)

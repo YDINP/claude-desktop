@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 278] — 2026-03-13
+### Improved
+- CalendarPanel: 이벤트 색상 변경 — 이벤트 컬러 점 클릭으로 EVENT_COLORS 순환 변경
+
 ## [Round 277] — 2026-03-13
 ### Added
 - NotesPanel: 노트 복제 버튼 (⊕) — 제목 + " 복사"로 핀 미설정 복제본 생성

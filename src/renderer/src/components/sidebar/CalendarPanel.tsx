@@ -183,6 +183,15 @@ export function CalendarPanel({ onSelectSession }: CalendarPanelProps) {
         <div style={{ marginTop: 8 }}>
           {events.filter(e => e.date === selectedDay).map(ev => (
             <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 6px', marginBottom: 2, borderRadius: 3, background: 'var(--bg-secondary)', borderLeft: `3px solid ${ev.color}` }}>
+              <div
+                onClick={() => {
+                  const idx = EVENT_COLORS.indexOf(ev.color)
+                  const nextColor = EVENT_COLORS[(idx + 1) % EVENT_COLORS.length]
+                  saveEvents(events.map(e => e.id === ev.id ? { ...e, color: nextColor } : e))
+                }}
+                title="클릭: 색상 변경"
+                style={{ width: 8, height: 8, borderRadius: '50%', background: ev.color, cursor: 'pointer', flexShrink: 0 }}
+              />
               {editingEventId === ev.id ? (
                 <input autoFocus value={editingEventDraft} onChange={e => setEditingEventDraft(e.target.value)}
                   onBlur={() => commitEventEdit(ev.id)}
