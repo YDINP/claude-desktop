@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 201: R299 신규 기능 ───────────────────────────────
+console.log('\n## 201. 신규 기능 파일 검사 (R299)')
+// ConnectionPanel 모두 핑 버튼 (Round 299)
+const cp299Path = join(ROOT, 'src/renderer/src/components/sidebar/ConnectionPanel.tsx')
+if (existsSync(cp299Path)) {
+  const cp299 = readFileSync(cp299Path, 'utf-8')
+  if (cp299.includes('pingAll') && cp299.includes('Promise.all') && cp299.includes('모두 핑')) {
+    log('pass', 'Round299', 'ConnectionPanel: 모두 핑 버튼 (pingAll/Promise.all) 존재')
+  } else {
+    log('warning', 'Round299', 'ConnectionPanel 모두 핑 미구현', 'sidebar/ConnectionPanel.tsx')
+  }
+}
+
 // ── Section 200: R298 신규 기능 ───────────────────────────────
 console.log('\n## 200. 신규 기능 파일 검사 (R298)')
 // GitPanel 커밋 메시지 글자 수 카운터 (Round 298)

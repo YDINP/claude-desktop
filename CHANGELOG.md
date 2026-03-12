@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 299] — 2026-03-13
+### Added
+- ConnectionPanel: "모두 핑" 버튼 — 전체 MCP 서버를 Promise.all로 동시 핑, 결과 실시간 반영
+
 ## [Round 298] — 2026-03-13
 ### Added
 - GitPanel: 커밋 메시지 글자 수 카운터 — 첫 번째 줄 N/72 표시, 60자 초과 시 노랑, 72자 초과 시 빨강

@@ -58,6 +58,18 @@ export function ConnectionPanel() {
     loadServers()
   }, [loadServers])
 
+  const pingAll = useCallback(async () => {
+    setServers(prev => prev.map(s => ({ ...s, status: 'checking' as const })))
+    await Promise.all(servers.map(async (server, index) => {
+      try {
+        const result = await window.api.pingMcpServer({ name: server.name, command: server.command, args: server.args })
+        setServers(prev => prev.map((s, i) => i === index ? { ...s, status: result.alive ? 'alive' : 'dead', latency: result.latency } : s))
+      } catch {
+        setServers(prev => prev.map((s, i) => i === index ? { ...s, status: 'dead' } : s))
+      }
+    }))
+  }, [servers])
+
   const pingServer = useCallback(async (index: number) => {
     const server = servers[index]
     if (!server) return
@@ -101,21 +113,35 @@ export function ConnectionPanel() {
         flexShrink: 0,
       }}>
         <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>MCP 서버</span>
-        <button
-          onClick={loadServers}
-          disabled={loading}
-          style={{
-            fontSize: 11,
-            padding: '2px 8px',
-            background: 'var(--bg-input)',
-            color: 'var(--text-muted)',
-            border: '1px solid var(--border)',
-            borderRadius: 4,
-            cursor: loading ? 'wait' : 'pointer',
-          }}
-        >
-          {loading ? '로딩...' : '새로고침'}
-        </button>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {servers.length > 0 && (
+            <button
+              onClick={pingAll}
+              disabled={servers.some(s => s.status === 'checking')}
+              title="모든 서버 핑"
+              style={{
+                fontSize: 11, padding: '2px 8px',
+                background: 'var(--bg-input)', color: 'var(--accent)',
+                border: '1px solid var(--accent)', borderRadius: 4,
+                cursor: servers.some(s => s.status === 'checking') ? 'wait' : 'pointer',
+              }}
+            >
+              모두 핑
+            </button>
+          )}
+          <button
+            onClick={loadServers}
+            disabled={loading}
+            style={{
+              fontSize: 11, padding: '2px 8px',
+              background: 'var(--bg-input)', color: 'var(--text-muted)',
+              border: '1px solid var(--border)', borderRadius: 4,
+              cursor: loading ? 'wait' : 'pointer',
+            }}
+          >
+            {loading ? '로딩...' : '새로고침'}
+          </button>
+        </div>
       </div>
 
       {/* Server list */}

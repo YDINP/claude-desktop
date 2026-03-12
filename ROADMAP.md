@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 298 완료 — GitPanel 커밋 메시지 글자 수 카운터, Pass 318)
+> 마지막 업데이트: 2026-03-13 (Round 299 완료 — ConnectionPanel 모두 핑 버튼, Pass 319)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 299 | dev | ConnectionPanel 모두 핑 버튼 — pingAll/Promise.all 동시 핑, 결과 실시간 반영 | ✅ |
 | Round 298 | dev | GitPanel 커밋 메시지 카운터 — 첫 줄 N/72 글자 수, 60↑ 노랑/72↑ 빨강 경고 | ✅ |
 | Round 297 | dev | ChangedFilesPanel W/E 카운트 — 헤더에 W:N E:N 색상 구분 표시 (write/edit 분리) | ✅ |
 | Round 296 | dev | ClipboardPanel 글자 수 표시 — 타임스탬프 우측에 N자 배지, toLocaleString 천 단위 구분 | ✅ |
