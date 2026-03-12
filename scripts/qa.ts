@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 275: R373 신규 기능 ───────────────────────────────
+console.log('\n## 275. 신규 기능 파일 검사 (R373)')
+// ChangedFilesPanel 파일 경로 복사 (Round 373)
+const cfp373Path = join(ROOT, 'src/renderer/src/components/sidebar/ChangedFilesPanel.tsx')
+if (existsSync(cfp373Path)) {
+  const cfp373 = readFileSync(cfp373Path, 'utf-8')
+  if (cfp373.includes('copiedPath') && cfp373.includes('경로 복사') && cfp373.includes('writeText(f.path)')) {
+    log('pass', 'Round373', 'ChangedFilesPanel: 파일 경로 복사 버튼 존재')
+  } else {
+    log('warning', 'Round373', 'ChangedFilesPanel 파일 경로 복사 미구현', 'sidebar/ChangedFilesPanel.tsx')
+  }
+}
+
 // ── Section 274: R372 신규 기능 ───────────────────────────────
 console.log('\n## 274. 신규 기능 파일 검사 (R372)')
 // RemotePanel 섹션 호스트 수 (Round 372)

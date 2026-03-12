@@ -50,6 +50,7 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
   const [restoringFiles, setRestoringFiles] = useState<Set<string>>(new Set())
   const [sortAsc, setSortAsc] = useState(false)
   const [opFilter, setOpFilter] = useState<'write' | 'edit' | null>(null)
+  const [copiedPath, setCopiedPath] = useState<string | null>(null)
 
   const handleClick = useCallback((path: string) => {
     onFileClick(path)
@@ -204,6 +205,13 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
                 </div>
               </div>
 
+              <button
+                onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(f.path); setCopiedPath(f.path); setTimeout(() => setCopiedPath(p => p === f.path ? null : p), 1500) }}
+                title="경로 복사"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: copiedPath === f.path ? 'var(--success, #4ade80)' : 'var(--text-muted)', fontSize: 11, padding: '2px 3px', flexShrink: 0 }}
+              >
+                {copiedPath === f.path ? '✓' : '📋'}
+              </button>
               {rootPath && (
                 <>
                   <button
