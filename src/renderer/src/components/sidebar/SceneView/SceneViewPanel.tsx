@@ -59,6 +59,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(new Set())
   const [focusMode, setFocusMode] = useState(false)
   const [measureMode, setMeasureMode] = useState(false)
+  const [refImageUrl, setRefImageUrl] = useState('')
+  const [refImageOpacity, setRefImageOpacity] = useState(0.3)
+  const [showRefImagePanel, setShowRefImagePanel] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
   const measureStartRef = useRef<{ x: number; y: number } | null>(null)
   const [nodeEditDraft, setNodeEditDraft] = useState<{ x: string; y: string; w: string; h: string } | null>(null)
@@ -1331,6 +1334,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onFocusModeToggle={() => setFocusMode(v => !v)}
         measureMode={measureMode}
         onMeasureModeToggle={() => { setMeasureMode(v => !v); setMeasureLine(null); measureStartRef.current = null }}
+        hasRefImage={!!refImageUrl}
+        onRefImageToggle={() => setShowRefImagePanel(v => !v)}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -1515,6 +1520,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               strokeWidth={1}
               rx={1}
             />
+
+            {/* 참조 이미지 오버레이 */}
+            {refImageUrl && (
+              <image
+                href={refImageUrl}
+                x={0} y={0}
+                width={DESIGN_W} height={DESIGN_H}
+                opacity={refImageOpacity}
+                preserveAspectRatio="xMidYMid meet"
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
 
             {/* 씬 해상도 레이블 */}
             <text
@@ -2076,6 +2093,38 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             )}
             <button onClick={() => { setShowCanvasSearch(false); setCanvasSearch('') }}
               style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 11, padding: '0 2px' }}>×</button>
+          </div>
+        )}
+
+        {/* 참조 이미지 설정 패널 */}
+        {showRefImagePanel && (
+          <div style={{
+            position: 'absolute', top: 6, right: 6, zIndex: 100,
+            background: 'rgba(10,10,15,0.92)', border: '1px solid var(--accent)',
+            borderRadius: 5, padding: '6px 10px', display: 'flex', flexDirection: 'column', gap: 4,
+            minWidth: 220, boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
+          }}>
+            <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 2 }}>📷 참조 이미지</div>
+            <input
+              placeholder="이미지 URL 입력..."
+              value={refImageUrl}
+              onChange={e => setRefImageUrl(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Escape') setShowRefImagePanel(false); e.stopPropagation() }}
+              style={{ fontSize: 9, padding: '2px 5px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 2, color: 'var(--text-primary)', outline: 'none', width: '100%' }}
+            />
+            <label style={{ fontSize: 9, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span>투명도:</span>
+              <input type="range" min={0.05} max={1} step={0.05} value={refImageOpacity}
+                onChange={e => setRefImageOpacity(Number(e.target.value))}
+                onKeyDown={e => e.stopPropagation()}
+                style={{ flex: 1, accentColor: 'var(--accent)' }}
+              />
+              <span style={{ minWidth: 24 }}>{Math.round(refImageOpacity * 100)}%</span>
+            </label>
+            <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
+              {refImageUrl && <button onClick={() => setRefImageUrl('')} style={{ fontSize: 9, padding: '1px 6px', background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: 2, color: '#f87171', cursor: 'pointer' }}>제거</button>}
+              <button onClick={() => setShowRefImagePanel(false)} style={{ fontSize: 9, padding: '1px 6px', background: 'none', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}>닫기</button>
+            </div>
           </div>
         )}
 

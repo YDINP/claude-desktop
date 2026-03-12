@@ -2036,6 +2036,26 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 131: R229 신규 기능 ───────────────────────────────
+console.log('\n## 131. 신규 기능 파일 검사 (R229)')
+// SceneView 참조 이미지 오버레이 (Round 229)
+const svp229Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const st229Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(svp229Path) && existsSync(st229Path)) {
+  const svp229 = readFileSync(svp229Path, 'utf-8')
+  const st229 = readFileSync(st229Path, 'utf-8')
+  if (svp229.includes('refImageUrl') && svp229.includes('refImageOpacity') && svp229.includes('참조 이미지')) {
+    log('pass', 'Round229', 'SceneViewPanel: 참조 이미지 오버레이 + 설정 패널 구현 존재')
+  } else {
+    log('warning', 'Round229', 'SceneViewPanel 참조 이미지 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (st229.includes('hasRefImage') && st229.includes('onRefImageToggle')) {
+    log('pass', 'Round229', 'SceneToolbar: 참조 이미지 버튼 존재')
+  } else {
+    log('warning', 'Round229', 'SceneToolbar 참조 이미지 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 130: R228 신규 기능 ───────────────────────────────
 console.log('\n## 130. 신규 기능 파일 검사 (R228)')
 // SceneView 측정 도구 (Round 228)

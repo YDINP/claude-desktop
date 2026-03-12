@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 229] — 2026-03-13
+### Added
+- SceneView: 참조 이미지 오버레이 — URL 입력해 씬 배경에 반투명 이미지 표시, 투명도 슬라이더 조절
+
 ## [Round 228] — 2026-03-13
 ### Added
 - SceneView: 측정 도구 (Alt+M) — 드래그로 씬 좌표 거리·각도 측정, 라인+수치 오버레이 표시

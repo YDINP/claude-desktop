@@ -65,6 +65,8 @@ interface SceneToolbarProps {
   onFocusModeToggle?: () => void
   measureMode?: boolean
   onMeasureModeToggle?: () => void
+  hasRefImage?: boolean
+  onRefImageToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -134,6 +136,8 @@ export function SceneToolbar({
   onFocusModeToggle,
   measureMode,
   onMeasureModeToggle,
+  hasRefImage,
+  onRefImageToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -323,6 +327,15 @@ export function SceneToolbar({
           onClick={onMeasureModeToggle}
           title="측정 도구 — 드래그로 거리 측정 (Alt+M)"
         >📏 Ruler</button>
+      )}
+
+      {/* 참조 이미지 */}
+      {onRefImageToggle && (
+        <button
+          style={hasRefImage ? btnActive : btnBase}
+          onClick={onRefImageToggle}
+          title="참조 이미지 오버레이"
+        >📷</button>
       )}
 
       {/* 캔버스 크기 프리셋 */}
