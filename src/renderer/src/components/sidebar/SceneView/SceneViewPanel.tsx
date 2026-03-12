@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import type { SceneNode, ViewTransform, DragState, MarqueeState, UndoEntry, ClipboardEntry } from './types'
+import type { SceneNode, ViewTransform, DragState, ResizeState, MarqueeState, UndoEntry, ClipboardEntry } from './types'
 import { useSceneSync } from './useSceneSync'
 import { NodeRenderer } from './NodeRenderer'
 import { SceneToolbar } from './SceneToolbar'
@@ -40,6 +40,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   // ── 드래그 상태 ────────────────────────────────────────────
   const dragRef = useRef<DragState | null>(null)
+  const resizeRef = useRef<ResizeState | null>(null)
   const isPanning = useRef(false)
   const panStart = useRef<{ mx: number; my: number; ox: number; oy: number } | null>(null)
 
@@ -223,6 +224,25 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [nodeMap, getSvgCoords, selectedUuids])
 
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw') => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (e.button !== 0) return
+    const node = nodeMap.get(uuid)
+    if (!node) return
+    const svgCoords = getSvgCoords(e)
+    resizeRef.current = {
+      uuid,
+      handle,
+      startSvgX: svgCoords.x,
+      startSvgY: svgCoords.y,
+      startWidth: node.width,
+      startHeight: node.height,
+      startNodeX: node.x,
+      startNodeY: node.y,
+    }
+  }, [nodeMap, getSvgCoords])
+
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // 마퀴 업데이트
     if (marqueeRef.current) {
@@ -234,6 +254,32 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         endY: svgCoords.y,
         active: true,
       })
+      return
+    }
+
+    // 리사이즈
+    if (resizeRef.current) {
+      const rs = resizeRef.current
+      const svgCoords = getSvgCoords(e)
+      const dsvgX = svgCoords.x - rs.startSvgX
+      const dsvgY = svgCoords.y - rs.startSvgY
+      const dsceneX = dsvgX / view.zoom
+      const dsceneY = -dsvgY / view.zoom  // Y 반전
+
+      let newW = rs.startWidth
+      let newH = rs.startHeight
+      // SE: +dsceneX, -dsceneY (SVG Y-down → height decrease)
+      if (rs.handle === 'se') { newW = rs.startWidth + dsceneX; newH = rs.startHeight - dsceneY }
+      else if (rs.handle === 'ne') { newW = rs.startWidth + dsceneX; newH = rs.startHeight + dsceneY }
+      else if (rs.handle === 'sw') { newW = rs.startWidth - dsceneX; newH = rs.startHeight - dsceneY }
+      else if (rs.handle === 'nw') { newW = rs.startWidth - dsceneX; newH = rs.startHeight + dsceneY }
+
+      newW = Math.max(4, newW)
+      newH = Math.max(4, newH)
+      const newX = rs.startNodeX + dsceneX / 2
+      const newY = rs.startNodeY + dsceneY / 2
+
+      updateNode(rs.uuid, { width: newW, height: newH, x: newX, y: newY })
       return
     }
 
@@ -383,7 +429,24 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       }
       dragRef.current = null
     }
-  }, [nodeMap, marquee, view])
+
+    // 리사이즈 종료 → IPC 전송
+    if (resizeRef.current) {
+      const rs = resizeRef.current
+      const node = nodeMap.get(rs.uuid)
+      if (node) {
+        try {
+          await window.api.ccSetProperty?.(port, rs.uuid, 'width', node.width)
+          await window.api.ccSetProperty?.(port, rs.uuid, 'height', node.height)
+          await window.api.ccSetProperty?.(port, rs.uuid, 'x', node.x)
+          await window.api.ccSetProperty?.(port, rs.uuid, 'y', node.y)
+        } catch (e) {
+          console.error('[SceneView] resize failed:', e)
+        }
+      }
+      resizeRef.current = null
+    }
+  }, [nodeMap, marquee, view, port])
 
   // ── 줌 (wheel) ─────────────────────────────────────────────
   const handleWheel = useCallback((e: React.WheelEvent) => {
@@ -741,6 +804,31 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 />
               )
             })}
+
+            {/* 선택 노드 리사이즈 핸들 (단일 선택 시) */}
+            {selectedNode && selectedUuids.size <= 1 && (() => {
+              const n = selectedNode
+              const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+              const hw = n.width / 2
+              const hh = n.height / 2
+              const hs = 5 / view.zoom
+              const handles: Array<{ id: 'nw' | 'ne' | 'se' | 'sw'; cx: number; cy: number; cursor: string }> = [
+                { id: 'nw', cx: sx - hw, cy: sy - hh, cursor: 'nw-resize' },
+                { id: 'ne', cx: sx + hw, cy: sy - hh, cursor: 'ne-resize' },
+                { id: 'se', cx: sx + hw, cy: sy + hh, cursor: 'se-resize' },
+                { id: 'sw', cx: sx - hw, cy: sy + hh, cursor: 'sw-resize' },
+              ]
+              return handles.map(h => (
+                <rect
+                  key={h.id}
+                  x={h.cx - hs / 2} y={h.cy - hs / 2}
+                  width={hs} height={hs}
+                  fill="white" stroke="#4096ff" strokeWidth={1 / view.zoom}
+                  style={{ cursor: h.cursor, pointerEvents: 'all' }}
+                  onMouseDown={e => handleResizeMouseDown(e, n.uuid, h.id)}
+                />
+              ))
+            })()}
 
             {/* 멀티셀렉트 그룹 bbox */}
             {groupBbox && (

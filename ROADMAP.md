@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 123 완료 — SceneView 멀티셀렉트 정렬 도구, Pass 65)
+> 마지막 업데이트: 2026-03-12 (Round 124 완료 — SceneView 노드 리사이즈 핸들, Pass 68)
 
 ## 완료된 라운드
 
@@ -75,7 +75,9 @@
 | Round 121 | dev | CC Extension 노드 컴포넌트 목록 개선 — cc.Label/cc.Sprite 등 주요 컴포넌트 props 추출 강화 | ✅ |
 | Round 122 | dev | SessionList 날짜 그룹 헤더 — 오늘/어제/이번주/이번달/이전 섹션 구분 | ✅ |
 | Round 123 | dev | SceneView 멀티셀렉트 정렬 도구 — 왼쪽/중앙/오른쪽/위/중앙/아래 정렬 버튼 6종 | ✅ |
-| Round 124 | dev | SceneView 노드 리사이즈 핸들 — 모서리 드래그로 노드 크기 조절 |
+| Round 124 | dev | SceneView 노드 리사이즈 핸들 — 모서리 드래그로 노드 크기 조절 | ✅ |
+| Round 125 | dev | NodePropertyPanel 씬 동기화 — 선택 노드 자동 갱신 (WebSocket 이벤트 기반) |
+| Round 126 | dev | QA 통합 검수 + CHANGELOG 갱신 (R121~125) |
 
 ## 전략 로드맵 (Phase)
 

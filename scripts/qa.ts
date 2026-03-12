@@ -776,6 +776,33 @@ if (existsSync(sceneViewPanelPath5)) {
   }
 }
 
+// ── Section 27: R124 신규 기능 ───────────────────────────────
+console.log('\n## 27. 신규 기능 파일 검사 (R124)')
+// SceneView 노드 리사이즈 핸들 (Round 124)
+const sceneTypesPath4 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/types.ts')
+if (existsSync(sceneTypesPath4)) {
+  const st4 = readFileSync(sceneTypesPath4, 'utf-8')
+  if (st4.includes('ResizeState') && st4.includes('startWidth') && st4.includes('startHeight')) {
+    log('pass', 'Round124', 'SceneView ResizeState 타입 존재')
+  } else {
+    log('warning', 'Round124', 'SceneView ResizeState 타입 미구현', 'SceneView/types.ts')
+  }
+}
+const sceneViewPanelPath6 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath6)) {
+  const svp6 = readFileSync(sceneViewPanelPath6, 'utf-8')
+  if (svp6.includes('handleResizeMouseDown') && svp6.includes('resizeRef') && svp6.includes('4096ff')) {
+    log('pass', 'Round124', 'SceneViewPanel 리사이즈 핸들 + handleResizeMouseDown 존재')
+  } else {
+    log('warning', 'Round124', 'SceneViewPanel 리사이즈 핸들 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp6.includes("handle === 'se'") && svp6.includes("handle === 'nw'")) {
+    log('pass', 'Round124', 'SceneViewPanel 4방향 리사이즈 로직 존재 (nw/ne/se/sw)')
+  } else {
+    log('warning', 'Round124', 'SceneViewPanel 리사이즈 방향 로직 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

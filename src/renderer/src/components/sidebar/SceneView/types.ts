@@ -37,6 +37,18 @@ export interface DragState {
   groupOffsets?: Record<string, { startX: number; startY: number }>
 }
 
+// 리사이즈 상태
+export interface ResizeState {
+  uuid: string
+  handle: 'nw' | 'ne' | 'se' | 'sw'
+  startSvgX: number
+  startSvgY: number
+  startWidth: number
+  startHeight: number
+  startNodeX: number
+  startNodeY: number
+}
+
 // 실행 취소/다시 실행 항목
 export interface UndoEntry {
   uuid: string

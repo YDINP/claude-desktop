@@ -1,5 +1,13 @@
 # Changelog — Claude Desktop
 
+## [Round 124] — 2026-03-12
+### Added
+- SceneView types.ts: ResizeState 인터페이스 추가 (uuid, handle, startSvgX/Y, startWidth/Height, startNodeX/Y)
+- SceneViewPanel: resizeRef + handleResizeMouseDown — 4개 모서리 핸들 클릭 시 ResizeState 초기화
+- SceneViewPanel: handleMouseMove 리사이즈 분기 — nw/ne/se/sw 핸들별 width/height/x/y 실시간 조정
+- SceneViewPanel: handleMouseUp 리사이즈 커밋 — ccSetProperty IPC로 width/height/x/y 저장
+- SVG 4개 흰색 rect 핸들 렌더링 (단일 선택 시, zoom 보정 5px 크기, 파란 테두리)
+
 ## [Round 123] — 2026-03-12
 ### Added
 - SceneToolbar: canAlign prop + 정렬 버튼 6종 (←L, ↔, R→, ↑T, ↕, B↓) — 멀티셀렉트 시 표시

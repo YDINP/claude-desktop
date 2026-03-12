@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T12:20:28.409Z
+> 2026-03-12T12:25:35.362Z
 
 ## Critical
 _없음_
@@ -73,3 +73,6 @@ _없음_
 - SessionList 5단계 날짜 그룹(오늘/어제/이번주/이번달/이전) 존재
 - SceneToolbar 정렬 도구 6종 버튼 존재
 - SceneViewPanel handleAlign 6방향 정렬 함수 존재
+- SceneView ResizeState 타입 존재
+- SceneViewPanel 리사이즈 핸들 + handleResizeMouseDown 존재
+- SceneViewPanel 4방향 리사이즈 로직 존재 (nw/ne/se/sw)
