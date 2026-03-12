@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 182] — 2026-03-13
+### Added
+- SceneInspector: Anchor ⊙ 버튼 — 클릭 시 anchorX, anchorY를 0.5로 즉시 초기화
+
 ## [Round 181] — 2026-03-13
 ### Added
 - SceneInspector: Scale ⊙ 버튼 — 클릭 시 scaleX, scaleY를 1로 즉시 초기화, 비활성(1,1)일 때 muted 색상

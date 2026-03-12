@@ -1836,6 +1836,19 @@ if (existsSync(sceneInspectorPath18)) {
   }
 }
 
+// ── Section 84: R182 신규 기능 ───────────────────────────────
+console.log('\n## 84. 신규 기능 파일 검사 (R182)')
+// SceneInspector Anchor 리셋 버튼 (Round 182)
+const sceneInspectorPath19 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath19)) {
+  const si19 = readFileSync(sceneInspectorPath19, 'utf-8')
+  if (si19.includes('앵커를 (0.5, 0.5) 중심으로 초기화') && si19.includes("onUpdate(node.uuid, 'anchorX', 0.5)")) {
+    log('pass', 'Round182', 'SceneInspector: Anchor ⊙ 리셋 버튼 존재')
+  } else {
+    log('warning', 'Round182', 'SceneInspector Anchor 리셋 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

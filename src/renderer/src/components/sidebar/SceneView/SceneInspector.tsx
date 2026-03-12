@@ -502,9 +502,16 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
 
       {/* Anchor */}
       <SectionHeader label="Anchor" />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
-        <NumInput label="Ax" value={node.anchorX} decimals={2} uuid={node.uuid} prop="anchorX" onSave={onUpdate} />
-        <NumInput label="Ay" value={node.anchorY} decimals={2} uuid={node.uuid} prop="anchorY" onSave={onUpdate} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+          <NumInput label="Ax" value={node.anchorX} decimals={2} uuid={node.uuid} prop="anchorX" onSave={onUpdate} />
+          <NumInput label="Ay" value={node.anchorY} decimals={2} uuid={node.uuid} prop="anchorY" onSave={onUpdate} />
+        </div>
+        <button
+          onClick={() => { onUpdate(node.uuid, 'anchorX', 0.5); onUpdate(node.uuid, 'anchorY', 0.5) }}
+          title="앵커를 (0.5, 0.5) 중심으로 초기화"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.anchorX !== 0.5 || node.anchorY !== 0.5) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+        >⊙</button>
       </div>
 
       {/* Color */}
