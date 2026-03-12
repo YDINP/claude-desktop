@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 163 완료 — SceneView Space 패닝, Pass 144)
+> 마지막 업데이트: 2026-03-12 (Round 164 완료 — SceneView 총 노드 수 표시, Pass 146)
 
 ## 완료된 라운드
 
@@ -115,6 +115,7 @@
 | Round 161 | dev | SceneInspector 자식 노드 수 표시 — ↳N 형태, 부모/자식 정보 통합 | ✅ |
 | Round 162 | dev | SceneView 균등 분포 배치 — 멀티셀렉트 3개↑ 수평(⊢⊣)/수직(⊤⊥) 균등 배치 | ✅ |
 | Round 163 | dev | SceneView Space 키 임시 패닝 — Space 홀드로 grab 커서 패닝 모드 | ✅ |
+| Round 164 | dev | SceneView 총 노드 수 표시 — 좌하단 "N개 노드", 멀티셀렉트 시 "· M 선택" 추가 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

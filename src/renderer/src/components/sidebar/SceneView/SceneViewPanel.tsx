@@ -1173,6 +1173,27 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           {Math.round(view.zoom * 100)}%
         </div>
 
+        {/* 총 노드 수 표시 */}
+        {nodeMap.size > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 6,
+              left: 8,
+              fontSize: 9,
+              color: 'var(--text-muted)',
+              background: 'rgba(0,0,0,0.5)',
+              padding: '1px 5px',
+              borderRadius: 3,
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+          >
+            {nodeMap.size}개 노드
+            {selectedUuids.size > 1 && ` · ${selectedUuids.size} 선택`}
+          </div>
+        )}
+
         {/* 마우스 씬 좌표 표시 */}
         {cursorScenePos && !isDragging && !isResizing && (
           <div

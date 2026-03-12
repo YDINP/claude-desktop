@@ -1521,6 +1521,24 @@ if (existsSync(sceneViewPanelPath28)) {
   }
 }
 
+// ── Section 66: R164 신규 기능 ───────────────────────────────
+console.log('\n## 66. 신규 기능 파일 검사 (R164)')
+// 총 노드 수 표시 (Round 164)
+const sceneViewPanelPath29 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath29)) {
+  const svp29 = readFileSync(sceneViewPanelPath29, 'utf-8')
+  if (svp29.includes('총 노드 수 표시') && svp29.includes('nodeMap.size}개 노드')) {
+    log('pass', 'Round164', 'SceneView: 총 노드 수 표시 존재')
+  } else {
+    log('warning', 'Round164', 'SceneView 총 노드 수 표시 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp29.includes('selectedUuids.size > 1') && svp29.includes('선택`')) {
+    log('pass', 'Round164', 'SceneView: 멀티셀렉트 시 선택 수 추가 표시')
+  } else {
+    log('warning', 'Round164', 'SceneView 선택 수 표시 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 164] — 2026-03-12
+### Added
+- SceneView: 씬 좌하단 총 노드 수 표시 — "N개 노드", 멀티셀렉트 시 "· M 선택" 추가
+
 ## [Round 163] — 2026-03-12
 ### Added
 - SceneView: Space 키 임시 패닝 모드 — Space 홀드 시 현재 도구 유지하며 grab/grabbing 커서로 패닝 가능
