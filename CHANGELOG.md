@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 136] — 2026-03-12
+### Added
+- SceneViewPanel: handleFocusSelected() — 선택 노드 중심으로 카메라 이동 + 줌 조정
+- SceneViewPanel: G키 단축키 → handleFocusSelected (선택 노드 없으면 handleFit 대체)
+
 ## [Round 135] — 2026-03-12
 ### Added
 - NodePropertyPanel: COMP_EDITABLE_KEYS 5종 추가 — cc.Slider(progress/totalLength), cc.Toggle(isChecked), cc.ProgressBar(progress/reverse), cc.ScrollView(horizontal/vertical/inertia), cc.Animation(speed)

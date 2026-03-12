@@ -1024,6 +1024,19 @@ if (existsSync(nodePropPath6)) {
   }
 }
 
+// ── Section 38: R136 신규 기능 ───────────────────────────────
+console.log('\n## 38. 신규 기능 파일 검사 (R136)')
+// SceneView 선택 노드 포커스 (Round 136)
+const sceneViewPanelPath13 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath13)) {
+  const svp13 = readFileSync(sceneViewPanelPath13, 'utf-8')
+  if (svp13.includes('handleFocusSelected') && svp13.includes('targetZoom') && svp13.includes("'g' || e.key === 'G'")) {
+    log('pass', 'Round136', 'SceneViewPanel: handleFocusSelected + targetZoom + G키 단축키 존재')
+  } else {
+    log('warning', 'Round136', 'SceneViewPanel 선택 노드 포커스 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

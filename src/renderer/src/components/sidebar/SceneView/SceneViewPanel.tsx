@@ -68,6 +68,24 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setView({ offsetX, offsetY, zoom })
   }, [])
 
+  // 선택 노드로 카메라 이동 (G키)
+  const handleFocusSelected = useCallback(() => {
+    if (!containerRef.current) return
+    const node = selectedUuid ? nodeMap.get(selectedUuid) : null
+    if (!node) { handleFit(); return }
+    const { width, height } = containerRef.current.getBoundingClientRect()
+    const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
+    const padding = 60
+    const targetZoom = Math.min(
+      (width - padding * 2) / Math.max(node.width, 40),
+      (height - padding * 2) / Math.max(node.height, 40),
+      4
+    )
+    const offsetX = width / 2 - sx * targetZoom
+    const offsetY = height / 2 - sy * targetZoom
+    setView({ offsetX, offsetY, zoom: targetZoom })
+  }, [selectedUuid, nodeMap, handleFit])
+
   // 최초 마운트 시 Fit
   useEffect(() => {
     if (rootUuid) handleFit()
@@ -80,6 +98,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.key === 'v' || e.key === 'V') setActiveTool('select')
       if (e.key === 'w' || e.key === 'W') setActiveTool('move')
       if (e.key === 'f' || e.key === 'F') handleFit()
+      if (e.key === 'g' || e.key === 'G') handleFocusSelected()
       if (e.key === 'Escape') {
         setSelectedUuid(null)
         setSelectedUuids(new Set())
@@ -116,7 +135,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit, updateNode, handleCopy, handlePaste])
+  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste])
 
   // ── CC 이벤트: 외부 선택 동기화 + 노드 최신화 ───────────────
   useEffect(() => {
