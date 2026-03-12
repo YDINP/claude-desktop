@@ -60,12 +60,14 @@ function groupSessions(sessions: SessionMeta[]): Array<{ label: string; items: S
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
   const yesterday = today - 86400000
   const weekAgo = today - 7 * 86400000
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
 
   const groups: { label: string; items: SessionMeta[] }[] = [
-    { label: '\uC624\uB298', items: [] },
-    { label: '\uC5B4\uC81C', items: [] },
-    { label: '\uC774\uBC88 \uC8FC', items: [] },
-    { label: '\uC774\uC804', items: [] },
+    { label: '오늘', items: [] },
+    { label: '어제', items: [] },
+    { label: '이번 주', items: [] },
+    { label: '이번 달', items: [] },
+    { label: '이전', items: [] },
   ]
 
   for (const s of sessions) {
@@ -73,7 +75,8 @@ function groupSessions(sessions: SessionMeta[]): Array<{ label: string; items: S
     if (ts >= today) groups[0].items.push(s)
     else if (ts >= yesterday) groups[1].items.push(s)
     else if (ts >= weekAgo) groups[2].items.push(s)
-    else groups[3].items.push(s)
+    else if (ts >= monthStart) groups[3].items.push(s)
+    else groups[4].items.push(s)
   }
 
   return groups.filter(g => g.items.length > 0)

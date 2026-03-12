@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 121 완료 — CC Extension 컴포넌트 props 편집 강화, Pass 61)
+> 마지막 업데이트: 2026-03-12 (Round 122 완료 — SessionList 날짜 5단계 그룹, Pass 63)
 
 ## 완료된 라운드
 
@@ -73,7 +73,9 @@
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
 | Round 121 | dev | CC Extension 노드 컴포넌트 목록 개선 — cc.Label/cc.Sprite 등 주요 컴포넌트 props 추출 강화 | ✅ |
-| Round 122 | dev | SessionList 날짜 그룹 헤더 — 오늘/어제/이번주/이번달/이전 섹션 구분 |
+| Round 122 | dev | SessionList 날짜 그룹 헤더 — 오늘/어제/이번주/이번달/이전 섹션 구분 | ✅ |
+| Round 123 | dev | SceneView 노드 리사이즈 핸들 — 모서리 드래그로 노드 크기 조절 |
+| Round 124 | dev | ChatPanel 메시지 북마크 — 중요 메시지 별표 + 북마크 목록 필터 |
 
 ## 전략 로드맵 (Phase)
 

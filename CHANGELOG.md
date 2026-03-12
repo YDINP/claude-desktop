@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 122] — 2026-03-12
+### Changed
+- SessionList groupSessions: 5단계 날짜 그룹 (오늘/어제/이번 주/이번 달/이전)
+- monthStart 계산 추가 (이번달 첫 날), 이번 주와 이전 사이에 이번달 섹션 삽입
+
 ## [Round 121] — 2026-03-12
 ### Added
 - CC 3x Extension: POST /node/:uuid/component 엔드포인트 — cc.Label string/fontSize, cc.Button interactable 등 컴포넌트 props 직접 편집

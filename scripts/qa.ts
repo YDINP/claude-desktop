@@ -736,6 +736,24 @@ if (existsSync(nodePropPath5)) {
   }
 }
 
+// ── Section 25: R122 신규 기능 ───────────────────────────────
+console.log('\n## 25. 신규 기능 파일 검사 (R122)')
+// SessionList 날짜 그룹 이번달 (Round 122)
+const sessionListPath2 = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sessionListPath2)) {
+  const sl2 = readFileSync(sessionListPath2, 'utf-8')
+  if (sl2.includes('이번 달') && sl2.includes('monthStart')) {
+    log('pass', 'Round122', 'SessionList 날짜 그룹 이번달 + monthStart 존재')
+  } else {
+    log('warning', 'Round122', 'SessionList 이번달 그룹 미구현', 'sidebar/SessionList.tsx')
+  }
+  if (sl2.includes('groups[3]') && sl2.includes('groups[4]')) {
+    log('pass', 'Round122', 'SessionList 5단계 날짜 그룹(오늘/어제/이번주/이번달/이전) 존재')
+  } else {
+    log('warning', 'Round122', 'SessionList 5단계 날짜 그룹 미구현', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

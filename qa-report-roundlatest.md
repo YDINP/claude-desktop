@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T12:10:51.770Z
+> 2026-03-12T12:13:18.619Z
 
 ## Critical
 _없음_
@@ -69,3 +69,5 @@ _없음_
 - cc-bridge: setComponentProp 메서드 존재
 - NodePropertyPanel 컴포넌트별 편집 UI 존재 (cc.Label/cc.Button)
 - NodePropertyPanel saveComp + ccSetComponentProp 연동 존재
+- SessionList 날짜 그룹 이번달 + monthStart 존재
+- SessionList 5단계 날짜 그룹(오늘/어제/이번주/이번달/이전) 존재
