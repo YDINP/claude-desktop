@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { CCEvent } from '../shared/ipc-schema'
+import type { CCEvent, CCNode, CCStatus } from '../shared/ipc-schema'
 
 contextBridge.exposeInMainWorld('api', {
   // Claude

@@ -17,6 +17,7 @@ import { PluginsPanel } from './PluginsPanel'
 import { ConnectionPanel } from './ConnectionPanel'
 import { AgentPanel } from './AgentPanel'
 import { RemotePanel } from './RemotePanel'
+import { CocosPanel } from './CocosPanel'
 import type { ChangedFile } from './ChangedFilesPanel'
 import type { ChatMessage } from '../../stores/chat-store'
 import { useProject } from '../../stores/project-store'
@@ -39,7 +40,7 @@ interface SidebarProps {
 
 export type { Tab as SidebarTab }
 
-type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote'
+type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'cocos'
 
 export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet }: SidebarProps) {
   const [tab, setTab] = useState<Tab>('files')
@@ -118,6 +119,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             { id: 'connections', label: '🔌', title: 'MCP 연결' },
             { id: 'agent', label: '🤖', title: '에이전트' },
             { id: 'remote', label: '🖥️', title: '원격' },
+            { id: 'cocos', label: '🎮', title: 'Cocos Creator' },
           ] as { id: Tab; label: string; title: string }[]).map((t) => (
             <button
               key={t.id}
@@ -277,6 +279,9 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
         )}
         {tab === 'remote' && (
           <RemotePanel />
+        )}
+        {tab === 'cocos' && (
+          <CocosPanel />
         )}
       </div>
     </div>
