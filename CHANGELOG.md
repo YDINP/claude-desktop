@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 295] — 2026-03-13
+### Added
+- SnippetPanel: 정렬 토글 버튼 — 생성 순(최신 우선) / 이름 순(가나다) 전환, ↕️/🔤 버튼
+
 ## [Round 294] — 2026-03-13
 ### Added
 - PluginsPanel: 활성화 플러그인 수 배지 — 헤더에 `N/M 활성` 배지 표시, 플러그인 토글 시 실시간 갱신

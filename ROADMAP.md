@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 294 완료 — PluginsPanel 활성 배지, Pass 314)
+> 마지막 업데이트: 2026-03-13 (Round 295 완료 — SnippetPanel 정렬 토글, Pass 315)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 295 | dev | SnippetPanel 정렬 토글 — 생성 순(최신 우선)/이름 순(localeCompare) 전환, ↕️/🔤 버튼 | ✅ |
 | Round 294 | dev | PluginsPanel 활성 플러그인 수 배지 — 헤더에 N/M 활성 배지, 토글 시 실시간 갱신 | ✅ |
 | Round 293 | dev | RunTimeline 완료 런 합산 비용 — totalCostUsd/finishedRuns, 헤더 요약 표시 | ✅ |
 | Round 292 | dev | OutlinePanel 헤딩 레벨 필터 — levelFilter/H1~H3 버튼, 재클릭 전체 복귀 | ✅ |

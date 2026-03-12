@@ -39,6 +39,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
   const [category, setCategory] = useState('')
   const [shortcut, setShortcut] = useState('')
   const [filter, setFilter] = useState('')
+  const [sortOrder, setSortOrder] = useState<'created' | 'name'>('created')
   const [toast, setToast] = useState<string | null>(null)
   const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([])
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false)
@@ -202,16 +203,19 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
     URL.revokeObjectURL(url)
   }
 
-  const filtered = useMemo(() =>
-    filter.trim()
+  const filtered = useMemo(() => {
+    const list = filter.trim()
       ? snippets.filter(s =>
           s.name.toLowerCase().includes(filter.toLowerCase()) ||
           s.content.toLowerCase().includes(filter.toLowerCase()) ||
           (s.category ?? '').toLowerCase().includes(filter.toLowerCase()) ||
           (s.shortcut ?? '').toLowerCase().includes(filter.toLowerCase())
         )
-      : snippets
-  , [snippets, filter])
+      : [...snippets]
+    if (sortOrder === 'name') list.sort((a, b) => a.name.localeCompare(b.name))
+    else list.sort((a, b) => b.createdAt - a.createdAt)
+    return list
+  }, [snippets, filter, sortOrder])
 
   const grouped = useMemo(() => {
     const map = new Map<string, Snippet[]>()
@@ -308,6 +312,16 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
             padding: '3px 8px', fontSize: 11, outline: 'none', boxSizing: 'border-box',
           }}
         />
+        <button
+          onClick={() => setSortOrder(o => o === 'created' ? 'name' : 'created')}
+          title={sortOrder === 'created' ? '이름 순으로 정렬' : '생성 순으로 정렬'}
+          style={{
+            padding: '3px 6px', background: 'var(--bg-tertiary)', color: 'var(--text-muted)',
+            borderRadius: 4, fontSize: 11, flexShrink: 0,
+          }}
+        >
+          {sortOrder === 'created' ? '↕️' : '🔤'}
+        </button>
         <button
           onClick={handleImportClick}
           title="JSON/TXT 파일에서 가져오기"

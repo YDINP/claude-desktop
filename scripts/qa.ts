@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 197: R295 신규 기능 ───────────────────────────────
+console.log('\n## 197. 신규 기능 파일 검사 (R295)')
+// SnippetPanel 정렬 토글 (Round 295)
+const sp295Path = join(ROOT, 'src/renderer/src/components/sidebar/SnippetPanel.tsx')
+if (existsSync(sp295Path)) {
+  const sp295 = readFileSync(sp295Path, 'utf-8')
+  if (sp295.includes('sortOrder') && sp295.includes('createdAt') && sp295.includes('localeCompare')) {
+    log('pass', 'Round295', 'SnippetPanel: 정렬 토글 (생성 순/이름 순) 존재')
+  } else {
+    log('warning', 'Round295', 'SnippetPanel 정렬 토글 미구현', 'sidebar/SnippetPanel.tsx')
+  }
+}
+
 // ── Section 196: R294 신규 기능 ───────────────────────────────
 console.log('\n## 196. 신규 기능 파일 검사 (R294)')
 // PluginsPanel 활성화 플러그인 수 배지 (Round 294)
