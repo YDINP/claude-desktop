@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 253 완료 — SceneView H키/Alt+L 다중 선택 일괄, Pass 273)
+> 마지막 업데이트: 2026-03-13 (Round 254 완료 — SceneView 씬 통계 컴포넌트 분포, Pass 274)
 
 ## 완료된 라운드
 
@@ -205,6 +205,7 @@
 | Round 251 | dev | SceneView I키 노드 정보 오버레이 — pos/size/rot/anchor/opacity/visible/locked 패널 | ✅ |
 | Round 252 | dev | NotesPanel 핀 고정 — 📌 토글, 핀 노드 목록 상단 고정 + 황금 border | ✅ |
 | Round 253 | dev | SceneView H키/Alt+L 다중 선택 일괄 — anyVisible/anyUnlocked 기준 가시성/잠금 일괄 토글 | ✅ |
+| Round 254 | dev | SceneView 씬 통계 컴포넌트 분포 — 상위 5개 컴포넌트 타입별 사용 수 (topComps) | ✅ |
 
 ## 전략 로드맵 (Phase)
 

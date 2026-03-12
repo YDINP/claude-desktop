@@ -2199,6 +2199,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           const locked = nodes.filter(n => n.locked).length
           const hidden = nodes.filter(n => n.visible === false).length
           const tagged = nodes.filter(n => (n.tags ?? []).length > 0).length
+          // 컴포넌트 타입 분포
+          const compCounts: Record<string, number> = {}
+          nodes.forEach(n => n.components.forEach(c => { compCounts[c.type] = (compCounts[c.type] ?? 0) + 1 }))
+          const topComps = Object.entries(compCounts).sort((a, b) => b[1] - a[1]).slice(0, 5)
+          const totalComps = Object.values(compCounts).reduce((s, v) => s + v, 0)
           return (
             <div
               style={{
@@ -2222,6 +2227,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               <div>잠금: {locked} / 숨김: {hidden}</div>
               <div>태그 있음: {tagged}</div>
               <div>선택: {selectedUuids.size}</div>
+              {topComps.length > 0 && (
+                <>
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: 3, paddingTop: 3, color: 'var(--text-secondary)' }}>컴포넌트 ({totalComps})</div>
+                  {topComps.map(([type, count]) => (
+                    <div key={type} style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 80 }}>{type.replace('cc.', '')}</span>
+                      <span style={{ color: 'var(--accent)', flexShrink: 0 }}>{count}</span>
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
           )
         })()}

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 156: R254 신규 기능 ───────────────────────────────
+console.log('\n## 156. 신규 기능 파일 검사 (R254)')
+// SceneView 씬 통계 컴포넌트 분포 (Round 254)
+const svp254Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp254Path)) {
+  const svp254 = readFileSync(svp254Path, 'utf-8')
+  if (svp254.includes('compCounts') && svp254.includes('topComps') && svp254.includes('totalComps')) {
+    log('pass', 'Round254', 'SceneViewPanel: 씬 통계 컴포넌트 타입 분포 (topComps) 존재')
+  } else {
+    log('warning', 'Round254', 'SceneViewPanel 통계 컴포넌트 분포 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 155: R253 신규 기능 ───────────────────────────────
 console.log('\n## 155. 신규 기능 파일 검사 (R253)')
 // SceneView H키/Alt+L 다중 선택 일괄 처리 (Round 253)

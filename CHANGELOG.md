@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 254] — 2026-03-13
+### Improved
+- SceneView: 씬 통계 패널에 컴포넌트 타입 분포 추가 — 상위 5개 컴포넌트 타입별 사용 수 표시
+
 ## [Round 253] — 2026-03-13
 ### Improved
 - SceneView: H키/Alt+L 다중 선택 일괄 처리 — 2개+ 선택 시 모든 노드 가시성/잠금 일괄 토글 (anyVisible/anyUnlocked 기준)
