@@ -47,6 +47,11 @@ export function RemotePanel() {
 
   const [form, setForm] = useState({ label: '', hostname: '', user: '', port: '22' })
   const [query, setQuery] = useState('')
+  const [copiedHost, setCopiedHost] = useState<string | null>(null)
+  const copyCmd = (user: string, hostname: string, port: number, key: string) => {
+    const cmd = port !== 22 ? `ssh -p ${port} ${user}@${hostname}` : `ssh ${user}@${hostname}`
+    navigator.clipboard.writeText(cmd).then(() => { setCopiedHost(key); setTimeout(() => setCopiedHost(k => k === key ? null : k), 1500) })
+  }
 
   const showToast = (message: string, type: ToastType = 'info') => {
     setToast({ message, type })
@@ -219,6 +224,9 @@ export function RemotePanel() {
                   {h.user}@{h.hostname}{h.port !== 22 ? `:${h.port}` : ''}
                 </div>
               </div>
+              <button style={{ ...iconBtn, color: copiedHost === h.alias ? '#4caf50' : 'var(--text-muted)' }} onClick={() => copyCmd(h.user, h.hostname, h.port, h.alias)} title="SSH 명령어 복사">
+                {copiedHost === h.alias ? '✓' : '📋'}
+              </button>
               <button style={connectBtn} onClick={() => handleConnect(h.user, h.hostname, h.port)}>
                 연결
               </button>
@@ -247,6 +255,9 @@ export function RemotePanel() {
                   {h.user}@{h.hostname}{h.port !== 22 ? `:${h.port}` : ''}
                 </div>
               </div>
+              <button style={{ ...iconBtn, color: copiedHost === h.id ? '#4caf50' : 'var(--text-muted)' }} onClick={() => copyCmd(h.user, h.hostname, h.port, h.id)} title="SSH 명령어 복사">
+                {copiedHost === h.id ? '✓' : '📋'}
+              </button>
               <button style={connectBtn} onClick={() => handleConnect(h.user, h.hostname, h.port, h.id)}>
                 연결
               </button>

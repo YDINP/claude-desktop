@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 288: R386 신규 기능 ───────────────────────────────
+console.log('\n## 288. 신규 기능 파일 검사 (R386)')
+// RemotePanel SSH 명령어 복사 버튼 (Round 386)
+const rp386Path = join(ROOT, 'src/renderer/src/components/sidebar/RemotePanel.tsx')
+if (existsSync(rp386Path)) {
+  const rp386 = readFileSync(rp386Path, 'utf-8')
+  if (rp386.includes('copiedHost') && rp386.includes('copyCmd') && rp386.includes('SSH 명령어 복사')) {
+    log('pass', 'Round386', 'RemotePanel: SSH 명령어 복사 버튼 존재')
+  } else {
+    log('warning', 'Round386', 'RemotePanel SSH 명령어 복사 미구현', 'sidebar/RemotePanel.tsx')
+  }
+}
+
 // ── Section 287: R385 신규 기능 ───────────────────────────────
 console.log('\n## 287. 신규 기능 파일 검사 (R385)')
 // OutlinePanel 개별 헤딩 복사 버튼 (Round 385)

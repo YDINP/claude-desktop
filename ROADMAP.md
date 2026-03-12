@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 385 완료 — OutlinePanel 개별 헤딩 복사, Pass 405)
+> 마지막 업데이트: 2026-03-13 (Round 386 완료 — RemotePanel SSH 명령어 복사, Pass 406)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 386 | dev | RemotePanel SSH 명령어 복사 — copiedHost, copyCmd, ssh [-p] user@host 형식 복사 | ✅ |
 | Round 385 | dev | OutlinePanel 개별 헤딩 복사 — hover 📋, copiedItemKey, "#".repeat(level) 포함 복사 | ✅ |
 | Round 384 | dev | TasksPanel 태스크 텍스트 복사 — 각 행 📋 버튼, copiedTaskId 상태, 제목 클립보드 복사 | ✅ |
 | Round 383 | dev | RunTimeline RunCard 런 로그 복사 — logCopied, copyLog 콜백, 스텝 이름/상태/시간 텍스트 | ✅ |

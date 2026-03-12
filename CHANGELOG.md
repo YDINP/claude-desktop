@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 386] — 2026-03-13
+### Added
+- RemotePanel: SSH 명령어 복사 버튼 — copiedHost 상태, copyCmd 함수, ssh [-p PORT] user@host 형식 복사
+
 ## [Round 385] — 2026-03-13
 ### Added
 - OutlinePanel: 개별 헤딩 복사 버튼 — hover 시 📋 표시, copiedItemKey 상태, "#".repeat(level) 포함 복사
