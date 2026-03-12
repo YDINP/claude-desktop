@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 309] — 2026-03-13
+### Added
+- AssetBrowserPanel: 헤더 에셋 수 배지 — 전체 non-folder 에셋 수 표시, 검색 시 N/M 형태
+
 ## [Round 308] — 2026-03-13
 ### Added
 - OutlinePanel: 아웃라인 전체 복사 버튼 — 📋 클릭으로 필터된 항목을 마크다운 헤딩 형식으로 클립보드 복사

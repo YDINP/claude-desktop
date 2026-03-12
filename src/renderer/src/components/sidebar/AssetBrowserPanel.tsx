@@ -84,11 +84,14 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
     return result
   }
 
+  const allFlat = flattenTree(tree)
+  const totalAssets = allFlat.filter(({ item }) => item.type !== 'folder').length
+
   const filtered = search.trim()
-    ? flattenTree(tree).filter(({ item }) =>
+    ? allFlat.filter(({ item }) =>
         item.name.toLowerCase().includes(search.toLowerCase()) && item.type !== 'folder'
       )
-    : flattenTree(tree)
+    : allFlat
 
   if (!connected) {
     return (
@@ -102,7 +105,13 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 6px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>에셋</span>
+        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>
+          에셋{totalAssets > 0 && (
+            <span style={{ marginLeft: 5, fontSize: 10, color: 'var(--text-muted)', background: 'var(--bg-hover)', borderRadius: 8, padding: '1px 5px' }}>
+              {search.trim() ? `${filtered.length}/` : ''}{totalAssets}
+            </span>
+          )}
+        </span>
         <button
           onClick={refresh}
           disabled={loading}

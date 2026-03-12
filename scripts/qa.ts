@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 211: R309 신규 기능 ───────────────────────────────
+console.log('\n## 211. 신규 기능 파일 검사 (R309)')
+// AssetBrowserPanel 에셋 수 배지 (Round 309)
+const ab309Path = join(ROOT, 'src/renderer/src/components/sidebar/AssetBrowserPanel.tsx')
+if (existsSync(ab309Path)) {
+  const ab309 = readFileSync(ab309Path, 'utf-8')
+  if (ab309.includes('totalAssets') && ab309.includes('allFlat') && ab309.includes('에셋')) {
+    log('pass', 'Round309', 'AssetBrowserPanel: 헤더 에셋 수 배지 (totalAssets/allFlat) 존재')
+  } else {
+    log('warning', 'Round309', 'AssetBrowserPanel 에셋 수 배지 미구현', 'sidebar/AssetBrowserPanel.tsx')
+  }
+}
+
 // ── Section 210: R308 신규 기능 ───────────────────────────────
 console.log('\n## 210. 신규 기능 파일 검사 (R308)')
 // OutlinePanel 아웃라인 복사 버튼 (Round 308)
