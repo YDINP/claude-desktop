@@ -21,6 +21,7 @@ export function TasksPanel() {
   const [sortBy, setSortBy] = useState<'created' | 'priority' | 'due'>('created')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
+  const [copiedTaskId, setCopiedTaskId] = useState<string | null>(null)
   const [dueDate, setDueDate] = useState('')
   const [taskSearch, setTaskSearch] = useState('')
   const [expandedMemoId, setExpandedMemoId] = useState<string | null>(null)
@@ -242,6 +243,11 @@ export function TasksPanel() {
             })()}
             <button onClick={() => setExpandedMemoId(expandedMemoId === task.id ? null : task.id)}
               title="메모" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, flexShrink: 0, color: task.memo ? '#fbbf24' : 'var(--text-muted)', opacity: 0.7 }}>📝</button>
+            <button
+              onClick={() => { navigator.clipboard.writeText(task.text).then(() => { setCopiedTaskId(task.id); setTimeout(() => setCopiedTaskId(id => id === task.id ? null : id), 1500) }) }}
+              title="태스크 텍스트 복사"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, flexShrink: 0, color: copiedTaskId === task.id ? '#4caf50' : 'var(--text-muted)' }}
+            >{copiedTaskId === task.id ? '✓' : '📋'}</button>
             <button onClick={() => deleteTask(task.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, flexShrink: 0 }}>×</button>
           </div>
           {expandedMemoId === task.id && (

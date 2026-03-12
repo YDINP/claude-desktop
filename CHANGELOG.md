@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 384] — 2026-03-13
+### Added
+- TasksPanel: 태스크 텍스트 복사 버튼 — 각 행 📋 버튼, copiedTaskId 상태, 태스크 제목 클립보드 복사
+
 ## [Round 383] — 2026-03-13
 ### Added
 - RunTimeline RunCard: 런 로그 복사 버튼 — logCopied 상태, copyLog 콜백, 스텝 이름/상태/시간 텍스트 복사

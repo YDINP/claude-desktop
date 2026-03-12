@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 286: R384 신규 기능 ───────────────────────────────
+console.log('\n## 286. 신규 기능 파일 검사 (R384)')
+// TasksPanel 태스크 텍스트 복사 버튼 (Round 384)
+const tp384Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp384Path)) {
+  const tp384 = readFileSync(tp384Path, 'utf-8')
+  if (tp384.includes('copiedTaskId') && tp384.includes('태스크 텍스트 복사')) {
+    log('pass', 'Round384', 'TasksPanel: 태스크 텍스트 복사 버튼 존재')
+  } else {
+    log('warning', 'Round384', 'TasksPanel 텍스트 복사 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 285: R383 신규 기능 ───────────────────────────────
 console.log('\n## 285. 신규 기능 파일 검사 (R383)')
 // RunTimeline RunCard 런 로그 복사 (Round 383)
