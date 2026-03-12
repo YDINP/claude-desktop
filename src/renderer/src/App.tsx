@@ -914,6 +914,25 @@ function AppContent() {
         if (soundEnabledRef.current) {
           playCompletionSound()
         }
+      } else if (ev.type === 'thinking') {
+        // Extended Thinking 전체 블록 — 현재는 무시 (스트리밍 delta로 처리)
+      } else if (ev.type === 'thinking_delta') {
+        // thinking 스트리밍 delta — 현재는 무시 (UI에서 별도 패널로 표시 가능)
+      } else if (ev.type === 'text_delta') {
+        // 스트리밍 text delta (stream_event에서 옴) — appendText와 중복될 수 있어 무시
+        // assistant 완성 메시지의 text가 이미 'text' 이벤트로 처리됨
+      } else if (ev.type === 'input_json_delta') {
+        // tool input 스트리밍 — 현재는 무시
+      } else if (ev.type === 'usage') {
+        // message_delta usage 업데이트
+        chat.addUsage(
+          (ev.inputTokens as number) ?? 0,
+          (ev.outputTokens as number) ?? 0,
+        )
+      } else if (ev.type === 'tool_progress') {
+        // 툴 실행 중 — 현재는 무시 (향후 진행 표시 UI에 활용 가능)
+      } else if (ev.type === 'status') {
+        // compacting 상태 — 현재는 무시
       } else if (ev.type === 'interrupted') {
         chat.finishStreaming()
       } else if (ev.type === 'error') {

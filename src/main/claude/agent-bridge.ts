@@ -72,9 +72,15 @@ export class AgentBridge {
     const type = msg.type as string
     const subtype = msg.subtype as string | undefined
 
-    if (type === 'system' && subtype === 'init') {
-      this.currentSessionId = msg.session_id as string
-      this.emit({ type: 'init', sessionId: this.currentSessionId })
+    if (type === 'system') {
+      if (subtype === 'init') {
+        this.currentSessionId = msg.session_id as string
+        this.emit({ type: 'init', sessionId: this.currentSessionId })
+      } else if (subtype === 'status') {
+        // compacting 상태 알림
+        this.emit({ type: 'status', status: msg.status ?? null })
+      }
+      // compact_boundary, hook_response 등은 무시
       return
     }
 
@@ -87,6 +93,9 @@ export class AgentBridge {
         const b = block as Record<string, unknown>
         if (b.type === 'text') {
           this.emit({ type: 'text', text: b.text as string })
+        } else if (b.type === 'thinking') {
+          // Extended Thinking 블록
+          this.emit({ type: 'thinking', text: b.thinking as string ?? '' })
         } else if (b.type === 'tool_use') {
           this.emit({
             type: 'tool_start',
@@ -96,9 +105,39 @@ export class AgentBridge {
           })
         }
       }
+
+      // assistant-level error (e.g. authentication_failed, rate_limit)
+      if (msg.error) {
+        this.emit({ type: 'error', message: String(msg.error) })
+      }
       return
     }
 
+    // SDK wraps tool results inside a 'user' message with content array
+    if (type === 'user') {
+      const message = msg.message as Record<string, unknown> | undefined
+      const content = (message?.content ?? msg.content) as unknown[]
+      if (!Array.isArray(content)) return
+      for (const item of content) {
+        const it = item as Record<string, unknown>
+        if (it.type === 'tool_result') {
+          const toolUseId = it.tool_use_id as string
+          const toolContent = it.content as unknown[]
+          const textBlock = Array.isArray(toolContent)
+            ? toolContent.find((c) => (c as Record<string, unknown>).type === 'text')
+            : undefined
+          this.emit({
+            type: 'tool_end',
+            toolId: toolUseId,
+            toolOutput: (textBlock as Record<string, unknown> | undefined)?.text as string ?? '',
+            isError: it.is_error as boolean ?? false
+          })
+        }
+      }
+      return
+    }
+
+    // Legacy direct tool_result (kept for compatibility)
     if (type === 'tool_result') {
       const toolUseId = msg.tool_use_id as string
       const content = msg.content as unknown[]
@@ -112,13 +151,79 @@ export class AgentBridge {
       return
     }
 
+    if (type === 'tool_progress') {
+      // 툴 실행 중 진행 상황
+      this.emit({
+        type: 'tool_progress',
+        toolId: msg.tool_use_id as string,
+        toolName: msg.tool_name as string,
+        elapsedSeconds: msg.elapsed_time_seconds as number ?? 0,
+      })
+      return
+    }
+
+    // stream_event: includePartialMessages=true 일 때 오는 raw 스트리밍 이벤트
+    if (type === 'stream_event') {
+      const event = msg.event as Record<string, unknown> | undefined
+      if (!event) return
+      const evType = event.type as string
+
+      if (evType === 'content_block_delta') {
+        const delta = event.delta as Record<string, unknown> | undefined
+        if (!delta) return
+        if (delta.type === 'text_delta') {
+          // 스트리밍 텍스트 delta — 별도 이벤트로 전송
+          this.emit({ type: 'text_delta', text: delta.text as string ?? '' })
+        } else if (delta.type === 'thinking_delta') {
+          this.emit({ type: 'thinking_delta', text: delta.thinking as string ?? '' })
+        } else if (delta.type === 'input_json_delta') {
+          this.emit({ type: 'input_json_delta', partial: delta.partial_json as string ?? '' })
+        }
+      } else if (evType === 'message_delta') {
+        const usage = event.usage as Record<string, number> | undefined
+        if (usage) {
+          this.emit({
+            type: 'usage',
+            inputTokens: usage.input_tokens ?? 0,
+            outputTokens: usage.output_tokens ?? 0,
+          })
+        }
+      } else if (evType === 'ping') {
+        console.log('[agent-bridge] ping received')
+      } else if (evType === 'error') {
+        const err = event.error as Record<string, unknown> | undefined
+        const errType = err?.type as string ?? ''
+        if (errType === 'overloaded_error') {
+          console.warn('[agent-bridge] API overloaded — stream error')
+          this.emit({ type: 'error', message: 'API overloaded. Please retry later.' })
+        } else {
+          this.emit({ type: 'error', message: err?.message as string ?? String(event) })
+        }
+      }
+      return
+    }
+
     if (type === 'result') {
+      const subtype2 = msg.subtype as string | undefined
+      const isErrorResult = subtype2 && subtype2 !== 'success'
+      if (isErrorResult) {
+        const errors = msg.errors as string[] | undefined
+        const errMsg = errors?.join('; ') ?? `Session ended: ${subtype2}`
+        this.emit({ type: 'error', message: errMsg })
+      }
       this.emit({
         type: 'result',
         costUsd: msg.total_cost_usd as number ?? 0,
         inputTokens: msg.usage ? (msg.usage as Record<string, number>).input_tokens ?? 0 : 0,
         outputTokens: msg.usage ? (msg.usage as Record<string, number>).output_tokens ?? 0 : 0,
       })
+      return
+    }
+
+    if (type === 'auth_status') {
+      if (msg.error) {
+        this.emit({ type: 'error', message: `Auth error: ${msg.error}` })
+      }
       return
     }
   }
