@@ -401,6 +401,27 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [clipboard, nodeMap, updateNode])
 
+  const handleCreateNode = useCallback(async () => {
+    const name = 'NewNode'
+    try {
+      await window.api.ccCreateNode?.(port, name, selectedUuid ?? undefined)
+      refresh()
+    } catch (e) {
+      console.error('[SceneView] createNode failed:', e)
+    }
+  }, [port, selectedUuid, refresh])
+
+  const handleDeleteNode = useCallback(async () => {
+    if (!selectedUuid) return
+    try {
+      await window.api.ccDeleteNode?.(port, selectedUuid)
+      setSelectedUuid(null)
+      refresh()
+    } catch (e) {
+      console.error('[SceneView] deleteNode failed:', e)
+    }
+  }, [port, selectedUuid, refresh])
+
   const handleZOrder = useCallback(async (direction: 'front' | 'back' | 'up' | 'down') => {
     if (selectedUuids.size !== 1) return
     const uuid = [...selectedUuids][0]
@@ -458,6 +479,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         canCopy={canCopy}
         canPaste={canPaste}
         canZOrder={canZOrder}
+        selectedUuid={selectedUuid}
+        onCreateNode={handleCreateNode}
+        onDeleteNode={handleDeleteNode}
         onToolChange={setActiveTool}
         onZoomChange={zoom => setView(prev => ({ ...prev, zoom }))}
         onGridToggle={() => setGridVisible(v => !v)}

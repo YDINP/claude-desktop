@@ -66,6 +66,16 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
     return getCCBridge(port).setZOrder(uuid, direction)
   })
 
+  ipcMain.handle('cc:createNode', async (_e, port: number, name: string, parentUuid?: string) => {
+    const bridge = getCCBridge(port)
+    return bridge.createNode(name, parentUuid)
+  })
+
+  ipcMain.handle('cc:deleteNode', async (_e, port: number, uuid: string) => {
+    const bridge = getCCBridge(port)
+    return bridge.deleteNode(uuid)
+  })
+
   ipcMain.handle(CC_MOVE_NODE, async (_e, port = 9090, uuid: string, x: number, y: number) => {
     return getCCBridge(port).moveNode(uuid, x, y)
   })

@@ -2,14 +2,26 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 108 (CC SceneTree 노드 인라인 이름 편집)
+- 마지막 커밋: Round 109 (QA R108~109 + 스트리밍 경과 시간 + CC 노드 생성/삭제)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 36
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 38
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 108 완료 항목 (최근 세션)
+## Round 109 완료 항목 (최근 세션)
+
+### Round 109 — QA + 스트리밍 경과 시간 + CC 노드 생성/삭제
+- `scripts/qa.ts`: Section 14 추가 (SceneTree rename, 스트리밍 경과 시간, Pass 36→38)
+- `src/renderer/src/components/chat/InputBar.tsx`: `streamElapsed` state + `streamTimerRef`, 1초 인터벌 타이머, Stop 버튼 옆 `Xs` 경과 시간 표시
+- `extensions/cc-ws-extension-3x/main.js`: `POST /scene/new-node`, `DELETE /node/:uuid`, CORS DELETE 추가
+- `src/main/cc/cc-bridge.ts`: `createNode`, `deleteNode` 메서드
+- `src/main/ipc/cc-handlers.ts`: `cc:createNode`, `cc:deleteNode` 핸들러
+- `src/preload/index.ts`: `ccCreateNode`, `ccDeleteNode` contextBridge 노출
+- `src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx`: `+`/`×` 버튼 (onCreateNode/onDeleteNode)
+- `src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx`: `handleCreateNode`/`handleDeleteNode` 핸들러
+
+## Round 108 완료 항목 (이전 세션)
 
 ### Round 108 — CC SceneTree 노드 인라인 이름 편집
 - `extensions/cc-ws-extension-3x/main.js`: `name` property 케이스 추가 (set-property dump string)

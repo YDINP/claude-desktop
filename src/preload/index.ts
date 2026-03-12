@@ -266,6 +266,8 @@ contextBridge.exposeInMainWorld('api', {
   ccGetNode: (port: number, uuid: string) => ipcRenderer.invoke('cc:getNode', port, uuid),
   ccSetProperty: (port: number, uuid: string, key: string, value: unknown) => ipcRenderer.invoke('cc:setProperty', port, uuid, key, value),
   ccSetZOrder: (port: number, uuid: string, direction: string) => ipcRenderer.invoke('cc:setZOrder', port, uuid, direction),
+  ccCreateNode: (port: number, name: string, parentUuid?: string) => ipcRenderer.invoke('cc:createNode', port, name, parentUuid),
+  ccDeleteNode: (port: number, uuid: string) => ipcRenderer.invoke('cc:deleteNode', port, uuid),
   ccMoveNode: (port: number, uuid: string, x: number, y: number) => ipcRenderer.invoke('cc:moveNode', port, uuid, x, y),
   onCCEvent: (cb: (event: CCEvent) => void) => {
     const handler = (_e: Electron.IpcRendererEvent, data: unknown) => cb(data as CCEvent)
@@ -478,6 +480,8 @@ declare global {
       ccGetNode: (port: number, uuid: string) => Promise<unknown>
       ccSetProperty: (port: number, uuid: string, key: string, value: unknown) => Promise<unknown>
       ccSetZOrder: (port: number, uuid: string, direction: string) => Promise<void>
+      ccCreateNode?: (port: number, name: string, parentUuid?: string) => Promise<string>
+      ccDeleteNode?: (port: number, uuid: string) => Promise<void>
       ccMoveNode: (port: number, uuid: string, x: number, y: number) => Promise<unknown>
       onCCEvent: (cb: (event: import('../shared/ipc-schema').CCEvent) => void) => () => void
       onCCStatusChange: (cb: (status: { connected: boolean; port?: number }) => void) => () => void

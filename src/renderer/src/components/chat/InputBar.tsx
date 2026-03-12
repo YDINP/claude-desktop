@@ -193,6 +193,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [editingAction, setEditingAction] = useState<string | null>(null)
   const [editLabel, setEditLabel] = useState('')
   const [editPrompt, setEditPrompt] = useState('')
+  const [streamElapsed, setStreamElapsed] = useState(0)
+  const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -248,6 +250,24 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     }
     onPendingInsertConsumed?.()
   }, [pendingInsert]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (isStreaming) {
+      setStreamElapsed(0)
+      streamTimerRef.current = setInterval(() => {
+        setStreamElapsed(prev => prev + 1)
+      }, 1000)
+    } else {
+      if (streamTimerRef.current) {
+        clearInterval(streamTimerRef.current)
+        streamTimerRef.current = null
+      }
+      setStreamElapsed(0)
+    }
+    return () => {
+      if (streamTimerRef.current) clearInterval(streamTimerRef.current)
+    }
+  }, [isStreaming])
 
   useEffect(() => {
     window.api.recentFiles().then((files) => setRecentFiles(files ?? []))
@@ -1395,6 +1415,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           >
             ⏹ Stop
           </button>
+          <span style={{ fontSize: 10, color: 'var(--text-muted)', alignSelf: 'center', minWidth: 30 }}>
+            {streamElapsed}s
+          </span>
         </div>
       ) : (
         <button

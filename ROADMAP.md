@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 108 완료 — CC SceneTree 노드 인라인 이름 편집)
+> 마지막 업데이트: 2026-03-12 (Round 109 완료 — QA R108~109 체크 + 스트리밍 경과 시간 + CC 노드 생성/삭제)
 
 ## 완료된 라운드
 
@@ -55,13 +55,14 @@
 | Round 106 | dev | InputBar 빠른 액션 슬롯 — 4개 프리셋 버튼 (요약/코드리뷰/설명/계속), 우클릭 편집, localStorage 저장 | ✅ |
 | Round 107 | dev | QA R106~107 체크 (Pass→36) + ChatPanel 세션 자동 제목 + SceneTreePanel 노드 이름 검색 | ✅ |
 | Round 108 | dev | CC SceneTree 노드 인라인 이름 편집 — 더블클릭 편집, 3x/2x name property 지원 | ✅ |
+| Round 109 | dev | QA R108~109 체크 (Pass→38) + 스트리밍 경과 시간 표시 + CC 노드 생성/삭제 (POST /scene/new-node, DELETE /node/:uuid) | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 109 | dev | QA R108 체크 + ChatPanel 스트리밍 진행률 표시 + Stop 버튼 시각 개선 |
 | Round 110 | dev | NodePropertyPanel 필드 인라인 편집 고도화 (슬라이더/색상피커/벡터 입력) |
+| Round 111 | dev | StatsPanel 고도화 — 세션별 통계, 일별 메시지 수 차트, 평균 응답 시간 |
 
 ## 전략 로드맵 (Phase)
 

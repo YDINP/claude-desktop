@@ -187,7 +187,7 @@ function enrichNode(raw) {
 function handleRequest(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
 
@@ -345,6 +345,36 @@ async function routeRequest3x(method, url, body, res) {
       }
     }
     res.writeHead(200); res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
+  // POST /scene/new-node { name: string, parentUuid?: string }
+  if (method === 'POST' && url === '/scene/new-node') {
+    const { name = 'NewNode', parentUuid } = body;
+    try {
+      const sceneUuid = await Editor.Message.request('scene', 'query-scene');
+      const parent = parentUuid || (sceneUuid?.uuid);
+      const result = await Editor.Message.request('scene', 'create-node', {
+        name,
+        parent,
+      });
+      res.writeHead(200); res.end(JSON.stringify({ ok: true, uuid: result }));
+    } catch (e) {
+      res.writeHead(200); res.end(JSON.stringify({ ok: false, error: String(e) }));
+    }
+    return;
+  }
+
+  // DELETE /node/:uuid
+  const deleteMatch = url.match(/^\/node\/([^\/]+)$/);
+  if (method === 'DELETE' && deleteMatch) {
+    const uuid = deleteMatch[1];
+    try {
+      await Editor.Message.request('scene', 'remove-node', { uuid });
+      res.writeHead(200); res.end(JSON.stringify({ ok: true }));
+    } catch (e) {
+      res.writeHead(200); res.end(JSON.stringify({ ok: false, error: String(e) }));
+    }
     return;
   }
 

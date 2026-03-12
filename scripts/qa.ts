@@ -487,6 +487,30 @@ if (existsSync(chatPanelPath2)) {
   }
 }
 
+console.log('\n## 14. 신규 기능 파일 검사 (R108-109)')
+
+// CC node inline rename (Round 108)
+const sceneTreePath = join(ROOT, 'src/renderer/src/components/sidebar/SceneTreePanel.tsx')
+if (existsSync(sceneTreePath)) {
+  const st = readFileSync(sceneTreePath, 'utf-8')
+  if (st.includes('handleRename') && (st.includes('onDoubleClick') || st.includes('handleDoubleClick'))) {
+    log('pass', 'Round108', 'SceneTree 노드 인라인 이름 편집 존재')
+  } else {
+    log('warning', 'Round108', 'SceneTree 인라인 편집 누락', 'sidebar/SceneTreePanel.tsx')
+  }
+}
+
+// Streaming elapsed time (Round 109)
+const inputBarPath3 = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(inputBarPath3)) {
+  const ib = readFileSync(inputBarPath3, 'utf-8')
+  if (ib.includes('elapsed') || ib.includes('streamTime') || ib.includes('streamDuration') || ib.includes('streamElapsed')) {
+    log('pass', 'Round109', '스트리밍 경과 시간 표시 존재')
+  } else {
+    log('warning', 'Round109', '스트리밍 경과 시간 미구현', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -11,6 +11,9 @@ interface SceneToolbarProps {
   canCopy?: boolean
   canPaste?: boolean
   canZOrder?: boolean
+  selectedUuid?: string | null
+  onCreateNode?: () => void
+  onDeleteNode?: () => void
   onToolChange: (tool: 'select' | 'move') => void
   onZoomChange: (zoom: number) => void
   onGridToggle: () => void
@@ -40,6 +43,9 @@ export function SceneToolbar({
   canCopy,
   canPaste,
   canZOrder,
+  selectedUuid,
+  onCreateNode,
+  onDeleteNode,
   onToolChange,
   onZoomChange,
   onGridToggle,
@@ -235,6 +241,21 @@ export function SceneToolbar({
         title="맨 뒤로"
         style={{ ...btnBase, opacity: canZOrder ? 1 : 0.3 }}
       >⬇⬇</button>
+
+      <div style={divider} />
+
+      {/* 노드 추가 / 삭제 */}
+      <button
+        onClick={onCreateNode}
+        title="새 노드 추가"
+        style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 14, padding: '2px 6px' }}
+      >+</button>
+      <button
+        onClick={onDeleteNode}
+        disabled={!selectedUuid}
+        title="선택 노드 삭제"
+        style={{ opacity: selectedUuid ? 1 : 0.3, background: 'none', border: 'none', color: 'var(--error)', cursor: selectedUuid ? 'pointer' : 'default', fontSize: 14, padding: '2px 6px' }}
+      >×</button>
 
       <div style={divider} />
 
