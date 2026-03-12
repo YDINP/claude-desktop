@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, memo, useMemo, useTransition } from 'react'
+import { useEffect, useRef, useState, useCallback, memo, useMemo, useTransition, type RefObject } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { MessageBubble } from './MessageBubble'
 import { InputBar } from './InputBar'
@@ -219,6 +219,81 @@ const formatTimeSep = (ts: number) => {
   return d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) + ' ' + timeStr
 }
 
+interface MiniMapProps {
+  messages: ChatMessage[]
+  scrollTop: number
+  clientHeight: number
+  totalScrollHeight: number
+  blockHeights: number[]
+  totalRaw: number
+  minimapRef: RefObject<HTMLDivElement>
+  onClick: (e: React.MouseEvent<HTMLDivElement>) => void
+}
+
+const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, totalScrollHeight, blockHeights, totalRaw, minimapRef, onClick }: MiniMapProps) {
+  return (
+    <div
+      ref={minimapRef}
+      onClick={onClick}
+      style={{
+        width: 40,
+        flexShrink: 0,
+        background: 'rgba(0,0,0,0.3)',
+        position: 'relative',
+        cursor: 'pointer',
+        overflow: 'hidden',
+      }}
+    >
+      {(() => {
+        const containerH = minimapRef.current?.clientHeight ?? 300
+        const scale = totalRaw > containerH ? containerH / totalRaw : 1
+        let offsetY = 0
+        const blocks = messages.map((msg, i) => {
+          const h = blockHeights[i] * scale
+          const y = offsetY
+          offsetY += h + scale
+          return (
+            <div
+              key={msg.id}
+              style={{
+                position: 'absolute',
+                top: y,
+                left: 4,
+                right: 4,
+                height: Math.max(2, h),
+                background: msg.role === 'user' ? '#4a90e2' : '#666',
+                borderRadius: 1,
+              }}
+            />
+          )
+        })
+
+        const totalScrollH = Math.max(totalScrollHeight, 1)
+        const vpTop = (scrollTop / totalScrollH) * containerH
+        const vpHeight = Math.max(10, (clientHeight / (totalScrollH + clientHeight)) * containerH)
+        const viewport = (
+          <div
+            key="viewport"
+            style={{
+              position: 'absolute',
+              top: vpTop,
+              left: 0,
+              right: 0,
+              height: vpHeight,
+              background: 'rgba(137,180,250,0.15)',
+              border: '1px solid rgba(137,180,250,0.4)',
+              borderRadius: 2,
+              pointerEvents: 'none',
+            }}
+          />
+        )
+
+        return <>{blocks}{viewport}</>
+      })()}
+    </div>
+  )
+})
+
 export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession }: ChatPanelProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const minimapRef = useRef<HTMLDivElement>(null)
@@ -232,6 +307,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [summaryText, setSummaryText] = useState('')
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [welcomePendingInsert, setWelcomePendingInsert] = useState<string | undefined>(undefined)
+  const [minimapScroll, setMinimapScroll] = useState({ scrollTop: 0, clientHeight: 1, totalScrollHeight: 1 })
 
   const handleWelcomeSelectPrompt = useCallback((prompt: string) => {
     setWelcomePendingInsert(prompt)
@@ -239,47 +315,37 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
 
   // Elapsed time during streaming
   const [streamingSeconds, setStreamingSeconds] = useState(0)
-  const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Token rate during streaming
   const [tokenRate, setTokenRate] = useState(0)
   const lastTokenCountRef = useRef(0)
-  const tokenRateTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const streamingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  // Consolidated streaming timer: updates elapsed seconds + token rate in one interval
   useEffect(() => {
     if (chat.isStreaming) {
       setStreamingSeconds(0)
-      streamTimerRef.current = setInterval(() => {
-        setStreamingSeconds(s => s + 1)
-      }, 1000)
-    } else {
-      if (streamTimerRef.current) {
-        clearInterval(streamTimerRef.current)
-        streamTimerRef.current = null
-      }
-    }
-    return () => {
-      if (streamTimerRef.current) clearInterval(streamTimerRef.current)
-    }
-  }, [chat.isStreaming])
-
-  useEffect(() => {
-    if (chat.isStreaming) {
       lastTokenCountRef.current = chat.messages[chat.messages.length - 1]?.text.length ?? 0
-      tokenRateTimerRef.current = setInterval(() => {
+      streamingTimerRef.current = setInterval(() => {
+        setStreamingSeconds(s => s + 1)
         const currentLen = chat.messages[chat.messages.length - 1]?.text.length ?? 0
         const charsPerSec = currentLen - lastTokenCountRef.current
         setTokenRate(Math.round(charsPerSec / 4))
         lastTokenCountRef.current = currentLen
       }, 1000)
     } else {
-      if (tokenRateTimerRef.current) {
-        clearInterval(tokenRateTimerRef.current)
-        tokenRateTimerRef.current = null
+      if (streamingTimerRef.current) {
+        clearInterval(streamingTimerRef.current)
+        streamingTimerRef.current = null
       }
       setTokenRate(0)
     }
-    return () => { if (tokenRateTimerRef.current) clearInterval(tokenRateTimerRef.current) }
+    return () => {
+      if (streamingTimerRef.current) {
+        clearInterval(streamingTimerRef.current)
+        streamingTimerRef.current = null
+      }
+    }
   }, [chat.isStreaming]) // eslint-disable-line react-hooks/exhaustive-deps
   const [searchQuery, setSearchQuery] = useState('')
   const [matchIdx, setMatchIdx] = useState(0)
@@ -313,6 +379,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   }, [showSearch])
 
   // 매치된 메시지 인덱스 목록
+  // chat.messages 전체 대신 [searchQuery, messageCount] 의존 — 스트리밍 중 내용 변경만으로는 재계산 안 함
   const matchedIndices = useMemo(() => {
     if (!searchQuery.trim()) return []
     const q = searchQuery.toLowerCase()
@@ -321,7 +388,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       if (m.text.toLowerCase().includes(q)) indices.push(i)
     })
     return indices
-  }, [chat.messages, searchQuery])
+  }, [searchQuery, messageCount]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const matchCount = matchedIndices.length
 
@@ -330,7 +397,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
 
   const matchedMessageIds = useMemo(
     () => new Set(matchedIndices.map(i => chat.messages[i]?.id ?? '')),
-    [matchedIndices, chat.messages]
+    [matchedIndices] // eslint-disable-line react-hooks/exhaustive-deps
+    // chat.messages 전체 제외: matchedIndices는 searchQuery+messages.length 기반으로 갱신되므로
+    // 스트리밍 중 메시지 내용만 바뀌는 경우에는 재계산 불필요
   )
 
   const currentMatchId = matchCount > 0 ? (chat.messages[matchedIndices[safeMatchIdx]]?.id ?? null) : null
@@ -419,6 +488,11 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     isAtBottomRef.current = dist < 100
     setShowScrollBtn(dist > 150)
     setShowTopBtn(el.scrollTop > 500)
+    setMinimapScroll({
+      scrollTop: el.scrollTop,
+      clientHeight: el.clientHeight,
+      totalScrollHeight: el.scrollHeight - el.clientHeight,
+    })
   }, [])
 
   const scrollToBottom = useCallback(() => {
@@ -856,75 +930,18 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       </div>
 
       {/* Minimap */}
-      {showMinimap && messageCount > 0 && (() => {
-        const el = scrollContainerRef.current
-        const scrollTop = el?.scrollTop ?? 0
-        const clientHeight = el?.clientHeight ?? 1
-        const totalScrollHeight = el ? el.scrollHeight - el.clientHeight : 1
-
-        return (
-          <div
-            ref={minimapRef}
-            onClick={handleMinimapClick}
-            style={{
-              width: 40,
-              flexShrink: 0,
-              background: 'rgba(0,0,0,0.3)',
-              position: 'relative',
-              cursor: 'pointer',
-              overflow: 'hidden',
-            }}
-          >
-            {(() => {
-              const containerH = minimapRef.current?.clientHeight ?? 300
-              const scale = minimapTotalRaw > containerH ? containerH / minimapTotalRaw : 1
-              let offsetY = 0
-              const blocks = chat.messages.map((msg, i) => {
-                const h = minimapBlockHeights[i] * scale
-                const y = offsetY
-                offsetY += h + scale
-                return (
-                  <div
-                    key={msg.id}
-                    style={{
-                      position: 'absolute',
-                      top: y,
-                      left: 4,
-                      right: 4,
-                      height: Math.max(2, h),
-                      background: msg.role === 'user' ? '#4a90e2' : '#666',
-                      borderRadius: 1,
-                    }}
-                  />
-                )
-              })
-
-              // Viewport indicator
-              const totalScrollH = Math.max(totalScrollHeight, 1)
-              const vpTop = (scrollTop / totalScrollH) * containerH
-              const vpHeight = Math.max(10, (clientHeight / (totalScrollH + clientHeight)) * containerH)
-              const viewport = (
-                <div
-                  key="viewport"
-                  style={{
-                    position: 'absolute',
-                    top: vpTop,
-                    left: 0,
-                    right: 0,
-                    height: vpHeight,
-                    background: 'rgba(137,180,250,0.15)',
-                    border: '1px solid rgba(137,180,250,0.4)',
-                    borderRadius: 2,
-                    pointerEvents: 'none',
-                  }}
-                />
-              )
-
-              return <>{blocks}{viewport}</>
-            })()}
-          </div>
-        )
-      })()}
+      {showMinimap && messageCount > 0 && (
+        <MiniMap
+          messages={chat.messages}
+          scrollTop={minimapScroll.scrollTop}
+          clientHeight={minimapScroll.clientHeight}
+          totalScrollHeight={minimapScroll.totalScrollHeight}
+          blockHeights={minimapBlockHeights}
+          totalRaw={minimapTotalRaw}
+          minimapRef={minimapRef}
+          onClick={handleMinimapClick}
+        />
+      )}
       </div>
 
       {/* Scroll to top button */}
