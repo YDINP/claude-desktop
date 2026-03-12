@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 208: R306 신규 기능 ───────────────────────────────
+console.log('\n## 208. 신규 기능 파일 검사 (R306)')
+// WebPreviewPanel 외부 열기 버튼 (Round 306)
+const wp306Path = join(ROOT, 'src/renderer/src/components/sidebar/WebPreviewPanel.tsx')
+if (existsSync(wp306Path)) {
+  const wp306 = readFileSync(wp306Path, 'utf-8')
+  if (wp306.includes("window.open") && wp306.includes("'_blank'") && wp306.includes('외부 브라우저')) {
+    log('pass', 'Round306', 'WebPreviewPanel: 외부 브라우저에서 열기 버튼 (window.open/_blank) 존재')
+  } else {
+    log('warning', 'Round306', 'WebPreviewPanel 외부 열기 미구현', 'sidebar/WebPreviewPanel.tsx')
+  }
+}
+
 // ── Section 207: R305 신규 기능 ───────────────────────────────
 console.log('\n## 207. 신규 기능 파일 검사 (R305)')
 // SceneTreePanel 총 노드 수 (Round 305)

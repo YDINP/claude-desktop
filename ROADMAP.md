@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 305 완료 — SceneTreePanel 총 노드 수, Pass 325)
+> 마지막 업데이트: 2026-03-13 (Round 306 완료 — WebPreviewPanel 외부 브라우저 열기, Pass 326)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 306 | dev | WebPreviewPanel 외부 브라우저 열기 — ↗ 버튼 window.open(_blank), URL 있을 때만 표시 | ✅ |
 | Round 305 | dev | SceneTreePanel 총 노드 수 — 헤더에 N 재귀 집계 (countNodes/totalNodes) | ✅ |
 | Round 304 | dev | NodePropertyPanel UUID 복사 버튼 — 📋 클릭 UUID 복사, ✓ 1.5초 피드백 | ✅ |
 | Round 303 | dev | PromptChainPanel 마지막 실행 시간 — 체인 툴바에 lastRun/relativeTime + 단계 수 | ✅ |

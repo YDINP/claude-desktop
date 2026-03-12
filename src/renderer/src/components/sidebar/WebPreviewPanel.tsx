@@ -31,6 +31,13 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
       }}>
         <span>웹 프리뷰</span>
         <div style={{ display: 'flex', gap: 4 }}>
+          {url && (
+            <button
+              onClick={() => window.open(url, '_blank')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11 }}
+              title="외부 브라우저에서 열기"
+            >↗</button>
+          )}
           <button
             onClick={handleRefresh}
             disabled={!url}
