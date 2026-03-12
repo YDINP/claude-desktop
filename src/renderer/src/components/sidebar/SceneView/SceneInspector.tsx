@@ -6,6 +6,7 @@ interface SceneInspectorProps {
   onUpdate: (uuid: string, prop: string, value: number | boolean) => void
   onClose: () => void
   selectionCount?: number
+  onRename?: (uuid: string, name: string) => void
 }
 
 // 개별 수치 입력 필드
@@ -116,12 +117,26 @@ function SectionHeader({ label }: { label: string }) {
   )
 }
 
-export function SceneInspector({ node, onUpdate, onClose, selectionCount }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRename }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
+  const [nameEditing, setNameEditing] = useState(false)
+  const [nameDraft, setNameDraft] = useState('')
 
   useEffect(() => {
     if (node) setIsActive(node.active)
   }, [node?.uuid, node?.active])
+
+  useEffect(() => {
+    if (nameEditing) setNameEditing(false)
+  }, [node?.uuid])
+
+  const commitRename = () => {
+    const trimmed = nameDraft.trim()
+    if (node && trimmed && trimmed !== node.name) {
+      onRename?.(node.uuid, trimmed)
+    }
+    setNameEditing(false)
+  }
 
   const handleActiveToggle = () => {
     if (!node) return
@@ -200,20 +215,47 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount }: Scen
           marginBottom: 4,
         }}
       >
-        <span
-          style={{
-            fontSize: 10,
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            maxWidth: 140,
-          }}
-          title={node.name}
-        >
-          {node.name}
-        </span>
+        {nameEditing ? (
+          <input
+            autoFocus
+            value={nameDraft}
+            onChange={e => setNameDraft(e.target.value)}
+            onBlur={commitRename}
+            onKeyDown={e => {
+              if (e.key === 'Enter') commitRename()
+              else if (e.key === 'Escape') setNameEditing(false)
+              e.stopPropagation()
+            }}
+            style={{
+              fontSize: 10,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              background: 'var(--bg-primary)',
+              border: '1px solid var(--accent)',
+              borderRadius: 2,
+              padding: '1px 4px',
+              width: 130,
+              outline: 'none',
+            }}
+          />
+        ) : (
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: 140,
+              cursor: 'text',
+            }}
+            title={`${node.name} (더블클릭하여 이름 변경)`}
+            onDoubleClick={() => { setNameDraft(node.name); setNameEditing(true) }}
+          >
+            {node.name}
+          </span>
+        )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {/* Active 토글 */}

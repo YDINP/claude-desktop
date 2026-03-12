@@ -825,6 +825,33 @@ if (existsSync(sceneViewPanelPath7)) {
   }
 }
 
+// ── Section 29: R127 신규 기능 ───────────────────────────────
+console.log('\n## 29. 신규 기능 파일 검사 (R127)')
+// SceneInspector 노드 이름 인라인 편집 (Round 127)
+const sceneInspectorPath2 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath2)) {
+  const si2 = readFileSync(sceneInspectorPath2, 'utf-8')
+  if (si2.includes('onRename') && si2.includes('nameEditing') && si2.includes('nameDraft')) {
+    log('pass', 'Round127', 'SceneInspector: onRename + nameEditing + nameDraft 상태 존재')
+  } else {
+    log('warning', 'Round127', 'SceneInspector 이름 인라인 편집 미구현', 'SceneView/SceneInspector.tsx')
+  }
+  if (si2.includes('onDoubleClick') && si2.includes('commitRename')) {
+    log('pass', 'Round127', 'SceneInspector: 더블클릭 트리거 + commitRename 존재')
+  } else {
+    log('warning', 'Round127', 'SceneInspector 더블클릭/커밋 로직 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+const sceneViewPanelPath8 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath8)) {
+  const svp8 = readFileSync(sceneViewPanelPath8, 'utf-8')
+  if (svp8.includes('handleRename') && svp8.includes("ccSetProperty?.(port, uuid, 'name'")) {
+    log('pass', 'Round127', 'SceneViewPanel: handleRename + ccSetProperty name 저장 존재')
+  } else {
+    log('warning', 'Round127', 'SceneViewPanel handleRename 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

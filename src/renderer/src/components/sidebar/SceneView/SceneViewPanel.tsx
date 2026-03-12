@@ -483,6 +483,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [updateNode])
 
+  const handleRename = useCallback(async (uuid: string, name: string) => {
+    updateNode(uuid, { name })
+    try {
+      await window.api.ccSetProperty?.(port, uuid, 'name', name)
+    } catch (e) {
+      console.error('[SceneView] rename failed:', e)
+    }
+  }, [updateNode, port])
+
   // ── 렌더 순서 ────────────────────────────────────────────
   const renderOrder = useMemo(() => {
     if (!rootUuid) return []
@@ -916,6 +925,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onUpdate={handleInspectorUpdate}
         onClose={() => { setSelectedUuid(null); setSelectedUuids(new Set()) }}
         selectionCount={selectionCount}
+        onRename={handleRename}
       />
     </div>
   )

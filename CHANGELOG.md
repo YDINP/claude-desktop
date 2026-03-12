@@ -1,5 +1,15 @@
 # Changelog — Claude Desktop
 
+## [Round 127] — 2026-03-12
+### Added
+- SceneInspector: 노드 이름 인라인 편집 — 이름 더블클릭 → 텍스트 입력 필드 활성화
+- SceneInspector: Enter/Blur로 저장, Escape로 취소, 노드 변경 시 자동 취소
+- SceneViewPanel: handleRename() — ccSetProperty('name') 호출 + updateNode 낙관적 업데이트
+
+## [Round 126] — 2026-03-12
+### Changed
+- QA 통합 검수 (Pass 70 → Pass 73), CHANGELOG R121~125 갱신, ROADMAP R126 완료 처리
+
 ## [Round 125] — 2026-03-12
 ### Added
 - useSceneSync: refreshNode(uuid) — ccGetNode로 단건 노드 최신화 (opacity/color/components)
