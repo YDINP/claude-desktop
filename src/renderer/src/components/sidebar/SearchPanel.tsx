@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from 'react'
+import React, { useState, useRef, useCallback, useMemo } from 'react'
 
 interface SearchResult {
   filePath: string
@@ -154,6 +154,23 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
 
   const fileName = (fp: string) => fp.split(/[/\\]/).pop() ?? fp
   const totalMatches = filteredResults.length
+
+  const highlightLine = (text: string, q: string): React.ReactNode => {
+    if (!q.trim() || q.length < 2) return text
+    try {
+      const re = new RegExp(useRegex ? q : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), caseSensitive ? 'g' : 'gi')
+      const parts: React.ReactNode[] = []
+      let last = 0; let m: RegExpExecArray | null
+      while ((m = re.exec(text)) !== null) {
+        if (m.index > last) parts.push(text.slice(last, m.index))
+        parts.push(<mark key={m.index} style={{ background: '#fbbf2466', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{m[0]}</mark>)
+        last = m.index + m[0].length
+        if (m[0].length === 0) break
+      }
+      if (last < text.length) parts.push(text.slice(last))
+      return parts.length ? <>{parts}</> : text
+    } catch { return text }
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -338,7 +355,7 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
               >
                 <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 28, textAlign: 'right', fontSize: 10 }}>{m.lineNum}</span>
-                <span style={{ color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.lineContent}</span>
+                <span style={{ color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{highlightLine(m.lineContent, query)}</span>
               </div>
             ))}
           </div>

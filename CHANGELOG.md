@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 300] — 2026-03-13
+### Added
+- SearchPanel: 매치 줄 검색어 하이라이트 — `highlightLine` 함수로 `<mark>` 노란 배경 강조, 정규식 지원
+
 ## [Round 299] — 2026-03-13
 ### Added
 - ConnectionPanel: "모두 핑" 버튼 — 전체 MCP 서버를 Promise.all로 동시 핑, 결과 실시간 반영

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 202: R300 신규 기능 ───────────────────────────────
+console.log('\n## 202. 신규 기능 파일 검사 (R300)')
+// SearchPanel 검색어 하이라이트 (Round 300)
+const sp300Path = join(ROOT, 'src/renderer/src/components/sidebar/SearchPanel.tsx')
+if (existsSync(sp300Path)) {
+  const sp300 = readFileSync(sp300Path, 'utf-8')
+  if (sp300.includes('highlightLine') && sp300.includes('fbbf24') && sp300.includes('re.exec')) {
+    log('pass', 'Round300', 'SearchPanel: 검색어 하이라이트 (highlightLine/<mark>/fbbf24) 존재')
+  } else {
+    log('warning', 'Round300', 'SearchPanel 하이라이트 미구현', 'sidebar/SearchPanel.tsx')
+  }
+}
+
 // ── Section 201: R299 신규 기능 ───────────────────────────────
 console.log('\n## 201. 신규 기능 파일 검사 (R299)')
 // ConnectionPanel 모두 핑 버튼 (Round 299)
