@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 151: R249 신규 기능 ───────────────────────────────
+console.log('\n## 151. 신규 기능 파일 검사 (R249)')
+// NotesPanel 정렬 기능 (Round 249)
+const np249Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np249Path)) {
+  const np249 = readFileSync(np249Path, 'utf-8')
+  if (np249.includes('sortOrder') && np249.includes('sortedNotes') && np249.includes('cycleSortOrder')) {
+    log('pass', 'Round249', 'NotesPanel: 정렬 기능 (sortOrder + sortedNotes) 구현 존재')
+  } else {
+    log('warning', 'Round249', 'NotesPanel 정렬 기능 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 150: R248 신규 기능 ───────────────────────────────
 console.log('\n## 150. 신규 기능 파일 검사 (R248)')
 // NotesPanel 노트 검색 기능 (Round 248)

@@ -19,6 +19,7 @@ export function NotesPanel() {
   const [content, setContent] = useState('')
   const [title, setTitle] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortOrder, setSortOrder] = useState<'latest' | 'oldest' | 'title'>('latest')
 
   const selected = notes.find(n => n.id === selectedId) ?? null
 
@@ -53,6 +54,15 @@ export function NotesPanel() {
     ? notes.filter(n => n.title.toLowerCase().includes(searchQuery.toLowerCase()) || n.content.toLowerCase().includes(searchQuery.toLowerCase()))
     : notes
 
+  const sortedNotes = [...filteredNotes].sort((a, b) => {
+    if (sortOrder === 'latest') return b.updatedAt - a.updatedAt
+    if (sortOrder === 'oldest') return a.updatedAt - b.updatedAt
+    return a.title.localeCompare(b.title, 'ko')
+  })
+
+  const SORT_LABELS: Record<typeof sortOrder, string> = { latest: '최신', oldest: '오래됨', title: '제목' }
+  const cycleSortOrder = () => setSortOrder(s => s === 'latest' ? 'oldest' : s === 'oldest' ? 'title' : 'latest')
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* 헤더 */}
@@ -68,6 +78,10 @@ export function NotesPanel() {
           }}
         />
         <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{filteredNotes.length}/{notes.length}</span>
+        <button onClick={cycleSortOrder} title={`정렬: ${SORT_LABELS[sortOrder]}`}
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 9, padding: '2px 5px', flexShrink: 0, whiteSpace: 'nowrap' }}>
+          ↕{SORT_LABELS[sortOrder]}
+        </button>
         <button onClick={addNote}
           style={{ background: 'var(--accent)', border: 'none', borderRadius: 3, color: '#fff', cursor: 'pointer', fontSize: 11, padding: '2px 8px', flexShrink: 0 }}>
           +
@@ -77,8 +91,8 @@ export function NotesPanel() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* 노트 목록 */}
         <div style={{ width: 100, flexShrink: 0, borderRight: '1px solid var(--border)', overflowY: 'auto' }}>
-          {filteredNotes.length === 0 && <div style={{ padding: 8, fontSize: 10, color: 'var(--text-muted)' }}>{searchQuery ? '검색 결과 없음' : '노트 없음'}</div>}
-          {filteredNotes.map(n => (
+          {sortedNotes.length === 0 && <div style={{ padding: 8, fontSize: 10, color: 'var(--text-muted)' }}>{searchQuery ? '검색 결과 없음' : '노트 없음'}</div>}
+          {sortedNotes.map(n => (
             <div key={n.id}
               onClick={() => setSelectedId(n.id)}
               style={{

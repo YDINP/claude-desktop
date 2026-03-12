@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 249] — 2026-03-13
+### Added
+- NotesPanel: 노트 정렬 기능 — 최신/오래됨/제목순 순환 버튼 (↕최신 / ↕오래됨 / ↕제목)
+
 ## [Round 248] — 2026-03-13
 ### Improved
 - NotesPanel: 노트 검색 기능 — 제목/내용 통합 검색 입력, 결과 수 표시 (N/전체)
