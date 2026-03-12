@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:11:55.124Z
+> 2026-03-12T14:13:28.234Z
 
 ## Critical
 _없음_
@@ -142,3 +142,5 @@ _없음_
 - SceneInspector: 컴포넌트별 accent 아이콘 렌더링 존재
 - SceneView: Ctrl+A 전체 선택 useEffect + 'a' key 핸들러 존재
 - SceneView: nodeMap 전체 선택 + 단축키 도움말 갱신
+- SceneView: anchor point 마커 polygon 엘리먼트 존재
+- SceneView: anchor 다이아몬드 좌표 + zoom 보정 존재

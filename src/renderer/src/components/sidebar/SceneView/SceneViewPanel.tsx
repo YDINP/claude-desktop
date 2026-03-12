@@ -1012,6 +1012,22 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               )
             })()}
 
+            {/* 선택 노드 anchor point 마커 */}
+            {selectedNode && selectedUuids.size <= 1 && (() => {
+              const n = selectedNode
+              const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+              const as = 4 / view.zoom
+              return (
+                <polygon
+                  points={`${sx},${sy - as} ${sx + as},${sy} ${sx},${sy + as} ${sx - as},${sy}`}
+                  fill="rgba(250,200,50,0.9)"
+                  stroke="rgba(0,0,0,0.3)"
+                  strokeWidth={0.5 / view.zoom}
+                  style={{ pointerEvents: 'none' }}
+                />
+              )
+            })()}
+
             {/* 멀티셀렉트 그룹 bbox */}
             {groupBbox && (
               <rect

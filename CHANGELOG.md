@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 159] — 2026-03-12
+### Added
+- SceneView: 선택 노드 anchor point 마커 — 노드 position(=anchor 위치)에 황색 ◇ polygon 표시
+
 ## [Round 158] — 2026-03-12
 ### Added
 - SceneView: Ctrl+A 전체 선택 — nodeMap 모든 노드 선택, 단축키 도움말 항목 추가

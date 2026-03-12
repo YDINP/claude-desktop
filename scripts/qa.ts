@@ -1427,6 +1427,24 @@ if (existsSync(sceneViewPanelPath24)) {
   }
 }
 
+// ── Section 61: R159 신규 기능 ───────────────────────────────
+console.log('\n## 61. 신규 기능 파일 검사 (R159)')
+// 선택 노드 anchor point 마커 (Round 159)
+const sceneViewPanelPath25 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath25)) {
+  const svp25 = readFileSync(sceneViewPanelPath25, 'utf-8')
+  if (svp25.includes('선택 노드 anchor point 마커') && svp25.includes('<polygon')) {
+    log('pass', 'Round159', 'SceneView: anchor point 마커 polygon 엘리먼트 존재')
+  } else {
+    log('warning', 'Round159', 'SceneView anchor point 마커 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp25.includes('sy - as') && svp25.includes('sy + as') && svp25.includes('4 / view.zoom')) {
+    log('pass', 'Round159', 'SceneView: anchor 다이아몬드 좌표 + zoom 보정 존재')
+  } else {
+    log('warning', 'Round159', 'SceneView anchor 마커 zoom 보정 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

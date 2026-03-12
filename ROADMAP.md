@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 158 완료 — SceneView Ctrl+A 전체 선택, Pass 134)
+> 마지막 업데이트: 2026-03-12 (Round 159 완료 — SceneView anchor point 마커, Pass 136)
 
 ## 완료된 라운드
 
@@ -110,6 +110,7 @@
 | Round 156 | dev | SceneView 씬 원점 (0,0) 레이블 — 중앙 십자 우상단 SVG 텍스트 표시 | ✅ |
 | Round 157 | dev | SceneInspector 컴포넌트 목록 아이콘 — 타입별 단일 문자 아이콘 accent 색상 표시 | ✅ |
 | Round 158 | dev | SceneView Ctrl+A 전체 선택 — nodeMap 모든 노드 선택, 단축키 도움말 갱신 | ✅ |
+| Round 159 | dev | SceneView 선택 노드 anchor point 마커 — 황색 ◇ polygon 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 
