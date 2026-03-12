@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import type { ToolUseItem } from '../../stores/chat-store'
 
 interface ResourceBarProps {
@@ -6,12 +7,10 @@ interface ResourceBarProps {
   totalCost?: number
   isStreaming?: boolean
   model?: string
-  gitBranch?: string
-  gitChanged?: number
-  memMB?: number
   hqMode?: boolean
   onToggleHQ?: () => void
   activeAgentCount?: number
+  cwd?: string | null
 }
 
 export function ResourceBar({
@@ -20,13 +19,37 @@ export function ResourceBar({
   totalCost = 0,
   isStreaming = false,
   model = '',
-  gitBranch,
-  gitChanged,
-  memMB,
   hqMode = true,
   onToggleHQ,
   activeAgentCount = 0,
+  cwd,
 }: ResourceBarProps) {
+  const [gitInfo, setGitInfo] = useState<{ branch: string | null; changed: number } | null>(null)
+  const [memMB, setMemMB] = useState<number | null>(null)
+  const [online, setOnline] = useState(navigator.onLine)
+
+  useEffect(() => {
+    if (!cwd) { setGitInfo(null); return }
+    const fetch = () => window.api?.gitStatus(cwd).then(setGitInfo).catch(() => {})
+    fetch()
+    const id = setInterval(fetch, 5000)
+    return () => clearInterval(id)
+  }, [cwd])
+
+  useEffect(() => {
+    window.api.getMemoryUsage?.().then(({ rss }) => setMemMB(Math.round(rss / 1024 / 1024)))
+    const unsub = window.api.onMemoryUpdate?.((data) => setMemMB(Math.round(data.rss / 1024 / 1024)))
+    return () => unsub?.()
+  }, [])
+
+  useEffect(() => {
+    const onOnline = () => setOnline(true)
+    const onOffline = () => setOnline(false)
+    window.addEventListener('online', onOnline)
+    window.addEventListener('offline', onOffline)
+    return () => { window.removeEventListener('online', onOnline); window.removeEventListener('offline', onOffline) }
+  }, [])
+
   const ctxPct = Math.round(contextUsage * 100)
   const ctxColor = ctxPct > 80 ? '#f85149' : ctxPct > 50 ? '#ffa500' : '#0098ff'
   const tokStr = sessionTokens > 1000 ? `${(sessionTokens / 1000).toFixed(1)}k` : `${sessionTokens}`
@@ -96,9 +119,9 @@ export function ResourceBar({
       <div style={{ flex: 1 }} />
 
       {/* Git */}
-      {gitBranch && (
+      {gitInfo?.branch && (
         <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>
-          ⎇ {gitBranch}{gitChanged ? ` +${gitChanged}` : ''}
+          ⎇ {gitInfo.branch}{gitInfo.changed ? ` +${gitInfo.changed}` : ''}
         </span>
       )}
 
@@ -106,6 +129,11 @@ export function ResourceBar({
       {memMB && (
         <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>{memMB}MB</span>
       )}
+
+      {/* Online status */}
+      <span style={{ color: online ? 'var(--success, #3fb950)' : 'var(--error, #f85149)', fontSize: 10 }}>
+        ● {online ? 'online' : 'offline'}
+      </span>
 
       {/* Model */}
       {model && (

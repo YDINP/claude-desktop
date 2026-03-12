@@ -1,12 +1,48 @@
+import { useRef, useEffect } from 'react'
 import type { ToolUseItem } from '../../stores/chat-store'
 
 interface OpsFeedProps {
   toolUses?: ToolUseItem[]
   isStreaming?: boolean
   onToolClick?: (toolId: string) => void
+  sessionId?: string
 }
 
-export function OpsFeed({ toolUses = [], isStreaming = false, onToolClick }: OpsFeedProps) {
+function summarizeToolInput(name: string, input: unknown): string {
+  if (!input || typeof input !== 'object') return ''
+  const inp = input as Record<string, unknown>
+  switch (name) {
+    case 'Read':
+    case 'Write':
+    case 'Edit': {
+      const p = String(inp.file_path ?? inp.path ?? '')
+      const filename = p.split(/[/\\]/).pop() ?? ''
+      return filename ? ` ${filename}` : ''
+    }
+    case 'Bash':
+      return ` ${String(inp.command ?? '').slice(0, 20)}`
+    case 'Glob':
+      return ` ${String(inp.pattern ?? '').slice(0, 20)}`
+    case 'Grep':
+      return ` "${String(inp.pattern ?? '').slice(0, 15)}"`
+    case 'WebSearch':
+      return ` ${String(inp.query ?? '').slice(0, 20)}`
+    case 'WebFetch':
+      return ` ${String(inp.url ?? '').replace(/^https?:\/\//, '').slice(0, 20)}`
+    default:
+      return ''
+  }
+}
+
+export function OpsFeed({ toolUses = [], isStreaming = false, onToolClick, sessionId: _sessionId }: OpsFeedProps) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth
+    }
+  }, [toolUses.length])
+
   if (toolUses.length === 0 && !isStreaming) return null
 
   const statusIcon = { running: '↻', done: '✓', error: '✗' }
@@ -27,7 +63,16 @@ export function OpsFeed({ toolUses = [], isStreaming = false, onToolClick }: Ops
       <span style={{ color: '#0098ff', fontSize: 10, fontFamily: 'var(--font-mono)', marginRight: 10, flexShrink: 0 }}>
         OPS ▶
       </span>
-      <div style={{ display: 'flex', gap: 0, overflow: 'hidden', alignItems: 'center' }}>
+      <div
+        ref={scrollRef}
+        style={{
+          display: 'flex',
+          gap: 0,
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          alignItems: 'center',
+        }}
+      >
         {toolUses.slice(-8).map((tool, i) => (
           <span
             key={tool.id}
@@ -46,7 +91,7 @@ export function OpsFeed({ toolUses = [], isStreaming = false, onToolClick }: Ops
               cursor: onToolClick ? 'pointer' : undefined,
             }}
           >
-            [{statusIcon[tool.status]} {tool.name}]
+            [{statusIcon[tool.status]} {tool.name}]{summarizeToolInput(tool.name, tool.input)}
           </span>
         ))}
         {isStreaming && toolUses.length === 0 && (

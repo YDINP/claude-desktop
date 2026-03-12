@@ -1367,6 +1367,7 @@ function AppContent() {
           model={project.selectedModel ?? ''}
           onToggleHQ={handleToggleHQ}
           hqMode={hqMode}
+          cwd={project.currentPath}
         />
       ) : (
         <StatusBar
