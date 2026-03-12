@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 390] — 2026-03-13
+### Added
+- ChangedFilesPanel: 전체 경로 복사 버튼 — copiedAll 상태, 헤더 📋 버튼, 모든 파일 경로 줄바꿈 복사
+
 ## [Round 389] — 2026-03-13
 ### Added
 - SearchPanel: 검색 결과 전체 복사 버튼 — resultsCopied 상태, 파일경로+L행+내용 형식 텍스트 복사

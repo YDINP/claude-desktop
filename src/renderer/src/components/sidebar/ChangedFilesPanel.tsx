@@ -51,6 +51,7 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
   const [sortAsc, setSortAsc] = useState(false)
   const [opFilter, setOpFilter] = useState<'write' | 'edit' | null>(null)
   const [copiedPath, setCopiedPath] = useState<string | null>(null)
+  const [copiedAll, setCopiedAll] = useState(false)
 
   const handleClick = useCallback((path: string) => {
     onFileClick(path)
@@ -132,6 +133,13 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
           }}
         >
           {sortAsc ? '↑' : '↓'}
+        </button>
+        <button
+          onClick={() => { navigator.clipboard.writeText(files.map(f => f.path).join('\n')).then(() => { setCopiedAll(true); setTimeout(() => setCopiedAll(false), 1500) }) }}
+          title="전체 경로 복사"
+          style={{ background: 'none', border: 'none', color: copiedAll ? '#4caf50' : 'var(--text-muted)', fontSize: 11, cursor: 'pointer', padding: '1px 4px', borderRadius: 3 }}
+        >
+          {copiedAll ? '✓' : '📋'}
         </button>
         <button
           onClick={onClear}

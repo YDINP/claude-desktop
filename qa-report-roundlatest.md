@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T23:18:38.027Z
+> 2026-03-12T23:20:13.657Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- ChangedFilesPanel: 전체 경로 복사 버튼 존재
 - SearchPanel: 검색 결과 전체 복사 버튼 존재
 - GlobalSearchPanel: 검색 결과 발췌 복사 버튼 존재
 - SceneTreePanel: 검색 매치 카운트 표시 존재

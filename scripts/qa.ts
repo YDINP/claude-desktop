@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 292: R390 신규 기능 ───────────────────────────────
+console.log('\n## 292. 신규 기능 파일 검사 (R390)')
+// ChangedFilesPanel 전체 경로 복사 버튼 (Round 390)
+const cf390Path = join(ROOT, 'src/renderer/src/components/sidebar/ChangedFilesPanel.tsx')
+if (existsSync(cf390Path)) {
+  const cf390 = readFileSync(cf390Path, 'utf-8')
+  if (cf390.includes('copiedAll') && cf390.includes('전체 경로 복사')) {
+    log('pass', 'Round390', 'ChangedFilesPanel: 전체 경로 복사 버튼 존재')
+  } else {
+    log('warning', 'Round390', 'ChangedFilesPanel 전체 복사 미구현', 'sidebar/ChangedFilesPanel.tsx')
+  }
+}
+
 // ── Section 291: R389 신규 기능 ───────────────────────────────
 console.log('\n## 291. 신규 기능 파일 검사 (R389)')
 // SearchPanel 검색 결과 전체 복사 (Round 389)
