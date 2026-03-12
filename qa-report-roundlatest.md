@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T21:28:36.015Z
+> 2026-03-12T21:30:16.920Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- PluginsPanel: 플러그인 검색 필터 (pluginSearch/플러그인 검색) 존재
 - WebPreviewPanel: 뒤로/앞으로 히스토리 탐색 (histIdx/handleBack/handleForward) 존재
 - TasksPanel: 기한 초과 필터 배지 (overdueCount/overdue/초과) 존재
 - StatsPanel: 새로고침 버튼 (refreshing/loadStats) 존재

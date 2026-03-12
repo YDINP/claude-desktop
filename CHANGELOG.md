@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 337] — 2026-03-13
+### Added
+- PluginsPanel: 플러그인 검색 필터 — 3개↑ 시 검색창 표시, 이름/설명/작성자 대상 검색
+
 ## [Round 336] — 2026-03-13
 ### Added
 - WebPreviewPanel: ← → 뒤로/앞으로 탐색 버튼 — URL 히스토리 스택 관리, 비활성 상태 시 회색 처리

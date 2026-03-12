@@ -23,13 +23,21 @@ export function PluginsPanel() {
   const [expandedCode, setExpandedCode] = useState<string | null>(null)
   const [codeContent, setCodeContent] = useState<Record<string, string>>({})
   const [sortMode, setSortMode] = useState<'default' | 'name' | 'enabled'>('default')
+  const [pluginSearch, setPluginSearch] = useState('')
 
   const sortedPlugins = useMemo(() => {
-    const list = [...plugins]
+    const q = pluginSearch.trim().toLowerCase()
+    let list = q
+      ? plugins.filter(p =>
+          (p.name || p.filename).toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q) ||
+          p.author?.toLowerCase().includes(q)
+        )
+      : [...plugins]
     if (sortMode === 'name') list.sort((a, b) => (a.name || a.filename).localeCompare(b.name || b.filename))
     else if (sortMode === 'enabled') list.sort((a, b) => (enabledSet.has(b.filename) ? 1 : 0) - (enabledSet.has(a.filename) ? 1 : 0))
     return list
-  }, [plugins, sortMode, enabledSet])
+  }, [plugins, sortMode, enabledSet, pluginSearch])
 
   const load = async () => {
     setLoading(true)
@@ -109,6 +117,23 @@ export function PluginsPanel() {
       }}>
         ℹ 플러그인 폴더에 .js 파일을 추가하세요
       </div>
+
+      {/* Search */}
+      {plugins.length > 2 && (
+        <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+          <input
+            value={pluginSearch}
+            onChange={e => setPluginSearch(e.target.value)}
+            onKeyDown={e => e.key === 'Escape' && setPluginSearch('')}
+            placeholder="플러그인 검색..."
+            style={{
+              width: '100%', boxSizing: 'border-box', padding: '3px 6px',
+              background: 'var(--bg-primary)', border: '1px solid var(--border)',
+              borderRadius: 3, color: 'var(--text-primary)', fontSize: 11, outline: 'none',
+            }}
+          />
+        </div>
+      )}
 
       {/* Plugin list */}
       <div style={{ flex: 1, overflow: 'auto' }}>

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 239: R337 신규 기능 ───────────────────────────────
+console.log('\n## 239. 신규 기능 파일 검사 (R337)')
+// PluginsPanel 검색 필터 (Round 337)
+const pp337Path = join(ROOT, 'src/renderer/src/components/sidebar/PluginsPanel.tsx')
+if (existsSync(pp337Path)) {
+  const pp337 = readFileSync(pp337Path, 'utf-8')
+  if (pp337.includes('pluginSearch') && pp337.includes('플러그인 검색')) {
+    log('pass', 'Round337', 'PluginsPanel: 플러그인 검색 필터 (pluginSearch/플러그인 검색) 존재')
+  } else {
+    log('warning', 'Round337', 'PluginsPanel 검색 필터 미구현', 'sidebar/PluginsPanel.tsx')
+  }
+}
+
 // ── Section 238: R336 신규 기능 ───────────────────────────────
 console.log('\n## 238. 신규 기능 파일 검사 (R336)')
 // WebPreviewPanel 뒤로/앞으로 히스토리 (Round 336)
