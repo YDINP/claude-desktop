@@ -555,6 +555,14 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }))
       history.push({ role: 'user', content: text })
       window.api.ollamaSend?.({ model: ollamaModel, messages: history })
+    } else if (model.startsWith('openai:')) {
+      const openaiModel = model.replace('openai:', '')
+      const history = chat.messages.map((m) => ({
+        role: m.role,
+        content: m.text ?? '',
+      }))
+      history.push({ role: 'user', content: text })
+      window.api.openaiSend?.({ model: openaiModel, messages: history })
     } else {
       const parts = [customSystemPrompt, projectSummary, ccCtx.contextString, ctxFiles.contextString].filter(Boolean)
       const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
@@ -584,6 +592,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     localStorage.removeItem(PAUSE_STATE_KEY)
     if (project.selectedModel.startsWith('ollama:')) {
       window.api.ollamaInterrupt?.()
+    } else if (project.selectedModel.startsWith('openai:')) {
+      window.api.openaiInterrupt?.()
     } else {
       window.api.claudeInterrupt()
     }

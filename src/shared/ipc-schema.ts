@@ -178,3 +178,7 @@ export type AguiEvent = AguiRunStarted | AguiStepStarted | AguiStepFinished | Ag
 export const OLLAMA_LIST = 'ollama:list'
 export const OLLAMA_SEND = 'ollama:send'
 export const OLLAMA_INTERRUPT = 'ollama:interrupt'
+
+// ── OpenAI ────────────────────────────────────────────────────────────────────
+export const OPENAI_SEND = 'openai:send'
+export const OPENAI_INTERRUPT = 'openai:interrupt'

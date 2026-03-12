@@ -128,6 +128,8 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
   const [notifSettings, setNotifSettings] = useState({ responseComplete: true, backgroundOnly: true, longSession: false, contextWarning: true })
   const [profiles, setProfiles] = useState<Array<{ id: string; name: string; content: string }>>([])
   const [profileName, setProfileName] = useState('')
+  const [openaiApiKey, setOpenaiApiKey] = useState('')
+  const [showOpenaiKey, setShowOpenaiKey] = useState(false)
 
   useEffect(() => {
     if (!open) { setLoaded(false); return }
@@ -144,6 +146,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
     window.api?.getSystemPromptProfiles().then(setProfiles)
     setGlobalSystemPrompt(localStorage.getItem('custom-system-prompt') ?? '')
     setPreferredLanguage(localStorage.getItem('preferred-language') ?? 'auto')
+    setOpenaiApiKey(localStorage.getItem('settings:openaiApiKey') ?? '')
     setTimeout(() => modalRef.current?.querySelector<HTMLElement>('button, input')?.focus(), 50)
   }, [open, currentProject])
 
@@ -194,6 +197,14 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
     // Save global system prompt and language preference
     localStorage.setItem('custom-system-prompt', globalSystemPrompt)
     localStorage.setItem('preferred-language', preferredLanguage)
+    // Save OpenAI API key
+    if (openaiApiKey) {
+      localStorage.setItem('settings:openaiApiKey', openaiApiKey)
+      await window.api?.settingsSet({ openaiApiKey })
+    } else {
+      localStorage.removeItem('settings:openaiApiKey')
+      await window.api?.settingsSet({ openaiApiKey: '' })
+    }
     // Dispatch event so App can sync model state
     window.dispatchEvent(new CustomEvent('settings:changed', { detail: settings }))
     onClose()
@@ -755,6 +766,36 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            {/* OpenAI API Key */}
+            <div style={sectionStyle}>
+              <div style={sectionTitleStyle}>OpenAI API Key</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
+                OpenAI 모델(gpt-4o, o3-mini 등) 사용 시 필요합니다.
+              </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <input
+                  type={showOpenaiKey ? 'text' : 'password'}
+                  value={openaiApiKey}
+                  onChange={e => setOpenaiApiKey(e.target.value)}
+                  placeholder="sk-..."
+                  style={{
+                    flex: 1, padding: '6px 10px', background: 'var(--bg-input, var(--bg-tertiary))',
+                    border: '1px solid var(--border)', borderRadius: 4, color: 'var(--text-primary)',
+                    fontSize: 12, fontFamily: 'var(--font-mono)', boxSizing: 'border-box',
+                  }}
+                />
+                <button
+                  onClick={() => setShowOpenaiKey(v => !v)}
+                  style={{
+                    padding: '6px 10px', background: 'var(--bg-tertiary)', border: '1px solid var(--border)',
+                    borderRadius: 4, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, flexShrink: 0,
+                  }}
+                >
+                  {showOpenaiKey ? '숨기기' : '표시'}
+                </button>
               </div>
             </div>
 

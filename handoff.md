@@ -2,14 +2,29 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 98 (QA R96~97 + SceneView undo/redo)
+- 마지막 커밋: Round 99 (멀티 AI 프로바이더 추상화 + OpenAI 연동)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 1 (ollama-bridge addEventListener — 기존 이슈), Pass 21
+- QA: 미실행 (R99 신규 기능 체크 아직 추가 안 됨 — Round 100에서 진행)
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 98 완료 항목 (최근 세션)
+## Round 99 완료 항목 (최근 세션)
+
+### Round 99 — 멀티 AI 프로바이더 추상화 + OpenAI 연동
+- `src/main/providers/ai-provider.ts` (신규): `AIMessage`, `AIProvider` 인터페이스
+- `src/main/providers/openai-bridge.ts` (신규): Electron `net` 기반 OpenAI SSE 스트리밍 (`openaiChat`)
+- `src/main/ipc/openai-handlers.ts` (신규): `openai:send` / `openai:interrupt` IPC 핸들러, claude:message 채널 라우팅
+- `src/main/ipc/router.ts`: `registerOpenAIHandlers` 등록
+- `src/shared/ipc-schema.ts`: `OPENAI_SEND`, `OPENAI_INTERRUPT` 상수 추가
+- `src/preload/index.ts`: `openaiSend`, `openaiInterrupt` contextBridge 노출
+- `src/renderer/src/components/shared/SettingsPanel.tsx`: OpenAI API Key 입력 UI (AI 탭, localStorage + settingsSet 저장)
+- `src/renderer/src/components/chat/InputBar.tsx`: OpenAI 모델 섹션 (`gpt-4o`, `gpt-4o-mini`, `o3-mini`)
+- `src/renderer/src/components/chat/ChatPanel.tsx`: `handleSend`/`handleInterrupt`에 `openai:` prefix 분기 추가
+
+API Key 흐름: SettingsPanel → settingsSet IPC → main userData/settings.json → openai-handlers.ts에서 직접 읽음
+
+## Round 98 완료 항목 (이전 세션)
 
 ### Round 98 — QA 강화 + SceneView undo/redo 스택
 - `scripts/qa.ts`: Section 8 추가 (R96~97 체크 4종), Pass 17→21

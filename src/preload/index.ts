@@ -10,6 +10,9 @@ contextBridge.exposeInMainWorld('api', {
   ollamaSend: (payload: { model: string; messages: Array<{ role: string; content: string }> }) =>
     ipcRenderer.send('ollama:send', payload),
   ollamaInterrupt: () => ipcRenderer.send('ollama:interrupt'),
+  openaiSend: (payload: { model: string; messages: { role: string; content: string }[] }) =>
+    ipcRenderer.send('openai:send', payload),
+  openaiInterrupt: () => ipcRenderer.send('openai:interrupt'),
   claudeClose: () => ipcRenderer.send('claude:close'),
   claudeResume: (sessionId: string) => ipcRenderer.send('claude:resume', { sessionId }),
   claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) =>
@@ -288,6 +291,8 @@ declare global {
       ollamaList: () => Promise<string[]>
       ollamaSend: (payload: { model: string; messages: Array<{ role: string; content: string }> }) => void
       ollamaInterrupt: () => void
+      openaiSend?: (payload: { model: string; messages: { role: string; content: string }[] }) => void
+      openaiInterrupt?: () => void
       claudeClose: () => void
       claudeResume: (sessionId: string) => void
       claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) => void

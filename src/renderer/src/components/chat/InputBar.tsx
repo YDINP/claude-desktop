@@ -1262,6 +1262,10 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
             ))}
           </>
         )}
+        <option disabled value="">── OpenAI ──</option>
+        <option value="openai:gpt-4o">gpt-4o</option>
+        <option value="openai:gpt-4o-mini">gpt-4o-mini</option>
+        <option value="openai:o3-mini">o3-mini</option>
       </select>
 
       {isStreaming ? (
