@@ -1966,6 +1966,19 @@ if (existsSync(svp191Path)) {
   }
 }
 
+// ── Section 94: R192 신규 기능 ───────────────────────────────
+console.log('\n## 94. 신규 기능 파일 검사 (R192)')
+// SceneView 원점 십자선 (Round 192)
+const svp192Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp192Path)) {
+  const svp192 = readFileSync(svp192Path, 'utf-8')
+  if (svp192.includes('원점(0,0) 십자선') && svp192.includes('DESIGN_W / 2 * view.zoom + view.offsetX')) {
+    log('pass', 'Round192', 'SceneView: 원점(0,0) 십자선 가이드 존재')
+  } else {
+    log('warning', 'Round192', 'SceneView 원점 십자선 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

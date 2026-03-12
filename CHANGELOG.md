@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 192] — 2026-03-13
+### Added
+- SceneView: 원점(0,0) 십자선 가이드 — 그리드 활성 시 Cocos 좌표 원점에 파란 점선 십자선 + 원 표시
+
 ## [Round 191] — 2026-03-13
 ### Added
 - SceneView: M 키 단축키 — 미니맵 표시/숨기기 토글

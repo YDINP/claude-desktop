@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 191 완료 — SceneView M키 미니맵 토글, Pass 185)
+> 마지막 업데이트: 2026-03-13 (Round 192 완료 — SceneView 원점 십자선, Pass 186)
 
 ## 완료된 라운드
 
@@ -143,6 +143,7 @@
 | Round 189 | dev | SceneView Ctrl+←→ 회전 단축키 — 1°/10° 단위 키보드 회전, 도움말 업데이트 | ✅ |
 | Round 190 | dev | SceneInspector Color 알파 슬라이더 — range input으로 α 0~255 실시간 편집 | ✅ |
 | Round 191 | dev | SceneView M키 미니맵 토글 + 단축키 도움말 업데이트 (Del/Backspace 추가) | ✅ |
+| Round 192 | dev | SceneView 원점(0,0) 십자선 가이드 — 그리드 활성 시 좌표 원점 파란 점선 십자선 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

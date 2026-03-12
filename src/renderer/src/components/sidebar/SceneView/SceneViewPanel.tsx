@@ -1060,6 +1060,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           <rect width="100%" height="100%" fill="url(#checker)" />
           {gridVisible && <rect width="100%" height="100%" fill="url(#grid)" />}
 
+          {/* 원점(0,0) 십자선 — 씬 그룹 바깥(화면 좌표로 그림) */}
+          {gridVisible && (() => {
+            const ox = DESIGN_W / 2 * view.zoom + view.offsetX
+            const oy = DESIGN_H / 2 * view.zoom + view.offsetY
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <line x1={ox} y1={0} x2={ox} y2="100%" stroke="rgba(96,165,250,0.2)" strokeWidth={1} strokeDasharray="4 4" />
+                <line x1={0} y1={oy} x2="100%" y2={oy} stroke="rgba(96,165,250,0.2)" strokeWidth={1} strokeDasharray="4 4" />
+                <circle cx={ox} cy={oy} r={3} fill="none" stroke="rgba(96,165,250,0.35)" strokeWidth={1} />
+              </g>
+            )
+          })()}
+
           {/* 씬 그룹 */}
           <g transform={sceneTransform}>
             {/* 씬 경계 */}
