@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 83 완료 — 시스템 프롬프트 UI + 토큰 카운터)
+> 마지막 업데이트: 2026-03-12 (Round 84 완료 — CC 에셋 브라우저 + /assets/tree 엔드포인트)
 
 ## 완료된 라운드
 
@@ -29,14 +29,14 @@
 | Round 80 | main | 프로젝트 인텔리전스 — analyzeProject(파일구조→시스템프롬프트), command-learner(명령어 학습/추천), useProjectContext 훅 | ✅ |
 | Round 81 | main | AI 워크플로우 고도화 — AgentPanel 3탭 리빌드(태스크/체이닝/히스토리), PromptChainPanel({{stepN}} placeholder 체이닝), work-history.ts | ✅ |
 | Round 82 | main | QA + Phase 3 마무리 — QA 스크립트 cocos 탭 체크 수정, npm run qa Critical 0/Warning 0, handoff.md 갱신 | ✅ |
+| Round 83 | dev | 사용자 정의 시스템 프롬프트 UI + InputBar 실시간 토큰 카운터 + 메시지 토큰 표시 + 컨텍스트 윈도우 진행 바 | ✅ |
+| Round 84 | dev | CC 에셋 브라우저 — AssetBrowserPanel(검색/폴더토글/아이콘), /assets/tree 엔드포인트(3x/2x), IPC 레이어(AssetItem/AssetTree) | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 83 | dev | 사용자 정의 시스템 프롬프트 UI + InputBar 실시간 토큰 카운터 + 메시지 토큰 표시 | ✅ |
-| Round 84 | dev | SettingsPanel 고도화 — 글로벌 시스템 프롬프트, 모델별 파라미터(temperature/max_tokens), 테마 커스터마이징 |
-| Round 85 | dev | 컨텍스트 파일 패널 — 채팅에 파일 명시적 첨부 관리, 파일 내용 자동 system prompt 주입, 파일트리 연동 |
+| Round 85 | dev | CC 사이드바 컴포넌트 인스펙터 고도화 — 나머지 컴포넌트 옵션 표시, NodePropertyPanel 확장 |
 | Round 86 | dev | StatusBar 고도화 — 실시간 입력 토큰 카운터(tiktoken), 응답 토큰 누적, API 비용 추산($/세션·$/월) |
 | Round 87 | dev | 커맨드 팔레트 강화 — 최근 사용 명령어 이력, AI 제안 명령어(컨텍스트 기반), 알림·토스트 시스템(성공/에러/정보 컴포넌트) |
 | Round 88 | dev | 키보드 단축키 오버레이(? 키 토글) + PromptChain 템플릿 라이브러리(저장·공유·불러오기) |

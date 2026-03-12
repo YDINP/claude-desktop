@@ -1,6 +1,8 @@
 'use strict';
 
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const WebSocket = require('ws');
 
 const PORT = 9091;
@@ -13,6 +15,52 @@ function broadcast(data) {
   clients.forEach(ws => {
     if (ws.readyState === WebSocket.OPEN) ws.send(msg);
   });
+}
+
+// ── 에셋 브라우저 헬퍼 ────────────────────────────────────
+function getAssetType(filename) {
+  const ext = path.extname(filename).toLowerCase();
+  const typeMap = {
+    '.js': 'script', '.ts': 'script',
+    '.prefab': 'prefab',
+    '.png': 'texture', '.jpg': 'texture', '.jpeg': 'texture', '.webp': 'texture',
+    '.plist': 'atlas',
+    '.fire': 'scene', '.scene': 'scene',
+    '.mp3': 'audio', '.ogg': 'audio', '.wav': 'audio',
+    '.ttf': 'font', '.fnt': 'font',
+    '.json': 'json', '.txt': 'text',
+    '.anim': 'animation',
+    '.mat': 'material',
+  };
+  return typeMap[ext] || 'file';
+}
+
+function scanAssetDir(dirPath, rootPath, depth = 0) {
+  if (depth > 4) return [];
+  try {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    const result = [];
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue;
+      if (entry.name.endsWith('.meta')) continue;
+      const fullPath = path.join(dirPath, entry.name);
+      const relPath = path.relative(rootPath, fullPath).replace(/\\/g, '/');
+      if (entry.isDirectory()) {
+        const children = scanAssetDir(fullPath, rootPath, depth + 1);
+        result.push({ name: entry.name, path: relPath, type: 'folder', children });
+      } else {
+        result.push({ name: entry.name, path: relPath, type: getAssetType(entry.name) });
+      }
+    }
+    result.sort((a, b) => {
+      if (a.type === 'folder' && b.type !== 'folder') return -1;
+      if (a.type !== 'folder' && b.type === 'folder') return 1;
+      return a.name.localeCompare(b.name);
+    });
+    return result;
+  } catch (e) {
+    return [];
+  }
 }
 
 // CC 3.x dump 포맷: 각 필드가 {value, type, default, readonly, ...}로 래핑될 수 있음
@@ -278,8 +326,26 @@ async function routeRequest3x(method, url, body, res) {
     return;
   }
 
+  if (method === 'GET' && url === '/assets/tree') {
+    try {
+      let projectPath = null;
+      try { projectPath = Editor.Project.path; } catch(e) {}
+      if (!projectPath) projectPath = path.resolve(__dirname, '../../..');
+      const assetsDir = path.join(projectPath, 'assets');
+      if (!fs.existsSync(assetsDir)) {
+        res.writeHead(200); res.end(JSON.stringify({ error: 'assets 폴더를 찾을 수 없습니다', tree: [] }));
+        return;
+      }
+      const tree = scanAssetDir(assetsDir, assetsDir);
+      res.writeHead(200); res.end(JSON.stringify({ tree, root: assetsDir }));
+    } catch (e) {
+      res.writeHead(200); res.end(JSON.stringify({ error: String(e), tree: [] }));
+    }
+    return;
+  }
+
   if (method === 'GET' && url === '/status') {
-    res.writeHead(200); res.end(JSON.stringify({ ok: true, version: '3x', port: PORT }));
+    res.writeHead(200); res.end(JSON.stringify({ ok: true, version: '3x', port: PORT, features: ['scene/tree', 'node', 'assets/tree'] }));
     return;
   }
 

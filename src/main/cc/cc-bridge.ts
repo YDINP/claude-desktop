@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-import type { CCEvent } from '../../shared/ipc-schema'
+import type { CCEvent, AssetTree } from '../../shared/ipc-schema'
 
 interface CCBridgeOptions {
   onEvent?: (event: CCEvent) => void
@@ -81,6 +81,12 @@ class CCBridge {
 
   async getTree() {
     const resp = await fetch(`http://127.0.0.1:${this._port}/scene/tree`)
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+    return resp.json()
+  }
+
+  async getAssets(): Promise<AssetTree> {
+    const resp = await fetch(`http://127.0.0.1:${this._port}/assets/tree`)
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
     return resp.json()
   }

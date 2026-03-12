@@ -8,7 +8,7 @@ import {
   CC_CONNECT, CC_DISCONNECT, CC_STATUS,
   CC_GET_TREE, CC_GET_NODE, CC_SET_PROPERTY, CC_MOVE_NODE,
   CC_EVENT, CC_DETECT_PROJECT, CC_GET_PORT, CC_SET_PORT, CC_INSTALL_EXTENSION,
-  CC_GET_CANVAS_SIZE,
+  CC_GET_CANVAS_SIZE, CC_GET_ASSETS,
 } from '../../shared/ipc-schema'
 
 let _ccHandlersRegistered = false
@@ -47,6 +47,11 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
     } catch {
       return null
     }
+  })
+
+  ipcMain.handle(CC_GET_ASSETS, async (_e, port: number) => {
+    const bridge = getCCBridge(port)
+    return bridge.getAssets()
   })
 
   ipcMain.handle(CC_GET_NODE, async (_e, port = 9090, uuid: string) => {

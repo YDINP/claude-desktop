@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { CCEvent, CCNode, CCStatus, CCProjectInfo } from '../shared/ipc-schema'
+import type { CCEvent, CCNode, CCStatus, CCProjectInfo, AssetTree } from '../shared/ipc-schema'
 
 contextBridge.exposeInMainWorld('api', {
   // Claude
@@ -271,6 +271,7 @@ contextBridge.exposeInMainWorld('api', {
   ccSetPort: (port: number): Promise<boolean> => ipcRenderer.invoke('cc:setPort', port),
   ccInstallExtension: (projectPath: string, version: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:installExtension', projectPath, version),
   ccOpenEditor: (projectPath: string, version: string, creatorVersion?: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:openEditor', projectPath, version, creatorVersion),
+  ccGetAssets: (port: number): Promise<AssetTree> => ipcRenderer.invoke('cc:get-assets', port),
 })
 
 declare global {
@@ -459,6 +460,7 @@ declare global {
       ccSetPort: (port: number) => Promise<boolean>
       ccInstallExtension?: (projectPath: string, version: string) => Promise<{ success: boolean; message: string }>
       ccOpenEditor?: (projectPath: string, version: string, creatorVersion?: string) => Promise<{ success: boolean; message: string }>
+      ccGetAssets?: (port: number) => Promise<import('../shared/ipc-schema').AssetTree>
     }
   }
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { SceneTreePanel } from './SceneTreePanel'
 import { NodePropertyPanel } from './NodePropertyPanel'
+import { AssetBrowserPanel } from './AssetBrowserPanel'
 import { useProject } from '../../stores/project-store'
 import type { CCNode } from '../../../../shared/ipc-schema'
 
@@ -16,6 +17,7 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
   const [connecting, setConnecting] = useState(false)
   const [port, setPort] = useState(defaultPort ?? 9090)
   const [selectedNode, setSelectedNode] = useState<CCNode | null>(null)
+  const [showAssets, setShowAssets] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [detectedProject, setDetectedProject] = useState<{ name: string; version: string; creatorVersion?: string } | null>(null)
   const [reconnectCountdown, setReconnectCountdown] = useState<number | null>(null)
@@ -228,6 +230,28 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
           }} />
           {selectedNode && (
             <NodePropertyPanel port={port} node={selectedNode} onUpdate={() => {}} />
+          )}
+          {/* 에셋 브라우저 섹션 구분선 */}
+          <div
+            onClick={() => setShowAssets(v => !v)}
+            style={{
+              padding: '4px 8px',
+              borderTop: '1px solid var(--border)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              flexShrink: 0,
+              background: showAssets ? 'var(--bg-secondary)' : 'transparent',
+            }}
+          >
+            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{showAssets ? '▾' : '▸'}</span>
+            <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 500 }}>에셋 브라우저</span>
+          </div>
+          {showAssets && (
+            <div style={{ height: 200, borderTop: '1px solid var(--border)', flexShrink: 0, overflow: 'hidden' }}>
+              <AssetBrowserPanel connected={connected} port={port} />
+            </div>
           )}
         </div>
       ) : (

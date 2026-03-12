@@ -120,6 +120,20 @@ export const CC_GET_PORT = 'cc:getPort'
 export const CC_SET_PORT = 'cc:setPort'
 export const CC_INSTALL_EXTENSION = 'cc:installExtension'
 export const CC_GET_CANVAS_SIZE = 'cc:getCanvasSize'
+export const CC_GET_ASSETS = 'cc:get-assets'
+
+export interface AssetItem {
+  name: string
+  path: string
+  type: 'folder' | 'script' | 'prefab' | 'texture' | 'scene' | 'audio' | 'atlas' | 'font' | 'json' | 'text' | 'animation' | 'material' | 'file'
+  children?: AssetItem[]
+}
+
+export interface AssetTree {
+  tree: AssetItem[]
+  root?: string
+  error?: string
+}
 
 export interface CCProjectInfo {
   detected: boolean
