@@ -7,6 +7,7 @@ interface Task {
   createdAt: number
   priority?: 'low' | 'medium' | 'high'
   dueDate?: string
+  memo?: string
 }
 
 const PRIORITY_COLORS = { high: '#f44336', medium: '#ff9800', low: '#4caf50' }
@@ -21,6 +22,9 @@ export function TasksPanel() {
   const [editDraft, setEditDraft] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [taskSearch, setTaskSearch] = useState('')
+  const [expandedMemoId, setExpandedMemoId] = useState<string | null>(null)
+
+  const updateMemo = (id: string, memo: string) => save(tasks.map(t => t.id === id ? { ...t, memo } : t))
 
   useEffect(() => {
     window.api.getTasks().then(setTasks)
@@ -142,7 +146,8 @@ export function TasksPanel() {
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {filtered.length === 0 && <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 32, fontSize: 12 }}>할 일이 없습니다</div>}
         {filtered.map(task => (
-          <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 4px', borderBottom: '1px solid var(--border)' }}>
+          <div key={task.id} style={{ borderBottom: '1px solid var(--border)', padding: '4px 4px 2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: PRIORITY_COLORS[task.priority ?? 'medium'] }} />
             <input type="checkbox" checked={task.done} onChange={() => toggleDone(task.id)} style={{ cursor: 'pointer' }} />
             {editingId === task.id ? (
@@ -168,7 +173,15 @@ export function TasksPanel() {
               const overdue = task.dueDate < today
               return <span style={{ fontSize: 9, color: overdue ? '#f87171' : 'var(--text-muted)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }} title={overdue ? '마감 초과' : '마감일'}>{overdue ? '⚠' : '📅'}{task.dueDate.slice(5)}</span>
             })()}
+            <button onClick={() => setExpandedMemoId(expandedMemoId === task.id ? null : task.id)}
+              title="메모" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, flexShrink: 0, color: task.memo ? '#fbbf24' : 'var(--text-muted)', opacity: 0.7 }}>📝</button>
             <button onClick={() => deleteTask(task.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, flexShrink: 0 }}>×</button>
+          </div>
+          {expandedMemoId === task.id && (
+            <textarea value={task.memo ?? ''} onChange={e => updateMemo(task.id, e.target.value)}
+              placeholder="메모 추가..."
+              style={{ width: '100%', marginTop: 3, fontSize: 10, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-primary)', padding: '3px 6px', outline: 'none', resize: 'none', boxSizing: 'border-box', minHeight: 48, lineHeight: 1.4 }} />
+          )}
           </div>
         ))}
       </div>

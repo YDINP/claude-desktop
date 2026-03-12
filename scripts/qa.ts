@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 177: R275 신규 기능 ───────────────────────────────
+console.log('\n## 177. 신규 기능 파일 검사 (R275)')
+// TasksPanel 태스크 메모 필드 (Round 275)
+const tp275Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp275Path)) {
+  const tp275 = readFileSync(tp275Path, 'utf-8')
+  if (tp275.includes('expandedMemoId') && tp275.includes('updateMemo') && tp275.includes('memo?: string')) {
+    log('pass', 'Round275', 'TasksPanel: 태스크 메모 필드 (expandedMemoId/updateMemo) 존재')
+  } else {
+    log('warning', 'Round275', 'TasksPanel 태스크 메모 필드 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 176: R274 신규 기능 ───────────────────────────────
 console.log('\n## 176. 신규 기능 파일 검사 (R274)')
 // CalendarPanel 이벤트 인라인 편집 (Round 274)

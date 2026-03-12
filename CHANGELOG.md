@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 275] — 2026-03-13
+### Added
+- TasksPanel: 태스크 메모 필드 — 📝 버튼으로 태스크별 memo textarea 토글, 저장 시 지속
+
 ## [Round 274] — 2026-03-13
 ### Improved
 - CalendarPanel: 이벤트 인라인 편집 — 이벤트 더블클릭 시 제목 수정 입력창, Enter/Esc/blur로 확정
