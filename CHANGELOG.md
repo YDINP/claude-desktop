@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 291] — 2026-03-13
+### Added
+- BookmarksPanel: 역할 필터 토글 버튼 — 전체/나/Claude 순환, 활성 시 강조 표시
+
 ## [Round 290] — 2026-03-13
 ### Improved
 - GlobalSearchPanel: 검색 결과 발췌문에 검색어 하이라이트 — `<mark>` 노란 배경 강조 표시

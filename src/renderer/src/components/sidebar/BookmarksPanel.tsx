@@ -9,13 +9,19 @@ export function BookmarksPanel({
   onScrollToMessage?: (messageId: string) => void
 }) {
   const [query, setQuery] = useState('')
+  const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'assistant'>('all')
   const bookmarked = messages.filter(m => m.bookmarked)
 
-  const filtered = useMemo(() =>
-    query.trim()
+  const filtered = useMemo(() => {
+    let list = query.trim()
       ? bookmarked.filter(b => b.text.toLowerCase().includes(query.toLowerCase()))
       : bookmarked
-  , [bookmarked, query])
+    if (roleFilter !== 'all') list = list.filter(b => b.role === roleFilter)
+    return list
+  }, [bookmarked, query, roleFilter])
+
+  const ROLE_LABELS: Record<typeof roleFilter, string> = { all: '전체', user: '나', assistant: 'Claude' }
+  const cycleRole = () => setRoleFilter(r => r === 'all' ? 'user' : r === 'user' ? 'assistant' : 'all')
 
   const exportBookmarks = () => {
     const md = bookmarked.map(b =>
@@ -45,6 +51,10 @@ export function BookmarksPanel({
         <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', flex: 1 }}>
           북마크 {bookmarked.length}개
         </span>
+        <button onClick={cycleRole} title={`역할 필터: ${ROLE_LABELS[roleFilter]}`}
+          style={{ background: roleFilter !== 'all' ? 'var(--accent-dim)' : 'none', border: `1px solid ${roleFilter !== 'all' ? 'var(--accent)' : 'transparent'}`, borderRadius: 4, cursor: 'pointer', color: roleFilter !== 'all' ? 'var(--accent)' : 'var(--text-muted)', fontSize: 10, padding: '1px 5px' }}>
+          {ROLE_LABELS[roleFilter]}
+        </button>
         <button
           onClick={exportBookmarks}
           title="마크다운으로 내보내기"

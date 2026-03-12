@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 290 완료 — GlobalSearchPanel 검색어 하이라이트, Pass 310)
+> 마지막 업데이트: 2026-03-13 (Round 291 완료 — BookmarksPanel 역할 필터, Pass 311)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 291 | dev | BookmarksPanel 역할 필터 토글 — roleFilter/cycleRole, 전체/나/Claude 순환 | ✅ |
 | Round 290 | dev | GlobalSearchPanel 검색어 하이라이트 — highlightQuery/<mark> 노란 배경 표시 | ✅ |
 | Round 289 | dev | StatsPanel 일평균 세션 카드 — totalSessions/totalDays, 소수점 1자리 표시 | ✅ |
 | Round 288 | dev | TasksPanel 마감일 D-Day 카운트다운 — diffDays 계산, D-Day/⚠-N/D-N 색상 표시 | ✅ |

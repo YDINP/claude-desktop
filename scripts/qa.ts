@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 193: R291 신규 기능 ───────────────────────────────
+console.log('\n## 193. 신규 기능 파일 검사 (R291)')
+// BookmarksPanel 역할 필터 (Round 291)
+const bmp291Path = join(ROOT, 'src/renderer/src/components/sidebar/BookmarksPanel.tsx')
+if (existsSync(bmp291Path)) {
+  const bmp291 = readFileSync(bmp291Path, 'utf-8')
+  if (bmp291.includes('roleFilter') && bmp291.includes('cycleRole') && bmp291.includes('ROLE_LABELS')) {
+    log('pass', 'Round291', 'BookmarksPanel: 역할 필터 토글 (roleFilter/cycleRole/ROLE_LABELS) 존재')
+  } else {
+    log('warning', 'Round291', 'BookmarksPanel 역할 필터 미구현', 'sidebar/BookmarksPanel.tsx')
+  }
+}
+
 // ── Section 192: R290 신규 기능 ───────────────────────────────
 console.log('\n## 192. 신규 기능 파일 검사 (R290)')
 // GlobalSearchPanel 검색어 하이라이트 (Round 290)
