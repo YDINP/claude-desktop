@@ -7,6 +7,8 @@ interface SceneInspectorProps {
   onClose: () => void
   selectionCount?: number
   onRename?: (uuid: string, name: string) => void
+  nodeMap?: Map<string, SceneNode>
+  onSelectParent?: (uuid: string) => void
 }
 
 // 개별 수치 입력 필드
@@ -120,7 +122,7 @@ function SectionHeader({ label }: { label: string }) {
   )
 }
 
-export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRename }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRename, nodeMap, onSelectParent }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -318,6 +320,24 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
           </button>
         </div>
       </div>
+
+      {/* 부모 노드 경로 */}
+      {node.parentUuid && nodeMap && (() => {
+        const parent = nodeMap.get(node.parentUuid!)
+        if (!parent) return null
+        return (
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
+            <span>in:</span>
+            <span
+              style={{ color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }}
+              onClick={() => onSelectParent?.(node.parentUuid!)}
+              title={`부모 노드 선택: ${parent.name}`}
+            >
+              {parent.name}
+            </span>
+          </div>
+        )
+      })()}
 
       {/* Position */}
       <SectionHeader label="Position" />

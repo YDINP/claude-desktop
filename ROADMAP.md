@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 145 완료 — SceneView passive wheel 수정, Pass 108)
+> 마지막 업데이트: 2026-03-12 (Round 146 완료 — SceneInspector 부모 노드 표시, Pass 110)
 
 ## 완료된 라운드
 
@@ -97,6 +97,7 @@
 | Round 143 | dev | NodeHierarchyList 전체 펼치기/접기 — ▾▾/▸▸ 버튼으로 씬 트리 전체 즉시 토글 | ✅ |
 | Round 144 | dev | SceneView 단축키 도움말 — ? 키 오버레이, 전체 단축키 목록 + 클릭 닫기 | ✅ |
 | Round 145 | dev | SceneView passive wheel 수정 — addEventListener({passive:false})로 preventDefault 정상화 | ✅ |
+| Round 146 | dev | SceneInspector 부모 노드 표시 — "in: ParentName" 클릭 시 부모 노드 선택 + dep 수정 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

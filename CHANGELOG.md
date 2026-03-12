@@ -1,5 +1,11 @@
 # Changelog — Claude Desktop
 
+## [Round 146] — 2026-03-12
+### Added
+- SceneInspector: 부모 노드 표시 — 헤더 아래 "in: ParentName" 클릭 시 부모 선택
+### Fixed
+- SceneViewPanel: handleInspectorUpdate dep 배열에 port 추가 — stale closure 수정
+
 ## [Round 145] — 2026-03-12
 ### Fixed
 - SceneView: passive wheel 이벤트 → `addEventListener('wheel', fn, {passive:false})` 로 교체, `preventDefault` 정상 동작

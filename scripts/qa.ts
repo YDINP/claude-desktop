@@ -1193,6 +1193,24 @@ if (existsSync(sceneViewPanelPath17)) {
   }
 }
 
+// ── Section 48: R146 신규 기능 ───────────────────────────────
+console.log('\n## 48. 신규 기능 파일 검사 (R146)')
+// SceneInspector 부모 노드 표시 (Round 146)
+const sceneInspectorPath6 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath6)) {
+  const si6 = readFileSync(sceneInspectorPath6, 'utf-8')
+  if (si6.includes('onSelectParent') && si6.includes('nodeMap') && si6.includes('node.parentUuid')) {
+    log('pass', 'Round146', 'SceneInspector: onSelectParent + nodeMap prop + parentUuid 조회 존재')
+  } else {
+    log('warning', 'Round146', 'SceneInspector 부모 노드 표시 미구현', 'SceneView/SceneInspector.tsx')
+  }
+  if (si6.includes('부모 노드 선택')) {
+    log('pass', 'Round146', 'SceneInspector: 부모 노드 클릭 선택 UI 존재')
+  } else {
+    log('warning', 'Round146', 'SceneInspector 부모 노드 클릭 UI 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

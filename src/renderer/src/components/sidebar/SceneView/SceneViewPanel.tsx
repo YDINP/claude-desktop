@@ -559,7 +559,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     } catch (e) {
       console.error('[SceneView] inspector update failed:', e)
     }
-  }, [updateNode])
+  }, [updateNode, port])
 
   const handleHierarchyToggleActive = useCallback(async (uuid: string, active: boolean) => {
     updateNode(uuid, { active })
@@ -1134,6 +1134,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onClose={() => { setSelectedUuid(null); setSelectedUuids(new Set()) }}
         selectionCount={selectionCount}
         onRename={handleRename}
+        nodeMap={nodeMap}
+        onSelectParent={uuid => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
       />
     </div>
   )
