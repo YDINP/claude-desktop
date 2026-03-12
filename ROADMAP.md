@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 218 완료 — SceneView Cocos 적용 버튼, Pass 213)
+> 마지막 업데이트: 2026-03-13 (Round 219 완료 — SceneView 하단 상태바, Pass 214)
 
 ## 완료된 라운드
 
@@ -170,6 +170,7 @@
 | Round 216 | dev | SceneView 부모-자식 연결선 — ⤻ 토글 버튼, 계층 관계 반투명 점선 시각화 | ✅ |
 | Round 217 | dev | SceneView 씬 통계 패널 — # 버튼 토글, 노드 상태 통계 오버레이 | ✅ |
 | Round 218 | dev | SceneView Cocos에 적용 버튼 — Inspector에서 노드 위치/크기 Cocos Creator로 전송 | ✅ |
+| Round 219 | dev | SceneView 하단 상태바 — 도구/줌/Snap/선택수, Space 패닝 힌트 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

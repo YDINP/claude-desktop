@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 121: R219 신규 기능 ───────────────────────────────
+console.log('\n## 121. 신규 기능 파일 검사 (R219)')
+// SceneView 하단 상태바 (Round 219)
+const svp219Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp219Path)) {
+  const svp219 = readFileSync(svp219Path, 'utf-8')
+  if (svp219.includes('상태바') && svp219.includes('Space: 드래그로 패닝')) {
+    log('pass', 'Round219', 'SceneViewPanel: 하단 상태바 구현 존재')
+  } else {
+    log('warning', 'Round219', 'SceneViewPanel 상태바 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 120: R218 신규 기능 ───────────────────────────────
 console.log('\n## 120. 신규 기능 파일 검사 (R218)')
 // SceneView Cocos 적용 버튼 (Round 218)

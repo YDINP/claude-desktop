@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 219] — 2026-03-13
+### Added
+- SceneView: 하단 상태바 — 현재 도구/줌/Snap/선택수/드래그상태 표시, Space 시 패닝 힌트
+
 ## [Round 218] — 2026-03-13
 ### Added
 - SceneView: "Cocos에 적용" 버튼 — Inspector에서 선택 노드 위치/크기를 Cocos Creator에 직접 전송

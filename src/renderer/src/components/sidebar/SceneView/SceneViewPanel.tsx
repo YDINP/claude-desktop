@@ -1736,6 +1736,45 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           )
         })()}
 
+        {/* 상태바 */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 18,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '0 8px',
+            background: 'rgba(10,10,15,0.75)',
+            borderTop: '1px solid rgba(255,255,255,0.06)',
+            fontSize: 9,
+            color: 'var(--text-muted)',
+            pointerEvents: 'none',
+            fontVariantNumeric: 'tabular-nums',
+            flexShrink: 0,
+          }}
+        >
+          {spaceDown ? (
+            <span style={{ color: '#f59e0b' }}>Space: 드래그로 패닝</span>
+          ) : (
+            <>
+              <span style={{ color: activeTool === 'select' ? 'var(--accent)' : undefined }}>
+                {activeTool === 'select' ? '↖ 선택' : '✥ 이동'}
+              </span>
+              <span>|</span>
+              <span>{Math.round(view.zoom * 100)}%</span>
+              {snapEnabled && <><span>|</span><span style={{ color: 'var(--success)' }}>Snap {snapGrid}px</span></>}
+              {gridVisible && <><span>|</span><span>Grid</span></>}
+              {selectedUuids.size > 0 && <><span>|</span><span style={{ color: '#60a5fa' }}>{selectedUuids.size}개 선택</span></>}
+              {isDragging && <><span>|</span><span style={{ color: '#f59e0b' }}>드래그 중</span></>}
+              {isResizing && <><span>|</span><span style={{ color: '#f59e0b' }}>리사이즈 중</span></>}
+            </>
+          )}
+        </div>
+
         {/* 마우스 씬 좌표 표시 */}
         {cursorScenePos && !isDragging && !isResizing && (
           <div
