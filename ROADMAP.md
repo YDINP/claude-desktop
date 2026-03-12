@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 348 완료 — NotesPanel 파일 가져오기, Pass 368)
+> 마지막 업데이트: 2026-03-13 (Round 349 완료 — ClipboardPanel 항목 고정, Pass 369)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 349 | dev | ClipboardPanel 항목 고정 — 📌 버튼으로 고정, 고정 항목 상단 정렬 + 배경 강조 | ✅ |
 | Round 348 | dev | NotesPanel 파일 가져오기 — 📥 버튼으로 .txt/.md 임포트, # 제목 자동 추출 | ✅ |
 | Round 347 | dev | CalendarPanel 연도 빠른 이동 — 연도 클릭 시 드롭다운으로 ±5년 연도 선택 | ✅ |
 | Round 346 | dev | ChangedFilesPanel W/E 필터 — W(Write)/E(Edit) 배지 버튼으로 타입별 필터, 재클릭 시 해제 | ✅ |

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 251: R349 신규 기능 ───────────────────────────────
+console.log('\n## 251. 신규 기능 파일 검사 (R349)')
+// ClipboardPanel 항목 고정 (Round 349)
+const clip349Path = join(ROOT, 'src/renderer/src/components/sidebar/ClipboardPanel.tsx')
+if (existsSync(clip349Path)) {
+  const clip349 = readFileSync(clip349Path, 'utf-8')
+  if (clip349.includes('pinnedIds') && clip349.includes('togglePin') && clip349.includes('isPinned')) {
+    log('pass', 'Round349', 'ClipboardPanel: 항목 고정 (pinnedIds/togglePin/isPinned) 존재')
+  } else {
+    log('warning', 'Round349', 'ClipboardPanel 항목 고정 미구현', 'sidebar/ClipboardPanel.tsx')
+  }
+}
+
 // ── Section 250: R348 신규 기능 ───────────────────────────────
 console.log('\n## 250. 신규 기능 파일 검사 (R348)')
 // NotesPanel 파일 가져오기 (Round 348)

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 349] — 2026-03-13
+### Added
+- ClipboardPanel: 항목 고정(pin) 기능 — 호버 시 📌 버튼 표시, 고정 항목은 상단 고정 + 배경 강조
+
 ## [Round 348] — 2026-03-13
 ### Added
 - NotesPanel: .txt/.md 파일 가져오기 — 📥 버튼 클릭으로 텍스트/마크다운 파일 임포트, 첫 줄 # 헤딩을 제목으로, 파일명 폴백

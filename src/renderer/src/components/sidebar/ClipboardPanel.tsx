@@ -9,16 +9,27 @@ export function ClipboardPanel() {
   const [entries, setEntries] = useState<ClipboardEntry[]>([])
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
+  const [pinnedIds, setPinnedIds] = useState<Set<string>>(new Set())
+
+  const togglePin = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setPinnedIds(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
+  }
 
   useEffect(() => {
     return clipboardStore.subscribe(setEntries)
   }, [])
 
-  const filtered = useMemo(() =>
-    query.trim()
+  const filtered = useMemo(() => {
+    const base = query.trim()
       ? entries.filter(e => e.text.toLowerCase().includes(query.toLowerCase()) || e.source.toLowerCase().includes(query.toLowerCase()))
       : entries
-  , [entries, query])
+    return [...base].sort((a, b) => {
+      const ap = pinnedIds.has(a.id) ? 0 : 1
+      const bp = pinnedIds.has(b.id) ? 0 : 1
+      return ap - bp
+    })
+  }, [entries, query, pinnedIds])
 
   const copyEntry = (entry: ClipboardEntry) => {
     navigator.clipboard.writeText(entry.text)
@@ -54,28 +65,37 @@ export function ClipboardPanel() {
         {filtered.length === 0 && query && (
           <div style={{ padding: 12, fontSize: 11, color: 'var(--text-muted)', textAlign: 'center' }}>검색 결과 없음</div>
         )}
-        {filtered.map(entry => (
-          <div key={entry.id} style={{ padding: '8px', borderBottom: '1px solid var(--border)', cursor: 'pointer', position: 'relative' }}
-            onClick={() => copyEntry(entry)}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-secondary)')}
-            onMouseLeave={e => (e.currentTarget.style.background = '')}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2, display: 'flex', justifyContent: 'space-between' }}>
-              <span>{new Date(entry.timestamp).toLocaleTimeString('ko-KR')} · {entry.source}</span>
-              <span style={{ flexShrink: 0 }}>{entry.text.length.toLocaleString()}자</span>
+        {filtered.map(entry => {
+          const isPinned = pinnedIds.has(entry.id)
+          return (
+            <div key={entry.id} style={{ padding: '8px', borderBottom: '1px solid var(--border)', cursor: 'pointer', position: 'relative', background: isPinned ? 'rgba(var(--accent-rgb,99,102,241),0.06)' : '' }}
+              onClick={() => copyEntry(entry)}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-secondary)')}
+              onMouseLeave={e => (e.currentTarget.style.background = isPinned ? 'rgba(var(--accent-rgb,99,102,241),0.06)' : '')}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2, display: 'flex', justifyContent: 'space-between' }}>
+                <span>{new Date(entry.timestamp).toLocaleTimeString('ko-KR')} · {entry.source}</span>
+                <span style={{ flexShrink: 0 }}>{entry.text.length.toLocaleString()}자</span>
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', maxHeight: 60, lineHeight: 1.4, textOverflow: 'ellipsis', WebkitLineClamp: 3, display: '-webkit-box', WebkitBoxOrient: 'vertical' }}>
+                {entry.text}
+              </div>
+              {copiedId === entry.id && (
+                <div style={{ position: 'absolute', top: 4, right: 4, fontSize: 10, color: 'var(--accent)' }}>✓ 복사됨</div>
+              )}
+              <button onClick={e => togglePin(entry.id, e)}
+                title={isPinned ? '고정 해제' : '고정'}
+                style={{ position: 'absolute', top: 4, right: copiedId === entry.id ? 56 : 20, background: 'none', border: 'none', cursor: 'pointer', color: isPinned ? '#fbbf24' : 'var(--text-muted)', fontSize: 11, opacity: isPinned ? 1 : 0, transition: 'opacity 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = isPinned ? '1' : '0')}
+              >📌</button>
+              <button onClick={e => { e.stopPropagation(); clipboardStore.remove(entry.id) }}
+                style={{ position: 'absolute', top: 4, right: copiedId === entry.id ? 40 : 4, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, opacity: 0, transition: 'opacity 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
+              >×</button>
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', maxHeight: 60, lineHeight: 1.4, textOverflow: 'ellipsis', WebkitLineClamp: 3, display: '-webkit-box', WebkitBoxOrient: 'vertical' }}>
-              {entry.text}
-            </div>
-            {copiedId === entry.id && (
-              <div style={{ position: 'absolute', top: 4, right: 4, fontSize: 10, color: 'var(--accent)' }}>✓ 복사됨</div>
-            )}
-            <button onClick={e => { e.stopPropagation(); clipboardStore.remove(entry.id) }}
-              style={{ position: 'absolute', top: 4, right: copiedId === entry.id ? 40 : 4, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, opacity: 0, transition: 'opacity 0.2s' }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
-            >×</button>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

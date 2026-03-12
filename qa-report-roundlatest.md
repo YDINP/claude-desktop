@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T21:53:31.551Z
+> 2026-03-12T21:55:07.879Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- ClipboardPanel: 항목 고정 (pinnedIds/togglePin/isPinned) 존재
 - NotesPanel: 파일 가져오기 (importFromFile/fileInputRef/accept) 존재
 - CalendarPanel: 연도 빠른 이동 (yearPickerOpen/setYearPickerOpen) 존재
 - ChangedFilesPanel: W/E 오퍼레이션 필터 (opFilter/setOpFilter) 존재
