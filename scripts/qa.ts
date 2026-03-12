@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 186: R284 신규 기능 ───────────────────────────────
+console.log('\n## 186. 신규 기능 파일 검사 (R284)')
+// SceneViewPanel 노드 정보 오버레이 컴포넌트 표시 (Round 284)
+const svp284Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp284Path)) {
+  const svp284 = readFileSync(svp284Path, 'utf-8')
+  if (svp284.includes("replace('cc.', '')") && svp284.includes("comps:") && svp284.includes('selectedNode.components')) {
+    log('pass', 'Round284', 'SceneViewPanel: 노드 정보 오버레이 컴포넌트 타입 표시 존재')
+  } else {
+    log('warning', 'Round284', 'SceneViewPanel 노드 정보 오버레이 컴포넌트 표시 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 185: R283 신규 기능 ───────────────────────────────
 console.log('\n## 185. 신규 기능 파일 검사 (R283)')
 // CalendarPanel 이번 달 이벤트 수 요약 (Round 283)

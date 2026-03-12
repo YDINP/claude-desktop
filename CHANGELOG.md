@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 284] — 2026-03-13
+### Improved
+- SceneView: 노드 정보 오버레이(I키)에 컴포넌트 타입 목록 추가 — `cc.` 접두사 제거 후 쉼표 구분 표시
+
 ## [Round 283] — 2026-03-13
 ### Improved
 - CalendarPanel: 이번 달 이벤트 수 요약 표시 — 세션 요약 라인에 `이벤트 N개` 강조 표시 추가

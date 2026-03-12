@@ -2475,6 +2475,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             <div>rot: {selectedNode.rotation.toFixed(1)}°</div>
             <div>anchor: {selectedNode.anchorX.toFixed(2)}, {selectedNode.anchorY.toFixed(2)}</div>
             <div>opacity: {selectedNode.opacity ?? 255}</div>
+            {selectedNode.components.length > 0 && (
+              <div style={{ color: 'var(--text-secondary)' }}>comps: {selectedNode.components.map(c => c.type.replace('cc.', '')).join(', ')}</div>
+            )}
             {selectedNode.visible === false && <div style={{ color: '#f87171' }}>hidden</div>}
             {selectedNode.locked && <div style={{ color: '#fbbf24' }}>locked</div>}
           </div>
