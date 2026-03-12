@@ -2027,6 +2027,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         focusNameTrigger={inspectorNameFocus}
         nodeMap={nodeMap}
         onSelectParent={uuid => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
+        connected={connected}
+        onApplyToCocos={async (node) => {
+          if (!connected) return
+          try {
+            await window.api.ccMoveNode?.(port, node.uuid, node.x, node.y)
+            await window.api.ccSetProperty?.(port, node.uuid, 'width', node.width)
+            await window.api.ccSetProperty?.(port, node.uuid, 'height', node.height)
+          } catch (e) {
+            console.error('[ApplyToCocos]', e)
+          }
+        }}
       />
 
       {/* SVG 우클릭 컨텍스트 메뉴 */}

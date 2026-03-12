@@ -12,6 +12,8 @@ interface SceneInspectorProps {
   onMemo?: (uuid: string, memo: string) => void
   onTagsUpdate?: (uuid: string, tags: string[]) => void
   onLabelColorUpdate?: (uuid: string, color: string | undefined) => void
+  onApplyToCocos?: (node: SceneNode) => void
+  connected?: boolean
   nodeMap?: Map<string, SceneNode>
   onSelectParent?: (uuid: string) => void
   focusNameTrigger?: number
@@ -160,7 +162,7 @@ function ChildList({ childUuids, nodeMap, onSelect }: { childUuids: string[]; no
   )
 }
 
-export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, onTagsUpdate, onLabelColorUpdate, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, onTagsUpdate, onLabelColorUpdate, onApplyToCocos, connected, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -680,6 +682,30 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           }}
         />
       </div>
+
+      {/* Cocos에 적용 */}
+      {onApplyToCocos && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+          <button
+            onClick={() => onApplyToCocos(node)}
+            disabled={!connected}
+            style={{
+              width: '100%',
+              background: connected ? 'var(--accent-dim)' : 'none',
+              border: `1px solid ${connected ? 'var(--accent)' : 'var(--border)'}`,
+              borderRadius: 3,
+              color: connected ? 'var(--accent)' : 'var(--text-muted)',
+              cursor: connected ? 'pointer' : 'default',
+              fontSize: 9,
+              padding: '3px 0',
+              opacity: connected ? 1 : 0.5,
+            }}
+            title={connected ? 'Cocos Creator에 위치/크기 전송' : 'Cocos 미연결'}
+          >
+            {connected ? '▶ Cocos에 적용' : '⚠ Cocos 미연결'}
+          </button>
+        </div>
+      )}
 
       {/* JSON 내보내기 */}
       <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 218] — 2026-03-13
+### Added
+- SceneView: "Cocos에 적용" 버튼 — Inspector에서 선택 노드 위치/크기를 Cocos Creator에 직접 전송
+
 ## [Round 217] — 2026-03-13
 ### Added
 - SceneView: 씬 통계 패널 — # 버튼 토글, 총 노드/활성/비활성/잠금/숨김/태그/선택 수 표시

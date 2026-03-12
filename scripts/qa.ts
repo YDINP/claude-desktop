@@ -2036,6 +2036,28 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 120: R218 신규 기능 ───────────────────────────────
+console.log('\n## 120. 신규 기능 파일 검사 (R218)')
+// SceneView Cocos 적용 버튼 (Round 218)
+const insp218Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(insp218Path)) {
+  const insp218 = readFileSync(insp218Path, 'utf-8')
+  if (insp218.includes('onApplyToCocos') && insp218.includes('Cocos에 적용')) {
+    log('pass', 'Round218', 'SceneInspector: Cocos에 적용 버튼 존재')
+  } else {
+    log('warning', 'Round218', 'SceneInspector Cocos 적용 버튼 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+const svp218Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp218Path)) {
+  const svp218 = readFileSync(svp218Path, 'utf-8')
+  if (svp218.includes('onApplyToCocos') && svp218.includes('ccMoveNode')) {
+    log('pass', 'Round218', 'SceneViewPanel: onApplyToCocos ccMoveNode 연동 존재')
+  } else {
+    log('warning', 'Round218', 'SceneViewPanel Cocos 적용 연동 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 119: R217 신규 기능 ───────────────────────────────
 console.log('\n## 119. 신규 기능 파일 검사 (R217)')
 // SceneView 씬 통계 패널 (Round 217)

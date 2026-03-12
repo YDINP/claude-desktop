@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 217 완료 — SceneView 씬 통계 패널, Pass 212)
+> 마지막 업데이트: 2026-03-13 (Round 218 완료 — SceneView Cocos 적용 버튼, Pass 213)
 
 ## 완료된 라운드
 
@@ -169,6 +169,7 @@
 | Round 215 | dev | SceneView 노드 라벨 색상 — Inspector 컬러 피커, SVG fill + 계층 인디케이터 반영 | ✅ |
 | Round 216 | dev | SceneView 부모-자식 연결선 — ⤻ 토글 버튼, 계층 관계 반투명 점선 시각화 | ✅ |
 | Round 217 | dev | SceneView 씬 통계 패널 — # 버튼 토글, 노드 상태 통계 오버레이 | ✅ |
+| Round 218 | dev | SceneView Cocos에 적용 버튼 — Inspector에서 노드 위치/크기 Cocos Creator로 전송 | ✅ |
 
 ## 전략 로드맵 (Phase)
 
