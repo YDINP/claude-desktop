@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 303] — 2026-03-13
+### Added
+- PromptChainPanel: 체인 툴바에 마지막 실행 시간 + 단계 수 표시 — `마지막 실행: X분 전 · N단계`
+
 ## [Round 302] — 2026-03-13
 ### Added
 - AgentPanel: 탭 배지 — 태스크 탭에 활성 수, 히스토리 탭에 런 수 배지 표시

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 302 완료 — AgentPanel 탭 배지, Pass 322)
+> 마지막 업데이트: 2026-03-13 (Round 303 완료 — PromptChainPanel 마지막 실행 시간, Pass 323)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 303 | dev | PromptChainPanel 마지막 실행 시간 — 체인 툴바에 lastRun/relativeTime + 단계 수 | ✅ |
 | Round 302 | dev | AgentPanel 탭 배지 — 태스크/히스토리 탭에 활성 수/런 수 배지 표시 | ✅ |
 | Round 301 | dev | RemotePanel 호스트 수 배지 — 헤더에 N개 (sshHosts+savedHosts 합산) | ✅ |
 | Round 300 | dev | SearchPanel 검색어 하이라이트 — highlightLine/<mark>/fbbf24, 정규식 모드 지원 | ✅ |

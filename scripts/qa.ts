@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 205: R303 신규 기능 ───────────────────────────────
+console.log('\n## 205. 신규 기능 파일 검사 (R303)')
+// PromptChainPanel 마지막 실행 시간 (Round 303)
+const pcp303Path = join(ROOT, 'src/renderer/src/components/sidebar/PromptChainPanel.tsx')
+if (existsSync(pcp303Path)) {
+  const pcp303 = readFileSync(pcp303Path, 'utf-8')
+  if (pcp303.includes('selectedChain.lastRun') && pcp303.includes('relativeTime') && pcp303.includes('마지막 실행')) {
+    log('pass', 'Round303', 'PromptChainPanel: 마지막 실행 시간 표시 (lastRun/relativeTime) 존재')
+  } else {
+    log('warning', 'Round303', 'PromptChainPanel 마지막 실행 시간 미구현', 'sidebar/PromptChainPanel.tsx')
+  }
+}
+
 // ── Section 204: R302 신규 기능 ───────────────────────────────
 console.log('\n## 204. 신규 기능 파일 검사 (R302)')
 // AgentPanel 탭 배지 (Round 302)

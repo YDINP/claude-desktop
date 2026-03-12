@@ -397,12 +397,19 @@ export function PromptChainPanel() {
             padding: '5px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0,
             gap: 4,
           }}>
-            <span style={{
-              fontSize: 12, fontWeight: 600, color: 'var(--text-primary)',
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
-            }}>
-              {selectedChain.name}
-            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={{
+                fontSize: 12, fontWeight: 600, color: 'var(--text-primary)',
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block',
+              }}>
+                {selectedChain.name}
+              </span>
+              {selectedChain.lastRun && (
+                <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                  마지막 실행: {relativeTime(selectedChain.lastRun)} · {selectedChain.steps.length}단계
+                </span>
+              )}
+            </div>
             <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
               <button
                 onClick={() => clearResults(selectedChain.id)}
