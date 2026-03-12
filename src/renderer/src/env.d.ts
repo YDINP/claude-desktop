@@ -43,5 +43,15 @@ interface Window {
     sessionDelete: (id: string) => Promise<boolean>
     sessionRename: (id: string, title: string) => Promise<boolean>
     onCloseTab: (cb: () => void) => () => void
+    // Cocos Creator
+    ccConnect: (port?: number) => Promise<boolean>
+    ccDisconnect: () => Promise<boolean>
+    ccStatus: () => Promise<import('../../shared/ipc-schema').CCStatus>
+    ccGetTree: () => Promise<unknown>
+    ccGetNode: (uuid: string) => Promise<unknown>
+    ccSetProperty: (uuid: string, key: string, value: unknown) => Promise<unknown>
+    ccMoveNode: (uuid: string, x: number, y: number) => Promise<unknown>
+    onCCEvent: (cb: (event: import('../../shared/ipc-schema').CCEvent) => void) => () => void
+    onCCStatusChange: (cb: (status: { connected: boolean }) => void) => () => void
   }
 }
