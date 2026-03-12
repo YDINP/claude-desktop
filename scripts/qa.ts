@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 146: R244 신규 기능 ───────────────────────────────
+console.log('\n## 146. 신규 기능 파일 검사 (R244)')
+// SceneView 연결선 커브 + 화살표 (Round 244)
+const svp244Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp244Path)) {
+  const svp244 = readFileSync(svp244Path, 'utf-8')
+  if (svp244.includes('conn-arrow') && svp244.includes('cubic bezier') && svp244.includes('markerEnd')) {
+    log('pass', 'Round244', 'SceneViewPanel: 연결선 cubic bezier + 화살표 마커 구현 존재')
+  } else {
+    log('warning', 'Round244', 'SceneViewPanel 연결선 커브/화살표 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 145: R243 신규 기능 ───────────────────────────────
 console.log('\n## 145. 신규 기능 파일 검사 (R243)')
 // SceneView 드래그 델타 오버레이 (Round 243)

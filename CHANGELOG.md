@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 244] — 2026-03-13
+### Improved
+- SceneView: 부모-자식 연결선 개선 — 직선→cubic bezier 곡선, 화살표 마커 추가
+
 ## [Round 243] — 2026-03-13
 ### Added
 - SceneView: 드래그 델타 오버레이 — 드래그 중 이동량(Δx, Δy)을 커서 옆에 실시간 표시

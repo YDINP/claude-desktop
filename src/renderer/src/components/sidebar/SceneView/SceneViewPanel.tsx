@@ -1646,6 +1646,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               <rect x="8" y="8" width="8" height="8" fill={bgLight ? '#e0e0e0' : '#242424'} />
             </pattern>
 
+            {/* 연결선 화살표 마커 */}
+            <marker id="conn-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L6,3 z" fill="rgba(96,165,250,0.5)" />
+            </marker>
+
             {/* 그리드 패턴 */}
             {gridVisible && (
               <pattern
@@ -1808,13 +1813,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               if (!parent) return null
               const { sx: x1, sy: y1 } = cocosToSvg(parent.x, parent.y, DESIGN_W, DESIGN_H)
               const { sx: x2, sy: y2 } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
+              // cubic bezier: 수직 방향으로 제어점 설정
+              const midY = (y1 + y2) / 2
+              const d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`
               return (
-                <line
+                <path
                   key={`conn-${node.uuid}`}
-                  x1={x1} y1={y1} x2={x2} y2={y2}
-                  stroke="rgba(96,165,250,0.35)"
+                  d={d}
+                  fill="none"
+                  stroke="rgba(96,165,250,0.45)"
                   strokeWidth={1 / view.zoom}
-                  strokeDasharray={`${4 / view.zoom} ${3 / view.zoom}`}
+                  markerEnd="url(#conn-arrow)"
                   style={{ pointerEvents: 'none' }}
                 />
               )
