@@ -1,8 +1,8 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 69 완료)
+> 마지막 업데이트: 2026-03-12 (Round 70 완료)
 
 ## 현재 상태
-- Round 69까지 완료 (Adaptive Thinking 시각화 + ToolUse 입력 포맷터)
+- Round 70까지 완료 (HQ Mode Phase 1 — TitleBar 토글/AgentBay/ResourceBar/OpsFeed 쉘)
 - 브랜치: `feature/cocos-integration` (Round 64~67 CC 통합 작업)
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`

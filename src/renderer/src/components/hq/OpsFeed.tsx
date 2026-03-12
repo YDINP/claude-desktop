@@ -3,9 +3,10 @@ import type { ToolUseItem } from '../../stores/chat-store'
 interface OpsFeedProps {
   toolUses?: ToolUseItem[]
   isStreaming?: boolean
+  onToolClick?: (toolId: string) => void
 }
 
-export function OpsFeed({ toolUses = [], isStreaming = false }: OpsFeedProps) {
+export function OpsFeed({ toolUses = [], isStreaming = false, onToolClick }: OpsFeedProps) {
   if (toolUses.length === 0 && !isStreaming) return null
 
   const statusIcon = { running: '↻', done: '✓', error: '✗' }
@@ -30,6 +31,7 @@ export function OpsFeed({ toolUses = [], isStreaming = false }: OpsFeedProps) {
         {toolUses.slice(-8).map((tool, i) => (
           <span
             key={tool.id}
+            onClick={() => onToolClick?.(tool.id)}
             style={{
               fontSize: 10,
               fontFamily: 'var(--font-mono)',
@@ -41,6 +43,7 @@ export function OpsFeed({ toolUses = [], isStreaming = false }: OpsFeedProps) {
               whiteSpace: 'nowrap',
               animation: i === toolUses.length - 1 ? 'hq-slide-in 0.2s ease' : undefined,
               flexShrink: 0,
+              cursor: onToolClick ? 'pointer' : undefined,
             }}
           >
             [{statusIcon[tool.status]} {tool.name}]

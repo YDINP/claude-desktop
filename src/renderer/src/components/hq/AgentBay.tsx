@@ -20,31 +20,51 @@ interface AgentBayProps {
   onToggleHQ?: () => void
 }
 
-function AgentCard({ session, isActive, isStreaming, onClick }: {
+type AgentState = 'idle' | 'active' | 'tool_running' | 'error' | 'selected'
+
+function AgentCard({ session, isActive, isStreaming, lastToolName, hasError, onClick }: {
   session: SessionMeta
   isActive: boolean
   isStreaming: boolean
+  lastToolName?: string
+  hasError?: boolean
   onClick: () => void
 }) {
   const title = session.title || `AGENT-${session.id.slice(-3).toUpperCase()}`
   const tokens = (session.inputTokens ?? 0) + (session.outputTokens ?? 0)
   const tokStr = tokens > 1000 ? `${(tokens / 1000).toFixed(1)}k` : `${tokens}`
 
-  const state = isStreaming && isActive ? 'active' : isActive ? 'selected' : 'idle'
+  const state: AgentState = hasError && isActive ? 'error'
+    : isStreaming && isActive && lastToolName ? 'tool_running'
+    : isStreaming && isActive ? 'active'
+    : isActive ? 'selected'
+    : 'idle'
 
-  const borderColor = {
-    active: 'rgba(0,152,255,0.6)',
-    selected: 'rgba(0,152,255,0.4)',
+  const borderColor: Record<AgentState, string> = {
+    active: 'rgba(0,152,255,0.4)',
+    tool_running: 'rgba(220,220,170,0.4)',
+    error: 'rgba(244,71,71,0.4)',
+    selected: 'rgba(0,152,255,0.6)',
     idle: 'rgba(255,255,255,0.08)',
-  }[state]
+  }
 
-  const glow = {
+  const glowColor: Record<AgentState, string> = {
     active: '0 0 20px rgba(0,152,255,0.25)',
+    tool_running: '0 0 16px rgba(220,220,170,0.2)',
+    error: '0 0 16px rgba(244,71,71,0.2)',
     selected: '0 0 10px rgba(0,152,255,0.15)',
     idle: 'none',
-  }[state]
+  }
 
-  const eyeColor = state === 'active' ? '#00d4ff' : '#888'
+  const eyeColor: Record<AgentState, string> = {
+    active: '#00d4ff',
+    tool_running: '#d4d46e',
+    error: '#f44747',
+    selected: '#5299ff',
+    idle: '#555',
+  }
+
+  const blinkSpeed = state === 'active' ? '0.4s' : state === 'tool_running' ? '1s' : '3s'
 
   const timeAgo = () => {
     const d = Date.now() - session.updatedAt
@@ -57,34 +77,73 @@ function AgentCard({ session, isActive, isStreaming, onClick }: {
     <div
       onClick={onClick}
       style={{
-        border: `1px solid ${borderColor}`,
+        border: `1px solid ${borderColor[state]}`,
         borderRadius: 6,
         padding: '10px 12px',
         marginBottom: 8,
         cursor: 'pointer',
-        boxShadow: glow,
+        boxShadow: glowColor[state],
         transition: 'all 0.2s ease',
         background: isActive ? 'rgba(0,152,255,0.05)' : 'rgba(255,255,255,0.02)',
       }}
     >
       {/* 로봇 눈 */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-        <svg width="16" height="12" viewBox="0 0 16 12">
-          <ellipse cx="4" cy="6" rx="4" ry="6" fill={eyeColor}
-            style={{ animation: state === 'active' ? 'hq-blink 0.5s ease infinite' : 'hq-blink 2s ease infinite' }} />
-          <ellipse cx="12" cy="6" rx="4" ry="6" fill={eyeColor}
-            style={{ animation: state === 'active' ? 'hq-blink 0.5s ease infinite 0.1s' : 'hq-blink 2s ease infinite 0.3s' }} />
-        </svg>
-        <div style={{
-          flex: 1, height: 2, alignSelf: 'center',
-          background: state === 'active' ? '#00d4ff' : '#444',
-          borderRadius: 1,
-        }} />
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+        {state === 'error' ? (
+          <svg width="28" height="12" viewBox="0 0 28 12">
+            <text x="2" y="10" fill="#f44747" fontSize="12" fontFamily="monospace">×</text>
+            <text x="16" y="10" fill="#f44747" fontSize="12" fontFamily="monospace">×</text>
+          </svg>
+        ) : (
+          <svg width="28" height="12" viewBox="0 0 28 12">
+            <ellipse cx="6" cy="6" rx="5" ry="6" fill={eyeColor[state]}
+              style={{
+                filter: state === 'active' || state === 'tool_running' ? `drop-shadow(0 0 3px ${eyeColor[state]})` : undefined,
+                animation: `hq-blink ${blinkSpeed} ease infinite`,
+              }} />
+            <ellipse cx="22" cy="6" rx="5" ry="6" fill={eyeColor[state]}
+              style={{
+                filter: state === 'active' || state === 'tool_running' ? `drop-shadow(0 0 3px ${eyeColor[state]})` : undefined,
+                animation: `hq-blink ${blinkSpeed} ease infinite 0.2s`,
+              }} />
+          </svg>
+        )}
+
+        {/* 입 (상태별) */}
+        {state === 'error' && (
+          <div style={{ flex: 1, fontSize: 9, color: '#f44747', letterSpacing: 2 }}>∧∧∧∧∧</div>
+        )}
+        {state === 'tool_running' && (
+          <div style={{ flex: 1, fontSize: 9, color: '#d4d46e', letterSpacing: 2, overflow: 'hidden' }}>
+            <span className="hq-dots-scroll">·····</span>
+          </div>
+        )}
+        {state === 'active' && (
+          <div style={{ flex: 1, display: 'flex', gap: 2, alignItems: 'center' }}>
+            {[0, 1, 2, 3, 4].map(i => (
+              <div key={i} style={{
+                width: 3, height: 6,
+                background: '#00d4ff',
+                borderRadius: 1,
+                animation: `hq-bounce 0.5s ease infinite ${i * 0.1}s`,
+              }} />
+            ))}
+          </div>
+        )}
+        {(state === 'idle' || state === 'selected') && (
+          <div style={{ flex: 1, height: 2, background: state === 'selected' ? '#5299ff55' : '#333', borderRadius: 1 }} />
+        )}
       </div>
 
       <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {title}
       </div>
+
+      {state === 'tool_running' && lastToolName && (
+        <div style={{ fontSize: 9, color: '#d4d46e', fontFamily: 'var(--font-mono)', marginTop: 2 }}>
+          ↻ {lastToolName}
+        </div>
+      )}
 
       {/* 토큰 게이지 */}
       {tokens > 0 && (
@@ -109,16 +168,32 @@ function AgentCard({ session, isActive, isStreaming, onClick }: {
   )
 }
 
-export function AgentBay({ sessions = [], activeSessionId, isStreaming = false, onSelectSession, onNewSession, onToggleHQ }: AgentBayProps) {
+export function AgentBay({ sessions = [], activeSessionId, isStreaming = false, toolUses, onSelectSession, onNewSession, onToggleHQ }: AgentBayProps) {
   const [localSessions, setLocalSessions] = useState<SessionMeta[]>(sessions)
 
   useEffect(() => {
-    if (sessions.length === 0) {
-      window.api.sessionList?.().then((list: SessionMeta[]) => setLocalSessions(list ?? [])).catch(() => {})
-    } else {
-      setLocalSessions(sessions)
+    let cancelled = false
+    const load = () => {
+      if (sessions.length > 0) {
+        setLocalSessions(sessions)
+        return
+      }
+      window.api.sessionList?.()
+        .then((list: SessionMeta[]) => {
+          if (!cancelled) setLocalSessions(list ?? [])
+        })
+        .catch(() => {})
     }
-  }, [sessions])
+    load()
+    const interval = setInterval(load, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [sessions, activeSessionId])
+
+  const runningTool = toolUses?.find(t => t.status === 'running')
+  const hasActiveError = toolUses?.some(t => t.status === 'error') ?? false
 
   return (
     <div style={{
@@ -167,6 +242,8 @@ export function AgentBay({ sessions = [], activeSessionId, isStreaming = false, 
             session={s}
             isActive={s.id === activeSessionId}
             isStreaming={!!(isStreaming && s.id === activeSessionId)}
+            lastToolName={s.id === activeSessionId ? runningTool?.name : undefined}
+            hasError={s.id === activeSessionId && hasActiveError}
             onClick={() => onSelectSession(s.id)}
           />
         ))}

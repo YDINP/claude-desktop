@@ -1391,6 +1391,7 @@ function AppContent() {
         <OpsFeed
           toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-10)}
           isStreaming={chat.isStreaming}
+          onToolClick={(toolId) => console.log('tool clicked:', toolId)}
         />
       )}
 
