@@ -749,15 +749,15 @@ export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrig
           bottom: '100%',
           left: 0,
           right: 0,
-          background: '#1e1e1e',
-          border: '1px solid #333',
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
           borderRadius: 6,
           marginBottom: 4,
           overflow: 'hidden',
           boxShadow: '0 -4px 16px rgba(0,0,0,0.4)',
           zIndex: 50,
         }}>
-          <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid #333', userSelect: 'none' }}>
+          <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none' }}>
             snippets · ↑↓ 탐색 · Enter 삽입 · Esc 닫기
           </div>
           {snippetMatches.map((s, i) => (
@@ -772,14 +772,14 @@ export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrig
                 padding: '7px 12px',
                 cursor: 'pointer',
                 background: i === snippetMenuIdx ? 'var(--accent)' : 'transparent',
-                borderBottom: i < snippetMatches.length - 1 ? '1px solid #333' : 'none',
+                borderBottom: i < snippetMatches.length - 1 ? '1px solid var(--border)' : 'none',
               }}
             >
               <span style={{
                 fontSize: 11,
                 fontFamily: 'var(--font-mono)',
-                background: '#333',
-                color: '#ccc',
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-secondary)',
                 padding: '1px 6px',
                 borderRadius: 3,
                 flexShrink: 0,
@@ -845,8 +845,8 @@ export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrig
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
       {showTemplates && (
         <div style={{
-          background: '#1e1e1e',
-          border: '1px solid #333',
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
           borderRadius: 6,
           padding: 8,
           marginBottom: 4,
@@ -866,8 +866,8 @@ export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrig
                 placeholder="템플릿 제목..."
                 style={{
                   fontSize: 12,
-                  background: '#2a2a2a',
-                  border: '1px solid #555',
+                  background: 'var(--bg-input)',
+                  border: '1px solid var(--border-light)',
                   borderRadius: 4,
                   color: 'var(--text-primary)',
                   padding: '3px 6px',
@@ -902,7 +902,7 @@ export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrig
                     fontSize: 11,
                     background: 'none',
                     color: text.trim() && templates.length < MAX_TEMPLATES ? 'var(--accent)' : 'var(--text-muted)',
-                    border: '1px solid #444',
+                    border: '1px solid var(--border)',
                     borderRadius: 4,
                     padding: '3px 8px',
                     cursor: text.trim() && templates.length < MAX_TEMPLATES ? 'pointer' : 'not-allowed',
@@ -928,8 +928,8 @@ export function InputBar({ onSend, onInterrupt, isStreaming, disabled, focusTrig
             style={{
               width: '100%',
               fontSize: 12,
-              background: '#2a2a2a',
-              border: '1px solid #444',
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
               color: 'var(--text-primary)',
               padding: '4px 8px',

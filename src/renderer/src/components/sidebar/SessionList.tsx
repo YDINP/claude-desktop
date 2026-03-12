@@ -294,39 +294,25 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     setSessions(prev => prev.map(s => s.id === id ? { ...s, collection: collection ?? undefined } : s))
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
-        Loading sessions...
-      </div>
-    )
-  }
-
-  // Apply search filter
-  let filtered = search.trim()
-    ? sessions.filter(s =>
-        s.title.toLowerCase().includes(search.toLowerCase()) ||
-        s.cwd.toLowerCase().includes(search.toLowerCase())
-      )
-    : sessions
-
-  // Apply tag filter
-  if (filterTag) {
-    filtered = filtered.filter(s => s.tags && s.tags.includes(filterTag))
-  }
-
-  if (sessions.length === 0) {
-    return (
-      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
-        No previous sessions
-      </div>
-    )
-  }
+  // Apply search filter (must be before hooks)
+  const filtered = useMemo(() => {
+    let result = search.trim()
+      ? sessions.filter(s =>
+          s.title.toLowerCase().includes(search.toLowerCase()) ||
+          s.cwd.toLowerCase().includes(search.toLowerCase())
+        )
+      : sessions
+    if (filterTag) {
+      result = result.filter(s => s.tags && s.tags.includes(filterTag))
+    }
+    return result
+  }, [sessions, search, filterTag])
 
   const ARCHIVE_DAYS = 30
-  const now = Date.now()
 
   const { activeSessions, archivedSessions } = useMemo(() => {
+    if (sessions.length === 0) return { activeSessions: [], archivedSessions: [] }
+    const now = Date.now()
     const active: SessionMeta[] = []
     const archived: SessionMeta[] = []
     for (const s of filtered) {
@@ -339,7 +325,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
       }
     }
     return { activeSessions: active, archivedSessions: archived }
-  }, [filtered, now])
+  }, [filtered, sessions.length])
 
   const collections = useMemo(() => {
     const map = new Map<string, SessionMeta[]>()
@@ -351,6 +337,22 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     }
     return map
   }, [activeSessions])
+
+  if (loading) {
+    return (
+      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
+        Loading sessions...
+      </div>
+    )
+  }
+
+  if (sessions.length === 0) {
+    return (
+      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
+        No previous sessions
+      </div>
+    )
+  }
 
   const pinnedFiltered = activeSessions.filter(s => s.pinned && !s.collection)
   const unpinnedFiltered = activeSessions.filter(s => !s.pinned && !s.collection)

@@ -630,31 +630,134 @@ Preload (contextBridge)
 | ✅ AI 스니펫 제안 | claude-handlers.ts + SnippetPanel.tsx + preload | 💡 버튼, Haiku JSON 추출, 삽입/추가 버튼 |
 | ✅ 읽기 시간 & 통계 | MessageBubble.tsx | ~N분 읽기, ~N토큰 표시, hover 툴팁 |
 
+## 전략 로드맵 (2026-03-12 기획팀 수립)
+
+> 목표: **"Claude를 가장 잘 아는 Claude 전용 에이전트 워크스테이션"**
+> - Cursor/Windsurf: 에디터 내 자동완성 중심
+> - Claude.ai 웹: 범용 채팅
+> - **이 앱**: Claude Agent SDK 100% 활용 — Thinking 시각화, 파일 되감기, 서브에이전트 관제, MCP 동적 관리
+
+### Phase 1 — 즉시 착수 (임팩트↑, 난이도↓)
+
+#### 🔴 안정성/보안 (Critical)
+
+| 항목 | 위치 | 설명 |
+|------|------|------|
+| Shell Injection 수정 | `fs-handlers.ts` | `execAsync` 문자열 보간 → `execFile` + 배열 인자 |
+| `openExternal` 화이트리스트 | `fs-handlers.ts:95` | `https:`, `http:` 프로토콜만 허용 |
+| `writeTextFile` 경로 검증 | `fs-handlers.ts:145` | 절대경로 + `..` 포함 체크 |
+| React 훅 규칙 위반 | `SessionList.tsx`, `ChatPanel.tsx` | useMemo/useState early return 순서 수정 |
+| async try/catch 누락 | `MessageBubble.tsx` | handleExplain/Docs/Summarize/Translate |
+
+#### ⚡ 성능 Quick Wins
+
+| 항목 | 위치 | 설명 |
+|------|------|------|
+| SyntaxHighlighter ESM import | `MessageBubble.tsx` | CJS→ESM, tree-shaking 활성화, 번들 즉시 감소 |
+| mermaid lazy load | `vite.config.ts` + `MermaidBlock.tsx` | 11MB+ 청크 분리, `React.lazy()` 래핑 |
+| 스트리밍 타이머 통합 | `ChatPanel.tsx:249` | 2개 setInterval → 1개 |
+
+#### 🎨 디자인 시스템 기반
+
+| 항목 | 위치 | 설명 |
+|------|------|------|
+| WCAG AA 대비 수정 | `theme.css` | `--text-muted` 다크 #6b6b6b→#858585 |
+| focus-visible 복원 | `global.css` | `:focus-visible { outline: 2px solid var(--accent) }` |
+| 하드코딩 색상 제거 | 5개 파일 | WelcomeScreen/InputBar/ChatPanel/SettingsPanel/FileTree |
+| 디자인 토큰 확장 | `theme.css` | spacing scale, typography scale, surface 계층, radius 확장 |
+
+### Phase 2 — 중기 핵심 (Claude 차별화)
+
+#### 🤖 Claude SDK 활용 확대 (현재 활용율 ~20%)
+
+| # | 항목 | 설명 | 난이도 |
+|---|------|------|--------|
+| N1 | **SDK 메시지 전수 파싱** | agent-bridge.ts 16개 타입 처리 (현재 3개만) — 모든 기능의 토대 | 중간 |
+| N2 | **Adaptive Thinking 시각화** | 접이식 사고 과정 패널 (`thinking` 블록) — Cursor/Windsurf 없는 Claude 전용 | 중간 |
+| N3 | **Effort 레벨 선택** | `low/medium/high/max` 드롭다운 — 비용-품질 트레이드오프 직접 제어 | 낮음 |
+| N4 | **maxBudgetUsd 설정** | 세션 비용 상한 (StatusBar 연동) — 비용 불안 해소 | 낮음 |
+| N5 | **Prompt Suggestion 내장** | SDK 내장으로 현재 별도 Haiku 호출 비용 제거 | 낮음 |
+| N6 | **파일 체크포인팅 되감기** | `Query.rewindFiles()` — 메시지 단위 파일 복원 (경쟁사 없음) | 높음 |
+| N7 | **MCP 동적 관리 UI** | `Query.setMcpServers()` 런타임 연결/해제 | 중간 |
+| N8 | **Permission Mode 전환** | 계획→실행→읽기전용 런타임 전환 | 중간 |
+| N9 | **CLAUDE.md / Skills 연동** | 프로젝트 설정 + Claude Code CLI 세션 동기화 | 중간 |
+
+#### ✨ 시각 경험
+
+| # | 항목 | 설명 | 난이도 |
+|---|------|------|--------|
+| V1 | **메시지 버블 차별화** | user: 좌측 accent 라인, AI: success 라인 + 배경색 구분 | 중간 |
+| V2 | **코드 블록 헤더 바** | 언어명 + 액션 버튼 상단 배치, 라인 넘버 | 중간 |
+| V3 | **스트리밍 커서** | 블링킹 `|` + typing indicator 3-dot bounce | 중간 |
+| V4 | **패널 전환 애니메이션** | 사이드바/터미널 width/height CSS transition | 중간 |
+| V5 | **ToolUseIndicator 개선** | indeterminate 프로그레스 바, 도구별 아이콘, 접기 애니메이션 | 중간 |
+| V6 | **스켈레톤 UI** | 세션/파일트리/패널 로딩 상태 shimmer 애니메이션 | 낮음 |
+| V7 | **컨텍스트 링 게이지** | StatusBar 직선 바 → SVG 원형 게이지 | 낮음 |
+
+#### ⚡ 성능 심화
+
+| # | 항목 | 설명 | 난이도 |
+|---|------|------|--------|
+| P1 | **Web Worker 마크다운 파싱** | 10K자+ 응답 메인 스레드 언블로킹 | 높음 |
+| P2 | **미니맵 독립 컴포넌트** | 스크롤마다 React 렌더 우회, DOM 직접 업데이트 | 중간 |
+| P3 | **가상화 이미지 로딩** | IntersectionObserver 지연 로드 | 낮음 |
+| P4 | **자동 context 압축** | SDK `SDKCompactBoundaryMessage` 활용, opt-in | 중간 |
+
+### Phase 3 — 장기 비전 (아키텍처 변경)
+
+| 항목 | 설명 |
+|------|------|
+| **멀티패널 자유 레이아웃** | CSS Grid + resize, "코딩/대화/리뷰" 프리셋 (GoldenLayout 없이) |
+| **서브에이전트 오케스트레이션** | SDK `agents` 옵션, 병렬 에이전트 진행 시각화 (칸반) |
+| **세션 분기 그래프** | SVG 기반 git 그래프 스타일 대화 히스토리 시각화 |
+| **CSS 모듈 마이그레이션** | 인라인 스타일 100% → CSS modules (hover/pseudo-class 해방) |
+| **Claude Code CLI 세션 동기화** | `~/.claude/projects/` 통합, CLI↔GUI 원활 전환 |
+| **멀티에이전트 팀 워크스테이션** | 프론트/백/QA 에이전트 동시 작업, git worktree 격리 |
+
+---
+
 ## 차후 작업 목록 (미구현)
+
+### 🔥 신규 추가 (고우선순위)
+
+| # | 항목 | 설명 | 난이도 |
+|---|------|------|--------|
+| A | **멀티패널 자유 레이아웃** | 패널을 드래그로 자유 배치, 분할(수직/수평), 크기 조절, 레이아웃 저장 (GoldenLayout 또는 직접 구현) | 높음 |
+| B | **실시간 자동완성 (인텔리센스)** | 터미널 입력 시 명령어/플래그/경로 인라인 제안, 파일트리 연동, 화살표로 선택 | 높음 |
+| C | **@ 멘션 파일 컨텍스트** | `@filename.ts` 입력 시 파일 내용 자동 삽입, 드롭다운 자동완성 | 중간 |
+
+### 🗑️ 제거 계획 (Git 패널 정리)
+
+| 항목 | 이유 | 대상 파일 |
+|------|------|-----------|
+| **GitPanel 탭 제거** | 터미널에서 직접 git 명령으로 충분, 패널 과부하 해소 | Sidebar.tsx의 `git` 탭 |
+| **ChangedFilesPanel 탭 제거** | GitPanel과 기능 중복 | Sidebar.tsx의 `changes` 탭 |
+| **관련 IPC 핸들러 정리** | `git:log`, `git:show`, `git:fetch`, `git:blame` 등 미사용 시 제거 | fs-handlers.ts |
+
+> ⚠️ 실제 제거 전 사용 빈도 확인 필요 — 필요시 설정에서 탭 숨김 옵션으로 대체 고려
 
 ### 🔥 임팩트 높음
 
 | # | 항목 | 설명 | 난이도 |
 |---|------|------|--------|
 | 1 | **TTS 읽어주기** | 🔊 버튼, `speechSynthesis` API로 어시스턴트 응답 음성 출력 | 낮음 |
-| 2 | **@ 멘션 파일 컨텍스트** | `@filename.ts` 입력 시 파일 내용 자동 삽입, 드롭다운 자동완성 | 중간 |
-| 3 | **응답 평가 시스템** | 👍/👎 버튼 + 이유 메모, 세션에 평가 저장 | 낮음 |
-| 4 | **AI 페르소나 프리셋** | 🎭 버튼으로 "코드 리뷰어/번역가/분석가" 시스템 프롬프트 즉시 전환 | 낮음 |
-| 5 | **Python 코드 실행** | IPC → `python -c` subprocess, JS처럼 ▶ 버튼 인라인 실행 | 중간 |
+| 2 | **응답 평가 시스템** | 👍/👎 버튼 + 이유 메모, 에이전트 행동 피드백 루프 | 낮음 |
+| 3 | **AI 페르소나 프리셋** | 🎭 버튼으로 "코드 리뷰어/번역가/분석가" 시스템 프롬프트 즉시 전환 | 낮음 |
+| 4 | **Python 코드 실행** | IPC → `python -c` subprocess, JS처럼 ▶ 버튼 인라인 실행 | 중간 |
 
 ### ⚡ 성능 개선
 
 | # | 항목 | 설명 | 난이도 |
 |---|------|------|--------|
-| 6 | **Web Worker 마크다운 파싱** | 긴 메시지 렌더링 시 메인 스레드 블로킹 해소 | 높음 |
-| 7 | **가상화 이미지 로딩** | viewport 밖 이미지 지연 로드 (IntersectionObserver) | 낮음 |
-| 8 | **자동 context 압축** | 토큰 한도 도달 전 자동 요약 압축 트리거 | 중간 |
+| 5 | **Web Worker 마크다운 파싱** | 긴 메시지 렌더링 시 메인 스레드 블로킹 해소 | 높음 |
+| 6 | **가상화 이미지 로딩** | viewport 밖 이미지 지연 로드 (IntersectionObserver) | 낮음 |
+| 7 | **자동 context 압축** | SDK SDKCompactBoundaryMessage 활용, opt-in UI 제공 | 중간 |
 
 ### 🎨 시각화 & 탐색
 
 | # | 항목 | 설명 | 난이도 |
 |---|------|------|--------|
-| 9 | **세션 분기 그래프** | fork된 세션들의 트리 시각화 (SVG, D3 없이) | 높음 |
-| 10 | **HTTP API 테스터** | `GET https://...` 감지 → 인라인 응답 표시 | 중간 |
-| 11 | **코드 diff 하이라이팅** | before/after 코드블록 자동 감지 → 변경사항 색상 표시 | 중간 |
-| 12 | **세션 전체 텍스트 검색** | 모든 세션 내용 검색 (BM25 또는 SQLite FTS) | 높음 |
+| 8 | **세션 분기 그래프** | fork된 세션들의 트리 시각화 (SVG, D3 없이) | 높음 |
+| 9 | **HTTP API 테스터** | `GET https://...` 감지 → 인라인 응답 표시 | 중간 |
+| 10 | **코드 diff 하이라이팅** | before/after 코드블록 자동 감지 → 변경사항 색상 표시 | 중간 |
+| 11 | **세션 전체 텍스트 검색** | 모든 세션 내용 검색 (BM25 또는 SQLite FTS) | 높음 |

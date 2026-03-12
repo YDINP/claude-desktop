@@ -54,7 +54,7 @@ export function WelcomeScreen({ onSelectPrompt, recentSessions, onSelectSession 
       <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
         <div style={{
           fontSize: 48,
-          background: 'linear-gradient(135deg, #528BFF 0%, #9B6DFF 100%)',
+          background: 'linear-gradient(135deg, var(--accent) 0%, #9B6DFF 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
@@ -73,7 +73,7 @@ export function WelcomeScreen({ onSelectPrompt, recentSessions, onSelectSession 
         </div>
         <div style={{
           fontSize: 14,
-          color: '#888',
+          color: 'var(--text-muted)',
           marginTop: 2,
         }}>
           AI와 함께 더 스마트하게 작업하세요
@@ -97,9 +97,9 @@ export function WelcomeScreen({ onSelectPrompt, recentSessions, onSelectSession 
             onMouseLeave={() => setHoveredCard(null)}
             style={{
               background: hoveredCard === i
-                ? 'rgba(82,139,255,0.08)'
+                ? 'var(--bg-hover)'
                 : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${hoveredCard === i ? 'rgba(82,139,255,0.3)' : 'rgba(255,255,255,0.08)'}`,
+              border: `1px solid ${hoveredCard === i ? 'var(--accent-dim)' : 'rgba(255,255,255,0.08)'}`,
               borderRadius: 12,
               padding: 16,
               cursor: 'pointer',
@@ -118,7 +118,7 @@ export function WelcomeScreen({ onSelectPrompt, recentSessions, onSelectSession 
             <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
               {card.title}
             </span>
-            <span style={{ fontSize: 12, color: '#888', lineHeight: 1.4 }}>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.4 }}>
               {card.desc}
             </span>
           </button>
@@ -128,7 +128,7 @@ export function WelcomeScreen({ onSelectPrompt, recentSessions, onSelectSession 
       {/* Recent sessions */}
       {visibleSessions.length > 0 && onSelectSession && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 480, width: '100%' }}>
-          <div style={{ fontSize: 11, color: '#666', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             최근 세션
           </div>
           {visibleSessions.map((s, i) => (
@@ -177,7 +177,7 @@ export function WelcomeScreen({ onSelectPrompt, recentSessions, onSelectSession 
         marginTop: 4,
       }}>
         {SHORTCUTS.map(({ key, label }) => (
-          <span key={key} style={{ fontSize: 11, color: '#555', display: 'flex', alignItems: 'center', gap: 5 }}>
+          <span key={key} style={{ fontSize: 11, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 5 }}>
             <kbd style={{
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid rgba(255,255,255,0.1)',
@@ -185,7 +185,7 @@ export function WelcomeScreen({ onSelectPrompt, recentSessions, onSelectSession 
               padding: '1px 6px',
               fontSize: 10,
               fontFamily: 'monospace',
-              color: '#888',
+              color: 'var(--text-muted)',
             }}>
               {key}
             </kbd>

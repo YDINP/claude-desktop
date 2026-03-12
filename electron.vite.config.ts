@@ -20,6 +20,7 @@ export default defineConfig({
             'vendor-syntax': ['react-syntax-highlighter'],
             'vendor-markdown': ['react-markdown', 'remark-gfm'],
             'vendor-terminal': ['@xterm/xterm', '@xterm/addon-fit'],
+            'vendor-mermaid': ['mermaid'],
           }
         }
       }

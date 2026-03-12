@@ -1,4 +1,4 @@
-import { useState, useRef, memo, useMemo, useEffect, useCallback, useDeferredValue } from 'react'
+import { useState, useRef, memo, useMemo, useEffect, useCallback, useDeferredValue, lazy, Suspense } from 'react'
 import React from 'react'
 import type { ChatMessage } from '../../stores/chat-store'
 import { ToolUseIndicator } from './ToolUseIndicator'
@@ -6,9 +6,9 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import { MermaidBlock } from './MermaidBlock'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter/dist/esm/prism'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+const MermaidBlock = lazy(() => import('./MermaidBlock').then(m => ({ default: m.MermaidBlock })))
 import { clipboardStore } from '../../utils/clipboard-store'
 
 const RUNNABLE_LANGS = ['bash', 'sh', 'shell', 'zsh', 'fish', 'cmd', 'powershell', 'ps1']
@@ -107,18 +107,28 @@ const CodeBlock = memo(function CodeBlock({
     if (explainLoading) return
     if (explanation !== null) { setExplanation(null); return }
     setExplainLoading(true)
-    const text = await window.api.explainCode(codeString, language)
-    setExplanation(text)
-    setExplainLoading(false)
+    try {
+      const text = await window.api.explainCode(codeString, language)
+      setExplanation(text)
+    } catch (e) {
+      console.error('explainCode failed', e)
+    } finally {
+      setExplainLoading(false)
+    }
   }
 
   const handleGenerateDocs = async () => {
     if (docLoading) return
     if (docCode !== null) { setDocCode(null); return }
     setDocLoading(true)
-    const result = await window.api.generateDocs({ code: codeString, lang: language })
-    setDocCode(result)
-    setDocLoading(false)
+    try {
+      const result = await window.api.generateDocs({ code: codeString, lang: language })
+      setDocCode(result)
+    } catch (e) {
+      console.error('generateDocs failed', e)
+    } finally {
+      setDocLoading(false)
+    }
   }
 
   const handleDocCopy = () => {
@@ -616,7 +626,11 @@ function makeMdComponents(
       const match = /language-(\w+)/.exec(className || '')
       const codeString = String(children).replace(/\n$/, '')
       if (className?.includes('language-mermaid')) {
-        return <MermaidBlock code={codeString} />
+        return (
+          <Suspense fallback={<div style={{ padding: 8, color: 'var(--text-muted)', fontSize: 12 }}>로딩 중...</div>}>
+            <MermaidBlock code={codeString} />
+          </Suspense>
+        )
       }
       if (match) {
         return <CodeBlock language={match[1]} codeString={codeString} onRunInTerminal={onRunInTerminal} onQuickAction={onQuickAction} />
@@ -721,11 +735,16 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   const handleTranslate = async () => {
     if (translated) { setTranslated(null); return }
     setTranslateLoading(true)
-    const korCount = (msg.text.match(/[가-힣]/g) ?? []).length
-    const targetLang = korCount > msg.text.length * 0.1 ? 'en' : 'ko'
-    const result = await window.api.translate(msg.text, targetLang)
-    setTranslated(result)
-    setTranslateLoading(false)
+    try {
+      const korCount = (msg.text.match(/[가-힣]/g) ?? []).length
+      const targetLang = korCount > msg.text.length * 0.1 ? 'en' : 'ko'
+      const result = await window.api.translate(msg.text, targetLang)
+      setTranslated(result)
+    } catch (e) {
+      console.error('translate failed', e)
+    } finally {
+      setTranslateLoading(false)
+    }
   }
 
   useEffect(() => {

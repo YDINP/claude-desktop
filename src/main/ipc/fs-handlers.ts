@@ -3,14 +3,15 @@ import { AppConfig } from '../store/app-config'
 import type { Snippet } from '../store/app-config'
 import { readdir, readFile, writeFile, stat, mkdir, rename as fsRename, unlink, rm } from 'fs/promises'
 import { watch, FSWatcher } from 'fs'
-import { join, relative, dirname } from 'path'
-import { exec, spawn } from 'child_process'
+import path, { join, relative, dirname } from 'path'
+import { exec, execFile, spawn } from 'child_process'
 import { promisify } from 'util'
 import type { DirEntry } from '../../shared/ipc-schema'
 
 const watchers = new Map<string, FSWatcher>()
 
 const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 
 interface FileSearchResult {
   name: string
@@ -83,17 +84,24 @@ export function registerFsHandlers(_win: unknown) {
     }
   })
 
-  ipcMain.handle('fs:read-file-base64', async (_, { path }: { path: string }): Promise<string> => {
+  ipcMain.handle('fs:read-file-base64', async (_, { path: filePath }: { path: string }): Promise<string> => {
     try {
-      const buf = await readFile(path)
+      const info = await stat(filePath)
+      if (info.size > 2 * 1024 * 1024) { // 2MB limit
+        return ''
+      }
+      const buf = await readFile(filePath)
       return buf.toString('base64')
     } catch {
       return ''
     }
   })
 
-  ipcMain.handle('shell:open-external', (_, url: string) => {
-    shell.openExternal(url)
+  ipcMain.handle('shell:open-external', async (_, url: string) => {
+    let parsed: URL
+    try { parsed = new URL(url) } catch { return }
+    if (!['https:', 'http:'].includes(parsed.protocol)) return
+    await shell.openExternal(url)
   })
 
   ipcMain.handle('shell:reveal-in-explorer', (_, path: string) => {
@@ -144,7 +152,8 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('fs:writeTextFile', async (_, { filePath, content }: { filePath: string; content: string }) => {
     try {
-      // Basic safety: don't allow writing outside project paths
+      if (!path.isAbsolute(filePath)) throw new Error('absolute path required')
+      if (filePath.includes('..')) throw new Error('invalid path')
       await writeFile(filePath, content, 'utf-8')
       return { ok: true }
     } catch (e) {
@@ -154,8 +163,8 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:fileDiff', async (_, { cwd, filePath, staged }: { cwd: string; filePath: string; staged: boolean }) => {
     try {
-      const flag = staged ? '--staged' : ''
-      const result = await execAsync(`git diff ${flag} -- "${filePath}"`, { cwd })
+      const args = ['diff', ...(staged ? ['--staged'] : []), '--', filePath]
+      const result = await execFileAsync('git', args, { cwd })
       return { diff: result.stdout }
     } catch {
       return { diff: '' }
@@ -164,7 +173,7 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:diff', async (_, { repoPath, filePath }: { repoPath: string; filePath: string }) => {
     try {
-      const { stdout } = await execAsync(`git diff HEAD -- "${filePath}"`, { cwd: repoPath, maxBuffer: 1024 * 512 })
+      const { stdout } = await execFileAsync('git', ['diff', 'HEAD', '--', filePath], { cwd: repoPath, maxBuffer: 1024 * 512 })
       return { diff: stdout }
     } catch {
       return { diff: '' }
@@ -225,22 +234,21 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:stage', async (_, { repoPath, filePath }: { repoPath: string; filePath: string }) => {
     try {
-      await execAsync(`git add "${filePath}"`, { cwd: repoPath })
+      await execFileAsync('git', ['add', filePath], { cwd: repoPath })
       return { ok: true }
     } catch (e) { return { error: String(e) } }
   })
 
   ipcMain.handle('git:unstage', async (_, { repoPath, filePath }: { repoPath: string; filePath: string }) => {
     try {
-      await execAsync(`git restore --staged "${filePath}"`, { cwd: repoPath })
+      await execFileAsync('git', ['restore', '--staged', filePath], { cwd: repoPath })
       return { ok: true }
     } catch (e) { return { error: String(e) } }
   })
 
   ipcMain.handle('git:commit', async (_, { repoPath, message }: { repoPath: string; message: string }) => {
     try {
-      const escaped = message.replace(/"/g, '\\"')
-      await execAsync(`git commit -m "${escaped}"`, { cwd: repoPath })
+      await execFileAsync('git', ['commit', '-m', message], { cwd: repoPath })
       return { ok: true }
     } catch (e) { return { error: String(e) } }
   })
@@ -300,7 +308,7 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:checkout', async (_, { cwd, branch }: { cwd: string; branch: string }) => {
     try {
-      await execAsync(`git checkout "${branch}"`, { cwd })
+      await execFileAsync('git', ['checkout', branch], { cwd })
       return { success: true }
     } catch (e: unknown) {
       const err = e as { stderr?: string }
@@ -310,7 +318,7 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:createBranch', async (_, { cwd, name }: { cwd: string; name: string }) => {
     try {
-      await execAsync(`git checkout -b "${name}"`, { cwd })
+      await execFileAsync('git', ['checkout', '-b', name], { cwd })
       return { success: true }
     } catch (e: unknown) {
       const err = e as { stderr?: string }
@@ -321,7 +329,7 @@ export function registerFsHandlers(_win: unknown) {
   ipcMain.handle('git:deleteBranch', async (_, { cwd, name, force }: { cwd: string; name: string; force?: boolean }) => {
     try {
       const flag = force ? '-D' : '-d'
-      await execAsync(`git branch ${flag} "${name}"`, { cwd })
+      await execFileAsync('git', ['branch', flag, name], { cwd })
       return { success: true }
     } catch (e: unknown) {
       const err = e as { stderr?: string }
@@ -344,8 +352,8 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:stashPush', async (_, { cwd, message }: { cwd: string; message?: string }) => {
     try {
-      const cmd = message ? `git stash push -m "${message}"` : 'git stash push'
-      await execAsync(cmd, { cwd })
+      const args = message ? ['stash', 'push', '-m', message] : ['stash', 'push']
+      await execFileAsync('git', args, { cwd })
       return { success: true }
     } catch (e: unknown) {
       const err = e as { stderr?: string }
@@ -355,8 +363,8 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:stashPop', async (_, { cwd, ref }: { cwd: string; ref?: string }) => {
     try {
-      const cmd = ref ? `git stash pop ${ref}` : 'git stash pop'
-      await execAsync(cmd, { cwd })
+      const args = ref ? ['stash', 'pop', ref] : ['stash', 'pop']
+      await execFileAsync('git', args, { cwd })
       return { success: true }
     } catch (e: unknown) {
       const err = e as { stderr?: string }
@@ -366,7 +374,7 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:stashDrop', async (_, { cwd, ref }: { cwd: string; ref: string }) => {
     try {
-      await execAsync(`git stash drop ${ref}`, { cwd })
+      await execFileAsync('git', ['stash', 'drop', ref], { cwd })
       return { success: true }
     } catch (e: unknown) {
       const err = e as { stderr?: string }
@@ -389,7 +397,7 @@ export function registerFsHandlers(_win: unknown) {
   ipcMain.handle('git:restoreFile', async (_, { cwd, filePath }: { cwd: string; filePath: string }) => {
     try {
       if (filePath.includes('..')) throw new Error('invalid path')
-      await execAsync(`git checkout -- "${filePath}"`, { cwd })
+      await execFileAsync('git', ['checkout', '--', filePath], { cwd })
       return { success: true }
     } catch (e: any) {
       return { success: false, error: e.message }
@@ -398,7 +406,7 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:show', async (_, { cwd, hash }: { cwd: string; hash: string }) => {
     try {
-      const { stdout } = await execAsync(`git show --stat --patch ${hash}`, { cwd })
+      const { stdout } = await execFileAsync('git', ['show', '--stat', '--patch', hash], { cwd })
       return stdout
     } catch {
       return ''
@@ -409,7 +417,7 @@ export function registerFsHandlers(_win: unknown) {
     try {
       if (filePath.includes('..')) throw new Error('invalid path')
       const rel = relative(cwd, filePath).replace(/\\/g, '/')
-      const { stdout } = await execAsync(`git blame --line-porcelain "${rel}"`, { cwd })
+      const { stdout } = await execFileAsync('git', ['blame', '--line-porcelain', rel], { cwd })
       const lines: Array<{ hash: string; author: string; date: string; lineNo: number }> = []
       const blocks = stdout.split('\n')
       let current: Partial<{ hash: string; author: string; date: string; lineNo: number }> = {}
@@ -464,10 +472,10 @@ export function registerFsHandlers(_win: unknown) {
   ipcMain.handle('git:createTag', async (_, { cwd, name, message }: { cwd: string; name: string; message?: string }) => {
     try {
       if (!/^[a-zA-Z0-9._/-]+$/.test(name)) throw new Error('유효하지 않은 태그 이름')
-      const cmd = message
-        ? `git tag -a "${name}" -m "${message.replace(/"/g, '\\"')}"`
-        : `git tag "${name}"`
-      await execAsync(cmd, { cwd })
+      const args = message
+        ? ['tag', '-a', name, '-m', message]
+        : ['tag', name]
+      await execFileAsync('git', args, { cwd })
       return { success: true }
     } catch (e: any) { return { success: false, error: e.message } }
   })
@@ -476,7 +484,7 @@ export function registerFsHandlers(_win: unknown) {
   ipcMain.handle('git:deleteTag', async (_, { cwd, name }: { cwd: string; name: string }) => {
     try {
       if (!/^[a-zA-Z0-9._/-]+$/.test(name)) throw new Error('유효하지 않은 태그 이름')
-      await execAsync(`git tag -d "${name}"`, { cwd })
+      await execFileAsync('git', ['tag', '-d', name], { cwd })
       return { success: true }
     } catch (e: any) { return { success: false, error: e.message } }
   })

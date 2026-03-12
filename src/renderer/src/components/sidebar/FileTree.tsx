@@ -127,8 +127,8 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
             width: 400,
             maxHeight: 300,
             overflow: 'hidden',
-            background: '#1a1a1a',
-            border: '1px solid #444',
+            background: 'var(--bg-primary)',
+            border: '1px solid var(--border)',
             borderRadius: 6,
             boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
             zIndex: 100,
@@ -136,10 +136,10 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
         >
           <div style={{
             padding: '6px 10px',
-            borderBottom: '1px solid #333',
+            borderBottom: '1px solid var(--border)',
             fontSize: 11,
             fontFamily: 'monospace',
-            color: '#ccc',
+            color: 'var(--text-secondary)',
             display: 'flex',
             alignItems: 'center',
             gap: 6,
@@ -149,22 +149,22 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
           </div>
           <div style={{ padding: '4px 0', overflowX: 'auto' }}>
             {preview.content === null ? (
-              <div style={{ padding: '8px 10px', fontSize: 11, color: '#888', fontFamily: 'monospace' }}>
+              <div style={{ padding: '8px 10px', fontSize: 11, color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                 파일이 너무 큽니다 (&gt;100KB)
               </div>
             ) : preview.content === '(binary)' ? (
-              <div style={{ padding: '8px 10px', fontSize: 11, color: '#888', fontFamily: 'monospace' }}>
+              <div style={{ padding: '8px 10px', fontSize: 11, color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                 바이너리 파일
               </div>
             ) : (
-              <div style={{ fontFamily: 'monospace', fontSize: 11, whiteSpace: 'pre', color: '#ddd' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: 11, whiteSpace: 'pre', color: 'var(--text-primary)' }}>
                 {preview.content.split('\n').map((line, i) => (
                   <div key={i} style={{ display: 'flex', lineHeight: '18px' }}>
                     <span style={{
                       width: '3ch',
                       textAlign: 'right',
-                      color: '#666',
-                      borderRight: '1px solid #333',
+                      color: 'var(--text-muted)',
+                      borderRight: '1px solid var(--border)',
                       paddingRight: 6,
                       marginRight: 8,
                       flexShrink: 0,

@@ -21,6 +21,14 @@ html, body, #root {
 /* Text selection */
 ::selection { background: var(--accent-dim); color: var(--text-primary); }
 
+/* 키보드 포커스 인디케이터 복원 (마우스는 여전히 숨김) */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 button {
   cursor: pointer;
   font-family: var(--font-ui);

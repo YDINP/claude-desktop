@@ -483,11 +483,17 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const handleSummarize = useCallback(async () => {
     setSummaryOpen(true)
     setSummaryLoading(true)
-    const result = await window.api.summarizeSession({
-      messages: chat.messages.map(m => ({ role: m.role, content: m.text })),
-    })
-    setSummaryText(result.summary)
-    setSummaryLoading(false)
+    try {
+      const result = await window.api.summarizeSession({
+        messages: chat.messages.map(m => ({ role: m.role, content: m.text })),
+      })
+      setSummaryText(result.summary)
+    } catch (e) {
+      console.error('summarize failed', e)
+      setSummaryText('')
+    } finally {
+      setSummaryLoading(false)
+    }
   }, [chat.messages])
 
   // Scroll to a specific message when requested from sidebar
