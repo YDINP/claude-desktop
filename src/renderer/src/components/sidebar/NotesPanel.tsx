@@ -18,6 +18,7 @@ export function NotesPanel() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [content, setContent] = useState('')
   const [title, setTitle] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const selected = notes.find(n => n.id === selectedId) ?? null
 
@@ -48,22 +49,36 @@ export function NotesPanel() {
     save(next)
   }, [selectedId, notes, save])
 
+  const filteredNotes = searchQuery.trim()
+    ? notes.filter(n => n.title.toLowerCase().includes(searchQuery.toLowerCase()) || n.content.toLowerCase().includes(searchQuery.toLowerCase()))
+    : notes
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* 헤더 */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '4px 8px', borderBottom: '1px solid var(--border)', gap: 4, flexShrink: 0 }}>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)', flex: 1 }}>노트 {notes.length}개</span>
+        <input
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="노트 검색..."
+          style={{
+            flex: 1, fontSize: 10, padding: '2px 6px',
+            background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)',
+            borderRadius: 3, color: 'var(--text-primary)', outline: 'none',
+          }}
+        />
+        <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{filteredNotes.length}/{notes.length}</span>
         <button onClick={addNote}
-          style={{ background: 'var(--accent)', border: 'none', borderRadius: 3, color: '#fff', cursor: 'pointer', fontSize: 11, padding: '2px 8px' }}>
-          + 추가
+          style={{ background: 'var(--accent)', border: 'none', borderRadius: 3, color: '#fff', cursor: 'pointer', fontSize: 11, padding: '2px 8px', flexShrink: 0 }}>
+          +
         </button>
       </div>
 
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* 노트 목록 */}
         <div style={{ width: 100, flexShrink: 0, borderRight: '1px solid var(--border)', overflowY: 'auto' }}>
-          {notes.length === 0 && <div style={{ padding: 8, fontSize: 10, color: 'var(--text-muted)' }}>노트 없음</div>}
-          {notes.map(n => (
+          {filteredNotes.length === 0 && <div style={{ padding: 8, fontSize: 10, color: 'var(--text-muted)' }}>{searchQuery ? '검색 결과 없음' : '노트 없음'}</div>}
+          {filteredNotes.map(n => (
             <div key={n.id}
               onClick={() => setSelectedId(n.id)}
               style={{

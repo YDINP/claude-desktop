@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 150: R248 신규 기능 ───────────────────────────────
+console.log('\n## 150. 신규 기능 파일 검사 (R248)')
+// NotesPanel 노트 검색 기능 (Round 248)
+const np248Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np248Path)) {
+  const np248 = readFileSync(np248Path, 'utf-8')
+  if (np248.includes('searchQuery') && np248.includes('filteredNotes') && np248.includes('노트 검색')) {
+    log('pass', 'Round248', 'NotesPanel: 노트 검색 기능 (searchQuery + filteredNotes) 구현 존재')
+  } else {
+    log('warning', 'Round248', 'NotesPanel 노트 검색 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 149: R247 신규 기능 ───────────────────────────────
 console.log('\n## 149. 신규 기능 파일 검사 (R247)')
 // SceneView Alt+[/] 투명도 조절 (Round 247)

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 247 완료 — SceneView Alt+[/] 투명도 조절, Pass 267)
+> 마지막 업데이트: 2026-03-13 (Round 248 완료 — NotesPanel 노트 검색, Pass 268)
 
 ## 완료된 라운드
 
@@ -199,6 +199,7 @@
 | Round 245 | dev | SceneView 인라인 편집바 rotation(R) 필드 — X/Y/W/H에 R 추가, 회전값 직접 편집 | ✅ |
 | Round 246 | dev | SceneView 선택 반전 — Ctrl+Shift+A로 선택/비선택 상태 반전 | ✅ |
 | Round 247 | dev | SceneView Alt+[/] 투명도 조절 — 선택 노드 opacity -10/+10 단축키 | ✅ |
+| Round 248 | dev | NotesPanel 노트 검색 — 제목/내용 통합 검색 입력, 결과 수 N/전체 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

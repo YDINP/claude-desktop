@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 248] — 2026-03-13
+### Improved
+- NotesPanel: 노트 검색 기능 — 제목/내용 통합 검색 입력, 결과 수 표시 (N/전체)
+
 ## [Round 247] — 2026-03-13
 ### Added
 - SceneView: Alt+[/] 투명도 조절 단축키 — 선택 노드 opacity를 10씩 감소/증가 (0~255)
