@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T22:07:53.949Z
+> 2026-03-12T22:09:59.207Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- DiffPanel: diff 통계 (diffStats/getLineChanges/added/removed) 존재
 - FileTree: 숨김 파일 토글 (hideHidden/setHideHidden/startsWith) 존재
 - NodePropertyPanel: 노드 활성화 토글 (toggleActive/activeToggling/node.active) 존재
 - SceneTreePanel: 비활성 노드 숨기기 (hideInactive/setHideInactive/filterTree) 존재

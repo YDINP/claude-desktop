@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import '../../utils/monaco-setup'
 import { DiffEditor } from '@monaco-editor/react'
 import type * as MonacoType from 'monaco-editor'
@@ -36,6 +36,21 @@ export function DiffPanel() {
   const editorRef = useRef<MonacoType.editor.IStandaloneDiffEditor | null>(null)
   const [diffHistory, setDiffHistory] = useState<DiffPair[]>(loadDiffHistory)
   const [showHistory, setShowHistory] = useState(false)
+  const [diffStats, setDiffStats] = useState<{ added: number; removed: number } | null>(null)
+
+  useEffect(() => {
+    if (leftContent === null || rightContent === null || leftContent === rightContent) {
+      setDiffStats(null)
+      return
+    }
+    const timer = setTimeout(() => {
+      const changes = editorRef.current?.getLineChanges() ?? []
+      const added = changes.reduce((s, c) => s + (c.modifiedEndLineNumber > 0 ? c.modifiedEndLineNumber - c.modifiedStartLineNumber + 1 : 0), 0)
+      const removed = changes.reduce((s, c) => s + (c.originalEndLineNumber > 0 ? c.originalEndLineNumber - c.originalStartLineNumber + 1 : 0), 0)
+      setDiffStats({ added, removed })
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [leftContent, rightContent])
 
   async function handleCompare() {
     if (!leftPath.trim() || !rightPath.trim()) return
@@ -183,6 +198,12 @@ export function DiffPanel() {
         {identical && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12, textAlign: 'center' }}>
             ✅ 파일이 동일합니다
+          </div>
+        )}
+        {diffStats && !identical && (
+          <div style={{ padding: '3px 10px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 10, fontSize: 10, flexShrink: 0 }}>
+            <span style={{ color: '#4caf50' }}>▲ {diffStats.added} 추가</span>
+            <span style={{ color: '#f44336' }}>▼ {diffStats.removed} 삭제</span>
           </div>
         )}
         {leftContent !== null && rightContent !== null && !identical && (

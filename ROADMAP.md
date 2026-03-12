@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 355 완료 — FileTree 숨김 파일 토글, Pass 375)
+> 마지막 업데이트: 2026-03-13 (Round 356 완료 — DiffPanel diff 통계 표시, Pass 376)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 356 | dev | DiffPanel diff 통계 표시 — getLineChanges()로 추가/삭제 라인 수 계산, 통계 바 렌더링 | ✅ |
 | Round 355 | dev | FileTree 숨김 파일 토글 — 헤더 `.` 버튼, hideHidden 상태, `.`으로 시작하는 항목 필터링 | ✅ |
 | Round 354 | dev | NodePropertyPanel 노드 활성화 토글 — ●/○ 버튼, ccSetProperty('active') 직접 호출 | ✅ |
 | Round 353 | dev | SceneTreePanel 비활성 노드 숨기기 — "비활성 N" 배지 버튼으로 토글, filterTree로 즉시 필터 | ✅ |

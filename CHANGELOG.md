@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 356] — 2026-03-13
+### Added
+- DiffPanel: diff 통계 표시 — 비교 후 추가/삭제 라인 수를 `getLineChanges()`로 계산해 "▲ N추가  ▼ N삭제" 표시
+
 ## [Round 355] — 2026-03-13
 ### Added
 - FileTree: 숨김 파일 토글 — 헤더 `.` 버튼으로 `.`으로 시작하는 파일/폴더 표시/숨기기, 기본값 숨김(hideHidden=true)

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 258: R356 신규 기능 ───────────────────────────────
+console.log('\n## 258. 신규 기능 파일 검사 (R356)')
+// DiffPanel diff 통계 (Round 356)
+const dp356Path = join(ROOT, 'src/renderer/src/components/sidebar/DiffPanel.tsx')
+if (existsSync(dp356Path)) {
+  const dp356 = readFileSync(dp356Path, 'utf-8')
+  if (dp356.includes('diffStats') && dp356.includes('getLineChanges') && dp356.includes('added') && dp356.includes('removed')) {
+    log('pass', 'Round356', 'DiffPanel: diff 통계 (diffStats/getLineChanges/added/removed) 존재')
+  } else {
+    log('warning', 'Round356', 'DiffPanel diff 통계 미구현', 'sidebar/DiffPanel.tsx')
+  }
+}
+
 // ── Section 257: R355 신규 기능 ───────────────────────────────
 console.log('\n## 257. 신규 기능 파일 검사 (R355)')
 // FileTree 숨김 파일 토글 (Round 355)
