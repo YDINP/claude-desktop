@@ -275,6 +275,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.key === 'm' || e.key === 'M') setShowMinimap(v => !v)
       if (e.key === 'r' || e.key === 'R') setShowRuler(v => !v)
       if (e.key === 'n' || e.key === 'N') handleCreateNode()
+      // H — 선택 노드 가시성 토글
+      if ((e.key === 'h' || e.key === 'H') && selectedUuid) {
+        const node = nodeMap.get(selectedUuid)
+        if (node) updateNode(selectedUuid, { visible: node.visible === false ? true : false })
+      }
       // Tab / Shift+Tab: 형제 노드 순환 선택
       if (e.key === 'Tab' && selectedUuid) {
         e.preventDefault()
@@ -2702,6 +2707,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Ctrl+]', '앞으로 (z-order +1)'],
               ['Ctrl+[', '뒤로 (z-order -1)'],
               ['Del/Backspace', '선택 노드 삭제'],
+              ['H', '선택 노드 숨기기/보이기 토글'],
+              ['Alt+L', '선택 노드 잠금/해제'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
               <div key={key} style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
@@ -2782,6 +2789,30 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               {ctxNode && (
                 <button style={menuStyle} onClick={() => { handleDuplicate(); close() }}>복제</button>
               )}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  updateNode(ctxUuid!, { visible: ctxNode.visible === false ? true : false })
+                  close()
+                }}>{ctxNode.visible === false ? '👁 보이기' : '👁 숨기기'}</button>
+              )}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  updateNode(ctxUuid!, { locked: !ctxNode.locked })
+                  close()
+                }}>{ctxNode.locked ? '🔓 잠금 해제' : '🔒 잠금'}</button>
+              )}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  setBookmarkedUuids(prev => {
+                    const next = new Set(prev)
+                    if (next.has(ctxUuid!)) next.delete(ctxUuid!)
+                    else next.add(ctxUuid!)
+                    return next
+                  })
+                  close()
+                }}>{bookmarkedUuids.has(ctxUuid!) ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가'}</button>
+              )}
+              <div style={{ height: 1, background: 'var(--border)', margin: '2px 0' }} />
               {ctxNode && (
                 <button style={{ ...menuStyle, color: 'var(--error)' }} onClick={() => {
                   close()

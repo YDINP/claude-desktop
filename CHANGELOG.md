@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 239] — 2026-03-13
+### Added
+- SceneView: H키 가시성 토글 단축키, 컨텍스트 메뉴 확장 (숨기기/보이기·잠금/해제·즐겨찾기), 단축키 도움말 업데이트
+
 ## [Round 238] — 2026-03-13
 ### Improved
 - SceneView: G키 멀티셀렉트 bbox 줌 — 멀티셀렉트 시 선택 노드들의 bounding box에 맞춰 카메라 자동 맞춤

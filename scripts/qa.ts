@@ -2036,6 +2036,24 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 141: R239 신규 기능 ───────────────────────────────
+console.log('\n## 141. 신규 기능 파일 검사 (R239)')
+// SceneView 컨텍스트 메뉴 확장 + H키 (Round 239)
+const svp239Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp239Path)) {
+  const svp239 = readFileSync(svp239Path, 'utf-8')
+  if (svp239.includes("key === 'h'") && svp239.includes('가시성 토글')) {
+    log('pass', 'Round239', 'SceneViewPanel: H키 가시성 토글 단축키 구현 존재')
+  } else {
+    log('warning', 'Round239', 'SceneViewPanel H키 가시성 단축키 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp239.includes('숨기기') && svp239.includes('잠금 해제') && svp239.includes('즐겨찾기 추가')) {
+    log('pass', 'Round239', 'SceneViewPanel: 컨텍스트 메뉴 확장 항목 구현 존재')
+  } else {
+    log('warning', 'Round239', 'SceneViewPanel 컨텍스트 메뉴 미확장', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 140: R238 신규 기능 ───────────────────────────────
 console.log('\n## 140. 신규 기능 파일 검사 (R238)')
 // SceneView 멀티셀렉트 G키 bounding box 줌 (Round 238)
