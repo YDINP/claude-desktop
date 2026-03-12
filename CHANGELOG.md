@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 292] — 2026-03-13
+### Added
+- OutlinePanel: 헤딩 레벨 필터 버튼 (H1/H2/H3) — 클릭 시 해당 레벨만 표시, 재클릭 시 전체 복귀
+
 ## [Round 291] — 2026-03-13
 ### Added
 - BookmarksPanel: 역할 필터 토글 버튼 — 전체/나/Claude 순환, 활성 시 강조 표시

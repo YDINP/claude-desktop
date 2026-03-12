@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 194: R292 신규 기능 ───────────────────────────────
+console.log('\n## 194. 신규 기능 파일 검사 (R292)')
+// OutlinePanel 헤딩 레벨 필터 (Round 292)
+const op292Path = join(ROOT, 'src/renderer/src/components/sidebar/OutlinePanel.tsx')
+if (existsSync(op292Path)) {
+  const op292 = readFileSync(op292Path, 'utf-8')
+  if (op292.includes('levelFilter') && op292.includes('H${lv}') && op292.includes('setLevelFilter')) {
+    log('pass', 'Round292', 'OutlinePanel: 헤딩 레벨 필터 (levelFilter/H1~H3) 존재')
+  } else {
+    log('warning', 'Round292', 'OutlinePanel 헤딩 레벨 필터 미구현', 'sidebar/OutlinePanel.tsx')
+  }
+}
+
 // ── Section 193: R291 신규 기능 ───────────────────────────────
 console.log('\n## 193. 신규 기능 파일 검사 (R291)')
 // BookmarksPanel 역할 필터 (Round 291)

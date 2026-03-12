@@ -36,14 +36,19 @@ interface OutlinePanelProps {
 export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
   const [search, setSearch] = useState('')
   const [activeKey, setActiveKey] = useState<string | null>(null)
+  const [levelFilter, setLevelFilter] = useState<0 | 1 | 2 | 3>(0)
 
   const allItems = useMemo(() => extractOutline(messages), [messages])
 
   const items = useMemo(() => {
-    if (!search.trim()) return allItems
-    const q = search.toLowerCase()
-    return allItems.filter(it => it.text.toLowerCase().includes(q))
-  }, [allItems, search])
+    let list = allItems
+    if (levelFilter !== 0) list = list.filter(it => it.level === levelFilter)
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      list = list.filter(it => it.text.toLowerCase().includes(q))
+    }
+    return list
+  }, [allItems, search, levelFilter])
 
   const indentMap: Record<1 | 2 | 3, number> = { 1: 0, 2: 12, 3: 24 }
   const sizeMap: Record<1 | 2 | 3, number> = { 1: 13, 2: 12, 3: 11 }
@@ -72,6 +77,15 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
         }}>
           {allItems.length}개
         </span>
+        <div style={{ display: 'flex', gap: 2, marginLeft: 'auto' }}>
+          {([1, 2, 3] as const).map(lv => (
+            <button key={lv} onClick={() => setLevelFilter(f => f === lv ? 0 : lv)}
+              title={`H${lv}만 보기`}
+              style={{ padding: '0 4px', fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', background: levelFilter === lv ? 'var(--accent)' : 'none', color: levelFilter === lv ? '#fff' : 'var(--text-muted)' }}>
+              H{lv}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Search */}
