@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T11:44:22.348Z
+> 2026-03-12T11:49:46.829Z
 
 ## Critical
 _없음_
@@ -58,3 +58,5 @@ _없음_
 - MessageBubble alternatives 네비게이션 존재
 - CC 3x extension: color key 지원 존재
 - NodePropertyPanel 색상피커 input 존재
+- SessionList 커스텀 태그 추가 기능 존재
+- SessionList 커스텀 태그 자동완성 + 필터 존재

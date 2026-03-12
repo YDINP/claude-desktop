@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 114 완료 — CC 색상피커 (color swatch 클릭 → native picker + CC extension color 지원) + QA Pass 50)
+> 마지막 업데이트: 2026-03-12 (Round 115 완료 — 세션 커스텀 텍스트 태그 (자동완성 + 필터) + QA Pass 52)
 
 ## 완료된 라운드
 
@@ -61,13 +61,14 @@
 | Round 112 | dev | NodePropertyPanel 슬라이더 PropRow — Opacity(0~255)/Rotation(-180~180) range input + 숫자 입력 연동 (Pass→46) | ✅ |
 | Round 113 | dev | 메시지 재생성 이력 보존 — alternatives[] 저장, saveAlternative/setAltIndex, ◂ N/M ▸ 네비게이션 (Pass→48) | ✅ |
 | Round 114 | dev | CC 색상피커 — ComponentSection color swatch 클릭 시 native color picker, CC 3x extension color key 지원 (Pass→50) | ✅ |
+| Round 115 | dev | 세션 커스텀 텍스트 태그 — allCustomTags 자동완성, handleAddCustomTag, filterCustomTag 필터 칩 (Pass→52) | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 115 | dev | 세션 태그 자동완성 + 태그별 세션 필터 (Sidebar 태그 클릭 필터링) |
-| Round 116 | dev | QA 통합 + 전체 기능 검수 |
+| Round 116 | dev | QA 통합 검수 + CHANGELOG 갱신 (R110~115) |
+| Round 117 | dev | ChatPanel 메시지 편집-재전송 (연필 아이콘 + 수정 후 claudeSend) |
 
 ## 전략 로드맵 (Phase)
 

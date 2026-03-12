@@ -629,6 +629,24 @@ if (existsSync(nodePropPath3)) {
   }
 }
 
+// ── Section 20: R115 신규 기능 ───────────────────────────────
+console.log('\n## 20. 신규 기능 파일 검사 (R115)')
+// 세션 커스텀 텍스트 태그 (Round 115)
+const sessionListPath = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sessionListPath)) {
+  const sl = readFileSync(sessionListPath, 'utf-8')
+  if (sl.includes('allCustomTags') && sl.includes('handleAddCustomTag')) {
+    log('pass', 'Round115', 'SessionList 커스텀 태그 추가 기능 존재')
+  } else {
+    log('warning', 'Round115', 'SessionList 커스텀 태그 미구현', 'sidebar/SessionList.tsx')
+  }
+  if (sl.includes('filterCustomTag') && sl.includes('showTagSuggest')) {
+    log('pass', 'Round115', 'SessionList 커스텀 태그 자동완성 + 필터 존재')
+  } else {
+    log('warning', 'Round115', 'SessionList 커스텀 태그 필터/자동완성 미구현', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -115,6 +115,9 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [templateOpen, setTemplateOpen] = useState(false)
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  const [customTagInput, setCustomTagInput] = useState('')
+  const [showTagSuggest, setShowTagSuggest] = useState(false)
+  const [filterCustomTag, setFilterCustomTag] = useState<string | null>(null)
 
   const refreshTemplates = useCallback(async () => {
     try {
@@ -246,6 +249,19 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     setTagPickerPos(null)
   }, [])
 
+  const handleAddCustomTag = useCallback(async (sessionId: string, tag: string) => {
+    const trimmed = tag.trim().toLowerCase()
+    if (!trimmed || trimmed.length > 20) return
+    const session = sessions.find(s => s.id === sessionId)
+    if (!session) return
+    const existing = session.tags ?? []
+    if (existing.includes(trimmed)) return
+    await window.api.sessionTag(sessionId, [...existing, trimmed])
+    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, tags: [...(s.tags ?? []), trimmed] } : s))
+    setCustomTagInput('')
+    setShowTagSuggest(false)
+  }, [sessions])
+
   const openTagPicker = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -309,6 +325,20 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     setSessions(prev => prev.map(s => s.id === id ? { ...s, collection: collection ?? undefined } : s))
   }, [])
 
+  // 모든 세션에서 커스텀 태그 수집 (자동완성용)
+  const allCustomTags = useMemo(() => {
+    const freq: Record<string, number> = {}
+    for (const s of sessions) {
+      for (const t of (s.tags ?? []).filter(t => !TAG_COLORS.includes(t as TagColor))) {
+        freq[t] = (freq[t] ?? 0) + 1
+      }
+    }
+    return Object.entries(freq)
+      .sort((a, b) => b[1] - a[1])
+      .map(([t]) => t)
+      .slice(0, 20)
+  }, [sessions])
+
   // Apply search filter (must be before hooks)
   const filtered = useMemo(() => {
     let result = search.trim()
@@ -320,8 +350,11 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     if (filterTag) {
       result = result.filter(s => s.tags && s.tags.includes(filterTag))
     }
+    if (filterCustomTag) {
+      result = result.filter(s => s.tags?.includes(filterCustomTag))
+    }
     return result
-  }, [sessions, search, filterTag])
+  }, [sessions, search, filterTag, filterCustomTag])
 
   const ARCHIVE_DAYS = 30
 
@@ -397,7 +430,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const renderSessionItem = (s: SessionMeta, depth: number = 0) => {
     const isActive = s.id === activeSessionId
     const isSelected = selectedIds.has(s.id)
-    const sessionTags = (s.tags ?? []).slice(0, 3)
+    const sessionTags = (s.tags ?? []).filter(t => TAG_COLORS.includes(t as TagColor)).slice(0, 3)
+    const sessionCustomTags = (s.tags ?? []).filter(t => !TAG_COLORS.includes(t as TagColor)).slice(0, 2)
     return (
       <div key={s.id}>
       <div
@@ -523,6 +557,19 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
                   {sessionTags.map((t, i) => <TagDot key={i} color={t} />)}
                 </span>
               )}
+              {sessionCustomTags.map(t => (
+                <span
+                  key={t}
+                  onClick={e => { e.stopPropagation(); setFilterCustomTag(t) }}
+                  style={{
+                    background: 'rgba(82,139,255,0.15)', color: '#7ca0ff',
+                    borderRadius: 8, padding: '0px 5px', fontSize: 9, cursor: 'pointer',
+                    border: '1px solid rgba(82,139,255,0.3)', flexShrink: 0,
+                  }}
+                >
+                  {t}
+                </span>
+              ))}
               {s.forkedFrom && (
                 <span style={{ fontSize: 9, color: '#0098ff', flexShrink: 0, letterSpacing: 0 }}>⎇</span>
               )}
@@ -844,6 +891,20 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             clear
           </div>
         )}
+        {filterCustomTag && (
+          <span
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 3,
+              background: 'rgba(82,139,255,0.15)', color: '#7ca0ff',
+              borderRadius: 10, padding: '1px 8px', fontSize: 10,
+              border: '1px solid rgba(82,139,255,0.3)',
+              cursor: 'pointer',
+            }}
+            onClick={() => setFilterCustomTag(null)}
+          >
+            #{filterCustomTag} ×
+          </span>
+        )}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 2, alignItems: 'center' }}>
           <button
             onClick={() => { setSelectionMode(p => !p); setSelectedIds(new Set()) }}
@@ -992,6 +1053,11 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
       {filtered.length === 0 && filterTag && !search && (
         <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
           {`'${filterTag}' \uD0DC\uADF8\uAC00 \uC788\uB294 \uC138\uC158\uC774 \uC5C6\uC2B5\uB2C8\uB2E4`}
+        </div>
+      )}
+      {filtered.length === 0 && filterCustomTag && !search && !filterTag && (
+        <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
+          {`'#${filterCustomTag}' 태그가 있는 세션이 없습니다`}
         </div>
       )}
       {/* Bulk delete bar */}
@@ -1234,43 +1300,121 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             borderRadius: 6,
             padding: '6px 8px',
             display: 'flex',
+            flexDirection: 'column',
             gap: 4,
             zIndex: 9999,
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            minWidth: 160,
           }}
         >
-          <div
-            onClick={() => handleSetTag(tagPickerFor, [])}
-            style={{
-              width: 16,
-              height: 16,
-              borderRadius: '50%',
-              background: 'var(--bg-hover)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 10,
-              color: 'var(--text-muted)',
-            }}
-            title="Clear tags"
-          >
-            {'\u00D7'}
-          </div>
-          {TAG_COLORS.map(c => (
+          {/* 색상 dots */}
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             <div
-              key={c}
-              onClick={() => handleSetTag(tagPickerFor, [c])}
+              onClick={() => handleSetTag(tagPickerFor, [])}
               style={{
                 width: 16,
                 height: 16,
                 borderRadius: '50%',
-                background: TAG_CSS[c],
+                background: 'var(--bg-hover)',
                 cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 10,
+                color: 'var(--text-muted)',
               }}
-              title={c}
+              title="Clear tags"
+            >
+              {'\u00D7'}
+            </div>
+            {TAG_COLORS.map(c => (
+              <div
+                key={c}
+                onClick={() => {
+                  const session = sessions.find(s => s.id === tagPickerFor)
+                  const existing = (session?.tags ?? []).filter(t => !TAG_COLORS.includes(t as TagColor))
+                  handleSetTag(tagPickerFor, [c, ...existing])
+                }}
+                style={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: '50%',
+                  background: TAG_CSS[c],
+                  cursor: 'pointer',
+                  border: sessions.find(s => s.id === tagPickerFor)?.tags?.includes(c)
+                    ? '2px solid var(--text-primary)' : '2px solid transparent',
+                  boxSizing: 'border-box',
+                }}
+                title={c}
+              />
+            ))}
+          </div>
+          {/* 커스텀 태그 입력 */}
+          <div style={{ marginTop: 2, position: 'relative' }}>
+            <input
+              value={customTagInput}
+              onChange={e => { setCustomTagInput(e.target.value); setShowTagSuggest(e.target.value.length > 0) }}
+              onKeyDown={e => {
+                e.stopPropagation()
+                if (e.key === 'Enter' && customTagInput.trim()) {
+                  handleAddCustomTag(tagPickerFor!, customTagInput)
+                }
+                if (e.key === 'Escape') { setCustomTagInput(''); setShowTagSuggest(false) }
+              }}
+              onClick={e => e.stopPropagation()}
+              placeholder="태그 추가..."
+              style={{
+                width: '100%', background: 'var(--bg-input)', color: 'var(--text-primary)',
+                border: '1px solid var(--border)', borderRadius: 4, padding: '3px 6px', fontSize: 10,
+                boxSizing: 'border-box', outline: 'none',
+              }}
             />
-          ))}
+            {showTagSuggest && allCustomTags.filter(t => t.includes(customTagInput.toLowerCase())).length > 0 && (
+              <div style={{
+                position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
+                background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, marginTop: 2,
+                maxHeight: 100, overflowY: 'auto',
+              }}>
+                {allCustomTags.filter(t => t.includes(customTagInput.toLowerCase())).slice(0, 6).map(t => (
+                  <div
+                    key={t}
+                    onClick={() => handleAddCustomTag(tagPickerFor!, t)}
+                    style={{ padding: '3px 8px', fontSize: 10, cursor: 'pointer', color: 'var(--text-primary)' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '')}
+                  >
+                    {t}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          {/* 현재 커스텀 태그 목록 */}
+          {(sessions.find(s => s.id === tagPickerFor)?.tags ?? []).filter(t => !TAG_COLORS.includes(t as TagColor)).length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 2 }}>
+              {(sessions.find(s => s.id === tagPickerFor)?.tags ?? []).filter(t => !TAG_COLORS.includes(t as TagColor)).map(t => (
+                <span
+                  key={t}
+                  style={{
+                    background: 'rgba(82,139,255,0.15)', color: '#7ca0ff',
+                    borderRadius: 8, padding: '1px 6px', fontSize: 9,
+                    border: '1px solid rgba(82,139,255,0.3)',
+                    cursor: 'pointer',
+                    display: 'inline-flex', alignItems: 'center', gap: 3,
+                  }}
+                  onClick={() => {
+                    const session = sessions.find(s => s.id === tagPickerFor)
+                    if (!session) return
+                    const newTags = (session.tags ?? []).filter(x => x !== t)
+                    handleSetTag(tagPickerFor!, newTags)
+                  }}
+                  title="클릭하여 제거"
+                >
+                  {t} ×
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

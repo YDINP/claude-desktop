@@ -1,15 +1,25 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 114 완료)
+> 마지막 업데이트: 2026-03-12 (Round 115 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 114 (CC 색상피커 + QA Pass 50)
+- 마지막 커밋: Round 115 (커스텀 텍스트 태그 + QA Pass 52)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 50
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 52
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 114 완료 항목 (최근 세션)
+## Round 115 완료 항목 (최근 세션)
+
+### Round 115 — 세션 커스텀 텍스트 태그 (자동완성 + 필터)
+- `SessionList.tsx`: `allCustomTags` useMemo (전체 세션 커스텀 태그 빈도 수집), `customTagInput`/`showTagSuggest`/`filterCustomTag` state 추가
+- `handleAddCustomTag` — 중복/길이 체크 후 기존 tags 배열에 커스텀 태그 추가
+- 태그 피커 팝업: 커스텀 태그 텍스트 입력 + 자동완성 드롭다운 (이전 태그 제안)
+- 세션 아이템: 커스텀 태그 칩 표시 (클릭 시 filterCustomTag 활성화)
+- 태그 필터 바: `filterCustomTag` 활성 시 `#태그명 ×` 칩 표시 (클릭 시 해제)
+- `scripts/qa.ts`: Section 20 추가 (allCustomTags, filterCustomTag 체크, Pass 50→52)
+
+## Round 114 완료 항목 (이전 세션)
 
 ### Round 114 — CC Extension 색상피커
 - `extensions/cc-ws-extension-3x/main.js`: `POST /node/:uuid/property`에 `color` 케이스 추가 — `cc.Color` 타입으로 `set-property` 호출 (r/g/b/a 지원)
