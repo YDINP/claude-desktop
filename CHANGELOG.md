@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 378] — 2026-03-13
+### Added
+- DiffPanel: 언어 오버라이드 선택 — langOverride 상태, "자동" + 10개 언어 드롭다운
+
 ## [Round 377] — 2026-03-13
 ### Added
 - BookmarksPanel: 전체 북마크 클립보드 복사 버튼 — 📋 버튼, copiedAll 상태, 필터된 북마크 마크다운 복사
