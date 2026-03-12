@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 314] — 2026-03-13
+### Added
+- StatsPanel: 히트맵 헤더에 활동 일수 + 활동률 표시 — `N일 · X%` 형태로 활동 밀도 시각화
+
 ## [Round 313] — 2026-03-13
 ### Added
 - FileTree: 전체 접기 버튼 — ⊖ 클릭으로 expandedDirs + childrenMap 초기화, 펼친 폴더 있을 때만 표시

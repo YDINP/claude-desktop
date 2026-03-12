@@ -332,7 +332,14 @@ export function StatsPanel() {
 
       {/* 활동 히트맵 */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>활동 히트맵 (최근 12주)</div>
+        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>활동 히트맵 (최근 12주)</span>
+          {totalDays > 0 && (
+            <span style={{ fontWeight: 400, color: 'var(--accent)' }}>
+              {totalDays}일 · {(totalDays / heatmapDays.length * 100).toFixed(0)}%
+            </span>
+          )}
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 2 }}>
           {Array.from({ length: 12 }, (_, weekIdx) => (
             <div key={weekIdx} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

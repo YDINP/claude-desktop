@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 216: R314 신규 기능 ───────────────────────────────
+console.log('\n## 216. 신규 기능 파일 검사 (R314)')
+// StatsPanel 히트맵 활동 일수 표시 (Round 314)
+const sp314Path = join(ROOT, 'src/renderer/src/components/sidebar/StatsPanel.tsx')
+if (existsSync(sp314Path)) {
+  const sp314 = readFileSync(sp314Path, 'utf-8')
+  if (sp314.includes('heatmapDays.length') && sp314.includes('totalDays') && sp314.includes('활동 히트맵')) {
+    log('pass', 'Round314', 'StatsPanel: 히트맵 활동 일수/% 표시 (totalDays/heatmapDays.length) 존재')
+  } else {
+    log('warning', 'Round314', 'StatsPanel 활동 일수 미구현', 'sidebar/StatsPanel.tsx')
+  }
+}
+
 // ── Section 215: R313 신규 기능 ───────────────────────────────
 console.log('\n## 215. 신규 기능 파일 검사 (R313)')
 // FileTree 전체 접기 버튼 (Round 313)
