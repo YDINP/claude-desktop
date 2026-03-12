@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 
 interface McpServer {
   name: string
@@ -38,6 +38,9 @@ export function ConnectionPanel() {
   const [servers, setServers] = useState<McpServer[]>([])
   const [configFile, setConfigFile] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [autoPing, setAutoPing] = useState(false)
+  const autoPingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pingAllRef = useRef<() => void>(() => {})
 
   const loadServers = useCallback(async () => {
     setLoading(true)
@@ -69,6 +72,19 @@ export function ConnectionPanel() {
       }
     }))
   }, [servers])
+
+  // Keep pingAllRef updated
+  useEffect(() => { pingAllRef.current = pingAll }, [pingAll])
+
+  // Auto-ping interval
+  useEffect(() => {
+    if (autoPing && servers.length > 0) {
+      autoPingRef.current = setInterval(() => pingAllRef.current(), 30000)
+    } else {
+      if (autoPingRef.current) { clearInterval(autoPingRef.current); autoPingRef.current = null }
+    }
+    return () => { if (autoPingRef.current) clearInterval(autoPingRef.current) }
+  }, [autoPing, servers.length])
 
   const pingServer = useCallback(async (index: number) => {
     const server = servers[index]
@@ -127,6 +143,21 @@ export function ConnectionPanel() {
           })()}
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
+          {servers.length > 0 && (
+            <button
+              onClick={() => setAutoPing(v => !v)}
+              title={autoPing ? '자동 핑 끄기 (30초 간격)' : '자동 핑 켜기 (30초 간격)'}
+              style={{
+                fontSize: 11, padding: '2px 6px',
+                background: autoPing ? 'var(--accent)' : 'var(--bg-input)',
+                color: autoPing ? '#fff' : 'var(--text-muted)',
+                border: `1px solid ${autoPing ? 'var(--accent)' : 'var(--border)'}`,
+                borderRadius: 4, cursor: 'pointer',
+              }}
+            >
+              {autoPing ? '⟳ ON' : '⟳'}
+            </button>
+          )}
           {servers.length > 0 && (
             <button
               onClick={pingAll}

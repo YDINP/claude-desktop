@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 342] — 2026-03-13
+### Added
+- ConnectionPanel: 자동 핑 토글 버튼 — ⟳ ON/OFF 전환, 활성 시 30초 간격 자동 전체 핑
+
 ## [Round 341] — 2026-03-13
 ### Added
 - CocosPanel: 연결 유지 시간 표시 — 연결됨 배지에 uptime 표시 (`연결됨 5m`), 10초 갱신

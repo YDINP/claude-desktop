@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 244: R342 신규 기능 ───────────────────────────────
+console.log('\n## 244. 신규 기능 파일 검사 (R342)')
+// ConnectionPanel 자동 핑 토글 (Round 342)
+const cn342Path = join(ROOT, 'src/renderer/src/components/sidebar/ConnectionPanel.tsx')
+if (existsSync(cn342Path)) {
+  const cn342 = readFileSync(cn342Path, 'utf-8')
+  if (cn342.includes('autoPing') && cn342.includes('setAutoPing') && cn342.includes('30000')) {
+    log('pass', 'Round342', 'ConnectionPanel: 자동 핑 토글 (autoPing/setAutoPing/30000) 존재')
+  } else {
+    log('warning', 'Round342', 'ConnectionPanel 자동 핑 미구현', 'sidebar/ConnectionPanel.tsx')
+  }
+}
+
 // ── Section 243: R341 신규 기능 ───────────────────────────────
 console.log('\n## 243. 신규 기능 파일 검사 (R341)')
 // CocosPanel 연결 유지 시간 표시 (Round 341)
