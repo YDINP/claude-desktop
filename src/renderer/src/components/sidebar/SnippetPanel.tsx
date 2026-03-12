@@ -412,7 +412,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
                 color: catFilter === cat ? '#fff' : 'var(--text-muted)',
               }}
             >
-              {cat}
+              {cat} ({snippets.filter(s => (s.category ?? '기타') === cat).length})
             </button>
           ))}
         </div>

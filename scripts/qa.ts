@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 271: R369 신규 기능 ───────────────────────────────
+console.log('\n## 271. 신규 기능 파일 검사 (R369)')
+// SnippetPanel 카테고리 칩 스니펫 수 (Round 369)
+const sp369Path = join(ROOT, 'src/renderer/src/components/sidebar/SnippetPanel.tsx')
+if (existsSync(sp369Path)) {
+  const sp369 = readFileSync(sp369Path, 'utf-8')
+  if (sp369.includes("'기타') === cat).length}")) {
+    log('pass', 'Round369', 'SnippetPanel: 카테고리 필터 칩 스니펫 수 표시 존재')
+  } else {
+    log('warning', 'Round369', 'SnippetPanel 카테고리 칩 스니펫 수 미구현', 'sidebar/SnippetPanel.tsx')
+  }
+}
+
 // ── Section 270: R368 신규 기능 ───────────────────────────────
 console.log('\n## 270. 신규 기능 파일 검사 (R368)')
 // GlobalSearchPanel 검색 기록 삭제 (Round 368)

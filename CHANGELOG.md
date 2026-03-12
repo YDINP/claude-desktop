@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 369] — 2026-03-13
+### Added
+- SnippetPanel: 카테고리 필터 칩에 스니펫 수 표시 — 각 카테고리 버튼에 `(N)` 카운트 배지
+
 ## [Round 368] — 2026-03-13
 ### Added
 - GlobalSearchPanel: 검색 기록 삭제 — 항목별 × 버튼으로 개별 삭제, 헤더 "전체 삭제" 버튼
