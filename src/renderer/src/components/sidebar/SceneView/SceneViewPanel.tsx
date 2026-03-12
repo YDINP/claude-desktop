@@ -18,7 +18,7 @@ const SNAP_GRID = 4
 
 export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) {
   // ── 씬 데이터 ──────────────────────────────────────────────
-  const { nodeMap, rootUuid, loading, refresh, updateNode } = useSceneSync(connected, port)
+  const { nodeMap, rootUuid, loading, refresh, refreshNode, updateNode } = useSceneSync(connected, port)
 
   // ── 뷰 상태 ────────────────────────────────────────────────
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 1 })
@@ -112,18 +112,28 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return () => window.removeEventListener('keydown', handleKey)
   }, [handleFit, updateNode, handleCopy, handlePaste])
 
-  // ── CC 이벤트: 외부 선택 동기화 ───────────────────────────
+  // ── CC 이벤트: 외부 선택 동기화 + 노드 최신화 ───────────────
   useEffect(() => {
     const unsub = window.api.onCCEvent?.((event) => {
       if (event.type === 'node:select' && event.uuids?.[0]) {
-        setSelectedUuid(event.uuids[0])
+        const uuid = event.uuids[0]
+        setSelectedUuid(uuid)
+        // CC 에디터에서 선택 시 컴포넌트 props 최신화
+        refreshNode(uuid)
       }
       if (event.type === 'node:deselect') {
         setSelectedUuid(null)
       }
     })
     return () => unsub?.()
-  }, [])
+  }, [refreshNode])
+
+  // ── 선택 노드 변경 시 자동 갱신 ────────────────────────────
+  useEffect(() => {
+    if (!selectedUuid) return
+    const t = setTimeout(() => refreshNode(selectedUuid), 200)
+    return () => clearTimeout(t)
+  }, [selectedUuid, refreshNode])
 
   // ── SVG 좌표 변환 헬퍼 ────────────────────────────────────
   const getSvgCoords = useCallback((e: React.MouseEvent | MouseEvent): { x: number; y: number } => {

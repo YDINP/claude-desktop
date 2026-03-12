@@ -1,5 +1,11 @@
 # Changelog — Claude Desktop
 
+## [Round 125] — 2026-03-12
+### Added
+- useSceneSync: refreshNode(uuid) — ccGetNode로 단건 노드 최신화 (opacity/color/components)
+- SceneViewPanel: node:select 이벤트 시 refreshNode() 자동 호출 (CC 에디터 선택 동기화)
+- SceneViewPanel: selectedUuid 변경 시 200ms debounce refreshNode (UI 선택 시 props 최신화)
+
 ## [Round 124] — 2026-03-12
 ### Added
 - SceneView types.ts: ResizeState 인터페이스 추가 (uuid, handle, startSvgX/Y, startWidth/Height, startNodeX/Y)

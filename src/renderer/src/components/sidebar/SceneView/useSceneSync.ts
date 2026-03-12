@@ -8,6 +8,7 @@ interface UseSceneSyncReturn {
   rootUuid: string | null
   loading: boolean
   refresh: () => Promise<void>
+  refreshNode: (uuid: string) => Promise<void>
   updateNode: (uuid: string, partial: Partial<SceneNode>) => void
 }
 
@@ -31,6 +32,29 @@ export function useSceneSync(connected: boolean, port = 9091): UseSceneSyncRetur
       console.error('[useSceneSync] refresh failed:', e)
     } finally {
       setLoading(false)
+    }
+  }, [connected, port])
+
+  // 선택 노드 단건 갱신 — 컴포넌트 props 최신화
+  const refreshNode = useCallback(async (uuid: string) => {
+    if (!connected) return
+    try {
+      const raw = await window.api.ccGetNode?.(port, uuid)
+      if (!raw) return
+      setNodeMap(prev => {
+        const next = new Map(prev)
+        const existing = next.get(uuid)
+        if (!existing) return prev
+        next.set(uuid, {
+          ...existing,
+          opacity: raw.opacity ?? existing.opacity,
+          color: raw.color ?? existing.color,
+          components: (raw.components ?? existing.components) as SceneNode['components'],
+        })
+        return next
+      })
+    } catch (e) {
+      console.error('[useSceneSync] refreshNode failed:', e)
     }
   }, [connected, port])
 
@@ -64,5 +88,5 @@ export function useSceneSync(connected: boolean, port = 9091): UseSceneSyncRetur
     }
   }, [connected, refresh])
 
-  return { nodeMap, rootUuid, loading, refresh, updateNode }
+  return { nodeMap, rootUuid, loading, refresh, refreshNode, updateNode }
 }

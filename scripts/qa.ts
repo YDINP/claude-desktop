@@ -803,6 +803,28 @@ if (existsSync(sceneViewPanelPath6)) {
   }
 }
 
+// ── Section 28: R125 신규 기능 ───────────────────────────────
+console.log('\n## 28. 신규 기능 파일 검사 (R125)')
+// NodePropertyPanel 씬 동기화 (Round 125)
+const useSceneSyncPath = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/useSceneSync.ts')
+if (existsSync(useSceneSyncPath)) {
+  const uss = readFileSync(useSceneSyncPath, 'utf-8')
+  if (uss.includes('refreshNode') && uss.includes('ccGetNode')) {
+    log('pass', 'Round125', 'useSceneSync: refreshNode() + ccGetNode 존재')
+  } else {
+    log('warning', 'Round125', 'useSceneSync refreshNode 미구현', 'SceneView/useSceneSync.ts')
+  }
+}
+const sceneViewPanelPath7 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath7)) {
+  const svp7 = readFileSync(sceneViewPanelPath7, 'utf-8')
+  if (svp7.includes('refreshNode') && svp7.includes('selectedUuid, refreshNode')) {
+    log('pass', 'Round125', 'SceneViewPanel: selectedUuid 변경 시 refreshNode 자동 호출 존재')
+  } else {
+    log('warning', 'Round125', 'SceneViewPanel refreshNode 연동 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
