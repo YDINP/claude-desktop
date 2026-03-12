@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 123: R221 신규 기능 ───────────────────────────────
+console.log('\n## 123. 신규 기능 파일 검사 (R221)')
+// SceneView LOD 렌더링 (Round 221)
+const nr221Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr221Path)) {
+  const nr221 = readFileSync(nr221Path, 'utf-8')
+  if (nr221.includes('lod') && nr221.includes('LOD') && nr221.includes('view.zoom < 0.2')) {
+    log('pass', 'Round221', 'NodeRenderer: LOD 줌 레벨별 디테일 렌더링 존재')
+  } else {
+    log('warning', 'Round221', 'NodeRenderer LOD 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
 // ── Section 122: R220 신규 기능 ───────────────────────────────
 console.log('\n## 122. 신규 기능 파일 검사 (R220)')
 // SceneView Ctrl+F 검색 하이라이트 (Round 220)

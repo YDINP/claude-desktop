@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 220 완료 — SceneView Ctrl+F 검색 하이라이트, Pass 215)
+> 마지막 업데이트: 2026-03-13 (Round 221 완료 — SceneView LOD 렌더링, Pass 216)
 
 ## 완료된 라운드
 
@@ -172,6 +172,7 @@
 | Round 218 | dev | SceneView Cocos에 적용 버튼 — Inspector에서 노드 위치/크기 Cocos Creator로 전송 | ✅ |
 | Round 219 | dev | SceneView 하단 상태바 — 도구/줌/Snap/선택수, Space 패닝 힌트 | ✅ |
 | Round 220 | dev | SceneView Ctrl+F 검색 하이라이트 — 매칭 노드 황색 점선 링, Esc 닫기 | ✅ |
+| Round 221 | dev | SceneView LOD 렌더링 — 줌 레벨별 라벨/fill 숨김, 극소 노드 스킵 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

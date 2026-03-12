@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 221] — 2026-03-13
+### Added
+- SceneView: LOD 렌더링 — 줌 레벨에 따라 라벨/fill 숨김, 매우 작은 노드 스킵으로 성능 개선
+
 ## [Round 220] — 2026-03-13
 ### Added
 - SceneView: Ctrl+F 씬 검색 + 하이라이트 — 매칭 노드에 황색 점선 링 표시, Esc로 닫기

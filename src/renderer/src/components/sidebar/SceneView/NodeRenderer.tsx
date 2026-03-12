@@ -61,6 +61,13 @@ export const NodeRenderer = memo(function NodeRenderer({
 
   const opacity = node.visible === false ? 0.15 : node.active ? (node.opacity / 255) : 0.3
 
+  // LOD: 줌 레벨에 따라 렌더링 디테일 단계
+  // lod=0: 전체, lod=1: 라벨/아이콘 숨김, lod=2: fill 없음 (테두리만)
+  const lod = view.zoom < 0.2 ? 2 : view.zoom < 0.4 ? 1 : 0
+
+  // 화면 픽셀 크기가 2px 미만인 노드는 완전히 스킵
+  if (lod === 2 && pw * view.zoom < 2 && ph * view.zoom < 2 && !selected && !hovered) return null
+
   // 테두리 색상 결정
   const strokeColor = selected
     ? 'var(--accent)'
@@ -89,7 +96,7 @@ export const NodeRenderer = memo(function NodeRenderer({
         y={ry}
         width={pw}
         height={ph}
-        fill={node.labelColor ? `${node.labelColor}33` : 'rgba(255, 255, 255, 0.04)'}
+        fill={lod >= 2 ? 'none' : node.labelColor ? `${node.labelColor}33` : 'rgba(255, 255, 255, 0.04)'}
         stroke={node.labelColor ?? strokeColor}
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDash}
@@ -112,8 +119,8 @@ export const NodeRenderer = memo(function NodeRenderer({
         />
       )}
 
-      {/* 라벨 */}
-      {showLabel && (pw > 20 && ph > 12) && (
+      {/* 라벨 (LOD: zoom < 0.4 시 숨김) */}
+      {lod === 0 && showLabel && (pw > 20 && ph > 12) && (
         <text
           x={rx + 4}
           y={ry + 11}
