@@ -2036,6 +2036,21 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 233: R331 신규 기능 ───────────────────────────────
+console.log('\n## 233. 신규 기능 파일 검사 (R331)')
+// OutlinePanel H레벨 카운트 표시 (Round 331)
+const op331Path = join(ROOT, 'src/renderer/src/components/sidebar/OutlinePanel.tsx')
+if (existsSync(op331Path)) {
+  const op331 = readFileSync(op331Path, 'utf-8')
+  if (op331.includes('i.level === lv') && op331.includes('H${lv}(${cnt})') === false && op331.includes('cnt})')  && op331.includes('cnt === 0')) {
+    log('pass', 'Round331', 'OutlinePanel: H레벨 카운트 표시 (cnt/H1(N)/0개 숨김) 존재')
+  } else if (op331.includes('H${lv}') && op331.includes('cnt')) {
+    log('pass', 'Round331', 'OutlinePanel: H레벨 카운트 표시 (cnt/H1(N)/0개 숨김) 존재')
+  } else {
+    log('warning', 'Round331', 'OutlinePanel 레벨 카운트 미구현', 'sidebar/OutlinePanel.tsx')
+  }
+}
+
 // ── Section 232: R330 신규 기능 ───────────────────────────────
 console.log('\n## 232. 신규 기능 파일 검사 (R330)')
 // GlobalSearchPanel 결과 날짜순 정렬 (Round 330)

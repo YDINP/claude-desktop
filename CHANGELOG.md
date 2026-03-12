@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 331] — 2026-03-13
+### Added
+- OutlinePanel: H1/H2/H3 레벨 필터 버튼에 항목 수 표시 (`H1(3)`) — 0개 레벨 버튼 자동 숨김
+
 ## [Round 330] — 2026-03-13
 ### Added
 - GlobalSearchPanel: 검색 결과 날짜순/관련성순 정렬 토글 버튼 (📅/⭐) — updatedAt 기준 최신순

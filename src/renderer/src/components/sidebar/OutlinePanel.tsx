@@ -94,13 +94,17 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
               style={{ padding: '0 5px', fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', background: copied ? 'var(--accent)' : 'none', color: copied ? '#fff' : 'var(--text-muted)' }}
             >{copied ? '✓' : '📋'}</button>
           )}
-          {([1, 2, 3] as const).map(lv => (
-            <button key={lv} onClick={() => setLevelFilter(f => f === lv ? 0 : lv)}
-              title={`H${lv}만 보기`}
-              style={{ padding: '0 4px', fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', background: levelFilter === lv ? 'var(--accent)' : 'none', color: levelFilter === lv ? '#fff' : 'var(--text-muted)' }}>
-              H{lv}
-            </button>
-          ))}
+          {([1, 2, 3] as const).map(lv => {
+            const cnt = allItems.filter(i => i.level === lv).length
+            if (cnt === 0) return null
+            return (
+              <button key={lv} onClick={() => setLevelFilter(f => f === lv ? 0 : lv)}
+                title={`H${lv}만 보기 (${cnt}개)`}
+                style={{ padding: '0 4px', fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', background: levelFilter === lv ? 'var(--accent)' : 'none', color: levelFilter === lv ? '#fff' : 'var(--text-muted)' }}>
+                H{lv}({cnt})
+              </button>
+            )
+          })}
         </div>
       </div>
 

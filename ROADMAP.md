@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 330 완료 — GlobalSearchPanel 날짜순 정렬 토글, Pass 350)
+> 마지막 업데이트: 2026-03-13 (Round 331 완료 — OutlinePanel H레벨 카운트 표시, Pass 351)
 
 ## 완료된 라운드
 
@@ -215,6 +215,7 @@
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
 | Round 330 | dev | GlobalSearchPanel 날짜순 정렬 토글 — 📅/⭐ 버튼으로 관련성/날짜순 전환 | ✅ |
+| Round 331 | dev | OutlinePanel H레벨 카운트 표시 — H1(N) 형식, 0개 레벨 버튼 자동 숨김 | ✅ |
 | Round 329 | dev | NotesPanel 노트 목록 글자 수 — content.length/1000 기반 N자/N.Nk 표시 | ✅ |
 | Round 328 | dev | CalendarPanel 다음 이벤트 미리보기 — 날짜 미선택 시 오늘 이후 이벤트 3개 표시 | ✅ |
 | Round 327 | dev | SceneTreePanel 비활성 노드 수 — active:false 재귀 카운트, 헤더 빨간 텍스트 | ✅ |
