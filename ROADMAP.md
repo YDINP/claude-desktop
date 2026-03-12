@@ -34,7 +34,6 @@
 |--------|--------|-----------|
 
 | Round 81 | main | **AI 워크플로우 고도화** — Subagent 실행 시각화(AgentPanel 리빌드), Prompt 체이닝 UI, 작업 히스토리 저장 |
-| Round 81 | main | **AI 워크플로우 고도화** — Subagent 실행 시각화(AgentPanel 리빌드), Prompt 체이닝 UI, 작업 히스토리 저장 |
 | Round 82 | main | **QA + Phase 3 마무리** — Round 78~82 통합 QA, CSS 모듈 마이그레이션, 성능 벤치마크, 릴리스 준비 |
 
 ## 전략 로드맵 (Phase)

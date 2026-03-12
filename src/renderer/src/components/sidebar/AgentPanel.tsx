@@ -1,4 +1,16 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, lazy, Suspense, Component } from 'react'
+import type { ReactNode } from 'react'
+import { saveRun, loadRuns } from '../../utils/work-history'
+import type { WorkRun } from '../../utils/work-history'
+
+// Lazy load to avoid circular deps
+const PromptChainPanel = lazy(() =>
+  import('./PromptChainPanel').then(m => ({ default: m.PromptChainPanel }))
+)
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type AgentTab = 'tasks' | 'chains' | 'history'
 
 type AgentTask = {
   id: string
@@ -10,6 +22,15 @@ type AgentTask = {
   status: 'idle' | 'running' | 'done' | 'error'
   enabled: boolean
 }
+
+type WorkStep = {
+  label: string
+  output?: string
+  elapsed?: number
+  status: 'running' | 'done' | 'error'
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const STORAGE_KEY = 'agent-tasks'
 
@@ -34,6 +55,8 @@ const SCHEDULE_LABELS: Record<AgentTask['schedule'], string> = {
   daily: '매일',
 }
 
+// ─── Storage ──────────────────────────────────────────────────────────────────
+
 function loadTasks(): AgentTask[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -47,6 +70,8 @@ function saveTasks(tasks: AgentTask[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks))
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function relativeTime(ts?: number): string {
   if (!ts) return '없음'
   const diff = Date.now() - ts
@@ -58,12 +83,145 @@ function relativeTime(ts?: number): string {
   return `${Math.floor(hours / 24)}일 전`
 }
 
+// ─── Error Boundary ───────────────────────────────────────────────────────────
+
+type EBState = { hasError: boolean }
+class ChainErrorBoundary extends Component<{ children: ReactNode }, EBState> {
+  state: EBState = { hasError: false }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 16, fontSize: 12, color: '#f87171', textAlign: 'center' }}>
+          체이닝 패널 로딩 실패
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+// ─── History Entry ────────────────────────────────────────────────────────────
+
+function HistoryEntry({ run }: { run: WorkRun }) {
+  const duration = run.endTime ? `${((run.endTime - run.startTime) / 1000).toFixed(1)}s` : '—'
+  const date = new Date(run.startTime).toLocaleString('ko-KR', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  return (
+    <div style={{ borderBottom: '1px solid var(--border)', padding: '6px 4px' }}>
+      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+        <span
+          style={{
+            fontSize: 11,
+            color: run.success ? '#4ade80' : '#f87171',
+            flexShrink: 0,
+          }}
+        >
+          {run.success ? '✓' : '✗'}
+        </span>
+        <span
+          style={{
+            flex: 1,
+            fontSize: 12,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {run.taskName}
+        </span>
+        <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>
+          {duration}
+        </span>
+      </div>
+      <div style={{ fontSize: 10, color: 'var(--text-muted)', paddingLeft: 15 }}>{date}</div>
+      {run.error && (
+        <div style={{ fontSize: 10, color: '#f87171', paddingLeft: 15, marginTop: 2 }}>
+          {run.error.slice(0, 80)}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Step Timeline ────────────────────────────────────────────────────────────
+
+function StepTimeline({ steps }: { steps: WorkStep[] }) {
+  if (steps.length === 0) return null
+  return (
+    <div
+      style={{
+        marginTop: 6,
+        paddingLeft: 18,
+        borderLeft: '2px solid var(--border)',
+        marginLeft: 7,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+      }}
+    >
+      {steps.map((step, i) => (
+        <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+          <span
+            style={{
+              fontSize: 10,
+              flexShrink: 0,
+              marginTop: 1,
+              color:
+                step.status === 'running'
+                  ? '#60a5fa'
+                  : step.status === 'done'
+                    ? '#4ade80'
+                    : '#f87171',
+            }}
+          >
+            {step.status === 'running' ? '⟳' : step.status === 'done' ? '✓' : '✗'}
+          </span>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 11, color: 'var(--text-secondary, var(--text-muted))' }}>
+              {step.label}
+            </span>
+            {step.elapsed !== undefined && (
+              <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 4 }}>
+                {step.elapsed}ms
+              </span>
+            )}
+            {step.output && (
+              <div
+                style={{
+                  fontSize: 10,
+                  color: 'var(--text-muted)',
+                  marginTop: 1,
+                  wordBreak: 'break-word',
+                }}
+              >
+                {step.output.slice(0, 120)}
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 export function AgentPanel() {
+  const [activeTab, setActiveTab] = useState<AgentTab>('tasks')
   const [tasks, setTasks] = useState<AgentTask[]>(loadTasks)
   const [showForm, setShowForm] = useState(false)
   const [formName, setFormName] = useState('')
   const [formPrompt, setFormPrompt] = useState('')
   const [formSchedule, setFormSchedule] = useState<AgentTask['schedule']>('manual')
+  const [runningSteps, setRunningSteps] = useState<Record<string, WorkStep[]>>({})
+  const [runs, setRuns] = useState<WorkRun[]>([])
   const onStartRanRef = useRef(false)
 
   const updateTasks = useCallback((next: AgentTask[]) => {
@@ -72,11 +230,19 @@ export function AgentPanel() {
   }, [])
 
   const runTask = useCallback(async (id: string) => {
+    const startTs = Date.now()
+
     setTasks(prev => {
-      const next = prev.map(t => t.id === id ? { ...t, status: 'running' as const } : t)
+      const next = prev.map(t => (t.id === id ? { ...t, status: 'running' as const } : t))
       saveTasks(next)
       return next
     })
+
+    // Add initial running step
+    setRunningSteps(prev => ({
+      ...prev,
+      [id]: [{ label: '실행 중…', status: 'running' }],
+    }))
 
     const current = loadTasks().find(t => t.id === id)
     if (!current) return
@@ -85,12 +251,26 @@ export function AgentPanel() {
       const result = await window.api.summarizeSession({
         messages: [{ role: 'user', content: current.prompt }],
       })
+
+      const success = !result.error
+      const finalStep: WorkStep = {
+        label: success ? '완료' : '오류',
+        output: result.error ?? result.summary,
+        elapsed: Date.now() - startTs,
+        status: success ? 'done' : 'error',
+      }
+
+      setRunningSteps(prev => ({
+        ...prev,
+        [id]: [finalStep],
+      }))
+
       setTasks(prev => {
         const next = prev.map(t =>
           t.id === id
             ? {
                 ...t,
-                status: result.error ? ('error' as const) : ('done' as const),
+                status: success ? ('done' as const) : ('error' as const),
                 lastRun: Date.now(),
                 lastResult: result.error ?? result.summary,
               }
@@ -99,16 +279,47 @@ export function AgentPanel() {
         saveTasks(next)
         return next
       })
+
+      const run: WorkRun = {
+        id: Date.now().toString(),
+        taskId: id,
+        taskName: current.name,
+        startTime: startTs,
+        endTime: Date.now(),
+        steps: [],
+        success,
+        error: result.error,
+      }
+      saveRun(run)
+      setRuns(loadRuns())
     } catch (err) {
+      const errMsg = String(err)
+      setRunningSteps(prev => ({
+        ...prev,
+        [id]: [{ label: '오류', output: errMsg, elapsed: Date.now() - startTs, status: 'error' }],
+      }))
+
       setTasks(prev => {
         const next = prev.map(t =>
           t.id === id
-            ? { ...t, status: 'error' as const, lastRun: Date.now(), lastResult: String(err) }
+            ? { ...t, status: 'error' as const, lastRun: Date.now(), lastResult: errMsg }
             : t
         )
         saveTasks(next)
         return next
       })
+
+      saveRun({
+        id: Date.now().toString(),
+        taskId: id,
+        taskName: current.name,
+        startTime: startTs,
+        endTime: Date.now(),
+        steps: [],
+        success: false,
+        error: errMsg,
+      })
+      setRuns(loadRuns())
     }
   }, [])
 
@@ -144,12 +355,19 @@ export function AgentPanel() {
           }
           return t
         })
-        if (changed) toRun.forEach(id => runTask(id))
+        if (changed) toRun.forEach(rid => runTask(rid))
         return changed ? next : prev
       })
     }, 60000)
     return () => clearInterval(interval)
   }, [runTask])
+
+  // Load history on mount and when switching to history tab
+  useEffect(() => {
+    if (activeTab === 'history') {
+      setRuns(loadRuns())
+    }
+  }, [activeTab])
 
   const addTask = () => {
     if (!formName.trim() || !formPrompt.trim()) return
@@ -169,11 +387,25 @@ export function AgentPanel() {
   }
 
   const toggleEnabled = (id: string) => {
-    updateTasks(tasks.map(t => t.id === id ? { ...t, enabled: !t.enabled } : t))
+    updateTasks(tasks.map(t => (t.id === id ? { ...t, enabled: !t.enabled } : t)))
   }
 
   const deleteTask = (id: string) => {
     updateTasks(tasks.filter(t => t.id !== id))
+    setRunningSteps(prev => {
+      const next = { ...prev }
+      delete next[id]
+      return next
+    })
+  }
+
+  const clearHistory = () => {
+    try {
+      localStorage.removeItem('work-history-runs')
+    } catch {
+      // ignore
+    }
+    setRuns([])
   }
 
   const inputStyle: React.CSSProperties = {
@@ -187,139 +419,358 @@ export function AgentPanel() {
     boxSizing: 'border-box',
   }
 
+  const tabs: { id: AgentTab; label: string }[] = [
+    { id: 'tasks', label: '태스크' },
+    { id: 'chains', label: '체이닝' },
+    { id: 'history', label: '히스토리' },
+  ]
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 8 }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>에이전트 태스크</span>
-        <button
-          onClick={() => setShowForm(v => !v)}
-          style={{
-            padding: '3px 8px',
-            background: showForm ? 'var(--bg-secondary)' : 'var(--accent)',
-            border: '1px solid var(--border)',
-            borderRadius: 4,
-            color: showForm ? 'var(--text-muted)' : '#fff',
-            fontSize: 11,
-            cursor: 'pointer',
-          }}
-        >
-          {showForm ? '취소' : '+ 새 태스크'}
-        </button>
-      </div>
-
-      {/* Add form */}
-      {showForm && (
-        <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 6, padding: 8, marginBottom: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <input
-            value={formName}
-            onChange={e => setFormName(e.target.value)}
-            placeholder="태스크 이름"
-            style={inputStyle}
-          />
-          <textarea
-            value={formPrompt}
-            onChange={e => setFormPrompt(e.target.value)}
-            placeholder="실행할 프롬프트"
-            rows={3}
-            style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
-          />
-          <select
-            value={formSchedule}
-            onChange={e => setFormSchedule(e.target.value as AgentTask['schedule'])}
-            style={{ ...inputStyle }}
-          >
-            <option value="manual">수동 실행</option>
-            <option value="onStart">앱 시작 시</option>
-            <option value="hourly">매시간</option>
-            <option value="daily">매일</option>
-          </select>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Tab bar */}
+      <div
+        style={{
+          display: 'flex',
+          borderBottom: '1px solid var(--border)',
+          flexShrink: 0,
+        }}
+      >
+        {tabs.map(tab => (
           <button
-            onClick={addTask}
-            style={{ padding: '4px 0', background: 'var(--accent)', border: 'none', borderRadius: 4, color: '#fff', fontSize: 12, cursor: 'pointer' }}
-          >
-            저장
-          </button>
-        </div>
-      )}
-
-      {/* Task list */}
-      <div style={{ flex: 1, overflowY: 'auto' }}>
-        {tasks.length === 0 && (
-          <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 32, fontSize: 12 }}>
-            태스크가 없습니다
-          </div>
-        )}
-        {tasks.map(task => (
-          <div
-            key={task.id}
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
             style={{
-              borderBottom: '1px solid var(--border)',
-              padding: '8px 4px',
-              opacity: task.enabled ? 1 : 0.5,
+              flex: 1,
+              padding: '6px 0',
+              background: activeTab === tab.id ? 'var(--bg-primary, transparent)' : 'transparent',
+              border: 'none',
+              borderBottom:
+                activeTab === tab.id ? '2px solid var(--accent)' : '2px solid transparent',
+              color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-muted)',
+              fontSize: 11,
+              fontWeight: activeTab === tab.id ? 600 : 400,
+              cursor: 'pointer',
+              transition: 'color 0.15s',
             }}
           >
-            {/* Row 1: name + actions */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span
-                style={{ fontSize: 13, color: STATUS_COLOR[task.status], flexShrink: 0, width: 14, textAlign: 'center' }}
-                title={task.status}
-              >
-                {STATUS_ICON[task.status]}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {/* ── Tasks tab ── */}
+        {activeTab === 'tasks' && (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 8 }}>
+            {/* Header */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 8,
+              }}
+            >
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
+                에이전트 태스크
               </span>
-              <span style={{ flex: 1, fontSize: 12, fontWeight: 500, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {task.name}
-              </span>
               <button
-                onClick={() => runTask(task.id)}
-                disabled={task.status === 'running'}
-                title="실행"
-                style={{ background: 'none', border: 'none', cursor: task.status === 'running' ? 'default' : 'pointer', color: 'var(--text-muted)', fontSize: 13, padding: '0 2px', flexShrink: 0 }}
-              >
-                ▶
-              </button>
-              <button
-                onClick={() => toggleEnabled(task.id)}
-                title={task.enabled ? '비활성화' : '활성화'}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: task.enabled ? 'var(--accent)' : 'var(--text-muted)', fontSize: 13, padding: '0 2px', flexShrink: 0 }}
-              >
-                {task.enabled ? '●' : '○'}
-              </button>
-              <button
-                onClick={() => deleteTask(task.id)}
-                title="삭제"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 13, padding: '0 2px', flexShrink: 0 }}
-              >
-                ×
-              </button>
-            </div>
-
-            {/* Row 2: prompt preview */}
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, paddingLeft: 18, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              "{task.prompt.slice(0, 60)}{task.prompt.length > 60 ? '…' : ''}"
-            </div>
-
-            {/* Row 3: meta */}
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2, paddingLeft: 18 }}>
-              마지막: {relativeTime(task.lastRun)} / {SCHEDULE_LABELS[task.schedule]}
-            </div>
-
-            {/* Row 4: result preview */}
-            {task.lastResult && (
-              <div
+                onClick={() => setShowForm(v => !v)}
                 style={{
+                  padding: '3px 8px',
+                  background: showForm ? 'var(--bg-secondary)' : 'var(--accent)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  color: showForm ? 'var(--text-muted)' : '#fff',
                   fontSize: 11,
-                  color: task.status === 'error' ? STATUS_COLOR.error : 'var(--text-secondary, var(--text-muted))',
-                  marginTop: 4,
-                  paddingLeft: 18,
-                  wordBreak: 'break-word',
+                  cursor: 'pointer',
                 }}
               >
-                {task.lastResult.slice(0, 100)}{task.lastResult.length > 100 ? '…' : ''}
+                {showForm ? '취소' : '+ 새 태스크'}
+              </button>
+            </div>
+
+            {/* Add form */}
+            {showForm && (
+              <div
+                style={{
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 6,
+                  padding: 8,
+                  marginBottom: 8,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 6,
+                }}
+              >
+                <input
+                  value={formName}
+                  onChange={e => setFormName(e.target.value)}
+                  placeholder="태스크 이름"
+                  style={inputStyle}
+                />
+                <textarea
+                  value={formPrompt}
+                  onChange={e => setFormPrompt(e.target.value)}
+                  placeholder="실행할 프롬프트"
+                  rows={3}
+                  style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
+                />
+                <select
+                  value={formSchedule}
+                  onChange={e => setFormSchedule(e.target.value as AgentTask['schedule'])}
+                  style={{ ...inputStyle }}
+                >
+                  <option value="manual">수동 실행</option>
+                  <option value="onStart">앱 시작 시</option>
+                  <option value="hourly">매시간</option>
+                  <option value="daily">매일</option>
+                </select>
+                <button
+                  onClick={addTask}
+                  style={{
+                    padding: '4px 0',
+                    background: 'var(--accent)',
+                    border: 'none',
+                    borderRadius: 4,
+                    color: '#fff',
+                    fontSize: 12,
+                    cursor: 'pointer',
+                  }}
+                >
+                  저장
+                </button>
               </div>
             )}
+
+            {/* Task list */}
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {tasks.length === 0 && (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    color: 'var(--text-muted)',
+                    marginTop: 32,
+                    fontSize: 12,
+                  }}
+                >
+                  태스크가 없습니다
+                </div>
+              )}
+              {tasks.map(task => (
+                <div
+                  key={task.id}
+                  style={{
+                    borderBottom: '1px solid var(--border)',
+                    padding: '8px 4px',
+                    opacity: task.enabled ? 1 : 0.5,
+                  }}
+                >
+                  {/* Row 1: name + actions */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span
+                      style={{
+                        fontSize: 13,
+                        color: STATUS_COLOR[task.status],
+                        flexShrink: 0,
+                        width: 14,
+                        textAlign: 'center',
+                      }}
+                      title={task.status}
+                    >
+                      {STATUS_ICON[task.status]}
+                    </span>
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        color: 'var(--text-primary)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {task.name}
+                    </span>
+                    <button
+                      onClick={() => runTask(task.id)}
+                      disabled={task.status === 'running'}
+                      title="실행"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: task.status === 'running' ? 'default' : 'pointer',
+                        color: 'var(--text-muted)',
+                        fontSize: 13,
+                        padding: '0 2px',
+                        flexShrink: 0,
+                      }}
+                    >
+                      ▶
+                    </button>
+                    <button
+                      onClick={() => toggleEnabled(task.id)}
+                      title={task.enabled ? '비활성화' : '활성화'}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: task.enabled ? 'var(--accent)' : 'var(--text-muted)',
+                        fontSize: 13,
+                        padding: '0 2px',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {task.enabled ? '●' : '○'}
+                    </button>
+                    <button
+                      onClick={() => deleteTask(task.id)}
+                      title="삭제"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: 'var(--text-muted)',
+                        fontSize: 13,
+                        padding: '0 2px',
+                        flexShrink: 0,
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  {/* Row 2: prompt preview */}
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--text-muted)',
+                      marginTop: 2,
+                      paddingLeft: 18,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    &ldquo;{task.prompt.slice(0, 60)}
+                    {task.prompt.length > 60 ? '…' : ''}&rdquo;
+                  </div>
+
+                  {/* Row 3: meta */}
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: 'var(--text-muted)',
+                      marginTop: 2,
+                      paddingLeft: 18,
+                    }}
+                  >
+                    마지막: {relativeTime(task.lastRun)} / {SCHEDULE_LABELS[task.schedule]}
+                  </div>
+
+                  {/* Row 4: last result (colored by status) */}
+                  {task.lastResult && task.status !== 'running' && (
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color:
+                          task.status === 'error'
+                            ? STATUS_COLOR.error
+                            : 'var(--text-secondary, var(--text-muted))',
+                        marginTop: 4,
+                        paddingLeft: 18,
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {task.lastResult.slice(0, 100)}
+                      {task.lastResult.length > 100 ? '…' : ''}
+                    </div>
+                  )}
+
+                  {/* Row 5: step timeline (live while running, last step after done) */}
+                  {runningSteps[task.id] && runningSteps[task.id].length > 0 && (
+                    <StepTimeline steps={runningSteps[task.id]} />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        ))}
+        )}
+
+        {/* ── Chains tab ── */}
+        {activeTab === 'chains' && (
+          <ChainErrorBoundary>
+            <Suspense
+              fallback={
+                <div
+                  style={{
+                    padding: 16,
+                    fontSize: 12,
+                    color: 'var(--text-muted)',
+                    textAlign: 'center',
+                  }}
+                >
+                  로딩 중…
+                </div>
+              }
+            >
+              <PromptChainPanel />
+            </Suspense>
+          </ChainErrorBoundary>
+        )}
+
+        {/* ── History tab ── */}
+        {activeTab === 'history' && (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 8 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 6,
+              }}
+            >
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
+                실행 히스토리
+              </span>
+              {runs.length > 0 && (
+                <button
+                  onClick={clearHistory}
+                  style={{
+                    padding: '2px 6px',
+                    background: 'none',
+                    border: '1px solid var(--border)',
+                    borderRadius: 4,
+                    color: 'var(--text-muted)',
+                    fontSize: 10,
+                    cursor: 'pointer',
+                  }}
+                >
+                  전체 삭제
+                </button>
+              )}
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {runs.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    color: 'var(--text-muted)',
+                    marginTop: 32,
+                    fontSize: 12,
+                  }}
+                >
+                  실행 기록이 없습니다
+                </div>
+              ) : (
+                [...runs].reverse().map(run => <HistoryEntry key={run.id} run={run} />)
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
