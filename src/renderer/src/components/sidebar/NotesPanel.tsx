@@ -56,6 +56,13 @@ export function NotesPanel() {
     save(notes.map(n => n.id === id ? { ...n, pinned: !n.pinned } : n))
   }, [notes, save])
 
+  const highlightText = (text: string, query: string) => {
+    if (!query.trim()) return text
+    const idx = text.toLowerCase().indexOf(query.toLowerCase())
+    if (idx < 0) return text
+    return (<>{text.slice(0, idx)}<mark style={{ background: '#fbbf2466', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{text.slice(idx, idx + query.length)}</mark>{text.slice(idx + query.length)}</>)
+  }
+
   const filteredNotes = searchQuery.trim()
     ? notes.filter(n => n.title.toLowerCase().includes(searchQuery.toLowerCase()) || n.content.toLowerCase().includes(searchQuery.toLowerCase()))
     : notes
@@ -128,7 +135,7 @@ export function NotesPanel() {
                 position: 'relative',
               }}
             >
-              <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)', paddingRight: 28 }}>{n.title || '(제목 없음)'}</div>
+              <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)', paddingRight: 28 }}>{highlightText(n.title || '(제목 없음)', searchQuery)}</div>
               <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{new Date(n.updatedAt).toLocaleDateString('ko')}</div>
               <button onClick={e => togglePin(n.id, e)} title={n.pinned ? '핀 해제' : '핀 고정'}
                 style={{ position: 'absolute', top: 3, right: 16, background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: n.pinned ? '#fbbf24' : 'var(--text-muted)', opacity: n.pinned ? 1 : 0.5, padding: '0 2px' }}>📌</button>

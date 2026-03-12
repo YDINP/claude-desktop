@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 175: R273 신규 기능 ───────────────────────────────
+console.log('\n## 175. 신규 기능 파일 검사 (R273)')
+// NotesPanel 검색 하이라이트 (Round 273)
+const np273Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np273Path)) {
+  const np273 = readFileSync(np273Path, 'utf-8')
+  if (np273.includes('highlightText') && np273.includes('fbbf24') && np273.includes('<mark')) {
+    log('pass', 'Round273', 'NotesPanel: 검색 결과 하이라이트 (highlightText/<mark>) 존재')
+  } else {
+    log('warning', 'Round273', 'NotesPanel 검색 하이라이트 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 174: R272 신규 기능 ───────────────────────────────
 console.log('\n## 174. 신규 기능 파일 검사 (R272)')
 // StatsPanel 연속 사용일 스트릭 (Round 272)

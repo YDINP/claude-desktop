@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 273] — 2026-03-13
+### Added
+- NotesPanel: 검색어 하이라이트 — 목록 제목에서 검색어 매칭 부분을 `<mark>` 황색 강조
+
 ## [Round 272] — 2026-03-13
 ### Added
 - StatsPanel: 연속 사용일 스트릭 표시 — 현재 연속일(🔥) + 최장 연속일 카드
