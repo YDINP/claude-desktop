@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 271] — 2026-03-13
+### Added
+- TasksPanel: 태스크 검색 필터 — 3개 이상 시 검색 입력창 표시, Escape로 초기화
+
 ## [Round 270] — 2026-03-13
 ### Added
 - SceneView: Alt+H (좌우 반전) / Alt+V (상하 반전) — scaleX/Y 부호 반전 단축키

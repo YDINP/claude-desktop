@@ -20,6 +20,7 @@ export function TasksPanel() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
   const [dueDate, setDueDate] = useState('')
+  const [taskSearch, setTaskSearch] = useState('')
 
   useEffect(() => {
     window.api.getTasks().then(setTasks)
@@ -55,7 +56,9 @@ export function TasksPanel() {
   }
 
   const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 }
+  const searchLower = taskSearch.trim().toLowerCase()
   const filtered = (filter === 'all' ? tasks : filter === 'active' ? tasks.filter(t => !t.done) : tasks.filter(t => t.done))
+    .filter(t => !searchLower || t.text.toLowerCase().includes(searchLower))
     .slice().sort((a, b) => {
       if (sortBy === 'priority') return (PRIORITY_ORDER[a.priority ?? 'medium'] - PRIORITY_ORDER[b.priority ?? 'medium']) || (b.createdAt - a.createdAt)
       if (sortBy === 'due') {
@@ -102,6 +105,20 @@ export function TasksPanel() {
           style={{ padding: '4px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, color: 'inherit', fontSize: 10, width: 32, cursor: 'pointer', opacity: 0.7 }} />
         <button onClick={addTask} style={{ padding: '4px 8px', background: 'var(--accent)', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer', fontSize: 12 }}>+</button>
       </div>
+
+      {/* 검색 필터 */}
+      {tasks.length > 3 && (
+        <div style={{ display: 'flex', gap: 4, marginBottom: 6, alignItems: 'center' }}>
+          <input
+            value={taskSearch}
+            onChange={e => setTaskSearch(e.target.value)}
+            onKeyDown={e => e.key === 'Escape' && setTaskSearch('')}
+            placeholder="태스크 검색..."
+            style={{ flex: 1, padding: '3px 6px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, color: 'inherit', fontSize: 11, outline: 'none' }}
+          />
+          {taskSearch && <button onClick={() => setTaskSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, flexShrink: 0 }}>×</button>}
+        </div>
+      )}
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>

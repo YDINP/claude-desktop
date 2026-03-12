@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 173: R271 신규 기능 ───────────────────────────────
+console.log('\n## 173. 신규 기능 파일 검사 (R271)')
+// TasksPanel 검색 필터 (Round 271)
+const tp271Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp271Path)) {
+  const tp271 = readFileSync(tp271Path, 'utf-8')
+  if (tp271.includes('taskSearch') && tp271.includes('태스크 검색') && tp271.includes('searchLower')) {
+    log('pass', 'Round271', 'TasksPanel: 검색 필터 (taskSearch/searchLower) 존재')
+  } else {
+    log('warning', 'Round271', 'TasksPanel 검색 필터 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 172: R270 신규 기능 ───────────────────────────────
 console.log('\n## 172. 신규 기능 파일 검사 (R270)')
 // SceneView 노드 반전 Alt+H/V (Round 270)

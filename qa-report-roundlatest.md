@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T19:14:52.051Z
+> 2026-03-12T19:19:16.379Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- TasksPanel: 검색 필터 (taskSearch/searchLower) 존재
 - SceneViewPanel: Alt+H/V 좌우/상하 반전 (scaleX/Y 부호 반전) 존재
 - SceneViewPanel: 리사이즈 중 Escape 취소 (startWidth/Height 복원) 존재
 - SceneViewPanel: 드래그 중 Escape 취소 (groupOffsets 복원) 존재
