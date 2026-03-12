@@ -52,6 +52,8 @@ interface SceneToolbarProps {
   onLoadScene?: () => void
   activeSlot?: number
   onSlotChange?: (slot: number) => void
+  snapGrid?: number
+  onSnapGridChange?: (size: number) => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -108,6 +110,8 @@ export function SceneToolbar({
   onLoadScene,
   activeSlot,
   onSlotChange,
+  snapGrid,
+  onSnapGridChange,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -253,6 +257,20 @@ export function SceneToolbar({
       >
         ⊕ Snap
       </button>
+
+      {/* 스냅 그리드 크기 */}
+      {onSnapGridChange && (
+        <select
+          value={snapGrid ?? 4}
+          onChange={e => onSnapGridChange(Number(e.target.value))}
+          title="스냅 그리드 크기 (px)"
+          style={{ fontSize: 9, padding: '1px 2px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
+        >
+          {[1, 2, 4, 5, 8, 10, 16, 20, 50].map(v => (
+            <option key={v} value={v}>{v}px</option>
+          ))}
+        </select>
+      )}
 
       {/* 캔버스 크기 프리셋 */}
       {onCanvasSizeChange && (

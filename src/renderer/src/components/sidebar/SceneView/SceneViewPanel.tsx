@@ -13,7 +13,7 @@ interface SceneViewPanelProps {
   port?: number
 }
 
-const SNAP_GRID = 4
+
 const CANVAS_PRESETS = [
   { label: '960×640 (기본)', w: 960, h: 640 },
   { label: '1280×720 (HD)', w: 1280, h: 720 },
@@ -36,6 +36,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const DESIGN_H = canvasSize.h
   const [gridVisible, setGridVisible] = useState(true)
   const [snapEnabled, setSnapEnabled] = useState(false)
+  const [snapGrid, setSnapGrid] = useState(4)
   const [showHierarchy, setShowHierarchy] = useState(false)
   const [showLabels, setShowLabels] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
@@ -632,8 +633,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
       // 스냅
       if (snapEnabled) {
-        newX = Math.round(newX / SNAP_GRID) * SNAP_GRID
-        newY = Math.round(newY / SNAP_GRID) * SNAP_GRID
+        newX = Math.round(newX / snapGrid) * snapGrid
+        newY = Math.round(newY / snapGrid) * snapGrid
       }
 
       // 정렬 가이드라인 계산 (드래그 중 타 노드와 정렬 감지)
@@ -676,8 +677,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           let nx = startX + dSceneX
           let ny = startY + dSceneY
           if (snapEnabled) {
-            nx = Math.round(nx / SNAP_GRID) * SNAP_GRID
-            ny = Math.round(ny / SNAP_GRID) * SNAP_GRID
+            nx = Math.round(nx / snapGrid) * snapGrid
+            ny = Math.round(ny / snapGrid) * snapGrid
           }
           updateNode(uid, { x: nx, y: ny })
         }
@@ -686,7 +687,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         updateNode(drag.uuid, { x: newX, y: newY })
       }
     }
-  }, [view.zoom, snapEnabled, getSvgCoords, svgToScene, updateNode, nodeMap, selectedUuids, canvasSize])
+  }, [view.zoom, snapEnabled, snapGrid, getSvgCoords, svgToScene, updateNode, nodeMap, selectedUuids, canvasSize])
 
   const handleMouseUp = useCallback(async () => {
     setAlignGuides([])
@@ -1142,6 +1143,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onZoomChange={zoom => setView(prev => ({ ...prev, zoom }))}
         onGridToggle={() => setGridVisible(v => !v)}
         onSnapToggle={() => setSnapEnabled(v => !v)}
+        snapGrid={snapGrid}
+        onSnapGridChange={setSnapGrid}
         onFit={handleFit}
         onRefresh={refresh}
         showHierarchy={showHierarchy}

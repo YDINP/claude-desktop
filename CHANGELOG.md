@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 213] — 2026-03-13
+### Added
+- SceneView: 스냅 그리드 크기 조정 — 1/2/4/5/8/10/16/20/50px 드롭다운 선택, SNAP_GRID를 동적 상태로 전환
+
 ## [Round 212] — 2026-03-13
 ### Added
 - SceneView: 씬 저장 슬롯 3개 — 슬롯 드롭다운으로 독립 저장·로드, 슬롯 전환 시 자동 저장

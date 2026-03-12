@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 212 완료 — SceneView 씬 슬롯 3개, Pass 207)
+> 마지막 업데이트: 2026-03-13 (Round 213 완료 — SceneView 스냅 그리드 크기 조정, Pass 208)
 
 ## 완료된 라운드
 
@@ -164,6 +164,7 @@
 | Round 210 | dev | SceneView Shift+리사이즈 비례 리사이즈 — 코너 핸들에서 aspect ratio 유지 | ✅ |
 | Round 211 | dev | SceneView 씬 레이아웃 저장/로드 — 💾/📂 버튼, localStorage 저장·복원 | ✅ |
 | Round 212 | dev | SceneView 씬 저장 슬롯 3개 — 슬롯 드롭다운, 전환 시 자동 저장 | ✅ |
+| Round 213 | dev | SceneView 스냅 그리드 크기 조정 — 드롭다운으로 1~50px 선택 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

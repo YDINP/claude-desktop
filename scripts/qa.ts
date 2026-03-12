@@ -2036,6 +2036,28 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 115: R213 신규 기능 ───────────────────────────────
+console.log('\n## 115. 신규 기능 파일 검사 (R213)')
+// SceneView 스냅 그리드 크기 조정 (Round 213)
+const svp213Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp213Path)) {
+  const svp213 = readFileSync(svp213Path, 'utf-8')
+  if (svp213.includes('snapGrid') && svp213.includes('onSnapGridChange') && svp213.includes('setSnapGrid')) {
+    log('pass', 'Round213', 'SceneViewPanel: 스냅 그리드 크기 상태 및 연동 존재')
+  } else {
+    log('warning', 'Round213', 'SceneViewPanel 스냅 그리드 크기 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+const stb213Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb213Path)) {
+  const stb213 = readFileSync(stb213Path, 'utf-8')
+  if (stb213.includes('onSnapGridChange') && stb213.includes('스냅 그리드')) {
+    log('pass', 'Round213', 'SceneToolbar: 스냅 그리드 크기 드롭다운 존재')
+  } else {
+    log('warning', 'Round213', 'SceneToolbar 스냅 그리드 드롭다운 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 114: R212 신규 기능 ───────────────────────────────
 console.log('\n## 114. 신규 기능 파일 검사 (R212)')
 // SceneView 씬 저장 슬롯 3개 (Round 212)
