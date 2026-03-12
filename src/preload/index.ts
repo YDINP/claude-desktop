@@ -20,7 +20,9 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.removeAllListeners('claude:permission')
   },
   onCloseTab: (cb: () => void) => {
-    ipcRenderer.on('shortcut:close-tab', () => cb())
+    const handler = () => cb()
+    ipcRenderer.on('shortcut:close-tab', handler as Parameters<typeof ipcRenderer.on>[1])
+    return () => ipcRenderer.removeListener('shortcut:close-tab', handler as Parameters<typeof ipcRenderer.removeListener>[1])
   },
   onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => {
     const handler = (_: unknown, { delta, reset }: { delta: number; reset?: boolean }) => cb(delta, reset)
@@ -380,7 +382,7 @@ declare global {
       templateList: () => Promise<Array<{ id: string; name: string; prompt: string }>>
       templateSave: (t: { id: string; name: string; prompt: string }) => Promise<boolean>
       templateDelete: (id: string) => Promise<boolean>
-      onCloseTab: (cb: () => void) => void
+      onCloseTab: (cb: () => void) => () => void
       onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => () => void
       settingsGet: () => Promise<{ theme: string; fontSize: number; maxTokensPerRequest: number; temperature: number; showTimestamps: boolean; selectedModel: string; accentColor: string; compactMode: boolean; soundEnabled: boolean; customCSS: string }>
       settingsSet: (patch: Record<string, unknown>) => Promise<boolean>

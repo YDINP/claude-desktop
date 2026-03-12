@@ -96,6 +96,9 @@ function validateSessionId(id: string): boolean {
 
 export function registerSessionHandlers() {
   ipcMain.handle('session:save', async (_e, session: StoredSession) => {
+    if (!/^[a-zA-Z0-9_-]+$/.test(session.id)) {
+      throw new Error('Invalid session ID')
+    }
     await ensureDir()
     await writeFile(join(sessionsDir, `${session.id}.json`), JSON.stringify(session, null, 2))
     // Update index
@@ -595,7 +598,9 @@ ${messages.map(m => `<div class="msg ${m.role === 'user' ? 'user' : 'assistant'}
   })
 
   ipcMain.handle('session:setCollection', async (_, { id, collection }: { id: string; collection: string | null }) => {
-    validateSessionId(id)
+    if (!validateSessionId(id)) {
+      throw new Error('Invalid session ID')
+    }
     const filePath = join(sessionsDir, `${id}.json`)
     const raw = JSON.parse(await readFile(filePath, 'utf-8'))
     if (collection) raw.collection = collection

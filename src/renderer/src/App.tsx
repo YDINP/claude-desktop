@@ -939,8 +939,8 @@ function AppContent() {
   // ── Ctrl+W: close active file tab ──
   useEffect(() => {
     if (!window.api) return
-    window.api.onCloseTab(closeActiveFileTab)
-  }, [])
+    return window.api.onCloseTab(closeActiveFileTab)
+  }, [closeActiveFileTab])
 
   // ── Keyboard shortcuts ──
   useEffect(() => {

@@ -42,6 +42,6 @@ interface Window {
     sessionLoad: (id: string) => Promise<unknown>
     sessionDelete: (id: string) => Promise<boolean>
     sessionRename: (id: string, title: string) => Promise<boolean>
-    onCloseTab: (cb: () => void) => void
+    onCloseTab: (cb: () => void) => () => void
   }
 }

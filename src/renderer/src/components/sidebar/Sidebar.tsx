@@ -53,10 +53,18 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
   const [fileSearchResults, setFileSearchResults] = useState<{ name: string; path: string; relPath: string }[]>([])
 
   useEffect(() => {
-    setFileSearchResults([])
-    if (fileSearch.trim().length >= 2 && currentPath) {
-      window.api.searchFiles(currentPath, fileSearch).then(setFileSearchResults)
-    }
+    const timer = setTimeout(() => {
+      if (fileSearch.trim().length >= 2 && currentPath) {
+        let cancelled = false
+        window.api.searchFiles(currentPath, fileSearch).then(results => {
+          if (!cancelled) setFileSearchResults(results)
+        })
+        return () => { cancelled = true }
+      } else {
+        setFileSearchResults([])
+      }
+    }, 300)
+    return () => clearTimeout(timer)
   }, [fileSearch, currentPath])
 
   return (

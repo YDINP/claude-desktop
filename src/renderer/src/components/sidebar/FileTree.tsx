@@ -65,13 +65,24 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
   const [preview, setPreview] = useState<{ visible: boolean; y: number; content: string | null; fileName: string } | null>(null)
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const hidePreviewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const previewCancelledRef = useRef<boolean>(false)
 
   const isBinary = BINARY_EXT.has(ext)
 
+  useEffect(() => {
+    return () => {
+      if (tooltipTimerRef.current) clearTimeout(tooltipTimerRef.current)
+      if (previewTimerRef.current) clearTimeout(previewTimerRef.current)
+      if (hidePreviewTimerRef.current) clearTimeout(hidePreviewTimerRef.current)
+      previewCancelledRef.current = true
+    }
+  }, [])
+
   const showPreview = async (itemY: number) => {
     if (entry.isDir) return
+    previewCancelledRef.current = false
     const info = await window.api.fsStat(entry.path)
-    if (!info || info.isDirectory) return
+    if (previewCancelledRef.current || !info || info.isDirectory) return
     if (info.size > 100 * 1024) {
       setPreview({ visible: true, y: itemY, content: null, fileName: entry.name })
       return
@@ -82,10 +93,11 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
     }
     try {
       const text = await window.api.readFile(entry.path)
+      if (previewCancelledRef.current) return
       const lines = text.split('\n').slice(0, 20)
       setPreview({ visible: true, y: itemY, content: lines.join('\n'), fileName: entry.name })
     } catch {
-      setPreview({ visible: true, y: itemY, content: null, fileName: entry.name })
+      if (!previewCancelledRef.current) setPreview({ visible: true, y: itemY, content: null, fileName: entry.name })
     }
   }
 
@@ -199,6 +211,7 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
             }, 500)
             if (hidePreviewTimerRef.current) clearTimeout(hidePreviewTimerRef.current)
             if (previewTimerRef.current) clearTimeout(previewTimerRef.current)
+            previewCancelledRef.current = true
             previewTimerRef.current = setTimeout(() => {
               showPreview(rect.top)
             }, 600)
@@ -210,6 +223,7 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
           if (tooltipTimerRef.current) clearTimeout(tooltipTimerRef.current)
           setTooltip(t => ({ ...t, visible: false }))
           if (previewTimerRef.current) clearTimeout(previewTimerRef.current)
+          previewCancelledRef.current = true
           hidePreviewTimerRef.current = setTimeout(() => {
             setPreview(p => p ? { ...p, visible: false } : null)
           }, 200)
