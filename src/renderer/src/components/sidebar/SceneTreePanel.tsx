@@ -169,6 +169,13 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
   const filteredTree = tree && hideInactive ? filterTree(tree) : tree
   const visibleRoots = filteredTree ? [filteredTree].filter(matchesSearch) : []
 
+  const countMatches = (node: CCNode): number => {
+    const selfMatch = node.name.toLowerCase().includes(searchLower) ? 1 : 0
+    const childMatches = (node.children ?? []).reduce((s, c) => s + countMatches(c), 0)
+    return selfMatch + childMatches
+  }
+  const matchCount = nodeSearch.trim() && tree ? countMatches(tree) : 0
+
   return (
     <div style={{ borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{
@@ -200,6 +207,7 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
         <input
           value={nodeSearch}
           onChange={e => setNodeSearch(e.target.value)}
+          onKeyDown={e => e.key === 'Escape' && setNodeSearch('')}
           placeholder="노드 검색..."
           style={{
             width: '100%', boxSizing: 'border-box',
@@ -208,6 +216,11 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
             fontSize: 11, outline: 'none',
           }}
         />
+        {nodeSearch.trim() && (
+          <div style={{ fontSize: 9, color: matchCount > 0 ? 'var(--accent)' : '#f87171', marginTop: 2, paddingLeft: 2 }}>
+            {matchCount > 0 ? `${matchCount}개 노드 일치` : '일치하는 노드 없음'}
+          </div>
+        )}
       </div>
       <div style={{ maxHeight: 300, overflow: 'auto', flex: 1 }}>
         {loading && !tree && (

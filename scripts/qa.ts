@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 289: R387 신규 기능 ───────────────────────────────
+console.log('\n## 289. 신규 기능 파일 검사 (R387)')
+// SceneTreePanel 검색 매치 카운트 (Round 387)
+const st387Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneTreePanel.tsx')
+if (existsSync(st387Path)) {
+  const st387 = readFileSync(st387Path, 'utf-8')
+  if (st387.includes('matchCount') && st387.includes('countMatches') && st387.includes('노드 일치')) {
+    log('pass', 'Round387', 'SceneTreePanel: 검색 매치 카운트 표시 존재')
+  } else {
+    log('warning', 'Round387', 'SceneTreePanel 검색 카운트 미구현', 'sidebar/SceneTreePanel.tsx')
+  }
+}
+
 // ── Section 288: R386 신규 기능 ───────────────────────────────
 console.log('\n## 288. 신규 기능 파일 검사 (R386)')
 // RemotePanel SSH 명령어 복사 버튼 (Round 386)
