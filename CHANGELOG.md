@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 376] — 2026-03-13
+### Added
+- PluginsPanel: 전체 켜기/끄기 버튼 — 플러그인 2개 이상 시 일괄 활성화/비활성화 버튼
+
 ## [Round 375] — 2026-03-13
 ### Added
 - NotesPanel: 검색 결과 콘텐츠 발췌 표시 — 검색어 위치 주변 텍스트를 이탤릭으로 인라인 표시
