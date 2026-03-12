@@ -2,14 +2,19 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 105 (CC 2x Extension Z-order + QA Section 12)
+- 마지막 커밋: Round 106 (InputBar 빠른 액션 슬롯)
 - 빌드: `npm run build` ✅
 - QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 34
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 105 완료 항목 (최근 세션)
+## Round 106 완료 항목 (최근 세션)
+
+### Round 106 — InputBar 빠른 액션 슬롯
+- `src/renderer/src/components/chat/InputBar.tsx`: `DEFAULT_QUICK_ACTIONS` 4개 프리셋 (요약/코드리뷰/설명/계속), `quickActions`/`editingAction` 상태, `handleQuickAction`/`saveQuickActionEdit` 핸들러, 빠른 액션 바 UI (우클릭 편집 팝오버 포함), localStorage 영구 저장
+
+## Round 105 완료 항목 (이전 세션)
 
 ### Round 105 — CC 2x Extension Z-order + QA Section 12
 - `extensions/cc-ws-extension-2x/scene-script.js`: `setNodeZOrder` 함수 추가 (front/back/up/down, getSiblingIndex/setSiblingIndex)

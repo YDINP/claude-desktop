@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList
@@ -62,6 +62,20 @@ const MAX_FILE_SIZE = 100 * 1024 // 100KB
 const MAX_CONTENT_CHARS = 5000
 const TEMPLATES_KEY = 'message-templates'
 const MAX_TEMPLATES = 20
+const QUICK_ACTIONS_KEY = 'quick-actions'
+
+interface QuickAction {
+  id: string
+  label: string
+  prompt: string
+}
+
+const DEFAULT_QUICK_ACTIONS: QuickAction[] = [
+  { id: '1', label: '요약', prompt: '위 내용을 3줄로 요약해 주세요.' },
+  { id: '2', label: '코드리뷰', prompt: '이 코드를 리뷰하고 개선사항을 알려주세요.' },
+  { id: '3', label: '설명', prompt: '이것이 무엇인지 쉽게 설명해 주세요.' },
+  { id: '4', label: '계속', prompt: '계속 진행해 주세요.' },
+]
 
 interface MessageTemplate {
   id: string
@@ -170,6 +184,15 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   )
   const [ollamaModels, setOllamaModels] = useState<string[]>([])
   const [isDragging, setIsDragging] = useState(false)
+  const [quickActions, setQuickActions] = useState<QuickAction[]>(() => {
+    try {
+      const stored = localStorage.getItem(QUICK_ACTIONS_KEY)
+      return stored ? JSON.parse(stored) : DEFAULT_QUICK_ACTIONS
+    } catch { return DEFAULT_QUICK_ACTIONS }
+  })
+  const [editingAction, setEditingAction] = useState<string | null>(null)
+  const [editLabel, setEditLabel] = useState('')
+  const [editPrompt, setEditPrompt] = useState('')
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -521,6 +544,22 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       return
     }
   }
+
+  const handleQuickAction = useCallback((prompt: string) => {
+    setText(prompt)
+    setTimeout(() => {
+      const ta = textareaRef.current
+      if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length) }
+    }, 0)
+  }, [])
+
+  const saveQuickActionEdit = useCallback(() => {
+    if (!editingAction) return
+    const updated = quickActions.map(a => a.id === editingAction ? { ...a, label: editLabel, prompt: editPrompt } : a)
+    setQuickActions(updated)
+    localStorage.setItem(QUICK_ACTIONS_KEY, JSON.stringify(updated))
+    setEditingAction(null)
+  }, [editingAction, editLabel, editPrompt, quickActions])
 
   const doSend = (trimmed: string) => {
     const next = [trimmed, ...historyRef.current.filter(h => h !== trimmed)].slice(0, MAX_HISTORY)
@@ -891,6 +930,63 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         </div>
       )}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      {/* 빠른 액션 슬롯 */}
+      <div style={{ display: 'flex', gap: 4, padding: '0 0 4px', flexWrap: 'wrap' }}>
+        {quickActions.map(action => (
+          <div key={action.id} style={{ position: 'relative' }}>
+            {editingAction === action.id ? (
+              <div style={{
+                position: 'absolute', bottom: '100%', left: 0, zIndex: 100,
+                background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                borderRadius: 6, padding: 8, width: 220,
+              }}>
+                <input value={editLabel} onChange={e => setEditLabel(e.target.value)}
+                  placeholder="레이블"
+                  style={{ width: '100%', boxSizing: 'border-box', marginBottom: 4,
+                    background: 'var(--bg-primary)', border: '1px solid var(--border)',
+                    borderRadius: 3, padding: '3px 6px', color: 'var(--text-primary)', fontSize: 11 }} />
+                <textarea value={editPrompt} onChange={e => setEditPrompt(e.target.value)}
+                  placeholder="프롬프트"
+                  rows={3}
+                  style={{ width: '100%', boxSizing: 'border-box', marginBottom: 4,
+                    background: 'var(--bg-primary)', border: '1px solid var(--border)',
+                    borderRadius: 3, padding: '3px 6px', color: 'var(--text-primary)', fontSize: 11,
+                    resize: 'vertical' }} />
+                <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                  <button onClick={() => setEditingAction(null)}
+                    style={{ fontSize: 10, padding: '2px 8px', background: 'none',
+                      border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer',
+                      color: 'var(--text-muted)' }}>취소</button>
+                  <button onClick={saveQuickActionEdit}
+                    style={{ fontSize: 10, padding: '2px 8px',
+                      background: 'var(--accent)', border: 'none', borderRadius: 3,
+                      cursor: 'pointer', color: 'white' }}>저장</button>
+                </div>
+              </div>
+            ) : null}
+            <button
+              onClick={() => handleQuickAction(action.prompt)}
+              onContextMenu={e => {
+                e.preventDefault()
+                setEditLabel(action.label)
+                setEditPrompt(action.prompt)
+                setEditingAction(action.id)
+              }}
+              title={`${action.prompt}\n(우클릭: 편집)`}
+              style={{
+                fontSize: 10, padding: '2px 8px',
+                background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                borderRadius: 10, cursor: 'pointer', color: 'var(--text-muted)',
+                transition: 'all 0.1s', whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
+            >
+              {action.label}
+            </button>
+          </div>
+        ))}
+      </div>
       {showTemplates && (
         <div style={{
           background: 'var(--bg-secondary)',
