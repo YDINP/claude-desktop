@@ -1337,6 +1337,24 @@ if (existsSync(nodeHierarchyPath10)) {
   }
 }
 
+// ── Section 56: R154 신규 기능 ───────────────────────────────
+console.log('\n## 56. 신규 기능 파일 검사 (R154)')
+// SceneInspector UUID 복사 버튼 (Round 154)
+const sceneInspectorPath7 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(sceneInspectorPath7)) {
+  const si7 = readFileSync(sceneInspectorPath7, 'utf-8')
+  if (si7.includes('handleCopyUuid') && si7.includes('navigator.clipboard.writeText')) {
+    log('pass', 'Round154', 'SceneInspector: UUID 복사 함수 + clipboard API 존재')
+  } else {
+    log('warning', 'Round154', 'SceneInspector UUID 복사 기능 미구현', 'SceneView/SceneInspector.tsx')
+  }
+  if (si7.includes('uuidCopied') && si7.includes("'✓' : '#'")) {
+    log('pass', 'Round154', 'SceneInspector: 복사 완료 피드백 (✓/#) 존재')
+  } else {
+    log('warning', 'Round154', 'SceneInspector UUID 복사 피드백 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

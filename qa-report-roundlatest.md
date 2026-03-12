@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:03:31.377Z
+> 2026-03-12T14:05:03.639Z
 
 ## Critical
 _없음_
@@ -132,3 +132,5 @@ _없음_
 - SceneView: 드래그/리사이즈 중 숨김 + zoom 보정 폰트 적용
 - NodeHierarchyList: ESC 키 검색 초기화 onKeyDown 존재
 - NodeHierarchyList: ESC 시 포커스 해제 존재
+- SceneInspector: UUID 복사 함수 + clipboard API 존재
+- SceneInspector: 복사 완료 피드백 (✓/#) 존재

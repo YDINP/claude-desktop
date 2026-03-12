@@ -126,6 +126,15 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
+  const [uuidCopied, setUuidCopied] = useState(false)
+
+  const handleCopyUuid = () => {
+    if (!node) return
+    navigator.clipboard.writeText(node.uuid).then(() => {
+      setUuidCopied(true)
+      setTimeout(() => setUuidCopied(false), 1200)
+    })
+  }
 
   useEffect(() => {
     if (node) setIsActive(node.active)
@@ -302,6 +311,24 @@ export function SceneInspector({ node, onUpdate, onClose, selectionCount, onRena
             </div>
             active
           </label>
+
+          {/* UUID 복사 */}
+          <button
+            onClick={handleCopyUuid}
+            title={`UUID 복사: ${node.uuid}`}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: uuidCopied ? 'var(--success)' : 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: 9,
+              padding: '0 2px',
+              lineHeight: 1,
+              transition: 'color 0.15s',
+            }}
+          >
+            {uuidCopied ? '✓' : '#'}
+          </button>
 
           {/* 닫기 */}
           <button

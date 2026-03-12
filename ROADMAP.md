@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 153 완료 — NodeHierarchyList ESC 키 검색 초기화, Pass 124)
+> 마지막 업데이트: 2026-03-12 (Round 154 완료 — SceneInspector UUID 복사 버튼, Pass 126)
 
 ## 완료된 라운드
 
@@ -105,6 +105,7 @@
 | Round 151 | dev | SceneView 방향키 nudge — 선택 노드 1px / Shift+10px 이동, 단축키 도움말 갱신 | ✅ |
 | Round 152 | dev | SceneView 선택 노드 size 레이블 — 단일 선택 시 bounding box 우상단 W×H 표시 | ✅ |
 | Round 153 | dev | NodeHierarchyList 검색창 ESC 키 → 검색어 초기화 + 포커스 해제 | ✅ |
+| Round 154 | dev | SceneInspector UUID 복사 버튼 — # 클릭 시 UUID 복사, ✓ 피드백 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

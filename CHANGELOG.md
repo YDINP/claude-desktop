@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 154] — 2026-03-12
+### Added
+- SceneInspector: UUID 복사 버튼 — 헤더 # 버튼 클릭 시 UUID 클립보드 복사, 복사 완료 시 ✓ 피드백
+
 ## [Round 153] — 2026-03-12
 ### Added
 - NodeHierarchyList: 검색창 ESC 키 → 검색어 초기화 + 포커스 해제
