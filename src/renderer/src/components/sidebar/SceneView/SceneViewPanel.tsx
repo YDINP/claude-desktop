@@ -1225,6 +1225,34 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             )}
           </g>
 
+          {/* 다중 선택 합산 bounding box */}
+          {selectedUuids.size > 1 && (() => {
+            let gbMinX = Infinity, gbMinY = Infinity, gbMaxX = -Infinity, gbMaxY = -Infinity
+            selectedUuids.forEach(uid => {
+              const n = nodeMap.get(uid)
+              if (!n) return
+              const { sx: nsx, sy: nsy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+              gbMinX = Math.min(gbMinX, nsx - n.width / 2)
+              gbMinY = Math.min(gbMinY, nsy - n.height / 2)
+              gbMaxX = Math.max(gbMaxX, nsx + n.width / 2)
+              gbMaxY = Math.max(gbMaxY, nsy + n.height / 2)
+            })
+            if (!isFinite(gbMinX)) return null
+            const pad = 4 / view.zoom
+            return (
+              <rect
+                x={gbMinX - pad} y={gbMinY - pad}
+                width={gbMaxX - gbMinX + pad * 2} height={gbMaxY - gbMinY + pad * 2}
+                fill="none"
+                stroke="rgba(96,165,250,0.5)"
+                strokeWidth={1.5 / view.zoom}
+                strokeDasharray={`${6 / view.zoom} ${3 / view.zoom}`}
+                rx={3 / view.zoom}
+                style={{ pointerEvents: 'none' }}
+              />
+            )
+          })()}
+
           {/* 마퀴 선택 rect */}
           {marquee && (
             <rect

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 187 완료 — SceneView 회전 각도 오버레이, Pass 181)
+> 마지막 업데이트: 2026-03-13 (Round 188 완료 — SceneView 다중 선택 bounding box, Pass 182)
 
 ## 완료된 라운드
 
@@ -139,6 +139,7 @@
 | Round 185 | dev | SceneView 미니맵 클릭 네비게이션 — 클릭 시 뷰포트 이동, 더블클릭 숨기기 | ✅ |
 | Round 186 | dev | SceneToolbar ⊡ 미니맵 토글 버튼 — 툴바에서 미니맵 표시/숨기기 직접 제어 | ✅ |
 | Round 187 | dev | SceneView 회전 각도 오버레이 — 회전 드래그 중 중앙에 현재 각도 실시간 표시 | ✅ |
+| Round 188 | dev | SceneView 다중 선택 bounding box — 선택 노드 전체를 감싸는 파란 점선 박스 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

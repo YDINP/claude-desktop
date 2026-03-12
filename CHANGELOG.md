@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 188] — 2026-03-13
+### Added
+- SceneView: 다중 선택 시 합산 bounding box 표시 — 선택된 모든 노드를 감싸는 파란 점선 사각형
+
 ## [Round 187] — 2026-03-13
 ### Added
 - SceneView: 회전 중 각도 오버레이 — 회전 드래그 시 중앙에 현재 각도(XX.X°) 실시간 표시

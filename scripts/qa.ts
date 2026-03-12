@@ -1914,6 +1914,19 @@ if (existsSync(svp187Path)) {
   }
 }
 
+// ── Section 90: R188 신규 기능 ───────────────────────────────
+console.log('\n## 90. 신규 기능 파일 검사 (R188)')
+// SceneView 다중 선택 bounding box (Round 188)
+const svp188Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp188Path)) {
+  const svp188 = readFileSync(svp188Path, 'utf-8')
+  if (svp188.includes('다중 선택 합산 bounding box') && svp188.includes('gbMinX') && svp188.includes('selectedUuids.size > 1')) {
+    log('pass', 'Round188', 'SceneView: 다중 선택 bounding box 표시 존재')
+  } else {
+    log('warning', 'Round188', 'SceneView 다중 선택 bounding box 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
