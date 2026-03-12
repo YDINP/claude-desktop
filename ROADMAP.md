@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 197 완료 — SceneView Tab/Shift+Tab 형제 노드 순환, Pass 192)
+> 마지막 업데이트: 2026-03-13 (Round 198 완료 — SceneView Ctrl+]/[ z-order 변경, Pass 193)
 
 ## 완료된 라운드
 
@@ -149,6 +149,7 @@
 | Round 195 | dev | ClipboardPanel 검색 필터 — 텍스트/소스 실시간 검색 + Esc 초기화 | ✅ |
 | Round 196 | dev | TasksPanel 인라인 편집 — 더블클릭으로 텍스트 편집, Enter 저장, Esc 취소 | ✅ |
 | Round 197 | dev | SceneView Tab/Shift+Tab 형제 노드 순환 선택 | ✅ |
+| Round 198 | dev | SceneView Ctrl+]/[ z-order 변경 — 부모 childUuids 배열에서 노드 순서 이동 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

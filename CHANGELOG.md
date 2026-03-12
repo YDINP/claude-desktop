@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 198] — 2026-03-13
+### Added
+- SceneView: Ctrl+] / Ctrl+[ 로 노드 z-order 변경 (앞으로/뒤로 한 단계)
+
 ## [Round 197] — 2026-03-13
 ### Added
 - SceneView: Tab/Shift+Tab으로 형제 노드 순환 선택 (다음/이전 형제 토글)

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 100: R198 신규 기능 ───────────────────────────────
+console.log('\n## 100. 신규 기능 파일 검사 (R198)')
+// SceneView Ctrl+]/Ctrl+[ z-order 변경 (Round 198)
+const svp198Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp198Path)) {
+  const svp198 = readFileSync(svp198Path, 'utf-8')
+  if (svp198.includes("e.key === ']'") && svp198.includes('z-order') && svp198.includes('childUuids')) {
+    log('pass', 'Round198', 'SceneView: Ctrl+]/[ z-order 변경 존재')
+  } else {
+    log('warning', 'Round198', 'SceneView Ctrl+]/[ z-order 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 99: R197 신규 기능 ───────────────────────────────
 console.log('\n## 99. 신규 기능 파일 검사 (R197)')
 // SceneView Tab/Shift+Tab 형제 노드 순환 선택 (Round 197)

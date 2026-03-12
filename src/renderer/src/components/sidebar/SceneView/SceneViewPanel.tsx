@@ -212,10 +212,31 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         handleDuplicate()
         e.preventDefault()
       }
+      // Ctrl+] / Ctrl+[: z-order 변경 (앞으로/뒤로)
+      if ((e.ctrlKey || e.metaKey) && (e.key === ']' || e.key === '[') && selectedUuid) {
+        e.preventDefault()
+        const node = nodeMap.get(selectedUuid)
+        if (node?.parentUuid) {
+          const parent = nodeMap.get(node.parentUuid)
+          if (parent && parent.childUuids.length > 1) {
+            const idx = parent.childUuids.indexOf(selectedUuid)
+            const newChildUuids = [...parent.childUuids]
+            if (e.key === ']' && idx < newChildUuids.length - 1) {
+              // 앞으로 (위로): idx+1과 교환
+              ;[newChildUuids[idx], newChildUuids[idx + 1]] = [newChildUuids[idx + 1], newChildUuids[idx]]
+              updateNode(parent.uuid, { childUuids: newChildUuids })
+            } else if (e.key === '[' && idx > 0) {
+              // 뒤로 (아래로): idx-1과 교환
+              ;[newChildUuids[idx], newChildUuids[idx - 1]] = [newChildUuids[idx - 1], newChildUuids[idx]]
+              updateNode(parent.uuid, { childUuids: newChildUuids })
+            }
+          }
+        }
+      }
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate])
+  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate, selectedUuid, nodeMap])
 
   // ── Space 키 임시 패닝 모드 ────────────────────────────────
   useEffect(() => {
@@ -1655,6 +1676,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['M', '미니맵 토글'],
               ['N', '새 노드 생성'],
               ['Tab/Shift+Tab', '다음/이전 형제 노드 선택'],
+              ['Ctrl+]', '앞으로 (z-order +1)'],
+              ['Ctrl+[', '뒤로 (z-order -1)'],
               ['Del/Backspace', '선택 노드 삭제'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
