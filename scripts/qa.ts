@@ -81,7 +81,9 @@ if (existsSync(ccBridgePath)) {
   } else {
     log('pass', 'CC-Bridge', '자동 재연결 로직 존재')
   }
-  if (!content.includes('disconnect()') || content.indexOf('disconnect') === content.lastIndexOf('disconnect')) {
+  // disconnect 메서드 안에 reconnectTimer clearTimeout이 있는지 확인
+  const disconnectBlock = content.match(/disconnect\s*\(\)[^}]*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/s)?.[1] ?? ''
+  if (!disconnectBlock.includes('reconnectTimer') || !disconnectBlock.includes('clearTimeout')) {
     log('warning', 'CC-Bridge', 'disconnect 메서드 reconnect 취소 확인 필요', 'src/main/cc/cc-bridge.ts')
   }
 } else {
@@ -112,13 +114,18 @@ for (const rf of routerFiles) {
   const fp = join(ROOT, rf)
   if (!existsSync(fp)) continue
   const content = readFileSync(fp, 'utf-8')
-  const ccHandlerCalls = (content.match(/registerCCHandlers/g) ?? []).length
+  // import 문 제외하고 실제 호출만 카운트
+  const callMatches = content.match(/^\s*registerCCHandlers\s*\(/gm) ?? []
+  const ccHandlerCalls = callMatches.length
   if (ccHandlerCalls > 1) {
     log('critical', 'IPC', `registerCCHandlers 중복 호출: ${ccHandlerCalls}회`, rf)
   } else if (ccHandlerCalls === 1) {
     log('pass', 'IPC', 'registerCCHandlers 정상 등록', rf)
   } else {
-    log('warning', 'IPC', `registerCCHandlers 미등록`, rf)
+    // index.ts는 router를 통해 간접 호출 — 정상
+    if (rf === 'src/main/ipc/router.ts') {
+      log('warning', 'IPC', `registerCCHandlers 미등록`, rf)
+    }
   }
 }
 

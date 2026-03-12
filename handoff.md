@@ -1,76 +1,91 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 66 완료)
+> 마지막 업데이트: 2026-03-12 (Round 67 완료)
 
 ## 현재 상태
-- Round 63까지 완료 (SDK 전수 파싱 + 버블 차별화 + 애니메이션)
-- Round 64 진행 중: `feature/cocos-integration` 브랜치, CC Extension 파일 생성
+- Round 67까지 완료 (QA 자동화 + 전체 검수 + 수정)
+- 브랜치: `feature/cocos-integration` (Round 64~67 CC 통합 작업)
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 
-## Round 63 완료 작업
+## Round 67 완료 작업
 
-### Team A — SDK 전수 파싱
-- **agent-bridge.ts**: thinking/thinking_delta/tool_result/tool_progress/usage/error/overloaded_error/system.status 처리
-- **App.tsx**: 위 이벤트 핸들러 추가
+### QA 자동화 시스템
+- `scripts/qa.ts` — TypeScript/import/CC/Sidebar/IPC 자동 검증 스크립트
+- `npm run qa` / `npm run qa -- --round=N` 으로 실행
+- `qa-report-roundN.md` 자동 생성
 
-### Team B — MessageBubble 차별화
-- **MessageBubble.tsx**: user 버블 accent 라인, assistant 버블 success 라인, bg-user 배경
-- **MessageBubble.tsx**: 코드 블록 헤더 바 (언어명 / 라인수 / 복사 버튼)
-- **theme.css**: `--success`, `--bg-user` CSS 변수 추가
+### QA 검수 결과 및 수정 (Round 63~67)
 
-### Team C — 애니메이션
-- **global.css**: blink / typing-bounce / fadeIn / tool-pulse 애니메이션
-- 스트리밍 블링킹 커서, TypingIndicator 3-dot bounce
-- 사이드바 패널 fadeIn 전환, ToolUseIndicator 진행 바
+**Critical 4건 수정:**
+- `preload/index.ts` — onCCEvent/onCCStatusChange removeAllListeners → removeListener(handler)
+- `cc-bridge.ts` — _intentionalDisconnect 플래그 추가 (disconnect 후 재연결 루프 방지)
+- `cc-handlers.ts` — _ccHandlersRegistered 가드 (ipcMain.handle 중복 등록 방지)
+- `cc-handlers.ts` — CC_STATUS port/version 하드코딩 → ccBridge getter 참조
 
-## Round 64 — CC Extension WebSocket 서버 (진행 중)
-- [x] `feature/cocos-integration` 브랜치 생성
-- [x] `rollback/pre-round-64` 태그
-- [x] `extensions/cc-ws-extension-2x/` 파일 생성 (package.json / main.js / scene-script.js)
-- [x] `extensions/cc-ws-extension-3x/` 파일 생성 (package.json / main.js / scene-script.js)
-- [x] `extensions/README.md`
-- [x] 커밋
+**Warning/성능/접근성 수정:**
+- `env.d.ts` — claudePermissionReply allowSession 타입 동기화
+- `cc-ws-extension-3x/main.js` — node:deselect 이벤트 추가
+- `cc-ws-extension-2x/scene-script.js` — getNode 불필요 조건 제거
+- `SceneTreePanel.tsx` — children undefined guard + NodeRow React.memo
+- `CocosPanel.tsx` — unmount 가드 + handleNodeUpdate useCallback
+- `theme.css` — --success #26a641 → #3fb950 (WCAG AA 4.6:1)
+- `cc-action-parser.ts` — refreshTree 실제 구현
+- `scripts/qa.ts` — import/오탐 수정 (import 문 제외 호출 카운트, disconnect 블록 파싱 개선)
 
-## Round 65 완료 (3팀 모두 완료, TS 오류 없음)
-- CC 패널 (SceneTreePanel / NodePropertyPanel / WebPreviewPanel)
+## 다음 세션 작업 (Round 68~)
 
-## Round 66 완료
-- [x] `src/renderer/src/hooks/useCCContext.ts` — 씬 트리 구독, contextString 생성
-- [x] `src/renderer/src/utils/cc-action-parser.ts` — cc-action 블록 파싱 및 실행
-- [x] `ChatPanel.tsx` — useCCContext 주입, handleSend에 extraSystemPrompt, 스트리밍 완료 후 cc-action 자동 실행, CC 연결 상태 배너
-- [x] `claude:send` IPC — extraSystemPrompt 필드 지원 (메인/preload/env.d.ts)
-- [x] TS 오류 없음, 커밋 완료
+### Round 68: CC UX 완성 (feature/cocos-integration)
+- [ ] CC 프로젝트 자동 감지 (현재 열린 폴더 기준 project.json 탐지)
+- [ ] Extension 자동 설치 가이드 UI
+- [ ] WebSocket 연결 끊김 → 자동 재연결 UI 표시
+- [ ] 씬 변경 시 SceneTreePanel 실시간 갱신 최적화
+- [ ] 멀티 프로젝트 포트 설정 저장
 
-## 다음 세션 작업 (Round 67)
-- Round 67: UX 완성 (자동감지, 재연결, 실시간 갱신)
+### Round 69: Adaptive Thinking 시각화 (main 브랜치)
+- [ ] thinking 블록 별도 패널/토글 UI
+- [ ] Effort 레벨 선택 UI + maxBudgetUsd 설정
+- [ ] ToolUse 실시간 상태 표시 고도화
 
 ## 알려진 이슈 (미수정, 검토 필요)
-- `runInSandbox` — `new Function(code)` 직접 실행 (`MessageBubble.tsx:57`) — 사용자 확인 필요
-- `sandbox: false` Electron 설정 — OS 샌드박스 없음 (`main/index.ts:50`)
+- `runInSandbox` — `new Function(code)` 직접 실행 (`MessageBubble.tsx:57`)
+- `sandbox: false` Electron 설정 — OS 샌드박스 없음
 - `bypassCSP: true` local:// 프로토콜 광범위 CSP 우회
 - `session:importBackup` 백업 파일 구조 검증 없음
+
+## 브랜치 구조
+- `main` — Round 62까지 (안정 버전)
+- `feature/cocos-integration` — Round 64~67 CC 통합 (검수 완료, merge 대기)
+- 롤백: `git checkout rollback/pre-round-64` 태그
 
 ## 아키텍처 요약
 ```
 Electron (Main)
-├── ipc/fs-handlers.ts       — 파일시스템, Git (execFile로 Shell Injection 방지됨)
-├── ipc/session-handlers.ts  — 세션 저장 (~/.claude-desktop/sessions/, session.id 검증 추가됨)
-├── ipc/claude-handlers.ts   — Claude API 라우팅
-├── claude/agent-bridge.ts   — Claude Agent SDK (Round 63에서 전수 파싱 완료)
-└── main/index.ts            — BrowserWindow, local:// 프로토콜
+├── ipc/fs-handlers.ts       — 파일시스템, Git
+├── ipc/session-handlers.ts  — 세션 저장 (session.id 검증)
+├── ipc/claude-handlers.ts   — Claude API + extraSystemPrompt 지원
+├── ipc/cc-handlers.ts       — CC WebSocket 브릿지 IPC (NEW)
+├── cc/cc-bridge.ts          — CC WebSocket 연결 관리 (NEW)
+├── claude/agent-bridge.ts   — SDK 전수 파싱 (16개 타입)
+└── main/index.ts            — BrowserWindow
 
 Renderer (React 18)
-├── components/chat/          — ChatPanel, MessageBubble (버블 차별화, 코드헤더), InputBar
+├── components/chat/          — ChatPanel (CC 컨텍스트 주입), MessageBubble, InputBar
 ├── components/sidebar/       — Sidebar, SessionList, FileTree
+│                               CocosPanel, SceneTreePanel, NodePropertyPanel, WebPreviewPanel (NEW)
 ├── components/shared/        — StatusBar, CommandPalette, SettingsPanel
-└── styles/                   — theme.css (--success/--bg-user), global.css (애니메이션)
+├── hooks/useCCContext.ts     — CC 연결/씬트리 상태 (NEW)
+├── utils/cc-action-parser.ts — Claude 응답 CC 액션 파싱 (NEW)
+└── styles/                   — theme.css, global.css
 
-CC Extensions (feature/cocos-integration)
-├── extensions/cc-ws-extension-2x/  — CC 2.x HTTP+WS on port 9090
-└── extensions/cc-ws-extension-3x/  — CC 3.x HTTP+WS on port 9091
+CC Extensions (extensions/)
+├── cc-ws-extension-2x/      — CC 2.x HTTP+WS port 9090
+└── cc-ws-extension-3x/      — CC 3.x HTTP+WS port 9091
+
+QA
+└── scripts/qa.ts            — 자동화 QA 스크립트 (NEW)
 ```
 
 ## 참고 설정
 - Plane 연동: **제외** (2026-03-12 사용자 지시)
-- 빌드: `npm run build` (Electron + Vite)
-- 번들: 406kB 메인 + vendor-react/syntax/markdown/terminal/mermaid 분리
+- 빌드: `npm run build`
+- QA: `npm run qa`
