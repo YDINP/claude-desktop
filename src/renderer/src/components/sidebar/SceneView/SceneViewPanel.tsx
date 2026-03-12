@@ -125,6 +125,22 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [clipboard, nodeMap, updateNode])
 
+  // ── 복제 (Ctrl+D): clipboard 변경 없이 직접 노드 복제 ─────
+  const handleDuplicate = useCallback(() => {
+    const uuids = selectedUuids.size > 0 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
+    uuids.forEach(uuid => {
+      const orig = nodeMap.get(uuid)
+      if (!orig) return
+      updateNode(orig.uuid + '-dup-' + Date.now(), {
+        ...orig,
+        uuid: orig.uuid + '-dup-' + Date.now(),
+        name: orig.name + '_Copy',
+        x: (orig.x ?? 0) + 20,
+        y: (orig.y ?? 0) + 20,
+      })
+    })
+  }, [selectedUuids, selectedUuid, nodeMap, updateNode])
+
   // ── 단축키 ────────────────────────────────────────────────
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -167,10 +183,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         handlePaste()
         e.preventDefault()
       }
+      if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
+        handleDuplicate()
+        e.preventDefault()
+      }
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste])
+  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate])
 
   // ── Ctrl+A 전체 선택 ──────────────────────────────────────
   useEffect(() => {
@@ -1216,6 +1236,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Ctrl+A', '전체 선택'],
               ['Ctrl+C', '복사'],
               ['Ctrl+V', '붙여넣기'],
+              ['Ctrl+D', '복제 (클립보드 유지)'],
               ['Escape', '선택 해제'],
               ['↑↓←→', '선택 노드 1px 이동'],
               ['Shift+↑↓←→', '선택 노드 10px 이동'],

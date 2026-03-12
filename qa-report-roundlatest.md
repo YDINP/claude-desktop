@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:13:28.234Z
+> 2026-03-12T14:15:04.604Z
 
 ## Critical
 _없음_
@@ -144,3 +144,5 @@ _없음_
 - SceneView: nodeMap 전체 선택 + 단축키 도움말 갱신
 - SceneView: anchor point 마커 polygon 엘리먼트 존재
 - SceneView: anchor 다이아몬드 좌표 + zoom 보정 존재
+- SceneView: handleDuplicate + Ctrl+D 핸들러 존재
+- SceneView: Ctrl+D 단축키 도움말 항목 존재

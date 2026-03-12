@@ -1445,6 +1445,24 @@ if (existsSync(sceneViewPanelPath25)) {
   }
 }
 
+// ── Section 62: R160 신규 기능 ───────────────────────────────
+console.log('\n## 62. 신규 기능 파일 검사 (R160)')
+// Ctrl+D 복제 (Round 160)
+const sceneViewPanelPath26 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath26)) {
+  const svp26 = readFileSync(sceneViewPanelPath26, 'utf-8')
+  if (svp26.includes('handleDuplicate') && svp26.includes("e.key === 'd'")) {
+    log('pass', 'Round160', "SceneView: handleDuplicate + Ctrl+D 핸들러 존재")
+  } else {
+    log('warning', 'Round160', 'SceneView Ctrl+D 복제 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp26.includes("'복제 (클립보드 유지)'") && svp26.includes("'Ctrl+D'")) {
+    log('pass', 'Round160', 'SceneView: Ctrl+D 단축키 도움말 항목 존재')
+  } else {
+    log('warning', 'Round160', 'SceneView Ctrl+D 도움말 항목 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

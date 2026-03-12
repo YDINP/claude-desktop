@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 160] — 2026-03-12
+### Added
+- SceneView: Ctrl+D 복제 단축키 — 클립보드 변경 없이 선택 노드 20px 오프셋 복제
+
 ## [Round 159] — 2026-03-12
 ### Added
 - SceneView: 선택 노드 anchor point 마커 — 노드 position(=anchor 위치)에 황색 ◇ polygon 표시
