@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:25:56.117Z
+> 2026-03-12T18:58:55.909Z
 
 ## Critical
 _없음_
@@ -9,7 +9,7 @@ _없음_
 
 ## Pass
 - tsc --noEmit 오류 없음
-- 99개 소스 파일 검사 완료
+- 100개 소스 파일 검사 완료
 - 자동 재연결 로직 존재
 - cocos 탭 정상 등록
 - registerCCHandlers 정상 등록
@@ -156,3 +156,139 @@ _없음_
 - SceneView: 멀티셀렉트 시 선택 수 추가 표시
 - SceneInspector: JSON 내보내기 버튼 + stringify 존재
 - SceneInspector: JSON 복사 버튼 + clipboard API 존재
+- NodeHierarchyList: contextMenu state + handleContextMenu 존재
+- NodeHierarchyList: onCopyNode prop + data-uuid 존재
+- SceneViewPanel: onCopyNode prop 연결됨
+- SceneInspector: scaleLocked state + handleScaleUpdate 존재
+- SceneInspector: 비율 잠금 버튼 존재
+- SceneViewPanel: rotateRef + handleRotateMouseDown 존재
+- SceneViewPanel: 회전 핸들 SVG 존재
+- SceneInspector: onColorUpdate prop + input[type=color] 존재
+- SceneViewPanel: handleColorUpdate + onColorUpdate 연결됨
+- NodeRenderer: onDoubleClick prop 존재
+- SceneInspector: focusNameTrigger + nameInputRef 존재
+- SceneViewPanel: svgContextMenu state + onContextMenu 존재
+- SceneViewPanel: 우클릭 컨텍스트 메뉴 JSX 존재
+- SceneInspector: sizeLocked state + handleSizeUpdate 존재
+- SceneInspector: Size + Scale 비율 잠금 버튼 모두 존재
+- MessageBubble: showLineNumbers + lineNumberStyle 존재
+- SceneToolbar: zoomEditing state + zoomDraft 존재
+- SceneToolbar: commitZoomEdit + onDoubleClick 존재
+- SceneInspector: ChildList 컴포넌트 + expanded state 존재
+- SceneInspector: 자식 목록 펼치기 버튼 존재
+- SceneViewPanel: 드래그/리사이즈 중 노드 정보 상태바 존재
+- SceneToolbar: bgLight + onBgToggle prop 존재
+- SceneViewPanel: bgLight state + 체크패턴 분기 존재
+- SceneViewPanel: Alt+Up/Down 계층 탐색 존재
+- SceneInspector: Position 리셋 버튼 존재
+- SceneInspector: Rotation ⊙ 리셋 버튼 존재
+- SceneInspector: Scale ⊙ 리셋 버튼 존재
+- SceneInspector: Anchor ⊙ 리셋 버튼 존재
+- SceneInspector: 조상 Breadcrumb 경로 표시 존재
+- SceneView: 미니맵 오버레이 존재
+- SceneView: 미니맵 클릭 뷰포트 이동 존재
+- SceneToolbar: 미니맵 토글 버튼 존재
+- SceneView: 회전 각도 오버레이 존재
+- SceneView: 다중 선택 bounding box 표시 존재
+- SceneView: Ctrl+←→ 회전 단축키 존재
+- SceneInspector: Color 알파 슬라이더 존재
+- SceneView: M키 미니맵 토글 + 도움말 업데이트
+- SceneView: 원점(0,0) 십자선 가이드 존재
+- SceneView: N키 빠른 노드 생성 단축키 존재
+- CalendarPanel: 오늘 빠른 이동 버튼 존재
+- CalendarPanel: 세션 수 합계 표시 존재
+- ClipboardPanel: 검색 필터 존재
+- TasksPanel: 인라인 태스크 편집 존재
+- SceneViewPanel: 북마크 클릭 시 카메라 포커스 이동 존재
+- SceneViewPanel: 검색 노드 조상 자동 펼치기 (ancestors) 존재
+- SceneViewPanel: 호버 툴팁 memo 표시 존재
+- TasksPanel: 진행률 바 (progressPct) 구현 존재
+- SceneViewPanel: 다중 선택 bounding box 중앙 마커 존재
+- SceneViewPanel: 드래그 원본 위치 고스트 박스 오버레이 존재
+- NotesPanel: Markdown 내보내기 (exportNotes) 구현 존재
+- TasksPanel: 마감일 기능 (dueDate + overdue 강조) 존재
+- SceneViewPanel: Alt 홀드 스냅 일시 비활성화 (altKey 체크) 존재
+- SceneViewPanel: P키 부모 노드 선택 (parentUuid) 존재
+- SceneViewPanel: 씬 통계 컴포넌트 타입 분포 (topComps) 존재
+- SceneViewPanel: H키/Alt+L 다중 선택 일괄 가시성/잠금 처리 존재
+- NotesPanel: 핀 고정 기능 (pinned + togglePin) 구현 존재
+- SceneViewPanel: I키 노드 정보 오버레이 (showNodeInfo) 구현 존재
+- SceneViewPanel: 선택 노드 앵커 포인트 십자 마커 구현 존재
+- NotesPanel: 정렬 기능 (sortOrder + sortedNotes) 구현 존재
+- NotesPanel: 노트 검색 기능 (searchQuery + filteredNotes) 구현 존재
+- SceneViewPanel: Alt+[/] 투명도 조절 단축키 구현 존재
+- SceneViewPanel: Ctrl+Shift+A 선택 반전 구현 존재
+- SceneViewPanel: 인라인 편집바 rotation(r) 필드 구현 존재
+- SceneViewPanel: 연결선 cubic bezier + 화살표 마커 구현 존재
+- SceneViewPanel: 드래그 델타 오버레이 구현 존재
+- SceneViewPanel: 그룹 해제 (handleUngroup + Ctrl+Shift+G) 구현 존재
+- SceneViewPanel: Alt+1~9 빠른 색상 레이블 구현 존재
+- SceneViewPanel: 호버 툴팁 리치 정보 (pos/size/components) 구현 존재
+- SceneViewPanel: H키 가시성 토글 단축키 구현 존재
+- SceneViewPanel: 컨텍스트 메뉴 확장 항목 구현 존재
+- SceneViewPanel: 멀티셀렉트 bounding box 줌 구현 존재
+- SceneViewPanel: 노드 경로 브레드크럼 구현 존재
+- SceneViewPanel: 태그 필터 상태 및 dimmed 로직 구현 존재
+- SceneToolbar: 태그 필터 드롭다운 구현 존재
+- SceneViewPanel: Alt+L 노드 잠금 단축키 구현 존재
+- NodeRenderer: locked prop + 🔒 아이콘 구현 존재
+- SceneToolbar: 잠금 버튼 구현 존재
+- SceneViewPanel: 노드 크기 맞추기 (W/H/both) 구현 존재
+- SceneToolbar: 크기 맞추기 버튼 3종 존재
+- SceneViewPanel: 씬 변경 감지 + Dirty 표시 구현 존재
+- SceneViewPanel: PNG 내보내기 (SVG→Canvas→PNG) 구현 존재
+- SceneToolbar: PNG 내보내기 버튼 존재
+- SceneViewPanel: 카메라 뷰 히스토리 + Alt+←/→ 네비게이션 존재
+- SceneViewPanel: 즐겨찾기 상태 + 목록 팝업 + Ctrl+B 단축키 존재
+- NodeRenderer: 즐겨찾기 별 표시 존재
+- SceneViewPanel: 참조 이미지 오버레이 + 설정 패널 구현 존재
+- SceneToolbar: 참조 이미지 버튼 존재
+- SceneViewPanel: 측정 도구 모드 + 라인 렌더링 존재
+- SceneToolbar: 측정 도구 버튼 존재
+- SceneViewPanel: 선택 노드 인라인 X/Y/W/H 편집바 구현 존재
+- SceneViewPanel: 검색 순환 네비게이션 구현 존재
+- SceneViewPanel: Focus Mode 상태 + 단축키 + 툴바 연결 존재
+- SceneToolbar: Focus Mode 버튼 존재
+- SceneViewPanel: Alt+클릭 그룹 접기/펼치기 구현 존재
+- NodeRenderer: collapsed/hasChildren 표시 구현 존재
+- SceneViewPanel: 컴포넌트 필터 상태 + 툴바 연결 존재
+- SceneToolbar: 컴포넌트 필터 드롭다운 존재
+- NodeRenderer: dimmed prop으로 필터 미매칭 노드 희미하게 처리
+- SceneViewPanel: 노드 이동 히스토리 UI 구현 존재
+- NodeRenderer: LOD 줌 레벨별 디테일 렌더링 존재
+- SceneViewPanel: Ctrl+F 검색 + 하이라이트 링 구현 존재
+- SceneViewPanel: 하단 상태바 구현 존재
+- SceneInspector: Cocos에 적용 버튼 존재
+- SceneViewPanel: onApplyToCocos ccMoveNode 연동 존재
+- SceneViewPanel: 씬 통계 패널 구현 존재
+- SceneToolbar: 통계 토글 버튼 존재
+- SceneViewPanel: 부모-자식 연결선 SVG 렌더링 존재
+- SceneToolbar: 연결선 토글 버튼 존재
+- types.ts: SceneNode.labelColor 필드 존재
+- NodeRenderer: labelColor fill 처리 존재
+- SceneInspector: 라벨 색상 피커 존재
+- types.ts: SceneNode.tags 필드 존재
+- SceneInspector: 태그 입력/삭제 UI 존재
+- NodeHierarchyList: tag: 프리픽스 태그 필터 존재
+- SceneViewPanel: 스냅 그리드 크기 상태 및 연동 존재
+- SceneToolbar: 스냅 그리드 크기 드롭다운 존재
+- SceneViewPanel: 씬 저장 슬롯 3개 구현 존재
+- SceneToolbar: 슬롯 드롭다운 존재
+- SceneViewPanel: 씬 저장/로드 localStorage 구현 존재
+- SceneToolbar: 💾 저장 / 📂 로드 버튼 존재
+- SceneViewPanel: Shift 비례 리사이즈 구현 존재
+- NodeHierarchyList: 가시성 토글 👁 아이콘 존재
+- NodeRenderer: visible=false 시 반투명 처리 존재
+- SceneViewPanel: SVG 씬 내보내기 구현 존재
+- SceneToolbar: onExportSvg 버튼 prop 존재
+- SceneToolbar: 캔버스 크기 프리셋 드롭다운 존재
+- SceneView: 드래그 중 정렬 가이드라인 존재
+- NotesPanel: 자유 메모장 패널 존재
+- SceneInspector: 노드 메모 입력란 존재
+- SceneView: 노드 잠금 아이콘 + 드래그 방어 존재
+- SceneView: 픽셀 눈금자 (R 키 토글) 존재
+- SceneView: N/E/S/W 측면 리사이즈 핸들 존재
+- SceneView: Ctrl+G 노드 그룹화 존재
+- NodeHierarchyList: 인라인 이름 편집 (더블클릭/컨텍스트메뉴) 존재
+- SceneView: Ctrl+]/[ z-order 변경 존재
+- SceneView: Tab/Shift+Tab 형제 노드 순환 선택 존재

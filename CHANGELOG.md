@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 264] — 2026-03-13
+### Improved
+- SceneView: 북마크 목록 클릭 시 카메라 자동 포커스 — 선택과 동시에 노드 bounding box로 뷰 이동
+
 ## [Round 263] — 2026-03-13
 ### Improved
 - SceneView: 검색 이동 시 접힌 조상 노드 자동 펼치기 — handleSearchNav에서 parentUuid chain의 collapsedUuids 제거

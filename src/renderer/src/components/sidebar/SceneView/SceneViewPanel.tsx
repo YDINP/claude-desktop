@@ -2513,7 +2513,24 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               if (!n) return null
               return (
                 <div key={uuid}
-                  onClick={() => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])); setShowBookmarkList(false) }}
+                  onClick={() => {
+                    setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])); setShowBookmarkList(false)
+                    // 카메라 포커스: 북마크 클릭 시 해당 노드로 이동
+                    if (!containerRef.current) return
+                    const n = nodeMap.get(uuid)
+                    if (!n) return
+                    const { width, height } = containerRef.current.getBoundingClientRect()
+                    const padding = 60
+                    const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+                    const pw = n.width * Math.abs(n.scaleX)
+                    const ph = n.height * Math.abs(n.scaleY)
+                    const rx = sx - pw * n.anchorX
+                    const ry = sy - ph * (1 - n.anchorY)
+                    const bboxW = Math.max(pw, 40); const bboxH = Math.max(ph, 40)
+                    const cx = rx + bboxW / 2; const cy = ry + bboxH / 2
+                    const targetZoom = Math.min((width - padding * 2) / bboxW, (height - padding * 2) / bboxH, 4)
+                    setView({ offsetX: width / 2 - cx * targetZoom, offsetY: height / 2 - cy * targetZoom, zoom: targetZoom })
+                  }}
                   style={{ padding: '2px 4px', cursor: 'pointer', borderRadius: 2, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.07)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none' }}

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 166: R264 신규 기능 ───────────────────────────────
+console.log('\n## 166. 신규 기능 파일 검사 (R264)')
+// SceneView 북마크 클릭 시 카메라 포커스 (Round 264)
+const svp264Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp264Path)) {
+  const svp264 = readFileSync(svp264Path, 'utf-8')
+  if (svp264.includes('카메라 포커스: 북마크 클릭') && svp264.includes('targetZoom') && svp264.includes('setShowBookmarkList')) {
+    log('pass', 'Round264', 'SceneViewPanel: 북마크 클릭 시 카메라 포커스 이동 존재')
+  } else {
+    log('warning', 'Round264', 'SceneViewPanel 북마크 클릭 카메라 포커스 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 165: R263 신규 기능 ───────────────────────────────
 console.log('\n## 165. 신규 기능 파일 검사 (R263)')
 // SceneView 검색 조상 자동 펼치기 (Round 263)
