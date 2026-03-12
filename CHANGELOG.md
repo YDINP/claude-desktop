@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 323] — 2026-03-13
+### Added
+- RemotePanel: 3개 초과 호스트 시 검색 필터 입력 표시 — alias/hostname/user 부분 일치 필터링
+
 ## [Round 322] — 2026-03-13
 ### Added
 - SnippetPanel: 각 스니펫에 📋 복사 버튼 추가 — 클립보드 복사 후 ✓ 피드백 1.5초 표시

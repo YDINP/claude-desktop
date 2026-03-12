@@ -45,6 +45,7 @@ export function RemotePanel() {
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
 
   const [form, setForm] = useState({ label: '', hostname: '', user: '', port: '22' })
+  const [query, setQuery] = useState('')
 
   const showToast = (message: string, type: ToastType = 'info') => {
     setToast({ message, type })
@@ -158,6 +159,13 @@ export function RemotePanel() {
     boxSizing: 'border-box',
   }
 
+  const q = query.trim().toLowerCase()
+  const filteredSsh = q ? sshHosts.filter(h =>
+    h.alias.toLowerCase().includes(q) || h.hostname.toLowerCase().includes(q) || h.user.toLowerCase().includes(q)
+  ) : sshHosts
+  const filteredSaved = q ? savedHosts.filter(h =>
+    h.label.toLowerCase().includes(q) || h.hostname.toLowerCase().includes(q) || h.user.toLowerCase().includes(q)
+  ) : savedHosts
   const isEmpty = sshHosts.length === 0 && savedHosts.length === 0
 
   return (
@@ -175,11 +183,23 @@ export function RemotePanel() {
         <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>SSH 원격 워크스페이스</div>
       </div>
 
+      {/* Search filter */}
+      {(sshHosts.length + savedHosts.length) > 2 && (
+        <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="호스트 검색..."
+            style={{ ...inputStyle, padding: '3px 7px', fontSize: 11 }}
+          />
+        </div>
+      )}
+
       {/* SSH Config hosts */}
-      {sshHosts.length > 0 && (
+      {filteredSsh.length > 0 && (
         <>
           <div style={labelStyle}>~/.ssh/config 호스트</div>
-          {sshHosts.map((h) => (
+          {filteredSsh.map((h) => (
             <div key={h.alias} style={rowStyle}>
               <div style={hostInfoStyle}>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -198,10 +218,10 @@ export function RemotePanel() {
       )}
 
       {/* Saved hosts */}
-      {savedHosts.length > 0 && (
+      {filteredSaved.length > 0 && (
         <>
           <div style={labelStyle}>저장된 호스트</div>
-          {savedHosts.map((h) => (
+          {filteredSaved.map((h) => (
             <div key={h.id} style={rowStyle}>
               <div style={hostInfoStyle}>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

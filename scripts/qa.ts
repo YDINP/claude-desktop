@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 225: R323 신규 기능 ───────────────────────────────
+console.log('\n## 225. 신규 기능 파일 검사 (R323)')
+// RemotePanel 호스트 검색 필터 (Round 323)
+const rp323Path = join(ROOT, 'src/renderer/src/components/sidebar/RemotePanel.tsx')
+if (existsSync(rp323Path)) {
+  const rp323 = readFileSync(rp323Path, 'utf-8')
+  if (rp323.includes('filteredSsh') && rp323.includes('filteredSaved') && rp323.includes('호스트 검색')) {
+    log('pass', 'Round323', 'RemotePanel: 호스트 검색 필터 (filteredSsh/filteredSaved/query) 존재')
+  } else {
+    log('warning', 'Round323', 'RemotePanel 검색 필터 미구현', 'sidebar/RemotePanel.tsx')
+  }
+}
+
 // ── Section 224: R322 신규 기능 ───────────────────────────────
 console.log('\n## 224. 신규 기능 파일 검사 (R322)')
 // SnippetPanel 스니펫 복사 버튼 (Round 322)
