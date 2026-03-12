@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 261: R359 신규 기능 ───────────────────────────────
+console.log('\n## 261. 신규 기능 파일 검사 (R359)')
+// SearchPanel 전체 접기/펼치기 (Round 359)
+const sp359Path = join(ROOT, 'src/renderer/src/components/sidebar/SearchPanel.tsx')
+if (existsSync(sp359Path)) {
+  const sp359 = readFileSync(sp359Path, 'utf-8')
+  if (sp359.includes('collapsedFiles.size < grouped.length') && sp359.includes('전체 접기') && sp359.includes('전체 펼치기')) {
+    log('pass', 'Round359', 'SearchPanel: 전체 접기/펼치기 버튼 (collapsedFiles.size < grouped.length) 존재')
+  } else {
+    log('warning', 'Round359', 'SearchPanel 전체 접기/펼치기 미구현', 'sidebar/SearchPanel.tsx')
+  }
+}
+
 // ── Section 260: R358 신규 기능 ───────────────────────────────
 console.log('\n## 260. 신규 기능 파일 검사 (R358)')
 // StatsPanel 히트맵 요일 레이블 (Round 358)

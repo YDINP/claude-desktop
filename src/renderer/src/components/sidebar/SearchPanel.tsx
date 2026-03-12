@@ -335,9 +335,26 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
 
       {/* Results summary */}
       {!isSearching && grouped.length > 0 && (
-        <div style={{ padding: '3px 8px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ padding: '3px 8px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{grouped.length}개 파일 · {totalMatches}개 매치</span>
-          {selectedExts.size > 0 && <span style={{ color: 'var(--accent)' }}>{selectedExts.size}개 확장자 필터</span>}
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            {selectedExts.size > 0 && <span style={{ color: 'var(--accent)' }}>{selectedExts.size}개 확장자 필터</span>}
+            {grouped.length > 1 && (
+              <button
+                onClick={() => {
+                  if (collapsedFiles.size < grouped.length) {
+                    setCollapsedFiles(new Set(grouped.map(g => g.filePath)))
+                  } else {
+                    setCollapsedFiles(new Set())
+                  }
+                }}
+                title={collapsedFiles.size < grouped.length ? '전체 접기' : '전체 펼치기'}
+                style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '1px 4px', lineHeight: 1 }}
+              >
+                {collapsedFiles.size < grouped.length ? '⊖' : '⊕'}
+              </button>
+            )}
+          </div>
         </div>
       )}
 

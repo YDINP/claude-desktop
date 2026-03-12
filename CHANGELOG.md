@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 359] — 2026-03-13
+### Added
+- SearchPanel: 전체 접기/펼치기 버튼 — 결과 요약 바에 ⊖/⊕ 버튼, 모든 파일 그룹 일괄 접기/펼치기
+
 ## [Round 358] — 2026-03-13
 ### Added
 - StatsPanel: 히트맵 요일 레이블 — 활동 히트맵 좌측에 일/화/목/토 레이블 추가 (GitHub contribution chart 스타일)
