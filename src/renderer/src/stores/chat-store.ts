@@ -21,6 +21,7 @@ export interface ChatMessage {
   note?: string
   model?: string
   editHistory?: string[]
+  thinkingText?: string
 }
 
 export function useChatStore() {
@@ -36,6 +37,8 @@ export function useChatStore() {
 
   const textBufRef = useRef('')
   const rafRef = useRef<number | null>(null)
+  const thinkBufRef = useRef('')
+  const thinkRafRef = useRef<number | null>(null)
 
   const addUserMessage = useCallback((text: string) => {
     const msg: ChatMessage = {
@@ -76,6 +79,23 @@ export function useChatStore() {
           const last = prev[prev.length - 1]
           if (!last || last.role !== 'assistant') return prev
           return [...prev.slice(0, -1), { ...last, text: last.text + buffered }]
+        })
+      })
+    }
+  }, [])
+
+  const appendThinking = useCallback((text: string) => {
+    thinkBufRef.current += text
+    if (thinkRafRef.current === null) {
+      thinkRafRef.current = requestAnimationFrame(() => {
+        thinkRafRef.current = null
+        const buffered = thinkBufRef.current
+        thinkBufRef.current = ''
+        if (!buffered) return
+        setMessages((prev) => {
+          const last = prev[prev.length - 1]
+          if (!last || last.role !== 'assistant') return prev
+          return [...prev.slice(0, -1), { ...last, thinkingText: (last.thinkingText ?? '') + buffered }]
         })
       })
     }
@@ -126,6 +146,19 @@ export function useChatStore() {
         return [...prev.slice(0, -1), { ...last, text: last.text + buffered }]
       })
     }
+    if (thinkRafRef.current !== null) {
+      cancelAnimationFrame(thinkRafRef.current)
+      thinkRafRef.current = null
+    }
+    const thinkBuffered = thinkBufRef.current
+    thinkBufRef.current = ''
+    if (thinkBuffered) {
+      setMessages((prev) => {
+        const last = prev[prev.length - 1]
+        if (!last || last.role !== 'assistant') return prev
+        return [...prev.slice(0, -1), { ...last, thinkingText: (last.thinkingText ?? '') + thinkBuffered }]
+      })
+    }
     setIsStreaming(false)
   }, [])
   const addUsage = useCallback((inputTokens: number, outputTokens: number, model?: string) => {
@@ -140,6 +173,11 @@ export function useChatStore() {
       rafRef.current = null
     }
     textBufRef.current = ''
+    if (thinkRafRef.current !== null) {
+      cancelAnimationFrame(thinkRafRef.current)
+      thinkRafRef.current = null
+    }
+    thinkBufRef.current = ''
     setMessages([])
     setSessionId(null)
     setIsStreaming(false)
@@ -242,6 +280,7 @@ export function useChatStore() {
     addUserMessage,
     ensureAssistantMessage,
     appendText,
+    appendThinking,
     addToolUse,
     updateToolUse,
     markLastMessageError,

@@ -1,6 +1,32 @@
 import { useState, useEffect, memo } from 'react'
 import type { ToolUseItem } from '../../stores/chat-store'
 
+function formatToolInput(name: string, input: unknown): string {
+  if (!input || typeof input !== 'object') return String(input ?? '')
+  const inp = input as Record<string, unknown>
+  switch (name) {
+    case 'Read':
+      return String(inp.file_path ?? inp.path ?? '').split('/').pop() ?? JSON.stringify(input)
+    case 'Write':
+    case 'Edit':
+      return String(inp.file_path ?? inp.path ?? '').split('/').pop() ?? JSON.stringify(input)
+    case 'Bash':
+      return String(inp.command ?? '').slice(0, 80)
+    case 'Glob':
+      return String(inp.pattern ?? '')
+    case 'Grep':
+      return `"${String(inp.pattern ?? '')}"` + (inp.path ? ` in ${String(inp.path).split('/').pop()}` : '')
+    case 'WebSearch':
+      return String(inp.query ?? '')
+    case 'WebFetch':
+      return String(inp.url ?? '').replace(/^https?:\/\//, '').slice(0, 60)
+    case 'Agent':
+      return String(inp.description ?? inp.prompt ?? '').slice(0, 60)
+    default:
+      return JSON.stringify(input, null, 2)
+  }
+}
+
 export const ToolUseIndicator = memo(function ToolUseIndicator({ tool }: { tool: ToolUseItem }) {
   const [collapsed, setCollapsed] = useState(tool.status === 'done')
 
@@ -44,21 +70,39 @@ export const ToolUseIndicator = memo(function ToolUseIndicator({ tool }: { tool:
       {tool.status === 'running' && (
         <div className="tool-progress-bar" />
       )}
-      {!collapsed && !!tool.input && (
-        <pre style={{
-          color: 'var(--text-secondary)',
-          fontSize: 11,
-          marginTop: 6,
-          overflow: 'auto',
-          maxHeight: 120,
-          fontFamily: 'var(--font-mono)',
-          background: 'var(--bg-tertiary)',
-          padding: '4px 6px',
-          borderRadius: 3,
-        }}>
-          {JSON.stringify(tool.input, null, 2)}
-        </pre>
-      )}
+      {!collapsed && !!tool.input && (() => {
+        const summary = formatToolInput(tool.name, tool.input)
+        const isJson = tool.name !== 'Read' && tool.name !== 'Write' && tool.name !== 'Edit' &&
+                       tool.name !== 'Bash' && tool.name !== 'Glob' && tool.name !== 'Grep' &&
+                       tool.name !== 'WebSearch' && tool.name !== 'WebFetch' && tool.name !== 'Agent'
+        return isJson ? (
+          <pre style={{
+            color: 'var(--text-secondary)',
+            fontSize: 11,
+            marginTop: 6,
+            overflow: 'auto',
+            maxHeight: 120,
+            fontFamily: 'var(--font-mono)',
+            background: 'var(--bg-tertiary)',
+            padding: '4px 6px',
+            borderRadius: 3,
+          }}>
+            {summary}
+          </pre>
+        ) : (
+          <div style={{
+            color: 'var(--text-secondary)',
+            fontSize: 11,
+            marginTop: 4,
+            fontFamily: 'var(--font-mono)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {summary}
+          </div>
+        )
+      })()}
       {!collapsed && tool.output && (
         <div style={{ marginTop: 4 }}>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>Output</div>

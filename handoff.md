@@ -1,8 +1,8 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 67 완료)
+> 마지막 업데이트: 2026-03-12 (Round 68 완료)
 
 ## 현재 상태
-- Round 67까지 완료 (QA 자동화 + 전체 검수 + 수정)
+- Round 68까지 완료 (CC UX 완성 — 프로젝트 자동감지/재연결 UI/포트 저장/debounce)
 - 브랜치: `feature/cocos-integration` (Round 64~67 CC 통합 작업)
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
@@ -32,14 +32,14 @@
 - `cc-action-parser.ts` — refreshTree 실제 구현
 - `scripts/qa.ts` — import/오탐 수정 (import 문 제외 호출 카운트, disconnect 블록 파싱 개선)
 
-## 다음 세션 작업 (Round 68~)
+## 다음 세션 작업 (Round 69~)
 
-### Round 68: CC UX 완성 (feature/cocos-integration)
-- [ ] CC 프로젝트 자동 감지 (현재 열린 폴더 기준 project.json 탐지)
-- [ ] Extension 자동 설치 가이드 UI
-- [ ] WebSocket 연결 끊김 → 자동 재연결 UI 표시
-- [ ] 씬 변경 시 SceneTreePanel 실시간 갱신 최적화
-- [ ] 멀티 프로젝트 포트 설정 저장
+### Round 68: CC UX 완성 ✅ 완료
+- [x] CC 프로젝트 자동 감지 (project.json/settings 탐지, 버전 배지)
+- [x] Extension 설치 가이드 UI (버전별 폴더명/포트 표시)
+- [x] WebSocket 재연결 카운트다운 UI (3→0초)
+- [x] SceneTreePanel scene:saved debounce (500ms)
+- [x] 포트 저장/로드 (cc-handlers in-memory)
 
 ### Round 69: Adaptive Thinking 시각화 (main 브랜치)
 - [ ] thinking 블록 별도 패널/토글 UI

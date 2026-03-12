@@ -915,9 +915,11 @@ function AppContent() {
           playCompletionSound()
         }
       } else if (ev.type === 'thinking') {
-        // Extended Thinking 전체 블록 — 현재는 무시 (스트리밍 delta로 처리)
+        // Extended Thinking 전체 블록 (non-streaming fallback)
+        if (ev.text) { chat.ensureAssistantMessage(); chat.appendThinking(ev.text as string) }
       } else if (ev.type === 'thinking_delta') {
-        // thinking 스트리밍 delta — 현재는 무시 (UI에서 별도 패널로 표시 가능)
+        // thinking 스트리밍 delta
+        if (ev.text) { chat.ensureAssistantMessage(); chat.appendThinking(ev.text as string) }
       } else if (ev.type === 'text_delta') {
         // 스트리밍 text delta (stream_event에서 옴) — appendText와 중복될 수 있어 무시
         // assistant 완성 메시지의 text가 이미 'text' 이벤트로 처리됨

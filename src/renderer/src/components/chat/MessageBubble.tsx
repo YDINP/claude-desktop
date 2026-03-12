@@ -10,6 +10,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter/dist/esm/pr
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 const MermaidBlock = lazy(() => import('./MermaidBlock').then(m => ({ default: m.MermaidBlock })))
 import { clipboardStore } from '../../utils/clipboard-store'
+import { ThinkingPanel } from './ThinkingPanel'
 
 const RUNNABLE_LANGS = ['bash', 'sh', 'shell', 'zsh', 'fish', 'cmd', 'powershell', 'ps1']
 
@@ -1265,6 +1266,12 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           wordBreak: 'break-word',
           fontFamily: 'var(--font-ui)',
         }}>
+          {msg.thinkingText && (
+            <ThinkingPanel
+              text={msg.thinkingText}
+              isStreaming={!!(isStreaming && isLast)}
+            />
+          )}
           {isStreaming && isLast ? (
             <pre style={{
               whiteSpace: 'pre-wrap',
