@@ -682,6 +682,24 @@ if (existsSync(svpPath4)) {
   }
 }
 
+// ── Section 23: R119 신규 기능 ───────────────────────────────
+console.log('\n## 23. 신규 기능 파일 검사 (R119)')
+// InputBar 멀티라인 (Round 119)
+const inputBarPath4 = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(inputBarPath4)) {
+  const ib4 = readFileSync(inputBarPath4, 'utf-8')
+  if (ib4.includes('Shift+Enter') && ib4.includes('adjustHeight')) {
+    log('pass', 'Round119', 'InputBar Shift+Enter 힌트 + adjustHeight useEffect 존재')
+  } else {
+    log('warning', 'Round119', 'InputBar 멀티라인 지원 미구현', 'chat/InputBar.tsx')
+  }
+  if (ib4.includes('text.length > 100') && ib4.includes('split')) {
+    log('pass', 'Round119', 'InputBar 문자/줄 수 표시 존재')
+  } else {
+    log('warning', 'Round119', 'InputBar 문자/줄 수 표시 미구현', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

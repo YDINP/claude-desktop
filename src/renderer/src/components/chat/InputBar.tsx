@@ -405,6 +405,11 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     }
   }
 
+  // text 변경 시 높이 자동 조정 (Shift+Enter 줄바꿈 포함)
+  useEffect(() => {
+    adjustHeight()
+  }, [text])
+
   const selectSlashCommand = (cmd: SlashCommand) => {
     setText(cmd.prompt)
     setSlashSelected(0)
@@ -1253,7 +1258,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
             setTimeout(() => adjustHeight(), 0)
           }
         }}
-        placeholder={disabled ? 'Open a folder to start...' : 'Message Claude... (/ commands, @file mention, Enter to send)'}
+        placeholder={disabled ? 'Open a folder to start...' : 'Message Claude... (/ commands, @file, Enter to send, Shift+Enter for newline)'}
         disabled={disabled || isStreaming}
         rows={1}
         style={{
@@ -1420,21 +1425,28 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           </span>
         </div>
       ) : (
-        <button
-          onClick={handleSend}
-          disabled={!text.trim() || disabled}
-          style={{
-            padding: '8px 14px',
-            background: text.trim() && !disabled ? 'var(--accent)' : 'var(--bg-tertiary)',
-            color: text.trim() && !disabled ? '#fff' : 'var(--text-muted)',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: 12,
-            flexShrink: 0,
-            cursor: text.trim() && !disabled ? 'pointer' : 'not-allowed',
-          }}
-        >
-          Send
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {text.length > 100 && (
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', alignSelf: 'center' }}>
+              {text.includes('\n') ? `${text.split('\n').length}L ` : ''}{text.length}c
+            </span>
+          )}
+          <button
+            onClick={handleSend}
+            disabled={!text.trim() || disabled}
+            style={{
+              padding: '8px 14px',
+              background: text.trim() && !disabled ? 'var(--accent)' : 'var(--bg-tertiary)',
+              color: text.trim() && !disabled ? '#fff' : 'var(--text-muted)',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: 12,
+              flexShrink: 0,
+              cursor: text.trim() && !disabled ? 'pointer' : 'not-allowed',
+            }}
+          >
+            Send
+          </button>
+        </div>
       )}
     </div>
     </>

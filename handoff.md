@@ -1,15 +1,23 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 118 완료)
+> 마지막 업데이트: 2026-03-12 (Round 119 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 118 (SceneView 그룹 bbox + QA Pass 55)
+- 마지막 커밋: Round 119 (InputBar 멀티라인 + QA Pass 57)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 55
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 57
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 118 완료 항목 (최근 세션)
+## Round 119 완료 항목 (최근 세션)
+
+### Round 119 — InputBar 멀티라인 auto-resize + 문자/줄 수 표시
+- `InputBar.tsx`: `useEffect(() => adjustHeight(), [text])` 추가 — text 변경(Shift+Enter 줄바꿈 포함) 시 자동 높이 조정
+- placeholder에 "Shift+Enter for newline" 힌트 추가
+- Send 버튼 왼쪽에 text.length > 100 시 `NL Nc` (줄 수 + 문자 수) 표시
+- `scripts/qa.ts`: Section 23 추가 (Shift+Enter 힌트, 문자/줄 수 체크, Pass 55→57)
+
+## Round 118 완료 항목 (이전 세션)
 
 ### Round 118 — SceneView 그룹 bbox 점선 박스
 - `SceneViewPanel.tsx`: `groupBbox` useMemo — selectedUuids.size >= 2일 때 각 노드의 SVG bbox(sx±w/2, sy±h/2)를 합산해 패딩 8px 포함 전체 bbox 계산
