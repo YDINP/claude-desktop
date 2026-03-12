@@ -160,7 +160,14 @@ export function NotesPanel() {
               }}
             >
               <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)', paddingRight: 28 }}>{highlightText(n.title || '(제목 없음)', searchQuery)}</div>
-              <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{new Date(n.updatedAt).toLocaleDateString('ko')}</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
+                <span>{new Date(n.updatedAt).toLocaleDateString('ko')}</span>
+                {n.content.length > 0 && (
+                  <span style={{ opacity: 0.6 }}>
+                    {n.content.length > 999 ? `${(n.content.length / 1000).toFixed(1)}k` : n.content.length}자
+                  </span>
+                )}
+              </div>
               <button onClick={e => duplicateNote(n.id, e)} title="복제"
                 style={{ position: 'absolute', top: 3, right: 28, background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--text-muted)', opacity: 0.5, padding: '0 2px' }}>⊕</button>
               <button onClick={e => togglePin(n.id, e)} title={n.pinned ? '핀 해제' : '핀 고정'}

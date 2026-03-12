@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 329] — 2026-03-13
+### Added
+- NotesPanel: 노트 목록 각 항목에 글자 수 표시 — 999자 이하 `N자`, 이상 `N.Nk` 형식
+
 ## [Round 328] — 2026-03-13
 ### Added
 - CalendarPanel: 날짜 미선택 시 오늘 이후 이벤트 최대 3개 "다음 이벤트" 미리보기 표시 (클릭 시 해당 날짜 선택)

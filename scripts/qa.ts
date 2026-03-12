@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 231: R329 신규 기능 ───────────────────────────────
+console.log('\n## 231. 신규 기능 파일 검사 (R329)')
+// NotesPanel 노트 목록 글자 수 (Round 329)
+const np329Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np329Path)) {
+  const np329 = readFileSync(np329Path, 'utf-8')
+  if (np329.includes('n.content.length / 1000') && np329.includes('자') && np329.includes('opacity: 0.6')) {
+    log('pass', 'Round329', 'NotesPanel: 노트 목록 글자 수 표시 (content.length/1000/k자) 존재')
+  } else {
+    log('warning', 'Round329', 'NotesPanel 글자 수 표시 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 230: R328 신규 기능 ───────────────────────────────
 console.log('\n## 230. 신규 기능 파일 검사 (R328)')
 // CalendarPanel 다음 이벤트 미리보기 (Round 328)
