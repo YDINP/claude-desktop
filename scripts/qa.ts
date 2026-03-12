@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 265: R363 신규 기능 ───────────────────────────────
+console.log('\n## 265. 신규 기능 파일 검사 (R363)')
+// AssetBrowserPanel 타입 카운트 (Round 363)
+const ab363Path = join(ROOT, 'src/renderer/src/components/sidebar/AssetBrowserPanel.tsx')
+if (existsSync(ab363Path)) {
+  const ab363 = readFileSync(ab363Path, 'utf-8')
+  if (ab363.includes('typeCounts') && ab363.includes('typeCounts[t]')) {
+    log('pass', 'Round363', 'AssetBrowserPanel: 타입 카운트 (typeCounts) 존재')
+  } else {
+    log('warning', 'Round363', 'AssetBrowserPanel 타입 카운트 미구현', 'sidebar/AssetBrowserPanel.tsx')
+  }
+}
+
 // ── Section 264: R362 신규 기능 ───────────────────────────────
 console.log('\n## 264. 신규 기능 파일 검사 (R362)')
 // PluginsPanel 코드 복사 버튼 (Round 362)

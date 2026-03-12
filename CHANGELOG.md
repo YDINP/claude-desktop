@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 363] — 2026-03-13
+### Added
+- AssetBrowserPanel: 타입 필터 칩 카운트 표시 — "📝 script (3)" 형태로 에셋 수 표시
+
 ## [Round 362] — 2026-03-13
 ### Added
 - PluginsPanel: 코드 복사 버튼 — 코드 뷰 헤더에 📋 복사 버튼, 복사 후 "✓ 복사됨" 피드백

@@ -91,6 +91,10 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
 
   // Build available type list (types with >0 non-folder items)
   const availableTypes = [...new Set(nonFolders.map(({ item }) => item.type))].filter(t => t !== 'file')
+  const typeCounts = nonFolders.reduce((acc, { item }) => {
+    acc[item.type] = (acc[item.type] ?? 0) + 1
+    return acc
+  }, {} as Record<string, number>)
 
   const filtered = (search.trim() || typeFilter)
     ? allFlat.filter(({ item }) => {
@@ -161,7 +165,7 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
                 color: typeFilter === t ? '#fff' : 'var(--text-muted)',
               }}
             >
-              {ASSET_ICONS[t] ?? '📄'} {t}
+              {ASSET_ICONS[t] ?? '📄'} {t}{typeCounts[t] ? ` (${typeCounts[t]})` : ''}
             </button>
           ))}
         </div>
