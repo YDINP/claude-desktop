@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 270] — 2026-03-13
+### Added
+- SceneView: Alt+H (좌우 반전) / Alt+V (상하 반전) — scaleX/Y 부호 반전 단축키
+
 ## [Round 269] — 2026-03-13
 ### Added
 - SceneView: 리사이즈 중 Escape 키로 취소 — startWidth/Height/NodeX/Y로 원래 크기 복원

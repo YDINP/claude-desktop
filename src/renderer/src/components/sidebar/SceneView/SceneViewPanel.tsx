@@ -561,6 +561,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         updateNode(selectedUuid, { rotation: parseFloat(((node.rotation + delta) % 360).toFixed(2)) })
         return
       }
+      // Alt+H / Alt+V: 좌우/상하 반전 (scaleX/scaleY 부호 반전)
+      if (e.altKey && (e.key === 'h' || e.key === 'H') && selectedUuid) {
+        e.preventDefault()
+        const node = nodeMap.get(selectedUuid)
+        if (node) updateNode(selectedUuid, { scaleX: -(node.scaleX ?? 1) })
+        return
+      }
+      if (e.altKey && (e.key === 'v' || e.key === 'V') && selectedUuid) {
+        e.preventDefault()
+        const node = nodeMap.get(selectedUuid)
+        if (node) updateNode(selectedUuid, { scaleY: -(node.scaleY ?? 1) })
+        return
+      }
       if (!selectedUuid || !(e.key in arrows)) return
       if (e.altKey || e.ctrlKey || e.metaKey) return
       e.preventDefault()
@@ -2949,6 +2962,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Ctrl+[', '뒤로 (z-order -1)'],
               ['Del/Backspace', '선택 노드 삭제'],
               ['H', '선택 노드 숨기기/보이기 토글'],
+              ['Alt+H', '좌우 반전 (scaleX 부호 반전)'],
+              ['Alt+V', '상하 반전 (scaleY 부호 반전)'],
               ['Alt+L', '선택 노드 잠금/해제'],
               ['Alt+1~9', '색상 레이블 지정 (Alt+0: 초기화)'],
               ['Alt+[ / Alt+]', '선택 노드 투명도 -10 / +10'],

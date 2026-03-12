@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 172: R270 신규 기능 ───────────────────────────────
+console.log('\n## 172. 신규 기능 파일 검사 (R270)')
+// SceneView 노드 반전 Alt+H/V (Round 270)
+const svp270Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp270Path)) {
+  const svp270 = readFileSync(svp270Path, 'utf-8')
+  if (svp270.includes('좌우/상하 반전') && svp270.includes('scaleX: -(node.scaleX') && svp270.includes('scaleY: -(node.scaleY')) {
+    log('pass', 'Round270', 'SceneViewPanel: Alt+H/V 좌우/상하 반전 (scaleX/Y 부호 반전) 존재')
+  } else {
+    log('warning', 'Round270', 'SceneViewPanel Alt+H/V 반전 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 171: R269 신규 기능 ───────────────────────────────
 console.log('\n## 171. 신규 기능 파일 검사 (R269)')
 // SceneView 리사이즈 중 Escape 취소 (Round 269)
