@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 188: R286 신규 기능 ───────────────────────────────
+console.log('\n## 188. 신규 기능 파일 검사 (R286)')
+// TasksPanel 전체 완료 배너 (Round 286)
+const tp286Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp286Path)) {
+  const tp286 = readFileSync(tp286Path, 'utf-8')
+  if (tp286.includes('🎉 전부 완료') && tp286.includes('progressPct === 100')) {
+    log('pass', 'Round286', 'TasksPanel: 전체 완료 배너 (🎉/progressPct===100) 존재')
+  } else {
+    log('warning', 'Round286', 'TasksPanel 전체 완료 배너 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 187: R285 신규 기능 ───────────────────────────────
 console.log('\n## 187. 신규 기능 파일 검사 (R285)')
 // NotesPanel 모노스페이스 코드 모드 (Round 285)

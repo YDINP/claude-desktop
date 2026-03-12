@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 286] — 2026-03-13
+### Added
+- TasksPanel: 전체 완료 시 🎉 배너 표시 — 100% 완료 시 진행률 바 대신 녹색 완료 배너 표시
+
 ## [Round 285] — 2026-03-13
 ### Added
 - NotesPanel: 모노스페이스 코드 모드 토글 (`</>` 버튼) — 코드/텍스트 폰트 전환, 활성 시 강조

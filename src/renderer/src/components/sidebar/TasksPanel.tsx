@@ -83,13 +83,21 @@ export function TasksPanel() {
       {/* 진행률 바 */}
       {tasks.length > 0 && (
         <div style={{ marginBottom: 6 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: 'var(--text-muted)', marginBottom: 2 }}>
-            <span>진행률</span>
-            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{doneCount}/{tasks.length} ({progressPct}%)</span>
-          </div>
-          <div style={{ height: 4, background: 'var(--bg-secondary)', borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${progressPct}%`, background: progressPct === 100 ? '#4ade80' : 'var(--accent)', borderRadius: 2, transition: 'width 0.3s' }} />
-          </div>
+          {progressPct === 100 ? (
+            <div style={{ textAlign: 'center', fontSize: 11, color: '#4ade80', fontWeight: 600, padding: '3px 0', background: 'rgba(74,222,128,0.08)', borderRadius: 4, border: '1px solid rgba(74,222,128,0.3)' }}>
+              🎉 전부 완료!
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: 'var(--text-muted)', marginBottom: 2 }}>
+                <span>진행률</span>
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{doneCount}/{tasks.length} ({progressPct}%)</span>
+              </div>
+              <div style={{ height: 4, background: 'var(--bg-secondary)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--accent)', borderRadius: 2, transition: 'width 0.3s' }} />
+              </div>
+            </>
+          )}
         </div>
       )}
       {/* Input area */}
