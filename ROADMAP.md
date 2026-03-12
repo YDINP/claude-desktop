@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 173 완료 — 코드 블록 라인 번호, Pass 164)
+> 마지막 업데이트: 2026-03-12 (Round 174 완료 — SceneToolbar 줌 인라인 편집, Pass 166)
 
 ## 완료된 라운드
 
@@ -125,6 +125,7 @@
 | Round 171 | dev | SceneView SVG 우클릭 컨텍스트 메뉴 — 선택/복사/붙여넣기/복제/삭제 | ✅ |
 | Round 172 | dev | SceneInspector Size W/H 비율 잠금 — ∝ 버튼으로 W/H 연동 | ✅ |
 | Round 173 | dev | 코드 블록 라인 번호 — 4줄 이상 시 showLineNumbers 자동 표시 | ✅ |
+| Round 174 | dev | SceneToolbar 줌 레벨 더블클릭 인라인 편집 — 10%~800% 범위 직접 입력 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

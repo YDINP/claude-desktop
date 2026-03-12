@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 interface SceneToolbarProps {
   activeTool: 'select' | 'move'
@@ -87,6 +87,9 @@ export function SceneToolbar({
   showLabels,
   onLabelsToggle,
 }: SceneToolbarProps) {
+  const [zoomEditing, setZoomEditing] = useState(false)
+  const [zoomDraft, setZoomDraft] = useState('')
+
   const zoomIn = () => {
     const next = ZOOM_STEPS.find(z => z > zoom) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]
     onZoomChange(next)
@@ -94,6 +97,12 @@ export function SceneToolbar({
   const zoomOut = () => {
     const next = [...ZOOM_STEPS].reverse().find(z => z < zoom) ?? ZOOM_STEPS[0]
     onZoomChange(next)
+  }
+
+  const commitZoomEdit = () => {
+    const val = parseFloat(zoomDraft.replace('%', ''))
+    if (!isNaN(val) && val > 0) onZoomChange(Math.min(800, Math.max(10, val)) / 100)
+    setZoomEditing(false)
   }
 
   const btnBase: React.CSSProperties = {
@@ -171,13 +180,25 @@ export function SceneToolbar({
 
       {/* 줌 */}
       <button style={btnBase} onClick={zoomOut} title="축소">−</button>
-      <button
-        style={{ ...btnBase, minWidth: 40, textAlign: 'center' }}
-        onClick={() => onZoomChange(1)}
-        title="100% 리셋"
-      >
-        {Math.round(zoom * 100)}%
-      </button>
+      {zoomEditing ? (
+        <input
+          autoFocus
+          value={zoomDraft}
+          onChange={e => setZoomDraft(e.target.value)}
+          onBlur={commitZoomEdit}
+          onKeyDown={e => { if (e.key === 'Enter') commitZoomEdit(); else if (e.key === 'Escape') setZoomEditing(false); e.stopPropagation() }}
+          style={{ width: 44, fontSize: 10, textAlign: 'center', background: 'var(--bg-primary)', border: '1px solid var(--accent)', borderRadius: 2, color: 'var(--text-primary)', padding: '1px 2px', outline: 'none' }}
+        />
+      ) : (
+        <button
+          style={{ ...btnBase, minWidth: 40, textAlign: 'center' }}
+          onClick={() => onZoomChange(1)}
+          onDoubleClick={() => { setZoomDraft(String(Math.round(zoom * 100))); setZoomEditing(true) }}
+          title="클릭: 100% 리셋 / 더블클릭: 직접 입력"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+      )}
       <button style={btnBase} onClick={zoomIn} title="확대">+</button>
 
       <div style={divider} />

@@ -1713,6 +1713,24 @@ if (existsSync(messageBubblePath3)) {
   }
 }
 
+// ── Section 76: R174 신규 기능 ───────────────────────────────
+console.log('\n## 76. 신규 기능 파일 검사 (R174)')
+// SceneToolbar 줌 인라인 편집 (Round 174)
+const sceneToolbarPath5 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(sceneToolbarPath5)) {
+  const st5 = readFileSync(sceneToolbarPath5, 'utf-8')
+  if (st5.includes('zoomEditing') && st5.includes('zoomDraft')) {
+    log('pass', 'Round174', 'SceneToolbar: zoomEditing state + zoomDraft 존재')
+  } else {
+    log('warning', 'Round174', 'SceneToolbar 줌 인라인 편집 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+  if (st5.includes('commitZoomEdit') && st5.includes('onDoubleClick')) {
+    log('pass', 'Round174', 'SceneToolbar: commitZoomEdit + onDoubleClick 존재')
+  } else {
+    log('warning', 'Round174', 'SceneToolbar commitZoomEdit 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

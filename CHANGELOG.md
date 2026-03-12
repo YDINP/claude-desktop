@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 174] — 2026-03-12
+### Added
+- SceneToolbar: 줌 레벨 더블클릭 인라인 편집 — 숫자 직접 입력 후 Enter 적용
+
 ## [Round 173] — 2026-03-12
 ### Added
 - 코드 블록: 4줄 이상 시 라인 번호 자동 표시 (react-syntax-highlighter showLineNumbers)
