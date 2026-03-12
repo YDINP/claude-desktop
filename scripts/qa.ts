@@ -1409,6 +1409,24 @@ if (existsSync(sceneInspectorPath8)) {
   }
 }
 
+// ── Section 60: R158 신규 기능 ───────────────────────────────
+console.log('\n## 60. 신규 기능 파일 검사 (R158)')
+// Ctrl+A 전체 선택 (Round 158)
+const sceneViewPanelPath24 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath24)) {
+  const svp24 = readFileSync(sceneViewPanelPath24, 'utf-8')
+  if (svp24.includes("e.key === 'a'") && svp24.includes('Ctrl+A 전체 선택')) {
+    log('pass', 'Round158', "SceneView: Ctrl+A 전체 선택 useEffect + 'a' key 핸들러 존재")
+  } else {
+    log('warning', 'Round158', 'SceneView Ctrl+A 전체 선택 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp24.includes('new Set(nodeMap.keys())') && svp24.includes("'Ctrl+A', '전체 선택'")) {
+    log('pass', 'Round158', 'SceneView: nodeMap 전체 선택 + 단축키 도움말 갱신')
+  } else {
+    log('warning', 'Round158', 'SceneView Ctrl+A 전체 선택 로직 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

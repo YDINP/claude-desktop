@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T14:10:05.856Z
+> 2026-03-12T14:11:55.124Z
 
 ## Critical
 _없음_
@@ -140,3 +140,5 @@ _없음_
 - SceneView: 원점 레이블 zoom 보정 + 오프셋 적용
 - SceneInspector: getComponentIcon import + 사용 존재
 - SceneInspector: 컴포넌트별 accent 아이콘 렌더링 존재
+- SceneView: Ctrl+A 전체 선택 useEffect + 'a' key 핸들러 존재
+- SceneView: nodeMap 전체 선택 + 단축키 도움말 갱신

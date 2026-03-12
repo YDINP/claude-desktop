@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 158] — 2026-03-12
+### Added
+- SceneView: Ctrl+A 전체 선택 — nodeMap 모든 노드 선택, 단축키 도움말 항목 추가
+
 ## [Round 157] — 2026-03-12
 ### Added
 - SceneInspector: 컴포넌트 목록에 타입별 아이콘 표시 — getComponentIcon 재사용, accent 색상

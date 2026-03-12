@@ -172,6 +172,21 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return () => window.removeEventListener('keydown', handleKey)
   }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste])
 
+  // ── Ctrl+A 전체 선택 ──────────────────────────────────────
+  useEffect(() => {
+    const handleSelectAll = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).tagName === 'INPUT') return
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault()
+        const all = new Set(nodeMap.keys())
+        setSelectedUuids(all)
+        setSelectedUuid(rootUuid || null)
+      }
+    }
+    window.addEventListener('keydown', handleSelectAll)
+    return () => window.removeEventListener('keydown', handleSelectAll)
+  }, [nodeMap, rootUuid])
+
   // ── 방향키 nudge: 선택 노드 1px / Shift+10px 이동 ─────────
   useEffect(() => {
     const arrows: Record<string, [number, number]> = {
@@ -1182,6 +1197,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['G', '선택 노드 포커스'],
               ['Ctrl+Z', '실행 취소'],
               ['Ctrl+Y', '다시 실행'],
+              ['Ctrl+A', '전체 선택'],
               ['Ctrl+C', '복사'],
               ['Ctrl+V', '붙여넣기'],
               ['Escape', '선택 해제'],
