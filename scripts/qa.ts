@@ -885,6 +885,24 @@ if (existsSync(sceneViewPanelPath9)) {
   }
 }
 
+// ── Section 31: R129 신규 기능 ───────────────────────────────
+console.log('\n## 31. 신규 기능 파일 검사 (R129)')
+// NodeHierarchyList 검색 필터 (Round 129)
+const nodeHierarchyPath2 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath2)) {
+  const nh2 = readFileSync(nodeHierarchyPath2, 'utf-8')
+  if (nh2.includes('searchQuery') && nh2.includes('filteredNodes') && nh2.includes('toLowerCase')) {
+    log('pass', 'Round129', 'NodeHierarchyList: searchQuery + filteredNodes 검색 필터 존재')
+  } else {
+    log('warning', 'Round129', 'NodeHierarchyList 검색 필터 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+  if (nh2.includes('노드 검색') && nh2.includes('검색 결과 없음')) {
+    log('pass', 'Round129', 'NodeHierarchyList: 검색 입력창 + 빈 결과 메시지 존재')
+  } else {
+    log('warning', 'Round129', 'NodeHierarchyList 검색창 UI 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

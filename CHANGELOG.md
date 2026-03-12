@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 129] — 2026-03-12
+### Added
+- NodeHierarchyList: 노드 검색 입력창 — 이름 기반 실시간 필터링 (대소문자 무관)
+- NodeHierarchyList: 검색 시 flat 목록으로 전환, 검색 결과 없음 메시지, 높이 150px로 확장
+
 ## [Round 128] — 2026-03-12
 ### Added
 - NodeHierarchyList.tsx: 재귀 노드 계층 트리 패널 — childUuids 기반 들여쓰기 렌더링
