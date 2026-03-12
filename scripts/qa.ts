@@ -2010,6 +2010,19 @@ if (existsSync(calendarPath)) {
   }
 }
 
+// ── Section 97: R195 신규 기능 ───────────────────────────────
+console.log('\n## 97. 신규 기능 파일 검사 (R195)')
+// ClipboardPanel 검색 필터 (Round 195)
+const clipboardPanelPath = join(ROOT, 'src/renderer/src/components/sidebar/ClipboardPanel.tsx')
+if (existsSync(clipboardPanelPath)) {
+  const cp = readFileSync(clipboardPanelPath, 'utf-8')
+  if (cp.includes('클립보드 검색') && cp.includes('filtered') && cp.includes('useMemo')) {
+    log('pass', 'Round195', 'ClipboardPanel: 검색 필터 존재')
+  } else {
+    log('warning', 'Round195', 'ClipboardPanel 검색 필터 미구현', 'sidebar/ClipboardPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

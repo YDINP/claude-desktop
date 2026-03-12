@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 195] — 2026-03-13
+### Added
+- ClipboardPanel: 검색 필터 — 텍스트/소스로 클립보드 항목 실시간 검색, Esc로 초기화
+
 ## [Round 194] — 2026-03-13
 ### Added
 - CalendarPanel: "오늘" 버튼 — 다른 달 탐색 중 클릭 시 이번 달로 즉시 이동 + 오늘 날짜 선택

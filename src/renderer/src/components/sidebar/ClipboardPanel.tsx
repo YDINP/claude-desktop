@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { clipboardStore } from '../../utils/clipboard-store'
 
 interface ClipboardEntry {
@@ -8,10 +8,17 @@ interface ClipboardEntry {
 export function ClipboardPanel() {
   const [entries, setEntries] = useState<ClipboardEntry[]>([])
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     return clipboardStore.subscribe(setEntries)
   }, [])
+
+  const filtered = useMemo(() =>
+    query.trim()
+      ? entries.filter(e => e.text.toLowerCase().includes(query.toLowerCase()) || e.source.toLowerCase().includes(query.toLowerCase()))
+      : entries
+  , [entries, query])
 
   const copyEntry = (entry: ClipboardEntry) => {
     navigator.clipboard.writeText(entry.text)
@@ -29,8 +36,21 @@ export function ClipboardPanel() {
         <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{entries.length}개 항목</span>
         <button onClick={() => clipboardStore.clear()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11 }}>전체 삭제</button>
       </div>
+      <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)' }}>
+        <input
+          type="text"
+          placeholder="클립보드 검색..."
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Escape') setQuery('') }}
+          style={{ width: '100%', padding: '3px 6px', boxSizing: 'border-box', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-primary)', fontSize: 11, outline: 'none' }}
+        />
+      </div>
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        {entries.map(entry => (
+        {filtered.length === 0 && query && (
+          <div style={{ padding: 12, fontSize: 11, color: 'var(--text-muted)', textAlign: 'center' }}>검색 결과 없음</div>
+        )}
+        {filtered.map(entry => (
           <div key={entry.id} style={{ padding: '8px', borderBottom: '1px solid var(--border)', cursor: 'pointer', position: 'relative' }}
             onClick={() => copyEntry(entry)}
             onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-secondary)')}
