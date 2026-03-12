@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 133 완료 — SceneView 노드 라벨 표시 토글, Pass 87)
+> 마지막 업데이트: 2026-03-12 (Round 134 완료 — NodeHierarchyList 선택 노드 자동 스크롤, Pass 89)
 
 ## 완료된 라운드
 
@@ -85,6 +85,7 @@
 | Round 131 | dev | NodeHierarchyList 접기/펼치기 — ▸/▾ 클릭으로 자식 토글, 선택과 분리 | ✅ |
 | Round 132 | dev | SceneView 마우스 씬 좌표 표시 — 커서 위치의 Cocos 씬 X/Y 실시간 표시 | ✅ |
 | Round 133 | dev | SceneView 노드 라벨 표시 토글 — Aa 버튼으로 SVG 노드 이름 on/off | ✅ |
+| Round 134 | dev | NodeHierarchyList 선택 노드 자동 스크롤 — focusUuid로 계층 패널 동기화 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

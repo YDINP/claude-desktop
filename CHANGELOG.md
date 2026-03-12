@@ -1,5 +1,11 @@
 # Changelog — Claude Desktop
 
+## [Round 134] — 2026-03-12
+### Added
+- NodeHierarchyList: focusUuid prop — 선택 노드 변경 시 계층 패널 자동 스크롤 (scrollIntoView)
+- NodeHierarchyList: 노드 행에 data-uuid 속성, scrollContainerRef로 DOM 쿼리
+- SceneViewPanel: NodeHierarchyList에 focusUuid={selectedUuid} 전달
+
 ## [Round 133] — 2026-03-12
 ### Added
 - SceneToolbar: "Aa" 라벨 토글 버튼 (showLabels/onLabelsToggle prop)

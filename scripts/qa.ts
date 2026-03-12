@@ -988,6 +988,24 @@ if (existsSync(sceneViewPanelPath12)) {
   }
 }
 
+// ── Section 36: R134 신규 기능 ───────────────────────────────
+console.log('\n## 36. 신규 기능 파일 검사 (R134)')
+// NodeHierarchyList 선택 노드 자동 스크롤 (Round 134)
+const nodeHierarchyPath4 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath4)) {
+  const nh4 = readFileSync(nodeHierarchyPath4, 'utf-8')
+  if (nh4.includes('focusUuid') && nh4.includes('scrollContainerRef') && nh4.includes('scrollIntoView')) {
+    log('pass', 'Round134', 'NodeHierarchyList: focusUuid + scrollContainerRef + scrollIntoView 존재')
+  } else {
+    log('warning', 'Round134', 'NodeHierarchyList 자동 스크롤 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+  if (nh4.includes('data-uuid={uuid}')) {
+    log('pass', 'Round134', 'NodeHierarchyList: 노드 행에 data-uuid 속성 존재')
+  } else {
+    log('warning', 'Round134', 'NodeHierarchyList data-uuid 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

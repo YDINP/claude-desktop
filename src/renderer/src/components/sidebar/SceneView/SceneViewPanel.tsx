@@ -742,6 +742,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           rootUuid={rootUuid}
           nodeMap={nodeMap}
           selectedUuids={selectedUuids}
+          focusUuid={selectedUuid}
           onSelect={(uuid, multi) => {
             if (multi) {
               setSelectedUuids(prev => {

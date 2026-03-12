@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { SceneNode } from './types'
 
 interface NodeHierarchyListProps {
@@ -6,6 +6,7 @@ interface NodeHierarchyListProps {
   nodeMap: Map<string, SceneNode>
   selectedUuids: Set<string>
   onSelect: (uuid: string, multi: boolean) => void
+  focusUuid?: string | null
 }
 
 function NodeRow({
@@ -49,6 +50,7 @@ function NodeRow({
           userSelect: 'none',
         }}
         title={node.name}
+        data-uuid={uuid}
       >
         {/* 펼치기/접기 버튼 */}
         <span
@@ -95,9 +97,19 @@ function NodeRow({
   )
 }
 
-export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect }: NodeHierarchyListProps) {
+export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid }: NodeHierarchyListProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  // focusUuid 변경 시 해당 노드로 자동 스크롤
+  useEffect(() => {
+    if (!focusUuid || !scrollContainerRef.current) return
+    const el = scrollContainerRef.current.querySelector(`[data-uuid="${focusUuid}"]`) as HTMLElement | null
+    if (el) {
+      el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  }, [focusUuid])
 
   const toggleCollapse = (uuid: string) => {
     setCollapsed(prev => {
@@ -146,7 +158,7 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect }
       </div>
 
       {/* 트리 / 검색 결과 */}
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div ref={scrollContainerRef} style={{ flex: 1, overflowY: 'auto' }}>
         {filteredNodes ? (
           filteredNodes.length === 0 ? (
             <div style={{ padding: '6px', fontSize: 10, color: 'var(--text-muted)', textAlign: 'center' }}>
