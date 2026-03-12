@@ -56,6 +56,8 @@ interface SceneToolbarProps {
   onSnapGridChange?: (size: number) => void
   showConnections?: boolean
   onConnectionsToggle?: () => void
+  showStats?: boolean
+  onStatsToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -116,6 +118,8 @@ export function SceneToolbar({
   onSnapGridChange,
   showConnections,
   onConnectionsToggle,
+  showStats,
+  onStatsToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -434,6 +438,15 @@ export function SceneToolbar({
         title="부모-자식 연결선 표시"
       >
         ⤻
+      </button>
+
+      {/* 통계 토글 */}
+      <button
+        style={showStats ? btnActive : btnBase}
+        onClick={onStatsToggle}
+        title="씬 통계 표시"
+      >
+        #
       </button>
 
       {/* SVG 내보내기 */}

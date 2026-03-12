@@ -53,6 +53,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [bgLight, setBgLight] = useState(false)
   const [alignGuides, setAlignGuides] = useState<{ x?: number; y?: number }[]>([])
   const [showConnections, setShowConnections] = useState(false)
+  const [showStats, setShowStats] = useState(false)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -1152,6 +1153,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onHierarchyToggle={() => setShowHierarchy(v => !v)}
         showConnections={showConnections}
         onConnectionsToggle={() => setShowConnections(v => !v)}
+        showStats={showStats}
+        onStatsToggle={() => setShowStats(v => !v)}
         showLabels={showLabels}
         onLabelsToggle={() => setShowLabels(v => !v)}
         bgLight={bgLight}
@@ -1696,6 +1699,42 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             x:{Math.round(selectedNode.x)} y:{Math.round(selectedNode.y)} w:{Math.round(selectedNode.width)} h:{Math.round(selectedNode.height)}
           </div>
         )}
+
+        {/* 씬 통계 패널 */}
+        {showStats && (() => {
+          const nodes = [...nodeMap.values()]
+          const total = nodes.length
+          const active = nodes.filter(n => n.active).length
+          const inactive = total - active
+          const locked = nodes.filter(n => n.locked).length
+          const hidden = nodes.filter(n => n.visible === false).length
+          const tagged = nodes.filter(n => (n.tags ?? []).length > 0).length
+          return (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 28,
+                left: 6,
+                fontSize: 9,
+                color: 'var(--text-muted)',
+                background: 'rgba(10,10,15,0.85)',
+                padding: '5px 8px',
+                borderRadius: 4,
+                border: '1px solid rgba(255,255,255,0.1)',
+                pointerEvents: 'none',
+                lineHeight: 1.7,
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: 2 }}>씬 통계</div>
+              <div>전체: <span style={{ color: 'var(--accent)' }}>{total}</span></div>
+              <div>활성: {active} / 비활성: {inactive}</div>
+              <div>잠금: {locked} / 숨김: {hidden}</div>
+              <div>태그 있음: {tagged}</div>
+              <div>선택: {selectedUuids.size}</div>
+            </div>
+          )
+        })()}
 
         {/* 마우스 씬 좌표 표시 */}
         {cursorScenePos && !isDragging && !isResizing && (

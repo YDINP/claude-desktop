@@ -2036,6 +2036,28 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 119: R217 신규 기능 ───────────────────────────────
+console.log('\n## 119. 신규 기능 파일 검사 (R217)')
+// SceneView 씬 통계 패널 (Round 217)
+const svp217Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp217Path)) {
+  const svp217 = readFileSync(svp217Path, 'utf-8')
+  if (svp217.includes('showStats') && svp217.includes('씬 통계')) {
+    log('pass', 'Round217', 'SceneViewPanel: 씬 통계 패널 구현 존재')
+  } else {
+    log('warning', 'Round217', 'SceneViewPanel 씬 통계 패널 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+const stb217Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb217Path)) {
+  const stb217 = readFileSync(stb217Path, 'utf-8')
+  if (stb217.includes('onStatsToggle') && stb217.includes('통계')) {
+    log('pass', 'Round217', 'SceneToolbar: 통계 토글 버튼 존재')
+  } else {
+    log('warning', 'Round217', 'SceneToolbar 통계 토글 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 118: R216 신규 기능 ───────────────────────────────
 console.log('\n## 118. 신규 기능 파일 검사 (R216)')
 // SceneView 부모-자식 연결선 (Round 216)

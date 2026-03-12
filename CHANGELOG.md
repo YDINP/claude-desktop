@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 217] — 2026-03-13
+### Added
+- SceneView: 씬 통계 패널 — # 버튼 토글, 총 노드/활성/비활성/잠금/숨김/태그/선택 수 표시
+
 ## [Round 216] — 2026-03-13
 ### Added
 - SceneView: 부모-자식 연결선 — ⤻ 버튼 토글, 계층 관계를 반투명 파란 점선으로 시각화
