@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 277: R375 신규 기능 ───────────────────────────────
+console.log('\n## 277. 신규 기능 파일 검사 (R375)')
+// NotesPanel 검색 결과 콘텐츠 발췌 (Round 375)
+const np375Path = join(ROOT, 'src/renderer/src/components/sidebar/NotesPanel.tsx')
+if (existsSync(np375Path)) {
+  const np375 = readFileSync(np375Path, 'utf-8')
+  if (np375.includes('content.toLowerCase().includes(searchQuery') && np375.includes('fontStyle: \'italic\'')) {
+    log('pass', 'Round375', 'NotesPanel: 검색 결과 콘텐츠 발췌 (이탤릭 인라인 표시) 존재')
+  } else {
+    log('warning', 'Round375', 'NotesPanel 검색 결과 콘텐츠 발췌 미구현', 'sidebar/NotesPanel.tsx')
+  }
+}
+
 // ── Section 276: R374 신규 기능 ───────────────────────────────
 console.log('\n## 276. 신규 기능 파일 검사 (R374)')
 // SceneTreePanel 컴포넌트 초과 +N (Round 374)

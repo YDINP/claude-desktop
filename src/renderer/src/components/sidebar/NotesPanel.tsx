@@ -191,6 +191,13 @@ export function NotesPanel() {
                   </span>
                 )}
               </div>
+              {searchQuery.trim() && n.content.toLowerCase().includes(searchQuery.toLowerCase()) && (() => {
+                const idx = n.content.toLowerCase().indexOf(searchQuery.toLowerCase())
+                const start = Math.max(0, idx - 12)
+                const end = Math.min(n.content.length, idx + searchQuery.length + 18)
+                const excerpt = (start > 0 ? '…' : '') + n.content.slice(start, end) + (end < n.content.length ? '…' : '')
+                return <div style={{ fontSize: 9, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontStyle: 'italic', paddingRight: 28 }}>{excerpt}</div>
+              })()}
               <button onClick={e => duplicateNote(n.id, e)} title="복제"
                 style={{ position: 'absolute', top: 3, right: 28, background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--text-muted)', opacity: 0.5, padding: '0 2px' }}>⊕</button>
               <button onClick={e => togglePin(n.id, e)} title={n.pinned ? '핀 해제' : '핀 고정'}
