@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 387] — 2026-03-13
+### Added
+- SceneTreePanel: 검색 매치 카운트 — countMatches 재귀, "N개 노드 일치"/없음 표시, Escape 초기화
+
 ## [Round 386] — 2026-03-13
 ### Added
 - RemotePanel: SSH 명령어 복사 버튼 — copiedHost 상태, copyCmd 함수, ssh [-p PORT] user@host 형식 복사
