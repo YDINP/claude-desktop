@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T22:25:24.054Z
+> 2026-03-12T22:27:15.473Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- RunTimeline: 진행 중 필터 (showOnlyActive/setShowOnlyActive/shownRuns) 존재
 - ConnectionPanel: 설정 파일 경로 복사 (cfgCopied/setCfgCopied/경로 복사) 존재
 - WebPreviewPanel: URL 복사 버튼 (urlCopied/setUrlCopied/URL 복사) 존재
 - AssetBrowserPanel: 타입 카운트 (typeCounts) 존재

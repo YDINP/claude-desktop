@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 268: R366 신규 기능 ───────────────────────────────
+console.log('\n## 268. 신규 기능 파일 검사 (R366)')
+// RunTimeline 진행 중 필터 (Round 366)
+const rt366Path = join(ROOT, 'src/renderer/src/components/sidebar/RunTimeline.tsx')
+if (existsSync(rt366Path)) {
+  const rt366 = readFileSync(rt366Path, 'utf-8')
+  if (rt366.includes('showOnlyActive') && rt366.includes('setShowOnlyActive') && rt366.includes('shownRuns')) {
+    log('pass', 'Round366', 'RunTimeline: 진행 중 필터 (showOnlyActive/setShowOnlyActive/shownRuns) 존재')
+  } else {
+    log('warning', 'Round366', 'RunTimeline 진행 중 필터 미구현', 'sidebar/RunTimeline.tsx')
+  }
+}
+
 // ── Section 267: R365 신규 기능 ───────────────────────────────
 console.log('\n## 267. 신규 기능 파일 검사 (R365)')
 // ConnectionPanel 설정 파일 경로 복사 (Round 365)

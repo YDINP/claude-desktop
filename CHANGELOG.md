@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 366] — 2026-03-13
+### Added
+- RunTimeline: 진행 중 런 필터 토글 — 활성+완료 런이 혼재할 때 ⟳ 버튼으로 진행 중만 표시
+
 ## [Round 365] — 2026-03-13
 ### Added
 - ConnectionPanel: 설정 파일 경로 복사 버튼 — 푸터 경로 옆 📋 버튼, 복사 후 ✓ 피드백

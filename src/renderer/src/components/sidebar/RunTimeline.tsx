@@ -63,6 +63,7 @@ function RunCard({ run }: { run: AguiRun }) {
 export function RunTimeline() {
   const [runs, setRuns] = useState<AguiRun[]>([])
   const [clearedAt, setClearedAt] = useState(0)
+  const [showOnlyActive, setShowOnlyActive] = useState(false)
 
   useEffect(() => {
     return aguiSubscribe(setRuns)
@@ -70,8 +71,10 @@ export function RunTimeline() {
 
   const allRuns = [...runs].reverse()
   const displayRuns = allRuns.filter(r => !r.finishedAt || r.finishedAt > clearedAt)
+  const activeRuns = displayRuns.filter(r => !r.finishedAt)
   const finishedRuns = displayRuns.filter(r => r.finishedAt)
   const totalCostUsd = finishedRuns.reduce((s, r) => s + (r.costUsd ?? 0), 0)
+  const shownRuns = showOnlyActive ? activeRuns : displayRuns
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
@@ -80,6 +83,15 @@ export function RunTimeline() {
           <span>런 {displayRuns.length}건 · 완료 {finishedRuns.length}건</span>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             {totalCostUsd > 0 && <span style={{ color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>총 ${totalCostUsd.toFixed(4)}</span>}
+            {activeRuns.length > 0 && finishedRuns.length > 0 && (
+              <button
+                onClick={() => setShowOnlyActive(v => !v)}
+                title={showOnlyActive ? '전체 보기' : '진행 중만 보기'}
+                style={{ background: showOnlyActive ? 'var(--accent)' : 'none', border: `1px solid ${showOnlyActive ? 'var(--accent)' : 'var(--border)'}`, borderRadius: 3, cursor: 'pointer', color: showOnlyActive ? '#fff' : 'var(--text-muted)', fontSize: 9, padding: '1px 4px' }}
+              >
+                {showOnlyActive ? '⟳ 진행중' : '⟳'}
+              </button>
+            )}
             {finishedRuns.length > 0 && (
               <button
                 onClick={() => setClearedAt(Date.now())}
@@ -95,7 +107,7 @@ export function RunTimeline() {
           <div style={{ color: 'var(--text-muted)', fontSize: 12, textAlign: 'center', marginTop: 32 }}>
             아직 실행된 런이 없습니다
           </div>
-        ) : displayRuns.map(run => <RunCard key={run.id} run={run} />)}
+        ) : shownRuns.map(run => <RunCard key={run.id} run={run} />)}
       </div>
     </div>
   )
