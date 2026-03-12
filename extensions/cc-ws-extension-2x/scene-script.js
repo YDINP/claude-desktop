@@ -53,6 +53,7 @@ module.exports = {
     else if (key === 'scaleX') node.scaleX = value;
     else if (key === 'scaleY') node.scaleY = value;
     else if (key === 'active') node.active = value;
+    else if (key === 'name') node.name = String(value);
     else if (key === 'color' && value) {
       node.color = new cc.Color(value.r, value.g, value.b, value.a ?? 255);
     }

@@ -297,6 +297,11 @@ async function routeRequest3x(method, url, body, res) {
         uuid, path: 'active',
         dump: { type: 'cc.Boolean', value }
       });
+    } else if (key === 'name') {
+      await Editor.Message.request('scene', 'set-property', {
+        uuid, path: 'name',
+        dump: { type: 'string', value: String(value) }
+      });
     }
 
     res.writeHead(200); res.end(JSON.stringify({ ok: true }));

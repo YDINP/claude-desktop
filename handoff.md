@@ -2,14 +2,21 @@
 > 마지막 업데이트: 2026-03-12 (Round 98 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 107 (세션 자동 제목 + SceneTreePanel 검색 + QA)
+- 마지막 커밋: Round 108 (CC SceneTree 노드 인라인 이름 편집)
 - 빌드: `npm run build` ✅
 - QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 36
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 107 완료 항목 (최근 세션)
+## Round 108 완료 항목 (최근 세션)
+
+### Round 108 — CC SceneTree 노드 인라인 이름 편집
+- `extensions/cc-ws-extension-3x/main.js`: `name` property 케이스 추가 (set-property dump string)
+- `extensions/cc-ws-extension-2x/scene-script.js`: `setNodeProperty`에 `name` 지원 추가
+- `src/renderer/src/components/sidebar/SceneTreePanel.tsx`: `NodeRow`에 더블클릭 인라인 편집 UI (input/span 분기), `handleRename` 콜백 (ccSetProperty + 로컬 setTree 업데이트)
+
+## Round 107 완료 항목 (이전 세션)
 
 ### Round 107 — 세션 자동 제목 + SceneTreePanel 노드 검색 + QA
 - `src/renderer/src/components/chat/ChatPanel.tsx`: `autoSetTitle` callback — 첫 메시지 전송 시 50자 추출해 `sessionRename` 호출

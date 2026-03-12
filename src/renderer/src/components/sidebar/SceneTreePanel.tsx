@@ -7,12 +7,28 @@ interface SceneTreePanelProps {
 }
 
 const NodeRow = memo(function NodeRow({
-  node, depth, selectedUuid, onSelect, forceExpand
+  node, depth, selectedUuid, onSelect, forceExpand, port, onRename
 }: {
   node: CCNode; depth: number; selectedUuid: string | null; onSelect: (n: CCNode) => void; forceExpand?: boolean
+  port: number; onRename?: (uuid: string, newName: string) => void
 }) {
   const [expanded, setExpanded] = useState(forceExpand !== undefined ? forceExpand : depth < 2)
+  const [editing, setEditing] = useState(false)
+  const [editName, setEditName] = useState('')
   const hasChildren = (node.children?.length ?? 0) > 0
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEditName(node.name)
+    setEditing(true)
+  }
+
+  const handleRenameSubmit = () => {
+    if (editName.trim() && editName !== node.name) {
+      onRename?.(node.uuid, editName.trim())
+    }
+    setEditing(false)
+  }
 
   return (
     <>
@@ -39,14 +55,35 @@ const NodeRow = memo(function NodeRow({
           <span style={{ width: 12 }} />
         )}
         <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {node.name}
+          {editing ? (
+            <input
+              autoFocus
+              value={editName}
+              onChange={e => setEditName(e.target.value)}
+              onBlur={handleRenameSubmit}
+              onKeyDown={e => {
+                if (e.key === 'Enter') handleRenameSubmit()
+                if (e.key === 'Escape') setEditing(false)
+              }}
+              onClick={e => e.stopPropagation()}
+              style={{
+                background: 'var(--bg-primary)', border: '1px solid var(--accent)',
+                borderRadius: 3, padding: '1px 4px', fontSize: 11,
+                color: 'var(--text-primary)', outline: 'none', width: 120,
+              }}
+            />
+          ) : (
+            <span onDoubleClick={handleDoubleClick} style={{ cursor: 'pointer' }}>
+              {node.name}
+            </span>
+          )}
         </span>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>
           {node.components.map(c => c.type.replace('cc.', '')).slice(0, 2).join(' ')}
         </span>
       </div>
       {expanded && hasChildren && (node.children ?? []).map(child => (
-        <NodeRow key={child.uuid} node={child} depth={depth + 1} selectedUuid={selectedUuid} onSelect={onSelect} forceExpand={forceExpand} />
+        <NodeRow key={child.uuid} node={child} depth={depth + 1} selectedUuid={selectedUuid} onSelect={onSelect} forceExpand={forceExpand} port={port} onRename={onRename} />
       ))}
     </>
   )
@@ -92,6 +129,23 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
     setSelectedUuid(node.uuid)
     onSelectNode(node)
   }
+
+  const handleRename = useCallback(async (uuid: string, newName: string) => {
+    try {
+      await window.api.ccSetProperty?.(port, uuid, 'name', newName)
+      setTree(prev => {
+        if (!prev) return prev
+        const updateName = (node: CCNode): CCNode => ({
+          ...node,
+          name: node.uuid === uuid ? newName : node.name,
+          children: node.children?.map(updateName) ?? [],
+        })
+        return updateName(prev)
+      })
+    } catch (e) {
+      console.error('[SceneTree] rename failed:', e)
+    }
+  }, [port])
 
   // 노드 이름 검색: 검색어 있으면 매칭 노드만 표시
   const searchLower = nodeSearch.toLowerCase()
@@ -139,7 +193,7 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
           <div style={{ padding: '8px 10px', color: 'var(--text-muted)', fontSize: 11 }}>씬 없음</div>
         )}
         {tree && visibleRoots.map(root => (
-          <NodeRow key={root.uuid} node={root} depth={0} selectedUuid={selectedUuid} onSelect={handleSelect} forceExpand={nodeSearch !== ''} />
+          <NodeRow key={root.uuid} node={root} depth={0} selectedUuid={selectedUuid} onSelect={handleSelect} forceExpand={nodeSearch !== ''} port={port} onRename={handleRename} />
         ))}
       </div>
     </div>
