@@ -12,6 +12,7 @@ export function BookmarksPanel({
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'assistant'>('all')
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [copiedAll, setCopiedAll] = useState(false)
 
   const copyBookmark = useCallback((id: string, text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -65,6 +66,16 @@ export function BookmarksPanel({
         <button onClick={cycleRole} title={`역할 필터: ${ROLE_LABELS[roleFilter]}`}
           style={{ background: roleFilter !== 'all' ? 'var(--accent-dim)' : 'none', border: `1px solid ${roleFilter !== 'all' ? 'var(--accent)' : 'transparent'}`, borderRadius: 4, cursor: 'pointer', color: roleFilter !== 'all' ? 'var(--accent)' : 'var(--text-muted)', fontSize: 10, padding: '1px 5px' }}>
           {ROLE_LABELS[roleFilter]}
+        </button>
+        <button
+          onClick={() => {
+            const md = filtered.map(b => `### ${b.role === 'assistant' ? 'Claude' : '사용자'}\n\n${b.text}`).join('\n\n---\n\n')
+            navigator.clipboard.writeText(md).then(() => { setCopiedAll(true); setTimeout(() => setCopiedAll(false), 1500) })
+          }}
+          title="필터된 북마크 전체 클립보드 복사"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: copiedAll ? '#4ade80' : 'var(--text-muted)', fontSize: 12, padding: '2px 4px', lineHeight: 1 }}
+        >
+          {copiedAll ? '✓' : '📋'}
         </button>
         <button
           onClick={exportBookmarks}

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 279: R377 신규 기능 ───────────────────────────────
+console.log('\n## 279. 신규 기능 파일 검사 (R377)')
+// BookmarksPanel 전체 복사 버튼 (Round 377)
+const bp377Path = join(ROOT, 'src/renderer/src/components/sidebar/BookmarksPanel.tsx')
+if (existsSync(bp377Path)) {
+  const bp377 = readFileSync(bp377Path, 'utf-8')
+  if (bp377.includes('copiedAll') && bp377.includes('setCopiedAll') && bp377.includes('필터된 북마크 전체 클립보드 복사')) {
+    log('pass', 'Round377', 'BookmarksPanel: 전체 북마크 클립보드 복사 버튼 존재')
+  } else {
+    log('warning', 'Round377', 'BookmarksPanel 전체 복사 버튼 미구현', 'sidebar/BookmarksPanel.tsx')
+  }
+}
+
 // ── Section 278: R376 신규 기능 ───────────────────────────────
 console.log('\n## 278. 신규 기능 파일 검사 (R376)')
 // PluginsPanel 전체 켜기/끄기 (Round 376)
