@@ -1927,6 +1927,26 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               )
             })()}
 
+            {/* 드래그 원본 위치 고스트 박스 */}
+            {isDragging && dragRef.current && selectedNode && (() => {
+              const drag = dragRef.current!
+              const { sx, sy } = cocosToSvg(drag.startNodeX, drag.startNodeY, DESIGN_W, DESIGN_H)
+              const gw = selectedNode.width
+              const gh = selectedNode.height
+              const rx = sx - gw * selectedNode.anchorX
+              const ry = sy - gh * (1 - selectedNode.anchorY)
+              return (
+                <rect
+                  x={rx} y={ry} width={gw} height={gh}
+                  fill="rgba(96,165,250,0.07)"
+                  stroke="rgba(96,165,250,0.4)"
+                  strokeWidth={1 / view.zoom}
+                  strokeDasharray={`${5 / view.zoom} ${3 / view.zoom}`}
+                  style={{ pointerEvents: 'none' }}
+                />
+              )
+            })()}
+
             {/* 측정 도구 라인 */}
             {measureMode && measureLine && (() => {
               const dx = (measureLine.x2 - measureLine.x1) / view.zoom

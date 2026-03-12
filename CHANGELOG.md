@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 259] — 2026-03-13
+### Added
+- SceneView: 드래그 원본 위치 고스트 박스 — 드래그 중 노드 시작 위치에 반투명 파란 점선 박스 오버레이
+
 ## [Round 258] — 2026-03-13
 ### Added
 - NotesPanel: 📤 Markdown 내보내기 버튼 — 전체 노트를 `notes-날짜.md` 파일로 다운로드

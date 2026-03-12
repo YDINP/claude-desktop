@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 161: R259 신규 기능 ───────────────────────────────
+console.log('\n## 161. 신규 기능 파일 검사 (R259)')
+// SceneView 드래그 원본 위치 고스트 박스 (Round 259)
+const svp259Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp259Path)) {
+  const svp259 = readFileSync(svp259Path, 'utf-8')
+  if (svp259.includes('드래그 원본 위치 고스트 박스') && svp259.includes('startNodeX') && svp259.includes('dragRef.current')) {
+    log('pass', 'Round259', 'SceneViewPanel: 드래그 원본 위치 고스트 박스 오버레이 존재')
+  } else {
+    log('warning', 'Round259', 'SceneViewPanel 드래그 고스트 박스 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 160: R258 신규 기능 ───────────────────────────────
 console.log('\n## 160. 신규 기능 파일 검사 (R258)')
 // NotesPanel 노트 내보내기 (Round 258)
