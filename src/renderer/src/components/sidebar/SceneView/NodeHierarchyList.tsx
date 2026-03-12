@@ -82,7 +82,7 @@ function NodeRow({
             width: 8,
             height: 8,
             borderRadius: '50%',
-            background: node.active ? 'var(--success)' : 'var(--border)',
+            background: node.labelColor ?? (node.active ? 'var(--success)' : 'var(--border)'),
             flexShrink: 0,
             marginRight: 2,
             cursor: 'pointer',

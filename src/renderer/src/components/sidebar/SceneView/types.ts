@@ -21,6 +21,7 @@ export interface SceneNode {
   memo?: string
   visible?: boolean
   tags?: string[]
+  labelColor?: string
 }
 
 // SVG 뷰포트 변환

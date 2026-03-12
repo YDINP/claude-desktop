@@ -11,6 +11,7 @@ interface SceneInspectorProps {
   onRename?: (uuid: string, name: string) => void
   onMemo?: (uuid: string, memo: string) => void
   onTagsUpdate?: (uuid: string, tags: string[]) => void
+  onLabelColorUpdate?: (uuid: string, color: string | undefined) => void
   nodeMap?: Map<string, SceneNode>
   onSelectParent?: (uuid: string) => void
   focusNameTrigger?: number
@@ -159,7 +160,7 @@ function ChildList({ childUuids, nodeMap, onSelect }: { childUuids: string[]; no
   )
 }
 
-export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, onTagsUpdate, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, onTagsUpdate, onLabelColorUpdate, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -622,6 +623,25 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           }}
           onFocus={e => e.target.style.borderColor = 'var(--accent)'}
         />
+      </div>
+
+      {/* 라벨 색상 */}
+      <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>라벨 색상</div>
+        <input
+          type="color"
+          value={node.labelColor ?? '#60a5fa'}
+          onChange={e => onLabelColorUpdate?.(node.uuid, e.target.value)}
+          style={{ width: 24, height: 16, padding: 0, border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', background: 'none' }}
+          title="노드 표시 색상"
+        />
+        {node.labelColor && (
+          <button
+            onClick={() => onLabelColorUpdate?.(node.uuid, undefined)}
+            style={{ fontSize: 9, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
+            title="색상 초기화"
+          >×</button>
+        )}
       </div>
 
       {/* 노드 태그 */}

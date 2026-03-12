@@ -2036,6 +2036,37 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 117: R215 신규 기능 ───────────────────────────────
+console.log('\n## 117. 신규 기능 파일 검사 (R215)')
+// SceneView 노드 라벨 색상 (Round 215)
+const types215Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/types.ts')
+if (existsSync(types215Path)) {
+  const types215 = readFileSync(types215Path, 'utf-8')
+  if (types215.includes('labelColor?: string')) {
+    log('pass', 'Round215', 'types.ts: SceneNode.labelColor 필드 존재')
+  } else {
+    log('warning', 'Round215', 'SceneNode labelColor 필드 미구현', 'SceneView/types.ts')
+  }
+}
+const nr215Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr215Path)) {
+  const nr215 = readFileSync(nr215Path, 'utf-8')
+  if (nr215.includes('labelColor')) {
+    log('pass', 'Round215', 'NodeRenderer: labelColor fill 처리 존재')
+  } else {
+    log('warning', 'Round215', 'NodeRenderer labelColor 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+const insp215Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(insp215Path)) {
+  const insp215 = readFileSync(insp215Path, 'utf-8')
+  if (insp215.includes('onLabelColorUpdate') && insp215.includes('라벨 색상')) {
+    log('pass', 'Round215', 'SceneInspector: 라벨 색상 피커 존재')
+  } else {
+    log('warning', 'Round215', 'SceneInspector 라벨 색상 피커 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── Section 116: R214 신규 기능 ───────────────────────────────
 console.log('\n## 116. 신규 기능 파일 검사 (R214)')
 // SceneView 노드 태그 (Round 214)

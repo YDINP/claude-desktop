@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 215] — 2026-03-13
+### Added
+- SceneView: 노드 라벨 색상 — Inspector 컬러 피커로 노드 표시 색상 지정, 계층 트리 인디케이터에도 반영
+
 ## [Round 214] — 2026-03-13
 ### Added
 - SceneView: 노드 태그 — Inspector에서 태그 추가/삭제, 계층 검색에서 `tag:` 프리픽스로 태그 필터
