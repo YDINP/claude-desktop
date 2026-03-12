@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 262: R360 신규 기능 ───────────────────────────────
+console.log('\n## 262. 신규 기능 파일 검사 (R360)')
+// TasksPanel 전부 완료 버튼 (Round 360)
+const tp360Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp360Path)) {
+  const tp360 = readFileSync(tp360Path, 'utf-8')
+  if (tp360.includes('모두 완료 처리') && tp360.includes('t.done).length > 0') && tp360.includes('✓ 전부')) {
+    log('pass', 'Round360', 'TasksPanel: 전부 완료 버튼 (모두 완료 처리/✓ 전부) 존재')
+  } else {
+    log('warning', 'Round360', 'TasksPanel 전부 완료 버튼 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 261: R359 신규 기능 ───────────────────────────────
 console.log('\n## 261. 신규 기능 파일 검사 (R359)')
 // SearchPanel 전체 접기/펼치기 (Round 359)

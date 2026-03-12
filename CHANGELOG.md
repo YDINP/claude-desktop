@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 360] — 2026-03-13
+### Added
+- TasksPanel: 전부 완료 버튼 — 활성 태스크가 있을 때 "✓ 전부" 버튼으로 모든 태스크를 완료 처리
+
 ## [Round 359] — 2026-03-13
 ### Added
 - SearchPanel: 전체 접기/펼치기 버튼 — 결과 요약 바에 ⊖/⊕ 버튼, 모든 파일 그룹 일괄 접기/펼치기

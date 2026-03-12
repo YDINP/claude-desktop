@@ -199,6 +199,9 @@ export function TasksPanel() {
           style={{ marginLeft: 'auto', fontSize: 10, background: 'none', border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer', color: 'var(--text-muted)', padding: '1px 6px' }}>
           {sortBy === 'created' ? '⏱' : sortBy === 'priority' ? '🔴' : '📅'}
         </button>
+        {tasks.filter(t => !t.done).length > 0 && (
+          <button onClick={() => save(tasks.map(t => ({ ...t, done: true })))} title="모두 완료 처리" style={{ fontSize: 11, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>✓ 전부</button>
+        )}
         {doneCount > 0 && <button onClick={clearDone} style={{ fontSize: 11, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>완료 정리</button>}
         {tasks.length > 0 && <button onClick={exportTasks} title="Markdown으로 내보내기" style={{ fontSize: 12, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>📤</button>}
       </div>

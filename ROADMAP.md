@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 359 완료 — SearchPanel 전체 접기/펼치기, Pass 379)
+> 마지막 업데이트: 2026-03-13 (Round 360 완료 — TasksPanel 전부 완료 버튼, Pass 380)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 360 | dev | TasksPanel 전부 완료 버튼 — 활성 태스크 존재 시 "✓ 전부" 버튼, tasks.map done:true | ✅ |
 | Round 359 | dev | SearchPanel 전체 접기/펼치기 — 결과 요약 바 ⊖/⊕ 버튼, 파일 그룹 일괄 접기/펼치기 | ✅ |
 | Round 358 | dev | StatsPanel 히트맵 요일 레이블 — 히트맵 좌측 일/화/목/토 레이블, GitHub 스타일 | ✅ |
 | Round 357 | dev | OutlinePanel 역순 정렬 토글 — ↓/↑ 버튼, reversed 상태, 최신 헤딩 먼저 표시 | ✅ |
