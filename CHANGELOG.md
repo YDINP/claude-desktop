@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 232] — 2026-03-13
+### Added
+- SceneView: PNG 내보내기 — SVG→Canvas→PNG 변환 후 scene.png 다운로드, 툴바 ⬇ PNG 버튼
+
 ## [Round 231] — 2026-03-13
 ### Added
 - SceneView: 카메라 뷰 히스토리 — F/G 키 이동 시 히스토리 저장, Alt+← 뒤로/Alt+→ 앞으로 이동

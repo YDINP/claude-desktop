@@ -2036,6 +2036,26 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 134: R232 신규 기능 ───────────────────────────────
+console.log('\n## 134. 신규 기능 파일 검사 (R232)')
+// SceneView PNG 내보내기 (Round 232)
+const svp232Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+const st232Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(svp232Path) && existsSync(st232Path)) {
+  const svp232 = readFileSync(svp232Path, 'utf-8')
+  const st232 = readFileSync(st232Path, 'utf-8')
+  if (svp232.includes('handleExportPng') && svp232.includes('scene.png') && svp232.includes('toDataURL')) {
+    log('pass', 'Round232', 'SceneViewPanel: PNG 내보내기 (SVG→Canvas→PNG) 구현 존재')
+  } else {
+    log('warning', 'Round232', 'SceneViewPanel PNG 내보내기 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (st232.includes('onExportPng') && st232.includes('PNG')) {
+    log('pass', 'Round232', 'SceneToolbar: PNG 내보내기 버튼 존재')
+  } else {
+    log('warning', 'Round232', 'SceneToolbar PNG 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 133: R231 신규 기능 ───────────────────────────────
 console.log('\n## 133. 신규 기능 파일 검사 (R231)')
 // SceneView 카메라 뷰 히스토리 (Round 231)

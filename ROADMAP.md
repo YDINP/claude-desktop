@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 231 완료 — SceneView 카메라 뷰 히스토리, Pass 245)
+> 마지막 업데이트: 2026-03-13 (Round 232 완료 — SceneView PNG 내보내기, Pass 247)
 
 ## 완료된 라운드
 
@@ -183,6 +183,7 @@
 | Round 229 | dev | SceneView 참조 이미지 오버레이 — URL 입력, 투명도 슬라이더, 씬 경계 내 배치 | ✅ |
 | Round 230 | dev | SceneView 즐겨찾기 — Ctrl+B 토글, ★ 캔버스 표시, 툴바 목록 팝업 빠른 선택 | ✅ |
 | Round 231 | dev | SceneView 카메라 히스토리 — F/G 키 뷰 저장, Alt+←/→ 뒤로/앞으로 이동 (ref 기반) | ✅ |
+| Round 232 | dev | SceneView PNG 내보내기 — SVG→Canvas→PNG 변환, scene.png 다운로드, 툴바 버튼 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

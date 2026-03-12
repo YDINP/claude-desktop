@@ -48,6 +48,7 @@ interface SceneToolbarProps {
   canvasSize?: { w: number; h: number }
   onCanvasSizeChange?: (w: number, h: number) => void
   onExportSvg?: () => void
+  onExportPng?: () => void
   onSaveScene?: () => void
   onLoadScene?: () => void
   activeSlot?: number
@@ -122,6 +123,7 @@ export function SceneToolbar({
   canvasSize,
   onCanvasSizeChange,
   onExportSvg,
+  onExportPng,
   onSaveScene,
   onLoadScene,
   activeSlot,
@@ -522,9 +524,12 @@ export function SceneToolbar({
         #
       </button>
 
-      {/* SVG 내보내기 */}
+      {/* SVG/PNG 내보내기 */}
       {onExportSvg && (
-        <button style={btnBase} onClick={onExportSvg} title="씬 SVG 내보내기">⬇</button>
+        <button style={btnBase} onClick={onExportSvg} title="씬 SVG 내보내기">⬇ SVG</button>
+      )}
+      {onExportPng && (
+        <button style={btnBase} onClick={onExportPng} title="씬 PNG 내보내기">⬇ PNG</button>
       )}
 
       {/* 씬 슬롯 저장 / 로드 */}

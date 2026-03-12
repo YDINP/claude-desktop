@@ -998,6 +998,58 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     URL.revokeObjectURL(url)
   }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
 
+  // ── PNG 내보내기 (SVG → Canvas → PNG) ──────────────────────
+  const handleExportPng = useCallback(async () => {
+    // 씬 SVG 직렬화 (handleExportSvg와 동일한 SVG 생성)
+    if (!svgRef.current) return
+    const ns = 'http://www.w3.org/2000/svg'
+    const exportSvg = document.createElementNS(ns, 'svg')
+    exportSvg.setAttribute('xmlns', ns)
+    exportSvg.setAttribute('width', String(DESIGN_W))
+    exportSvg.setAttribute('height', String(DESIGN_H))
+    exportSvg.setAttribute('viewBox', `${-DESIGN_W / 2} ${-DESIGN_H / 2} ${DESIGN_W} ${DESIGN_H}`)
+    const bg = document.createElementNS(ns, 'rect')
+    bg.setAttribute('x', String(-DESIGN_W / 2)); bg.setAttribute('y', String(-DESIGN_H / 2))
+    bg.setAttribute('width', String(DESIGN_W)); bg.setAttribute('height', String(DESIGN_H))
+    bg.setAttribute('fill', '#1a1a2e')
+    exportSvg.appendChild(bg)
+    nodeMap.forEach(n => {
+      if (!n.active) return
+      const rect = document.createElementNS(ns, 'rect')
+      const hw = n.width / 2; const hh = n.height / 2
+      const cx = n.x - DESIGN_W / 2; const cy = -(n.y - DESIGN_H / 2)
+      rect.setAttribute('x', String(cx - hw)); rect.setAttribute('y', String(cy - hh))
+      rect.setAttribute('width', String(n.width)); rect.setAttribute('height', String(n.height))
+      const r = n.color.r; const g2 = n.color.g; const b = n.color.b; const a = (n.color.a / 255).toFixed(2)
+      rect.setAttribute('fill', `rgba(${r},${g2},${b},${a})`)
+      rect.setAttribute('stroke', 'rgba(96,165,250,0.3)'); rect.setAttribute('stroke-width', '0.5')
+      exportSvg.appendChild(rect)
+      if (n.name) {
+        const text = document.createElementNS(ns, 'text')
+        text.setAttribute('x', String(cx)); text.setAttribute('y', String(cy + 4))
+        text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-size', '10')
+        text.setAttribute('fill', 'rgba(255,255,255,0.6)'); text.setAttribute('font-family', 'sans-serif')
+        text.textContent = n.name
+        exportSvg.appendChild(text)
+      }
+    })
+    const svgStr = new XMLSerializer().serializeToString(exportSvg)
+    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' })
+    const svgUrl = URL.createObjectURL(svgBlob)
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = DESIGN_W; canvas.height = DESIGN_H
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0)
+      URL.revokeObjectURL(svgUrl)
+      const pngUrl = canvas.toDataURL('image/png')
+      const a = document.createElement('a')
+      a.href = pngUrl; a.download = 'scene.png'; a.click()
+    }
+    img.src = svgUrl
+  }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
+
   // ── 씬 저장 / 로드 슬롯 (localStorage) ──────────────────────
   const [activeSlot, setActiveSlot] = useState(0)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
@@ -1335,6 +1387,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         canvasSize={canvasSize}
         onCanvasSizeChange={(w, h) => { setCanvasSize({ w, h }); setTimeout(handleFit, 50) }}
         onExportSvg={handleExportSvg}
+        onExportPng={handleExportPng}
         onSaveScene={handleSaveScene}
         onLoadScene={handleLoadScene}
         activeSlot={activeSlot}
