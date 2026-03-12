@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 211 완료 — SceneView 씬 저장/로드, Pass 206)
+> 마지막 업데이트: 2026-03-13 (Round 212 완료 — SceneView 씬 슬롯 3개, Pass 207)
 
 ## 완료된 라운드
 
@@ -163,6 +163,7 @@
 | Round 209 | dev | SceneView 노드 가시성 토글 — 계층 트리 👁 아이콘으로 숨기기/표시 | ✅ |
 | Round 210 | dev | SceneView Shift+리사이즈 비례 리사이즈 — 코너 핸들에서 aspect ratio 유지 | ✅ |
 | Round 211 | dev | SceneView 씬 레이아웃 저장/로드 — 💾/📂 버튼, localStorage 저장·복원 | ✅ |
+| Round 212 | dev | SceneView 씬 저장 슬롯 3개 — 슬롯 드롭다운, 전환 시 자동 저장 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

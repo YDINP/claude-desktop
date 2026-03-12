@@ -2036,6 +2036,28 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 114: R212 신규 기능 ───────────────────────────────
+console.log('\n## 114. 신규 기능 파일 검사 (R212)')
+// SceneView 씬 저장 슬롯 3개 (Round 212)
+const svp212Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp212Path)) {
+  const svp212 = readFileSync(svp212Path, 'utf-8')
+  if (svp212.includes('activeSlot') && svp212.includes('handleSlotChange') && svp212.includes('claude-desktop-scene-layout-')) {
+    log('pass', 'Round212', 'SceneViewPanel: 씬 저장 슬롯 3개 구현 존재')
+  } else {
+    log('warning', 'Round212', 'SceneViewPanel 씬 슬롯 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+const stb212Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb212Path)) {
+  const stb212 = readFileSync(stb212Path, 'utf-8')
+  if (stb212.includes('onSlotChange') && stb212.includes('슬롯')) {
+    log('pass', 'Round212', 'SceneToolbar: 슬롯 드롭다운 존재')
+  } else {
+    log('warning', 'Round212', 'SceneToolbar 슬롯 드롭다운 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── Section 113: R211 신규 기능 ───────────────────────────────
 console.log('\n## 113. 신규 기능 파일 검사 (R211)')
 // SceneView 씬 저장/로드 localStorage (Round 211)

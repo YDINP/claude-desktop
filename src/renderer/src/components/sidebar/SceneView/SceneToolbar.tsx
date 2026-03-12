@@ -50,6 +50,8 @@ interface SceneToolbarProps {
   onExportSvg?: () => void
   onSaveScene?: () => void
   onLoadScene?: () => void
+  activeSlot?: number
+  onSlotChange?: (slot: number) => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -104,6 +106,8 @@ export function SceneToolbar({
   onExportSvg,
   onSaveScene,
   onLoadScene,
+  activeSlot,
+  onSlotChange,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -406,7 +410,17 @@ export function SceneToolbar({
         <button style={btnBase} onClick={onExportSvg} title="씬 SVG 내보내기">⬇</button>
       )}
 
-      {/* 씬 저장 / 로드 */}
+      {/* 씬 슬롯 저장 / 로드 */}
+      {onSlotChange !== undefined && (
+        <select
+          value={activeSlot ?? 0}
+          onChange={e => onSlotChange(Number(e.target.value))}
+          title="씬 저장 슬롯 선택"
+          style={{ fontSize: 9, padding: '1px 2px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
+        >
+          {[0, 1, 2].map(i => <option key={i} value={i}>슬롯 {i + 1}</option>)}
+        </select>
+      )}
       {onSaveScene && (
         <button style={btnBase} onClick={onSaveScene} title="씬 레이아웃 저장 (localStorage)">💾</button>
       )}

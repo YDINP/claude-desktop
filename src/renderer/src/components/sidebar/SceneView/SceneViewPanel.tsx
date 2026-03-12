@@ -879,17 +879,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     URL.revokeObjectURL(url)
   }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
 
-  // ── 씬 저장 / 로드 (localStorage) ──────────────────────────
-  const SCENE_STORAGE_KEY = 'claude-desktop-scene-layout'
+  // ── 씬 저장 / 로드 슬롯 (localStorage) ──────────────────────
+  const [activeSlot, setActiveSlot] = useState(0)
+  const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
-  const handleSaveScene = useCallback(() => {
+  const saveToSlot = useCallback((slot: number) => {
     const data = JSON.stringify([...nodeMap.entries()])
-    localStorage.setItem(SCENE_STORAGE_KEY, data)
+    localStorage.setItem(slotKey(slot), data)
   }, [nodeMap])
 
-  const handleLoadScene = useCallback(() => {
+  const loadFromSlot = useCallback((slot: number) => {
     try {
-      const raw = localStorage.getItem(SCENE_STORAGE_KEY)
+      const raw = localStorage.getItem(slotKey(slot))
       if (!raw) return
       const entries: [string, import('./types').SceneNode][] = JSON.parse(raw)
       const next = new Map<string, import('./types').SceneNode>(entries)
@@ -898,6 +899,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       // 파싱 실패 무시
     }
   }, [updateNode])
+
+  const handleSaveScene = useCallback(() => saveToSlot(activeSlot), [saveToSlot, activeSlot])
+  const handleLoadScene = useCallback(() => loadFromSlot(activeSlot), [loadFromSlot, activeSlot])
+
+  const handleSlotChange = useCallback((newSlot: number) => {
+    saveToSlot(activeSlot)       // 현재 슬롯 자동 저장
+    setActiveSlot(newSlot)
+    loadFromSlot(newSlot)        // 새 슬롯 로드
+  }, [activeSlot, saveToSlot, loadFromSlot])
 
   // 비패시브 wheel 이벤트 등록 (passive: false 없이는 preventDefault 무시됨)
   useEffect(() => {
@@ -1147,6 +1157,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onExportSvg={handleExportSvg}
         onSaveScene={handleSaveScene}
         onLoadScene={handleLoadScene}
+        activeSlot={activeSlot}
+        onSlotChange={handleSlotChange}
         onCopy={handleCopy}
         onPaste={handlePaste}
         onZOrderFront={() => handleZOrder('front')}
