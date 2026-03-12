@@ -61,6 +61,7 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
   const [tags, setTags] = useState<string[]>([])
   const [newTagName, setNewTagName] = useState('')
   const [newTagMsg, setNewTagMsg] = useState('')
+  const [stageAllLoading, setStageAllLoading] = useState(false)
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -286,6 +287,26 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
       setNewTagName('')
       setNewTagMsg('')
     } else alert(r.error)
+  }
+
+  const handleStageAll = async () => {
+    setStageAllLoading(true)
+    try {
+      await Promise.all(unstagedFiles.map(f => window.api.gitStage(rootPath, f.path)))
+      await refresh()
+    } finally {
+      setStageAllLoading(false)
+    }
+  }
+
+  const handleUnstageAll = async () => {
+    setStageAllLoading(true)
+    try {
+      await Promise.all(stagedFiles.map(f => window.api.gitUnstage(rootPath, f.path)))
+      await refresh()
+    } finally {
+      setStageAllLoading(false)
+    }
   }
 
   const handleDeleteTag = async (name: string) => {
@@ -694,8 +715,16 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
         {/* Staged files */}
         {stagedFiles.length > 0 && (
           <div>
-            <div style={{ padding: '4px 8px', fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)' }}>
-              스테이징됨 ({stagedFiles.length})
+            <div style={{ padding: '4px 8px', fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>스테이징됨 ({stagedFiles.length})</span>
+              <button
+                onClick={handleUnstageAll}
+                disabled={stageAllLoading}
+                title="전체 스테이지 해제"
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: stageAllLoading ? 'wait' : 'pointer', fontSize: 10, padding: '0 2px' }}
+              >
+                전체 해제
+              </button>
             </div>
             {stagedFiles.map(f => (
               <FileRow key={f.path} file={f} onToggle={() => handleStage(f)} onFileClick={() => handleFileClick(f.path, true)} />
@@ -706,8 +735,16 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
         {/* Unstaged files */}
         {unstagedFiles.length > 0 && (
           <div>
-            <div style={{ padding: '4px 8px', fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)', marginTop: stagedFiles.length > 0 ? 4 : 0 }}>
-              변경사항 ({unstagedFiles.length})
+            <div style={{ padding: '4px 8px', fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)', marginTop: stagedFiles.length > 0 ? 4 : 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>변경사항 ({unstagedFiles.length})</span>
+              <button
+                onClick={handleStageAll}
+                disabled={stageAllLoading}
+                title="전체 스테이지"
+                style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: stageAllLoading ? 'wait' : 'pointer', fontSize: 10, padding: '0 2px' }}
+              >
+                전체 +
+              </button>
             </div>
             {unstagedFiles.map(f => (
               <FileRow key={f.path} file={f} onToggle={() => handleStage(f)} onFileClick={() => handleFileClick(f.path, false)} />

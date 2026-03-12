@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T21:45:11.680Z
+> 2026-03-12T21:47:17.766Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- GitPanel: 전체 스테이지/해제 (handleStageAll/handleUnstageAll/stageAllLoading) 존재
 - SnippetPanel: 카테고리 퀵 필터 (catFilter/availableCategories) 존재
 - ConnectionPanel: 자동 핑 토글 (autoPing/setAutoPing/30000) 존재
 - CocosPanel: 연결 유지 시간 표시 (connectedAt/uptime) 존재

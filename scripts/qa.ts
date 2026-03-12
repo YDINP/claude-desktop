@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 246: R344 신규 기능 ───────────────────────────────
+console.log('\n## 246. 신규 기능 파일 검사 (R344)')
+// GitPanel 전체 스테이지/해제 (Round 344)
+const git344Path = join(ROOT, 'src/renderer/src/components/sidebar/GitPanel.tsx')
+if (existsSync(git344Path)) {
+  const git344 = readFileSync(git344Path, 'utf-8')
+  if (git344.includes('handleStageAll') && git344.includes('handleUnstageAll') && git344.includes('stageAllLoading')) {
+    log('pass', 'Round344', 'GitPanel: 전체 스테이지/해제 (handleStageAll/handleUnstageAll/stageAllLoading) 존재')
+  } else {
+    log('warning', 'Round344', 'GitPanel 전체 스테이지/해제 미구현', 'sidebar/GitPanel.tsx')
+  }
+}
+
 // ── Section 245: R343 신규 기능 ───────────────────────────────
 console.log('\n## 245. 신규 기능 파일 검사 (R343)')
 // SnippetPanel 카테고리 퀵 필터 (Round 343)
