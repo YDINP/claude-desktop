@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 298: R396 신규 기능 ───────────────────────────────
+console.log('\n## 298. 신규 기능 파일 검사 (R396)')
+// GitPanel 커밋 해시 복사 버튼 (Round 396)
+const gp396Path = join(ROOT, 'src/renderer/src/components/sidebar/GitPanel.tsx')
+if (existsSync(gp396Path)) {
+  const gp396 = readFileSync(gp396Path, 'utf-8')
+  if (gp396.includes('copiedCommitHash') && gp396.includes('해시 복사')) {
+    log('pass', 'Round396', 'GitPanel: 커밋 해시 복사 버튼 존재')
+  } else {
+    log('warning', 'Round396', 'GitPanel 해시 복사 미구현', 'sidebar/GitPanel.tsx')
+  }
+}
+
 // ── Section 297: R395 신규 기능 ───────────────────────────────
 console.log('\n## 297. 신규 기능 파일 검사 (R395)')
 // DiffPanel diff 결과 요약 복사 (Round 395)

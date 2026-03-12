@@ -62,6 +62,7 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
   const [newTagName, setNewTagName] = useState('')
   const [newTagMsg, setNewTagMsg] = useState('')
   const [stageAllLoading, setStageAllLoading] = useState(false)
+  const [copiedCommitHash, setCopiedCommitHash] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -616,9 +617,16 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = selectedCommit === c.hash ? 'rgba(var(--accent-rgb, 99,102,241), 0.1)' : 'var(--bg-hover)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selectedCommit === c.hash ? 'rgba(var(--accent-rgb, 99,102,241), 0.1)' : 'transparent' }}
                   >
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'baseline' }}>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                       <span style={{ fontSize: 10, color: 'var(--accent)', fontFamily: 'monospace', flexShrink: 0 }}>{c.short ?? c.hash?.slice(0, 7)}</span>
-                      <span style={{ fontSize: 11, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.subject}</span>
+                      <span style={{ fontSize: 11, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{c.subject}</span>
+                      {c.hash && (
+                        <button
+                          onClick={e => { e.stopPropagation(); const h = c.short ?? c.hash!.slice(0, 7); navigator.clipboard.writeText(h).then(() => { setCopiedCommitHash(h); setTimeout(() => setCopiedCommitHash(cur => cur === h ? null : cur), 1500) }) }}
+                          title="해시 복사"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: copiedCommitHash === (c.short ?? c.hash?.slice(0, 7)) ? '#4ade80' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+                        >{copiedCommitHash === (c.short ?? c.hash?.slice(0, 7)) ? '✓' : '📋'}</button>
+                      )}
                     </div>
                     <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{c.author} {'\u00B7'} {c.date}</div>
                   </div>

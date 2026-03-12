@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 396] — 2026-03-13
+### Added
+- GitPanel: 커밋 해시 복사 버튼 — copiedCommitHash 상태, 로그 각 커밋에 📋 버튼, 해시 클립보드 복사
+
 ## [Round 395] — 2026-03-13
 ### Added
 - DiffPanel: diff 결과 요약 복사 버튼 — diffCopied 상태, 📋 버튼, 파일명↔파일명+추가/삭제 통계 복사
