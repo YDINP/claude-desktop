@@ -59,7 +59,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   const cx = sx
   const cy = sy
 
-  const opacity = node.active ? (node.opacity / 255) : 0.3
+  const opacity = node.visible === false ? 0.15 : node.active ? (node.opacity / 255) : 0.3
 
   // 테두리 색상 결정
   const strokeColor = selected

@@ -12,6 +12,7 @@ interface NodeHierarchyListProps {
   onCopyNode?: (uuid: string) => void
   onRename?: (uuid: string, name: string) => void
   onToggleLock?: (uuid: string, locked: boolean) => void
+  onToggleVisible?: (uuid: string, visible: boolean) => void
 }
 
 function NodeRow({
@@ -23,6 +24,8 @@ function NodeRow({
   onSelect,
   onToggleCollapse,
   onToggleActive,
+  onToggleLock,
+  onToggleVisible,
   editingUuid,
   editDraft,
   onEditDraftChange,
@@ -38,6 +41,7 @@ function NodeRow({
   onToggleCollapse: (uuid: string) => void
   onToggleActive?: (uuid: string, active: boolean) => void
   onToggleLock?: (uuid: string, locked: boolean) => void
+  onToggleVisible?: (uuid: string, visible: boolean) => void
   editingUuid?: string | null
   editDraft?: string
   onEditDraftChange?: (v: string) => void
@@ -91,6 +95,12 @@ function NodeRow({
           title={node.locked ? '잠금 해제' : '잠금'}
           style={{ flexShrink: 0, marginRight: 2, cursor: 'pointer', fontSize: 9, opacity: node.locked ? 1 : 0.2, color: node.locked ? '#f59e0b' : 'var(--text-muted)' }}
         >🔒</span>
+        {/* 가시성 아이콘 */}
+        <span
+          onClick={e => { e.stopPropagation(); onToggleVisible?.(uuid, node.visible === false) }}
+          title={node.visible === false ? '표시' : '숨기기'}
+          style={{ flexShrink: 0, marginRight: 2, cursor: 'pointer', fontSize: 9, opacity: node.visible === false ? 0.2 : 1, color: 'var(--text-muted)' }}
+        >👁</span>
         {/* 펼치기/접기 버튼 */}
         <span
           onClick={e => { e.stopPropagation(); if (hasChildren) onToggleCollapse(uuid) }}
@@ -166,6 +176,7 @@ function NodeRow({
           onToggleCollapse={onToggleCollapse}
           onToggleActive={onToggleActive}
           onToggleLock={onToggleLock}
+          onToggleVisible={onToggleVisible}
           editingUuid={editingUuid}
           editDraft={editDraft}
           onEditDraftChange={onEditDraftChange}
@@ -177,7 +188,7 @@ function NodeRow({
   )
 }
 
-export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode, onRename, onToggleLock }: NodeHierarchyListProps) {
+export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode, onRename, onToggleLock, onToggleVisible }: NodeHierarchyListProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -346,6 +357,7 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
             onToggleCollapse={toggleCollapse}
             onToggleActive={onToggleActive}
             onToggleLock={onToggleLock}
+            onToggleVisible={onToggleVisible}
             editingUuid={editingUuid}
             editDraft={editDraft}
             onEditDraftChange={setEditDraft}

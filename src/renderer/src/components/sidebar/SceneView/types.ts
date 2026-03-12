@@ -19,6 +19,7 @@ export interface SceneNode {
   components: { type: string }[]
   locked?: boolean
   memo?: string
+  visible?: boolean
 }
 
 // SVG 뷰포트 변환

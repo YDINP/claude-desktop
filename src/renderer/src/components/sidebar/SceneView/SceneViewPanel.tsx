@@ -1178,6 +1178,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           }}
           onRename={handleRename}
           onToggleLock={(uuid, locked) => updateNode(uuid, { locked })}
+          onToggleVisible={(uuid, visible) => updateNode(uuid, { visible })}
         />
       )}
 

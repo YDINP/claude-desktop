@@ -2036,6 +2036,28 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 111: R209 신규 기능 ───────────────────────────────
+console.log('\n## 111. 신규 기능 파일 검사 (R209)')
+// SceneView 노드 가시성 토글 (Round 209)
+const nhl209Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nhl209Path)) {
+  const nhl209 = readFileSync(nhl209Path, 'utf-8')
+  if (nhl209.includes('onToggleVisible') && nhl209.includes('visible')) {
+    log('pass', 'Round209', 'NodeHierarchyList: 가시성 토글 👁 아이콘 존재')
+  } else {
+    log('warning', 'Round209', 'NodeHierarchyList 가시성 토글 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+const nr209Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr209Path)) {
+  const nr209 = readFileSync(nr209Path, 'utf-8')
+  if (nr209.includes('visible === false')) {
+    log('pass', 'Round209', 'NodeRenderer: visible=false 시 반투명 처리 존재')
+  } else {
+    log('warning', 'Round209', 'NodeRenderer visible 처리 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
 // ── Section 110: R208 신규 기능 ───────────────────────────────
 console.log('\n## 110. 신규 기능 파일 검사 (R208)')
 // SceneView SVG 내보내기 (Round 208)

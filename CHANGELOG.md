@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 209] — 2026-03-13
+### Added
+- SceneView: 노드 가시성 토글 — 계층 트리 👁 아이콘으로 개별 노드 숨기기/표시, 숨겨진 노드 opacity 0.15
+
 ## [Round 208] — 2026-03-13
 ### Added
 - SceneView: SVG 씬 내보내기 — ⬇ 버튼으로 씬 노드 레이아웃을 SVG 파일로 다운로드
