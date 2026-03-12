@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 69 완료 + 트렌드 리서치 반영)
+> 마지막 업데이트: 2026-03-12 (Round 73 완료 — HQ Mode 전체 완성)
 
 ## 완료된 라운드
 
@@ -16,15 +16,15 @@
 | Round 67 | feature/cocos-integration | QA 자동화 + 전체 검수 + Critical/Warning 수정 | ✅ |
 | Round 68 | feature/cocos-integration | CC UX 완성 (프로젝트 자동감지/재연결 UI/포트 저장/debounce) | ✅ |
 | Round 69 | feature/cocos-integration | Adaptive Thinking 시각화 + ThinkingPanel + ToolUse 입력 포맷터 | ✅ |
+| Round 70 | feature/cocos-integration | HQ Mode Phase 1 — TitleBar/AgentBay/ResourceBar/OpsFeed 쉘 + hq.css | ✅ |
+| Round 71 | feature/cocos-integration | HQ Mode Phase 2 — AgentCard 4종 상태 애니메이션 (idle/active/tool_running/error) | ✅ |
+| Round 72 | feature/cocos-integration | HQ Mode Phase 3 — ResourceBar 라이브 git/memory + OpsFeed 자동스크롤/입력요약 | ✅ |
+| Round 73 | feature/cocos-integration | HQ Mode Phase 4 — Ctrl+Shift+H 단축키 + 트랜지션 폴리싱 + CSS 변수 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 70 | main | **HQ Mode Phase 1** — TitleBar 토글, App.tsx hqMode state, hq.css dot grid, AgentBay/ResourceBar 쉘 |
-| Round 71 | main | **HQ Mode Phase 2** — AgentCard 로봇 SVG 눈 + idle/active/tool/error 애니메이션 + 토큰 게이지 |
-| Round 72 | main | **HQ Mode Phase 3** — ResourceBar 라이브 데이터 바인딩 + OpsFeed 툴콜 스트림 + 세션 전환 처리 |
-| Round 73 | main | **HQ Mode Phase 4** — 0.25s 트랜지션 폴리싱 + Ctrl+Shift+H 단축키 + 라이트 테마 호환 + QA |
 | Round 74 | main | **대화 UX 고도화** — 메시지 검색(Ctrl+F) + 결과 하이라이트/점프, 대화 내 코드블록 복사/실행 버튼 개선 |
 | Round 75 | main | **대화 브랜치 UI** — session:fork IPC 연동, 메시지 우클릭 "여기서 분기" 메뉴, 브랜치 트리 시각화(SessionList 확장) |
 | Round 76 | main | **코드 편집기 Phase 1** — Monaco Editor 통합, FileViewer를 Monaco 기반으로 교체, 구문 강조/미니맵/검색 |
