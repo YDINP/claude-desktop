@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 276] — 2026-03-13
+### Added
+- SceneView: 컨텍스트 메뉴 "📋 UUID 복사" + "📋 경로 복사" 항목 — navigator.clipboard.writeText
+
 ## [Round 275] — 2026-03-13
 ### Added
 - TasksPanel: 태스크 메모 필드 — 📝 버튼으로 태스크별 memo textarea 토글, 저장 시 지속

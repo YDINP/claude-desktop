@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 178: R276 신규 기능 ───────────────────────────────
+console.log('\n## 178. 신규 기능 파일 검사 (R276)')
+// SceneView 컨텍스트 메뉴 UUID/경로 복사 (Round 276)
+const svp276Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp276Path)) {
+  const svp276 = readFileSync(svp276Path, 'utf-8')
+  if (svp276.includes('UUID 복사') && svp276.includes('경로 복사') && svp276.includes('pathParts')) {
+    log('pass', 'Round276', 'SceneViewPanel: 컨텍스트 메뉴 UUID/경로 복사 (clipboard.writeText) 존재')
+  } else {
+    log('warning', 'Round276', 'SceneViewPanel UUID/경로 복사 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 177: R275 신규 기능 ───────────────────────────────
 console.log('\n## 177. 신규 기능 파일 검사 (R275)')
 // TasksPanel 태스크 메모 필드 (Round 275)

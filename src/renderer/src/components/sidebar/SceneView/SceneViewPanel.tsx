@@ -3072,6 +3072,21 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   close()
                 }}>{bookmarkedUuids.has(ctxUuid!) ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가'}</button>
               )}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  navigator.clipboard?.writeText(ctxUuid!)
+                  close()
+                }}>📋 UUID 복사</button>
+              )}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  const pathParts: string[] = []
+                  let cur: SceneNode | undefined = ctxNode
+                  while (cur) { pathParts.unshift(cur.name); cur = cur.parentUuid ? nodeMap.get(cur.parentUuid) : undefined }
+                  navigator.clipboard?.writeText(pathParts.join('/'))
+                  close()
+                }}>📋 경로 복사</button>
+              )}
               <div style={{ height: 1, background: 'var(--border)', margin: '2px 0' }} />
               {ctxNode && (
                 <button style={{ ...menuStyle, color: 'var(--error)' }} onClick={() => {
