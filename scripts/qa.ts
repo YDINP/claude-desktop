@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 221: R319 신규 기능 ───────────────────────────────
+console.log('\n## 221. 신규 기능 파일 검사 (R319)')
+// SearchPanel 결과 요약 배너 (Round 319)
+const srp319Path = join(ROOT, 'src/renderer/src/components/sidebar/SearchPanel.tsx')
+if (existsSync(srp319Path)) {
+  const srp319 = readFileSync(srp319Path, 'utf-8')
+  if (srp319.includes('개 파일 · ') && srp319.includes('개 매치') && srp319.includes('grouped.length')) {
+    log('pass', 'Round319', 'SearchPanel: 결과 요약 배너 (grouped.length/totalMatches/매치) 존재')
+  } else {
+    log('warning', 'Round319', 'SearchPanel 결과 요약 배너 미구현', 'sidebar/SearchPanel.tsx')
+  }
+}
+
 // ── Section 220: R318 신규 기능 ───────────────────────────────
 console.log('\n## 220. 신규 기능 파일 검사 (R318)')
 // PluginsPanel 정렬 토글 (Round 318)

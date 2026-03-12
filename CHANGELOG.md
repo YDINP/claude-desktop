@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 319] — 2026-03-13
+### Added
+- SearchPanel: 결과 요약 배너 — 결과 있을 때 `N개 파일 · M개 매치` + 확장자 필터 수 표시
+
 ## [Round 318] — 2026-03-13
 ### Added
 - PluginsPanel: 플러그인 정렬 토글 — 기본/이름순(A↓)/활성 먼저(●↑) 3단계 순환, sortedPlugins useMemo

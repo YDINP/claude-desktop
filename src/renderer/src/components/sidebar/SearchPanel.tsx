@@ -324,6 +324,14 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
         </div>
       )}
 
+      {/* Results summary */}
+      {!isSearching && grouped.length > 0 && (
+        <div style={{ padding: '3px 8px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
+          <span>{grouped.length}개 파일 · {totalMatches}개 매치</span>
+          {selectedExts.size > 0 && <span style={{ color: 'var(--accent)' }}>{selectedExts.size}개 확장자 필터</span>}
+        </div>
+      )}
+
       {/* Results */}
       <div style={{ flex: 1, overflowY: 'auto', paddingTop: 4 }}>
         {isSearching && (
