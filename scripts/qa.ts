@@ -1664,6 +1664,24 @@ if (existsSync(sceneInspectorPath13)) {
   }
 }
 
+// ── Section 73: R171 신규 기능 ───────────────────────────────
+console.log('\n## 73. 신규 기능 파일 검사 (R171)')
+// SceneView SVG 우클릭 컨텍스트 메뉴 (Round 171)
+const svp171Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp171Path)) {
+  const svp171 = readFileSync(svp171Path, 'utf-8')
+  if (svp171.includes('svgContextMenu') && svp171.includes('onContextMenu')) {
+    log('pass', 'Round171', 'SceneViewPanel: svgContextMenu state + onContextMenu 존재')
+  } else {
+    log('warning', 'Round171', 'SceneViewPanel SVG 컨텍스트 메뉴 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp171.includes('SVG 우클릭 컨텍스트 메뉴')) {
+    log('pass', 'Round171', 'SceneViewPanel: 우클릭 컨텍스트 메뉴 JSX 존재')
+  } else {
+    log('warning', 'Round171', 'SceneViewPanel 우클릭 컨텍스트 메뉴 JSX 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

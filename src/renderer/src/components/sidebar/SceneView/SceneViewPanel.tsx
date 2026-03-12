@@ -36,6 +36,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [hoverTooltipPos, setHoverTooltipPos] = useState<{ x: number; y: number } | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [inspectorNameFocus, setInspectorNameFocus] = useState(0)
+  const [svgContextMenu, setSvgContextMenu] = useState<{ uuid: string | null; x: number; y: number } | null>(null)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -978,6 +979,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={() => { setCursorScenePos(null); setHoverTooltipPos(null); handleMouseUp() }}
+          onContextMenu={e => {
+            e.preventDefault()
+            setSvgContextMenu({ uuid: hoveredUuid, x: e.clientX, y: e.clientY })
+          }}
         >
           <defs>
             {/* 체크패턴 배경 */}
@@ -1415,6 +1420,58 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         nodeMap={nodeMap}
         onSelectParent={uuid => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
       />
+
+      {/* SVG 우클릭 컨텍스트 메뉴 */}
+      {svgContextMenu && (() => {
+        const ctxUuid = svgContextMenu.uuid
+        const ctxNode = ctxUuid ? nodeMap.get(ctxUuid) : null
+        const close = () => setSvgContextMenu(null)
+        const menuStyle: React.CSSProperties = {
+          display: 'block', width: '100%', textAlign: 'left',
+          padding: '5px 12px', background: 'none', border: 'none',
+          color: 'var(--text-primary)', cursor: 'pointer', fontSize: 11,
+          whiteSpace: 'nowrap',
+        }
+        return (
+          <>
+            <div style={{ position: 'fixed', inset: 0, zIndex: 999 }} onClick={close} onContextMenu={e => { e.preventDefault(); close() }} />
+            <div style={{
+              position: 'fixed', left: svgContextMenu.x, top: svgContextMenu.y,
+              zIndex: 1000, background: 'var(--bg-secondary)',
+              border: '1px solid var(--border)', borderRadius: 4,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.4)', minWidth: 150, fontSize: 11,
+            }}>
+              {ctxNode && (
+                <div style={{ padding: '3px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
+                  {ctxNode.name}
+                </div>
+              )}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => { setSelectedUuid(ctxUuid!); setSelectedUuids(new Set([ctxUuid!])); close() }}>선택</button>
+              )}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  setSelectedUuid(ctxUuid!)
+                  setSelectedUuids(new Set([ctxUuid!]))
+                  const n = nodeMap.get(ctxUuid!)
+                  if (n) setClipboard([{ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 }])
+                  close()
+                }}>복사</button>
+              )}
+              <button style={menuStyle} onClick={() => { handlePaste(); close() }}>붙여넣기</button>
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => { handleDuplicate(); close() }}>복제</button>
+              )}
+              {ctxNode && (
+                <button style={{ ...menuStyle, color: 'var(--error)' }} onClick={() => {
+                  close()
+                  handleDeleteNode()
+                }}>삭제</button>
+              )}
+            </div>
+          </>
+        )
+      })()}
     </div>
   )
 }
