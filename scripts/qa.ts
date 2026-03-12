@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 102: R200 신규 기능 ───────────────────────────────
+console.log('\n## 102. 신규 기능 파일 검사 (R200)')
+// SceneView Ctrl+G 그룹화 (Round 200)
+const svp200Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp200Path)) {
+  const svp200 = readFileSync(svp200Path, 'utf-8')
+  if (svp200.includes("e.key === 'g'") && svp200.includes('handleGroup') && svp200.includes("name: 'Group'")) {
+    log('pass', 'Round200', 'SceneView: Ctrl+G 노드 그룹화 존재')
+  } else {
+    log('warning', 'Round200', 'SceneView Ctrl+G 그룹화 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 101: R199 신규 기능 ───────────────────────────────
 console.log('\n## 101. 신규 기능 파일 검사 (R199)')
 // NodeHierarchyList 인라인 이름 편집 (Round 199)

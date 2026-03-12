@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 200] — 2026-03-13
+### Added
+- SceneView: Ctrl+G 노드 그룹화 — 다중 선택 노드를 새 Group 부모 노드로 묶기
+- useSceneSync: updateNode upsert 지원 — 신규 UUID 노드 삽입 가능
+
 ## [Round 199] — 2026-03-13
 ### Added
 - NodeHierarchyList: 노드 이름 인라인 편집 — 더블클릭 또는 컨텍스트 메뉴 "이름 변경", Enter/blur로 저장

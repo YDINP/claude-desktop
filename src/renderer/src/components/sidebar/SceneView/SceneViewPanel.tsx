@@ -133,6 +133,45 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [clipboard, nodeMap, updateNode])
 
   // ── 복제 (Ctrl+D): clipboard 변경 없이 직접 노드 복제 ─────
+  // ── 그룹화 (Ctrl+G): 선택 노드들을 새 Group 노드 아래로 묶기 ─
+  const handleGroup = useCallback(() => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(u => nodeMap.get(u)).filter(Boolean) as import('./types').SceneNode[]
+    if (nodes.length < 2) return
+    // 공통 부모 찾기 (모두 같은 부모면 해당 부모, 아니면 root)
+    const parentUuids = new Set(nodes.map(n => n.parentUuid))
+    const commonParentUuid = parentUuids.size === 1 ? [...parentUuids][0] : rootUuid
+    if (!commonParentUuid) return
+    const parent = nodeMap.get(commonParentUuid)
+    if (!parent) return
+    // bbox 중심 계산
+    const xs = nodes.map(n => n.x ?? 0)
+    const ys = nodes.map(n => n.y ?? 0)
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2
+    const groupUuid = 'group-' + Date.now()
+    const childUuids = nodes.map(n => n.uuid)
+    // 신규 Group 노드 삽입
+    updateNode(groupUuid, {
+      uuid: groupUuid, name: 'Group', active: true,
+      x: cx, y: cy, width: 0, height: 0,
+      anchorX: 0.5, anchorY: 0.5, scaleX: 1, scaleY: 1, rotation: 0, opacity: 1,
+      color: { r: 255, g: 255, b: 255, a: 255 },
+      parentUuid: commonParentUuid, childUuids,
+      components: [],
+    })
+    // 부모의 childUuids 업데이트: 선택 노드 제거 + 그룹 추가
+    const newParentChildren = parent.childUuids
+      .filter(u => !selectedUuids.has(u))
+      .concat(groupUuid)
+    updateNode(commonParentUuid, { childUuids: newParentChildren })
+    // 각 선택 노드의 parentUuid 업데이트
+    nodes.forEach(n => updateNode(n.uuid, { parentUuid: groupUuid }))
+    // 그룹 노드 선택
+    setSelectedUuid(groupUuid)
+    setSelectedUuids(new Set([groupUuid]))
+  }, [selectedUuids, nodeMap, rootUuid, updateNode])
+
   const handleDuplicate = useCallback(() => {
     const uuids = selectedUuids.size > 0 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
     uuids.forEach(uuid => {
@@ -212,6 +251,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         handleDuplicate()
         e.preventDefault()
       }
+      if (e.key === 'g' && (e.ctrlKey || e.metaKey)) {
+        handleGroup()
+        e.preventDefault()
+      }
       // Ctrl+] / Ctrl+[: z-order 변경 (앞으로/뒤로)
       if ((e.ctrlKey || e.metaKey) && (e.key === ']' || e.key === '[') && selectedUuid) {
         e.preventDefault()
@@ -236,7 +279,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate, selectedUuid, nodeMap])
+  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate, handleGroup, selectedUuid, nodeMap])
 
   // ── Space 키 임시 패닝 모드 ────────────────────────────────
   useEffect(() => {
@@ -1677,6 +1720,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['M', '미니맵 토글'],
               ['N', '새 노드 생성'],
               ['Tab/Shift+Tab', '다음/이전 형제 노드 선택'],
+              ['Ctrl+G', '선택 노드 그룹화'],
               ['Ctrl+]', '앞으로 (z-order +1)'],
               ['Ctrl+[', '뒤로 (z-order -1)'],
               ['Del/Backspace', '선택 노드 삭제'],

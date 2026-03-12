@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 199 완료 — NodeHierarchyList 인라인 이름 편집, Pass 194)
+> 마지막 업데이트: 2026-03-13 (Round 200 완료 — SceneView Ctrl+G 그룹화, Pass 195)
 
 ## 완료된 라운드
 
@@ -151,6 +151,7 @@
 | Round 197 | dev | SceneView Tab/Shift+Tab 형제 노드 순환 선택 | ✅ |
 | Round 198 | dev | SceneView Ctrl+]/[ z-order 변경 — 부모 childUuids 배열에서 노드 순서 이동 | ✅ |
 | Round 199 | dev | NodeHierarchyList 인라인 이름 편집 — 더블클릭/컨텍스트메뉴, Enter 저장 | ✅ |
+| Round 200 | dev | SceneView Ctrl+G 그룹화 — 다중 선택 노드를 Group 부모로 묶기, upsert 지원 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

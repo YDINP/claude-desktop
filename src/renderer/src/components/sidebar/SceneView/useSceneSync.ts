@@ -58,12 +58,17 @@ export function useSceneSync(connected: boolean, port = 9091): UseSceneSyncRetur
     }
   }, [connected, port])
 
-  // 로컬 낙관적 업데이트 (드래그 중 즉시 반영)
+  // 로컬 낙관적 업데이트 (드래그 중 즉시 반영) — 신규 uuid도 upsert 지원
   const updateNode = useCallback((uuid: string, partial: Partial<SceneNode>) => {
     setNodeMap(prev => {
       const next = new Map(prev)
       const node = next.get(uuid)
-      if (node) next.set(uuid, { ...node, ...partial })
+      if (node) {
+        next.set(uuid, { ...node, ...partial })
+      } else if ((partial as SceneNode).uuid === uuid) {
+        // 신규 노드 삽입 (그룹화, 붙여넣기 등)
+        next.set(uuid, partial as SceneNode)
+      }
       return next
     })
   }, [])
