@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 131] — 2026-03-12
+### Added
+- NodeHierarchyList: 노드 접기/펼치기 — ▸/▾ 토글 버튼 클릭으로 자식 노드 숨기기/표시
+- NodeHierarchyList: collapsed Set 상태 관리, 이름 클릭(선택)과 화살표 클릭(토글) 분리
+
 ## [Round 130] — 2026-03-12
 ### Added
 - SceneViewPanel: isDragging / isResizing 상태 추적 (dragRef/resizeRef 시작·종료 시 설정)

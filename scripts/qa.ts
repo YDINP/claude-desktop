@@ -921,6 +921,24 @@ if (existsSync(sceneViewPanelPath10)) {
   }
 }
 
+// ── Section 33: R131 신규 기능 ───────────────────────────────
+console.log('\n## 33. 신규 기능 파일 검사 (R131)')
+// NodeHierarchyList 펼치기/접기 (Round 131)
+const nodeHierarchyPath3 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath3)) {
+  const nh3 = readFileSync(nodeHierarchyPath3, 'utf-8')
+  if (nh3.includes('collapsed') && nh3.includes('onToggleCollapse') && nh3.includes('isCollapsed')) {
+    log('pass', 'Round131', 'NodeHierarchyList: collapsed 상태 + onToggleCollapse + isCollapsed 존재')
+  } else {
+    log('warning', 'Round131', 'NodeHierarchyList 접기/펼치기 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+  if (nh3.includes("isCollapsed ? '▸' : '▾'")) {
+    log('pass', 'Round131', 'NodeHierarchyList: ▸/▾ 토글 아이콘 존재')
+  } else {
+    log('warning', 'Round131', 'NodeHierarchyList 토글 아이콘 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -13,51 +13,82 @@ function NodeRow({
   depth,
   nodeMap,
   selectedUuids,
+  collapsed,
   onSelect,
+  onToggleCollapse,
 }: {
   uuid: string
   depth: number
   nodeMap: Map<string, SceneNode>
   selectedUuids: Set<string>
+  collapsed: Set<string>
   onSelect: (uuid: string, multi: boolean) => void
+  onToggleCollapse: (uuid: string) => void
 }) {
   const node = nodeMap.get(uuid)
   if (!node) return null
 
   const isSelected = selectedUuids.has(uuid)
+  const hasChildren = node.childUuids.length > 0
+  const isCollapsed = collapsed.has(uuid)
 
   return (
     <>
       <div
-        onClick={e => onSelect(uuid, e.metaKey || e.ctrlKey)}
         style={{
-          paddingLeft: depth * 12 + 6,
+          display: 'flex',
+          alignItems: 'center',
+          paddingLeft: depth * 12 + 2,
           paddingRight: 6,
           paddingTop: 2,
           paddingBottom: 2,
           fontSize: 11,
-          cursor: 'pointer',
           background: isSelected ? 'rgba(96, 165, 250, 0.2)' : 'transparent',
           color: node.active ? 'var(--text-primary)' : 'var(--text-muted)',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
           borderLeft: isSelected ? '2px solid #60a5fa' : '2px solid transparent',
           userSelect: 'none',
         }}
         title={node.name}
       >
-        {node.childUuids.length > 0 ? '▸ ' : '  '}
-        {node.name}
+        {/* 펼치기/접기 버튼 */}
+        <span
+          onClick={e => { e.stopPropagation(); if (hasChildren) onToggleCollapse(uuid) }}
+          style={{
+            width: 14,
+            flexShrink: 0,
+            cursor: hasChildren ? 'pointer' : 'default',
+            color: hasChildren ? 'var(--text-muted)' : 'transparent',
+            fontSize: 9,
+            textAlign: 'center',
+          }}
+        >
+          {hasChildren ? (isCollapsed ? '▸' : '▾') : ''}
+        </span>
+        {/* 노드 이름 */}
+        <span
+          onClick={e => onSelect(uuid, e.metaKey || e.ctrlKey)}
+          style={{
+            flex: 1,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            cursor: 'pointer',
+            paddingLeft: 2,
+          }}
+        >
+          {node.name}
+        </span>
       </div>
-      {node.childUuids.map(childUuid => (
+      {hasChildren && !isCollapsed && node.childUuids.map(childUuid => (
         <NodeRow
           key={childUuid}
           uuid={childUuid}
           depth={depth + 1}
           nodeMap={nodeMap}
           selectedUuids={selectedUuids}
+          collapsed={collapsed}
           onSelect={onSelect}
+          onToggleCollapse={onToggleCollapse}
         />
       ))}
     </>
@@ -66,6 +97,16 @@ function NodeRow({
 
 export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect }: NodeHierarchyListProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+
+  const toggleCollapse = (uuid: string) => {
+    setCollapsed(prev => {
+      const next = new Set(prev)
+      if (next.has(uuid)) next.delete(uuid)
+      else next.add(uuid)
+      return next
+    })
+  }
 
   const filteredNodes = searchQuery.trim()
     ? [...nodeMap.values()].filter(n =>
@@ -143,7 +184,9 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect }
             depth={0}
             nodeMap={nodeMap}
             selectedUuids={selectedUuids}
+            collapsed={collapsed}
             onSelect={onSelect}
+            onToggleCollapse={toggleCollapse}
           />
         )}
       </div>
