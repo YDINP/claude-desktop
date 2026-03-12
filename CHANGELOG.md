@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 381] — 2026-03-13
+### Added
+- AssetBrowserPanel: 전체 펼치기/접기 버튼 — ⊞/⊟ 토글, getAllFolderPaths 재귀, allExpanded 상태
+
 ## [Round 380] — 2026-03-13
 ### Added
 - ConnectionPanel: 서버 명령어 복사 버튼 — 각 서버 행에 📋 버튼, copiedServerIdx 상태, command+args 클립보드 복사

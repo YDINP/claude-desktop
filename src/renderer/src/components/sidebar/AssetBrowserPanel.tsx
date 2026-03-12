@@ -67,6 +67,23 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
     })
   }
 
+  const getAllFolderPaths = (items: AssetItem[]): string[] => {
+    const paths: string[] = []
+    for (const item of items) {
+      if (item.type === 'folder') {
+        paths.push(item.path)
+        if (item.children) paths.push(...getAllFolderPaths(item.children))
+      }
+    }
+    return paths
+  }
+
+  const allExpanded = tree.length > 0 && getAllFolderPaths(tree).every(p => openFolders.has(p))
+  const toggleExpandAll = () => {
+    if (allExpanded) setOpenFolders(new Set())
+    else setOpenFolders(new Set(getAllFolderPaths(tree)))
+  }
+
   const copyPath = (path: string) => {
     navigator.clipboard.writeText(`db://assets/${path}`).catch(() => {})
     setCopied(path)
@@ -124,6 +141,15 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
             </span>
           )}
         </span>
+        {tree.length > 0 && (
+          <button
+            onClick={toggleExpandAll}
+            title={allExpanded ? '전체 접기' : '전체 펼치기'}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 10, padding: '0 3px' }}
+          >
+            {allExpanded ? '⊟' : '⊞'}
+          </button>
+        )}
         <button
           onClick={refresh}
           disabled={loading}

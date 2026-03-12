@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 283: R381 신규 기능 ───────────────────────────────
+console.log('\n## 283. 신규 기능 파일 검사 (R381)')
+// AssetBrowserPanel 전체 펼치기/접기 (Round 381)
+const ab381Path = join(ROOT, 'src/renderer/src/components/sidebar/AssetBrowserPanel.tsx')
+if (existsSync(ab381Path)) {
+  const ab381 = readFileSync(ab381Path, 'utf-8')
+  if (ab381.includes('toggleExpandAll') && ab381.includes('allExpanded') && ab381.includes('전체 펼치기')) {
+    log('pass', 'Round381', 'AssetBrowserPanel: 전체 펼치기/접기 버튼 존재')
+  } else {
+    log('warning', 'Round381', 'AssetBrowserPanel 전체 펼치기/접기 미구현', 'sidebar/AssetBrowserPanel.tsx')
+  }
+}
+
 // ── Section 282: R380 신규 기능 ───────────────────────────────
 console.log('\n## 282. 신규 기능 파일 검사 (R380)')
 // ConnectionPanel 서버 명령어 복사 버튼 (Round 380)
