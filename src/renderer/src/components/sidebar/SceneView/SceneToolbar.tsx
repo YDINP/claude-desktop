@@ -11,6 +11,13 @@ interface SceneToolbarProps {
   canCopy?: boolean
   canPaste?: boolean
   canZOrder?: boolean
+  canAlign?: boolean
+  onAlignLeft?: () => void
+  onAlignCenterH?: () => void
+  onAlignRight?: () => void
+  onAlignTop?: () => void
+  onAlignCenterV?: () => void
+  onAlignBottom?: () => void
   selectedUuid?: string | null
   onCreateNode?: () => void
   onDeleteNode?: () => void
@@ -43,6 +50,13 @@ export function SceneToolbar({
   canCopy,
   canPaste,
   canZOrder,
+  canAlign,
+  onAlignLeft,
+  onAlignCenterH,
+  onAlignRight,
+  onAlignTop,
+  onAlignCenterV,
+  onAlignBottom,
   selectedUuid,
   onCreateNode,
   onDeleteNode,
@@ -243,6 +257,20 @@ export function SceneToolbar({
       >⬇⬇</button>
 
       <div style={divider} />
+
+      {/* 정렬 도구 — 멀티셀렉트 시 표시 */}
+      {canAlign && (
+        <>
+          <div style={divider} />
+          <button onClick={onAlignLeft}  title="왼쪽 정렬" style={btnBase}>←L</button>
+          <button onClick={onAlignCenterH} title="수평 중앙 정렬" style={btnBase}>↔</button>
+          <button onClick={onAlignRight} title="오른쪽 정렬" style={btnBase}>R→</button>
+          <div style={divider} />
+          <button onClick={onAlignTop}   title="위쪽 정렬" style={btnBase}>↑T</button>
+          <button onClick={onAlignCenterV} title="수직 중앙 정렬" style={btnBase}>↕</button>
+          <button onClick={onAlignBottom} title="아래쪽 정렬" style={btnBase}>B↓</button>
+        </>
+      )}
 
       {/* 노드 추가 / 삭제 */}
       <button

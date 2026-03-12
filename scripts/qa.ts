@@ -754,6 +754,28 @@ if (existsSync(sessionListPath2)) {
   }
 }
 
+// ── Section 26: R123 신규 기능 ───────────────────────────────
+console.log('\n## 26. 신규 기능 파일 검사 (R123)')
+// SceneView 정렬 도구 (Round 123)
+const sceneToolbarPath = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(sceneToolbarPath)) {
+  const stb = readFileSync(sceneToolbarPath, 'utf-8')
+  if (stb.includes('canAlign') && stb.includes('onAlignLeft') && stb.includes('onAlignBottom')) {
+    log('pass', 'Round123', 'SceneToolbar 정렬 도구 6종 버튼 존재')
+  } else {
+    log('warning', 'Round123', 'SceneToolbar 정렬 도구 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+const sceneViewPanelPath5 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath5)) {
+  const svp5 = readFileSync(sceneViewPanelPath5, 'utf-8')
+  if (svp5.includes('handleAlign') && svp5.includes('canAlign') && svp5.includes("direction === 'centerH'")) {
+    log('pass', 'Round123', 'SceneViewPanel handleAlign 6방향 정렬 함수 존재')
+  } else {
+    log('warning', 'Round123', 'SceneViewPanel handleAlign 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

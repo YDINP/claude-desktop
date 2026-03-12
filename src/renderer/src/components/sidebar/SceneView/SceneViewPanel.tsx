@@ -421,6 +421,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const canCopy = selectedUuids.size > 0 || selectedUuid !== null
   const canPaste = clipboard.length > 0
   const canZOrder = selectedUuids.size === 1
+  const canAlign = selectedUuids.size >= 2
 
   const handleCopy = useCallback(() => {
     const uuids = selectedUuids.size > 0 ? selectedUuids : (selectedUuid ? new Set([selectedUuid]) : new Set<string>())
@@ -483,6 +484,48 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       console.error('[SceneView] zorder failed:', e)
     }
   }, [selectedUuids, port, refresh])
+
+  const handleAlign = useCallback(async (direction: 'left' | 'centerH' | 'right' | 'top' | 'centerV' | 'bottom') => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 2) return
+
+    const positions: Record<string, { x: number; y: number }> = {}
+
+    if (direction === 'left') {
+      const minLeft = Math.min(...nodes.map(n => n.x - n.width * (n.anchorX ?? 0.5)))
+      for (const n of nodes) positions[n.uuid] = { x: minLeft + n.width * (n.anchorX ?? 0.5), y: n.y }
+    } else if (direction === 'right') {
+      const maxRight = Math.max(...nodes.map(n => n.x + n.width * (1 - (n.anchorX ?? 0.5))))
+      for (const n of nodes) positions[n.uuid] = { x: maxRight - n.width * (1 - (n.anchorX ?? 0.5)), y: n.y }
+    } else if (direction === 'centerH') {
+      const minLeft = Math.min(...nodes.map(n => n.x - n.width * (n.anchorX ?? 0.5)))
+      const maxRight = Math.max(...nodes.map(n => n.x + n.width * (1 - (n.anchorX ?? 0.5))))
+      const bboxCx = (minLeft + maxRight) / 2
+      for (const n of nodes) positions[n.uuid] = { x: bboxCx, y: n.y }
+    } else if (direction === 'top') {
+      const maxTop = Math.max(...nodes.map(n => n.y + n.height * (1 - (n.anchorY ?? 0.5))))
+      for (const n of nodes) positions[n.uuid] = { x: n.x, y: maxTop - n.height * (1 - (n.anchorY ?? 0.5)) }
+    } else if (direction === 'bottom') {
+      const minBottom = Math.min(...nodes.map(n => n.y - n.height * (n.anchorY ?? 0.5)))
+      for (const n of nodes) positions[n.uuid] = { x: n.x, y: minBottom + n.height * (n.anchorY ?? 0.5) }
+    } else if (direction === 'centerV') {
+      const maxTop = Math.max(...nodes.map(n => n.y + n.height * (1 - (n.anchorY ?? 0.5))))
+      const minBottom = Math.min(...nodes.map(n => n.y - n.height * (n.anchorY ?? 0.5)))
+      const bboxCy = (minBottom + maxTop) / 2
+      for (const n of nodes) positions[n.uuid] = { x: n.x, y: bboxCy }
+    }
+
+    for (const [uid, { x, y }] of Object.entries(positions)) {
+      updateNode(uid, { x, y })
+      try {
+        await window.api.ccSetProperty?.(port, uid, 'x', x)
+        await window.api.ccSetProperty?.(port, uid, 'y', y)
+      } catch (e) {
+        console.error('[SceneView] align failed:', e)
+      }
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
 
   // ── 멀티셀렉트 그룹 bbox 계산 ──────────────────────────────
   const groupBbox = useMemo(() => {
@@ -550,6 +593,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         canCopy={canCopy}
         canPaste={canPaste}
         canZOrder={canZOrder}
+        canAlign={canAlign}
         selectedUuid={selectedUuid}
         onCreateNode={handleCreateNode}
         onDeleteNode={handleDeleteNode}
@@ -565,6 +609,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onZOrderBack={() => handleZOrder('back')}
         onZOrderUp={() => handleZOrder('up')}
         onZOrderDown={() => handleZOrder('down')}
+        onAlignLeft={() => handleAlign('left')}
+        onAlignCenterH={() => handleAlign('centerH')}
+        onAlignRight={() => handleAlign('right')}
+        onAlignTop={() => handleAlign('top')}
+        onAlignCenterV={() => handleAlign('centerV')}
+        onAlignBottom={() => handleAlign('bottom')}
         onUndo={() => {
           setUndoStack(prev => {
             if (prev.length === 0) return prev

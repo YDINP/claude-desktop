@@ -1,5 +1,11 @@
 # Changelog — Claude Desktop
 
+## [Round 123] — 2026-03-12
+### Added
+- SceneToolbar: canAlign prop + 정렬 버튼 6종 (←L, ↔, R→, ↑T, ↕, B↓) — 멀티셀렉트 시 표시
+- SceneViewPanel: handleAlign() — left/centerH/right/top/centerV/bottom 6방향 정렬
+  (anchorX/anchorY 기반 경계 계산 + ccSetProperty IPC 배치 호출)
+
 ## [Round 122] — 2026-03-12
 ### Changed
 - SessionList groupSessions: 5단계 날짜 그룹 (오늘/어제/이번 주/이번 달/이전)

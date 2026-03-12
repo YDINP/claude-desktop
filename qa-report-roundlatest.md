@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T12:13:18.619Z
+> 2026-03-12T12:20:28.409Z
 
 ## Critical
 _없음_
@@ -71,3 +71,5 @@ _없음_
 - NodePropertyPanel saveComp + ccSetComponentProp 연동 존재
 - SessionList 날짜 그룹 이번달 + monthStart 존재
 - SessionList 5단계 날짜 그룹(오늘/어제/이번주/이번달/이전) 존재
+- SceneToolbar 정렬 도구 6종 버튼 존재
+- SceneViewPanel handleAlign 6방향 정렬 함수 존재
