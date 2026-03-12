@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 197] — 2026-03-13
+### Added
+- SceneView: Tab/Shift+Tab으로 형제 노드 순환 선택 (다음/이전 형제 토글)
+
 ## [Round 196] — 2026-03-13
 ### Added
 - TasksPanel: 인라인 태스크 편집 — 더블클릭으로 편집 모드, Enter 저장, Esc 취소

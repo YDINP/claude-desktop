@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 99: R197 신규 기능 ───────────────────────────────
+console.log('\n## 99. 신규 기능 파일 검사 (R197)')
+// SceneView Tab/Shift+Tab 형제 노드 순환 선택 (Round 197)
+const svp197Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp197Path)) {
+  const svp197 = readFileSync(svp197Path, 'utf-8')
+  if (svp197.includes("e.key === 'Tab'") && svp197.includes('parent.childUuids')) {
+    log('pass', 'Round197', 'SceneView: Tab/Shift+Tab 형제 노드 순환 선택 존재')
+  } else {
+    log('warning', 'Round197', 'SceneView Tab/Shift+Tab 형제 노드 순환 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

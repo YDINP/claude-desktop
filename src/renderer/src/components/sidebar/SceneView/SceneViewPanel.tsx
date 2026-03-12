@@ -158,6 +158,22 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (e.key === 'g' || e.key === 'G') handleFocusSelected()
       if (e.key === 'm' || e.key === 'M') setShowMinimap(v => !v)
       if (e.key === 'n' || e.key === 'N') handleCreateNode()
+      // Tab / Shift+Tab: 형제 노드 순환 선택
+      if (e.key === 'Tab' && selectedUuid) {
+        e.preventDefault()
+        const node = nodeMap.get(selectedUuid)
+        if (node?.parentUuid) {
+          const parent = nodeMap.get(node.parentUuid)
+          if (parent && parent.childUuids.length > 1) {
+            const idx = parent.childUuids.indexOf(selectedUuid)
+            const next = e.shiftKey
+              ? parent.childUuids[(idx - 1 + parent.childUuids.length) % parent.childUuids.length]
+              : parent.childUuids[(idx + 1) % parent.childUuids.length]
+            setSelectedUuid(next)
+            setSelectedUuids(new Set([next]))
+          }
+        }
+      }
       if (e.key === '?') setShowShortcuts(v => !v)
       if (e.key === 'Escape') {
         setSelectedUuid(null)
@@ -1638,6 +1654,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Ctrl+←/→', '회전 1° (Shift: 10°)'],
               ['M', '미니맵 토글'],
               ['N', '새 노드 생성'],
+              ['Tab/Shift+Tab', '다음/이전 형제 노드 선택'],
               ['Del/Backspace', '선택 노드 삭제'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
