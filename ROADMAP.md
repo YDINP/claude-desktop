@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 117 완료 — SceneView 멀티셀렉트 그룹 드래그 (groupOffsets) + QA Pass 54)
+> 마지막 업데이트: 2026-03-12 (Round 118 완료 — SceneView 그룹 bbox 점선 박스 시각화 + QA Pass 55)
 
 ## 완료된 라운드
 
@@ -64,13 +64,14 @@
 | Round 115 | dev | 세션 커스텀 텍스트 태그 — allCustomTags 자동완성, handleAddCustomTag, filterCustomTag 필터 칩 (Pass→52) | ✅ |
 | Round 116 | dev | QA 통합 검수 + CHANGELOG R110~115 갱신 (Pass 52 유지) | ✅ |
 | Round 117 | dev | SceneView 멀티셀렉트 그룹 드래그 — DragState groupOffsets, 선택 노드 동시 이동 + undo/redo (Pass→54) | ✅ |
+| Round 118 | dev | SceneView 그룹 bbox 점선 박스 — 멀티셀렉트 시 노드 둘레 황색 점선 bbox 렌더링 (Pass→55) | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 118 | dev | CC SceneView 그룹 bbox 시각화 — 멀티셀렉트 시 선택 노드 둘레 점선 박스 |
 | Round 119 | dev | InputBar 멀티라인 지원 + Shift+Enter 줄바꿈 |
+| Round 120 | dev | QA + CHANGELOG R117~119 갱신 |
 
 ## 전략 로드맵 (Phase)
 

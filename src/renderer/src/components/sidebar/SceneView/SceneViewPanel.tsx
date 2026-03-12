@@ -484,6 +484,26 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [selectedUuids, port, refresh])
 
+  // ── 멀티셀렉트 그룹 bbox 계산 ──────────────────────────────
+  const groupBbox = useMemo(() => {
+    if (selectedUuids.size < 2) return null
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    for (const uid of selectedUuids) {
+      const n = nodeMap.get(uid)
+      if (!n) continue
+      const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+      const hw = (n.size?.width ?? 50) / 2
+      const hh = (n.size?.height ?? 50) / 2
+      minX = Math.min(minX, sx - hw)
+      minY = Math.min(minY, sy - hh)
+      maxX = Math.max(maxX, sx + hw)
+      maxY = Math.max(maxY, sy + hh)
+    }
+    if (!isFinite(minX)) return null
+    const PAD = 8
+    return { x: minX - PAD, y: minY - PAD, w: maxX - minX + PAD * 2, h: maxY - minY + PAD * 2 }
+  }, [selectedUuids, nodeMap])
+
   // ── SVG viewBox ─────────────────────────────────────────
   // 고정 viewBox를 사용하지 않고 offsetX/Y + zoom을 transform으로 처리
   const sceneTransform = `translate(${view.offsetX} ${view.offsetY}) scale(${view.zoom})`
@@ -671,6 +691,22 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 />
               )
             })}
+
+            {/* 멀티셀렉트 그룹 bbox */}
+            {groupBbox && (
+              <rect
+                x={groupBbox.x}
+                y={groupBbox.y}
+                width={groupBbox.w}
+                height={groupBbox.h}
+                fill="rgba(250, 204, 21, 0.05)"
+                stroke="#fbbf24"
+                strokeWidth={1 / view.zoom}
+                strokeDasharray={`${4 / view.zoom} ${2 / view.zoom}`}
+                rx={3 / view.zoom}
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
           </g>
 
           {/* 마퀴 선택 rect */}

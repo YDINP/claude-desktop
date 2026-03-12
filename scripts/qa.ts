@@ -669,6 +669,19 @@ if (existsSync(sceneViewPanelPath3)) {
   }
 }
 
+// ── Section 22: R118 신규 기능 ───────────────────────────────
+console.log('\n## 22. 신규 기능 파일 검사 (R118)')
+// SceneView 그룹 bbox 시각화 (Round 118)
+const svpPath4 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svpPath4)) {
+  const svp4 = readFileSync(svpPath4, 'utf-8')
+  if (svp4.includes('groupBbox') && svp4.includes('fbbf24')) {
+    log('pass', 'Round118', 'SceneView 그룹 bbox 점선 박스 렌더링 존재')
+  } else {
+    log('warning', 'Round118', 'SceneView 그룹 bbox 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

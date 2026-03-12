@@ -1,15 +1,22 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 117 완료)
+> 마지막 업데이트: 2026-03-12 (Round 118 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 117 (SceneView 그룹 드래그 + QA Pass 54)
+- 마지막 커밋: Round 118 (SceneView 그룹 bbox + QA Pass 55)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 54
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 55
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 117 완료 항목 (최근 세션)
+## Round 118 완료 항목 (최근 세션)
+
+### Round 118 — SceneView 그룹 bbox 점선 박스
+- `SceneViewPanel.tsx`: `groupBbox` useMemo — selectedUuids.size >= 2일 때 각 노드의 SVG bbox(sx±w/2, sy±h/2)를 합산해 패딩 8px 포함 전체 bbox 계산
+- SVG `<g transform={sceneTransform}>` 안에서 황색(#fbbf24) 점선 rect 렌더링 (strokeWidth/strokeDasharray를 view.zoom으로 보정해 zoom 불변)
+- `scripts/qa.ts`: Section 22 추가 (groupBbox + fbbf24 색상 체크, Pass 54→55)
+
+## Round 117 완료 항목 (이전 세션)
 
 ### Round 117 — SceneView 멀티셀렉트 그룹 드래그
 - `SceneView/types.ts`: `DragState`에 `groupOffsets?: Record<string, {startX, startY}>` 추가

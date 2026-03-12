@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T11:55:32.149Z
+> 2026-03-12T11:58:38.044Z
 
 ## Critical
 _없음_
@@ -62,3 +62,4 @@ _없음_
 - SessionList 커스텀 태그 자동완성 + 필터 존재
 - SceneView DragState groupOffsets 필드 존재
 - SceneViewPanel 그룹 드래그 처리 존재
+- SceneView 그룹 bbox 점선 박스 렌더링 존재
