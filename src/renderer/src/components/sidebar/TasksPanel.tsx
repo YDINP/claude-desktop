@@ -11,6 +11,7 @@ interface Task {
 }
 
 const PRIORITY_COLORS = { high: '#f44336', medium: '#ff9800', low: '#4caf50' }
+const PRIORITY_CYCLE: Record<string, 'low' | 'medium' | 'high'> = { low: 'medium', medium: 'high', high: 'low' }
 
 export function TasksPanel() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -25,6 +26,8 @@ export function TasksPanel() {
   const [expandedMemoId, setExpandedMemoId] = useState<string | null>(null)
 
   const updateMemo = (id: string, memo: string) => save(tasks.map(t => t.id === id ? { ...t, memo } : t))
+  const cyclePriority = (id: string, cur: 'low' | 'medium' | 'high' | undefined) =>
+    save(tasks.map(t => t.id === id ? { ...t, priority: PRIORITY_CYCLE[cur ?? 'medium'] } : t))
 
   useEffect(() => {
     window.api.getTasks().then(setTasks)
@@ -148,7 +151,7 @@ export function TasksPanel() {
         {filtered.map(task => (
           <div key={task.id} style={{ borderBottom: '1px solid var(--border)', padding: '4px 4px 2px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: PRIORITY_COLORS[task.priority ?? 'medium'] }} />
+            <div onClick={() => cyclePriority(task.id, task.priority)} title="클릭: 우선순위 변경" style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: PRIORITY_COLORS[task.priority ?? 'medium'], cursor: 'pointer' }} />
             <input type="checkbox" checked={task.done} onChange={() => toggleDone(task.id)} style={{ cursor: 'pointer' }} />
             {editingId === task.id ? (
               <input

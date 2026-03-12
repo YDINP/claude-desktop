@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 181: R279 신규 기능 ───────────────────────────────
+console.log('\n## 181. 신규 기능 파일 검사 (R279)')
+// TasksPanel 우선순위 점 클릭 순환 (Round 279)
+const tp279Path = join(ROOT, 'src/renderer/src/components/sidebar/TasksPanel.tsx')
+if (existsSync(tp279Path)) {
+  const tp279 = readFileSync(tp279Path, 'utf-8')
+  if (tp279.includes('cyclePriority') && tp279.includes('PRIORITY_CYCLE') && tp279.includes('클릭: 우선순위 변경')) {
+    log('pass', 'Round279', 'TasksPanel: 우선순위 점 클릭 순환 (cyclePriority/PRIORITY_CYCLE) 존재')
+  } else {
+    log('warning', 'Round279', 'TasksPanel 우선순위 점 클릭 순환 미구현', 'sidebar/TasksPanel.tsx')
+  }
+}
+
 // ── Section 180: R278 신규 기능 ───────────────────────────────
 console.log('\n## 180. 신규 기능 파일 검사 (R278)')
 // CalendarPanel 이벤트 색상 변경 (Round 278)

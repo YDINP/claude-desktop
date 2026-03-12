@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 279] — 2026-03-13
+### Improved
+- TasksPanel: 우선순위 점 클릭으로 순환 변경 — 컬러 점 클릭 시 low→medium→high→low 순환 (PRIORITY_CYCLE)
+
 ## [Round 278] — 2026-03-13
 ### Improved
 - CalendarPanel: 이벤트 색상 변경 — 이벤트 컬러 점 클릭으로 EVENT_COLORS 순환 변경
