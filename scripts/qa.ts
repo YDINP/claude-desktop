@@ -852,6 +852,39 @@ if (existsSync(sceneViewPanelPath8)) {
   }
 }
 
+// ── Section 30: R128 신규 기능 ───────────────────────────────
+console.log('\n## 30. 신규 기능 파일 검사 (R128)')
+// SceneView 노드 계층 트리 패널 (Round 128)
+const nodeHierarchyPath = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nodeHierarchyPath)) {
+  const nh = readFileSync(nodeHierarchyPath, 'utf-8')
+  if (nh.includes('NodeHierarchyList') && nh.includes('rootUuid') && nh.includes('childUuids')) {
+    log('pass', 'Round128', 'NodeHierarchyList: 재귀 트리 + childUuids 렌더링 존재')
+  } else {
+    log('warning', 'Round128', 'NodeHierarchyList 미구현', 'SceneView/NodeHierarchyList.tsx')
+  }
+} else {
+  log('warning', 'Round128', 'NodeHierarchyList.tsx 파일 없음', 'SceneView/NodeHierarchyList.tsx')
+}
+const sceneToolbarPath2 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(sceneToolbarPath2)) {
+  const st2 = readFileSync(sceneToolbarPath2, 'utf-8')
+  if (st2.includes('showHierarchy') && st2.includes('onHierarchyToggle')) {
+    log('pass', 'Round128', 'SceneToolbar: showHierarchy + onHierarchyToggle 버튼 존재')
+  } else {
+    log('warning', 'Round128', 'SceneToolbar 계층 토글 버튼 미구현', 'SceneView/SceneToolbar.tsx')
+  }
+}
+const sceneViewPanelPath9 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath9)) {
+  const svp9 = readFileSync(sceneViewPanelPath9, 'utf-8')
+  if (svp9.includes('showHierarchy') && svp9.includes('NodeHierarchyList')) {
+    log('pass', 'Round128', 'SceneViewPanel: showHierarchy 상태 + NodeHierarchyList 렌더링 존재')
+  } else {
+    log('warning', 'Round128', 'SceneViewPanel 계층 패널 통합 미완성', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

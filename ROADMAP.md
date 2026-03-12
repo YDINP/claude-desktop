@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 127 완료 — SceneInspector 노드 이름 인라인 편집, Pass 73)
+> 마지막 업데이트: 2026-03-12 (Round 128 완료 — SceneView 노드 계층 트리 패널, Pass 76)
 
 ## 완료된 라운드
 
@@ -79,6 +79,7 @@
 | Round 125 | dev | NodePropertyPanel 씬 동기화 — 선택 노드 자동 갱신 (WebSocket 이벤트 기반) | ✅ |
 | Round 126 | dev | QA 통합 검수 + CHANGELOG 갱신 (R121~125) | ✅ |
 | Round 127 | dev | SceneInspector 노드 이름 인라인 편집 — 더블클릭 rename + ccSetProperty | ✅ |
+| Round 128 | dev | SceneView 노드 계층 트리 패널 — ≡ 버튼으로 토글, 재귀 트리 클릭 선택 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

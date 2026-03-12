@@ -5,6 +5,7 @@ import { NodeRenderer } from './NodeRenderer'
 import { SceneToolbar } from './SceneToolbar'
 import { SceneInspector } from './SceneInspector'
 import { getRenderOrder, cocosToSvg } from './utils'
+import { NodeHierarchyList } from './NodeHierarchyList'
 
 interface SceneViewPanelProps {
   connected: boolean
@@ -25,6 +26,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [activeTool, setActiveTool] = useState<'select' | 'move'>('select')
   const [gridVisible, setGridVisible] = useState(true)
   const [snapEnabled, setSnapEnabled] = useState(false)
+  const [showHierarchy, setShowHierarchy] = useState(false)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -685,6 +687,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onSnapToggle={() => setSnapEnabled(v => !v)}
         onFit={handleFit}
         onRefresh={refresh}
+        showHierarchy={showHierarchy}
+        onHierarchyToggle={() => setShowHierarchy(v => !v)}
         onCopy={handleCopy}
         onPaste={handlePaste}
         onZOrderFront={() => handleZOrder('front')}
@@ -716,6 +720,28 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           })
         }}
       />
+
+      {/* 노드 계층 트리 패널 */}
+      {showHierarchy && rootUuid && (
+        <NodeHierarchyList
+          rootUuid={rootUuid}
+          nodeMap={nodeMap}
+          selectedUuids={selectedUuids}
+          onSelect={(uuid, multi) => {
+            if (multi) {
+              setSelectedUuids(prev => {
+                const next = new Set(prev)
+                if (next.has(uuid)) next.delete(uuid)
+                else next.add(uuid)
+                return next
+              })
+            } else {
+              setSelectedUuid(uuid)
+              setSelectedUuids(new Set([uuid]))
+            }
+          }}
+        />
+      )}
 
       {/* SVG 뷰포트 */}
       <div

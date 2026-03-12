@@ -1,5 +1,12 @@
 # Changelog — Claude Desktop
 
+## [Round 128] — 2026-03-12
+### Added
+- NodeHierarchyList.tsx: 재귀 노드 계층 트리 패널 — childUuids 기반 들여쓰기 렌더링
+- NodeHierarchyList: 클릭 선택, Ctrl+클릭 멀티셀렉트, active 상태 시각화 (불투명도)
+- SceneToolbar: ≡ 계층 토글 버튼 (showHierarchy prop)
+- SceneViewPanel: 계층 트리 패널 SVG 위에 삽입 (120px 고정 높이, 스크롤)
+
 ## [Round 127] — 2026-03-12
 ### Added
 - SceneInspector: 노드 이름 인라인 편집 — 이름 더블클릭 → 텍스트 입력 필드 활성화
