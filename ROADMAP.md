@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 81 완료 — AI 워크플로우 고도화)
+> 마지막 업데이트: 2026-03-12 (Round 82 완료 — QA + Phase 3 마무리)
 
 ## 완료된 라운드
 
@@ -28,12 +28,12 @@
 | Round 79 | main | 터미널 + AI 연동 — 출력 캡처/에러 감지 배너/Claude 분석 버튼, App 채팅 연결 | ✅ |
 | Round 80 | main | 프로젝트 인텔리전스 — analyzeProject(파일구조→시스템프롬프트), command-learner(명령어 학습/추천), useProjectContext 훅 | ✅ |
 | Round 81 | main | AI 워크플로우 고도화 — AgentPanel 3탭 리빌드(태스크/체이닝/히스토리), PromptChainPanel({{stepN}} placeholder 체이닝), work-history.ts | ✅ |
+| Round 82 | main | QA + Phase 3 마무리 — QA 스크립트 cocos 탭 체크 수정, npm run qa Critical 0/Warning 0, handoff.md 갱신 | ✅ |
 
 ## 진행 예정 라운드
 
 | 라운드 | 브랜치 | 주요 작업 |
 |--------|--------|-----------|
-| Round 82 | main | **QA + Phase 3 마무리** — Round 78~82 통합 QA, CSS 모듈 마이그레이션, 성능 벤치마크, 릴리스 준비 |
 
 ## 전략 로드맵 (Phase)
 

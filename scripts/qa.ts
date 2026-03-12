@@ -93,12 +93,17 @@ if (existsSync(ccBridgePath)) {
 // ── 4. Sidebar 중복 탭 검사 ──────────────────────────────
 console.log('\n## 4. Sidebar 탭 중복 검사')
 const sidebarPath = join(ROOT, 'src/renderer/src/components/sidebar/Sidebar.tsx')
+const appPath = join(ROOT, 'src/renderer/src/App.tsx')
 if (existsSync(sidebarPath)) {
-  const content = readFileSync(sidebarPath, 'utf-8')
-  const cocosMatches = (content.match(/id: 'cocos'/g) ?? []).length
-  if (cocosMatches > 1) {
-    log('critical', 'Sidebar', `cocos 탭 중복 등록: ${cocosMatches}회`, 'Sidebar.tsx')
-  } else if (cocosMatches === 1) {
+  const sidebarContent = readFileSync(sidebarPath, 'utf-8')
+  const appContent = existsSync(appPath) ? readFileSync(appPath, 'utf-8') : ''
+  // cocos 탭은 App.tsx 아이콘 탭에 등록될 수 있으므로 두 파일 모두 확인
+  const cocosInSidebar = (sidebarContent.match(/id: 'cocos'/g) ?? []).length
+  const cocosInApp = (appContent.match(/id: 'cocos'/g) ?? []).length
+  const totalCocos = cocosInSidebar + cocosInApp
+  if (totalCocos > 2) {
+    log('critical', 'Sidebar', `cocos 탭 중복 등록: ${totalCocos}회`, 'Sidebar.tsx/App.tsx')
+  } else if (totalCocos >= 1) {
     log('pass', 'Sidebar', 'cocos 탭 정상 등록')
   } else {
     log('warning', 'Sidebar', 'cocos 탭 미등록', 'Sidebar.tsx')
