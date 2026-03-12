@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T21:19:14.601Z
+> 2026-03-12T21:21:26.384Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- BookmarksPanel: 북마크별 복사 버튼 (copiedId/copyBookmark/stopPropagation) 존재
 - OutlinePanel: H레벨 카운트 표시 (cnt/H1(N)/0개 숨김) 존재
 - GlobalSearchPanel: 날짜순 정렬 토글 (sortOrder/date/updatedAt) 존재
 - NotesPanel: 노트 목록 글자 수 표시 (content.length/1000/k자) 존재

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import type { ChatMessage } from '../../stores/chat-store'
 
 export function BookmarksPanel({
@@ -10,6 +10,14 @@ export function BookmarksPanel({
 }) {
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'assistant'>('all')
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const copyBookmark = useCallback((id: string, text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(cur => cur === id ? null : cur), 1500)
+    })
+  }, [])
   const bookmarked = messages.filter(m => m.bookmarked)
 
   const filtered = useMemo(() => {
@@ -110,6 +118,17 @@ export function BookmarksPanel({
                   {new Date(m.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
                 </span>
               )}
+              <button
+                onClick={e => { e.stopPropagation(); copyBookmark(m.id, m.text) }}
+                title="클립보드에 복사"
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px',
+                  color: copiedId === m.id ? '#4ade80' : 'var(--text-muted)', fontSize: 11,
+                  lineHeight: 1, flexShrink: 0,
+                }}
+              >
+                {copiedId === m.id ? '✓' : '📋'}
+              </button>
             </div>
             <div style={{
               fontSize: 11,

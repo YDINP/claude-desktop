@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 332] — 2026-03-13
+### Added
+- BookmarksPanel: 북마크 아이템별 📋 복사 버튼 — 클릭 시 전체 텍스트 클립보드 복사, 1.5초 ✓ 피드백
+
 ## [Round 331] — 2026-03-13
 ### Added
 - OutlinePanel: H1/H2/H3 레벨 필터 버튼에 항목 수 표시 (`H1(3)`) — 0개 레벨 버튼 자동 숨김

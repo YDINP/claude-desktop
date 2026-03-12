@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 234: R332 신규 기능 ───────────────────────────────
+console.log('\n## 234. 신규 기능 파일 검사 (R332)')
+// BookmarksPanel 북마크 복사 버튼 (Round 332)
+const bp332Path = join(ROOT, 'src/renderer/src/components/sidebar/BookmarksPanel.tsx')
+if (existsSync(bp332Path)) {
+  const bp332 = readFileSync(bp332Path, 'utf-8')
+  if (bp332.includes('copiedId') && bp332.includes('copyBookmark') && bp332.includes('stopPropagation')) {
+    log('pass', 'Round332', 'BookmarksPanel: 북마크별 복사 버튼 (copiedId/copyBookmark/stopPropagation) 존재')
+  } else {
+    log('warning', 'Round332', 'BookmarksPanel 복사 버튼 미구현', 'sidebar/BookmarksPanel.tsx')
+  }
+}
+
 // ── Section 233: R331 신규 기능 ───────────────────────────────
 console.log('\n## 233. 신규 기능 파일 검사 (R331)')
 // OutlinePanel H레벨 카운트 표시 (Round 331)
