@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { CCEvent, CCNode, CCStatus } from '../shared/ipc-schema'
+import type { CCEvent, CCNode, CCStatus, CCProjectInfo } from '../shared/ipc-schema'
 
 contextBridge.exposeInMainWorld('api', {
   // Claude
@@ -261,6 +261,9 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.on('cc:statusChange', handler)
     return () => ipcRenderer.removeListener('cc:statusChange', handler)
   },
+  ccDetectProject: (rootPath: string): Promise<CCProjectInfo> => ipcRenderer.invoke('cc:detectProject', rootPath),
+  ccGetPort: (): Promise<number> => ipcRenderer.invoke('cc:getPort'),
+  ccSetPort: (port: number): Promise<boolean> => ipcRenderer.invoke('cc:setPort', port),
 })
 
 declare global {
@@ -442,6 +445,9 @@ declare global {
       ccMoveNode: (uuid: string, x: number, y: number) => Promise<unknown>
       onCCEvent: (cb: (event: import('../shared/ipc-schema').CCEvent) => void) => () => void
       onCCStatusChange: (cb: (status: { connected: boolean }) => void) => () => void
+      ccDetectProject: (rootPath: string) => Promise<{ detected: boolean; version?: string; port?: number; name?: string }>
+      ccGetPort: () => Promise<number>
+      ccSetPort: (port: number) => Promise<boolean>
     }
   }
 }

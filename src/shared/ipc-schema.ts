@@ -109,3 +109,14 @@ export interface CCStatus {
   version: string
   clientCount?: number
 }
+
+export const CC_DETECT_PROJECT = 'cc:detectProject'
+export const CC_GET_PORT = 'cc:getPort'
+export const CC_SET_PORT = 'cc:setPort'
+
+export interface CCProjectInfo {
+  detected: boolean
+  version?: '2x' | '3x'
+  port?: number
+  name?: string
+}

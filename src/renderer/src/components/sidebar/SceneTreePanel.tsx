@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo } from 'react'
+import { useState, useEffect, useCallback, memo, useRef } from 'react'
 import type { CCNode } from '../../../../shared/ipc-schema'
 
 interface SceneTreePanelProps {
@@ -55,6 +55,7 @@ export function SceneTreePanel({ onSelectNode }: SceneTreePanelProps) {
   const [tree, setTree] = useState<CCNode | null>(null)
   const [loading, setLoading] = useState(false)
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -71,11 +72,17 @@ export function SceneTreePanel({ onSelectNode }: SceneTreePanelProps) {
   useEffect(() => {
     refresh()
     const unsub = window.api.onCCEvent?.((event) => {
-      if (event.type === 'scene:ready' || event.type === 'scene:saved') refresh()
+      if (event.type === 'scene:ready' || event.type === 'scene:saved') {
+        if (debounceRef.current) clearTimeout(debounceRef.current)
+        debounceRef.current = setTimeout(() => { debounceRef.current = null; refresh() }, 500)
+      }
       if (event.type === 'node:select' && event.uuids?.[0]) setSelectedUuid(event.uuids[0])
       if (event.type === 'node:deselect') setSelectedUuid(null)
     })
-    return () => unsub?.()
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      unsub?.()
+    }
   }, [refresh])
 
   const handleSelect = (node: CCNode) => {
