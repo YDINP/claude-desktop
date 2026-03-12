@@ -281,6 +281,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
   )
   const [openState, setOpenState] = useState<Record<number, boolean>>({})
   const [uuidCopied, setUuidCopied] = useState(false)
+  const [activeToggling, setActiveToggling] = useState(false)
   const toggleOpen = (i: number) => setOpenState(prev => ({ ...prev, [i]: !prev[i] }))
   const copyUuid = useCallback(() => {
     navigator.clipboard.writeText(node.uuid).then(() => {
@@ -288,12 +289,28 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
       setTimeout(() => setUuidCopied(false), 1500)
     })
   }, [node.uuid])
+  const toggleActive = useCallback(async () => {
+    setActiveToggling(true)
+    try {
+      await save('active', !node.active)
+    } finally {
+      setActiveToggling(false)
+    }
+  }, [node.uuid, node.active])
 
   return (
     <div style={{ padding: '8px 10px', fontSize: 12, borderTop: '2px solid var(--border)' }}>
       {/* 노드 이름 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <button
+          onClick={toggleActive}
+          disabled={activeToggling}
+          title={node.active ? '비활성화' : '활성화'}
+          style={{ background: 'none', border: 'none', cursor: activeToggling ? 'wait' : 'pointer', fontSize: 12, padding: '0 2px', flexShrink: 0, color: node.active ? '#4ade80' : '#f87171' }}
+        >
+          {node.active ? '●' : '○'}
+        </button>
+        <span style={{ fontSize: 11, fontWeight: 600, color: node.active ? 'var(--text-primary)' : 'var(--text-muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {node.name}
         </span>
         <button

@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 354] — 2026-03-13
+### Added
+- NodePropertyPanel: 노드 활성화/비활성화 토글 버튼 — 이름 왼쪽에 ●/○ 버튼, 클릭 시 ccSetProperty('active') 호출
+
 ## [Round 353] — 2026-03-13
 ### Added
 - SceneTreePanel: 비활성 노드 숨기기 토글 — "비활성 N" 배지 클릭 시 비활성 노드 필터링, 재클릭 시 복원

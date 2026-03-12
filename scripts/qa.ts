@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 256: R354 신규 기능 ───────────────────────────────
+console.log('\n## 256. 신규 기능 파일 검사 (R354)')
+// NodePropertyPanel 노드 활성화 토글 (Round 354)
+const npp354Path = join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx')
+if (existsSync(npp354Path)) {
+  const npp354 = readFileSync(npp354Path, 'utf-8')
+  if (npp354.includes('toggleActive') && npp354.includes('activeToggling') && npp354.includes('node.active')) {
+    log('pass', 'Round354', 'NodePropertyPanel: 노드 활성화 토글 (toggleActive/activeToggling/node.active) 존재')
+  } else {
+    log('warning', 'Round354', 'NodePropertyPanel 노드 활성화 토글 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+}
+
 // ── Section 255: R353 신규 기능 ───────────────────────────────
 console.log('\n## 255. 신규 기능 파일 검사 (R353)')
 // SceneTreePanel 비활성 노드 숨기기 (Round 353)
