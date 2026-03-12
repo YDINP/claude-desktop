@@ -58,6 +58,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [componentFilter, setComponentFilter] = useState<string>('all')
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(new Set())
   const [focusMode, setFocusMode] = useState(false)
+  const [nodeEditDraft, setNodeEditDraft] = useState<{ x: string; y: string; w: string; h: string } | null>(null)
   const [changeHistory, setChangeHistory] = useState<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
   const changeHistoryRef = useRef<Array<{ uuid: string; name: string; x: number; y: number; ts: number }>>([])
   changeHistoryRef.current = changeHistory
@@ -1049,6 +1050,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [searchMatches, searchMatchIndex, containerRef])
 
   const selectedNode = selectedUuid ? nodeMap.get(selectedUuid) ?? null : null
+
+  // 선택 노드 변경 시 인라인 편집 초기화
+  useEffect(() => {
+    if (selectedNode) {
+      setNodeEditDraft({ x: String(selectedNode.x), y: String(selectedNode.y), w: String(selectedNode.width), h: String(selectedNode.height) })
+    } else {
+      setNodeEditDraft(null)
+    }
+  }, [selectedUuid])
+
   const selectionCount = selectedUuids.size > 1 ? selectedUuids.size : undefined
   const canCopy = selectedUuids.size > 0 || selectedUuid !== null
   const canPaste = clipboard.length > 0
@@ -1859,6 +1870,68 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             </div>
           )
         })()}
+
+        {/* 선택 노드 인라인 편집바 */}
+        {selectedNode && nodeEditDraft && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 18,
+              left: 0,
+              right: 0,
+              height: 22,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '0 8px',
+              background: 'rgba(10,10,15,0.88)',
+              borderTop: '1px solid rgba(255,255,255,0.08)',
+              fontSize: 9,
+              color: 'var(--text-muted)',
+              fontVariantNumeric: 'tabular-nums',
+              zIndex: 5,
+            }}
+          >
+            <span style={{ color: 'var(--accent)', marginRight: 2 }}>⬡</span>
+            <span style={{ color: 'var(--text-secondary)', marginRight: 4, maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedNode.name}</span>
+            {(['x', 'y', 'w', 'h'] as const).map(field => (
+              <label key={field} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <span style={{ color: 'var(--text-muted)', minWidth: 8 }}>{field.toUpperCase()}:</span>
+                <input
+                  value={nodeEditDraft[field]}
+                  onChange={e => setNodeEditDraft(prev => prev ? { ...prev, [field]: e.target.value } : prev)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      const v = parseFloat(nodeEditDraft[field])
+                      if (!isNaN(v)) {
+                        const prop = field === 'w' ? 'width' : field === 'h' ? 'height' : field
+                        updateNode(selectedNode.uuid, { [prop]: v })
+                      }
+                      e.currentTarget.blur()
+                    }
+                    if (e.key === 'Escape') {
+                      setNodeEditDraft({ x: String(selectedNode.x), y: String(selectedNode.y), w: String(selectedNode.width), h: String(selectedNode.height) })
+                      e.currentTarget.blur()
+                    }
+                    e.stopPropagation()
+                  }}
+                  onBlur={e => {
+                    const v = parseFloat(e.target.value)
+                    if (!isNaN(v)) {
+                      const prop = field === 'w' ? 'width' : field === 'h' ? 'height' : field
+                      updateNode(selectedNode.uuid, { [prop]: v })
+                    }
+                  }}
+                  style={{
+                    width: 38, fontSize: 9, padding: '1px 3px',
+                    background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: 2, color: 'var(--text-primary)', outline: 'none', textAlign: 'right',
+                  }}
+                />
+              </label>
+            ))}
+          </div>
+        )}
 
         {/* 상태바 */}
         <div

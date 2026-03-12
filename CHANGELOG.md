@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 227] — 2026-03-13
+### Added
+- SceneView: 선택 노드 인라인 편집바 — 캔버스 하단에 X/Y/W/H 직접 편집 입력, Enter 적용/Esc 취소
+
 ## [Round 226] — 2026-03-13
 ### Added
 - SceneView: 검색 결과 순환 네비게이션 — Enter/Shift+Enter로 매칭 노드 순환 선택, 현재/전체 카운트 표시, 현재 항목 주황색 강조

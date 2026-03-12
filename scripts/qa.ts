@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 129: R227 신규 기능 ───────────────────────────────
+console.log('\n## 129. 신규 기능 파일 검사 (R227)')
+// SceneView 인라인 편집바 (Round 227)
+const svp227Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp227Path)) {
+  const svp227 = readFileSync(svp227Path, 'utf-8')
+  if (svp227.includes('nodeEditDraft') && svp227.includes('인라인 편집바') && svp227.includes('updateNode')) {
+    log('pass', 'Round227', 'SceneViewPanel: 선택 노드 인라인 X/Y/W/H 편집바 구현 존재')
+  } else {
+    log('warning', 'Round227', 'SceneViewPanel 인라인 편집바 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── Section 128: R226 신규 기능 ───────────────────────────────
 console.log('\n## 128. 신규 기능 파일 검사 (R226)')
 // SceneView 검색 순환 네비게이션 (Round 226)
