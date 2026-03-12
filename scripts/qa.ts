@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 195: R293 신규 기능 ───────────────────────────────
+console.log('\n## 195. 신규 기능 파일 검사 (R293)')
+// RunTimeline 합산 비용 표시 (Round 293)
+const rt293Path = join(ROOT, 'src/renderer/src/components/sidebar/RunTimeline.tsx')
+if (existsSync(rt293Path)) {
+  const rt293 = readFileSync(rt293Path, 'utf-8')
+  if (rt293.includes('totalCostUsd') && rt293.includes('finishedRuns') && rt293.includes('완료')) {
+    log('pass', 'Round293', 'RunTimeline: 완료 런 합산 비용 표시 (totalCostUsd/finishedRuns) 존재')
+  } else {
+    log('warning', 'Round293', 'RunTimeline 합산 비용 표시 미구현', 'sidebar/RunTimeline.tsx')
+  }
+}
+
 // ── Section 194: R292 신규 기능 ───────────────────────────────
 console.log('\n## 194. 신규 기능 파일 검사 (R292)')
 // OutlinePanel 헤딩 레벨 필터 (Round 292)

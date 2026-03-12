@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 292 완료 — OutlinePanel 헤딩 레벨 필터, Pass 312)
+> 마지막 업데이트: 2026-03-13 (Round 293 완료 — RunTimeline 합산 비용 표시, Pass 313)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 293 | dev | RunTimeline 완료 런 합산 비용 — totalCostUsd/finishedRuns, 헤더 요약 표시 | ✅ |
 | Round 292 | dev | OutlinePanel 헤딩 레벨 필터 — levelFilter/H1~H3 버튼, 재클릭 전체 복귀 | ✅ |
 | Round 291 | dev | BookmarksPanel 역할 필터 토글 — roleFilter/cycleRole, 전체/나/Claude 순환 | ✅ |
 | Round 290 | dev | GlobalSearchPanel 검색어 하이라이트 — highlightQuery/<mark> 노란 배경 표시 | ✅ |

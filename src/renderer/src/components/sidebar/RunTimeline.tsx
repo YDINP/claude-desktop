@@ -57,14 +57,24 @@ export function RunTimeline() {
   }, [])
 
   const displayRuns = [...runs].reverse()
+  const finishedRuns = displayRuns.filter(r => r.finishedAt)
+  const totalCostUsd = finishedRuns.reduce((s, r) => s + (r.costUsd ?? 0), 0)
 
   return (
-    <div style={{ padding: 8, overflowY: 'auto', height: '100%', boxSizing: 'border-box' }}>
-      {displayRuns.length === 0 ? (
-        <div style={{ color: 'var(--text-muted)', fontSize: 12, textAlign: 'center', marginTop: 32 }}>
-          아직 실행된 런이 없습니다
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
+      {displayRuns.length > 0 && (
+        <div style={{ padding: '4px 10px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', flexShrink: 0 }}>
+          <span>런 {displayRuns.length}건 · 완료 {finishedRuns.length}건</span>
+          {totalCostUsd > 0 && <span style={{ color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>총 ${totalCostUsd.toFixed(4)}</span>}
         </div>
-      ) : displayRuns.map(run => <RunCard key={run.id} run={run} />)}
+      )}
+      <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
+        {displayRuns.length === 0 ? (
+          <div style={{ color: 'var(--text-muted)', fontSize: 12, textAlign: 'center', marginTop: 32 }}>
+            아직 실행된 런이 없습니다
+          </div>
+        ) : displayRuns.map(run => <RunCard key={run.id} run={run} />)}
+      </div>
     </div>
   )
 }

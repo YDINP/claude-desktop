@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 293] — 2026-03-13
+### Added
+- RunTimeline: 완료 런 합산 비용 표시 — 헤더에 총 `$X.XXXX` 비용 합산, 런/완료 건수 표시
+
 ## [Round 292] — 2026-03-13
 ### Added
 - OutlinePanel: 헤딩 레벨 필터 버튼 (H1/H2/H3) — 클릭 시 해당 레벨만 표시, 재클릭 시 전체 복귀
