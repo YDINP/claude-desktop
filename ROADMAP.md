@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-12 (Round 129 완료 — NodeHierarchyList 검색 필터, Pass 78)
+> 마지막 업데이트: 2026-03-12 (Round 130 완료 — SceneView 드래그 좌표 오버레이, Pass 80)
 
 ## 완료된 라운드
 
@@ -81,6 +81,7 @@
 | Round 127 | dev | SceneInspector 노드 이름 인라인 편집 — 더블클릭 rename + ccSetProperty | ✅ |
 | Round 128 | dev | SceneView 노드 계층 트리 패널 — ≡ 버튼으로 토글, 재귀 트리 클릭 선택 | ✅ |
 | Round 129 | dev | NodeHierarchyList 검색 필터 — 이름 기반 실시간 검색, flat 결과 뷰 | ✅ |
+| Round 130 | dev | SceneView 드래그 좌표 오버레이 — 드래그 시 X/Y, 리사이즈 시 W/H 표시 | ✅ |
 
 ## 전략 로드맵 (Phase)
 

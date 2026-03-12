@@ -27,6 +27,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [gridVisible, setGridVisible] = useState(true)
   const [snapEnabled, setSnapEnabled] = useState(false)
   const [showHierarchy, setShowHierarchy] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [isResizing, setIsResizing] = useState(false)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -234,6 +236,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       startNodeY: node.y,
       groupOffsets,
     }
+    setIsDragging(true)
   }, [nodeMap, getSvgCoords, selectedUuids])
 
   const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw') => {
@@ -253,6 +256,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       startNodeX: node.x,
       startNodeY: node.y,
     }
+    setIsResizing(true)
   }, [nodeMap, getSvgCoords])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -440,6 +444,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         }
       }
       dragRef.current = null
+      setIsDragging(false)
     }
 
     // 리사이즈 종료 → IPC 전송
@@ -457,6 +462,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         }
       }
       resizeRef.current = null
+      setIsResizing(false)
     }
   }, [nodeMap, marquee, view, port])
 
@@ -943,6 +949,28 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         >
           {Math.round(view.zoom * 100)}%
         </div>
+
+        {/* 드래그/리사이즈 좌표 오버레이 */}
+        {(isDragging || isResizing) && selectedNode && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 6,
+              left: 8,
+              fontSize: 9,
+              color: '#60a5fa',
+              background: 'rgba(0,0,0,0.65)',
+              padding: '2px 6px',
+              borderRadius: 3,
+              pointerEvents: 'none',
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {isDragging
+              ? `X: ${Math.round(selectedNode.x)}  Y: ${Math.round(selectedNode.y)}`
+              : `W: ${Math.round(selectedNode.width)}  H: ${Math.round(selectedNode.height)}`}
+          </div>
+        )}
       </div>
 
       {/* Inspector */}

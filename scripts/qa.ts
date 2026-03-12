@@ -903,6 +903,24 @@ if (existsSync(nodeHierarchyPath2)) {
   }
 }
 
+// ── Section 32: R130 신규 기능 ───────────────────────────────
+console.log('\n## 32. 신규 기능 파일 검사 (R130)')
+// SceneView 드래그 좌표 오버레이 (Round 130)
+const sceneViewPanelPath10 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sceneViewPanelPath10)) {
+  const svp10 = readFileSync(sceneViewPanelPath10, 'utf-8')
+  if (svp10.includes('isDragging') && svp10.includes('isResizing') && svp10.includes('setIsDragging')) {
+    log('pass', 'Round130', 'SceneViewPanel: isDragging + isResizing 상태 + setter 존재')
+  } else {
+    log('warning', 'Round130', 'SceneViewPanel 드래그 상태 추적 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+  if (svp10.includes('좌표 오버레이') && svp10.includes('isDragging || isResizing')) {
+    log('pass', 'Round130', 'SceneViewPanel: 드래그/리사이즈 좌표 오버레이 렌더링 존재')
+  } else {
+    log('warning', 'Round130', 'SceneViewPanel 좌표 오버레이 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

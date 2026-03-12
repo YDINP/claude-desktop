@@ -1,5 +1,10 @@
 # Changelog — Claude Desktop
 
+## [Round 130] — 2026-03-12
+### Added
+- SceneViewPanel: isDragging / isResizing 상태 추적 (dragRef/resizeRef 시작·종료 시 설정)
+- SceneViewPanel: 드래그 중 `X: n  Y: n`, 리사이즈 중 `W: n  H: n` 오버레이 (좌측 하단, 파란색)
+
 ## [Round 129] — 2026-03-12
 ### Added
 - NodeHierarchyList: 노드 검색 입력창 — 이름 기반 실시간 필터링 (대소문자 무관)
