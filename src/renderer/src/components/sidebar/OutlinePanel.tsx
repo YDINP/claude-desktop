@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import type { ChatMessage } from '../../stores/chat-store'
 
 type OutlineItem = {
@@ -50,6 +50,15 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
     return list
   }, [allItems, search, levelFilter])
 
+  const [copied, setCopied] = useState(false)
+  const copyOutline = useCallback(() => {
+    const md = items.map(it => `${'#'.repeat(it.level)} ${it.text}`).join('\n')
+    navigator.clipboard.writeText(md).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
+  }, [items])
+
   const indentMap: Record<1 | 2 | 3, number> = { 1: 0, 2: 12, 3: 24 }
   const sizeMap: Record<1 | 2 | 3, number> = { 1: 13, 2: 12, 3: 11 }
   const colorMap: Record<1 | 2 | 3, string> = { 1: '#e8e8e8', 2: '#aaa', 3: '#888' }
@@ -77,7 +86,14 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
         }}>
           {allItems.length}개
         </span>
-        <div style={{ display: 'flex', gap: 2, marginLeft: 'auto' }}>
+        <div style={{ display: 'flex', gap: 2, marginLeft: 'auto', alignItems: 'center' }}>
+          {items.length > 0 && (
+            <button
+              onClick={copyOutline}
+              title="아웃라인 복사"
+              style={{ padding: '0 5px', fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', background: copied ? 'var(--accent)' : 'none', color: copied ? '#fff' : 'var(--text-muted)' }}
+            >{copied ? '✓' : '📋'}</button>
+          )}
           {([1, 2, 3] as const).map(lv => (
             <button key={lv} onClick={() => setLevelFilter(f => f === lv ? 0 : lv)}
               title={`H${lv}만 보기`}

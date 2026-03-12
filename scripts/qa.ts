@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 210: R308 신규 기능 ───────────────────────────────
+console.log('\n## 210. 신규 기능 파일 검사 (R308)')
+// OutlinePanel 아웃라인 복사 버튼 (Round 308)
+const op308Path = join(ROOT, 'src/renderer/src/components/sidebar/OutlinePanel.tsx')
+if (existsSync(op308Path)) {
+  const op308 = readFileSync(op308Path, 'utf-8')
+  if (op308.includes('copyOutline') && op308.includes('아웃라인 복사') && op308.includes('navigator.clipboard')) {
+    log('pass', 'Round308', 'OutlinePanel: 아웃라인 복사 버튼 (copyOutline/clipboard) 존재')
+  } else {
+    log('warning', 'Round308', 'OutlinePanel 복사 버튼 미구현', 'sidebar/OutlinePanel.tsx')
+  }
+}
+
 // ── Section 209: R307 신규 기능 ───────────────────────────────
 console.log('\n## 209. 신규 기능 파일 검사 (R307)')
 // DiffPanel 경로 교체 버튼 (Round 307)

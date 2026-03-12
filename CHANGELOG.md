@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 308] — 2026-03-13
+### Added
+- OutlinePanel: 아웃라인 전체 복사 버튼 — 📋 클릭으로 필터된 항목을 마크다운 헤딩 형식으로 클립보드 복사
+
 ## [Round 307] — 2026-03-13
 ### Added
 - DiffPanel: 원본/수정 경로 교체 버튼 — ⇄ 클릭으로 `leftPath ↔ rightPath` + 콘텐츠 동시 교체
