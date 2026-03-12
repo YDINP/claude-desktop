@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 290: R388 신규 기능 ───────────────────────────────
+console.log('\n## 290. 신규 기능 파일 검사 (R388)')
+// GlobalSearchPanel 검색 결과 발췌 복사 버튼 (Round 388)
+const gs388Path = join(ROOT, 'src/renderer/src/components/sidebar/GlobalSearchPanel.tsx')
+if (existsSync(gs388Path)) {
+  const gs388 = readFileSync(gs388Path, 'utf-8')
+  if (gs388.includes('copiedResultKey') && gs388.includes('발췌 복사')) {
+    log('pass', 'Round388', 'GlobalSearchPanel: 검색 결과 발췌 복사 버튼 존재')
+  } else {
+    log('warning', 'Round388', 'GlobalSearchPanel 발췌 복사 미구현', 'sidebar/GlobalSearchPanel.tsx')
+  }
+}
+
 // ── Section 289: R387 신규 기능 ───────────────────────────────
 console.log('\n## 289. 신규 기능 파일 검사 (R387)')
 // SceneTreePanel 검색 매치 카운트 (Round 387)

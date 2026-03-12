@@ -32,6 +32,7 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
   const [sortOrder, setSortOrder] = useState<'relevance' | 'date'>('relevance')
   const [searchHistory, setSearchHistory] = useState<string[]>(loadSearchHistory)
   const [showHistory, setShowHistory] = useState(false)
+  const [copiedResultKey, setCopiedResultKey] = useState<string | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const search = useCallback(async (q: string) => {
@@ -163,14 +164,21 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
             onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--accent)')}
             onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2, alignItems: 'center' }}>
               <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 500,
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
                 {r.sessionTitle}
               </span>
-              <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, marginLeft: 8 }}>
-                {fmtDate(r.updatedAt)}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, marginLeft: 6 }}>
+                <button
+                  onClick={e => { e.stopPropagation(); const key = `${r.sessionId}-${r.messageIndex}-${i}`; navigator.clipboard.writeText(r.excerpt).then(() => { setCopiedResultKey(key); setTimeout(() => setCopiedResultKey(k => k === key ? null : k), 1500) }) }}
+                  title="발췌 복사"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, padding: '0 2px', color: copiedResultKey === `${r.sessionId}-${r.messageIndex}-${i}` ? '#4caf50' : 'var(--text-muted)' }}
+                >{copiedResultKey === `${r.sessionId}-${r.messageIndex}-${i}` ? '✓' : '📋'}</button>
+                <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                  {fmtDate(r.updatedAt)}
+                </span>
+              </div>
             </div>
             <div style={{ fontSize: 10, color: r.role === 'user' ? 'var(--accent)' : 'var(--text-muted)',
               marginBottom: 2 }}>

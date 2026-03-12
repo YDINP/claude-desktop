@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 388] — 2026-03-13
+### Added
+- GlobalSearchPanel: 검색 결과 발췌 복사 버튼 — copiedResultKey 상태, 📋 버튼, excerpt 텍스트 복사
+
 ## [Round 387] — 2026-03-13
 ### Added
 - SceneTreePanel: 검색 매치 카운트 — countMatches 재귀, "N개 노드 일치"/없음 표시, Escape 초기화
