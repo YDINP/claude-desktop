@@ -45,12 +45,27 @@ export function ClipboardPanel() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', borderBottom: '1px solid var(--border)' }}>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
           {query.trim() && filtered.length !== entries.length
             ? <>{filtered.length}<span style={{ opacity: 0.6 }}>/{entries.length}</span></>
             : entries.length}개 항목
+          {pinnedIds.size > 0 && (
+            <span style={{ fontSize: 9, color: '#fbbf24', background: 'rgba(251,191,36,0.12)', borderRadius: 8, padding: '1px 5px' }}>
+              📌{pinnedIds.size}
+            </span>
+          )}
         </span>
-        <button onClick={() => clipboardStore.clear()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11 }}>전체 삭제</button>
+        <button
+          onClick={() => {
+            if (pinnedIds.size > 0) {
+              entries.filter(e => !pinnedIds.has(e.id)).forEach(e => clipboardStore.remove(e.id))
+            } else {
+              clipboardStore.clear()
+            }
+          }}
+          title={pinnedIds.size > 0 ? '핀 고정 항목 제외하고 삭제' : '전체 삭제'}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11 }}
+        >{pinnedIds.size > 0 ? '비핀 삭제' : '전체 삭제'}</button>
       </div>
       <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)' }}>
         <input

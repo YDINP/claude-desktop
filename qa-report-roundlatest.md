@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T23:27:54.254Z
+> 2026-03-12T23:31:14.974Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- ClipboardPanel: 핀 보호 스마트 삭제 + 핀 카운트 배지 존재
 - FileTree: 파일 검색 결과 카운트 + ESC 초기화 존재
 - CocosPanel: 프로젝트 경로 복사 버튼 존재
 - SnippetPanel: 스니펫 전체 내용 펼치기 존재

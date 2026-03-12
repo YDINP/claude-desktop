@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 394] — 2026-03-13
+### Added
+- ClipboardPanel: 핀 보호 스마트 삭제 — 핀 항목 있을 때 비핀 항목만 삭제, 핀 카운트 배지 표시
+
 ## [Round 393] — 2026-03-13
 ### Added
 - FileTree: 파일 검색 결과 카운트 표시 — 검색 시 N개 파일/파일 없음 표시, ESC 키로 검색 초기화

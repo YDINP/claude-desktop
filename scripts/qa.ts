@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 296: R394 신규 기능 ───────────────────────────────
+console.log('\n## 296. 신규 기능 파일 검사 (R394)')
+// ClipboardPanel 핀 보호 스마트 삭제 (Round 394)
+const cp394Path = join(ROOT, 'src/renderer/src/components/sidebar/ClipboardPanel.tsx')
+if (existsSync(cp394Path)) {
+  const cp394 = readFileSync(cp394Path, 'utf-8')
+  if (cp394.includes('비핀 삭제') && cp394.includes('pinnedIds.size > 0') && cp394.includes('📌')) {
+    log('pass', 'Round394', 'ClipboardPanel: 핀 보호 스마트 삭제 + 핀 카운트 배지 존재')
+  } else {
+    log('warning', 'Round394', 'ClipboardPanel 핀 보호 삭제 미구현', 'sidebar/ClipboardPanel.tsx')
+  }
+}
+
 // ── Section 295: R393 신규 기능 ───────────────────────────────
 console.log('\n## 295. 신규 기능 파일 검사 (R393)')
 // FileTree 파일 검색 결과 카운트 (Round 393)

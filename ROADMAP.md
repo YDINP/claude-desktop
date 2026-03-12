@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 393 완료 — FileTree 파일 검색 결과 카운트, Pass 413)
+> 마지막 업데이트: 2026-03-13 (Round 394 완료 — ClipboardPanel 핀 보호 스마트 삭제, Pass 414)
 
 ## 완료된 라운드
 
@@ -226,6 +226,7 @@
 | Round 339 | dev | SearchPanel 파일 그룹 ▾/▸ 접기/펼치기 — 매치 목록 숨김/표시, 접힘 시 매치 수 표시 | ✅ |
 | Round 340 | dev | DiffPanel 최근 비교 히스토리 — localStorage 저장(8개), 🕐 드롭다운으로 재사용 | ✅ |
 | Round 341 | dev | CocosPanel 연결 유지 시간 — connectedAt 기록, 배지에 uptime(Ns/Nm/NhNm) 표시 | ✅ |
+| Round 394 | dev | ClipboardPanel 핀 보호 스마트 삭제 — 핀 있으면 비핀만 삭제, 핀 카운트 배지 | ✅ |
 | Round 393 | dev | FileTree 파일 검색 결과 카운트 — N개 파일/파일 없음 표시, ESC 초기화 | ✅ |
 | Round 392 | dev | CocosPanel 프로젝트 경로 복사 — pathCopied, 프로젝트명 옆 📋, currentPath 복사 | ✅ |
 | Round 391 | dev | SnippetPanel 내용 펼치기 — expandedSnippetId, ▼/▲ 토글, 120자 초과 시 표시 | ✅ |
