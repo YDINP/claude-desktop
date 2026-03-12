@@ -50,8 +50,23 @@ function PropRow({ label, value, decimals = 0, onSave }: {
 function formatPropValue(value: unknown): string | null {
   if (value === null || value === undefined) return null
   if (Array.isArray(value)) return `[${value.length} items]`
+  if (typeof value === 'boolean') return value ? '✓' : '✗'
+  if (typeof value === 'number') return parseFloat(value.toFixed(3)).toString()
   if (typeof value === 'object') {
-    const entries = Object.entries(value as Record<string, unknown>)
+    const obj = value as Record<string, unknown>
+    // Vec2 패턴: {x: N, y: N}
+    if ('x' in obj && 'y' in obj && !('z' in obj) && !('r' in obj)) {
+      return `(${parseFloat((obj.x as number).toFixed(2))}, ${parseFloat((obj.y as number).toFixed(2))})`
+    }
+    // Vec3 패턴: {x: N, y: N, z: N}
+    if ('x' in obj && 'y' in obj && 'z' in obj && !('r' in obj)) {
+      return `(${parseFloat((obj.x as number).toFixed(2))}, ${parseFloat((obj.y as number).toFixed(2))}, ${parseFloat((obj.z as number).toFixed(2))})`
+    }
+    // Color 패턴: {r: N, g: N, b: N, a: N}
+    if ('r' in obj && 'g' in obj && 'b' in obj) {
+      return `color:${Math.round(obj.r as number)},${Math.round(obj.g as number)},${Math.round(obj.b as number)}`
+    }
+    const entries = Object.entries(obj)
       .filter(([, v]) => v !== null && v !== undefined)
       .map(([k, v]) => `${k}: ${typeof v === 'number' ? parseFloat((v as number).toFixed(3)) : v}`)
     return `{${entries.join(', ')}}`
@@ -89,12 +104,29 @@ function ComponentSection({ type, props, open, onToggle }: {
       </div>
       {open && rows.length > 0 && (
         <div style={{ paddingLeft: 14, paddingBottom: 2 }}>
-          {rows.map(({ k, v }) => (
-            <div key={k} style={{ display: 'flex', gap: 4, padding: '1px 0', fontSize: 10 }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 72 }}>{k}</span>
-              <span style={{ color: 'var(--text-primary)', wordBreak: 'break-all' }}>{v}</span>
-            </div>
-          ))}
+          {rows.map(({ k, v }) => {
+            const isColor = v?.startsWith('color:')
+            const colorParts = isColor ? v!.slice(6).split(',').map(Number) : null
+            return (
+              <div key={k} style={{ display: 'flex', gap: 4, padding: '1px 0', fontSize: 10, alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 72 }}>{k}</span>
+                {isColor && colorParts ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{
+                      width: 14, height: 14, borderRadius: 2, flexShrink: 0,
+                      background: `rgb(${colorParts[0]}, ${colorParts[1]}, ${colorParts[2]})`,
+                      border: '1px solid var(--border)',
+                    }} />
+                    <span style={{ color: 'var(--text-primary)' }}>
+                      #{colorParts.map(c => Math.round(c).toString(16).padStart(2, '0')).join('')}
+                    </span>
+                  </span>
+                ) : (
+                  <span style={{ color: 'var(--text-primary)', wordBreak: 'break-all' }}>{v}</span>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
       {open && rows.length === 0 && (

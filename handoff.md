@@ -1,15 +1,21 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-12 (Round 98 완료)
+> 마지막 업데이트: 2026-03-12 (Round 110 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 109 (QA R108~109 + 스트리밍 경과 시간 + CC 노드 생성/삭제)
+- 마지막 커밋: Round 110 (NodePropertyPanel 색상 스왓치/Vec 디스플레이 + QA Pass 40)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 38
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 40
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Round 109 완료 항목 (최근 세션)
+## Round 110 완료 항목 (최근 세션)
+
+### Round 110 — NodePropertyPanel 디스플레이 고도화 + QA 수정
+- `src/renderer/src/components/sidebar/NodePropertyPanel.tsx`: `formatPropValue` 강화 (Boolean → ✓/✗, Vec2 → `(x,y)`, Vec3 → `(x,y,z)`, Color → `color:R,G,B`); ComponentSection 행 렌더링에서 `color:` prefix 감지 시 컬러 스왓치(14×14px rgb 박스) + HEX 코드 표시
+- `scripts/qa.ts`: Section 15 추가 (cc-bridge createNode/deleteNode, NodePropertyPanel ColorSwatch 체크, Pass 38→40); QA 색상 스왓치 감지 패턴 수정 (`background.*rgb` 리터럴 → `background` && `rgb(` 분리 체크)
+
+## Round 109 완료 항목 (이전 세션)
 
 ### Round 109 — QA + 스트리밍 경과 시간 + CC 노드 생성/삭제
 - `scripts/qa.ts`: Section 14 추가 (SceneTree rename, 스트리밍 경과 시간, Pass 36→38)

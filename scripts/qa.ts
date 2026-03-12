@@ -511,6 +511,30 @@ if (existsSync(inputBarPath3)) {
   }
 }
 
+console.log('\n## 15. 신규 기능 파일 검사 (R109-110)')
+
+// CC node create/delete (Round 109)
+const ccBridgePath3 = join(ROOT, 'src/main/cc/cc-bridge.ts')
+if (existsSync(ccBridgePath3)) {
+  const cb = readFileSync(ccBridgePath3, 'utf-8')
+  if (cb.includes('createNode') && cb.includes('deleteNode')) {
+    log('pass', 'Round109', 'cc-bridge.ts: createNode + deleteNode 존재')
+  } else {
+    log('warning', 'Round109', 'cc-bridge.ts 노드 생성/삭제 누락', 'main/cc/cc-bridge.ts')
+  }
+}
+
+// NodePropertyPanel enhanced display (Round 110)
+const nodePropPath = join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx')
+if (existsSync(nodePropPath)) {
+  const np = readFileSync(nodePropPath, 'utf-8')
+  if (np.includes('ColorSwatch') || np.includes('colorSwatch') || (np.includes('background') && np.includes('rgb('))) {
+    log('pass', 'Round110', 'NodePropertyPanel 색상 스왓치 표시 존재')
+  } else {
+    log('warning', 'Round110', 'NodePropertyPanel 색상 스왓치 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
