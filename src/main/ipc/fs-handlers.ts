@@ -7,6 +7,7 @@ import path, { join, relative, dirname } from 'path'
 import { exec, execFile, spawn } from 'child_process'
 import { promisify } from 'util'
 import type { DirEntry } from '../../shared/ipc-schema'
+import { analyzeProject } from './project-intelligence'
 
 const watchers = new Map<string, FSWatcher>()
 
@@ -582,6 +583,8 @@ export function registerFsHandlers(_win: unknown) {
       return null
     }
   })
+
+  ipcMain.handle('project:analyze', async (_e, rootPath: string) => analyzeProject(rootPath))
 
   ipcMain.handle('fs:recentFiles', () => AppConfig.getInstance().getRecentFiles())
   ipcMain.handle('fs:addRecentFile', (_, filePath: string) => {

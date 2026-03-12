@@ -79,6 +79,9 @@ contextBridge.exposeInMainWorld('api', {
   toggleFavorite: (path: string) => ipcRenderer.invoke('fs:toggleFavorite', { path }),
   fsStat: (path: string) => ipcRenderer.invoke('fs:stat', { path }),
 
+  // Project intelligence
+  projectAnalyze: (rootPath: string) => ipcRenderer.invoke('project:analyze', rootPath),
+
   // Project
   openFolder: () => ipcRenderer.invoke('project:open'),
   getRecentProjects: () => ipcRenderer.invoke('project:recent'),
@@ -312,6 +315,7 @@ declare global {
       getFavorites: () => Promise<string[]>
       toggleFavorite: (path: string) => Promise<{ isFavorite: boolean }>
       fsStat: (path: string) => Promise<{ size: number; mtime: number; isDirectory: boolean } | null>
+      projectAnalyze: (rootPath: string) => Promise<{ name: string; type: string; description: string; keyFiles: string[]; techStack: string[]; summary: string } | null>
       openFolder: () => Promise<string | null>
       getRecentProjects: () => Promise<string[]>
       getCurrentProject: () => Promise<string | null>

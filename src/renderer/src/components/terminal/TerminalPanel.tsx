@@ -4,6 +4,7 @@ import { FitAddon } from '@xterm/addon-fit'
 import { SearchAddon } from '@xterm/addon-search'
 import '@xterm/xterm/css/xterm.css'
 import { setActiveTerminalId } from '../../stores/terminal-store'
+import { recordCommand, getTopCommands } from '../../utils/command-learner'
 
 const QUICK_CMDS_KEY = 'terminalQuickCmds'
 const defaultCmds = [
@@ -103,6 +104,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [quickCmds, setQuickCmds] = useState<QuickCmd[]>(loadQuickCmds)
   const [editingCmds, setEditingCmds] = useState(false)
 
+  // Learned commands state
+  const [learnedCmds, setLearnedCmds] = useState<string[]>([])
+  const inputBufferRef = useRef<Record<string, string>>({})
+
   const sendQuickCmd = (cmd: string) => {
     window.api?.terminalWrite(activeTabId, cmd)
   }
@@ -180,6 +185,11 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [searchQuery, setSearchQuery] = useState('')
   const searchInputRef = useRef<HTMLInputElement>(null)
 
+  // Initialize learned commands on mount
+  useEffect(() => {
+    setLearnedCmds(getTopCommands(3).filter(c => !quickCmds.some(q => q.cmd.trim() === c)))
+  }, [])
+
   // Sync active terminal ID to shared store so ChatPanel can write to it
   useEffect(() => {
     setActiveTerminalId(activeTabId)
@@ -245,7 +255,22 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
       try { fitAddon.fit() } catch { /* not yet visible */ }
     })
 
-    term.onData((data) => window.api.terminalWrite(id, data))
+    term.onData((data) => {
+      window.api.terminalWrite(id, data)
+      // Command learning
+      if (data === '\r') {
+        const cmd = inputBufferRef.current[id] ?? ''
+        if (cmd.trim()) {
+          recordCommand(cmd.trim())
+          setLearnedCmds(getTopCommands(3).filter(c => !quickCmds.some(q => q.cmd.trim() === c)))
+        }
+        inputBufferRef.current[id] = ''
+      } else if (data === '\x7f') { // backspace
+        inputBufferRef.current[id] = (inputBufferRef.current[id] ?? '').slice(0, -1)
+      } else if (data.charCodeAt(0) >= 32) { // printable
+        inputBufferRef.current[id] = (inputBufferRef.current[id] ?? '') + data
+      }
+    })
     window.api.terminalCreate(id, cwd)
 
     const observer = new ResizeObserver(() => {
@@ -622,6 +647,22 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
 
       {/* Quick commands bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)', flexWrap: 'wrap', flexShrink: 0 }}>
+        {learnedCmds.map(cmd => (
+          <button
+            key={cmd}
+            onClick={() => sendQuickCmd(cmd + '\n')}
+            title={`자주 사용: ${cmd}`}
+            style={{
+              padding: '2px 8px', borderRadius: 4, fontSize: 11,
+              background: 'rgba(82,139,255,0.1)', border: '1px solid rgba(82,139,255,0.3)',
+              cursor: 'pointer', color: 'var(--accent)', whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(82,139,255,0.6)')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(82,139,255,0.3)')}
+          >
+            ★ {cmd.length > 20 ? cmd.slice(0, 20) + '…' : cmd}
+          </button>
+        ))}
         {quickCmds.map(qc => (
           <button
             key={qc.id}

@@ -8,6 +8,7 @@ import type { ChatMessage } from '../../stores/chat-store'
 import { getActiveTerminalId } from '../../stores/terminal-store'
 import { WelcomeScreen } from '../shared/WelcomeScreen'
 import { useCCContext } from '../../hooks/useCCContext'
+import { useProjectContext } from '../../hooks/useProjectContext'
 import { parseCCActions, executeCCActions } from '../../utils/cc-action-parser'
 
 function ExportConversationButton({ messages }: { messages: ChatMessage[] }) {
@@ -308,6 +309,7 @@ const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, total
 
 export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ }: ChatPanelProps) {
   const ccCtx = useCCContext()
+  const projectSummary = useProjectContext(project.currentPath ?? null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const minimapRef = useRef<HTMLDivElement>(null)
   const isAtBottomRef = useRef(true)
@@ -529,13 +531,15 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const handleSend = useCallback((text: string) => {
     if (!project.currentPath) return
     chat.addUserMessage(text)
+    const parts = [projectSummary, ccCtx.contextString].filter(Boolean)
+    const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
     window.api.claudeSend({
       text,
       cwd: project.currentPath,
       model: project.selectedModel,
-      ...(ccCtx.contextString ? { extraSystemPrompt: ccCtx.contextString } : {}),
+      ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
     })
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage, ccCtx.contextString])
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, ccCtx.contextString, projectSummary])
 
   const PAUSE_STATE_KEY = 'claude:pause-state'
   const [isPaused, setIsPaused] = useState(() => {
