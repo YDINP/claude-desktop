@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T19:34:57.126Z
+> 2026-03-12T20:56:38.759Z
 
 ## Critical
 _없음_
@@ -199,6 +199,48 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- GitPanel: 헤더 변경 파일 수 배지 (stagedFiles.length/files.length/↑) 존재
+- SearchPanel: 결과 요약 배너 (grouped.length/totalMatches/매치) 존재
+- PluginsPanel: 정렬 토글 (sortMode/sortedPlugins/활성 먼저) 존재
+- ClipboardPanel: 검색 시 필터 결과 수 표시 (filtered.length/entries.length) 존재
+- BookmarksPanel: 필터 시 결과 수 표시 (filtered.length/bookmarked.length) 존재
+- TasksPanel: 내보내기 버튼 (exportTasks/text/markdown) 존재
+- StatsPanel: 히트맵 활동 일수/% 표시 (totalDays/heatmapDays.length) 존재
+- FileTree: 전체 접기 버튼 (expandedDirs.size/⊖/전체 접기) 존재
+- NotesPanel: 편집기 하단 줄 수 표시 (split('\n').length/줄) 존재
+- RunTimeline: 완료 런 삭제 버튼 (clearedAt/setClearedAt) 존재
+- GlobalSearchPanel: 역할 필터 (roleFilter/user/assistant) 존재
+- AssetBrowserPanel: 헤더 에셋 수 배지 (totalAssets/allFlat) 존재
+- OutlinePanel: 아웃라인 복사 버튼 (copyOutline/clipboard) 존재
+- DiffPanel: 경로 교체 버튼 (handleSwap/⇄) 존재
+- WebPreviewPanel: 외부 브라우저에서 열기 버튼 (window.open/_blank) 존재
+- SceneTreePanel: 총 노드 수 표시 (countNodes/totalNodes) 존재
+- NodePropertyPanel: UUID 복사 버튼 (copyUuid/uuidCopied) 존재
+- PromptChainPanel: 마지막 실행 시간 표시 (lastRun/relativeTime) 존재
+- AgentPanel: 탭 배지 (enabledCount/badge) 존재
+- RemotePanel: 총 호스트 수 배지 (sshHosts+savedHosts 합산) 존재
+- SearchPanel: 검색어 하이라이트 (highlightLine/<mark>/fbbf24) 존재
+- ConnectionPanel: 모두 핑 버튼 (pingAll/Promise.all) 존재
+- GitPanel: 커밋 메시지 글자 수 카운터 (/72 제한) 존재
+- ChangedFilesPanel: W/E 작업 구분 카운트 (W:N E:N) 존재
+- ClipboardPanel: 글자 수 표시 (text.length/toLocaleString/자) 존재
+- SnippetPanel: 정렬 토글 (생성 순/이름 순) 존재
+- PluginsPanel: 활성 플러그인 수 배지 (활성/총개수) 존재
+- RunTimeline: 완료 런 합산 비용 표시 (totalCostUsd/finishedRuns) 존재
+- OutlinePanel: 헤딩 레벨 필터 (levelFilter/H1~H3) 존재
+- BookmarksPanel: 역할 필터 토글 (roleFilter/cycleRole/ROLE_LABELS) 존재
+- GlobalSearchPanel: 검색어 하이라이트 (highlightQuery/<mark/fbbf24) 존재
+- StatsPanel: 일평균 세션 카드 (totalSessions/totalDays) 존재
+- TasksPanel: 마감일 D-Day 카운트다운 (diffDays/D-Day/86400000) 존재
+- CalendarPanel: 선택 날짜 이벤트 전체 삭제 버튼 존재
+- TasksPanel: 전체 완료 배너 (🎉/progressPct===100) 존재
+- NotesPanel: 모노스페이스 코드 모드 (codeMode/font-mono) 존재
+- SceneViewPanel: 노드 정보 오버레이 컴포넌트 타입 표시 존재
+- CalendarPanel: 이번 달 이벤트 수 요약 (monthEventCount/monthPrefix) 존재
+- TasksPanel: 빠른 마감일 버튼 (오늘/내일/7일) 존재
+- StatsPanel: 요일별 활동 분포 차트 (weekdayStats/isPeak) 존재
+- NotesPanel: 노트 클립보드 복사 (copyNoteToClipboard/noteCopied) 존재
+- TasksPanel: 우선순위 점 클릭 순환 (cyclePriority/PRIORITY_CYCLE) 존재
 - CalendarPanel: 이벤트 색상 변경 (nextColor/EVENT_COLORS.indexOf) 존재
 - NotesPanel: 노트 복제 (duplicateNote/복사) 존재
 - SceneViewPanel: 컨텍스트 메뉴 UUID/경로 복사 (clipboard.writeText) 존재

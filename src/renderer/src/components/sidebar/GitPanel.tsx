@@ -308,6 +308,11 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
         >
           <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>{'\u2387'} {branch || '(no branch)'}</span>
+          {files.length > 0 && (
+            <span style={{ fontSize: 9, color: '#fff', background: stagedFiles.length > 0 ? 'var(--success, #22c55e)' : '#888', borderRadius: 8, padding: '0 5px', fontWeight: 600, lineHeight: '16px' }}>
+              {stagedFiles.length > 0 ? `${stagedFiles.length}↑` : `${files.length}`}
+            </span>
+          )}
           <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{showBranches ? '\u25B4' : '\u25BE'}</span>
         </button>
         <div style={{ display: 'flex', gap: 4 }}>

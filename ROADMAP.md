@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 319 완료 — SearchPanel 결과 요약 배너, Pass 339)
+> 마지막 업데이트: 2026-03-13 (Round 320 완료 — GitPanel 헤더 변경 파일 수 배지, Pass 340)
 
 ## 완료된 라운드
 
@@ -214,6 +214,7 @@
 | Round 260 | dev | SceneView 다중 선택 bbox 중앙 마커 — 2개+ 선택 bounding box 중앙 + 십자 마커 | ✅ |
 | Round 261 | dev | TasksPanel 진행률 바 — 완료/전체 비율 progressPct%, 100% 완료 시 초록색 | ✅ |
 | Round 262 | dev | SceneView 호버 툴팁 memo 표시 — hn.memo 있을 때 📝 황색으로 메모 내용 출력 | ✅ |
+| Round 320 | dev | GitPanel 헤더 변경 파일 수 배지 — stagedFiles.length↑ (초록) / files.length (회색) 표시 | ✅ |
 | Round 319 | dev | SearchPanel 결과 요약 배너 — grouped.length/totalMatches 표시 + 확장자 필터 활성 수 | ✅ |
 | Round 318 | dev | PluginsPanel 정렬 토글 — sortMode(default/name/enabled) 3단계 순환 버튼 + sortedPlugins useMemo | ✅ |
 | Round 317 | dev | ClipboardPanel 검색 필터 결과 수 — 검색 시 N/M개 항목 헤더 표시 (filtered.length/entries.length) | ✅ |

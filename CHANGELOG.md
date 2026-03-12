@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 320] — 2026-03-13
+### Added
+- GitPanel: 헤더에 변경 파일 수 배지 — staged 있을 때 `N↑` (초록), 없을 때 `N` (회색) 표시
+
 ## [Round 319] — 2026-03-13
 ### Added
 - SearchPanel: 결과 요약 배너 — 결과 있을 때 `N개 파일 · M개 매치` + 확장자 필터 수 표시

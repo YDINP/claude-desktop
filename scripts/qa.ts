@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 222: R320 신규 기능 ───────────────────────────────
+console.log('\n## 222. 신규 기능 파일 검사 (R320)')
+// GitPanel 헤더 변경 파일 수 배지 (Round 320)
+const gp320Path = join(ROOT, 'src/renderer/src/components/sidebar/GitPanel.tsx')
+if (existsSync(gp320Path)) {
+  const gp320 = readFileSync(gp320Path, 'utf-8')
+  if (gp320.includes('stagedFiles.length') && gp320.includes('files.length > 0') && gp320.includes('↑')) {
+    log('pass', 'Round320', 'GitPanel: 헤더 변경 파일 수 배지 (stagedFiles.length/files.length/↑) 존재')
+  } else {
+    log('warning', 'Round320', 'GitPanel 헤더 배지 미구현', 'sidebar/GitPanel.tsx')
+  }
+}
+
 // ── Section 221: R319 신규 기능 ───────────────────────────────
 console.log('\n## 221. 신규 기능 파일 검사 (R319)')
 // SearchPanel 결과 요약 배너 (Round 319)
