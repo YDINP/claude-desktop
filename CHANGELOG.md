@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 324] — 2026-03-13
+### Added
+- ChangedFilesPanel: ↓/↑ 정렬 토글 버튼 — 최신순/오래된순 전환 (sortAsc)
+
 ## [Round 323] — 2026-03-13
 ### Added
 - RemotePanel: 3개 초과 호스트 시 검색 필터 입력 표시 — alias/hostname/user 부분 일치 필터링

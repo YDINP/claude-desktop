@@ -48,6 +48,7 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
   const [expandedFile, setExpandedFile] = useState<string | null>(null)
   const [diffs, setDiffs] = useState<Record<string, string>>({})
   const [restoringFiles, setRestoringFiles] = useState<Set<string>>(new Set())
+  const [sortAsc, setSortAsc] = useState(false)
 
   const handleClick = useCallback((path: string) => {
     onFileClick(path)
@@ -113,6 +114,17 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
           <span style={{ color: 'var(--warning)', fontFamily: 'monospace' }}>E:{files.filter(f => f.op === 'edit').length}</span>
         </span>
         <button
+          onClick={() => setSortAsc(v => !v)}
+          title={sortAsc ? '오래된 순 (클릭: 최신 순)' : '최신 순 (클릭: 오래된 순)'}
+          style={{
+            background: 'none', border: 'none',
+            color: 'var(--text-muted)', fontSize: 10,
+            cursor: 'pointer', padding: '1px 4px', borderRadius: 3,
+          }}
+        >
+          {sortAsc ? '↑' : '↓'}
+        </button>
+        <button
           onClick={onClear}
           title="목록 지우기"
           style={{
@@ -129,7 +141,7 @@ export function ChangedFilesPanel({ files, onFileClick, onClear, onRemoveFile, r
 
       {/* File list (newest first) */}
       <div style={{ flex: 1, overflow: 'auto' }}>
-        {[...files].reverse().map((f, i) => (
+        {(sortAsc ? [...files] : [...files].reverse()).map((f, i) => (
           <div key={`${f.path}-${f.ts}-${i}`} style={{ borderBottom: '1px solid var(--border)' }}>
             <div
               onClick={() => handleClick(f.path)}

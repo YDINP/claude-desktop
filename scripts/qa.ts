@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 226: R324 신규 기능 ───────────────────────────────
+console.log('\n## 226. 신규 기능 파일 검사 (R324)')
+// ChangedFilesPanel 정렬 토글 (Round 324)
+const cfp324Path = join(ROOT, 'src/renderer/src/components/sidebar/ChangedFilesPanel.tsx')
+if (existsSync(cfp324Path)) {
+  const cfp324 = readFileSync(cfp324Path, 'utf-8')
+  if (cfp324.includes('sortAsc') && cfp324.includes('setSortAsc')) {
+    log('pass', 'Round324', 'ChangedFilesPanel: 정렬 토글 (sortAsc/↑/↓) 존재')
+  } else {
+    log('warning', 'Round324', 'ChangedFilesPanel 정렬 토글 미구현', 'sidebar/ChangedFilesPanel.tsx')
+  }
+}
+
 // ── Section 225: R323 신규 기능 ───────────────────────────────
 console.log('\n## 225. 신규 기능 파일 검사 (R323)')
 // RemotePanel 호스트 검색 필터 (Round 323)

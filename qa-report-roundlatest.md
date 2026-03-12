@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T21:03:53.019Z
+> 2026-03-12T21:05:22.788Z
 
 ## Critical
 _없음_
@@ -199,6 +199,7 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- ChangedFilesPanel: 정렬 토글 (sortAsc/↑/↓) 존재
 - RemotePanel: 호스트 검색 필터 (filteredSsh/filteredSaved/query) 존재
 - SnippetPanel: 스니펫 복사 버튼 (copiedId/📋/✓) 존재
 - ConnectionPanel: 헤더 활성 서버 수 배지 (alive/pinged) 존재
