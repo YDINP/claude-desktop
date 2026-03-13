@@ -520,6 +520,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showSnippetPanel, setShowSnippetPanel] = useState(false)
   const [termSearch, setTermSearch] = useState('')
   const [termSearchResults, setTermSearchResults] = useState<number[]>([])
+  const [termOutputFilter, setTermOutputFilter] = useState('')
+  const [termOutputFilterActive, setTermOutputFilterActive] = useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

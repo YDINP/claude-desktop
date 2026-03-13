@@ -71,6 +71,8 @@ export function CocosPanel() {
   const [remoteDebugPort, setRemoteDebugPort] = useState(9222)
   const [scriptTemplates, setScriptTemplates] = useState<string[]>([])
   const [showScriptTemplates, setShowScriptTemplates] = useState(false)
+  const [editorTheme, setEditorTheme] = useState<string>('default')
+  const [showEditorTheme, setShowEditorTheme] = useState(false)
   return (
     <CCFileProjectUI
       fileProject={fileProject}
@@ -305,6 +307,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showWarningsPanel, setShowWarningsPanel] = useState(false)
   const [remoteDebug, setRemoteDebug] = useState(false)
   const [remoteDebugPort, setRemoteDebugPort] = useState(9222)
+  const [editorTheme, setEditorTheme] = useState<string>('default')
+  const [showEditorTheme, setShowEditorTheme] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
