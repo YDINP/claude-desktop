@@ -600,6 +600,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (!result.success) raw.pop()
   }, [sceneFile, saveScene])
 
+  const handleTreeToggleActive = useCallback(async (nodeUuid: string) => {
+    if (!sceneFile?.root) return
+    function toggle(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === nodeUuid) return { ...n, active: !n.active }
+      return { ...n, children: n.children.map(toggle) }
+    }
+    await saveScene(toggle(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   const handleRestore = useCallback(async () => {
     if (!sceneFile) return
     const result = await restoreBackup()
@@ -798,6 +807,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onAddChild={handleTreeAddChild}
               onDelete={handleTreeDelete}
               onDuplicate={handleTreeDuplicate}
+              onToggleActive={handleTreeToggleActive}
             />
           </div>
           {/* 노드 인스펙터 */}
@@ -830,7 +840,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive,
 }: {
   node: CCSceneNode
   depth: number
@@ -840,6 +850,7 @@ function CCFileSceneTree({
   onAddChild?: (uuid: string) => void
   onDelete?: (uuid: string) => void
   onDuplicate?: (uuid: string) => void
+  onToggleActive?: (uuid: string) => void
 }) {
   const [collapsed, setCollapsed] = useState(depth > 2)
   const [isDragOver, setIsDragOver] = useState(false)
@@ -915,6 +926,15 @@ function CCFileSceneTree({
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
           {node.name || '(unnamed)'}
         </span>
+        {!isRoot && (
+          <span
+            onClick={e => { e.stopPropagation(); onToggleActive?.(node.uuid) }}
+            title={node.active ? '비활성화' : '활성화'}
+            style={{ fontSize: 9, color: node.active ? 'var(--text-muted)' : '#555', cursor: 'pointer', flexShrink: 0, paddingLeft: 2 }}
+          >
+            {node.active ? '●' : '○'}
+          </span>
+        )}
         {node.components.length > 0 && (
           <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>
             {node.components.map(c => c.type.replace('cc.', '')).join(',')}
@@ -932,6 +952,7 @@ function CCFileSceneTree({
           onAddChild={onAddChild}
           onDelete={onDelete}
           onDuplicate={onDuplicate}
+          onToggleActive={onToggleActive}
         />
       ))}
     </div>
