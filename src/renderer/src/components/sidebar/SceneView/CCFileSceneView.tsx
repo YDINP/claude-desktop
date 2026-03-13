@@ -77,6 +77,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [refImgSrc, setRefImgSrc] = useState<string | null>(null)
   const [refImgOpacity, setRefImgOpacity] = useState(0.3)
   const refImgInputRef = useRef<HTMLInputElement | null>(null)
+  // R1545: 줌 % 인라인 편집
+  const [editingZoom, setEditingZoom] = useState(false)
   // R1543: 노드 잠금 (locked nodes: drag/resize 방지)
   const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('sv-locked-uuids') ?? '[]')) }
@@ -626,13 +628,32 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onClick={() => setView(v => ({ ...v, zoom: Math.min(5, v.zoom * 1.25) }))}
           style={{ padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >+</button>
-        <span
-          onClick={() => setView(v => ({ ...v, zoom: 1 }))}
-          title="1:1 줌으로 리셋"
-          style={{ fontSize: 9, color: 'var(--text-muted)', width: 30, textAlign: 'center', cursor: 'pointer' }}
-        >
-          {Math.round(view.zoom * 100)}%
-        </span>
+        {/* R1545: 줌 % 클릭 → 인라인 입력 */}
+        {editingZoom ? (
+          <input
+            autoFocus
+            defaultValue={Math.round(view.zoom * 100)}
+            onBlur={e => {
+              const v = parseInt(e.target.value)
+              if (!isNaN(v) && v > 0) setView(vv => ({ ...vv, zoom: Math.max(0.05, Math.min(10, v / 100)) }))
+              setEditingZoom(false)
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+              if (e.key === 'Escape') setEditingZoom(false)
+            }}
+            style={{ width: 36, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid #58a6ff', color: '#58a6ff', borderRadius: 3, padding: '1px 3px', textAlign: 'center' }}
+          />
+        ) : (
+          <span
+            onClick={() => setEditingZoom(true)}
+            title="클릭하여 줌 % 직접 입력 (더블클릭: 1:1 리셋)"
+            onDoubleClick={() => setView(v => ({ ...v, zoom: 1 }))}
+            style={{ fontSize: 9, color: 'var(--text-muted)', width: 30, textAlign: 'center', cursor: 'text' }}
+          >
+            {Math.round(view.zoom * 100)}%
+          </span>
+        )}
         <button
           onClick={() => setView(v => ({ ...v, zoom: Math.max(0.1, v.zoom / 1.25) }))}
           style={{ padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}

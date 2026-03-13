@@ -16354,6 +16354,25 @@ if (existsSync(sv435)) {
   }
 }
 
+// ── Section 436: R1545 SceneView 줌 % 인라인 편집 ────────────
+console.log('\n## 436. R1545 SceneView 줌 % 인라인 입력 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s436 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s436.includes('editingZoom') && s436.includes('setEditingZoom') && !s436.includes('React.useState')) {
+    log('pass', 'R1545-state', 'editingZoom 상태 컴포넌트 레벨 선언 (hooks 규칙 준수)')
+  } else if (s436.includes('React.useState')) {
+    log('warning', 'R1545-state', 'editingZoom이 IIFE 내 React.useState 사용 — hooks 규칙 위반', 'CCFileSceneView.tsx')
+  } else {
+    log('warning', 'R1545-state', 'editingZoom 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s436.includes('editingZoom ?') && s436.includes('autoFocus') && s436.includes('클릭하여 줌')) {
+    log('pass', 'R1545-ui', '줌 % span → input 인라인 전환 UI 구현')
+  } else {
+    log('warning', 'R1545-ui', '줌 % 인라인 입력 UI 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
