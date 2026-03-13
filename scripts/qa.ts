@@ -16445,6 +16445,28 @@ console.log('\n## 440. R1549 dragonBones.ArmatureDisplay DragonBones 컴포넌�
   }
 }
 
+// ── Section 441: R1550 SceneView 노드 검색 하이라이트 ───────────
+console.log('\n## 441. R1550 SceneView 노드 검색 + 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s441 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s441.includes('svSearch') && s441.includes('svSearchMatches') && s441.includes('useMemo')) {
+    log('pass', 'R1550-state', 'svSearch + svSearchMatches useMemo 구현')
+  } else {
+    log('warning', 'R1550-state', 'svSearch 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s441.includes('isSearchMatch') && s441.includes('#ff44ff') && s441.includes('rgba(255,68,255')) {
+    log('pass', 'R1550-highlight', '검색 매칭 노드 마젠타 하이라이트 (stroke + fill)')
+  } else {
+    log('warning', 'R1550-highlight', '검색 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s441.includes('🔍 노드 검색') && s441.includes('svSearchMatches.size')) {
+    log('pass', 'R1550-ui', '툴바 검색 input + 매칭 수 표시')
+  } else {
+    log('warning', 'R1550-ui', '검색 UI 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

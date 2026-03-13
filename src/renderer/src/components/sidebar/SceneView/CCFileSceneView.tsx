@@ -82,6 +82,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R1548: 캔버스 해상도 오버레이 picker
   const [showResPicker, setShowResPicker] = useState(false)
   const [resOverride, setResOverride] = useState<{ w: number; h: number } | null>(null)
+  // R1550: 씬뷰 노드 검색 + 하이라이트
+  const [svSearch, setSvSearch] = useState('')
+  const svSearchMatches = useMemo(() => {
+    if (!svSearch.trim()) return new Set<string>()
+    const q = svSearch.toLowerCase()
+    const matches = new Set<string>()
+    const walk = (n: CCSceneNode) => {
+      if (n.name.toLowerCase().includes(q) || n.uuid.toLowerCase().includes(q)) matches.add(n.uuid)
+      n.children.forEach(walk)
+    }
+    walk(sceneFile.root)
+    return matches
+  }, [svSearch, sceneFile])
   // R1543: 노드 잠금 (locked nodes: drag/resize 방지)
   const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('sv-locked-uuids') ?? '[]')) }
@@ -637,6 +650,26 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             </div>
           )}
         </span>
+        {/* R1550: 씬뷰 노드 검색 */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <input
+            type="text"
+            placeholder="🔍 노드 검색"
+            value={svSearch}
+            onChange={e => setSvSearch(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Escape') setSvSearch('') }}
+            style={{
+              width: 90, fontSize: 9, background: svSearchMatches.size > 0 ? 'rgba(88,166,255,0.08)' : 'var(--bg-primary)',
+              border: `1px solid ${svSearchMatches.size > 0 ? '#58a6ff' : 'var(--border)'}`,
+              color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px',
+            }}
+          />
+          {svSearch && (
+            <span style={{ position: 'absolute', right: 3, top: '50%', transform: 'translateY(-50%)', fontSize: 8, color: svSearchMatches.size > 0 ? '#58a6ff' : '#f85149' }}>
+              {svSearchMatches.size}
+            </span>
+          )}
+        </div>
         <span style={{
           fontSize: 8, padding: '1px 4px', borderRadius: 3, background: 'rgba(88,166,255,0.15)',
           color: '#58a6ff', flexShrink: 0,
@@ -952,6 +985,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const rectY = svgPos.y - h * (1 - anchorY)
             const isSelected = node.uuid === selectedUuid || multiSelected.has(node.uuid)
             const isHovered = node.uuid === hoverUuid && !isSelected
+            // R1550: 검색 매칭 하이라이트
+            const isSearchMatch = svSearch.trim() ? svSearchMatches.has(node.uuid) : false
             // CC rotation: Z-euler (반시계방향 양수). SVG: 시계방향 양수 → 부호 반전
             const rotZ = rotateOverride?.uuid === node.uuid
               ? rotateOverride.angle
@@ -966,7 +1001,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const hasEdit = node.components.some(c => c.type === 'cc.EditBox')
             const hasSlider = node.components.some(c => c.type === 'cc.Slider' || c.type === 'cc.Toggle' || c.type === 'cc.ToggleGroup')
 
-            const fillColor = isHovered ? 'rgba(255,255,255,0.06)'
+            const fillColor = isSearchMatch ? 'rgba(255,68,255,0.12)'
+              : isHovered ? 'rgba(255,255,255,0.06)'
               : hasButton ? 'rgba(255,140,60,0.1)'
               : hasScroll ? 'rgba(60,220,220,0.08)'
               : hasEdit ? 'rgba(220,100,180,0.1)'
@@ -977,6 +1013,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               : 'rgba(150,150,255,0.08)'
             const strokeColor = isSelected ? '#58a6ff'
               : isDragged ? '#ff9944'
+              : isSearchMatch ? '#ff44ff'
               : isHovered ? 'rgba(255,255,255,0.5)'
               : hasButton ? '#ff8c3c'
               : hasScroll ? '#3ccccc'
