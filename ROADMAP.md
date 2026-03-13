@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 414 완료 — CC 파일 기반 엔진 Phase A: 버전감지 모듈, Pass 433)
+> 마지막 업데이트: 2026-03-13 (Round 419 완료 — SceneView QA C-4/M-1 수정, Pass 433)
 
 ## 완료된 라운드
 
@@ -10,7 +10,8 @@
 | Round 415 | dev | CC 파일 기반 엔진 Phase A-2 (CC-파서-2x/3x): cc-file-parser.ts, _trs TypedArray/UITransform 처리, CCSceneNode 트리 변환 | ✅ |
 | Round 416 | dev | CC 파일 기반 엔진 Phase A-3 (CC-프로젝트-열기): useCCFileProject 훅, CocosPanel WS/파일 모드 토글, CCFileSceneTree UI | ✅ |
 | Round 417 | dev | CC 파일 기반 엔진 Phase A-4 (CC-씬뷰-파일): CCFileSceneView SVG 렌더러, 팬/줌, 노드 타입별 색상, 앵커 표시 | ✅ |
-| Round 418 | dev | SceneView QA Critical 수정 (qa-report-sceneview-issues.md 기반): C-1/C-2 스냅샷 scene탭 필터, C-7 dragRef race condition | ✅ |
+| Round 418 | dev | SceneView QA Critical 수정: C-1/C-2 스냅샷 scene/preview 탭 필터, C-7 dragRef race condition, M-6 closeActiveFileTab 가드 | ✅ |
+| Round 419 | dev | SceneView QA C-4/M-1 수정: groupBbox n.width(플랫구조), SceneViewPanel key={activeWsId} 워크스페이스 전환 초기화 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |
