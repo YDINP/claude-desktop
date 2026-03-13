@@ -17286,6 +17286,18 @@ console.log('\n## 504. R1613 SceneView 형제 노드 하이라이트 체크')
   }
 }
 
+// ── Section 505: R1614 SceneView 화면 밖 노드 방향 화살표 ──────────────────
+console.log('\n## 505. R1614 SceneView 화면 밖 노드 방향 화살표 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s505 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s505.includes('R1614') && s505.includes('화면 밖 선택 노드 방향 화살표') && s505.includes('handleFitToSelected') && s505.includes('angleDeg')) {
+    log('pass', 'R1614-offscreen-arrow', 'SceneView 화면 밖 노드 방향 화살표')
+  } else {
+    log('warning', 'R1614-offscreen-arrow', 'SceneView 화면 밖 노드 방향 화살표 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

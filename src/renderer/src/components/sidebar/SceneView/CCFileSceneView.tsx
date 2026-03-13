@@ -2050,6 +2050,39 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           ))}
         </div>
       )}
+      {/* R1614: 화면 밖 선택 노드 방향 화살표 */}
+      {selectedUuid && (() => {
+        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+        if (!fn) return null
+        const svgEl = svgRef.current
+        if (!svgEl) return null
+        const svgW = svgEl.clientWidth, svgH = svgEl.clientHeight
+        const sp = ccToSvg(fn.worldX, fn.worldY)
+        const MARGIN = 18
+        if (sp.x >= MARGIN && sp.x <= svgW - MARGIN && sp.y >= MARGIN && sp.y <= svgH - MARGIN) return null
+        // 중앙→노드 방향 벡터로 엣지 교점 계산
+        const cx = svgW / 2, cy = svgH / 2
+        const dx = sp.x - cx, dy = sp.y - cy
+        let t = Infinity
+        if (dx < 0) t = Math.min(t, (MARGIN - cx) / dx)
+        else if (dx > 0) t = Math.min(t, (svgW - MARGIN - cx) / dx)
+        if (dy < 0) t = Math.min(t, (MARGIN - cy) / dy)
+        else if (dy > 0) t = Math.min(t, (svgH - MARGIN - cy) / dy)
+        if (!isFinite(t)) return null
+        const tx = cx + dx * t, ty = cy + dy * t
+        const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI + 90
+        return (
+          <div
+            title="클릭: 선택 노드로 이동 (F)"
+            onClick={handleFitToSelected}
+            style={{ position: 'absolute', left: tx - 10, top: ty - 10, width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <svg width="20" height="20" style={{ transform: `rotate(${angleDeg}deg)`, filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))' }}>
+              <polygon points="10,2 17,17 10,13 3,17" fill="rgba(88,166,255,0.9)" />
+            </svg>
+          </div>
+        )
+      })()}
       {/* R1598: 마우스 위치 좌표 오버레이 */}
       {mouseScenePos && (
         <div style={{ position: 'absolute', bottom: 4, right: 4, fontSize: 9, color: '#556', background: 'rgba(0,0,0,0.4)', padding: '1px 5px', borderRadius: 3, pointerEvents: 'none', userSelect: 'none', fontVariantNumeric: 'tabular-nums' }}>
