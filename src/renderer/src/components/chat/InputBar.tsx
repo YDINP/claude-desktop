@@ -283,6 +283,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showImagePreview, setShowImagePreview] = useState(false)
   const [fileDropActive, setFileDropActive] = useState(false)
   const [droppedFiles, setDroppedFiles] = useState<Array<{ name: string; size: number; type: string }>>([])
+  const [codeCompletion, setCodeCompletion] = useState(false)
+  const [codeCompletionSuggestions, setCodeCompletionSuggestions] = useState<string[]>([])
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

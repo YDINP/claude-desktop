@@ -9119,6 +9119,41 @@ if (existsSync(sl914Path)) {
   }
 }
 
+console.log('\n## 216. Phase DD10 R915~917 기능 체크')
+
+// R915: ChatPanel 대화 인사이트
+const cp915Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp915Path)) {
+  const cp915 = readFileSync(cp915Path, 'utf-8')
+  if (cp915.includes('conversationInsights') || cp915.includes('showInsightsPanel') || cp915.includes('avgResponseTime')) {
+    log('pass', 'R915', 'ChatPanel 대화 인사이트 존재')
+  } else {
+    log('warning', 'R915', 'ChatPanel 대화 인사이트 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R916: InputBar 코드 자동완성
+const ib916Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib916Path)) {
+  const ib916 = readFileSync(ib916Path, 'utf-8')
+  if (ib916.includes('codeCompletion') || ib916.includes('codeCompletionSuggestions') || ib916.includes('codeComplete')) {
+    log('pass', 'R916', 'InputBar 코드 자동완성 존재')
+  } else {
+    log('warning', 'R916', 'InputBar 코드 자동완성 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R917: CocosPanel 파티클 에디터
+const cocp917Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp917Path)) {
+  const cocp917 = readFileSync(cocp917Path, 'utf-8')
+  if (cocp917.includes('particleEditorOpen') || cocp917.includes('editingParticle') || cocp917.includes('particleEdit')) {
+    log('pass', 'R917', 'CocosPanel 파티클 에디터 존재')
+  } else {
+    log('warning', 'R917', 'CocosPanel 파티클 에디터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
