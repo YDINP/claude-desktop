@@ -229,6 +229,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [autoScrollOnOutput, setAutoScrollOnOutput] = useState(true)
   const [termSessions, setTermSessions] = useState<string[]>([])
   const [activeTermSession, setActiveTermSession] = useState('')
+  const [termBookmarks, setTermBookmarks] = useState<string[]>([])
+  const [showTermBookmarks, setShowTermBookmarks] = useState(false)
   const inputBufferRef = useRef<Record<string, string>>({})
 
   const sendQuickCmd = (cmd: string) => {

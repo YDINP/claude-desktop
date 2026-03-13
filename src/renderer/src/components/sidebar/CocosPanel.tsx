@@ -55,6 +55,8 @@ export function CocosPanel() {
   const [hotReloadInterval, setHotReloadInterval] = useState(1000)
   const [buildWarnings, setBuildWarnings] = useState<string[]>([])
   const [showWarningsPanel, setShowWarningsPanel] = useState(false)
+  const [assetBundles, setAssetBundles] = useState<string[]>([])
+  const [showBundlePanel, setShowBundlePanel] = useState(false)
   return (
     <CCFileProjectUI
       fileProject={fileProject}
