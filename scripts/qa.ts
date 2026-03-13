@@ -11333,6 +11333,74 @@ if (existsSync(sl1109Path)) {
   }
 }
 
+console.log('\n## 281. Phase DD10 R1110~1112 기능 체크')
+// R1110: ChatPanel 메시지 색상
+const cp1110Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1110Path)) {
+  const cp1110 = readFileSync(cp1110Path, 'utf-8')
+  if (cp1110.includes('msgColors') || cp1110.includes('showColorPalette') || cp1110.includes('colorMsg')) {
+    log('pass', 'R1110', 'ChatPanel 메시지 색상 존재')
+  } else {
+    log('warning', 'R1110', 'ChatPanel 메시지 색상 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1111: InputBar 코드 스니펫
+const ib1111Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1111Path)) {
+  const ib1111 = readFileSync(ib1111Path, 'utf-8')
+  if (ib1111.includes('snippetLib') || ib1111.includes('showSnippetPicker') || ib1111.includes('codeSnippet')) {
+    log('pass', 'R1111', 'InputBar 코드 스니펫 존재')
+  } else {
+    log('warning', 'R1111', 'InputBar 코드 스니펫 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1112: CocosPanel 에셋 태그
+const ccp1112Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1112Path)) {
+  const ccp1112 = readFileSync(ccp1112Path, 'utf-8')
+  if (ccp1112.includes('assetTags') || ccp1112.includes('showTagEditor') || ccp1112.includes('tagAsset')) {
+    log('pass', 'R1112', 'CocosPanel 에셋 태그 존재')
+  } else {
+    log('warning', 'R1112', 'CocosPanel 에셋 태그 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 282. Phase DD10 R1113~1115 기능 체크')
+// R1113: SceneViewPanel 씬 체크리스트
+const sv1113Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1113Path)) {
+  const sv1113 = readFileSync(sv1113Path, 'utf-8')
+  if (sv1113.includes('sceneChecklist') || sv1113.includes('showChecklist') || sv1113.includes('checkItems')) {
+    log('pass', 'R1113', 'SceneViewPanel 씬 체크리스트 존재')
+  } else {
+    log('warning', 'R1113', 'SceneViewPanel 씬 체크리스트 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1114: TerminalPanel 테마
+const tp1114Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1114Path)) {
+  const tp1114 = readFileSync(tp1114Path, 'utf-8')
+  if (tp1114.includes('termTheme') || tp1114.includes('showThemePicker') || tp1114.includes('colorTheme')) {
+    log('pass', 'R1114', 'TerminalPanel 테마 존재')
+  } else {
+    log('warning', 'R1114', 'TerminalPanel 테마 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1115: SessionList 세션 백업
+const sl1115Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1115Path)) {
+  const sl1115 = readFileSync(sl1115Path, 'utf-8')
+  if (sl1115.includes('backupEnabled') || sl1115.includes('backupInterval') || sl1115.includes('autoBackup')) {
+    log('pass', 'R1115', 'SessionList 세션 백업 존재')
+  } else {
+    log('warning', 'R1115', 'SessionList 세션 백업 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
