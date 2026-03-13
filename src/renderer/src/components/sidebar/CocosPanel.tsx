@@ -1008,21 +1008,37 @@ function CCFileNodeInspector({
 
       {/* 컴포넌트 props */}
       {draft.components.filter(c => {
-        const editableTypes = ['cc.Label', 'cc.RichText', 'cc.Button', 'cc.EditBox', 'cc.ProgressBar']
-        return editableTypes.some(t => c.type === t || c.type.endsWith(t.split('.')[1]))
+        // 편집 불필요한 내장 인프라 컴포넌트 제외
+        const skipTypes = ['cc.UITransform', 'cc.Canvas', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
+        if (skipTypes.includes(c.type)) return false
+        // 편집할 props가 없으면 제외
+        const editableKeys = Object.entries(c.props).filter(([, v]) => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
+        return editableKeys.length > 0
       }).map((comp, ci) => (
         <div key={ci} style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 5 }}>
           <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4 }}>
-            {comp.type.replace('cc.', '')}
+            {comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
           </div>
           {Object.entries(comp.props)
-            .filter(([k]) => ['string', 'fontSize', 'lineHeight', 'text', 'string2'].includes(k))
+            .filter(([, v]) => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
             .map(([k, v]) => {
+              const isBool = typeof v === 'boolean'
               const isText = typeof v === 'string'
               return (
-                <div key={k} style={{ display: 'flex', alignItems: 'flex-start', gap: 4, marginBottom: 3 }}>
-                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, paddingTop: 2 }}>{k}</span>
-                  {isText ? (
+                <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                  {isBool ? (
+                    <input
+                      type="checkbox"
+                      defaultChecked={Boolean(v)}
+                      onChange={e => applyAndSave({
+                        components: draft.components.map((c, i) =>
+                          i === ci ? { ...c, props: { ...c.props, [k]: e.target.checked } } : c
+                        )
+                      })}
+                      style={{ margin: 0, cursor: 'pointer' }}
+                    />
+                  ) : isText ? (
                     <textarea
                       rows={2}
                       defaultValue={String(v)}

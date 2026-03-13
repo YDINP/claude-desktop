@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import type { CCSceneNode, CCSceneFile, CCVec3 } from '../../../../../shared/ipc-schema'
 
 interface ViewTransform {
@@ -38,6 +38,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
   const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number } | null>(null)
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
+  // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
+  const spriteCacheRef = useRef<Map<string, string>>(new Map())
+  const [, setSpriteCacheVer] = useState(0)
 
   // 캔버스 크기 추정: Canvas 노드 또는 최상위 노드의 size
   const { designW, designH } = useMemo(() => {
@@ -70,6 +73,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     return result
   }, [sceneFile])
+
+  // Sprite UUID → local:// URL 비동기 해상
+  useEffect(() => {
+    const assetsDir = sceneFile.projectInfo.assetsDir
+    if (!assetsDir) return
+    const uuids = flatNodes
+      .flatMap(fn => fn.node.components.filter(c => c.type === 'cc.Sprite'))
+      .map(c => (c.props.spriteFrame as { __uuid__?: string } | undefined)?.__uuid__)
+      .filter((u): u is string => !!u && !spriteCacheRef.current.has(u))
+    if (!uuids.length) return
+    uuids.forEach(uuid => {
+      spriteCacheRef.current.set(uuid, '') // pending sentinel
+      window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url => {
+        if (url) spriteCacheRef.current.set(uuid, url)
+        setSpriteCacheVer(v => v + 1)
+      })
+    })
+  }, [sceneFile, flatNodes])
 
   // CC 좌표 → SVG 좌표 변환
   // CC: Y-up, center origin. SVG: Y-down, top-left.
@@ -314,6 +335,41 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     {node.name}
                   </text>
                 )}
+                {/* Sprite 이미지 렌더링 */}
+                {hasSprite && (() => {
+                  const sc = node.components.find(c => c.type === 'cc.Sprite')
+                  const sfUuid = (sc?.props?.spriteFrame as { __uuid__?: string } | undefined)?.__uuid__
+                  const imgUrl = sfUuid ? spriteCacheRef.current.get(sfUuid) : undefined
+                  if (!imgUrl) return null
+                  return (
+                    <image
+                      href={imgUrl}
+                      x={rectX} y={rectY}
+                      width={w} height={h}
+                      preserveAspectRatio="xMidYMid meet"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  )
+                })()}
+                {/* Label 텍스트 렌더링 */}
+                {hasLabel && (() => {
+                  const lc = node.components.find(c => c.type === 'cc.Label' || c.type === 'Label' || c.type === 'cc.RichText')
+                  const str = lc?.props?.string as string | undefined
+                  if (!str) return null
+                  const fs = Math.min(Math.max((lc?.props?.fontSize as number | undefined) ?? 20, 8), 200)
+                  const { r: cr = 255, g: cg = 255, b: cb = 255 } = node.color ?? {}
+                  return (
+                    <text
+                      x={rectX + w / 2} y={rectY + h / 2}
+                      fontSize={fs / view.zoom}
+                      fill={`rgb(${cr},${cg},${cb})`}
+                      textAnchor="middle" dominantBaseline="middle"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >
+                      {str}
+                    </text>
+                  )
+                })()}
                 {/* SE 리사이즈 핸들 (선택된 노드만) */}
                 {isSelected && (
                   <rect
