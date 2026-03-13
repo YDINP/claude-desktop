@@ -330,6 +330,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [sortAsc, setSortAsc] = React.useState(false)
   const [cloneTarget, setCloneTarget] = React.useState<string | null>(null)
   const [showCloneDialog, setShowCloneDialog] = React.useState(false)
+  const [bulkSelect, setBulkSelect] = React.useState(false)
+  const [bulkSelected, setBulkSelected] = React.useState<string[]>([])
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

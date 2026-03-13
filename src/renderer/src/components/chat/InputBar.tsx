@@ -315,6 +315,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showAutocompleteSettings, setShowAutocompleteSettings] = React.useState(false)
   const [dragUpload, setDragUpload] = React.useState(false)
   const [uploadQueue, setUploadQueue] = React.useState<string[]>([])
+  const [detectLang, setDetectLang] = React.useState(true)
+  const [detectedLang, setDetectedLang] = React.useState('')
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

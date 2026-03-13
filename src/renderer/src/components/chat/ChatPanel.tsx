@@ -1061,6 +1061,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [timestampFormat, setTimestampFormat] = React.useState<'relative' | 'absolute'>('relative')
   const [collapsedMsgs, setCollapsedMsgs] = React.useState<string[]>([])
   const [autoCollapse, setAutoCollapse] = React.useState(false)
+  const [exportTarget, setExportTarget] = React.useState<'all' | 'selected'>('all')
+  const [showExportPanel, setShowExportPanel] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
