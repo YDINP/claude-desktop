@@ -185,6 +185,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [isRecordingSession, setIsRecordingSession] = useState(false)
   const [recordedFrames, setRecordedFrames] = useState<string[]>([])
 
+  const [tabGroups, setTabGroups] = useState<Array<{ name: string; tabIds: string[] }>>([])
+  const [activeTabGroup, setActiveTabGroup] = useState<string | null>(null)
+
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)

@@ -8454,6 +8454,41 @@ if (existsSync(cocp857Path)) {
   }
 }
 
+console.log('\n## 197. Phase DD10 R858~860 기능 체크')
+
+// R858: SceneViewPanel 트리 필터
+const svp858Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp858Path)) {
+  const svp858 = readFileSync(svp858Path, 'utf-8')
+  if (svp858.includes('treeFilter') || svp858.includes('treeFilterResults') || svp858.includes('filterTree')) {
+    log('pass', 'R858', 'SceneViewPanel 트리 필터 존재')
+  } else {
+    log('warning', 'R858', 'SceneViewPanel 트리 필터 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R859: TerminalPanel 탭 그룹
+const tp859Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp859Path)) {
+  const tp859 = readFileSync(tp859Path, 'utf-8')
+  if (tp859.includes('tabGroups') || tp859.includes('activeTabGroup') || tp859.includes('tabGrouping')) {
+    log('pass', 'R859', 'TerminalPanel 탭 그룹 존재')
+  } else {
+    log('warning', 'R859', 'TerminalPanel 탭 그룹 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R860: SessionList 세션 통계
+const sl860Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl860Path)) {
+  const sl860 = readFileSync(sl860Path, 'utf-8')
+  if (sl860.includes('sessionStats') || sl860.includes('showStatsDashboard') || sl860.includes('statsPanel')) {
+    log('pass', 'R860', 'SessionList 세션 통계 존재')
+  } else {
+    log('warning', 'R860', 'SessionList 세션 통계 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

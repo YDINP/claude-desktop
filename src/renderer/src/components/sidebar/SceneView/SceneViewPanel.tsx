@@ -283,6 +283,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [nodeLinkFilter, setNodeLinkFilter] = useState<'all' | 'script' | 'prefab'>('all')
   const [sceneLoadProgress, setSceneLoadProgress] = useState(0)
   const [sceneLoadStatus, setSceneLoadStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [treeFilter, setTreeFilter] = useState('')
+  const [treeFilterResults, setTreeFilterResults] = useState<string[]>([])
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────
