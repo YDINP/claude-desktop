@@ -17490,6 +17490,18 @@ console.log('\n## 521. R1630 SceneView 회전 중 각도 레이블 체크')
   }
 }
 
+// ── Section 522: R1631 Inspector tint 색상 프리셋 칩 ──────────────────
+console.log('\n## 522. R1631 Inspector tint 색상 프리셋 칩 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s522 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s522.includes('R1631') && s522.includes('빠른 tint 색상 프리셋') && s522.includes('rgb(${c.r},${c.g},${c.b})')) {
+    log('pass', 'R1631-tint-presets', 'Inspector tint 색상 프리셋 칩')
+  } else {
+    log('warning', 'R1631-tint-presets', 'Inspector tint 색상 프리셋 칩 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

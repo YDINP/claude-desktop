@@ -4642,6 +4642,15 @@ function CCFileNodeInspector({
               onMouseLeave={e => (e.currentTarget.style.color = '#555')}
             >↺</span>
           )}
+          {/* R1631: 빠른 tint 색상 프리셋 */}
+          {([{ r:255,g:0,b:0 },{ r:255,g:128,b:0 },{ r:255,g:255,b:0 },{ r:0,g:255,b:0 },{ r:0,g:128,b:255 },{ r:128,g:0,b:255 },{ r:0,g:0,b:0 }] as const).map(c => (
+            <div
+              key={`${c.r}${c.g}${c.b}`}
+              onClick={() => applyAndSave({ color: { r: c.r, g: c.g, b: c.b, a: draft.color?.a ?? 255 } })}
+              title={`tint #${c.r.toString(16).padStart(2,'0')}${c.g.toString(16).padStart(2,'0')}${c.b.toString(16).padStart(2,'0')}`}
+              style={{ width: 10, height: 10, borderRadius: 2, cursor: 'pointer', flexShrink: 0, border: '1px solid rgba(255,255,255,0.15)', background: `rgb(${c.r},${c.g},${c.b})` }}
+            />
+          ))}
         </div>
         {/* 앵커 9-point grid 프리셋 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 14px)', gap: 1, marginTop: 4, justifyContent: 'start' }}>

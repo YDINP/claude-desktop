@@ -1,32 +1,26 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-13
 
-## 완료 (R1500-1625)
-- [x] R1500~R1612: (이전 세션 완료 — 상세 이력 생략)
-- [x] R1613: SceneView 형제 노드 하이라이트 (연노랑 점선)
-- [x] R1614: SceneView 화면 밖 선택 노드 방향 화살표
-- [x] R1615: SceneView cc.Label 텍스트 미리보기
-- [x] R1616: SceneView HUD 자식/컴포넌트 수 표시
-- [x] R1617: Inspector 트랜스폼 복사/붙여넣기 (T↑/T↓)
-- [x] R1618: SceneView HUD depth 레벨 표시
-- [x] R1619: SceneView S/E 단방향 리사이즈 핸들
-- [x] R1620: Inspector cc.Label Quick Edit (string + fontSize)
-- [x] R1621: SceneView 컨텍스트 메뉴 같은 컴포넌트 타입 모두 선택 (+template fix)
-- [x] R1622: SceneView O키 선택 노드 캔버스 중앙 이동
-- [x] R1623: SceneView 와이어프레임 모드 (⬚ 토글)
+## 완료 (R1500-1630)
+- [x] R1500~R1623: (이전 세션 완료 — 상세 이력 생략)
 - [x] R1624: SceneView 다중선택 BBox 크기 레이블
 - [x] R1625: Inspector 씬 컴포넌트 분포 요약 칩 (Top3 타입 칩)
-- [x] QA Section 504~516 (Pass 1542)
+- [x] R1626: SceneView 검색 비매칭 노드 dim (opacity 0.2)
+- [x] R1627: Inspector 씬 성능 경고 칩 (노드 수/컴포넌트 수 초과)
+- [x] R1628: SceneView 드래그 중 좌표 변화 레이블 (Δx, Δy)
+- [x] R1629: SceneView 리사이즈 중 크기 레이블 (W×H)
+- [x] R1630: SceneView 회전 중 각도 레이블 (°)
+- [x] QA Section 504~521 (Pass 1547)
 
 ## 빌드/QA
 - Build: ✅ 성공
-- Critical: 0, Warning: 5, Pass: 1542
+- Critical: 0, Warning: 5, Pass: 1547
 - Branch: dev
 
-## 다음 예정 (R1626+)
+## 다음 예정 (R1631+)
 - 새 기능 아이디어:
-  - SceneView — 씬 내 노드 검색 후 해당 노드들만 강조 (불투명도 낮추기)
   - Inspector — 변경된 프로퍼티 하이라이트 (original vs current)
-  - Inspector — 씬 성능 경고 (draw call 수, 노드 수 초과 등)
-  - SceneView — 노드 잠금 시각적 인디케이터 (자물쇠 아이콘)
-  - SceneView — 키보드 방향키 미세 이동 (1px씩)
+  - SceneView — cc.Widget 오프셋 시각화
+  - Inspector — 노드 비교 모드 (두 노드 프로퍼티 비교)
+  - SceneView — 노드 생성 시 부모 경계 내 자동 배치
+  - Inspector — cc.Animation 클립 목록 표시
