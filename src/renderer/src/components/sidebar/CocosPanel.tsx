@@ -4736,6 +4736,85 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1562: cc.Slider — progress + direction Quick Edit
+            if (comp.type === 'cc.Slider') {
+              const progress = Number(p.progress ?? p._N$progress ?? 0)
+              const direction = Number(p.direction ?? p._N$direction ?? 0)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>progress</span>
+                    <input type="range" min={0} max={1} step={0.01} value={progress}
+                      onChange={e => {
+                        const v = parseFloat(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, progress: v, _N$progress: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Math.round(progress * 100)}%</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>direction</span>
+                    <select value={direction}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      <option value={0}>Horizontal</option>
+                      <option value={1}>Vertical</option>
+                    </select>
+                  </div>
+                </div>
+              )
+            }
+            // R1562: cc.VideoPlayer — remoteURL/loop/muted/playbackRate Quick Edit
+            if (comp.type === 'cc.VideoPlayer') {
+              const url = String(p.remoteURL ?? p._N$remoteURL ?? '')
+              const loop = !!(p.loop ?? p._N$loop ?? false)
+              const muted = !!(p.muted ?? p._N$muted ?? false)
+              const playbackRate = Number(p.playbackRate ?? p._N$playbackRate ?? 1)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>remoteURL</span>
+                    <input type="text" defaultValue={url}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, remoteURL: e.target.value, _N$remoteURL: e.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>playbackRate</span>
+                    <input type="number" defaultValue={playbackRate} min={0} max={4} step={0.25}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 1
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playbackRate: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={loop}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      /> loop
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={muted}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, muted: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      /> muted
+                    </label>
+                  </div>
+                </div>
+              )
+            }
             // R1556: cc.TiledMap / cc.TiledLayer Quick Edit
             if (comp.type === 'cc.TiledMap') {
               return (

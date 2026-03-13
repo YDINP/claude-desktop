@@ -16630,6 +16630,18 @@ console.log('\n## 452. R1561 SceneView 정렬 버튼 effectiveW/H 체크')
   }
 }
 
+// ── Section 453: R1562 cc.Slider + cc.VideoPlayer Inspector Quick Edit ────────────────
+console.log('\n## 453. R1562 cc.Slider/VideoPlayer Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s453 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s453.includes("comp.type === 'cc.Slider'") && s453.includes("comp.type === 'cc.VideoPlayer'") && s453.includes('remoteURL') && s453.includes('playbackRate')) {
+    log('pass', 'R1562-slider-video', 'cc.Slider + cc.VideoPlayer Inspector Quick Edit 구현')
+  } else {
+    log('warning', 'R1562-slider-video', 'cc.Slider/VideoPlayer Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
