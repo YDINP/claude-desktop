@@ -137,7 +137,11 @@ export const NodeRenderer = memo(function NodeRenderer({
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDash}
         rx={2}
-      />
+      >
+        {selected && node.components.length > 0 && (
+          <title>{node.components.map(c => c.type).join(', ')}</title>
+        )}
+      </rect>
 
       {/* 멀티 선택 하이라이트 */}
       {multiSelected && !selected && (
@@ -185,22 +189,22 @@ export const NodeRenderer = memo(function NodeRenderer({
         />
       )}
 
-      {/* 컴포넌트 아이콘 오버레이 (zoom > 0.5일 때만 표시, 우상단) */}
-      {view.zoom > 0.5 && icon && pw > 10 && ph > 10 && (
+      {/* 컴포넌트 아이콘 오버레이 (lod=0, 좌상단 배지) */}
+      {lod === 0 && icon && pw > 10 && ph > 10 && (
         <g style={{ pointerEvents: 'none' }}>
           <rect
-            x={rx + pw - Math.max(8, 10 / view.zoom) - 2}
+            x={rx + 1}
             y={ry + 1}
-            width={Math.max(8, 10 / view.zoom) + 2}
-            height={Math.max(8, 10 / view.zoom) + 2}
-            fill="rgba(0,0,0,0.4)"
+            width={12}
+            height={12}
+            fill="rgba(0,0,0,0.5)"
             rx={2}
           />
           <text
-            x={rx + pw - Math.max(8, 10 / view.zoom) / 2 - 1}
-            y={ry + Math.max(8, 10 / view.zoom) + 1}
-            fontSize={Math.max(8, 10 / view.zoom)}
-            fill="rgba(255,255,255,0.7)"
+            x={rx + 7}
+            y={ry + 11}
+            fontSize={10}
+            fill="rgba(255,255,255,0.85)"
             textAnchor="middle"
             dominantBaseline="auto"
             fontFamily="var(--font-mono)"
@@ -214,14 +218,15 @@ export const NodeRenderer = memo(function NodeRenderer({
       {/* 라벨 (LOD: zoom < 0.4 시 숨김) */}
       {lod === 0 && showLabel && (pw > 20 && ph > 12) && (
         <text
-          x={rx + 4}
+          x={rx + (icon ? 16 : 4)}
           y={ry + 11}
-          fontSize={9}
+          fontSize={Math.max(8, Math.min(11, 11 / view.zoom))}
           fill="rgba(255, 255, 255, 0.7)"
           fontFamily="var(--font-mono)"
           style={{ pointerEvents: 'none', userSelect: 'none' }}
         >
-          {icon ? `${icon} ` : ''}{node.name.length > 14 ? node.name.slice(0, 12) + '\u2026' : node.name}
+          {node.name.length > 12 ? node.name.slice(0, 12) + '\u2026' : node.name}
+          {node.name.length > 12 && <title>{node.name}</title>}
         </text>
       )}
 

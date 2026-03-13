@@ -5963,6 +5963,41 @@ if (existsSync(cp623Path)) {
   }
 }
 
+// ── Section 126: Phase DD10 R625~627 기능 체크 ────────────────
+console.log('\n## 126. Phase DD10 R625~627 기능 체크')
+// R625: 세션 메모 기능
+const sl625Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl625Path)) {
+  const sl625 = readFileSync(sl625Path, 'utf-8')
+  if (sl625.includes('noteText') || sl625.includes('session-note') || sl625.includes('sessionNote')) {
+    log('pass', 'R625', '세션 메모 기능 존재')
+  } else {
+    log('warning', 'R625', '세션 메모 기능 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R626: Z-order 이동
+const cp626Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp626Path)) {
+  const cp626 = readFileSync(cp626Path, 'utf-8')
+  if (cp626.includes('zOrder') || cp626.includes('Z-order') || cp626.includes('reorderNode')) {
+    log('pass', 'R626', 'Inspector Z-order 이동 존재')
+  } else {
+    log('warning', 'R626', 'Inspector Z-order 이동 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R627: NodeRenderer 컴포넌트 아이콘 렌더링
+const nr627Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr627Path)) {
+  const nr627 = readFileSync(nr627Path, 'utf-8')
+  if (nr627.includes('getComponentIcon') || nr627.includes('compIcon')) {
+    log('pass', 'R627', 'NodeRenderer 컴포넌트 아이콘 렌더링 존재')
+  } else {
+    log('warning', 'R627', 'NodeRenderer 컴포넌트 아이콘 없음', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

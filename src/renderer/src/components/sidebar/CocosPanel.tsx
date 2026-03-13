@@ -1511,6 +1511,22 @@ function CCFileNodeInspector({
     return path
   }, [sceneFile.root, node.uuid])
 
+  // Z-order 정보 (같은 부모 내 인덱스, 형제 수)
+  const zOrderInfo = useMemo(() => {
+    function findParent(n: CCSceneNode): CCSceneNode | null {
+      for (const c of n.children) {
+        if (c.uuid === node.uuid) return n
+        const found = findParent(c)
+        if (found) return found
+      }
+      return null
+    }
+    const parent = findParent(sceneFile.root)
+    if (!parent) return null
+    const idx = parent.children.findIndex(c => c.uuid === node.uuid)
+    return { idx, total: parent.children.length }
+  }, [sceneFile.root, node.uuid])
+
   // Z-order (같은 부모 내 순서 이동)
   const handleZOrder = useCallback(async (dir: 1 | -1) => {
     if (!sceneFile.root) return
@@ -1521,6 +1537,23 @@ function CCFileNodeInspector({
       const newIdx = idx + dir
       if (newIdx < 0 || newIdx >= ch.length) return n
       ;[ch[idx], ch[newIdx]] = [ch[newIdx], ch[idx]]
+      return { ...n, children: ch }
+    }
+    setSaving(true)
+    await saveScene(move(sceneFile.root))
+    setSaving(false)
+  }, [node.uuid, sceneFile, saveScene])
+
+  // Z-order 맨 앞/뒤로 이동
+  const handleZOrderEdge = useCallback(async (edge: 'first' | 'last') => {
+    if (!sceneFile.root) return
+    function move(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === node.uuid)
+      if (idx < 0) return { ...n, children: n.children.map(move) }
+      const ch = [...n.children]
+      const [item] = ch.splice(idx, 1)
+      if (edge === 'first') ch.unshift(item)
+      else ch.push(item)
       return { ...n, children: ch }
     }
     setSaving(true)
@@ -1587,8 +1620,15 @@ function CCFileNodeInspector({
           </button>
           {sceneFile.root?.uuid !== node.uuid && (
             <>
-              <button onClick={() => handleZOrder(-1)} title="앞으로 이동" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: 'pointer', background: 'transparent', color: '#888', border: '1px solid #555', lineHeight: 1.4 }}>↑</button>
-              <button onClick={() => handleZOrder(1)} title="뒤로 이동" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: 'pointer', background: 'transparent', color: '#888', border: '1px solid #555', lineHeight: 1.4 }}>↓</button>
+              {zOrderInfo && (
+                <span style={{ fontSize: 9, color: '#888', whiteSpace: 'nowrap', userSelect: 'none' }}>
+                  Z: {zOrderInfo.idx + 1} / {zOrderInfo.total}
+                </span>
+              )}
+              <button onClick={() => handleZOrderEdge('first')} disabled={!zOrderInfo || zOrderInfo.idx === 0} title="맨 앞으로" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: zOrderInfo?.idx === 0 ? 'default' : 'pointer', background: 'transparent', color: zOrderInfo?.idx === 0 ? '#444' : '#888', border: `1px solid ${zOrderInfo?.idx === 0 ? '#333' : '#555'}`, lineHeight: 1.4 }}>⤒</button>
+              <button onClick={() => handleZOrder(-1)} disabled={!zOrderInfo || zOrderInfo.idx === 0} title="앞으로 이동" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: zOrderInfo?.idx === 0 ? 'default' : 'pointer', background: 'transparent', color: zOrderInfo?.idx === 0 ? '#444' : '#888', border: `1px solid ${zOrderInfo?.idx === 0 ? '#333' : '#555'}`, lineHeight: 1.4 }}>↑</button>
+              <button onClick={() => handleZOrder(1)} disabled={!zOrderInfo || zOrderInfo.idx === zOrderInfo.total - 1} title="뒤로 이동" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: zOrderInfo?.idx === zOrderInfo?.total - 1 ? 'default' : 'pointer', background: 'transparent', color: zOrderInfo?.idx === zOrderInfo?.total - 1 ? '#444' : '#888', border: `1px solid ${zOrderInfo?.idx === zOrderInfo?.total - 1 ? '#333' : '#555'}`, lineHeight: 1.4 }}>↓</button>
+              <button onClick={() => handleZOrderEdge('last')} disabled={!zOrderInfo || zOrderInfo.idx === zOrderInfo.total - 1} title="맨 뒤로" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: zOrderInfo?.idx === zOrderInfo?.total - 1 ? 'default' : 'pointer', background: 'transparent', color: zOrderInfo?.idx === zOrderInfo?.total - 1 ? '#444' : '#888', border: `1px solid ${zOrderInfo?.idx === zOrderInfo?.total - 1 ? '#333' : '#555'}`, lineHeight: 1.4 }}>⤓</button>
               <button
                 onClick={handleDuplicate}
                 title="노드 복제"

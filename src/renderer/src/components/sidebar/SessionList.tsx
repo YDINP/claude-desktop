@@ -144,6 +144,18 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [noteOpenId, setNoteOpenId] = useState<string | null>(null)
   const [noteText, setNoteText] = useState('')
   const [noteSaving, setNoteSaving] = useState(false)
+  const [sessionNotes, setSessionNotes] = useState<Record<string, string>>(() => {
+    const notes: Record<string, string> = {}
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k && k.startsWith('session-note-')) {
+        const id = k.slice('session-note-'.length)
+        const v = localStorage.getItem(k)
+        if (v) notes[id] = v
+      }
+    }
+    return notes
+  })
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [mergeMode, setMergeMode] = useState(false)
@@ -412,14 +424,23 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
       setNoteOpenId(null)
       return
     }
-    const { note } = await window.api.sessionGetNote(sessionId)
-    setNoteText(note)
-    setNoteOpenId(sessionId)
+    const lsNote = localStorage.getItem(`session-note-${sessionId}`) ?? ''
+    if (lsNote) {
+      setNoteText(lsNote)
+      setNoteOpenId(sessionId)
+    } else {
+      const { note } = await window.api.sessionGetNote(sessionId)
+      setNoteText(note)
+      setNoteOpenId(sessionId)
+    }
   }, [noteOpenId])
 
   const handleNoteSave = useCallback(async (sessionId: string) => {
     setNoteSaving(true)
-    await window.api.sessionSetNote(sessionId, noteText)
+    const trimmed = noteText.slice(0, 200)
+    localStorage.setItem(`session-note-${sessionId}`, trimmed)
+    setSessionNotes(prev => ({ ...prev, [sessionId]: trimmed }))
+    await window.api.sessionSetNote(sessionId, trimmed)
     setNoteSaving(false)
     setNoteOpenId(null)
   }, [noteText])
@@ -808,6 +829,19 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
               {!isActive && sessionStats[s.id].updatedAt && (
                 <span>{new Date(sessionStats[s.id].updatedAt!).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
               )}
+            </div>
+          )}
+          {sessionNotes[s.id] && noteOpenId !== s.id && (
+            <div style={{
+              fontSize: 10,
+              color: 'var(--text-muted)',
+              fontStyle: 'italic',
+              marginTop: 3,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>
+              {sessionNotes[s.id].slice(0, 50)}{sessionNotes[s.id].length > 50 ? '…' : ''}
             </div>
           )}
         </div>

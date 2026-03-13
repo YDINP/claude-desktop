@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 624 완료 — Phase DD10 진행 중, QA Pass 518)
+> 마지막 업데이트: 2026-03-13 (Round 628 완료 — Phase DD10 진행 중, QA Pass 521)
 
 ## 개발 루프 실행 방식
 
@@ -600,6 +600,10 @@
 | Round 622 | 씬뷰 히트맵 오버레이 (🌡 버튼, buildHeatmap, 밀도→색상 보간) | ✅ |
 | Round 623 | Inspector 컴포넌트 접기 (collapsedComps Set, ▸/▾, 배지 #N) | ✅ |
 | Round 624 | QA Section 125 추가 (R621/R622/R623, Pass 518) | ✅ |
+| Round 625 | SessionList 세션 메모 (noteText, session-note localStorage, 미리보기) | ✅ |
+| Round 626 | Inspector Z-order 이동 (Z: N/M, ↑↓ 버튼, ⤒⤓ 맨 앞/뒤) | ✅ |
+| Round 627 | NodeRenderer getComponentIcon 렌더링 (cc.Label→T, cc.Sprite→🖼 등) | ✅ |
+| Round 628 | QA Section 126 추가 (R625/R626/R627, Pass 521) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 
