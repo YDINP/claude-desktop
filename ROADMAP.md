@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 412 완료 — SceneTreePanel 트리 텍스트 복사, Pass 432)
+> 마지막 업데이트: 2026-03-13 (Round 413 완료 — RunTimeline 전체 런 요약 복사, Pass 433)
 
 ## 완료된 라운드
 

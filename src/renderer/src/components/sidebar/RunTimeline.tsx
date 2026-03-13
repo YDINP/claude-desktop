@@ -82,6 +82,7 @@ export function RunTimeline() {
   const [runs, setRuns] = useState<AguiRun[]>([])
   const [clearedAt, setClearedAt] = useState(0)
   const [showOnlyActive, setShowOnlyActive] = useState(false)
+  const [allCopied, setAllCopied] = useState(false)
 
   useEffect(() => {
     return aguiSubscribe(setRuns)
@@ -101,6 +102,26 @@ export function RunTimeline() {
           <span>런 {displayRuns.length}건 · 완료 {finishedRuns.length}건</span>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             {totalCostUsd > 0 && <span style={{ color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>총 ${totalCostUsd.toFixed(4)}</span>}
+            {finishedRuns.length > 0 && (
+              <button
+                onClick={() => {
+                  const icon = (s: string) => s === 'done' ? '✓' : s === 'error' ? '✗' : '⟳'
+                  const lines = finishedRuns.map(r => {
+                    const elapsed = r.finishedAt! - r.startedAt
+                    const header = `run/${r.id.slice(0, 8)} · ${fmtMs(elapsed)}${r.costUsd ? ` · $${r.costUsd.toFixed(4)}` : ''}`
+                    const steps = r.steps.map(s => `  ${icon(s.status)} ${s.name}${s.finishedAt ? ` (${fmtMs(s.finishedAt - s.startedAt)})` : ''}`).join('\n')
+                    return steps ? `${header}\n${steps}` : header
+                  })
+                  if (totalCostUsd > 0) lines.push(`\n총 비용: $${totalCostUsd.toFixed(4)}`)
+                  navigator.clipboard.writeText(lines.join('\n\n')).then(() => {
+                    setAllCopied(true)
+                    setTimeout(() => setAllCopied(false), 1500)
+                  })
+                }}
+                title="전체 런 요약 복사"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: allCopied ? '#4caf50' : 'var(--text-muted)', fontSize: 10, padding: '0 2px' }}
+              >{allCopied ? '✓' : '📋'}</button>
+            )}
             {activeRuns.length > 0 && finishedRuns.length > 0 && (
               <button
                 onClick={() => setShowOnlyActive(v => !v)}

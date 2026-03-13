@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 315: R413 신규 기능 ───────────────────────────────
+console.log('\n## 315. 신규 기능 파일 검사 (R413)')
+// RunTimeline 전체 런 요약 복사 (Round 413)
+const rt413Path = join(ROOT, 'src/renderer/src/components/sidebar/RunTimeline.tsx')
+if (existsSync(rt413Path)) {
+  const rt413 = readFileSync(rt413Path, 'utf-8')
+  if (rt413.includes('allCopied') && rt413.includes('전체 런 요약 복사') && rt413.includes('setAllCopied')) {
+    log('pass', 'Round413', 'RunTimeline: 전체 런 요약 복사(allCopied) 존재')
+  } else {
+    log('warning', 'Round413', 'RunTimeline 전체 복사 미구현', 'sidebar/RunTimeline.tsx')
+  }
+}
+
 // ── Section 314: R412 신규 기능 ───────────────────────────────
 console.log('\n## 314. 신규 기능 파일 검사 (R412)')
 // SceneTreePanel 씬 트리 텍스트 복사 (Round 412)
