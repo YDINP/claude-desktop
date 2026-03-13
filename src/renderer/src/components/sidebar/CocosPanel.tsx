@@ -4540,6 +4540,25 @@ function CCFileNodeInspector({
             style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: transformClipFilled ? 'pointer' : 'default', color: transformClipFilled ? '#58a6ff' : '#333', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => { if (transformClipFilled) e.currentTarget.style.color = '#7fc6ff' }} onMouseLeave={e => { e.currentTarget.style.color = transformClipFilled ? '#58a6ff' : '#333' }}
           >T↓붙여넣기</span>
+          {/* R1635: 세션 시작 상태로 트랜스폼 원복 */}
+          {origSnapRef.current && (() => {
+            const os = origSnapRef.current!
+            const curPos = draft.position as { x?: number; y?: number }
+            const osPos = os.position as { x?: number; y?: number }
+            const changed = Math.abs((curPos?.x ?? 0) - (osPos?.x ?? 0)) > 0.05 ||
+              Math.abs((curPos?.y ?? 0) - (osPos?.y ?? 0)) > 0.05 ||
+              Math.abs((draft.size?.x ?? 0) - (os.size?.x ?? 0)) > 0.05 ||
+              Math.abs((draft.size?.y ?? 0) - (os.size?.y ?? 0)) > 0.05
+            if (!changed) return null
+            return (
+              <span
+                title="선택 시 원래값으로 트랜스폼 복원"
+                onClick={() => applyAndSave({ position: os.position, rotation: os.rotation, scale: os.scale, size: os.size })}
+                style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid rgba(255,153,68,0.4)', cursor: 'pointer', color: '#ff9944', background: 'none', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#ffb366')} onMouseLeave={e => (e.currentTarget.style.color = '#ff9944')}
+              >T↩원복</span>
+            )
+          })()}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 10px' }}>
           <div>

@@ -17538,6 +17538,18 @@ console.log('\n## 525. R1634 SceneView 캔버스 경계 정렬 가이드 체크'
   }
 }
 
+// ── Section 526: R1635 Inspector 트랜스폼 원복 버튼 ──────────────────
+console.log('\n## 526. R1635 Inspector 트랜스폼 원복 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s526 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s526.includes('R1635') && s526.includes('T↩원복') && s526.includes('origSnapRef.current!') && s526.includes('선택 시 원래값')) {
+    log('pass', 'R1635-transform-restore', 'Inspector 트랜스폼 원복 버튼')
+  } else {
+    log('warning', 'R1635-transform-restore', 'Inspector 트랜스폼 원복 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
