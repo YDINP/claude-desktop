@@ -6319,6 +6319,41 @@ if (existsSync(ib663Path)) {
   }
 }
 
+// ── Section 136: Phase DD10 R665~667 기능 체크 ────────────────
+console.log('\n## 136. Phase DD10 R665~667 기능 체크')
+// R665: CocosPanel 컬러 피커
+const cp665Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp665Path)) {
+  const cp665 = readFileSync(cp665Path, 'utf-8')
+  if (cp665.includes('colorPickerProp') || cp665.includes('colorPicker') || cp665.includes('colorSwatch')) {
+    log('pass', 'R665', 'CocosPanel 컬러 피커 존재')
+  } else {
+    log('warning', 'R665', 'CocosPanel 컬러 피커 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R666: ChatPanel 타임스탬프 토글
+const cp666Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp666Path)) {
+  const cp666 = readFileSync(cp666Path, 'utf-8')
+  if (cp666.includes('showTimestamps') || cp666.includes('showTimestamp')) {
+    log('pass', 'R666', 'ChatPanel 타임스탬프 토글 존재')
+  } else {
+    log('warning', 'R666', 'ChatPanel 타임스탬프 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R667: TerminalPanel 탭 색상
+const tp667Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp667Path)) {
+  const tp667 = readFileSync(tp667Path, 'utf-8')
+  if (tp667.includes('tabColors') || tp667.includes('tabColorMenu')) {
+    log('pass', 'R667', 'TerminalPanel 탭 색상 태그 존재')
+  } else {
+    log('warning', 'R667', 'TerminalPanel 탭 색상 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

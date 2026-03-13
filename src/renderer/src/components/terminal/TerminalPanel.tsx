@@ -7,6 +7,24 @@ import { setActiveTerminalId } from '../../stores/terminal-store'
 import { recordCommand, getTopCommands } from '../../utils/command-learner'
 
 const QUICK_CMDS_KEY = 'terminalQuickCmds'
+const TAB_COLORS_KEY = 'terminal-tab-colors'
+
+const TAB_COLOR_OPTIONS = [
+  { label: '기본', value: '' },
+  { label: '빨강', value: '#f44336' },
+  { label: '초록', value: '#4ec9b0' },
+  { label: '파랑', value: '#569cd6' },
+  { label: '노랑', value: '#dcdcaa' },
+]
+
+const loadTabColors = (): Record<string, string> => {
+  try { return JSON.parse(localStorage.getItem(TAB_COLORS_KEY) ?? 'null') ?? {} }
+  catch { return {} }
+}
+
+const saveTabColors = (colors: Record<string, string>) => {
+  localStorage.setItem(TAB_COLORS_KEY, JSON.stringify(colors))
+}
 const defaultCmds = [
   { id: '1', label: 'ls', cmd: 'ls -la\n' },
   { id: '2', label: 'git status', cmd: 'git status\n' },
@@ -101,6 +119,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // Feature 2: tab rename state
   const [tabNames, setTabNames] = useState<Record<string, string>>({})
   const [renamingTab, setRenamingTab] = useState<string | null>(null)
+
+  // Tab color state
+  const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
+  const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)
 
   // Drag & drop reorder state
   const dragTabRef = useRef<number | null>(null)
@@ -483,14 +505,17 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
       flexDirection: 'column',
     }}>
       {/* Tab bar */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        background: 'var(--bg-secondary)',
-        borderBottom: '1px solid var(--border)',
-        flexShrink: 0,
-        overflow: 'hidden',
-      }}>
+      <div
+        onClick={() => setTabColorMenuOpen(null)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          background: 'var(--bg-secondary)',
+          borderBottom: '1px solid var(--border)',
+          flexShrink: 0,
+          overflow: 'hidden',
+        }}
+      >
         {tabs.map((tab, i) => (
           <div
             key={tab.id}
@@ -527,7 +552,13 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               dragTabRef.current = null
               setDragOverIdx(null)
             }}
+            onContextMenu={e => {
+              e.preventDefault()
+              e.stopPropagation()
+              setTabColorMenuOpen(prev => prev === tab.id ? null : tab.id)
+            }}
             style={{
+              position: 'relative',
               display: 'flex',
               alignItems: 'center',
               gap: 4,
@@ -542,6 +573,18 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               flexShrink: 0,
             }}
           >
+            {/* Tab color dot */}
+            {tabColors[tab.id] && (
+              <span style={{
+                display: 'inline-block',
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                background: tabColors[tab.id],
+                flexShrink: 0,
+              }} />
+            )}
+
             {/* Feature 2: rename on double-click */}
             {renamingTab === tab.id ? (
               <input
@@ -634,6 +677,63 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               >
                 ×
               </span>
+            )}
+
+            {/* Tab color context menu */}
+            {tabColorMenuOpen === tab.id && (
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  zIndex: 200,
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                  padding: '4px 0',
+                  minWidth: 100,
+                }}
+              >
+                {TAB_COLOR_OPTIONS.map(opt => (
+                  <div
+                    key={opt.value}
+                    onClick={() => {
+                      setTabColors(prev => {
+                        const next = { ...prev }
+                        if (opt.value) next[tab.id] = opt.value
+                        else delete next[tab.id]
+                        saveTabColors(next)
+                        return next
+                      })
+                      setTabColorMenuOpen(null)
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '4px 10px',
+                      cursor: 'pointer',
+                      fontSize: 11,
+                      color: 'var(--text-primary)',
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-tertiary)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                  >
+                    <span style={{
+                      display: 'inline-block',
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: opt.value || 'transparent',
+                      border: opt.value ? 'none' : '1px solid var(--border)',
+                      flexShrink: 0,
+                    }} />
+                    {opt.label}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         ))}

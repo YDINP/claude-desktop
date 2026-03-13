@@ -505,9 +505,22 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [chatViewMode, setChatViewMode] = useState<'compact' | 'wide'>(() =>
     (localStorage.getItem('chat-view-mode') as 'compact' | 'wide') ?? 'compact'
   )
+  const [showTimestamps, setShowTimestamps] = useState(() =>
+    localStorage.getItem('show-timestamps') === 'true'
+  )
   const toggleViewMode = () => setChatViewMode(v => {
     const next = v === 'compact' ? 'wide' : 'compact'
     localStorage.setItem('chat-view-mode', next)
+    return next
+  })
+
+  // ── 타임스탬프 표시 토글 ──────────────────────────────────────────────────
+  const [showTimestamps, setShowTimestamps] = useState<boolean>(() => {
+    try { return localStorage.getItem('show-timestamps') === 'true' } catch { return false }
+  })
+  const toggleTimestamps = () => setShowTimestamps(v => {
+    const next = !v
+    try { localStorage.setItem('show-timestamps', String(next)) } catch { /* ignore */ }
     return next
   })
 
@@ -1114,6 +1127,15 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             marginLeft: 'auto',
           }}
         >🗺</button>
+        <button
+          onClick={toggleTimestamps}
+          title={showTimestamps ? '타임스탬프 숨기기' : '타임스탬프 표시'}
+          style={{
+            background: 'none', border: 'none',
+            color: showTimestamps ? 'var(--accent, #89b4fa)' : 'var(--text-muted)',
+            fontSize: 13, cursor: 'pointer', padding: '2px 4px', lineHeight: 1,
+          }}
+        >🕐</button>
         {chat.messages.length > 0 && (
           <button
             onClick={handleSummarize}
@@ -1519,6 +1541,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                     onDelete={() => handleDeleteMessage(msg.id)}
                     onRetry={msg.role === 'user' && !chat.isStreaming ? () => handleRetryMessage(msg.id) : undefined}
                     viewMode={chatViewMode}
+                    showTimestamp={showTimestamps}
                   />
                 </div>
               )

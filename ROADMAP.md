@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 664 완료 — Phase DD10 진행 중, QA Pass 548)
+> 마지막 업데이트: 2026-03-13 (Round 668 완료 — Phase DD10 진행 중, QA Pass 551)
 
 ## 개발 루프 실행 방식
 
@@ -640,6 +640,10 @@
 | Round 662 | SceneViewPanel 노드 가시성 일괄 토글 (showAllToggle) | ✅ |
 | Round 663 | InputBar 템플릿 변수 자동완성 (varSuggestions, varSuggestionsOpen) | ✅ |
 | Round 664 | QA Section 135 추가 (R661/R662/R663, Pass 548) | ✅ |
+| Round 665 | CocosPanel 컬러 피커 (colorPickerProp, 색상 스와치) | ✅ |
+| Round 666 | ChatPanel 타임스탬프 토글 (showTimestamps, localStorage) | ✅ |
+| Round 667 | TerminalPanel 탭 색상 태그 (tabColors, 우클릭 메뉴) | ✅ |
+| Round 668 | QA Section 136 추가 (R665/R666/R667, Pass 551) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

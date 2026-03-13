@@ -1275,6 +1275,7 @@ function CCFileNodeInspector({
   const [undoStack, setUndoStack] = useState<Partial<CCSceneNode>[]>([])
   const [compOrder, setCompOrder] = useState<string[]>([])
   const [draggedComp, setDraggedComp] = useState<string | null>(null)
+  const [colorPickerProp, setColorPickerProp] = useState<string | null>(null)
   const [redoStack, setRedoStack] = useState<Partial<CCSceneNode>[]>([])
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const COLLAPSED_COMPS_KEY = 'collapsed-comps'
@@ -2538,20 +2539,61 @@ function CCFileNodeInspector({
                     })}
                   />
                 ) : isText ? (
-                  <textarea
-                    rows={2}
-                    defaultValue={String(v)}
-                    onBlur={e => applyAndSave({
-                      components: draft.components.map((c, i) =>
-                        i === origIdx ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
-                      )
-                    })}
-                    style={{
-                      flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
-                      resize: 'vertical', fontFamily: 'inherit',
-                    }}
-                  />
+                  (() => {
+                    const strV = String(v)
+                    const isColor = strV.startsWith('#') || strV.startsWith('rgb')
+                    const toHex = (s: string): string => {
+                      if (s.startsWith('#')) return s.slice(0, 7)
+                      const m = s.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+                      if (m) return '#' + [m[1], m[2], m[3]].map(n => parseInt(n).toString(16).padStart(2, '0')).join('')
+                      return '#000000'
+                    }
+                    return (
+                      <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+                        {isColor && (
+                          <div style={{ position: 'relative', flexShrink: 0 }}>
+                            <div
+                              className="colorSwatch"
+                              onClick={() => setColorPickerProp(colorPickerProp === k ? null : k)}
+                              style={{
+                                width: 14, height: 14, borderRadius: 2, border: '1px solid var(--border)',
+                                background: strV, cursor: 'pointer', marginTop: 3, flexShrink: 0,
+                              }}
+                            />
+                            {colorPickerProp === k && (
+                              <input
+                                type="color"
+                                value={toHex(strV)}
+                                onChange={e => applyAndSave({
+                                  components: draft.components.map((c, i) =>
+                                    i === origIdx ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
+                                  )
+                                })}
+                                style={{
+                                  position: 'absolute', top: 18, left: 0, zIndex: 100,
+                                  width: 40, height: 24, padding: 0, border: 'none', cursor: 'pointer',
+                                }}
+                              />
+                            )}
+                          </div>
+                        )}
+                        <textarea
+                          rows={2}
+                          defaultValue={strV}
+                          onBlur={e => applyAndSave({
+                            components: draft.components.map((c, i) =>
+                              i === origIdx ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
+                            )
+                          })}
+                          style={{
+                            flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+                            resize: 'vertical', fontFamily: 'inherit',
+                          }}
+                        />
+                      </div>
+                    )
+                  })()
                 ) : (
                   <input
                     type="number"
