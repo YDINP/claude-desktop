@@ -222,6 +222,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showTokenLimit, setShowTokenLimit] = useState(false)
   const [globalVars, setGlobalVars] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('global-vars') ?? '{}'))
   const [autoCorrect, setAutoCorrect] = useState(false)
+  const [chainedPrompts, setChainedPrompts] = useState<string[]>([])
+  const [chainMode, setChainMode] = useState(false)
   const [corrections, setCorrections] = useState<Array<{ from: string; to: string }>>([])
   const [showGlobalVars, setShowGlobalVars] = useState(false)
   const [pendingImages, setPendingImages] = useState<string[]>([])

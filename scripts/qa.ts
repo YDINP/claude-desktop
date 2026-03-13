@@ -7684,6 +7684,41 @@ if (existsSync(tp791Path)) {
   }
 }
 
+// ── Section 175: Phase DD10 R792~794 기능 체크 ────────────────
+console.log('\n## 175. Phase DD10 R792~794 기능 체크')
+// R792: ChatPanel 시스템 프롬프트 편집기
+const cp792Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp792Path)) {
+  const cp792 = readFileSync(cp792Path, 'utf-8')
+  if (cp792.includes('systemPromptDraft') || cp792.includes('showSystemPromptEditor') || cp792.includes('systemPromptEdit')) {
+    log('pass', 'R792', 'ChatPanel 시스템 프롬프트 편집기 존재')
+  } else {
+    log('warning', 'R792', 'ChatPanel 시스템 프롬프트 편집기 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R793: SceneViewPanel 그리드 스냅
+const svp793Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp793Path)) {
+  const svp793 = readFileSync(svp793Path, 'utf-8')
+  if (svp793.includes('gridSnap') || svp793.includes('gridSize') || svp793.includes('snapToGrid')) {
+    log('pass', 'R793', 'SceneViewPanel 노드 배치 그리드 존재')
+  } else {
+    log('warning', 'R793', 'SceneViewPanel 그리드 스냅 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R794: InputBar 프롬프트 체이닝
+const ib794Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib794Path)) {
+  const ib794 = readFileSync(ib794Path, 'utf-8')
+  if (ib794.includes('chainedPrompts') || ib794.includes('chainMode') || ib794.includes('promptChain')) {
+    log('pass', 'R794', 'InputBar 프롬프트 체이닝 존재')
+  } else {
+    log('warning', 'R794', 'InputBar 프롬프트 체이닝 없음', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

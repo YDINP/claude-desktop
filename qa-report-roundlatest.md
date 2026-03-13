@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:24:18.802Z
+> 2026-03-13T11:25:21.460Z
 
 ## Critical
 _없음_
@@ -673,3 +673,6 @@ _없음_
 - ChatPanel AI 페르소나 설정 존재
 - CocosPanel 프리팹 인스턴스 추적 존재
 - TerminalPanel 필터 프리셋 존재
+- ChatPanel 시스템 프롬프트 편집기 존재
+- SceneViewPanel 노드 배치 그리드 존재
+- InputBar 프롬프트 체이닝 존재
