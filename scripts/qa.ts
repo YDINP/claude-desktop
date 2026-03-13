@@ -16070,6 +16070,30 @@ if (existsSync(sv423) && existsSync(cp423)) {
   }
 }
 
+// ── Section 424: R1518 노드 순서 변경 체크 ──────────────────────
+console.log('\n## 424. R1518 형제 노드 순서 변경 (Ctrl+Up/Down) 체크')
+const cp424 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const sv424 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(cp424) && existsSync(sv424)) {
+  const c424 = readFileSync(cp424, 'utf-8')
+  const s424 = readFileSync(sv424, 'utf-8')
+  if (c424.includes('R1518') && c424.includes('reorderInParent')) {
+    log('pass', 'R1518-reorder-handler', 'CocosPanel reorderInParent Ctrl+Up/Down 핸들러 구현')
+  } else {
+    log('warning', 'R1518-reorder-handler', 'reorderInParent 핸들러 미구현', 'CocosPanel.tsx')
+  }
+  if (c424.includes("e.key === 'ArrowUp' || e.key === 'ArrowDown'") && c424.includes('ctrl')) {
+    log('pass', 'R1518-key-check', 'Ctrl+ArrowUp/Down 키 감지 로직 구현')
+  } else {
+    log('warning', 'R1518-key-check', 'Ctrl+Arrow 키 감지 미구현', 'CocosPanel.tsx')
+  }
+  if (s424.includes("Ctrl+↑↓") && s424.includes('형제 순서')) {
+    log('pass', 'R1518-legend', 'SceneView 단축키 legend에 Ctrl+↑↓ 추가')
+  } else {
+    log('warning', 'R1518-legend', '단축키 legend 미업데이트', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -23,11 +23,14 @@
 - [x] R1516: 다중 노드 배치 편집 — CCFileBatchInspector (opacity/active/position delta), onMultiSelectChange prop
 - [x] R1517: QA Section 423 (Pass 1415)
 
-## 다음 예정 (R1518+)
-- [ ] R1518: SceneView 노드 순서 변경 (Ctrl+Up/Down siblings 재배치)
-- [ ] R1519: Inspector 씬 의존성 그래프 시각화 강화
+- [x] R1518: Ctrl+Up/Down 형제 노드 순서 변경 (reorderInParent + legend 업데이트)
+- [x] R1519: QA Section 424 (Pass 1418)
+
+## 다음 예정 (R1520+)
+- [ ] R1520: cc-file-parser cc.RichText/cc.ProgressBar/cc.Slider 컴포넌트 파싱 강화
+- [ ] R1521: Inspector 노드 복사/붙여넣기 히스토리 UI (최근 5개 클립보드)
 
 ## 빌드/QA
 - Build: ✅ 성공
-- Critical: 0, Warning: 5, Pass: 1415
+- Critical: 0, Warning: 5, Pass: 1418
 - Branch: dev

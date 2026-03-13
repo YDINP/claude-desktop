@@ -1141,6 +1141,25 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         if (result.success && promotedChildren.length > 0) onSelectNode(promotedChildren[0])
         return
       }
+      // R1518: Ctrl+Up/Down — 형제 노드 순서 변경
+      if (ctrl && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && selectedNode && sceneFile.root) {
+        e.preventDefault()
+        const dir = e.key === 'ArrowUp' ? -1 : 1
+        function reorderInParent(n: CCSceneNode): CCSceneNode {
+          const idx = n.children.findIndex(c => c.uuid === selectedNode!.uuid)
+          if (idx >= 0) {
+            const newIdx = idx + dir
+            if (newIdx < 0 || newIdx >= n.children.length) return n
+            const ch = [...n.children]
+            const [moved] = ch.splice(idx, 1)
+            ch.splice(newIdx, 0, moved)
+            return { ...n, children: ch }
+          }
+          return { ...n, children: n.children.map(reorderInParent) }
+        }
+        saveScene(reorderInParent(sceneFile.root))
+        return
+      }
       // Arrow keys: 선택 노드 1px 이동
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key) && selectedNode && sceneFile.root) {
         e.preventDefault()

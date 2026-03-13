@@ -1331,6 +1331,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['Escape', '선택 해제'],
             ['←↑→↓', '선택 노드 1px 이동'],
             ['Shift+←↑→↓', '10px 이동'],
+            ['Ctrl+↑↓', '형제 순서 변경'],
             ['⊙◁▷△▽', '정렬 버튼'],
             ['↑↓ (Inspector)', 'Z-order 변경'],
           ].map(([k, v]) => (
