@@ -178,6 +178,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 노드 잠금 (R742) ────────────────────────────────────────────
   const [lockAll, setLockAll] = useState(false)
   const [lockMode, setLockMode] = useState<'none' | 'selected' | 'all'>('none')
+  // ── 씬 비교 (R748) ──────────────────────────────────────────────
+  const [compareScene, setCompareScene] = useState<string | null>(null)
+  const [showSceneCompare, setShowSceneCompare] = useState(false)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)

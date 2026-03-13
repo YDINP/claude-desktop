@@ -157,6 +157,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [sharedTabs, setSharedTabs] = useState<Set<string>>(new Set())
   const [shareCode, setShareCode] = useState<string | null>(null)
 
+  // R749: command aliases
+  const [cmdAliases, setCmdAliases] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('cmd-aliases') ?? '{}'))
+  const [showAliasEditor, setShowAliasEditor] = useState(false)
+
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)

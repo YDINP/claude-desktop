@@ -7159,6 +7159,41 @@ if (existsSync(sl746Path)) {
   }
 }
 
+// ── Section 160: Phase DD10 R747~749 기능 체크 ────────────────
+console.log('\n## 160. Phase DD10 R747~749 기능 체크')
+// R747: ChatPanel 모델 히스토리
+const cp747Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp747Path)) {
+  const cp747 = readFileSync(cp747Path, 'utf-8')
+  if (cp747.includes('modelHistory') || cp747.includes('modelFavorites') || cp747.includes('model-history')) {
+    log('pass', 'R747', 'ChatPanel 모델 히스토리 존재')
+  } else {
+    log('warning', 'R747', 'ChatPanel 모델 히스토리 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R748: SceneViewPanel 씬 비교
+const svp748Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp748Path)) {
+  const svp748 = readFileSync(svp748Path, 'utf-8')
+  if (svp748.includes('compareScene') || svp748.includes('showSceneCompare') || svp748.includes('sceneCompare')) {
+    log('pass', 'R748', 'SceneViewPanel 씬 비교 존재')
+  } else {
+    log('warning', 'R748', 'SceneViewPanel 씬 비교 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R749: TerminalPanel 명령어 별칭
+const tp749Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp749Path)) {
+  const tp749 = readFileSync(tp749Path, 'utf-8')
+  if (tp749.includes('cmdAliases') || tp749.includes('showAliasEditor') || tp749.includes('cmd-aliases')) {
+    log('pass', 'R749', 'TerminalPanel 명령어 별칭 존재')
+  } else {
+    log('warning', 'R749', 'TerminalPanel 명령어 별칭 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

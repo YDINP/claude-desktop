@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:11:00.687Z
+> 2026-03-13T11:11:50.064Z
 
 ## Critical
 _없음_
@@ -628,3 +628,6 @@ _없음_
 - ChatPanel 검색 하이라이트 존재
 - InputBar 붙여넣기 모드 존재
 - SessionList 세션 색상 태그 존재
+- ChatPanel 모델 히스토리 존재
+- SceneViewPanel 씬 비교 존재
+- TerminalPanel 명령어 별칭 존재
