@@ -254,6 +254,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     })
   }, [designW, designH])
 
+  // F 키: 선택 노드 중앙 포커스 (없으면 Fit all)
+  const handleFitToSelected = useCallback(() => {
+    const svg = svgRef.current
+    if (!svg) return
+    const rect = svg.getBoundingClientRect()
+    const fn = selectedUuid ? flatNodes.find(f => f.node.uuid === selectedUuid) : null
+    if (!fn) { handleFit(); return }
+    const svgPos = ccToSvg(fn.worldX, fn.worldY)
+    const z = viewRef.current.zoom
+    setView(v => ({
+      ...v,
+      offsetX: rect.width / 2 - svgPos.x * z,
+      offsetY: rect.height / 2 - svgPos.y * z,
+    }))
+  }, [selectedUuid, flatNodes, ccToSvg, handleFit])
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey) {
+        const el = e.target as HTMLElement
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
+        handleFitToSelected()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [handleFitToSelected])
+
   const transform = `translate(${view.offsetX}, ${view.offsetY}) scale(${view.zoom})`
 
   return (
@@ -703,7 +731,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['휠', '줌 인/아웃'],
             ['중간 버튼 드래그', '패닝'],
             ['Space + 좌클릭 드래그', '패닝'],
-            ['더블클릭', 'Fit to view'],
+            ['더블클릭', 'Fit to view (전체)'],
+            ['F', '선택 노드 중앙 포커스'],
             ['좌클릭 드래그', '노드 이동'],
             ['Ctrl+드래그', '10px 그리드 스냅'],
             ['SE 핸들 드래그', '노드 리사이즈'],

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 498 완료 — ZZ3-1 씬뷰 노드 이름 표시 토글 버튼)
+> 마지막 업데이트: 2026-03-13 (Round 499 완료 — YY3-1 씬뷰 F키 선택 노드 중앙 포커스)
 
 ## 완료된 라운드
 
@@ -90,6 +90,7 @@
 | Round 496 | dev | Phase TT2-1: 씬뷰 노드 이름 인라인 편집 — 더블클릭 → foreignObject input, Enter/Escape/blur → onRename 콜백 | ✅ |
 | Round 497 | dev | Phase UU2-1: 씬뷰 높이 드래그 조절 — sceneViewHeight state, divider mousedown/move/up, 80~600px 범위 제한 | ✅ |
 | Round 498 | dev | Phase ZZ3-1: 씬뷰 노드 이름 표시 토글 — showNodeNames state, T 버튼 툴바, 조건부 text 렌더링 | ✅ |
+| Round 499 | dev | Phase YY3-1: 씬뷰 F키 선택 노드 포커스 — handleFitToSelected, window keydown F 핸들러, 미선택 시 Fit all | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |
