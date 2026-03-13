@@ -13,7 +13,7 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
   onConnectedChange?: (connected: boolean) => void
 } = {}) {
   const { currentPath } = useProject()
-  const [mode, setMode] = useState<'ws' | 'file'>('ws')
+  const [mode, setMode] = useState<'ws' | 'file'>('file')
   const fileProject = useCCFileProject()
   const [selectedFileNode, setSelectedFileNode] = useState<CCSceneNode | null>(null)
   const mountedRef = useRef(true)
@@ -239,39 +239,43 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
             )}
           </div>
         )}
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          <input
-            type="number"
-            value={port}
-            onChange={e => setPort(Number(e.target.value))}
-            style={{
-              width: 70, background: 'var(--bg-input)', color: 'var(--text-primary)',
-              border: '1px solid var(--border)', borderRadius: 4, padding: '2px 6px', fontSize: 11,
-            }}
-            placeholder="포트"
-          />
-          {([9090, 9091] as const).map(p => (
-            <button key={p} onClick={() => setPort(p)} title={p === 9090 ? 'CC 2.x' : 'CC 3.x'}
-              style={{ padding: '2px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: port === p ? 'var(--accent)' : 'none', color: port === p ? '#fff' : 'var(--text-muted)', flexShrink: 0 }}>
-              {p}
-            </button>
-          ))}
-          <button
-            onClick={handleConnect}
-            disabled={connecting}
-            style={{
-              flex: 1, padding: '3px 0', background: 'var(--accent)', color: '#fff',
-              borderRadius: 4, fontSize: 11, cursor: connecting ? 'not-allowed' : 'pointer',
-              opacity: connecting ? 0.7 : 1,
-            }}
-          >
-            {connecting ? '연결 중...' : connected ? '재연결' : reconnectCountdown !== null ? '지금 재연결' : '연결'}
-          </button>
-        </div>
-        {error && (
-          <div style={{ marginTop: 6, fontSize: 10, color: 'var(--error, #f85149)', lineHeight: 1.4 }}>
-            {error}
-          </div>
+        {mode === 'ws' && (
+          <>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+              <input
+                type="number"
+                value={port}
+                onChange={e => setPort(Number(e.target.value))}
+                style={{
+                  width: 70, background: 'var(--bg-input)', color: 'var(--text-primary)',
+                  border: '1px solid var(--border)', borderRadius: 4, padding: '2px 6px', fontSize: 11,
+                }}
+                placeholder="포트"
+              />
+              {([9090, 9091] as const).map(p => (
+                <button key={p} onClick={() => setPort(p)} title={p === 9090 ? 'CC 2.x' : 'CC 3.x'}
+                  style={{ padding: '2px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: port === p ? 'var(--accent)' : 'none', color: port === p ? '#fff' : 'var(--text-muted)', flexShrink: 0 }}>
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={handleConnect}
+                disabled={connecting}
+                style={{
+                  flex: 1, padding: '3px 0', background: 'var(--accent)', color: '#fff',
+                  borderRadius: 4, fontSize: 11, cursor: connecting ? 'not-allowed' : 'pointer',
+                  opacity: connecting ? 0.7 : 1,
+                }}
+              >
+                {connecting ? '연결 중...' : connected ? '재연결' : reconnectCountdown !== null ? '지금 재연결' : '연결'}
+              </button>
+            </div>
+            {error && (
+              <div style={{ marginTop: 6, fontSize: 10, color: 'var(--error, #f85149)', lineHeight: 1.4 }}>
+                {error}
+              </div>
+            )}
+          </>
         )}
       </div>
 
