@@ -3335,6 +3335,27 @@ function CCFileNodeInspector({
   saveScene: (root: CCSceneNode) => Promise<{ success: boolean; error?: string }>
   onUpdate: (n: CCSceneNode | null) => void
 }) {
+  // R1597: 노드 커스텀 메모 (localStorage 기반)
+  const NOTES_KEY = 'cc-node-notes'
+  const [nodeMemo, setNodeMemo] = useState<string>(() => {
+    try { return JSON.parse(localStorage.getItem(NOTES_KEY) ?? '{}')[node.uuid] ?? '' }
+    catch { return '' }
+  })
+  useEffect(() => {
+    try {
+      const all = JSON.parse(localStorage.getItem(NOTES_KEY) ?? '{}')
+      setNodeMemo(all[node.uuid] ?? '')
+    } catch { setNodeMemo('') }
+  }, [node.uuid])
+  const saveNodeMemo = (memo: string) => {
+    setNodeMemo(memo)
+    try {
+      const all = JSON.parse(localStorage.getItem(NOTES_KEY) ?? '{}')
+      if (memo.trim()) all[node.uuid] = memo.trim()
+      else delete all[node.uuid]
+      localStorage.setItem(NOTES_KEY, JSON.stringify(all))
+    } catch { /* silent */ }
+  }
   // 편집 중인 로컬 상태 (노드 변경 시 초기화)
   const [draft, setDraft] = useState<CCSceneNode>(() => ({ ...node }))
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
@@ -4410,6 +4431,18 @@ function CCFileNodeInspector({
           )}
         </div>
       )}
+      {/* R1597: 노드 커스텀 메모 */}
+      <div style={{ marginBottom: 4 }}>
+        <textarea
+          placeholder="메모 (이 노드에 대한 개인 노트)"
+          value={nodeMemo}
+          rows={nodeMemo ? 2 : 1}
+          onChange={ev => saveNodeMemo(ev.target.value)}
+          style={{ width: '100%', fontSize: 10, resize: 'vertical', background: nodeMemo ? 'rgba(255,255,100,0.05)' : 'transparent', color: '#aaa', border: `1px solid ${nodeMemo ? '#554' : 'transparent'}`, borderRadius: 3, padding: '2px 4px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit' }}
+          onFocus={e => (e.currentTarget.style.border = '1px solid #665')}
+          onBlur={e => (e.currentTarget.style.border = `1px solid ${nodeMemo ? '#554' : 'transparent'}`)}
+        />
+      </div>
       {secHeader('transform', '위치 / 크기 / 회전')}
       {!collapsed['transform'] && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 10px' }}>

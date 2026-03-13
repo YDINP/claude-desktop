@@ -17080,6 +17080,18 @@ console.log('\n## 487. R1596 SceneView 활성 노드 수 표시 체크')
   }
 }
 
+// ── Section 488: R1597 Inspector 노드 커스텀 메모 ──────────────────────
+console.log('\n## 488. R1597 Inspector 노드 커스텀 메모 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s488panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s488panel.includes('R1597') && s488panel.includes('nodeMemo') && s488panel.includes('NOTES_KEY') && s488panel.includes('saveNodeMemo')) {
+    log('pass', 'R1597-node-memo', '노드 커스텀 메모 (localStorage, 메모 있을 때 노란 테두리)')
+  } else {
+    log('warning', 'R1597-node-memo', '노드 커스텀 메모 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
