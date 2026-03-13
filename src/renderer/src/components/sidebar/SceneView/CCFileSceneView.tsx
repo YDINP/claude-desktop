@@ -79,6 +79,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const refImgInputRef = useRef<HTMLInputElement | null>(null)
   // R1545: 줌 % 인라인 편집
   const [editingZoom, setEditingZoom] = useState(false)
+  // R1548: 캔버스 해상도 오버레이 picker
+  const [showResPicker, setShowResPicker] = useState(false)
+  const [resOverride, setResOverride] = useState<{ w: number; h: number } | null>(null)
   // R1543: 노드 잠금 (locked nodes: drag/resize 방지)
   const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('sv-locked-uuids') ?? '[]')) }
@@ -160,6 +163,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       bgColor,
     }
   }, [sceneFile])
+  // R1548: resOverride가 있으면 캔버스 표시 크기만 오버라이드 (씬 파일 미수정)
+  const effectiveW = resOverride?.w ?? designW
+  const effectiveH = resOverride?.h ?? designH
 
   // 씬 트리 → flat 목록 (world position 누적)
   const flatNodes = useMemo(() => {
@@ -199,8 +205,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   // CC 좌표 → SVG 좌표 변환
   // CC: Y-up, center origin. SVG: Y-down, top-left.
-  const cx = designW / 2
-  const cy = designH / 2
+  const cx = effectiveW / 2
+  const cy = effectiveH / 2
   const ccToSvg = useCallback((ccX: number, ccY: number) => ({
     x: cx + ccX,
     y: cy - ccY,
@@ -437,13 +443,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     const svg = svgRef.current
     if (!svg) return
     const rect = svg.getBoundingClientRect()
-    const zoom = Math.min(rect.width / designW, rect.height / designH) * 0.9
+    const zoom = Math.min(rect.width / effectiveW, rect.height / effectiveH) * 0.9
     setView({
       zoom,
-      offsetX: (rect.width - designW * zoom) / 2,
-      offsetY: (rect.height - designH * zoom) / 2,
+      offsetX: (rect.width - effectiveW * zoom) / 2,
+      offsetY: (rect.height - effectiveH * zoom) / 2,
     })
-  }, [designW, designH])
+  }, [effectiveW, effectiveH])
 
   // F 키: 선택 노드 중앙 포커스 (없으면 Fit all)
   const handleFitToSelected = useCallback(() => {
@@ -575,8 +581,61 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         display: 'flex', gap: 4, padding: '2px 8px', borderBottom: '1px solid var(--border)',
         flexShrink: 0, alignItems: 'center', fontSize: 10,
       }}>
-        <span style={{ color: 'var(--text-muted)', flex: 1 }}>
-          {designW}×{designH} | {flatNodes.length}개
+        {/* R1548: 해상도 표시 클릭 → preset picker */}
+        <span style={{ color: resOverride ? '#fbbf24' : 'var(--text-muted)', flex: 1, position: 'relative' }}>
+          <span
+            onClick={() => setShowResPicker(p => !p)}
+            title="클릭: 캔버스 해상도 preset 선택 (뷰 전용)"
+            style={{ cursor: 'pointer', borderBottom: '1px dashed currentColor' }}
+          >{effectiveW}×{effectiveH}</span>
+          {resOverride && (
+            <span onClick={() => setResOverride(null)} title="해상도 리셋" style={{ marginLeft: 3, cursor: 'pointer', color: '#f85149', fontSize: 8 }}>↺</span>
+          )}
+          {' '}| {flatNodes.length}개
+          {showResPicker && (
+            <div style={{
+              position: 'absolute', top: '100%', left: 0, marginTop: 2, zIndex: 60,
+              background: 'var(--bg-secondary, #0d0d1a)', border: '1px solid var(--border)',
+              borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.5)', minWidth: 140, fontSize: 9,
+            }} onClick={e => e.stopPropagation()}>
+              {[
+                { label: '960×640 (CC2 기본)', w: 960, h: 640 },
+                { label: '1280×720 (HD)', w: 1280, h: 720 },
+                { label: '1920×1080 (FHD)', w: 1920, h: 1080 },
+                { label: '750×1334 (iPhone SE)', w: 750, h: 1334 },
+                { label: '1080×1920 (세로 FHD)', w: 1080, h: 1920 },
+                { label: '2048×1536 (iPad)', w: 2048, h: 1536 },
+                { label: '480×320 (작은 모바일)', w: 480, h: 320 },
+              ].map(p => (
+                <div key={p.label}
+                  onClick={() => { setResOverride({ w: p.w, h: p.h }); setShowResPicker(false) }}
+                  style={{
+                    padding: '4px 8px', cursor: 'pointer',
+                    color: effectiveW === p.w && effectiveH === p.h ? '#fbbf24' : 'var(--text-primary)',
+                    background: effectiveW === p.w && effectiveH === p.h ? 'rgba(251,191,36,0.08)' : 'transparent',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover, #1a1a2e)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = effectiveW === p.w && effectiveH === p.h ? 'rgba(251,191,36,0.08)' : 'transparent')}
+                >{p.label}</div>
+              ))}
+              <div style={{ borderTop: '1px solid var(--border)', padding: '4px 8px', display: 'flex', gap: 4 }}>
+                <input type="number" placeholder="W" defaultValue={effectiveW}
+                  id="res-custom-w"
+                  style={{ width: 50, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                />
+                <span style={{ color: 'var(--text-muted)' }}>×</span>
+                <input type="number" placeholder="H" defaultValue={effectiveH}
+                  id="res-custom-h"
+                  style={{ width: 50, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                />
+                <button onClick={() => {
+                  const w = parseInt((document.getElementById('res-custom-w') as HTMLInputElement)?.value)
+                  const h = parseInt((document.getElementById('res-custom-h') as HTMLInputElement)?.value)
+                  if (w > 0 && h > 0) { setResOverride({ w, h }); setShowResPicker(false) }
+                }} style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', background: 'none', color: '#4ade80', cursor: 'pointer' }}>OK</button>
+              </div>
+            </div>
+          )}
         </span>
         <span style={{
           fontSize: 8, padding: '1px 4px', borderRadius: 3, background: 'rgba(88,166,255,0.15)',
@@ -778,7 +837,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </pattern>
           <mask id="outsideMask">
             <rect x={-99999} y={-99999} width={199999} height={199999} fill="white" />
-            <rect x={0} y={0} width={designW} height={designH} fill="black" />
+            <rect x={0} y={0} width={effectiveW} height={effectiveH} fill="black" />
           </mask>
           {/* 선택 노드 마칭 앤트 애니메이션 */}
           <style>{`
@@ -788,25 +847,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         </defs>
         <g transform={transform}>
           {/* 게임 캔버스 배경 */}
-          <rect x={0} y={0} width={designW} height={designH}
+          <rect x={0} y={0} width={effectiveW} height={effectiveH}
             fill={bgColorOverride ?? bgColor} stroke="#555" strokeWidth={1 / view.zoom} />
           {/* R1530: 디자인 레퍼런스 이미지 overlay */}
           {refImgSrc && (
-            <image href={refImgSrc} x={0} y={0} width={designW} height={designH}
+            <image href={refImgSrc} x={0} y={0} width={effectiveW} height={effectiveH}
               opacity={refImgOpacity} style={{ pointerEvents: 'none' }} preserveAspectRatio="xMidYMid meet" />
           )}
           {/* 캔버스 치수 레이블 */}
           {view.zoom > 0.25 && (
             <text
-              x={designW / 2} y={-6 / view.zoom}
-              fontSize={10 / view.zoom} fill="rgba(255,255,255,0.25)"
+              x={effectiveW / 2} y={-6 / view.zoom}
+              fontSize={10 / view.zoom} fill={resOverride ? 'rgba(251,191,36,0.5)' : 'rgba(255,255,255,0.25)'}
               textAnchor="middle" style={{ pointerEvents: 'none', userSelect: 'none' }}
-            >{designW} × {designH}</text>
+            >{effectiveW} × {effectiveH}{resOverride ? ' ★' : ''}</text>
           )}
           {/* 좌표축 화살표 (우하단 코너) */}
           {view.zoom > 0.3 && (() => {
-            const ax = designW + 8 / view.zoom
-            const ay = designH + 8 / view.zoom
+            const ax = effectiveW + 8 / view.zoom
+            const ay = effectiveH + 8 / view.zoom
             const al = 18 / view.zoom
             const aw = 4 / view.zoom
             return (
@@ -830,23 +889,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const step = 100
             const els: React.ReactElement[] = []
             if (gridStyle === 'line') {
-              for (let x = step; x < designW; x += step) {
-                els.push(<line key={`gv${x}`} x1={x} y1={0} x2={x} y2={designH} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
+              for (let x = step; x < effectiveW; x += step) {
+                els.push(<line key={`gv${x}`} x1={x} y1={0} x2={x} y2={effectiveH} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
               }
-              for (let y = step; y < designH; y += step) {
-                els.push(<line key={`gh${y}`} x1={0} y1={y} x2={designW} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
+              for (let y = step; y < effectiveH; y += step) {
+                els.push(<line key={`gh${y}`} x1={0} y1={y} x2={effectiveW} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
               }
             } else {
               // dot 그리드: 교차점에만 점 표시
-              for (let x = step; x < designW; x += step) {
-                for (let y = step; y < designH; y += step) {
+              for (let x = step; x < effectiveW; x += step) {
+                for (let y = step; y < effectiveH; y += step) {
                   els.push(<circle key={`d${x}${y}`} cx={x} cy={y} r={1/view.zoom} fill="rgba(255,255,255,0.15)" />)
                 }
               }
             }
             // 중앙 십자선 (항상 표시)
-            els.push(<line key="cx" x1={designW/2} y1={0} x2={designW/2} y2={designH} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
-            els.push(<line key="cy" x1={0} y1={designH/2} x2={designW} y2={designH/2} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
+            els.push(<line key="cx" x1={effectiveW/2} y1={0} x2={effectiveW/2} y2={effectiveH} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
+            els.push(<line key="cy" x1={0} y1={effectiveH/2} x2={effectiveW} y2={effectiveH/2} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
             return els
           })()}
 
