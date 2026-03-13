@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 696 완료 — Phase DD10 진행 중, QA Pass 572)
+> 마지막 업데이트: 2026-03-13 (Round 700 완료 — Phase DD10 진행 중, QA Pass 575)
 
 ## 개발 루프 실행 방식
 
@@ -672,6 +672,10 @@
 | Round 694 | TerminalPanel 분할 레이아웃 (splitLayout, splitRatio) | ✅ |
 | Round 695 | SceneViewPanel 노드 태그 (nodeTags, nodeTagInput) | ✅ |
 | Round 696 | QA Section 143 추가 (R693/R694/R695, Pass 572) | ✅ |
+| Round 697 | StatusBar CPU 모니터링 (cpuUsage, onCpuUpdate) | ✅ |
+| Round 698 | SessionList 세션 타입 필터 (filterType: all/pinned/archived/recent) | ✅ |
+| Round 699 | CocosPanel 변경 이력 뷰어 (changeHistory, showHistory) | ✅ |
+| Round 700 | QA Section 144 추가 (R697/R698/R699, Pass 575) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

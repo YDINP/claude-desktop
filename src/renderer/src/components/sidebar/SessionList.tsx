@@ -188,6 +188,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
   const [showArchived, setShowArchived] = useState(false)
+  const [filterType, setFilterType] = useState<'all' | 'pinned' | 'archived' | 'recent'>('all')
   const [openCollections, setOpenCollections] = useState<Set<string>>(new Set())
   const [contextMenu, setContextMenu] = useState<{ sessionId: string; x: number; y: number } | null>(null)
   const contextMenuRef = useRef<HTMLDivElement>(null)
@@ -606,6 +607,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
       .slice(0, 20)
   }, [sessions])
 
+  const RECENT_DAYS = 7
+
   // Apply search filter (must be before hooks)
   const filtered = useMemo(() => {
     let result = search.trim()
@@ -614,6 +617,14 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           s.cwd.toLowerCase().includes(search.toLowerCase())
         )
       : sessions
+    if (filterType === 'pinned') {
+      result = result.filter(s => s.pinned || pinnedSessions.has(s.id))
+    } else if (filterType === 'archived') {
+      result = result.filter(s => archivedSessions.has(s.id))
+    } else if (filterType === 'recent') {
+      const cutoff = Date.now() - RECENT_DAYS * 24 * 60 * 60 * 1000
+      result = result.filter(s => (s.updatedAt ?? s.createdAt ?? 0) >= cutoff)
+    }
     if (filterTag) {
       result = result.filter(s => s.tags && s.tags.includes(filterTag))
     }
@@ -624,7 +635,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
       result = result.filter(s => s.tags && Array.from(filterCustomTags).every(t => s.tags!.includes(t)))
     }
     return result
-  }, [sessions, search, filterTag, filterCustomTag, filterCustomTags])
+  }, [sessions, search, filterType, filterTag, filterCustomTag, filterCustomTags, pinnedSessions, archivedSessions])
 
   const ARCHIVE_DAYS = 30
 
@@ -1284,6 +1295,37 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             {filtered.length}개
           </div>
         )}
+      </div>
+      {/* Session type filter tabs */}
+      <div style={{
+        display: 'flex',
+        borderBottom: '1px solid var(--border)',
+        padding: '0 8px',
+      }}>
+        {(['all', 'pinned', 'archived', 'recent'] as const).map(tab => {
+          const labels: Record<typeof tab, string> = { all: '전체', pinned: '고정', archived: '아카이브', recent: '최근' }
+          const isActive = filterType === tab
+          return (
+            <button
+              key={tab}
+              onClick={() => setFilterType(tab)}
+              style={{
+                flex: 1,
+                background: 'none',
+                border: 'none',
+                borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+                color: isActive ? 'var(--accent)' : 'var(--text-muted)',
+                cursor: 'pointer',
+                fontSize: 10,
+                padding: '5px 2px',
+                fontWeight: isActive ? 600 : 400,
+                transition: 'color 0.1s, border-color 0.1s',
+              }}
+            >
+              {labels[tab]}
+            </button>
+          )
+        })}
       </div>
       {/* Tag filter bar */}
       <div style={{

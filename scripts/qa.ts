@@ -6599,6 +6599,41 @@ if (existsSync(svp695Path)) {
   }
 }
 
+// ── Section 144: Phase DD10 R697~699 기능 체크 ────────────────
+console.log('\n## 144. Phase DD10 R697~699 기능 체크')
+// R697: StatusBar CPU 모니터링
+const sb697Path = join(ROOT, 'src/renderer/src/components/shared/StatusBar.tsx')
+if (existsSync(sb697Path)) {
+  const sb697 = readFileSync(sb697Path, 'utf-8')
+  if (sb697.includes('cpuUsage') || sb697.includes('onCpuUpdate') || sb697.includes('cpuPercent')) {
+    log('pass', 'R697', 'StatusBar CPU 모니터링 존재')
+  } else {
+    log('warning', 'R697', 'StatusBar CPU 모니터링 없음', 'shared/StatusBar.tsx')
+  }
+}
+
+// R698: SessionList 세션 타입 필터
+const sl698Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl698Path)) {
+  const sl698 = readFileSync(sl698Path, 'utf-8')
+  if (sl698.includes('filterType') || sl698.includes('filterTab') || sl698.includes('sessionTypeFilter')) {
+    log('pass', 'R698', 'SessionList 세션 타입 필터 존재')
+  } else {
+    log('warning', 'R698', 'SessionList 타입 필터 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R699: CocosPanel 변경 이력 뷰어
+const cp699Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp699Path)) {
+  const cp699 = readFileSync(cp699Path, 'utf-8')
+  if (cp699.includes('changeHistory') || cp699.includes('showHistory') || cp699.includes('historyEntry')) {
+    log('pass', 'R699', 'CocosPanel 변경 이력 뷰어 존재')
+  } else {
+    log('warning', 'R699', 'CocosPanel 변경 이력 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

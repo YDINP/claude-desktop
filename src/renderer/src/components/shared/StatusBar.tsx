@@ -44,6 +44,7 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
   }, [model, inputTokens, outputTokens])
   const [gitInfo, setGitInfo] = useState<{ branch: string | null; changed: number } | null>(null)
   const [memMB, setMemMB] = useState<number | null>(null)
+  const [cpuUsage, setCpuUsage] = useState<number | null>(null)
   const [online, setOnline] = useState(navigator.onLine)
   const [showSessionInfo, setShowSessionInfo] = useState(false)
   const [todayCost, setTodayCost] = useState(0)
@@ -112,6 +113,11 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
   useEffect(() => {
     window.api.getMemoryUsage?.().then(({ rss }) => setMemMB(Math.round(rss / 1024 / 1024)))
     const unsub = window.api.onMemoryUpdate?.((data) => setMemMB(Math.round(data.rss / 1024 / 1024)))
+    return () => unsub?.()
+  }, [])
+
+  useEffect(() => {
+    const unsub = window.api.onCpuUpdate?.((data) => setCpuUsage(data.usage))
     return () => unsub?.()
   }, [])
 
@@ -246,6 +252,18 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
           title={`메모리 사용량: ${memMB}MB`}
         >
           {memMB}MB
+        </span>
+      )}
+      {cpuUsage !== null && (
+        <span
+          style={{
+            fontSize: 10,
+            color: cpuUsage > 80 ? 'var(--warning)' : 'rgba(255,255,255,0.6)',
+            cursor: 'default',
+          }}
+          title={`CPU 사용률: ${cpuUsage}%`}
+        >
+          {cpuUsage}%
         </span>
       )}
       <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

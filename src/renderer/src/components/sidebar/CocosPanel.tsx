@@ -1284,6 +1284,8 @@ function CCFileNodeInspector({
     try { return JSON.parse(localStorage.getItem('favorite-nodes') ?? '[]') } catch { return [] }
   })
   const [favoritesOpen, setFavoritesOpen] = useState(false)
+  const [changeHistory, setChangeHistory] = useState<Array<{ timestamp: number; prop: string; oldVal: unknown; newVal: unknown }>>([])
+  const [showHistory, setShowHistory] = useState(false)
   const [redoStack, setRedoStack] = useState<Partial<CCSceneNode>[]>([])
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const COLLAPSED_COMPS_KEY = 'collapsed-comps'
@@ -1661,6 +1663,18 @@ function CCFileNodeInspector({
     })
   }, [])
 
+  // R691: 노드 즐겨찾기 토글
+  const toggleFavoriteNode = useCallback(() => {
+    setFavoriteNodes(prev => {
+      const exists = prev.some(f => f.uuid === node.uuid)
+      const next = exists
+        ? prev.filter(f => f.uuid !== node.uuid)
+        : [...prev, { uuid: node.uuid, name: node.name }]
+      localStorage.setItem('favorite-nodes', JSON.stringify(next))
+      return next
+    })
+  }, [node.uuid, node.name])
+
   const numInput = (
     label: string,
     value: number,
@@ -1994,6 +2008,76 @@ function CCFileNodeInspector({
           >
             ⟳ Reset
           </button>
+          {/* R691: 즐겨찾기 토글 버튼 + 드롭다운 */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={toggleFavoriteNode}
+              title={favoriteNodes.some(f => f.uuid === node.uuid) ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+              style={{
+                padding: '1px 4px', fontSize: 12, borderRadius: 3, cursor: 'pointer',
+                background: 'transparent',
+                color: favoriteNodes.some(f => f.uuid === node.uuid) ? '#fbbf24' : '#555',
+                border: `1px solid ${favoriteNodes.some(f => f.uuid === node.uuid) ? '#fbbf24' : '#444'}`,
+                lineHeight: 1.4,
+              }}
+            >
+              {favoriteNodes.some(f => f.uuid === node.uuid) ? '★' : '☆'}
+            </button>
+            <button
+              onClick={() => setFavoritesOpen(o => !o)}
+              title="즐겨찾기 목록"
+              style={{
+                padding: '1px 3px', fontSize: 9, borderRadius: 3, cursor: 'pointer',
+                background: favoritesOpen ? '#1e1e2e' : 'transparent',
+                color: '#fbbf24', border: '1px solid #555',
+                lineHeight: 1.4, marginLeft: 1,
+              }}
+            >
+              ▾
+            </button>
+            {favoritesOpen && (
+              <div style={{
+                position: 'absolute', top: '100%', right: 0, marginTop: 2,
+                background: 'var(--bg-secondary, #0d0d1a)', border: '1px solid var(--border, #2a2a3a)',
+                borderRadius: 4, zIndex: 50, minWidth: 160, maxHeight: 240, overflowY: 'auto',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+              }}>
+                {favoriteNodes.length === 0 ? (
+                  <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--text-muted)' }}>즐겨찾기 없음</div>
+                ) : favoriteNodes.map(fav => (
+                  <div
+                    key={fav.uuid}
+                    onClick={() => { console.log('favorite select', fav.uuid); setFavoritesOpen(false) }}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '4px 8px', cursor: 'pointer', fontSize: 10,
+                      color: fav.uuid === node.uuid ? '#fbbf24' : 'var(--text-primary, #ccc)',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover, #1a1a2e)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                      {fav.uuid === node.uuid ? '★ ' : '☆ '}{fav.name}
+                    </span>
+                    <span
+                      onClick={e => {
+                        e.stopPropagation()
+                        setFavoriteNodes(prev => {
+                          const next = prev.filter(f => f.uuid !== fav.uuid)
+                          localStorage.setItem('favorite-nodes', JSON.stringify(next))
+                          return next
+                        })
+                      }}
+                      style={{ marginLeft: 6, color: '#f85149', cursor: 'pointer', flexShrink: 0 }}
+                      title="즐겨찾기 삭제"
+                    >
+                      ×
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <button
             onClick={handleAddChild}
             title="자식 노드 추가"
