@@ -165,10 +165,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [nodeSearch, setNodeSearch] = useState('')
   const [showNodeSearch, setShowNodeSearch] = useState(false)
   const [nodeSearchMatchIndex, setNodeSearchMatchIndex] = useState(0)
-  const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
+  // R1395: 레이어 가시성/잠금 localStorage 영구 저장 + 색상 라벨
+  const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('scene-hidden-layers') ?? '[]')) } catch { return new Set() }
+  })
   const [showAllToggle, setShowAllToggle] = useState(true)
-  const [lockedLayers, setLockedLayers] = useState<Set<string>>(new Set())
+  const [lockedLayers, setLockedLayers] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('scene-locked-layers') ?? '[]')) } catch { return new Set() }
+  })
   const [showLayerPanel, setShowLayerPanel] = useState(false)
+  const [layerColors, setLayerColors] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('scene-layer-colors') ?? '{}') } catch { return {} }
+  })
+  const LAYER_COLOR_PALETTE = ['#4af', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#f472b6', '#22d3ee']
   const [sceneAtlas, setSceneAtlas] = useState<string[]>([])
   const [showAtlasPanel, setShowAtlasPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
@@ -1974,6 +1983,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     })
   }, [lockedLayers, topLevelNodes, collectDescendants])
 
+  // R1395: 레이어 상태 localStorage 영구 저장
+  useEffect(() => { localStorage.setItem('scene-hidden-layers', JSON.stringify([...hiddenLayers])) }, [hiddenLayers])
+  useEffect(() => { localStorage.setItem('scene-locked-layers', JSON.stringify([...lockedLayers])) }, [lockedLayers])
+  useEffect(() => { localStorage.setItem('scene-layer-colors', JSON.stringify(layerColors)) }, [layerColors])
+
   // uuid → 최상위 조상 uuid 매핑 (hiddenLayers 필터에 사용)
   const nodeToTopLevel = useMemo(() => {
     const map = new Map<string, string>()
@@ -2732,7 +2746,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             )
           })()}
 
-          {/* 정렬 가이드라인 */}
+          {/* R1392: 정렬 가이드라인 (스마트 가이드) — X=수직선, Y=수평선, #4af 스타일 */}
           {alignGuides.length > 0 && (() => {
             const ox = DESIGN_W / 2 * view.zoom + view.offsetX
             const oy = DESIGN_H / 2 * view.zoom + view.offsetY
@@ -2740,10 +2754,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               {alignGuides.map((g, i) => {
                 if (g.x !== undefined) {
                   const px = g.x * view.zoom + ox
-                  return <line key={i} x1={px} y1={0} x2={px} y2="100%" stroke="rgba(255,100,0,0.85)" strokeWidth={1.5} strokeDasharray="5 3" />
+                  return <line key={i} x1={px} y1={0} x2={px} y2="100%" stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
                 } else if (g.y !== undefined) {
                   const py = -g.y * view.zoom + oy
-                  return <line key={i} x1={0} y1={py} x2="100%" y2={py} stroke="rgba(220,0,200,0.85)" strokeWidth={1.5} strokeDasharray="5 3" />
+                  return <line key={i} x1={0} y1={py} x2="100%" y2={py} stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
                 }
                 return null
               })}
@@ -3939,10 +3953,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 {showAllToggle ? '👁' : '🙈'}
               </button>
             </div>
+            {/* R1395: 레이어 목록 (가시성/잠금/색상 라벨) */}
             {topLevelNodes.map(layer => {
               const isHidden = hiddenLayers.has(layer.uuid)
               const isLocked = lockedLayers.has(layer.uuid)
               const childCount = collectDescendants(layer.uuid).length - 1
+              const lc = layerColors[layer.uuid]
               return (
                 <div key={layer.uuid} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                   <button
@@ -3959,8 +3975,30 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   >
                     {isLocked ? '🔒' : '🔓'}
                   </button>
+                  {/* R1395: 색상 라벨 버튼 — 클릭 시 팔레트 순환 */}
+                  <button
+                    onClick={() => {
+                      setLayerColors(prev => {
+                        const next = { ...prev }
+                        const curIdx = lc ? LAYER_COLOR_PALETTE.indexOf(lc) : -1
+                        if (curIdx >= LAYER_COLOR_PALETTE.length - 1 || curIdx < 0 && lc) {
+                          delete next[layer.uuid]
+                        } else {
+                          next[layer.uuid] = LAYER_COLOR_PALETTE[(curIdx + 1) % LAYER_COLOR_PALETTE.length]
+                        }
+                        return next
+                      })
+                    }}
+                    title={lc ? `색상: ${lc} (클릭하여 변경)` : '색상 라벨 추가'}
+                    style={{
+                      width: 8, height: 8, borderRadius: '50%', padding: 0, flexShrink: 0,
+                      background: lc ?? 'rgba(255,255,255,0.15)',
+                      border: lc ? `1px solid ${lc}` : '1px solid rgba(255,255,255,0.2)',
+                      cursor: 'pointer',
+                    }}
+                  />
                   <span
-                    style={{ flex: 1, color: isHidden ? 'rgba(255,255,255,0.3)' : '#e0e0e0', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    style={{ flex: 1, color: isHidden ? 'rgba(255,255,255,0.3)' : (lc ?? '#e0e0e0'), fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                     title={layer.name}
                   >
                     {layer.name}

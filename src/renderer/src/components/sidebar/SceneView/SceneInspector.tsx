@@ -172,6 +172,8 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
   const [sizeLocked, setSizeLocked] = useState(false)
   const [memoDraft, setMemoDraft] = useState(node?.memo ?? '')
   const [tagDraft, setTagDraft] = useState('')
+  // R1393: 로컬/월드 좌표 토글
+  const [coordMode, setCoordMode] = useState<'local' | 'world'>('local')
   const nameInputRef = useRef<HTMLInputElement>(null)
   const [history, setHistory] = useState<Array<{ key: string; val: unknown; time: number }>>([])
 
@@ -468,19 +470,68 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         )}
       </div>
 
-      {/* Position */}
-      <SectionHeader label="Position" />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
-          <NumInput label="X" value={node.x} uuid={node.uuid} prop="x" onSave={trackUpdate} />
-          <NumInput label="Y" value={node.y} uuid={node.uuid} prop="y" onSave={trackUpdate} />
+      {/* R1393: Position — 로컬/월드 좌표 토글 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <SectionHeader label="Position" />
+        <div style={{ display: 'flex', gap: 2, marginRight: 2 }}>
+          <button
+            onClick={() => setCoordMode('local')}
+            title="로컬 좌표"
+            style={{
+              padding: '1px 5px', fontSize: 9, fontWeight: 700, cursor: 'pointer',
+              background: coordMode === 'local' ? 'var(--accent)' : 'rgba(255,255,255,0.06)',
+              color: coordMode === 'local' ? '#fff' : 'var(--text-muted)',
+              border: '1px solid ' + (coordMode === 'local' ? 'var(--accent)' : 'var(--border)'),
+              borderRadius: '3px 0 0 3px', lineHeight: '14px',
+            }}
+          >L</button>
+          <button
+            onClick={() => setCoordMode('world')}
+            title="월드 좌표 (읽기 전용)"
+            style={{
+              padding: '1px 5px', fontSize: 9, fontWeight: 700, cursor: 'pointer',
+              background: coordMode === 'world' ? 'var(--accent)' : 'rgba(255,255,255,0.06)',
+              color: coordMode === 'world' ? '#fff' : 'var(--text-muted)',
+              border: '1px solid ' + (coordMode === 'world' ? 'var(--accent)' : 'var(--border)'),
+              borderRadius: '0 3px 3px 0', lineHeight: '14px',
+            }}
+          >W</button>
         </div>
-        <button
-          onClick={() => { trackUpdate(node.uuid, 'x', 0); trackUpdate(node.uuid, 'y', 0) }}
-          title="X, Y 위치를 (0, 0)으로 초기화"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.x !== 0 || node.y !== 0) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
-        >⊙</button>
       </div>
+      {coordMode === 'local' ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+            <NumInput label="X" value={node.x} uuid={node.uuid} prop="x" onSave={trackUpdate} />
+            <NumInput label="Y" value={node.y} uuid={node.uuid} prop="y" onSave={trackUpdate} />
+          </div>
+          <button
+            onClick={() => { trackUpdate(node.uuid, 'x', 0); trackUpdate(node.uuid, 'y', 0) }}
+            title="X, Y 위치를 (0, 0)으로 초기화"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.x !== 0 || node.y !== 0) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+          >⊙</button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0' }}>
+              <span style={{ width: 48, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>WX</span>
+              <span style={{
+                flex: 1, padding: '2px 4px', fontSize: 11, fontFamily: 'monospace',
+                background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)',
+                borderRadius: 3, color: 'var(--text-muted)', cursor: 'default', opacity: 0.8,
+              }}>{node.worldX != null ? Math.round(node.worldX * 100) / 100 : '(계산 필요)'}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0' }}>
+              <span style={{ width: 48, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>WY</span>
+              <span style={{
+                flex: 1, padding: '2px 4px', fontSize: 11, fontFamily: 'monospace',
+                background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)',
+                borderRadius: 3, color: 'var(--text-muted)', cursor: 'default', opacity: 0.8,
+              }}>{node.worldY != null ? Math.round(node.worldY * 100) / 100 : '(계산 필요)'}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Size */}
       <SectionHeader label="Size" />

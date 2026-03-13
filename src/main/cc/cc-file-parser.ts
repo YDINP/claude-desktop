@@ -68,18 +68,18 @@ function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | nul
   if (depth > 100) return null
   const e = raw[idx]
 
-  // _trs TypedArray → position/rotation/scale
-  const trs = parseTRS2x(e._trs)
+  // R1396: _trs TypedArray → position/rotation/scale (base64 + 개별 필드 폴백)
+  const trs = parseTRS2x(e._trs, e)
 
   // Size (contentSize)
   const cs = e._contentSize as { width?: number; height?: number } | undefined
   const size: CCVec2 = { x: cs?.width ?? 0, y: cs?.height ?? 0 }
 
-  // Anchor
+  // R1396: Anchor — 없으면 기본값 {x:0.5, y:0.5} 보장
   const ap = e._anchorPoint as { x?: number; y?: number } | undefined
   const anchor: CCVec2 = { x: ap?.x ?? 0.5, y: ap?.y ?? 0.5 }
 
-  // Opacity & Color
+  // R1396: Opacity — 없으면 255 기본값
   const opacity = typeof e._opacity === 'number' ? e._opacity : 255
   const rc = e._color as { r?: number; g?: number; b?: number; a?: number } | undefined
   const color: CCColor = { r: rc?.r ?? 255, g: rc?.g ?? 255, b: rc?.b ?? 255, a: rc?.a ?? 255 }
@@ -113,34 +113,73 @@ function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | nul
 }
 
 /**
- * CC 2.x _trs TypedArray 파싱
+ * CC 2.x _trs TypedArray 파싱 (R1396 강화)
  * array[0..2] = position xyz
  * array[3..6] = quaternion xyzw
  * array[7..9] = scale xyz
+ *
+ * R1396: base64 인코딩 _trs 디코딩 + _position/_rotation/_scale 개별 필드 폴백
  */
-function parseTRS2x(trs: unknown): { position: CCVec3; rotationZ: number; scale: CCVec3 } {
+function parseTRS2x(trs: unknown, entry?: RawEntry): { position: CCVec3; rotationZ: number; scale: CCVec3 } {
   const defaults = {
     position: { x: 0, y: 0, z: 0 } as CCVec3,
     rotationZ: 0,
     scale: { x: 1, y: 1, z: 1 } as CCVec3,
   }
-  if (!trs || typeof trs !== 'object') return defaults
-  const t = trs as RawEntry
-  if (t.__type__ !== 'TypedArray') return defaults
-  const a = t.array as number[] | undefined
-  if (!Array.isArray(a) || a.length < 10) return defaults
 
-  // Quaternion → Z-axis euler (2D game: only Z rotation matters)
-  const qw = a[6], qz = a[5]
-  const sinZ = 2 * qw * qz
-  const cosZ = 1 - 2 * qz * qz
-  const rotZDeg = Math.atan2(sinZ, cosZ) * (180 / Math.PI)
-
-  return {
-    position: { x: a[0], y: a[1], z: a[2] },
-    rotationZ: Math.round(rotZDeg * 1000) / 1000,
-    scale: { x: a[7], y: a[8], z: a[9] },
+  // 1) _trs TypedArray 파싱 (기존 로직)
+  if (trs && typeof trs === 'object') {
+    const t = trs as RawEntry
+    if (t.__type__ === 'TypedArray') {
+      let a = t.array as number[] | string | undefined
+      // R1396: base64 인코딩된 경우 디코딩
+      if (typeof a === 'string') {
+        try {
+          const buf = Buffer.from(a, 'base64')
+          const ctor = (t.ctor as string) ?? 'Float64Array'
+          const bytesPerElem = ctor === 'Float32Array' ? 4 : 8
+          const arr: number[] = []
+          for (let i = 0; i + bytesPerElem <= buf.length; i += bytesPerElem) {
+            arr.push(bytesPerElem === 4 ? buf.readFloatLE(i) : buf.readDoubleLE(i))
+          }
+          a = arr
+        } catch { a = undefined }
+      }
+      if (Array.isArray(a) && a.length >= 10) {
+        const qw = a[6], qz = a[5]
+        const sinZ = 2 * qw * qz
+        const cosZ = 1 - 2 * qz * qz
+        const rotZDeg = Math.atan2(sinZ, cosZ) * (180 / Math.PI)
+        return {
+          position: { x: a[0], y: a[1], z: a[2] },
+          rotationZ: Math.round(rotZDeg * 1000) / 1000,
+          scale: { x: a[7], y: a[8], z: a[9] },
+        }
+      }
+    }
   }
+
+  // 2) R1396: _position / _rotation / _scale 개별 필드 폴백 (CC 2.x 구버전)
+  if (entry) {
+    const pos = entry._position as { x?: number; y?: number; z?: number } | undefined
+    const rot = entry._rotation as { x?: number; y?: number; z?: number; w?: number } | undefined
+    const scl = entry._scale as { x?: number; y?: number; z?: number } | undefined
+    if (pos || rot || scl) {
+      const position: CCVec3 = { x: pos?.x ?? 0, y: pos?.y ?? 0, z: pos?.z ?? 0 }
+      let rotZDeg = 0
+      if (rot) {
+        // quaternion → euler Z
+        const qw = rot.w ?? 1, qz = rot.z ?? 0
+        const sinZ = 2 * qw * qz
+        const cosZ = 1 - 2 * qz * qz
+        rotZDeg = Math.round(Math.atan2(sinZ, cosZ) * (180 / Math.PI) * 1000) / 1000
+      }
+      const scale: CCVec3 = { x: scl?.x ?? 1, y: scl?.y ?? 1, z: scl?.z ?? 1 }
+      return { position, rotationZ: rotZDeg, scale }
+    }
+  }
+
+  return defaults
 }
 
 // ── R1380: 컴포넌트별 주요 속성 추출 ─────────────────────────────────────────

@@ -1,10 +1,10 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1391 완료 — Phase DD13 R1386~1391)
+> 마지막 업데이트: 2026-03-14 (Round 1397 완료 — Phase DD14 R1392~1397)
 
 ## 현재 상태
-- 마지막 커밋: Round 1386~1391 (노드복사deepClone/AudioSource/9슬라이스/파일감시/프로젝트설정/QA)
+- 마지막 커밋: Round 1392~1397 (씬뷰가이드라인/Inspector좌표토글/씬템플릿/레이어고도화/파서강화/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1264
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1269
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -66,6 +66,28 @@
 ## 긴급 버그 수정 (이번 세션)
 - CCFileSceneView.tsx:245 — panStart.current null in setView updater (offX/offY 캡처로 해결)
 - App.tsx — CC 탭 버튼 border/borderBottom 순서 충돌 경고 해소
+
+## Phase DD14 R1392~1397 완료
+
+| 라운드 | 기능 |
+|--------|------|
+| R1392 | SceneView 정렬 가이드라인 SVG 렌더링 (#4af 스마트 가이드, snap 연동) |
+| R1393 | Inspector 로컬/월드 좌표 토글 (L/W 버튼, 월드 읽기 전용) |
+| R1394 | CocosPanel 씬 템플릿 생성 (빈씬/Canvas 템플릿, writeTextFile, 자동 열기) |
+| R1395 | SceneView 레이어 패널 고도화 (가시성/잠금 영구저장, 색상 라벨 팔레트) |
+| R1396 | cc-file-parser 2x _trs 파싱 정밀도 향상 (base64 디코딩, 개별 필드 폴백) |
+| R1397 | QA Section 375-376 추가 (R1392-R1396 기능 체크, Pass 1269) |
+
+## Phase DD13 R1386~1391 완료
+
+| 라운드 | 기능 |
+|--------|------|
+| R1386 | SceneView 노드 복사/붙여넣기/복제 deep clone (Ctrl+C/V/D, 재귀 UUID 갱신) |
+| R1387 | Inspector cc.AudioSource 속성 편집 (volume/loop/playOnLoad/preload) |
+| R1388 | NodeRenderer Sprite SLICED/TILED 렌더링 힌트 (점선 격자/x 패턴) |
+| R1389 | cc-file-watcher 부분 업데이트 IPC + debounce 300ms + 배너 5초 자동 숨김 |
+| R1390 | CocosPanel CC 프로젝트 설정 뷰어 (버전/해상도/물리엔진/빌드타겟) |
+| R1391 | QA Section 373-374 추가 (R1386-R1390 기능 체크, Pass 1264) |
 
 ## Phase DD12 R1380~1385 완료
 

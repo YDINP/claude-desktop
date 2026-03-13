@@ -327,6 +327,10 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1389: 외부 변경 배너 자동 숨김
   const [bannerHidden, setBannerHidden] = useState(false)
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // R1394: 씬 템플릿 생성
+  const [showNewSceneForm, setShowNewSceneForm] = useState(false)
+  const [newSceneName, setNewSceneName] = useState('NewScene')
+  const [newSceneTemplate, setNewSceneTemplate] = useState<'empty' | 'canvas'>('canvas')
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -438,6 +442,39 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
     return () => { if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current) }
   }, [externalChange])
+
+  // R1394: 새 씬 파일 생성
+  const handleCreateScene = useCallback(async () => {
+    if (!projectInfo?.projectPath || !newSceneName.trim()) return
+    const safeName = newSceneName.trim().replace(/[<>:"/\\|?*]/g, '_')
+    const ext = projectInfo.version === '3x' ? '.scene' : '.fire'
+    const scenePath = projectInfo.projectPath.replace(/\\/g, '/') + '/assets/' + safeName + ext
+    // CC 2.x 최소 씬 구조
+    let sceneJson: unknown[]
+    if (newSceneTemplate === 'canvas') {
+      sceneJson = [
+        { __type__: 'cc.SceneAsset', _name: '', _objFlags: 0, _native: '', scene: { __id__: 1 } },
+        { __type__: 'cc.Scene', _objFlags: 0, _parent: null, _children: [{ __id__: 2 }], _active: true, _level: 0, _components: [], _prefab: null, _opacity: 255, _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 }, _contentSize: { __type__: 'cc.Size', width: 0, height: 0 }, _anchorPoint: { __type__: 'cc.Vec2', x: 0, y: 0 }, _id: 'scene-' + Date.now(), _name: safeName, autoReleaseAssets: false },
+        { __type__: 'cc.Node', _name: 'Canvas', _objFlags: 0, _parent: { __id__: 1 }, _children: [], _active: true, _components: [{ __id__: 3 }], _prefab: null, _opacity: 255, _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 }, _contentSize: { __type__: 'cc.Size', width: 960, height: 640 }, _anchorPoint: { __type__: 'cc.Vec2', x: 0.5, y: 0.5 }, _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0, 0, 0, 0, 0, 0, 1, 1, 1, 1] }, _id: 'canvas-' + Date.now() },
+        { __type__: 'cc.Canvas', _name: '', _objFlags: 0, node: { __id__: 2 }, _enabled: true, _N$designResolution: { __type__: 'cc.Size', width: 960, height: 640 }, _N$fitWidth: false, _N$fitHeight: true },
+      ]
+    } else {
+      sceneJson = [
+        { __type__: 'cc.SceneAsset', _name: '', _objFlags: 0, _native: '', scene: { __id__: 1 } },
+        { __type__: 'cc.Scene', _objFlags: 0, _parent: null, _children: [], _active: true, _level: 0, _components: [], _prefab: null, _opacity: 255, _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 }, _contentSize: { __type__: 'cc.Size', width: 0, height: 0 }, _anchorPoint: { __type__: 'cc.Vec2', x: 0, y: 0 }, _id: 'scene-' + Date.now(), _name: safeName, autoReleaseAssets: false },
+      ]
+    }
+    const content = JSON.stringify(sceneJson, null, 2)
+    try {
+      const result = await window.api.writeTextFile(scenePath, content)
+      if (result?.error) { console.error('씬 생성 실패:', result.error); return }
+      setShowNewSceneForm(false)
+      setNewSceneName('NewScene')
+      // 생성 후 자동으로 열기
+      await loadScene(scenePath)
+      addRecentScene(scenePath)
+    } catch (e) { console.error('씬 생성 오류:', e) }
+  }, [projectInfo, newSceneName, newSceneTemplate, loadScene, addRecentScene])
 
   const handleSceneChange = useCallback(async (path: string) => {
     setSelectedScene(path)
@@ -869,6 +906,73 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   <span style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>
                     {projectInfo.version} ({projectInfo.creatorVersion})
                   </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* R1394: 새 씬 만들기 버튼 + 인라인 폼 */}
+        {projectInfo?.detected && (
+          <div style={{ marginTop: 6 }}>
+            {!showNewSceneForm ? (
+              <button
+                onClick={() => setShowNewSceneForm(true)}
+                style={{
+                  padding: '3px 8px', fontSize: 10, cursor: 'pointer',
+                  background: 'rgba(96,165,250,0.12)', color: 'var(--accent)',
+                  border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4,
+                  display: 'flex', alignItems: 'center', gap: 4,
+                }}
+              >
+                <span style={{ fontSize: 12, lineHeight: 1 }}>+</span> 새 씬 만들기
+              </button>
+            ) : (
+              <div style={{
+                padding: '6px 8px', background: 'rgba(0,0,0,0.2)',
+                border: '1px solid var(--border)', borderRadius: 4,
+                display: 'flex', flexDirection: 'column', gap: 5,
+              }}>
+                <input
+                  value={newSceneName}
+                  onChange={e => setNewSceneName(e.target.value)}
+                  placeholder="씬 이름"
+                  onKeyDown={e => { if (e.key === 'Enter') handleCreateScene(); if (e.key === 'Escape') setShowNewSceneForm(false) }}
+                  autoFocus
+                  style={{
+                    padding: '3px 6px', fontSize: 10,
+                    background: 'var(--bg-input)', color: 'var(--text-primary)',
+                    border: '1px solid var(--border)', borderRadius: 3,
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 4, fontSize: 9 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', color: 'var(--text-muted)' }}>
+                    <input type="radio" name="scnTpl" checked={newSceneTemplate === 'empty'} onChange={() => setNewSceneTemplate('empty')} style={{ margin: 0 }} />
+                    빈 씬
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', color: 'var(--text-muted)' }}>
+                    <input type="radio" name="scnTpl" checked={newSceneTemplate === 'canvas'} onChange={() => setNewSceneTemplate('canvas')} style={{ margin: 0 }} />
+                    Canvas 포함
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    onClick={handleCreateScene}
+                    disabled={!newSceneName.trim()}
+                    style={{
+                      flex: 1, padding: '3px 6px', fontSize: 10, cursor: 'pointer',
+                      background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 3,
+                      opacity: newSceneName.trim() ? 1 : 0.5,
+                    }}
+                  >생성</button>
+                  <button
+                    onClick={() => setShowNewSceneForm(false)}
+                    style={{
+                      padding: '3px 6px', fontSize: 10, cursor: 'pointer',
+                      background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)',
+                      border: '1px solid var(--border)', borderRadius: 3,
+                    }}
+                  >취소</button>
                 </div>
               </div>
             )}
