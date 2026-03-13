@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { SceneTreePanel } from './SceneTreePanel'
 import { NodePropertyPanel } from './NodePropertyPanel'
 import { AssetBrowserPanel } from './AssetBrowserPanel'
 import { useProject } from '../../stores/project-store'
 import { useCCFileProject } from '../../hooks/useCCFileProject'
 import { CCFileSceneView } from './SceneView/CCFileSceneView'
-import type { CCNode, CCSceneNode } from '../../../../shared/ipc-schema'
+import type { CCNode, CCSceneNode, CCSceneFile } from '../../../../shared/ipc-schema'
 
 export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
   defaultPort?: number
@@ -523,11 +523,11 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         )}
       </div>
 
-      {/* 씬 파싱 결과 — SceneView + TreeView */}
+      {/* 씬 파싱 결과 — SceneView + TreeView + Inspector */}
       {sceneFile?.root && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           {/* SVG 씬 뷰 */}
-          <div style={{ height: 280, flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
+          <div style={{ height: 240, flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
             <CCFileSceneView
               sceneFile={sceneFile}
               selectedUuid={selectedNode?.uuid ?? null}
@@ -543,7 +543,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             />
           </div>
           {/* 씬 트리 */}
-          <div style={{ flex: 1, overflow: 'auto' }}>
+          <div style={{ flex: selectedNode ? 0 : 1, overflow: 'auto', maxHeight: selectedNode ? 180 : undefined }}>
             <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)' }}>
               씬: {sceneFile.scenePath.split(/[\\/]/).pop()}
             </div>
@@ -554,6 +554,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onSelect={onSelectNode}
             />
           </div>
+          {/* 노드 인스펙터 */}
+          {selectedNode && (
+            <CCFileNodeInspector
+              node={selectedNode}
+              sceneFile={sceneFile}
+              saveScene={saveScene}
+              onUpdate={onSelectNode}
+            />
+          )}
         </div>
       )}
 
@@ -627,6 +636,127 @@ function CCFileSceneTree({
           onSelect={onSelect}
         />
       ))}
+    </div>
+  )
+}
+
+/** CCSceneNode 프로퍼티 인스펙터 — 노드 선택 시 표시 */
+function CCFileNodeInspector({
+  node, sceneFile, saveScene, onUpdate,
+}: {
+  node: CCSceneNode
+  sceneFile: CCSceneFile
+  saveScene: (root: CCSceneNode) => Promise<{ success: boolean; error?: string }>
+  onUpdate: (n: CCSceneNode | null) => void
+}) {
+  // 편집 중인 로컬 상태 (노드 변경 시 초기화)
+  const [draft, setDraft] = useState<CCSceneNode>(() => ({ ...node }))
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+
+  // 노드 교체 시 draft 초기화
+  useMemo(() => { setDraft({ ...node }) }, [node.uuid])
+
+  const rotation = typeof draft.rotation === 'number' ? draft.rotation : (draft.rotation as { z: number }).z ?? 0
+
+  // 노드 값 패치 후 씬 저장
+  const applyAndSave = useCallback(async (patch: Partial<CCSceneNode>) => {
+    if (!sceneFile.root) return
+    const updated = { ...draft, ...patch }
+    setDraft(updated)
+
+    // sceneFile.root에서 uuid 찾아 교체
+    function replaceNode(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === updated.uuid) return updated
+      return { ...n, children: n.children.map(replaceNode) }
+    }
+    const newRoot = replaceNode(sceneFile.root)
+
+    setSaving(true)
+    const result = await saveScene(newRoot)
+    setSaving(false)
+    if (result.success) {
+      setMsg({ ok: true, text: '저장됨' })
+      onUpdate(updated)
+    } else {
+      setMsg({ ok: false, text: result.error ?? '저장 실패' })
+    }
+    setTimeout(() => setMsg(null), 2000)
+  }, [draft, sceneFile, saveScene, onUpdate])
+
+  const numInput = (
+    label: string,
+    value: number,
+    onChange: (v: number) => void,
+    step = 1,
+  ) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+      <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{label}</span>
+      <input
+        type="number"
+        step={step}
+        value={value}
+        onChange={e => onChange(parseFloat(e.target.value) || 0)}
+        onBlur={e => onChange(parseFloat(e.target.value) || 0)}
+        style={{
+          flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+          color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+        }}
+      />
+    </div>
+  )
+
+  return (
+    <div style={{
+      flexShrink: 0, borderTop: '1px solid var(--border)',
+      padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)', maxHeight: 280, overflowY: 'auto',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)' }}>{draft.name || '(unnamed)'}</span>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          {saving && <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>저장 중...</span>}
+          {msg && <span style={{ fontSize: 9, color: msg.ok ? '#4ade80' : '#f85149' }}>{msg.text}</span>}
+          <label style={{ fontSize: 10, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <input
+              type="checkbox"
+              checked={draft.active}
+              onChange={e => applyAndSave({ active: e.target.checked })}
+              style={{ margin: 0 }}
+            />
+            활성
+          </label>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 10px' }}>
+        <div>
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, fontWeight: 600 }}>위치</div>
+          {numInput('X', draft.position.x, v => applyAndSave({ position: { ...draft.position, x: v } }))}
+          {numInput('Y', draft.position.y, v => applyAndSave({ position: { ...draft.position, y: v } }))}
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', fontWeight: 600 }}>회전</div>
+          {numInput('Z°', rotation, v => {
+            const r = typeof draft.rotation === 'number' ? v : { ...(draft.rotation as object), z: v } as CCSceneNode['rotation']
+            applyAndSave({ rotation: r })
+          })}
+        </div>
+        <div>
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, fontWeight: 600 }}>크기</div>
+          {numInput('W', draft.size.x, v => applyAndSave({ size: { ...draft.size, x: v } }))}
+          {numInput('H', draft.size.y, v => applyAndSave({ size: { ...draft.size, y: v } }))}
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', fontWeight: 600 }}>스케일</div>
+          {numInput('X', draft.scale.x, v => applyAndSave({ scale: { ...draft.scale, x: v } }), 0.01)}
+          {numInput('Y', draft.scale.y, v => applyAndSave({ scale: { ...draft.scale, y: v } }), 0.01)}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 4 }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, fontWeight: 600 }}>앵커 / 불투명도</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0 6px' }}>
+          {numInput('aX', draft.anchor.x, v => applyAndSave({ anchor: { ...draft.anchor, x: v } }), 0.01)}
+          {numInput('aY', draft.anchor.y, v => applyAndSave({ anchor: { ...draft.anchor, y: v } }), 0.01)}
+          {numInput('α', draft.opacity, v => applyAndSave({ opacity: Math.min(255, Math.max(0, Math.round(v))) }))}
+        </div>
+      </div>
     </div>
   )
 }
