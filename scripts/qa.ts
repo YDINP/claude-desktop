@@ -16732,6 +16732,18 @@ console.log('\n## 460. R1569 cc.PageView Quick Edit 체크')
   }
 }
 
+// ── Section 461: R1570 SceneView P키 부모 노드 포커스 ────────────────
+console.log('\n## 461. R1570 SceneView P키 부모 포커스 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s461 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s461.includes("KeyP") && s461.includes('parentUuid') && s461.includes('fn?.parentUuid')) {
+    log('pass', 'R1570-parent-focus', 'P키 부모 노드 포커스 + FlatNode parentUuid 추적')
+  } else {
+    log('warning', 'R1570-parent-focus', 'P키 부모 포커스 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

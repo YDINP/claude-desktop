@@ -12,6 +12,7 @@ interface FlatNode {
   worldX: number
   worldY: number
   depth: number
+  parentUuid: string | null  // R1570
 }
 
 interface CCFileSceneViewProps {
@@ -189,17 +190,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // 씬 트리 → flat 목록 (world position 누적)
   const flatNodes = useMemo(() => {
     const result: FlatNode[] = []
-    function walk(node: CCSceneNode, worldX: number, worldY: number, depth: number) {
+    function walk(node: CCSceneNode, worldX: number, worldY: number, depth: number, parentUuid: string | null) {
       const x = worldX + (typeof node.position === 'object' ? (node.position as { x: number }).x : 0)
       const y = worldY + (typeof node.position === 'object' ? (node.position as { y: number }).y : 0)
-      result.push({ node, worldX: x, worldY: y, depth })
+      result.push({ node, worldX: x, worldY: y, depth, parentUuid })
       for (const child of node.children) {
-        walk(child, x, y, depth + 1)
+        walk(child, x, y, depth + 1, node.uuid)
       }
     }
     // Scene 루트 자체는 건너뜀 (이름 없는 컨테이너)
     for (const child of sceneFile.root.children) {
-      walk(child, 0, 0, 0)
+      walk(child, 0, 0, 0, null)
     }
     return result
   }, [sceneFile])
@@ -531,6 +532,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
         e.preventDefault()
         if (selectedUuid) onDuplicate?.(selectedUuid)
+        return
+      }
+      // R1570: P — 선택 노드 부모 노드로 포커스
+      if (e.code === 'KeyP' && !e.ctrlKey && !e.metaKey && selectedUuid) {
+        e.preventDefault()
+        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+        if (fn?.parentUuid) {
+          const parentFn = flatNodes.find(f => f.node.uuid === fn.parentUuid)
+          if (parentFn) onSelect(parentFn.node.uuid)
+        }
         return
       }
       // R1565: H — 선택 노드 active 토글 (숨기기/보이기)
@@ -1657,6 +1668,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['Ctrl+D', '선택 노드 복제'],
             ['Ctrl+N', '새 노드 추가'],
             ['H', '선택 노드 숨기기/보이기'],
+            ['P', '부모 노드 선택'],
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', gap: 8 }}>
               <span style={{ color: '#58a6ff', minWidth: 100 }}>{k}</span>
