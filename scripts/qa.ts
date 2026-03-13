@@ -17502,6 +17502,18 @@ console.log('\n## 522. R1631 Inspector tint 색상 프리셋 칩 체크')
   }
 }
 
+// ── Section 523: R1632 SceneView Shift+클릭 같은 이름 검색 ──────────────────
+console.log('\n## 523. R1632 SceneView Shift+클릭 같은 이름 검색 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s523 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s523.includes('R1632') && s523.includes('e.shiftKey') && s523.includes('setSvSearch(node.name)')) {
+    log('pass', 'R1632-shift-search', 'SceneView Shift+클릭 같은 이름 노드 검색')
+  } else {
+    log('warning', 'R1632-shift-search', 'SceneView Shift+클릭 같은 이름 노드 검색 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1185,7 +1185,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 opacity={nodeOpacity}
                 onClick={e => {
                   e.stopPropagation()
-                  if (e.ctrlKey || e.metaKey) {
+                  if (e.shiftKey) {
+                    // R1632: Shift+클릭 → 같은 이름 노드 검색
+                    setSvSearch(node.name)
+                    onSelect(node.uuid)
+                  } else if (e.ctrlKey || e.metaKey) {
                     // Ctrl+클릭: 멀티셀렉트 토글
                     setMultiSelected(s => {
                       const n = new Set(s)
