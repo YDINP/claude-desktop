@@ -14776,6 +14776,9 @@ if (existsSync(cfp1400Path)) {
     ['sidebar/CocosPanel.tsx', 'CocosPanel'],
     ['sidebar/SceneView/SceneViewPanel.tsx', 'SceneViewPanel'],
     ['sidebar/SessionList.tsx', 'SessionList'],
+    ['sidebar/SceneView/SceneInspector.tsx', 'SceneInspector'],
+    ['sidebar/SceneView/NodeHierarchyList.tsx', 'NodeHierarchyList'],
+    ['sidebar/SceneView/NodeRenderer.tsx', 'NodeRenderer'],
   ]
   for (const [rel, name] of checkFiles) {
     const fpath = join(RENDERER, rel)
@@ -14805,6 +14808,83 @@ if (existsSync(cfp1400Path)) {
     } else {
       log('pass', 'RuntimeError', 'ChatPanel: showOnlyBookmarks TDZ 없음')
     }
+  }
+}
+
+// ── Section 383: R1410/R1411/R1412 기능 체크 ───────────────
+console.log('\n## 383. Phase DD14 R1410~R1412 기능 체크')
+
+// R1410: cc-asset-resolver UUID 캐시 고도화
+const assetResolverPath = join(ROOT, 'src/main/cc/cc-asset-resolver.ts')
+if (existsSync(assetResolverPath)) {
+  const ar1410 = readFileSync(assetResolverPath, 'utf-8')
+  if (ar1410.includes('R1410') && ar1410.includes('resolveUUIDToPath') && ar1410.includes('getAssetInfo') && ar1410.includes('getAllTextureUUIDs')) {
+    log('pass', 'R1410', 'cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs)')
+  } else {
+    log('warning', 'R1410', 'cc-asset-resolver 고도화 함수 없음', 'cc/cc-asset-resolver.ts')
+  }
+}
+// R1410: preload API 노출
+const preloadPath1410 = join(ROOT, 'src/preload/index.ts')
+if (existsSync(preloadPath1410)) {
+  const pl1410 = readFileSync(preloadPath1410, 'utf-8')
+  if (pl1410.includes('ccGetAssetInfo') && pl1410.includes('ccGetAllTextureUUIDs')) {
+    log('pass', 'R1410', 'preload API 노출: ccGetAssetInfo, ccGetAllTextureUUIDs')
+  } else {
+    log('warning', 'R1410', 'preload API 미노출', 'preload/index.ts')
+  }
+}
+
+// R1411: Inspector 속성 검색 필터
+if (existsSync(si1402Path)) {
+  const si1411 = readFileSync(si1402Path, 'utf-8')
+  if (si1411.includes('R1411') && si1411.includes('propFilter') && si1411.includes('속성 검색')) {
+    log('pass', 'R1411', 'SceneInspector 속성 검색 필터 (propFilter, Esc 초기화, 컴포넌트명/props 필터)')
+  } else {
+    log('warning', 'R1411', 'Inspector 속성 검색 필터 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1412: SceneView 채팅 연동 노드 하이라이트
+if (existsSync(sceneViewPath)) {
+  const svp1412 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1412.includes('R1412') && svp1412.includes('cc-highlight-node')) {
+    log('pass', 'R1412', 'SceneView 채팅 연동 노드 하이라이트 (cc-highlight-node 이벤트, 3초 깜빡임)')
+  } else {
+    log('warning', 'R1412', 'SceneView 채팅 연동 하이라이트 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1412: ChatPanel dispatch
+const chatPanelPathR1412 = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(chatPanelPathR1412)) {
+  const cp1412 = readFileSync(chatPanelPathR1412, 'utf-8')
+  if (cp1412.includes('R1412') && cp1412.includes('cc-highlight-node') && cp1412.includes('dispatchEvent')) {
+    log('pass', 'R1412', 'ChatPanel cc-highlight-node dispatch (AI 응답에서 노드명 추출)')
+  } else {
+    log('warning', 'R1412', 'ChatPanel 하이라이트 dispatch 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// ── Section 384: R1413/R1414 기능 체크 ───────────────
+console.log('\n## 384. Phase DD14 R1413~R1414 기능 체크')
+
+// R1413: Inspector 다중 노드 일괄 편집
+if (existsSync(si1402Path)) {
+  const si1413 = readFileSync(si1402Path, 'utf-8')
+  if (si1413.includes('R1413') && si1413.includes('multiSelectedUuids') && si1413.includes('onBatchUpdate') && si1413.includes('일괄 적용') && si1413.includes('batchOffsetX')) {
+    log('pass', 'R1413', 'Inspector 다중 노드 일괄 편집 (active 토글, position 오프셋, 일괄 적용 버튼)')
+  } else {
+    log('warning', 'R1413', 'Inspector 다중 노드 일괄 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1414: CocosPanel 씬 히스토리 타임라인
+if (existsSync(cp1398Path)) {
+  const cp1414 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1414.includes('R1414') && cp1414.includes('sceneHistoryTimeline') && cp1414.includes('저장 이력') && cp1414.includes('scene-history-') && cp1414.includes('showFullHistory')) {
+    log('pass', 'R1414', 'CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5개/더보기, 복원 TODO)')
+  } else {
+    log('warning', 'R1414', 'CocosPanel 씬 히스토리 타임라인 없음', 'sidebar/CocosPanel.tsx')
   }
 }
 

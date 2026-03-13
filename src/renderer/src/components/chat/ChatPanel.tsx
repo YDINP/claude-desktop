@@ -804,6 +804,24 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           }
         }
       }
+      // R1412: AI 응답에서 노드 이름 추출 → SceneView 하이라이트 이벤트 발생
+      {
+        const lastMsg = chat.messages[messageCount - 1]
+        if (lastMsg?.role === 'assistant' && lastMsg.text) {
+          const nodeNames = new Set<string>()
+          // 큰따옴표 또는 백틱 안 텍스트 추출 (2~40자)
+          const patterns = [/[`"]([A-Za-z_][\w\- ]{1,39})[`"]/g]
+          for (const pat of patterns) {
+            let m: RegExpExecArray | null
+            while ((m = pat.exec(lastMsg.text)) !== null) {
+              nodeNames.add(m[1])
+            }
+          }
+          for (const nodeName of nodeNames) {
+            window.dispatchEvent(new CustomEvent('cc-highlight-node', { detail: { nodeName } }))
+          }
+        }
+      }
     }
     prevStreamingRef.current = chat.isStreaming
   }, [chat.isStreaming, messageCount, virtualizer, ccCtx.connected, chat.messages])

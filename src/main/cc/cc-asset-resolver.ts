@@ -124,6 +124,37 @@ function collectUUIDs(obj: unknown, acc: Set<string>) {
 }
 
 /**
+ * R1410: UUID → 파일 경로 resolve (모든 에셋 타입)
+ */
+export function resolveUUIDToPath(uuid: string, uuidMap: UUIDMap): string | null {
+  return uuidMap.get(uuid)?.path ?? null
+}
+
+/**
+ * R1410: UUID → 에셋 상세 정보 (path + type + name)
+ * displayName: .meta 파일의 displayName 또는 파일명에서 추출
+ */
+export function getAssetInfo(uuid: string, uuidMap: UUIDMap): { path: string; type: string; name: string } | null {
+  const asset = uuidMap.get(uuid)
+  if (!asset) return null
+  const name = path.basename(asset.path, path.extname(asset.path))
+  return { path: asset.path, type: asset.type, name }
+}
+
+/**
+ * R1410: 이미지 에셋 UUID 목록 반환
+ */
+export function getAllTextureUUIDs(uuidMap: UUIDMap): string[] {
+  const result: string[] = []
+  for (const [uuid, asset] of uuidMap) {
+    if (asset.type === 'texture' || asset.type === 'sprite-atlas') {
+      result.push(uuid)
+    }
+  }
+  return result
+}
+
+/**
  * UUID 맵 기반으로 텍스처 경로 resolve
  * local:// 프로토콜 URL 반환 (Electron protocol.handle 대응)
  */

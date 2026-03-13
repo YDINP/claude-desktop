@@ -120,4 +120,18 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   ipcMain.handle('cc:file:extractUUIDs', async (_e, raw: unknown[]) => {
     return extractReferencedUUIDs(raw)
   })
+
+  /** R1410: UUID → 에셋 상세 정보 */
+  ipcMain.handle('cc:file:getAssetInfo', async (_e, uuid: string, assetsDir: string) => {
+    const { getAssetInfo } = await import('../cc/cc-asset-resolver')
+    const map = buildUUIDMap(assetsDir)
+    return getAssetInfo(uuid, map)
+  })
+
+  /** R1410: 이미지 에셋 UUID 전체 목록 */
+  ipcMain.handle('cc:file:getAllTextureUUIDs', async (_e, assetsDir: string) => {
+    const { getAllTextureUUIDs } = await import('../cc/cc-asset-resolver')
+    const map = buildUUIDMap(assetsDir)
+    return getAllTextureUUIDs(map)
+  })
 }

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1409 완료 — Phase DD14 진행 중, QA Pass 1281)
+> 마지막 업데이트: 2026-03-14 (Round 1415 완료 — Phase DD14 진행 중, QA Pass 1297)
 
 ## 개발 루프 실행 방식
 
@@ -785,6 +785,12 @@
 | Round 1401 | SceneView 씬 통계 오버레이 (I키, 노드수/컴포넌트 분포, localStorage, ℹ 버튼) | ✅ |
 | Round 1402 | Inspector 노드 참조 필드 🔗 표시 (__id__/__uuid__ 감지) | ✅ |
 | Round 1403 | QA Section 377-378 추가 (R1398-R1402 기능 체크, Pass 1276) | ✅ |
+| Round 1410 | cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs) + preload API | ✅ |
+| Round 1411 | SceneView Inspector 속성 검색 필터 (propFilter, Esc 초기화, 컴포넌트명/props 필터) | ✅ |
+| Round 1412 | SceneView 채팅 연동 노드 하이라이트 (cc-highlight-node 이벤트, ChatPanel dispatch, 3초 깜빡임) | ✅ |
+| Round 1413 | Inspector 다중 노드 일괄 편집 (active 일괄 토글, position 오프셋, 일괄 적용 버튼) | ✅ |
+| Round 1414 | CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5/20개, 복원 TODO UI) | ✅ |
+| Round 1415 | QA Section 383-384 추가 (R1410-R1414 기능 체크, 런타임 체크 확장, Pass 1297) | ✅ |
 
 ## QA 프로세스
 

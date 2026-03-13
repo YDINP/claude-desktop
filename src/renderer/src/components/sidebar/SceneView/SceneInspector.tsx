@@ -8,6 +8,9 @@ interface SceneInspectorProps {
   onColorUpdate?: (uuid: string, color: Partial<{ r: number; g: number; b: number; a: number }>) => void
   onClose: () => void
   selectionCount?: number
+  // R1413: 다중 선택 UUID 목록 + 일괄 편집 콜백
+  multiSelectedUuids?: Set<string>
+  onBatchUpdate?: (uuids: string[], updates: Array<{ prop: string; value: number | boolean }>) => void
   onRename?: (uuid: string, name: string) => void
   onMemo?: (uuid: string, memo: string) => void
   onTagsUpdate?: (uuid: string, tags: string[]) => void
@@ -163,7 +166,7 @@ function ChildList({ childUuids, nodeMap, onSelect }: { childUuids: string[]; no
   )
 }
 
-export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, onTagsUpdate, onLabelColorUpdate, onApplyToCocos, onComponentClick, connected, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, multiSelectedUuids, onBatchUpdate, onRename, onMemo, onTagsUpdate, onLabelColorUpdate, onApplyToCocos, onComponentClick, connected, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -174,6 +177,9 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
   const [tagDraft, setTagDraft] = useState('')
   // R1393: 로컬/월드 좌표 토글
   const [coordMode, setCoordMode] = useState<'local' | 'world'>('local')
+  // R1411: Inspector 속성 검색 필터
+  const [propFilter, setPropFilter] = useState('')
+  const propFilterRef = useRef<HTMLInputElement>(null)
   const nameInputRef = useRef<HTMLInputElement>(null)
   const [history, setHistory] = useState<Array<{ key: string; val: unknown; time: number }>>([])
 
@@ -247,8 +253,12 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
     trackUpdate(node.uuid, 'active', next)
   }
 
-  // 다중 선택 시 집계 뷰
+  // R1413: 다중 선택 시 일괄 편집 UI
+  const [batchActive, setBatchActive] = useState<boolean | null>(null)
+  const [batchOffsetX, setBatchOffsetX] = useState('0')
+  const [batchOffsetY, setBatchOffsetY] = useState('0')
   if (selectionCount !== undefined && selectionCount > 1) {
+    const uuids = multiSelectedUuids ? [...multiSelectedUuids] : []
     return (
       <div
         style={{
@@ -259,37 +269,72 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           fontSize: 11,
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <span
-            style={{
-              fontSize: 10,
-              fontWeight: 600,
-              color: '#60a5fa',
-            }}
-          >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span style={{ fontSize: 10, fontWeight: 600, color: '#60a5fa' }}>
             {selectionCount}개 노드 선택됨
           </span>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              fontSize: 13,
-              padding: '0 2px',
-              lineHeight: 1,
-            }}
-          >
-            ×
-          </button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13, padding: '0 2px', lineHeight: 1 }}>×</button>
         </div>
+        {/* Active 일괄 토글 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>active</span>
+          <button
+            onClick={() => { setBatchActive(true); uuids.forEach(u => onUpdate(u, 'active', true)) }}
+            style={{ fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer', background: batchActive === true ? 'var(--success)' : 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: batchActive === true ? '#fff' : 'var(--text-muted)' }}
+          >ON</button>
+          <button
+            onClick={() => { setBatchActive(false); uuids.forEach(u => onUpdate(u, 'active', false)) }}
+            style={{ fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer', background: batchActive === false ? 'var(--error)' : 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: batchActive === false ? '#fff' : 'var(--text-muted)' }}
+          >OFF</button>
+        </div>
+        {/* Position 오프셋 편집 */}
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>Position 오프셋 (상대 이동)</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 16 }}>dX</span>
+            <input value={batchOffsetX} onChange={e => setBatchOffsetX(e.target.value)}
+              style={{ flex: 1, fontSize: 10, padding: '2px 4px', background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, outline: 'none' }}
+            />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 16 }}>dY</span>
+            <input value={batchOffsetY} onChange={e => setBatchOffsetY(e.target.value)}
+              style={{ flex: 1, fontSize: 10, padding: '2px 4px', background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, outline: 'none' }}
+            />
+          </div>
+        </div>
+        {/* 일괄 적용 버튼 */}
+        <button
+          onClick={() => {
+            const dx = parseFloat(batchOffsetX) || 0
+            const dy = parseFloat(batchOffsetY) || 0
+            if (dx === 0 && dy === 0) return
+            if (onBatchUpdate && nodeMap) {
+              const updates: Array<{ prop: string; value: number | boolean }> = []
+              for (const u of uuids) {
+                const n = nodeMap.get(u)
+                if (!n) continue
+                onUpdate(u, 'x', n.x + dx)
+                onUpdate(u, 'y', n.y + dy)
+              }
+            } else {
+              for (const u of uuids) {
+                const n = nodeMap?.get(u)
+                if (!n) continue
+                onUpdate(u, 'x', n.x + dx)
+                onUpdate(u, 'y', n.y + dy)
+              }
+            }
+            setBatchOffsetX('0')
+            setBatchOffsetY('0')
+          }}
+          style={{
+            width: '100%', padding: '3px 0', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+            background: 'var(--accent)', color: '#fff', border: 'none',
+          }}
+        >
+          일괄 적용
+        </button>
       </div>
     )
   }
@@ -435,6 +480,23 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             ×
           </button>
         </div>
+      </div>
+
+      {/* R1411: 속성 검색 필터 */}
+      <div style={{ marginBottom: 4 }}>
+        <input
+          ref={propFilterRef}
+          value={propFilter}
+          onChange={e => setPropFilter(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Escape') { setPropFilter(''); propFilterRef.current?.blur() }; e.stopPropagation() }}
+          placeholder="속성 검색..."
+          style={{
+            width: '100%', fontSize: 9, padding: '2px 5px',
+            background: 'var(--bg-primary)', border: '1px solid var(--border)',
+            borderRadius: 3, color: 'var(--text-primary)', outline: 'none',
+            boxSizing: 'border-box',
+          }}
+        />
       </div>
 
       {/* 조상 경로 (Breadcrumb) + 자식/depth 정보 */}
@@ -645,12 +707,28 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         </>
       )}
 
-      {/* R1405: 컴포넌트 목록 (순서 변경 ↑↓ 버튼) */}
-      {node.components.length > 0 && (
+      {/* R1405: 컴포넌트 목록 (순서 변경 ↑↓ 버튼) — R1411: propFilter 적용 */}
+      {node.components.length > 0 && (() => {
+        const pf = propFilter.toLowerCase().trim()
+        const filteredComps = pf
+          ? node.components.filter(c => {
+              if (c.type.toLowerCase().includes(pf)) return true
+              if (c.props) {
+                for (const [k, v] of Object.entries(c.props as Record<string, unknown>)) {
+                  if (k.toLowerCase().includes(pf)) return true
+                  if (v != null && String(v).toLowerCase().includes(pf)) return true
+                }
+              }
+              return false
+            })
+          : node.components
+        if (filteredComps.length === 0 && pf) return null
+        return (
         <>
           <SectionHeader label="Components" />
           <div style={{ fontSize: 9, color: 'var(--text-muted)', lineHeight: 1.9 }}>
-            {node.components.map((c, i) => {
+            {filteredComps.map((c, _fi) => {
+              const i = node.components.indexOf(c)
               const icon = getComponentIcon([c])
               return (
                 <div
@@ -714,7 +792,8 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             })}
           </div>
         </>
-      )}
+        )
+      })()}
 
       {/* R1402: 컴포넌트 props 내 노드 참조 필드 표시 */}
       {node.components.length > 0 && (() => {

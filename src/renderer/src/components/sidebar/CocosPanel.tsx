@@ -138,6 +138,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     setCollapsedUuids(uuids)
   }, [sceneFile?.root])
   const [sceneViewHeight, setSceneViewHeight] = useState(240)
+  // R1414: 씬 저장 이력 타임라인
+  type SceneHistoryEntry = { timestamp: number; nodeCount: number; size: number }
+  const sceneHistoryKey = sceneFile?.scenePath ? `scene-history-${sceneFile.scenePath.replace(/[\\/]/g, '_')}` : null
+  const [sceneHistoryTimeline, setSceneHistoryTimeline] = useState<SceneHistoryEntry[]>(() => {
+    try { return sceneHistoryKey ? JSON.parse(localStorage.getItem(sceneHistoryKey) ?? '[]') : [] } catch { return [] }
+  })
+  const [showFullHistory, setShowFullHistory] = useState(false)
   const [mainTab, setMainTab] = useState<'scene' | 'assets' | 'groups' | 'build'>('scene')
   const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
@@ -547,11 +554,23 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         ? { ok: true, text: '저장 완료' }
         : { ok: false, text: result.error ?? '저장 실패' }
       )
+      // R1414: 저장 이력 추가
+      if (result.success && sceneHistoryKey) {
+        let count = 0
+        function countNodes(n: CCSceneNode) { count++; n.children.forEach(countNodes) }
+        countNodes(sceneFile.root)
+        const entry: SceneHistoryEntry = { timestamp: Date.now(), nodeCount: count, size: JSON.stringify(sceneFile._raw ?? sceneFile.root).length }
+        setSceneHistoryTimeline(prev => {
+          const next = [entry, ...prev].slice(0, 20)
+          try { localStorage.setItem(sceneHistoryKey!, JSON.stringify(next)) } catch { /* ignore */ }
+          return next
+        })
+      }
       setTimeout(() => setSaveMsg(null), 3000)
     } finally {
       setSaving(false)
     }
-  }, [sceneFile, saveScene])
+  }, [sceneFile, saveScene, sceneHistoryKey])
 
   // 키보드 단축키: Ctrl+Z/Y, Delete, Ctrl+D, Arrow keys
   useEffect(() => {
@@ -1177,6 +1196,35 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         {error && (
           <div style={{ marginTop: 6, fontSize: 10, color: 'var(--error, #f85149)', lineHeight: 1.4 }}>
             {error}
+          </div>
+        )}
+
+        {/* R1414: 씬 저장 이력 타임라인 */}
+        {sceneHistoryTimeline.length > 0 && (
+          <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>저장 이력</span>
+              {sceneHistoryTimeline.length > 5 && (
+                <button
+                  onClick={() => setShowFullHistory(v => !v)}
+                  style={{ fontSize: 8, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >{showFullHistory ? '접기' : `더 보기 (${sceneHistoryTimeline.length})`}</button>
+              )}
+            </div>
+            {(showFullHistory ? sceneHistoryTimeline : sceneHistoryTimeline.slice(0, 5)).map((entry, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 9, padding: '1px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+                  {new Date(entry.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </span>
+                <span style={{ color: 'var(--text-primary)', flexShrink: 0 }}>{entry.nodeCount}N</span>
+                <span style={{ color: '#555', fontSize: 8 }}>{(entry.size / 1024).toFixed(1)}KB</span>
+                <button
+                  disabled
+                  title="복원 기능은 추후 구현 예정 (TODO)"
+                  style={{ marginLeft: 'auto', fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'default', opacity: 0.4 }}
+                >복원</button>
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -1,13 +1,24 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1409 완료 — Phase DD14 R1404~1409)
+> 마지막 업데이트: 2026-03-14 (Round 1415 완료 — Phase DD14 R1410~1415)
 
 ## 현재 상태
-- 마지막 커밋: Round 1404~1409 (씬PNG내보내기/컴포순서변경/빌드트리거/색상태그/복잡도분석/QA)
+- 마지막 커밋: Round 1410~1415 (에셋리졸버고도화/Inspector검색/채팅하이라이트/다중편집/히스토리/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 1, Pass 1281
+- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1297
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
+
+## Phase DD14 R1410~1415 (2026-03-14)
+
+| 라운드 | 기능 |
+|--------|------|
+| R1410 | cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs) + preload API |
+| R1411 | SceneView Inspector 속성 검색 필터 (propFilter, Esc 초기화, 컴포넌트명/props 필터) |
+| R1412 | SceneView 채팅 연동 노드 하이라이트 (cc-highlight-node 이벤트, ChatPanel dispatch, 3초 깜빡임) |
+| R1413 | Inspector 다중 노드 일괄 편집 (active 일괄 토글, position 오프셋, 일괄 적용 버튼) |
+| R1414 | CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5/20개, 복원 TODO UI) |
+| R1415 | QA Section 383-384 추가 (R1410-R1414 기능 체크, 런타임 체크 확장, Pass 1297) |
 
 ## Phase DD14 R1404~1409 (2026-03-14)
 

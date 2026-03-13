@@ -840,6 +840,30 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
   }, [spaceDown])
 
+  // R1412: 채팅 연동 노드 하이라이트 (cc-highlight-node 커스텀 이벤트)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { nodeName?: string; uuid?: string } | undefined
+      if (!detail) return
+      let targetUuid: string | null = null
+      if (detail.uuid && nodeMap.has(detail.uuid)) {
+        targetUuid = detail.uuid
+      } else if (detail.nodeName) {
+        const lower = detail.nodeName.toLowerCase()
+        for (const [uuid, n] of nodeMap.entries()) {
+          if (n.name.toLowerCase() === lower) { targetUuid = uuid; break }
+        }
+      }
+      if (targetUuid) {
+        if (flashTimerRef.current) clearTimeout(flashTimerRef.current)
+        setFlashUuid(targetUuid)
+        flashTimerRef.current = setTimeout(() => setFlashUuid(null), 3000)
+      }
+    }
+    window.addEventListener('cc-highlight-node', handler)
+    return () => window.removeEventListener('cc-highlight-node', handler)
+  }, [nodeMap])
+
   // ── Ctrl+A 전체 선택 / Ctrl+Shift+A 선택 반전 ─────────────
   useEffect(() => {
     const handleSelectAll = (e: KeyboardEvent) => {
@@ -4529,6 +4553,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onUpdate={handleInspectorUpdate}
         onClose={() => { setSelectedUuid(null); setSelectedUuids(new Set()) }}
         selectionCount={selectionCount}
+        multiSelectedUuids={selectedUuids}
+        onBatchUpdate={(uuids, updates) => { for (const u of uuids) { for (const up of updates) { updateNode(u, { [up.prop]: up.value }) } } }}
         onRename={handleRename}
         onMemo={(uuid, memo) => updateNode(uuid, { memo })}
         onTagsUpdate={(uuid, tags) => updateNode(uuid, { tags })}

@@ -323,6 +323,11 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('cc:file:resolveTexture', uuid, assetsDir),
   ccFileExtractUUIDs: (raw: unknown[]): Promise<string[]> =>
     ipcRenderer.invoke('cc:file:extractUUIDs', raw),
+  // R1410: UUID → 에셋 상세 정보
+  ccGetAssetInfo: (uuid: string, assetsDir: string): Promise<{ path: string; type: string; name: string } | null> =>
+    ipcRenderer.invoke('cc:file:getAssetInfo', uuid, assetsDir),
+  ccGetAllTextureUUIDs: (assetsDir: string): Promise<string[]> =>
+    ipcRenderer.invoke('cc:file:getAllTextureUUIDs', assetsDir),
 
   // CC Editor Window
   openCCEditorWindow: (): Promise<void> =>
@@ -557,6 +562,8 @@ declare global {
       ccFileBuildUUIDMap: (assetsDir: string) => Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>>
       ccFileResolveTexture: (uuid: string, assetsDir: string) => Promise<string | null>
       ccFileExtractUUIDs: (raw: unknown[]) => Promise<string[]>
+      ccGetAssetInfo?: (uuid: string, assetsDir: string) => Promise<{ path: string; type: string; name: string } | null>
+      ccGetAllTextureUUIDs?: (assetsDir: string) => Promise<string[]>
       // CC Editor Window
       openCCEditorWindow?: () => Promise<void>
       // Shell exec
