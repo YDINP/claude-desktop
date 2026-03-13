@@ -544,6 +544,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         }
         return
       }
+      // R1571: Enter — 선택 노드의 첫 번째 자식으로 포커스
+      if (e.code === 'Enter' && !e.ctrlKey && !e.metaKey && selectedUuid) {
+        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+        if (fn && fn.node.children.length > 0) {
+          e.preventDefault()
+          onSelect(fn.node.children[0].uuid)
+          return
+        }
+      }
       // R1565: H — 선택 노드 active 토글 (숨기기/보이기)
       if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && selectedUuid) {
         e.preventDefault()
@@ -1669,6 +1678,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['Ctrl+N', '새 노드 추가'],
             ['H', '선택 노드 숨기기/보이기'],
             ['P', '부모 노드 선택'],
+            ['Enter', '첫 번째 자식 선택'],
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', gap: 8 }}>
               <span style={{ color: '#58a6ff', minWidth: 100 }}>{k}</span>

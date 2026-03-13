@@ -16744,6 +16744,18 @@ console.log('\n## 461. R1570 SceneView P키 부모 포커스 체크')
   }
 }
 
+// ── Section 462: R1571 SceneView Enter키 첫 번째 자식 포커스 ────────────────
+console.log('\n## 462. R1571 SceneView Enter키 자식 포커스 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s462 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s462.includes("code === 'Enter'") && s462.includes('node.children[0].uuid') && s462.includes("'Enter', '첫 번째 자식 선택'")) {
+    log('pass', 'R1571-enter-child', 'Enter키 첫 번째 자식 선택')
+  } else {
+    log('warning', 'R1571-enter-child', 'Enter키 자식 선택 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
