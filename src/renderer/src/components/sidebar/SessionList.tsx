@@ -216,6 +216,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [searchHistory, setSearchHistory] = useState<string[]>(() => JSON.parse(localStorage.getItem('session-search-history') ?? '[]'))
   const [sessionSummaries, setSessionSummaries] = useState<Record<string, string>>({})
   const [summaryLoading, setSummaryLoading] = useState<Set<string>>(new Set())
+  const [exportHistory, setExportHistory] = useState<Array<{ sessionId: string; format: string; timestamp: number }>>([])
+  const [showExportHistory, setShowExportHistory] = useState(false)
   const [showSearchHistory, setShowSearchHistory] = useState(false)
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [ratingFilter, setRatingFilter] = useState<number | null>(null)

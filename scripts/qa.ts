@@ -7614,6 +7614,41 @@ if (existsSync(tp785Path)) {
   }
 }
 
+// ── Section 173: Phase DD10 R786~788 기능 체크 ────────────────
+console.log('\n## 173. Phase DD10 R786~788 기능 체크')
+// R786: ChatPanel 컨텍스트 윈도우 시각화
+const cp786Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp786Path)) {
+  const cp786 = readFileSync(cp786Path, 'utf-8')
+  if (cp786.includes('contextUsage') || cp786.includes('showContextBar') || cp786.includes('contextWindow')) {
+    log('pass', 'R786', 'ChatPanel 컨텍스트 윈도우 시각화 존재')
+  } else {
+    log('warning', 'R786', 'ChatPanel 컨텍스트 바 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R787: SceneViewPanel 씬 버전 관리
+const svp787Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp787Path)) {
+  const svp787 = readFileSync(svp787Path, 'utf-8')
+  if (svp787.includes('sceneVersions') || svp787.includes('showVersionHistory') || svp787.includes('sceneVersion')) {
+    log('pass', 'R787', 'SceneViewPanel 씬 버전 관리 존재')
+  } else {
+    log('warning', 'R787', 'SceneViewPanel 씬 버전 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R788: SessionList 내보내기 이력
+const sl788Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl788Path)) {
+  const sl788 = readFileSync(sl788Path, 'utf-8')
+  if (sl788.includes('exportHistory') || sl788.includes('showExportHistory') || sl788.includes('exportLog')) {
+    log('pass', 'R788', 'SessionList 내보내기 이력 존재')
+  } else {
+    log('warning', 'R788', 'SessionList 내보내기 이력 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:22:27.402Z
+> 2026-03-13T11:23:24.819Z
 
 ## Critical
 _없음_
@@ -667,3 +667,6 @@ _없음_
 - ChatPanel 메시지 테마 존재
 - InputBar 자동 수정 제안 존재
 - TerminalPanel 세션 녹화 존재
+- ChatPanel 컨텍스트 윈도우 시각화 존재
+- SceneViewPanel 씬 버전 관리 존재
+- SessionList 내보내기 이력 존재
