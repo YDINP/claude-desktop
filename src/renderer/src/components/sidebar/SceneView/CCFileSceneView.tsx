@@ -885,9 +885,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
         if (!fn) return null
         const { node } = fn
-        const pos = node.position as { x: number; y: number }
-        const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0
-        const w = node.size?.x ?? 0; const h = node.size?.y ?? 0
+        // 드래그/회전 중 실시간 값 반영
+        const rawPos = node.position as { x: number; y: number }
+        const pos = dragOverride?.uuid === node.uuid
+          ? { x: dragOverride.x, y: dragOverride.y }
+          : rawPos
+        const rotRaw = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0
+        const rotZ = rotateOverride?.uuid === node.uuid ? rotateOverride.angle : rotRaw
+        const w = resizeOverride?.uuid === node.uuid ? resizeOverride.w : (node.size?.x ?? 0)
+        const h = resizeOverride?.uuid === node.uuid ? resizeOverride.h : (node.size?.y ?? 0)
         const alignBtn = (label: string, title: string, nx: number, ny: number) => (
           <span
             key={label}
@@ -905,9 +911,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             padding: '2px 8px', fontSize: 9, color: '#ccc',
             display: 'flex', gap: 8,
           }}>
-            <span style={{ pointerEvents: 'none' }}><span style={{ color: '#888' }}>pos</span> {Math.round(pos.x)},{Math.round(pos.y)}</span>
-            <span style={{ pointerEvents: 'none' }}><span style={{ color: '#888' }}>size</span> {Math.round(w)}×{Math.round(h)}</span>
-            {rotZ !== 0 && <span style={{ pointerEvents: 'none' }}><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
+            <span style={{ pointerEvents: 'none', color: dragOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>pos</span> {Math.round(pos.x)},{Math.round(pos.y)}</span>
+            <span style={{ pointerEvents: 'none', color: resizeOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>size</span> {Math.round(w)}×{Math.round(h)}</span>
+            {(rotZ !== 0 || rotateOverride?.uuid === node.uuid) && <span style={{ pointerEvents: 'none', color: rotateOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
             {/* 정렬 버튼 */}
             {alignBtn('⊙', '중앙 정렬', 0, 0)}
             {alignBtn('◁', '좌측 정렬', -(designW / 2 - w / 2), pos.y)}

@@ -1040,6 +1040,9 @@ const { undo, redo } = useSceneStore.temporal.getState()
 | 488-491 | 단축키 도움말 오버레이, Inspector 레이어 드롭다운, 앵커 9-point grid, Space 키 패닝 |
 | 492-495 | scale 비율잠금 🔒, 위치/회전 리셋↺, 컴포넌트 색상 강화(Button/Scroll/Edit/Slider), 색상 범례 |
 | 496-499 | 씬뷰 인라인 이름 편집(더블클릭), 씬뷰 높이 드래그 조절, 노드이름 표시 T 토글, F키 포커스 |
+| 500-502 | 마칭 앤트 선택 애니메이션, DD5-1 그리드 스타일 3단계 순환(line/dot/none) |
+| 503-506 | 씬뷰 회전 핸들(Shift 15° 스냅), 스냅 크기 드롭다운(1~50px), Inspector 숫자 스크러빙(ScrubLabel), 캔버스 치수+XY축 |
+| 507-510 | Inspector RGBA 피커+fontStyle 드롭다운, 화살표 키 이동, rubber-band 멀티셀렉트, HUD 실시간 드래그 좌표 |
 
 ---
 
