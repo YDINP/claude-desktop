@@ -175,6 +175,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 즐겨찾기 씬 (R736) ──────────────────────────────────────────
   const [favoriteScenes, setFavoriteScenes] = useState<string[]>(() => JSON.parse(localStorage.getItem('fav-scenes') ?? '[]'))
   const [showFavScenes, setShowFavScenes] = useState(false)
+  // ── 노드 잠금 (R742) ────────────────────────────────────────────
+  const [lockAll, setLockAll] = useState(false)
+  const [lockMode, setLockMode] = useState<'none' | 'selected' | 'all'>('none')
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)

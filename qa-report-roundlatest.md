@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:09:09.208Z
+> 2026-03-13T11:10:07.770Z
 
 ## Critical
 _없음_
@@ -622,3 +622,6 @@ _없음_
 - ChatPanel 메시지 만료 타이머 존재
 - InputBar 커서 위치 기억 존재
 - TerminalPanel 세션 공유 존재
+- ChatPanel 내보내기 템플릿 존재
+- SceneViewPanel 전체 노드 잠금 존재
+- CocosPanel 변경 알림 존재

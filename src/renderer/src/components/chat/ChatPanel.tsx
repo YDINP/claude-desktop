@@ -802,6 +802,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showRatingBar, setShowRatingBar] = useState<string | null>(null)
   const [runningBlocks, setRunningBlocks] = useState<Set<string>>(new Set())
   const [msgExpiry, setMsgExpiry] = useState<Record<string, number>>({})
+  const [exportTemplate, setExportTemplate] = useState<'default' | 'minimal' | 'detailed'>('default')
+  const [showExportOptions, setShowExportOptions] = useState(false)
   const [showExpiredMsgs, setShowExpiredMsgs] = useState(false)
   const [blockOutputs, setBlockOutputs] = useState<Record<string, string>>({})
   const [summaryCards, setSummaryCards] = useState<Record<string, string>>({})

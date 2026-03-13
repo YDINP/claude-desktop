@@ -7089,6 +7089,41 @@ if (existsSync(tp740Path)) {
   }
 }
 
+// ── Section 158: Phase DD10 R741~743 기능 체크 ────────────────
+console.log('\n## 158. Phase DD10 R741~743 기능 체크')
+// R741: ChatPanel 내보내기 템플릿
+const cp741Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp741Path)) {
+  const cp741 = readFileSync(cp741Path, 'utf-8')
+  if (cp741.includes('exportTemplate') || cp741.includes('showExportOptions') || cp741.includes('exportFormat')) {
+    log('pass', 'R741', 'ChatPanel 내보내기 템플릿 존재')
+  } else {
+    log('warning', 'R741', 'ChatPanel 내보내기 템플릿 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R742: SceneViewPanel 전체 노드 잠금
+const svp742Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp742Path)) {
+  const svp742 = readFileSync(svp742Path, 'utf-8')
+  if (svp742.includes('lockAll') || svp742.includes('lockMode') || svp742.includes('allLocked')) {
+    log('pass', 'R742', 'SceneViewPanel 전체 노드 잠금 존재')
+  } else {
+    log('warning', 'R742', 'SceneViewPanel 전체 잠금 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R743: CocosPanel 변경 알림
+const cp743Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp743Path)) {
+  const cp743 = readFileSync(cp743Path, 'utf-8')
+  if (cp743.includes('changeNotifications') || cp743.includes('notifDismissed') || cp743.includes('changeNotif')) {
+    log('pass', 'R743', 'CocosPanel 변경 알림 존재')
+  } else {
+    log('warning', 'R743', 'CocosPanel 변경 알림 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

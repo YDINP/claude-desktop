@@ -1468,6 +1468,8 @@ function CCFileNodeInspector({
   const [compFilter, setCompFilter] = useState('')
   const [compFilterFocus, setCompFilterFocus] = useState(false)
   const [scriptLogs, setScriptLogs] = useState<string[]>([])
+  const [changeNotifications, setChangeNotifications] = useState<string[]>([])
+  const [notifDismissed, setNotifDismissed] = useState<Set<number>>(new Set())
   const [showScriptLogs, setShowScriptLogs] = useState(false)
   const [showDepMap, setShowDepMap] = useState(false)
 
