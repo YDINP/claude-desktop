@@ -923,7 +923,13 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   const [msgCopied, setMsgCopied] = useState(false)
   const [mdCopied, setMdCopied] = useState(false)
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null)
-  const [collapsed, setCollapsed] = useState(true)
+  const storageKey = `msg-expand-${msg.id}`
+  const [collapsed, setCollapsed] = useState(() => {
+    const saved = localStorage.getItem(storageKey)
+    return saved === null ? true : saved !== 'true'
+  })
+  const [measuredHeight, setMeasuredHeight] = useState(0)
+  const contentRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState('')
   const [noteOpen, setNoteOpen] = useState(false)
@@ -935,8 +941,29 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   const [showEditHistory, setShowEditHistory] = useState(false)
   const editTextareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const isLong = !isUser && msg.text.length > 2000
-  const showCollapseToggle = isLong && !(isStreaming && isLast)
+  const FOLD_THRESHOLD = 600
+  const FOLD_HEIGHT = 350
+  const showCollapseToggle = !isUser && measuredHeight > FOLD_THRESHOLD && !(isStreaming && isLast)
+
+  useEffect(() => {
+    if (isUser) return
+    const el = contentRef.current
+    if (!el) return
+    const ro = new ResizeObserver(entries => {
+      const h = entries[0]?.contentRect.height ?? 0
+      setMeasuredHeight(h)
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [isUser])
+
+  const handleToggleCollapse = useCallback(() => {
+    setCollapsed(c => {
+      const next = !c
+      localStorage.setItem(storageKey, next ? 'false' : 'true')
+      return next
+    })
+  }, [storageKey])
 
   const handleMsgCopy = () => {
     navigator.clipboard.writeText(msg.text)
@@ -1587,47 +1614,67 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               {msg.text}
               {msg.text && <span className="streaming-cursor" />}
             </pre>
-          ) : (showCollapseToggle && collapsed) ? (
+          ) : (
             <div style={{ position: 'relative' }}>
-              <div style={{
-                maxHeight: 120,
-                overflow: 'hidden',
-                opacity: isStale ? 0.7 : 1,
-                transition: 'opacity 0.1s',
-              }}>
+              <div
+                ref={contentRef}
+                style={{
+                  maxHeight: showCollapseToggle && collapsed ? FOLD_HEIGHT : undefined,
+                  overflow: showCollapseToggle && collapsed ? 'hidden' : undefined,
+                  opacity: isStale ? 0.7 : 1,
+                  transition: 'opacity 0.1s',
+                }}
+              >
                 {renderedMarkdown}
               </div>
-              <div style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 40,
-                background: 'linear-gradient(transparent, #1a1a1a)',
-                pointerEvents: 'none',
-              }} />
-            </div>
-          ) : (
-            <div style={{ opacity: isStale ? 0.7 : 1, transition: 'opacity 0.1s' }}>
-              {renderedMarkdown}
+              {showCollapseToggle && collapsed && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 80,
+                  background: 'linear-gradient(transparent, var(--bg-primary, #1a1a1a))',
+                  pointerEvents: 'none',
+                }} />
+              )}
+              {showCollapseToggle && collapsed && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6 }}>
+                  <button
+                    onClick={handleToggleCollapse}
+                    style={{
+                      background: 'var(--bg-secondary, #222)',
+                      border: '1px solid var(--border, #333)',
+                      borderRadius: 4,
+                      color: 'var(--text-secondary, #aaa)',
+                      fontSize: 11,
+                      cursor: 'pointer',
+                      padding: '3px 10px',
+                    }}
+                  >
+                    더 보기 ▾
+                  </button>
+                </div>
+              )}
             </div>
           )}
-          {showCollapseToggle && (
-            <button
-              onClick={() => setCollapsed(c => !c)}
-              style={{
-                display: 'block',
-                margin: '4px auto',
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--accent, #527bff)',
-                fontSize: 12,
-                cursor: 'pointer',
-                padding: '4px 8px',
-              }}
-            >
-              {collapsed ? '더 보기 ▼' : '접기 ▲'}
-            </button>
+          {showCollapseToggle && !collapsed && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6 }}>
+              <button
+                onClick={handleToggleCollapse}
+                style={{
+                  background: 'var(--bg-secondary, #222)',
+                  border: '1px solid var(--border, #333)',
+                  borderRadius: 4,
+                  color: 'var(--text-secondary, #aaa)',
+                  fontSize: 11,
+                  cursor: 'pointer',
+                  padding: '3px 10px',
+                }}
+              >
+                접기 ▴
+              </button>
+            </div>
           )}
         </div>
       )}

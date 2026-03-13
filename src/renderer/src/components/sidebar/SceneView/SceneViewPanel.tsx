@@ -146,6 +146,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [snapshot, setSnapshot] = useState<Map<string, SnapshotEntry> | null>(null)
   const [showDiff, setShowDiff] = useState(false)
 
+  // ── 히트맵 상태 ────────────────────────────────────────────
+  const [showHeatmap, setShowHeatmap] = useState(false)
+
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()
     nodeMap.forEach((n, uuid) => {
@@ -154,6 +157,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setSnapshot(snap)
     setShowDiff(true)
   }, [nodeMap])
+
+  // ── 히트맵 밀도 계산 ───────────────────────────────────────
+  function buildHeatmap(nodes: SceneNode[], cellSize: number): Map<string, number> {
+    const map = new Map<string, number>()
+    for (const node of nodes) {
+      const key = `${Math.floor(node.x / cellSize)},${Math.floor(node.y / cellSize)}`
+      map.set(key, (map.get(key) ?? 0) + 1)
+    }
+    return map
+  }
 
   // ── 주석 (Annotation) 상태 ─────────────────────────────────
   const [annotations, setAnnotations] = useState<Annotation[]>(() => {
@@ -1997,6 +2010,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         mousePos={cursorScenePos}
         showLayerPanel={showLayerPanel}
         onToggleLayerPanel={() => setShowLayerPanel(v => !v)}
+        showHeatmap={showHeatmap}
+        onHeatmapToggle={() => setShowHeatmap(v => !v)}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -2478,6 +2493,33 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 </g>
               )
             })}
+
+            {/* 히트맵 오버레이 */}
+            {showHeatmap && nodeMap.size > 0 && (() => {
+              const CELL = 50
+              const allNodes = [...nodeMap.values()]
+              const heatmap = buildHeatmap(allNodes, CELL)
+              const maxCount = Math.max(...heatmap.values(), 1)
+              return [...heatmap.entries()].map(([key, count]) => {
+                const [cx, cy] = key.split(',').map(Number)
+                const t = count / maxCount
+                const r = Math.round(t * 255)
+                const b = Math.round((1 - t) * 100)
+                const a = 0.1 + t * 0.3
+                const { sx, sy } = cocosToSvg(cx * CELL, cy * CELL, DESIGN_W, DESIGN_H)
+                return (
+                  <rect
+                    key={`hm-${key}`}
+                    x={sx}
+                    y={sy - CELL}
+                    width={CELL}
+                    height={CELL}
+                    fill={`rgba(${r},0,${b},${a.toFixed(2)})`}
+                    style={{ pointerEvents: 'none' }}
+                  />
+                )
+              })
+            })()}
 
             {/* 멀티셀렉트 그룹 bbox */}
             {groupBbox && (

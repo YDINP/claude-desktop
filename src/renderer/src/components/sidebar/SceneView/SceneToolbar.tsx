@@ -97,6 +97,8 @@ interface SceneToolbarProps {
   mousePos?: { x: number; y: number } | null
   showLayerPanel?: boolean
   onToggleLayerPanel?: () => void
+  showHeatmap?: boolean
+  onHeatmapToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -196,6 +198,8 @@ export function SceneToolbar({
   mousePos,
   showLayerPanel,
   onToggleLayerPanel,
+  showHeatmap,
+  onHeatmapToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -440,6 +444,15 @@ export function SceneToolbar({
           onClick={onMeasureModeToggle}
           title="측정 도구 — 드래그로 거리 측정 (Alt+M)"
         >📏 Ruler</button>
+      )}
+
+      {/* 히트맵 */}
+      {onHeatmapToggle && (
+        <button
+          style={showHeatmap ? btnActive : btnBase}
+          onClick={onHeatmapToggle}
+          title="노드 분포 히트맵 오버레이"
+        >🌡</button>
       )}
 
       {/* 주석 추가 */}

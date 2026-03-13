@@ -5928,6 +5928,41 @@ if (existsSync(utils619Path)) {
   }
 }
 
+// ── Section 125: Phase DD10 R621~623 기능 체크 ────────────────
+console.log('\n## 125. Phase DD10 R621~623 기능 체크')
+// R621: 채팅 메시지 접기/펼치기
+const mb621Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb621Path)) {
+  const mb621 = readFileSync(mb621Path, 'utf-8')
+  if (mb621.includes('collapsed') && (mb621.includes('더 보기') || mb621.includes('FOLD_THRESHOLD'))) {
+    log('pass', 'R621', '채팅 메시지 접기/펼치기 존재')
+  } else {
+    log('warning', 'R621', '채팅 메시지 접기/펼치기 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R622: 씬뷰 히트맵 오버레이
+const svp622Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp622Path)) {
+  const svp622 = readFileSync(svp622Path, 'utf-8')
+  if (svp622.includes('showHeatmap') && svp622.includes('buildHeatmap')) {
+    log('pass', 'R622', '씬뷰 히트맵 오버레이 존재')
+  } else {
+    log('warning', 'R622', '씬뷰 히트맵 오버레이 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R623: Inspector 컴포넌트 접기 + 배지
+const cp623Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp623Path)) {
+  const cp623 = readFileSync(cp623Path, 'utf-8')
+  if (cp623.includes('collapsedComps')) {
+    log('pass', 'R623', 'Inspector 컴포넌트 접기 + 배지 존재')
+  } else {
+    log('warning', 'R623', 'Inspector 컴포넌트 접기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

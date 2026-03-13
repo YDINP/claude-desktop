@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 620 완료 — Phase DD10 진행 중, QA Pass 515)
+> 마지막 업데이트: 2026-03-13 (Round 624 완료 — Phase DD10 진행 중, QA Pass 518)
 
 ## 개발 루프 실행 방식
 
@@ -596,6 +596,10 @@
 | Round 618 | InputBar PromptChain ⛓ 빠른 실행 버튼 (onOpenPromptChain) | ✅ |
 | Round 619 | SceneView 컴포넌트 아이콘 오버레이 (COMP_ICONS, getComponentIcon, utils.ts) | ✅ |
 | Round 620 | QA Section 124 추가 (R617/R618/R619, Pass 515) | ✅ |
+| Round 621 | 채팅 메시지 접기/펼치기 (FOLD_THRESHOLD 600px, ResizeObserver, 그라데이션 페이드) | ✅ |
+| Round 622 | 씬뷰 히트맵 오버레이 (🌡 버튼, buildHeatmap, 밀도→색상 보간) | ✅ |
+| Round 623 | Inspector 컴포넌트 접기 (collapsedComps Set, ▸/▾, 배지 #N) | ✅ |
+| Round 624 | QA Section 125 추가 (R621/R622/R623, Pass 518) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

@@ -1259,7 +1259,11 @@ function CCFileNodeInspector({
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
-  const [collapsedComps, setCollapsedComps] = useState<Set<number>>(new Set())
+  const COLLAPSED_COMPS_KEY = 'collapsed-comps'
+  const [collapsedComps, setCollapsedComps] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(COLLAPSED_COMPS_KEY) ?? '[]')) }
+    catch { return new Set() }
+  })
   const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
   const [lockScale, setLockScale] = useState(false)
   const secHeader = (key: string, label: string) => (
@@ -1388,7 +1392,7 @@ function CCFileNodeInspector({
   }, [])
 
   // 노드 교체 시 draft + 컴포넌트 접힘 상태 + propSearch 초기화
-  useMemo(() => { setDraft({ ...node }); setCollapsedComps(new Set()); setExpandedArrayProps(new Set()); setPropSearch('') }, [node.uuid])
+  useMemo(() => { setDraft({ ...node }); setExpandedArrayProps(new Set()); setPropSearch('') }, [node.uuid])
   const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
   const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null)
@@ -1761,7 +1765,12 @@ function CCFileNodeInspector({
             return false
           })
         })
-        return visibleComps.map(({ comp, origIdx }, ci) => (
+        // propSearch로 컴포넌트 타입 매칭: 해당 타입은 전체 표시 (자동 펼침)
+        const typeMatchedComps = propSearch
+          ? visibleComps.filter(({ comp: c }) => c.type.toLowerCase().includes(propSearch.toLowerCase()))
+          : null
+        const showComps = typeMatchedComps ?? visibleComps
+        return showComps.map(({ comp, origIdx }, ci) => (
         <div
           key={`${node.uuid}-${origIdx}`}
           style={{ marginTop: 6, borderTop: dragOverIdx === ci ? '2px solid var(--accent)' : '1px solid var(--border)', paddingTop: 5, opacity: draggingIdx === ci ? 0.4 : 1 }}
@@ -1786,7 +1795,12 @@ function CCFileNodeInspector({
         >
           <div
             style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
-            onClick={() => setCollapsedComps(s => { const n = new Set(s); n.has(ci) ? n.delete(ci) : n.add(ci); return n })}
+            onClick={() => setCollapsedComps(s => {
+              const n = new Set(s)
+              if (n.has(comp.type)) n.delete(comp.type); else n.add(comp.type)
+              localStorage.setItem(COLLAPSED_COMPS_KEY, JSON.stringify([...n]))
+              return n
+            })}
           >
             <span
               draggable
@@ -1796,8 +1810,11 @@ function CCFileNodeInspector({
               style={{ cursor: 'grab', padding: '0 4px', opacity: 0.5, fontSize: 10, lineHeight: 1 }}
               title="드래그하여 순서 변경"
             >⠿</span>
-            <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(ci) ? '▸' : '▾'}</span>
+            <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(comp.type) ? '▸' : '▾'}</span>
             <span style={{ flex: 1 }}>{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}</span>
+            {showComps.length > 1 && (
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', marginRight: 4 }}>#{ci + 1}</span>
+            )}
             {compCopied && copiedCompRef.current && copiedCompRef.current.type !== comp.type && (
               <span
                 title={`${copiedCompRef.current.type.split('.').pop()} 붙여넣기`}
@@ -1828,14 +1845,16 @@ function CCFileNodeInspector({
               onMouseLeave={e => (e.currentTarget.style.color = '#666')}
             >✕</span>
           </div>
-          {!collapsedComps.has(ci) && (() => {
+          {(!collapsedComps.has(comp.type) || typeMatchedComps !== null) && (() => {
             const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
             const allProps = Object.entries(comp.props).filter(([k]) => {
               if (HIDDEN.has(k)) return false
               return true
             })
             const showFilter = allProps.length >= 3
-            const baseFiltered = propSearch
+            // 타입 매칭 시 전체 prop 표시, 아닐 때만 prop 이름 필터
+            const isTypeMatch = typeMatchedComps !== null
+            const baseFiltered = (propSearch && !isTypeMatch)
               ? allProps.filter(([k]) => k.toLowerCase().includes(propSearch.toLowerCase()))
               : allProps
             // 즐겨찾기 prop을 맨 앞으로 정렬
