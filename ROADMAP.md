@@ -616,6 +616,10 @@
 | Round 570 | 세션 JSON import/export (📥/📤 버튼, Blob URL 다운로드) | ✅ |
 | Round 571 | Inspector 숫자 스크럽 드래그 (ScrubLabel, sensitivity 0.5/Shift 0.05) | ✅ |
 | Round 572 | QA Section 112 추가 (R569/R570/R571, Pass 479) | ✅ |
+| Round 573 | 씬뷰 노드 컬러 태깅 (우클릭 팔레트, nodeColors localStorage, NodeRenderer tint) | ✅ |
+| Round 574 | 세션 AI 요약 (우클릭→요약생성, summarizeSession IPC, 모달 결과 표시) | ✅ |
+| Round 575 | Inspector cc.Color 피커 개선 (type=color, alpha 슬라이더 r,g,b,a) | ✅ |
+| Round 576 | QA Section 113 추가 (R573/R574/R575, Pass 482) | ✅ |
 
 ## QA 프로세스
 

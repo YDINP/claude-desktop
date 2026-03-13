@@ -17,6 +17,7 @@ interface NodeRendererProps {
   locked?: boolean
   pinned?: boolean
   highlighted?: boolean
+  nodeColor?: string
   designWidth?: number
   designHeight?: number
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
@@ -51,6 +52,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   locked = false,
   pinned = false,
   highlighted = false,
+  nodeColor,
   designWidth = 960,
   designHeight = 640,
   onMouseDown,
@@ -114,8 +116,8 @@ export const NodeRenderer = memo(function NodeRenderer({
         y={ry}
         width={pw}
         height={ph}
-        fill={lod >= 2 ? 'none' : node.labelColor ? `${node.labelColor}33` : 'rgba(255, 255, 255, 0.04)'}
-        stroke={node.labelColor ?? strokeColor}
+        fill={lod >= 2 ? 'none' : nodeColor ? `${nodeColor}26` : node.labelColor ? `${node.labelColor}33` : 'rgba(255, 255, 255, 0.04)'}
+        stroke={nodeColor ?? node.labelColor ?? strokeColor}
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDash}
         rx={2}

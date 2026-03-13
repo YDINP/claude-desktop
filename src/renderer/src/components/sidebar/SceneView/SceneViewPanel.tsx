@@ -107,6 +107,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     try { return new Set(JSON.parse(localStorage.getItem('scene-locked') ?? '[]')) }
     catch { return new Set() }
   })
+  const [nodeColors, setNodeColors] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('node-colors') ?? '{}') } catch { return {} }
+  })
   const viewHistoryRef = useRef<ViewTransform[]>([])
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
@@ -2105,6 +2108,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   locked={node.locked === true || lockedUuids.has(uuid)}
                   pinned={pinnedUuids.has(uuid)}
                   highlighted={matchedUuids.has(uuid)}
+                  nodeColor={nodeColors[uuid]}
                   designWidth={DESIGN_W}
                   designHeight={DESIGN_H}
                   onMouseDown={handleNodeMouseDown}

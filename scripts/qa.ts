@@ -5502,6 +5502,41 @@ if (existsSync(cp571Path)) {
   }
 }
 
+// ── Section 113: Phase DD9 R573~575 기능 체크 ────────────────
+console.log('\n## 113. Phase DD9 R573~575 기능 체크')
+// R573: 씬뷰 노드 컬러 태깅
+const nr573Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr573Path)) {
+  const nr573 = readFileSync(nr573Path, 'utf-8')
+  if (nr573.includes('nodeColor')) {
+    log('pass', 'R573', '씬뷰 노드 컬러 태깅 존재')
+  } else {
+    log('warning', 'R573', '씬뷰 노드 컬러 태깅 없음', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
+// R574: 세션 AI 요약
+const sl574Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl574Path)) {
+  const sl574 = readFileSync(sl574Path, 'utf-8')
+  if (sl574.includes('summarizeSession') || sl574.includes('요약')) {
+    log('pass', 'R574', '세션 AI 요약 기능 존재')
+  } else {
+    log('warning', 'R574', '세션 AI 요약 기능 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R575: Inspector cc.Color 피커
+const cp575Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp575Path)) {
+  const cp575 = readFileSync(cp575Path, 'utf-8')
+  if (cp575.includes('cc.Color') && cp575.includes('type="color"')) {
+    log('pass', 'R575', 'Inspector cc.Color 피커 존재')
+  } else {
+    log('warning', 'R575', 'Inspector cc.Color 피커 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

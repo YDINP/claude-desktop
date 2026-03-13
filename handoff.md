@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: Round 569~572 (좌표표시 + 세션import/export + 스크럽 + QA)
+- 마지막 커밋: Round 573~576 (컬러태깅 + AI요약 + cc.Color피커 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 479
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 482
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -139,7 +139,16 @@
 | R571 | Inspector 숫자 스크럽 드래그 (ScrubLabel, Shift×0.1 민감도) |
 | R572 | QA Section 112 추가 (Pass 479) |
 
-## 다음 예정 (Round 573~)
+## Phase DD9 추가 완료 (Round 573~576)
+
+| 라운드 | 기능 |
+|--------|------|
+| R573 | 씬뷰 노드 컬러 태깅 (우클릭 팔레트 6색, nodeColors localStorage, NodeRenderer tint) |
+| R574 | 세션 AI 요약 (우클릭→요약생성, summarizeSession IPC, 모달+클립보드복사) |
+| R575 | Inspector cc.Color 피커 개선 (type=color, alpha 슬라이더, r,g,b,a 표시) |
+| R576 | QA Section 113 추가 (Pass 482) |
+
+## 다음 예정 (Round 577~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 

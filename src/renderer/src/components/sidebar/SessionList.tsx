@@ -114,6 +114,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [openCollections, setOpenCollections] = useState<Set<string>>(new Set())
   const [contextMenu, setContextMenu] = useState<{ sessionId: string; x: number; y: number } | null>(null)
   const contextMenuRef = useRef<HTMLDivElement>(null)
+  const [summarizingId, setSummarizingId] = useState<string | null>(null)
+  const [summaryModal, setSummaryModal] = useState<{ sessionTitle: string; summary: string } | null>(null)
   const [templates, setTemplates] = useState<Array<{ id: string; name: string; description?: string; createdAt: number; messageCount: number }>>([])
   const [templateOpen, setTemplateOpen] = useState(false)
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
@@ -1270,6 +1272,33 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           <div
             onClick={async () => {
               const id = contextMenu.sessionId
+              const sessionMeta = sessions.find(s => s.id === id)
+              setContextMenu(null)
+              setSummarizingId(id)
+              toast('요약 생성 중...', 'info')
+              try {
+                const data = await window.api.sessionLoad(id) as { messages?: Array<{ role?: string; content?: string; text?: string }> } | null
+                if (!data || !data.messages) { toast('세션 데이터를 불러올 수 없습니다', 'error'); return }
+                const messages = data.messages
+                  .slice(-20)
+                  .map(m => ({ role: m.role ?? 'user', content: (m.content ?? m.text ?? '') as string }))
+                  .filter(m => m.content.length > 0)
+                const result = await window.api.summarizeSession({ messages })
+                if (result.error) { toast('요약 실패: ' + result.error, 'error'); return }
+                setSummaryModal({ sessionTitle: sessionMeta?.title ?? id, summary: result.summary })
+              } finally {
+                setSummarizingId(null)
+              }
+            }}
+            style={{ padding: '6px 12px', fontSize: 12, cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+          >
+            {summarizingId === contextMenu.sessionId ? '...' : '\uD83D\uDCDD'} {'요약 생성'}
+          </div>
+          <div
+            onClick={async () => {
+              const id = contextMenu.sessionId
               setContextMenu(null)
               const result = await window.api.sessionExportMarkdown(id)
               if (result.success) toast('마크다운 내보내기 완료', 'success')
@@ -1312,6 +1341,70 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
           >
             {'\uD83D\uDCC4'} {'\ud15c\ud50c\ub9bf\uc73c\ub85c \uc800\uc7a5'}
+          </div>
+        </div>
+      )}
+      {/* Summary modal */}
+      {summaryModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onClick={() => setSummaryModal(null)}
+        >
+          <div
+            style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              padding: 20,
+              maxWidth: 480,
+              width: '90%',
+              maxHeight: '70vh',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {'\uD83D\uDCDD'} {summaryModal.sessionTitle}
+              </div>
+              <button
+                onClick={() => setSummaryModal(null)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}
+              >
+                &#x2715;
+              </button>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, overflowY: 'auto', whiteSpace: 'pre-wrap' }}>
+              {summaryModal.summary}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(summaryModal.summary)
+                  toast('요약을 클립보드에 복사했습니다', 'success')
+                }}
+                style={{ fontSize: 11, padding: '4px 10px', background: 'var(--bg-tertiary)', color: 'var(--text-muted)', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+              >
+                복사
+              </button>
+              <button
+                onClick={() => setSummaryModal(null)}
+                style={{ fontSize: 11, padding: '4px 10px', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+              >
+                닫기
+              </button>
+            </div>
           </div>
         </div>
       )}

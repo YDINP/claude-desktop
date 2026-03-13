@@ -77,6 +77,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       return next
     })
   }, [])
+  const [nodeColors, setNodeColors] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('node-colors') ?? '{}') } catch { return {} }
+  })
+  const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
+    setNodeColors(prev => {
+      const next = { ...prev }
+      if (color === null) delete next[uuid]
+      else next[uuid] = color
+      localStorage.setItem('node-colors', JSON.stringify(next))
+      return next
+    })
+  }, [])
   const nodeMap = useMemo(() => {
     const map = new Map<string, CCSceneNode>()
     if (!sceneFile?.root) return map
@@ -664,6 +676,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onToggleFavorite={toggleFavorite}
               lockedUuids={lockedUuids}
               onToggleLocked={toggleLocked}
+              nodeColors={nodeColors}
+              onNodeColorChange={handleNodeColorChange}
             />
           </div>
           {/* 노드 인스펙터 */}
@@ -722,9 +736,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   )
 }
 
+const NODE_COLOR_PALETTE: { color: string; label: string }[] = [
+  { color: '#f87171', label: '빨강' },
+  { color: '#fb923c', label: '주황' },
+  { color: '#facc15', label: '노랑' },
+  { color: '#4ade80', label: '초록' },
+  { color: '#60a5fa', label: '파랑' },
+  { color: '#a78bfa', label: '보라' },
+]
+
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange,
 }: {
   node: CCSceneNode
   depth: number
@@ -740,10 +763,12 @@ function CCFileSceneTree({
   onToggleFavorite?: (uuid: string) => void
   lockedUuids?: Set<string>
   onToggleLocked?: (uuid: string) => void
+  nodeColors?: Record<string, string>
+  onNodeColorChange?: (uuid: string, color: string | null) => void
 }) {
   const [collapsed, setCollapsed] = useState(depth > 2)
   const [isDragOver, setIsDragOver] = useState(false)
-  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null)
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; showColorPicker?: boolean } | null>(null)
   const hasChildren = node.children.length > 0
   const isSelected = selected?.uuid === node.uuid
   const isRoot = depth === 0
@@ -782,6 +807,34 @@ function CCFileSceneTree({
               {item.label}
             </div>
           ))}
+          {/* 색상 태그 팔레트 */}
+          <div style={{ borderTop: '1px solid var(--border)', padding: '5px 8px' }}>
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>색상 태그</div>
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              {NODE_COLOR_PALETTE.map(({ color, label }) => (
+                <div
+                  key={color}
+                  title={label}
+                  onClick={() => { onNodeColorChange?.(node.uuid, color); setCtxMenu(null) }}
+                  style={{
+                    width: 16, height: 16, borderRadius: '50%', background: color, cursor: 'pointer',
+                    border: nodeColors?.[node.uuid] === color ? '2px solid #fff' : '2px solid transparent',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              ))}
+              <div
+                title="초기화"
+                onClick={() => { onNodeColorChange?.(node.uuid, null); setCtxMenu(null) }}
+                style={{
+                  width: 16, height: 16, borderRadius: '50%', cursor: 'pointer',
+                  border: '1px solid var(--border)', background: 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 9, color: 'var(--text-muted)', boxSizing: 'border-box',
+                }}
+              >✕</div>
+            </div>
+          </div>
         </div>
       )}
       <div
@@ -801,11 +854,11 @@ function CCFileSceneTree({
           display: 'flex', alignItems: 'center', gap: 2,
           padding: `2px 6px 2px ${8 + depth * 14}px`,
           cursor: isRoot ? 'default' : 'grab', fontSize: 11,
-          background: isDragOver ? 'rgba(88,166,255,0.18)' : isSelected ? 'var(--accent-subtle, rgba(88,166,255,0.1))' : 'transparent',
+          background: isDragOver ? 'rgba(88,166,255,0.18)' : isSelected ? 'var(--accent-subtle, rgba(88,166,255,0.1))' : nodeColors?.[node.uuid] ? `${nodeColors[node.uuid]}26` : 'transparent',
           color: node.active ? 'var(--text-primary)' : 'var(--text-muted)',
           userSelect: 'none',
           outline: isDragOver ? '1px dashed #58a6ff' : 'none',
-          borderLeft: depth > 0 ? `1px solid rgba(255,255,255,0.05)` : 'none',
+          borderLeft: depth > 0 ? `1px solid ${nodeColors?.[node.uuid] ?? 'rgba(255,255,255,0.05)'}` : 'none',
         }}
       >
         {hasChildren ? (
@@ -817,6 +870,9 @@ function CCFileSceneTree({
           </span>
         ) : (
           <span style={{ width: 12, flexShrink: 0 }} />
+        )}
+        {nodeColors?.[node.uuid] && (
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: nodeColors[node.uuid], flexShrink: 0, display: 'inline-block' }} />
         )}
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
           {node.name || '(unnamed)'}
@@ -893,6 +949,8 @@ function CCFileSceneTree({
           onToggleFavorite={onToggleFavorite}
           lockedUuids={lockedUuids}
           onToggleLocked={onToggleLocked}
+          nodeColors={nodeColors}
+          onNodeColorChange={onNodeColorChange}
         />
       ))}
     </div>
@@ -1489,33 +1547,60 @@ function CCFileNodeInspector({
             if (v && typeof v === 'object' && !('__uuid__' in (v as object)) && !('__id__' in (v as object))) {
               const vobj = v as Record<string, unknown>
               const numKeys = Object.keys(vobj).filter(k => typeof vobj[k] === 'number')
-              // RGBA 컬러 피커: r/g/b 키가 모두 있는 객체
+              // RGBA 컬러 피커: r/g/b 키가 모두 있는 객체 (cc.Color 포함)
               const hasRgb = ['r', 'g', 'b'].every(c => c in vobj && typeof vobj[c] === 'number')
               if (hasRgb) {
                 const r = Math.round(Math.min(255, Math.max(0, Number(vobj.r ?? 0))))
                 const g = Math.round(Math.min(255, Math.max(0, Number(vobj.g ?? 0))))
                 const b = Math.round(Math.min(255, Math.max(0, Number(vobj.b ?? 0))))
+                const hasAlpha = 'a' in vobj && typeof vobj.a === 'number'
+                const a = hasAlpha ? Math.round(Math.min(255, Math.max(0, Number(vobj.a ?? 255)))) : undefined
                 const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
                 return (
-                  <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
-                    <input
-                      type="color"
-                      defaultValue={hex}
-                      onChange={e => {
-                        const h = e.target.value
-                        const r2 = parseInt(h.slice(1, 3), 16)
-                        const g2 = parseInt(h.slice(3, 5), 16)
-                        const b2 = parseInt(h.slice(5, 7), 16)
-                        applyAndSave({
-                          components: draft.components.map((c, i) =>
-                            i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, r: r2, g: g2, b: b2 } } } : c
-                          )
-                        })
-                      }}
-                      style={{ width: 36, height: 20, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer' }}
-                    />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{r},{g},{b}</span>
+                  <div key={k} style={{ marginBottom: 3 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                      <input
+                        type="color"
+                        value={hex}
+                        onChange={e => {
+                          const h = e.target.value
+                          const r2 = parseInt(h.slice(1, 3), 16)
+                          const g2 = parseInt(h.slice(3, 5), 16)
+                          const b2 = parseInt(h.slice(5, 7), 16)
+                          applyAndSave({
+                            components: draft.components.map((c, i) =>
+                              i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, r: r2, g: g2, b: b2 } } } : c
+                            )
+                          })
+                        }}
+                        style={{ width: 36, height: 20, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+                      />
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                        {r},{g},{b}{hasAlpha ? `,${a}` : ''}
+                      </span>
+                    </div>
+                    {hasAlpha && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, paddingLeft: 56 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 8 }}>A</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={255}
+                          value={a}
+                          onChange={e => {
+                            const newA = Number(e.target.value)
+                            applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, a: newA } } } : c
+                              )
+                            })
+                          }}
+                          style={{ flex: 1, accentColor: 'var(--accent)', height: 4 }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 22, textAlign: 'right' }}>{a}</span>
+                      </div>
+                    )}
                   </div>
                 )
               }
