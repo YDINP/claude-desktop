@@ -1662,16 +1662,30 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               if (bot > maxY) maxY = bot
             }
             const pad = 4 / view.zoom
+            const bw = maxX - minX, bh = maxY - minY
+            // R1624: bounding box 크기 레이블
+            const sceneW = Math.round(bw / view.zoom * view.zoom), sceneH = Math.round(bh / view.zoom * view.zoom)
             return (
-              <rect
-                x={minX - pad} y={minY - pad}
-                width={maxX - minX + pad * 2} height={maxY - minY + pad * 2}
-                fill="none"
-                stroke="#ff9944"
-                strokeWidth={1.5 / view.zoom}
-                strokeDasharray={`${5 / view.zoom} ${3 / view.zoom}`}
-                style={{ pointerEvents: 'none' }}
-              />
+              <g>
+                <rect
+                  x={minX - pad} y={minY - pad}
+                  width={bw + pad * 2} height={bh + pad * 2}
+                  fill="none"
+                  stroke="#ff9944"
+                  strokeWidth={1.5 / view.zoom}
+                  strokeDasharray={`${5 / view.zoom} ${3 / view.zoom}`}
+                  style={{ pointerEvents: 'none' }}
+                />
+                {/* R1624: BBox 크기 레이블 */}
+                <text
+                  x={minX - pad + (bw + pad * 2) / 2}
+                  y={minY - pad - 3 / view.zoom}
+                  fontSize={9 / view.zoom}
+                  fill="#ff9944"
+                  textAnchor="middle"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                >{Math.round(sceneW)}×{Math.round(sceneH)}</text>
+              </g>
             )
           })()}
         </g>

@@ -17406,6 +17406,18 @@ console.log('\n## 514. R1623 SceneView 와이어프레임 모드 체크')
   }
 }
 
+// ── Section 515: R1624 SceneView 다중선택 BBox 크기 레이블 ──────────────────
+console.log('\n## 515. R1624 SceneView 다중선택 BBox 크기 레이블 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s515 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s515.includes('R1624') && s515.includes('BBox 크기 레이블') && s515.includes('sceneW') && s515.includes('textAnchor')) {
+    log('pass', 'R1624-bbox-label', 'SceneView 다중선택 BBox 크기 레이블')
+  } else {
+    log('warning', 'R1624-bbox-label', 'SceneView 다중선택 BBox 크기 레이블 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
