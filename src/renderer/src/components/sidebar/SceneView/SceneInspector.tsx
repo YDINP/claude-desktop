@@ -694,6 +694,116 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         >↺</button>
       </div>
 
+      {/* R1456: cc.UIOpacity 분리 표시 (CC 3.x UIOpacity / CC 2.x 노드 opacity) */}
+      {(() => {
+        const uiOpacityComp = node.components.find(c => c.type === 'cc.UIOpacity')
+        const opVal = uiOpacityComp
+          ? ((uiOpacityComp.props as Record<string, unknown>)?.opacity as number) ?? node.opacity ?? 255
+          : node.opacity ?? 255
+        const hasUIOpacity = !!uiOpacityComp
+        return (
+          <>
+            <SectionHeader label={hasUIOpacity ? 'UIOpacity' : 'Opacity'} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0' }}>
+              <span style={{ width: 48, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>alpha</span>
+              <input
+                type="range" min={0} max={255} step={1}
+                value={opVal}
+                onChange={e => {
+                  const v = parseInt(e.target.value)
+                  if (hasUIOpacity) {
+                    const newComps = node.components.map(c =>
+                      c.type === 'cc.UIOpacity' ? { ...c, props: { ...c.props, opacity: v } } : c
+                    )
+                    onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                  }
+                  trackUpdate(node.uuid, 'opacity', v)
+                }}
+                style={{ flex: 1, height: 4, accentColor: 'var(--accent)', cursor: 'pointer', minWidth: 0 }}
+              />
+              <span style={{ fontSize: 9, color: opVal < 255 ? 'var(--accent)' : 'var(--text-muted)', fontVariantNumeric: 'tabular-nums', flexShrink: 0, minWidth: 26, textAlign: 'right' }}>
+                {opVal}
+              </span>
+            </div>
+          </>
+        )
+      })()}
+
+      {/* R1456: cc.UITransform 분리 표시 (CC 3.x contentSize + anchorPoint) */}
+      {(() => {
+        const uiTransComp = node.components.find(c => c.type === 'cc.UITransform')
+        if (!uiTransComp?.props) return null
+        const tp = uiTransComp.props as Record<string, unknown>
+        const cs = tp.contentSize as { width?: number; height?: number } | undefined
+        const ap = tp.anchorPoint as { x?: number; y?: number } | undefined
+        const csW = cs?.width ?? (tp._contentSize as { width?: number })?.width ?? node.width ?? 0
+        const csH = cs?.height ?? (tp._contentSize as { height?: number })?.height ?? node.height ?? 0
+        const apX = ap?.x ?? (tp._anchorPoint as { x?: number })?.x ?? node.anchorX ?? 0.5
+        const apY = ap?.y ?? (tp._anchorPoint as { y?: number })?.y ?? node.anchorY ?? 0.5
+        const onUiTransPropChange = (key: string, value: number) => {
+          const newComps = node.components.map(c => {
+            if (c.type !== 'cc.UITransform') return c
+            const p = { ...c.props } as Record<string, unknown>
+            if (key === 'csW' || key === 'csH') {
+              const curCs = (p.contentSize ?? p._contentSize ?? { width: csW, height: csH }) as { width: number; height: number }
+              const newCs = { ...curCs, [key === 'csW' ? 'width' : 'height']: value }
+              p.contentSize = newCs; p._contentSize = newCs
+            } else if (key === 'apX' || key === 'apY') {
+              const curAp = (p.anchorPoint ?? p._anchorPoint ?? { x: apX, y: apY }) as { x: number; y: number }
+              const newAp = { ...curAp, [key === 'apX' ? 'x' : 'y']: value }
+              p.anchorPoint = newAp; p._anchorPoint = newAp
+            }
+            return { ...c, props: p }
+          })
+          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+          // 노드 자체 속성도 동기화
+          if (key === 'csW') trackUpdate(node.uuid, 'width', value)
+          if (key === 'csH') trackUpdate(node.uuid, 'height', value)
+          if (key === 'apX') trackUpdate(node.uuid, 'anchorX', value)
+          if (key === 'apY') trackUpdate(node.uuid, 'anchorY', value)
+        }
+        return (
+          <>
+            <SectionHeader label="UITransform" />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+                <NumInput label="W" value={csW} uuid={node.uuid} prop="uitrans.csW"
+                  onSave={(_u, _p, v) => onUiTransPropChange('csW', v)} />
+                <NumInput label="H" value={csH} uuid={node.uuid} prop="uitrans.csH"
+                  onSave={(_u, _p, v) => onUiTransPropChange('csH', v)} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px', marginTop: 2 }}>
+                <NumInput label="aX" value={apX} decimals={2} uuid={node.uuid} prop="uitrans.apX"
+                  onSave={(_u, _p, v) => onUiTransPropChange('apX', v)} />
+                <NumInput label="aY" value={apY} decimals={2} uuid={node.uuid} prop="uitrans.apY"
+                  onSave={(_u, _p, v) => onUiTransPropChange('apY', v)} />
+              </div>
+            </div>
+          </>
+        )
+      })()}
+
+      {/* R1453: 이벤트 핸들러 목록 (읽기전용) */}
+      {node.eventHandlers && node.eventHandlers.length > 0 && (
+        <>
+          <SectionHeader label="Events" />
+          <div style={{ fontSize: 9, padding: '2px 0' }}>
+            {node.eventHandlers.map((eh, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 3px', borderRadius: 3 }}>
+                <span style={{ color: 'var(--accent)', fontSize: 8, flexShrink: 0 }}>{'\uD83D\uDD14'}</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: 8, flexShrink: 0 }}>{eh.component.replace('cc.', '')}</span>
+                <span style={{ color: 'var(--text-primary)', fontSize: 9 }}>{eh.handler}</span>
+                {eh.target && (
+                  <span style={{ color: 'var(--text-muted)', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    → {eh.target}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       {/* Anchor */}
       <SectionHeader label="Anchor" />
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

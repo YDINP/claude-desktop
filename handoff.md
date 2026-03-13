@@ -1,13 +1,24 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1451 완료 — Phase DD16 R1446~1451)
+> 마지막 업데이트: 2026-03-14 (Round 1457 완료 — Phase DD17 R1452~1457)
 
 ## 현재 상태
-- 마지막 커밋: Round 1446~1451 (편집이력/Canvas감지/의존성분석/Transform리셋/레이어드래그/QA)
+- 마지막 커밋: Round 1452~1457 (노드템플릿/이벤트파싱/일괄처리/뷰북마크/UIOpacity편집/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 5, Pass 1335
+- QA: `npm run qa` ✅ Critical 0, Warning 5, Pass 1344
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
+
+## Phase DD17 R1452~1457 (2026-03-14)
+
+| 라운드 | 기능 |
+|--------|------|
+| R1452 | SceneView 노드 템플릿 라이브러리 (📌 버튼, 기본 2개, 우클릭 저장, max 10, 드롭다운) |
+| R1453 | cc-file-parser Button/Toggle/Slider 이벤트 핸들러 파싱 (eventHandlers 필드) |
+| R1454 | CocosPanel 씬 일괄 처리 (🔧 폰트통일/비활성삭제/이름정규화 + 토스트) |
+| R1455 | SceneView 카메라 뷰 북마크 (Ctrl+1~5 저장, 1~5 이동, 200ms lerp, 숫자 뱃지) |
+| R1456 | Inspector cc.UIOpacity/UITransform 직접 편집 (alpha 슬라이더, contentSize, anchorPoint) |
+| R1457 | QA Section 397-398 추가 (R1452-R1456 기능 체크, Pass 1344) |
 
 ## Phase DD16 R1446~1451 (2026-03-14)
 

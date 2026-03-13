@@ -583,6 +583,75 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
   }, [sceneFile, projectInfo])
 
+  // R1454: 씬 일괄 처리
+  const [showBatchMenu, setShowBatchMenu] = useState(false)
+  const [batchToast, setBatchToast] = useState<string | null>(null)
+  const batchToastRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const showBatchToast = useCallback((msg: string) => {
+    setBatchToast(msg)
+    if (batchToastRef.current) clearTimeout(batchToastRef.current)
+    batchToastRef.current = setTimeout(() => setBatchToast(null), 2500)
+  }, [])
+
+  const handleBatchFontSize = useCallback(() => {
+    if (!sceneFile?.root) return
+    const sizeStr = prompt('모든 Label에 적용할 fontSize 값:', '24')
+    if (!sizeStr) return
+    const fontSize = parseInt(sizeStr)
+    if (isNaN(fontSize) || fontSize <= 0) return
+    let count = 0
+    function walkFont(node: CCSceneNode) {
+      for (const comp of node.components) {
+        if (comp.type === 'cc.Label' && comp.props) {
+          (comp.props as Record<string, unknown>).fontSize = fontSize
+          ;(comp.props as Record<string, unknown>)._fontSize = fontSize
+          ;(comp.props as Record<string, unknown>)._N$fontSize = fontSize
+          count++
+        }
+      }
+      node.children.forEach(walkFont)
+    }
+    walkFont(sceneFile.root)
+    showBatchToast(`${count}개 Label 폰트 크기 → ${fontSize}`)
+    setShowBatchMenu(false)
+  }, [sceneFile, showBatchToast])
+
+  const handleBatchRemoveInactive = useCallback(() => {
+    if (!sceneFile?.root) return
+    if (!confirm('모든 비활성(active=false) 노드를 삭제합니다. 계속하시겠습니까?')) return
+    let count = 0
+    function walkRemove(node: CCSceneNode): CCSceneNode {
+      const filteredChildren = node.children
+        .filter(child => {
+          if (!child.active) { count++; return false }
+          return true
+        })
+        .map(walkRemove)
+      return { ...node, children: filteredChildren }
+    }
+    const newRoot = walkRemove(sceneFile.root)
+    sceneFile.root = newRoot
+    showBatchToast(`${count}개 비활성 노드 삭제됨`)
+    setShowBatchMenu(false)
+  }, [sceneFile, showBatchToast])
+
+  const handleBatchNormalizeName = useCallback(() => {
+    if (!sceneFile?.root) return
+    let count = 0
+    function walkName(node: CCSceneNode) {
+      const original = node.name
+      const normalized = original.replace(/[^a-zA-Z0-9가-힣_\- ]/g, '')
+      if (normalized !== original) {
+        node.name = normalized
+        count++
+      }
+      node.children.forEach(walkName)
+    }
+    walkName(sceneFile.root)
+    showBatchToast(`${count}개 노드 이름 정규화됨`)
+    setShowBatchMenu(false)
+  }, [sceneFile, showBatchToast])
+
   const addRecent = useCallback((path: string) => {
     setRecentFiles(prev => {
       const next = [path, ...prev.filter(f => f !== path)].slice(0, 6)
@@ -1642,6 +1711,56 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.message}>{s.message}</span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* R1454: 씬 일괄 처리 */}
+        {sceneFile?.root && (
+          <div style={{ marginTop: 4, position: 'relative' }}>
+            <button
+              onClick={() => setShowBatchMenu(v => !v)}
+              style={{
+                width: '100%', padding: '3px 0', fontSize: 10, borderRadius: 3,
+                cursor: 'pointer', background: showBatchMenu ? 'rgba(96,165,250,0.15)' : 'none',
+                border: '1px solid var(--border)', color: showBatchMenu ? '#93c5fd' : 'var(--text-muted)',
+              }}
+            >
+              {'\uD83D\uDD27'} 일괄 처리
+            </button>
+            {showBatchMenu && (
+              <div style={{
+                position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 999,
+                background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              }}>
+                <button
+                  onClick={handleBatchFontSize}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '5px 10px', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 10 }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(96,165,250,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >모든 Label 폰트 크기 통일</button>
+                <button
+                  onClick={handleBatchRemoveInactive}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '5px 10px', background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: 10 }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(248,81,73,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >모든 비활성 노드 삭제</button>
+                <button
+                  onClick={handleBatchNormalizeName}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '5px 10px', background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 10 }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(96,165,250,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >모든 노드 이름 정규화</button>
+              </div>
+            )}
+            {batchToast && (
+              <div style={{
+                position: 'absolute', top: -28, left: '50%', transform: 'translateX(-50%)',
+                padding: '3px 10px', borderRadius: 4, background: 'rgba(96,165,250,0.9)',
+                color: '#fff', fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap',
+                pointerEvents: 'none', zIndex: 999,
+              }}>{batchToast}</div>
+            )}
           </div>
         )}
 

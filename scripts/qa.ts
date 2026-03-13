@@ -15337,6 +15337,104 @@ if (existsSync(svp1446)) {
   }
 }
 
+// ── Section 397: R1452/R1453/R1454 기능 체크 ───────────────
+console.log('\n## 397. Phase DD17 R1452~R1454 기능 체크')
+
+// R1452: SceneView 노드 템플릿 라이브러리
+const svp1452 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1452)) {
+  const s1452 = readFileSync(svp1452, 'utf-8')
+  if (s1452.includes('R1452') && s1452.includes('node-templates') && s1452.includes('NodeTemplate') && s1452.includes('showTemplateDropdown') && s1452.includes('DEFAULT_TEMPLATES') && s1452.includes('UI 버튼')) {
+    log('pass', 'R1452', 'SceneView 노드 템플릿 라이브러리 (📌, max 10, 기본 2개, 드롭다운)')
+  } else {
+    log('warning', 'R1452', 'SceneView 노드 템플릿 라이브러리 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1452: 우클릭 메뉴 템플릿 저장
+if (existsSync(svp1452)) {
+  const s1452ctx = readFileSync(svp1452, 'utf-8')
+  if (s1452ctx.includes('템플릿으로 저장') && s1452ctx.includes('NT_KEY')) {
+    log('pass', 'R1452-Ctx', 'SceneView 우클릭 메뉴 템플릿 저장')
+  } else {
+    log('warning', 'R1452-Ctx', 'SceneView 우클릭 템플릿 저장 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1453: cc-file-parser 이벤트 핸들러 파싱
+const parser1453 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser1453)) {
+  const p1453 = readFileSync(parser1453, 'utf-8')
+  if (p1453.includes('R1453') && p1453.includes('extractEventHandlers') && p1453.includes('clickEvents') && p1453.includes('checkEvents') && p1453.includes('slideEvents') && p1453.includes('EVENT_HANDLER_FIELDS')) {
+    log('pass', 'R1453', 'cc-file-parser Button/Toggle/Slider 이벤트 핸들러 파싱')
+  } else {
+    log('warning', 'R1453', 'cc-file-parser 이벤트 핸들러 파싱 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1453: ipc-schema eventHandlers 필드
+const schema1453 = join(ROOT, 'src/shared/ipc-schema.ts')
+if (existsSync(schema1453)) {
+  const sch1453 = readFileSync(schema1453, 'utf-8')
+  if (sch1453.includes('eventHandlers') && sch1453.includes('R1453')) {
+    log('pass', 'R1453-Schema', 'CCSceneNode eventHandlers 필드 추가')
+  } else {
+    log('warning', 'R1453-Schema', 'CCSceneNode eventHandlers 필드 없음', 'shared/ipc-schema.ts')
+  }
+}
+// R1453: SceneInspector 이벤트 핸들러 표시
+const insp1453 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(insp1453)) {
+  const i1453 = readFileSync(insp1453, 'utf-8')
+  if (i1453.includes('R1453') && i1453.includes('eventHandlers') && i1453.includes('Events')) {
+    log('pass', 'R1453-Inspector', 'SceneInspector 이벤트 핸들러 읽기전용 표시 (🔔 이벤트 섹션)')
+  } else {
+    log('warning', 'R1453-Inspector', 'SceneInspector 이벤트 핸들러 표시 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1454: CocosPanel 씬 일괄 처리
+const cp1454 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1454)) {
+  const c1454 = readFileSync(cp1454, 'utf-8')
+  if (c1454.includes('R1454') && c1454.includes('handleBatchFontSize') && c1454.includes('handleBatchRemoveInactive') && c1454.includes('handleBatchNormalizeName') && c1454.includes('showBatchMenu') && c1454.includes('batchToast')) {
+    log('pass', 'R1454', 'CocosPanel 씬 일괄 처리 (폰트통일/비활성삭제/이름정규화 + 토스트)')
+  } else {
+    log('warning', 'R1454', 'CocosPanel 씬 일괄 처리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 398: R1455/R1456 기능 체크 ───────────────
+console.log('\n## 398. Phase DD17 R1455~R1456 기능 체크')
+
+// R1455: SceneView 카메라 뷰 북마크
+if (existsSync(svp1452)) {
+  const s1455 = readFileSync(svp1452, 'utf-8')
+  if (s1455.includes('R1455') && s1455.includes('viewBookmarks') && s1455.includes('VB_KEY') && s1455.includes('CameraBookmark') && s1455.includes('viewBookmarkToast') && s1455.includes('Ctrl') && s1455.includes('200')) {
+    log('pass', 'R1455', 'SceneView 카메라 뷰 북마크 (Ctrl+1~5 저장/이동, 200ms lerp, 숫자 뱃지)')
+  } else {
+    log('warning', 'R1455', 'SceneView 카메라 뷰 북마크 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1456: Inspector UIOpacity/UITransform 분리 표시
+if (existsSync(insp1453)) {
+  const i1456 = readFileSync(insp1453, 'utf-8')
+  if (i1456.includes('R1456') && i1456.includes('UIOpacity') && i1456.includes('UITransform') && i1456.includes('cc.UIOpacity') && i1456.includes('cc.UITransform') && i1456.includes('uitrans')) {
+    log('pass', 'R1456', 'Inspector cc.UIOpacity/cc.UITransform 직접 편집 섹션 (슬라이더 + contentSize + anchorPoint)')
+  } else {
+    log('warning', 'R1456', 'Inspector UIOpacity/UITransform 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+// R1456: SceneView types eventHandlers 필드
+const types1456 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/types.ts')
+if (existsSync(types1456)) {
+  const t1456 = readFileSync(types1456, 'utf-8')
+  if (t1456.includes('eventHandlers') && t1456.includes('R1453')) {
+    log('pass', 'R1456-Types', 'SceneNode types.ts eventHandlers 필드')
+  } else {
+    log('warning', 'R1456-Types', 'SceneNode eventHandlers 필드 없음', 'SceneView/types.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

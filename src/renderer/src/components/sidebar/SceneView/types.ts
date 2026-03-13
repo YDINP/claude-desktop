@@ -24,6 +24,8 @@ export interface SceneNode {
   visible?: boolean
   tags?: string[]
   labelColor?: string
+  /** R1453: 이벤트 핸들러 목록 */
+  eventHandlers?: { component: string; event: string; handler: string; target?: string }[]
 }
 
 // SVG 뷰포트 변환

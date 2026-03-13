@@ -261,6 +261,27 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [layerDragIdx, setLayerDragIdx] = useState<number | null>(null)
   const [layerDropIdx, setLayerDropIdx] = useState<number | null>(null)
 
+  // ── R1452: 씬 노드 템플릿 라이브러리 ──────────────────────
+  type NodeTemplate = { name: string; node: Record<string, unknown> }
+  const NT_KEY = 'node-templates'
+  const DEFAULT_TEMPLATES: NodeTemplate[] = [
+    { name: '빈 노드', node: { uuid: '', name: 'EmptyNode', active: true, position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, size: { x: 0, y: 0 }, anchor: { x: 0.5, y: 0.5 }, opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 }, components: [], children: [] } },
+    { name: 'UI 버튼', node: { uuid: '', name: 'Button', active: true, position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, size: { x: 200, y: 60 }, anchor: { x: 0.5, y: 0.5 }, opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 }, components: [{ type: 'cc.Button', props: { transition: 1 } }, { type: 'cc.Sprite', props: {} }], children: [] } },
+  ]
+  const [nodeTemplates, setNodeTemplates] = useState<NodeTemplate[]>(() => {
+    try { const raw = localStorage.getItem(NT_KEY); return raw ? JSON.parse(raw) : [] } catch { return [] }
+  })
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false)
+
+  // ── R1455: 씬 뷰 북마크 (카메라 포지션) ──────────────────
+  type CameraBookmark = { zoom: number; offsetX: number; offsetY: number } | null
+  const VB_KEY = 'view-bookmarks'
+  const [viewBookmarks, setViewBookmarks] = useState<(CameraBookmark)[]>(() => {
+    try { const raw = localStorage.getItem(VB_KEY); return raw ? JSON.parse(raw) : [null, null, null, null, null] } catch { return [null, null, null, null, null] }
+  })
+  const [viewBookmarkToast, setViewBookmarkToast] = useState<string | null>(null)
+  const viewBookmarkToastRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   // ── R1442: 정렬 가이드라인 고도화 ─────────────────────────
   const [showCenterGuide, setShowCenterGuide] = useState(false)
   const [snapThreshold, setSnapThreshold] = useState<number>(() => {
@@ -922,6 +943,54 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     window.addEventListener('keyup', onUp)
     return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
   }, [spaceDown])
+
+  // ── R1455: Ctrl+1~5 카메라 뷰 북마크 저장/이동 ──────────
+  useEffect(() => {
+    const handleViewBookmark = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return
+      const key = parseInt(e.key)
+      if (isNaN(key) || key < 1 || key > 5) return
+      const idx = key - 1
+      if (e.ctrlKey || e.metaKey) {
+        // 저장
+        e.preventDefault()
+        const bm = { zoom: viewRef.current.zoom, offsetX: viewRef.current.offsetX, offsetY: viewRef.current.offsetY }
+        setViewBookmarks(prev => {
+          const next = [...prev]
+          while (next.length < 5) next.push(null)
+          next[idx] = bm
+          localStorage.setItem(VB_KEY, JSON.stringify(next))
+          return next
+        })
+        if (viewBookmarkToastRef.current) clearTimeout(viewBookmarkToastRef.current)
+        setViewBookmarkToast(`뷰 ${key} 저장됨`)
+        viewBookmarkToastRef.current = setTimeout(() => setViewBookmarkToast(null), 1500)
+      } else if (!e.shiftKey && !e.altKey) {
+        // 이동 (숫자키만)
+        const bm = viewBookmarks[idx]
+        if (!bm) return
+        e.preventDefault()
+        // 부드러운 애니메이션 200ms lerp
+        const start = { ...viewRef.current }
+        const startTime = Date.now()
+        const DURATION = 200
+        const animate = () => {
+          const elapsed = Date.now() - startTime
+          const t = Math.min(elapsed / DURATION, 1)
+          const eased = t * (2 - t) // ease-out
+          setView({
+            zoom: start.zoom + (bm.zoom - start.zoom) * eased,
+            offsetX: start.offsetX + (bm.offsetX - start.offsetX) * eased,
+            offsetY: start.offsetY + (bm.offsetY - start.offsetY) * eased,
+          })
+          if (t < 1) requestAnimationFrame(animate)
+        }
+        requestAnimationFrame(animate)
+      }
+    }
+    window.addEventListener('keydown', handleViewBookmark)
+    return () => window.removeEventListener('keydown', handleViewBookmark)
+  }, [viewBookmarks])
 
   // R1412: 채팅 연동 노드 하이라이트 (cc-highlight-node 커스텀 이벤트)
   useEffect(() => {
@@ -2732,8 +2801,111 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         </div>
       )}
 
-      {/* R1419: 뷰포트 프리셋 */}
+      {/* R1452: 노드 템플릿 + R1455: 뷰 북마크 + R1419: 뷰포트 프리셋 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '1px 4px', background: 'rgba(0,0,0,0.15)', flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        {/* R1452: 템플릿 드롭다운 */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setShowTemplateDropdown(v => !v)}
+            title="R1452: 노드 템플릿 라이브러리"
+            style={{ fontSize: 9, padding: '1px 4px', background: showTemplateDropdown ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: showTemplateDropdown ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
+          >{'\uD83D\uDCCC'}</button>
+          {showTemplateDropdown && (
+            <div style={{
+              position: 'absolute', top: '100%', left: 0, zIndex: 9999,
+              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+              borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              minWidth: 160, maxHeight: 220, overflowY: 'auto',
+            }}>
+              <div style={{ padding: '4px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', fontWeight: 600 }}>
+                {'\uD83D\uDCCC'} 노드 템플릿
+              </div>
+              {DEFAULT_TEMPLATES.concat(nodeTemplates).map((tmpl, i) => (
+                <button
+                  key={`${tmpl.name}-${i}`}
+                  onClick={() => {
+                    const newUuid = `tmpl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+                    const n = tmpl.node as Record<string, unknown>
+                    const newNode: SceneNode = {
+                      uuid: newUuid, name: (n.name as string) ?? 'Template',
+                      active: (n.active as boolean) ?? true,
+                      x: 0, y: 0, width: ((n.size as { x?: number })?.x) ?? 0,
+                      height: ((n.size as { y?: number })?.y) ?? 0,
+                      anchorX: ((n.anchor as { x?: number })?.x) ?? 0.5,
+                      anchorY: ((n.anchor as { y?: number })?.y) ?? 0.5,
+                      scaleX: ((n.scale as { x?: number })?.x) ?? 1,
+                      scaleY: ((n.scale as { y?: number })?.y) ?? 1,
+                      rotation: (n.rotation as number) ?? 0,
+                      opacity: (n.opacity as number) ?? 255,
+                      color: (n.color as { r: number; g: number; b: number; a: number }) ?? { r: 255, g: 255, b: 255, a: 255 },
+                      parentUuid: rootUuid, childUuids: [],
+                      components: (n.components as SceneNode['components']) ?? [],
+                    }
+                    updateNode(newUuid, newNode)
+                    if (rootUuid) {
+                      const root = nodeMap.get(rootUuid)
+                      if (root) updateNode(rootUuid, { childUuids: [...root.childUuids, newUuid] })
+                    }
+                    setSelectedUuid(newUuid)
+                    setSelectedUuids(new Set([newUuid]))
+                    setShowTemplateDropdown(false)
+                  }}
+                  style={{
+                    display: 'block', width: '100%', textAlign: 'left',
+                    padding: '4px 8px', background: 'none', border: 'none',
+                    color: i < DEFAULT_TEMPLATES.length ? 'var(--text-muted)' : '#60a5fa',
+                    cursor: 'pointer', fontSize: 10,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(96,165,250,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >
+                  {i < DEFAULT_TEMPLATES.length ? `[기본] ${tmpl.name}` : tmpl.name}
+                </button>
+              ))}
+              {nodeTemplates.length > 0 && (
+                <div style={{ borderTop: '1px solid var(--border)', padding: '2px 8px' }}>
+                  <button
+                    onClick={() => { setNodeTemplates([]); localStorage.removeItem(NT_KEY); setShowTemplateDropdown(false) }}
+                    style={{ fontSize: 8, color: '#f85149', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0' }}
+                  >모든 사용자 템플릿 삭제</button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {/* R1455: 뷰 북마크 숫자 뱃지 */}
+        {viewBookmarks.map((bm, i) => (
+          <button
+            key={`vb-${i}`}
+            onClick={() => {
+              if (!bm) return
+              const start = { ...viewRef.current }
+              const startTime = Date.now()
+              const DURATION = 200
+              const animate = () => {
+                const elapsed = Date.now() - startTime
+                const t = Math.min(elapsed / DURATION, 1)
+                const eased = t * (2 - t)
+                setView({
+                  zoom: start.zoom + (bm.zoom - start.zoom) * eased,
+                  offsetX: start.offsetX + (bm.offsetX - start.offsetX) * eased,
+                  offsetY: start.offsetY + (bm.offsetY - start.offsetY) * eased,
+                })
+                if (t < 1) requestAnimationFrame(animate)
+              }
+              requestAnimationFrame(animate)
+            }}
+            title={bm ? `뷰 ${i + 1} (zoom:${bm.zoom.toFixed(1)}) — 클릭으로 이동, Ctrl+${i + 1}로 저장` : `뷰 ${i + 1} 비어있음 (Ctrl+${i + 1}로 저장)`}
+            style={{
+              fontSize: 8, width: 16, height: 16, padding: 0, lineHeight: '16px', textAlign: 'center',
+              background: bm ? 'rgba(96,165,250,0.2)' : 'none',
+              border: '1px solid ' + (bm ? 'rgba(96,165,250,0.4)' : 'var(--border)'),
+              borderRadius: 2, color: bm ? '#93c5fd' : 'var(--text-muted)',
+              cursor: bm ? 'pointer' : 'default', fontWeight: bm ? 700 : 400,
+            }}
+          >{i + 1}</button>
+        ))}
+        <div style={{ width: 1, height: 12, background: 'var(--border)', margin: '0 2px' }} />
         <button
           onClick={() => {
             const name = `뷰 ${viewportPresets.length + 1}`
@@ -5295,6 +5467,28 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   close()
                 }}>🏷 태그 편집</button>
               )}
+              {/* R1452: 템플릿으로 저장 */}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  const name = prompt('템플릿 이름:')
+                  if (!name?.trim()) { close(); return }
+                  const n = nodeMap.get(ctxUuid!)
+                  if (!n) { close(); return }
+                  const tmplNode = {
+                    uuid: '', name: n.name, active: n.active,
+                    position: { x: n.x, y: n.y, z: 0 }, rotation: n.rotation,
+                    scale: { x: n.scaleX, y: n.scaleY, z: 1 }, size: { x: n.width, y: n.height },
+                    anchor: { x: n.anchorX, y: n.anchorY }, opacity: n.opacity, color: n.color,
+                    components: n.components, children: [],
+                  }
+                  setNodeTemplates(prev => {
+                    const next = [{ name: name.trim(), node: tmplNode }, ...prev].slice(0, 10)
+                    localStorage.setItem(NT_KEY, JSON.stringify(next))
+                    return next
+                  })
+                  close()
+                }}>{'\uD83D\uDCCC'} 템플릿으로 저장</button>
+              )}
               {/* R1407: 색상 태그 */}
               {ctxNode && (
                 <button style={menuStyle} onClick={() => {
@@ -5521,6 +5715,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               >임포트</button>
             </div>
           </div>
+        </div>
+      )}
+      {/* R1455: 뷰 북마크 저장 토스트 */}
+      {viewBookmarkToast && (
+        <div style={{
+          position: 'absolute', top: 40, left: '50%', transform: 'translateX(-50%)',
+          zIndex: 9999, padding: '4px 14px', borderRadius: 4,
+          background: 'rgba(96,165,250,0.9)', color: '#fff', fontSize: 11,
+          fontWeight: 600, pointerEvents: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+        }}>
+          {viewBookmarkToast}
         </div>
       )}
     </div>

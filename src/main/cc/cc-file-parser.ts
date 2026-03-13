@@ -85,7 +85,11 @@ function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | nul
   const color: CCColor = { r: rc?.r ?? 255, g: rc?.g ?? 255, b: rc?.b ?? 255, a: rc?.a ?? 255 }
 
   // Components (skip cc.CompPrefabInfo)
-  const comps = resolveComponents2x(raw, e._components as { __id__: number }[] | undefined)
+  const compRefArr = e._components as { __id__: number }[] | undefined
+  const comps = resolveComponents2x(raw, compRefArr)
+
+  // R1453: 이벤트 핸들러 파싱
+  const eventHandlers = extractEventHandlers(raw, compRefArr)
 
   // Children (recursive)
   const childRefs = (e._children as { __id__: number }[] | undefined) ?? []
@@ -108,6 +112,7 @@ function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | nul
     color,
     components: comps,
     children,
+    ...(eventHandlers.length > 0 ? { eventHandlers } : {}),
     _rawIndex: idx,
   }
 }
@@ -413,7 +418,11 @@ function parseNode3x(
 
   const layer = typeof e._layer === 'number' ? e._layer : undefined
 
-  const comps = resolveComponents3x(raw, e._components as { __id__: number }[] | undefined)
+  const compRefArr3x = e._components as { __id__: number }[] | undefined
+  const comps = resolveComponents3x(raw, compRefArr3x)
+
+  // R1453: 이벤트 핸들러 파싱
+  const eventHandlers = extractEventHandlers(raw, compRefArr3x)
 
   const childRefs = (e._children as { __id__: number }[] | undefined) ?? []
   const children = childRefs
@@ -436,6 +445,7 @@ function parseNode3x(
     layer,
     components: comps,
     children,
+    ...(eventHandlers.length > 0 ? { eventHandlers } : {}),
     _rawIndex: idx,
   }
 }
@@ -458,6 +468,62 @@ function resolveComponents3x(
       }
       return { type, props: { ...props, ...specialized }, _rawIndex: idx }
     })
+}
+
+// ── R1453: 이벤트 핸들러 파싱 (Button/Toggle/Slider) ─────────────────────────
+
+type EventHandlerEntry = { component: string; event: string; handler: string; target?: string }
+
+const EVENT_HANDLER_FIELDS: Record<string, { field: string; event: string }[]> = {
+  'cc.Button': [{ field: 'clickEvents', event: 'click' }, { field: '_N$clickEvents', event: 'click' }],
+  'cc.Toggle': [{ field: 'checkEvents', event: 'check' }, { field: '_N$checkEvents', event: 'check' }],
+  'cc.Slider': [{ field: 'slideEvents', event: 'slide' }, { field: '_N$slideEvents', event: 'slide' }],
+}
+
+function extractEventHandlers(
+  raw: RawEntry[],
+  compRefs: { __id__: number }[] | undefined
+): EventHandlerEntry[] {
+  if (!compRefs) return []
+  const handlers: EventHandlerEntry[] = []
+
+  for (const ref of compRefs) {
+    const comp = raw[ref.__id__]
+    if (!comp) continue
+    const compType = (comp.__type__ as string) ?? ''
+    const fieldDefs = EVENT_HANDLER_FIELDS[compType]
+    if (!fieldDefs) continue
+
+    for (const { field, event } of fieldDefs) {
+      const events = comp[field] as Array<{ __id__?: number } | { target?: { __id__?: number }; handler?: string; customEventData?: string }> | undefined
+      if (!Array.isArray(events)) continue
+
+      for (const ev of events) {
+        // 직접 인라인 이벤트 핸들러
+        if ('handler' in ev && typeof ev.handler === 'string') {
+          const targetRef = ev.target as { __id__?: number } | undefined
+          const targetNode = targetRef?.__id__ != null ? raw[targetRef.__id__] : undefined
+          const targetName = targetNode ? ((targetNode._name as string) ?? '') : undefined
+          handlers.push({ component: compType, event, handler: ev.handler, target: targetName })
+          continue
+        }
+        // __id__ 참조 기반 이벤트 핸들러 (CC 2.x 스타일)
+        const evRef = ev as { __id__?: number }
+        if (evRef.__id__ != null) {
+          const evEntry = raw[evRef.__id__] as RawEntry | undefined
+          if (!evEntry) continue
+          const handlerName = (evEntry.handler as string) ?? (evEntry._handler as string) ?? ''
+          if (!handlerName) continue
+          const targetRef2 = evEntry.target as { __id__?: number } | undefined
+          const targetNode2 = targetRef2?.__id__ != null ? raw[targetRef2.__id__] : undefined
+          const targetName2 = targetNode2 ? ((targetNode2._name as string) ?? '') : undefined
+          handlers.push({ component: compType, event, handler: handlerName, target: targetName2 })
+        }
+      }
+    }
+  }
+
+  return handlers
 }
 
 // ── R1426: 씬 노드 UUID → 경로 인덱스 빌드 ──────────────────────────────────
