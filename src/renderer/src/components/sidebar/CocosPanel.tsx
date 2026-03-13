@@ -1472,6 +1472,8 @@ function CCFileNodeInspector({
   const [exportedTemplates, setExportedTemplates] = useState<string[]>([])
   const [previewCache, setPreviewCache] = useState<Record<string, string>>({})
   const [loadProgress, setLoadProgress] = useState(0)
+  const [sceneDeps, setSceneDeps] = useState<Record<string, string[]>>({})
+  const [showSceneDeps, setShowSceneDeps] = useState(false)
   const [loadingScene, setLoadingScene] = useState<string | null>(null)
   const [assetSearch, setAssetSearch] = useState('')
   const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])

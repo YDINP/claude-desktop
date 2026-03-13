@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:20:43.866Z
+> 2026-03-13T11:21:34.601Z
 
 ## Critical
 _없음_
@@ -661,3 +661,6 @@ _없음_
 - ChatPanel 메시지 예약 전송 존재
 - TerminalPanel 컬러 테마 존재
 - SessionList 세션 요약 자동 생성 존재
+- ChatPanel 메시지 워터마크 존재
+- CocosPanel 씬 의존성 그래프 존재
+- SceneViewPanel 씬 북마크 존재

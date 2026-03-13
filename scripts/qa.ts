@@ -7544,6 +7544,41 @@ if (existsSync(sl779Path)) {
   }
 }
 
+// ── Section 171: Phase DD10 R780~782 기능 체크 ────────────────
+console.log('\n## 171. Phase DD10 R780~782 기능 체크')
+// R780: ChatPanel 메시지 워터마크
+const cp780Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp780Path)) {
+  const cp780 = readFileSync(cp780Path, 'utf-8')
+  if (cp780.includes('watermarkText') || cp780.includes('showWatermark') || cp780.includes('watermark')) {
+    log('pass', 'R780', 'ChatPanel 메시지 워터마크 존재')
+  } else {
+    log('warning', 'R780', 'ChatPanel 워터마크 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R781: CocosPanel 씬 의존성
+const cp781Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp781Path)) {
+  const cp781 = readFileSync(cp781Path, 'utf-8')
+  if (cp781.includes('sceneDeps') || cp781.includes('showSceneDeps') || cp781.includes('sceneDependency')) {
+    log('pass', 'R781', 'CocosPanel 씬 의존성 그래프 존재')
+  } else {
+    log('warning', 'R781', 'CocosPanel 씬 의존성 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R782: SceneViewPanel 씬 북마크
+const svp782Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp782Path)) {
+  const svp782 = readFileSync(svp782Path, 'utf-8')
+  if (svp782.includes('sceneBookmarks') || svp782.includes('showSceneBookmarks') || svp782.includes('scene-bookmarks')) {
+    log('pass', 'R782', 'SceneViewPanel 씬 북마크 존재')
+  } else {
+    log('warning', 'R782', 'SceneViewPanel 씬 북마크 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

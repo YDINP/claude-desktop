@@ -193,6 +193,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [nodeTypeFilter, setNodeTypeFilter] = useState<string[]>([])
   const [showTypeFilter, setShowTypeFilter] = useState(false)
   const [sceneModified, setSceneModified] = useState(false)
+  const [sceneBookmarks, setSceneBookmarks] = useState<Array<{ path: string; label: string }>>(() => JSON.parse(localStorage.getItem('scene-bookmarks') ?? '[]'))
+  const [showSceneBookmarks, setShowSceneBookmarks] = useState(false)
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
