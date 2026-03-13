@@ -18,7 +18,7 @@ import { PluginsPanel } from './PluginsPanel'
 import { ConnectionPanel } from './ConnectionPanel'
 import { AgentPanel } from './AgentPanel'
 import { RemotePanel } from './RemotePanel'
-import { CocosPanel } from './CocosPanel'
+
 import { GlobalSearchPanel } from './GlobalSearchPanel'
 import type { ChangedFile } from './ChangedFilesPanel'
 import type { ChatMessage } from '../../stores/chat-store'
@@ -47,7 +47,7 @@ interface SidebarProps {
 
 export type { Tab as SidebarTab }
 
-type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'cocos' | 'globalsearch' | 'notes'
+type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'globalsearch' | 'notes'
 
 export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet, onTabChange, wsKey, ccPort, onCCPortChange, onCCConnectedChange }: SidebarProps) {
   const [tab, setTab] = useState<Tab>('files')
@@ -255,9 +255,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
         {tab === 'remote' && (
           <RemotePanel />
         )}
-        {tab === 'cocos' && (
-          <CocosPanel />
-        )}
+
         {tab === 'notes' && (
           <NotesPanel />
         )}

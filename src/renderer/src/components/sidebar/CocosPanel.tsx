@@ -1228,7 +1228,14 @@ function CCFileNodeInspector({
               onMouseLeave={e => (e.currentTarget.style.color = '#666')}
             >✕</span>
           </div>
-          {!collapsedComps.has(ci) && Object.entries(comp.props).map(([k, v]) => {
+          {!collapsedComps.has(ci) && Object.entries(comp.props).filter(([k]) => {
+            // 내부 엔진 props 숨김: objFlags, enabled, playOnLoad, 등
+            const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
+            if (HIDDEN.has(k)) return false
+            // 배열/Map 타입 (cc.Button clickEvents 등) 숨김
+            if (Array.isArray(v)) return false
+            return true
+          }).map(([k, v]) => {
             if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
               const uuid = (v as { __uuid__: string }).__uuid__
               return (

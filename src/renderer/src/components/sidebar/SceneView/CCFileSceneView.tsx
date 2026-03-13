@@ -134,7 +134,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     const assetsDir = sceneFile.projectInfo.assetsDir
     if (!assetsDir) return
     const uuids = flatNodes
-      .flatMap(fn => fn.node.components.filter(c => c.type === 'cc.Sprite'))
+      .flatMap(fn => fn.node.components.filter(c => c.type === 'cc.Sprite' || c.type === 'Sprite'))
       .map(c => (c.props.spriteFrame as { __uuid__?: string } | undefined)?.__uuid__)
       .filter((u): u is string => !!u && !spriteCacheRef.current.has(u))
     if (!uuids.length) return
@@ -406,7 +406,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           fontSize: 8, padding: '1px 4px', borderRadius: 3, background: 'rgba(88,166,255,0.15)',
           color: '#58a6ff', flexShrink: 0,
         }}>
-          CC {sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x'}
+          CC {sceneFile.projectInfo.creatorVersion ?? (sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x')}
         </span>
         <input
           type="color"
@@ -584,7 +584,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const rotTransform = rotZ !== 0 ? `rotate(${-rotZ}, ${svgPos.x}, ${svgPos.y})` : undefined
 
             const hasLabel = node.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
-            const hasSprite = node.components.some(c => c.type === 'cc.Sprite')
+            const hasSprite = node.components.some(c => c.type === 'cc.Sprite' || c.type === 'Sprite')
             const hasBg = node.components.some(c => ['cc.Canvas', 'cc.Layout'].includes(c.type))
             const hasButton = node.components.some(c => c.type === 'cc.Button' || c.type === 'Button')
             const hasScroll = node.components.some(c => c.type === 'cc.ScrollView' || c.type === 'cc.ScrollBar')
@@ -700,15 +700,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 )}
                 {/* Sprite 이미지 렌더링 */}
                 {hasSprite && (() => {
-                  const sc = node.components.find(c => c.type === 'cc.Sprite')
+                  const sc = node.components.find(c => c.type === 'cc.Sprite' || c.type === 'Sprite')
                   const sfUuid = (sc?.props?.spriteFrame as { __uuid__?: string } | undefined)?.__uuid__
                   const imgUrl = sfUuid ? spriteCacheRef.current.get(sfUuid) : undefined
                   if (!imgUrl) return null
+                  const iw = Math.abs(w) || 1
+                  const ih = Math.abs(h) || 1
                   return (
                     <image
                       href={imgUrl}
                       x={rectX} y={rectY}
-                      width={Math.max(0, w)} height={Math.max(0, h)}
+                      width={iw} height={ih}
                       preserveAspectRatio="xMidYMid meet"
                       style={{ pointerEvents: 'none' }}
                     />

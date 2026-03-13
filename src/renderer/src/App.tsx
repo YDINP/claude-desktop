@@ -1358,8 +1358,6 @@ function AppContent() {
           { id: 'connections' as SidebarTab, label: '🔌', title: 'MCP 연결' },
           { id: 'agent' as SidebarTab, label: '🤖', title: '에이전트' },
           { id: 'remote' as SidebarTab, label: '🖥️', title: '원격' },
-          { id: 'cocos' as SidebarTab, label: '🎮', title: 'Cocos Creator' },
-
         ]).map(t => (
           <button
             key={t.id}
