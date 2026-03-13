@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1397 완료 — Phase DD14 진행 중, QA Pass 1269)
+> 마지막 업데이트: 2026-03-14 (Round 1403 완료 — Phase DD14 진행 중, QA Pass 1276)
 
 ## 개발 루프 실행 방식
 
@@ -779,6 +779,12 @@
 | Round 1395 | SceneView 레이어 패널 고도화 (가시성/잠금 영구저장, 색상 라벨 팔레트) | ✅ |
 | Round 1396 | cc-file-parser 2x _trs 파싱 정밀도 향상 (base64 디코딩, 개별 필드 폴백) | ✅ |
 | Round 1397 | QA Section 375-376 추가 (R1392-R1396 기능 체크, Pass 1269) | ✅ |
+| Round 1398 | CocosPanel 프리팹 인스턴스화 UI (readFile → JSON parse → 씬 추가, 📥 버튼) | ✅ |
+| Round 1399 | SceneView 노드 그룹화 Ctrl+G / 해제 Ctrl+Shift+G (CocosPanel + SceneViewPanel) | ✅ |
+| Round 1400 | cc-file-parser 파티클/카메라/조명 컴포넌트 + NodeRenderer 시각 힌트 (테두리 + 라벨 접두사) | ✅ |
+| Round 1401 | SceneView 씬 통계 오버레이 (I키, 노드수/컴포넌트 분포, localStorage, ℹ 버튼) | ✅ |
+| Round 1402 | Inspector 노드 참조 필드 🔗 표시 (__id__/__uuid__ 감지) | ✅ |
+| Round 1403 | QA Section 377-378 추가 (R1398-R1402 기능 체크, Pass 1276) | ✅ |
 
 ## QA 프로세스
 

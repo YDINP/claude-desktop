@@ -119,6 +119,9 @@ interface SceneToolbarProps {
   // R1364: 목업 이미지 오버레이
   hasOverlayImage?: boolean
   onClearOverlayImage?: () => void
+  // R1401: 씬 통계 오버레이
+  showStatsOverlay?: boolean
+  onStatsOverlayToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -237,6 +240,8 @@ export function SceneToolbar({
   onSortChange,
   hasOverlayImage,
   onClearOverlayImage,
+  showStatsOverlay,
+  onStatsOverlayToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -1058,6 +1063,17 @@ export function SceneToolbar({
       >
         #
       </button>
+
+      {/* R1401: 씬 통계 오버레이 토글 */}
+      {onStatsOverlayToggle && (
+        <button
+          style={showStatsOverlay ? btnActive : btnBase}
+          onClick={onStatsOverlayToggle}
+          title="씬 통계 오버레이 (I키)"
+        >
+          ℹ
+        </button>
+      )}
 
       {/* 씬뷰 스크린샷 */}
       {onScreenshot && (

@@ -208,6 +208,57 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     scrollThreshold: e._N$scrollThreshold ?? e.scrollThreshold ?? 0.5,
     autoPageTurningThreshold: e._N$autoPageTurningThreshold ?? e.autoPageTurningThreshold ?? 0.3,
   }),
+  // R1400: ParticleSystem 컴포넌트 (3.x)
+  'cc.ParticleSystem': e => {
+    const sc = e._startColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    const ec = e._endColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      duration: e._duration ?? e.duration ?? -1,
+      maxParticles: e._N$maxParticles ?? e._maxParticles ?? e.maxParticles ?? 150,
+      startColor: sc ? { r: sc.r ?? 255, g: sc.g ?? 255, b: sc.b ?? 255, a: sc.a ?? 255 } : undefined,
+      endColor: ec ? { r: ec.r ?? 0, g: ec.g ?? 0, b: ec.b ?? 0, a: ec.a ?? 0 } : undefined,
+    }
+  },
+  // R1400: ParticleSystem2D 컴포넌트 (2.x)
+  'cc.ParticleSystem2D': e => {
+    const sc = e._startColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    const ec = e._endColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      duration: e._N$duration ?? e._duration ?? e.duration ?? -1,
+      maxParticles: e._N$totalParticles ?? e._totalParticles ?? e.totalParticles ?? 150,
+      startColor: sc ? { r: sc.r ?? 255, g: sc.g ?? 255, b: sc.b ?? 255, a: sc.a ?? 255 } : undefined,
+      endColor: ec ? { r: ec.r ?? 0, g: ec.g ?? 0, b: ec.b ?? 0, a: ec.a ?? 0 } : undefined,
+    }
+  },
+  // R1400: Camera 컴포넌트 (2.x/3.x)
+  'cc.Camera': e => ({
+    clearFlags: e._N$clearFlags ?? e._clearFlags ?? e.clearFlags,
+    backgroundColor: (() => {
+      const bg = (e._N$backgroundColor ?? e._backgroundColor ?? e.backgroundColor) as { r?: number; g?: number; b?: number; a?: number } | undefined
+      return bg ? { r: bg.r ?? 0, g: bg.g ?? 0, b: bg.b ?? 0, a: bg.a ?? 255 } : undefined
+    })(),
+    depth: e._N$depth ?? e._depth ?? e.depth ?? 0,
+    zoomRatio: e._N$zoomRatio ?? e._zoomRatio ?? e.zoomRatio ?? 1,  // 2.x
+    fov: e._fov ?? e.fov ?? 45,  // 3.x
+    near: e._near ?? e.near ?? 1,  // 3.x
+    far: e._far ?? e.far ?? 1000,  // 3.x
+  }),
+  // R1400: DirectionalLight 컴포넌트
+  'cc.DirectionalLight': e => {
+    const lc = (e._color ?? e.color) as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      color: lc ? { r: lc.r ?? 255, g: lc.g ?? 255, b: lc.b ?? 255, a: lc.a ?? 255 } : undefined,
+      intensity: e._intensity ?? e.intensity ?? 1,
+    }
+  },
+  // R1400: PointLight 컴포넌트
+  'cc.PointLight': e => {
+    const lc = (e._color ?? e.color) as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      color: lc ? { r: lc.r ?? 255, g: lc.g ?? 255, b: lc.b ?? 255, a: lc.a ?? 255 } : undefined,
+      intensity: e._intensity ?? e.intensity ?? 1,
+    }
+  },
 }
 
 function extractComponentProps(type: string, e: RawEntry, isCC2x: boolean): Record<string, unknown> {

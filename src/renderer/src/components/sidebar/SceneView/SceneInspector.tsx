@@ -679,6 +679,37 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         </>
       )}
 
+      {/* R1402: 컴포넌트 props 내 노드 참조 필드 표시 */}
+      {node.components.length > 0 && (() => {
+        const refs: { comp: string; key: string; display: string }[] = []
+        for (const c of node.components) {
+          if (!c.props) continue
+          for (const [k, v] of Object.entries(c.props as Record<string, unknown>)) {
+            if (v && typeof v === 'object' && !Array.isArray(v)) {
+              const obj = v as Record<string, unknown>
+              if (typeof obj.__id__ === 'number') {
+                refs.push({ comp: c.type.replace('cc.', ''), key: k, display: `#${obj.__id__}` })
+              } else if (typeof obj.__uuid__ === 'string') {
+                const uuid = obj.__uuid__ as string
+                refs.push({ comp: c.type.replace('cc.', ''), key: k, display: uuid.length > 8 ? uuid.slice(0, 8) + '...' : uuid })
+              }
+            }
+          }
+        }
+        if (refs.length === 0) return null
+        return (
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2, padding: '2px 3px' }}>
+            {refs.map((r, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 1 }}>
+                <span style={{ color: 'var(--accent)', fontSize: 8 }}>{'\uD83D\uDD17'}</span>
+                <span style={{ color: 'var(--text-secondary)' }}>{r.comp}.{r.key}</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 8, color: 'var(--text-muted)' }}>{r.display}</span>
+              </div>
+            ))}
+          </div>
+        )
+      })()}
+
       {/* R1368: cc.Widget 속성 편집 */}
       {(() => {
         const widgetComp = node.components.find(c => c.type === 'cc.Widget')

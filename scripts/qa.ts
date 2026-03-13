@@ -14622,6 +14622,84 @@ if (existsSync(cfp1396Path)) {
   }
 }
 
+// ── Section 377: R1398/R1399/R1400 기능 체크 ───────────────
+console.log('\n## 377. Phase DD14 R1398~R1400 기능 체크')
+
+// R1398: CocosPanel 프리팹 인스턴스화 UI
+const cp1398Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1398Path)) {
+  const cp1398 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1398.includes('R1398') && cp1398.includes('handleInstantiatePrefab') && cp1398.includes('prefabContent') && cp1398.includes('cc.Prefab') && cp1398.includes('instantiating')) {
+    log('pass', 'R1398', 'CocosPanel 프리팹 인스턴스화 UI (readFile → JSON parse → 씬 추가)')
+  } else {
+    log('warning', 'R1398', 'CocosPanel 프리팹 인스턴스화 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1399: SceneView 노드 그룹화 Ctrl+G / Ctrl+Shift+G
+if (existsSync(sceneViewPath)) {
+  const svp1399 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1399.includes('handleGroup') && svp1399.includes('handleUngroup') && svp1399.includes("'Group'")) {
+    log('pass', 'R1399', 'SceneView 노드 그룹화 Ctrl+G / 해제 Ctrl+Shift+G')
+  } else {
+    log('warning', 'R1399', 'SceneView 노드 그룹화 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1399: CocosPanel에서도 Ctrl+G/Ctrl+Shift+G
+if (existsSync(cp1398Path)) {
+  const cp1399 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1399.includes('R1399') && cp1399.includes('Group') && cp1399.includes('ungroupNode')) {
+    log('pass', 'R1399', 'CocosPanel Ctrl+G/Ctrl+Shift+G 그룹화/해제 (씬 파일 패치)')
+  } else {
+    log('warning', 'R1399', 'CocosPanel 그룹화 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1400: cc-file-parser 파티클/카메라/조명 컴포넌트
+const cfp1400Path = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(cfp1400Path)) {
+  const cfp1400 = readFileSync(cfp1400Path, 'utf-8')
+  if (cfp1400.includes('R1400') && cfp1400.includes('cc.ParticleSystem') && cfp1400.includes('cc.Camera') && cfp1400.includes('cc.DirectionalLight') && cfp1400.includes('cc.PointLight')) {
+    log('pass', 'R1400', 'cc-file-parser 파티클/카메라/조명 컴포넌트 추출')
+  } else {
+    log('warning', 'R1400', 'cc-file-parser 파티클/카메라/조명 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1400: NodeRenderer Camera/ParticleSystem 시각 힌트
+const nr1400Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr1400Path)) {
+  const nr1400 = readFileSync(nr1400Path, 'utf-8')
+  if (nr1400.includes('R1400') && nr1400.includes('cc.Camera') && nr1400.includes('cc.ParticleSystem')) {
+    log('pass', 'R1400', 'NodeRenderer Camera/ParticleSystem 시각 힌트 (테두리 + 라벨 접두사)')
+  } else {
+    log('warning', 'R1400', 'NodeRenderer 시각 힌트 없음', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
+// ── Section 378: R1401/R1402 기능 체크 ───────────────
+console.log('\n## 378. Phase DD14 R1401~R1402 기능 체크')
+
+// R1401: SceneView 씬 통계 오버레이
+if (existsSync(sceneViewPath)) {
+  const svp1401 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1401.includes('showStatsOverlay') && svp1401.includes('scene-stats-overlay') && svp1401.includes('Scene Stats') && svp1401.includes('Top Components')) {
+    log('pass', 'R1401', 'SceneView 씬 통계 오버레이 (I키, 노드수/컴포넌트 분포, localStorage)')
+  } else {
+    log('warning', 'R1401', 'SceneView 씬 통계 오버레이 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1402: Inspector 노드 참조 필드 표시
+const si1402Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(si1402Path)) {
+  const si1402 = readFileSync(si1402Path, 'utf-8')
+  if (si1402.includes('R1402') && si1402.includes('__id__') && si1402.includes('__uuid__')) {
+    log('pass', 'R1402', 'Inspector 노드 참조 필드 표시 (__id__/__uuid__ 감지, 링크 아이콘)')
+  } else {
+    log('warning', 'R1402', 'Inspector 노드 참조 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

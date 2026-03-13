@@ -97,6 +97,11 @@ export const COMP_ICONS: Record<string, string> = {
   'cc.ProgressBar': 'P',
   'cc.Toggle': 'G',
   'cc.Camera': 'C',
+  // R1400: 파티클/조명 아이콘
+  'cc.ParticleSystem': 'P',
+  'cc.ParticleSystem2D': 'P',
+  'cc.DirectionalLight': 'L',
+  'cc.PointLight': 'L',
 }
 
 export function getComponentIcon(components: { type: string }[]): string {
@@ -118,5 +123,8 @@ export function getComponentIcon(components: { type: string }[]): string {
   if (types.some(t => t.includes('ProgressBar'))) return 'P'
   if (types.some(t => t.includes('Toggle'))) return 'G'
   if (types.some(t => t.includes('Camera'))) return 'C'
+  // R1400: 파티클/조명 매칭
+  if (types.some(t => t.includes('ParticleSystem'))) return 'P'
+  if (types.some(t => t.includes('Light'))) return 'L'
   return ''
 }

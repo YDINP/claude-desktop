@@ -103,6 +103,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showConnections, setShowConnections] = useState(false)
   const [showStats, setShowStats] = useState(false)
   const [showNodeInfo, setShowNodeInfo] = useState(false)
+  // R1401: 씬 통계 오버레이 (localStorage 영구 저장)
+  const [showStatsOverlay, setShowStatsOverlay] = useState(() => {
+    try { return localStorage.getItem('scene-stats-overlay') === 'true' } catch { return false }
+  })
   const [showChangeHistory, setShowChangeHistory] = useState(false)
   const [componentFilter, setComponentFilter] = useState<string>('all')
   const [tagFilter, setTagFilter] = useState<string>('all')
@@ -148,6 +152,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       localStorage.setItem(key, JSON.stringify([...bookmarkedUuids]))
     } catch { /* ignore */ }
   }, [bookmarkedUuids, rootUuid])
+  // R1401: 통계 오버레이 localStorage 영구 저장
+  useEffect(() => {
+    try { localStorage.setItem('scene-stats-overlay', String(showStatsOverlay)) } catch { /* ignore */ }
+  }, [showStatsOverlay])
   const targetViewRef = useRef<{ zoom: number; offsetX: number; offsetY: number } | null>(null)
   const animFrameRef = useRef<number | null>(null)
   const [isDirty, setIsDirty] = useState(false)
@@ -660,7 +668,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         viewHistIdxRef.current = viewHistoryRef.current.length - 1
         handleFocusSelected()
       }
-      if (e.key === 'i' || e.key === 'I') setShowNodeInfo(v => !v)
+      // R1401: I키 — 씬 통계 오버레이, Shift+I — 노드 상세 정보
+      if ((e.key === 'i' || e.key === 'I') && !e.shiftKey) setShowStatsOverlay(v => !v)
+      if (e.key === 'I' && e.shiftKey) setShowNodeInfo(v => !v)
       // P — 부모 노드 선택
       if ((e.key === 'p' || e.key === 'P') && selectedUuid) {
         const node = nodeMap.get(selectedUuid)
@@ -2363,6 +2373,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onConnectionsToggle={() => setShowConnections(v => !v)}
         showStats={showStats}
         onStatsToggle={() => setShowStats(v => !v)}
+        showStatsOverlay={showStatsOverlay}
+        onStatsOverlayToggle={() => setShowStatsOverlay(v => !v)}
         showLabels={showLabels}
         onLabelsToggle={() => setShowLabels(v => !v)}
         sceneBg={sceneBg}
@@ -3721,6 +3733,44 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </div>
         )}
 
+        {/* R1401: 씬 통계 오버레이 */}
+        {showStatsOverlay && (() => {
+          // 전체/활성 노드 수 + 상위 5개 컴포넌트 타입
+          let totalNodes = 0
+          let activeNodes = 0
+          const compCounts: Record<string, number> = {}
+          nodeMap.forEach(n => {
+            totalNodes++
+            if (n.active && n.visible !== false) activeNodes++
+            n.components?.forEach(c => { compCounts[c.type] = (compCounts[c.type] ?? 0) + 1 })
+          })
+          const topComps = Object.entries(compCounts).sort((a, b) => b[1] - a[1]).slice(0, 5)
+          return (
+            <div style={{
+              position: 'absolute', bottom: 8, right: 8, zIndex: 90,
+              background: 'rgba(10,10,15,0.88)', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 4, padding: '5px 8px', fontSize: 10, color: 'var(--text-muted)',
+              fontFamily: 'var(--font-mono)', lineHeight: 1.7, pointerEvents: 'none',
+              minWidth: 120,
+            }}>
+              <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: 2, fontSize: 10 }}>Scene Stats</div>
+              <div>Nodes: {totalNodes}</div>
+              <div>Active: {activeNodes}</div>
+              {topComps.length > 0 && (
+                <>
+                  <div style={{ marginTop: 3, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 3, fontSize: 9, color: 'var(--text-secondary)' }}>Top Components</div>
+                  {topComps.map(([type, count]) => (
+                    <div key={type} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 9 }}>
+                      <span>{type.replace('cc.', '')}</span>
+                      <span style={{ color: 'var(--accent)' }}>{count}</span>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )
+        })()}
+
         {/* 씬 캔버스 검색 오버레이 */}
         {showCanvasSearch && (
           <div
@@ -4390,7 +4440,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Alt+L', '선택 노드 잠금/해제'],
               ['Alt+1~9', '색상 레이블 지정 (Alt+0: 초기화)'],
               ['Alt+[ / Alt+]', '선택 노드 투명도 -10 / +10'],
-              ['I', '선택 노드 상세 정보 오버레이'],
+              ['I', '씬 통계 오버레이 (노드수/컴포넌트 분포)'],
+              ['Shift+I', '선택 노드 상세 정보 오버레이'],
               ['P', '부모 노드 선택'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
