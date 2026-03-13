@@ -317,6 +317,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [sessionAlerts, setSessionAlerts] = React.useState<Record<string, string>>({})
   const [showAlertManager, setShowAlertManager] = React.useState(false)
   const [showExportDialog, setShowExportDialog] = React.useState(false)
+  const [recentLimit, setRecentLimit] = React.useState(10)
+  const [showRecentOnly, setShowRecentOnly] = React.useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

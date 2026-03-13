@@ -184,6 +184,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showSnapshotList, setShowSnapshotList] = React.useState(false)
   const [resourcePreview, setResourcePreview] = React.useState<string | null>(null)
   const [showResourcePreview, setShowResourcePreview] = React.useState(false)
+  const [buildSettings, setBuildSettings] = React.useState<Record<string, unknown>>({})
+  const [showBuildSettings, setShowBuildSettings] = React.useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

@@ -9769,6 +9769,74 @@ if (existsSync(sl971Path)) {
   }
 }
 
+console.log('\n## 235. Phase DD10 R972~974 기능 체크')
+// R972: ChatPanel 감정 분석
+const cp972Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp972Path)) {
+  const cp972 = readFileSync(cp972Path, 'utf-8')
+  if (cp972.includes('sentimentMode') || cp972.includes('sentimentData') || cp972.includes('sentimentAnalysis')) {
+    log('pass', 'R972', 'ChatPanel 감정 분석 존재')
+  } else {
+    log('warning', 'R972', 'ChatPanel 감정 분석 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R973: InputBar 마크다운 툴바
+const ib973Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib973Path)) {
+  const ib973 = readFileSync(ib973Path, 'utf-8')
+  if (ib973.includes('mdToolbar') || ib973.includes('mdToolbarPinned') || ib973.includes('markdownToolbar')) {
+    log('pass', 'R973', 'InputBar 마크다운 툴바 존재')
+  } else {
+    log('warning', 'R973', 'InputBar 마크다운 툴바 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R974: CocosPanel 빌드 설정
+const cocos974Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos974Path)) {
+  const cocos974 = readFileSync(cocos974Path, 'utf-8')
+  if (cocos974.includes('buildSettings') || cocos974.includes('showBuildSettings') || cocos974.includes('buildConfig')) {
+    log('pass', 'R974', 'CocosPanel 빌드 설정 존재')
+  } else {
+    log('warning', 'R974', 'CocosPanel 빌드 설정 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 236. Phase DD10 R975~977 기능 체크')
+// R975: SceneViewPanel 애니메이션 타임라인
+const svp975Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp975Path)) {
+  const svp975 = readFileSync(svp975Path, 'utf-8')
+  if (svp975.includes('animTimeline') || svp975.includes('animFrame') || svp975.includes('timelineEnabled')) {
+    log('pass', 'R975', 'SceneViewPanel 애니메이션 타임라인 존재')
+  } else {
+    log('warning', 'R975', 'SceneViewPanel 애니메이션 타임라인 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R976: TerminalPanel 입력 히스토리
+const tp976Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp976Path)) {
+  const tp976 = readFileSync(tp976Path, 'utf-8')
+  if (tp976.includes('inputHistory') || tp976.includes('historyIdx') || tp976.includes('commandHistory')) {
+    log('pass', 'R976', 'TerminalPanel 입력 히스토리 존재')
+  } else {
+    log('warning', 'R976', 'TerminalPanel 입력 히스토리 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R977: SessionList 최근 항목
+const sl977Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl977Path)) {
+  const sl977 = readFileSync(sl977Path, 'utf-8')
+  if (sl977.includes('recentLimit') || sl977.includes('showRecentOnly') || sl977.includes('recentSessions')) {
+    log('pass', 'R977', 'SessionList 최근 항목 존재')
+  } else {
+    log('warning', 'R977', 'SessionList 최근 항목 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
