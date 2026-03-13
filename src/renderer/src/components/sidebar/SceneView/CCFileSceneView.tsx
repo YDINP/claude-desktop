@@ -322,7 +322,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
           {flatNodes.map(({ node, worldX, worldY }) => {
-            const nodeOpacity = node.active ? (node.opacity ?? 255) / 255 : 0.2
             const isDragged = dragOverride?.uuid === node.uuid
             const isResized = resizeOverride?.uuid === node.uuid
             const effX = isDragged ? dragOverride!.x : worldX
@@ -331,6 +330,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const w = isResized ? resizeOverride!.w : (node.size?.x || 0)
             const h = isResized ? resizeOverride!.h : (node.size?.y || 0)
             if (w === 0 && h === 0) return null  // 크기 없는 노드는 점으로 표시
+
+            // 캔버스 범위 밖 노드 감지
+            const isOutOfCanvas = effX + w / 2 < -designW / 2 || effX - w / 2 > designW / 2 || effY + h / 2 < -designH / 2 || effY - h / 2 > designH / 2
+            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1)
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 472 완료 — II-1 PRD 완료 기준 동기화)
+> 마지막 업데이트: 2026-03-13 (Round 484 완료 — UU-1 씬뷰 캔버스 범위 밖 노드 반투명 표시)
 
 ## 완료된 라운드
 
@@ -64,6 +64,18 @@
 | Round 470 | dev | Phase GG-1: 씬 트리 비활성 노드 숨기기 토글 — hideInactive prop, ●/◑ 버튼, active=false 노드 필터링 | ✅ |
 | Round 471 | dev | Phase HH-1: 씬뷰 배경색 임시 오버라이드 — bgColorOverride state, color picker swatch, 더블클릭 초기화 | ✅ |
 | Round 472 | docs | Phase II-1: PRD-CC-에디터-통합-Phase2.md 완료 기준 동기화 (Round 414-471 완료 항목 체크) | ✅ |
+| Round 473 | dev | Phase JJ-1: Inspector 컴포넌트 추가 드롭다운 — `<details>` + 12개 컴포넌트 타입 배지, 클릭으로 즉시 추가 | ✅ |
+| Round 474 | dev | Phase KK-1: 씬뷰 노드 SVG title 툴팁 — `<title>` 노드명 + 컴포넌트 타입 목록 | ✅ |
+| Round 475 | dev | Phase LL-1: 씬 트리 헤더 비활성 노드 수 표시 — inactive 카운터, `(-N)` 서브텍스트 | ✅ |
+| Round 476 | dev | Phase MM-1: Inspector 노드 복제 버튼 — handleDuplicate (형제로 삽입), 파란 "복제" 버튼 | ✅ |
+| Round 477 | dev | Phase NN-1: 씬뷰 선택 노드 정렬 버튼 — HUD에 ⊙◁▷△▽ 버튼, onMove 호출로 중앙/좌/우/상/하 정렬 | ✅ |
+| Round 478 | dev | Phase OO-1: 씬 트리 depth 레벨 세로 가이드 라인 — depth>0 노드에 borderLeft 반투명 라인 | ✅ |
+| Round 479 | dev | Phase PP-1: Escape 키로 노드 선택 해제 — keydown handler에 Escape → onSelectNode(null) 추가 | ✅ |
+| Round 480 | dev | Phase QQ-1: 씬뷰 줌% 클릭 시 1:1 리셋 — 줌 퍼센트 span → 클릭 가능 버튼, zoom=1 리셋 | ✅ |
+| Round 481 | dev | Phase RR-1: 씬 트리 우클릭 메뉴 활성화/비활성화 — 동적 레이블, onToggleActive 호출 | ✅ |
+| Round 482 | dev | Phase SS-1: Inspector 하단 씬 파일 정보 — 파일명/CC버전/creatorVersion 표시 | ✅ |
+| Round 483 | dev | Phase TT-1: Inspector Z-order 이동 버튼 — handleZOrder(±1), 같은 부모 내 children 배열 swap | ✅ |
+| Round 484 | dev | Phase UU-1: 씬뷰 캔버스 범위 밖 노드 반투명 표시 — isOutOfCanvas 감지, nodeOpacity × 0.4 적용 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |
