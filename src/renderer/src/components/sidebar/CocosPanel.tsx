@@ -47,6 +47,60 @@ type TransformSnapshot = {
 }
 let transformClipboard: TransformSnapshot | null = null
 
+// R1418: 씬 유효성 검사 (Lint)
+interface ValidationIssue {
+  level: 'error' | 'warning'
+  message: string
+  nodeUuid?: string
+  nodeName?: string
+}
+
+function validateScene(root: CCSceneNode): ValidationIssue[] {
+  const issues: ValidationIssue[] = []
+  const seenUuids = new Map<string, string>() // uuid → name
+  let hasCanvas = false
+
+  function walk(node: CCSceneNode, depth: number, parentActive: boolean): void {
+    // UUID 중복 체크
+    if (seenUuids.has(node.uuid)) {
+      issues.push({ level: 'error', message: `UUID 중복: "${node.name}" 와 "${seenUuids.get(node.uuid)}" (${node.uuid.slice(0, 8)}...)`, nodeUuid: node.uuid, nodeName: node.name })
+    } else {
+      seenUuids.set(node.uuid, node.name)
+    }
+
+    // 이름 빈 노드
+    if (node.name === '') {
+      issues.push({ level: 'warning', message: `이름 빈 노드 (uuid: ${node.uuid.slice(0, 8)}...)`, nodeUuid: node.uuid, nodeName: '(empty)' })
+    }
+
+    // Canvas 감지
+    if (node.components.some(c => c.type === 'cc.Canvas')) hasCanvas = true
+
+    // 비활성 부모 아래 활성 자식
+    if (!parentActive && node.active) {
+      issues.push({ level: 'warning', message: `비활성 부모 아래 활성 자식: "${node.name}"`, nodeUuid: node.uuid, nodeName: node.name })
+    }
+
+    // 깊이 경고
+    if (depth > 8) {
+      issues.push({ level: 'warning', message: `계층 깊이 ${depth}: "${node.name}" (8 초과)`, nodeUuid: node.uuid, nodeName: node.name })
+    }
+
+    for (const child of node.children) {
+      walk(child, depth + 1, node.active)
+    }
+  }
+
+  walk(root, 0, true)
+
+  // Canvas 없는 씬 경고 (루트가 Scene인 경우)
+  if (!hasCanvas && root.children.length > 0) {
+    issues.push({ level: 'warning', message: 'Canvas 컴포넌트가 없는 씬 (CC 2.x에서 UI가 표시되지 않을 수 있음)' })
+  }
+
+  return issues
+}
+
 export function CocosPanel() {
   const fileProject = useCCFileProject()
   const [selectedNode, setSelectedNode] = useState<CCSceneNode | null>(null)
@@ -145,6 +199,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     try { return sceneHistoryKey ? JSON.parse(localStorage.getItem(sceneHistoryKey) ?? '[]') : [] } catch { return [] }
   })
   const [showFullHistory, setShowFullHistory] = useState(false)
+  // R1418: 씬 유효성 검사 상태
+  const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
+  const [showValidationResults, setShowValidationResults] = useState(false)
   const [mainTab, setMainTab] = useState<'scene' | 'assets' | 'groups' | 'build'>('scene')
   const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
@@ -222,72 +279,72 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [editingAudio, setEditingAudio] = useState<string | null>(null)
   const [tileMapEditorOpen, setTileMapEditorOpen] = useState(false)
   const [editingTileMap, setEditingTileMap] = useState<string | null>(null)
-  const [sceneGraph, setSceneGraph] = React.useState<Record<string, unknown>>({})
-  const [showSceneGraph, setShowSceneGraph] = React.useState(false)
-  const [lockedNodes, setLockedNodes] = React.useState<string[]>([])
-  const [showLockPanel, setShowLockPanel] = React.useState(false)
-  const [assetFavorites, setAssetFavorites] = React.useState<string[]>([])
-  const [showFavoritesPanel, setShowFavoritesPanel] = React.useState(false)
-  const [nodeHistory, setNodeHistory] = React.useState<string[]>([])
-  const [showNodeHistory, setShowNodeHistory] = React.useState(false)
-  const [sceneSnapshots, setSceneSnapshots] = React.useState<string[]>([])
-  const [showSnapshotList, setShowSnapshotList] = React.useState(false)
-  const [resourcePreview, setResourcePreview] = React.useState<string | null>(null)
-  const [showResourcePreview, setShowResourcePreview] = React.useState(false)
-  const [buildSettings, setBuildSettings] = React.useState<Record<string, unknown>>({})
-  const [showBuildSettings, setShowBuildSettings] = React.useState(false)
-  const [plugins, setPlugins] = React.useState<string[]>([])
-  const [renderSettings, setRenderSettings] = React.useState<Record<string, unknown>>({})
-  const [showRenderSettings, setShowRenderSettings] = React.useState(false)
-  const [sceneFilter, setSceneFilter] = React.useState('')
-  const [sceneFilterResults, setSceneFilterResults] = React.useState<string[]>([])
-  const [nodeSortMode, setNodeSortMode] = React.useState<'name' | 'type' | 'index'>('index')
-  const [nodeSortOrder, setNodeSortOrder] = React.useState<'asc' | 'desc'>('asc')
-  const [sceneTags, setSceneTags] = React.useState<string[]>([])
-  const [showSceneTagEditor, setShowSceneTagEditor] = React.useState(false)
-  const [assetVersion, setAssetVersion] = React.useState<Record<string, number>>({})
-  const [showVersionHistory, setShowVersionHistory] = React.useState(false)
-  const [nodeAnnotations, setNodeAnnotations] = React.useState<Record<string, string>>({})
-  const [showAnnotationPanel, setShowAnnotationPanel] = React.useState(false)
-  const [sceneLockMode, setSceneLockMode] = React.useState(false)
-  const [lockedScenes, setLockedScenes] = React.useState<string[]>([])
-  const [assetDeps, setAssetDeps] = React.useState<Record<string, string[]>>({})
-  const [showDepsPanel, setShowDepsPanel] = React.useState(false)
-  const [nodeAdvSearch, setNodeAdvSearch] = React.useState(false)
-  const [nodeSearchField, setNodeSearchField] = React.useState<'name' | 'tag' | 'uuid'>('name')
-  const [sceneSnapshot, setSceneSnapshot] = React.useState<string | null>(null)
-  const [showSnapshotPanel, setShowSnapshotPanel] = React.useState(false)
-  const [nodeLayer, setNodeLayer] = React.useState<string>('all')
-  const [showLayerFilter, setShowLayerFilter] = React.useState(false)
-  const [sceneTemplates, setSceneTemplates] = React.useState<string[]>([])
-  const [showTemplatePanel, setShowTemplatePanel] = React.useState(false)
-  const [nodeStats, setNodeStats] = React.useState<Record<string, number>>({})
-  const [showNodeStats, setShowNodeStats] = React.useState(false)
-  const [sceneValidation, setSceneValidation] = React.useState<string[]>([])
-  const [showValidationPanel, setShowValidationPanel] = React.useState(false)
-  const [compSearch, setCompSearch] = React.useState('')
-  const [showCompSearch, setShowCompSearch] = React.useState(false)
-  const [autoSave, setAutoSave] = React.useState(false)
-  const [autoSaveInterval, setAutoSaveInterval] = React.useState(30)
-  const [prefabPreview, setPrefabPreview] = React.useState<string | null>(null)
-  const [showPrefabPreview, setShowPrefabPreview] = React.useState(false)
-  const [sceneExportPath, setSceneExportPath] = React.useState('')
-  const [showExportOptions, setShowExportOptions] = React.useState(false)
-  const [favNodes, setFavNodes] = React.useState<string[]>([])
-  const [showFavNodes, setShowFavNodes] = React.useState(false)
-  const [nodeLock, setNodeLock] = React.useState<string[]>([])
-  const [compareMode, setCompareMode] = React.useState(false)
-  const [compareTarget, setCompareTarget] = React.useState<string | null>(null)
-  const [assetTags, setAssetTags] = React.useState<Record<string, string[]>>({})
-  const [showTagEditor, setShowTagEditor] = React.useState(false)
-  const [importSource, setImportSource] = React.useState<string | null>(null)
-  const [showImportDialog, setShowImportDialog] = React.useState(false)
-  const [sceneOpHistory, setSceneOpHistory] = React.useState<string[]>([])
-  const [showOpHistory, setShowOpHistory] = React.useState(false)
-  const [scenePerms, setScenePerms] = React.useState<Record<string, string>>({})
-  const [showPermPanel, setShowPermPanel] = React.useState(false)
-  const [assetPreview, setAssetPreview] = React.useState<string | null>(null)
-  const [assetPreviewType, setAssetPreviewType] = React.useState<'image' | 'audio' | 'other'>('image')
+  const [sceneGraph, setSceneGraph] = useState<Record<string, unknown>>({})
+  const [showSceneGraph, setShowSceneGraph] = useState(false)
+  const [lockedNodes, setLockedNodes] = useState<string[]>([])
+  const [showLockPanel, setShowLockPanel] = useState(false)
+  const [assetFavorites, setAssetFavorites] = useState<string[]>([])
+  const [showFavoritesPanel, setShowFavoritesPanel] = useState(false)
+  const [nodeHistory, setNodeHistory] = useState<string[]>([])
+  const [showNodeHistory, setShowNodeHistory] = useState(false)
+  const [sceneSnapshots, setSceneSnapshots] = useState<string[]>([])
+  const [showSnapshotList, setShowSnapshotList] = useState(false)
+  const [resourcePreview, setResourcePreview] = useState<string | null>(null)
+  const [showResourcePreview, setShowResourcePreview] = useState(false)
+  const [buildSettings, setBuildSettings] = useState<Record<string, unknown>>({})
+  const [showBuildSettings, setShowBuildSettings] = useState(false)
+  const [plugins, setPlugins] = useState<string[]>([])
+  const [renderSettings, setRenderSettings] = useState<Record<string, unknown>>({})
+  const [showRenderSettings, setShowRenderSettings] = useState(false)
+  const [sceneFilter, setSceneFilter] = useState('')
+  const [sceneFilterResults, setSceneFilterResults] = useState<string[]>([])
+  const [nodeSortMode, setNodeSortMode] = useState<'name' | 'type' | 'index'>('index')
+  const [nodeSortOrder, setNodeSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [sceneTags, setSceneTags] = useState<string[]>([])
+  const [showSceneTagEditor, setShowSceneTagEditor] = useState(false)
+  const [assetVersion, setAssetVersion] = useState<Record<string, number>>({})
+  const [showVersionHistory, setShowVersionHistory] = useState(false)
+  const [nodeAnnotations, setNodeAnnotations] = useState<Record<string, string>>({})
+  const [showAnnotationPanel, setShowAnnotationPanel] = useState(false)
+  const [sceneLockMode, setSceneLockMode] = useState(false)
+  const [lockedScenes, setLockedScenes] = useState<string[]>([])
+  const [assetDeps, setAssetDeps] = useState<Record<string, string[]>>({})
+  const [showDepsPanel, setShowDepsPanel] = useState(false)
+  const [nodeAdvSearch, setNodeAdvSearch] = useState(false)
+  const [nodeSearchField, setNodeSearchField] = useState<'name' | 'tag' | 'uuid'>('name')
+  const [sceneSnapshot, setSceneSnapshot] = useState<string | null>(null)
+  const [showSnapshotPanel, setShowSnapshotPanel] = useState(false)
+  const [nodeLayer, setNodeLayer] = useState<string>('all')
+  const [showLayerFilter, setShowLayerFilter] = useState(false)
+  const [sceneTemplates, setSceneTemplates] = useState<string[]>([])
+  const [showTemplatePanel, setShowTemplatePanel] = useState(false)
+  const [nodeStats, setNodeStats] = useState<Record<string, number>>({})
+  const [showNodeStats, setShowNodeStats] = useState(false)
+  const [sceneValidation, setSceneValidation] = useState<string[]>([])
+  const [showValidationPanel, setShowValidationPanel] = useState(false)
+  const [compSearch, setCompSearch] = useState('')
+  const [showCompSearch, setShowCompSearch] = useState(false)
+  const [autoSave, setAutoSave] = useState(false)
+  const [autoSaveInterval, setAutoSaveInterval] = useState(30)
+  const [prefabPreview, setPrefabPreview] = useState<string | null>(null)
+  const [showPrefabPreview, setShowPrefabPreview] = useState(false)
+  const [sceneExportPath, setSceneExportPath] = useState('')
+  const [showExportOptions, setShowExportOptions] = useState(false)
+  const [favNodes, setFavNodes] = useState<string[]>([])
+  const [showFavNodes, setShowFavNodes] = useState(false)
+  const [nodeLock, setNodeLock] = useState<string[]>([])
+  const [compareMode, setCompareMode] = useState(false)
+  const [compareTarget, setCompareTarget] = useState<string | null>(null)
+  const [assetTags, setAssetTags] = useState<Record<string, string[]>>({})
+  const [showTagEditor, setShowTagEditor] = useState(false)
+  const [importSource, setImportSource] = useState<string | null>(null)
+  const [showImportDialog, setShowImportDialog] = useState(false)
+  const [sceneOpHistory, setSceneOpHistory] = useState<string[]>([])
+  const [showOpHistory, setShowOpHistory] = useState(false)
+  const [scenePerms, setScenePerms] = useState<Record<string, string>>({})
+  const [showPermPanel, setShowPermPanel] = useState(false)
+  const [assetPreview, setAssetPreview] = useState<string | null>(null)
+  const [assetPreviewType, setAssetPreviewType] = useState<'image' | 'audio' | 'other'>('image')
   // R1148: build queue
   const [buildQueue, setBuildQueue] = useState<string[]>([])
   const [showBuildQueue, setShowBuildQueue] = useState(false)
@@ -1196,6 +1253,52 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         {error && (
           <div style={{ marginTop: 6, fontSize: 10, color: 'var(--error, #f85149)', lineHeight: 1.4 }}>
             {error}
+          </div>
+        )}
+
+        {/* R1418: 씬 유효성 검사 버튼 */}
+        {sceneFile?.root && (
+          <div style={{ marginTop: 4 }}>
+            <button
+              onClick={() => {
+                const issues = validateScene(sceneFile.root)
+                setValidationIssues(issues)
+                setShowValidationResults(true)
+              }}
+              style={{
+                width: '100%', padding: '3px 0', fontSize: 10, borderRadius: 3,
+                cursor: 'pointer', background: 'none',
+                border: '1px solid var(--border)', color: 'var(--text-muted)',
+              }}
+            >
+              {'\uD83D\uDD0D'} 씬 검사
+            </button>
+            {showValidationResults && (
+              <div style={{ marginTop: 4, maxHeight: 160, overflowY: 'auto', borderRadius: 4, border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)' }}>
+                {validationIssues.length === 0 ? (
+                  <div style={{ padding: '6px 8px', fontSize: 10, color: 'var(--success, #3fb950)' }}>
+                    {'\u2705'} 문제 없음
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ padding: '4px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>{validationIssues.filter(i => i.level === 'error').length} 오류 / {validationIssues.filter(i => i.level === 'warning').length} 경고</span>
+                      <span style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => setShowValidationResults(false)}>x</span>
+                    </div>
+                    {validationIssues.map((issue, i) => (
+                      <div key={i} style={{
+                        padding: '3px 8px', fontSize: 9, borderBottom: '1px solid rgba(255,255,255,0.04)',
+                        color: issue.level === 'error' ? 'var(--error, #f85149)' : '#fbbf24',
+                        display: 'flex', alignItems: 'flex-start', gap: 4,
+                      }}>
+                        <span style={{ flexShrink: 0 }}>{issue.level === 'error' ? '\uD83D\uDD34' : '\uD83D\uDFE1'}</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={issue.message}>{issue.message}</span>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
 

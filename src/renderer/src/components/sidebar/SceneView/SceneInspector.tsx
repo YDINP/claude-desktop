@@ -939,6 +939,125 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         )
       })()}
 
+      {/* R1417: cc.Label 폰트 속성 표시 */}
+      {(() => {
+        const labelComp = node.components.find(c => c.type === 'cc.Label')
+        if (!labelComp?.props) return null
+        const lp = labelComp.props as Record<string, unknown>
+        const overflowLabels = ['NONE', 'CLAMP', 'SHRINK', 'RESIZE_HEIGHT']
+        const overflowVal = (lp.overflow as number) ?? 0
+        return (
+          <>
+            <SectionHeader label="Label (Font)" />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>font</span>
+                <span style={{ flex: 1, fontFamily: 'monospace', fontSize: 8, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {lp.isSystemFontUsed ? (String(lp.fontFamily) || 'Arial') : (lp.font ? 'BMFont' : '(없음)')}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>sysFont</span>
+                <span style={{ fontSize: 8, color: lp.isSystemFontUsed ? 'var(--success)' : 'var(--text-muted)' }}>
+                  {lp.isSystemFontUsed ? 'YES' : 'NO'}
+                </span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 0' }}>
+                  <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>spX</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 8, color: 'var(--text-primary)' }}>{lp.spacingX ?? 0}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 0' }}>
+                  <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>spY</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 8, color: 'var(--text-primary)' }}>{lp.spacingY ?? 0}</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>overflow</span>
+                <span style={{ fontSize: 8, color: 'var(--accent)', fontFamily: 'monospace' }}>
+                  {overflowVal} ({overflowLabels[overflowVal] ?? '?'})
+                </span>
+              </div>
+            </div>
+          </>
+        )
+      })()}
+
+      {/* R1420: cc.Button 컴포넌트 속성 편집 */}
+      {(() => {
+        const btnComp = node.components.find(c => c.type === 'cc.Button')
+        if (!btnComp?.props) return null
+        const bp = btnComp.props as Record<string, unknown>
+        const interactable = (bp.interactable as boolean) ?? true
+        const enableAutoGrayEffect = (bp.enableAutoGrayEffect as boolean) ?? false
+        const transition = (bp.transition as number) ?? 0
+        const transitionLabels = ['NONE', 'COLOR', 'SPRITE', 'SCALE']
+        const duration = (bp.duration as number) ?? 0.1
+        const onBtnPropChange = (key: string, value: number | boolean) => {
+          const newComps = node.components.map(c =>
+            c.type === 'cc.Button' ? { ...c, props: { ...c.props, [key]: value } } : c
+          )
+          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+        }
+        // 색상 읽기
+        const readColor = (key: string): string | null => {
+          const c = bp[key] as { r?: number; g?: number; b?: number; a?: number } | undefined
+          if (!c) return null
+          return `#${toHex(c.r ?? 255)}${toHex(c.g ?? 255)}${toHex(c.b ?? 255)}`
+        }
+        return (
+          <>
+            <SectionHeader label="Button" />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>interact</span>
+                <input type="checkbox" checked={interactable}
+                  onChange={e => onBtnPropChange('interactable', e.target.checked)}
+                  style={{ width: 12, height: 12, accentColor: 'var(--accent)', cursor: 'pointer' }} />
+                <span style={{ fontSize: 8, color: interactable ? 'var(--success)' : 'var(--text-muted)' }}>{interactable ? 'ON' : 'OFF'}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>autoGray</span>
+                <input type="checkbox" checked={enableAutoGrayEffect}
+                  onChange={e => onBtnPropChange('enableAutoGrayEffect', e.target.checked)}
+                  style={{ width: 12, height: 12, accentColor: 'var(--accent)', cursor: 'pointer' }} />
+                <span style={{ fontSize: 8, color: enableAutoGrayEffect ? 'var(--success)' : 'var(--text-muted)' }}>{enableAutoGrayEffect ? 'ON' : 'OFF'}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>transition</span>
+                <select value={transition}
+                  onChange={e => onBtnPropChange('transition', parseInt(e.target.value))}
+                  style={{ flex: 1, fontSize: 9, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '1px 3px' }}
+                >
+                  {transitionLabels.map((label, i) => (
+                    <option key={i} value={i}>{i} — {label}</option>
+                  ))}
+                </select>
+              </div>
+              <NumInput label="duration" value={duration} decimals={2} uuid={node.uuid} prop="button.duration"
+                onSave={(_u, _p, v) => onBtnPropChange('duration', v)} />
+              {transition === 1 && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 6px', marginTop: 2 }}>
+                  {(['normalColor', 'pressedColor', 'hoverColor', 'disabledColor'] as const).map(ck => {
+                    const hex = readColor(ck)
+                    return (
+                      <div key={ck} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0, fontSize: 8 }}>{ck.replace('Color', '')}</span>
+                        {hex ? (
+                          <div style={{ width: 14, height: 14, borderRadius: 2, background: hex, border: '1px solid var(--border)', flexShrink: 0 }} title={hex} />
+                        ) : (
+                          <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>-</span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </>
+        )
+      })()}
+
       {/* R1375: cc.Layout 컴포넌트 속성 편집 */}
       {(() => {
         const layoutComp = node.components.find(c => c.type === 'cc.Layout')

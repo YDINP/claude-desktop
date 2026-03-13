@@ -14904,6 +14904,71 @@ if (existsSync(cp1398Path)) {
   }
 }
 
+// ── Section 385: R1416/R1417/R1418 기능 체크 ───────────────
+console.log('\n## 385. Phase DD14 R1416~R1418 기능 체크')
+
+// R1416: SceneView 노드 잠금 완성 (resize/rotate 차단)
+if (existsSync(sceneViewPath)) {
+  const svp1416 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1416.includes('R1416') && svp1416.includes('handleResizeMouseDown') && svp1416.includes('lockedUuids.has') && svp1416.includes('handleRotateMouseDown')) {
+    log('pass', 'R1416', 'SceneView 노드 잠금 완성 (resize/rotate 차단, lockedUuids 체크)')
+  } else {
+    log('warning', 'R1416', 'SceneView 노드 잠금 resize/rotate 차단 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1417: cc-file-parser Label 폰트 파싱 강화
+if (existsSync(parserPath)) {
+  const fp1417 = readFileSync(parserPath, 'utf-8')
+  if (fp1417.includes('R1417') && fp1417.includes('LABEL_EXTRACTOR_2X') && fp1417.includes('fontFamily') && fp1417.includes('isSystemFontUsed') && fp1417.includes('spacingX') && fp1417.includes('overflow')) {
+    log('pass', 'R1417', 'cc-file-parser Label 폰트 필드 강화 파싱 (2x/3x, fontFamily, spacingX/Y, overflow)')
+  } else {
+    log('warning', 'R1417', 'cc-file-parser Label 폰트 파싱 강화 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1417: SceneInspector Label 폰트 속성 표시
+if (existsSync(si1402Path)) {
+  const si1417 = readFileSync(si1402Path, 'utf-8')
+  if (si1417.includes('R1417') && si1417.includes('Label (Font)') && si1417.includes('sysFont') && si1417.includes('overflow')) {
+    log('pass', 'R1417', 'SceneInspector Label 폰트 속성 표시 (fontFamily, spacingX/Y, overflow)')
+  } else {
+    log('warning', 'R1417', 'SceneInspector Label 폰트 속성 표시 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1418: CocosPanel 씬 유효성 검사 (Lint)
+if (existsSync(cp1398Path)) {
+  const cp1418 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1418.includes('R1418') && cp1418.includes('validateScene') && cp1418.includes('ValidationIssue') && cp1418.includes('씬 검사') && cp1418.includes('UUID 중복')) {
+    log('pass', 'R1418', 'CocosPanel 씬 유효성 검사 (UUID중복, 빈이름, Canvas, 깊이 경고, 비활성부모)')
+  } else {
+    log('warning', 'R1418', 'CocosPanel 씬 유효성 검사 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 386: R1419/R1420 기능 체크 ───────────────
+console.log('\n## 386. Phase DD14 R1419~R1420 기능 체크')
+
+// R1419: SceneView 뷰포트 프리셋
+if (existsSync(sceneViewPath)) {
+  const svp1419 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1419.includes('R1419') && svp1419.includes('viewportPresets') && svp1419.includes('viewport-presets') && svp1419.includes('ViewportPreset')) {
+    log('pass', 'R1419', 'SceneView 뷰포트 프리셋 저장/불러오기 (localStorage, 기본 1:1/2:1, 사용자 max 5)')
+  } else {
+    log('warning', 'R1419', 'SceneView 뷰포트 프리셋 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1420: Inspector cc.Button 속성 편집
+if (existsSync(si1402Path)) {
+  const si1420 = readFileSync(si1402Path, 'utf-8')
+  if (si1420.includes('R1420') && si1420.includes('cc.Button') && si1420.includes('interactable') && si1420.includes('transition') && si1420.includes('enableAutoGrayEffect') && si1420.includes('duration') && si1420.includes('normalColor')) {
+    log('pass', 'R1420', 'Inspector cc.Button 속성 편집 (interactable, autoGray, transition, duration, 색상 읽기전용)')
+  } else {
+    log('warning', 'R1420', 'Inspector cc.Button 속성 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

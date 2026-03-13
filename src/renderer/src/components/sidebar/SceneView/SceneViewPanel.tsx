@@ -200,6 +200,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
 
+  // ── R1419: 뷰포트 프리셋 ─────────────────────────────────────
+  type ViewportPreset = { name: string; zoom: number; panX: number; panY: number }
+  const VP_KEY = 'viewport-presets'
+  const DEFAULT_PRESETS: ViewportPreset[] = [
+    { name: '1:1', zoom: 1, panX: 0, panY: 0 },
+    { name: '2:1', zoom: 2, panX: 0, panY: 0 },
+  ]
+  const [viewportPresets, setViewportPresets] = useState<ViewportPreset[]>(() => {
+    try { return JSON.parse(localStorage.getItem(VP_KEY) ?? '[]') } catch { return [] }
+  })
+  const [showViewportPresets, setShowViewportPresets] = useState(false)
+
   // ── 스냅샷 / diff 상태 ─────────────────────────────────────
   const [snapshot, setSnapshot] = useState<Map<string, SnapshotEntry> | null>(null)
   const [showDiff, setShowDiff] = useState(false)
@@ -1192,10 +1204,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setIsDragging(true)
   }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids, lockedUuids])
 
+  // R1416: handleResizeMouseDown — 잠긴 노드 리사이즈 차단
   const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w') => {
     e.stopPropagation()
     e.preventDefault()
     if (e.button !== 0) return
+    if (nodeMap.get(uuid)?.locked) return
+    if (lockedUuids.has(uuid)) return
     const node = nodeMap.get(uuid)
     if (!node) return
     const svgCoords = getSvgCoords(e)
@@ -1210,12 +1225,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       startNodeY: node.y,
     }
     setIsResizing(true)
-  }, [nodeMap, getSvgCoords, canvasSize])
+  }, [nodeMap, getSvgCoords, canvasSize, lockedUuids])
 
+  // R1416: handleRotateMouseDown — 잠긴 노드 회전 차단
   const handleRotateMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
     e.stopPropagation()
     e.preventDefault()
     if (e.button !== 0) return
+    if (nodeMap.get(uuid)?.locked) return
+    if (lockedUuids.has(uuid)) return
     const node = nodeMap.get(uuid)
     if (!node) return
     const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
@@ -1224,7 +1242,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const anchorSy = sy * view.zoom + view.offsetY
     rotateRef.current = { uuid, anchorSx, anchorSy, startRotation: node.rotation }
     setIsRotating(true)
-  }, [nodeMap, view])
+  }, [nodeMap, view, lockedUuids])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // 커서 씬 좌표 업데이트
@@ -2525,6 +2543,55 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         hasOverlayImage={!!overlayImageSrc}
         onClearOverlayImage={() => setOverlayImageSrc(null)}
       />
+
+      {/* R1419: 뷰포트 프리셋 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '1px 4px', background: 'rgba(0,0,0,0.15)', flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <button
+          onClick={() => {
+            const name = `뷰 ${viewportPresets.length + 1}`
+            const preset: ViewportPreset = { name, zoom: view.zoom, panX: view.offsetX, panY: view.offsetY }
+            setViewportPresets(prev => {
+              const next = [...prev, preset].slice(-5)
+              localStorage.setItem(VP_KEY, JSON.stringify(next))
+              return next
+            })
+          }}
+          title="현재 뷰를 프리셋으로 저장 (최대 5개)"
+          style={{ fontSize: 9, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
+        >{'\uD83D\uDCD0'}+</button>
+        {/* 기본 프리셋 */}
+        <button
+          onClick={() => { setView({ offsetX: 0, offsetY: 0, zoom: 1 }) }}
+          title="1:1 뷰"
+          style={{ fontSize: 8, padding: '1px 4px', background: view.zoom === 1 ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: view.zoom === 1 ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
+        >1:1</button>
+        <button
+          onClick={() => { setView({ offsetX: 0, offsetY: 0, zoom: 2 }) }}
+          title="2:1 뷰"
+          style={{ fontSize: 8, padding: '1px 4px', background: view.zoom === 2 ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: view.zoom === 2 ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
+        >2:1</button>
+        {/* 사용자 프리셋 */}
+        {viewportPresets.map((p, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+            <button
+              onClick={() => setView({ offsetX: p.panX, offsetY: p.panY, zoom: p.zoom })}
+              title={`${p.name} (zoom:${p.zoom.toFixed(1)} pan:${Math.round(p.panX)},${Math.round(p.panY)})`}
+              style={{ fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: '2px 0 0 2px', color: '#60a5fa', cursor: 'pointer' }}
+            >{p.name}</button>
+            <button
+              onClick={() => {
+                setViewportPresets(prev => {
+                  const next = prev.filter((_, j) => j !== i)
+                  localStorage.setItem(VP_KEY, JSON.stringify(next))
+                  return next
+                })
+              }}
+              title="프리셋 삭제"
+              style={{ fontSize: 8, padding: '1px 2px', background: 'none', border: '1px solid var(--border)', borderLeft: 'none', borderRadius: '0 2px 2px 0', color: '#f85149', cursor: 'pointer', lineHeight: 1 }}
+            >x</button>
+          </div>
+        ))}
+      </div>
 
       {/* R1383: 씬 파일 탭 바 */}
       {sceneTabFiles.length > 1 && (

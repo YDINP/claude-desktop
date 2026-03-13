@@ -184,7 +184,39 @@ function parseTRS2x(trs: unknown, entry?: RawEntry): { position: CCVec3; rotatio
 
 // ── R1380: 컴포넌트별 주요 속성 추출 ─────────────────────────────────────────
 
+// R1417: cc.Label 폰트 필드 강화 파싱 (2x/3x)
+const LABEL_EXTRACTOR_2X = (e: RawEntry): Record<string, unknown> => ({
+  string: e._N$string ?? e.string ?? '',
+  fontSize: e._N$fontSize ?? e._fontSize ?? 0,
+  lineHeight: e._N$lineHeight ?? e._lineHeight ?? 0,
+  horizontalAlign: e._N$horizontalAlign ?? e._horizontalAlign ?? 0,
+  verticalAlign: e._N$verticalAlign ?? e._verticalAlign ?? 0,
+  font: e._N$font ?? undefined,           // BMFont UUID 참조
+  fontFamily: e._N$fontFamily ?? '',       // 시스템 폰트 이름
+  isSystemFontUsed: e._N$isSystemFontUsed ?? true,
+  spacingX: e._N$spacingX ?? 0,
+  spacingY: e._N$spacingY ?? 0,
+  overflow: e._N$overflow ?? 0,            // 0=NONE, 1=CLAMP, 2=SHRINK, 3=RESIZE_HEIGHT
+})
+
+const LABEL_EXTRACTOR_3X = (e: RawEntry): Record<string, unknown> => ({
+  string: e._string ?? e.string ?? '',
+  fontSize: e._fontSize ?? e.fontSize ?? 0,
+  lineHeight: e._lineHeight ?? e.lineHeight ?? 0,
+  horizontalAlign: e._horizontalAlign ?? e.horizontalAlign ?? 0,
+  verticalAlign: e._verticalAlign ?? e.verticalAlign ?? 0,
+  fontFamily: e._fontFamily ?? e.fontFamily ?? '',
+  isSystemFontUsed: e._isSystemFontUsed ?? e.isSystemFontUsed ?? true,
+  spacingX: e._spacingX ?? e.spacingX ?? 0,
+  overflow: e._overflow ?? e.overflow ?? 0,
+})
+
 const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, unknown>> = {
+  'cc.Label': e => {
+    // 2x vs 3x 감지: _N$ 접두사 여부로 판별
+    if ('_N$string' in e || '_N$fontSize' in e || '_N$fontFamily' in e) return LABEL_EXTRACTOR_2X(e)
+    return LABEL_EXTRACTOR_3X(e)
+  },
   'cc.RichText': e => ({
     string: e._N$string ?? e.string ?? '',
     fontSize: e._N$fontSize ?? e._fontSize ?? 0,

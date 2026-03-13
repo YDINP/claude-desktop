@@ -791,6 +791,12 @@
 | Round 1413 | Inspector 다중 노드 일괄 편집 (active 일괄 토글, position 오프셋, 일괄 적용 버튼) | ✅ |
 | Round 1414 | CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5/20개, 복원 TODO UI) | ✅ |
 | Round 1415 | QA Section 383-384 추가 (R1410-R1414 기능 체크, 런타임 체크 확장, Pass 1297) | ✅ |
+| Round 1416 | SceneView 노드 잠금 완성 (resize/rotate 차단, lockedUuids 체크) | ✅ |
+| Round 1417 | cc-file-parser 2x/3x Label 폰트 필드 강화 파싱 (fontFamily, spacingX/Y, overflow) + Inspector 표시 | ✅ |
+| Round 1418 | CocosPanel 씬 유효성 검사 Lint (UUID중복, 빈이름, Canvas없음, 비활성부모, 깊이경고) | ✅ |
+| Round 1419 | SceneView 뷰포트 프리셋 저장/불러오기 (localStorage, 1:1/2:1 기본, 사용자 max 5) | ✅ |
+| Round 1420 | Inspector cc.Button 속성 편집 (interactable, autoGray, transition, duration, 색상 읽기전용) | ✅ |
+| Round 1421 | QA Section 385-386 추가 (R1416-R1420 기능 체크, Pass 1304) | ✅ |
 
 ## QA 프로세스
 

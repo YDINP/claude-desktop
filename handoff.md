@@ -1,13 +1,24 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1415 완료 — Phase DD14 R1410~1415)
+> 마지막 업데이트: 2026-03-14 (Round 1421 완료 — Phase DD14 R1416~1421)
 
 ## 현재 상태
-- 마지막 커밋: Round 1410~1415 (에셋리졸버고도화/Inspector검색/채팅하이라이트/다중편집/히스토리/QA)
+- 마지막 커밋: Round 1416~1421 (노드잠금완성/폰트파싱/씬Lint/뷰포트프리셋/Button편집/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1297
+- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1304
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
+
+## Phase DD14 R1416~1421 (2026-03-14)
+
+| 라운드 | 기능 |
+|--------|------|
+| R1416 | SceneView 노드 잠금 완성 (resize/rotate 차단, lockedUuids 체크) |
+| R1417 | cc-file-parser 2x/3x Label 폰트 필드 강화 파싱 + Inspector 표시 |
+| R1418 | CocosPanel 씬 유효성 검사 Lint (UUID중복, 빈이름, Canvas, 깊이경고) |
+| R1419 | SceneView 뷰포트 프리셋 저장/불러오기 (1:1/2:1 기본, max 5) |
+| R1420 | Inspector cc.Button 속성 편집 (interactable, transition, duration) |
+| R1421 | QA Section 385-386 추가 (R1416-R1420 체크, Pass 1304) |
 
 ## Phase DD14 R1410~1415 (2026-03-14)
 
