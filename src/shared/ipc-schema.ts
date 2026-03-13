@@ -191,6 +191,8 @@ export interface CCSceneNode {
   opacity: number
   color: CCColor
   layer?: number
+  /** R1532: CC2.x _tag 정수 태그 */
+  tag?: number
   components: CCSceneComponent[]
   children: CCSceneNode[]
   /** R1453: 이벤트 핸들러 목록 (Button clickEvents, Toggle checkEvents, Slider slideEvents) */

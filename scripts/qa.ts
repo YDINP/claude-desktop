@@ -16229,6 +16229,50 @@ if (existsSync(sv430)) {
   }
 }
 
+// ── Section 431: R1532/R1533 tag/layer 편집 + Ctrl+D offset 체크 ──────────────────────
+console.log('\n## 431. R1532 tag/layer 편집 + R1533 Ctrl+D offset 체크')
+const panel431 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const schema431 = join(ROOT, 'src/shared/ipc-schema.ts')
+const parser431 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const saver431 = join(ROOT, 'src/main/cc/cc-file-saver.ts')
+if (existsSync(schema431)) {
+  const s431s = readFileSync(schema431, 'utf-8')
+  if (s431s.includes('R1532') && s431s.includes('tag?: number')) {
+    log('pass', 'R1532-schema', 'CCSceneNode tag?: number 필드 추가')
+  } else {
+    log('warning', 'R1532-schema', 'tag 필드 미추가', 'ipc-schema.ts')
+  }
+}
+if (existsSync(parser431)) {
+  const s431p = readFileSync(parser431, 'utf-8')
+  if (s431p.includes('R1532') && s431p.includes('e._tag') && s431p.includes('tag != null')) {
+    log('pass', 'R1532-parser', 'parseNode2x _tag 파싱 구현')
+  } else {
+    log('warning', 'R1532-parser', '_tag 파싱 미구현', 'cc-file-parser.ts')
+  }
+}
+if (existsSync(saver431)) {
+  const s431sv = readFileSync(saver431, 'utf-8')
+  if (s431sv.includes('R1532') && s431sv.includes('e._tag = node.tag') && s431sv.includes('e.layer = node.layer')) {
+    log('pass', 'R1532-saver', 'patch2x _tag + patch3x layer 쓰기 구현')
+  } else {
+    log('warning', 'R1532-saver', 'tag/layer 쓰기 미구현', 'cc-file-saver.ts')
+  }
+}
+if (existsSync(panel431)) {
+  const s431c = readFileSync(panel431, 'utf-8')
+  if (s431c.includes('R1532') && s431c.includes("draft.tag != null") && s431c.includes("draft.layer != null")) {
+    log('pass', 'R1532-inspector', 'Inspector Tag/Layer 편집 UI 구현')
+  } else {
+    log('warning', 'R1532-inspector', 'Tag/Layer 편집 UI 미구현', 'CocosPanel.tsx')
+  }
+  if (s431c.includes('R1533') && s431c.includes('origPos?.x ?? 0) + 20') && s431c.includes('origPos?.y ?? 0) - 20')) {
+    log('pass', 'R1533-dup-offset', 'Ctrl+D 복제 +20 position offset 구현')
+  } else {
+    log('warning', 'R1533-dup-offset', 'Ctrl+D 복제 offset 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

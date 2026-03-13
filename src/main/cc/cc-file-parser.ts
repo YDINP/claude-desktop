@@ -100,6 +100,9 @@ function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | nul
     .map(i => parseNode2x(raw, i, depth + 1))
     .filter((n): n is CCSceneNode => n !== null)
 
+  // R1532: CC2.x _tag 파싱
+  const tag = typeof e._tag === 'number' ? e._tag : undefined
+
   return {
     uuid: (e._id as string | undefined) ?? `_idx${idx}`,
     name: (e._name as string | undefined) ?? '',
@@ -111,6 +114,7 @@ function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | nul
     anchor,
     opacity,
     color,
+    ...(tag != null ? { tag } : {}),
     components: comps,
     children,
     ...(eventHandlers.length > 0 ? { eventHandlers } : {}),

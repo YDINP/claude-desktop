@@ -257,6 +257,9 @@ function patch2x(e: RawEntry, node: CCSceneNode) {
 
   // _color
   e._color = { r: node.color.r, g: node.color.g, b: node.color.b, a: node.color.a }
+
+  // R1532: _tag 패치
+  if (node.tag != null) e._tag = node.tag
 }
 
 // ── CC 3.x 패치 ───────────────────────────────────────────────────────────────
@@ -299,6 +302,9 @@ function patch3x(
       ui._anchorPoint = { x: node.anchor.x, y: node.anchor.y }
     }
   }
+
+  // R1532: layer 패치
+  if (node.layer != null) e.layer = node.layer
 }
 
 // ── R1502: 저장 전 유효성 검사 ────────────────────────────────────────────────

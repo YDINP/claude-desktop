@@ -920,7 +920,10 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     const orig = findNode(sceneFile.root)
     if (!orig) return
     // R1476: 딥복사 + UUID 자동 재생성 (자식 포함 모두 새 UUID)
-    const dupNode = deepCopyNodeWithNewUuids(orig, '_Copy')
+    // R1533: 복제 시 position +20 offset (겹침 방지)
+    const baseNode = deepCopyNodeWithNewUuids(orig, '_Copy')
+    const origPos = orig.position as { x?: number; y?: number; z?: number } | undefined
+    const dupNode = { ...baseNode, position: { ...(origPos ?? {}), x: (origPos?.x ?? 0) + 20, y: (origPos?.y ?? 0) - 20 } }
     function insertAfter(n: CCSceneNode): CCSceneNode {
       const idx = n.children.findIndex(c => c.uuid === nodeUuid)
       if (idx >= 0) {
@@ -4327,6 +4330,34 @@ function CCFileNodeInspector({
           {numInput('A', draft.color.a, v => applyAndSave({ color: { ...draft.color, a: Math.min(255,Math.max(0,Math.round(v))) } }))}
         </div>
       </div>
+      )}
+
+      {/* R1532: Tag / Layer 편집 */}
+      {(draft.tag != null || draft.layer != null) && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 4, marginBottom: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+          {draft.tag != null && (
+            <>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 24 }}>Tag</span>
+              <input
+                type="number"
+                value={draft.tag}
+                onChange={e => applyAndSave({ tag: parseInt(e.target.value) || 0 })}
+                style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+              />
+            </>
+          )}
+          {draft.layer != null && (
+            <>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 30 }}>Layer</span>
+              <input
+                type="number"
+                value={draft.layer}
+                onChange={e => applyAndSave({ layer: parseInt(e.target.value) || 0 })}
+                style={{ width: 66, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+              />
+            </>
+          )}
+        </div>
       )}
 
       {/* 컴포넌트 props */}
