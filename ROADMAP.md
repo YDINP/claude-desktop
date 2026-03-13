@@ -874,3 +874,9 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | **Cursor 2.0** — Inline Editing UX | 선택 텍스트 위에 플로팅 툴바 즉시 출현, 편집 제안을 인라인 diff로 시각화(수락/거절 원클릭), 파일 저장 없이 프리뷰 가능한 가상 편집 레이어 | Round 84 메시지 편집, Round 88 PromptChain 인라인 수정 |
 | **GitHub Copilot Chat** — Regeneration + Stop | 각 응답 버블 하단에 ↺ 재생성 버튼 노출, 스트리밍 중 ■ Stop 버튼이 입력창 내부에 인라인 배치되어 UX 흐름 최소화, 재생성 시 이전 응답은 히스토리로 보존 | Round 84 재생성/중단 구현 |
 | **Windsurf** — 세션 컨텍스트 시각화 | 대화 사이드바에 "Context Window" 진행 바 상시 표시, 세션 내 참조 파일·심볼 목록을 인라인 칩으로 시각화, 컨텍스트 초과 임박 시 자동 경고 토스트 | Round 86 StatusBar 토큰 카운터, Round 85 세션 태그 시스템 |
+| Round 1470 | CocosPanel Cocos 에디터 레이아웃 재설계 (계층|SceneView+Inspector 좌우 분할, ISSUE-004) | ✅ |
+| Round 1471 | NodeRenderer 물리 컴포넌트 시각화 (RigidBody/BoxCollider/CircleCollider 점선+RB 뱃지) | ✅ |
+| Round 1472 | CocosPanel 프리팹 편집 모드 (씬/프리팹 optgroup 분리, 🧩 배지) | ✅ |
+| Round 1473 | Inspector 커스텀 스크립트 변수 편집 (isCustomScript 감지, 📝 아이콘, 청록 헤더) | ✅ |
+| Round 1474 | CCFileSceneView 스크린샷 → Claude AI 비전 분석 (📷 버튼, cc-chat-prefill, ChatPanel 수신) | ✅ |
+| Round 1475 | QA Section 403-404 추가 (R1470-R1474 기능 체크, Pass 1365) | ✅ |
