@@ -407,6 +407,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [recordingBuffer, setRecordingBuffer] = useState<string[]>([])
   const [inputSplit, setInputSplit] = useState(false)
   const [splitContent, setSplitContent] = useState<string[]>(['', ''])
+  const [inputHotkeys, setInputHotkeys] = useState<Record<string, string>>({})
+  const [showHotkeyPanel, setShowHotkeyPanel] = useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

@@ -77,6 +77,8 @@ export function CocosPanel() {
   const [buildNotifyConfig, setBuildNotifyConfig] = useState<Record<string, boolean>>({})
   const [nodeTemplate, setNodeTemplate] = useState<string>('')
   const [showNodeTemplates, setShowNodeTemplates] = useState(false)
+  const [buildSchedule, setBuildSchedule] = useState<string>('')
+  const [buildScheduleEnabled, setBuildScheduleEnabled] = useState(false)
   return (
     <CCFileProjectUI
       fileProject={fileProject}
@@ -317,6 +319,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [buildNotifyConfig, setBuildNotifyConfig] = useState<Record<string, boolean>>({})
   const [nodeTemplate, setNodeTemplate] = useState<string>('')
   const [showNodeTemplates, setShowNodeTemplates] = useState(false)
+  const [buildSchedule, setBuildSchedule] = useState<string>('')
+  const [buildScheduleEnabled, setBuildScheduleEnabled] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

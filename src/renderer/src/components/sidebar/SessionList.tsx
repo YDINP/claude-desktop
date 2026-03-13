@@ -404,6 +404,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showComparePanel, setShowComparePanel] = useState(false)
   const [sessionMetrics, setSessionMetrics] = useState<Record<string, number>>({})
   const [showMetricsPanel, setShowMetricsPanel] = useState(false)
+  const [sessionRecovery, setSessionRecovery] = useState<string[]>([])
+  const [showRecoveryPanel, setShowRecoveryPanel] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

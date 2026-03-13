@@ -526,6 +526,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [termRows, setTermRows] = useState(24)
   const [termCursor, setTermCursor] = useState<'block' | 'underline' | 'bar'>('block')
   const [termCursorBlink, setTermCursorBlink] = useState(true)
+  const [termScrollback, setTermScrollback] = useState(1000)
+  const [termScrollbackEnabled, setTermScrollbackEnabled] = useState(true)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
