@@ -142,6 +142,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showCacheManager, setShowCacheManager] = useState(false)
   const [batchEditMode, setBatchEditMode] = useState(false)
   const [batchEditTargets, setBatchEditTargets] = useState<string[]>([])
+  const [compSearchFilter, setCompSearchFilter] = useState('')
+  const [compSearchResults, setCompSearchResults] = useState<string[]>([])
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -1307,6 +1309,8 @@ function CCFileNodeInspector({
   })
   const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
   const [lockScale, setLockScale] = useState(false)
+  const [compSearchFilter, setCompSearchFilter] = useState('')
+  const [compSearchResults, setCompSearchResults] = useState<string[]>([])
   const secHeader = (key: string, label: string) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
       style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>

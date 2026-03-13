@@ -613,6 +613,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   }, [searchTrigger])
 
   const [showShortcutsOverlay, setShowShortcutsOverlay] = useState(false)
+  const [activePersona, setActivePersona] = useState<string | null>(null)
+  const [personaPrompt, setPersonaPrompt] = useState('')
 
   // 채팅 패널 키보드 단축키
   useEffect(() => {
@@ -861,7 +863,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [qualityScores, setQualityScores] = useState<Record<string, number>>({})
   const [showQualityPanel, setShowQualityPanel] = useState(false)
   const [threadSummaries, setThreadSummaries] = useState<Record<string, string>>({})
-  const [summaryLoading, setSummaryLoading] = useState<string | null>(null)
+  const [threadSummaryLoading, setThreadSummaryLoading] = useState<string | null>(null)
+  const [activePersona, setActivePersona] = useState<string | null>(null)
+  const [personaPrompt, setPersonaPrompt] = useState('')
   const MSG_LABEL_KINDS = ['중요', '질문', '답변', '코드', '오류'] as const
   const MSG_LABEL_COLORS: Record<string, string> = {
     '중요': '#f87171', '질문': '#60a5fa', '답변': '#34d399', '코드': '#c084fc', '오류': '#fbbf24',

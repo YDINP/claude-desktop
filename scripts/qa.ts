@@ -8209,6 +8209,41 @@ if (existsSync(sl836Path)) {
   }
 }
 
+console.log('\n## 190. Phase DD10 R837~839 기능 체크')
+
+// R837: ChatPanel AI 페르소나
+const cp837Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp837Path)) {
+  const cp837 = readFileSync(cp837Path, 'utf-8')
+  if (cp837.includes('activePersona') || cp837.includes('personaPrompt') || cp837.includes('aiPersonaActive')) {
+    log('pass', 'R837', 'ChatPanel AI 페르소나 존재')
+  } else {
+    log('warning', 'R837', 'ChatPanel AI 페르소나 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R838: InputBar 텍스트 서식
+const ib838Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib838Path)) {
+  const ib838 = readFileSync(ib838Path, 'utf-8')
+  if (ib838.includes('textFormat') || ib838.includes('showFormatBar') || ib838.includes('formatMode')) {
+    log('pass', 'R838', 'InputBar 텍스트 서식 존재')
+  } else {
+    log('warning', 'R838', 'InputBar 텍스트 서식 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R839: CocosPanel 컴포넌트 검색 필터
+const cocp839Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp839Path)) {
+  const cocp839 = readFileSync(cocp839Path, 'utf-8')
+  if (cocp839.includes('compSearchFilter') || cocp839.includes('compSearchResults') || cocp839.includes('componentSearch')) {
+    log('pass', 'R839', 'CocosPanel 컴포넌트 검색 필터 존재')
+  } else {
+    log('warning', 'R839', 'CocosPanel 검색 필터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

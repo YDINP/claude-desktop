@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:44:30.682Z
+> 2026-03-13T11:45:58.443Z
 
 ## Critical
 _없음_
@@ -718,3 +718,6 @@ _없음_
 - SceneViewPanel 씬 자동 레이아웃 존재
 - TerminalPanel 단축키 커스터마이징 존재
 - SessionList 검색 필터 저장 존재
+- ChatPanel AI 페르소나 존재
+- InputBar 텍스트 서식 존재
+- CocosPanel 컴포넌트 검색 필터 존재
