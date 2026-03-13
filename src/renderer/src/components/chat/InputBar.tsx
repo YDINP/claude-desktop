@@ -660,31 +660,41 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     setIsListening(true)
   }
 
-  const IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff'])
-  const LARGE_FILE_THRESHOLD = 50 * 1024 // 50KB
+  const readFileAsText = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = e => resolve(e.target?.result as string ?? '')
+      reader.onerror = reject
+      reader.readAsText(file)
+    })
 
   const handleContainerDrop = async (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
     const files = Array.from(e.dataTransfer.files)
-    for (const file of files) {
-      const path = (file as any).path
-      if (!path) continue
-      const fileName = path.split(/[\\/]/).pop() ?? path
-      const ext = fileName.split('.').pop()?.toLowerCase() ?? ''
-      try {
-        if (IMAGE_EXTS.has(ext)) {
-          setText(prev => prev + `\n<image path="${path}" />\n`)
-        } else if (file.size > LARGE_FILE_THRESHOLD) {
-          setText(prev => prev + `\n<file path="${path}" />\n`)
-        } else {
-          const content = await window.api.readFile(path)
-          const attachment = `\n<file name="${fileName}">\n${content}\n</file>\n`
-          setText(prev => prev + attachment)
-        }
-      } catch {
-        // skip unreadable files
+    if (files.length === 0) return
+
+    const parts: string[] = []
+    for (const file of files.slice(0, 5)) {
+      const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+      if (file.size > MAX_FILE_SIZE) {
+        parts.push(`\`[${file.name}: 파일 크기 초과 (${Math.round(file.size / 1024)}KB)]\``)
+        continue
       }
+      if (!TEXT_EXTS.has(ext) && !file.type.startsWith('text/')) {
+        parts.push(`\`[${file.name}: 텍스트 파일 아님]\``)
+        continue
+      }
+      try {
+        const content = await readFileAsText(file)
+        parts.push(`\`\`\`${ext}\n// ${file.name}\n${content.slice(0, 8000)}\n\`\`\``)
+      } catch {
+        parts.push(`\`[${file.name}: 읽기 실패]\``)
+      }
+    }
+
+    if (parts.length > 0) {
+      setText(prev => prev ? `${prev}\n\n${parts.join('\n\n')}` : parts.join('\n\n'))
     }
     setTimeout(() => adjustHeight(), 0)
   }

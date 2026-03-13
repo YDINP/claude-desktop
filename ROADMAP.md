@@ -594,12 +594,20 @@
 | Round 551 | 프롬프트 히스토리 — ↑↓ 키 탐색 (Alt→순수 Arrow 전환) | ✅ |
 
 #### 🟢 낮은우선순위
-| 라운드 | 기능 |
-|--------|------|
-| Round 551 | 씬뷰 노드 스냅샷 비교 (before/after 오버레이) |
-| Round 552 | 채팅 메시지 번역 버튼 (Claude API 활용) |
-| Round 553 | Inspector 컴포넌트 순서 재정렬 (drag handle) |
-| Round 554 | QA 강화 + handoff.md 갱신 |
+| 라운드 | 기능 | 비고 |
+|--------|------|------|
+| Round 553 | Inspector 컴포넌트 순서 재정렬 (drag handle) | ✅ |
+| Round 554 | 채팅 메시지 번역 버튼 (Claude API 활용) | ✅ |
+| Round 555 | 씬뷰 노드 스냅샷 비교 (before/after 오버레이) | ✅ |
+| Round 556 | QA Section 108 추가 (R553/R554/R555, Pass 464) | ✅ |
+| Round 557 | 씬뷰 smooth zoom (RAF 애니메이션, EASE=0.18) | ✅ |
+| Round 558 | 세션 태그 색상 커스터마이즈 (right-click palette) | ✅ |
+| Round 559 | Inspector numInput onWheel 증감 (Shift×10) | ✅ |
+| Round 560 | QA Section 109 추가 (R557/R558/R559, Pass 467) | ✅ |
+| Round 561 | 씬뷰 룰러 — 상단/좌측 눈금자 툴바 버튼 (SceneToolbar + getRulerTicks) | ✅ |
+| Round 562 | 채팅 파일 드래그&드롭 첨부 (readFileAsText, 100KB 제한) | ✅ |
+| Round 563 | SceneTree 노드 즐겨찾기 — ★ 토글 + 핀 섹션 (localStorage) | ✅ |
+| Round 564 | QA Section 110 추가 (R561/R562/R563, Pass 473) | ✅ |
 
 ## QA 프로세스
 

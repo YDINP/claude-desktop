@@ -22,6 +22,32 @@ const CC_LAYER_NAMES: Record<number, string> = {
   16: 'UI_2D', 32: 'SCENE_GIZMO', 64: 'PROFILER',
 }
 
+function getRulerTicks(
+  axis: 'h' | 'v',
+  svgSize: number,
+  view: { zoom: number; offsetX: number; offsetY: number }
+): { pos: number; label: string | null; isMajor: boolean }[] {
+  const ticks: { pos: number; label: string | null; isMajor: boolean }[] = []
+  const rawStep = 50 / view.zoom
+  const step = Math.pow(10, Math.round(Math.log10(rawStep)))
+  const offset = axis === 'h' ? view.offsetX : view.offsetY
+  const startScene = -offset / view.zoom
+  const endScene = (svgSize - offset) / view.zoom
+  const start = Math.floor(startScene / step) * step
+  for (let s = start; s <= endScene; s += step) {
+    const pos = s * view.zoom + offset
+    if (pos < 0 || pos > svgSize) continue
+    ticks.push({ pos, label: String(Math.round(s)), isMajor: true })
+    for (let i = 1; i < 5; i++) {
+      const subPos = pos + (i / 5) * step * view.zoom
+      if (subPos >= 0 && subPos <= svgSize) {
+        ticks.push({ pos: subPos, label: null, isMajor: false })
+      }
+    }
+  }
+  return ticks
+}
+
 const CANVAS_PRESETS = [
   { label: '960×640 (기본)', w: 960, h: 640 },
   { label: '1280×720 (HD)', w: 1280, h: 720 },
@@ -1807,6 +1833,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         showDiff={showDiff}
         onTakeSnapshot={handleTakeSnapshot}
         onToggleDiff={() => setShowDiff(v => !v)}
+        showRuler={showRuler}
+        onToggleRuler={() => setShowRuler(v => !v)}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -1942,46 +1970,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             </g>
           })()}
 
-          {/* 픽셀 눈금자 (R 키 토글) */}
-          {showRuler && containerRef.current && (() => {
-            const cw = containerRef.current!.clientWidth
-            const ch = containerRef.current!.clientHeight
-            const RULER_SIZE = 16
-            const ox = DESIGN_W / 2 * view.zoom + view.offsetX
-            const oy = DESIGN_H / 2 * view.zoom + view.offsetY
-            // 줌에 맞춰 적당한 틱 간격 계산 (10, 20, 50, 100, ...)
-            const steps = [5, 10, 20, 50, 100, 200, 500]
-            const minPx = 40
-            const step = steps.find(s => s * view.zoom >= minPx) ?? 500
-            const hTicks: Array<{ cocos: number; px: number }> = []
-            const startX = Math.ceil((-ox / view.zoom) / step) * step
-            for (let cx2 = startX; cx2 * view.zoom + ox <= cw; cx2 += step) hTicks.push({ cocos: cx2, px: cx2 * view.zoom + ox })
-            const vTicks: Array<{ cocos: number; py: number }> = []
-            const startY = Math.ceil((-oy / view.zoom) / step) * step
-            for (let cy2 = startY; cy2 * view.zoom + oy <= ch; cy2 += step) vTicks.push({ cocos: -cy2, py: cy2 * view.zoom + oy })
-            return (
-              <g style={{ pointerEvents: 'none' }}>
-                {/* 수평 눈금자 (상단) */}
-                <rect x={RULER_SIZE} y={0} width={cw} height={RULER_SIZE} fill="rgba(30,30,35,0.85)" />
-                {hTicks.map(t => (
-                  <g key={`h${t.cocos}`}>
-                    <line x1={t.px} y1={RULER_SIZE - 6} x2={t.px} y2={RULER_SIZE} stroke="rgba(180,180,200,0.7)" strokeWidth={1} />
-                    <text x={t.px + 2} y={RULER_SIZE - 7} fill="rgba(180,180,200,0.7)" fontSize={8} fontFamily="monospace">{t.cocos}</text>
-                  </g>
-                ))}
-                {/* 수직 눈금자 (좌측) */}
-                <rect x={0} y={RULER_SIZE} width={RULER_SIZE} height={ch} fill="rgba(30,30,35,0.85)" />
-                {vTicks.map(t => (
-                  <g key={`v${t.cocos}`} transform={`translate(${RULER_SIZE},${t.py}) rotate(-90)`}>
-                    <line x1={0} y1={0} x2={0} y2={-6} stroke="rgba(180,180,200,0.7)" strokeWidth={1} />
-                    <text x={2} y={-7} fill="rgba(180,180,200,0.7)" fontSize={8} fontFamily="monospace">{t.cocos}</text>
-                  </g>
-                ))}
-                {/* 코너 사각형 */}
-                <rect x={0} y={0} width={RULER_SIZE} height={RULER_SIZE} fill="rgba(30,30,35,0.95)" />
-              </g>
-            )
-          })()}
+          {/* 룰러는 SVG 외부 position absolute 오버레이로 이동 */}
 
           {/* 씬 그룹 */}
           <g transform={sceneTransform}>
@@ -2417,6 +2406,49 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             />
           )}
         </svg>
+
+        {/* 눈금자 오버레이 (position absolute, SVG 외부) */}
+        {showRuler && containerRef.current && (() => {
+          const cw = containerRef.current!.clientWidth
+          const ch = containerRef.current!.clientHeight
+          return (
+            <>
+              {/* 상단 수평 룰러 */}
+              <svg
+                style={{ position: 'absolute', top: 0, left: 16, width: cw - 16, height: 16, pointerEvents: 'none', zIndex: 10 }}
+                width={cw - 16}
+                height={16}
+              >
+                <rect width="100%" height="16" fill="var(--bg-secondary)" opacity={0.9} />
+                {getRulerTicks('h', cw - 16, { zoom: view.zoom, offsetX: view.offsetX - 16, offsetY: view.offsetY }).map(({ pos, label, isMajor }) => (
+                  <g key={`h${pos.toFixed(1)}`}>
+                    <line x1={pos} y1={isMajor ? 8 : 12} x2={pos} y2={16} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+                    {isMajor && label && <text x={pos + 2} y={11} fontSize={7} fill="rgba(255,255,255,0.5)" fontFamily="monospace">{label}</text>}
+                  </g>
+                ))}
+              </svg>
+              {/* 좌측 수직 룰러 */}
+              <svg
+                style={{ position: 'absolute', top: 16, left: 0, width: 16, height: ch - 16, pointerEvents: 'none', zIndex: 10 }}
+                width={16}
+                height={ch - 16}
+              >
+                <rect width="16" height="100%" fill="var(--bg-secondary)" opacity={0.9} />
+                {getRulerTicks('v', ch - 16, { zoom: view.zoom, offsetX: view.offsetX, offsetY: view.offsetY - 16 }).map(({ pos, label, isMajor }) => (
+                  <g key={`v${pos.toFixed(1)}`}>
+                    <line x1={isMajor ? 8 : 12} y1={pos} x2={16} y2={pos} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+                    {isMajor && label && (
+                      <text x={8} y={pos - 2} fontSize={7} fill="rgba(255,255,255,0.5)" fontFamily="monospace"
+                        transform={`rotate(-90, 8, ${pos - 2})`}>{label}</text>
+                    )}
+                  </g>
+                ))}
+              </svg>
+              {/* 코너 사각형 */}
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 16, background: 'var(--bg-secondary)', zIndex: 11, pointerEvents: 'none' }} />
+            </>
+          )
+        })()}
 
         {/* 로딩 오버레이 */}
         {loading && (

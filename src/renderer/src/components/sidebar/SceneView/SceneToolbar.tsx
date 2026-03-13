@@ -88,6 +88,8 @@ interface SceneToolbarProps {
   showDiff?: boolean
   onTakeSnapshot?: () => void
   onToggleDiff?: () => void
+  showRuler?: boolean
+  onToggleRuler?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -180,6 +182,8 @@ export function SceneToolbar({
   showDiff,
   onTakeSnapshot,
   onToggleDiff,
+  showRuler,
+  onToggleRuler,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -307,6 +311,17 @@ export function SceneToolbar({
       </button>
 
       <div style={divider} />
+
+      {/* 룰러 */}
+      {onToggleRuler && (
+        <button
+          style={showRuler ? btnActive : btnBase}
+          onClick={onToggleRuler}
+          title="눈금자 표시/숨기기 (R)"
+        >
+          ⊢ Ruler
+        </button>
+      )}
 
       {/* 그리드 */}
       <button

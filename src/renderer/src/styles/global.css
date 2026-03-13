@@ -68,6 +68,10 @@ code, pre {
 }
 .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 
+/* 씬 트리 노드 행 hover시 즐겨찾기 별 표시 */
+.tree-node-row:hover .fav-star { opacity: 0.5 !important; }
+.tree-node-row:hover .fav-star.is-fav { opacity: 1 !important; }
+
 .splitter {
   background: var(--border);
   flex-shrink: 0;

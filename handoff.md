@@ -1,10 +1,10 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-13 (Round 534 완료 — Phase DD7 전체 완료)
+> 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: flattenTree 중첩 노드 위치 버그 수정 + NodeRenderer designWidth/H props
+- 마지막 커밋: Round 561~564 (룰러 + 파일첨부 + 즐겨찾기 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 458
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 473
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -103,10 +103,25 @@
 | R555 | 씬뷰 스냅샷 비교 (📷 snap + 👁 diff, 빨간 점선 오버레이) |
 | R556 | QA Section 108 추가 (Pass 467) |
 
-## 다음 예정 (Round 557~)
-- Round 557: 씬뷰 줌 애니메이션 (smooth zoom)
-- Round 558: 세션 태그 색상 커스터마이즈
-- Round 559: Inspector 숫자 인풋 스크롤 증감 (wheel event)
+## Phase DD9 추가 완료 (Round 557~560)
+
+| 라운드 | 기능 |
+|--------|------|
+| R557 | 씬뷰 smooth zoom — RAF animateToTarget, EASE=0.18 보간 |
+| R558 | 세션 태그 색상 커스터마이즈 — 우클릭 팔레트, localStorage |
+| R559 | Inspector wheel 증감 — Shift×10배, numInput 전체 적용 |
+| R560 | QA Section 109 (Pass 470) |
+
+## Phase DD9 추가 완료 (Round 561~564)
+
+| 라운드 | 기능 |
+|--------|------|
+| R561 | 씬뷰 룰러 — SceneToolbar Ruler 버튼 + getRulerTicks 오버레이 SVG |
+| R562 | 채팅 파일 드래그&드롭 첨부 (readFileAsText, 100KB/5개 제한) |
+| R563 | SceneTree 노드 즐겨찾기 — ★ 토글 + 핀 섹션 (localStorage) |
+| R564 | QA Section 110 추가 (Pass 473) |
+
+## 다음 예정 (Round 565~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 

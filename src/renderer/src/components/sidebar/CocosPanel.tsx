@@ -50,6 +50,27 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('cc-recent-files') ?? '[]') } catch { return [] }
   })
+  const FAV_KEY = 'scene-tree-favorites'
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('scene-tree-favorites') ?? '[]')) }
+    catch { return new Set() }
+  })
+  const toggleFavorite = useCallback((uuid: string) => {
+    setFavorites(prev => {
+      const next = new Set(prev)
+      if (next.has(uuid)) next.delete(uuid)
+      else next.add(uuid)
+      localStorage.setItem(FAV_KEY, JSON.stringify([...next]))
+      return next
+    })
+  }, [])
+  const nodeMap = useMemo(() => {
+    const map = new Map<string, CCSceneNode>()
+    if (!sceneFile?.root) return map
+    function walk(n: CCSceneNode) { map.set(n.uuid, n); n.children.forEach(walk) }
+    walk(sceneFile.root)
+    return map
+  }, [sceneFile?.root])
 
   const addRecent = useCallback((path: string) => {
     setRecentFiles(prev => {
@@ -596,6 +617,25 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 {hideInactive ? '◑' : '●'}
               </span>
             </div>
+            {favorites.size > 0 && (
+              <div style={{ borderBottom: '1px solid var(--border)', marginBottom: 4, paddingBottom: 4 }}>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', padding: '2px 8px' }}>★ 즐겨찾기</div>
+                {[...favorites].map(uuid => {
+                  const favNode = nodeMap.get(uuid)
+                  if (!favNode) return null
+                  return (
+                    <div
+                      key={uuid}
+                      style={{ paddingLeft: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                      onClick={() => onSelectNode(favNode)}
+                    >
+                      <span style={{ color: '#fbbf24', fontSize: 10 }}>★</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{favNode.name}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
             <CCFileSceneTree
               node={sceneFile.root}
               depth={0}
@@ -607,6 +647,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onDuplicate={handleTreeDuplicate}
               onToggleActive={handleTreeToggleActive}
               hideInactive={hideInactive}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
             />
           </div>
           {/* 노드 인스펙터 */}
@@ -667,7 +709,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite,
 }: {
   node: CCSceneNode
   depth: number
@@ -679,6 +721,8 @@ function CCFileSceneTree({
   onDuplicate?: (uuid: string) => void
   onToggleActive?: (uuid: string) => void
   hideInactive?: boolean
+  favorites?: Set<string>
+  onToggleFavorite?: (uuid: string) => void
 }) {
   const [collapsed, setCollapsed] = useState(depth > 2)
   const [isDragOver, setIsDragOver] = useState(false)
@@ -724,6 +768,7 @@ function CCFileSceneTree({
         </div>
       )}
       <div
+        className="tree-node-row"
         draggable={!isRoot}
         onClick={() => { setCtxMenu(null); onSelect(isSelected ? null : node) }}
         onContextMenu={e => { e.preventDefault(); e.stopPropagation(); onSelect(node); setCtxMenu({ x: e.clientX, y: e.clientY }) }}
@@ -768,6 +813,19 @@ function CCFileSceneTree({
             {node.active ? '●' : '○'}
           </span>
         )}
+        {!isRoot && (
+          <span
+            onClick={e => { e.stopPropagation(); onToggleFavorite?.(node.uuid) }}
+            title={favorites?.has(node.uuid) ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+            style={{
+              fontSize: 10, cursor: 'pointer', flexShrink: 0,
+              color: '#fbbf24',
+              opacity: favorites?.has(node.uuid) ? 1 : 0,
+              transition: 'opacity 0.1s',
+            }}
+            className={favorites?.has(node.uuid) ? 'fav-star is-fav' : 'fav-star'}
+          >★</span>
+        )}
         {node.components.length > 0 && (() => {
           const typeIconMap: Record<string, string> = {
             'cc.Sprite': '🖼', 'cc.Label': 'T', 'cc.RichText': 'T',
@@ -801,6 +859,8 @@ function CCFileSceneTree({
           onDuplicate={onDuplicate}
           onToggleActive={onToggleActive}
           hideInactive={hideInactive}
+          favorites={favorites}
+          onToggleFavorite={onToggleFavorite}
         />
       ))}
     </div>

@@ -4963,7 +4963,7 @@ console.log('\n## 104. 신규 기능 파일 검사 (R202)')
 const svp202Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
 if (existsSync(svp202Path)) {
   const svp202 = readFileSync(svp202Path, 'utf-8')
-  if (svp202.includes('showRuler') && svp202.includes('눈금자') && svp202.includes('RULER_SIZE')) {
+  if (svp202.includes('showRuler') && svp202.includes('getRulerTicks')) {
     log('pass', 'Round202', 'SceneView: 픽셀 눈금자 (R 키 토글) 존재')
   } else {
     log('warning', 'Round202', 'SceneView 픽셀 눈금자 미구현', 'SceneView/SceneViewPanel.tsx')
@@ -5392,6 +5392,41 @@ console.log('\n## 109. Phase DD9 R557~559 기능 체크')
     log('pass', 'R559', 'Inspector 숫자 wheel 증감 존재')
   } else {
     log('warning', 'R559', 'Inspector wheel 증감 없음', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 110: Phase DD9 R561~563 기능 체크 ────────────────
+console.log('\n## 110. Phase DD9 R561~563 기능 체크')
+// R561: SceneView 룰러 툴바 버튼
+const st561Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(st561Path)) {
+  const st561 = readFileSync(st561Path, 'utf-8')
+  if (st561.includes('onToggleRuler') && st561.includes('showRuler')) {
+    log('pass', 'R561', '씬뷰 룰러 툴바 버튼 존재')
+  } else {
+    log('warning', 'R561', '씬뷰 룰러 툴바 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R562: 채팅 파일 드래그&드롭 첨부
+const ib562Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib562Path)) {
+  const ib562 = readFileSync(ib562Path, 'utf-8')
+  if (ib562.includes('readFileAsText') && ib562.includes('handleContainerDrop')) {
+    log('pass', 'R562', '채팅 파일 드래그&드롭 첨부 존재')
+  } else {
+    log('warning', 'R562', '채팅 파일 드래그&드롭 첨부 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R563: SceneTree 노드 즐겨찾기
+const cp563Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp563Path)) {
+  const cp563 = readFileSync(cp563Path, 'utf-8')
+  if (cp563.includes('toggleFavorite') && cp563.includes('favorites')) {
+    log('pass', 'R563', 'SceneTree 노드 즐겨찾기 존재')
+  } else {
+    log('warning', 'R563', 'SceneTree 노드 즐겨찾기 없음', 'sidebar/CocosPanel.tsx')
   }
 }
 
