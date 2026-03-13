@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 485 완료 — VV-2 씬뷰 캔버스 외부 빗금 패턴 오버레이)
+> 마지막 업데이트: 2026-03-13 (Round 486 완료 — WW-2 씬뷰 선택 노드 치수 레이블)
 
 ## 완료된 라운드
 
@@ -77,6 +77,7 @@
 | Round 483 | dev | Phase TT-1: Inspector Z-order 이동 버튼 — handleZOrder(±1), 같은 부모 내 children 배열 swap | ✅ |
 | Round 484 | dev | Phase UU-1: 씬뷰 캔버스 범위 밖 노드 반투명 표시 — isOutOfCanvas 감지, nodeOpacity × 0.4 적용 | ✅ |
 | Round 485 | dev | Phase VV-2: 씬뷰 캔버스 외부 빗금 패턴 오버레이 — SVG defs hatch pattern + mask로 캔버스 영역 제외 | ✅ |
+| Round 486 | dev | Phase WW-2: 씬뷰 선택 노드 치수 레이블 — 상단에 w×h SVG text 표시 (zoom > 0.3 시) | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

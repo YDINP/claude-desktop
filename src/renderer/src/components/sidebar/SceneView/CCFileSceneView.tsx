@@ -475,6 +475,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     }}
                   />
                 )}
+                {/* 치수 레이블 (선택된 노드, 줌 > 0.3 시만) */}
+                {isSelected && view.zoom > 0.3 && (
+                  <text
+                    x={rectX + w / 2}
+                    y={rectY - 4 / view.zoom}
+                    fontSize={9 / view.zoom}
+                    fill="#58a6ff"
+                    textAnchor="middle"
+                    style={{ pointerEvents: 'none', userSelect: 'none' }}
+                  >
+                    {Math.round(w)}×{Math.round(h)}
+                  </text>
+                )}
               </g>
             )
           })}
