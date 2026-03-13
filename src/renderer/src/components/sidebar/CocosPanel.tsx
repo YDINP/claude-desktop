@@ -1273,6 +1273,8 @@ function CCFileNodeInspector({
   const [isDirty, setIsDirty] = useState(false)
   const [savedToast, setSavedToast] = useState(false)
   const [undoStack, setUndoStack] = useState<Partial<CCSceneNode>[]>([])
+  const [compOrder, setCompOrder] = useState<string[]>([])
+  const [draggedComp, setDraggedComp] = useState<string | null>(null)
   const [redoStack, setRedoStack] = useState<Partial<CCSceneNode>[]>([])
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const COLLAPSED_COMPS_KEY = 'collapsed-comps'

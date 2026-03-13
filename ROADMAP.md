@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 652 완료 — Phase DD10 진행 중, QA Pass 539)
+> 마지막 업데이트: 2026-03-13 (Round 656 완료 — Phase DD10 진행 중, QA Pass 542)
 
 ## 개발 루프 실행 방식
 
@@ -628,6 +628,10 @@
 | Round 650 | SceneViewPanel 노드 복사/붙여넣기 (copiedNode, Ctrl+C/V) | ✅ |
 | Round 651 | ChatPanel 메시지 검색 (msgSearchQuery, showMsgSearch aliases) | ✅ |
 | Round 652 | QA Section 132 추가 (R649/R650/R651, Pass 539) | ✅ |
+| Round 653 | CocosPanel 컴포넌트 드래그 순서 변경 (compOrder, draggedComp) | ✅ |
+| Round 654 | TerminalPanel 출력 필터링 (termFilter, showTermFilter) | ✅ |
+| Round 655 | SceneViewPanel 노드 다중 선택/그룹화 (multiSelected, showGroupBtn) | ✅ |
+| Round 656 | QA Section 133 추가 (R653/R654/R655, Pass 542) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

@@ -223,6 +223,11 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [searchQuery, setSearchQuery] = useState('')
   const searchInputRef = useRef<HTMLInputElement>(null)
 
+  // Filter state
+  const [termFilter, setTermFilter] = useState('')
+  const [showTermFilter, setShowTermFilter] = useState(false)
+  const filterInputRef = useRef<HTMLInputElement>(null)
+
   // Initialize learned commands on mount
   useEffect(() => {
     setLearnedCmds(getTopCommands(3).filter(c => !quickCmds.some(q => q.cmd.trim() === c)))
@@ -289,9 +294,14 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
     searchAddonsRef.current[id] = searchAddon
 
     term.attachCustomKeyEventHandler((e) => {
-      if (e.ctrlKey && e.key === 'f') {
+      if (e.ctrlKey && !e.shiftKey && e.key === 'f') {
         setSearchOpen(true)
         setTimeout(() => searchInputRef.current?.focus(), 50)
+        return false
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+        setShowTermFilter(prev => !prev)
+        setTimeout(() => filterInputRef.current?.focus(), 50)
         return false
       }
       return true
@@ -646,6 +656,23 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           </div>
         )}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, paddingRight: 6 }}>
+          {/* Filter button */}
+          <span
+            onClick={() => { setShowTermFilter(prev => !prev); setTimeout(() => filterInputRef.current?.focus(), 50) }}
+            title="출력 필터 (Ctrl+Shift+F)"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 3,
+              cursor: 'pointer', fontSize: 11, padding: '1px 5px',
+              borderRadius: 4,
+              border: showTermFilter ? '1px solid var(--accent)' : '1px solid var(--border)',
+              color: showTermFilter ? 'var(--accent)' : 'var(--text-muted)',
+              background: 'none', userSelect: 'none',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = showTermFilter ? 'var(--accent)' : 'var(--border)' }}
+          >
+            &#128269; 필터
+          </span>
           {/* Recording button */}
           <span
             onClick={toggleRecording}
@@ -762,6 +789,37 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
         </div>
       )}
 
+      {/* Filter bar */}
+      {showTermFilter && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '4px 8px', borderBottom: '1px solid var(--border)',
+          background: 'var(--bg-secondary)', flexShrink: 0,
+        }}>
+          <input
+            ref={filterInputRef}
+            value={termFilter}
+            onChange={e => setTermFilter(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Escape') { setShowTermFilter(false); setTermFilter('') } }}
+            placeholder="출력 필터 키워드..."
+            style={{
+              flex: 1, padding: '3px 8px', fontSize: 12,
+              background: 'var(--bg-input)', color: 'var(--text-primary)',
+              border: '1px solid var(--border)', borderRadius: 4, outline: 'none',
+            }}
+          />
+          {termFilter && (
+            <span style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+              {(outputBufferRef.current[activeTabId] ?? []).filter(l => l.includes(termFilter)).length} 줄 매칭
+            </span>
+          )}
+          <button
+            onClick={() => { setShowTermFilter(false); setTermFilter('') }}
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13 }}
+          >×</button>
+        </div>
+      )}
+
       {/* Terminal containers */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
         {tabs.map(tab => (
@@ -776,6 +834,33 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             }}
           />
         ))}
+        {showTermFilter && termFilter && (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 50,
+            background: '#1a1a1a', overflowY: 'auto',
+            padding: '6px 8px', fontFamily: "'Cascadia Code', 'Fira Code', Consolas, monospace",
+            fontSize: 12, lineHeight: 1.5,
+          }}>
+            {(outputBufferRef.current[activeTabId] ?? [])
+              .filter(l => l.includes(termFilter))
+              .map((line, i) => {
+                const idx = line.indexOf(termFilter)
+                return (
+                  <div key={i} style={{ color: '#d4d4d4', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                    {line.slice(0, idx)}
+                    <mark style={{ background: 'rgba(255,200,0,0.35)', color: '#ffe066', borderRadius: 2 }}>
+                      {line.slice(idx, idx + termFilter.length)}
+                    </mark>
+                    {line.slice(idx + termFilter.length)}
+                  </div>
+                )
+              })
+            }
+            {(outputBufferRef.current[activeTabId] ?? []).filter(l => l.includes(termFilter)).length === 0 && (
+              <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>매칭 결과 없음</div>
+            )}
+          </div>
+        )}
         {errorBanners[activeTabId] && (
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0,

@@ -6214,6 +6214,41 @@ if (existsSync(cp651Path)) {
   }
 }
 
+// ── Section 133: Phase DD10 R653~655 기능 체크 ────────────────
+console.log('\n## 133. Phase DD10 R653~655 기능 체크')
+// R653: CocosPanel 컴포넌트 드래그 순서
+const cp653Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp653Path)) {
+  const cp653 = readFileSync(cp653Path, 'utf-8')
+  if (cp653.includes('compOrder') || cp653.includes('draggedComp') || cp653.includes('dragComp')) {
+    log('pass', 'R653', 'CocosPanel 컴포넌트 드래그 순서 존재')
+  } else {
+    log('warning', 'R653', 'CocosPanel 컴포넌트 순서 변경 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R654: TerminalPanel 출력 필터링
+const tp654Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp654Path)) {
+  const tp654 = readFileSync(tp654Path, 'utf-8')
+  if (tp654.includes('termFilter') || tp654.includes('showTermFilter') || tp654.includes('terminalFilter')) {
+    log('pass', 'R654', 'TerminalPanel 출력 필터링 존재')
+  } else {
+    log('warning', 'R654', 'TerminalPanel 필터링 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R655: SceneViewPanel 노드 다중 선택/그룹화
+const svp655Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp655Path)) {
+  const svp655 = readFileSync(svp655Path, 'utf-8')
+  if (svp655.includes('multiSelected') || svp655.includes('showGroupBtn') || svp655.includes('groupNodes')) {
+    log('pass', 'R655', 'SceneViewPanel 노드 다중 선택/그룹화 존재')
+  } else {
+    log('warning', 'R655', 'SceneViewPanel 다중 선택 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
