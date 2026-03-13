@@ -3037,6 +3037,11 @@ function CCFileBatchInspector({
   const [batchActive, setBatchActive] = useState<'active' | 'inactive' | ''>('')
   const [batchDx, setBatchDx] = useState<string>('')
   const [batchDy, setBatchDy] = useState<string>('')
+  // R1553: 스케일/사이즈 일괄 편집
+  const [batchScaleX, setBatchScaleX] = useState<string>('')
+  const [batchScaleY, setBatchScaleY] = useState<string>('')
+  const [batchSizeW, setBatchSizeW] = useState<string>('')
+  const [batchSizeH, setBatchSizeH] = useState<string>('')
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
@@ -3063,7 +3068,12 @@ function CCFileBatchInspector({
     const active = batchActive !== '' ? batchActive === 'active' : null
     const dx = batchDx !== '' ? parseFloat(batchDx) : null
     const dy = batchDy !== '' ? parseFloat(batchDy) : null
-    if (opacity == null && active == null && dx == null && dy == null) { setBatchMsg('변경 항목 없음'); return }
+    // R1553: 스케일/사이즈
+    const scaleX = batchScaleX !== '' ? parseFloat(batchScaleX) : null
+    const scaleY = batchScaleY !== '' ? parseFloat(batchScaleY) : null
+    const sizeW = batchSizeW !== '' ? parseFloat(batchSizeW) : null
+    const sizeH = batchSizeH !== '' ? parseFloat(batchSizeH) : null
+    if (opacity == null && active == null && dx == null && dy == null && scaleX == null && scaleY == null && sizeW == null && sizeH == null) { setBatchMsg('변경 항목 없음'); return }
 
     function applyNode(n: CCSceneNode): CCSceneNode {
       if (uuidSet.has(n.uuid)) {
@@ -3074,6 +3084,14 @@ function CCFileBatchInspector({
           const pos = n.position as { x: number; y: number; z?: number }
           updated = { ...updated, position: { ...pos, x: pos.x + (dx ?? 0), y: pos.y + (dy ?? 0) } }
         }
+        if (scaleX != null || scaleY != null) {
+          const sc = n.scale as { x?: number; y?: number; z?: number } | undefined
+          updated = { ...updated, scale: { x: scaleX ?? sc?.x ?? 1, y: scaleY ?? sc?.y ?? 1, z: sc?.z ?? 1 } }
+        }
+        if (sizeW != null || sizeH != null) {
+          const sz = n.size as { x?: number; y?: number } | undefined
+          updated = { ...updated, size: { x: sizeW ?? sz?.x ?? 0, y: sizeH ?? sz?.y ?? 0 } }
+        }
         return { ...updated, children: n.children.map(applyNode) }
       }
       return { ...n, children: n.children.map(applyNode) }
@@ -3081,7 +3099,7 @@ function CCFileBatchInspector({
     const result = await saveScene(applyNode(sceneFile.root))
     setBatchMsg(result.success ? `✓ ${uuids.length}개 노드 적용` : `✗ ${result.error ?? '오류'}`)
     setTimeout(() => setBatchMsg(null), 2500)
-  }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, uuids.length, saveScene])
+  }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, batchScaleX, batchScaleY, batchSizeW, batchSizeH, uuids.length, saveScene])
 
   return (
     <div style={{ padding: '8px 10px', fontSize: 11 }}>
@@ -3124,11 +3142,27 @@ function CCFileBatchInspector({
         />
       </div>
       {/* Position delta */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>위치 ±</span>
         <input type="number" placeholder="dX" value={batchDx} onChange={e => setBatchDx(e.target.value)}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
         <input type="number" placeholder="dY" value={batchDy} onChange={e => setBatchDy(e.target.value)}
+          style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+      </div>
+      {/* R1553: Scale 일괄 설정 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>스케일</span>
+        <input type="number" placeholder="X" value={batchScaleX} onChange={e => setBatchScaleX(e.target.value)} step={0.1}
+          style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+        <input type="number" placeholder="Y" value={batchScaleY} onChange={e => setBatchScaleY(e.target.value)} step={0.1}
+          style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+      </div>
+      {/* R1553: Size 일괄 설정 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>사이즈</span>
+        <input type="number" placeholder="W" value={batchSizeW} onChange={e => setBatchSizeW(e.target.value)} min={0}
+          style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+        <input type="number" placeholder="H" value={batchSizeH} onChange={e => setBatchSizeH(e.target.value)} min={0}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
       </div>
       {/* 적용 버튼 */}
