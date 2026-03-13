@@ -354,6 +354,15 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     autoWrap: !!(e._N$autoWrap ?? e._autoWrap ?? e.autoWrap ?? false),
     startAxis: (e._N$startAxis ?? e._startAxis ?? e.startAxis ?? 0) as number,
   }),
+  // R1585: cc.RichText — 서식 있는 텍스트
+  'cc.RichText': e => ({
+    string: (e._N$string ?? e._string ?? e.string ?? '') as string,
+    maxWidth: (e._N$maxWidth ?? e._maxWidth ?? e.maxWidth ?? 0) as number,
+    fontSize: (e._N$fontSize ?? e._fontSize ?? e.fontSize ?? 40) as number,
+    lineHeight: (e._N$lineHeight ?? e._lineHeight ?? e.lineHeight ?? 40) as number,
+    horizontalAlign: (e._N$horizontalAlign ?? e._horizontalAlign ?? e.horizontalAlign ?? 0) as number,
+    overflow: (e._N$overflow ?? e._overflow ?? e.overflow ?? 0) as number,
+  }),
   // R1582: cc.Widget — 레이아웃 제약 컴포넌트
   'cc.Widget': e => ({
     alignFlags: (e._N$alignFlags ?? e._alignFlags ?? e.alignFlags ?? 0) as number,

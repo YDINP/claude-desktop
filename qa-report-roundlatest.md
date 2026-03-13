@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T21:36:12.244Z
+> 2026-03-13T21:37:26.449Z
 
 ## Critical
 _없음_
@@ -1513,3 +1513,4 @@ _없음_
 - cc.Widget extractor + Inspector: align flags/offsets/mode
 - Ctrl+A 전체 노드 다중 선택
 - cc.Layout extractor + Inspector: type/resizeMode/padding/spacing/autoWrap
+- cc.RichText extractor + Inspector: string/fontSize/lineHeight/maxWidth/horizontalAlign/overflow

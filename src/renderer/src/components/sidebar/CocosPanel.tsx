@@ -4782,6 +4782,61 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1585: cc.RichText — 서식 텍스트 Quick Edit
+            if (comp.type === 'cc.RichText') {
+              const HALIGN = ['Left', 'Center', 'Right']
+              const OVERFLOW = ['None', 'Clamp', 'Shrink', 'Resize']
+              return (
+                <div key={ci} style={{ marginBottom: 6 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  <div style={{ marginBottom: 4 }}>
+                    <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>내용 (HTML 태그 지원)</label>
+                    <textarea
+                      value={String(p.string ?? '')}
+                      rows={3}
+                      style={{ width: '100%', fontSize: 11, resize: 'vertical', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px', boxSizing: 'border-box' }}
+                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'string', ev.target.value)}
+                    />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>fontSize</label>
+                      <input type="number" value={Number(p.fontSize ?? 40)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'fontSize', Number(ev.target.value))} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>lineHeight</label>
+                      <input type="number" value={Number(p.lineHeight ?? 40)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'lineHeight', Number(ev.target.value))} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>maxWidth (0=무제한)</label>
+                      <input type="number" value={Number(p.maxWidth ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'maxWidth', Number(ev.target.value))} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>horizontalAlign</label>
+                      <select value={Number(p.horizontalAlign ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'horizontalAlign', Number(ev.target.value))}>
+                        {HALIGN.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>overflow</label>
+                    <select value={Number(p.overflow ?? 0)}
+                      style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'overflow', Number(ev.target.value))}>
+                      {OVERFLOW.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
+                    </select>
+                  </div>
+                </div>
+              )
+            }
             // R1582: cc.Widget — align flags + offsets Quick Edit
             if (comp.type === 'cc.Widget') {
               const isTop = !!(p.isAlignTop ?? false)

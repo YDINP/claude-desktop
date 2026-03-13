@@ -16924,6 +16924,20 @@ console.log('\n## 475. R1584 cc.Layout extractor + Inspector Quick Edit 체크')
   }
 }
 
+// ── Section 476: R1585 cc.RichText extractor + Inspector Quick Edit ──
+console.log('\n## 476. R1585 cc.RichText extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s476parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s476panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s476parser.includes("'cc.RichText': e =>") && s476panel.includes("comp.type === 'cc.RichText'") && s476panel.includes('horizontalAlign') && s476panel.includes('overflow')) {
+    log('pass', 'R1585-richtext', 'cc.RichText extractor + Inspector: string/fontSize/lineHeight/maxWidth/horizontalAlign/overflow')
+  } else {
+    log('warning', 'R1585-richtext', 'cc.RichText Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
