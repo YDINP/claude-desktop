@@ -370,6 +370,17 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     endSize: e._N$endSize ?? e._endSize ?? e.endSize ?? 50,
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? true,
   }),
+  // R1549: dragonBones.ArmatureDisplay — DragonBones 애니메이션
+  'dragonBones.ArmatureDisplay': e => ({
+    dragonAsset: (e._N$dragonAsset ?? e._dragonAsset ?? e.dragonAsset) as unknown,
+    dragonAtlasAsset: (e._N$dragonAtlasAsset ?? e._dragonAtlasAsset ?? e.dragonAtlasAsset) as unknown,
+    armatureName: (e._N$armatureName ?? e._armatureName ?? e.armatureName ?? '') as string,
+    animationName: (e._N$animationName ?? e._animationName ?? e.animationName ?? '') as string,
+    loop: !!(e._N$loop ?? e._loop ?? e.loop ?? true),
+    playTimes: (e._N$playTimes ?? e._playTimes ?? e.playTimes ?? 0) as number,
+    timeScale: (e._N$timeScale ?? e._timeScale ?? e.timeScale ?? 1) as number,
+    debugBones: !!(e._N$debugBones ?? e._debugBones ?? e.debugBones ?? false),
+  }),
   // R1546: sp.Skeleton — Spine 애니메이션
   'sp.Skeleton': e => ({
     skeletonData: (e._N$skeletonData ?? e._skeletonData ?? e.skeletonData) as unknown,

@@ -4681,6 +4681,68 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1549: dragonBones.ArmatureDisplay — DragonBones Quick Edit
+            if (comp.type === 'dragonBones.ArmatureDisplay') {
+              const armatureName = String(p.armatureName ?? '')
+              const animationName = String(p.animationName ?? '')
+              const timeScale = Number(p.timeScale ?? 1)
+              const loop = !!(p.loop ?? true)
+              const playTimes = Number(p.playTimes ?? 0)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>armature</span>
+                    <input type="text" defaultValue={armatureName}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, armatureName: e.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>animation</span>
+                    <input type="text" defaultValue={animationName}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, animationName: e.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>timeScale</span>
+                    <input type="number" defaultValue={timeScale} step={0.1} min={0}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: parseFloat(e.target.value) || 1 } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>playTimes</span>
+                    <input type="number" defaultValue={playTimes} min={0}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playTimes: parseInt(e.target.value) || 0 } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{playTimes === 0 ? '(loop∞)' : `×${playTimes}`}</span>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
+                    <input type="checkbox" checked={loop}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ margin: 0, accentColor: '#4ade80' }}
+                    />loop
+                  </label>
+                </div>
+              )
+            }
             // R1546: sp.Skeleton — Spine 애니메이션 Quick Edit
             if (comp.type === 'sp.Skeleton') {
               const defaultSkin = String(p.defaultSkin ?? 'default')

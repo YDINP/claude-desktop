@@ -16426,6 +16426,25 @@ console.log('\n## 439. R1548 SceneView 캔버스 해상도 preset picker 체크'
   }
 }
 
+// ── Section 440: R1549 dragonBones.ArmatureDisplay extractor ─────
+console.log('\n## 440. R1549 dragonBones.ArmatureDisplay DragonBones 컴포넌트 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s440p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s440ui = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s440p.includes("'dragonBones.ArmatureDisplay'") && s440p.includes('armatureName') && s440p.includes('animationName') && s440p.includes('playTimes')) {
+    log('pass', 'R1549-parser', 'dragonBones.ArmatureDisplay extractor 구현 (armature/animation/timeScale/loop/playTimes)')
+  } else {
+    log('warning', 'R1549-parser', 'dragonBones.ArmatureDisplay extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s440ui.includes("comp.type === 'dragonBones.ArmatureDisplay'") && s440ui.includes('armatureName') && s440ui.includes('playTimes')) {
+    log('pass', 'R1549-ui', 'Inspector dragonBones Quick Edit UI (armature/animation/timeScale/playTimes/loop)')
+  } else {
+    log('warning', 'R1549-ui', 'dragonBones Inspector UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
