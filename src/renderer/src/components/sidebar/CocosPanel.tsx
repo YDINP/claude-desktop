@@ -4747,6 +4747,37 @@ function CCFileNodeInspector({
           </div>
         )
       })()}
+      {/* R1497: Raw JSON 뷰 */}
+      {secHeader('rawJson', 'Raw JSON')}
+      {!collapsed['rawJson'] && (
+        <div style={{ marginTop: 4 }}>
+          <pre style={{
+            fontSize: 8, fontFamily: 'monospace', color: '#556', background: 'rgba(0,0,0,0.2)',
+            borderRadius: 3, padding: '4px 6px', overflowX: 'auto', maxHeight: 160, overflowY: 'auto',
+            userSelect: 'text', whiteSpace: 'pre-wrap', wordBreak: 'break-all',
+          }}>
+            {JSON.stringify({
+              uuid: draft.uuid,
+              name: draft.name,
+              active: draft.active,
+              position: draft.position,
+              rotation: draft.rotation,
+              scale: draft.scale,
+              size: draft.size,
+              anchor: draft.anchor,
+              opacity: draft.opacity,
+              color: draft.color,
+              components: draft.components.map(c => ({ type: c.type, props: c.props })),
+            }, null, 2)}
+          </pre>
+          <button
+            onClick={() => navigator.clipboard.writeText(JSON.stringify(draft, null, 2)).catch(() => {})}
+            style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', marginTop: 3, background: 'transparent', border: '1px solid #444', color: '#666' }}
+          >
+            JSON 복사
+          </button>
+        </div>
+      )}
       {/* Round 643: 저장 완료 토스트 */}
       {savedToast && (
         <div style={{

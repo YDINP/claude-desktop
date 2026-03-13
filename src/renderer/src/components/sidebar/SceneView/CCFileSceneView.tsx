@@ -1192,8 +1192,26 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             background: 'rgba(10,10,20,0.85)', border: '1px solid #333',
             borderRadius: 4, overflow: 'hidden', cursor: 'pointer',
           }}
-            onClick={() => setShowMinimap(false)}
-            title="미니맵 (클릭하여 숨김)"
+            onClick={e => {
+              // R1498: 클릭한 미니맵 좌표 → 씬 좌표 → pan
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+              const mmX = e.clientX - rect.left
+              const mmY = e.clientY - rect.top
+              // 미니맵 → 씬 좌표 역변환
+              const scX = (mmX - ofX) / s + sceneX
+              const scY = sceneH - (mmY - ofY) / s + sceneY
+              const svgEl = svgRef.current
+              if (!svgEl) return
+              const svgRect = svgEl.getBoundingClientRect()
+              const z = viewRef.current.zoom
+              // ccToSvg 역변환: svgX = scX * 1 (scale=1 assumed), svgY = -scY (Y 반전)
+              setView(v => ({
+                ...v,
+                offsetX: svgRect.width / 2 - scX * z,
+                offsetY: svgRect.height / 2 + scY * z,
+              }))
+            }}
+            title="미니맵 — 클릭하여 해당 위치로 이동"
           >
             <svg width={MM_W} height={MM_H}>
               {/* 씬 경계 */}
