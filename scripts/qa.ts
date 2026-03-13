@@ -9837,6 +9837,74 @@ if (existsSync(sl977Path)) {
   }
 }
 
+console.log('\n## 237. Phase DD10 R978~980 기능 체크')
+// R978: ChatPanel 메시지 통계
+const cp978Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp978Path)) {
+  const cp978 = readFileSync(cp978Path, 'utf-8')
+  if (cp978.includes('msgStats') || cp978.includes('showMsgStats') || cp978.includes('messageStats')) {
+    log('pass', 'R978', 'ChatPanel 메시지 통계 존재')
+  } else {
+    log('warning', 'R978', 'ChatPanel 메시지 통계 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R979: InputBar 텍스트 확장
+const ib979Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib979Path)) {
+  const ib979 = readFileSync(ib979Path, 'utf-8')
+  if (ib979.includes('expandedInput') || ib979.includes('inputMaxHeight') || ib979.includes('inputExpand')) {
+    log('pass', 'R979', 'InputBar 텍스트 확장 존재')
+  } else {
+    log('warning', 'R979', 'InputBar 텍스트 확장 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R980: CocosPanel 플러그인 관리
+const cocos980Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos980Path)) {
+  const cocos980 = readFileSync(cocos980Path, 'utf-8')
+  if (cocos980.includes('showPluginManager') || cocos980.includes('pluginList') || cocos980.includes('plugins')) {
+    log('pass', 'R980', 'CocosPanel 플러그인 관리 존재')
+  } else {
+    log('warning', 'R980', 'CocosPanel 플러그인 관리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 238. Phase DD10 R981~983 기능 체크')
+// R981: SceneViewPanel 씬 북마크
+const svp981Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp981Path)) {
+  const svp981 = readFileSync(svp981Path, 'utf-8')
+  if (svp981.includes('sceneBookmarks') || svp981.includes('showBookmarks') || svp981.includes('bookmarkScene')) {
+    log('pass', 'R981', 'SceneViewPanel 씬 북마크 존재')
+  } else {
+    log('warning', 'R981', 'SceneViewPanel 씬 북마크 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R982: TerminalPanel 폰트 설정
+const tp982Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp982Path)) {
+  const tp982 = readFileSync(tp982Path, 'utf-8')
+  if (tp982.includes('termFontSize') || tp982.includes('termFontFamily') || tp982.includes('termFont')) {
+    log('pass', 'R982', 'TerminalPanel 폰트 설정 존재')
+  } else {
+    log('warning', 'R982', 'TerminalPanel 폰트 설정 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R983: SessionList 세션 잠금
+const sl983Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl983Path)) {
+  const sl983 = readFileSync(sl983Path, 'utf-8')
+  if (sl983.includes('lockedSessions') || sl983.includes('showLockConfirm') || sl983.includes('sessionLock')) {
+    log('pass', 'R983', 'SessionList 세션 잠금 존재')
+  } else {
+    log('warning', 'R983', 'SessionList 세션 잠금 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
