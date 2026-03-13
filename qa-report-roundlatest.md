@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:53:35.896Z
+> 2026-03-13T12:23:38.323Z
 
 ## Critical
 _없음_
@@ -739,3 +739,75 @@ _없음_
 - ChatPanel 스트리밍 속도 제어 존재
 - InputBar 자동 태그 감지 존재
 - CocosPanel 노드 복사 이력 존재
+- SceneViewPanel 트리 필터 존재
+- TerminalPanel 탭 그룹 존재
+- SessionList 세션 통계 존재
+- ChatPanel 메시지 반응 존재
+- InputBar 맞춤법 교정 존재
+- CocosPanel 노드 그룹 존재
+- SceneViewPanel 노드 별칭 편집기 존재
+- TerminalPanel 터미널 테마 존재
+- SessionList 세션 템플릿 존재
+- ChatPanel 핀 메시지 패널 존재
+- InputBar 멘션 제안 존재
+- CocosPanel 프리팹 검색 존재
+- SceneViewPanel 노드 가시성 그룹 존재
+- TerminalPanel 커맨드 스니펫 존재
+- SessionList 세션 코멘트 존재
+- ChatPanel 메시지 스케줄링 존재
+- InputBar 빠른 답장 존재
+- CocosPanel 씬 히스토리 존재
+- SceneViewPanel 컴포넌트 검색 존재
+- TerminalPanel 출력 캡처 존재
+- SessionList 세션 평점 존재
+- ChatPanel 메시지 드래프트 목록 존재
+- InputBar 슬래시 커맨드 메뉴 존재
+- CocosPanel 애니메이션 프리뷰 존재
+- SceneViewPanel 노드 프리팹 링크 존재
+- TerminalPanel 자동 제안 존재
+- SessionList 세션 리마인더 존재
+- ChatPanel 채팅 내보내기 옵션 존재
+- InputBar 입력 히스토리 탐색 존재
+- CocosPanel 노드 이벤트 로그 존재
+- SceneViewPanel 씬 노트 패널 존재
+- TerminalPanel 터미널 녹화 존재
+- SessionList 세션 워크플로우 존재
+- ChatPanel 메시지 폴더 존재
+- InputBar 컨텍스트 도움말 존재
+- CocosPanel 머티리얼 인스펙터 존재
+- SceneViewPanel 바운딩 박스 오버레이 존재
+- TerminalPanel 분할 뷰 존재
+- SessionList 세션 관계 그래프 존재
+- ChatPanel 메시지 스레딩 존재
+- InputBar 토큰 카운터 존재
+- CocosPanel 물리 디버그 오버레이 존재
+- SceneViewPanel 씬 프로파일러 존재
+- TerminalPanel 터미널 검색 존재
+- SessionList 세션 북마크 존재
+- ChatPanel AI 어시스트 모드 존재
+- InputBar 이미지 첨부 존재
+- CocosPanel 스크립트 에디터 존재
+- SceneViewPanel 렌더 모드 전환 존재
+- TerminalPanel 환경변수 편집기 존재
+- SessionList 세션 히트맵 존재
+- ChatPanel 읽음 확인 존재
+- InputBar 파일 드롭존 존재
+- CocosPanel 스프라이트 에디터 존재
+- SceneViewPanel 라이팅 디버그 존재
+- TerminalPanel 출력 스로틀 존재
+- SessionList 세션 내보내기 옵션 존재
+- ChatPanel 대화 인사이트 존재
+- InputBar 코드 자동완성 존재
+- CocosPanel 파티클 에디터 존재
+- SceneViewPanel 카메라 FOV 컨트롤 존재
+- TerminalPanel 터미널 매크로 존재
+- SessionList 세션 중복 감지 존재
+- ChatPanel 메시지 분석 패널 존재
+- InputBar 텍스트 변환 메뉴 존재
+- CocosPanel 오디오 에디터 존재
+- SceneViewPanel 기즈모 설정 존재
+- TerminalPanel 출력 페이징 존재
+- SessionList 세션 카테고리 존재
+- ChatPanel 채팅 노트 존재
+- InputBar 문법 검사 존재
+- CocosPanel 타일맵 에디터 존재

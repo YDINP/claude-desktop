@@ -829,6 +829,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showInsightsPanel, setShowInsightsPanel] = useState(false)
   const [messageAnalytics, setMessageAnalytics] = useState<{ sent: number; received: number; avgLength: number } | null>(null)
   const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false)
+  const [chatNotes, setChatNotes] = useState<Record<string, string>>({})
+  const [showChatNotes, setShowChatNotes] = useState(false)
   const [pinnedMsgs, setPinnedMsgs] = useState<string[]>(() => JSON.parse(localStorage.getItem('pinned-msgs') ?? '[]'))
   const [chatStats, setChatStats] = useState<{ totalTokens: number; avgResponseTime: number; totalMsgs: number }>({ totalTokens: 0, avgResponseTime: 0, totalMsgs: 0 })
   const [copyFormat, setCopyFormat] = useState<'text' | 'markdown' | 'html'>('markdown')
@@ -1030,6 +1032,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [summaryLoading, setSummaryLoading] = useState<string | null>(null)
   const [msgExportFormat, setMsgExportFormat] = useState<'md' | 'txt' | 'html' | 'json'>('md')
   const [showMsgExportPanel, setShowMsgExportPanel] = useState(false)
+  const [chatAnalytics, setChatAnalytics] = React.useState<Record<string, number>>({})
+  const [showAnalyticsDashboard, setShowAnalyticsDashboard] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

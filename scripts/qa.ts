@@ -9259,6 +9259,40 @@ if (existsSync(sl926Path)) {
   }
 }
 
+console.log('\n## 220. Phase DD10 R927~929 기능 체크')
+// R927: ChatPanel 채팅 노트
+const cp927Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp927Path)) {
+  const cp927 = readFileSync(cp927Path, 'utf-8')
+  if (cp927.includes('chatNotes') || cp927.includes('showChatNotes') || cp927.includes('notepad')) {
+    log('pass', 'R927', 'ChatPanel 채팅 노트 존재')
+  } else {
+    log('warning', 'R927', 'ChatPanel 채팅 노트 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R928: InputBar 문법 검사
+const ib928Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib928Path)) {
+  const ib928 = readFileSync(ib928Path, 'utf-8')
+  if (ib928.includes('grammarCheck') || ib928.includes('grammarSuggestions') || ib928.includes('grammarErrors')) {
+    log('pass', 'R928', 'InputBar 문법 검사 존재')
+  } else {
+    log('warning', 'R928', 'InputBar 문법 검사 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R929: CocosPanel 타일맵 에디터
+const cocos929Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos929Path)) {
+  const cocos929 = readFileSync(cocos929Path, 'utf-8')
+  if (cocos929.includes('tileMapEditorOpen') || cocos929.includes('editingTileMap') || cocos929.includes('tileMapEditor')) {
+    log('pass', 'R929', 'CocosPanel 타일맵 에디터 존재')
+  } else {
+    log('warning', 'R929', 'CocosPanel 타일맵 에디터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
