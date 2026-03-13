@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, memo, useMemo, useTransition, type RefObject } from 'react'
+import React, { useEffect, useRef, useState, useCallback, memo, useMemo, useTransition, type RefObject } from 'react'
 
 // ── Model Selector ────────────────────────────────────────────────────────────
 const MODEL_DEFS = [
