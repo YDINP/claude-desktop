@@ -399,6 +399,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
   const clipboardRef = useRef<CCSceneNode | null>(null)
+  const [hideInactive, setHideInactive] = useState(false)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('cc-recent-files') ?? '[]') } catch { return [] }
   })
@@ -856,6 +857,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 return <span style={{ fontSize: 9, color: '#555', flexShrink: 0 }}>{nodes}N/{comps}C</span>
               })()}
               <TreeSearch root={sceneFile.root} onSelect={onSelectNode} />
+              <span
+                onClick={() => setHideInactive(h => !h)}
+                title={hideInactive ? '비활성 노드 표시' : '비활성 노드 숨기기'}
+                style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: hideInactive ? '#58a6ff' : '#555' }}
+              >
+                {hideInactive ? '◑' : '●'}
+              </span>
             </div>
             <CCFileSceneTree
               node={sceneFile.root}
@@ -867,6 +875,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onDelete={handleTreeDelete}
               onDuplicate={handleTreeDuplicate}
               onToggleActive={handleTreeToggleActive}
+              hideInactive={hideInactive}
             />
           </div>
           {/* 노드 인스펙터 */}
@@ -920,7 +929,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive,
 }: {
   node: CCSceneNode
   depth: number
@@ -931,6 +940,7 @@ function CCFileSceneTree({
   onDelete?: (uuid: string) => void
   onDuplicate?: (uuid: string) => void
   onToggleActive?: (uuid: string) => void
+  hideInactive?: boolean
 }) {
   const [collapsed, setCollapsed] = useState(depth > 2)
   const [isDragOver, setIsDragOver] = useState(false)
@@ -938,6 +948,9 @@ function CCFileSceneTree({
   const hasChildren = node.children.length > 0
   const isSelected = selected?.uuid === node.uuid
   const isRoot = depth === 0
+
+  // 비활성 숨기기 (루트 제외)
+  if (hideInactive && !node.active && !isRoot && !isSelected) return null
 
   return (
     <div>
@@ -1047,6 +1060,7 @@ function CCFileSceneTree({
           onDelete={onDelete}
           onDuplicate={onDuplicate}
           onToggleActive={onToggleActive}
+          hideInactive={hideInactive}
         />
       ))}
     </div>
