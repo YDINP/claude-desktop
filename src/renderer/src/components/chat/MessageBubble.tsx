@@ -260,22 +260,6 @@ const CodeBlock = memo(function CodeBlock({
   const isShellExecable = RUNNABLE_LANGS.includes(language.toLowerCase())
   const isJsRunnable = JS_LANGS.includes(language.toLowerCase()) && codeString.length < 1000
   const isDocable = DOC_LANGS.includes(language.toLowerCase())
-  // Button right positions (each slot is ~52px wide):
-  // Copy: 8
-  // 💡explain: 60
-  // 📝docs: 112 (no run) / 164 (with run)
-  // ▶shell:exec (inline): 60 (when isShellExecable, no JS/terminal btn)
-  //                        or 60 always when isShellExecable
-  // ▶terminal: 112 (when both isShellExecable + isRunnable)
-  // JS run: 60 (when isJsRunnable only)
-  const hasAnyRunBtn = isRunnable || isJsRunnable || isShellExecable
-  const docBtnRight = hasAnyRunBtn ? (isRunnable && isShellExecable ? 216 : 164) : 112
-  const explainRight = hasAnyRunBtn ? (isRunnable && isShellExecable ? 164 : 112) : 60
-  // inline exec button: right 60
-  // terminal button (if also present): right 112
-  const shellExecBtnRight = 60
-  const terminalBtnRight = isShellExecable ? 112 : 60
-  const runBtnRight = 60
 
   const hasOutput = runOutput !== null
   const isDiff = isDiffContent(language, codeString)
