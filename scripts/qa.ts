@@ -17382,6 +17382,18 @@ console.log('\n## 512. R1621 SceneView 같은 컴포넌트 타입 모두 선택 
   }
 }
 
+// ── Section 513: R1622 SceneView O키 중앙 이동 ──────────────────
+console.log('\n## 513. R1622 SceneView O키 선택 노드 중앙 이동 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s513 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s513.includes('R1622') && s513.includes('KeyO') && s513.includes('onMove?.(selectedUuid, 0, 0)') && s513.includes('중앙(0,0) 이동')) {
+    log('pass', 'R1622-key-o-center', 'SceneView O키 중앙 이동')
+  } else {
+    log('warning', 'R1622-key-o-center', 'SceneView O키 중앙 이동 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

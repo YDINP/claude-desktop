@@ -609,6 +609,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         onToggleActive?.(selectedUuid)
         return
       }
+      // R1622: O — 선택 노드 캔버스 중앙(0,0) 이동
+      if (e.code === 'KeyO' && !e.ctrlKey && !e.metaKey && selectedUuid) {
+        e.preventDefault()
+        onMove?.(selectedUuid, 0, 0)
+        return
+      }
       // R1483: Delete/Backspace — 다중 선택 일괄 삭제
       if (e.key === 'Delete' || e.key === 'Backspace') {
         const multi = multiSelectedRef.current
@@ -1917,6 +1923,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['Ctrl+D', '선택 노드 복제'],
             ['Ctrl+N', '새 노드 추가'],
             ['H', '선택 노드 숨기기/보이기'],
+            ['O', '선택 노드 중앙(0,0) 이동'],
             ['P', '부모 노드 선택'],
             ['Enter', '첫 번째 자식 선택'],
             ['Tab', '다음 형제 선택'],
