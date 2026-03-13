@@ -1,10 +1,13 @@
 import { ipcMain, dialog } from 'electron'
 import { detectCCVersion } from '../cc/cc-version-detector'
+import { parseCCScene } from '../cc/cc-file-parser'
 import {
   CC_FILE_DETECT,
   CC_FILE_OPEN_PROJECT,
   CC_FILE_LIST_SCENES,
+  CC_FILE_READ_SCENE,
 } from '../../shared/ipc-schema'
+import type { CCFileProjectInfo } from '../../shared/ipc-schema'
 
 let _registered = false
 
@@ -31,5 +34,18 @@ export function registerCCFileHandlers() {
   ipcMain.handle(CC_FILE_LIST_SCENES, async (_e, projectPath: string) => {
     const info = detectCCVersion(projectPath)
     return info.scenes ?? []
+  })
+
+  /** 씬 파일 파싱 → CCSceneFile 반환 */
+  ipcMain.handle(CC_FILE_READ_SCENE, async (
+    _e,
+    scenePath: string,
+    projectInfo: CCFileProjectInfo
+  ) => {
+    try {
+      return parseCCScene(scenePath, projectInfo)
+    } catch (e) {
+      return { error: String(e) }
+    }
   })
 }

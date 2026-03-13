@@ -295,6 +295,11 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('cc:file:openProject'),
   ccFileListScenes: (projectPath: string): Promise<string[]> =>
     ipcRenderer.invoke('cc:file:listScenes', projectPath),
+  ccFileReadScene: (
+    scenePath: string,
+    projectInfo: import('../shared/ipc-schema').CCFileProjectInfo
+  ): Promise<import('../shared/ipc-schema').CCSceneFile | { error: string }> =>
+    ipcRenderer.invoke('cc:file:readScene', scenePath, projectInfo),
 })
 
 declare global {
@@ -506,6 +511,10 @@ declare global {
       ccFileDetect: (projectPath: string) => Promise<import('../shared/ipc-schema').CCFileProjectInfo>
       ccFileOpenProject: () => Promise<import('../shared/ipc-schema').CCFileProjectInfo | null>
       ccFileListScenes: (projectPath: string) => Promise<string[]>
+      ccFileReadScene: (
+        scenePath: string,
+        projectInfo: import('../shared/ipc-schema').CCFileProjectInfo
+      ) => Promise<import('../shared/ipc-schema').CCSceneFile | { error: string }>
     }
   }
 }
