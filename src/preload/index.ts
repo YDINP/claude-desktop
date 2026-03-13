@@ -287,6 +287,14 @@ contextBridge.exposeInMainWorld('api', {
   ccInstallExtension: (projectPath: string, version: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:installExtension', projectPath, version),
   ccOpenEditor: (projectPath: string, version: string, creatorVersion?: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:openEditor', projectPath, version, creatorVersion),
   ccGetAssets: (port: number): Promise<AssetTree> => ipcRenderer.invoke('cc:get-assets', port),
+
+  // CC File-based Engine (Phase A)
+  ccFileDetect: (projectPath: string): Promise<import('../shared/ipc-schema').CCFileProjectInfo> =>
+    ipcRenderer.invoke('cc:file:detect', projectPath),
+  ccFileOpenProject: (): Promise<import('../shared/ipc-schema').CCFileProjectInfo | null> =>
+    ipcRenderer.invoke('cc:file:openProject'),
+  ccFileListScenes: (projectPath: string): Promise<string[]> =>
+    ipcRenderer.invoke('cc:file:listScenes', projectPath),
 })
 
 declare global {
@@ -494,6 +502,10 @@ declare global {
       ccInstallExtension?: (projectPath: string, version: string) => Promise<{ success: boolean; message: string }>
       ccOpenEditor?: (projectPath: string, version: string, creatorVersion?: string) => Promise<{ success: boolean; message: string }>
       ccGetAssets?: (port: number) => Promise<import('../shared/ipc-schema').AssetTree>
+      // CC File-based Engine (Phase A)
+      ccFileDetect: (projectPath: string) => Promise<import('../shared/ipc-schema').CCFileProjectInfo>
+      ccFileOpenProject: () => Promise<import('../shared/ipc-schema').CCFileProjectInfo | null>
+      ccFileListScenes: (projectPath: string) => Promise<string[]>
     }
   }
 }

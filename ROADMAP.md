@@ -1,11 +1,12 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 413 완료 — RunTimeline 전체 런 요약 복사, Pass 433)
+> 마지막 업데이트: 2026-03-13 (Round 414 완료 — CC 파일 기반 엔진 Phase A: 버전감지 모듈, Pass 433)
 
 ## 완료된 라운드
 
 | 라운드 | 브랜치 | 주요 작업 | 상태 |
 |--------|--------|-----------|------|
+| Round 414 | dev | CC 파일 기반 엔진 Phase A-1 (CC-버전감지): cc-version-detector.ts, CCFileProjectInfo/CCSceneNode 타입, cc-file-handlers IPC, preload 노출 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

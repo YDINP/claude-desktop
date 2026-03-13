@@ -6,6 +6,7 @@ import { registerTerminalHandlers } from './terminal-handlers'
 import { registerFsHandlers } from './fs-handlers'
 import { registerSessionHandlers } from './session-handlers'
 import { registerCCHandlers } from './cc-handlers'
+import { registerCCFileHandlers } from './cc-file-handlers'
 import { registerOllamaHandlers } from './ollama-handlers'
 import { registerOpenAIHandlers } from './openai-handlers'
 
@@ -18,6 +19,7 @@ export function registerAllHandlers(win: BrowserWindow) {
   registerFsHandlers(win)
   registerSessionHandlers()
   registerCCHandlers(win)
+  registerCCFileHandlers()
   registerOllamaHandlers(win)
   registerOpenAIHandlers(win)
 

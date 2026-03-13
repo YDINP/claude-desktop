@@ -143,6 +143,66 @@ export interface CCProjectInfo {
   name?: string
 }
 
+// ── CC File-based Engine (Phase A) ────────────────────────────────────────────
+export const CC_FILE_DETECT = 'cc:file:detect'
+export const CC_FILE_OPEN_PROJECT = 'cc:file:openProject'
+export const CC_FILE_LIST_SCENES = 'cc:file:listScenes'
+export const CC_FILE_READ_SCENE = 'cc:file:readScene'
+export const CC_FILE_SAVE_SCENE = 'cc:file:saveScene'
+
+/** 파일 기반 CC 프로젝트 정보 (Phase A) */
+export interface CCFileProjectInfo {
+  detected: boolean
+  version?: '2x' | '3x'
+  creatorVersion?: string
+  name?: string
+  projectPath?: string
+  assetsDir?: string
+  scenes?: string[]
+  port?: number
+}
+
+export interface CCVec2 { x: number; y: number }
+export interface CCVec3 { x: number; y: number; z: number }
+export interface CCColor { r: number; g: number; b: number; a: number }
+
+export interface CCSceneComponent {
+  type: string
+  props: Record<string, unknown>
+}
+
+/**
+ * 통합 씬 노드 타입 — SSOT (QA C-3/C-4 해결)
+ * CC 2.x .fire / CC 3.x .scene 모두 이 타입으로 정규화
+ */
+export interface CCSceneNode {
+  uuid: string
+  name: string
+  active: boolean
+  position: CCVec3
+  /** 2.x: z-euler number | 3.x: {x,y,z} euler */
+  rotation: CCVec3 | number
+  scale: CCVec3
+  /** UITransform / _contentSize 기반 */
+  size: CCVec2
+  anchor: CCVec2
+  opacity: number
+  color: CCColor
+  layer?: number
+  components: CCSceneComponent[]
+  children: CCSceneNode[]
+  /** 원본 flat 배열 인덱스 (직접 편집용) */
+  _rawIndex?: number
+}
+
+export interface CCSceneFile {
+  projectInfo: CCFileProjectInfo
+  scenePath: string
+  root: CCSceneNode
+  /** 원본 flat 배열 (patch 기반 저장용) */
+  _raw?: unknown[]
+}
+
 // ── AG-UI Protocol Events ─────────────────────────────────────────────────────
 export interface AguiRunStarted {
   type: 'run_started'
