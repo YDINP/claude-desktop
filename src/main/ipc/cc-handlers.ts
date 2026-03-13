@@ -49,7 +49,7 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
     }
   })
 
-  ipcMain.handle(CC_GET_ASSETS, async (_e, port: number) => {
+  ipcMain.handle(CC_GET_ASSETS, async (_e, port = 9090) => {
     try {
       return await getCCBridge(port).getAssets()
     } catch (e) {

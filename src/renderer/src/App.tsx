@@ -412,7 +412,12 @@ function AppContent() {
           next = ['chat', 'scene', ...next.filter(t => t !== 'chat')]
         }
         if (!next.includes('preview')) {
-          next = [next[0], next[1], 'preview', ...next.slice(2)]
+          const sceneIdx = next.indexOf('scene')
+          if (sceneIdx !== -1) {
+            next = [...next.slice(0, sceneIdx + 1), 'preview', ...next.slice(sceneIdx + 1)]
+          } else {
+            next = ['chat', 'preview', ...next.filter(t => t !== 'chat')]
+          }
         }
         return next
       }
@@ -848,7 +853,9 @@ function AppContent() {
     if (workspaces.length === 0) return
     const wsData = workspaces.map(w => {
       if (w.id === activeWsId) {
-        return { path: w.path, openTabs, activeTab }
+        const safeTabs = openTabs.filter(t => t !== 'scene' && t !== 'preview')
+        const safeActive = activeTab === 'scene' || activeTab === 'preview' ? 'chat' : activeTab
+        return { path: w.path, openTabs: safeTabs, activeTab: safeActive }
       }
       return { path: w.path, openTabs: w.snapshot.openTabs, activeTab: w.snapshot.activeTab }
     })
