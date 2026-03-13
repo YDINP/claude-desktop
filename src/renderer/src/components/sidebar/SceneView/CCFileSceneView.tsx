@@ -1197,6 +1197,35 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               style={{ pointerEvents: 'none' }}
             />
           )}
+          {/* R1525: 다중 노드 경계 박스 (BBox) overlay — 주황 점선 */}
+          {multiSelected.size > 1 && (() => {
+            const selNodes = flatNodes.filter(fn => multiSelected.has(fn.node.uuid) && fn.node.size?.x && fn.node.size?.y)
+            if (selNodes.length < 2) return null
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+            for (const { node, worldX, worldY } of selNodes) {
+              const sp = ccToSvg(worldX, worldY)
+              const w = node.size!.x, h = node.size!.y
+              const ax = node.anchor?.x ?? 0.5, ay = node.anchor?.y ?? 0.5
+              const left = sp.x - w * ax, right = sp.x + w * (1 - ax)
+              const top = sp.y - h * (1 - ay), bot = sp.y + h * ay
+              if (left < minX) minX = left
+              if (right > maxX) maxX = right
+              if (top < minY) minY = top
+              if (bot > maxY) maxY = bot
+            }
+            const pad = 4 / view.zoom
+            return (
+              <rect
+                x={minX - pad} y={minY - pad}
+                width={maxX - minX + pad * 2} height={maxY - minY + pad * 2}
+                fill="none"
+                stroke="#ff9944"
+                strokeWidth={1.5 / view.zoom}
+                strokeDasharray={`${5 / view.zoom} ${3 / view.zoom}`}
+                style={{ pointerEvents: 'none' }}
+              />
+            )
+          })()}
         </g>
       </svg>
       {/* R1522: 노드 호버 정보 패널 */}

@@ -16171,6 +16171,25 @@ if (existsSync(panel427)) {
   }
 }
 
+// ── Section 428: R1525 SceneView 다중 노드 BBox overlay 체크 ──────────────────────
+console.log('\n## 428. R1525 SceneView 다중 노드 경계 박스 (BBox) overlay 체크')
+const sv428 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv428)) {
+  const s428 = readFileSync(sv428, 'utf-8')
+  if (s428.includes('R1525') && s428.includes('multiSelected.size > 1') && s428.includes('minX') && s428.includes('maxX')) {
+    log('pass', 'R1525-bbox-calc', 'BBox min/max 계산 (선택 노드 좌표 누산) 구현')
+  } else {
+    log('warning', 'R1525-bbox-calc', 'BBox 계산 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s428.includes('ff9944') && s428.includes('strokeDasharray') && s428.includes('포인터Events')) {
+    log('pass', 'R1525-bbox-render', 'BBox 주황 점선 rect 렌더링 구현')
+  } else if (s428.includes('ff9944') && s428.includes('strokeDasharray')) {
+    log('pass', 'R1525-bbox-render', 'BBox 주황 점선 rect 렌더링 구현')
+  } else {
+    log('warning', 'R1525-bbox-render', 'BBox rect 렌더링 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
