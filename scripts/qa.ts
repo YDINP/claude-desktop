@@ -14766,6 +14766,48 @@ if (existsSync(cfp1400Path)) {
   }
 }
 
+// ── Section 381: 런타임 에러 방지 — React import 검사 ────────────────────────
+{
+  const RENDERER = join(ROOT, 'src/renderer/src/components')
+  const checkFiles = [
+    ['chat/ChatPanel.tsx', 'ChatPanel'],
+    ['chat/InputBar.tsx', 'InputBar'],
+    ['terminal/TerminalPanel.tsx', 'TerminalPanel'],
+    ['sidebar/CocosPanel.tsx', 'CocosPanel'],
+    ['sidebar/SceneView/SceneViewPanel.tsx', 'SceneViewPanel'],
+    ['sidebar/SessionList.tsx', 'SessionList'],
+  ]
+  for (const [rel, name] of checkFiles) {
+    const fpath = join(RENDERER, rel)
+    if (!existsSync(fpath)) continue
+    const src = readFileSync(fpath, 'utf-8')
+    const hasReactDotUsage = /React\.(useState|useEffect|useCallback|useRef|useMemo|createContext|forwardRef)\b/.test(src)
+    const hasReactImport = /^import React[,\s]/.test(src)
+    if (hasReactDotUsage && !hasReactImport) {
+      log('critical', 'RuntimeError', `${name}: React.* 사용하지만 import React 없음 — 런타임 ReferenceError 발생`, rel)
+    } else {
+      log('pass', 'RuntimeError', `${name}: React import 정상`)
+    }
+  }
+}
+
+// ── Section 382: useState TDZ 검사 ────────────────────────────────────────────
+{
+  const chatPanelPath = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+  if (existsSync(chatPanelPath)) {
+    const src = readFileSync(chatPanelPath, 'utf-8')
+    const lines = src.split('\n')
+    // useMemo/useEffect 보다 useState 선언이 앞에 있는지 확인 (displayMessages)
+    const memoIdx = lines.findIndex(l => l.includes('displayMessages') && l.includes('useMemo'))
+    const stateIdx = lines.findIndex(l => l.includes('showOnlyBookmarks') && l.includes('useState'))
+    if (memoIdx !== -1 && stateIdx !== -1 && stateIdx > memoIdx) {
+      log('critical', 'RuntimeError', 'ChatPanel: showOnlyBookmarks useState가 useMemo보다 뒤에 선언됨 (TDZ)', 'chat/ChatPanel.tsx')
+    } else {
+      log('pass', 'RuntimeError', 'ChatPanel: showOnlyBookmarks TDZ 없음')
+    }
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
