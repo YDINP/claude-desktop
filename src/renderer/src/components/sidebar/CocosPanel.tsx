@@ -5659,6 +5659,26 @@ function CCFileNodeInspector({
             patch = { active: !draft.active }
           } else if ((op === 'anchor' || op === 'ax') && nums.length >= 2 && !isNaN(nums[0]) && !isNaN(nums[1])) {
             patch = { anchor: { x: Math.max(0,Math.min(1,nums[0])), y: Math.max(0,Math.min(1,nums[1])) } }
+          // R1560: 추가 명령어
+          } else if (op === 'layer' && nums.length >= 1 && !isNaN(nums[0])) {
+            patch = { layer: Math.round(nums[0]) }
+          } else if (op === 'tag' && nums.length >= 1 && !isNaN(nums[0])) {
+            patch = { tag: Math.round(nums[0]) }
+          } else if (op === 'z' && nums.length >= 1 && !isNaN(nums[0])) {
+            const pos = draft.position as { x: number; y: number; z?: number }
+            patch = { position: { ...pos, z: nums[0] } }
+          } else if (op === 'flip' && parts[1]) {
+            const axis = parts[1].toLowerCase()
+            const sc = draft.scale as { x: number; y: number; z?: number }
+            if (axis === 'x') patch = { scale: { ...sc, x: -sc.x } }
+            else if (axis === 'y') patch = { scale: { ...sc, y: -sc.y } }
+          } else if (op === 'reset') {
+            patch = { position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, opacity: 255 }
+          } else if (op === 'help' || op === '?') {
+            setCliMsg('pos|size|rot|scale|alpha|color|name|active|anchor|layer|tag|z|flip x/y|reset')
+            setTimeout(() => setCliMsg(null), 4000)
+            setCliVal('')
+            return
           }
           if (patch) {
             applyAndSave(patch)
@@ -5666,7 +5686,7 @@ function CCFileNodeInspector({
             setTimeout(() => setCliMsg(null), 1500)
             setCliVal('')
           } else {
-            setCliMsg('? 알 수 없는 명령')
+            setCliMsg('? 알 수 없는 명령 (help/?로 목록)')
             setTimeout(() => setCliMsg(null), 2000)
           }
         }
@@ -5678,12 +5698,12 @@ function CCFileNodeInspector({
                 value={cliVal}
                 onChange={e => setCliVal(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { runCmd(cliVal); e.preventDefault() } }}
-                placeholder="pos X Y · size W H · rot Z · name ..."
+                placeholder="pos X Y · size W H · rot Z · help/?로 목록"
                 style={{
                   flex: 1, fontSize: 9, background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)',
                   color: 'var(--text-secondary)', borderRadius: 3, padding: '2px 5px', fontFamily: 'monospace',
                 }}
-                title="R1508 Quick Edit: pos X Y | size W H | rot Z | scale SX SY | alpha A | color #RRGGBB | name N | active/inactive/toggle | anchor AX AY"
+                title="R1508/R1560 Quick Edit: pos|size|rot|scale|alpha|color|name|active/inactive/toggle|anchor|layer|tag|z|flip x/y|reset|help"
               />
               {cliMsg && <span style={{ fontSize: 9, color: cliMsg.startsWith('✓') ? '#4ade80' : '#f85149', flexShrink: 0 }}>{cliMsg}</span>}
             </div>
