@@ -544,6 +544,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         }
         return
       }
+      // R1580: Tab / Shift+Tab — 형제 노드 탐색 (다음/이전)
+      if (e.code === 'Tab' && !e.ctrlKey && !e.metaKey && selectedUuid) {
+        e.preventDefault()
+        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+        if (fn?.parentUuid) {
+          const parentFn = flatNodes.find(f => f.node.uuid === fn.parentUuid)
+          if (parentFn) {
+            const siblings = parentFn.node.children
+            const idx = siblings.findIndex(c => c.uuid === selectedUuid)
+            if (idx !== -1) {
+              const nextIdx = e.shiftKey
+                ? (idx - 1 + siblings.length) % siblings.length
+                : (idx + 1) % siblings.length
+              onSelect(siblings[nextIdx].uuid)
+            }
+          }
+        }
+        return
+      }
       // R1571: Enter — 선택 노드의 첫 번째 자식으로 포커스
       if (e.code === 'Enter' && !e.ctrlKey && !e.metaKey && selectedUuid) {
         const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
@@ -1704,6 +1723,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['H', '선택 노드 숨기기/보이기'],
             ['P', '부모 노드 선택'],
             ['Enter', '첫 번째 자식 선택'],
+            ['Tab', '다음 형제 선택'],
+            ['Shift+Tab', '이전 형제 선택'],
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', gap: 8 }}>
               <span style={{ color: '#58a6ff', minWidth: 100 }}>{k}</span>

@@ -16858,6 +16858,18 @@ console.log('\n## 470. R1579 cc.SkeletalAnimation Quick Edit 체크')
   }
 }
 
+// ── Section 471: R1580 SceneView Tab/Shift+Tab 형제 탐색 ────────────────
+console.log('\n## 471. R1580 SceneView Tab 형제 탐색 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s471 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s471.includes("code === 'Tab'") && s471.includes('shiftKey') && s471.includes('(idx - 1 + siblings.length)')) {
+    log('pass', 'R1580-tab-nav', 'Tab/Shift+Tab 형제 노드 탐색')
+  } else {
+    log('warning', 'R1580-tab-nav', 'Tab 형제 탐색 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
