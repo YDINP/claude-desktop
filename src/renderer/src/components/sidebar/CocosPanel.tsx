@@ -1004,6 +1004,14 @@ function CCFileNodeInspector({
   const [draft, setDraft] = useState<CCSceneNode>(() => ({ ...node }))
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+  const secHeader = (key: string, label: string) => (
+    <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
+      style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
+      <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{collapsed[key] ? '▸' : '▾'}</span>
+      <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>{label}</span>
+    </div>
+  )
 
   // 자식 노드 추가
   const handleAddChild = useCallback(async () => {
@@ -1164,39 +1172,44 @@ function CCFileNodeInspector({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 10px' }}>
-        <div>
-          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, fontWeight: 600 }}>위치</div>
-          {numInput('X', draft.position.x, v => applyAndSave({ position: { ...draft.position, x: v } }))}
-          {numInput('Y', draft.position.y, v => applyAndSave({ position: { ...draft.position, y: v } }))}
-          <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', fontWeight: 600 }}>회전</div>
-          {numInput('Z°', rotation, v => {
-            const r = typeof draft.rotation === 'number' ? v : { ...(draft.rotation as object), z: v } as CCSceneNode['rotation']
-            applyAndSave({ rotation: r })
-          })}
+      {secHeader('transform', '위치 / 크기 / 회전')}
+      {!collapsed['transform'] && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 10px' }}>
+          <div>
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>위치</div>
+            {numInput('X', draft.position.x, v => applyAndSave({ position: { ...draft.position, x: v } }))}
+            {numInput('Y', draft.position.y, v => applyAndSave({ position: { ...draft.position, y: v } }))}
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px' }}>회전</div>
+            {numInput('Z°', rotation, v => {
+              const r = typeof draft.rotation === 'number' ? v : { ...(draft.rotation as object), z: v } as CCSceneNode['rotation']
+              applyAndSave({ rotation: r })
+            })}
+          </div>
+          <div>
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>크기</div>
+            {numInput('W', draft.size.x, v => applyAndSave({ size: { ...draft.size, x: v } }))}
+            {numInput('H', draft.size.y, v => applyAndSave({ size: { ...draft.size, y: v } }))}
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px' }}>스케일</div>
+            {numInput('X', draft.scale.x, v => applyAndSave({ scale: { ...draft.scale, x: v } }), 0.01)}
+            {numInput('Y', draft.scale.y, v => applyAndSave({ scale: { ...draft.scale, y: v } }), 0.01)}
+          </div>
         </div>
-        <div>
-          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, fontWeight: 600 }}>크기</div>
-          {numInput('W', draft.size.x, v => applyAndSave({ size: { ...draft.size, x: v } }))}
-          {numInput('H', draft.size.y, v => applyAndSave({ size: { ...draft.size, y: v } }))}
-          <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', fontWeight: 600 }}>스케일</div>
-          {numInput('X', draft.scale.x, v => applyAndSave({ scale: { ...draft.scale, x: v } }), 0.01)}
-          {numInput('Y', draft.scale.y, v => applyAndSave({ scale: { ...draft.scale, y: v } }), 0.01)}
-        </div>
-      </div>
+      )}
 
-      <div style={{ marginTop: 4 }}>
-        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, fontWeight: 600 }}>앵커 / 불투명도</div>
+      {secHeader('anchor', '앵커 / 불투명도')}
+      {!collapsed['anchor'] && (
+      <div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0 6px' }}>
           {numInput('aX', draft.anchor.x, v => applyAndSave({ anchor: { ...draft.anchor, x: v } }), 0.01)}
           {numInput('aY', draft.anchor.y, v => applyAndSave({ anchor: { ...draft.anchor, y: v } }), 0.01)}
           {numInput('α', draft.opacity, v => applyAndSave({ opacity: Math.min(255, Math.max(0, Math.round(v))) }))}
         </div>
       </div>
+      )}
 
-      {/* 색상 */}
-      <div style={{ marginTop: 4 }}>
-        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, fontWeight: 600 }}>색상 (R/G/B/A)</div>
+      {secHeader('color', '색상')}
+      {!collapsed['color'] && (
+      <div style={{ marginTop: 0 }}>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           <input
             type="color"
@@ -1211,6 +1224,7 @@ function CCFileNodeInspector({
           {numInput('A', draft.color.a, v => applyAndSave({ color: { ...draft.color, a: Math.min(255,Math.max(0,Math.round(v))) } }))}
         </div>
       </div>
+      )}
 
       {/* 컴포넌트 props */}
       {draft.components.filter(c => {
