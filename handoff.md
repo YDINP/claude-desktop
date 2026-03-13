@@ -26,11 +26,14 @@
 - [x] R1518: Ctrl+Up/Down 형제 노드 순서 변경 (reorderInParent + legend 업데이트)
 - [x] R1519: QA Section 424 (Pass 1418)
 
-## 다음 예정 (R1520+)
-- [ ] R1520: cc-file-parser cc.RichText/cc.ProgressBar/cc.Slider 컴포넌트 파싱 강화
-- [ ] R1521: Inspector 노드 복사/붙여넣기 히스토리 UI (최근 5개 클립보드)
+- [x] R1520: cc-file-parser cc.Toggle/AudioSource/VideoPlayer extractor 추가 + Inspector Quick Edit UI (Toggle checkbox/ProgressBar slider/AudioSource volume+loop/RichText textarea)
+- [x] R1521: QA Section 425 (Pass 1422)
+
+## 다음 예정 (R1522+)
+- [ ] R1522: SceneView 노드 호버 정보 패널 강화 (컴포넌트 목록 + props 미리보기)
+- [ ] R1523: cc-file-parser cc.Animation 클립 목록 파싱 + Inspector 편집 UI
 
 ## 빌드/QA
 - Build: ✅ 성공
-- Critical: 0, Warning: 5, Pass: 1418
+- Critical: 0, Warning: 5, Pass: 1422
 - Branch: dev

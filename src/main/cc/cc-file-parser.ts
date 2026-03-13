@@ -310,6 +310,29 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
       intensity: e._intensity ?? e.intensity ?? 1,
     }
   },
+  // R1520: cc.Toggle — 체크박스 상태
+  'cc.Toggle': e => ({
+    isChecked: e._N$isChecked ?? e._isChecked ?? e.isChecked ?? false,
+    checkMark: e._N$checkMark ?? e._checkMark ?? e.checkMark,
+  }),
+  // R1520: cc.AudioSource — 오디오 클립 설정
+  'cc.AudioSource': e => ({
+    clip: e._N$clip ?? e._clip ?? e.clip,
+    volume: e._N$volume ?? e._volume ?? e.volume ?? 1,
+    loop: e._N$loop ?? e._loop ?? e.loop ?? false,
+    playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? false,
+    pitch: e._pitch ?? e.pitch ?? 1,
+  }),
+  // R1520: cc.VideoPlayer — 비디오 플레이어
+  'cc.VideoPlayer': e => ({
+    resourceType: e._N$resourceType ?? e._resourceType ?? e.resourceType ?? 0,
+    remoteURL: e._N$remoteURL ?? e._remoteURL ?? e.remoteURL ?? '',
+    volume: e._N$volume ?? e._volume ?? e.volume ?? 1,
+    loop: e._N$loop ?? e._loop ?? e.loop ?? false,
+    mute: e._N$mute ?? e._mute ?? e.mute ?? false,
+    keepAspectRatio: e._N$keepAspectRatio ?? e._keepAspectRatio ?? e.keepAspectRatio ?? true,
+    isFullscreen: e._N$isFullscreen ?? e._isFullscreen ?? e.isFullscreen ?? false,
+  }),
 }
 
 function extractComponentProps(type: string, e: RawEntry, isCC2x: boolean): Record<string, unknown> {

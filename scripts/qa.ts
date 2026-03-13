@@ -16094,6 +16094,35 @@ if (existsSync(cp424) && existsSync(sv424)) {
   }
 }
 
+// ── Section 425: R1520 컴포넌트 파싱 강화 + Inspector Quick Edit 체크 ──────────────────────
+console.log('\n## 425. R1520 cc.Toggle/AudioSource/VideoPlayer 파싱 강화 + Inspector Quick Edit')
+const parser425 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const cp425 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(parser425) && existsSync(cp425)) {
+  const p425 = readFileSync(parser425, 'utf-8')
+  const c425 = readFileSync(cp425, 'utf-8')
+  if (p425.includes("'cc.Toggle'") && p425.includes('isChecked') && p425.includes('R1520')) {
+    log('pass', 'R1520-toggle-parser', 'cc.Toggle extractor (isChecked) 파싱 추가')
+  } else {
+    log('warning', 'R1520-toggle-parser', 'cc.Toggle extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (p425.includes("'cc.AudioSource'") && p425.includes('playOnLoad') && p425.includes('pitch')) {
+    log('pass', 'R1520-audio-parser', 'cc.AudioSource extractor (volume/loop/playOnLoad/pitch) 파싱 추가')
+  } else {
+    log('warning', 'R1520-audio-parser', 'cc.AudioSource extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (p425.includes("'cc.VideoPlayer'") && p425.includes('remoteURL')) {
+    log('pass', 'R1520-video-parser', 'cc.VideoPlayer extractor (remoteURL/loop/mute) 파싱 추가')
+  } else {
+    log('warning', 'R1520-video-parser', 'cc.VideoPlayer extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (c425.includes('R1520') && c425.includes("comp.type === 'cc.Toggle'") && c425.includes("comp.type === 'cc.AudioSource'")) {
+    log('pass', 'R1520-inspector-ui', 'Inspector Quick Edit (Toggle/ProgressBar/AudioSource/RichText) 전용 UI 구현')
+  } else {
+    log('warning', 'R1520-inspector-ui', 'Inspector Quick Edit UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

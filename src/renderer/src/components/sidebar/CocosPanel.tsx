@@ -4434,6 +4434,91 @@ function CCFileNodeInspector({
               onMouseLeave={e => (e.currentTarget.style.color = '#666')}
             >✕</span>
           </div>
+          {/* R1520: 컴포넌트 전용 Quick Edit (Toggle/ProgressBar/AudioSource/RichText) */}
+          {!collapsedComps.has(comp.type) && (() => {
+            const p = comp.props
+            if (comp.type === 'cc.Toggle') {
+              const checked = !!(p.isChecked ?? false)
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '2px 0 4px 2px' }}>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>isChecked</span>
+                  <input type="checkbox" checked={checked}
+                    onChange={e => {
+                      const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: e.target.checked } } : c)
+                      applyAndSave({ components: updated })
+                    }}
+                  />
+                  <span style={{ fontSize: 9, color: checked ? '#4ade80' : '#888' }}>{checked ? '✓ checked' : '○ unchecked'}</span>
+                </div>
+              )
+            }
+            if (comp.type === 'cc.ProgressBar') {
+              const progress = Number(p.progress ?? 0)
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0 4px 2px' }}>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>progress</span>
+                  <input type="range" min={0} max={1} step={0.01} value={progress}
+                    onChange={e => {
+                      const v = parseFloat(e.target.value)
+                      const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, progress: v } } : c)
+                      applyAndSave({ components: updated })
+                    }}
+                    style={{ flex: 1 }}
+                  />
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Math.round(progress * 100)}%</span>
+                </div>
+              )
+            }
+            if (comp.type === 'cc.AudioSource') {
+              const volume = Number(p.volume ?? 1)
+              const loop = !!(p.loop ?? false)
+              const playOnLoad = !!(p.playOnLoad ?? false)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>volume</span>
+                    <input type="range" min={0} max={1} step={0.01} value={volume}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, volume: parseFloat(e.target.value) } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Math.round(volume * 100)}%</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={loop}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      /> loop
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={playOnLoad}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playOnLoad: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      /> playOnLoad
+                    </label>
+                  </div>
+                </div>
+              )
+            }
+            if (comp.type === 'cc.RichText') {
+              const str = String(p.string ?? p.String ?? '')
+              return (
+                <div style={{ padding: '2px 0 4px 2px' }}>
+                  <textarea
+                    defaultValue={str}
+                    rows={2}
+                    onBlur={e => {
+                      const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value } } : c)
+                      applyAndSave({ components: updated })
+                    }}
+                    style={{ width: '100%', boxSizing: 'border-box', fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', resize: 'vertical' }}
+                  />
+                </div>
+              )
+            }
+            return null
+          })()}
           {(!collapsedComps.has(comp.type) || typeMatchedComps !== null) && (() => {
             const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
             const allProps = Object.entries(comp.props).filter(([k]) => {
