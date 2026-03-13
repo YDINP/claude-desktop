@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 512 완료 — DD5-11 Inspector 컴포넌트 복사/붙여넣기)
+> 마지막 업데이트: 2026-03-13 (Round 534 완료 — Phase DD7 전체 완료, QA Pass 455)
 
 ## ★ 핵심 개발 방향
 
@@ -519,30 +519,45 @@
 | Round 522 | Inspector 컴포넌트 빠른 검색 필터 (3개 이상) | ✅ |
 | Round 523 | 씬뷰 레이어별 가시성 토글 (L 버튼 + CC 레이어 이름) | ✅ |
 
-### Phase DD7 — 예정 (Round 524~534) — AI 어시스턴트 + UX 고도화
+### Phase DD7 — ✅ 완료 (Round 524~534) — AI 어시스턴트 + UX 고도화
 
-#### 🔥 고우선순위 (AI 통합 강화)
+| 라운드 | 기능 | 상태 |
+|--------|------|------|
+| Round 524 | AI 씬 편집 — cc-action 가이드 컨텍스트 주입 + createNode/deleteNode/setActive | ✅ |
+| Round 525 | 씬뷰 노드 주석 (Annotation) — 스티커 메모 SVG 렌더링 (로컬 저장) | ✅ |
+| Round 526 | Inspector 변경 이력 — 속성 변경 타임라인 (최근 5개) | ✅ |
+| Round 527 | 채팅 메시지 북마크 — ★ 필터 뷰 (useMemo virtualizer) | ✅ |
+| Round 528 | 대화 내보내기 (MD/HTML/PDF) — ExportConversationButton | ✅ |
+| Round 529 | 시스템 프롬프트 변수 — resolveVars ({{date}}/{{project}}/{{model}}/{{day}}) | ✅ |
+| Round 530 | 씬뷰 Snap Grid — 1/2/4/8/16px 정밀 정렬 토글 | ✅ |
+| Round 531 | CC Extension 자동 재연결 — 10초 인터벌 포트 ping + ⚡ 버튼 | ✅ |
+| Round 532 | SessionList 날짜 그룹 헤더 — Today/Yesterday/이번 주/이전 | ✅ |
+| Round 533 | 파일 에디터 탭 미저장 ● 인디케이터 — dirtyTabs Set 추적 | ✅ |
+| Round 534 | QA 강화 + handoff.md + ROADMAP 갱신 | ✅ |
+
+### Phase DD8 — 예정 (Round 535~) — 고급 편집 + 성능
+
+#### 🔥 고우선순위
 | 라운드 | 기능 | 비고 |
 |--------|------|------|
-| Round 524 | **AI 씬 편집 인텐트** — 채팅에서 "버튼을 오른쪽 10px 이동"하면 ccSetProperty 자동 호출 | AI-native 씬 편집 |
-| Round 525 | **씬뷰 노드 주석 (Annotation)** — 씬에 스티커 메모 추가 (로컬 저장) | 협업/문서화 |
-| Round 526 | **Inspector 변경 이력** — 속성 변경 타임라인 (undo/redo 스택 시각화) | 디버깅 편의 |
+| Round 535 | **씬뷰 Undo/Redo** — Ctrl+Z/Y 노드 이동/속성 변경 되돌리기 | 편집 안전망 |
+| Round 536 | **다중 노드 정렬** — 선택 노드 가운데/왼쪽/오른쪽/균등 정렬 | 레이아웃 도구 |
+| Round 537 | **씬뷰 Ruler + Guide** — px 눈금자 + 드래그 가이드라인 | 정밀 배치 |
 
-#### 🟡 중우선순위 (채팅 UX)
+#### 🟡 중우선순위
 | 라운드 | 기능 | 비고 |
 |--------|------|------|
-| Round 527 | **채팅 메시지 북마크** — 별표 메시지 필터 뷰 | 중요 응답 재참조 |
-| Round 528 | **대화 내보내기 (MD/HTML)** — 세션 전체 Export 버튼 | 기존 saveFile 활용 |
-| Round 529 | **시스템 프롬프트 변수** — {{project}}, {{date}}, {{file}} 자동 치환 | 프롬프트 재사용성 |
+| Round 538 | **채팅 Tool call 타임라인** — Cursor 2.0 패턴 카드 UI | 에이전트 가시성 |
+| Round 539 | **Inline diff 렌더링** — file write 변경 시각화 | 편집 투명성 |
+| Round 540 | **StatusBar 토큰 카운터** — 컨텍스트 윈도우 진행 바 | 컨텍스트 관리 |
 
-#### 🟢 낮은우선순위 (품질 개선)
+#### 🟢 낮은우선순위
 | 라운드 | 기능 |
 |--------|------|
-| Round 530 | 씬뷰 Pixel Grid — 1px/2px/4px snap 정밀 정렬 |
-| Round 531 | CC Extension 자동 재연결 (포트 스캔 fallback) |
-| Round 532 | SessionList 날짜별 그룹 헤더 (Today/Yesterday/Earlier) |
-| Round 533 | 파일 에디터 탭 미저장 변경 표시 (● 인디케이터) |
-| Round 534 | QA 강화 + handoff.md 갱신 |
+| Round 541 | 씬뷰 선택 노드 복사/붙여넣기 (Ctrl+C/V 오프셋) |
+| Round 542 | 씬뷰 노드 그룹화 (G 키 → 부모 노드 생성) |
+| Round 543 | Inspector 배열 속성 편집 (add/remove 버튼) |
+| Round 544 | QA 강화 + handoff.md 갱신 |
 
 ## QA 프로세스
 

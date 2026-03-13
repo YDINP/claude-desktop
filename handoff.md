@@ -1,15 +1,15 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-13 (Round 534 완료)
+> 마지막 업데이트: 2026-03-13 (Round 534 완료 — Phase DD7 전체 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 534 (QA Section 104, Pass 455)
+- 마지막 커밋: Round 524 강화 (cc-action 가이드 주입, Pass 455)
 - 빌드: `npm run build` ✅
 - QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 455
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
 
-## Phase DD6 완료 (Round 513~534)
+## Phase DD6 완료 (Round 513~523)
 
 | 라운드 | 기능 |
 |--------|------|
@@ -20,7 +20,18 @@
 | R521 | 터치패드 2손가락 스크롤 패닝 (handleWheel else 분기) |
 | R522 | NodePropertyPanel 컴포넌트 검색 필터 (3개 이상) |
 | R523 | 씬뷰 레이어별 가시성 토글 (L 버튼 + CC 레이어 이름) |
-| R529 | 시스템 프롬프트 변수 치환 ({{date}} {{time}} {{project}} {{model}} {{day}}) |
+
+## Phase DD7 완료 (Round 524~534)
+
+| 라운드 | 기능 |
+|--------|------|
+| R524 | AI 씬 편집 — cc-action 가이드 컨텍스트 주입 + createNode/deleteNode/setActive 타입 |
+| R525 | 씬뷰 노드 주석 (Annotation) — 스티커 메모 SVG 렌더링 (로컬 저장) |
+| R526 | Inspector 변경 이력 — 속성 변경 타임라인 (최근 5개) |
+| R527 | 채팅 메시지 북마크 — ★ 필터 뷰 (useMemo virtualizer) |
+| R528 | 대화 내보내기 (MD/HTML/PDF) — ExportConversationButton |
+| R529 | 시스템 프롬프트 변수 — resolveVars ({{date}}/{{project}}/{{model}}/{{day}}) |
+| R530 | 씬뷰 Snap Grid — 1/2/4/8/16px 정밀 정렬 토글 |
 | R531 | CC Extension 자동 재연결 (10초 간격, ⚡ 버튼) |
 | R532 | SessionList 날짜별 그룹 헤더 (Today/Yesterday/이번 주/이번 달/이전) |
 | R533 | 파일 탭 미저장 ● 인디케이터 (onDirtyChange + dirtyTabs) |
@@ -30,10 +41,10 @@
 - CCFileSceneView.tsx:245 — panStart.current null in setView updater (offX/offY 캡처로 해결)
 - App.tsx — CC 탭 버튼 border/borderBottom 순서 충돌 경고 해소
 
-## 다음 예정 (Phase DD7 — Round 524~)
-- Round 524: AI 씬 편집 인텐트 (채팅에서 노드 이동/수정 → ccSetProperty 자동 호출)
-- Round 525: 씬뷰 노드 주석 (Annotation) — 스티커 메모 추가
-- Round 526: Inspector 변경 이력 — 속성 변경 타임라인
+## 다음 예정 (Phase DD8 — Round 535~)
+- Round 535: 씬뷰 Undo/Redo — Ctrl+Z/Y 노드 이동/속성 변경 되돌리기
+- Round 536: 다중 노드 정렬 — 가운데/왼쪽/오른쪽/균등 정렬
+- Round 537: 씬뷰 Ruler + Guide — px 눈금자 + 드래그 가이드라인
 
 ## Round 119 완료 항목 (최근 세션)
 
