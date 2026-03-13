@@ -1121,6 +1121,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // R1224: message group by
   const [msgGroupBy, setMsgGroupBy] = useState<'date' | 'sender' | 'topic' | 'none'>('none')
   const [showGroupByPanel, setShowGroupByPanel] = useState(false)
+  // R1230: message summary
+  const [msgSummaryView, setMsgSummaryView] = useState(false)
+  const [summaryDepth, setSummaryDepth] = useState<'brief' | 'detailed'>('brief')
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

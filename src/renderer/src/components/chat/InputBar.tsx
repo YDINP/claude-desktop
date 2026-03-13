@@ -375,6 +375,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   // R1225: syntax highlight
   const [syntaxHighlight, setSyntaxHighlight] = useState(true)
   const [syntaxTheme, setSyntaxTheme] = useState<'dark' | 'light' | 'monokai'>('dark')
+  // R1231: line numbers
+  const [showLineNumbers, setShowLineNumbers] = useState(false)
+  const [lineNumberStart, setLineNumberStart] = useState(1)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
