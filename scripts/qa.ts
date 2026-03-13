@@ -6809,6 +6809,41 @@ if (existsSync(svp716Path)) {
   }
 }
 
+// ── Section 150: Phase DD10 R717~719 기능 체크 ────────────────
+console.log('\n## 150. Phase DD10 R717~719 기능 체크')
+// R717: InputBar 템플릿 변수
+const ib717Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib717Path)) {
+  const ib717 = readFileSync(ib717Path, 'utf-8')
+  if (ib717.includes('templateVars') || ib717.includes('templateVarKeys') || ib717.includes('templateVar')) {
+    log('pass', 'R717', 'InputBar 템플릿 변수 자동완성 존재')
+  } else {
+    log('warning', 'R717', 'InputBar 템플릿 변수 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R718: CocosPanel 속성 즐겨찾기
+const cp718Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp718Path)) {
+  const cp718 = readFileSync(cp718Path, 'utf-8')
+  if (cp718.includes('favProps') || cp718.includes('showFavPropsOnly') || cp718.includes('fav-props')) {
+    log('pass', 'R718', 'CocosPanel 속성 즐겨찾기 존재')
+  } else {
+    log('warning', 'R718', 'CocosPanel 속성 즐겨찾기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R719: SessionList 세션 비교
+const sl719Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl719Path)) {
+  const sl719 = readFileSync(sl719Path, 'utf-8')
+  if (sl719.includes('compareMode') || sl719.includes('compareTargets') || sl719.includes('sessionCompare')) {
+    log('pass', 'R719', 'SessionList 세션 비교 모드 존재')
+  } else {
+    log('warning', 'R719', 'SessionList 세션 비교 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

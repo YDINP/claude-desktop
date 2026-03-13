@@ -211,6 +211,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [smartInput, setSmartInput] = useState<boolean>(() => localStorage.getItem('smart-input') === 'true')
   const [historySearch, setHistorySearch] = useState('')
   const [historySearchOpen, setHistorySearchOpen] = useState(false)
+  const [templateVars, setTemplateVars] = useState<Record<string, string>>({})
+  const [templateVarKeys, setTemplateVarKeys] = useState<string[]>([])
   const [varSuggestions, setVarSuggestions] = useState<string[]>([])
   const [varSuggestionsOpen, setVarSuggestionsOpen] = useState(false)
   const [varSuggestionsIdx, setVarSuggestionsIdx] = useState(0)

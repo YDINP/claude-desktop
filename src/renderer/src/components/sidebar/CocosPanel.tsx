@@ -1463,6 +1463,7 @@ function CCFileNodeInspector({
       return next
     })
   }, [])
+  const [showFavPropsOnly, setShowFavPropsOnly] = useState(false)
 
   // 노드 교체 시 draft + 컴포넌트 접힘 상태 + propSearch 초기화
   useMemo(() => { setDraft({ ...node }); setExpandedArrayProps(new Set()); setPropSearch(''); setShowPropSearch(false) }, [node.uuid])
