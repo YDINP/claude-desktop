@@ -459,6 +459,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1162: output search
   const [outputSearch, setOutputSearch] = React.useState('')
   const [outputSearchResults, setOutputSearchResults] = React.useState<number[]>([])
+  // R1168: SSH profiles
+  const [sshProfiles, setSshProfiles] = React.useState<Record<string, string>>({})
+  const [showSshPanel, setShowSshPanel] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

@@ -246,6 +246,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1160: build errors
   const [buildErrors, setBuildErrors] = useState<string[]>([])
   const [showBuildErrors, setShowBuildErrors] = useState(false)
+  // R1166: asset search
+  const [assetSearchQuery, setAssetSearchQuery] = useState('')
+  const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
