@@ -22,6 +22,7 @@ interface CCFileSceneViewProps {
   onResize?: (uuid: string, w: number, h: number) => void
   onRename?: (uuid: string, name: string) => void
   onRotate?: (uuid: string, angle: number) => void
+  onMultiMove?: (moves: Array<{ uuid: string; x: number; y: number }>) => void
 }
 
 /**
@@ -29,7 +30,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -53,6 +54,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const editInputRef = useRef<HTMLInputElement | null>(null)
   const isSpaceDownRef = useRef(false)
   const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set())
+  const multiSelectedRef = useRef(multiSelected)
+  multiSelectedRef.current = multiSelected
   const selBoxRef = useRef<{ startSvgX: number; startSvgY: number } | null>(null)
   const [selectionBox, setSelectionBox] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
 
@@ -361,15 +364,27 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         e.preventDefault()
         const step = e.shiftKey ? 10 : 1
         const [dx, dy] = arrows[e.code]
-        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
-        if (!fn) return
-        const pos = fn.node.position as { x: number; y: number }
-        onMove?.(selectedUuid, pos.x + dx * step, pos.y + dy * step)
+        const multi = multiSelectedRef.current
+        // 멀티셀렉트: 모든 선택 노드 일괄 이동
+        if (multi.size > 1) {
+          const moves = flatNodes
+            .filter(fn => multi.has(fn.node.uuid))
+            .map(fn => {
+              const p = fn.node.position as { x: number; y: number }
+              return { uuid: fn.node.uuid, x: p.x + dx * step, y: p.y + dy * step }
+            })
+          if (moves.length > 0) onMultiMove?.(moves)
+        } else {
+          const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+          if (!fn) return
+          const pos = fn.node.position as { x: number; y: number }
+          onMove?.(selectedUuid, pos.x + dx * step, pos.y + dy * step)
+        }
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleFitToSelected, selectedUuid, flatNodes, onMove])
+  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove])
 
   const transform = `translate(${view.offsetX}, ${view.offsetY}) scale(${view.zoom})`
 
@@ -920,6 +935,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             {alignBtn('▷', '우측 정렬', designW / 2 - w / 2, pos.y)}
             {alignBtn('△', '상단 정렬', pos.x, designH / 2 - h / 2)}
             {alignBtn('▽', '하단 정렬', pos.x, -(designH / 2 - h / 2))}
+            {multiSelected.size > 1 && (
+              <span style={{ color: '#ff9944', flexShrink: 0, pointerEvents: 'none' }}>
+                ⊕{multiSelected.size}개
+              </span>
+            )}
             <span style={{ color: '#58a6ff', flex: 1, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}>
               {node.name}
             </span>

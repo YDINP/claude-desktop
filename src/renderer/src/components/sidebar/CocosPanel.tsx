@@ -542,6 +542,16 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(updateRot(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  const handleMultiMove = useCallback(async (moves: Array<{ uuid: string; x: number; y: number }>) => {
+    if (!sceneFile?.root) return
+    function updateAll(n: CCSceneNode): CCSceneNode {
+      const m = moves.find(mv => mv.uuid === n.uuid)
+      if (m) return { ...n, position: { ...n.position, x: m.x, y: m.y } }
+      return { ...n, children: n.children.map(updateAll) }
+    }
+    await saveScene(updateAll(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   const handleSave = useCallback(async () => {
     if (!sceneFile?.root) return
     setSaving(true)
@@ -862,6 +872,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onResize={handleNodeResize}
               onRename={handleRenameInView}
               onRotate={handleNodeRotate}
+              onMultiMove={handleMultiMove}
               onSelect={uuid => {
                 if (!uuid) { onSelectNode(null); return }
                 const findNode = (n: CCSceneNode): CCSceneNode | null => {
