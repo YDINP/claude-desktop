@@ -316,6 +316,12 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.on('cc:file:changed', handler)
     return () => ipcRenderer.removeListener('cc:file:changed', handler)
   },
+  ccFileBuildUUIDMap: (assetsDir: string): Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>> =>
+    ipcRenderer.invoke('cc:file:buildUUIDMap', assetsDir),
+  ccFileResolveTexture: (uuid: string, assetsDir: string): Promise<string | null> =>
+    ipcRenderer.invoke('cc:file:resolveTexture', uuid, assetsDir),
+  ccFileExtractUUIDs: (raw: unknown[]): Promise<string[]> =>
+    ipcRenderer.invoke('cc:file:extractUUIDs', raw),
 })
 
 declare global {
@@ -539,6 +545,9 @@ declare global {
       ccFileWatch: (paths: string | string[]) => Promise<{ watching: number }>
       ccFileUnwatch: (paths?: string | string[]) => Promise<{ watching: number }>
       onCCFileChanged: (cb: (event: { type: string; path: string; timestamp: number }) => void) => () => void
+      ccFileBuildUUIDMap: (assetsDir: string) => Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>>
+      ccFileResolveTexture: (uuid: string, assetsDir: string) => Promise<string | null>
+      ccFileExtractUUIDs: (raw: unknown[]) => Promise<string[]>
     }
   }
 }

@@ -3,6 +3,7 @@ import { detectCCVersion } from '../cc/cc-version-detector'
 import { parseCCScene } from '../cc/cc-file-parser'
 import { saveCCScene, restoreFromBackup } from '../cc/cc-file-saver'
 import { ccFileWatcher } from '../cc/cc-file-watcher'
+import { buildUUIDMap, extractReferencedUUIDs, resolveTextureUrl } from '../cc/cc-asset-resolver'
 import {
   CC_FILE_DETECT,
   CC_FILE_OPEN_PROJECT,
@@ -89,5 +90,25 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
       await ccFileWatcher.close()
     }
     return { watching: ccFileWatcher.watchedCount }
+  })
+
+  /** UUID 맵 빌드 (assetsDir 전수 스캔) */
+  ipcMain.handle('cc:file:buildUUIDMap', async (_e, assetsDir: string) => {
+    const map = buildUUIDMap(assetsDir)
+    // Map → plain object (IPC 전달 가능하도록)
+    const obj: Record<string, { uuid: string; path: string; relPath: string; type: string }> = {}
+    for (const [k, v] of map) obj[k] = v
+    return obj
+  })
+
+  /** UUID → 텍스처 URL 변환 */
+  ipcMain.handle('cc:file:resolveTexture', async (_e, uuid: string, assetsDir: string) => {
+    const map = buildUUIDMap(assetsDir)
+    return resolveTextureUrl(uuid, map)
+  })
+
+  /** 씬 raw 배열에서 참조 UUID 목록 추출 */
+  ipcMain.handle('cc:file:extractUUIDs', async (_e, raw: unknown[]) => {
+    return extractReferencedUUIDs(raw)
   })
 }
