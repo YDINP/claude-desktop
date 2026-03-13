@@ -953,6 +953,8 @@ function CCFileNodeInspector({
   useMemo(() => { setDraft({ ...node }); setCollapsedComps(new Set()) }, [node.uuid])
   const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
   const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
+  const [draggingIdx, setDraggingIdx] = useState<number | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
 
   const rotation = typeof draft.rotation === 'number' ? draft.rotation : (draft.rotation as { z: number }).z ?? 0
 
@@ -1244,25 +1246,55 @@ function CCFileNodeInspector({
 
       {/* 컴포넌트 props */}
       {secHeader('comps', `컴포넌트 (${draft.components.length})`)}
-      {!collapsed['comps'] && draft.components.filter(c => {
+      {!collapsed['comps'] && (() => {
         const skipTypes = ['cc.UITransform', 'cc.Canvas', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
-        if (skipTypes.includes(c.type)) return false
-        return Object.values(c.props).some(v => {
-          if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return true
-          if (v && typeof v === 'object') {
-            if ('__uuid__' in (v as object)) return true
-            // 벡터 타입 {x,y} 또는 {x,y,z}
-            const keys = Object.keys(v as object).filter(k => typeof (v as Record<string, unknown>)[k] === 'number')
-            if (keys.length >= 2 && keys.length <= 3) return true
-          }
-          return false
+        const visibleComps = draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
+          if (skipTypes.includes(c.type)) return false
+          return Object.values(c.props).some(v => {
+            if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return true
+            if (v && typeof v === 'object') {
+              if ('__uuid__' in (v as object)) return true
+              const keys = Object.keys(v as object).filter(k => typeof (v as Record<string, unknown>)[k] === 'number')
+              if (keys.length >= 2 && keys.length <= 3) return true
+            }
+            return false
+          })
         })
-      }).map((comp, ci) => (
-        <div key={`${node.uuid}-${ci}`} style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 5 }}>
+        return visibleComps.map(({ comp, origIdx }, ci) => (
+        <div
+          key={`${node.uuid}-${origIdx}`}
+          style={{ marginTop: 6, borderTop: dragOverIdx === ci ? '2px solid var(--accent)' : '1px solid var(--border)', paddingTop: 5, opacity: draggingIdx === ci ? 0.4 : 1 }}
+          onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverIdx(ci) }}
+          onDragLeave={() => setDragOverIdx(null)}
+          onDrop={e => {
+            e.preventDefault()
+            setDragOverIdx(null)
+            setDraggingIdx(null)
+            const fromCi = parseInt(e.dataTransfer.getData('compCi'))
+            if (isNaN(fromCi) || fromCi === ci) return
+            const fromOrigIdx = visibleComps[fromCi]?.origIdx
+            const toOrigIdx = origIdx
+            if (fromOrigIdx == null || fromOrigIdx === toOrigIdx) return
+            const newComps = [...draft.components]
+            const [moved] = newComps.splice(fromOrigIdx, 1)
+            // splice 후 toOrigIdx 보정: from이 to보다 앞에 있으면 한 칸 앞당겨짐
+            const adjustedTo = fromOrigIdx < toOrigIdx ? toOrigIdx - 1 : toOrigIdx
+            newComps.splice(adjustedTo, 0, moved)
+            applyAndSave({ components: newComps })
+          }}
+        >
           <div
             style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
             onClick={() => setCollapsedComps(s => { const n = new Set(s); n.has(ci) ? n.delete(ci) : n.add(ci); return n })}
           >
+            <span
+              draggable
+              onDragStart={e => { e.dataTransfer.setData('compCi', String(ci)); e.dataTransfer.effectAllowed = 'move'; setDraggingIdx(ci) }}
+              onDragEnd={() => { setDraggingIdx(null); setDragOverIdx(null) }}
+              onClick={e => e.stopPropagation()}
+              style={{ cursor: 'grab', padding: '0 4px', opacity: 0.5, fontSize: 10, lineHeight: 1 }}
+              title="드래그하여 순서 변경"
+            >⠿</span>
             <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(ci) ? '▸' : '▾'}</span>
             <span style={{ flex: 1 }}>{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}</span>
             {compCopied && copiedCompRef.current && copiedCompRef.current.type !== comp.type && (
@@ -1289,7 +1321,7 @@ function CCFileNodeInspector({
             >{compCopied === comp.type ? '✓' : '⎘'}</span>
             <span
               title="컴포넌트 삭제"
-              onClick={e => { e.stopPropagation(); applyAndSave({ components: draft.components.filter((_, i) => i !== ci) }) }}
+              onClick={e => { e.stopPropagation(); applyAndSave({ components: draft.components.filter((_, i) => i !== origIdx) }) }}
               style={{ cursor: 'pointer', color: '#666', fontSize: 10, padding: '0 2px', lineHeight: 1 }}
               onMouseEnter={e => (e.currentTarget.style.color = '#ff6666')}
               onMouseLeave={e => (e.currentTarget.style.color = '#666')}
@@ -1343,7 +1375,7 @@ function CCFileNodeInspector({
                         const b2 = parseInt(h.slice(5, 7), 16)
                         applyAndSave({
                           components: draft.components.map((c, i) =>
-                            i === ci ? { ...c, props: { ...c.props, [k]: { ...vobj, r: r2, g: g2, b: b2 } } } : c
+                            i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, r: r2, g: g2, b: b2 } } } : c
                           )
                         })
                       }}
@@ -1365,13 +1397,13 @@ function CCFileNodeInspector({
                             const val = parseFloat(e.target.value)
                             if (!isNaN(val)) applyAndSave({
                               components: draft.components.map((c, i) =>
-                                i === ci ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
+                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
                               )
                             })
                           }}
                           onBlur={e => applyAndSave({
                             components: draft.components.map((c, i) =>
-                              i === ci ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
+                              i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
                             )
                           })}
                           style={{
@@ -1398,7 +1430,7 @@ function CCFileNodeInspector({
                     value={Number(v)}
                     onChange={e => applyAndSave({
                       components: draft.components.map((c, i) =>
-                        i === ci ? { ...c, props: { ...c.props, [k]: Number(e.target.value) } } : c
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: Number(e.target.value) } } : c
                       )
                     })}
                     style={{ flex: 1, fontSize: 10, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
@@ -1420,7 +1452,7 @@ function CCFileNodeInspector({
                     defaultChecked={Boolean(v)}
                     onChange={e => applyAndSave({
                       components: draft.components.map((c, i) =>
-                        i === ci ? { ...c, props: { ...c.props, [k]: e.target.checked } } : c
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: e.target.checked } } : c
                       )
                     })}
                     style={{ margin: 0, cursor: 'pointer' }}
@@ -1431,7 +1463,7 @@ function CCFileNodeInspector({
                     defaultValue={String(v)}
                     onBlur={e => applyAndSave({
                       components: draft.components.map((c, i) =>
-                        i === ci ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
                       )
                     })}
                     style={{
@@ -1448,13 +1480,13 @@ function CCFileNodeInspector({
                       const val = parseFloat(e.target.value)
                       if (!isNaN(val)) applyAndSave({
                         components: draft.components.map((c, i) =>
-                          i === ci ? { ...c, props: { ...c.props, [k]: val } } : c
+                          i === origIdx ? { ...c, props: { ...c.props, [k]: val } } : c
                         )
                       })
                     }}
                     onBlur={e => applyAndSave({
                       components: draft.components.map((c, i) =>
-                        i === ci ? { ...c, props: { ...c.props, [k]: parseFloat(e.target.value) || 0 } } : c
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: parseFloat(e.target.value) || 0 } } : c
                       )
                     })}
                     style={{
@@ -1467,7 +1499,8 @@ function CCFileNodeInspector({
             )
           })}
         </div>
-      ))}
+      ))
+      })()}
       {/* 씬 파일 정보 (Inspector 하단) */}
       <div style={{ marginTop: 10, paddingTop: 6, borderTop: '1px solid var(--border)', fontSize: 9, color: '#444', lineHeight: 1.8 }}>
         <div title={sceneFile.scenePath} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

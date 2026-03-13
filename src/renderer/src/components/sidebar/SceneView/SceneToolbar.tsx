@@ -84,6 +84,10 @@ interface SceneToolbarProps {
   onAddAnnotation?: () => void
   nodeSearch?: string
   onNodeSearchChange?: (v: string) => void
+  hasSnapshot?: boolean
+  showDiff?: boolean
+  onTakeSnapshot?: () => void
+  onToggleDiff?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -172,6 +176,10 @@ export function SceneToolbar({
   onAddAnnotation,
   nodeSearch = '',
   onNodeSearchChange,
+  hasSnapshot,
+  showDiff,
+  onTakeSnapshot,
+  onToggleDiff,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -392,6 +400,22 @@ export function SceneToolbar({
           onClick={onRefImageToggle}
           title="참조 이미지 오버레이"
         >📷</button>
+      )}
+
+      {/* 스냅샷 */}
+      {onTakeSnapshot && (
+        <button
+          style={btnBase}
+          onClick={onTakeSnapshot}
+          title="현재 상태 스냅샷"
+        >📷 Snap</button>
+      )}
+      {hasSnapshot && onToggleDiff && (
+        <button
+          style={showDiff ? { ...btnBase, color: 'var(--accent)', borderColor: 'var(--accent)' } : btnBase}
+          onClick={onToggleDiff}
+          title="스냅샷 비교 — 이동된 노드의 이전 위치 표시"
+        >👁 Diff</button>
       )}
 
       {/* 즐겨찾기 목록 */}

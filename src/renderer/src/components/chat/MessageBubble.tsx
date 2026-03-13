@@ -828,8 +828,9 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   const [noteOpen, setNoteOpen] = useState(false)
   const [noteText, setNoteText] = useState(msg.note ?? '')
 
-  const [translated, setTranslated] = useState<string | null>(null)
-  const [translateLoading, setTranslateLoading] = useState(false)
+  const [translation, setTranslation] = useState<string | null>(null)
+  const [translating, setTranslating] = useState(false)
+  const [showTranslation, setShowTranslation] = useState(false)
   const [showEditHistory, setShowEditHistory] = useState(false)
   const editTextareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -868,15 +869,37 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   }, [onEditResend, isStreaming, msg.text])
 
   const handleTranslate = async () => {
-    if (translated) { setTranslated(null); return }
-    setTranslateLoading(true)
+    if (translating) return
+    if (translation) { setShowTranslation(v => !v); return }
+    setTranslating(true)
     try {
-      const result = await window.api.translate(msg.text, 'ko')
-      setTranslated(result)
-    } catch (e) {
-      console.error('translate failed', e)
+      const isKorean = /[가-힣]/.test(msg.text.slice(0, 100))
+      const targetLang = isKorean ? 'English' : '한국어'
+      const apiKey = localStorage.getItem('settings-anthropic-key') ?? ''
+      if (!apiKey) { setTranslation('API 키 없음'); setShowTranslation(true); return }
+      const body = JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: `Translate to ${targetLang}. Output translation only, no explanation:\n\n${msg.text.slice(0, 500)}` }]
+      })
+      const escapedBody = body.replace(/'/g, "'\\''")
+      const res = await (window.api as any).shellExec?.(
+        `curl -s https://api.anthropic.com/v1/messages -H "x-api-key: ${apiKey}" -H "anthropic-version: 2023-06-01" -H "content-type: application/json" -d '${escapedBody}'`
+      )
+      if (res?.ok) {
+        const parsed = JSON.parse(res.output)
+        const translatedText = parsed?.content?.[0]?.text ?? '번역 실패'
+        setTranslation(translatedText)
+        setShowTranslation(true)
+      } else {
+        setTranslation('번역 실패: ' + (res?.output ?? ''))
+        setShowTranslation(true)
+      }
+    } catch (e: any) {
+      setTranslation('오류: ' + String(e))
+      setShowTranslation(true)
     } finally {
-      setTranslateLoading(false)
+      setTranslating(false)
     }
   }
 
@@ -1200,19 +1223,17 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           )}
           <button
             onClick={handleTranslate}
-            title="번역"
+            title={showTranslation ? '번역 숨기기' : '번역'}
             style={{
-              background: translated ? '#2a3a5e' : '#3a3a4a',
-              color: translated ? '#60a5fa' : '#aaa',
+              background: 'none',
               border: 'none',
-              borderRadius: 3,
-              padding: '2px 8px',
-              fontSize: 11,
               cursor: 'pointer',
-              transition: 'background 0.15s, color 0.15s',
+              fontSize: 11,
+              padding: '2px 4px',
+              color: showTranslation ? 'var(--accent)' : 'rgba(255,255,255,0.4)',
             }}
           >
-            {translateLoading ? '...' : translated ? '원문' : '🌐'}
+            {translating ? '⟳' : '🌐'}
           </button>
           {onReplyTo && (
             <button
@@ -1536,13 +1557,14 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
       )}
 
       {/* Translation */}
-      {translated && (
+      {showTranslation && translation && (
         <div style={{
-          marginTop: 8, padding: '8px 12px', borderTop: '1px solid var(--border)',
-          fontSize: 'var(--chat-font-size, 13px)', color: 'var(--text-secondary)',
-          lineHeight: 1.6, fontStyle: 'italic'
+          marginTop: 8, padding: '6px 10px',
+          background: 'var(--bg-secondary)', borderRadius: 4,
+          fontSize: 12, color: 'rgba(255,255,255,0.7)',
+          borderLeft: '2px solid var(--accent)'
         }}>
-          {translated}
+          {translation}
         </div>
       )}
 

@@ -8,6 +8,7 @@ import { getRenderOrder, cocosToSvg, getComponentIcon } from './utils'
 import { NodeHierarchyList } from './NodeHierarchyList'
 
 interface Annotation { id: string; svgX: number; svgY: number; text: string }
+type SnapshotEntry = { uuid: string; x: number; y: number; width: number; height: number }
 
 interface SceneViewPanelProps {
   connected: boolean
@@ -97,6 +98,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
+
+  // ── 스냅샷 / diff 상태 ─────────────────────────────────────
+  const [snapshot, setSnapshot] = useState<Map<string, SnapshotEntry> | null>(null)
+  const [showDiff, setShowDiff] = useState(false)
+
+  const handleTakeSnapshot = useCallback(() => {
+    const snap = new Map<string, SnapshotEntry>()
+    nodeMap.forEach((n, uuid) => {
+      snap.set(uuid, { uuid, x: n.worldX ?? n.x, y: n.worldY ?? n.y, width: n.width, height: n.height })
+    })
+    setSnapshot(snap)
+    setShowDiff(true)
+  }, [nodeMap])
 
   // ── 주석 (Annotation) 상태 ─────────────────────────────────
   const [annotations, setAnnotations] = useState<Annotation[]>(() => {
@@ -1747,6 +1761,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onAddAnnotation={() => handleAddAnnotation()}
         nodeSearch={nodeSearch}
         onNodeSearchChange={setNodeSearch}
+        hasSnapshot={snapshot !== null}
+        showDiff={showDiff}
+        onTakeSnapshot={handleTakeSnapshot}
+        onToggleDiff={() => setShowDiff(v => !v)}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -2221,6 +2239,32 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 />
               )
             })()}
+
+            {/* 스냅샷 diff 오버레이 — 이동된 노드의 이전 위치 표시 */}
+            {showDiff && snapshot && [...snapshot.values()].map(s => {
+              const { sx, sy } = cocosToSvg(s.x, s.y, DESIGN_W, DESIGN_H)
+              const rx = sx - s.width * 0.5
+              const ry = sy - s.height * 0.5
+              const current = nodeMap.get(s.uuid)
+              if (!current) return null
+              const { sx: csx, sy: csy } = cocosToSvg(current.worldX ?? current.x, current.worldY ?? current.y, DESIGN_W, DESIGN_H)
+              const crx = csx - current.width * 0.5
+              const cry = csy - current.height * 0.5
+              const moved = Math.abs(rx - crx) > 1 || Math.abs(ry - cry) > 1
+              if (!moved) return null
+              return (
+                <g key={s.uuid} style={{ pointerEvents: 'none' }}>
+                  {/* 이전 위치 — 점선 빨간 박스 */}
+                  <rect x={rx} y={ry} width={s.width} height={s.height}
+                    fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.5)"
+                    strokeWidth={1 / view.zoom} strokeDasharray={`${4 / view.zoom} ${3 / view.zoom}`} rx={2 / view.zoom} />
+                  {/* 이동 화살표 연결선 */}
+                  <line x1={rx + s.width / 2} y1={ry + s.height / 2}
+                        x2={crx + current.width / 2} y2={cry + current.height / 2}
+                    stroke="rgba(239,68,68,0.4)" strokeWidth={1 / view.zoom} strokeDasharray={`${3 / view.zoom} ${2 / view.zoom}`} />
+                </g>
+              )
+            })}
 
             {/* 멀티셀렉트 그룹 bbox */}
             {groupBbox && (

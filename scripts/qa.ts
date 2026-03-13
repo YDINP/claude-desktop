@@ -5340,6 +5340,34 @@ console.log('\n## 107. Phase DD9 R549~551 기능 체크')
   }
 }
 
+// ── Section 108: Phase DD9 R553~555 기능 체크 ─────────────────
+console.log('\n## 108. Phase DD9 R553~555 기능 체크')
+{
+  const cocosPanelSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+  const messageBubbleSrc = readFileSync(join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx'), 'utf8')
+  const sceneViewSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx'), 'utf8')
+  const sceneToolbarSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx'), 'utf8')
+
+  // R553: Inspector 컴포넌트 drag 재정렬
+  if (cocosPanelSrc.includes('draggingIdx') && cocosPanelSrc.includes('dragOverIdx')) {
+    log('pass', 'R553', 'Inspector 컴포넌트 drag 재정렬 존재')
+  } else {
+    log('warning', 'R553', 'Inspector 컴포넌트 drag 재정렬 없음', 'CocosPanel.tsx')
+  }
+  // R554: 채팅 메시지 번역 버튼
+  if (messageBubbleSrc.includes('handleTranslate') && messageBubbleSrc.includes('showTranslation')) {
+    log('pass', 'R554', '채팅 메시지 번역 버튼 존재')
+  } else {
+    log('warning', 'R554', '채팅 메시지 번역 버튼 없음', 'MessageBubble.tsx')
+  }
+  // R555: 씬뷰 스냅샷 비교
+  if (sceneViewSrc.includes('snapshot') && sceneViewSrc.includes('showDiff') && sceneToolbarSrc.includes('onTakeSnapshot')) {
+    log('pass', 'R555', '씬뷰 스냅샷 비교 오버레이 존재')
+  } else {
+    log('warning', 'R555', '씬뷰 스냅샷 비교 없음', 'SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
