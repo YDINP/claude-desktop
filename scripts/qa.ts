@@ -13809,6 +13809,76 @@ if (existsSync(sl1325Path)) {
   }
 }
 
+console.log('\n## 353. Phase DD10 R1326~1328 기능 체크')
+
+// R1326: ChatPanel 줌
+const cp1326Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1326Path)) {
+  const cp1326 = readFileSync(cp1326Path, 'utf-8')
+  if (cp1326.includes('chatZoom') || cp1326.includes('showZoomControls') || cp1326.includes('zoomControls')) {
+    log('pass', 'R1326', 'ChatPanel 줌 존재')
+  } else {
+    log('warning', 'R1326', 'ChatPanel 줌 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1327: InputBar 분할 편집
+const ib1327Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1327Path)) {
+  const ib1327 = readFileSync(ib1327Path, 'utf-8')
+  if (ib1327.includes('inputSplit') || ib1327.includes('splitContent') || ib1327.includes('split')) {
+    log('pass', 'R1327', 'InputBar 분할 편집 존재')
+  } else {
+    log('warning', 'R1327', 'InputBar 분할 편집 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1328: CocosPanel 노드 템플릿
+const cocos1328Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1328Path)) {
+  const cocos1328 = readFileSync(cocos1328Path, 'utf-8')
+  if (cocos1328.includes('nodeTemplate') || cocos1328.includes('showNodeTemplates') || cocos1328.includes('nodeTemplates')) {
+    log('pass', 'R1328', 'CocosPanel 노드 템플릿 존재')
+  } else {
+    log('warning', 'R1328', 'CocosPanel 노드 템플릿 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 354. Phase DD10 R1329~1331 기능 체크')
+
+// R1329: SceneViewPanel 씬 아틀라스
+const svp1329Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1329Path)) {
+  const svp1329 = readFileSync(svp1329Path, 'utf-8')
+  if (svp1329.includes('sceneAtlas') || svp1329.includes('showAtlasPanel') || svp1329.includes('atlasPanel')) {
+    log('pass', 'R1329', 'SceneViewPanel 씬 아틀라스 존재')
+  } else {
+    log('warning', 'R1329', 'SceneViewPanel 씬 아틀라스 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1330: TerminalPanel 커서 스타일
+const tp1330Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1330Path)) {
+  const tp1330 = readFileSync(tp1330Path, 'utf-8')
+  if (tp1330.includes('termCursor') || tp1330.includes('termCursorBlink') || tp1330.includes('cursorBlink')) {
+    log('pass', 'R1330', 'TerminalPanel 커서 스타일 존재')
+  } else {
+    log('warning', 'R1330', 'TerminalPanel 커서 스타일 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1331: SessionList 세션 메트릭
+const sl1331Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1331Path)) {
+  const sl1331 = readFileSync(sl1331Path, 'utf-8')
+  if (sl1331.includes('sessionMetrics') || sl1331.includes('showMetricsPanel') || sl1331.includes('metricsPanel')) {
+    log('pass', 'R1331', 'SessionList 세션 메트릭 존재')
+  } else {
+    log('warning', 'R1331', 'SessionList 세션 메트릭 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

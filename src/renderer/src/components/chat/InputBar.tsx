@@ -405,6 +405,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [findReplaceQuery, setFindReplaceQuery] = useState({ find: '', replace: '' })
   const [inputRecording, setInputRecording] = useState(false)
   const [recordingBuffer, setRecordingBuffer] = useState<string[]>([])
+  const [inputSplit, setInputSplit] = useState(false)
+  const [splitContent, setSplitContent] = useState<string[]>(['', ''])
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

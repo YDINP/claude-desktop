@@ -142,6 +142,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showAllToggle, setShowAllToggle] = useState(true)
   const [lockedLayers, setLockedLayers] = useState<Set<string>>(new Set())
   const [showLayerPanel, setShowLayerPanel] = useState(false)
+  const [sceneAtlas, setSceneAtlas] = useState<string[]>([])
+  const [showAtlasPanel, setShowAtlasPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
 
