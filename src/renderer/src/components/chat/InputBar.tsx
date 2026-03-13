@@ -359,6 +359,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   // R1177: text templates
   const [textTemplates, setTextTemplates] = useState<Record<string, string>>({})
   const [showTemplates, setShowTemplates] = useState(false)
+  // R1189: rich text mode
+  const [richTextMode, setRichTextMode] = useState(false)
+  const [richTextContent, setRichTextContent] = useState('')
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

@@ -470,6 +470,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1186: terminal notifications
   const [termNotifications, setTermNotifications] = React.useState<string[]>([])
   const [showTermNotifs, setShowTermNotifs] = React.useState(false)
+  // R1192: terminal watch
+  const [termWatch, setTermWatch] = React.useState<string[]>([])
+  const [watchActive, setWatchActive] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

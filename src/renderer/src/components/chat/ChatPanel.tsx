@@ -1103,6 +1103,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // R1182: message status
   const [msgStatus, setMsgStatus] = useState<Record<string, 'sent' | 'delivered' | 'read'>>({})
   const [showStatusPanel, setShowStatusPanel] = useState(false)
+  // R1188: message collapse
+  const [collapsedMsgs, setCollapsedMsgs] = useState<Set<string>>(new Set())
+  const [autoCollapse, setAutoCollapse] = useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
