@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: Round 589~592 (ZoomFit + 검색하이라이트 + Transform리셋 + QA)
+- 마지막 커밋: Round 593~596 (가이드라인 + 모델선택기 + prop즐겨찾기 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 494
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 497
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -184,7 +184,16 @@
 | R591 | CocosPanel Inspector ⟳ Reset 버튼 + scale ↺ 개별 리셋 |
 | R592 | QA Section 117 추가 (Pass 494) |
 
-## 다음 예정 (Round 593~)
+## Phase DD9 추가 완료 (Round 593~596)
+
+| 라운드 | 기능 |
+|--------|------|
+| R593 | 씬뷰 정렬 가이드라인 색상/두께 개선 |
+| R594 | ChatPanel ModelSelector 커스텀 컴포넌트 (🧠/⚖️/⚡, 설명, recent-model 배지) |
+| R595 | CocosPanel Inspector prop 즐겨찾기 ☆/★ (compType:propKey 형식, fav-props) |
+| R596 | QA Section 118 추가 (Pass 497) |
+
+## 다음 예정 (Round 597~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 

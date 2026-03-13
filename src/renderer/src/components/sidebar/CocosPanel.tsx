@@ -1144,6 +1144,21 @@ function CCFileNodeInspector({
   }, [node, sceneFile, saveScene, onUpdate])
 
   const [propSearch, setPropSearch] = useState('')
+  const FAV_PROPS_KEY = 'fav-props'
+  const [favProps, setFavProps] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(FAV_PROPS_KEY) ?? '[]')) }
+    catch { return new Set() }
+  })
+  const toggleFavProp = useCallback((compType: string, propKey: string) => {
+    const id = `${compType}:${propKey}`
+    setFavProps(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      localStorage.setItem(FAV_PROPS_KEY, JSON.stringify([...next]))
+      return next
+    })
+  }, [])
 
   // 노드 교체 시 draft + 컴포넌트 접힘 상태 + propSearch 초기화
   useMemo(() => { setDraft({ ...node }); setCollapsedComps(new Set()); setPropSearch('') }, [node.uuid])
@@ -1573,9 +1588,14 @@ function CCFileNodeInspector({
               return true
             })
             const showFilter = allProps.length >= 3
-            const filteredProps = propSearch
+            const baseFiltered = propSearch
               ? allProps.filter(([k]) => k.toLowerCase().includes(propSearch.toLowerCase()))
               : allProps
+            // 즐겨찾기 prop을 맨 앞으로 정렬
+            const filteredProps = [
+              ...baseFiltered.filter(([k]) => favProps.has(`${comp.type}:${k}`)),
+              ...baseFiltered.filter(([k]) => !favProps.has(`${comp.type}:${k}`)),
+            ]
             return (
               <>
                 {showFilter && (
@@ -1592,11 +1612,27 @@ function CCFileNodeInspector({
                   />
                 )}
                 {filteredProps.map(([k, v]) => {
+            const isFavProp = favProps.has(`${comp.type}:${k}`)
+            const favBtn = (
+              <span
+                key="fav"
+                className={isFavProp ? 'prop-fav is-fav' : 'prop-fav'}
+                title={isFavProp ? '즐겨찾기 해제' : '즐겨찾기'}
+                onClick={e => { e.stopPropagation(); toggleFavProp(comp.type, k) }}
+                style={{
+                  cursor: 'pointer', fontSize: 9, flexShrink: 0,
+                  color: '#fbbf24',
+                  opacity: isFavProp ? 1 : 0,
+                  transition: 'opacity 0.1s',
+                  paddingLeft: 2,
+                }}
+              >{isFavProp ? '★' : '☆'}</span>
+            )
             if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
               const uuid = (v as { __uuid__: string }).__uuid__
               return (
-                <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{k}{favBtn}</span>
                   <span style={{
                     flex: 1, fontSize: 9, color: '#888', fontFamily: 'monospace',
                     background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '2px 5px',
@@ -1622,9 +1658,9 @@ function CCFileNodeInspector({
                 const a = hasAlpha ? Math.round(Math.min(255, Math.max(0, Number(vobj.a ?? 255)))) : undefined
                 const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
                 return (
-                  <div key={k} style={{ marginBottom: 3 }}>
+                  <div key={k} className="prop-row" style={{ marginBottom: 3 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                      <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{k}{favBtn}</span>
                       <input
                         type="color"
                         value={hex}
@@ -1676,8 +1712,8 @@ function CCFileNodeInspector({
               const axisColor: Record<string, string> = { x: '#e05555', y: '#55b055', z: '#4488dd' }
               if (isVecType && vecAxes) {
                 return (
-                  <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{k}{favBtn}</span>
                     <div style={{ display: 'flex', gap: 3, flex: 1 }}>
                       {vecAxes.map(axis => (
                         <div key={axis} style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
@@ -1728,8 +1764,8 @@ function CCFileNodeInspector({
               }
               if (numKeys.length >= 2 && numKeys.length <= 3) {
                 return (
-                  <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{k}{favBtn}</span>
                     <div style={{ display: 'flex', gap: 2, flex: 1 }}>
                       {numKeys.map(axis => (
                         <input key={axis} type="number" defaultValue={Number(vobj[axis])}
@@ -1780,8 +1816,8 @@ function CCFileNodeInspector({
             // fontStyle → 드롭다운
             if (k === 'fontStyle' && typeof v === 'number') {
               return (
-                <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{k}{favBtn}</span>
                   <select
                     value={Number(v)}
                     onChange={e => applyAndSave({
@@ -1800,8 +1836,8 @@ function CCFileNodeInspector({
               )
             }
             return (
-              <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-                <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+              <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{k}{favBtn}</span>
                 {isBool ? (
                   <input
                     type="checkbox"

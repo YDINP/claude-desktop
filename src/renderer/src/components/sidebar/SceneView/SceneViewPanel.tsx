@@ -1035,7 +1035,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       // 정렬 가이드라인 계산 (드래그 중 타 노드와 정렬 감지)
       if (!drag.groupOffsets) {
         const dragNode = nodeMap.get(drag.uuid)
-        const threshold = 8 / view.zoom
+        const threshold = 12 / view.zoom
         const guides: { x?: number; y?: number }[] = []
         if (dragNode) {
           const hw = dragNode.width / 2; const hh = dragNode.height / 2
@@ -2027,10 +2027,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               {alignGuides.map((g, i) => {
                 if (g.x !== undefined) {
                   const px = g.x * view.zoom + ox
-                  return <line key={i} x1={px} y1={0} x2={px} y2="100%" stroke="rgba(250,100,100,0.7)" strokeWidth={1} strokeDasharray="4 3" />
+                  return <line key={i} x1={px} y1={0} x2={px} y2="100%" stroke="rgba(255,100,0,0.85)" strokeWidth={1.5} strokeDasharray="5 3" />
                 } else if (g.y !== undefined) {
                   const py = -g.y * view.zoom + oy
-                  return <line key={i} x1={0} y1={py} x2="100%" y2={py} stroke="rgba(250,100,100,0.7)" strokeWidth={1} strokeDasharray="4 3" />
+                  return <line key={i} x1={0} y1={py} x2="100%" y2={py} stroke="rgba(220,0,200,0.85)" strokeWidth={1.5} strokeDasharray="5 3" />
                 }
                 return null
               })}

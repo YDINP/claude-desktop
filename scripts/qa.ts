@@ -5677,6 +5677,41 @@ if (existsSync(cp591Path)) {
   }
 }
 
+// ── Section 118: Phase DD9 R593~595 기능 체크 ────────────────
+console.log('\n## 118. Phase DD9 R593~595 기능 체크')
+// R593: 정렬 가이드라인 개선
+const svp593Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp593Path)) {
+  const svp593 = readFileSync(svp593Path, 'utf-8')
+  if (svp593.includes('alignGuides') || svp593.includes('guide')) {
+    log('pass', 'R593', '씬뷰 정렬 가이드라인 존재')
+  } else {
+    log('warning', 'R593', '씬뷰 정렬 가이드라인 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R594: 모델 선택기 개선
+const cp594Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp594Path)) {
+  const cp594 = readFileSync(cp594Path, 'utf-8')
+  if (cp594.includes('ModelSelector') || cp594.includes('recent-model')) {
+    log('pass', 'R594', '채팅 모델 선택기 개선 존재')
+  } else {
+    log('warning', 'R594', '채팅 모델 선택기 개선 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R595: Inspector prop 즐겨찾기
+const cp595Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp595Path)) {
+  const cp595 = readFileSync(cp595Path, 'utf-8')
+  if (cp595.includes('favProps') && cp595.includes('fav-props')) {
+    log('pass', 'R595', 'Inspector prop 즐겨찾기 존재')
+  } else {
+    log('warning', 'R595', 'Inspector prop 즐겨찾기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

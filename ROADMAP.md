@@ -636,6 +636,10 @@
 | Round 590 | 채팅 검색 하이라이트 — assistant 메시지 ReactMarkdown p/li 적용 | ✅ |
 | Round 591 | Inspector Transform ⟳ Reset 버튼 + scale 행 개별 ↺ 버튼 | ✅ |
 | Round 592 | QA Section 117 추가 (R589/R590/R591, Pass 494) | ✅ |
+| Round 593 | 씬뷰 정렬 가이드라인 개선 (alignGuides 색상/두께 개선) | ✅ |
+| Round 594 | 채팅 ModelSelector 컴포넌트 (🧠/⚖️/⚡ 아이콘, recent-model, 설명) | ✅ |
+| Round 595 | Inspector prop 즐겨찾기 (favProps ☆/★, fav-props localStorage) | ✅ |
+| Round 596 | QA Section 118 추가 (R593/R594/R595, Pass 497) | ✅ |
 
 ## QA 프로세스
 
