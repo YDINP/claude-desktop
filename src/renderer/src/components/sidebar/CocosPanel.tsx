@@ -4379,6 +4379,8 @@ function CCFileNodeInspector({
             <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 4 }}>
               위치
               <span title="위치 리셋 (0,0)" onClick={() => applyAndSave({ position: { ...draft.position, x: 0, y: 0 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
+              {/* R1592: 위치 정수 반올림 버튼 */}
+              <span title="위치 정수 반올림 (Round to integer)" onClick={() => applyAndSave({ position: { ...draft.position, x: Math.round(draft.position.x), y: Math.round(draft.position.y) } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⌊⌉</span>
             </div>
             {numInput('X', draft.position.x, v => applyAndSave({ position: { ...draft.position, x: v } }))}
             {numInput('Y', draft.position.y, v => applyAndSave({ position: { ...draft.position, y: v } }))}
@@ -4399,7 +4401,11 @@ function CCFileNodeInspector({
             })}
           </div>
           <div>
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>크기</div>
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 4 }}>
+              크기
+              {/* R1592: 크기 정수 반올림 버튼 */}
+              <span title="크기 정수 반올림 (Round to integer)" onClick={() => applyAndSave({ size: { x: Math.round(draft.size.x), y: Math.round(draft.size.y) } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⌊⌉</span>
+            </div>
             {numInput('W', draft.size.x, v => applyAndSave({ size: { ...draft.size, x: v } }))}
             {numInput('H', draft.size.y, v => applyAndSave({ size: { ...draft.size, y: v } }))}
             <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', display: 'flex', alignItems: 'center', gap: 4 }}>

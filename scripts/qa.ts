@@ -17020,6 +17020,18 @@ console.log('\n## 482. R1591 cc.BoxCollider/CircleCollider Inspector Quick Edit 
   }
 }
 
+// ── Section 483: R1592 Inspector 위치/크기 정수 반올림 버튼 ──────────
+console.log('\n## 483. R1592 Inspector 위치/크기 정수 반올림 버튼 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s483panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s483panel.includes('위치 정수 반올림') && s483panel.includes('크기 정수 반올림') && s483panel.includes('Math.round(draft.position.x)') && s483panel.includes('Math.round(draft.size.x)')) {
+    log('pass', 'R1592-round-int', '위치/크기 정수 반올림 버튼 (⌊⌉)')
+  } else {
+    log('warning', 'R1592-round-int', '위치/크기 정수 반올림 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

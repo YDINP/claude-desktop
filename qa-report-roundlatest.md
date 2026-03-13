@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T21:47:10.997Z
+> 2026-03-13T21:48:21.757Z
 
 ## Critical
 _없음_
@@ -1520,3 +1520,4 @@ _없음_
 - cc.Sprite extractor + Inspector: type/sizeMode/trim/grayscale
 - cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor
 - cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Inspector Quick Edit
+- 위치/크기 정수 반올림 버튼 (⌊⌉)
