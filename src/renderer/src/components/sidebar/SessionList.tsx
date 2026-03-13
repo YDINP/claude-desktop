@@ -209,6 +209,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [exportFormat, setExportFormat] = useState<'json' | 'md' | 'txt'>('json')
   const [sessionMemos, setSessionMemos] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('session-memos') ?? '{}'))
   const [sessionGroups, setSessionGroups] = useState<Record<string, string[]>>(() => JSON.parse(localStorage.getItem('session-groups') ?? '{}'))
+  const [showGroupManager, setShowGroupManager] = useState(false)
   const [lockedSessions, setLockedSessions] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('locked-sessions') ?? '[]')))
   const [sessionColors, setSessionColors] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('session-colors') ?? '{}'))
   const [sessionRatings, setSessionRatings] = useState<Record<string, 1|2|3|4|5>>(() => JSON.parse(localStorage.getItem('session-ratings') ?? '{}'))

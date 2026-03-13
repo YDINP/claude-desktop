@@ -59,6 +59,8 @@ export function CocosPanel() {
   const [showBundlePanel, setShowBundlePanel] = useState(false)
   const [buildTarget, setBuildTarget] = useState<string>('web-mobile')
   const [showTargetPanel, setShowTargetPanel] = useState(false)
+  const [debugMode, setDebugMode] = useState(false)
+  const [debugOverlay, setDebugOverlay] = useState<string>('none')
   return (
     <CCFileProjectUI
       fileProject={fileProject}

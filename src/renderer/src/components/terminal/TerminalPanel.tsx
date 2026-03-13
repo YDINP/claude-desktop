@@ -233,6 +233,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showTermBookmarks, setShowTermBookmarks] = useState(false)
   const [termPipeline, setTermPipeline] = useState<string[]>([])
   const [showPipelinePanel, setShowPipelinePanel] = useState(false)
+  const [termConnections, setTermConnections] = useState<string[]>([])
+  const [showConnectionPanel, setShowConnectionPanel] = useState(false)
   const inputBufferRef = useRef<Record<string, string>>({})
 
   const sendQuickCmd = (cmd: string) => {

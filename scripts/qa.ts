@@ -13249,6 +13249,76 @@ if (existsSync(sl1277Path)) {
   }
 }
 
+console.log('\n## 337. Phase DD10 R1278~1280 기능 체크')
+
+// R1278: ChatPanel 나란히 보기
+const cp1278Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1278Path)) {
+  const cp1278 = readFileSync(cp1278Path, 'utf-8')
+  if (cp1278.includes('chatSideBySide') || cp1278.includes('sideBySideWidth') || cp1278.includes('sideBySide')) {
+    log('pass', 'R1278', 'ChatPanel 나란히 보기 존재')
+  } else {
+    log('warning', 'R1278', 'ChatPanel 나란히 보기 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1279: InputBar 줄 바꿈
+const ib1279Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1279Path)) {
+  const ib1279 = readFileSync(ib1279Path, 'utf-8')
+  if (ib1279.includes('inputWordWrap') || ib1279.includes('inputMaxLines') || ib1279.includes('wordWrap')) {
+    log('pass', 'R1279', 'InputBar 줄 바꿈 존재')
+  } else {
+    log('warning', 'R1279', 'InputBar 줄 바꿈 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1280: CocosPanel 디버그 모드
+const cocos1280Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1280Path)) {
+  const cocos1280 = readFileSync(cocos1280Path, 'utf-8')
+  if (cocos1280.includes('debugMode') || cocos1280.includes('debugOverlay') || cocos1280.includes('debugOver')) {
+    log('pass', 'R1280', 'CocosPanel 디버그 모드 존재')
+  } else {
+    log('warning', 'R1280', 'CocosPanel 디버그 모드 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 338. Phase DD10 R1281~1283 기능 체크')
+
+// R1281: SceneViewPanel 씬 제약
+const svp1281Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1281Path)) {
+  const svp1281 = readFileSync(svp1281Path, 'utf-8')
+  if (svp1281.includes('sceneConstraints') || svp1281.includes('showConstraintPanel') || svp1281.includes('constraintPanel')) {
+    log('pass', 'R1281', 'SceneViewPanel 씬 제약 존재')
+  } else {
+    log('warning', 'R1281', 'SceneViewPanel 씬 제약 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1282: TerminalPanel 터미널 연결
+const tp1282Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1282Path)) {
+  const tp1282 = readFileSync(tp1282Path, 'utf-8')
+  if (tp1282.includes('termConnections') || tp1282.includes('showConnectionPanel') || tp1282.includes('connectionPanel')) {
+    log('pass', 'R1282', 'TerminalPanel 터미널 연결 존재')
+  } else {
+    log('warning', 'R1282', 'TerminalPanel 터미널 연결 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1283: SessionList 세션 그룹
+const sl1283Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1283Path)) {
+  const sl1283 = readFileSync(sl1283Path, 'utf-8')
+  if (sl1283.includes('sessionGroups') || sl1283.includes('showGroupManager') || sl1283.includes('groupManager')) {
+    log('pass', 'R1283', 'SessionList 세션 그룹 존재')
+  } else {
+    log('warning', 'R1283', 'SessionList 세션 그룹 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

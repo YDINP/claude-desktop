@@ -389,6 +389,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [inputThemeCustom, setInputThemeCustom] = useState<Record<string, string>>({})
   const [inputPaste, setInputPaste] = useState<string>('')
   const [pastePreview, setPastePreview] = useState(false)
+  const [inputWordWrap, setInputWordWrap] = useState(true)
+  const [inputMaxLines, setInputMaxLines] = useState(10)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

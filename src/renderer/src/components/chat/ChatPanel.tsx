@@ -1139,6 +1139,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showGroupPanel, setShowGroupPanel] = useState(false)
   const [chatPagination, setChatPagination] = useState({ page: 0, pageSize: 50 })
   const [showPaginationBar, setShowPaginationBar] = useState(false)
+  const [chatSideBySide, setChatSideBySide] = useState(false)
+  const [sideBySideWidth, setSideBySideWidth] = useState(50)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
