@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 444 완료 — H-2 씬뷰 Sprite 이미지 렌더링)
+> 마지막 업데이트: 2026-03-13 (Round 445 완료 — G-2 UUID 레퍼런스 props Inspector 표시)
 
 ## 완료된 라운드
 
@@ -36,6 +36,7 @@
 | Round 442 | dev | Phase G-1: 컴포넌트 props 편집 — boolean checkbox, string textarea, number input 3분기, skipTypes 블랙리스트 전환 | ✅ |
 | Round 443 | dev | Phase H-1: 씬뷰 Label 텍스트 렌더링 — cc.Label/Label/cc.RichText.string을 SVG text로, fontSize/color 적용 | ✅ |
 | Round 444 | dev | Phase H-2: 씬뷰 Sprite 이미지 렌더링 — spriteFrame UUID → local:// URL 비동기 해상, SVG image 렌더링 | ✅ |
+| Round 445 | dev | Phase G-2: Inspector UUID 레퍼런스 표시 — __uuid__ 타입 props를 읽기 전용 배지로 표시, hover 툴팁 full UUID | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

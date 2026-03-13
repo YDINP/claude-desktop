@@ -1008,70 +1008,84 @@ function CCFileNodeInspector({
 
       {/* 컴포넌트 props */}
       {draft.components.filter(c => {
-        // 편집 불필요한 내장 인프라 컴포넌트 제외
         const skipTypes = ['cc.UITransform', 'cc.Canvas', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
         if (skipTypes.includes(c.type)) return false
-        // 편집할 props가 없으면 제외
-        const editableKeys = Object.entries(c.props).filter(([, v]) => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
-        return editableKeys.length > 0
+        return Object.values(c.props).some(v =>
+          typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean' ||
+          (v && typeof v === 'object' && '__uuid__' in (v as object))
+        )
       }).map((comp, ci) => (
         <div key={ci} style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 5 }}>
           <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4 }}>
             {comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
           </div>
-          {Object.entries(comp.props)
-            .filter(([, v]) => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
-            .map(([k, v]) => {
-              const isBool = typeof v === 'boolean'
-              const isText = typeof v === 'string'
+          {Object.entries(comp.props).map(([k, v]) => {
+            if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
+              const uuid = (v as { __uuid__: string }).__uuid__
               return (
                 <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
                   <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
-                  {isBool ? (
-                    <input
-                      type="checkbox"
-                      defaultChecked={Boolean(v)}
-                      onChange={e => applyAndSave({
-                        components: draft.components.map((c, i) =>
-                          i === ci ? { ...c, props: { ...c.props, [k]: e.target.checked } } : c
-                        )
-                      })}
-                      style={{ margin: 0, cursor: 'pointer' }}
-                    />
-                  ) : isText ? (
-                    <textarea
-                      rows={2}
-                      defaultValue={String(v)}
-                      onBlur={e => applyAndSave({
-                        components: draft.components.map((c, i) =>
-                          i === ci ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
-                        )
-                      })}
-                      style={{
-                        flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
-                        color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
-                        resize: 'vertical', fontFamily: 'inherit',
-                      }}
-                    />
-                  ) : (
-                    <input
-                      type="number"
-                      defaultValue={Number(v)}
-                      onBlur={e => applyAndSave({
-                        components: draft.components.map((c, i) =>
-                          i === ci ? { ...c, props: { ...c.props, [k]: parseFloat(e.target.value) || 0 } } : c
-                        )
-                      })}
-                      style={{
-                        flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
-                        color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
-                      }}
-                    />
-                  )}
+                  <span style={{
+                    flex: 1, fontSize: 9, color: '#888', fontFamily: 'monospace',
+                    background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '2px 5px',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    title: uuid,
+                  }} title={uuid}>
+                    {uuid.slice(0, 8)}…
+                  </span>
                 </div>
               )
-            })
-          }
+            }
+            if (typeof v !== 'string' && typeof v !== 'number' && typeof v !== 'boolean') return null
+            const isBool = typeof v === 'boolean'
+            const isText = typeof v === 'string'
+            return (
+              <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                {isBool ? (
+                  <input
+                    type="checkbox"
+                    defaultChecked={Boolean(v)}
+                    onChange={e => applyAndSave({
+                      components: draft.components.map((c, i) =>
+                        i === ci ? { ...c, props: { ...c.props, [k]: e.target.checked } } : c
+                      )
+                    })}
+                    style={{ margin: 0, cursor: 'pointer' }}
+                  />
+                ) : isText ? (
+                  <textarea
+                    rows={2}
+                    defaultValue={String(v)}
+                    onBlur={e => applyAndSave({
+                      components: draft.components.map((c, i) =>
+                        i === ci ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
+                      )
+                    })}
+                    style={{
+                      flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+                      resize: 'vertical', fontFamily: 'inherit',
+                    }}
+                  />
+                ) : (
+                  <input
+                    type="number"
+                    defaultValue={Number(v)}
+                    onBlur={e => applyAndSave({
+                      components: draft.components.map((c, i) =>
+                        i === ci ? { ...c, props: { ...c.props, [k]: parseFloat(e.target.value) || 0 } } : c
+                      )
+                    })}
+                    style={{
+                      flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+                    }}
+                  />
+                )}
+              </div>
+            )
+          })}
         </div>
       ))}
     </div>
