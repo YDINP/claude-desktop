@@ -24,6 +24,7 @@ interface CCFileSceneViewProps {
   onRotate?: (uuid: string, angle: number) => void
   onMultiMove?: (moves: Array<{ uuid: string; x: number; y: number }>) => void
   onMultiDelete?: (uuids: string[]) => void
+  onLabelEdit?: (uuid: string, text: string) => void
 }
 
 /**
@@ -31,7 +32,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -57,6 +58,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [screenshotSending, setScreenshotSending] = useState(false)
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
   const editInputRef = useRef<HTMLInputElement | null>(null)
+  // R1491: Label 텍스트 인라인 편집
+  const [editingLabelUuid, setEditingLabelUuid] = useState<string | null>(null)
+  const editLabelRef = useRef<HTMLInputElement | null>(null)
   const isSpaceDownRef = useRef(false)
   const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set())
   const multiSelectedRef = useRef(multiSelected)
@@ -833,20 +837,51 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     />
                   )
                 })()}
-                {/* Label 텍스트 렌더링 */}
+                {/* Label 텍스트 렌더링 + R1491 더블클릭 인라인 편집 */}
                 {hasLabel && (() => {
                   const lc = node.components.find(c => c.type === 'cc.Label' || c.type === 'Label' || c.type === 'cc.RichText')
-                  const str = lc?.props?.string as string | undefined
-                  if (!str) return null
+                  const str = (lc?.props?.string as string | undefined) ?? (lc?.props?._string as string | undefined) ?? ''
+                  if (!str && editingLabelUuid !== node.uuid) return null
                   const fs = Math.min(Math.max((lc?.props?.fontSize as number | undefined) ?? 20, 8), 200)
                   const { r: cr = 255, g: cg = 255, b: cb = 255 } = node.color ?? {}
+                  if (editingLabelUuid === node.uuid) {
+                    return (
+                      <foreignObject
+                        x={rectX} y={rectY + h / 2 - 10 / view.zoom}
+                        width={Math.max(w, 80 / view.zoom)} height={20 / view.zoom}
+                        style={{ overflow: 'visible' }}
+                      >
+                        <input
+                          ref={editLabelRef}
+                          defaultValue={str}
+                          onBlur={e => { onLabelEdit?.(node.uuid, e.target.value); setEditingLabelUuid(null) }}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') { onLabelEdit?.(node.uuid, e.currentTarget.value); setEditingLabelUuid(null) }
+                            if (e.key === 'Escape') setEditingLabelUuid(null)
+                            e.stopPropagation()
+                          }}
+                          style={{
+                            width: '100%', fontSize: fs / view.zoom, padding: '1px 4px',
+                            background: 'rgba(10,10,20,0.9)', border: '1px solid #ccaa44', color: '#ffdd88',
+                            borderRadius: 2, outline: 'none',
+                            transform: `scale(${1 / view.zoom})`, transformOrigin: 'top left',
+                          }}
+                        />
+                      </foreignObject>
+                    )
+                  }
                   return (
                     <text
                       x={rectX + w / 2} y={rectY + h / 2}
                       fontSize={fs / view.zoom}
                       fill={`rgb(${cr},${cg},${cb})`}
                       textAnchor="middle" dominantBaseline="middle"
-                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                      style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
+                      onDoubleClick={e => {
+                        e.stopPropagation()
+                        setEditingLabelUuid(node.uuid)
+                        setTimeout(() => editLabelRef.current?.focus(), 30)
+                      }}
                     >
                       {str}
                     </text>

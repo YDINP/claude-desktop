@@ -1259,6 +1259,24 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     onSelectNode(null)
   }, [sceneFile, saveScene, onSelectNode])
 
+  // R1491: Label 텍스트 인라인 편집 (SceneView 더블클릭)
+  const handleLabelEdit = useCallback(async (uuid: string, text: string) => {
+    if (!sceneFile?.root) return
+    function patchLabel(n: CCSceneNode): CCSceneNode {
+      if (n.uuid !== uuid) return { ...n, children: n.children.map(patchLabel) }
+      const labelComp = n.components.find(c => c.type === 'cc.Label' || c.type === 'Label' || c.type === 'cc.RichText')
+      if (!labelComp) return n
+      const propKey = ('_string' in labelComp.props) ? '_string' : 'string'
+      return {
+        ...n,
+        components: n.components.map(c =>
+          c === labelComp ? { ...c, props: { ...c.props, [propKey]: text } } : c
+        ),
+      }
+    }
+    await saveScene(patchLabel(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   const handleReparent = useCallback(async (dragUuid: string, dropUuid: string) => {
     if (!sceneFile?.root || dragUuid === dropUuid || sceneFile.root.uuid === dragUuid) return
     // 사이클 방지: drop 대상이 drag 노드의 하위인지 확인
@@ -2208,6 +2226,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onRotate={handleNodeRotate}
                 onMultiMove={handleMultiMove}
                 onMultiDelete={handleMultiDelete}
+                onLabelEdit={handleLabelEdit}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }
                   const findNode = (n: CCSceneNode): CCSceneNode | null => {
