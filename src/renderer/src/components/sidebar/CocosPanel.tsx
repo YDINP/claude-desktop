@@ -400,6 +400,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [saving, setSaving] = useState(false)
   const clipboardRef = useRef<CCSceneNode | null>(null)
   const [hideInactive, setHideInactive] = useState(false)
+  const [sceneViewHeight, setSceneViewHeight] = useState(240)
+  const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('cc-recent-files') ?? '[]') } catch { return [] }
   })
@@ -836,8 +838,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       {/* 씬 파싱 결과 — SceneView + TreeView + Inspector */}
       {sceneFile?.root && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-          {/* SVG 씬 뷰 */}
-          <div style={{ height: 240, flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
+          {/* SVG 씬 뷰 (드래그로 높이 조절) */}
+          <div style={{ height: sceneViewHeight, flexShrink: 0 }}>
             <CCFileSceneView
               sceneFile={sceneFile}
               selectedUuid={selectedNode?.uuid ?? null}
@@ -855,6 +857,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               }}
             />
           </div>
+          {/* 씬뷰 높이 조절 divider */}
+          <div
+            style={{ height: 4, cursor: 'ns-resize', background: 'var(--border)', flexShrink: 0, opacity: 0.5 }}
+            onMouseDown={e => { dividerDragRef.current = { startY: e.clientY, startH: sceneViewHeight } }}
+            onMouseMove={e => {
+              if (!dividerDragRef.current) return
+              const dy = e.clientY - dividerDragRef.current.startY
+              setSceneViewHeight(Math.max(80, Math.min(600, dividerDragRef.current.startH + dy)))
+            }}
+            onMouseUp={() => { dividerDragRef.current = null }}
+            onMouseLeave={() => { dividerDragRef.current = null }}
+          />
           {/* 씬 트리 */}
           <div style={{ flex: selectedNode ? 0 : 1, overflow: 'auto', maxHeight: selectedNode ? 180 : undefined }}>
             <div style={{ padding: '3px 8px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 6, alignItems: 'center' }}>

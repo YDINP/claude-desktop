@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 496 완료 — TT2-1 씬뷰 노드 이름 더블클릭 인라인 편집)
+> 마지막 업데이트: 2026-03-13 (Round 497 완료 — UU2-1 씬뷰 높이 드래그 조절 divider)
 
 ## 완료된 라운드
 
@@ -88,6 +88,7 @@
 | Round 494 | dev | Phase RR2-1: 씬뷰 컴포넌트 색상 강화 — Button(주황)/ScrollView(청록)/EditBox(분홍)/Slider(보라) 색상 추가 | ✅ |
 | Round 495 | dev | Phase SS2-2: 씬뷰 도움말 색상 범례 — ? 오버레이 하단에 컴포넌트 타입별 색상 점 범례 8개 | ✅ |
 | Round 496 | dev | Phase TT2-1: 씬뷰 노드 이름 인라인 편집 — 더블클릭 → foreignObject input, Enter/Escape/blur → onRename 콜백 | ✅ |
+| Round 497 | dev | Phase UU2-1: 씬뷰 높이 드래그 조절 — sceneViewHeight state, divider mousedown/move/up, 80~600px 범위 제한 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |
