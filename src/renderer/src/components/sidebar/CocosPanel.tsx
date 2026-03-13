@@ -4654,6 +4654,9 @@ function CCFileNodeInspector({
                 onMouseEnter={e => (e.currentTarget.style.color = lockScale ? '#7fc6ff' : '#888')}
                 onMouseLeave={e => (e.currentTarget.style.color = lockScale ? '#58a6ff' : '#555')}
               >{lockScale ? '🔒' : '🔓'}</span>
+              {/* R1645: X/Y 반전 버튼 */}
+              <span title="X 반전 (scaleX 부호 반전)" onClick={() => applyAndSave({ scale: { ...draft.scale, x: -draft.scale.x } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↔</span>
+              <span title="Y 반전 (scaleY 부호 반전)" onClick={() => applyAndSave({ scale: { ...draft.scale, y: -draft.scale.y } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↕</span>
             </div>
             {numInput('X', draft.scale.x, v => {
               const ratio = draft.scale.x !== 0 ? v / draft.scale.x : 1

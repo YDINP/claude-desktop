@@ -17658,6 +17658,18 @@ console.log('\n## 535. R1644 씬 트리 선택 노드 자동 스크롤 체크')
   }
 }
 
+// ── Section 536: R1645 Inspector 스케일 X/Y 반전 버튼 ──────────────────────
+console.log('\n## 536. R1645 Inspector 스케일 반전 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s536 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s536.includes('R1645') && s536.includes('-draft.scale.x') && s536.includes('-draft.scale.y')) {
+    log('pass', 'R1645-flip-btn', 'Inspector 스케일 X/Y 반전 버튼')
+  } else {
+    log('warning', 'R1645-flip-btn', 'Inspector 스케일 반전 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
