@@ -25,7 +25,19 @@ export function saveRun(run: WorkRun): void {
     const runs: WorkRun[] = existing ? JSON.parse(existing) : []
     runs.unshift(run)
     const trimmed = runs.slice(0, MAX_RUNS)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed))
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed))
+    } catch (quotaErr) {
+      if (quotaErr instanceof DOMException && quotaErr.name === 'QuotaExceededError') {
+        // Remove oldest half and retry
+        const reduced = trimmed.slice(0, Math.floor(trimmed.length / 2))
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(reduced))
+        } catch {
+          // Give up silently if still failing
+        }
+      }
+    }
   } catch (err) {
     console.error('Failed to save work run:', err)
   }

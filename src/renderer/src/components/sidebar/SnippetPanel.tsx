@@ -154,6 +154,8 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
     // Reset input so same file can be re-imported
     e.target.value = ''
 
+    if (file.size > 1024 * 1024) { showToast('1MB 이하만 가능'); return }
+
     const text = await file.text()
     const ext = file.name.split('.').pop()?.toLowerCase()
 

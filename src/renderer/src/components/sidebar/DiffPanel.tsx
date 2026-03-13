@@ -50,7 +50,7 @@ export function DiffPanel() {
       setDiffCopied(true)
       setTimeout(() => setDiffCopied(false), 1500)
     })
-  }, [leftPath, rightPath, diffStats, identical])
+  }, [leftPath, rightPath, diffStats, identical, leftContent, rightContent])
 
   useEffect(() => {
     if (leftContent === null || rightContent === null || leftContent === rightContent) {

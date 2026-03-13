@@ -77,7 +77,7 @@ const win = new BrowserWindow({
     if (input.control && (input.key === 'r' || input.key === 'R')) {
       event.preventDefault()
     }
-    if (input.key === 'F12') {
+    if (input.key === 'F12' && isDev) {
       win.webContents.toggleDevTools()
     }
     if (input.control && (input.key === '=' || input.key === '+')) {

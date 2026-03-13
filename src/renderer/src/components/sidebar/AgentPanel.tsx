@@ -226,6 +226,11 @@ export function AgentPanel() {
   const [taskSearch, setTaskSearch] = useState('')
   const [copiedResultId, setCopiedResultId] = useState<string | null>(null)
   const onStartRanRef = useRef(false)
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   const updateTasks = useCallback((next: AgentTask[]) => {
     setTasks(next)
@@ -263,6 +268,7 @@ export function AgentPanel() {
         status: success ? 'done' : 'error',
       }
 
+      if (!mountedRef.current) return
       setRunningSteps(prev => ({
         ...prev,
         [id]: [finalStep],
@@ -294,8 +300,9 @@ export function AgentPanel() {
         error: result.error,
       }
       saveRun(run)
-      setRuns(loadRuns())
+      if (mountedRef.current) setRuns(loadRuns())
     } catch (err) {
+      if (!mountedRef.current) return
       const errMsg = String(err)
       setRunningSteps(prev => ({
         ...prev,
@@ -322,7 +329,7 @@ export function AgentPanel() {
         success: false,
         error: errMsg,
       })
-      setRuns(loadRuns())
+      if (mountedRef.current) setRuns(loadRuns())
     }
   }, [])
 
@@ -338,28 +345,33 @@ export function AgentPanel() {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now()
+      // Compute which tasks to run outside setTasks updater
       setTasks(prev => {
         let changed = false
-        const toRun: string[] = []
         const next = prev.map(t => {
           if (!t.enabled || t.status === 'running') return t
           if (t.schedule === 'hourly') {
             const elapsed = now - (t.lastRun ?? 0)
-            if (elapsed >= 60 * 60 * 1000) {
-              toRun.push(t.id)
-              changed = true
-            }
+            if (elapsed >= 60 * 60 * 1000) { changed = true }
           } else if (t.schedule === 'daily') {
             const elapsed = now - (t.lastRun ?? 0)
-            if (elapsed >= 24 * 60 * 60 * 1000) {
-              toRun.push(t.id)
-              changed = true
-            }
+            if (elapsed >= 24 * 60 * 60 * 1000) { changed = true }
           }
           return t
         })
-        if (changed) toRun.forEach(rid => runTask(rid))
         return changed ? next : prev
+      })
+      // Run tasks in a separate step to keep updater pure
+      const snapshot = loadTasks()
+      snapshot.forEach(t => {
+        if (!t.enabled || t.status === 'running') return
+        if (t.schedule === 'hourly') {
+          const elapsed = now - (t.lastRun ?? 0)
+          if (elapsed >= 60 * 60 * 1000) runTask(t.id)
+        } else if (t.schedule === 'daily') {
+          const elapsed = now - (t.lastRun ?? 0)
+          if (elapsed >= 24 * 60 * 60 * 1000) runTask(t.id)
+        }
       })
     }, 60000)
     return () => clearInterval(interval)

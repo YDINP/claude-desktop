@@ -122,6 +122,10 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
 
   const handleReplaceAll = async () => {
     if (!results.length || !query.trim()) return
+    if (query.length > 200) return
+    if (useRegex) {
+      try { new RegExp(query) } catch { return }
+    }
     const files = [...new Set(results.map(r => r.filePath))]
     const confirmed = window.confirm(`${files.length}개 파일에서 "${query}"를 "${replaceText}"로 바꿀까요?`)
     if (!confirmed) return

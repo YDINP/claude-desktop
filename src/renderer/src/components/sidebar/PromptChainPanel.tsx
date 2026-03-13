@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 const PRESET_TEMPLATES = [
   {
@@ -139,6 +139,12 @@ export function PromptChainPanel() {
   const [isRunning, setIsRunning] = useState(false)
   const [showTemplates, setShowTemplates] = useState(false)
   const [copiedChainId, setCopiedChainId] = useState<string | null>(null)
+  const abortRef = useRef(false)
+
+  useEffect(() => {
+    abortRef.current = false
+    return () => { abortRef.current = true }
+  }, [])
 
   useEffect(() => {
     const loaded = loadChains()
@@ -273,6 +279,7 @@ export function PromptChainPanel() {
     ))
 
     for (let i = 0; i < chain.steps.length; i++) {
+      if (abortRef.current) break
       const step = chain.steps[i]
       const stepKey = `step${i + 1}`
 

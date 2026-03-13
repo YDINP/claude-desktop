@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface Task {
   id: string
@@ -34,10 +34,18 @@ export function TasksPanel() {
     window.api.getTasks().then(setTasks)
   }, [])
 
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const debouncedSave = useCallback((next: Task[]) => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      window.api.saveTasks(next)
+    }, 300)
+  }, [])
+
   const save = useCallback((next: Task[]) => {
     setTasks(next)
-    window.api.saveTasks(next)
-  }, [])
+    debouncedSave(next)
+  }, [debouncedSave])
 
   const addTask = () => {
     if (!input.trim()) return

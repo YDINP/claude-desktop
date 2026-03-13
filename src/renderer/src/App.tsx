@@ -402,7 +402,16 @@ function AppContent() {
   // ── Workspace state ──
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [activeWsId, setActiveWsId] = useState<string>('')
-  const [workspaceNames, setWorkspaceNames] = useState<Record<string, string>>({})
+  const [workspaceNames, setWorkspaceNames] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('workspace-names') ?? '{}') } catch { return {} }
+  })
+  const updateWorkspaceNames = (updater: (prev: Record<string, string>) => Record<string, string>) => {
+    setWorkspaceNames(prev => {
+      const next = updater(prev)
+      localStorage.setItem('workspace-names', JSON.stringify(next))
+      return next
+    })
+  }
   const wsStateRef = useRef<WorkspaceSnapshot>(EMPTY_SNAPSHOT)
 
   // ── File tabs (per workspace, stored in snapshot) ──
@@ -802,7 +811,11 @@ function AppContent() {
   // ── File tabs helpers ──
 
   const openFile = (path: string) => {
-    setOpenTabs(prev => prev.includes(path) ? prev : [...prev, path])
+    const normalizedPath = path.toLowerCase().replace(/\\/g, '/')
+    setOpenTabs(prev => {
+      if (prev.some(t => t.toLowerCase().replace(/\\/g, '/') === normalizedPath)) return prev
+      return [...prev, path]
+    })
     activeTabRef.current = path
     setActiveTab(path)
   }
@@ -1451,7 +1464,7 @@ function AppContent() {
           onSelect={switchWorkspace}
           onClose={closeWorkspace}
           onAdd={handleOpenFolder}
-          onRename={(id, name) => setWorkspaceNames(prev => ({ ...prev, [id]: name }))}
+          onRename={(id, name) => updateWorkspaceNames(prev => ({ ...prev, [id]: name }))}
         />
       )}
 

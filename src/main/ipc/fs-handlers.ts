@@ -4,14 +4,13 @@ import type { Snippet } from '../store/app-config'
 import { readdir, readFile, writeFile, stat, mkdir, rename as fsRename, unlink, rm } from 'fs/promises'
 import { watch, FSWatcher } from 'fs'
 import path, { join, relative, dirname } from 'path'
-import { exec, execFile, spawn } from 'child_process'
+import { execFile, spawn } from 'child_process'
 import { promisify } from 'util'
 import type { DirEntry } from '../../shared/ipc-schema'
 import { analyzeProject } from './project-intelligence'
 
 const watchers = new Map<string, FSWatcher>()
 
-const execAsync = promisify(exec)
 const execFileAsync = promisify(execFile)
 
 interface FileSearchResult {
@@ -200,8 +199,8 @@ export function registerFsHandlers(_win: unknown) {
   ipcMain.handle('git:status', async (_, { cwd }: { cwd: string }) => {
     try {
       const [branchResult, statusResult] = await Promise.all([
-        execAsync('git rev-parse --abbrev-ref HEAD', { cwd }).catch(() => null),
-        execAsync('git status --porcelain', { cwd }).catch(() => null),
+        execFileAsync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd }).catch(() => null),
+        execFileAsync('git', ['status', '--porcelain'], { cwd }).catch(() => null),
       ])
       const branch = branchResult?.stdout.trim() ?? null
       const changed = statusResult ? statusResult.stdout.trim().split('\n').filter(Boolean).length : 0
@@ -214,7 +213,7 @@ export function registerFsHandlers(_win: unknown) {
   // Detailed git status for GitPanel
   ipcMain.handle('git:statusFull', async (_, { repoPath }: { repoPath: string }) => {
     try {
-      const { stdout } = await execAsync('git status --porcelain -u', { cwd: repoPath })
+      const { stdout } = await execFileAsync('git', ['status', '--porcelain', '-u'], { cwd: repoPath })
 
       const files: Array<{ path: string; status: string; staged: boolean; unstaged: boolean }> = []
       for (const line of stdout.split('\n')) {
@@ -232,13 +231,13 @@ export function registerFsHandlers(_win: unknown) {
 
       let branch = ''
       try {
-        const branchResult = await execAsync('git branch --show-current', { cwd: repoPath })
+        const branchResult = await execFileAsync('git', ['branch', '--show-current'], { cwd: repoPath })
         branch = branchResult.stdout.trim()
       } catch { /* no branch */ }
 
       let lastCommit = ''
       try {
-        const commitResult = await execAsync('git log -1 --oneline', { cwd: repoPath })
+        const commitResult = await execFileAsync('git', ['log', '-1', '--oneline'], { cwd: repoPath })
         lastCommit = commitResult.stdout.trim()
       } catch { /* no commits */ }
 
@@ -271,7 +270,7 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:generateCommitMessage', async (_, { repoPath }: { repoPath: string }) => {
     try {
-      const { stdout } = await execAsync('git diff --staged', { cwd: repoPath, maxBuffer: 1024 * 512 })
+      const { stdout } = await execFileAsync('git', ['diff', '--staged'], { cwd: repoPath, maxBuffer: 1024 * 512 })
       const diff = stdout.trim()
       if (!diff) return { message: '' }
 
@@ -306,7 +305,7 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:branches', async (_, { cwd }: { cwd: string }) => {
     try {
-      const result = await execAsync('git branch -a --format="%(refname:short)|%(upstream:short)|%(HEAD)"', { cwd })
+      const result = await execFileAsync('git', ['branch', '-a', '--format=%(refname:short)|%(upstream:short)|%(HEAD)'], { cwd })
       const branches = result.stdout.trim().split('\n').filter(Boolean).map(line => {
         const [name, upstream, head] = line.split('|')
         return {
@@ -355,7 +354,7 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:stashList', async (_, { cwd }: { cwd: string }) => {
     try {
-      const result = await execAsync('git stash list --format="%gd|%s|%ci"', { cwd })
+      const result = await execFileAsync('git', ['stash', 'list', '--format=%gd|%s|%ci'], { cwd })
       const entries = result.stdout.trim().split('\n').filter(Boolean).map(line => {
         const [ref, msg, date] = line.split('|')
         return { ref: ref?.trim() ?? '', message: msg?.trim() ?? '', date: date?.trim() ?? '' }
@@ -400,8 +399,8 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:log', async (_, { repoPath, limit }: { repoPath: string; limit?: number }) => {
     try {
-      const n = limit ?? 20
-      const { stdout } = await execAsync(`git log -${n} --oneline --format="%H|%h|%s|%an|%ar"`, { cwd: repoPath })
+      const safeN = Math.max(1, Math.min(1000, parseInt(String(limit ?? 20)) || 20))
+      const { stdout } = await execFileAsync('git', ['log', `-${safeN}`, '--oneline', '--format=%H|%h|%s|%an|%ar'], { cwd: repoPath })
       const commits = stdout.split('\n').filter(Boolean).map(line => {
         const [hash, short, subject, author, date] = line.split('|')
         return { hash, short, subject, author, date }
@@ -457,21 +456,21 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('git:fetch', async (_, { cwd }: { cwd: string }) => {
     try {
-      const { stdout } = await execAsync('git fetch --all', { cwd })
+      const { stdout } = await execFileAsync('git', ['fetch', '--all'], { cwd })
       return { success: true, output: stdout }
     } catch (e: any) { return { success: false, error: e.message } }
   })
 
   ipcMain.handle('git:undoLastCommit', async (_, { cwd }: { cwd: string }) => {
     try {
-      const { stdout } = await execAsync('git reset --soft HEAD~1', { cwd })
+      const { stdout } = await execFileAsync('git', ['reset', '--soft', 'HEAD~1'], { cwd })
       return { success: true, output: stdout }
     } catch (e: any) { return { success: false, error: e.message } }
   })
 
   ipcMain.handle('git:cleanUntracked', async (_, { cwd }: { cwd: string }) => {
     try {
-      const { stdout } = await execAsync('git clean -fd', { cwd })
+      const { stdout } = await execFileAsync('git', ['clean', '-fd'], { cwd })
       return { success: true, output: stdout }
     } catch (e: any) { return { success: false, error: e.message } }
   })
@@ -479,7 +478,7 @@ export function registerFsHandlers(_win: unknown) {
   // List tags
   ipcMain.handle('git:listTags', async (_, { cwd }: { cwd: string }) => {
     try {
-      const { stdout } = await execAsync('git tag -l --sort=-version:refname', { cwd })
+      const { stdout } = await execFileAsync('git', ['tag', '-l', '--sort=-version:refname'], { cwd })
       return stdout.trim().split('\n').filter(Boolean)
     } catch { return [] }
   })

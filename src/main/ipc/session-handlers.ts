@@ -1,6 +1,6 @@
 import { ipcMain, app, dialog, BrowserWindow } from 'electron'
 import { join } from 'path'
-import { mkdir, writeFile, readFile, readdir, unlink, access } from 'fs/promises'
+import { mkdir, writeFile, readFile, readdir, unlink, access, rename } from 'fs/promises'
 
 const sessionsDir = join(app.getPath('userData'), 'claude-desktop', 'sessions')
 const INDEX_FILE = join(sessionsDir, '_index.json')
@@ -65,7 +65,9 @@ async function readIndex(): Promise<SessionMeta[]> {
 }
 
 async function writeIndex(sessions: SessionMeta[]) {
-  await writeFile(INDEX_FILE, JSON.stringify(sessions))
+  const tmpPath = INDEX_FILE + '.tmp'
+  await writeFile(tmpPath, JSON.stringify(sessions), 'utf-8')
+  await rename(tmpPath, INDEX_FILE)
 }
 
 async function buildIndexFromDisk(): Promise<SessionMeta[]> {
@@ -103,8 +105,8 @@ export function registerSessionHandlers() {
     await ensureDir()
     await writeFile(join(sessionsDir, `${session.id}.json`), JSON.stringify(session, null, 2))
     // Update index
-    let index = await readIndex()
-    const existingEntry = (await readIndex()).find(s => s.id === session.id)
+    const index = await readIndex()
+    const existingEntry = index.find(s => s.id === session.id)
     const meta: SessionMeta = {
       id: session.id, title: session.title, cwd: session.cwd,
       model: session.model, updatedAt: session.updatedAt,

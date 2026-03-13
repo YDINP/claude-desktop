@@ -137,16 +137,17 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
     })
   }
 
-  // AI error detection state
-  const [errorBanner, setErrorBanner] = useState(false)
-  const outputBufferRef = useRef<string[]>([])
-  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // AI error detection state (per-tab)
+  const [errorBanners, setErrorBanners] = useState<Record<string, boolean>>({})
+  const outputBufferRef = useRef<Record<string, string[]>>({})
+  const errorTimerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
 
   const handleAskClaude = () => {
-    const recentOutput = outputBufferRef.current.slice(-50).join('\n')
+    const buf = outputBufferRef.current[activeTabId] ?? []
+    const recentOutput = buf.slice(-50).join('\n')
     const prompt = `터미널 에러 분석해줘:\n\`\`\`\n${recentOutput}\n\`\`\``
     onAskAI?.(prompt)
-    setErrorBanner(false)
+    setErrorBanners(prev => ({ ...prev, [activeTabId]: false }))
   }
 
   // Recording state
@@ -204,17 +205,18 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
         const ts = new Date().toISOString()
         recordBufferRef.current.push(`[${ts}] ${data}`)
       }
-      // Output buffer capture + error detection
+      // Output buffer capture + error detection (per-tab)
       const clean = stripAnsi(data)
-      const lines = clean.split(/\r?\n/)
-      outputBufferRef.current.push(...lines.filter(l => l.length > 0))
-      if (outputBufferRef.current.length > 100) {
-        outputBufferRef.current = outputBufferRef.current.slice(-100)
-      }
+      const lines = clean.split(/\r?\n/).filter(l => l.length > 0)
+      const buf = outputBufferRef.current[id] ?? []
+      const newBuf = [...buf, ...lines]
+      outputBufferRef.current[id] = newBuf.length > 100 ? newBuf.slice(-100) : newBuf
       if (ERROR_PATTERN.test(clean)) {
-        setErrorBanner(true)
-        if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
-        errorTimerRef.current = setTimeout(() => setErrorBanner(false), 5000)
+        setErrorBanners(prev => ({ ...prev, [id]: true }))
+        if (errorTimerRef.current[id]) clearTimeout(errorTimerRef.current[id])
+        errorTimerRef.current[id] = setTimeout(() => {
+          setErrorBanners(prev => ({ ...prev, [id]: false }))
+        }, 5000)
       }
     })
     return removeListener
@@ -729,7 +731,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             }}
           />
         ))}
-        {errorBanner && (
+        {errorBanners[activeTabId] && (
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0,
             background: 'rgba(248,81,73,0.12)', borderTop: '1px solid rgba(248,81,73,0.4)',
@@ -745,7 +747,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               }}
             >🤖 Claude에게 물어보기</button>
             <button
-              onClick={() => setErrorBanner(false)}
+              onClick={() => setErrorBanners(prev => ({ ...prev, [activeTabId]: false }))}
               style={{
                 marginLeft: 'auto', background: 'none', border: 'none',
                 color: 'var(--text-muted)', fontSize: 12, cursor: 'pointer',

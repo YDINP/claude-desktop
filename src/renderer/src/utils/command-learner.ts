@@ -1,6 +1,8 @@
 const CMD_HISTORY_KEY = 'terminalCmdHistory'
 const MAX_HISTORY = 200
 
+const SENSITIVE_PATTERNS = [/password/i, /passwd/i, /secret/i, /token/i, /key/i, /-p\s/]
+
 interface CmdStat {
   cmd: string
   count: number
@@ -10,6 +12,7 @@ interface CmdStat {
 export function recordCommand(cmd: string) {
   const trimmed = cmd.trim().replace(/\n$/, '')
   if (!trimmed || trimmed.length < 2) return
+  if (SENSITIVE_PATTERNS.some(p => p.test(trimmed))) return
 
   try {
     const raw = localStorage.getItem(CMD_HISTORY_KEY)

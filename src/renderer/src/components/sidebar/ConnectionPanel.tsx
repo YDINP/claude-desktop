@@ -81,12 +81,11 @@ export function ConnectionPanel() {
 
   // Auto-ping interval
   useEffect(() => {
+    if (autoPingRef.current) { clearInterval(autoPingRef.current); autoPingRef.current = null }
     if (autoPing && servers.length > 0) {
       autoPingRef.current = setInterval(() => pingAllRef.current(), 30000)
-    } else {
-      if (autoPingRef.current) { clearInterval(autoPingRef.current); autoPingRef.current = null }
     }
-    return () => { if (autoPingRef.current) clearInterval(autoPingRef.current) }
+    return () => { if (autoPingRef.current) { clearInterval(autoPingRef.current); autoPingRef.current = null } }
   }, [autoPing, servers.length])
 
   const pingServer = useCallback(async (index: number) => {
