@@ -136,6 +136,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [canvasSearch, setCanvasSearch] = useState('')
   const [showCanvasSearch, setShowCanvasSearch] = useState(false)
   const [nodeSearch, setNodeSearch] = useState('')
+  const [showNodeSearch, setShowNodeSearch] = useState(false)
+  const [nodeSearchMatchIndex, setNodeSearchMatchIndex] = useState(0)
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
   const [lockedLayers, setLockedLayers] = useState<Set<string>>(new Set())
   const [showLayerPanel, setShowLayerPanel] = useState(false)
@@ -1647,15 +1649,38 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   useEffect(() => { setSearchMatchIndex(0) }, [canvasSearch])
 
-  const matchedUuids = useMemo(() => {
-    if (!nodeSearch.trim()) return new Set<string>()
+  const nodeSearchMatches = useMemo(() => {
+    if (!nodeSearch.trim()) return []
     const q = nodeSearch.toLowerCase()
-    const matched = new Set<string>()
-    nodeMap.forEach((n, uuid) => {
-      if (n.name.toLowerCase().includes(q)) matched.add(uuid)
-    })
-    return matched
+    return [...nodeMap.values()].filter(n => n.name.toLowerCase().includes(q))
   }, [nodeSearch, nodeMap])
+
+  const matchedUuids = useMemo(() => {
+    return new Set(nodeSearchMatches.map(n => n.uuid))
+  }, [nodeSearchMatches])
+
+  // nodeSearch 변경 시 인덱스 리셋 + 첫 번째 매칭 노드 자동선택
+  useEffect(() => {
+    setNodeSearchMatchIndex(0)
+    if (nodeSearchMatches.length > 0) {
+      const node = nodeSearchMatches[0]
+      setSelectedUuid(node.uuid)
+      setSelectedUuids(new Set([node.uuid]))
+    }
+  }, [nodeSearch])
+
+  const handleNodeSearchNav = useCallback((dir: 1 | -1) => {
+    if (nodeSearchMatches.length === 0) return
+    const next = (nodeSearchMatchIndex + dir + nodeSearchMatches.length) % nodeSearchMatches.length
+    setNodeSearchMatchIndex(next)
+    const node = nodeSearchMatches[next]
+    setSelectedUuid(node.uuid)
+    setSelectedUuids(new Set([node.uuid]))
+    const ancestors: string[] = []
+    let cur = nodeMap.get(node.uuid)
+    while (cur?.parentUuid) { ancestors.push(cur.parentUuid); cur = nodeMap.get(cur.parentUuid) }
+    if (ancestors.length > 0) setCollapsedUuids(prev => { const next2 = new Set(prev); ancestors.forEach(u => next2.delete(u)); return next2 })
+  }, [nodeSearchMatches, nodeSearchMatchIndex, nodeMap])
 
   // 씬 변경 감지 — 최초 로드 이후 nodeMap 변경 시 dirty 표시
   useEffect(() => {
@@ -2045,7 +2070,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onTogglePin={() => { if (selectedUuid) togglePin(selectedUuid) }}
         onAddAnnotation={() => handleAddAnnotation()}
         nodeSearch={nodeSearch}
-        onNodeSearchChange={setNodeSearch}
+        onNodeSearchChange={v => { setNodeSearch(v); if (!showNodeSearch) setShowNodeSearch(true) }}
+        showNodeSearch={showNodeSearch}
+        onNodeSearchToggle={() => { setShowNodeSearch(v => !v); if (showNodeSearch) setNodeSearch('') }}
+        nodeSearchCount={nodeSearchMatches.length}
+        nodeSearchIndex={nodeSearchMatchIndex}
+        onNodeSearchNav={handleNodeSearchNav}
         hasSnapshot={snapshot !== null}
         showDiff={showDiff}
         onTakeSnapshot={handleTakeSnapshot}
@@ -2320,7 +2350,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   dimmed={
                     (componentFilter !== 'all' && !node.components.some(c => c.type === componentFilter)) ||
                     (tagFilter !== 'all' && !(node.tags ?? []).includes(tagFilter)) ||
-                    (focusMode && !selectedUuids.has(uuid) && selectedUuid !== uuid)
+                    (focusMode && !selectedUuids.has(uuid) && selectedUuid !== uuid) ||
+                    (nodeSearch.trim().length > 0 && !matchedUuids.has(uuid))
                   }
                   hasChildren={node.childUuids.length > 0}
                   collapsed={collapsedUuids.has(uuid)}

@@ -1269,6 +1269,11 @@ function CCFileNodeInspector({
   const [draft, setDraft] = useState<CCSceneNode>(() => ({ ...node }))
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  // Round 643: 저장 상태 + Undo/Redo
+  const [isDirty, setIsDirty] = useState(false)
+  const [savedToast, setSavedToast] = useState(false)
+  const [undoStack, setUndoStack] = useState<Partial<CCSceneNode>[]>([])
+  const [redoStack, setRedoStack] = useState<Partial<CCSceneNode>[]>([])
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const COLLAPSED_COMPS_KEY = 'collapsed-comps'
   const [collapsedComps, setCollapsedComps] = useState<Set<string>>(() => {
@@ -1464,6 +1469,9 @@ function CCFileNodeInspector({
     setSaving(false)
     if (result.success) {
       setMsg({ ok: true, text: '저장됨' })
+      setIsDirty(false)
+      setSavedToast(true)
+      setTimeout(() => setSavedToast(false), 1500)
       onUpdate(updated)
     } else {
       setMsg({ ok: false, text: result.error ?? '저장 실패' })
@@ -1477,8 +1485,19 @@ function CCFileNodeInspector({
     const updated = { ...draft, ...patch }
     setDraft(updated)
 
-    // Round 611: 히스토리 기록
+    // Round 643: dirty + undo 스택
+    setIsDirty(true)
     const patchKeys = Object.keys(patch)
+    if (patchKeys.length > 0) {
+      const prevPatch: Partial<CCSceneNode> = {}
+      for (const k of patchKeys) {
+        ;(prevPatch as Record<string, unknown>)[k] = (draft as Record<string, unknown>)[k]
+      }
+      setUndoStack(prev => [prevPatch, ...prev].slice(0, 10))
+      setRedoStack([])
+    }
+
+    // Round 611: 히스토리 기록
     if (patchKeys.length > 0) {
       const propKey = patchKeys[0]
       const oldValue = (draft as Record<string, unknown>)[propKey]
@@ -1510,6 +1529,27 @@ function CCFileNodeInspector({
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => { flushSave() }, 50)
   }, [draft, sceneFile, flushSave])
+
+  // Round 643: Undo/Redo
+  const handleUndo = useCallback(() => {
+    if (undoStack.length === 0) return
+    const [prev, ...rest] = undoStack
+    // 현재 값을 redo 스택에 보존
+    const currentPatch: Partial<CCSceneNode> = {}
+    for (const k of Object.keys(prev)) {
+      ;(currentPatch as Record<string, unknown>)[k] = (draft as Record<string, unknown>)[k]
+    }
+    setRedoStack(r => [currentPatch, ...r].slice(0, 10))
+    setUndoStack(rest)
+    applyAndSave(prev)
+  }, [undoStack, draft, applyAndSave])
+
+  const handleRedo = useCallback(() => {
+    if (redoStack.length === 0) return
+    const [next, ...rest] = redoStack
+    setRedoStack(rest)
+    applyAndSave(next)
+  }, [redoStack, applyAndSave])
 
   // Round 635: Transform 복사/붙여넣기
   const [copyDone, setCopyDone] = useState(false)
@@ -1693,8 +1733,36 @@ function CCFileNodeInspector({
           style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', background: 'transparent', border: 'none', borderBottom: '1px solid var(--accent)', outline: 'none', flex: 1, minWidth: 0 }}
         />
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          {saving && <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>저장 중...</span>}
+          {/* Round 643: 저장 상태 배지 */}
+          {saving
+            ? <span title="저장 중" style={{ fontSize: 10, color: '#94a3b8' }}>⏳</span>
+            : isDirty
+            ? <span title="미저장 변경" style={{ fontSize: 10, color: '#f97316' }}>●</span>
+            : savedToast
+            ? <span title="저장 완료" style={{ fontSize: 10, color: '#4ade80' }}>✓</span>
+            : null}
           {msg && <span style={{ fontSize: 9, color: msg.ok ? '#4ade80' : '#f85149' }}>{msg.text}</span>}
+          {/* Round 643: Undo/Redo 버튼 */}
+          <button
+            onClick={handleUndo}
+            disabled={undoStack.length === 0}
+            title="실행 취소 (Undo)"
+            style={{
+              padding: '1px 4px', fontSize: 11, borderRadius: 3, lineHeight: 1.4,
+              background: 'transparent', border: `1px solid ${undoStack.length === 0 ? '#333' : '#555'}`,
+              color: undoStack.length === 0 ? '#333' : '#94a3b8', cursor: undoStack.length === 0 ? 'default' : 'pointer',
+            }}
+          >↩</button>
+          <button
+            onClick={handleRedo}
+            disabled={redoStack.length === 0}
+            title="다시 실행 (Redo)"
+            style={{
+              padding: '1px 4px', fontSize: 11, borderRadius: 3, lineHeight: 1.4,
+              background: 'transparent', border: `1px solid ${redoStack.length === 0 ? '#333' : '#555'}`,
+              color: redoStack.length === 0 ? '#333' : '#94a3b8', cursor: redoStack.length === 0 ? 'default' : 'pointer',
+            }}
+          >↪</button>
           <label style={{ fontSize: 10, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3 }}>
             <input
               type="checkbox"
@@ -2641,6 +2709,17 @@ function CCFileNodeInspector({
           </div>
         )
       })()}
+      {/* Round 643: 저장 완료 토스트 */}
+      {savedToast && (
+        <div style={{
+          position: 'sticky', bottom: 0, left: 0, right: 0,
+          background: '#166534', color: '#4ade80', fontSize: 11,
+          padding: '4px 10px', textAlign: 'center', borderRadius: 4,
+          marginTop: 6, userSelect: 'none',
+        }}>
+          저장됨 ✓
+        </div>
+      )}
     </div>
   )
 }

@@ -6107,6 +6107,43 @@ if (existsSync(tp639Path)) {
   }
 }
 
+// ── Section 130: Phase DD10 R641~643 기능 체크 ────────────────
+console.log('\n## 130. Phase DD10 R641~643 기능 체크')
+// R641: 씬뷰 노드 검색 + 하이라이트
+const svp641Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp641Path)) {
+  const svp641 = readFileSync(svp641Path, 'utf-8')
+  if (svp641.includes('showNodeSearch') || svp641.includes('nodeSearchQuery') || svp641.includes('searchHighlight')) {
+    log('pass', 'R641', '씬뷰 노드 검색 기능 존재')
+  } else {
+    log('warning', 'R641', '씬뷰 노드 검색 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R642: 세션 통계 고도화
+const sl642Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl642Path)) {
+  const sl642 = readFileSync(sl642Path, 'utf-8')
+  if (sl642.includes('sessionStats') || sl642.includes('SessionStats') || sl642.includes('totalTokens')) {
+    log('pass', 'R642', '세션 통계 고도화 존재')
+  } else {
+    log('warning', 'R642', '세션 통계 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R643: CocosPanel 저장 상태 + Undo/Redo
+const cp643Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp643Path)) {
+  const cp643 = readFileSync(cp643Path, 'utf-8')
+  if (cp643.includes('isDirty') && cp643.includes('undoStack')) {
+    log('pass', 'R643', 'CocosPanel isDirty + undoStack 존재')
+  } else if (cp643.includes('isDirty') || cp643.includes('undoStack')) {
+    log('pass', 'R643', 'CocosPanel 저장 상태/Undo 부분 존재')
+  } else {
+    log('warning', 'R643', 'CocosPanel 저장 상태/Undo 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

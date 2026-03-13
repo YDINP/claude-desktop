@@ -124,8 +124,33 @@ function groupSessions(sessions: SessionMeta[]): Array<{ label: string; items: S
 
 interface SessionStats {
   totalMessages?: number
+  userMessages?: number
+  assistantMessages?: number
   estimatedTokens?: number
+  createdAt?: string | null
   updatedAt?: string | null
+}
+
+function formatRelativeTime(ts: string | null | undefined): string {
+  if (!ts) return ''
+  const d = new Date(ts)
+  const now = Date.now()
+  const diffMs = now - d.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  if (diffMins < 1) return '방금'
+  if (diffMins < 60) return `${diffMins}분 전`
+  const diffHours = Math.floor(diffMins / 60)
+  if (diffHours < 24) return `${diffHours}시간 전`
+  const diffDays = Math.floor(diffHours / 24)
+  if (diffDays === 1) return '어제'
+  if (diffDays < 7) return `${diffDays}일 전`
+  return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
+}
+
+function formatCharCount(n: number): string {
+  if (n >= 10000) return `${(n / 10000).toFixed(1)}만`
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`
+  return String(n)
 }
 
 export function SessionList({ onSelect, activeSessionId, onImportComplete }: { onSelect: (id: string) => void; activeSessionId?: string | null; onImportComplete?: () => void }) {
@@ -781,6 +806,16 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
               {s.forkedFrom && (
                 <span style={{ fontSize: 9, color: '#0098ff', flexShrink: 0, letterSpacing: 0 }}>⎇</span>
               )}
+              {sessionStats[s.id] && (() => {
+                const st = sessionStats[s.id]
+                const totalChars = (st.estimatedTokens ?? 0) * 4
+                return ((st.totalMessages ?? 0) >= 50 || totalChars >= 50000) ? (
+                  <span
+                    style={{ fontSize: 10, flexShrink: 0, color: '#e5a020', lineHeight: 1 }}
+                    title="긴 세션 — 컨텍스트 초과 위험"
+                  >⚠</span>
+                ) : null
+              })()}
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {s.title || 'Untitled'}
               </span>
@@ -796,41 +831,70 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             <span>{formatTime(s.updatedAt)}</span>
             <span>{s.messageCount} msg{s.messageCount !== 1 ? 's' : ''}</span>
           </div>
-          {sessionStats[s.id] && (isActive || hoveredSession === s.id) && (
-            <div style={{
-              fontSize: 9,
-              color: 'var(--text-muted)',
-              marginTop: isActive ? 4 : 2,
-              display: 'flex',
-              gap: isActive ? 10 : 8,
-              ...(isActive ? {
-                padding: '3px 6px',
-                background: 'rgba(0,152,255,0.06)',
-                borderRadius: 4,
-                border: '1px solid rgba(0,152,255,0.12)',
-              } : {}),
-            }}>
-              <span title="메시지 수">
-                {isActive ? '\uD83D\uDCAC ' : ''}
-                {sessionStats[s.id].totalMessages} msg{(sessionStats[s.id].totalMessages ?? 0) !== 1 ? 's' : ''}
+          {sessionStats[s.id] && (isActive || hoveredSession === s.id) && (() => {
+            const st = sessionStats[s.id]
+            const totalMsgs = st.totalMessages ?? 0
+            const totalChars = (st.estimatedTokens ?? 0) * 4
+            const bookmarkCount = 0 // placeholder — API에 북마크 집계 없음
+            const avgAiLen = (st.assistantMessages ?? 0) > 0
+              ? Math.round(totalChars / (st.assistantMessages ?? 1) / 2)
+              : 0
+            const isHeavy = totalMsgs >= 50 || totalChars >= 50000
+            const lastActivity = formatRelativeTime(st.updatedAt)
+
+            const compactBadge = (text: string, color: string, title: string) => (
+              <span
+                title={title}
+                style={{
+                  background: `${color}18`,
+                  color,
+                  borderRadius: 4,
+                  padding: '1px 4px',
+                  fontSize: 9,
+                  border: `1px solid ${color}30`,
+                  fontVariantNumeric: 'tabular-nums',
+                  cursor: 'default',
+                }}
+              >
+                {text}
               </span>
-              {(sessionStats[s.id].estimatedTokens ?? 0) > 0 && (
-                <span title="예상 토큰">
-                  {isActive ? '\uD83E\uDDE0 ' : '~'}
-                  {((sessionStats[s.id].estimatedTokens ?? 0) / 1000).toFixed(1)}K tok
-                </span>
-              )}
-              {isActive && (
-                <span title="생성 시각">
-                  {'\uD83D\uDD52 '}
-                  {new Date(s.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
-                </span>
-              )}
-              {!isActive && sessionStats[s.id].updatedAt && (
-                <span>{new Date(sessionStats[s.id].updatedAt!).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
-              )}
-            </div>
-          )}
+            )
+
+            const tooltipLines = [
+              `메시지: ${totalMsgs}개 (사용자 ${st.userMessages ?? 0} / AI ${st.assistantMessages ?? 0})`,
+              `총 글자: ${formatCharCount(totalChars)}자`,
+              `예상 토큰: ~${((st.estimatedTokens ?? 0) / 1000).toFixed(1)}K`,
+              avgAiLen > 0 ? `AI 평균 응답: ${formatCharCount(avgAiLen)}자` : '',
+              lastActivity ? `마지막 활동: ${lastActivity}` : '',
+              isHeavy ? '⚠ 긴 세션 — 컨텍스트 초과 위험' : '',
+            ].filter(Boolean).join('\n')
+
+            return (
+              <div style={{
+                marginTop: isActive ? 4 : 2,
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 4,
+                ...(isActive ? {
+                  padding: '3px 6px',
+                  background: 'rgba(0,152,255,0.06)',
+                  borderRadius: 4,
+                  border: '1px solid rgba(0,152,255,0.12)',
+                } : {}),
+              }}
+              title={tooltipLines}
+              >
+                {compactBadge(`${totalMsgs} msg`, '#6b9fff', '메시지 수')}
+                {totalChars > 0 && compactBadge(formatCharCount(totalChars) + '자', '#4caf82', '총 글자 수')}
+                {bookmarkCount > 0 && compactBadge(`★${bookmarkCount}`, '#c9a227', '북마크 수')}
+                {isActive && lastActivity && (
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', alignSelf: 'center' }}>
+                    {lastActivity}
+                  </span>
+                )}
+              </div>
+            )
+          })()}
           {sessionNotes[s.id] && noteOpenId !== s.id && (
             <div style={{
               fontSize: 10,

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 640 완료 — Phase DD10 진행 중, QA Pass 530)
+> 마지막 업데이트: 2026-03-13 (Round 644 완료 — Phase DD10 진행 중, QA Pass 533)
 
 ## 개발 루프 실행 방식
 
@@ -616,6 +616,10 @@
 | Round 638 | SceneViewPanel 그리드 레이아웃 (handleGridLayout, √N×M 자동 배치) | ✅ |
 | Round 639 | TerminalPanel AI 에러 자동 분석 (isErrorLine, AUTO_ANALYZE_KEY) | ✅ |
 | Round 640 | QA Section 129 추가 (R637/R638/R639, Pass 530) | ✅ |
+| Round 641 | SceneViewPanel 노드 검색 + 하이라이트 (showNodeSearch, nodeSearchQuery) | ✅ |
+| Round 642 | SessionList 세션 통계 고도화 (sessionStats, SessionStats 타입) | ✅ |
+| Round 643 | CocosPanel 저장 상태 표시 + Undo/Redo (isDirty, undoStack, savedToast) | ✅ |
+| Round 644 | QA Section 130 추가 (R641/R642/R643, Pass 533) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 
