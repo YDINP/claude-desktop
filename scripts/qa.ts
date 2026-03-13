@@ -17128,6 +17128,18 @@ console.log('\n## 491. R1600 Inspector 같은 이름 노드 찾기 버튼 체크
   }
 }
 
+// ── Section 492: R1601 SceneView 줌 퀵점프 버튼 ──────────────────────
+console.log('\n## 492. R1601 SceneView 줌 퀵점프 버튼 (½/1×/2×) 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s492 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s492.includes('R1601') && s492.includes('½') && s492.includes('1×') && s492.includes('zoom: z')) {
+    log('pass', 'R1601-zoom-quickjump', 'SceneView 줌 퀵점프 버튼 (½/1×/2×)')
+  } else {
+    log('warning', 'R1601-zoom-quickjump', 'SceneView 줌 퀵점프 버튼 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

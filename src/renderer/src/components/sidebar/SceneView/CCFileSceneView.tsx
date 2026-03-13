@@ -846,6 +846,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onClick={() => setView(v => ({ ...v, zoom: Math.max(0.1, v.zoom / 1.25) }))}
           style={{ padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >−</button>
+        {/* R1601: 줌 퀵점프 버튼 */}
+        {([0.5, 1, 2] as const).map(z => (
+          <button key={z}
+            onClick={() => setView(v => ({ ...v, zoom: z }))}
+            title={`줌 ${z * 100}%로 고정`}
+            style={{ padding: '0 3px', fontSize: 8, borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', background: Math.abs(view.zoom - z) < 0.01 ? 'rgba(88,166,255,0.15)' : 'none', color: Math.abs(view.zoom - z) < 0.01 ? '#58a6ff' : 'var(--text-muted)', lineHeight: '14px' }}
+          >{z === 1 ? '1×' : z === 0.5 ? '½' : '2×'}</button>
+        ))}
         {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
         <button
           onClick={handleScreenshotAI}
