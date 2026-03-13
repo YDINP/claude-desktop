@@ -16708,6 +16708,18 @@ console.log('\n## 458. R1567 Ctrl+↑↓ 형제 순서 변경 체크')
   }
 }
 
+// ── Section 459: R1568 cc.Camera Inspector Quick Edit ────────────────
+console.log('\n## 459. R1568 cc.Camera Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s459 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s459.includes("comp.type === 'cc.Camera'") && s459.includes('depth') && s459.includes('zoomRatio') && s459.includes('fov')) {
+    log('pass', 'R1568-camera', 'cc.Camera Inspector Quick Edit: depth/zoomRatio/fov')
+  } else {
+    log('warning', 'R1568-camera', 'cc.Camera Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

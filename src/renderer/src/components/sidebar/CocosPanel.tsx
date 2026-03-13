@@ -4877,6 +4877,55 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1568: cc.Camera — depth/zoomRatio Quick Edit
+            if (comp.type === 'cc.Camera') {
+              const depth = Number(p.depth ?? 0)
+              const zoomRatio = Number(p.zoomRatio ?? 1)
+              const fov = Number(p.fov ?? 45)
+              const is3x = typeof p.fov !== 'undefined'
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>depth</span>
+                    <input type="number" defaultValue={depth} step={1}
+                      onBlur={e => {
+                        const v = parseInt(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, depth: v, _depth: v, _N$depth: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  {!is3x && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>zoomRatio</span>
+                      <input type="number" defaultValue={zoomRatio} min={0.01} step={0.1}
+                        onBlur={e => {
+                          const v = parseFloat(e.target.value) || 1
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, zoomRatio: v, _zoomRatio: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      />
+                    </div>
+                  )}
+                  {is3x && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>fov</span>
+                      <input type="number" defaultValue={fov} min={1} max={180} step={1}
+                        onBlur={e => {
+                          const v = Math.max(1, Math.min(180, parseFloat(e.target.value) || 45))
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fov: v, _fov: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      />
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
+                    </div>
+                  )}
+                </div>
+              )
+            }
             // R1566: cc.ParticleSystem / cc.ParticleSystem2D — Quick Edit
             if (comp.type === 'cc.ParticleSystem' || comp.type === 'cc.ParticleSystem2D') {
               const duration = Number(p.duration ?? -1)
