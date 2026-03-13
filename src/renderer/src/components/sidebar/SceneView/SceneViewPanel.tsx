@@ -117,11 +117,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [nodeColors, setNodeColors] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('node-colors') ?? '{}') } catch { return {} }
   })
-  const [nodeTags, setNodeTags] = useState<Record<string, string[]>>(() => {
-    try { return JSON.parse(localStorage.getItem('node-tags') ?? '{}') } catch { return {} }
-  })
-  const [nodeTagInput, setNodeTagInput] = useState<string | null>(null)
-  const [nodeTagDraft, setNodeTagDraft] = useState('')
   const viewHistoryRef = useRef<ViewTransform[]>([])
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
@@ -160,6 +155,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   // ── 히트맵 상태 ────────────────────────────────────────────
   const [showHeatmap, setShowHeatmap] = useState(false)
+  // ── 노드 접근 빈도 히트맵 (R702) ───────────────────────────
+  const [nodeAccessCount, setNodeAccessCount] = useState<Record<string, number>>({})
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)
@@ -172,6 +169,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     try { return JSON.parse(localStorage.getItem('node-tags') ?? '{}') } catch { return {} }
   })
   const [nodeTagInput, setNodeTagInput] = useState<string | null>(null)
+  const [nodeTagDraft, setNodeTagDraft] = useState('')
   const animPreviewIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const handleTakeSnapshot = useCallback(() => {
@@ -939,6 +937,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       setSelectedUuid(uuid)
       setSelectedUuids(new Set())
     }
+
+    // 접근 횟수 누적 (R702)
+    setNodeAccessCount(prev => ({ ...prev, [uuid]: (prev[uuid] ?? 0) + 1 }))
 
     const node = nodeMap.get(uuid)
     if (!node) return
@@ -2145,6 +2146,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         >
           스냅샷
         </button>
+        {/* 접근 횟수 초기화 버튼 (R702) */}
+        {Object.keys(nodeAccessCount).length > 0 && (
+          <button
+            onClick={() => setNodeAccessCount({})}
+            style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 4, color: '#fca5a5', cursor: 'pointer', whiteSpace: 'nowrap' }}
+          >
+            접근 횟수 초기화
+          </button>
+        )}
         {snapshots.length > 0 && (
           <div style={{ position: 'relative' }}>
             <button
@@ -2488,7 +2498,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   pinned={pinnedUuids.has(uuid)}
                   highlighted={matchedUuids.has(uuid)}
                   flashing={flashUuid === uuid}
-                  nodeColor={nodeColors[uuid]}
+                  nodeColor={showHeatmap
+                    ? (() => {
+                        const cnt = nodeAccessCount[uuid] ?? 0
+                        if (cnt === 0) return nodeColors[uuid]
+                        if (cnt <= 3) return 'rgba(253,224,71,0.45)'
+                        if (cnt <= 9) return 'rgba(249,115,22,0.55)'
+                        return 'rgba(239,68,68,0.65)'
+                      })()
+                    : nodeColors[uuid]}
                   designWidth={DESIGN_W}
                   designHeight={DESIGN_H}
                   onMouseDown={handleNodeMouseDown}

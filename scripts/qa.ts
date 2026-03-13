@@ -6634,6 +6634,41 @@ if (existsSync(cp699Path)) {
   }
 }
 
+// ── Section 145: Phase DD10 R701~703 기능 체크 ────────────────
+console.log('\n## 145. Phase DD10 R701~703 기능 체크')
+// R701: ChatPanel 메시지 라벨
+const cp701Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp701Path)) {
+  const cp701 = readFileSync(cp701Path, 'utf-8')
+  if (cp701.includes('msgLabels') || cp701.includes('showLabelMenu') || cp701.includes('MSG_LABEL_COLORS')) {
+    log('pass', 'R701', 'ChatPanel 메시지 라벨 존재')
+  } else {
+    log('warning', 'R701', 'ChatPanel 메시지 라벨 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R702: SceneViewPanel 노드 접근 카운터
+const svp702Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp702Path)) {
+  const svp702 = readFileSync(svp702Path, 'utf-8')
+  if (svp702.includes('nodeAccessCount') || svp702.includes('accessCount') || svp702.includes('nodeHitCount')) {
+    log('pass', 'R702', 'SceneViewPanel 노드 접근 카운터 존재')
+  } else {
+    log('warning', 'R702', 'SceneViewPanel 노드 접근 카운터 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R703: InputBar 스마트 입력 모드
+const ib703Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib703Path)) {
+  const ib703 = readFileSync(ib703Path, 'utf-8')
+  if (ib703.includes('smartInput') || ib703.includes('smart-input') || ib703.includes('smartMode')) {
+    log('pass', 'R703', 'InputBar 스마트 입력 모드 존재')
+  } else {
+    log('warning', 'R703', 'InputBar 스마트 입력 모드 없음', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

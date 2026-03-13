@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T10:24:46.314Z
+> 2026-03-13T10:56:40.934Z
 
 ## Critical
 _없음_
@@ -538,3 +538,51 @@ _없음_
 - 채팅 코드 블록 실행 버튼 존재
 - 씬뷰 그리드 레이아웃 존재
 - 터미널 AI 에러 자동 분석 존재
+- 씬뷰 노드 검색 기능 존재
+- 세션 통계 고도화 존재
+- CocosPanel isDirty + undoStack 존재
+- 메시지 이모지 리액션 존재
+- SceneToolbar 검색 버튼 존재
+- InputBar 파일 드래그앤드롭 존재
+- SessionList 핀 고정 기능 존재
+- SceneViewPanel 노드 복사/붙여넣기 존재
+- ChatPanel 메시지 검색 존재
+- CocosPanel 컴포넌트 드래그 순서 존재
+- TerminalPanel 출력 필터링 존재
+- SceneViewPanel 노드 다중 선택/그룹화 존재
+- SessionList 세션 내보내기 존재
+- ChatPanel 스크롤 위치 저장 존재
+- SceneToolbar 레이아웃 프리셋 존재
+- MessageBubble 코드 복사 버튼 존재
+- SceneViewPanel 노드 가시성 일괄 토글 존재
+- InputBar 템플릿 변수 자동완성 존재
+- CocosPanel 컬러 피커 존재
+- ChatPanel 타임스탬프 토글 존재
+- TerminalPanel 탭 색상 태그 존재
+- SessionList 세션 복제 기능 존재
+- SceneViewPanel 노드 잠금 기능 존재
+- InputBar 음성 입력 버튼 존재
+- CocosPanel 노드 프리셋 저장/불러오기 존재
+- MessageBubble 인용 답장 존재
+- SceneToolbar 노드 정렬 버튼 존재
+- SessionList 세션 병합 UI 존재
+- ChatPanel AI 제안 표시 개선 존재
+- TerminalPanel 명령어 즐겨찾기 존재
+- SceneViewPanel 스냅샷 기록 존재
+- ChatPanel 메시지 폴딩 존재
+- CocosPanel 프로퍼티 검색 존재
+- InputBar 멀티라인 모드 존재
+- TerminalPanel 출력 색상 테마 존재
+- SessionList 세션 아카이브 존재
+- SceneViewPanel 애니메이션 미리보기 존재
+- MessageBubble 번역 버튼 존재
+- CocosPanel 노드 즐겨찾기 존재
+- ChatPanel 대화 자동 요약 존재
+- TerminalPanel 분할 레이아웃 존재
+- SceneViewPanel 노드 태그 존재
+- StatusBar CPU 모니터링 존재
+- SessionList 세션 타입 필터 존재
+- CocosPanel 변경 이력 뷰어 존재
+- ChatPanel 메시지 라벨 존재
+- SceneViewPanel 노드 접근 카운터 존재
+- InputBar 스마트 입력 모드 존재

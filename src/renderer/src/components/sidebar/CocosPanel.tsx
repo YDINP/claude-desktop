@@ -1280,6 +1280,8 @@ function CCFileNodeInspector({
     try { return JSON.parse(localStorage.getItem('node-presets') ?? '[]') } catch { return [] }
   })
   const [nodePresetOpen, setNodePresetOpen] = useState(false)
+  const [nodePresetCategories, setNodePresetCategories] = useState<Record<string, string[]>>({})
+  const [selectedPresetCategory, setSelectedPresetCategory] = useState<string>('all')
   const [favoriteNodes, setFavoriteNodes] = useState<Array<{ uuid: string; name: string }>>(() => {
     try { return JSON.parse(localStorage.getItem('favorite-nodes') ?? '[]') } catch { return [] }
   })
@@ -1498,6 +1500,18 @@ function CCFileNodeInspector({
     if (!sceneFile.root) return
     const updated = { ...draft, ...patch }
     setDraft(updated)
+
+    // R699: changeHistory 이력 추가
+    const patchKeysForHistory = Object.keys(patch)
+    if (patchKeysForHistory.length > 0) {
+      const historyEntry = {
+        timestamp: Date.now(),
+        prop: patchKeysForHistory[0],
+        oldVal: (draft as Record<string, unknown>)[patchKeysForHistory[0]],
+        newVal: (patch as Record<string, unknown>)[patchKeysForHistory[0]],
+      }
+      setChangeHistory(prev => [historyEntry, ...prev].slice(0, 20))
+    }
 
     // Round 643: dirty + undo 스택
     setIsDirty(true)
@@ -2124,8 +2138,59 @@ function CCFileNodeInspector({
               </button>
             </>
           )}
+          {/* R699: 변경 이력 토글 버튼 */}
+          <button
+            onClick={() => setShowHistory(o => !o)}
+            title="변경 이력 보기"
+            style={{
+              padding: '1px 4px', fontSize: 11, borderRadius: 3, cursor: 'pointer',
+              background: showHistory ? 'rgba(88,166,255,0.15)' : 'transparent',
+              color: showHistory ? '#58a6ff' : '#555',
+              border: `1px solid ${showHistory ? '#58a6ff' : '#444'}`,
+              lineHeight: 1.4,
+            }}
+          >
+            📜
+          </button>
         </div>
       </div>
+
+      {/* R699: 변경 이력 패널 */}
+      {showHistory && (
+        <div style={{ marginBottom: 6, borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>변경 이력 ({changeHistory.length})</span>
+            {changeHistory.length > 0 && (
+              <span
+                onClick={() => setChangeHistory([])}
+                style={{ fontSize: 9, color: '#f85149', cursor: 'pointer' }}
+                title="이력 지우기"
+              >
+                지우기
+              </span>
+            )}
+          </div>
+          {changeHistory.length === 0 ? (
+            <div style={{ fontSize: 9, color: '#555', padding: '3px 0' }}>변경 이력이 없습니다.</div>
+          ) : (
+            <div style={{ maxHeight: 160, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {changeHistory.map((entry, i) => (
+                <div key={i} style={{ fontSize: 9, display: 'flex', gap: 4, alignItems: 'flex-start', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  <span style={{ color: '#555', flexShrink: 0 }}>{new Date(entry.timestamp).toLocaleTimeString()}</span>
+                  <span style={{ color: '#58a6ff', flexShrink: 0 }}>{entry.prop}</span>
+                  <span style={{ color: '#f85149', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 60 }} title={JSON.stringify(entry.oldVal)}>
+                    {JSON.stringify(entry.oldVal)}
+                  </span>
+                  <span style={{ color: '#555', flexShrink: 0 }}>→</span>
+                  <span style={{ color: '#4ade80', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 60 }} title={JSON.stringify(entry.newVal)}>
+                    {JSON.stringify(entry.newVal)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* R683: 프로퍼티 검색창 */}
       {showPropSearch && (

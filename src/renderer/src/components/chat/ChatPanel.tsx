@@ -793,6 +793,25 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [autoSummary, setAutoSummary] = useState<string | null>(null)
   const [showAutoSummary, setShowAutoSummary] = useState(false)
 
+  // R701: 메시지 카테고리 레이블
+  const [msgLabels, setMsgLabels] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('msg-labels') ?? '{}') } catch { return {} }
+  })
+  const [showLabelMenu, setShowLabelMenu] = useState<string | null>(null)
+  const MSG_LABEL_KINDS = ['중요', '질문', '답변', '코드', '오류'] as const
+  const MSG_LABEL_COLORS: Record<string, string> = {
+    '중요': '#f87171', '질문': '#60a5fa', '답변': '#34d399', '코드': '#c084fc', '오류': '#fbbf24',
+  }
+  const setMsgLabel = useCallback((messageId: string, label: string) => {
+    setMsgLabels(prev => {
+      const next = { ...prev }
+      if (next[messageId] === label) { delete next[messageId] } else { next[messageId] = label }
+      try { localStorage.setItem('msg-labels', JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
+    setShowLabelMenu(null)
+  }, [])
+
   const toggleFoldMessages = useCallback(() => {
     if (displayMessages.length < foldThreshold) return
     // 앞 5개 + 뒤 5개 제외한 중간 메시지들을 fold
@@ -1653,6 +1672,53 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                     viewMode={chatViewMode}
                     showTimestamp={showTimestamps}
                   />
+                  {/* R701: 레이블 뱃지 + 메뉴 */}
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 4, padding: '0 16px 2px', minHeight: 16 }}>
+                    {msgLabels[msg.id] && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 600, padding: '1px 6px',
+                        borderRadius: 8, background: MSG_LABEL_COLORS[msgLabels[msg.id]] + '33',
+                        color: MSG_LABEL_COLORS[msgLabels[msg.id]], border: `1px solid ${MSG_LABEL_COLORS[msgLabels[msg.id]]}55`,
+                        letterSpacing: '0.3px',
+                      }}>
+                        {msgLabels[msg.id]}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => setShowLabelMenu(prev => prev === msg.id ? null : msg.id)}
+                      title="레이블 설정"
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--text-muted)', fontSize: 11, padding: '0 2px', opacity: 0.5,
+                      }}
+                    >
+                      #
+                    </button>
+                    {showLabelMenu === msg.id && (
+                      <div style={{
+                        position: 'absolute', bottom: '100%', left: 16, zIndex: 999,
+                        background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                        borderRadius: 6, padding: 4, display: 'flex', gap: 4,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                      }}>
+                        {MSG_LABEL_KINDS.map(kind => (
+                          <button
+                            key={kind}
+                            onClick={() => setMsgLabel(msg.id, kind)}
+                            style={{
+                              background: msgLabels[msg.id] === kind ? MSG_LABEL_COLORS[kind] + '33' : 'transparent',
+                              border: `1px solid ${MSG_LABEL_COLORS[kind]}55`,
+                              borderRadius: 4, padding: '2px 7px', cursor: 'pointer',
+                              fontSize: 11, fontWeight: 600,
+                              color: MSG_LABEL_COLORS[kind],
+                            }}
+                          >
+                            {kind}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )
             })}

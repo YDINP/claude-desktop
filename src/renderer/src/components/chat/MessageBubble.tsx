@@ -946,7 +946,6 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   }, [onReaction])
 
   const [translatedText, setTranslatedText] = useState<string | null>(null)
-  const [translating, setTranslating] = useState(false)
   const [showTranslation, setShowTranslation] = useState(false)
   const [showEditHistory, setShowEditHistory] = useState(false)
   const editTextareaRef = useRef<HTMLTextAreaElement>(null)

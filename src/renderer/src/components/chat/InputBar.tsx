@@ -208,6 +208,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [multilineMode, setMultilineMode] = useState(false)
   const multilineModeRef = useRef(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [smartInput, setSmartInput] = useState<boolean>(() => localStorage.getItem('smart-input') === 'true')
   const [varSuggestions, setVarSuggestions] = useState<string[]>([])
   const [varSuggestionsOpen, setVarSuggestionsOpen] = useState(false)
   const [varSuggestionsIdx, setVarSuggestionsIdx] = useState(0)
@@ -522,6 +523,39 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     updateCursor()
+
+    // Smart input: wrap selected text with quotes or parens
+    if (smartInput && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const ta = textareaRef.current
+      if (ta) {
+        const start = ta.selectionStart ?? 0
+        const end = ta.selectionEnd ?? 0
+        if (start !== end) {
+          if (e.key === '"') {
+            e.preventDefault()
+            const selected = text.slice(start, end)
+            const newText = text.slice(0, start) + '"' + selected + '"' + text.slice(end)
+            setText(newText)
+            requestAnimationFrame(() => {
+              ta.selectionStart = start + 1
+              ta.selectionEnd = end + 1
+            })
+            return
+          }
+          if (e.key === '(') {
+            e.preventDefault()
+            const selected = text.slice(start, end)
+            const newText = text.slice(0, start) + '(' + selected + ')' + text.slice(end)
+            setText(newText)
+            requestAnimationFrame(() => {
+              ta.selectionStart = start + 1
+              ta.selectionEnd = end + 1
+            })
+            return
+          }
+        }
+      }
+    }
 
     // Var suggestions dropdown navigation
     if (varSuggestionsOpen && varSuggestions.length > 0) {
@@ -1534,6 +1568,23 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         📋
       </button>
 
+      <button
+        onClick={() => {
+          const next = !smartInput
+          setSmartInput(next)
+          localStorage.setItem('smart-input', String(next))
+        }}
+        title={smartInput ? '스마트 입력 끄기 (선택 후 " 또는 ( 입력 시 자동 감싸기)' : '스마트 입력 켜기 (선택 후 " 또는 ( 입력 시 자동 감싸기)'}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: smartInput ? 'var(--accent)' : 'var(--text-muted)',
+          fontSize: 16, padding: '4px',
+          opacity: smartInput ? 1 : 0.5,
+        }}
+      >
+        ✨
+      </button>
+
       {text.trim().length > 0 && (
         <button
           onClick={handleEnhance}
@@ -1545,7 +1596,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
             fontSize: 16, padding: '4px', opacity: enhancing ? 0.5 : 1
           }}
         >
-          ✨
+          🪄
         </button>
       )}
 

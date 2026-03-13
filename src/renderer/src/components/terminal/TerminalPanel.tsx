@@ -1148,20 +1148,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
 
       {/* Terminal containers */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-        {splitLayout === 'single' ? (
-          tabs.map(tab => (
-            <div
-              key={tab.id}
-              ref={setContainerRef(tab.id)}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                padding: 4,
-                display: tab.id === activeTabId ? 'block' : 'none',
-              }}
-            />
-          ))
-        ) : (
+        {splitLayout !== 'single' && (
           <div style={{
             position: 'absolute',
             inset: 0,
@@ -1219,8 +1206,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             <div style={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
               {tabs.map(tab => (
                 <div
-                  key={`split-${tab.id}`}
-                  ref={setContainerRef(`split-${tab.id}`)}
+                  key={`secondary-${tab.id}`}
+                  ref={setContainerRef(`secondary-${tab.id}`)}
                   style={{
                     position: 'absolute',
                     inset: 0,
@@ -1254,6 +1241,18 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             </div>
           </div>
         )}
+        {splitLayout === 'single' && tabs.map(tab => (
+          <div
+            key={tab.id}
+            ref={setContainerRef(tab.id)}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              padding: 4,
+              display: tab.id === activeTabId ? 'block' : 'none',
+            }}
+          />
+        ))}
         {showTermFilter && termFilter && (
           <div style={{
             position: 'absolute', inset: 0, zIndex: 50,
