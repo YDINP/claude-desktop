@@ -2146,6 +2146,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         )
       })()}
+      {/* R1628: 드래그 중 좌표 변화 레이블 */}
+      {dragOverride && hoverClientPos && (() => {
+        const dr = dragRef.current
+        if (!dr) return null
+        const dx = Math.round(dragOverride.x - dr.startNodeX)
+        const dy = Math.round(dragOverride.y - dr.startNodeY)
+        const svgEl = svgRef.current
+        const rect = svgEl?.getBoundingClientRect()
+        const relX = rect ? hoverClientPos.x - rect.left + 14 : 14
+        const relY = rect ? hoverClientPos.y - rect.top - 26 : 0
+        return (
+          <div style={{
+            position: 'absolute', left: relX, top: relY,
+            background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(88,166,255,0.4)',
+            borderRadius: 3, padding: '1px 5px', fontSize: 9,
+            color: '#58a6ff', pointerEvents: 'none', userSelect: 'none',
+            fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', zIndex: 100,
+          }}>
+            {dx >= 0 ? '+' : ''}{dx}, {dy >= 0 ? '+' : ''}{dy}
+          </div>
+        )
+      })()}
       {/* R1598: 마우스 위치 좌표 오버레이 */}
       {mouseScenePos && (
         <div style={{ position: 'absolute', bottom: 4, right: 4, fontSize: 9, color: '#556', background: 'rgba(0,0,0,0.4)', padding: '1px 5px', borderRadius: 3, pointerEvents: 'none', userSelect: 'none', fontVariantNumeric: 'tabular-nums' }}>

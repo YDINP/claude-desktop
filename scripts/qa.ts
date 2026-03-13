@@ -17454,6 +17454,18 @@ console.log('\n## 518. R1627 Inspector 씬 성능 경고 칩 체크')
   }
 }
 
+// ── Section 519: R1628 SceneView 드래그 중 좌표 변화 레이블 ──────────────────
+console.log('\n## 519. R1628 SceneView 드래그 중 좌표 변화 레이블 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s519 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s519.includes('R1628') && s519.includes('dragOverride && hoverClientPos') && s519.includes('startNodeX') && s519.includes('startNodeY')) {
+    log('pass', 'R1628-drag-delta', 'SceneView 드래그 중 좌표 변화 레이블')
+  } else {
+    log('warning', 'R1628-drag-delta', 'SceneView 드래그 중 좌표 변화 레이블 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
