@@ -2292,10 +2292,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         )
       })()}
-      {/* R1598: 마우스 위치 좌표 오버레이 */}
+      {/* R1598: 마우스 위치 좌표 오버레이 (R1649: 선택 노드 크기 추가) */}
       {mouseScenePos && (
-        <div style={{ position: 'absolute', bottom: 4, right: 4, fontSize: 9, color: '#556', background: 'rgba(0,0,0,0.4)', padding: '1px 5px', borderRadius: 3, pointerEvents: 'none', userSelect: 'none', fontVariantNumeric: 'tabular-nums' }}>
-          {mouseScenePos.x}, {mouseScenePos.y}
+        <div style={{ position: 'absolute', bottom: 4, right: 4, fontSize: 9, color: '#556', background: 'rgba(0,0,0,0.4)', padding: '1px 5px', borderRadius: 3, pointerEvents: 'none', userSelect: 'none', fontVariantNumeric: 'tabular-nums', display: 'flex', gap: 8 }}>
+          {selectedUuid && (() => {
+            const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!fn?.node.size?.x) return null
+            const w = resizeOverride?.uuid === selectedUuid ? resizeOverride.w : fn.node.size.x
+            const h = resizeOverride?.uuid === selectedUuid ? resizeOverride.h : fn.node.size.y
+            return <span style={{ color: '#445' }}>{Math.round(w)}×{Math.round(h)}</span>
+          })()}
+          <span>{mouseScenePos.x}, {mouseScenePos.y}</span>
         </div>
       )}
     </div>

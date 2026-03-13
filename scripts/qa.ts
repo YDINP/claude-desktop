@@ -17709,6 +17709,18 @@ console.log('\n## 539. R1642 fix + R1648 breadcrumb 클릭 체크')
   }
 }
 
+// ── Section 540: R1649 SceneView 상태바 선택 노드 크기 표시 ──────────────────
+console.log('\n## 540. R1649 SceneView 상태바 노드 크기 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s540 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s540.includes('R1649') && s540.includes('resizeOverride.w') && s540.includes('mouseScenePos')) {
+    log('pass', 'R1649-statusbar-size', 'SceneView 상태바 선택 노드 크기 표시')
+  } else {
+    log('warning', 'R1649-statusbar-size', 'SceneView 상태바 노드 크기 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
