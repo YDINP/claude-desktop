@@ -65,6 +65,8 @@ const MAX_CONTENT_CHARS = 5000
 const TEMPLATES_KEY = 'message-templates'
 const MAX_TEMPLATES = 20
 const QUICK_ACTIONS_KEY = 'quick-actions'
+const TEMPLATE_VARS_KEY = 'template-vars-history'
+const MAX_VAR_SUGGESTIONS = 5
 
 interface QuickAction {
   id: string
@@ -165,6 +167,15 @@ function parseMention(text: string, cursorPos: number): string | null {
   return atMatch ? atMatch[1] : null
 }
 
+// Returns the position right after '{{' if cursor is immediately following '{{' with optional partial var name
+function parseVarTrigger(text: string, cursorPos: number): { triggerStart: number; partial: string } | null {
+  const before = text.slice(0, cursorPos)
+  const match = before.match(/\{\{([a-zA-Z0-9_]*)$/)
+  if (!match) return null
+  const triggerStart = before.lastIndexOf('{{')
+  return { triggerStart, partial: match[1] }
+}
+
 export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pausedTask, isStreaming, disabled, focusTrigger, pendingInsert, onPendingInsertConsumed, onOpenPromptChain, onTextChange }: InputBarProps) {
   const onTextChangeRef = useRef(onTextChange)
   useEffect(() => { onTextChangeRef.current = onTextChange }, [onTextChange])
@@ -195,6 +206,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   )
   const [ollamaModels, setOllamaModels] = useState<string[]>([])
   const [isDragging, setIsDragging] = useState(false)
+  const [varSuggestions, setVarSuggestions] = useState<string[]>([])
+  const [varSuggestionsOpen, setVarSuggestionsOpen] = useState(false)
+  const [varSuggestionsIdx, setVarSuggestionsIdx] = useState(0)
   const [quickActions, setQuickActions] = useState<QuickAction[]>(() => {
     try {
       const stored = localStorage.getItem(QUICK_ACTIONS_KEY)

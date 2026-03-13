@@ -139,6 +139,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showNodeSearch, setShowNodeSearch] = useState(false)
   const [nodeSearchMatchIndex, setNodeSearchMatchIndex] = useState(0)
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
+  const [showAllToggle, setShowAllToggle] = useState(true)
   const [lockedLayers, setLockedLayers] = useState<Set<string>>(new Set())
   const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
@@ -184,6 +185,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
   const [selectedUuids, setSelectedUuids] = useState<Set<string>>(new Set())
   const [hoveredUuid, setHoveredUuid] = useState<string | null>(null)
+  // ── 다중 선택 그룹화 상태 (R655) ───────────────────────────
+  const multiSelected = selectedUuids
+  const [showGroupBtn, setShowGroupBtn] = useState(false)
   const [undoStack, setUndoStack] = useState<UndoEntry[]>([])
   const [redoStack, setRedoStack] = useState<UndoEntry[]>([])
   const [clipboard, setClipboard] = useState<ClipboardEntry[]>([])
@@ -1739,6 +1743,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   const selectionCount = selectedUuids.size > 1 ? selectedUuids.size : undefined
   const canCopy = selectedUuids.size > 0 || selectedUuid !== null
+  // R655: showGroupBtn 동기화
+  useEffect(() => { setShowGroupBtn(selectedUuids.size >= 2) }, [selectedUuids])
   const canPaste = clipboard.length > 0
   const canZOrder = selectedUuids.size === 1
   const canAlign = selectedUuids.size >= 2
@@ -2884,6 +2890,35 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </div>
         )}
 
+        {/* R655: 다중 선택 그룹화 버튼 */}
+        {showGroupBtn && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 42,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 10,
+            }}
+          >
+            <button
+              onClick={() => console.log('group nodes:', [...multiSelected])}
+              style={{
+                fontSize: 10,
+                padding: '3px 10px',
+                background: 'rgba(96,165,250,0.18)',
+                border: '1px solid rgba(96,165,250,0.5)',
+                borderRadius: 4,
+                color: '#60a5fa',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              그룹화 ({multiSelected.size})
+            </button>
+          </div>
+        )}
+
         {/* 드래그/리사이즈 중 선택 노드 정보 */}
         {(isDragging || isResizing) && selectedNode && (
           <div
@@ -3336,22 +3371,27 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
               <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Layers</span>
-              <div style={{ display: 'flex', gap: 3 }}>
-                <button
-                  onClick={() => setHiddenLayers(new Set())}
-                  title="모두 표시"
-                  style={{ fontSize: 9, padding: '1px 4px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2, color: '#ccc', cursor: 'pointer' }}
-                >
-                  모두 표시
-                </button>
-                <button
-                  onClick={() => setHiddenLayers(new Set(topLevelNodes.map(n => n.uuid)))}
-                  title="모두 숨김"
-                  style={{ fontSize: 9, padding: '1px 4px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2, color: '#ccc', cursor: 'pointer' }}
-                >
-                  모두 숨김
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  const next = !showAllToggle
+                  setShowAllToggle(next)
+                  if (next) {
+                    setHiddenLayers(new Set())
+                  } else {
+                    setHiddenLayers(new Set(topLevelNodes.map(n => n.uuid)))
+                  }
+                }}
+                title={showAllToggle ? '모두 숨김' : '모두 표시'}
+                style={{
+                  fontSize: 12, padding: '1px 3px',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  opacity: showAllToggle ? 1 : 0.4,
+                  textDecoration: showAllToggle ? 'none' : 'line-through',
+                  lineHeight: 1,
+                }}
+              >
+                {showAllToggle ? '👁' : '🙈'}
+              </button>
             </div>
             {topLevelNodes.map(layer => {
               const isHidden = hiddenLayers.has(layer.uuid)

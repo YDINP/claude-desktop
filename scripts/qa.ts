@@ -6284,6 +6284,41 @@ if (existsSync(st659Path)) {
   }
 }
 
+// ── Section 135: Phase DD10 R661~663 기능 체크 ────────────────
+console.log('\n## 135. Phase DD10 R661~663 기능 체크')
+// R661: MessageBubble 코드 복사 버튼
+const mb661Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb661Path)) {
+  const mb661 = readFileSync(mb661Path, 'utf-8')
+  if (mb661.includes('copiedBlock') || mb661.includes('clipboardCopy') || mb661.includes('copyCode')) {
+    log('pass', 'R661', 'MessageBubble 코드 복사 버튼 존재')
+  } else {
+    log('warning', 'R661', 'MessageBubble 코드 복사 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R662: SceneViewPanel 노드 가시성 일괄 토글
+const svp662Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp662Path)) {
+  const svp662 = readFileSync(svp662Path, 'utf-8')
+  if (svp662.includes('showAllToggle') || svp662.includes('toggleAllVisible') || svp662.includes('allVisible')) {
+    log('pass', 'R662', 'SceneViewPanel 노드 가시성 일괄 토글 존재')
+  } else {
+    log('warning', 'R662', 'SceneViewPanel 가시성 토글 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R663: InputBar 템플릿 변수 자동완성
+const ib663Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib663Path)) {
+  const ib663 = readFileSync(ib663Path, 'utf-8')
+  if (ib663.includes('varSuggestions') || ib663.includes('varSuggestionsOpen')) {
+    log('pass', 'R663', 'InputBar 템플릿 변수 자동완성 존재')
+  } else {
+    log('warning', 'R663', 'InputBar 변수 자동완성 없음', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

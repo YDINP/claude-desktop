@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 660 완료 — Phase DD10 진행 중, QA Pass 545)
+> 마지막 업데이트: 2026-03-13 (Round 664 완료 — Phase DD10 진행 중, QA Pass 548)
 
 ## 개발 루프 실행 방식
 
@@ -636,6 +636,10 @@
 | Round 658 | ChatPanel 스크롤 위치 저장 (scrollPositions useRef, prevSessionIdRef) | ✅ |
 | Round 659 | SceneToolbar 레이아웃 프리셋 (onLayoutPreset, layoutPresetOpen) | ✅ |
 | Round 660 | QA Section 134 추가 (R657/R658/R659, Pass 545) | ✅ |
+| Round 661 | MessageBubble 코드 복사 버튼 (copiedBlock, ✓/📋 토글) | ✅ |
+| Round 662 | SceneViewPanel 노드 가시성 일괄 토글 (showAllToggle) | ✅ |
+| Round 663 | InputBar 템플릿 변수 자동완성 (varSuggestions, varSuggestionsOpen) | ✅ |
+| Round 664 | QA Section 135 추가 (R661/R662/R663, Pass 548) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

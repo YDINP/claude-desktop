@@ -170,7 +170,7 @@ const CodeBlock = memo(function CodeBlock({
   onRunCode?: (code: string) => void
   onQuickAction?: (action: 'explain' | 'optimize' | 'fix', code: string, language: string) => void
 }) {
-  const [copied, setCopied] = useState(false)
+  const [copiedBlock, setCopiedBlock] = useState<string | null>(null)
   const [isHovered, setIsHovered] = useState(false)
   const [explanation, setExplanation] = useState<string | null>(null)
   const [explainLoading, setExplainLoading] = useState(false)
@@ -189,8 +189,8 @@ const CodeBlock = memo(function CodeBlock({
   const handleCopy = () => {
     navigator.clipboard.writeText(codeString)
     clipboardStore.push(codeString, `code:${language}`)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    setCopiedBlock(language)
+    setTimeout(() => setCopiedBlock(null), 2000)
   }
 
   const handleExplain = async () => {
@@ -381,19 +381,20 @@ const CodeBlock = memo(function CodeBlock({
         </button>
         <button
           onClick={handleCopy}
+          title="코드 복사"
           style={{
-            background: copied ? '#2d5a27' : '#3a3a4a',
-            color: copied ? '#7ec87a' : '#aaa',
+            background: copiedBlock ? '#2d5a27' : '#3a3a4a',
+            color: copiedBlock ? '#7ec87a' : '#aaa',
             border: 'none',
             borderRadius: 3,
             padding: '2px 8px',
-            fontSize: 11,
+            fontSize: 13,
             cursor: 'pointer',
             transition: 'background 0.15s, color 0.15s',
             lineHeight: 1.4,
           }}
         >
-          {copied ? 'Copied!' : 'Copy'}
+          {copiedBlock ? '✓' : '📋'}
         </button>
       </div>
       {isDiff ? (
@@ -916,6 +917,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
     const saved = localStorage.getItem(storageKey)
     return saved === null ? true : saved !== 'true'
   })
+  const [copiedBlock, setCopiedBlock] = useState<string | null>(null)
   const [measuredHeight, setMeasuredHeight] = useState(0)
   const contentRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
