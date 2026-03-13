@@ -247,6 +247,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setView({ offsetX, offsetY, zoom })
   }, [canvasSize, nodeMap])
 
+  // 줌 프리셋: 캔버스 중심 기준으로 지정 zoom 적용 (animateToTarget보다 먼저 정의되므로 ref 경유)
+  const handleZoomTo = useCallback((zoom: number) => {
+    if (!containerRef.current) return
+    const { width, height } = containerRef.current.getBoundingClientRect()
+    const offsetX = width / 2 - (DESIGN_W / 2) * zoom
+    const offsetY = height / 2 - (DESIGN_H / 2) * zoom
+    setView({ zoom, offsetX, offsetY })
+  }, [DESIGN_W, DESIGN_H])
+
   // 선택 노드로 카메라 이동 (G키) — 멀티셀렉트 bounding box 줌 지원
   const handleFocusSelected = useCallback(() => {
     if (!containerRef.current) return
@@ -2023,6 +2032,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onHeatmapToggle={() => setShowHeatmap(v => !v)}
         showQuickActions={showQuickActions}
         onQuickActionsToggle={() => setShowQuickActions(v => !v)}
+        onZoomTo={handleZoomTo}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -2070,10 +2080,27 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       {/* SVG 뷰포트 */}
       <div
         ref={containerRef}
+        tabIndex={0}
+        onKeyDown={e => {
+          // input/textarea 포커스 시 무시
+          const tag = (e.target as HTMLElement).tagName
+          if (tag === 'INPUT' || tag === 'TEXTAREA') return
+          if (e.key === '+' || e.key === '=') {
+            e.preventDefault()
+            handleZoomTo(Math.min(8, view.zoom * 1.1))
+          } else if (e.key === '-') {
+            e.preventDefault()
+            handleZoomTo(Math.max(0.1, view.zoom / 1.1))
+          } else if (e.key === '0') {
+            e.preventDefault()
+            handleFit()
+          }
+        }}
         style={{
           flex: 1,
           position: 'relative',
           overflow: 'hidden',
+          outline: 'none',
           cursor: isPanningActive ? 'grabbing' : (activeTool === 'move' || spaceDown) ? 'grab' : 'default',
           background: sceneBg === 'checker' ? undefined
             : sceneBg === 'dark' ? '#1e1e1e'

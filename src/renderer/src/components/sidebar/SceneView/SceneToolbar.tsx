@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 
 export type SceneBgValue = 'dark' | 'light' | 'checker' | string
 
+const ZOOM_PRESETS = [0.25, 0.5, 0.75, 1, 1.5, 2]
+
 interface SceneToolbarProps {
   activeTool: 'select' | 'move'
   zoom: number
@@ -101,6 +103,7 @@ interface SceneToolbarProps {
   onHeatmapToggle?: () => void
   showQuickActions?: boolean
   onQuickActionsToggle?: () => void
+  onZoomTo?: (zoom: number) => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -204,10 +207,14 @@ export function SceneToolbar({
   onHeatmapToggle,
   showQuickActions,
   onQuickActionsToggle,
+  onZoomTo,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
+  const [zoomPresetOpen, setZoomPresetOpen] = useState(false)
   const [bgPaletteOpen, setBgPaletteOpen] = useState(false)
+  const zoomPresetRef = useRef<HTMLDivElement>(null)
+  const zoomPresetBtnRef = useRef<HTMLButtonElement>(null)
   const [customColor, setCustomColor] = useState(
     sceneBg !== 'dark' && sceneBg !== 'light' && sceneBg !== 'checker' ? sceneBg : '#1a1a2e'
   )
@@ -227,6 +234,20 @@ export function SceneToolbar({
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [bgPaletteOpen])
+
+  useEffect(() => {
+    if (!zoomPresetOpen) return
+    const handleClick = (e: MouseEvent) => {
+      if (
+        zoomPresetRef.current && !zoomPresetRef.current.contains(e.target as Node) &&
+        zoomPresetBtnRef.current && !zoomPresetBtnRef.current.contains(e.target as Node)
+      ) {
+        setZoomPresetOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [zoomPresetOpen])
 
   const zoomIn = () => {
     const next = ZOOM_STEPS.find(z => z > zoom) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]
@@ -338,6 +359,58 @@ export function SceneToolbar({
         </button>
       )}
       <button style={btnBase} onClick={zoomIn} title="확대">+</button>
+
+      {/* 줌 프리셋 드롭다운 */}
+      {onZoomTo && (
+        <div style={{ position: 'relative' }}>
+          <button
+            ref={zoomPresetBtnRef}
+            style={zoomPresetOpen ? btnActive : btnBase}
+            onClick={() => setZoomPresetOpen(v => !v)}
+            title="줌 프리셋 선택"
+          >
+            ▾
+          </button>
+          {zoomPresetOpen && (
+            <div
+              ref={zoomPresetRef}
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                marginTop: 2,
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                zIndex: 9999,
+                display: 'flex',
+                flexDirection: 'column',
+                minWidth: 70,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                overflow: 'hidden',
+              }}
+            >
+              {ZOOM_PRESETS.map(p => (
+                <button
+                  key={p}
+                  onClick={() => { onZoomTo(p); setZoomPresetOpen(false) }}
+                  style={{
+                    background: Math.abs(zoom - p) < 0.005 ? 'var(--accent-dim)' : 'transparent',
+                    border: 'none',
+                    color: Math.abs(zoom - p) < 0.005 ? 'var(--accent)' : 'var(--text-primary)',
+                    fontSize: 10,
+                    padding: '4px 10px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  {Math.round(p * 100)}%
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div style={divider} />
 

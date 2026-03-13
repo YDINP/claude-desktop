@@ -1115,7 +1115,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
       onContextMenu={handleContextMenu}
       style={{
         position: 'relative',
-        padding: 'var(--msg-padding)',
+        padding: isWide ? '16px 20px' : 'var(--msg-padding)',
         background: isCurrentMatch
           ? 'rgba(251,191,36,0.18)'
           : isMatched
@@ -1128,7 +1128,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           : isUser
           ? '3px solid var(--accent)'
           : '3px solid var(--success, #26a641)',
-        paddingLeft: isCurrentMatch ? undefined : 28,
+        paddingLeft: isCurrentMatch ? undefined : (isWide ? 32 : 28),
         borderBottom: '1px solid var(--border)',
         outline: isCurrentMatch ? '1px solid rgba(251,191,36,0.4)' : 'none',
         border: isSearchMatch && !isCurrentMatch ? '1px solid var(--accent)' : undefined,
@@ -1442,16 +1442,16 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
         display: 'flex',
         alignItems: 'center',
         gap: 6,
-        marginBottom: 6,
+        marginBottom: isWide ? 10 : 6,
       }}>
         <span style={{
-          fontSize: 11,
-          fontWeight: 600,
+          fontSize: isWide ? 13 : 11,
+          fontWeight: 700,
           color: isUser ? 'var(--accent)' : 'var(--success)',
           textTransform: 'uppercase',
-          letterSpacing: '0.5px',
+          letterSpacing: isWide ? '0.8px' : '0.5px',
         }}>
-          {isUser ? 'You' : 'Claude'}
+          {isUser ? (isWide ? '나' : 'You') : 'Claude'}
         </span>
         {!isUser && msg.model && (
           <span style={{

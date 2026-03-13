@@ -6033,6 +6033,43 @@ if (existsSync(cp631Path)) {
   }
 }
 
+// ── Section 128: Phase DD10 R633~635 기능 체크 ────────────────
+console.log('\n## 128. Phase DD10 R633~635 기능 체크')
+// R633: 채팅 키보드 단축키 확장
+const cp633Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp633Path)) {
+  const cp633 = readFileSync(cp633Path, 'utf-8')
+  if (cp633.includes('chatViewMode') && cp633.includes('toggleViewMode')) {
+    log('pass', 'R633', '채팅 뷰 모드 토글 단축키 존재')
+  } else if (cp633.includes('chatViewMode')) {
+    log('pass', 'R633', '채팅 뷰 모드 존재')
+  } else {
+    log('warning', 'R633', '채팅 단축키 확장 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R634: 씬뷰 줌 프리셋 드롭다운
+const st634Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(st634Path)) {
+  const st634 = readFileSync(st634Path, 'utf-8')
+  if (st634.includes('zoomPresetOpen') && st634.includes('onZoomTo')) {
+    log('pass', 'R634', '씬뷰 줌 프리셋 드롭다운 존재')
+  } else {
+    log('warning', 'R634', '씬뷰 줌 프리셋 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R635: Inspector Transform 복사/붙여넣기
+const cp635Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp635Path)) {
+  const cp635 = readFileSync(cp635Path, 'utf-8')
+  if (cp635.includes('transformClipboard') || cp635.includes('copyTransform')) {
+    log('pass', 'R635', 'Inspector Transform 복사/붙여넣기 존재')
+  } else {
+    log('warning', 'R635', 'Inspector Transform 복사/붙여넣기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

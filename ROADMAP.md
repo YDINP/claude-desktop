@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 632 완료 — Phase DD10 진행 중, QA Pass 524)
+> 마지막 업데이트: 2026-03-13 (Round 636 완료 — Phase DD10 진행 중, QA Pass 527)
 
 ## 개발 루프 실행 방식
 
@@ -608,6 +608,10 @@
 | Round 630 | 씬뷰 퀵 액션 팝업 (showQuickActions, 핀/잠금/숨김/삭제/복사) | ✅ |
 | Round 631 | Inspector 스타일 프리셋 (stylePresets, 💾 저장, 📂 불러오기, × 삭제) | ✅ |
 | Round 632 | QA Section 127 추가 (R629/R630/R631, Pass 524) | ✅ |
+| Round 633 | ChatPanel chatViewMode 뷰 모드 토글 (⊞/⊟, compact/wide, toggleViewMode) | ✅ |
+| Round 634 | SceneToolbar 줌 프리셋 드롭다운 (zoomPresetOpen, onZoomTo, 25~200%) | ✅ |
+| Round 635 | CocosPanel Inspector Transform 복사/붙여넣기 (transformClipboard, ⎘/📋) | ✅ |
+| Round 636 | QA Section 128 추가 (R633/R634/R635, Pass 527) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

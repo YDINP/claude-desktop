@@ -586,6 +586,44 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     setTimeout(() => searchInputRef.current?.focus(), 50)
   }, [searchTrigger])
 
+  const [showShortcutsOverlay, setShowShortcutsOverlay] = useState(false)
+
+  // 채팅 패널 키보드 단축키
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName
+      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable
+
+      if (e.key === 'Escape') {
+        if (showShortcutsOverlay) { setShowShortcutsOverlay(false); return }
+        if (showSearch) { setShowSearch(false); return }
+      }
+
+      // input/textarea 포커스 중이면 아래 단축키 무시
+      if (isInput) return
+
+      if (e.key === '?') {
+        setShowShortcutsOverlay(v => !v)
+        return
+      }
+
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault()
+          setShowSearch(v => !v)
+        } else if (e.key === 'b' || e.key === 'B') {
+          e.preventDefault()
+          setShowOnlyBookmarks(v => !v)
+        } else if (e.key === 'w' || e.key === 'W') {
+          e.preventDefault()
+          setChatViewMode(v => v === 'compact' ? 'wide' : 'compact')
+        }
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [showSearch, showShortcutsOverlay])
+
   // 검색창 열릴 때 input focus
   useEffect(() => {
     if (showSearch) {
@@ -970,6 +1008,10 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         [data-group-pos="last"] > div:first-child > div:first-child {
           display: none;
         }
+        [data-view-mode="wide"] div[class*="react-syntax-highlighter"] > pre,
+        [data-view-mode="wide"] .code-block-pre {
+          padding: 16px !important;
+        }
       `}</style>
       {/* Model selector */}
       <div style={{
@@ -1022,8 +1064,12 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         <button
           onClick={toggleViewMode}
           title={chatViewMode === 'compact' ? '와이드 뷰로 전환' : '컴팩트 뷰로 전환'}
-          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 13, cursor: 'pointer', padding: '2px 4px', lineHeight: 1 }}
-        >{chatViewMode === 'compact' ? '⊟' : '⊞'}</button>
+          style={{
+            background: 'none', border: 'none',
+            color: chatViewMode === 'wide' ? 'var(--accent, #89b4fa)' : 'var(--text-muted)',
+            fontSize: 15, cursor: 'pointer', padding: '2px 4px', lineHeight: 1,
+          }}
+        >{chatViewMode === 'compact' ? '⊞' : '⊟'}</button>
         <ContextUsageIndicator messages={chat.messages} />
         <button
           onClick={() => setShowMinimap(v => !v)}
@@ -1824,6 +1870,62 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         onOpenPromptChain={onOpenPromptChain}
         onTextChange={setInputText}
       />
+
+      {/* 키보드 단축키 오버레이 */}
+      {showShortcutsOverlay && (
+        <div
+          onClick={() => setShowShortcutsOverlay(false)}
+          style={{
+            position: 'absolute', inset: 0,
+            background: 'rgba(0,0,0,0.55)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 100,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border)',
+              borderRadius: 10,
+              padding: '20px 28px',
+              minWidth: 300,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>키보드 단축키</span>
+              <button
+                onClick={() => setShowShortcutsOverlay(false)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 18, cursor: 'pointer', lineHeight: 1 }}
+              >×</button>
+            </div>
+            {([
+              ['Ctrl+F', '채팅 검색 토글'],
+              ['Ctrl+B', '즐겨찾기 뷰 토글'],
+              ['Ctrl+W', '뷰 모드 전환 (컴팩트/와이드)'],
+              ['Escape', '검색 닫기'],
+              ['?', '단축키 도움말'],
+            ] as [string, string][]).map(([key, desc]) => (
+              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 10 }}>
+                <kbd style={{
+                  background: 'var(--bg-input, var(--bg-primary))',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  padding: '2px 8px',
+                  fontSize: 11,
+                  fontFamily: 'monospace',
+                  color: 'var(--text-primary)',
+                  minWidth: 80,
+                  textAlign: 'center',
+                  flexShrink: 0,
+                }}>{key}</kbd>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{desc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

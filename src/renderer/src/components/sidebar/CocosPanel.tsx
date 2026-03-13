@@ -35,6 +35,17 @@ function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: boolean
   )
 }
 
+// Round 635: Inspector Transform 복사/붙여넣기 — module-level fallback
+type TransformSnapshot = {
+  position: CCSceneNode['position']
+  rotation: CCSceneNode['rotation']
+  scale: CCSceneNode['scale']
+  size: CCSceneNode['size']
+  anchor: CCSceneNode['anchor']
+  opacity: number
+}
+let transformClipboard: TransformSnapshot | null = null
+
 export function CocosPanel() {
   const fileProject = useCCFileProject()
   const [selectedNode, setSelectedNode] = useState<CCSceneNode | null>(null)
@@ -1500,6 +1511,46 @@ function CCFileNodeInspector({
     saveTimerRef.current = setTimeout(() => { flushSave() }, 50)
   }, [draft, sceneFile, flushSave])
 
+  // Round 635: Transform 복사/붙여넣기
+  const [copyDone, setCopyDone] = useState(false)
+  const handleCopyTransform = useCallback(async () => {
+    const snap: TransformSnapshot = {
+      position: draft.position,
+      rotation: draft.rotation,
+      scale: draft.scale,
+      size: draft.size,
+      anchor: draft.anchor,
+      opacity: draft.opacity,
+    }
+    transformClipboard = snap
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(snap))
+    } catch { /* fallback already set */ }
+    setCopyDone(true)
+    setTimeout(() => setCopyDone(false), 1500)
+  }, [draft])
+
+  const handlePasteTransform = useCallback(async () => {
+    let snap: TransformSnapshot | null = null
+    try {
+      const text = await navigator.clipboard.readText()
+      const parsed = JSON.parse(text) as Partial<TransformSnapshot>
+      if (parsed && typeof parsed === 'object' && 'position' in parsed) {
+        snap = parsed as TransformSnapshot
+      }
+    } catch { /* ignore, try fallback */ }
+    if (!snap && transformClipboard) snap = transformClipboard
+    if (!snap) return
+    applyAndSave({
+      position: snap.position,
+      rotation: snap.rotation,
+      scale: snap.scale,
+      size: snap.size,
+      anchor: snap.anchor,
+      opacity: snap.opacity,
+    })
+  }, [applyAndSave])
+
   // Round 631: 프리셋 적용 / 삭제 (applyAndSave 이후 정의)
   const applyStylePreset = useCallback((preset: StylePreset) => {
     applyAndSave({
@@ -1653,6 +1704,29 @@ function CCFileNodeInspector({
             />
             활성
           </label>
+          {/* Round 635: Transform 복사/붙여넣기 */}
+          <button
+            onClick={handleCopyTransform}
+            title="Transform 복사 (position/rotation/scale/size/anchor/opacity)"
+            style={{
+              padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+              background: 'transparent', color: copyDone ? '#4ade80' : '#94a3b8', border: `1px solid ${copyDone ? '#4ade80' : '#94a3b8'}`,
+              lineHeight: 1.4, transition: 'color 0.2s, border-color 0.2s',
+            }}
+          >
+            {copyDone ? '✓' : '⎘'}
+          </button>
+          <button
+            onClick={handlePasteTransform}
+            title="Transform 붙여넣기"
+            style={{
+              padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+              background: 'transparent', color: '#94a3b8', border: '1px solid #94a3b8',
+              lineHeight: 1.4,
+            }}
+          >
+            📋
+          </button>
           {/* Round 631: 프리셋 저장 / 불러오기 */}
           <button
             onClick={saveStylePreset}
