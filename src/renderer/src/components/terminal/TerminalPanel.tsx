@@ -479,6 +479,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1204: terminal diff
   const [termDiff, setTermDiff] = React.useState<string | null>(null)
   const [showDiffPanel, setShowDiffPanel] = React.useState(false)
+  // R1210: terminal git
+  const [termGitStatus, setTermGitStatus] = React.useState<string | null>(null)
+  const [showGitPanel, setShowGitPanel] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

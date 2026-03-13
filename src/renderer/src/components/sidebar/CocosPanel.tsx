@@ -267,6 +267,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1202: build history
   const [buildHistory, setBuildHistory] = useState<string[]>([])
   const [showBuildHistory, setShowBuildHistory] = useState(false)
+  // R1208: deploy config
+  const [deployConfig, setDeployConfig] = useState<Record<string, string>>({})
+  const [showDeployPanel, setShowDeployPanel] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

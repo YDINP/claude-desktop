@@ -1674,6 +1674,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // R1203: scene metrics
   const [sceneMetrics, setSceneMetrics] = React.useState<Record<string, number>>({})
   const [showMetricsPanel, setShowMetricsPanel] = React.useState(false)
+  // R1209: scene optimize
+  const [optimizeSuggestions, setOptimizeSuggestions] = React.useState<string[]>([])
+  const [showOptimizePanel, setShowOptimizePanel] = React.useState(false)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {
