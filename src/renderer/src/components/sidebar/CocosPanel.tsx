@@ -214,6 +214,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showTemplatePanel, setShowTemplatePanel] = React.useState(false)
   const [nodeStats, setNodeStats] = React.useState<Record<string, number>>({})
   const [showNodeStats, setShowNodeStats] = React.useState(false)
+  const [sceneValidation, setSceneValidation] = React.useState<string[]>([])
+  const [showValidationPanel, setShowValidationPanel] = React.useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

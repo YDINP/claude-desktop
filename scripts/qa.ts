@@ -10789,6 +10789,74 @@ if (existsSync(sl1061Path)) {
   }
 }
 
+console.log('\n## 265. Phase DD10 R1062~1064 기능 체크')
+// R1062: ChatPanel 메시지 핀
+const cp1062Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1062Path)) {
+  const cp1062 = readFileSync(cp1062Path, 'utf-8')
+  if (cp1062.includes('pinnedMsgs') || cp1062.includes('showPinnedMsgs') || cp1062.includes('msgPin')) {
+    log('pass', 'R1062', 'ChatPanel 메시지 핀 존재')
+  } else {
+    log('warning', 'R1062', 'ChatPanel 메시지 핀 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1063: InputBar 음성 메모
+const ib1063Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1063Path)) {
+  const ib1063 = readFileSync(ib1063Path, 'utf-8')
+  if (ib1063.includes('voiceMemo') || ib1063.includes('voiceMemoUrl') || ib1063.includes('audioMemo')) {
+    log('pass', 'R1063', 'InputBar 음성 메모 존재')
+  } else {
+    log('warning', 'R1063', 'InputBar 음성 메모 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1064: CocosPanel 씬 검증
+const ccp1064Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1064Path)) {
+  const ccp1064 = readFileSync(ccp1064Path, 'utf-8')
+  if (ccp1064.includes('sceneValidation') || ccp1064.includes('showValidationPanel') || ccp1064.includes('validationErrors')) {
+    log('pass', 'R1064', 'CocosPanel 씬 검증 존재')
+  } else {
+    log('warning', 'R1064', 'CocosPanel 씬 검증 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 266. Phase DD10 R1065~1067 기능 체크')
+// R1065: SceneViewPanel 씬 복제
+const sv1065Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1065Path)) {
+  const sv1065 = readFileSync(sv1065Path, 'utf-8')
+  if (sv1065.includes('cloneSceneName') || sv1065.includes('showCloneDialog') || sv1065.includes('sceneClone')) {
+    log('pass', 'R1065', 'SceneViewPanel 씬 복제 존재')
+  } else {
+    log('warning', 'R1065', 'SceneViewPanel 씬 복제 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1066: TerminalPanel 자동완성 제안
+const tp1066Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1066Path)) {
+  const tp1066 = readFileSync(tp1066Path, 'utf-8')
+  if (tp1066.includes('autoSuggest') || tp1066.includes('suggestList') || tp1066.includes('cmdSuggest')) {
+    log('pass', 'R1066', 'TerminalPanel 자동완성 제안 존재')
+  } else {
+    log('warning', 'R1066', 'TerminalPanel 자동완성 제안 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1067: SessionList 최근 세션
+const sl1067Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1067Path)) {
+  const sl1067 = readFileSync(sl1067Path, 'utf-8')
+  if (sl1067.includes('recentSessions') || sl1067.includes('showRecentOnly') || sl1067.includes('recentList')) {
+    log('pass', 'R1067', 'SessionList 최근 세션 존재')
+  } else {
+    log('warning', 'R1067', 'SessionList 최근 세션 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
