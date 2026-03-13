@@ -73,6 +73,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [snapIndicator, setSnapIndicator] = useState<{ x: number; y: number } | null>(null)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
+  // R1530: 디자인 레퍼런스 이미지 overlay
+  const [refImgSrc, setRefImgSrc] = useState<string | null>(null)
+  const [refImgOpacity, setRefImgOpacity] = useState(0.3)
+  const refImgInputRef = useRef<HTMLInputElement | null>(null)
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
   const editInputRef = useRef<HTMLInputElement | null>(null)
   // R1491: Label 텍스트 인라인 편집
@@ -627,6 +631,29 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           disabled={screenshotSending}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: screenshotSending ? 'wait' : 'pointer', border: '1px solid var(--border)', background: screenshotSending ? 'rgba(255,200,50,0.12)' : 'none', color: screenshotSending ? '#fbbf24' : 'var(--text-muted)', opacity: screenshotSending ? 0.6 : 1 }}
         >{screenshotSending ? '⟳' : '📷'}</button>
+        {/* R1530: 디자인 레퍼런스 이미지 overlay */}
+        <input ref={refImgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
+          onChange={e => {
+            const file = e.target.files?.[0]
+            if (!file) return
+            const reader = new FileReader()
+            reader.onload = ev => setRefImgSrc(ev.target?.result as string)
+            reader.readAsDataURL(file)
+            e.target.value = ''
+          }}
+        />
+        <button
+          onClick={() => refImgSrc ? setRefImgSrc(null) : refImgInputRef.current?.click()}
+          title={refImgSrc ? '레퍼런스 이미지 제거' : '디자인 레퍼런스 이미지 로드'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: refImgSrc ? 'rgba(100,200,100,0.12)' : 'none', color: refImgSrc ? '#4ade80' : 'var(--text-muted)' }}
+        >📐</button>
+        {refImgSrc && (
+          <input type="range" min={0.05} max={1} step={0.05} value={refImgOpacity}
+            onChange={e => setRefImgOpacity(parseFloat(e.target.value))}
+            title={`레퍼런스 투명도 ${Math.round(refImgOpacity * 100)}%`}
+            style={{ width: 50 }}
+          />
+        )}
         {/* R1486: 다중 선택 정렬 툴바 */}
         {multiSelected.size > 1 && (() => {
           const selNodes = flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
@@ -729,6 +756,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {/* 게임 캔버스 배경 */}
           <rect x={0} y={0} width={designW} height={designH}
             fill={bgColorOverride ?? bgColor} stroke="#555" strokeWidth={1 / view.zoom} />
+          {/* R1530: 디자인 레퍼런스 이미지 overlay */}
+          {refImgSrc && (
+            <image href={refImgSrc} x={0} y={0} width={designW} height={designH}
+              opacity={refImgOpacity} style={{ pointerEvents: 'none' }} preserveAspectRatio="xMidYMid meet" />
+          )}
           {/* 캔버스 치수 레이블 */}
           {view.zoom > 0.25 && (
             <text

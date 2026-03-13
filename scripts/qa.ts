@@ -16207,6 +16207,28 @@ if (existsSync(panel429)) {
   }
 }
 
+// ── Section 430: R1530 SceneView 디자인 레퍼런스 이미지 overlay 체크 ──────────────────────
+console.log('\n## 430. R1530 SceneView 디자인 레퍼런스 이미지 overlay 체크')
+const sv430 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv430)) {
+  const s430 = readFileSync(sv430, 'utf-8')
+  if (s430.includes('R1530') && s430.includes('refImgSrc') && s430.includes('refImgOpacity') && s430.includes('refImgInputRef')) {
+    log('pass', 'R1530-state', 'refImgSrc/refImgOpacity/refImgInputRef 상태+ref 선언')
+  } else {
+    log('warning', 'R1530-state', 'refImg 상태 미선언', 'CCFileSceneView.tsx')
+  }
+  if (s430.includes('📐') && s430.includes('레퍼런스 이미지') && s430.includes('type="file"')) {
+    log('pass', 'R1530-button', '📐 버튼 + hidden file input 구현')
+  } else {
+    log('warning', 'R1530-button', '📐 버튼 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s430.includes('<image') && s430.includes('refImgSrc') && s430.includes('preserveAspectRatio')) {
+    log('pass', 'R1530-overlay', 'SVG <image> 레퍼런스 overlay 렌더링 구현')
+  } else {
+    log('warning', 'R1530-overlay', 'SVG image overlay 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
