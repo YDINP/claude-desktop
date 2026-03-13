@@ -8769,6 +8769,41 @@ if (existsSync(sl884Path)) {
   }
 }
 
+console.log('\n## 206. Phase DD10 R885~887 기능 체크')
+
+// R885: ChatPanel 채팅 내보내기 옵션
+const cp885Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp885Path)) {
+  const cp885 = readFileSync(cp885Path, 'utf-8')
+  if (cp885.includes('chatExportOptions') || cp885.includes('showExportOptions') || cp885.includes('exportFormat')) {
+    log('pass', 'R885', 'ChatPanel 채팅 내보내기 옵션 존재')
+  } else {
+    log('warning', 'R885', 'ChatPanel 채팅 내보내기 옵션 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R886: InputBar 입력 히스토리 탐색
+const ib886Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib886Path)) {
+  const ib886 = readFileSync(ib886Path, 'utf-8')
+  if (ib886.includes('inputHistoryIdx') || ib886.includes('setInputHistory') || ib886.includes('historyNav')) {
+    log('pass', 'R886', 'InputBar 입력 히스토리 탐색 존재')
+  } else {
+    log('warning', 'R886', 'InputBar 입력 히스토리 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R887: CocosPanel 노드 이벤트 로그
+const cocp887Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp887Path)) {
+  const cocp887 = readFileSync(cocp887Path, 'utf-8')
+  if (cocp887.includes('nodeEventLog') || cocp887.includes('showEventLog') || cocp887.includes('eventLog')) {
+    log('pass', 'R887', 'CocosPanel 노드 이벤트 로그 존재')
+  } else {
+    log('warning', 'R887', 'CocosPanel 노드 이벤트 로그 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

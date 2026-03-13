@@ -273,6 +273,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showQuickReplies, setShowQuickReplies] = useState(false)
   const [slashCommands, setSlashCommands] = useState<Array<{ cmd: string; description: string }>>([])
   const [showSlashMenu, setShowSlashMenu] = useState(false)
+  const [inputHistory, setInputHistory] = useState<string[]>([])
+  const [inputHistoryIdx, setInputHistoryIdx] = useState(-1)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
