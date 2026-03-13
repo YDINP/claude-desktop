@@ -341,6 +341,19 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
   'cc.Animation': e => ({
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? false,
   }),
+  // R1584: cc.Layout — 자동 레이아웃 컴포넌트
+  'cc.Layout': e => ({
+    type: (e._N$layoutType ?? e._N$type ?? e._layoutType ?? e.layoutType ?? e.type ?? 0) as number,
+    resizeMode: (e._N$resizeMode ?? e._resizeMode ?? e.resizeMode ?? 0) as number,
+    paddingLeft: (e._N$paddingLeft ?? e._paddingLeft ?? e.paddingLeft ?? 0) as number,
+    paddingRight: (e._N$paddingRight ?? e._paddingRight ?? e.paddingRight ?? 0) as number,
+    paddingTop: (e._N$paddingTop ?? e._paddingTop ?? e.paddingTop ?? 0) as number,
+    paddingBottom: (e._N$paddingBottom ?? e._paddingBottom ?? e.paddingBottom ?? 0) as number,
+    spacingX: (e._N$spacingX ?? e._spacingX ?? e.spacingX ?? 0) as number,
+    spacingY: (e._N$spacingY ?? e._spacingY ?? e.spacingY ?? 0) as number,
+    autoWrap: !!(e._N$autoWrap ?? e._autoWrap ?? e.autoWrap ?? false),
+    startAxis: (e._N$startAxis ?? e._startAxis ?? e.startAxis ?? 0) as number,
+  }),
   // R1582: cc.Widget — 레이아웃 제약 컴포넌트
   'cc.Widget': e => ({
     alignFlags: (e._N$alignFlags ?? e._alignFlags ?? e.alignFlags ?? 0) as number,

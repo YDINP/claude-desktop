@@ -16910,6 +16910,20 @@ console.log('\n## 474. R1583 SceneView Ctrl+A 전체 선택 체크')
   }
 }
 
+// ── Section 475: R1584 cc.Layout extractor + Inspector Quick Edit ────
+console.log('\n## 475. R1584 cc.Layout extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s475parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s475panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s475parser.includes("'cc.Layout': e =>") && s475panel.includes("comp.type === 'cc.Layout'") && s475panel.includes('paddingLeft') && s475panel.includes('autoWrap')) {
+    log('pass', 'R1584-layout', 'cc.Layout extractor + Inspector: type/resizeMode/padding/spacing/autoWrap')
+  } else {
+    log('warning', 'R1584-layout', 'cc.Layout Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

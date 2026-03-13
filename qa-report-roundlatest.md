@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T19:47:25.504Z
+> 2026-03-13T21:36:12.244Z
 
 ## Critical
 _없음_
@@ -1416,3 +1416,100 @@ _없음_
 - Quick Edit CLI useState 컴포넌트 최상위 선언 (Rules of Hooks 준수)
 - SceneView cc.Widget alignFlags 제약 화살표 시각화 구현
 - TOP/BOT/LEFT/RIGHT 4방향 제약 화살표 모두 구현
+- alignGuides 상태 + ALIGN_SNAP_THRESHOLD 선언
+- 드래그 중 V/H 가이드라인 계산 로직 구현 (vPairs/hPairs)
+- SVG 정렬 가이드라인 렌더링 (빨간 점선) 구현
+- mouseUp 시 alignGuides 클리어 구현
+- handleInsertPrefab — IPC 로드 + deepCopy + 씬 삽입 구현
+- 프리팹 선택 드롭다운 UI 구현
+- .prefab 파일 필터링 + 로딩 상태 표시
+- CCFileSceneView onMultiSelectChange prop + useEffect 구현
+- CCFileBatchInspector 컴포넌트 + multiSelectedUuids 상태 구현
+- applyBatch — opacity/active/position delta 적용 구현
+- CocosPanel ↔ SceneView multiSelectChange 연결
+- CocosPanel reorderInParent Ctrl+Up/Down 핸들러 구현
+- Ctrl+ArrowUp/Down 키 감지 로직 구현
+- SceneView 단축키 legend에 Ctrl+↑↓ 추가
+- cc.Toggle extractor (isChecked) 파싱 추가
+- cc.AudioSource extractor (volume/loop/playOnLoad/pitch) 파싱 추가
+- cc.VideoPlayer extractor (remoteURL/loop/mute) 파싱 추가
+- Inspector Quick Edit (Toggle/ProgressBar/AudioSource/RichText) 전용 UI 구현
+- hoverClientPos 상태 + onMouseEnter/Move/Leave 이벤트 구현
+- 호버 툴팁 패널 렌더링 (컴포넌트 아이콘 + props 미리보기) 구현
+- 주요 컴포넌트 타입별 hint (progress%/toggle✓/volume%) 표시 구현
+- cc-file-parser resolveAnimationClipNames 구현 확인
+- _resolvedClips + _defaultClipName 주입 확인 (2x/3x)
+- CocosPanel cc.Animation 클립 드롭다운 UI 구현 확인
+- BBox min/max 계산 (선택 노드 좌표 누산) 구현
+- BBox 주황 점선 rect 렌더링 구현
+- 컴포넌트 ▲▼ 순서 변경 버튼 UI 구현
+- 컴포넌트 배열 splice 이동 로직 구현
+- refImgSrc/refImgOpacity/refImgInputRef 상태+ref 선언
+- 📐 버튼 + hidden file input 구현
+- SVG <image> 레퍼런스 overlay 렌더링 구현
+- CCSceneNode tag?: number 필드 추가
+- parseNode2x _tag 파싱 구현
+- patch2x _tag + patch3x layer 쓰기 구현
+- Inspector Tag/Layer 편집 UI 구현
+- Ctrl+D 복제 +20 position offset 구현
+- PropSearch propKeyLabel 하이라이트 헬퍼 구현 (노란 mark)
+- propKeyLabel(k)를 모든 prop 키 레이블에 적용
+- cc.EditBox extractor (string/placeholder/maxLength/inputMode) 추가
+- CocosPanel cc.EditBox Quick Edit UI (string/placeholder/maxLength) 구현
+- cc.Camera + cc.ParticleSystem extractor 추가
+- 컴포넌트 enabled 체크박스 토글 구현
+- lockedUuids Set + toggleLock + localStorage 연동 구현
+- 잠긴 노드 드래그 차단 + not-allowed 커서 + 🔒 아이콘
+- 컨텍스트 메뉴 잠금/해제 항목 구현
+- editingZoom 상태 컴포넌트 레벨 선언 (hooks 규칙 준수)
+- 줌 % span → input 인라인 전환 UI 구현
+- sp.Skeleton extractor 구현 (skin/animation/timeScale/loop/paused)
+- Inspector sp.Skeleton Quick Edit UI (skin/animation/timeScale/loop/paused)
+- 즐겨찾기 클릭 → onUpdate(favNode) 탐색 구현 (console.log 제거)
+- 즐겨찾기 컴포넌트 타입 배지 + 없는 노드 희미하게 표시
+- resOverride + effectiveW/H 상태 구현
+- 해상도 preset picker UI (960×640, 1920×1080 등 포함)
+- dragonBones.ArmatureDisplay extractor 구현 (armature/animation/timeScale/loop/playTimes)
+- Inspector dragonBones Quick Edit UI (armature/animation/timeScale/playTimes/loop)
+- svSearch + svSearchMatches useMemo 구현
+- 검색 매칭 노드 마젠타 하이라이트 (stroke + fill)
+- 툴바 검색 input + 매칭 수 표시
+- cc.RigidBody/2D + BoxCollider/CircleCollider extractor 구현
+- Inspector RigidBody Quick Edit (type/mass/gravityScale/linearDamp/fixedRotation)
+- BoxCollider 녹색 점선 rect + CircleCollider 원 SVG 오버레이
+- BatchInspector 스케일(X/Y) + 사이즈(W/H) 일괄 편집 추가
+- 미니맵 effectiveW/H 기준 (resOverride 반영)
+- 노드 사이즈 rect + 검색 매칭 미니맵 하이라이트
+- CC3.x layer 번호 tspan 표시 (기본 레이어 1048576 제외)
+- cc.TiledMap + cc.TiledLayer extractor 구현
+- Inspector TiledMap/TiledLayer Quick Edit UI
+- cc.SafeArea + cc.BlockInputEvents + cc.UIStaticBatch extractor 추가
+- 새 컴포넌트 호버 툴팁 아이콘 추가 (SafeArea/Spine/DragonBones/Collider)
+- TreeSearch ↑↓ 키보드 탐색 + Enter 선택 + Escape 닫기
+- 컴포넌트 타입 검색 (이름 + 타입 모두 검색)
+- 씬 통계 패널 (nodeCount + 상위 4개 컴포넌트 타입 분포)
+- Quick Edit CLI 확장: layer/tag/z/flip x|y/reset/help
+- 정렬 버튼이 effectiveW/H 기반으로 동작
+- cc.Slider + cc.VideoPlayer Inspector Quick Edit 구현
+- Ctrl+D 노드 복제: SceneView 단축키 + CocosPanel handler
+- cc.ScrollView Inspector Quick Edit: horizontal/vertical/inertia/elastic/brake
+- H 키 active 토글: SceneView + CocosPanel handler
+- cc.ParticleSystem Quick Edit: duration + maxParticles
+- Ctrl+↑↓ 형제 순서 변경: SceneView + CocosPanel handler
+- cc.Camera Inspector Quick Edit: depth/zoomRatio/fov
+- cc.PageView Quick Edit: direction/scrollThreshold/autoTurning
+- P키 부모 노드 포커스 + FlatNode parentUuid 추적
+- Enter키 첫 번째 자식 선택
+- cc.Mask Quick Edit: type/inverted/alphaThreshold
+- cc.UIOpacity extractor + Inspector Quick Edit
+- cc.PolygonCollider extractor + SceneView SVG path 시각화
+- BatchInspector 색상 일괄 편집 추가
+- cc.DirectionalLight/PointLight Inspector Quick Edit: intensity/color
+- Inspector 노드 전체 JSON 복사 버튼 추가
+- SceneView 노드 색상 tint 표시 (비흰색일 때 ■ swatch)
+- cc.SkeletalAnimation extractor + Inspector Quick Edit
+- Tab/Shift+Tab 형제 노드 탐색
+- cc.Button extractor + Inspector: transition/state colors/interactable
+- cc.Widget extractor + Inspector: align flags/offsets/mode
+- Ctrl+A 전체 노드 다중 선택
+- cc.Layout extractor + Inspector: type/resizeMode/padding/spacing/autoWrap

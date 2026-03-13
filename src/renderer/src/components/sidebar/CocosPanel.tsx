@@ -4701,6 +4701,87 @@ function CCFileNodeInspector({
           {/* R1520: 컴포넌트 전용 Quick Edit (Toggle/ProgressBar/AudioSource/RichText) */}
           {!collapsedComps.has(comp.type) && (() => {
             const p = comp.props
+            // R1584: cc.Layout — type/resize/padding/spacing Quick Edit
+            if (comp.type === 'cc.Layout') {
+              const layoutType = Number(p.type ?? 0)
+              const resizeMode = Number(p.resizeMode ?? 0)
+              const spacingX = Number(p.spacingX ?? 0)
+              const spacingY = Number(p.spacingY ?? 0)
+              const pLeft = Number(p.paddingLeft ?? 0)
+              const pRight = Number(p.paddingRight ?? 0)
+              const pTop = Number(p.paddingTop ?? 0)
+              const pBottom = Number(p.paddingBottom ?? 0)
+              const autoWrap = !!(p.autoWrap ?? false)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <select value={layoutType}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: v, layoutType: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      <option value={0}>None</option>
+                      <option value={1}>Horizontal</option>
+                      <option value={2}>Vertical</option>
+                      <option value={3}>Grid</option>
+                    </select>
+                    <select value={resizeMode}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, resizeMode: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      <option value={0}>None</option>
+                      <option value={1}>Children</option>
+                      <option value={2}>Container</option>
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>space</span>
+                    {[['X', spacingX, 'spacingX'], ['Y', spacingY, 'spacingY']].map(([label, val, key]) => (
+                      <input key={key as string} type="number" defaultValue={val as number} step={1}
+                        onBlur={e => {
+                          const v = parseFloat(e.target.value) || 0
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key as string]: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        placeholder={label as string}
+                        style={{ width: 40, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      />
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>pad</span>
+                    {[['L', pLeft, 'paddingLeft'], ['R', pRight, 'paddingRight'], ['T', pTop, 'paddingTop'], ['B', pBottom, 'paddingBottom']].map(([label, val, key]) => (
+                      <input key={key as string} type="number" defaultValue={val as number} step={1}
+                        onBlur={e => {
+                          const v = parseFloat(e.target.value) || 0
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key as string]: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        placeholder={label as string}
+                        style={{ width: 32, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      />
+                    ))}
+                  </div>
+                  {layoutType === 3 && (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={autoWrap}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoWrap: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                      />autoWrap
+                    </label>
+                  )}
+                </div>
+              )
+            }
             // R1582: cc.Widget — align flags + offsets Quick Edit
             if (comp.type === 'cc.Widget') {
               const isTop = !!(p.isAlignTop ?? false)
