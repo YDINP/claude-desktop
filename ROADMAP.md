@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 656 완료 — Phase DD10 진행 중, QA Pass 542)
+> 마지막 업데이트: 2026-03-13 (Round 660 완료 — Phase DD10 진행 중, QA Pass 545)
 
 ## 개발 루프 실행 방식
 
@@ -632,6 +632,10 @@
 | Round 654 | TerminalPanel 출력 필터링 (termFilter, showTermFilter) | ✅ |
 | Round 655 | SceneViewPanel 노드 다중 선택/그룹화 (multiSelected, showGroupBtn) | ✅ |
 | Round 656 | QA Section 133 추가 (R653/R654/R655, Pass 542) | ✅ |
+| Round 657 | SessionList 세션 내보내기 (exportSession, 📤 버튼) | ✅ |
+| Round 658 | ChatPanel 스크롤 위치 저장 (scrollPositions useRef, prevSessionIdRef) | ✅ |
+| Round 659 | SceneToolbar 레이아웃 프리셋 (onLayoutPreset, layoutPresetOpen) | ✅ |
+| Round 660 | QA Section 134 추가 (R657/R658/R659, Pass 545) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

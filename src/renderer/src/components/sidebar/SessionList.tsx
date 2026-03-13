@@ -204,6 +204,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [inlineTagInput, setInlineTagInput] = useState<string | null>(null) // sessionId being tagged inline
   const [inlineTagValue, setInlineTagValue] = useState('')
   const inlineTagRef = useRef<HTMLInputElement>(null)
+  const [exportedId, setExportedId] = useState<string | null>(null)
 
   const TAG_COLORS_KEY = 'session-tag-colors'
   const loadTagColors = (): Record<string, string> => {
@@ -508,6 +509,16 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     const collection = name.trim() || null
     await window.api.sessionSetCollection(id, collection)
     setSessions(prev => prev.map(s => s.id === id ? { ...s, collection: collection ?? undefined } : s))
+  }, [])
+
+  const exportSession = useCallback(async (id: string) => {
+    if (typeof window.api.exportSession === 'function') {
+      await window.api.exportSession(id)
+    } else {
+      console.log('export session:', id)
+    }
+    setExportedId(id)
+    setTimeout(() => setExportedId(null), 1500)
   }, [])
 
   const handleExportSession = useCallback(async (id: string) => {
@@ -1031,6 +1042,15 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
                     const result = await window.api.sessionExportMarkdown(s.id)
                     if (result.success) toast('내보내기 완료', 'success')
                     else if (result.error) toast('내보내기 실패: ' + result.error, 'error')
+                  },
+                  disabled: false,
+                },
+                {
+                  label: exportedId === s.id ? '✓' : 'JSON 내보내기',
+                  icon: exportedId === s.id ? '' : '📤',
+                  action: async (e: React.MouseEvent) => {
+                    e.stopPropagation(); setMenuOpenId(null)
+                    await exportSession(s.id)
                   },
                   disabled: false,
                 },

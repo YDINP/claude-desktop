@@ -475,6 +475,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const minimapRef = useRef<HTMLDivElement>(null)
   const isAtBottomRef = useRef(true)
+  const scrollPositions = useRef<Record<string, number>>({})
+  const prevSessionIdRef = useRef<string | null | undefined>(chat.sessionId)
   const [showScrollBtn, setShowScrollBtn] = useState(false)
   const [showTopBtn, setShowTopBtn] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
@@ -693,6 +695,33 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     estimateSize: () => 250,
     overscan: 5,
   })
+
+  // 세션 전환 시 스크롤 위치 저장/복원
+  useEffect(() => {
+    const prevId = prevSessionIdRef.current
+    const nextId = chat.sessionId
+    if (prevId === nextId) return
+
+    // 이전 세션 스크롤 위치 저장
+    if (prevId) {
+      const el = scrollContainerRef.current
+      if (el) scrollPositions.current[prevId] = el.scrollTop
+    }
+
+    // 새 세션 스크롤 위치 복원
+    const savedPos = nextId ? scrollPositions.current[nextId] : undefined
+    if (savedPos !== undefined) {
+      requestAnimationFrame(() => {
+        const el = scrollContainerRef.current
+        if (el) el.scrollTop = savedPos
+      })
+    } else {
+      // 저장된 위치 없으면 맨 아래로
+      isAtBottomRef.current = true
+    }
+
+    prevSessionIdRef.current = nextId
+  }, [chat.sessionId])
 
   // Auto-scroll: when near bottom, scroll to last item
   useEffect(() => {

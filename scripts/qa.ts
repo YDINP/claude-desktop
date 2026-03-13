@@ -6249,6 +6249,41 @@ if (existsSync(svp655Path)) {
   }
 }
 
+// ── Section 134: Phase DD10 R657~659 기능 체크 ────────────────
+console.log('\n## 134. Phase DD10 R657~659 기능 체크')
+// R657: SessionList 세션 내보내기
+const sl657Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl657Path)) {
+  const sl657 = readFileSync(sl657Path, 'utf-8')
+  if (sl657.includes('exportSession') || sl657.includes('sessionExport')) {
+    log('pass', 'R657', 'SessionList 세션 내보내기 존재')
+  } else {
+    log('warning', 'R657', 'SessionList 내보내기 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R658: ChatPanel 스크롤 위치 저장
+const cp658Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp658Path)) {
+  const cp658 = readFileSync(cp658Path, 'utf-8')
+  if (cp658.includes('scrollPositions') || cp658.includes('saveScrollPos') || cp658.includes('prevSessionIdRef')) {
+    log('pass', 'R658', 'ChatPanel 스크롤 위치 저장 존재')
+  } else {
+    log('warning', 'R658', 'ChatPanel 스크롤 위치 저장 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R659: SceneToolbar 레이아웃 프리셋
+const st659Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(st659Path)) {
+  const st659 = readFileSync(st659Path, 'utf-8')
+  if (st659.includes('layoutPresets') || st659.includes('onLayoutPreset') || st659.includes('layoutPresetOpen')) {
+    log('pass', 'R659', 'SceneToolbar 레이아웃 프리셋 존재')
+  } else {
+    log('warning', 'R659', 'SceneToolbar 레이아웃 프리셋 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

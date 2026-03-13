@@ -28,6 +28,7 @@ interface SceneToolbarProps {
   onMatchHeight?: () => void
   onMatchBoth?: () => void
   onGridLayout?: () => void
+  onLayoutPreset?: (cols: number) => void
   selectedUuid?: string | null
   onCreateNode?: () => void
   onDeleteNode?: () => void
@@ -224,11 +225,15 @@ export function SceneToolbar({
   onZoomTo,
   onToggleSearch,
   showSearch,
+  onLayoutPreset,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
   const [zoomPresetOpen, setZoomPresetOpen] = useState(false)
   const [bgPaletteOpen, setBgPaletteOpen] = useState(false)
+  const [layoutPresetOpen, setLayoutPresetOpen] = useState(false)
+  const layoutPresetRef = useRef<HTMLDivElement>(null)
+  const layoutPresetBtnRef = useRef<HTMLButtonElement>(null)
   const zoomPresetRef = useRef<HTMLDivElement>(null)
   const zoomPresetBtnRef = useRef<HTMLButtonElement>(null)
   const [customColor, setCustomColor] = useState(
@@ -264,6 +269,20 @@ export function SceneToolbar({
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [zoomPresetOpen])
+
+  useEffect(() => {
+    if (!layoutPresetOpen) return
+    const handleClick = (e: MouseEvent) => {
+      if (
+        layoutPresetRef.current && !layoutPresetRef.current.contains(e.target as Node) &&
+        layoutPresetBtnRef.current && !layoutPresetBtnRef.current.contains(e.target as Node)
+      ) {
+        setLayoutPresetOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [layoutPresetOpen])
 
   const zoomIn = () => {
     const next = ZOOM_STEPS.find(z => z > zoom) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]
@@ -471,6 +490,58 @@ export function SceneToolbar({
       >
         ⊞ Grid
       </button>
+
+      {/* 레이아웃 프리셋 */}
+      {onLayoutPreset && (
+        <div style={{ position: 'relative' }}>
+          <button
+            ref={layoutPresetBtnRef}
+            style={layoutPresetOpen ? btnActive : btnBase}
+            onClick={() => setLayoutPresetOpen(v => !v)}
+            title="레이아웃 프리셋 선택"
+          >
+            ⊞ Layout
+          </button>
+          {layoutPresetOpen && (
+            <div
+              ref={layoutPresetRef}
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                marginTop: 2,
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                zIndex: 9999,
+                display: 'flex',
+                flexDirection: 'column',
+                minWidth: 80,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                overflow: 'hidden',
+              }}
+            >
+              {[{ name: '기본', cols: 1 }, { name: '2열', cols: 2 }, { name: '3열', cols: 3 }].map(p => (
+                <button
+                  key={p.cols}
+                  onClick={() => { onLayoutPreset(p.cols); setLayoutPresetOpen(false) }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--text-primary)',
+                    fontSize: 10,
+                    padding: '4px 10px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 스냅 */}
       <button
