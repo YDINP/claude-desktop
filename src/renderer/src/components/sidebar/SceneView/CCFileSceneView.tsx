@@ -376,6 +376,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             <rect x={-99999} y={-99999} width={199999} height={199999} fill="white" />
             <rect x={0} y={0} width={designW} height={designH} fill="black" />
           </mask>
+          {/* 선택 노드 마칭 앤트 애니메이션 */}
+          <style>{`
+            @keyframes march { to { stroke-dashoffset: -20; } }
+            .cc-selected-rect { stroke-dasharray: 6 3; animation: march 0.6s linear infinite; }
+          `}</style>
         </defs>
         <g transform={transform}>
           {/* 게임 캔버스 배경 */}
@@ -481,6 +486,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   fill={fillColor}
                   stroke={strokeColor}
                   strokeWidth={(isSelected ? 2 : 1) / view.zoom}
+                  className={isSelected ? 'cc-selected-rect' : undefined}
                 />
                 {/* 앵커 포인트 */}
                 <circle
