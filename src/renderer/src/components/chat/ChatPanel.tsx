@@ -1135,6 +1135,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showReactionPicker, setShowReactionPicker] = useState(false)
   const [chatFilter, setChatFilter] = useState('')
   const [chatFilterResults, setChatFilterResults] = useState<string[]>([])
+  const [chatGroupBy, setChatGroupBy] = useState<'date' | 'role' | 'none'>('none')
+  const [showGroupPanel, setShowGroupPanel] = useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

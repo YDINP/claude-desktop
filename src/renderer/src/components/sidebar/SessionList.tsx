@@ -249,6 +249,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [compareTargets, setCompareTargets] = useState<string[]>([])
   const [editingMemo, setEditingMemo] = useState<string | null>(null)
   const [showExportMenu, setShowExportMenu] = useState(false)
+  const [sessionSearch, setSessionSearch] = useState('')
+  const [sessionSearchResults, setSessionSearchResults] = useState<string[]>([])
 
   const TAG_COLORS_KEY = 'session-tag-colors'
   const loadTagColors = (): Record<string, string> => {
@@ -384,6 +386,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [sessionLayoutConfig, setSessionLayoutConfig] = useState<Record<string, number>>({})
   const [sessionExport, setSessionExport] = useState<string>('')
   const [showExportSessionDialog, setShowExportSessionDialog] = useState(false)
+  const [sessionSearch, setSessionSearch] = useState('')
+  const [sessionSearchResults, setSessionSearchResults] = useState<string[]>([])
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

@@ -231,6 +231,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [activeTermSession, setActiveTermSession] = useState('')
   const [termBookmarks, setTermBookmarks] = useState<string[]>([])
   const [showTermBookmarks, setShowTermBookmarks] = useState(false)
+  const [termPipeline, setTermPipeline] = useState<string[]>([])
+  const [showPipelinePanel, setShowPipelinePanel] = useState(false)
   const inputBufferRef = useRef<Record<string, string>>({})
 
   const sendQuickCmd = (cmd: string) => {
@@ -503,6 +505,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showAliasGroups, setShowAliasGroups] = React.useState(false)
   const [termSessions, setTermSessions] = React.useState<string[]>([])
   const [activeTermSession, setActiveTermSession] = React.useState('')
+  const [termPipeline, setTermPipeline] = React.useState<string[]>([])
+  const [showPipelinePanel, setShowPipelinePanel] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
