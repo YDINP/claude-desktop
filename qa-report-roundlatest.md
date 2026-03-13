@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T21:44:47.465Z
+> 2026-03-13T21:47:10.997Z
 
 ## Critical
 _없음_
@@ -1519,3 +1519,4 @@ _없음_
 - cc.LabelOutline/LabelShadow extractor + Inspector Quick Edit
 - cc.Sprite extractor + Inspector: type/sizeMode/trim/grayscale
 - cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor
+- cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Inspector Quick Edit

@@ -5766,6 +5766,82 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1591: cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Quick Edit
+            if (comp.type === 'cc.BoxCollider' || comp.type === 'cc.BoxCollider2D') {
+              const off = p.offset as { x?: number; y?: number } | undefined
+              const sz = p.size as { width?: number; height?: number } | undefined
+              return (
+                <div key={ci} style={{ marginBottom: 6 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>offset X</label>
+                      <input type="number" value={Number(off?.x ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'offset', { ...(off ?? {}), x: Number(ev.target.value) })} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>offset Y</label>
+                      <input type="number" value={Number(off?.y ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'offset', { ...(off ?? {}), y: Number(ev.target.value) })} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>width</label>
+                      <input type="number" min={0} value={Number(sz?.width ?? 100)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'size', { ...(sz ?? {}), width: Number(ev.target.value) })} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>height</label>
+                      <input type="number" min={0} value={Number(sz?.height ?? 100)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'size', { ...(sz ?? {}), height: Number(ev.target.value) })} />
+                    </div>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
+                    <input type="checkbox" checked={!!(p.sensor ?? false)}
+                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'sensor', ev.target.checked)} />
+                    sensor
+                  </label>
+                </div>
+              )
+            }
+            if (comp.type === 'cc.CircleCollider' || comp.type === 'cc.CircleCollider2D') {
+              const off = p.offset as { x?: number; y?: number } | undefined
+              return (
+                <div key={ci} style={{ marginBottom: 6 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>offset X</label>
+                      <input type="number" value={Number(off?.x ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'offset', { ...(off ?? {}), x: Number(ev.target.value) })} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>offset Y</label>
+                      <input type="number" value={Number(off?.y ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'offset', { ...(off ?? {}), y: Number(ev.target.value) })} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>radius</label>
+                      <input type="number" min={0} value={Number(p.radius ?? 50)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'radius', Number(ev.target.value))} />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
+                        <input type="checkbox" checked={!!(p.sensor ?? false)}
+                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'sensor', ev.target.checked)} />
+                        sensor
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
             // R1551: cc.RigidBody — 물리 강체 Quick Edit
             if (comp.type === 'cc.RigidBody' || comp.type === 'cc.RigidBody2D') {
               const rbTypes = ['DYNAMIC', 'STATIC', 'KINEMATIC']

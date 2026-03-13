@@ -17008,6 +17008,18 @@ console.log('\n## 481. R1590 cc.Graphics extractor + Inspector Quick Edit 체크
   }
 }
 
+// ── Section 482: R1591 cc.BoxCollider/CircleCollider Inspector Quick Edit ──
+console.log('\n## 482. R1591 cc.BoxCollider/CircleCollider Inspector Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s482panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s482panel.includes("comp.type === 'cc.BoxCollider'") && s482panel.includes("comp.type === 'cc.CircleCollider'") && s482panel.includes("'cc.CircleCollider2D'") && s482panel.includes('radius') && s482panel.includes('sensor')) {
+    log('pass', 'R1591-collider', 'cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Inspector Quick Edit')
+  } else {
+    log('warning', 'R1591-collider', 'cc.BoxCollider/CircleCollider Inspector Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
