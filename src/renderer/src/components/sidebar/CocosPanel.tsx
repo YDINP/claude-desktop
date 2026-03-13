@@ -1368,6 +1368,37 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
   }, [sceneFile, saveScene, projectInfo, onSelectNode])
 
+  // R1563: Ctrl+D — 선택 노드 + 하위 트리 복제 (새 UUID 부여)
+  const handleDuplicate = useCallback(async (uuid: string) => {
+    if (!sceneFile?.root) return
+    const is3x = projectInfo?.version === '3x'
+    const genId = () => is3x
+      ? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2, 14))
+      : Math.random().toString(36).slice(2, 14)
+    function deepClone(n: CCSceneNode): CCSceneNode {
+      return { ...n, uuid: genId(), name: n.name + '_copy', children: n.children.map(deepClone) }
+    }
+    // 원본 찾아서 부모 children에 clone 삽입 (원본 바로 다음)
+    let clonedNode: CCSceneNode | null = null
+    function insertAfter(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === uuid)
+      if (idx !== -1) {
+        const clone = deepClone(n.children[idx])
+        clonedNode = clone
+        const newChildren = [...n.children.slice(0, idx + 1), clone, ...n.children.slice(idx + 1)]
+        return { ...n, children: newChildren }
+      }
+      return { ...n, children: n.children.map(insertAfter) }
+    }
+    const newRoot = insertAfter(sceneFile.root)
+    if (!clonedNode) return
+    const result = await saveScene(newRoot)
+    if (result?.success !== false && clonedNode) {
+      const c = clonedNode
+      setTimeout(() => { onSelectNode(c) }, 100)
+    }
+  }, [sceneFile, saveScene, projectInfo, onSelectNode])
+
   const handleReparent = useCallback(async (dragUuid: string, dropUuid: string) => {
     if (!sceneFile?.root || dragUuid === dropUuid || sceneFile.root.uuid === dragUuid) return
     // 사이클 방지: drop 대상이 drag 노드의 하위인지 확인
@@ -2411,6 +2442,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onMultiDelete={handleMultiDelete}
                 onLabelEdit={handleLabelEdit}
                 onAddNode={handleAddNode}
+                onDuplicate={handleDuplicate}
                 onAnchorMove={handleAnchorMove}
                 onMultiSelectChange={setMultiSelectedUuids}
                 onSelect={uuid => {

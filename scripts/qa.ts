@@ -16642,6 +16642,20 @@ console.log('\n## 453. R1562 cc.Slider/VideoPlayer Quick Edit 체크')
   }
 }
 
+// ── Section 454: R1563 SceneView Ctrl+D 노드 복제 ────────────────
+console.log('\n## 454. R1563 SceneView Ctrl+D 복제 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s454sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  const s454panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s454sv.includes("onDuplicate") && s454sv.includes("key === 'd'") && s454panel.includes('handleDuplicate') && s454panel.includes('deepClone')) {
+    log('pass', 'R1563-duplicate', 'Ctrl+D 노드 복제: SceneView 단축키 + CocosPanel handler')
+  } else {
+    log('warning', 'R1563-duplicate', 'Ctrl+D 복제 미구현', 'CCFileSceneView.tsx / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

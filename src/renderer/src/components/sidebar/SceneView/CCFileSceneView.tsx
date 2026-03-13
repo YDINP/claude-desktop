@@ -31,6 +31,8 @@ interface CCFileSceneViewProps {
   onAnchorMove?: (uuid: string, ax: number, ay: number) => void
   /** R1516: 다중 선택 변경 알림 */
   onMultiSelectChange?: (uuids: string[]) => void
+  /** R1563: 선택 노드 복제 (Ctrl+D) */
+  onDuplicate?: (uuid: string) => void
 }
 
 /**
@@ -38,7 +40,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -521,6 +523,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         onAddNode?.(selectedUuid, undefined)
         return
       }
+      // R1563: Ctrl+D — 선택 노드 복제
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault()
+        if (selectedUuid) onDuplicate?.(selectedUuid)
+        return
+      }
       // R1483: Delete/Backspace — 다중 선택 일괄 삭제
       if (e.key === 'Delete' || e.key === 'Backspace') {
         const multi = multiSelectedRef.current
@@ -554,7 +562,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode])
+  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate])
 
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
   const handleScreenshotAI = useCallback(() => {
@@ -1629,6 +1637,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['Ctrl+↑↓', '형제 순서 변경'],
             ['⊙◁▷△▽', '정렬 버튼'],
             ['↑↓ (Inspector)', 'Z-order 변경'],
+            ['Ctrl+D', '선택 노드 복제'],
+            ['Ctrl+N', '새 노드 추가'],
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', gap: 8 }}>
               <span style={{ color: '#58a6ff', minWidth: 100 }}>{k}</span>
