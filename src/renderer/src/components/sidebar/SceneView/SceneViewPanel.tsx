@@ -172,6 +172,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 히스토리 (R730) ──────────────────────────────────────────
   const [sceneHistory, setSceneHistory] = useState<string[]>([])
   const [showSceneHistory, setShowSceneHistory] = useState(false)
+  // ── 즐겨찾기 씬 (R736) ──────────────────────────────────────────
+  const [favoriteScenes, setFavoriteScenes] = useState<string[]>(() => JSON.parse(localStorage.getItem('fav-scenes') ?? '[]'))
+  const [showFavScenes, setShowFavScenes] = useState(false)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)

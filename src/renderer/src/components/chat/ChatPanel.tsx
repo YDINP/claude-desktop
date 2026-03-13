@@ -800,6 +800,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [threadOpen, setThreadOpen] = useState<string | null>(null)
   const [msgRatings, setMsgRatings] = useState<Record<string, 1 | 2 | 3 | 4 | 5>>({})
   const [showRatingBar, setShowRatingBar] = useState<string | null>(null)
+  const [runningBlocks, setRunningBlocks] = useState<Set<string>>(new Set())
+  const [blockOutputs, setBlockOutputs] = useState<Record<string, string>>({})
   const [summaryCards, setSummaryCards] = useState<Record<string, string>>({})
   const [showSummaryCard, setShowSummaryCard] = useState<string | null>(null)
   const [threadReplies, setThreadReplies] = useState<Record<string, string[]>>({})

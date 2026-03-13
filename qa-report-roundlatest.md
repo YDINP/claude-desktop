@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:06:49.784Z
+> 2026-03-13T11:07:58.868Z
 
 ## Critical
 _없음_
@@ -616,3 +616,6 @@ _없음_
 - InputBar 자동 들여쓰기 존재
 - SessionList 세션 잠금 존재
 - TerminalPanel 정규식 필터 존재
+- ChatPanel 코드 블록 실행 존재
+- SceneViewPanel 씬 즐겨찾기 존재
+- CocosPanel 스크립트 실행 로그 존재

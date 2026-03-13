@@ -7019,6 +7019,41 @@ if (existsSync(tp734Path)) {
   }
 }
 
+// ── Section 156: Phase DD10 R735~737 기능 체크 ────────────────
+console.log('\n## 156. Phase DD10 R735~737 기능 체크')
+// R735: ChatPanel 코드 블록 실행
+const cp735Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp735Path)) {
+  const cp735 = readFileSync(cp735Path, 'utf-8')
+  if (cp735.includes('runningBlocks') || cp735.includes('blockOutputs') || cp735.includes('runBlock')) {
+    log('pass', 'R735', 'ChatPanel 코드 블록 실행 존재')
+  } else {
+    log('warning', 'R735', 'ChatPanel 코드 블록 실행 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R736: SceneViewPanel 씬 즐겨찾기
+const svp736Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp736Path)) {
+  const svp736 = readFileSync(svp736Path, 'utf-8')
+  if (svp736.includes('favoriteScenes') || svp736.includes('showFavScenes') || svp736.includes('fav-scenes')) {
+    log('pass', 'R736', 'SceneViewPanel 씬 즐겨찾기 존재')
+  } else {
+    log('warning', 'R736', 'SceneViewPanel 씬 즐겨찾기 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R737: CocosPanel 스크립트 실행 로그
+const cp737Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp737Path)) {
+  const cp737 = readFileSync(cp737Path, 'utf-8')
+  if (cp737.includes('scriptLogs') || cp737.includes('showScriptLogs') || cp737.includes('scriptLog')) {
+    log('pass', 'R737', 'CocosPanel 스크립트 실행 로그 존재')
+  } else {
+    log('warning', 'R737', 'CocosPanel 스크립트 로그 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
