@@ -383,13 +383,14 @@ interface CCFileProjectUIProps {
     loadScene: (scenePath: string) => Promise<void>
     saveScene: (root: import('../../../../shared/ipc-schema').CCSceneNode) => Promise<{ success: boolean; error?: string }>
     restoreBackup: () => Promise<{ success: boolean; error?: string }>
+    externalChange: { path: string; timestamp: number } | null
   }
   selectedNode: CCSceneNode | null
   onSelectNode: (n: CCSceneNode | null) => void
 }
 
 function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
-  const { projectInfo, sceneFile, loading, error, openProject, loadScene, saveScene, restoreBackup } = fileProject
+  const { projectInfo, sceneFile, loading, error, externalChange, openProject, loadScene, saveScene, restoreBackup } = fileProject
   const [selectedScene, setSelectedScene] = useState<string>('')
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
@@ -433,6 +434,27 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
   return (
     <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+      {/* 외부 파일 변경 감지 배너 */}
+      {externalChange && sceneFile && (
+        <div style={{
+          padding: '5px 10px', background: '#2d1a00', borderBottom: '1px solid #ff9944',
+          display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 10, color: '#ff9944', flex: 1 }}>
+            파일이 외부에서 수정됨
+          </span>
+          <button
+            onClick={() => loadScene(sceneFile.scenePath)}
+            style={{
+              padding: '2px 6px', fontSize: 9, borderRadius: 3, cursor: 'pointer',
+              background: '#ff9944', color: '#000', border: 'none',
+            }}
+          >
+            다시 로드
+          </button>
+        </div>
+      )}
+
       {/* 프로젝트 열기 섹션 */}
       <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
