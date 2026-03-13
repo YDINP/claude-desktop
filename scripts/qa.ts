@@ -9049,6 +9049,41 @@ if (existsSync(sl908Path)) {
   }
 }
 
+console.log('\n## 214. Phase DD10 R909~911 기능 체크')
+
+// R909: ChatPanel 읽음 확인
+const cp909Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp909Path)) {
+  const cp909 = readFileSync(cp909Path, 'utf-8')
+  if (cp909.includes('readReceipts') || cp909.includes('showReadReceipts') || cp909.includes('readAt')) {
+    log('pass', 'R909', 'ChatPanel 읽음 확인 존재')
+  } else {
+    log('warning', 'R909', 'ChatPanel 읽음 확인 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R910: InputBar 파일 드롭존
+const ib910Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib910Path)) {
+  const ib910 = readFileSync(ib910Path, 'utf-8')
+  if (ib910.includes('fileDropActive') || ib910.includes('droppedFiles') || ib910.includes('dropZone')) {
+    log('pass', 'R910', 'InputBar 파일 드롭존 존재')
+  } else {
+    log('warning', 'R910', 'InputBar 파일 드롭존 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R911: CocosPanel 스프라이트 에디터
+const cocp911Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp911Path)) {
+  const cocp911 = readFileSync(cocp911Path, 'utf-8')
+  if (cocp911.includes('spriteEditorOpen') || cocp911.includes('editingSprite') || cocp911.includes('spriteEdit')) {
+    log('pass', 'R911', 'CocosPanel 스프라이트 에디터 존재')
+  } else {
+    log('warning', 'R911', 'CocosPanel 스프라이트 에디터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
