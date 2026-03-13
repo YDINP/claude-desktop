@@ -16801,7 +16801,7 @@ console.log('\n## 466. R1575 BatchInspector 색상 일괄 편집 체크')
 {
   const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
   const s466 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
-  if (s466.includes('batchColor') && s466.includes('colorRgb') && s466.includes("'색상 일괄 변경'")) {
+  if (s466.includes('batchColor') && s466.includes('colorRgb') && s466.includes('색상 일괄 변경')) {
     log('pass', 'R1575-batch-color', 'BatchInspector 색상 일괄 편집 추가')
   } else {
     log('warning', 'R1575-batch-color', 'BatchInspector 색상 편집 미구현', 'CocosPanel.tsx')
