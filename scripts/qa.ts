@@ -17670,6 +17670,18 @@ console.log('\n## 536. R1645 Inspector 스케일 반전 버튼 체크')
   }
 }
 
+// ── Section 537: R1646 Inspector 색상/불투명도 변경 인디케이터 ──────────────
+console.log('\n## 537. R1646 Inspector 색상 변경 인디케이터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s537 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s537.includes('R1646') && s537.includes("secHeader('color'") && s537.includes('origSnapRef.current')) {
+    log('pass', 'R1646-color-modified', 'Inspector 색상 섹션 변경 인디케이터')
+  } else {
+    log('warning', 'R1646-color-modified', 'Inspector 색상 변경 인디케이터 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

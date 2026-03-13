@@ -4671,7 +4671,11 @@ function CCFileNodeInspector({
         </>
       )}
 
-      {secHeader('anchor', '앵커 / 불투명도')}
+      {secHeader('anchor', '앵커 / 불투명도', (() => {
+        const os = origSnapRef.current
+        if (!os) return false
+        return Math.abs((draft.opacity ?? 255) - (os.opacity ?? 255)) > 0.5
+      })())}
       {!collapsed['anchor'] && (
       <div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
@@ -4789,7 +4793,17 @@ function CCFileNodeInspector({
         )
       })()}
 
-      {secHeader('color', '색상')}
+      {/* R1646: 색상 변경 인디케이터 */}
+      {secHeader('color', '색상', (() => {
+        const os = origSnapRef.current
+        if (!os) return false
+        const oc = os.color ?? { r: 255, g: 255, b: 255, a: 255 }
+        const dc = draft.color
+        return Math.abs((dc.r) - (oc.r ?? 255)) > 0 ||
+          Math.abs((dc.g) - (oc.g ?? 255)) > 0 ||
+          Math.abs((dc.b) - (oc.b ?? 255)) > 0 ||
+          Math.abs((dc.a) - (oc.a ?? 255)) > 0
+      })())}
       {!collapsed['color'] && (
       <div style={{ marginTop: 0 }}>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
