@@ -38,6 +38,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
   const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number } | null>(null)
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
+  const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
   const spriteCacheRef = useRef<Map<string, string>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
@@ -171,11 +172,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       setDragOverride({ uuid: dragRef.current.uuid, x: nx, y: ny })
       return
     }
-    if (!isPanning || !panStart.current) return
-    const dx = e.clientX - panStart.current.mouseX
-    const dy = e.clientY - panStart.current.mouseY
-    setView(v => ({ ...v, offsetX: panStart.current!.offX + dx, offsetY: panStart.current!.offY + dy }))
-  }, [isPanning])
+    if (isPanning && panStart.current) {
+      const dx = e.clientX - panStart.current.mouseX
+      const dy = e.clientY - panStart.current.mouseY
+      setView(v => ({ ...v, offsetX: panStart.current!.offX + dx, offsetY: panStart.current!.offY + dy }))
+    }
+    // 마우스 씬 좌표 계산: ccX = (mouseX - offsetX) / zoom - cx, ccY = cy - (mouseY - offsetY) / zoom
+    const svg = svgRef.current
+    if (svg) {
+      const rect = svg.getBoundingClientRect()
+      const mx = e.clientX - rect.left
+      const my = e.clientY - rect.top
+      const v = viewRef.current
+      const scx = Math.round((mx - v.offsetX) / v.zoom - cx)
+      const scy = Math.round(cy - (my - v.offsetY) / v.zoom)
+      setMouseScenePos({ x: scx, y: scy })
+    }
+  }, [isPanning, cx, cy])
 
   const handleMouseUp = useCallback(() => {
     if (resizeRef.current && resizeOverride) {
@@ -256,7 +269,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={() => { handleMouseUp(); setMouseScenePos(null) }}
         onContextMenu={e => e.preventDefault()}
         onClick={() => onSelect(null)}
       >
@@ -481,6 +494,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         )
       })()}
+      {/* 마우스 씬 좌표 HUD */}
+      {mouseScenePos && !selectedUuid && (
+        <div style={{
+          position: 'absolute', bottom: 4, left: 4,
+          background: 'rgba(0,0,0,0.5)', borderRadius: 3,
+          padding: '1px 6px', fontSize: 9, color: '#888',
+          pointerEvents: 'none',
+        }}>
+          {mouseScenePos.x}, {mouseScenePos.y}
+        </div>
+      )}
       {/* 선택 노드 HUD */}
       {selectedUuid && (() => {
         const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
@@ -502,6 +526,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             <span style={{ color: '#58a6ff', flex: 1, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {node.name}
             </span>
+            {mouseScenePos && (
+              <span style={{ color: '#555', flexShrink: 0 }}>
+                ✦ {mouseScenePos.x},{mouseScenePos.y}
+              </span>
+            )}
           </div>
         )
       })()}
