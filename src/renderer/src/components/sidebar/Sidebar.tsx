@@ -256,7 +256,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           <RemotePanel />
         )}
         {tab === 'cocos' && (
-          <CocosPanel key={wsKey} defaultPort={ccPort} onPortChange={onCCPortChange} onConnectedChange={onCCConnectedChange} />
+          <CocosPanel />
         )}
         {tab === 'notes' && (
           <NotesPanel />
