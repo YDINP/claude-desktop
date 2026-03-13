@@ -300,10 +300,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         onClick={() => onSelect(null)}
         onDoubleClick={handleFit}
       >
+        <defs>
+          {/* 캔버스 외부 빗금 패턴 */}
+          <pattern id="hatchOutside" width={8 / view.zoom} height={8 / view.zoom} patternUnits="userSpaceOnUse">
+            <line x1={0} y1={8 / view.zoom} x2={8 / view.zoom} y2={0} stroke="rgba(255,255,255,0.06)" strokeWidth={1 / view.zoom} />
+          </pattern>
+          <mask id="outsideMask">
+            <rect x={-99999} y={-99999} width={199999} height={199999} fill="white" />
+            <rect x={0} y={0} width={designW} height={designH} fill="black" />
+          </mask>
+        </defs>
         <g transform={transform}>
           {/* 게임 캔버스 배경 */}
           <rect x={0} y={0} width={designW} height={designH}
             fill={bgColorOverride ?? bgColor} stroke="#555" strokeWidth={1 / view.zoom} />
+          {/* 캔버스 외부 빗금 오버레이 */}
+          <rect x={-99999} y={-99999} width={199999} height={199999}
+            fill="url(#hatchOutside)" mask="url(#outsideMask)" pointerEvents="none" />
           {/* 그리드 (100px 단위) */}
           {showGrid && view.zoom > 0.2 && (() => {
             const step = 100
