@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 411 완료 — NodePropertyPanel transform JSON 복사, Pass 431)
+> 마지막 업데이트: 2026-03-13 (Round 412 완료 — SceneTreePanel 트리 텍스트 복사, Pass 432)
 
 ## 완료된 라운드
 

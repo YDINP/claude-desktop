@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 314: R412 신규 기능 ───────────────────────────────
+console.log('\n## 314. 신규 기능 파일 검사 (R412)')
+// SceneTreePanel 씬 트리 텍스트 복사 (Round 412)
+const stp412Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneTreePanel.tsx')
+if (existsSync(stp412Path)) {
+  const stp412 = readFileSync(stp412Path, 'utf-8')
+  if (stp412.includes('treeCopied') && stp412.includes('copyTreeAsText') && stp412.includes('씬 트리 텍스트')) {
+    log('pass', 'Round412', 'SceneTreePanel: 씬 트리 텍스트 복사(copyTreeAsText) 존재')
+  } else {
+    log('warning', 'Round412', 'SceneTreePanel 트리 복사 미구현', 'sidebar/SceneTreePanel.tsx')
+  }
+}
+
 // ── Section 313: R411 신규 기능 ───────────────────────────────
 console.log('\n## 313. 신규 기능 파일 검사 (R411)')
 // NodePropertyPanel transform 복사 (Round 411)

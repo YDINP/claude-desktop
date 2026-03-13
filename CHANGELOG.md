@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 412] — 2026-03-13
+### Added
+- SceneTreePanel: 씬 트리 텍스트 복사 버튼 — 전체 노드 계층 구조를 들여쓰기 텍스트로 클립보드 복사
+
 ## [Round 411] — 2026-03-13
 ### Added
 - NodePropertyPanel: Transform 전체 JSON 복사 버튼({}) — position/rotation/scale/size/anchor를 JSON으로 클립보드 복사

@@ -154,6 +154,23 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
   const totalNodes = tree ? countNodes(tree) : 0
   const inactiveNodes = tree ? countInactive(tree) : 0
 
+  const [treeCopied, setTreeCopied] = useState(false)
+  const copyTreeAsText = useCallback(() => {
+    if (!tree) return
+    const lines: string[] = []
+    const walk = (node: CCNode, depth: number) => {
+      const indent = '  '.repeat(depth)
+      const active = node.active ? '' : ' (inactive)'
+      lines.push(`${indent}${node.name}${active}`)
+      for (const child of node.children ?? []) walk(child, depth + 1)
+    }
+    walk(tree, 0)
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setTreeCopied(true)
+      setTimeout(() => setTreeCopied(false), 1500)
+    })
+  }, [tree])
+
   // 노드 이름 검색: 검색어 있으면 매칭 노드만 표시
   const searchLower = nodeSearch.toLowerCase()
   const matchesSearch = (node: CCNode): boolean => {
@@ -194,6 +211,15 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
             </button>
           )}
         </span>
+        {tree && (
+          <button
+            onClick={copyTreeAsText}
+            title="씬 트리 텍스트 복사"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: treeCopied ? '#4ade80' : 'var(--text-muted)', fontSize: 11 }}
+          >
+            {treeCopied ? '✓' : '📋'}
+          </button>
+        )}
         <button
           onClick={refresh}
           disabled={loading}
