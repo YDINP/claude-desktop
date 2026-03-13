@@ -305,6 +305,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
     c => c.type !== 'cc.UITransform' && c.type !== 'cc.UIOpacity'
   )
   const [openState, setOpenState] = useState<Record<string, boolean>>(() => { try { return JSON.parse(localStorage.getItem('inspector-sections-open') ?? '{}') } catch { return {} } })
+  const [compSearch, setCompSearch] = useState('')
   const [uuidCopied, setUuidCopied] = useState(false)
   const [activeToggling, setActiveToggling] = useState(false)
   const [transformCopied, setTransformCopied] = useState(false)
@@ -398,7 +399,10 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
 
       {/* 컴포넌트 목록 */}
       {extraComponents.length > 0 && (() => {
-        const allOpen = extraComponents.every(c => !!openState[c.type])
+        const filteredComponents = compSearch
+          ? extraComponents.filter(c => c.type.toLowerCase().includes(compSearch.toLowerCase()))
+          : extraComponents
+        const allOpen = filteredComponents.every(c => !!openState[c.type])
         return (
         <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0 3px', borderTop: '1px solid var(--border)', marginTop: 4 }}>
@@ -407,7 +411,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
               <button
                 onClick={() => {
                   const next: Record<string, boolean> = {}
-                  extraComponents.forEach(c => { next[c.type] = !allOpen })
+                  filteredComponents.forEach(c => { next[c.type] = !allOpen })
                   try { localStorage.setItem('inspector-sections-open', JSON.stringify(next)) } catch {}
                   setOpenState(next)
                 }}
@@ -418,7 +422,15 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
               </button>
             )}
           </div>
-          {extraComponents.map((c, i) => (
+          {extraComponents.length >= 3 && (
+            <input
+              value={compSearch}
+              onChange={e => setCompSearch(e.target.value)}
+              placeholder="컴포넌트 검색..."
+              style={{ width: '100%', fontSize: 9, padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', marginBottom: 2, boxSizing: 'border-box' }}
+            />
+          )}
+          {filteredComponents.map((c, i) => (
             <ComponentSection
               key={i}
               type={c.type}

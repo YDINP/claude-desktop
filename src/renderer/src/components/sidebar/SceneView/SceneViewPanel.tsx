@@ -14,6 +14,11 @@ interface SceneViewPanelProps {
 }
 
 
+const CC_LAYER_NAMES: Record<number, string> = {
+  1: 'DEFAULT', 2: 'UI_3D', 4: 'GIZMOS', 8: 'EDITOR',
+  16: 'UI_2D', 32: 'SCENE_GIZMO', 64: 'PROFILER',
+}
+
 const CANVAS_PRESETS = [
   { label: '960×640 (기본)', w: 960, h: 640 },
   { label: '1280×720 (HD)', w: 1280, h: 720 },
@@ -81,6 +86,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   changeHistoryRef.current = changeHistory
   const [canvasSearch, setCanvasSearch] = useState('')
   const [showCanvasSearch, setShowCanvasSearch] = useState(false)
+  const [hiddenLayers, setHiddenLayers] = useState<Set<number>>(new Set())
+  const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
 
@@ -1091,16 +1098,25 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   // ── 줌 (wheel) — passive: false 필요 ───────────────────────
   const handleWheel = useCallback((e: WheelEvent) => {
-    if (!e.ctrlKey && !e.metaKey) return
     e.preventDefault()
-    const factor = e.deltaY < 0 ? 1.1 : 0.9
-    const svgCoords = getSvgCoords(e)
-    setView(prev => {
-      const newZoom = Math.min(8, Math.max(0.1, prev.zoom * factor))
-      const newOffsetX = svgCoords.x - (svgCoords.x - prev.offsetX) * (newZoom / prev.zoom)
-      const newOffsetY = svgCoords.y - (svgCoords.y - prev.offsetY) * (newZoom / prev.zoom)
-      return { zoom: newZoom, offsetX: newOffsetX, offsetY: newOffsetY }
-    })
+    if (e.ctrlKey || e.metaKey) {
+      // 핀치 줌 / Ctrl+wheel 줌
+      const factor = e.deltaY < 0 ? 1.1 : 0.9
+      const svgCoords = getSvgCoords(e)
+      setView(prev => {
+        const newZoom = Math.min(8, Math.max(0.1, prev.zoom * factor))
+        const newOffsetX = svgCoords.x - (svgCoords.x - prev.offsetX) * (newZoom / prev.zoom)
+        const newOffsetY = svgCoords.y - (svgCoords.y - prev.offsetY) * (newZoom / prev.zoom)
+        return { zoom: newZoom, offsetX: newOffsetX, offsetY: newOffsetY }
+      })
+    } else {
+      // 2손가락 스크롤 → 패닝
+      setView(prev => ({
+        ...prev,
+        offsetX: prev.offsetX - e.deltaX,
+        offsetY: prev.offsetY - e.deltaY,
+      }))
+    }
   }, [getSvgCoords])
 
   // ── SVG 씬 내보내기 ─────────────────────────────────────────
@@ -1303,6 +1319,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
     return path
   }, [selectedUuid, nodeMap])
+
+  // 씬 내 고유 레이어 목록
+  const allLayers = useMemo(() => {
+    const s = new Set<number>()
+    nodeMap.forEach(n => { if ((n as any).layer !== undefined) s.add((n as any).layer) })
+    return [...s].sort((a, b) => a - b)
+  }, [nodeMap])
 
   // 씬 내 모든 태그 목록 (태그 필터 드롭다운용)
   const allTags = useMemo(() => {
@@ -1913,6 +1936,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             {renderOrder.map(uuid => {
               const node = nodeMap.get(uuid)
               if (!node) return null
+              if (hiddenLayers.size > 0 && hiddenLayers.has((node as any).layer ?? 0)) return null
               return (
                 <NodeRenderer
                   key={uuid}
@@ -2714,6 +2738,39 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             </div>
           )
         })()}
+
+        {/* 레이어 토글 버튼 + 패널 */}
+        {allLayers.length > 0 && (
+          <div style={{ position: 'absolute', top: 4, right: 4, zIndex: 20 }}>
+            <button
+              onClick={() => setShowLayerPanel(v => !v)}
+              title="레이어 가시성 토글"
+              style={{
+                fontSize: 9, padding: '1px 5px',
+                background: showLayerPanel ? 'var(--accent-dim, rgba(96,165,250,0.2))' : 'rgba(15,15,20,0.8)',
+                border: `1px solid ${showLayerPanel ? 'var(--accent)' : 'rgba(255,255,255,0.15)'}`,
+                borderRadius: 3,
+                color: showLayerPanel ? 'var(--accent)' : 'var(--text-muted)',
+                cursor: 'pointer',
+              }}
+            >
+              L
+            </button>
+            {showLayerPanel && (
+              <div style={{ position: 'absolute', top: 20, right: 0, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, padding: '4px 6px', zIndex: 20, fontSize: 9, minWidth: 100 }}>
+                <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--text-primary)' }}>레이어</div>
+                {allLayers.map(layer => (
+                  <div key={layer} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 0' }}>
+                    <input type="checkbox" checked={!hiddenLayers.has(layer)}
+                      onChange={() => setHiddenLayers(prev => { const s = new Set(prev); if (s.has(layer)) s.delete(layer); else s.add(layer); return s })}
+                      style={{ cursor: 'pointer', margin: 0 }} />
+                    <span style={{ color: 'var(--text-primary)' }}>{CC_LAYER_NAMES[layer] ?? `Layer ${layer}`}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 미니맵 오버레이 */}
         {showMinimap && nodeMap.size > 0 && (() => {
