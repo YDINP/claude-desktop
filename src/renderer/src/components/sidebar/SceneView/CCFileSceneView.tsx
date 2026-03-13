@@ -84,6 +84,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [viewLock, setViewLock] = useState(false)
   // R1610: 비활성 노드 완전 숨기기
   const [hideInactiveNodes, setHideInactiveNodes] = useState(false)
+  // R1623: 와이어프레임 모드 (선만 표시)
+  const [wireframeMode, setWireframeMode] = useState(false)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
   // R1530: 디자인 레퍼런스 이미지 overlay
@@ -883,6 +885,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={hideInactiveNodes ? '비활성 노드 표시' : '비활성 노드 숨기기 (R1610)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${hideInactiveNodes ? '#fbbf24' : 'var(--border)'}`, background: hideInactiveNodes ? 'rgba(251,191,36,0.12)' : 'none', color: hideInactiveNodes ? '#fbbf24' : 'var(--text-muted)' }}
         >👁</button>
+        {/* R1623: 와이어프레임 모드 */}
+        <button
+          onClick={() => setWireframeMode(w => !w)}
+          title={wireframeMode ? '와이어프레임 모드 해제' : '와이어프레임 모드 — 선만 표시 (R1623)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${wireframeMode ? '#58a6ff' : 'var(--border)'}`, background: wireframeMode ? 'rgba(88,166,255,0.12)' : 'none', color: wireframeMode ? '#58a6ff' : 'var(--text-muted)' }}
+        >⬚</button>
         {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
         <button
           onClick={handleScreenshotAI}
@@ -1144,7 +1152,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const hasEdit = node.components.some(c => c.type === 'cc.EditBox')
             const hasSlider = node.components.some(c => c.type === 'cc.Slider' || c.type === 'cc.Toggle' || c.type === 'cc.ToggleGroup')
 
-            const fillColor = isSearchMatch ? 'rgba(255,68,255,0.12)'
+            // R1623: 와이어프레임 모드시 fill 투명
+            const fillColor = wireframeMode ? 'none'
+              : isSearchMatch ? 'rgba(255,68,255,0.12)'
               : isHovered ? 'rgba(255,255,255,0.06)'
               : hasButton ? 'rgba(255,140,60,0.1)'
               : hasScroll ? 'rgba(60,220,220,0.08)'

@@ -17394,6 +17394,18 @@ console.log('\n## 513. R1622 SceneView O키 선택 노드 중앙 이동 체크')
   }
 }
 
+// ── Section 514: R1623 SceneView 와이어프레임 모드 ──────────────────
+console.log('\n## 514. R1623 SceneView 와이어프레임 모드 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s514 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s514.includes('R1623') && s514.includes('와이어프레임 모드') && s514.includes('wireframeMode') && s514.includes("fillColor = wireframeMode ? 'none'")) {
+    log('pass', 'R1623-wireframe', 'SceneView 와이어프레임 모드')
+  } else {
+    log('warning', 'R1623-wireframe', 'SceneView 와이어프레임 모드 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
