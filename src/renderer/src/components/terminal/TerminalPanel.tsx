@@ -447,6 +447,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [mdOutputBuffer, setMdOutputBuffer] = React.useState('')
   const [taskQueue, setTaskQueue] = React.useState<string[]>([])
   const [showTaskQueue, setShowTaskQueue] = React.useState(false)
+  // R1144: color output
+  const [colorOutput, setColorOutput] = React.useState(true)
+  const [customColors, setCustomColors] = React.useState<Record<string, string>>({})
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
