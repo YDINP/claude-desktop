@@ -56,11 +56,17 @@ export interface ResizeState {
 
 // 실행 취소/다시 실행 항목
 export interface UndoEntry {
+  type?: 'move' | 'prop'
   uuid: string
-  prevX: number
-  prevY: number
-  nextX: number
-  nextY: number
+  // move
+  prevX?: number
+  prevY?: number
+  nextX?: number
+  nextY?: number
+  // prop
+  key?: string
+  prevVal?: unknown
+  nextVal?: unknown
 }
 
 // 클립보드 항목

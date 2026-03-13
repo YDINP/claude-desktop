@@ -379,7 +379,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           if (prev.length === 0) return prev
           const entry = prev[prev.length - 1]
           setRedoStack(r => [...r, entry])
-          updateNode(entry.uuid, { x: entry.prevX, y: entry.prevY })
+          if (!entry.type || entry.type === 'move') {
+            updateNode(entry.uuid, { x: entry.prevX, y: entry.prevY })
+            window.api.ccSetProperty?.(port, entry.uuid, 'x', entry.prevX).catch(() => {})
+            window.api.ccSetProperty?.(port, entry.uuid, 'y', entry.prevY).catch(() => {})
+          } else {
+            updateNode(entry.uuid, { [entry.key!]: entry.prevVal } as Partial<SceneNode>)
+            window.api.ccSetProperty?.(port, entry.uuid, entry.key!, entry.prevVal).catch(() => {})
+          }
           return prev.slice(0, -1)
         })
       }
@@ -389,7 +396,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           if (prev.length === 0) return prev
           const entry = prev[prev.length - 1]
           setUndoStack(u => [...u, entry])
-          updateNode(entry.uuid, { x: entry.nextX, y: entry.nextY })
+          if (!entry.type || entry.type === 'move') {
+            updateNode(entry.uuid, { x: entry.nextX, y: entry.nextY })
+            window.api.ccSetProperty?.(port, entry.uuid, 'x', entry.nextX).catch(() => {})
+            window.api.ccSetProperty?.(port, entry.uuid, 'y', entry.nextY).catch(() => {})
+          } else {
+            updateNode(entry.uuid, { [entry.key!]: entry.nextVal } as Partial<SceneNode>)
+            window.api.ccSetProperty?.(port, entry.uuid, entry.key!, entry.nextVal).catch(() => {})
+          }
           return prev.slice(0, -1)
         })
       }
@@ -1264,13 +1278,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   // ── Inspector 업데이트 ─────────────────────────────────────
   const handleInspectorUpdate = useCallback(async (uuid: string, prop: string, value: number | boolean) => {
+    const prevVal = (nodeMap.get(uuid) as Record<string, unknown>)?.[prop]
+    setUndoStack(u => [...u.slice(-49), { type: 'prop', uuid, key: prop, prevVal, nextVal: value }])
+    setRedoStack([])
     updateNode(uuid, { [prop]: value } as Partial<SceneNode>)
     try {
       await window.api.ccSetProperty?.(port, uuid, prop, value)
     } catch (e) {
       console.error('[SceneView] inspector update failed:', e)
     }
-  }, [updateNode, port])
+  }, [updateNode, port, nodeMap])
 
   const handleColorUpdate = useCallback((uuid: string, color: Partial<{ r: number; g: number; b: number; a: number }>) => {
     updateNode(uuid, { color: { ...((nodeMap.get(uuid)?.color) ?? { r: 255, g: 255, b: 255, a: 255 }), ...color } })
