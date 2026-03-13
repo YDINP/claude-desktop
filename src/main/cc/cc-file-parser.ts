@@ -9,32 +9,43 @@ type RawEntry = Record<string, unknown>
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /**
- * CC 2.x .fire / CC 3.x .scene 파일 파싱 → CCSceneFile
+ * CC 2.x .fire / CC 3.x .scene / .prefab 파일 파싱 → CCSceneFile
  * - flat JSON 배열 → CCSceneNode 트리로 변환
- * - 파일 확장자(.fire/.scene) 또는 내부 필드(_trs/_lpos)로 버전 자동 감지
+ * - 파일 확장자(.fire/.scene/.prefab) 또는 내부 필드(_trs/_lpos)로 버전 자동 감지
  */
 export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo): CCSceneFile {
   const raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
   const version = projectInfo.version ?? detectVersionFromRaw(raw)
 
-  // SceneAsset(index 0) → scene ref → cc.Scene entry
-  const sceneAssetEntry = raw.find(
-    e => e.__type__ === 'cc.SceneAsset' || e.__type__ === 'cc.SceneGraphAsset'
-  )
-  const sceneRef = (sceneAssetEntry as RawEntry | undefined)?.scene
-  const sceneIdx =
-    sceneRef != null && typeof (sceneRef as RawEntry).__id__ === 'number'
-      ? (sceneRef as RawEntry).__id__ as number
-      : raw.findIndex(e => e.__type__ === 'cc.Scene')
-
-  if (sceneIdx < 0) throw new Error(`씬 루트 노드를 찾을 수 없습니다: ${scenePath}`)
+  // SceneAsset → scene ref, Prefab → data ref, 없으면 cc.Scene / cc.Node 탐색
+  const rootIdx = resolveRootIdx(raw)
+  if (rootIdx < 0) throw new Error(`씬 루트 노드를 찾을 수 없습니다: ${scenePath}`)
 
   const root =
     version === '2x'
-      ? parseNode2x(raw, sceneIdx)
-      : parseNode3x(raw, sceneIdx, buildUiTransformMap(raw))
+      ? parseNode2x(raw, rootIdx)
+      : parseNode3x(raw, rootIdx, buildUiTransformMap(raw))
 
   return { projectInfo, scenePath, root, _raw: raw }
+}
+
+function resolveRootIdx(raw: RawEntry[]): number {
+  for (const e of raw) {
+    // Prefab: data 필드가 ref
+    if (e.__type__ === 'cc.Prefab') {
+      const dataRef = e.data as { __id__?: number } | undefined
+      if (dataRef?.__id__ != null) return dataRef.__id__
+    }
+    // SceneAsset / SceneGraphAsset: scene 필드가 ref
+    if (e.__type__ === 'cc.SceneAsset' || e.__type__ === 'cc.SceneGraphAsset') {
+      const sceneRef = e.scene as { __id__?: number } | undefined
+      if (sceneRef?.__id__ != null) return sceneRef.__id__
+    }
+  }
+  // 폴백: cc.Scene or cc.Node (인덱스 기반)
+  const sceneIdx = raw.findIndex(e => e.__type__ === 'cc.Scene')
+  if (sceneIdx >= 0) return sceneIdx
+  return raw.findIndex(e => e.__type__ === 'cc.Node')
 }
 
 // ── Version Detection ─────────────────────────────────────────────────────────

@@ -109,16 +109,16 @@ export function detectCCVersion(rootPath: string): CCFileProjectInfo {
   return { detected: false }
 }
 
-/** assets 폴더에서 씬 파일 목록 재귀 탐색 (최대 50개) */
+/** assets 폴더에서 씬/프리팹 파일 목록 재귀 탐색 (최대 50개) */
 function findSceneFiles(assetsDir: string, ext: string): string[] {
   const results: string[] = []
   try {
-    walkDir(assetsDir, ext, results)
+    walkDir(assetsDir, [ext, '.prefab'], results)
   } catch { /* ignore */ }
   return results
 }
 
-function walkDir(dir: string, ext: string, results: string[]) {
+function walkDir(dir: string, exts: string[], results: string[]) {
   if (results.length >= 50) return
   let entries: fs.Dirent[]
   try {
@@ -130,8 +130,8 @@ function walkDir(dir: string, ext: string, results: string[]) {
     if (results.length >= 50) break
     const full = path.join(dir, e.name)
     if (e.isDirectory()) {
-      walkDir(full, ext, results)
-    } else if (e.isFile() && e.name.endsWith(ext)) {
+      walkDir(full, exts, results)
+    } else if (e.isFile() && exts.some(ext => e.name.endsWith(ext))) {
       results.push(full)
     }
   }
