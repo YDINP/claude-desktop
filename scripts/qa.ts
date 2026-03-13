@@ -8909,6 +8909,41 @@ if (existsSync(sl896Path)) {
   }
 }
 
+console.log('\n## 210. Phase DD10 R897~899 기능 체크')
+
+// R897: ChatPanel 메시지 스레딩
+const cp897Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp897Path)) {
+  const cp897 = readFileSync(cp897Path, 'utf-8')
+  if (cp897.includes('threadingEnabled') || cp897.includes('activeThread') || cp897.includes('threadMode')) {
+    log('pass', 'R897', 'ChatPanel 메시지 스레딩 존재')
+  } else {
+    log('warning', 'R897', 'ChatPanel 메시지 스레딩 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R898: InputBar 토큰 카운터
+const ib898Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib898Path)) {
+  const ib898 = readFileSync(ib898Path, 'utf-8')
+  if (ib898.includes('showTokenCounter') || ib898.includes('setTokenCount') || ib898.includes('tokenDisplay')) {
+    log('pass', 'R898', 'InputBar 토큰 카운터 존재')
+  } else {
+    log('warning', 'R898', 'InputBar 토큰 카운터 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R899: CocosPanel 물리 디버그 오버레이
+const cocp899Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp899Path)) {
+  const cocp899 = readFileSync(cocp899Path, 'utf-8')
+  if (cocp899.includes('physicsDebug') || cocp899.includes('physicsDebugOptions') || cocp899.includes('showColliders')) {
+    log('pass', 'R899', 'CocosPanel 물리 디버그 오버레이 존재')
+  } else {
+    log('warning', 'R899', 'CocosPanel 물리 디버그 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

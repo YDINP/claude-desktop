@@ -277,6 +277,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [inputHistoryIdx, setInputHistoryIdx] = useState(-1)
   const [contextualHelp, setContextualHelp] = useState<string | null>(null)
   const [showHelpTooltip, setShowHelpTooltip] = useState(false)
+  const [tokenCount, setTokenCount] = useState(0)
+  const [showTokenCounter, setShowTokenCounter] = useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
