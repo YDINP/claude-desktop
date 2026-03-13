@@ -1671,24 +1671,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })()}
-          {/* R1643: 선택 노드 부모 하이라이트 (분홍 점선) */}
+          {/* R1643: 선택 노드↔부모 연결선 (계층 시각화) */}
           {selectedUuid && (() => {
             const selFn = flatNodes.find(f => f.node.uuid === selectedUuid)
             if (!selFn?.parentUuid) return null
             const parentFn = flatNodes.find(f => f.node.uuid === selFn.parentUuid)
-            if (!parentFn?.node.size?.x || !parentFn.node.size?.y) return null
-            const { node: pn, worldX: px, worldY: py } = parentFn
-            const sp = ccToSvg(px, py)
-            const w = pn.size!.x, h = pn.size!.y
-            const ax = pn.anchor?.x ?? 0.5, ay = pn.anchor?.y ?? 0.5
+            if (!parentFn) return null
+            const childSvg = ccToSvg(selFn.worldX, selFn.worldY)
+            const parentSvg = ccToSvg(parentFn.worldX, parentFn.worldY)
             return (
-              <rect
-                x={sp.x - w * ax} y={sp.y - h * (1 - ay)}
-                width={w} height={h}
-                fill="none"
+              <line
+                x1={childSvg.x} y1={childSvg.y}
+                x2={parentSvg.x} y2={parentSvg.y}
                 stroke="rgba(220,100,200,0.35)"
                 strokeWidth={1 / view.zoom}
-                strokeDasharray={`${6 / view.zoom} ${3 / view.zoom}`}
+                strokeDasharray={`${4 / view.zoom} ${3 / view.zoom}`}
                 style={{ pointerEvents: 'none' }}
               />
             )

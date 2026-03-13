@@ -17634,15 +17634,15 @@ console.log('\n## 533. R1642 Inspector 중복 이름 배지 순환 선택 체크
   }
 }
 
-// ── Section 534: R1643 SceneView 선택 노드 부모 하이라이트 ──────────────────
-console.log('\n## 534. R1643 SceneView 부모 하이라이트 체크')
+// ── Section 534: R1643 SceneView 선택 노드↔부모 연결선 ──────────────────────
+console.log('\n## 534. R1643 SceneView 부모 연결선 체크')
 {
   const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
   const s534 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
-  if (s534.includes('R1643') && s534.includes('rgba(220,100,200,0.35)') && s534.includes('selFn.parentUuid')) {
-    log('pass', 'R1643-parent-hl', 'SceneView 선택 노드 부모 하이라이트')
+  if (s534.includes('R1643') && s534.includes('계층 시각화') && s534.includes('parentSvg')) {
+    log('pass', 'R1643-parent-line', 'SceneView 선택 노드↔부모 연결선')
   } else {
-    log('warning', 'R1643-parent-hl', 'SceneView 부모 하이라이트 미구현', 'CCFileSceneView.tsx')
+    log('warning', 'R1643-parent-line', 'SceneView 부모 연결선 미구현', 'CCFileSceneView.tsx')
   }
 }
 
