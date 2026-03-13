@@ -1611,6 +1611,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showRenderStats, setShowRenderStats] = React.useState(false)
   const [advancedSearch, setAdvancedSearch] = React.useState(false)
   const [searchScope, setSearchScope] = React.useState<'name' | 'tag' | 'component'>('name')
+  const [modifiedNodes, setModifiedNodes] = React.useState<string[]>([])
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {

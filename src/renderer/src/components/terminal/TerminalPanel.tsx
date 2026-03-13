@@ -420,6 +420,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showHistorySearch, setShowHistorySearch] = React.useState(false)
   const [editingTabName, setEditingTabName] = React.useState<string | null>(null)
   const [tabNameDraft, setTabNameDraft] = React.useState('')
+  const [outputStats, setOutputStats] = React.useState<Record<string, number>>({})
+  const [showOutputStats, setShowOutputStats] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
