@@ -235,8 +235,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             return lines
           })()}
 
-          {/* 노드 렌더링 (depth 역순 → 깊은 노드가 위에 표시되지 않도록) */}
-          {flatNodes.filter(fn => fn.node.active).map(({ node, worldX, worldY }) => {
+          {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
+          {flatNodes.map(({ node, worldX, worldY }) => {
+            const nodeOpacity = node.active ? (node.opacity ?? 255) / 255 : 0.2
             const isDragged = dragOverride?.uuid === node.uuid
             const isResized = resizeOverride?.uuid === node.uuid
             const effX = isDragged ? dragOverride!.x : worldX
@@ -273,6 +274,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             return (
               <g key={node.uuid}
                 transform={rotTransform}
+                opacity={nodeOpacity}
                 onClick={e => { e.stopPropagation(); onSelect(node.uuid) }}
                 onMouseDown={e => {
                   if (e.button !== 0) return
@@ -335,13 +337,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })}
 
-          {/* 크기 없는 노드 → 십자 표시 */}
-          {flatNodes.filter(fn => fn.node.active && !(fn.node.size?.x) && !(fn.node.size?.y)).map(({ node, worldX, worldY }) => {
+          {/* 크기 없는 노드 → 십자 표시 (비활성 포함, 반투명) */}
+          {flatNodes.filter(fn => !(fn.node.size?.x) && !(fn.node.size?.y)).map(({ node, worldX, worldY }) => {
             const svgPos = ccToSvg(worldX, worldY)
             const isSelected = node.uuid === selectedUuid
             const r = 5 / view.zoom
             return (
               <g key={`dot_${node.uuid}`}
+                opacity={node.active ? 1 : 0.2}
                 onClick={e => { e.stopPropagation(); onSelect(node.uuid) }}
                 style={{ cursor: 'pointer' }}
               >
