@@ -1,13 +1,24 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1403 완료 — Phase DD14 R1398~1403)
+> 마지막 업데이트: 2026-03-14 (Round 1409 완료 — Phase DD14 R1404~1409)
 
 ## 현재 상태
-- 마지막 커밋: Round 1398~1403 (프리팹인스턴스화/그룹화/파티클카메라/통계오버레이/노드참조/QA)
+- 마지막 커밋: Round 1404~1409 (씬PNG내보내기/컴포순서변경/빌드트리거/색상태그/복잡도분석/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1276
+- QA: `npm run qa` ✅ Critical 0, Warning 1, Pass 1281
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
+
+## Phase DD14 R1404~1409 (2026-03-14)
+
+| 라운드 | 기능 |
+|--------|------|
+| R1404 | SceneView PNG 스냅샷 내보내기 (배경색 dark/light/transparent, 해상도 1x/2x/4x) |
+| R1405 | Inspector 컴포넌트 순서 변경 (↑↓ 버튼, 첫/마지막 비활성화) |
+| R1406 | CocosPanel CC 빌드 트리거 UI (플랫폼 선택, CLI 미리보기) |
+| R1407 | SceneView 노드 색상 태그 (7색 팔레트, localStorage per scene, 컨텍스트메뉴, 계층뷰 dot) |
+| R1408 | cc-file-parser analyzeScene 복잡도 분석 (노드수/깊이/컴포넌트/draw call/경고) |
+| R1409 | QA Section 379-380 추가 (R1404~R1408 체크, Pass 1281) |
 
 ## Phase DD6 완료 (Round 513~523)
 

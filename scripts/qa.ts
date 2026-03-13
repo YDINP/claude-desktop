@@ -14700,6 +14700,72 @@ if (existsSync(si1402Path)) {
   }
 }
 
+// ── Section 379: R1404/R1405/R1406 기능 체크 ───────────────
+console.log('\n## 379. Phase DD14 R1404~R1406 기능 체크')
+
+// R1404: SceneView PNG 내보내기 (해상도/배경 선택)
+if (existsSync(sceneViewPath)) {
+  const svp1404 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1404.includes('R1404') && svp1404.includes('pngExportScale') && svp1404.includes('pngExportBg') && svp1404.includes('showPngExportPanel') && svp1404.includes('PNG Export')) {
+    log('pass', 'R1404', 'SceneView PNG 내보내기 (배경색/해상도 1x/2x/4x, 타임스탬프 파일명)')
+  } else {
+    log('warning', 'R1404', 'SceneView PNG 내보내기 고도화 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1405: Inspector 컴포넌트 순서 변경 ↑↓
+if (existsSync(si1402Path)) {
+  const si1405 = readFileSync(si1402Path, 'utf-8')
+  if (si1405.includes('R1405') && si1405.includes('\u2191') && si1405.includes('\u2193') && si1405.includes('위로 이동') && si1405.includes('아래로 이동')) {
+    log('pass', 'R1405', 'Inspector 컴포넌트 순서 변경 (↑↓ 버튼, 첫/마지막 비활성화)')
+  } else {
+    log('warning', 'R1405', 'Inspector 컴포넌트 순서 변경 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1406: CocosPanel CC 빌드 트리거 UI
+if (existsSync(cp1398Path)) {
+  const cp1406 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1406.includes('R1406') && cp1406.includes('buildPlatform') && cp1406.includes('빌드 트리거') && cp1406.includes('web-mobile') && cp1406.includes('web-desktop') && cp1406.includes('CC_EDITOR_PATHS')) {
+    log('pass', 'R1406', 'CocosPanel CC 빌드 트리거 UI (플랫폼 드롭다운, CLI 미리보기)')
+  } else {
+    log('warning', 'R1406', 'CocosPanel 빌드 트리거 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 380: R1407/R1408 기능 체크 ───────────────
+console.log('\n## 380. Phase DD14 R1407~R1408 기능 체크')
+
+// R1407: SceneView 노드 색상 태그
+if (existsSync(sceneViewPath)) {
+  const svp1407 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1407.includes('R1407') && svp1407.includes('nodeColorTags') && svp1407.includes('COLOR_TAG_PALETTE') && svp1407.includes('showColorTagPicker') && svp1407.includes('node-color-tags-')) {
+    log('pass', 'R1407', 'SceneView 노드 색상 태그 (7색 팔레트, localStorage per scene, 컨텍스트메뉴)')
+  } else {
+    log('warning', 'R1407', 'SceneView 노드 색상 태그 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1407: NodeHierarchyList 색상 태그 dot
+const nhl1407Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nhl1407Path)) {
+  const nhl1407 = readFileSync(nhl1407Path, 'utf-8')
+  if (nhl1407.includes('R1407') && nhl1407.includes('nodeColorTags')) {
+    log('pass', 'R1407', 'NodeHierarchyList 색상 태그 dot 표시')
+  } else {
+    log('warning', 'R1407', 'NodeHierarchyList 색상 태그 dot 없음', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
+// R1408: cc-file-parser analyzeScene 복잡도 분석
+if (existsSync(cfp1400Path)) {
+  const cfp1408 = readFileSync(cfp1400Path, 'utf-8')
+  if (cfp1408.includes('R1408') && cfp1408.includes('analyzeScene') && cfp1408.includes('CCSceneAnalysis') && cfp1408.includes('estimatedDrawCalls') && cfp1408.includes('maxDepth') && cfp1408.includes('componentCounts')) {
+    log('pass', 'R1408', 'cc-file-parser analyzeScene 복잡도 분석 (노드수/깊이/컴포넌트/draw call/경고)')
+  } else {
+    log('warning', 'R1408', 'cc-file-parser analyzeScene 없음', 'cc/cc-file-parser.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

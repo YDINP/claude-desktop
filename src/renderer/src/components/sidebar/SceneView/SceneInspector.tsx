@@ -645,7 +645,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         </>
       )}
 
-      {/* 컴포넌트 목록 */}
+      {/* R1405: 컴포넌트 목록 (순서 변경 ↑↓ 버튼) */}
       {node.components.length > 0 && (
         <>
           <SectionHeader label="Components" />
@@ -661,8 +661,6 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
                     borderRadius: 3,
                     padding: '1px 3px',
                   }}
-                  onClick={() => onComponentClick?.(node.uuid)}
-                  title={onComponentClick ? '씬뷰에서 하이라이트' : undefined}
                   onMouseEnter={e => { if (onComponentClick) (e.currentTarget as HTMLElement).style.background = 'rgba(96,165,250,0.1)' }}
                   onMouseLeave={e => { if (onComponentClick) (e.currentTarget as HTMLElement).style.background = '' }}
                 >
@@ -671,7 +669,46 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
                       {icon}
                     </span>
                   )}
-                  <span>{c.type}</span>
+                  <span
+                    style={{ flex: 1, cursor: onComponentClick ? 'pointer' : undefined }}
+                    onClick={() => onComponentClick?.(node.uuid)}
+                    title={onComponentClick ? '씬뷰에서 하이라이트' : undefined}
+                  >{c.type}</span>
+                  {/* R1405: 순서 변경 버튼 */}
+                  {node.components.length > 1 && (
+                    <span style={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+                      <button
+                        disabled={i === 0}
+                        onClick={e => {
+                          e.stopPropagation()
+                          const newComps = [...node.components]
+                          ;[newComps[i - 1], newComps[i]] = [newComps[i], newComps[i - 1]]
+                          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                        }}
+                        title="위로 이동"
+                        style={{
+                          fontSize: 8, padding: '0 2px', background: 'none', border: '1px solid var(--border)',
+                          borderRadius: 2, color: i === 0 ? 'var(--border)' : 'var(--text-muted)',
+                          cursor: i === 0 ? 'default' : 'pointer', lineHeight: '12px',
+                        }}
+                      >{'\u2191'}</button>
+                      <button
+                        disabled={i === node.components.length - 1}
+                        onClick={e => {
+                          e.stopPropagation()
+                          const newComps = [...node.components]
+                          ;[newComps[i], newComps[i + 1]] = [newComps[i + 1], newComps[i]]
+                          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                        }}
+                        title="아래로 이동"
+                        style={{
+                          fontSize: 8, padding: '0 2px', background: 'none', border: '1px solid var(--border)',
+                          borderRadius: 2, color: i === node.components.length - 1 ? 'var(--border)' : 'var(--text-muted)',
+                          cursor: i === node.components.length - 1 ? 'default' : 'pointer', lineHeight: '12px',
+                        }}
+                      >{'\u2193'}</button>
+                    </span>
+                  )}
                 </div>
               )
             })}

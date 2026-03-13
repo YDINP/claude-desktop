@@ -13,6 +13,8 @@ interface NodeHierarchyListProps {
   onRename?: (uuid: string, name: string) => void
   onToggleLock?: (uuid: string, locked: boolean) => void
   onToggleVisible?: (uuid: string, visible: boolean) => void
+  // R1407: 노드 색상 태그
+  nodeColorTags?: Record<string, string>
 }
 
 function NodeRow({
@@ -31,6 +33,7 @@ function NodeRow({
   onEditDraftChange,
   onEditCommit,
   onEditStart,
+  nodeColorTags,
 }: {
   uuid: string
   depth: number
@@ -47,6 +50,8 @@ function NodeRow({
   onEditDraftChange?: (v: string) => void
   onEditCommit?: (uuid: string) => void
   onEditStart?: (uuid: string, name: string) => void
+  // R1407
+  nodeColorTags?: Record<string, string>
 }) {
   const node = nodeMap.get(uuid)
   if (!node) return null
@@ -89,6 +94,14 @@ function NodeRow({
             display: 'inline-block',
           }}
         />
+        {/* R1407: 색상 태그 dot */}
+        {nodeColorTags?.[uuid] && (
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: nodeColorTags[uuid], flexShrink: 0, marginRight: 2,
+            display: 'inline-block', boxShadow: `0 0 3px ${nodeColorTags[uuid]}60`,
+          }} title="색상 태그" />
+        )}
         {/* 잠금 아이콘 */}
         <span
           onClick={e => { e.stopPropagation(); onToggleLock?.(uuid, !node.locked) }}
@@ -182,13 +195,14 @@ function NodeRow({
           onEditDraftChange={onEditDraftChange}
           onEditCommit={onEditCommit}
           onEditStart={onEditStart}
+          nodeColorTags={nodeColorTags}
         />
       ))}
     </>
   )
 }
 
-export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode, onRename, onToggleLock, onToggleVisible }: NodeHierarchyListProps) {
+export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode, onRename, onToggleLock, onToggleVisible, nodeColorTags }: NodeHierarchyListProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [compTypeFilter, setCompTypeFilter] = useState<string | null>(null)
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
@@ -410,6 +424,7 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
             onEditDraftChange={setEditDraft}
             onEditCommit={commitEdit}
             onEditStart={startEdit}
+            nodeColorTags={nodeColorTags}
           />
         )}
       </div>

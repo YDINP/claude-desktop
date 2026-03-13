@@ -414,3 +414,56 @@ function resolveComponents3x(
       return { type, props: { ...props, ...specialized }, _rawIndex: idx }
     })
 }
+
+// ── R1408: 씬 복잡도 분석 함수 ──────────────────────────────────────────────
+
+export interface CCSceneAnalysis {
+  totalNodes: number
+  activeNodes: number
+  maxDepth: number
+  componentCounts: Record<string, number>
+  estimatedDrawCalls: number
+  warnings: string[]
+}
+
+/**
+ * R1408: 씬 파일 전체 복잡도 분석
+ * - 노드 수, 최대 깊이, 컴포넌트 분포, 추정 draw call, 경고 생성
+ */
+export function analyzeScene(sceneFile: CCSceneFile): CCSceneAnalysis {
+  let totalNodes = 0
+  let activeNodes = 0
+  let maxDepth = 0
+  const componentCounts: Record<string, number> = {}
+  const warnings: string[] = []
+
+  function walk(node: CCSceneNode, depth: number): void {
+    totalNodes++
+    if (node.active !== false) activeNodes++
+    if (depth > maxDepth) maxDepth = depth
+
+    for (const comp of node.components) {
+      componentCounts[comp.type] = (componentCounts[comp.type] ?? 0) + 1
+    }
+
+    for (const child of node.children) {
+      walk(child, depth + 1)
+    }
+  }
+
+  walk(sceneFile.root, 0)
+
+  // 추정 draw call: Label + Sprite 수 합산 (각각 최소 1 draw call)
+  const DRAW_CALL_TYPES = ['cc.Label', 'cc.Sprite', 'cc.Sprite2D', 'cc.RichText', 'cc.Graphics']
+  const estimatedDrawCalls = DRAW_CALL_TYPES.reduce((sum, type) => sum + (componentCounts[type] ?? 0), 0)
+
+  // 경고 생성
+  if (totalNodes > 200) warnings.push(`노드 ${totalNodes}개 — 200개 초과 (성능 주의)`)
+  if (totalNodes > 500) warnings.push(`노드 ${totalNodes}개 — 500개 초과 (심각한 성능 저하 우려)`)
+  if (maxDepth > 10) warnings.push(`중첩 깊이 ${maxDepth} — 10 초과 (구조 단순화 권장)`)
+  if (maxDepth > 20) warnings.push(`중첩 깊이 ${maxDepth} — 20 초과 (심각한 구조 문제)`)
+  if (estimatedDrawCalls > 100) warnings.push(`추정 draw call ${estimatedDrawCalls} — 100 초과 (렌더링 최적화 필요)`)
+  if ((componentCounts['cc.Label'] ?? 0) > 50) warnings.push(`Label ${componentCounts['cc.Label']}개 — 50개 초과 (동적 배칭 확인)`)
+
+  return { totalNodes, activeNodes, maxDepth, componentCounts, estimatedDrawCalls, warnings }
+}
