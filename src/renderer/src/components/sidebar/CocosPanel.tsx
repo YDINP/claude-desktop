@@ -208,6 +208,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [nodeSearchField, setNodeSearchField] = React.useState<'name' | 'tag' | 'uuid'>('name')
   const [sceneSnapshot, setSceneSnapshot] = React.useState<string | null>(null)
   const [showSnapshotPanel, setShowSnapshotPanel] = React.useState(false)
+  const [nodeLayer, setNodeLayer] = React.useState<string>('all')
+  const [showLayerFilter, setShowLayerFilter] = React.useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

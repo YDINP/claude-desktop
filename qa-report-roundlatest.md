@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T12:51:51.922Z
+> 2026-03-13T12:53:02.002Z
 
 ## Critical
 _없음_
@@ -925,3 +925,9 @@ _없음_
 - SceneViewPanel 노드 핀 존재
 - TerminalPanel 커맨드 북마크 존재
 - SessionList 세션 그룹 존재
+- ChatPanel 메시지 정렬 존재
+- InputBar 이모지 픽커 존재
+- CocosPanel 노드 레이어 존재
+- SceneViewPanel 씬 즐겨찾기 존재
+- TerminalPanel 출력 필터 존재
+- SessionList 세션 아카이브 존재
