@@ -43,6 +43,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showGrid, setShowGrid] = useState(true)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
   const [showHelp, setShowHelp] = useState(false)
+  const isSpaceDownRef = useRef(false)
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !isSpaceDownRef.current) {
+        const el = e.target as HTMLElement
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
+        e.preventDefault()
+        isSpaceDownRef.current = true
+        if (svgRef.current) svgRef.current.style.cursor = 'grab'
+      }
+    }
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        isSpaceDownRef.current = false
+        if (svgRef.current) svgRef.current.style.cursor = ''
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp) }
+  }, [])
   // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
   const spriteCacheRef = useRef<Map<string, string>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
@@ -142,7 +164,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   // 패닝 (중간 버튼 또는 Space+드래그)
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button === 1 || e.button === 2) {
+    if (e.button === 1 || e.button === 2 || (e.button === 0 && isSpaceDownRef.current)) {
       e.preventDefault()
       setIsPanning(true)
       panStart.current = { mouseX: e.clientX, mouseY: e.clientY, offX: view.offsetX, offY: view.offsetY }
@@ -631,6 +653,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {[
             ['휠', '줌 인/아웃'],
             ['중간 버튼 드래그', '패닝'],
+            ['Space + 좌클릭 드래그', '패닝'],
             ['더블클릭', 'Fit to view'],
             ['좌클릭 드래그', '노드 이동'],
             ['Ctrl+드래그', '10px 그리드 스냅'],
