@@ -811,6 +811,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showReactionPicker, setShowReactionPicker] = useState(false)
   const [pinnedMessages, setPinnedMessages] = useState<string[]>([])
   const [showPinnedPanel, setShowPinnedPanel] = useState(false)
+  const [messageSchedule, setMessageSchedule] = useState<Array<{ id: string; scheduledAt: number; content: string }>>([])
+  const [showSchedulePanel, setShowSchedulePanel] = useState(false)
   const [pinnedMsgs, setPinnedMsgs] = useState<string[]>(() => JSON.parse(localStorage.getItem('pinned-msgs') ?? '[]'))
   const [chatStats, setChatStats] = useState<{ totalTokens: number; avgResponseTime: number; totalMsgs: number }>({ totalTokens: 0, avgResponseTime: 0, totalMsgs: 0 })
   const [copyFormat, setCopyFormat] = useState<'text' | 'markdown' | 'html'>('markdown')

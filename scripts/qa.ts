@@ -8629,6 +8629,41 @@ if (existsSync(sl872Path)) {
   }
 }
 
+console.log('\n## 202. Phase DD10 R873~875 기능 체크')
+
+// R873: ChatPanel 메시지 스케줄링
+const cp873Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp873Path)) {
+  const cp873 = readFileSync(cp873Path, 'utf-8')
+  if (cp873.includes('messageSchedule') || cp873.includes('showSchedulePanel') || cp873.includes('scheduledMsg')) {
+    log('pass', 'R873', 'ChatPanel 메시지 스케줄링 존재')
+  } else {
+    log('warning', 'R873', 'ChatPanel 메시지 스케줄링 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R874: InputBar 빠른 답장
+const ib874Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib874Path)) {
+  const ib874 = readFileSync(ib874Path, 'utf-8')
+  if (ib874.includes('quickReplies') || ib874.includes('showQuickReplies') || ib874.includes('quickReply')) {
+    log('pass', 'R874', 'InputBar 빠른 답장 존재')
+  } else {
+    log('warning', 'R874', 'InputBar 빠른 답장 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R875: CocosPanel 씬 히스토리
+const cocp875Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp875Path)) {
+  const cocp875 = readFileSync(cocp875Path, 'utf-8')
+  if (cocp875.includes('sceneHistory') || cocp875.includes('showSceneHistory') || cocp875.includes('sceneLog')) {
+    log('pass', 'R875', 'CocosPanel 씬 히스토리 존재')
+  } else {
+    log('warning', 'R875', 'CocosPanel 씬 히스토리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

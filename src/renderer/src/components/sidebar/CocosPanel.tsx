@@ -152,6 +152,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showGroupPanel, setShowGroupPanel] = useState(false)
   const [prefabSearch, setPrefabSearch] = useState('')
   const [prefabSearchResults, setPrefabSearchResults] = useState<string[]>([])
+  const [sceneHistory, setSceneHistory] = useState<string[]>([])
+  const [showSceneHistory, setShowSceneHistory] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
