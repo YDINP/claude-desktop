@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 452 완료 — O-1 씬 헤더 통계 표시 N노드수/C컴포넌트수)
+> 마지막 업데이트: 2026-03-13 (Round 453 완료 — P-1 씬뷰 선택 노드 HUD 오버레이)
 
 ## 완료된 라운드
 
@@ -44,6 +44,7 @@
 | Round 450 | dev | Phase M-1: Inspector 벡터 props 편집 — {x,y}/{x,y,z} 타입 props를 2-3개 인라인 숫자 인풋으로 표시/편집 | ✅ |
 | Round 451 | dev | Phase N-1: 씬 파일 드래그&드롭 열기 — .fire/.scene/.prefab 파일을 패널에 드롭하면 자동 로드 (Electron File.path) | ✅ |
 | Round 452 | dev | Phase O-1: 씬 트리 헤더 통계 — 씬 파일명 옆에 N노드수/C컴포넌트수 즉시 표시 | ✅ |
+| Round 453 | dev | Phase P-1: 씬뷰 선택 HUD — position/size/rotation 하단 오버레이, 노드명 우측 표시 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

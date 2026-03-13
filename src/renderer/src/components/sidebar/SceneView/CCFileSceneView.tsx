@@ -427,6 +427,30 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           })}
         </g>
       </svg>
+      {/* 선택 노드 HUD */}
+      {selectedUuid && (() => {
+        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+        if (!fn) return null
+        const { node } = fn
+        const pos = node.position as { x: number; y: number }
+        const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0
+        const w = node.size?.x ?? 0; const h = node.size?.y ?? 0
+        return (
+          <div style={{
+            position: 'absolute', bottom: 4, left: 4, right: 4,
+            background: 'rgba(0,0,0,0.6)', borderRadius: 3,
+            padding: '2px 8px', fontSize: 9, color: '#ccc',
+            display: 'flex', gap: 10, pointerEvents: 'none',
+          }}>
+            <span><span style={{ color: '#888' }}>pos</span> {Math.round(pos.x)},{Math.round(pos.y)}</span>
+            <span><span style={{ color: '#888' }}>size</span> {Math.round(w)}×{Math.round(h)}</span>
+            {rotZ !== 0 && <span><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
+            <span style={{ color: '#58a6ff', flex: 1, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {node.name}
+            </span>
+          </div>
+        )
+      })()}
     </div>
   )
 }
