@@ -16870,6 +16870,20 @@ console.log('\n## 471. R1580 SceneView Tab 형제 탐색 체크')
   }
 }
 
+// ── Section 472: R1581 cc.Button extractor + Inspector Quick Edit ────────────────
+console.log('\n## 472. R1581 cc.Button Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s472parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s472panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s472parser.includes("'cc.Button': e =>") && s472panel.includes("comp.type === 'cc.Button'") && s472panel.includes('normalColor') && s472panel.includes('interactable')) {
+    log('pass', 'R1581-button', 'cc.Button extractor + Inspector: transition/state colors/interactable')
+  } else {
+    log('warning', 'R1581-button', 'cc.Button Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

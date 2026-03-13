@@ -4701,6 +4701,82 @@ function CCFileNodeInspector({
           {/* R1520: 컴포넌트 전용 Quick Edit (Toggle/ProgressBar/AudioSource/RichText) */}
           {!collapsedComps.has(comp.type) && (() => {
             const p = comp.props
+            // R1581: cc.Button — transition 타입 + state 색상 미리보기
+            if (comp.type === 'cc.Button') {
+              const transition = Number(p.transition ?? 0)
+              const interactable = !!(p.interactable ?? true)
+              const toHex = (c: unknown) => {
+                const col = c as { r?: number; g?: number; b?: number } | undefined
+                if (!col) return '#ffffff'
+                return `#${(col.r ?? 255).toString(16).padStart(2, '0')}${(col.g ?? 255).toString(16).padStart(2, '0')}${(col.b ?? 255).toString(16).padStart(2, '0')}`
+              }
+              const stateColors = [
+                ['normal', p.normalColor],
+                ['hover', p.hoverColor],
+                ['pressed', p.pressedColor],
+                ['disabled', p.disabledColor],
+              ]
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>transition</span>
+                    <select value={transition}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, transition: v, _transition: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      <option value={0}>None</option>
+                      <option value={1}>Color</option>
+                      <option value={2}>Sprite</option>
+                      <option value={3}>Scale</option>
+                    </select>
+                  </div>
+                  {transition === 1 && (
+                    <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
+                      {stateColors.map(([label, val]) => (
+                        <div key={label as string} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                          <input type="color" value={toHex(val)}
+                            onChange={e => {
+                              const hex = e.target.value
+                              const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16)
+                              const colorKey = `${label as string}Color`
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [colorKey]: { r, g, b, a: 255 }, [`_N$${colorKey}`]: { r, g, b, a: 255 } } } : c)
+                              applyAndSave({ components: updated })
+                            }}
+                            style={{ width: 22, height: 18, border: '1px solid #333', borderRadius: 2, padding: 0, cursor: 'pointer' }}
+                          />
+                          <span style={{ fontSize: 7, color: 'var(--text-muted)' }}>{label as string}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {transition === 3 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>zoomScale</span>
+                      <input type="number" defaultValue={Number(p.zoomScale ?? 1.2)} min={0} step={0.05}
+                        onBlur={e => {
+                          const v = parseFloat(e.target.value) || 1.2
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, zoomScale: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      />
+                    </div>
+                  )}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={interactable}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                    />interactable
+                  </label>
+                </div>
+              )
+            }
             if (comp.type === 'cc.Toggle') {
               const checked = !!(p.isChecked ?? false)
               return (

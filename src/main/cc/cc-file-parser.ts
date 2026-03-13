@@ -341,6 +341,23 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
   'cc.Animation': e => ({
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? false,
   }),
+  // R1581: cc.Button — 버튼 상태 색상 + transition
+  'cc.Button': e => {
+    const toColor = (v: unknown) => {
+      const c = v as { r?: number; g?: number; b?: number; a?: number } | undefined
+      return c ? { r: c.r ?? 255, g: c.g ?? 255, b: c.b ?? 255, a: c.a ?? 255 } : undefined
+    }
+    return {
+      transition: (e._N$transition ?? e._transition ?? e.transition ?? 0) as number,  // 0=NONE,1=COLOR,2=SPRITE,3=SCALE
+      duration: (e._N$duration ?? e._duration ?? e.duration ?? 0.1) as number,
+      zoomScale: (e._N$zoomScale ?? e._zoomScale ?? e.zoomScale ?? 1.2) as number,
+      normalColor: toColor(e._N$normalColor ?? e._normalColor ?? e.normalColor),
+      hoverColor: toColor(e._N$hoverColor ?? e._hoverColor ?? e.hoverColor),
+      pressedColor: toColor(e._N$pressedColor ?? e._pressedColor ?? e.pressedColor),
+      disabledColor: toColor(e._N$disabledColor ?? e._disabledColor ?? e.disabledColor),
+      interactable: !!(e._N$interactable ?? e._interactable ?? e.interactable ?? true),
+    }
+  },
   // R1579: cc.SkeletalAnimation — CC3.x 스켈레탈 애니메이션
   'cc.SkeletalAnimation': e => ({
     playOnLoad: !!(e._playOnLoad ?? e.playOnLoad ?? false),
