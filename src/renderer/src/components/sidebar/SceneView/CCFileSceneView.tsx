@@ -682,6 +682,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             <span onClick={() => setResOverride(null)} title="해상도 리셋" style={{ marginLeft: 3, cursor: 'pointer', color: '#f85149', fontSize: 8 }}>↺</span>
           )}
           {' '}| {flatNodes.length}개
+          {/* R1596: 활성 노드 수 표시 */}
+          {(() => {
+            const activeCount = flatNodes.filter(fn => fn.node.active !== false).length
+            if (activeCount === flatNodes.length) return null
+            return <span style={{ color: '#4ade80', marginLeft: 2 }}>{activeCount}활성</span>
+          })()}
           {showResPicker && (
             <div style={{
               position: 'absolute', top: '100%', left: 0, marginTop: 2, zIndex: 60,

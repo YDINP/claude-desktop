@@ -17068,6 +17068,18 @@ console.log('\n## 486. R1595 최근 선택 노드 히스토리 체크')
   }
 }
 
+// ── Section 487: R1596 SceneView 활성 노드 수 표시 ──────────────────
+console.log('\n## 487. R1596 SceneView 활성 노드 수 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s487 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s487.includes('R1596') && s487.includes('activeCount') && s487.includes('활성')) {
+    log('pass', 'R1596-active-count', 'SceneView 활성 노드 수 표시 (비활성 노드 있을 때)')
+  } else {
+    log('warning', 'R1596-active-count', 'SceneView 활성 노드 수 표시 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
