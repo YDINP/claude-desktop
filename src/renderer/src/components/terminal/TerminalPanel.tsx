@@ -165,6 +165,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [envVars, setEnvVars] = useState<Record<string, string>>({})
   const [showEnvVars, setShowEnvVars] = useState(false)
 
+  // R761: per-tab process info
+  const [processInfo, setProcessInfo] = useState<Record<string, { pid: number; cpu: number; mem: number }>>({})
+  const [showProcessInfo, setShowProcessInfo] = useState(false)
+
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)

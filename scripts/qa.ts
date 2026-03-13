@@ -7299,6 +7299,41 @@ if (existsSync(cp758Path)) {
   }
 }
 
+// ── Section 164: Phase DD10 R759~761 기능 체크 ────────────────
+console.log('\n## 164. Phase DD10 R759~761 기능 체크')
+// R759: ChatPanel 번역 언어 선택
+const cp759Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp759Path)) {
+  const cp759 = readFileSync(cp759Path, 'utf-8')
+  if (cp759.includes('translateLang') || cp759.includes('translating') || cp759.includes('translateTarget')) {
+    log('pass', 'R759', 'ChatPanel 번역 언어 선택 존재')
+  } else {
+    log('warning', 'R759', 'ChatPanel 번역 언어 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R760: InputBar 단축키 커스터마이징
+const ib760Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib760Path)) {
+  const ib760 = readFileSync(ib760Path, 'utf-8')
+  if (ib760.includes('customShortcuts') || ib760.includes('showShortcutEditor') || ib760.includes('input-shortcuts')) {
+    log('pass', 'R760', 'InputBar 단축키 커스터마이징 존재')
+  } else {
+    log('warning', 'R760', 'InputBar 단축키 커스터마이징 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R761: TerminalPanel 프로세스 모니터
+const tp761Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp761Path)) {
+  const tp761 = readFileSync(tp761Path, 'utf-8')
+  if (tp761.includes('processInfo') || tp761.includes('showProcessInfo') || tp761.includes('processMon')) {
+    log('pass', 'R761', 'TerminalPanel 프로세스 모니터 존재')
+  } else {
+    log('warning', 'R761', 'TerminalPanel 프로세스 모니터 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

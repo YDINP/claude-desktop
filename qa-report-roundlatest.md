@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:14:31.979Z
+> 2026-03-13T11:15:26.978Z
 
 ## Critical
 _없음_
@@ -640,3 +640,6 @@ _없음_
 - ChatPanel 대화 분기 존재
 - SceneViewPanel 씬 메모 존재
 - CocosPanel 씬 프리뷰 캐시 존재
+- ChatPanel 번역 언어 선택 존재
+- InputBar 단축키 커스터마이징 존재
+- TerminalPanel 프로세스 모니터 존재
