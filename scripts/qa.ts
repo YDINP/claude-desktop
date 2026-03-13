@@ -16618,6 +16618,18 @@ console.log('\n## 451. R1560 Quick Edit CLI layer/tag/z/flip/reset/help 체크')
   }
 }
 
+// ── Section 452: R1561 SceneView 정렬 버튼 effectiveW/H 사용 ────────────────
+console.log('\n## 452. R1561 SceneView 정렬 버튼 effectiveW/H 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s452 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s452.includes('effectiveW / 2 - w / 2') && s452.includes('effectiveH / 2 - h / 2')) {
+    log('pass', 'R1561-align', '정렬 버튼이 effectiveW/H 기반으로 동작')
+  } else {
+    log('warning', 'R1561-align', '정렬 버튼 effectiveW/H 미적용', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

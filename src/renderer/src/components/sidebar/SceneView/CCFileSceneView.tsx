@@ -1583,10 +1583,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             {(rotZ !== 0 || rotateOverride?.uuid === node.uuid) && <span style={{ pointerEvents: 'none', color: rotateOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
             {/* 정렬 버튼 */}
             {alignBtn('⊙', '중앙 정렬', 0, 0)}
-            {alignBtn('◁', '좌측 정렬', -(designW / 2 - w / 2), pos.y)}
-            {alignBtn('▷', '우측 정렬', designW / 2 - w / 2, pos.y)}
-            {alignBtn('△', '상단 정렬', pos.x, designH / 2 - h / 2)}
-            {alignBtn('▽', '하단 정렬', pos.x, -(designH / 2 - h / 2))}
+            {alignBtn('◁', '좌측 정렬', -(effectiveW / 2 - w / 2), pos.y)}
+            {alignBtn('▷', '우측 정렬', effectiveW / 2 - w / 2, pos.y)}
+            {alignBtn('△', '상단 정렬', pos.x, effectiveH / 2 - h / 2)}
+            {alignBtn('▽', '하단 정렬', pos.x, -(effectiveH / 2 - h / 2))}
             {multiSelected.size > 1 && (
               <span style={{ color: '#ff9944', flexShrink: 0, pointerEvents: 'none' }}>
                 ⊕{multiSelected.size}개
