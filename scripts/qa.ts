@@ -8734,6 +8734,41 @@ if (existsSync(cocp881Path)) {
   }
 }
 
+console.log('\n## 205. Phase DD10 R882~884 기능 체크')
+
+// R882: SceneViewPanel 노드 프리팹 링크
+const svp882Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp882Path)) {
+  const svp882 = readFileSync(svp882Path, 'utf-8')
+  if (svp882.includes('nodePrefabLinks') || svp882.includes('showPrefabLinks') || svp882.includes('prefabLink')) {
+    log('pass', 'R882', 'SceneViewPanel 노드 프리팹 링크 존재')
+  } else {
+    log('warning', 'R882', 'SceneViewPanel 노드 프리팹 링크 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R883: TerminalPanel 자동 제안
+const tp883Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp883Path)) {
+  const tp883 = readFileSync(tp883Path, 'utf-8')
+  if (tp883.includes('autoSuggest') || tp883.includes('setSuggestions') || tp883.includes('suggestionList')) {
+    log('pass', 'R883', 'TerminalPanel 자동 제안 존재')
+  } else {
+    log('warning', 'R883', 'TerminalPanel 자동 제안 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R884: SessionList 세션 리마인더
+const sl884Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl884Path)) {
+  const sl884 = readFileSync(sl884Path, 'utf-8')
+  if (sl884.includes('sessionReminders') || sl884.includes('showReminderPanel') || sl884.includes('reminderMap')) {
+    log('pass', 'R884', 'SessionList 세션 리마인더 존재')
+  } else {
+    log('warning', 'R884', 'SessionList 세션 리마인더 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

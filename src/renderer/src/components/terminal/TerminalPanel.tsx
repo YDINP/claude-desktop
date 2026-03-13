@@ -371,6 +371,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showSnippetManager, setShowSnippetManager] = useState(false)
   const [outputCapture, setOutputCapture] = useState(false)
   const [capturedOutput, setCapturedOutput] = useState<string[]>([])
+  const [autoSuggest, setAutoSuggest] = useState(true)
+  const [suggestions, setSuggestions] = useState<string[]>([])
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

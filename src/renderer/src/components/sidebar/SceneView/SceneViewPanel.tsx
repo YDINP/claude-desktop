@@ -291,6 +291,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showVisibilityGroups, setShowVisibilityGroups] = useState(false)
   const [componentSearch, setComponentSearch] = useState('')
   const [componentSearchResults, setComponentSearchResults] = useState<string[]>([])
+  const [nodePrefabLinks, setNodePrefabLinks] = useState<Record<string, string>>({})
+  const [showPrefabLinks, setShowPrefabLinks] = useState(false)
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────
