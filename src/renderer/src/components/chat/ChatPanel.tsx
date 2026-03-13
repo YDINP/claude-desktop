@@ -1075,6 +1075,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showCodeRunner, setShowCodeRunner] = React.useState(false)
   const [threadView, setThreadView] = React.useState(false)
   const [threadRoot, setThreadRoot] = React.useState<string | null>(null)
+  const [favMsgs, setFavMsgs] = React.useState<string[]>([])
+  const [showFavMsgs, setShowFavMsgs] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

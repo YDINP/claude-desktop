@@ -10993,6 +10993,74 @@ if (existsSync(sl1079Path)) {
   }
 }
 
+console.log('\n## 271. Phase DD10 R1080~1082 기능 체크')
+// R1080: ChatPanel 메시지 즐겨찾기
+const cp1080Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1080Path)) {
+  const cp1080 = readFileSync(cp1080Path, 'utf-8')
+  if (cp1080.includes('favMsgs') || cp1080.includes('showFavMsgs') || cp1080.includes('favMessages')) {
+    log('pass', 'R1080', 'ChatPanel 메시지 즐겨찾기 존재')
+  } else {
+    log('warning', 'R1080', 'ChatPanel 메시지 즐겨찾기 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1081: InputBar 자동교정
+const ib1081Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1081Path)) {
+  const ib1081 = readFileSync(ib1081Path, 'utf-8')
+  if (ib1081.includes('autoCorrect') || ib1081.includes('corrections') || ib1081.includes('spellCheck')) {
+    log('pass', 'R1081', 'InputBar 자동교정 존재')
+  } else {
+    log('warning', 'R1081', 'InputBar 자동교정 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1082: CocosPanel 프리팹 미리보기
+const ccp1082Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1082Path)) {
+  const ccp1082 = readFileSync(ccp1082Path, 'utf-8')
+  if (ccp1082.includes('prefabPreview') || ccp1082.includes('showPrefabPreview') || ccp1082.includes('prefabThumb')) {
+    log('pass', 'R1082', 'CocosPanel 프리팹 미리보기 존재')
+  } else {
+    log('warning', 'R1082', 'CocosPanel 프리팹 미리보기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 272. Phase DD10 R1083~1085 기능 체크')
+// R1083: SceneViewPanel 씬 렌더 통계
+const sv1083Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1083Path)) {
+  const sv1083 = readFileSync(sv1083Path, 'utf-8')
+  if (sv1083.includes('renderStats') || sv1083.includes('showRenderStats') || sv1083.includes('perfStats')) {
+    log('pass', 'R1083', 'SceneViewPanel 씬 렌더 통계 존재')
+  } else {
+    log('warning', 'R1083', 'SceneViewPanel 씬 렌더 통계 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1084: TerminalPanel 명령어 히스토리 공유
+const tp1084Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1084Path)) {
+  const tp1084 = readFileSync(tp1084Path, 'utf-8')
+  if (tp1084.includes('sharedHistory') || tp1084.includes('historyScope') || tp1084.includes('globalHistory')) {
+    log('pass', 'R1084', 'TerminalPanel 명령어 히스토리 공유 존재')
+  } else {
+    log('warning', 'R1084', 'TerminalPanel 명령어 히스토리 공유 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1085: SessionList 세션 복사
+const sl1085Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1085Path)) {
+  const sl1085 = readFileSync(sl1085Path, 'utf-8')
+  if (sl1085.includes('copyTarget') || sl1085.includes('showCopyDialog') || sl1085.includes('sessionCopy')) {
+    log('pass', 'R1085', 'SessionList 세션 복사 존재')
+  } else {
+    log('warning', 'R1085', 'SessionList 세션 복사 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

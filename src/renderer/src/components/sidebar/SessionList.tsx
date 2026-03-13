@@ -344,6 +344,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showMergeDialog, setShowMergeDialog] = React.useState(false)
   const [tagFilter, setTagFilter] = React.useState<string[]>([])
   const [showTagFilterPanel, setShowTagFilterPanel] = React.useState(false)
+  const [copyTarget, setCopyTarget] = React.useState<string | null>(null)
+  const [showCopyDialog, setShowCopyDialog] = React.useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
