@@ -1150,6 +1150,27 @@ function CCFileNodeInspector({
     else setMsg({ ok: false, text: result.error ?? '삭제 실패' })
   }, [node.uuid, sceneFile, saveScene, onUpdate])
 
+  // 노드 복제 (부모 아래에 형제로 추가)
+  const handleDuplicate = useCallback(async () => {
+    if (!sceneFile.root || !sceneFile._raw || sceneFile.root.uuid === node.uuid) return
+    const raw = sceneFile._raw as Record<string, unknown>[]
+    const newId = 'dup-' + Date.now()
+    const origRaw = node._rawIndex != null ? { ...raw[node._rawIndex] } : {}
+    const newIdx = raw.length
+    raw.push({ ...origRaw, _id: newId, _name: node.name + '_Copy', _children: [] })
+    const dupNode: CCSceneNode = { ...node, uuid: newId, name: node.name + '_Copy', children: [], _rawIndex: newIdx }
+    function insertAfter(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === node.uuid)
+      if (idx >= 0) { const ch = [...n.children]; ch.splice(idx + 1, 0, dupNode); return { ...n, children: ch } }
+      return { ...n, children: n.children.map(insertAfter) }
+    }
+    setSaving(true)
+    const result = await saveScene(insertAfter(sceneFile.root))
+    setSaving(false)
+    if (result.success) onUpdate(dupNode)
+    else { raw.pop(); setMsg({ ok: false, text: result.error ?? '복제 실패' }) }
+  }, [node, sceneFile, saveScene, onUpdate])
+
   // 노드 교체 시 draft 초기화
   useMemo(() => { setDraft({ ...node }) }, [node.uuid])
 
@@ -1261,17 +1282,30 @@ function CCFileNodeInspector({
             + 자식
           </button>
           {sceneFile.root?.uuid !== node.uuid && (
-            <button
-              onClick={handleDelete}
-              title="노드 삭제"
-              style={{
-                padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
-                background: 'transparent', color: '#f85149', border: '1px solid #f85149',
-                lineHeight: 1.4,
-              }}
-            >
-              삭제
-            </button>
+            <>
+              <button
+                onClick={handleDuplicate}
+                title="노드 복제"
+                style={{
+                  padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+                  background: 'transparent', color: '#58a6ff', border: '1px solid #58a6ff',
+                  lineHeight: 1.4,
+                }}
+              >
+                복제
+              </button>
+              <button
+                onClick={handleDelete}
+                title="노드 삭제"
+                style={{
+                  padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+                  background: 'transparent', color: '#f85149', border: '1px solid #f85149',
+                  lineHeight: 1.4,
+                }}
+              >
+                삭제
+              </button>
+            </>
           )}
         </div>
       </div>
