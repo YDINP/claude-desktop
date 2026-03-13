@@ -3443,10 +3443,20 @@ function CCFileNodeInspector({
             <span style={{ color: 'var(--accent)' }}>{nodePath[nodePath.length - 1]}</span>
           </div>
           {/* R1488: 노드 통계 뱃지 — 깊이/자식/컴포넌트 수 */}
-          <div style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
+          <div style={{ display: 'flex', gap: 3, flexShrink: 0, alignItems: 'center' }}>
             {nodePath.length > 1 && <span style={{ fontSize: 8, color: '#556', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title="깊이 (루트=0)">d{nodePath.length - 1}</span>}
             {draft.children.length > 0 && <span style={{ fontSize: 8, color: '#565', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`자식 노드 ${draft.children.length}개`}>▸{draft.children.length}</span>}
             {draft.components.length > 0 && <span style={{ fontSize: 8, color: '#556a', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`컴포넌트 ${draft.components.length}개`}>⊕{draft.components.length}</span>}
+            {/* R1492: 경로 복사 버튼 */}
+            <span
+              title={`경로 복사: ${nodePath.join(' / ')}`}
+              onClick={() => navigator.clipboard.writeText(nodePath.join(' / '))
+                .then(() => { /* silent */ })
+                .catch(() => { /* silent */ })}
+              style={{ fontSize: 8, color: '#445', padding: '1px 3px', borderRadius: 2, cursor: 'pointer', lineHeight: 1 }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#88aacc')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#445')}
+            >⎘</span>
           </div>
         </div>
       )}
