@@ -9905,6 +9905,74 @@ if (existsSync(sl983Path)) {
   }
 }
 
+console.log('\n## 239. Phase DD10 R984~986 기능 체크')
+// R984: ChatPanel 메시지 검색 필터
+const cp984Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp984Path)) {
+  const cp984 = readFileSync(cp984Path, 'utf-8')
+  if (cp984.includes('searchFilter') || cp984.includes('showSearchFilter') || cp984.includes('msgFilter')) {
+    log('pass', 'R984', 'ChatPanel 메시지 검색 필터 존재')
+  } else {
+    log('warning', 'R984', 'ChatPanel 메시지 검색 필터 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R985: InputBar 코드 언어 선택
+const ib985Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib985Path)) {
+  const ib985 = readFileSync(ib985Path, 'utf-8')
+  if (ib985.includes('codeLanguage') || ib985.includes('showLangPicker') || ib985.includes('langSelect')) {
+    log('pass', 'R985', 'InputBar 코드 언어 선택 존재')
+  } else {
+    log('warning', 'R985', 'InputBar 코드 언어 선택 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R986: CocosPanel 렌더 설정
+const cocos986Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos986Path)) {
+  const cocos986 = readFileSync(cocos986Path, 'utf-8')
+  if (cocos986.includes('renderSettings') || cocos986.includes('showRenderSettings') || cocos986.includes('renderConfig')) {
+    log('pass', 'R986', 'CocosPanel 렌더 설정 존재')
+  } else {
+    log('warning', 'R986', 'CocosPanel 렌더 설정 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 240. Phase DD10 R987~989 기능 체크')
+// R987: SceneViewPanel 씬 잠금
+const svp987Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp987Path)) {
+  const svp987 = readFileSync(svp987Path, 'utf-8')
+  if (svp987.includes('sceneLocked') || svp987.includes('lockReason') || svp987.includes('sceneReadOnly')) {
+    log('pass', 'R987', 'SceneViewPanel 씬 잠금 존재')
+  } else {
+    log('warning', 'R987', 'SceneViewPanel 씬 잠금 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R988: TerminalPanel 원격 접속
+const tp988Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp988Path)) {
+  const tp988 = readFileSync(tp988Path, 'utf-8')
+  if (tp988.includes('remoteHost') || tp988.includes('showRemotePanel') || tp988.includes('sshConnect')) {
+    log('pass', 'R988', 'TerminalPanel 원격 접속 존재')
+  } else {
+    log('warning', 'R988', 'TerminalPanel 원격 접속 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R989: SessionList 세션 공유
+const sl989Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl989Path)) {
+  const sl989 = readFileSync(sl989Path, 'utf-8')
+  if (sl989.includes('sharedSessions') || sl989.includes('showSharePanel') || sl989.includes('shareSession')) {
+    log('pass', 'R989', 'SessionList 세션 공유 존재')
+  } else {
+    log('warning', 'R989', 'SessionList 세션 공유 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

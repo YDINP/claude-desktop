@@ -1050,6 +1050,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [sentimentData, setSentimentData] = React.useState<Record<string, string>>({})
   const [msgStats, setMsgStats] = React.useState<Record<string, number>>({})
   const [showMsgStats, setShowMsgStats] = React.useState(false)
+  const [searchFilter, setSearchFilter] = React.useState<'all' | 'mine' | 'ai'>('all')
+  const [showSearchFilter, setShowSearchFilter] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
