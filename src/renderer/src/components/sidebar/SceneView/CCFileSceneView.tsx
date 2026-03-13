@@ -219,6 +219,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {/* 게임 캔버스 배경 */}
           <rect x={0} y={0} width={designW} height={designH}
             fill="#2d2d44" stroke="#555" strokeWidth={1 / view.zoom} />
+          {/* 그리드 (100px 단위) */}
+          {view.zoom > 0.2 && (() => {
+            const step = 100
+            const lines: React.ReactElement[] = []
+            for (let x = step; x < designW; x += step) {
+              lines.push(<line key={`gv${x}`} x1={x} y1={0} x2={x} y2={designH} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
+            }
+            for (let y = step; y < designH; y += step) {
+              lines.push(<line key={`gh${y}`} x1={0} y1={y} x2={designW} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
+            }
+            // 중앙 십자선
+            lines.push(<line key="cx" x1={designW/2} y1={0} x2={designW/2} y2={designH} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
+            lines.push(<line key="cy" x1={0} y1={designH/2} x2={designW} y2={designH/2} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
+            return lines
+          })()}
 
           {/* 노드 렌더링 (depth 역순 → 깊은 노드가 위에 표시되지 않도록) */}
           {flatNodes.filter(fn => fn.node.active).map(({ node, worldX, worldY }) => {
@@ -236,6 +251,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const rectX = svgPos.x - w * anchorX
             const rectY = svgPos.y - h * (1 - anchorY)
             const isSelected = node.uuid === selectedUuid
+            // CC rotation: Z-euler (반시계방향 양수). SVG: 시계방향 양수 → 부호 반전
+            const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0
+            const rotTransform = rotZ !== 0 ? `rotate(${-rotZ}, ${svgPos.x}, ${svgPos.y})` : undefined
 
             const hasLabel = node.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
             const hasSprite = node.components.some(c => c.type === 'cc.Sprite')
@@ -254,6 +272,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
             return (
               <g key={node.uuid}
+                transform={rotTransform}
                 onClick={e => { e.stopPropagation(); onSelect(node.uuid) }}
                 onMouseDown={e => {
                   if (e.button !== 0) return
