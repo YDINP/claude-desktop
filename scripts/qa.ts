@@ -17562,6 +17562,18 @@ console.log('\n## 527. R1636 SceneView 선택 노드 자식 하이라이트 체�
   }
 }
 
+// ── Section 528: R1637 Inspector 중복 이름 배지 ──────────────────
+console.log('\n## 528. R1637 Inspector 중복 이름 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s528 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s528.includes('R1637') && s528.includes('중복 이름') && s528.includes('같은 이름 노드 자동 배지') && s528.includes('cnt <= 1')) {
+    log('pass', 'R1637-dup-name', 'Inspector 중복 이름 배지')
+  } else {
+    log('warning', 'R1637-dup-name', 'Inspector 중복 이름 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

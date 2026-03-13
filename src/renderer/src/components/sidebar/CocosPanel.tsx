@@ -4011,6 +4011,20 @@ function CCFileNodeInspector({
           </div>
         </div>
       )}
+      {/* R1637: 같은 이름 노드 자동 배지 */}
+      {(() => {
+        if (!sceneFile?.root) return null
+        let cnt = 0
+        const walk = (n: CCSceneNode) => { if (n.name === draft.name) cnt++; n.children.forEach(walk) }
+        walk(sceneFile.root)
+        if (cnt <= 1) return null
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+            <span style={{ fontSize: 8, background: 'rgba(255,153,0,0.12)', border: '1px solid rgba(255,153,0,0.35)', borderRadius: 3, padding: '0 4px', color: '#ff9900' }}
+              title={`씬 내 "${draft.name}" 이름의 노드가 ${cnt}개 있습니다`}>⚠ 중복 이름 ×{cnt}</span>
+          </div>
+        )
+      })()}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
         <input
           defaultValue={draft.name}
