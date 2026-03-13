@@ -679,6 +679,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               <span>{v}</span>
             </div>
           ))}
+          <div style={{ marginTop: 6, borderTop: '1px solid #333', paddingTop: 4, fontSize: 8 }}>
+            {[
+              ['#58a6ff', '선택됨'],
+              ['#ff8c3c', 'Button'],
+              ['#3ccccc', 'ScrollView'],
+              ['#cc64b4', 'EditBox'],
+              ['#a064ff', 'Slider/Toggle'],
+              ['#4466aa', 'Canvas/Layout'],
+              ['#ccaa44', 'Label'],
+              ['#44aa66', 'Sprite'],
+            ].map(([color, label]) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, lineHeight: 1.6 }}>
+                <div style={{ width: 8, height: 8, borderRadius: 1, background: color, flexShrink: 0 }} />
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
