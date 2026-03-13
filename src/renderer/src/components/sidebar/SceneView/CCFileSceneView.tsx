@@ -1813,7 +1813,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             padding: '2px 8px', fontSize: 9, color: '#ccc',
             display: 'flex', gap: 8,
           }}>
-            <span style={{ pointerEvents: 'none', color: dragOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>pos</span> {parseFloat(pos.x.toFixed(2))},{parseFloat(pos.y.toFixed(2))}</span>
+            <span style={{ pointerEvents: 'none', color: dragOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>pos</span> {parseFloat(pos.x.toFixed(2))},{parseFloat(pos.y.toFixed(2))}{/* R1611: 드래그 delta */}{dragOverride?.uuid === node.uuid && dragRef.current && ` (Δ${(dragOverride.x - dragRef.current.startNodeX).toFixed(0)},${(dragOverride.y - dragRef.current.startNodeY).toFixed(0)})`}</span>
             <span style={{ pointerEvents: 'none', color: resizeOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>size</span> {parseFloat(w.toFixed(2))}×{parseFloat(h.toFixed(2))}</span>
             {(rotZ !== 0 || rotateOverride?.uuid === node.uuid) && <span style={{ pointerEvents: 'none', color: rotateOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
             {/* 정렬 버튼 */}

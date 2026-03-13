@@ -17250,6 +17250,18 @@ console.log('\n## 501. R1610 SceneView 비활성 노드 숨기기 토글 체크'
   }
 }
 
+// ── Section 502: R1611 SceneView 드래그 delta 표시 ──────────────────
+console.log('\n## 502. R1611 SceneView 드래그 delta 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s502 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s502.includes('R1611') && s502.includes('드래그 delta') && s502.includes('dragRef.current.startNodeX') && s502.includes('startNodeY')) {
+    log('pass', 'R1611-drag-delta', 'SceneView 드래그 delta 표시 (Δx,y)')
+  } else {
+    log('warning', 'R1611-drag-delta', 'SceneView 드래그 delta 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
