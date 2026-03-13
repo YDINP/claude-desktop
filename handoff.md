@@ -1,21 +1,20 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-13
 
-## 완료 (R1476-1480)
-- [x] R1476: 노드 복사 UUID 자동 재생성 (딥복사 + crypto.randomUUID)
-- [x] R1477: 씬 변경 diff → Claude 컨텍스트 자동 주입 (lastSaveDiff)
-- [x] R1478: cc-file-parser 청크 스트리밍 파싱 (parseCCSceneChunked/isLargeScene)
-- [x] R1479: Inspector Layer 편집 고도화 (CC2.x/3.x + 직접입력)
-- [x] R1480: QA Section 405-406 (Pass 1371)
+## 완료 (R1481-1485)
+- [x] R1481: 글로벌 검색 → SceneView cc-focus-node 이벤트 연동 (pan)
+- [x] R1483: CCFileSceneView onMultiDelete + CocosPanel handleMultiDelete
+- [x] R1484: Inspector World Transform (worldPos useMemo, findChain DFS)
+- [x] R1485: QA Section 407-408 (Pass 1374)
 
-## 다음 예정 (R1481+)
-- [ ] R1481: CocosPanel 씬 노드 검색 → SceneView 하이라이트 연동
-- [ ] R1482: cc-file-parser Node Path 기반 자동 id 생성 (이름+경로 기반 안정 UUID)
-- [ ] R1483: SceneView 노드 그룹 선택 → 일괄 이동/삭제
-- [ ] R1484: Inspector 씬 노드 스크린 좌표 표시 (World Transform 계산)
-- [ ] R1485: QA Section 407-408
+## 다음 예정 (R1486+)
+- [ ] R1486: SceneView 노드 정렬 도구 (좌/우/상/하/중앙 정렬 툴바)
+- [ ] R1487: Inspector 컴포넌트 cc.Button 편집 UI (interactable/normalColor/transition)
+- [ ] R1488: SceneView 배경 컬러 편집 (Canvas 배경색)
+- [ ] R1489: CocosPanel 씬 저장 히스토리 UI (타임라인 뷰)
+- [ ] R1490: QA Section 409-410
 
 ## 빌드/QA
 - Build: ✅ 성공
-- Critical: 0, Warning: 5, Pass: 1371
+- Critical: 0, Warning: 5, Pass: 1374
 - Branch: dev

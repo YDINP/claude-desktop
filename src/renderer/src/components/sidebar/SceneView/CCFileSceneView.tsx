@@ -535,6 +535,43 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           disabled={screenshotSending}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: screenshotSending ? 'wait' : 'pointer', border: '1px solid var(--border)', background: screenshotSending ? 'rgba(255,200,50,0.12)' : 'none', color: screenshotSending ? '#fbbf24' : 'var(--text-muted)', opacity: screenshotSending ? 0.6 : 1 }}
         >{screenshotSending ? '⟳' : '📷'}</button>
+        {/* R1486: 다중 선택 정렬 툴바 */}
+        {multiSelected.size > 1 && (() => {
+          const selNodes = flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
+          const alignBtn = (label: string, title: string, getMoves: () => Array<{ uuid: string; x: number; y: number }>) => (
+            <button
+              key={label}
+              title={title}
+              onClick={() => { const moves = getMoves(); if (moves.length > 0) onMultiMove?.(moves) }}
+              style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid #404060', background: 'rgba(88,166,255,0.15)', color: '#88aaff' }}
+            >{label}</button>
+          )
+          const xs = selNodes.map(fn => (fn.node.position as { x: number }).x)
+          const ys = selNodes.map(fn => (fn.node.position as { y: number }).y)
+          const minX = Math.min(...xs), maxX = Math.max(...xs)
+          const minY = Math.min(...ys), maxY = Math.max(...ys)
+          const avgX = xs.reduce((a, b) => a + b, 0) / xs.length
+          const avgY = ys.reduce((a, b) => a + b, 0) / ys.length
+          const sortedByX = [...selNodes].sort((a, b) => (a.node.position as { x: number }).x - (b.node.position as { x: number }).x)
+          const sortedByY = [...selNodes].sort((a, b) => (a.node.position as { y: number }).y - (b.node.position as { y: number }).y)
+          return <>
+            <span style={{ width: 1, height: 12, background: 'var(--border)', flexShrink: 0 }} />
+            {alignBtn('◂|', '좌측 맞춤', () => selNodes.map(fn => ({ uuid: fn.node.uuid, x: minX, y: (fn.node.position as { y: number }).y })))}
+            {alignBtn('|▸', '우측 맞춤', () => selNodes.map(fn => ({ uuid: fn.node.uuid, x: maxX, y: (fn.node.position as { y: number }).y })))}
+            {alignBtn('↔', 'X 중앙 맞춤', () => selNodes.map(fn => ({ uuid: fn.node.uuid, x: avgX, y: (fn.node.position as { y: number }).y })))}
+            {alignBtn('▴—', '상단 맞춤', () => selNodes.map(fn => ({ uuid: fn.node.uuid, x: (fn.node.position as { x: number }).x, y: maxY })))}
+            {alignBtn('—▾', '하단 맞춤', () => selNodes.map(fn => ({ uuid: fn.node.uuid, x: (fn.node.position as { x: number }).x, y: minY })))}
+            {alignBtn('↕', 'Y 중앙 맞춤', () => selNodes.map(fn => ({ uuid: fn.node.uuid, x: (fn.node.position as { x: number }).x, y: avgY })))}
+            {selNodes.length >= 3 && alignBtn('⇔', '수평 간격 균등', () => {
+              const gap = (maxX - minX) / (sortedByX.length - 1)
+              return sortedByX.map((fn, i) => ({ uuid: fn.node.uuid, x: minX + gap * i, y: (fn.node.position as { y: number }).y }))
+            })}
+            {selNodes.length >= 3 && alignBtn('⇕', '수직 간격 균등', () => {
+              const gap = (maxY - minY) / (sortedByY.length - 1)
+              return sortedByY.map((fn, i) => ({ uuid: fn.node.uuid, x: (fn.node.position as { x: number }).x, y: minY + gap * i }))
+            })}
+          </>
+        })()}
         <button
           onClick={() => setShowHelp(h => !h)}
           title="단축키 도움말"

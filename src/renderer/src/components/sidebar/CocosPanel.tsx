@@ -4450,6 +4450,17 @@ function CCFileNodeInspector({
               horizontalAlign: { 0: 'Left', 1: 'Center', 2: 'Right' },
               verticalAlign:   { 0: 'Top',  1: 'Center', 2: 'Bottom' },
               wrapMode:        { 0: 'Default', 1: 'Normal', 2: 'Loop', 3: 'PingPong', 4: 'ClampForever' },
+              // R1487: cc.Button enum
+              transition:      { 0: 'None', 1: 'Color', 2: 'Sprite', 3: 'Scale' },
+              // R1487: cc.Layout enum
+              type:            { 0: 'None', 1: 'Horizontal', 2: 'Vertical', 3: 'Grid' },
+              resizeMode:      { 0: 'None', 1: 'Children', 2: 'Container' },
+              axisDirection:   { 0: 'Horizontal', 1: 'Vertical' },
+              verticalDirection:  { 0: 'Bottom to Top', 1: 'Top to Bottom' },
+              horizontalDirection: { 0: 'Left to Right', 1: 'Right to Left' },
+              // cc.Mask / cc.ScrollView
+              _type:           { 0: 'Rect', 1: 'Ellipse', 2: 'Image Stencil' },
+              movementType:    { 0: 'Unrestricted', 1: 'Elastic', 2: 'Clamped' },
             }
             if (k in COCOS_ENUM_MAP && typeof v === 'number') {
               const enumOptions = COCOS_ENUM_MAP[k]
