@@ -2,6 +2,24 @@
 
 > 마지막 업데이트: 2026-03-13 (Round 512 완료 — DD5-11 Inspector 컴포넌트 복사/붙여넣기)
 
+## ★ 핵심 개발 방향
+
+> **claude-desktop = CC 에디터 대체** — Cocos Creator 에디터 없이 .fire/.scene/.prefab 파일을 직접 파싱·편집·저장하는 독립형 커스텀 에디터 엔진.
+
+| 항목 | 방향 |
+|------|------|
+| **앱 성격** | 독립 실행형 CC 에디터 대체 (파일 기반) |
+| **CC 에디터** | 불필요 — 에디터 미설치 환경에서도 완전 동작 |
+| **WS 브릿지** | ~~Deprecated~~ **완전 제거** (Round 413 이후 CocosPanel에서 WS 코드 삭제 완료) |
+| **데이터 소스** | 파일시스템 직접 접근 (.fire/.scene/.prefab/.meta) |
+| **버전 지원** | CC 2.x / 3.x 파일 형식 자동 감지 |
+| **오프라인** | 완전 지원 |
+
+**방향 전환 이력**: Round 64~66에서 WS Extension 방식으로 출발 → Round 414부터 파일 직접 파싱 방식으로 전환 → Round 413 이후 WS UI 및 연결 코드 완전 제거.
+
+---
+
+
 ## 완료된 라운드
 
 | 라운드 | 브랜치 | 주요 작업 | 상태 |
@@ -461,9 +479,9 @@
 - 성능 Quick Wins (번들 분리, 타이머 통합)
 - 디자인 시스템 기반 (CSS 변수, WCAG AA)
 
-### Phase 2 — 진행 중 🔄
+### Phase 2 — 완료 ✅
 - Claude SDK 활용 확대 (16개 타입 파싱 완료)
-- CC 통합 (WebSocket Extension + 패널 + 자연어 편집)
+- CC 통합 초기 (WebSocket Extension + 패널 + 자연어 편집) → **Round 413 이후 WS 방식 Deprecated**
 - 시각 경험 (버블 차별화, 코드 헤더, 애니메이션)
 
 ### Phase 3 — 완료 ✅ (Round 74~82)

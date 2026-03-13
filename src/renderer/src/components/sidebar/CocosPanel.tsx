@@ -103,6 +103,19 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (!result.success) raw.pop()
   }, [sceneFile, saveScene])
 
+  const handleSave = useCallback(async () => {
+    if (!sceneFile?.root) return
+    setSaving(true)
+    setSaveMsg(null)
+    const result = await saveScene(sceneFile.root)
+    setSaving(false)
+    setSaveMsg(result.success
+      ? { ok: true, text: '저장 완료' }
+      : { ok: false, text: result.error ?? '저장 실패' }
+    )
+    setTimeout(() => setSaveMsg(null), 3000)
+  }, [sceneFile, saveScene])
+
   // 키보드 단축키: Ctrl+Z/Y, Delete, Ctrl+D, Arrow keys
   useEffect(() => {
     if (!sceneFile) return
@@ -234,19 +247,6 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       return { ...n, children: n.children.map(updateAll) }
     }
     await saveScene(updateAll(sceneFile.root))
-  }, [sceneFile, saveScene])
-
-  const handleSave = useCallback(async () => {
-    if (!sceneFile?.root) return
-    setSaving(true)
-    setSaveMsg(null)
-    const result = await saveScene(sceneFile.root)
-    setSaving(false)
-    setSaveMsg(result.success
-      ? { ok: true, text: '저장 완료' }
-      : { ok: false, text: result.error ?? '저장 실패' }
-    )
-    setTimeout(() => setSaveMsg(null), 3000)
   }, [sceneFile, saveScene])
 
   const handleReparent = useCallback(async (dragUuid: string, dropUuid: string) => {
