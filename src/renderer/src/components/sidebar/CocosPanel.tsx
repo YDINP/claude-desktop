@@ -1008,6 +1008,7 @@ function CCFileSceneTree({
           color: node.active ? 'var(--text-primary)' : 'var(--text-muted)',
           userSelect: 'none',
           outline: isDragOver ? '1px dashed #58a6ff' : 'none',
+          borderLeft: depth > 0 ? `1px solid rgba(255,255,255,0.05)` : 'none',
         }}
       >
         {hasChildren ? (
