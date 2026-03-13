@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useCCFileProject } from '../../hooks/useCCFileProject'
 import { CCFileSceneView } from './SceneView/CCFileSceneView'
 import type { CCSceneNode, CCSceneFile } from '../../../../shared/ipc-schema'
@@ -600,6 +600,75 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (ctrl && e.key === 'd' && selectedNode) {
         e.preventDefault()
         handleTreeDuplicate(selectedNode.uuid)
+        return
+      }
+      // R1399: Ctrl+G — 선택 노드를 새 "Group" 부모로 그룹화
+      if (ctrl && e.key === 'g' && !e.shiftKey && selectedNode && sceneFile.root && sceneFile._raw) {
+        e.preventDefault()
+        const raw = sceneFile._raw as Record<string, unknown>[]
+        const version = sceneFile.projectInfo.version ?? '2x'
+        const groupId = 'group-' + Date.now()
+        const groupIdx = raw.length
+        const pos = selectedNode.position as { x: number; y: number; z: number }
+        // 새 Group raw 엔트리
+        const groupRaw: Record<string, unknown> = version === '3x' ? {
+          __type__: 'cc.Node', _id: groupId, _name: 'Group', _active: true,
+          _children: [], _components: [],
+          _lpos: { x: pos.x, y: pos.y, z: pos.z }, _lrot: { x: 0, y: 0, z: 0 }, _lscale: { x: 1, y: 1, z: 1 },
+          _color: { r: 255, g: 255, b: 255, a: 255 }, _layer: 33554432,
+          _uiProps: { _localOpacity: 1 },
+        } : {
+          __type__: 'cc.Node', _id: groupId, _name: 'Group', _active: true,
+          _children: [], _components: [],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [pos.x, pos.y, pos.z, 0, 0, 0, 1, 1, 1, 1] },
+          _contentSize: { width: 0, height: 0 }, _anchorPoint: { x: 0.5, y: 0.5 },
+          _opacity: 255, _color: { r: 255, g: 255, b: 255, a: 255 },
+        }
+        raw.push(groupRaw)
+        // 선택 노드를 0,0으로 이동 (부모 기준)
+        const childNode: CCSceneNode = { ...selectedNode, position: { x: 0, y: 0, z: pos.z } }
+        const groupNode: CCSceneNode = {
+          uuid: groupId, name: 'Group', active: true,
+          position: pos,
+          rotation: version === '3x' ? { x: 0, y: 0, z: 0 } : 0,
+          scale: { x: 1, y: 1, z: 1 }, size: { x: 0, y: 0 }, anchor: { x: 0.5, y: 0.5 },
+          opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 },
+          components: [], children: [childNode], _rawIndex: groupIdx,
+        }
+        // 선택 노드를 Group으로 교체
+        function wrapNode(n: CCSceneNode): CCSceneNode {
+          const newChildren = n.children.map(c => {
+            if (c.uuid === selectedNode!.uuid) return groupNode
+            return wrapNode(c)
+          })
+          return { ...n, children: newChildren }
+        }
+        const result = await saveScene(wrapNode(sceneFile.root))
+        if (result.success) onSelectNode(groupNode)
+        else raw.pop()
+        return
+      }
+      // R1399: Ctrl+Shift+G — 그룹 해제 (자식을 부모로 올리고 빈 부모 삭제)
+      if (ctrl && e.key === 'G' && e.shiftKey && selectedNode && sceneFile.root && selectedNode.children.length > 0) {
+        e.preventDefault()
+        const ungroupUuid = selectedNode.uuid
+        const parentPos = selectedNode.position as { x: number; y: number; z: number }
+        // 자식 노드들의 위치를 부모 기준으로 재계산
+        const promotedChildren = selectedNode.children.map(child => {
+          const cp = child.position as { x: number; y: number; z: number }
+          return { ...child, position: { x: cp.x + parentPos.x, y: cp.y + parentPos.y, z: cp.z + parentPos.z } }
+        })
+        function ungroupNode(n: CCSceneNode): CCSceneNode {
+          const idx = n.children.findIndex(c => c.uuid === ungroupUuid)
+          if (idx >= 0) {
+            const newChildren = [...n.children]
+            newChildren.splice(idx, 1, ...promotedChildren)
+            return { ...n, children: newChildren }
+          }
+          return { ...n, children: n.children.map(ungroupNode) }
+        }
+        const result = await saveScene(ungroupNode(sceneFile.root))
+        if (result.success && promotedChildren.length > 0) onSelectNode(promotedChildren[0])
         return
       }
       // Arrow keys: 선택 노드 1px 이동
@@ -1261,7 +1330,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       {/* 에셋 탭 */}
       {mainTab === 'assets' && projectInfo?.detected && (
         projectInfo.assetsDir
-          ? <CCFileAssetBrowser assetsDir={projectInfo.assetsDir} />
+          ? <CCFileAssetBrowser assetsDir={projectInfo.assetsDir} sceneFile={sceneFile ?? undefined} saveScene={saveScene} onSelectNode={onSelectNode} />
           : <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11 }}>assetsDir를 감지할 수 없습니다.</div>
       )}
 
@@ -3701,7 +3770,12 @@ function buildFolderTree(entries: AssetEntry[]): FolderNode {
   return root
 }
 
-function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
+function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
+  assetsDir: string
+  sceneFile?: CCSceneFile
+  saveScene: (root: CCSceneNode) => Promise<{ success: boolean; error?: string }>
+  onSelectNode: (n: CCSceneNode | null) => void
+}) {
   const [assets, setAssets] = useState<Record<string, AssetEntry> | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -3710,6 +3784,91 @@ function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
   // R1382: 뷰 모드 — 'group'(기존) vs 'tree'(폴더 트리)
   const [assetViewMode, setAssetViewMode] = useState<'group' | 'tree'>('group')
   const [treeExpanded, setTreeExpanded] = useState<Set<string>>(new Set())
+  // R1398: 프리팹 인스턴스화 상태
+  const [instantiating, setInstantiating] = useState<string | null>(null)
+
+  // R1398: .prefab 파일을 현재 씬에 인스턴스화
+  const handleInstantiatePrefab = useCallback(async (entry: AssetEntry) => {
+    if (!sceneFile?.root || !sceneFile._raw) return
+    setInstantiating(entry.uuid)
+    try {
+      // prefab 파일 읽기 + 파싱 (readFile → JSON parse → 루트 노드 추출)
+      const prefabContent = await window.api.readFile(entry.path)
+      if (!prefabContent) { setInstantiating(null); return }
+      const prefabRaw = JSON.parse(prefabContent) as Record<string, unknown>[]
+      // Prefab 루트 노드 찾기: cc.Prefab.data → __id__
+      let rootIdx = -1
+      for (const e of prefabRaw) {
+        if (e.__type__ === 'cc.Prefab') {
+          const dataRef = e.data as { __id__?: number } | undefined
+          if (dataRef?.__id__ != null) { rootIdx = dataRef.__id__; break }
+        }
+      }
+      if (rootIdx < 0) rootIdx = prefabRaw.findIndex(e => e.__type__ === 'cc.Node')
+      if (rootIdx < 0) { setInstantiating(null); return }
+
+      const prefabEntry = prefabRaw[rootIdx]
+      const raw = sceneFile._raw as Record<string, unknown>[]
+      const version = sceneFile.projectInfo.version ?? '2x'
+      const newId = 'prefab-' + Date.now()
+      const newIdx = raw.length
+      const prefabName = (prefabEntry._name as string) ?? entry.relPath.split(/[\\/]/).pop()?.replace('.prefab', '') ?? 'Prefab'
+
+      // 새 raw 엔트리 생성
+      const newRawEntry: Record<string, unknown> = version === '3x' ? {
+        __type__: 'cc.Node', _id: newId, _name: prefabName, _active: true,
+        _children: [], _components: [],
+        _lpos: { x: 0, y: 0, z: 0 }, _lrot: { x: 0, y: 0, z: 0 }, _lscale: { x: 1, y: 1, z: 1 },
+        _color: { r: 255, g: 255, b: 255, a: 255 }, _layer: 33554432,
+        _uiProps: { _localOpacity: 1 },
+      } : {
+        __type__: 'cc.Node', _id: newId, _name: prefabName, _active: true,
+        _children: [], _components: [],
+        _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+        _contentSize: { width: (prefabEntry._contentSize as { width?: number })?.width ?? 100, height: (prefabEntry._contentSize as { height?: number })?.height ?? 100 },
+        _anchorPoint: { x: 0.5, y: 0.5 },
+        _opacity: 255, _color: { r: 255, g: 255, b: 255, a: 255 },
+      }
+      raw.push(newRawEntry)
+
+      const cs = prefabEntry._contentSize as { width?: number; height?: number } | undefined
+      const newNode: CCSceneNode = {
+        uuid: newId, name: prefabName, active: true,
+        position: { x: 0, y: 0, z: 0 },
+        rotation: version === '3x' ? { x: 0, y: 0, z: 0 } : 0,
+        scale: { x: 1, y: 1, z: 1 },
+        size: { x: cs?.width ?? 100, y: cs?.height ?? 100 },
+        anchor: { x: 0.5, y: 0.5 },
+        opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 },
+        components: [], children: [], _rawIndex: newIdx,
+      }
+
+      // Canvas 자식으로 추가 (Canvas 없으면 루트 자식)
+      function findCanvas(n: CCSceneNode): CCSceneNode | null {
+        if (n.components.some(c => c.type === 'cc.Canvas')) return n
+        for (const ch of n.children) { const f = findCanvas(ch); if (f) return f }
+        return null
+      }
+      const canvas = findCanvas(sceneFile.root)
+      const parentUuid = canvas?.uuid ?? sceneFile.root.uuid
+
+      function addToParent(n: CCSceneNode): CCSceneNode {
+        if (n.uuid === parentUuid) return { ...n, children: [...n.children, newNode] }
+        return { ...n, children: n.children.map(addToParent) }
+      }
+
+      const result = await saveScene(addToParent(sceneFile.root))
+      if (result.success) {
+        onSelectNode(newNode)
+      } else {
+        raw.pop()
+      }
+    } catch {
+      // parse error — ignore
+    } finally {
+      setInstantiating(null)
+    }
+  }, [sceneFile, saveScene, onSelectNode])
 
   useEffect(() => {
     let cancelled = false
@@ -3842,6 +4001,20 @@ function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
                   }}>
                     {copied === file.uuid ? '✓ 복사됨' : fileName}
                   </span>
+                  {/* R1398: .prefab 트리 뷰 인스턴스화 버튼 */}
+                  {file.type === 'prefab' && sceneFile?.root && (
+                    <button
+                      onClick={e => { e.stopPropagation(); handleInstantiatePrefab(file) }}
+                      disabled={instantiating === file.uuid}
+                      title="씬에 추가"
+                      style={{
+                        fontSize: 10, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
+                        borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
+                        opacity: instantiating === file.uuid ? 0.5 : 1,
+                      }}
+                    >{instantiating === file.uuid ? '...' : '+'}
+                    </button>
+                  )}
                 </div>
               )
             })}
@@ -3951,6 +4124,20 @@ function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
                 }}>
                   {item.relPath.split(/[\\/]/).slice(0, -1).join('/')}
                 </span>
+                {/* R1398: .prefab 인스턴스화 버튼 */}
+                {item.type === 'prefab' && sceneFile?.root && (
+                  <button
+                    onClick={e => { e.stopPropagation(); handleInstantiatePrefab(item) }}
+                    disabled={instantiating === item.uuid}
+                    title="씬에 추가"
+                    style={{
+                      fontSize: 10, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
+                      borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
+                      opacity: instantiating === item.uuid ? 0.5 : 1,
+                    }}
+                  >{instantiating === item.uuid ? '...' : '+'}
+                  </button>
+                )}
               </div>
             ))}
           </div>
