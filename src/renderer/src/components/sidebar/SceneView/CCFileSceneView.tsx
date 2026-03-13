@@ -274,7 +274,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onClick={() => setView(v => ({ ...v, zoom: Math.min(5, v.zoom * 1.25) }))}
           style={{ padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >+</button>
-        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 30, textAlign: 'center' }}>
+        <span
+          onClick={() => setView(v => ({ ...v, zoom: 1 }))}
+          title="1:1 줌으로 리셋"
+          style={{ fontSize: 9, color: 'var(--text-muted)', width: 30, textAlign: 'center', cursor: 'pointer' }}
+        >
           {Math.round(view.zoom * 100)}%
         </span>
         <button
