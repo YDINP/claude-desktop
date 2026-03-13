@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 449 완료 — L-1 씬 트리 노드 활성화 토글 버튼)
+> 마지막 업데이트: 2026-03-13 (Round 450 완료 — M-1 Inspector 벡터 props {x,y,z} 편집 지원)
 
 ## 완료된 라운드
 
@@ -41,6 +41,7 @@
 | Round 447 | dev | Phase J-1: 씬뷰 키보드 단축키 — Delete(삭제), Ctrl+D(복제), Arrow(1px이동), Shift+Arrow(10px이동), 입력 포커스 시 무시 | ✅ |
 | Round 448 | dev | Phase K-1: 씬뷰 배경색 — Camera.clearColor / Canvas.backgroundColor 파싱 → 씬 캔버스 배경 적용 | ✅ |
 | Round 449 | dev | Phase L-1: 씬 트리 활성화 토글 — ●/○ 버튼, handleTreeToggleActive → saveScene, 비활성 노드 흐릿 표시 | ✅ |
+| Round 450 | dev | Phase M-1: Inspector 벡터 props 편집 — {x,y}/{x,y,z} 타입 props를 2-3개 인라인 숫자 인풋으로 표시/편집 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

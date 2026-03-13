@@ -1184,10 +1184,16 @@ function CCFileNodeInspector({
       {draft.components.filter(c => {
         const skipTypes = ['cc.UITransform', 'cc.Canvas', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
         if (skipTypes.includes(c.type)) return false
-        return Object.values(c.props).some(v =>
-          typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean' ||
-          (v && typeof v === 'object' && '__uuid__' in (v as object))
-        )
+        return Object.values(c.props).some(v => {
+          if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return true
+          if (v && typeof v === 'object') {
+            if ('__uuid__' in (v as object)) return true
+            // 벡터 타입 {x,y} 또는 {x,y,z}
+            const keys = Object.keys(v as object).filter(k => typeof (v as Record<string, unknown>)[k] === 'number')
+            if (keys.length >= 2 && keys.length <= 3) return true
+          }
+          return false
+        })
       }).map((comp, ci) => (
         <div key={ci} style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 5 }}>
           <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4 }}>
@@ -1209,6 +1215,35 @@ function CCFileNodeInspector({
                   </span>
                 </div>
               )
+            }
+            // 벡터 타입 {x,y} 또는 {x,y,z} → 인라인 숫자 인풋
+            if (v && typeof v === 'object' && !('__uuid__' in (v as object)) && !('__id__' in (v as object))) {
+              const vobj = v as Record<string, unknown>
+              const keys = Object.keys(vobj).filter(k => typeof vobj[k] === 'number')
+              if (keys.length >= 2 && keys.length <= 3) {
+                return (
+                  <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                    <div style={{ display: 'flex', gap: 2, flex: 1 }}>
+                      {keys.map(axis => (
+                        <input key={axis} type="number" defaultValue={Number(vobj[axis])}
+                          title={axis}
+                          onBlur={e => applyAndSave({
+                            components: draft.components.map((c, i) =>
+                              i === ci ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
+                            )
+                          })}
+                          style={{
+                            flex: 1, minWidth: 0, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px', fontSize: 9,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+              return null
             }
             if (typeof v !== 'string' && typeof v !== 'number' && typeof v !== 'boolean') return null
             const isBool = typeof v === 'boolean'
