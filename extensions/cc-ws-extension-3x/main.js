@@ -434,8 +434,15 @@ async function routeRequest3x(method, url, body, res) {
       res.writeHead(404); res.end(JSON.stringify({ error: 'Canvas not found' })); return;
     }
     const nodeRaw = await Editor.Message.request('scene', 'query-node', canvasNode.uuid);
-    const node = enrichNode(nodeRaw);
-    res.writeHead(200); res.end(JSON.stringify({ width: node.size.width, height: node.size.height }));
+    const compsArr = Array.isArray(nodeRaw?.__comps__) ? nodeRaw.__comps__ : [];
+    const canvasComp = compsArr.find(c => c.type === 'cc.Canvas');
+    const dr = canvasComp?.value ? dv(canvasComp.value.designResolution) : null;
+    if (dr && dr.width && dr.height) {
+      res.writeHead(200); res.end(JSON.stringify({ width: dr.width, height: dr.height }));
+    } else {
+      const node = enrichNode(nodeRaw);
+      res.writeHead(200); res.end(JSON.stringify({ width: node.size?.width ?? 960, height: node.size?.height ?? 640 }));
+    }
     return;
   }
 
@@ -475,21 +482,32 @@ module.exports = {
       ws.on('close', () => clients.delete(ws));
       ws.on('error', () => clients.delete(ws));
     });
+    httpServer.on('error', (err) => {
+      console.error(`[cc-ws-ext] 3.x Server error: ${err.message}`);
+    });
     httpServer.listen(PORT, '127.0.0.1', () => {
       console.log(`[cc-ws-ext] 3.x Server on port ${PORT}`);
     });
 
-    Editor.Message.addBroadcastListener('scene:ready', () => broadcast({ type: 'scene:ready' }));
-    Editor.Message.addBroadcastListener('scene:saved', () => broadcast({ type: 'scene:saved' }));
-    Editor.Message.addBroadcastListener('selection:select', (type, uuids) => {
-      if (type === 'node') broadcast({ type: 'node:select', uuids });
-    });
-    Editor.Message.addBroadcastListener('selection:unselect', (type, uuids) => {
-      if (type === 'node') broadcast({ type: 'node:deselect', uuids });
-    });
+    const onSceneReady = () => broadcast({ type: 'scene:ready' });
+    const onSceneSaved = () => broadcast({ type: 'scene:saved' });
+    const onSelect = (type, uuids) => { if (type === 'node') broadcast({ type: 'node:select', uuids }); };
+    const onDeselect = (type, uuids) => { if (type === 'node') broadcast({ type: 'node:deselect', uuids }); };
+    Editor.Message.addBroadcastListener('scene:ready', onSceneReady);
+    Editor.Message.addBroadcastListener('scene:saved', onSceneSaved);
+    Editor.Message.addBroadcastListener('selection:select', onSelect);
+    Editor.Message.addBroadcastListener('selection:unselect', onDeselect);
+    this._listeners = { onSceneReady, onSceneSaved, onSelect, onDeselect };
   },
 
   unload() {
+    if (this._listeners) {
+      Editor.Message.removeBroadcastListener('scene:ready', this._listeners.onSceneReady);
+      Editor.Message.removeBroadcastListener('scene:saved', this._listeners.onSceneSaved);
+      Editor.Message.removeBroadcastListener('selection:select', this._listeners.onSelect);
+      Editor.Message.removeBroadcastListener('selection:unselect', this._listeners.onDeselect);
+      this._listeners = null;
+    }
     clients.forEach(ws => ws.close());
     clients.clear();
     if (wss) wss.close();

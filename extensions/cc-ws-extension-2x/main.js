@@ -210,6 +210,9 @@ module.exports = {
       });
     });
 
+    httpServer.on('error', (err) => {
+      Editor.error(`[cc-ws-ext] Server error: ${err.message}`);
+    });
     httpServer.listen(PORT, '127.0.0.1', () => {
       Editor.log(`[cc-ws-ext] Server running on http://127.0.0.1:${PORT}`);
     });

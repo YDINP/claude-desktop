@@ -421,7 +421,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate, handleGroup, handleUngroup, selectedUuid, nodeMap])
+  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate, handleGroup, handleUngroup, selectedUuid, nodeMap, selectedUuids, isDragging, isResizing])
 
   // ── Space 키 임시 패닝 모드 ────────────────────────────────
   useEffect(() => {
@@ -585,7 +585,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
     window.addEventListener('keydown', handleNudge)
     return () => window.removeEventListener('keydown', handleNudge)
-  }, [selectedUuid, nodeMap, updateNode, setSelectedUuid, setSelectedUuids])
+  }, [selectedUuid, nodeMap, updateNode, setSelectedUuid, setSelectedUuids, selectedUuids])
 
   // ── CC 이벤트: 외부 선택 동기화 + 노드 최신화 ───────────────
   useEffect(() => {
@@ -628,7 +628,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       cx: sceneX - DESIGN_W / 2,
       cy: -(sceneY - DESIGN_H / 2),
     }
-  }, [view])
+  }, [view, canvasSize])
 
   // ── 마우스 이벤트 ─────────────────────────────────────────
   const handleSvgMouseDown = useCallback((e: React.MouseEvent) => {
