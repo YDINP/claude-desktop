@@ -6,7 +6,8 @@ let sdkQuery: ((...args: unknown[]) => AsyncIterable<unknown>) | null = null
 const IPC_CLAUDE_PERMISSION = 'claude:permission'
 
 type PermissionResolver = (allow: boolean) => void
-type PendingPermissionEntry = { resolve: PermissionResolver; toolName: string }
+type PermissionRejector = (reason: Error) => void
+type PendingPermissionEntry = { resolve: PermissionResolver; reject: PermissionRejector; toolName: string }
 
 export class AgentBridge {
   private win: BrowserWindow
@@ -281,9 +282,9 @@ export class AgentBridge {
     if (this.sessionAllowlist.has(toolName)) {
       return true
     }
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const requestId = Math.random().toString(36).slice(2, 10)
-      this.pendingPermissions.set(requestId, { resolve, toolName })
+      this.pendingPermissions.set(requestId, { resolve, reject, toolName })
       this.win.webContents.send(IPC_CLAUDE_PERMISSION, { requestId, toolName, input })
     })
   }
@@ -300,6 +301,15 @@ export class AgentBridge {
   }
 
   interrupt() {
+    if (this.textFlushTimer !== null) {
+      clearTimeout(this.textFlushTimer)
+      this.textFlushTimer = null
+    }
+    this.textBatch = ''
+    for (const entry of this.pendingPermissions.values()) {
+      entry.reject(new Error('interrupted'))
+    }
+    this.pendingPermissions.clear()
     this.abortController?.abort()
     this.emit({ type: 'interrupted' })
   }

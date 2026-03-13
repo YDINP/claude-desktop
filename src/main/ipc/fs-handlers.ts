@@ -137,7 +137,10 @@ export function registerFsHandlers(_win: unknown) {
 
   ipcMain.handle('fs:exportHtml', async (_, { filePath, html }: { filePath: string; html: string }) => {
     try {
-      await writeFile(filePath, html, 'utf-8')
+      if (!path.isAbsolute(filePath)) throw new Error('absolute path required')
+      const norm = path.resolve(filePath)
+      if (norm.includes('..')) throw new Error('invalid path')
+      await writeFile(norm, html, 'utf-8')
       return { ok: true }
     } catch (e) {
       return { error: String(e) }
@@ -729,12 +732,17 @@ export function registerFsHandlers(_win: unknown) {
     return { servers: [], configFile: null }
   })
 
-  ipcMain.handle('connections:pingServer', async (_, { command, args }: { name: string; command: string; args: string[] }) => {
+  const ALLOWED_COMMANDS = ['node', 'python', 'python3', 'git', 'npm', 'npx', 'bun', 'deno', 'java', 'ruby', 'php', 'go', 'rustc', 'tsc']
+
+  ipcMain.handle('connections:pingServer', async (_, { command }: { name: string; command: string; args: string[] }) => {
     const start = Date.now()
     return new Promise<{ alive: boolean; latency?: number }>((resolve) => {
+      if (!ALLOWED_COMMANDS.includes(command)) {
+        return resolve({ alive: false })
+      }
       try {
-        const child = spawn(command, [...args, '--version'], {
-          shell: true,
+        const child = spawn(command, ['--version'], {
+          shell: false,
           timeout: 5000,
           stdio: 'ignore',
         })

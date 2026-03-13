@@ -258,10 +258,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   const handleDuplicate = useCallback(() => {
     const uuids = selectedUuids.size > 0 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
-    uuids.forEach(uuid => {
+    const baseTs = Date.now()
+    uuids.forEach((uuid, i) => {
       const orig = nodeMap.get(uuid)
       if (!orig) return
-      const dupId = orig.uuid + '-dup-' + Date.now()
+      const dupId = orig.uuid + '-dup-' + (baseTs + i)
       updateNode(dupId, {
         ...orig,
         uuid: dupId,

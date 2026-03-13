@@ -425,6 +425,13 @@ function AppContent() {
 
   // CC 연결 상태에 따라 scene + preview 탭 추가/제거
   useEffect(() => {
+    if (!wsCCConnected) {
+      // [M-13] setActiveTab을 updater 바깥에서 호출
+      if (activeTabRef.current === 'scene' || activeTabRef.current === 'preview') {
+        activeTabRef.current = 'chat'
+        setActiveTab('chat')
+      }
+    }
     setOpenTabs(prev => {
       if (wsCCConnected) {
         let next = prev
@@ -442,10 +449,6 @@ function AppContent() {
         return next
       }
       // 연결 해제 시
-      if (activeTabRef.current === 'scene' || activeTabRef.current === 'preview') {
-        activeTabRef.current = 'chat'
-        setActiveTab('chat')
-      }
       return prev.filter(t => t !== 'scene' && t !== 'preview')
     })
   }, [wsCCConnected])
@@ -729,7 +732,8 @@ function AppContent() {
     const safeActive: MainTab = cur.activeTab === 'scene' || cur.activeTab === 'preview'
       ? (safeTabs[0] ?? 'chat')
       : cur.activeTab
-    const snap: WorkspaceSnapshot = { ...cur, openTabs: safeTabs, activeTab: safeActive }
+    // [SEC-C9] messages는 스냅샷에 저장 안 함 — sessionId로 복원
+    const snap: WorkspaceSnapshot = { ...cur, openTabs: safeTabs, activeTab: safeActive, messages: [] }
     setWorkspaces(prev => prev.map(ws => ws.id === activeWsId ? { ...ws, snapshot: snap } : ws))
   }
 

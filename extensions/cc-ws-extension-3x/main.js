@@ -483,7 +483,11 @@ module.exports = {
       ws.on('error', () => clients.delete(ws));
     });
     httpServer.on('error', (err) => {
-      console.error(`[cc-ws-ext] 3.x Server error: ${err.message}`);
+      if (err.code === 'EADDRINUSE') {
+        Editor.log(`[CC Bridge] Port ${PORT} already in use`);
+      } else {
+        console.error(`[cc-ws-ext] 3.x Server error: ${err.message}`);
+      }
     });
     httpServer.listen(PORT, '127.0.0.1', () => {
       console.log(`[cc-ws-ext] 3.x Server on port ${PORT}`);
