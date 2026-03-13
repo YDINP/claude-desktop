@@ -6717,6 +6717,24 @@ function CCFileNodeInspector({
       </>
       )
       })()}
+      {/* R1612: 자식 노드 빠른 탐색 */}
+      {node.children.length > 0 && (
+        <div style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 4 }}>
+          <div style={{ fontSize: 8, color: 'var(--text-muted)', marginBottom: 3 }}>▸ 자식 ({node.children.length})</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            {node.children.map(child => (
+              <span
+                key={child.uuid}
+                onClick={() => onUpdate(child)}
+                style={{ fontSize: 8, padding: '1px 5px', border: '1px solid var(--border)', borderRadius: 10, cursor: 'pointer', color: child.active ? 'var(--text-muted)' : '#555', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+                onMouseLeave={e => (e.currentTarget.style.color = child.active ? 'var(--text-muted)' : '#555')}
+                title={`이동: ${child.name}${!child.active ? ' (비활성)' : ''}`}
+              >{!child.active ? '◌' : ''}{child.name}</span>
+            ))}
+          </div>
+        </div>
+      )}
       {/* 씬 파일 정보 (Inspector 하단) */}
       <div style={{ marginTop: 10, paddingTop: 6, borderTop: '1px solid var(--border)', fontSize: 9, color: '#444', lineHeight: 1.8 }}>
         <div title={sceneFile.scenePath} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

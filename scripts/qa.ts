@@ -17262,6 +17262,18 @@ console.log('\n## 502. R1611 SceneView 드래그 delta 표시 체크')
   }
 }
 
+// ── Section 503: R1612 Inspector 자식 노드 빠른 탐색 ──────────────────
+console.log('\n## 503. R1612 Inspector 자식 노드 빠른 탐색 칩 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s503 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s503.includes('R1612') && s503.includes('자식 노드 빠른 탐색') && s503.includes('node.children.length') && s503.includes('onUpdate(child)')) {
+    log('pass', 'R1612-child-nav', 'Inspector 자식 노드 빠른 탐색 칩')
+  } else {
+    log('warning', 'R1612-child-nav', 'Inspector 자식 노드 빠른 탐색 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
