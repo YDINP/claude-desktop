@@ -1257,6 +1257,8 @@ function CCFileNodeInspector({
 
   // 노드 교체 시 draft 초기화
   useMemo(() => { setDraft({ ...node }) }, [node.uuid])
+  const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
+  const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
 
   const rotation = typeof draft.rotation === 'number' ? draft.rotation : (draft.rotation as { z: number }).z ?? 0
 
@@ -1554,6 +1556,28 @@ function CCFileNodeInspector({
           >
             <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(ci) ? '▸' : '▾'}</span>
             <span style={{ flex: 1 }}>{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}</span>
+            {compCopied && copiedCompRef.current && copiedCompRef.current.type !== comp.type && (
+              <span
+                title={`${copiedCompRef.current.type.split('.').pop()} 붙여넣기`}
+                onClick={e => {
+                  e.stopPropagation()
+                  if (!copiedCompRef.current) return
+                  applyAndSave({ components: [...draft.components, { ...copiedCompRef.current }] })
+                  setCompCopied(null)
+                }}
+                style={{ cursor: 'pointer', color: '#58a6ff', fontSize: 9, padding: '0 3px', lineHeight: 1 }}
+              >📋</span>
+            )}
+            <span
+              title="컴포넌트 복사"
+              onClick={e => {
+                e.stopPropagation()
+                copiedCompRef.current = { type: comp.type, props: { ...comp.props } }
+                setCompCopied(comp.type)
+                setTimeout(() => setCompCopied(null), 3000)
+              }}
+              style={{ cursor: 'pointer', color: compCopied === comp.type ? '#58a6ff' : '#666', fontSize: 9, padding: '0 3px', lineHeight: 1 }}
+            >{compCopied === comp.type ? '✓' : '⎘'}</span>
             <span
               title="컴포넌트 삭제"
               onClick={e => { e.stopPropagation(); applyAndSave({ components: draft.components.filter((_, i) => i !== ci) }) }}
