@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useMemo } from 'react'
-import type { CCSceneNode, CCSceneFile } from '../../../../../shared/ipc-schema'
+import type { CCSceneNode, CCSceneFile, CCVec3 } from '../../../../../shared/ipc-schema'
 
 interface ViewTransform {
   offsetX: number
@@ -18,6 +18,7 @@ interface CCFileSceneViewProps {
   sceneFile: CCSceneFile
   selectedUuid: string | null
   onSelect: (uuid: string | null) => void
+  onMove?: (uuid: string, x: number, y: number) => void
 }
 
 /**
@@ -25,11 +26,15 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
+  const viewRef = useRef(view)
+  viewRef.current = view
   const [isPanning, setIsPanning] = useState(false)
   const panStart = useRef<{ mouseX: number; mouseY: number; offX: number; offY: number } | null>(null)
+  const dragRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number } | null>(null)
+  const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
 
   // 캔버스 크기 추정: Canvas 노드 또는 최상위 노드의 size
   const { designW, designH } = useMemo(() => {
@@ -102,6 +107,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect }: CCFileSce
   }, [view])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (dragRef.current) {
+      const dx = e.clientX - dragRef.current.startMouseX
+      const dy = e.clientY - dragRef.current.startMouseY
+      const z = viewRef.current.zoom
+      setDragOverride({
+        uuid: dragRef.current.uuid,
+        x: dragRef.current.startNodeX + dx / z,
+        y: dragRef.current.startNodeY - dy / z,
+      })
+      return
+    }
     if (!isPanning || !panStart.current) return
     const dx = e.clientX - panStart.current.mouseX
     const dy = e.clientY - panStart.current.mouseY
@@ -109,9 +125,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect }: CCFileSce
   }, [isPanning])
 
   const handleMouseUp = useCallback(() => {
+    if (dragRef.current && dragOverride) {
+      onMove?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
+      dragRef.current = null
+      setDragOverride(null)
+      return
+    }
+    dragRef.current = null
+    setDragOverride(null)
     setIsPanning(false)
     panStart.current = null
-  }, [])
+  }, [dragOverride, onMove])
 
   // Fit to view
   const handleFit = useCallback(() => {
@@ -160,7 +184,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect }: CCFileSce
       {/* SVG 캔버스 */}
       <svg
         ref={svgRef}
-        style={{ flex: 1, background: '#1a1a2e', cursor: isPanning ? 'grabbing' : 'default', display: 'block' }}
+        style={{ flex: 1, background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : 'default', display: 'block' }}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -176,7 +200,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect }: CCFileSce
 
           {/* 노드 렌더링 (depth 역순 → 깊은 노드가 위에 표시되지 않도록) */}
           {flatNodes.filter(fn => fn.node.active).map(({ node, worldX, worldY }) => {
-            const svgPos = ccToSvg(worldX, worldY)
+            const isDragged = dragOverride?.uuid === node.uuid
+            const effX = isDragged ? dragOverride!.x : worldX
+            const effY = isDragged ? dragOverride!.y : worldY
+            const svgPos = ccToSvg(effX, effY)
             const w = node.size?.x || 0
             const h = node.size?.y || 0
             if (w === 0 && h === 0) return null  // 크기 없는 노드는 점으로 표시
@@ -196,6 +223,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect }: CCFileSce
               : hasSprite ? 'rgba(80,220,120,0.12)'
               : 'rgba(150,150,255,0.08)'
             const strokeColor = isSelected ? '#58a6ff'
+              : isDragged ? '#ff9944'
               : hasBg ? '#4466aa'
               : hasLabel ? '#ccaa44'
               : hasSprite ? '#44aa66'
@@ -204,7 +232,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect }: CCFileSce
             return (
               <g key={node.uuid}
                 onClick={e => { e.stopPropagation(); onSelect(node.uuid) }}
-                style={{ cursor: 'pointer' }}
+                onMouseDown={e => {
+                  if (e.button !== 0) return
+                  e.stopPropagation()
+                  const pos = node.position as CCVec3
+                  dragRef.current = {
+                    uuid: node.uuid,
+                    startMouseX: e.clientX,
+                    startMouseY: e.clientY,
+                    startNodeX: pos.x,
+                    startNodeY: pos.y,
+                  }
+                }}
+                style={{ cursor: isDragged ? 'grabbing' : 'grab' }}
               >
                 <rect
                   x={rectX} y={rectY} width={w} height={h}

@@ -399,6 +399,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (path) await loadScene(path)
   }, [loadScene])
 
+  const handleNodeMove = useCallback(async (uuid: string, x: number, y: number) => {
+    if (!sceneFile?.root) return
+    function updatePos(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === uuid) return { ...n, position: { ...n.position, x, y } }
+      return { ...n, children: n.children.map(updatePos) }
+    }
+    await saveScene(updatePos(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   const handleSave = useCallback(async () => {
     if (!sceneFile?.root) return
     setSaving(true)
@@ -531,6 +540,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             <CCFileSceneView
               sceneFile={sceneFile}
               selectedUuid={selectedNode?.uuid ?? null}
+              onMove={handleNodeMove}
               onSelect={uuid => {
                 if (!uuid) { onSelectNode(null); return }
                 const findNode = (n: CCSceneNode): CCSceneNode | null => {
