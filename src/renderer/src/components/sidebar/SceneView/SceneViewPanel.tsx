@@ -269,6 +269,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showFavGroups, setShowFavGroups] = useState(false)
   const [sceneSnapshots, setSceneSnapshots] = useState<Array<{ label: string; data: string; ts: number }>>([])
   const [showSnapshotDiff, setShowSnapshotDiff] = useState(false)
+  const [diffMode, setDiffMode] = useState(false)
+  const [diffBaseSnapshot, setDiffBaseSnapshot] = useState<string | null>(null)
 
   // ── 마퀴 선택 상태 ─────────────────────────────────────────
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)

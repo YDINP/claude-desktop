@@ -222,8 +222,6 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showCleanupSettings, setShowCleanupSettings] = useState(false)
   const [sessionIcons, setSessionIcons] = useState<Record<string, string>>({})
   const [showIconPicker, setShowIconPicker] = useState<string | null>(null)
-  const [timelineView, setTimelineView] = useState(false)
-  const [timelineRange, setTimelineRange] = useState<{ start: number; end: number } | null>(null)
   const [showSearchHistory, setShowSearchHistory] = useState(false)
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [ratingFilter, setRatingFilter] = useState<number | null>(null)
@@ -277,6 +275,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
 
   const [timelineView, setTimelineView] = useState(false)
   const [timelineRange, setTimelineRange] = useState<{ start: number; end: number } | null>(null)
+  const [cloningSession, setCloningSession] = useState<string | null>(null)
+  const [cloneDepth, setCloneDepth] = useState<'full' | 'shallow'>('full')
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

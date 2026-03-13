@@ -8034,6 +8034,41 @@ if (existsSync(cocp821Path)) {
   }
 }
 
+console.log('\n## 185. Phase DD10 R822~824 기능 체크')
+
+// R822: SceneViewPanel 씬 비교 모드
+const svp822Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp822Path)) {
+  const svp822 = readFileSync(svp822Path, 'utf-8')
+  if (svp822.includes('diffMode') || svp822.includes('diffBaseSnapshot') || svp822.includes('sceneDiffMode')) {
+    log('pass', 'R822', 'SceneViewPanel 씬 비교 모드 존재')
+  } else {
+    log('warning', 'R822', 'SceneViewPanel 비교 모드 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R823: TerminalPanel 세션 공유 링크
+const tp823Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp823Path)) {
+  const tp823 = readFileSync(tp823Path, 'utf-8')
+  if (tp823.includes('shareLink') || tp823.includes('showSharePanel') || tp823.includes('sessionShareUrl')) {
+    log('pass', 'R823', 'TerminalPanel 세션 공유 링크 존재')
+  } else {
+    log('warning', 'R823', 'TerminalPanel 공유 링크 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R824: SessionList 세션 복제
+const sl824Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl824Path)) {
+  const sl824 = readFileSync(sl824Path, 'utf-8')
+  if (sl824.includes('cloningSession') || sl824.includes('cloneDepth') || sl824.includes('cloneSession')) {
+    log('pass', 'R824', 'SessionList 세션 복제 존재')
+  } else {
+    log('warning', 'R824', 'SessionList 복제 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

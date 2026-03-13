@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:38:01.178Z
+> 2026-03-13T11:39:31.650Z
 
 ## Critical
 _없음_
@@ -703,3 +703,6 @@ _없음_
 - ChatPanel 북마크 폴더 존재
 - InputBar 드래프트 자동 저장 존재
 - CocosPanel 노드 검색 히스토리 존재
+- SceneViewPanel 씬 비교 모드 존재
+- TerminalPanel 세션 공유 링크 존재
+- SessionList 세션 복제 존재
