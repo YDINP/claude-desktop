@@ -2309,10 +2309,31 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             <div style={{ padding: '2px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
               <TreeSearch root={sceneFile.root} onSelect={onSelectNode} />
             </div>
-            {/* 씬 파일명 */}
-            <div style={{ padding: '2px 6px', fontSize: 9, color: '#555', borderBottom: '1px solid var(--border)', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {sceneFile.scenePath.split(/[\\/]/).pop()}
-            </div>
+            {/* R1559: 씬 파일명 + 통계 */}
+            {(() => {
+              const statsMap: Record<string, number> = {}
+              let nodeCount = 0
+              const walkStats = (n: CCSceneNode) => {
+                nodeCount++
+                n.components.forEach(c => { statsMap[c.type] = (statsMap[c.type] ?? 0) + 1 })
+                n.children.forEach(walkStats)
+              }
+              walkStats(sceneFile.root)
+              const topComps = Object.entries(statsMap).sort((a, b) => b[1] - a[1]).slice(0, 4)
+              return (
+                <div style={{ padding: '2px 6px', fontSize: 9, color: '#555', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {sceneFile.scenePath.split(/[\\/]/).pop()}
+                  </div>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 1 }}>
+                    <span style={{ color: '#58a6ff' }}>{nodeCount}nodes</span>
+                    {topComps.map(([type, cnt]) => (
+                      <span key={type} style={{ color: '#666' }}>{type.split('.').pop()}×{cnt}</span>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
             {/* 즐겨찾기 */}
             {favorites.size > 0 && (
               <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: 2, flexShrink: 0 }}>

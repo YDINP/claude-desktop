@@ -16594,6 +16594,18 @@ console.log('\n## 449. R1558 TreeSearch 키보드 탐색 + 컴포넌트 타입 �
   }
 }
 
+// ── Section 450: R1559 씬 통계 패널 ────────────────────────────────
+console.log('\n## 450. R1559 씬 통계 (노드 수 + 컴포넌트 분포) 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s450 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s450.includes('R1559') && s450.includes('nodeCount') && s450.includes('statsMap') && s450.includes('topComps')) {
+    log('pass', 'R1559-stats', '씬 통계 패널 (nodeCount + 상위 4개 컴포넌트 타입 분포)')
+  } else {
+    log('warning', 'R1559-stats', '씬 통계 패널 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
