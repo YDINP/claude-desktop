@@ -156,24 +156,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     y: cy - ccY,
   }), [cx, cy])
 
-  // 휠 줌
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault()
+  // 휠 줌 — native listener로 passive: false 강제 (React onWheel은 passive라 preventDefault 불가)
+  useEffect(() => {
     const svg = svgRef.current
     if (!svg) return
-    const rect = svg.getBoundingClientRect()
-    const mouseX = e.clientX - rect.left
-    const mouseY = e.clientY - rect.top
-    const delta = e.deltaY > 0 ? 0.9 : 1.1
-    setView(v => {
-      const newZoom = Math.max(0.1, Math.min(5, v.zoom * delta))
-      const scale = newZoom / v.zoom
-      return {
-        zoom: newZoom,
-        offsetX: mouseX - (mouseX - v.offsetX) * scale,
-        offsetY: mouseY - (mouseY - v.offsetY) * scale,
-      }
-    })
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const rect = svg.getBoundingClientRect()
+      const mouseX = e.clientX - rect.left
+      const mouseY = e.clientY - rect.top
+      const delta = e.deltaY > 0 ? 0.9 : 1.1
+      setView(v => {
+        const newZoom = Math.max(0.1, Math.min(5, v.zoom * delta))
+        const scale = newZoom / v.zoom
+        return {
+          zoom: newZoom,
+          offsetX: mouseX - (mouseX - v.offsetX) * scale,
+          offsetY: mouseY - (mouseY - v.offsetY) * scale,
+        }
+      })
+    }
+    svg.addEventListener('wheel', onWheel, { passive: false })
+    return () => svg.removeEventListener('wheel', onWheel)
   }, [])
 
   // 패닝 (중간 버튼 또는 Space+드래그)
@@ -470,7 +474,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       <svg
         ref={svgRef}
         style={{ flex: 1, background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : rotateOverride ? 'crosshair' : 'default', display: 'block' }}
-        onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
