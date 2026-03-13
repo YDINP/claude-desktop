@@ -1311,8 +1311,8 @@ function CCFileNodeInspector({
   })
   const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
   const [lockScale, setLockScale] = useState(false)
-  const [nodeTagFilter, setNodeTagFilter] = useState<string[]>([])
-  const [showNodeTagFilter, setShowNodeTagFilter] = useState(false)
+  const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
+  const [showSceneDepsTree, setShowSceneDepsTree] = useState(false)
   const secHeader = (key: string, label: string) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
       style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
@@ -1488,6 +1488,8 @@ function CCFileNodeInspector({
   const [loadProgress, setLoadProgress] = useState(0)
   const [sceneDeps, setSceneDeps] = useState<Record<string, string[]>>({})
   const [showSceneDeps, setShowSceneDeps] = useState(false)
+  const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
+  const [showSceneDepsTree, setShowSceneDepsTree] = useState(false)
   const [prefabInstances, setPrefabInstances] = useState<Record<string, number>>({})
   const [showPrefabStats, setShowPrefabStats] = useState(false)
   const [profilerData, setProfilerData] = useState<Record<string, { updateTime: number; callCount: number }>>({})

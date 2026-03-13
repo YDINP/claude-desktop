@@ -8349,6 +8349,41 @@ if (existsSync(sl848Path)) {
   }
 }
 
+console.log('\n## 194. Phase DD10 R849~851 기능 체크')
+
+// R849: ChatPanel 메시지 검색 하이라이트
+const cp849Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp849Path)) {
+  const cp849 = readFileSync(cp849Path, 'utf-8')
+  if (cp849.includes('searchHighlights') || cp849.includes('searchHighlightIdx') || cp849.includes('highlightRanges')) {
+    log('pass', 'R849', 'ChatPanel 메시지 검색 하이라이트 존재')
+  } else {
+    log('warning', 'R849', 'ChatPanel 하이라이트 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R850: InputBar 붙여넣기 전처리
+const ib850Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib850Path)) {
+  const ib850 = readFileSync(ib850Path, 'utf-8')
+  if (ib850.includes('pastePreprocess') || ib850.includes('pastePreprocessRules') || ib850.includes('preprocessPaste')) {
+    log('pass', 'R850', 'InputBar 붙여넣기 전처리 존재')
+  } else {
+    log('warning', 'R850', 'InputBar 전처리 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R851: CocosPanel 씬 의존성 트리
+const cocp851Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp851Path)) {
+  const cocp851 = readFileSync(cocp851Path, 'utf-8')
+  if (cocp851.includes('sceneDepsTree') || cocp851.includes('showSceneDepsTree') || cocp851.includes('depTree')) {
+    log('pass', 'R851', 'CocosPanel 씬 의존성 트리 존재')
+  } else {
+    log('warning', 'R851', 'CocosPanel 의존성 트리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

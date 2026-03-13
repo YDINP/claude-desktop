@@ -261,6 +261,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showFormatBar, setShowFormatBar] = useState(false)
   const [voiceInputLang, setVoiceInputLang] = useState('ko-KR')
   const [showLangPicker, setShowLangPicker] = useState(false)
+  const [pastePreprocess, setPastePreprocess] = useState(true)
+  const [pastePreprocessRules, setPastePreprocessRules] = useState<Array<{ pattern: string; replace: string }>>([])
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

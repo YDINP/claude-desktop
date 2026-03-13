@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:49:49.113Z
+> 2026-03-13T11:51:05.166Z
 
 ## Critical
 _없음_
@@ -730,3 +730,6 @@ _없음_
 - SceneViewPanel 씬 태그 시스템 존재
 - TerminalPanel 프로세스 모니터 존재
 - SessionList 세션 잠금 비밀번호 존재
+- ChatPanel 메시지 검색 하이라이트 존재
+- InputBar 붙여넣기 전처리 존재
+- CocosPanel 씬 의존성 트리 존재
