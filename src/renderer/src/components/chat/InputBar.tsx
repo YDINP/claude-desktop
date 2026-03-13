@@ -347,6 +347,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [focusOpacity, setFocusOpacity] = React.useState(0.5)
   const [continuousMode, setContinuousMode] = React.useState(false)
   const [continuousDelay, setContinuousDelay] = React.useState(500)
+  // R1147: spell check
+  const [spellCheck, setSpellCheck] = useState(true)
+  const [spellLang, setSpellLang] = useState('en-US')
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

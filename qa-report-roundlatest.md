@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T13:20:17.177Z
+> 2026-03-13T13:22:29.757Z
 
 ## Critical
 _없음_
@@ -1027,3 +1027,9 @@ _없음_
 - SceneViewPanel 검색 결과 존재
 - TerminalPanel 컬러 출력 존재
 - SessionList 세션 평점 존재
+- ChatPanel 메시지 스레드 존재
+- InputBar 맞춤법 검사 존재
+- CocosPanel 빌드 큐 존재
+- SceneViewPanel 노드 레이어 존재
+- TerminalPanel 세션 로그 존재
+- SessionList 세션 그룹 존재

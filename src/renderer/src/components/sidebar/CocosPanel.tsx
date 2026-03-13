@@ -240,6 +240,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showPermPanel, setShowPermPanel] = React.useState(false)
   const [assetPreview, setAssetPreview] = React.useState<string | null>(null)
   const [assetPreviewType, setAssetPreviewType] = React.useState<'image' | 'audio' | 'other'>('image')
+  // R1148: build queue
+  const [buildQueue, setBuildQueue] = useState<string[]>([])
+  const [showBuildQueue, setShowBuildQueue] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
