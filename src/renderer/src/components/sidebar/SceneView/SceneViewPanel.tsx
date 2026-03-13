@@ -1998,6 +1998,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   collapsed={collapsedUuids.has(uuid)}
                   bookmarked={bookmarkedUuids.has(uuid)}
                   locked={node.locked === true}
+                  designWidth={DESIGN_W}
+                  designHeight={DESIGN_H}
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={setHoveredUuid}
                   onMouseLeave={() => setHoveredUuid(null)}

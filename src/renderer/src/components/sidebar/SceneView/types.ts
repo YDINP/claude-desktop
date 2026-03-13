@@ -3,8 +3,10 @@ export interface SceneNode {
   uuid: string
   name: string
   active: boolean
-  x: number            // position.x
-  y: number            // position.y
+  x: number            // position.x (로컬 좌표 — CC 편집 시 사용)
+  y: number            // position.y (로컬 좌표)
+  worldX?: number      // 누적 월드 좌표 (렌더링 시 사용)
+  worldY?: number
   width: number        // size.width
   height: number       // size.height
   anchorX: number      // anchor.x

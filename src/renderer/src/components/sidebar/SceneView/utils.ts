@@ -4,14 +4,20 @@ import type { SceneNode, ViewTransform } from './types'
 export function flattenTree(
   node: CCNode,
   parentUuid: string | null,
-  out: Map<string, SceneNode>
+  out: Map<string, SceneNode>,
+  parentWorldX = 0,
+  parentWorldY = 0
 ): void {
+  const worldX = parentWorldX + node.position.x
+  const worldY = parentWorldY + node.position.y
   const sn: SceneNode = {
     uuid: node.uuid,
     name: node.name,
     active: node.active,
     x: node.position.x,
     y: node.position.y,
+    worldX,
+    worldY,
     width: node.size.width,
     height: node.size.height,
     anchorX: node.anchor.x,
@@ -27,7 +33,7 @@ export function flattenTree(
   }
   out.set(node.uuid, sn)
   for (const child of node.children) {
-    flattenTree(child, node.uuid, out)
+    flattenTree(child, node.uuid, out, worldX, worldY)
   }
 }
 

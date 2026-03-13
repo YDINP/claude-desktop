@@ -15,15 +15,13 @@ interface NodeRendererProps {
   collapsed?: boolean
   bookmarked?: boolean
   locked?: boolean
+  designWidth?: number
+  designHeight?: number
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
   onDoubleClick?: (uuid: string) => void
 }
-
-// 디자인 해상도 (씬 좌표 기준 — 추후 SceneViewPanel에서 주입할 것)
-const DESIGN_W = 960
-const DESIGN_H = 640
 
 // 8방향 리사이즈 핸들 위치 (0~1 비율, 좌상단 기준)
 const HANDLES = [
@@ -49,13 +47,18 @@ export const NodeRenderer = memo(function NodeRenderer({
   collapsed = false,
   bookmarked = false,
   locked = false,
+  designWidth = 960,
+  designHeight = 640,
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
   onDoubleClick,
 }: NodeRendererProps) {
+  // worldX/Y가 있으면 월드 좌표 사용 (중첩 노드 위치 정확), 없으면 로컬 좌표 fallback
+  const renderX = node.worldX ?? node.x
+  const renderY = node.worldY ?? node.y
   // 씬 좌표 → SVG 좌표 변환
-  const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
+  const { sx, sy } = cocosToSvg(renderX, renderY, designWidth, designHeight)
 
   // 실제 픽셀 크기 (스케일 적용)
   const pw = node.width * Math.abs(node.scaleX)
