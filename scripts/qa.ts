@@ -16311,6 +16311,27 @@ if (existsSync(panel433)) {
   }
 }
 
+// ── Section 434: R1540/R1541 cc.Camera/ParticleSystem 파서 + enabled 토글 체크 ──────────────────────
+console.log('\n## 434. R1540 cc.Camera/ParticleSystem 파서 + R1541 컴포넌트 enabled 토글 체크')
+const parser434 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const panel434 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(parser434)) {
+  const s434p = readFileSync(parser434, 'utf-8')
+  if (s434p.includes('R1540') && s434p.includes("'cc.Camera'") && s434p.includes("'cc.ParticleSystem'")) {
+    log('pass', 'R1540-parser', 'cc.Camera + cc.ParticleSystem extractor 추가')
+  } else {
+    log('warning', 'R1540-parser', 'cc.Camera/ParticleSystem extractor 미추가', 'cc-file-parser.ts')
+  }
+}
+if (existsSync(panel434)) {
+  const s434c = readFileSync(panel434, 'utf-8')
+  if (s434c.includes('R1541') && s434c.includes('comp.props.enabled') && s434c.includes('accentColor')) {
+    log('pass', 'R1541-enabled-toggle', '컴포넌트 enabled 체크박스 토글 구현')
+  } else {
+    log('warning', 'R1541-enabled-toggle', 'enabled 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

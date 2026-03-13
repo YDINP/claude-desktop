@@ -350,6 +350,26 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     inputFlag: e._N$inputFlag ?? e._inputFlag ?? e.inputFlag ?? 0,
     returnType: e._N$returnType ?? e._returnType ?? e.returnType ?? 0,
   }),
+  // R1540: cc.Camera — 카메라 설정
+  'cc.Camera': e => ({
+    backgroundColor: e._N$backgroundColor ?? e._backgroundColor ?? e.backgroundColor,
+    depth: e._N$depth ?? e._depth ?? e.depth ?? 0,
+    cullingMask: e._N$cullingMask ?? e._cullingMask ?? e.cullingMask ?? 0xFFFFFFFF,
+    clearFlags: e._N$clearFlags ?? e._clearFlags ?? e.clearFlags ?? 7,
+    fov: e._N$fov ?? e._fov ?? e.fov ?? 45,
+    nearClip: e._N$nearClip ?? e._nearClip ?? e.nearClip ?? 0.1,
+    farClip: e._N$farClip ?? e._farClip ?? e.farClip ?? 4096,
+  }),
+  // R1540: cc.ParticleSystem — 파티클 시스템
+  'cc.ParticleSystem': e => ({
+    totalParticles: e._N$totalParticles ?? e._totalParticles ?? e.totalParticles ?? 150,
+    duration: e._N$duration ?? e._duration ?? e.duration ?? -1,
+    emissionRate: e._N$emissionRate ?? e._emissionRate ?? e.emissionRate ?? 10,
+    life: e._N$life ?? e._life ?? e.life ?? 1,
+    startSize: e._N$startSize ?? e._startSize ?? e.startSize ?? 50,
+    endSize: e._N$endSize ?? e._endSize ?? e.endSize ?? 50,
+    playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? true,
+  }),
 }
 
 // R1524: cc.Animation 클립 이름 해결 (embedded __id__ or external __uuid__)

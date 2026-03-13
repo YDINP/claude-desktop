@@ -4429,8 +4429,21 @@ function CCFileNodeInspector({
               style={{ cursor: 'grab', padding: '0 4px', opacity: 0.5, fontSize: 10, lineHeight: 1 }}
               title="드래그하여 순서 변경"
             >⠿</span>
+            {/* R1541: 컴포넌트 enabled 토글 */}
+            <input
+              type="checkbox"
+              checked={!!(comp.props.enabled ?? true)}
+              onChange={e => {
+                e.stopPropagation()
+                const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked } } : c)
+                applyAndSave({ components: updated })
+              }}
+              onClick={e => e.stopPropagation()}
+              title={`컴포넌트 ${comp.props.enabled === false ? '활성화' : '비활성화'}`}
+              style={{ margin: 0, marginRight: 3, flexShrink: 0, cursor: 'pointer', accentColor: '#4ade80' }}
+            />
             <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(comp.type) ? '▸' : '▾'}</span>
-            <span style={{ flex: 1 }}>
+            <span style={{ flex: 1, opacity: comp.props.enabled === false ? 0.5 : 1 }}>
               {isCustomScript(comp.type) ? '📝 ' : ''}{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
             </span>
             {showComps.length > 1 && (
