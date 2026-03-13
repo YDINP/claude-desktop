@@ -261,6 +261,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1190: scene validation
   const [sceneValidation, setSceneValidation] = useState<string[]>([])
   const [showValidation, setShowValidation] = useState(false)
+  // R1196: resource usage
+  const [resourceUsage, setResourceUsage] = useState<Record<string, number>>({})
+  const [showResourcePanel, setShowResourcePanel] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

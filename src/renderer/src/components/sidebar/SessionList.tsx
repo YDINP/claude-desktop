@@ -370,6 +370,10 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [sessionSharing, setSessionSharing] = useState<Record<string, boolean>>({})
   const [showSharePanel, setShowSharePanel] = useState(false)
 
+  // R1199: session merge
+  const [mergeSessions, setMergeSessions] = useState<string[]>([])
+  const [showMergePanel, setShowMergePanel] = useState(false)
+
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
       const next = new Set(prev)

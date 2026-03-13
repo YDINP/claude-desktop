@@ -1106,6 +1106,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // R1188: message collapse
   const [collapsedMsgs, setCollapsedMsgs] = useState<Set<string>>(new Set())
   const [autoCollapse, setAutoCollapse] = useState(false)
+  // R1194: message forward
+  const [forwardingMsg, setForwardingMsg] = useState<string | null>(null)
+  const [forwardTarget, setForwardTarget] = useState<string | null>(null)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

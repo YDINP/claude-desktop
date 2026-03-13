@@ -473,6 +473,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1192: terminal watch
   const [termWatch, setTermWatch] = React.useState<string[]>([])
   const [watchActive, setWatchActive] = React.useState(false)
+  // R1198: terminal recording
+  const [termRecording, setTermRecording] = React.useState(false)
+  const [recordingBuffer, setRecordingBuffer] = React.useState<string[]>([])
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
