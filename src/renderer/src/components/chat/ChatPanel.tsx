@@ -798,6 +798,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showBookmarks, setShowBookmarks] = useState(false)
   const [reactionStats, setReactionStats] = useState<Record<string, Record<string, number>>>({})
   const [threadOpen, setThreadOpen] = useState<string | null>(null)
+  const [msgRatings, setMsgRatings] = useState<Record<string, 1 | 2 | 3 | 4 | 5>>({})
+  const [showRatingBar, setShowRatingBar] = useState<string | null>(null)
   const [threadReplies, setThreadReplies] = useState<Record<string, string[]>>({})
   const [showReactionStats, setShowReactionStats] = useState(false)
   const [msgLabels, setMsgLabels] = useState<Record<string, string>>(() => {

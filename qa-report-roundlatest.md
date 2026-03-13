@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:02:10.435Z
+> 2026-03-13T11:03:19.817Z
 
 ## Critical
 _없음_
@@ -604,3 +604,6 @@ _없음_
 - ChatPanel 메시지 스레드 존재
 - SceneViewPanel 노드 링크 존재
 - TerminalPanel 명령어 통계 존재
+- ChatPanel 메시지 평점 존재
+- CocosPanel 노드 의존성 맵 존재
+- SceneViewPanel 노드 배지 존재

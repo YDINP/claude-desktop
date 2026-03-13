@@ -6879,6 +6879,41 @@ if (existsSync(tp722Path)) {
   }
 }
 
+// ── Section 152: Phase DD10 R723~725 기능 체크 ────────────────
+console.log('\n## 152. Phase DD10 R723~725 기능 체크')
+// R723: ChatPanel AI 응답 품질 평가
+const cp723Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp723Path)) {
+  const cp723 = readFileSync(cp723Path, 'utf-8')
+  if (cp723.includes('msgRatings') || cp723.includes('showRatingBar') || cp723.includes('msgRating')) {
+    log('pass', 'R723', 'ChatPanel 메시지 평점 존재')
+  } else {
+    log('warning', 'R723', 'ChatPanel 메시지 평점 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R724: CocosPanel 노드 의존성 맵
+const cp724Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp724Path)) {
+  const cp724 = readFileSync(cp724Path, 'utf-8')
+  if (cp724.includes('depMap') || cp724.includes('showDepMap') || cp724.includes('dependencyMap')) {
+    log('pass', 'R724', 'CocosPanel 노드 의존성 맵 존재')
+  } else {
+    log('warning', 'R724', 'CocosPanel 의존성 맵 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R725: SceneViewPanel 노드 배지
+const svp725Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp725Path)) {
+  const svp725 = readFileSync(svp725Path, 'utf-8')
+  if (svp725.includes('nodeBadges') || svp725.includes('badgeEditNode') || svp725.includes('nodeBadge')) {
+    log('pass', 'R725', 'SceneViewPanel 노드 배지 존재')
+  } else {
+    log('warning', 'R725', 'SceneViewPanel 노드 배지 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
