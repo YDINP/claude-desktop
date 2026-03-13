@@ -403,6 +403,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [scrollSyncTarget, setScrollSyncTarget] = useState<string>('')
   const [inputFindReplace, setInputFindReplace] = useState(false)
   const [findReplaceQuery, setFindReplaceQuery] = useState({ find: '', replace: '' })
+  const [inputRecording, setInputRecording] = useState(false)
+  const [recordingBuffer, setRecordingBuffer] = useState<string[]>([])
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

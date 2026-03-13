@@ -229,6 +229,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showSessionExport, setShowSessionExport] = useState(false)
   const [duplicateSessions, setDuplicateSessions] = useState<string[][]>([])
   const [showDuplicatePanel, setShowDuplicatePanel] = useState(false)
+  const [sessionDuplicates, setSessionDuplicates] = useState<string[]>([])
   const [sessionCategories, setSessionCategories] = useState<Record<string, string[]>>({})
   const [showCategoryManager, setShowCategoryManager] = useState(false)
   const [readSessions, setReadSessions] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('read-sessions') ?? '[]')))

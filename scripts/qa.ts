@@ -13739,6 +13739,76 @@ if (existsSync(sl1319Path)) {
   }
 }
 
+console.log('\n## 351. Phase DD10 R1320~1322 기능 체크')
+
+// R1320: ChatPanel 협업
+const cp1320Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1320Path)) {
+  const cp1320 = readFileSync(cp1320Path, 'utf-8')
+  if (cp1320.includes('chatCollaboration') || cp1320.includes('collaborators') || cp1320.includes('collaboration')) {
+    log('pass', 'R1320', 'ChatPanel 협업 존재')
+  } else {
+    log('warning', 'R1320', 'ChatPanel 협업 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1321: InputBar 녹음
+const ib1321Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1321Path)) {
+  const ib1321 = readFileSync(ib1321Path, 'utf-8')
+  if (ib1321.includes('inputRecording') || ib1321.includes('recordingBuffer') || ib1321.includes('recording')) {
+    log('pass', 'R1321', 'InputBar 녹음 존재')
+  } else {
+    log('warning', 'R1321', 'InputBar 녹음 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1322: CocosPanel 빌드 알림
+const cocos1322Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1322Path)) {
+  const cocos1322 = readFileSync(cocos1322Path, 'utf-8')
+  if (cocos1322.includes('buildNotify') || cocos1322.includes('buildNotifyConfig') || cocos1322.includes('notifyConfig')) {
+    log('pass', 'R1322', 'CocosPanel 빌드 알림 존재')
+  } else {
+    log('warning', 'R1322', 'CocosPanel 빌드 알림 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 352. Phase DD10 R1323~1325 기능 체크')
+
+// R1323: SceneViewPanel 씬 폰트
+const svp1323Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1323Path)) {
+  const svp1323 = readFileSync(svp1323Path, 'utf-8')
+  if (svp1323.includes('sceneFonts') || svp1323.includes('showFontPanel') || svp1323.includes('fontPanel')) {
+    log('pass', 'R1323', 'SceneViewPanel 씬 폰트 존재')
+  } else {
+    log('warning', 'R1323', 'SceneViewPanel 씬 폰트 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1324: TerminalPanel 터미널 크기
+const tp1324Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1324Path)) {
+  const tp1324 = readFileSync(tp1324Path, 'utf-8')
+  if (tp1324.includes('termColumns') || tp1324.includes('termRows') || tp1324.includes('termSize')) {
+    log('pass', 'R1324', 'TerminalPanel 터미널 크기 존재')
+  } else {
+    log('warning', 'R1324', 'TerminalPanel 터미널 크기 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1325: SessionList 세션 중복
+const sl1325Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1325Path)) {
+  const sl1325 = readFileSync(sl1325Path, 'utf-8')
+  if (sl1325.includes('sessionDuplicates') || sl1325.includes('showDuplicatePanel') || sl1325.includes('duplicatePanel')) {
+    log('pass', 'R1325', 'SessionList 세션 중복 존재')
+  } else {
+    log('warning', 'R1325', 'SessionList 세션 중복 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

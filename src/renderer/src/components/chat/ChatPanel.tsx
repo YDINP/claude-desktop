@@ -1153,6 +1153,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showPresetPanel, setShowPresetPanel] = useState(false)
   const [chatDraft, setChatDraft] = useState<Record<string, string>>({})
   const [showDraftPanel, setShowDraftPanel] = useState(false)
+  const [chatCollaboration, setChatCollaboration] = useState(false)
+  const [collaborators, setCollaborators] = useState<string[]>([])
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
