@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T12:23:38.323Z
+> 2026-03-13T12:24:54.877Z
 
 ## Critical
 _없음_
@@ -811,3 +811,9 @@ _없음_
 - ChatPanel 채팅 노트 존재
 - InputBar 문법 검사 존재
 - CocosPanel 타일맵 에디터 존재
+- ChatPanel 채팅 분석 대시보드 존재
+- InputBar 음성 입력 존재
+- CocosPanel 씬 그래프 존재
+- SceneViewPanel 씬 레이어 존재
+- TerminalPanel 터미널 알림 존재
+- SessionList 세션 태그 에디터 존재

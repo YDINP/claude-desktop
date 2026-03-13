@@ -390,6 +390,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [terminalSearch, setTerminalSearch] = useState('')
   const [terminalSearchResults, setTerminalSearchResults] = useState<number[]>([])
   const [showEnvEditor, setShowEnvEditor] = useState(false)
+  const [terminalAlerts, setTerminalAlerts] = useState<string[]>([])
+  const [showAlertPanel, setShowAlertPanel] = useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

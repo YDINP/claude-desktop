@@ -9293,6 +9293,74 @@ if (existsSync(cocos929Path)) {
   }
 }
 
+console.log('\n## 221. Phase DD10 R930~932 기능 체크')
+// R930: ChatPanel 채팅 분석 대시보드
+const cp930Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp930Path)) {
+  const cp930 = readFileSync(cp930Path, 'utf-8')
+  if (cp930.includes('chatAnalytics') || cp930.includes('showAnalyticsDashboard') || cp930.includes('analyticsDashboard')) {
+    log('pass', 'R930', 'ChatPanel 채팅 분석 대시보드 존재')
+  } else {
+    log('warning', 'R930', 'ChatPanel 채팅 분석 대시보드 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R931: InputBar 음성 입력
+const ib931Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib931Path)) {
+  const ib931 = readFileSync(ib931Path, 'utf-8')
+  if (ib931.includes('voiceInput') || ib931.includes('voiceTranscript') || ib931.includes('speechRecognition')) {
+    log('pass', 'R931', 'InputBar 음성 입력 존재')
+  } else {
+    log('warning', 'R931', 'InputBar 음성 입력 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R932: CocosPanel 씬 그래프
+const cocos932Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos932Path)) {
+  const cocos932 = readFileSync(cocos932Path, 'utf-8')
+  if (cocos932.includes('sceneGraph') || cocos932.includes('showSceneGraph') || cocos932.includes('sceneTree')) {
+    log('pass', 'R932', 'CocosPanel 씬 그래프 존재')
+  } else {
+    log('warning', 'R932', 'CocosPanel 씬 그래프 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 222. Phase DD10 R933~935 기능 체크')
+// R933: SceneViewPanel 씬 레이어
+const svp933Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp933Path)) {
+  const svp933 = readFileSync(svp933Path, 'utf-8')
+  if (svp933.includes('sceneLayers') || svp933.includes('showLayerPanel') || svp933.includes('layerManager')) {
+    log('pass', 'R933', 'SceneViewPanel 씬 레이어 존재')
+  } else {
+    log('warning', 'R933', 'SceneViewPanel 씬 레이어 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R934: TerminalPanel 터미널 알림
+const tp934Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp934Path)) {
+  const tp934 = readFileSync(tp934Path, 'utf-8')
+  if (tp934.includes('terminalAlerts') || tp934.includes('showAlertPanel') || tp934.includes('alertNotification')) {
+    log('pass', 'R934', 'TerminalPanel 터미널 알림 존재')
+  } else {
+    log('warning', 'R934', 'TerminalPanel 터미널 알림 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R935: SessionList 세션 태그
+const sl935Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl935Path)) {
+  const sl935 = readFileSync(sl935Path, 'utf-8')
+  if (sl935.includes('showTagEditor') || sl935.includes('sessionTagMap') || sl935.includes('tagEditor')) {
+    log('pass', 'R935', 'SessionList 세션 태그 에디터 존재')
+  } else {
+    log('warning', 'R935', 'SessionList 세션 태그 에디터 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
