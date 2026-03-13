@@ -1620,6 +1620,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showFavoritesPane, setShowFavoritesPane] = React.useState(false)
   const [sceneDiff, setSceneDiff] = React.useState<string | null>(null)
   const [showDiffPanel, setShowDiffPanel] = React.useState(false)
+  const [sceneMeta, setSceneMeta] = React.useState<Record<string, string>>({})
+  const [showMetaPanel, setShowMetaPanel] = React.useState(false)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {
