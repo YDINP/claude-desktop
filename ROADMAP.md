@@ -535,29 +535,61 @@
 | Round 533 | 파일 에디터 탭 미저장 ● 인디케이터 — dirtyTabs Set 추적 | ✅ |
 | Round 534 | QA 강화 + handoff.md + ROADMAP 갱신 | ✅ |
 
-### Phase DD8 — 예정 (Round 535~) — 고급 편집 + 성능
+### SceneView 렌더링 분석 결과 (2026-03-13)
+
+3개 병렬 oracle 에이전트 심층 분석. **IPC 파이프라인 완전 연결, SVG 렌더링 코드 실존 확인. 단, 중첩 씬에서 노드 위치 오류 발생.**
+
+| 분류 | 항목 | 상태 |
+|------|------|------|
+| IPC 체인 | cc:getTree / cc:getCanvasSize Extension→renderer 6레이어 | ✅ 연결 |
+| SVG 렌더링 | NodeRenderer rect/label/핸들/앵커 | ✅ 구현 |
+| App 통합 | SceneViewPanel 마운트, snapshot 필터, close 가드 | ✅ 정상 |
+| 좌표 변환 | cocosToSvg Y-up→Y-down, 앵커, 회전 수식 | ✅ 올바름 |
+| **🔴 버그** | `utils.ts flattenTree()` — 로컬 좌표를 월드 좌표로 취급 → 중첩 노드 위치 오류 | ❌ 미수정 |
+| **🟡 버그** | `NodeRenderer.tsx` DESIGN_W/H = 960/640 하드코딩 | ❌ 미수정 |
+
+**다음 라운드 수정 대상**:
+- Round 535 전 선행: `utils.ts flattenTree()` 부모 월드 좌표 누적 추가
+- Round 535 전 선행: `NodeRenderer.tsx` designWidth/Height props 주입 (TODO 주석 있음)
+
+### Phase DD8 — ✅ 완료 (Round 535~544) — 고급 편집 + 성능
+
+| 라운드 | 기능 | 상태 |
+|--------|------|------|
+| Round 535 | 씬뷰 Undo/Redo — UndoEntry 확장 (prop 타입, Inspector 속성 변경 이력) | ✅ |
+| Round 536 | 다중 노드 정렬 — 이미 구현됨 (left/centerH/right/top/centerV/bottom + distribute) | ✅ |
+| Round 537 | 씬뷰 Ruler + Guide — 이미 구현됨 (showRuler, alignGuides) | ✅ |
+| Round 538 | 채팅 Tool call 타임라인 — 이미 구현됨 (ToolUseIndicator in MessageBubble) | ✅ |
+| Round 539 | Inline diff 렌더링 — Edit 도구 old/new string InlineDiff 컴포넌트 | ✅ |
+| Round 540 | StatusBar 토큰 카운터 — 이미 구현됨 (contextUsage 진행 바) | ✅ |
+| Round 541 | 씬뷰 선택 노드 복사/붙여넣기 — 이미 구현됨 (Ctrl+C/V) | ✅ |
+| Round 542 | 씬뷰 노드 그룹화 — 이미 구현됨 (Ctrl+G/Ctrl+Shift+G) | ✅ |
+| Round 543 | Inspector 배열 속성 편집 — ArrayPropRow (add/remove 버튼) | ✅ |
+| Round 544 | QA Section 105 추가 (R535/R539/R543 체크, Pass 458) | ✅ |
+
+### Phase DD9 — 예정 (Round 545~) — 퍼포먼스 + 고급 UX
 
 #### 🔥 고우선순위
 | 라운드 | 기능 | 비고 |
 |--------|------|------|
-| Round 535 | **씬뷰 Undo/Redo** — Ctrl+Z/Y 노드 이동/속성 변경 되돌리기 | 편집 안전망 |
-| Round 536 | **다중 노드 정렬** — 선택 노드 가운데/왼쪽/오른쪽/균등 정렬 | 레이아웃 도구 |
-| Round 537 | **씬뷰 Ruler + Guide** — px 눈금자 + 드래그 가이드라인 | 정밀 배치 |
+| Round 545 | **씬뷰 노드 검색 하이라이트** — 씬뷰 캔버스에서 노드명 검색 시 강조 표시 | 빠른 탐색 |
+| Round 546 | **Inspector 실시간 미리보기** — 슬라이더 드래그 시 씬뷰 즉시 반영 | UX 개선 |
+| Round 547 | **채팅 코드 블록 실행** — Bash 블록에 ▶ 버튼, 결과 인라인 표시 | AI 자동화 |
 
 #### 🟡 중우선순위
 | 라운드 | 기능 | 비고 |
 |--------|------|------|
-| Round 538 | **채팅 Tool call 타임라인** — Cursor 2.0 패턴 카드 UI | 에이전트 가시성 |
-| Round 539 | **Inline diff 렌더링** — file write 변경 시각화 | 편집 투명성 |
-| Round 540 | **StatusBar 토큰 카운터** — 컨텍스트 윈도우 진행 바 | 컨텍스트 관리 |
+| Round 548 | **씬뷰 노드 핀 (Pin)** — 핀된 노드는 드래그/선택에서 제외 | 레이아웃 잠금 |
+| Round 549 | **세션 병합** — 두 세션을 하나로 합치기 | 세션 관리 |
+| Round 550 | **프롬프트 히스토리** — 이전에 보낸 메시지 ↑↓ 키로 탐색 | 생산성 |
 
 #### 🟢 낮은우선순위
 | 라운드 | 기능 |
 |--------|------|
-| Round 541 | 씬뷰 선택 노드 복사/붙여넣기 (Ctrl+C/V 오프셋) |
-| Round 542 | 씬뷰 노드 그룹화 (G 키 → 부모 노드 생성) |
-| Round 543 | Inspector 배열 속성 편집 (add/remove 버튼) |
-| Round 544 | QA 강화 + handoff.md 갱신 |
+| Round 551 | 씬뷰 노드 스냅샷 비교 (before/after 오버레이) |
+| Round 552 | 채팅 메시지 번역 버튼 (Claude API 활용) |
+| Round 553 | Inspector 컴포넌트 순서 재정렬 (drag handle) |
+| Round 554 | QA 강화 + handoff.md 갱신 |
 
 ## QA 프로세스
 

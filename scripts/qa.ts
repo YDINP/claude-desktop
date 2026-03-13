@@ -5255,6 +5255,34 @@ console.log('\n## 104. Phase DD6~DD7 기능 체크')
   }
 }
 
+// ── Section 105: Phase DD8 기능 체크 ─────────────────
+console.log('\n## 105. Phase DD8 기능 체크')
+{
+  const sceneViewSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx'), 'utf8')
+  const nodePropertySrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx'), 'utf8')
+  const toolUseIndicatorSrc = readFileSync(join(ROOT, 'src/renderer/src/components/chat/ToolUseIndicator.tsx'), 'utf8')
+  const typesSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/types.ts'), 'utf8')
+
+  // R535: UndoEntry prop 타입 지원
+  if (typesSrc.includes("type?: 'move' | 'prop'") && sceneViewSrc.includes("type: 'prop'")) {
+    log('pass', 'R535', 'UndoEntry prop 타입 지원 (Inspector 속성 변경 undo)')
+  } else {
+    log('warning', 'R535', 'UndoEntry prop 타입 없음', 'types.ts')
+  }
+  // R539: Edit 도구 인라인 diff
+  if (toolUseIndicatorSrc.includes('InlineDiff') && toolUseIndicatorSrc.includes('old_string')) {
+    log('pass', 'R539', 'Edit 도구 인라인 diff 렌더링 존재')
+  } else {
+    log('warning', 'R539', 'Edit 도구 인라인 diff 없음', 'ToolUseIndicator.tsx')
+  }
+  // R543: Inspector 배열 속성 편집
+  if (nodePropertySrc.includes('ArrayPropRow') && nodePropertySrc.includes('Array.isArray')) {
+    log('pass', 'R543', 'Inspector 배열 속성 편집 컴포넌트 존재')
+  } else {
+    log('warning', 'R543', 'Inspector 배열 속성 편집 없음', 'NodePropertyPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

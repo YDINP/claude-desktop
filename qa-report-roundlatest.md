@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T07:52:04.444Z
+> 2026-03-13T08:01:05.868Z
 
 ## Critical
 _없음_
@@ -463,3 +463,6 @@ _없음_
 - 시스템 프롬프트 변수 치환 존재 (resolveVars)
 - SessionList 날짜 그룹 헤더 존재
 - 파일 탭 미저장 ● 인디케이터 존재
+- UndoEntry prop 타입 지원 (Inspector 속성 변경 undo)
+- Edit 도구 인라인 diff 렌더링 존재
+- Inspector 배열 속성 편집 컴포넌트 존재

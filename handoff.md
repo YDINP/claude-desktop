@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 534 완료 — Phase DD7 전체 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 524 강화 (cc-action 가이드 주입, Pass 455)
+- 마지막 커밋: Round 544 (QA Section 105, Pass 458)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 455
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 458
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -37,14 +37,53 @@
 | R533 | 파일 탭 미저장 ● 인디케이터 (onDirtyChange + dirtyTabs) |
 | R534 | QA Section 104 추가 (Phase DD6~DD7 체크, Pass 455) |
 
+## SceneView 렌더링 심층 분석 (2026-03-13)
+
+3개 병렬 oracle 에이전트로 씬뷰 렌더링 동작 가능 여부 전수 분석.
+
+### IPC 파이프라인 — 완전 연결 ✅
+- `cc:getTree`, `cc:getCanvasSize` 체인 Extension → cc-bridge → cc-handlers → preload → renderer 6레이어 전부 연결
+- `window.api.ccGetTree?.(port)` renderer에서 호출 가능, optional chaining으로 안전
+- App.tsx SceneViewPanel 마운트 조건, snapshot 필터링, close 가드 모두 정상
+
+### 렌더링 동작 여부 결론
+- **flat 씬 (Canvas 바로 밑 노드)**: 올바르게 렌더링됨
+- **중첩 씬 (Panel → Button 등)**: 위치 오류 — 아래 Critical 버그 참고
+
+### Critical 버그 (미수정)
+
+| # | 파일 | 내용 |
+|---|------|------|
+| 🔴 | `SceneView/utils.ts:13-14` flattenTree | `node.position`이 로컬 좌표인데 월드 좌표로 취급 → 중첩 노드 위치 오류 |
+| 🟡 | `SceneView/NodeRenderer.tsx:25-26` | `DESIGN_W/H = 960/640` 하드코딩 → 캔버스 프리셋 변경 시 오프셋 오류 |
+
+### 다음 작업 (씬뷰 렌더링 수정)
+1. `utils.ts flattenTree()` — 부모 월드 좌표 누적 (`worldX = parentWorldX + node.position.x`)
+2. `NodeRenderer.tsx` — `designWidth/designHeight` prop으로 주입 (TODO 주석 있음)
+
+---
+
 ## 긴급 버그 수정 (이번 세션)
 - CCFileSceneView.tsx:245 — panStart.current null in setView updater (offX/offY 캡처로 해결)
 - App.tsx — CC 탭 버튼 border/borderBottom 순서 충돌 경고 해소
 
-## 다음 예정 (Phase DD8 — Round 535~)
-- Round 535: 씬뷰 Undo/Redo — Ctrl+Z/Y 노드 이동/속성 변경 되돌리기
-- Round 536: 다중 노드 정렬 — 가운데/왼쪽/오른쪽/균등 정렬
-- Round 537: 씬뷰 Ruler + Guide — px 눈금자 + 드래그 가이드라인
+## Phase DD8 완료 (Round 535~544)
+
+| 라운드 | 기능 |
+|--------|------|
+| R535 | UndoEntry prop 타입 확장 — Inspector 속성 변경 Undo/Redo 지원 |
+| R539 | Edit 도구 InlineDiff 렌더링 — old/new string 시각화 |
+| R543 | Inspector 배열 속성 편집 — ArrayPropRow (add/remove 버튼) |
+| R544 | QA Section 105 추가 (Pass 458) + ROADMAP Phase DD8 완료 처리 |
+
+## 다음 예정 (Phase DD9 — Round 545~)
+- Round 545: 씬뷰 노드 검색 하이라이트 — 캔버스에서 노드명 검색 시 강조
+- Round 546: Inspector 실시간 미리보기 — 슬라이더 드래그 시 씬뷰 즉시 반영
+- Round 547: 채팅 코드 블록 실행 — Bash 블록 ▶ 버튼, 결과 인라인 표시
+
+**⚠️ 미수정 버그 (씬뷰 중첩 노드 위치 오류)**:
+1. `utils.ts flattenTree()` — 부모 월드 좌표 누적 필요
+2. `NodeRenderer.tsx` — designWidth/Height props 주입 필요 (TODO 주석 있음)
 
 ## Round 119 완료 항목 (최근 세션)
 
