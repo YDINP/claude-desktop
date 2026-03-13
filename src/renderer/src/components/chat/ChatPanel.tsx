@@ -500,7 +500,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         if (lastMsg?.role === 'assistant' && lastMsg.text) {
           const actions = parseCCActions(lastMsg.text)
           if (actions.length > 0) {
-            executeCCActions(actions).catch(() => {})
+            executeCCActions(actions, ccCtx.port).catch(() => {})
           }
         }
       }

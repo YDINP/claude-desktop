@@ -31,20 +31,20 @@ export function parseCCActions(text: string): CCAction[] {
 /**
  * CC 액션 실행
  */
-export async function executeCCActions(actions: CCAction[]): Promise<string[]> {
+export async function executeCCActions(actions: CCAction[], port = 9090): Promise<string[]> {
   const results: string[] = []
   for (const action of actions) {
     try {
       switch (action.type) {
         case 'moveNode':
           if (action.uuid != null && action.x != null && action.y != null) {
-            await window.api.ccMoveNode?.(action.uuid, action.x, action.y)
+            await window.api.ccMoveNode?.(port, action.uuid, action.x, action.y)
             results.push(`✓ ${action.uuid} → (${action.x}, ${action.y})`)
           }
           break
         case 'setProperty':
           if (action.uuid != null && action.key != null) {
-            await window.api.ccSetProperty?.(action.uuid, action.key, action.value)
+            await window.api.ccSetProperty?.(port, action.uuid, action.key, action.value)
             results.push(`✓ ${action.uuid}.${action.key} = ${JSON.stringify(action.value)}`)
           }
           break
@@ -52,7 +52,7 @@ export async function executeCCActions(actions: CCAction[]): Promise<string[]> {
           results.push('웹빌드 트리거 (미구현)')
           break
         case 'refreshTree':
-          await window.api.ccGetTree?.()
+          await window.api.ccGetTree?.(port)
           results.push('↺ 씬 트리 새로고침 완료')
           break
       }

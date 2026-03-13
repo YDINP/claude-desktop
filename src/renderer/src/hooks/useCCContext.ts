@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { CCNode } from '../../../shared/ipc-schema'
 
 export interface CCContext {
   connected: boolean
+  port: number
   sceneTree: CCNode | null
   selectedNode: CCNode | null
   contextString: string
@@ -21,31 +22,47 @@ function nodeToContextString(node: CCNode, depth = 0): string {
 
 export function useCCContext(): CCContext {
   const [connected, setConnected] = useState(false)
+  const [port, setPort] = useState(9090)
+  const portRef = useRef(9090)
   const [sceneTree, setSceneTree] = useState<CCNode | null>(null)
   const [selectedNode, setSelectedNode] = useState<CCNode | null>(null)
 
+  const updatePort = useCallback((p: number) => {
+    portRef.current = p
+    setPort(p)
+  }, [])
+
   const refreshTree = useCallback(async () => {
     try {
-      const tree = await window.api.ccGetTree?.()
+      const tree = await window.api.ccGetTree?.(portRef.current)
       setSceneTree((tree as CCNode) ?? null)
     } catch {}
   }, [])
 
   useEffect(() => {
-    window.api.ccStatus?.().then(s => {
-      if (s?.connected) { setConnected(true); refreshTree() }
-    }).catch(() => {})
+    window.api.ccGetPort?.().then(p => {
+      if (p) updatePort(p)
+      window.api.ccStatus?.().then(s => {
+        if (s?.connected) { setConnected(true); refreshTree() }
+      }).catch(() => {})
+    }).catch(() => {
+      window.api.ccStatus?.().then(s => {
+        if (s?.connected) { setConnected(true); refreshTree() }
+      }).catch(() => {})
+    })
 
     const unsubStatus = window.api.onCCStatusChange?.((s) => {
       setConnected(s.connected)
-      if (s.connected) refreshTree()
-      else { setSceneTree(null); setSelectedNode(null) }
+      if (s.connected) {
+        window.api.ccGetPort?.().then(p => { if (p) updatePort(p) }).catch(() => {})
+        refreshTree()
+      } else { setSceneTree(null); setSelectedNode(null) }
     })
 
     const unsubEvent = window.api.onCCEvent?.((event) => {
       if (event.type === 'scene:ready' || event.type === 'scene:saved') refreshTree()
       if (event.type === 'node:select' && event.uuids?.[0]) {
-        window.api.ccGetNode?.(event.uuids[0])
+        window.api.ccGetNode?.(portRef.current, event.uuids[0])
           .then(n => setSelectedNode((n as CCNode) ?? null))
           .catch(() => {})
       }
@@ -53,7 +70,7 @@ export function useCCContext(): CCContext {
     })
 
     return () => { unsubStatus?.(); unsubEvent?.() }
-  }, [refreshTree])
+  }, [refreshTree, updatePort])
 
   const contextString = connected && sceneTree
     ? [
@@ -66,5 +83,5 @@ export function useCCContext(): CCContext {
       ].filter(Boolean).join('\n')
     : ''
 
-  return { connected, sceneTree, selectedNode, contextString }
+  return { connected, port, sceneTree, selectedNode, contextString }
 }
