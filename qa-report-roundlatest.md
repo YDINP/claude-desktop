@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T18:44:19.569Z
+> 2026-03-13T18:53:42.617Z
 
 ## Critical
 _없음_
@@ -1377,3 +1377,9 @@ _없음_
 - NodeRenderer 물리 컴포넌트 시각화 (RigidBody/BoxCollider/CircleCollider)
 - CCFileSceneView 스크린샷 → Claude AI 분석 연동
 - ChatPanel cc-chat-prefill 이벤트 수신 → 입력창 프리필
+- 노드 복사 UUID 자동 재생성 (딥복사 + crypto.randomUUID)
+- 씬 변경 → Claude 컨텍스트 자동 diff 주입
+- Inspector Layer 편집 (CC2.x/3.x 레이어 옵션 + 직접 입력)
+- cc-file-parser 청크 스트리밍 파싱 (parseCCSceneChunked/isLargeScene)
+- cc-file-parser CC3.x layer 필드 파싱 수정
+- useCCFileContext lastSaveDiff 필드 + 컨텍스트 문자열 포함

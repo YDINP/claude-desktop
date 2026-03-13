@@ -15653,6 +15653,54 @@ if (existsSync(cp404)) {
   }
 }
 
+// ── Section 405: R1476~R1479 기능 체크 ──────────────────────
+console.log('\n## 405. Phase DD20 R1476~R1479 기능 체크')
+const cocosP405 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocosP405)) {
+  const c405 = readFileSync(cocosP405, 'utf-8')
+  if (c405.includes('R1476') && c405.includes('deepCopyNodeWithNewUuids') && c405.includes('genUuid') && c405.includes('randomUUID')) {
+    log('pass', 'R1476-deepcopy', '노드 복사 UUID 자동 재생성 (딥복사 + crypto.randomUUID)')
+  } else {
+    log('warning', 'R1476-deepcopy', '노드 복사 UUID 재생성 미구현', 'CocosPanel.tsx')
+  }
+  if (c405.includes('R1477') && c405.includes('prevSceneRootRef') && c405.includes('lastSaveDiff') && c405.includes('flattenUuids')) {
+    log('pass', 'R1477-diff', '씬 변경 → Claude 컨텍스트 자동 diff 주입')
+  } else {
+    log('warning', 'R1477-diff', '씬 변경 diff 컨텍스트 주입 미구현', 'CocosPanel.tsx')
+  }
+  if (c405.includes('R1479') && c405.includes('layerOptions2x') && c405.includes('layerOptions3x')) {
+    log('pass', 'R1479-layer', 'Inspector Layer 편집 (CC2.x/3.x 레이어 옵션 + 직접 입력)')
+  } else {
+    log('warning', 'R1479-layer', 'Layer 필드 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+const parser405 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser405)) {
+  const p405 = readFileSync(parser405, 'utf-8')
+  if (p405.includes('R1478') && p405.includes('parseCCSceneChunked') && p405.includes('isLargeScene') && p405.includes('CCSceneStreamState')) {
+    log('pass', 'R1478-chunked', 'cc-file-parser 청크 스트리밍 파싱 (parseCCSceneChunked/isLargeScene)')
+  } else {
+    log('warning', 'R1478-chunked', '청크 스트리밍 파싱 미구현', 'cc-file-parser.ts')
+  }
+  if (p405.includes('R1479') && p405.includes('e.layer') && p405.includes('e._layer')) {
+    log('pass', 'R1479-parser', 'cc-file-parser CC3.x layer 필드 파싱 수정')
+  } else {
+    log('warning', 'R1479-parser', 'CC3.x layer 파싱 미구현', 'cc-file-parser.ts')
+  }
+}
+
+// ── Section 406: R1477 useCCFileContext 기능 체크 ──────────────
+console.log('\n## 406. Phase DD20 R1477 컨텍스트 훅 기능 체크')
+const ctx406 = join(ROOT, 'src/renderer/src/hooks/useCCFileContext.ts')
+if (existsSync(ctx406)) {
+  const c406 = readFileSync(ctx406, 'utf-8')
+  if (c406.includes('R1477') && c406.includes('lastSaveDiff') && c406.includes('마지막 변경')) {
+    log('pass', 'R1477-context', 'useCCFileContext lastSaveDiff 필드 + 컨텍스트 문자열 포함')
+  } else {
+    log('warning', 'R1477-context', 'useCCFileContext lastSaveDiff 미구현', 'useCCFileContext.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

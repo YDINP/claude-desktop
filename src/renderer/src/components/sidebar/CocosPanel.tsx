@@ -279,6 +279,22 @@ interface CCFileProjectUIProps {
   onSelectNode: (n: CCSceneNode | null) => void
 }
 
+// R1476: 노드 딥복사 + UUID 자동 재생성 (재귀, crypto.randomUUID)
+function deepCopyNodeWithNewUuids(node: CCSceneNode, suffix = '_Copy'): CCSceneNode {
+  const genUuid = () => (typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : `node-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`)
+  function deepCopy(n: CCSceneNode, isToplevel: boolean): CCSceneNode {
+    return {
+      ...n,
+      uuid: genUuid(),
+      name: isToplevel ? n.name + suffix : n.name,
+      components: n.components.map(c => ({ ...c, props: { ...c.props } })),
+      children: n.children.map(c => deepCopy(c, false)),
+      _rawIndex: undefined,
+    }
+  }
+  return deepCopy(node, true)
+}
+
 function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
   const { projectInfo, sceneFile, loading, error, externalChange, canUndo, canRedo, conflictInfo, openProject, loadScene, saveScene, undo, redo, restoreBackup, forceOverwrite } = fileProject
   const [selectedScene, setSelectedScene] = useState<string>('')
@@ -762,6 +778,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
   // R1376: Claude 컨텍스트 자동 주입
   const [ccCtxInject, setCcCtxInject] = useState(() => localStorage.getItem('cc-ctx-inject') !== 'false')
+  // R1477: 씬 변경 diff 계산을 위한 이전 씬 루트 스냅샷
+  const prevSceneRootRef = useRef<CCSceneNode | null>(null)
   useEffect(() => {
     if (!ccCtxInject) { updateCCFileContext(null); return }
     const sceneName = sceneFile?.scenePath?.replace(/\\/g, '/').split('/').pop() ?? '(없음)'
@@ -886,8 +904,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   }, [sceneFile, saveScene, selectedNode, onSelectNode])
 
   const handleTreeDuplicate = useCallback(async (nodeUuid: string) => {
-    if (!sceneFile?.root || !sceneFile._raw) return
-    const raw = sceneFile._raw as Record<string, unknown>[]
+    if (!sceneFile?.root) return
     const findNode = (n: CCSceneNode): CCSceneNode | null => {
       if (n.uuid === nodeUuid) return n
       for (const c of n.children) { const f = findNode(c); if (f) return f }
@@ -895,14 +912,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
     const orig = findNode(sceneFile.root)
     if (!orig) return
-    const newId = 'dup-' + Date.now()
-    const newIdx = raw.length
-    const origRaw = orig._rawIndex != null ? { ...raw[orig._rawIndex] } : {}
-    raw.push({ ...origRaw, _id: newId, _name: orig.name + '_Copy', _children: [], _components: [] })
-    const dupNode: CCSceneNode = {
-      ...orig, uuid: newId, name: orig.name + '_Copy',
-      children: [], _rawIndex: newIdx,
-    }
+    // R1476: 딥복사 + UUID 자동 재생성 (자식 포함 모두 새 UUID)
+    const dupNode = deepCopyNodeWithNewUuids(orig, '_Copy')
     function insertAfter(n: CCSceneNode): CCSceneNode {
       const idx = n.children.findIndex(c => c.uuid === nodeUuid)
       if (idx >= 0) {
@@ -912,12 +923,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       }
       return { ...n, children: n.children.map(insertAfter) }
     }
-    try {
-      const result = await saveScene(insertAfter(sceneFile.root))
-      if (!result.success) raw.pop()
-    } catch {
-      raw.pop()
-    }
+    await saveScene(insertAfter(sceneFile.root))
   }, [sceneFile, saveScene])
 
   const handleSave = useCallback(async () => {
@@ -967,10 +973,40 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         })
       }
       setTimeout(() => setSaveMsg(null), 3000)
+      // R1477: 씬 변경 → Claude 컨텍스트 자동 diff 주입
+      if (result.success && ccCtxInject && sceneFile.scenePath) {
+        const flattenUuids = (n: CCSceneNode, acc: Map<string, string> = new Map()): Map<string, string> => {
+          acc.set(n.uuid, n.name); n.children.forEach(c => flattenUuids(c, acc)); return acc
+        }
+        const prevMap = prevSceneRootRef.current ? flattenUuids(prevSceneRootRef.current) : new Map<string, string>()
+        const newMap = flattenUuids(sceneFile.root)
+        const added: string[] = []; const removed: string[] = []; const renamed: string[] = []
+        for (const [uuid, name] of newMap) {
+          if (!prevMap.has(uuid)) added.push(name)
+          else if (prevMap.get(uuid) !== name) renamed.push(`${prevMap.get(uuid)} → ${name}`)
+        }
+        for (const [uuid, name] of prevMap) { if (!newMap.has(uuid)) removed.push(name) }
+        if (added.length || removed.length || renamed.length) {
+          const changes: string[] = []
+          if (added.length) changes.push(`추가: ${added.slice(0, 3).join(', ')}${added.length > 3 ? ` 외 ${added.length - 3}개` : ''}`)
+          if (removed.length) changes.push(`삭제: ${removed.slice(0, 3).join(', ')}${removed.length > 3 ? ` 외 ${removed.length - 3}개` : ''}`)
+          if (renamed.length) changes.push(`이름변경: ${renamed.slice(0, 2).join(', ')}`)
+          const sceneName = sceneFile.scenePath.replace(/\\/g, '/').split('/').pop() ?? ''
+          updateCCFileContext({
+            sceneName,
+            version: projectInfo?.version ?? '?',
+            selectedNodeName: selectedNode?.name,
+            selectedNodeUuid: selectedNode?.uuid,
+            components: selectedNode?.components?.map(c => c.type) ?? [],
+            lastSaveDiff: changes.join(' | '),
+          })
+        }
+        prevSceneRootRef.current = sceneFile.root
+      }
     } finally {
       setSaving(false)
     }
-  }, [sceneFile, saveScene, sceneHistoryKey])
+  }, [sceneFile, saveScene, sceneHistoryKey, ccCtxInject, projectInfo?.version, selectedNode])
 
   // 키보드 단축키: Ctrl+Z/Y, Delete, Ctrl+D, Arrow keys
   useEffect(() => {
@@ -998,26 +1034,16 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (ctrl && e.key === 'v' && clipboardRef.current && sceneFile?.root) {
         e.preventDefault()
         const srcNode = clipboardRef.current
-        const newId = 'paste-' + Date.now()
-        const raw = sceneFile._raw as Record<string, unknown>[] | undefined
-        const version = sceneFile.projectInfo.version ?? '2x'
-        const newIdx = raw?.length ?? 0
-        if (raw) {
-          const origRaw = srcNode._rawIndex != null ? { ...raw[srcNode._rawIndex] } : {}
-          raw.push({ ...origRaw, _id: newId, _name: srcNode.name + '_Paste', _children: [], _components: [] })
-        }
-        const pasteNode: CCSceneNode = { ...srcNode, uuid: newId, name: srcNode.name + '_Paste', children: [], _rawIndex: newIdx }
+        // R1476: 딥복사 + UUID 자동 재생성 (자식 포함)
+        const pasteNode = deepCopyNodeWithNewUuids(srcNode, '_Paste')
         const parentUuid = selectedNode?.uuid ?? sceneFile.root.uuid
         function addToParent(n: CCSceneNode): CCSceneNode {
           if (n.uuid === parentUuid) return { ...n, children: [...n.children, pasteNode] }
           return { ...n, children: n.children.map(addToParent) }
         }
         try {
-          const result = await saveScene(addToParent(sceneFile.root))
-          if (!result.success && raw) raw.pop()
-        } catch {
-          if (raw) raw.pop()
-        }
+          await saveScene(addToParent(sceneFile.root))
+        } catch { /* ignore */ }
         return
       }
 
@@ -3867,12 +3893,19 @@ function CCFileNodeInspector({
       </div>
       )}
 
+      {/* R1479: Layer 필드 편집 (CC2.x _layer / CC3.x layer — 둘 다 지원) */}
       {draft.layer != null && (() => {
-        const layerOptions: [number, string][] = [
+        const is3x = sceneFile.projectInfo?.version === '3x'
+        const layerOptions3x: [number, string][] = [
           [1, 'DEFAULT'], [2, 'IGNORE_RAYCAST'], [4, 'GIZMOS'], [8, 'EDITOR'],
           [16, 'UI_3D'], [32, 'SCENE_GIZMO'], [64, 'PROFILER'],
           [524288, 'UI_2D'], [1073741824, 'ALL'],
         ]
+        const layerOptions2x: [number, string][] = [
+          [0, 'NONE'], [1, 'DEFAULT'], [2, 'IGNORE_RAYCAST'], [4, 'GIZMOS'],
+          [8, 'EDITOR'], [16, 'UI'], [32, 'SCENE_GIZMO'], [33554432, '기본(0x2000000)'],
+        ]
+        const layerOptions = is3x ? layerOptions3x : layerOptions2x
         const isKnown = layerOptions.some(([v]) => v === draft.layer)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
@@ -3885,9 +3918,16 @@ function CCFileNodeInspector({
                 color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px',
               }}
             >
-              {layerOptions.map(([v, n]) => <option key={v} value={v}>{n}</option>)}
+              {layerOptions.map(([v, n]) => <option key={v} value={v}>{n} ({v})</option>)}
               {!isKnown && <option value="custom">0x{draft.layer.toString(16)}</option>}
             </select>
+            <input
+              type="number"
+              value={draft.layer}
+              onChange={e => applyAndSave({ layer: parseInt(e.target.value) || 0 })}
+              style={{ width: 60, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+              title="레이어 비트마스크 직접 입력"
+            />
           </div>
         )
       })()}

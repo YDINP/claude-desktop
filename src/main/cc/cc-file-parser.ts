@@ -417,7 +417,8 @@ function parseNode3x(
   const rc = e._color as { r?: number; g?: number; b?: number; a?: number } | undefined
   const color: CCColor = { r: rc?.r ?? 255, g: rc?.g ?? 255, b: rc?.b ?? 255, a: rc?.a ?? 255 }
 
-  const layer = typeof e._layer === 'number' ? e._layer : undefined
+  // R1479: CC3.x는 `layer` (underscore 없음), CC2.x는 `_layer` — 둘 다 시도
+  const layer = typeof e.layer === 'number' ? e.layer : typeof e._layer === 'number' ? e._layer : undefined
 
   const compRefArr3x = e._components as { __id__: number }[] | undefined
   const comps = resolveComponents3x(raw, compRefArr3x)
@@ -1023,5 +1024,74 @@ function extractAssetUuids(obj: unknown, textures: Set<string>, audios: Set<stri
         if (typeof ref.__uuid__ === 'string') textures.add(ref.__uuid__)
       }
     }
+  }
+}
+
+// R1478: 대형 씬 청크 스트리밍 파싱
+// 씬 파일을 한 번에 파싱하되, 지정 노드 수(chunkSize) 초과 시 partial 노드 트리를 반환하고
+// nextChunk 콜백으로 이어서 로드하는 레이지 파싱 패턴
+
+export interface CCSceneStreamState {
+  done: boolean
+  /** 현재까지 파싱된 최상위 자식 노드 수 */
+  parsedTopChildren: number
+  totalTopChildren: number
+  /** 전체 raw 배열 길이 (대형 씬 크기 판단) */
+  rawLength: number
+}
+
+/**
+ * 대형 씬 파싱 — 즉시 메타 정보 반환 (rawLength, topChildren 수)
+ * 실제 파싱은 sync이지만 청크 단위로 루트 자식을 잘라서 반환.
+ * chunkSize: 최상위 자식 노드 최대 파싱 수 (기본 50, 0 = 전체)
+ */
+export function parseCCSceneChunked(
+  scenePath: string,
+  projectInfo: CCFileProjectInfo,
+  chunkSize = 50,
+  chunkOffset = 0
+): { scene: CCSceneFile; state: CCSceneStreamState } {
+  const raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
+  const version = projectInfo.version ?? detectVersionFromRaw(raw)
+  const rootIdx = resolveRootIdx(raw)
+  if (rootIdx < 0) throw new Error(`씬 루트 노드를 찾을 수 없습니다: ${scenePath}`)
+
+  // 전체 파싱
+  const root =
+    version === '2x'
+      ? parseNode2x(raw, rootIdx)
+      : parseNode3x(raw, rootIdx, buildUiTransformMap(raw))
+  if (!root) throw new Error(`루트 노드 파싱 실패: ${scenePath}`)
+
+  const totalTopChildren = root.children.length
+  const rawLength = raw.length
+  const parsedTopChildren = Math.min(chunkOffset + chunkSize, totalTopChildren)
+
+  // 청크 슬라이싱 (chunkSize > 0이면 자식 일부만 반환)
+  const chunkedRoot: CCSceneNode =
+    chunkSize > 0
+      ? { ...root, children: root.children.slice(chunkOffset, chunkOffset + chunkSize) }
+      : root
+
+  return {
+    scene: { projectInfo, scenePath, root: chunkedRoot, _raw: raw },
+    state: {
+      done: parsedTopChildren >= totalTopChildren,
+      parsedTopChildren,
+      totalTopChildren,
+      rawLength,
+    },
+  }
+}
+
+/**
+ * 대형 씬 여부 판단 (rawLength > 500이면 대형 씬으로 간주)
+ */
+export function isLargeScene(scenePath: string): boolean {
+  try {
+    const raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as unknown[]
+    return raw.length > 500
+  } catch {
+    return false
   }
 }

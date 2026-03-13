@@ -332,6 +332,16 @@ contextBridge.exposeInMainWorld('api', {
   },
   ccFileBuildUUIDMap: (assetsDir: string): Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>> =>
     ipcRenderer.invoke('cc:file:buildUUIDMap', assetsDir),
+  // R1478: 대형 씬 청크 스트리밍 파싱
+  ccFileReadSceneChunked: (
+    scenePath: string,
+    projectInfo: import('../shared/ipc-schema').CCFileProjectInfo,
+    chunkSize?: number,
+    chunkOffset?: number
+  ): Promise<{ scene: import('../shared/ipc-schema').CCSceneFile; state: { done: boolean; parsedTopChildren: number; totalTopChildren: number; rawLength: number } } | { error: string }> =>
+    ipcRenderer.invoke('cc:file:readSceneChunked', scenePath, projectInfo, chunkSize, chunkOffset),
+  ccFileIsLargeScene: (scenePath: string): Promise<boolean> =>
+    ipcRenderer.invoke('cc:file:isLargeScene', scenePath),
   ccFileResolveTexture: (uuid: string, assetsDir: string): Promise<string | null> =>
     ipcRenderer.invoke('cc:file:resolveTexture', uuid, assetsDir),
   ccFileExtractUUIDs: (raw: unknown[]): Promise<string[]> =>

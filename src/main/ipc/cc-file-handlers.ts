@@ -1,7 +1,7 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
 import http from 'http'
 import { detectCCVersion } from '../cc/cc-version-detector'
-import { parseCCScene } from '../cc/cc-file-parser'
+import { parseCCScene, parseCCSceneChunked, isLargeScene } from '../cc/cc-file-parser'
 import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile, recordSceneMtime, forceOverwriteScene } from '../cc/cc-file-saver'
 import { ccFileWatcher } from '../cc/cc-file-watcher'
 import { buildUUIDMap, extractReferencedUUIDs, resolveTextureUrl } from '../cc/cc-asset-resolver'
@@ -117,6 +117,25 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   })
 
   /** 씬 파일/디렉토리 감시 시작 */
+  // R1478: 대형 씬 청크 스트리밍 파싱
+  ipcMain.handle('cc:file:readSceneChunked', async (
+    _e,
+    scenePath: string,
+    projectInfo: CCFileProjectInfo,
+    chunkSize = 50,
+    chunkOffset = 0
+  ) => {
+    try {
+      return parseCCSceneChunked(scenePath, projectInfo, chunkSize, chunkOffset)
+    } catch (e) {
+      return { error: String(e) }
+    }
+  })
+
+  ipcMain.handle('cc:file:isLargeScene', async (_e, scenePath: string) => {
+    return isLargeScene(scenePath)
+  })
+
   ipcMain.handle('cc:file:watch', async (_e, paths: string | string[]) => {
     await ccFileWatcher.watch(paths)
     return { watching: ccFileWatcher.watchedCount }
