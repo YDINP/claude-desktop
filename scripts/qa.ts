@@ -8524,6 +8524,41 @@ if (existsSync(cocp863Path)) {
   }
 }
 
+console.log('\n## 199. Phase DD10 R864~866 기능 체크')
+
+// R864: SceneViewPanel 노드 별칭 편집기
+const svp864Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp864Path)) {
+  const svp864 = readFileSync(svp864Path, 'utf-8')
+  if (svp864.includes('nodeAliases') || svp864.includes('showAliasEditor') || svp864.includes('aliasMap')) {
+    log('pass', 'R864', 'SceneViewPanel 노드 별칭 편집기 존재')
+  } else {
+    log('warning', 'R864', 'SceneViewPanel 노드 별칭 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R865: TerminalPanel 터미널 테마
+const tp865Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp865Path)) {
+  const tp865 = readFileSync(tp865Path, 'utf-8')
+  if (tp865.includes('terminalThemes') || tp865.includes('activeTermTheme') || tp865.includes('termTheme')) {
+    log('pass', 'R865', 'TerminalPanel 터미널 테마 존재')
+  } else {
+    log('warning', 'R865', 'TerminalPanel 터미널 테마 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R866: SessionList 세션 템플릿
+const sl866Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl866Path)) {
+  const sl866 = readFileSync(sl866Path, 'utf-8')
+  if (sl866.includes('sessionTemplates') || sl866.includes('showTemplateManager') || sl866.includes('templateList')) {
+    log('pass', 'R866', 'SessionList 세션 템플릿 존재')
+  } else {
+    log('warning', 'R866', 'SessionList 세션 템플릿 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -365,6 +365,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showSharePanel, setShowSharePanel] = useState(false)
   const [inputHistorySearch, setInputHistorySearch] = useState('')
   const [inputHistoryResults, setInputHistoryResults] = useState<string[]>([])
+  const [terminalThemes, setTerminalThemes] = useState<Array<{ id: string; name: string; colors: Record<string, string> }>>([])
+  const [activeTermTheme, setActiveTermTheme] = useState('default')
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
