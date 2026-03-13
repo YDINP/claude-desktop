@@ -4068,6 +4068,24 @@ function CCFileNodeInspector({
           >
             {jsonCopyDone ? '✓' : '{}'}
           </button>
+          {/* R1600: 같은 이름 노드 찾기 버튼 */}
+          <button
+            onClick={() => {
+              if (!sceneFile?.root) return
+              const names: string[] = []
+              const walk = (n: CCSceneNode) => { names.push(n.name); n.children.forEach(walk) }
+              walk(sceneFile.root)
+              const count = names.filter(n => n === draft.name).length
+              if (count > 1) alert(`"${draft.name}" 이름의 노드가 씬에 ${count}개 있습니다.`)
+              else alert(`"${draft.name}" 이름의 노드는 이 씬에 1개뿐입니다.`)
+            }}
+            title={`씬 내 같은 이름 노드 찾기 (${draft.name})`}
+            style={{
+              padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+              background: 'transparent', color: '#94a3b8', border: '1px solid #94a3b8',
+              lineHeight: 1.4,
+            }}
+          >🔍</button>
           {/* Round 631: 프리셋 저장 / 불러오기 */}
           <button
             onClick={saveStylePreset}
