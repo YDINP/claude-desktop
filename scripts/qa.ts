@@ -17757,6 +17757,18 @@ console.log('\n## 543. R1652 Inspector 부모 크기 맞추기 체크')
   }
 }
 
+// ── Section 544: R1653 Inspector 회전 부호 반전 버튼 ──────────────────────
+console.log('\n## 544. R1653 Inspector 회전 부호 반전 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s544 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s544.includes('R1653') && s544.includes('회전 부호 반전') && s544.includes('-draft.rotation')) {
+    log('pass', 'R1653-rot-negate', 'Inspector 회전 부호 반전 버튼')
+  } else {
+    log('warning', 'R1653-rot-negate', 'Inspector 회전 부호 반전 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
