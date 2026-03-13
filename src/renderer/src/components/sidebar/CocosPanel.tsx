@@ -3391,6 +3391,9 @@ function CCFileNodeInspector({
   const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
   const [lockScale, setLockScale] = useState(false)
   const [lockSize, setLockSize] = useState(false)  // R1593: 크기 비율 잠금
+  // R1617: 트랜스폼 복사/붙여넣기 클립보드
+  const transformClipboard = useRef<{ position: CCSceneNode['position']; rotation: CCSceneNode['rotation']; scale: CCSceneNode['scale']; size: CCSceneNode['size'] } | null>(null)
+  const [transformClipFilled, setTransformClipFilled] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
 
   // R1484: World Transform — 부모 체인 누산 좌표
@@ -4485,6 +4488,22 @@ function CCFileNodeInspector({
       </div>
       {secHeader('transform', '위치 / 크기 / 회전')}
       {!collapsed['transform'] && (
+        <>
+        {/* R1617: 트랜스폼 복사/붙여넣기 버튼 */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+          <span
+            title="트랜스폼 복사 (위치·크기·회전·스케일)"
+            onClick={() => { transformClipboard.current = { position: draft.position, rotation: draft.rotation, scale: draft.scale, size: draft.size }; setTransformClipFilled(true) }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+          >T↑복사</span>
+          <span
+            title={transformClipFilled ? '트랜스폼 붙여넣기 (위치·크기·회전·스케일)' : '복사된 트랜스폼 없음'}
+            onClick={() => { if (transformClipboard.current) applyAndSave({ position: transformClipboard.current.position, rotation: transformClipboard.current.rotation, scale: transformClipboard.current.scale, size: transformClipboard.current.size }) }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: transformClipFilled ? 'pointer' : 'default', color: transformClipFilled ? '#58a6ff' : '#333', background: 'none', userSelect: 'none' }}
+            onMouseEnter={e => { if (transformClipFilled) e.currentTarget.style.color = '#7fc6ff' }} onMouseLeave={e => { e.currentTarget.style.color = transformClipFilled ? '#58a6ff' : '#333' }}
+          >T↓붙여넣기</span>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 10px' }}>
           <div>
             <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -4554,6 +4573,7 @@ function CCFileNodeInspector({
             }, 0.01)}
           </div>
         </div>
+        </>
       )}
 
       {secHeader('anchor', '앵커 / 불투명도')}

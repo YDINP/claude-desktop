@@ -17322,6 +17322,18 @@ console.log('\n## 507. R1616 SceneView HUD 자식/컴포넌트 수 표시 체크
   }
 }
 
+// ── Section 508: R1617 Inspector 트랜스폼 복사/붙여넣기 ──────────────────
+console.log('\n## 508. R1617 Inspector 트랜스폼 복사/붙여넣기 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s508 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s508.includes('R1617') && s508.includes('트랜스폼 복사/붙여넣기') && s508.includes('transformClipboard') && s508.includes('T↑복사')) {
+    log('pass', 'R1617-transform-copy', 'Inspector 트랜스폼 복사/붙여넣기')
+  } else {
+    log('warning', 'R1617-transform-copy', 'Inspector 트랜스폼 복사/붙여넣기 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
