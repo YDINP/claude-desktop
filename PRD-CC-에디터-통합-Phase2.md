@@ -29,14 +29,90 @@
 
 ---
 
-## Phase 2 목표
+## Phase 2 목표 (2026-03-13 방향 전환)
 
-**"CC 에디터를 열지 않고도 일상적인 UI 작업을 claude-desktop 안에서 완결한다"**
+**"CC 에디터를 실행하지 않고도 claude-desktop 안에서 Cocos 프로젝트 파일을 직접 파싱·편집·저장한다"**
+
+### 핵심 전략 변경
+| | 기존 (Phase 1) | 신규 (Phase 2) |
+|---|---|---|
+| 방식 | CC 에디터 실행 + WebSocket 연결 | 프로젝트 파일 직접 파싱·저장 |
+| CC 에디터 필요 여부 | 필수 | **불필요** (선택적) |
+| 버전 지원 | 포트 기반 (2x:9090, 3x:9091) | 파일 형식 기반 (.fire / .scene) |
+| 오프라인 작업 | 불가 | **가능** |
+
+### 이원화 모드
+- **파일 직접 편집 모드** (기본): CC 에디터 비실행 → `.fire`/`.scene`/`.prefab` 직접 파싱·저장
+- **라이브 브릿지 모드** (선택): CC 에디터 실행 중 → 기존 WebSocket 실시간 연동
+- 앱이 CC 에디터 연결 상태를 **자동 감지**해서 모드 전환
 
 비목표:
 - CC 에디터 창 임베드 (기술적 불가, GPU 충돌)
 - 애니메이션/파티클 편집
-- 스크립트 로직 편집 (코드 편집은 Monaco로 별도)
+- 스크립트 로직 컴파일 (코드 편집은 Monaco로 별도)
+
+---
+
+## CC 파일 직접 편집 아키텍처
+
+### 버전별 파일 형식
+
+| 버전 | 씬 파일 | 프리팹 | 프로젝트 감지 |
+|------|---------|--------|-------------|
+| CC 2.x | `.fire` (JSON) | `.prefab` (JSON) | `project.json` 존재 |
+| CC 3.x | `.scene` (JSON) | `.prefab` (JSON) | `package.json` → `creator.version: "3.x"` |
+
+### 신규 파일 구조
+```
+src/main/cc/
+├── cc-bridge.ts          — 기존 WS 브릿지 (라이브 모드)
+├── cc-file-parser.ts     — [신규] .fire/.scene/.prefab 직접 파싱
+├── cc-file-writer.ts     — [신규] 씬/프리팹 파일 직접 저장
+└── cc-version-adapter.ts — [신규] 2x/3x 공통 인터페이스 어댑터
+```
+
+### 공통 노드 인터페이스 (버전 무관)
+```typescript
+interface CCSceneNode {
+  uuid: string
+  name: string
+  active: boolean
+  position: { x: number; y: number; z?: number }
+  rotation: number | { x: number; y: number; z: number }
+  scale: { x: number; y: number }
+  size?: { width: number; height: number }
+  anchor?: { x: number; y: number }
+  opacity: number
+  color?: { r: number; g: number; b: number; a: number }
+  components: { type: string; props: Record<string, unknown> }[]
+  children: CCSceneNode[]
+}
+
+interface CCFileParser {
+  version: '2x' | '3x'
+  parseScene(filePath: string): Promise<CCSceneNode>
+  parsePrefab(filePath: string): Promise<CCSceneNode>
+  serializeScene(root: CCSceneNode, originalRaw: unknown): string
+}
+```
+
+### 2x vs 3x 파싱 차이
+| 항목 | CC 2.x (.fire) | CC 3.x (.scene) |
+|------|---------------|----------------|
+| 노드 구조 | `__depends__` 배열 (참조 기반) | 트리형 `children` 배열 |
+| 컴포넌트 키 | `_components` | `comps` / `__prefab__` |
+| UUID | 짧은 alphanumeric | 하이픈 포함 긴 UUID |
+| 좌표계 | 2D (x, y) | 3D (x, y, z) |
+| 색상 | `_color: {r,g,b,a}` | `__type__: "cc.Color"` |
+
+### IPC 확장
+```typescript
+// cc-handlers.ts 추가 핸들러
+'cc:parseSceneFile'    — 파일 경로 → CCSceneNode 트리
+'cc:writeSceneFile'    — 변경된 노드 트리 → 파일 저장
+'cc:listSceneFiles'    — 프로젝트 내 씬/프리팹 파일 목록
+'cc:detectVersion'     — 프로젝트 경로 → '2x' | '3x'
+```
 
 ---
 
