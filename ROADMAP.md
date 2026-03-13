@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 668 완료 — Phase DD10 진행 중, QA Pass 551)
+> 마지막 업데이트: 2026-03-13 (Round 672 완료 — Phase DD10 진행 중, QA Pass 554)
 
 ## 개발 루프 실행 방식
 
@@ -644,6 +644,10 @@
 | Round 666 | ChatPanel 타임스탬프 토글 (showTimestamps, localStorage) | ✅ |
 | Round 667 | TerminalPanel 탭 색상 태그 (tabColors, 우클릭 메뉴) | ✅ |
 | Round 668 | QA Section 136 추가 (R665/R666/R667, Pass 551) | ✅ |
+| Round 669 | SessionList 세션 복제 (duplicateSession, ⧉ 버튼) | ✅ |
+| Round 670 | SceneViewPanel 노드 잠금 (lockedNodes/lockedLayers, 🔒/🔓) | ✅ |
+| Round 671 | InputBar 음성 입력 (isRecording, SpeechRecognition, 🎤) | ✅ |
+| Round 672 | QA Section 137 추가 (R669/R670/R671, Pass 554) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

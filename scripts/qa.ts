@@ -6354,6 +6354,41 @@ if (existsSync(tp667Path)) {
   }
 }
 
+// ── Section 137: Phase DD10 R669~671 기능 체크 ────────────────
+console.log('\n## 137. Phase DD10 R669~671 기능 체크')
+// R669: SessionList 세션 복제
+const sl669Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl669Path)) {
+  const sl669 = readFileSync(sl669Path, 'utf-8')
+  if (sl669.includes('duplicateSession')) {
+    log('pass', 'R669', 'SessionList 세션 복제 기능 존재')
+  } else {
+    log('warning', 'R669', 'SessionList 세션 복제 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R670: SceneViewPanel 노드 잠금
+const svp670Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp670Path)) {
+  const svp670 = readFileSync(svp670Path, 'utf-8')
+  if (svp670.includes('lockedNodes') || svp670.includes('lockNode') || svp670.includes('lockedLayer')) {
+    log('pass', 'R670', 'SceneViewPanel 노드 잠금 기능 존재')
+  } else {
+    log('warning', 'R670', 'SceneViewPanel 노드 잠금 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R671: InputBar 음성 입력
+const ib671Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib671Path)) {
+  const ib671 = readFileSync(ib671Path, 'utf-8')
+  if (ib671.includes('isRecording') || ib671.includes('SpeechRecognition') || ib671.includes('voiceInput')) {
+    log('pass', 'R671', 'InputBar 음성 입력 버튼 존재')
+  } else {
+    log('warning', 'R671', 'InputBar 음성 입력 없음', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

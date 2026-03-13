@@ -228,6 +228,17 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     return new Set()
   })
 
+  const duplicateSession = useCallback(async (id: string) => {
+    if (window.api?.duplicateSession) {
+      await window.api.duplicateSession(id)
+    } else if (window.api?.sessionDuplicate) {
+      await window.api.sessionDuplicate(id)
+    } else {
+      console.log('duplicate session:', id)
+    }
+    await refresh()
+  }, [refresh])
+
   const togglePin = useCallback((id: string) => {
     setPinnedSessions(prev => {
       const next = new Set(prev)
@@ -938,6 +949,25 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             </div>
           )}
         </div>
+        {/* Duplicate button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); duplicateSession(s.id) }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-muted)',
+            cursor: 'pointer',
+            fontSize: 13,
+            padding: '0 2px',
+            lineHeight: 1,
+            flexShrink: 0,
+            opacity: hoveredSession === s.id ? 1 : 0,
+            transition: 'opacity 0.1s',
+          }}
+          title="세션 복제"
+        >
+          ⧉
+        </button>
         {/* Pin button */}
         <button
           onClick={(e) => handlePin(e, s)}

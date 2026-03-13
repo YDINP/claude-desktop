@@ -192,7 +192,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [customTemplates, setCustomTemplates] = useState<SlashCommand[]>([])
   const [recentFiles, setRecentFiles] = useState<string[]>([])
   const [mentionSelected, setMentionSelected] = useState(0)
-  const [isListening, setIsListening] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
   const [enhancing, setEnhancing] = useState(false)
   const [snippetMatches, setSnippetMatches] = useState<Snippet[]>([])
   const [snippetMenuIdx, setSnippetMenuIdx] = useState(-1)
@@ -474,12 +474,69 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     }, 0)
   }
 
+  const selectVarSuggestion = (varName: string) => {
+    const cursorPos = cursorPosRef.current
+    const trigger = parseVarTrigger(text, cursorPos)
+    if (!trigger) {
+      setVarSuggestionsOpen(false)
+      return
+    }
+    const before = text.slice(0, trigger.triggerStart)
+    const after = text.slice(cursorPos)
+    const insertion = `{{${varName}}}`
+    const newText = before + insertion + after
+    setText(newText)
+    setVarSuggestionsOpen(false)
+    setVarSuggestionsIdx(0)
+    // save to history
+    try {
+      const stored = localStorage.getItem(TEMPLATE_VARS_KEY)
+      const history: string[] = stored ? JSON.parse(stored) : []
+      const updated = [varName, ...history.filter(v => v !== varName)].slice(0, 20)
+      localStorage.setItem(TEMPLATE_VARS_KEY, JSON.stringify(updated))
+    } catch { /* ignore */ }
+    const newCursor = before.length + insertion.length
+    setTimeout(() => {
+      adjustHeight()
+      const ta = textareaRef.current
+      if (ta) {
+        ta.focus()
+        ta.selectionStart = ta.selectionEnd = newCursor
+        cursorPosRef.current = newCursor
+      }
+    }, 0)
+  }
+
   const updateCursor = () => {
     cursorPosRef.current = textareaRef.current?.selectionStart ?? cursorPosRef.current
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     updateCursor()
+
+    // Var suggestions dropdown navigation
+    if (varSuggestionsOpen && varSuggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setVarSuggestionsIdx(i => (i + 1) % varSuggestions.length)
+        return
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setVarSuggestionsIdx(i => (i - 1 + varSuggestions.length) % varSuggestions.length)
+        return
+      }
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault()
+        selectVarSuggestion(varSuggestions[varSuggestionsIdx])
+        return
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setVarSuggestionsOpen(false)
+        return
+      }
+    }
 
     // Snippet shortcut dropdown navigation
     if (snippetMatches.length > 0) {
@@ -649,11 +706,11 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const handleVoiceInput = () => {
     const SpeechRecognitionAPI = window.SpeechRecognition ?? window.webkitSpeechRecognition
     if (!SpeechRecognitionAPI) {
-      alert('이 브라우저는 음성 인식을 지원하지 않습니다.')
+      console.log('speech not supported')
       return
     }
 
-    if (isListening) {
+    if (isRecording) {
       recognitionRef.current?.stop()
       return
     }
@@ -677,12 +734,12 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       setTimeout(() => adjustHeight(), 0)
     }
 
-    recognition.onerror = () => setIsListening(false)
-    recognition.onend = () => setIsListening(false)
+    recognition.onerror = () => setIsRecording(false)
+    recognition.onend = () => setIsRecording(false)
 
     recognitionRef.current = recognition
     recognition.start()
-    setIsListening(true)
+    setIsRecording(true)
   }
 
   const readFileAsText = (file: File): Promise<string> =>
@@ -887,6 +944,47 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Template var autocomplete dropdown */}
+      {varSuggestionsOpen && varSuggestions.length > 0 && (
+        <div style={{
+          position: 'absolute',
+          bottom: '100%',
+          left: 12,
+          right: 60,
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
+          borderRadius: 6,
+          marginBottom: 4,
+          overflow: 'hidden',
+          boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
+          zIndex: 110,
+        }}>
+          <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none' }}>
+            {'{{'} 변수 · ↑↓ 탐색 · Enter/Tab 선택 · Esc 닫기
+          </div>
+          {varSuggestions.map((varName, i) => (
+            <div
+              key={varName}
+              onClick={() => selectVarSuggestion(varName)}
+              onMouseEnter={() => setVarSuggestionsIdx(i)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '7px 12px',
+                cursor: 'pointer',
+                background: i === varSuggestionsIdx ? 'var(--bg-hover)' : 'transparent',
+                borderBottom: i < varSuggestions.length - 1 ? '1px solid var(--border)' : 'none',
+              }}
+            >
+              <span style={{ fontSize: 12, color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+                {`{{${varName}}}`}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 
@@ -1218,6 +1316,23 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
             setSnippetMatches([])
             setSnippetMenuIdx(-1)
           }
+          // Template var autocomplete trigger
+          const varTrigger = parseVarTrigger(val, pos)
+          if (varTrigger) {
+            try {
+              const stored = localStorage.getItem(TEMPLATE_VARS_KEY)
+              const history: string[] = stored ? JSON.parse(stored) : []
+              const partial = varTrigger.partial.toLowerCase()
+              const filtered = (partial.length === 0 ? history : history.filter(v => v.toLowerCase().startsWith(partial))).slice(0, MAX_VAR_SUGGESTIONS)
+              setVarSuggestions(filtered)
+              setVarSuggestionsOpen(filtered.length > 0)
+              setVarSuggestionsIdx(0)
+            } catch {
+              setVarSuggestionsOpen(false)
+            }
+          } else {
+            setVarSuggestionsOpen(false)
+          }
         }}
         onClick={updateCursor}
         onSelect={updateCursor}
@@ -1301,7 +1416,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           width: '100%',
           background: 'var(--bg-input)',
           color: 'var(--text-primary)',
-          border: `1px solid ${isNavigating ? 'var(--accent-dim)' : isSlashOpen || isMentionOpen || snippetMatches.length > 0 ? 'var(--accent)' : 'var(--border)'}`,
+          border: `1px solid ${isNavigating ? 'var(--accent-dim)' : isSlashOpen || isMentionOpen || snippetMatches.length > 0 || varSuggestionsOpen ? 'var(--accent)' : 'var(--border)'}`,
           borderRadius: 'var(--radius-sm)',
           padding: '8px 10px',
           fontSize: 13,
@@ -1349,17 +1464,17 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         <button
           onClick={handleVoiceInput}
           disabled={disabled}
-          title={isListening ? '녹음 중지' : '음성 입력'}
+          title={isRecording ? '녹음 중지' : '음성 입력'}
           style={{
             padding: '8px',
-            background: isListening ? 'var(--error)' : 'var(--bg-tertiary)',
-            color: isListening ? '#fff' : 'var(--text-muted)',
+            background: isRecording ? 'var(--error)' : 'var(--bg-tertiary)',
+            color: isRecording ? '#fff' : 'var(--text-muted)',
             borderRadius: 'var(--radius-sm)',
             fontSize: 14,
             flexShrink: 0,
             cursor: disabled ? 'not-allowed' : 'pointer',
             border: 'none',
-            animation: isListening ? 'pulse 1s infinite' : 'none',
+            animation: isRecording ? 'pulse 1s infinite' : 'none',
           }}
         >
           🎤
