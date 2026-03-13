@@ -8944,6 +8944,41 @@ if (existsSync(cocp899Path)) {
   }
 }
 
+console.log('\n## 211. Phase DD10 R900~902 기능 체크')
+
+// R900: SceneViewPanel 씬 프로파일러
+const svp900Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp900Path)) {
+  const svp900 = readFileSync(svp900Path, 'utf-8')
+  if (svp900.includes('sceneProfiler') || svp900.includes('profilerStats') || svp900.includes('drawCalls')) {
+    log('pass', 'R900', 'SceneViewPanel 씬 프로파일러 존재')
+  } else {
+    log('warning', 'R900', 'SceneViewPanel 씬 프로파일러 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R901: TerminalPanel 터미널 검색
+const tp901Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp901Path)) {
+  const tp901 = readFileSync(tp901Path, 'utf-8')
+  if (tp901.includes('terminalSearch') || tp901.includes('terminalSearchResults') || tp901.includes('termSearch')) {
+    log('pass', 'R901', 'TerminalPanel 터미널 검색 존재')
+  } else {
+    log('warning', 'R901', 'TerminalPanel 터미널 검색 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R902: SessionList 세션 북마크
+const sl902Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl902Path)) {
+  const sl902 = readFileSync(sl902Path, 'utf-8')
+  if (sl902.includes('sessionBookmarks') || sl902.includes('showBookmarkList') || sl902.includes('bookmarkIds')) {
+    log('pass', 'R902', 'SessionList 세션 북마크 존재')
+  } else {
+    log('warning', 'R902', 'SessionList 세션 북마크 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -219,6 +219,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showWorkflowPanel, setShowWorkflowPanel] = useState(false)
   const [sessionRelations, setSessionRelations] = useState<Record<string, string[]>>({})
   const [showRelationGraph, setShowRelationGraph] = useState(false)
+  const [sessionBookmarks, setSessionBookmarks] = useState<string[]>([])
+  const [showBookmarkList, setShowBookmarkList] = useState(false)
   const [readSessions, setReadSessions] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('read-sessions') ?? '[]')))
   const [searchHistory, setSearchHistory] = useState<string[]>(() => JSON.parse(localStorage.getItem('session-search-history') ?? '[]'))
   const [sessionSummaries, setSessionSummaries] = useState<Record<string, string>>({})

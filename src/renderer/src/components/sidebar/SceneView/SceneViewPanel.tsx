@@ -297,6 +297,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showNotesPanel, setShowNotesPanel] = useState(false)
   const [showBoundingBoxes, setShowBoundingBoxes] = useState(false)
   const [boundingBoxColor, setBoundingBoxColor] = useState('#00ff00')
+  const [sceneProfiler, setSceneProfiler] = useState(false)
+  const [profilerStats, setProfilerStats] = useState<{ fps: number; drawCalls: number; triangles: number } | null>(null)
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────
