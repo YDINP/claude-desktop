@@ -1040,6 +1040,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showBookmarkPanel, setShowBookmarkPanel] = React.useState(false)
   const [messageTags, setMessageTags] = React.useState<Record<string, string[]>>({})
   const [showTagFilter, setShowTagFilter] = React.useState(false)
+  const [messageLabels, setMessageLabels] = React.useState<Record<string, string>>({})
+  const [showLabelPicker, setShowLabelPicker] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
