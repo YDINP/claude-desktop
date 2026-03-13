@@ -17574,6 +17574,18 @@ console.log('\n## 528. R1637 Inspector 중복 이름 배지 체크')
   }
 }
 
+// ── Section 529: R1638 SceneView Shift+리사이즈 종횡비 유지 ──────────────────
+console.log('\n## 529. R1638 SceneView Shift+리사이즈 종횡비 유지 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s529 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s529.includes('R1638') && s529.includes('Shift+리사이즈') && s529.includes('e.shiftKey && dir === \'SE\'') && s529.includes('startW / startH')) {
+    log('pass', 'R1638-shift-resize', 'SceneView Shift+리사이즈 종횡비 유지')
+  } else {
+    log('warning', 'R1638-shift-resize', 'SceneView Shift+리사이즈 종횡비 유지 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

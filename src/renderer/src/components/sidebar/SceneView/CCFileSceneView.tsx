@@ -329,12 +329,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const dx = e.clientX - resizeRef.current.startMouseX
       const dy = e.clientY - resizeRef.current.startMouseY
       const z = viewRef.current.zoom
-      const { dir } = resizeRef.current
-      setResizeOverride({
-        uuid: resizeRef.current.uuid,
-        w: dir !== 'S' ? Math.max(1, resizeRef.current.startW + dx / z) : resizeRef.current.startW,
-        h: dir !== 'E' ? Math.max(1, resizeRef.current.startH + dy / z) : resizeRef.current.startH,
-      })
+      const { dir, startW, startH } = resizeRef.current
+      let newW = dir !== 'S' ? Math.max(1, startW + dx / z) : startW
+      let newH = dir !== 'E' ? Math.max(1, startH + dy / z) : startH
+      // R1638: Shift+리사이즈 — SE 핸들에서 종횡비 유지
+      if (e.shiftKey && dir === 'SE' && startW > 0 && startH > 0) {
+        const ratio = startW / startH
+        if (Math.abs(dx) / z > Math.abs(dy) / z) newH = Math.max(1, newW / ratio)
+        else newW = Math.max(1, newH * ratio)
+      }
+      setResizeOverride({ uuid: resizeRef.current.uuid, w: newW, h: newH })
       return
     }
     if (dragRef.current) {
