@@ -370,6 +370,19 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     endSize: e._N$endSize ?? e._endSize ?? e.endSize ?? 50,
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? true,
   }),
+  // R1557: cc.SafeArea — 모바일 노치/SafeArea 적용
+  'cc.SafeArea': _e => ({
+    // SafeArea는 적용 여부만 표시 (별도 props 없음)
+    applied: true,
+  }),
+  // R1557: cc.BlockInputEvents — 클릭 이벤트 차단
+  'cc.BlockInputEvents': _e => ({
+    blocking: true,
+  }),
+  // R1557: cc.UIStaticBatch — UI 정적 배칭 최적화
+  'cc.UIStaticBatch': _e => ({
+    static: true,
+  }),
   // R1556: cc.TiledMap — Tiled 맵 컴포넌트
   'cc.TiledMap': e => ({
     tmxFile: (e._N$tmxFile ?? e._tmxFile ?? e.tmxFile) as unknown,

@@ -16558,6 +16558,25 @@ console.log('\n## 447. R1556 cc.TiledMap/TiledLayer 컴포넌트 체크')
   }
 }
 
+// ── Section 448: R1557 SafeArea/BlockInputEvents/UIStaticBatch + 아이콘 ──
+console.log('\n## 448. R1557 SafeArea/BlockInputEvents 컴포넌트 + 툴팁 아이콘 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s448p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s448sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s448p.includes("'cc.SafeArea'") && s448p.includes("'cc.BlockInputEvents'") && s448p.includes("'cc.UIStaticBatch'")) {
+    log('pass', 'R1557-parser', 'cc.SafeArea + cc.BlockInputEvents + cc.UIStaticBatch extractor 추가')
+  } else {
+    log('warning', 'R1557-parser', 'cc.SafeArea/BlockInputEvents extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s448sv.includes("'cc.SafeArea': '📱'") && s448sv.includes("'sp.Skeleton': '🦴'") && s448sv.includes("'dragonBones.ArmatureDisplay': '🐉'")) {
+    log('pass', 'R1557-icons', '새 컴포넌트 호버 툴팁 아이콘 추가 (SafeArea/Spine/DragonBones/Collider)')
+  } else {
+    log('warning', 'R1557-icons', '새 컴포넌트 아이콘 미추가', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1449,6 +1449,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           'cc.Label': 'T', 'cc.Sprite': '🖼', 'cc.Button': '⬜', 'cc.Toggle': '☑', 'cc.Slider': '⊟',
           'cc.ScrollView': '⊠', 'cc.RichText': 'T', 'cc.AudioSource': '♪', 'cc.Widget': '⚓',
           'cc.Layout': '▤', 'cc.Animation': '▶', 'cc.ProgressBar': '▰', 'cc.VideoPlayer': '▷',
+          // R1557: 추가 컴포넌트 아이콘
+          'cc.SafeArea': '📱', 'cc.BlockInputEvents': '🚫', 'cc.TiledMap': '🗺', 'sp.Skeleton': '🦴',
+          'dragonBones.ArmatureDisplay': '🐉', 'cc.RigidBody': '⚙', 'cc.BoxCollider': '⬡', 'cc.CircleCollider': '○',
         }
         return (
           <div
