@@ -192,6 +192,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showRenderSettings, setShowRenderSettings] = React.useState(false)
   const [sceneFilter, setSceneFilter] = React.useState('')
   const [sceneFilterResults, setSceneFilterResults] = React.useState<string[]>([])
+  const [nodeSortMode, setNodeSortMode] = React.useState<'name' | 'type' | 'index'>('index')
+  const [nodeSortOrder, setNodeSortOrder] = React.useState<'asc' | 'desc'>('asc')
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

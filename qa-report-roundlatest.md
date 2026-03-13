@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T12:37:47.081Z
+> 2026-03-13T12:39:07.298Z
 
 ## Critical
 _없음_
@@ -877,3 +877,9 @@ _없음_
 - SceneViewPanel 드래그 모드 존재
 - TerminalPanel 명령어 팔레트 존재
 - SessionList 세션 색상 존재
+- ChatPanel 대화 요약 패널 존재
+- InputBar 입력 잠금 존재
+- CocosPanel 노드 정렬 존재
+- SceneViewPanel 씬 비교 존재
+- TerminalPanel Round 1000 마일스톤 존재 🎉
+- SessionList 세션 통계 존재

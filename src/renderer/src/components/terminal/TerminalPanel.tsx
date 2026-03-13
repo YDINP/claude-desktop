@@ -410,6 +410,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showRemotePanel, setShowRemotePanel] = React.useState(false)
   const [cmdPalette, setCmdPalette] = React.useState(false)
   const [cmdPaletteQuery, setCmdPaletteQuery] = React.useState('')
+  const [milestone, setMilestone] = React.useState(1000)
+  const [showMilestonePanel, setShowMilestonePanel] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

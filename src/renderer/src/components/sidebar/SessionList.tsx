@@ -322,6 +322,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showLockConfirm, setShowLockConfirm] = React.useState(false)
   const [sharedSessions, setSharedSessions] = React.useState<string[]>([])
   const [showSharePanel, setShowSharePanel] = React.useState(false)
+  const [listStats, setListStats] = React.useState<Record<string, number>>({})
+  const [showListStats, setShowListStats] = React.useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
