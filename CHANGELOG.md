@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 406] — 2026-03-13
+### Added
+- GlobalSearchPanel: ESC 키로 검색 초기화 + Enter 키로 즉시 검색 (디바운스 우회)
+
 ## [Round 405] — 2026-03-13
 ### Added
 - PromptChainPanel: 체인 결과 전체 복사 — 완료된 단계 결과를 Markdown 형식으로 클립보드에 복사하는 📋 버튼

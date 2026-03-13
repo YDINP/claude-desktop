@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 308: R406 신규 기능 ───────────────────────────────
+console.log('\n## 308. 신규 기능 파일 검사 (R406)')
+// GlobalSearchPanel ESC + Enter 키 핸들러 (Round 406)
+const gsp406Path = join(ROOT, 'src/renderer/src/components/sidebar/GlobalSearchPanel.tsx')
+if (existsSync(gsp406Path)) {
+  const gsp406 = readFileSync(gsp406Path, 'utf-8')
+  if (gsp406.includes("'Escape'") && gsp406.includes("'Enter'") && gsp406.includes('setResults([])')) {
+    log('pass', 'Round406', 'GlobalSearchPanel: ESC 초기화 + Enter 즉시검색 존재')
+  } else {
+    log('warning', 'Round406', 'GlobalSearchPanel ESC/Enter 핸들러 미구현', 'sidebar/GlobalSearchPanel.tsx')
+  }
+}
+
 // ── Section 307: R405 신규 기능 ───────────────────────────────
 console.log('\n## 307. 신규 기능 파일 검사 (R405)')
 // PromptChainPanel 체인 결과 전체 복사 (Round 405)

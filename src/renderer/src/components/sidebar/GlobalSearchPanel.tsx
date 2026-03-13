@@ -82,6 +82,13 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
           onChange={handleChange}
           onFocus={() => { if (!query.trim() && searchHistory.length > 0) setShowHistory(true) }}
           onBlur={() => setTimeout(() => setShowHistory(false), 150)}
+          onKeyDown={e => {
+            if (e.key === 'Escape') { setQuery(''); setResults([]); setSearched(false) }
+            else if (e.key === 'Enter' && query.trim().length >= 2) {
+              if (debounceRef.current) clearTimeout(debounceRef.current)
+              search(query)
+            }
+          }}
           placeholder="전체 세션 검색..."
           autoFocus
           style={{
