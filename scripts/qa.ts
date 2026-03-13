@@ -9014,6 +9014,41 @@ if (existsSync(cocp905Path)) {
   }
 }
 
+console.log('\n## 213. Phase DD10 R906~908 기능 체크')
+
+// R906: SceneViewPanel 렌더 모드 전환
+const svp906Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp906Path)) {
+  const svp906 = readFileSync(svp906Path, 'utf-8')
+  if (svp906.includes('renderMode') || svp906.includes('showRenderOptions') || svp906.includes('wireframe')) {
+    log('pass', 'R906', 'SceneViewPanel 렌더 모드 전환 존재')
+  } else {
+    log('warning', 'R906', 'SceneViewPanel 렌더 모드 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R907: TerminalPanel 환경변수 편집기
+const tp907Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp907Path)) {
+  const tp907 = readFileSync(tp907Path, 'utf-8')
+  if (tp907.includes('envVars') || tp907.includes('showEnvEditor') || tp907.includes('showEnvVars')) {
+    log('pass', 'R907', 'TerminalPanel 환경변수 편집기 존재')
+  } else {
+    log('warning', 'R907', 'TerminalPanel 환경변수 편집기 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R908: SessionList 세션 히트맵
+const sl908Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl908Path)) {
+  const sl908 = readFileSync(sl908Path, 'utf-8')
+  if (sl908.includes('sessionHeatmap') || sl908.includes('heatmapData') || sl908.includes('activityMap')) {
+    log('pass', 'R908', 'SessionList 세션 히트맵 존재')
+  } else {
+    log('warning', 'R908', 'SessionList 세션 히트맵 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
