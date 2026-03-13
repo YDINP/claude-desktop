@@ -353,6 +353,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   // R1153: word count
   const [wordCount, setWordCount] = useState(0)
   const [showWordCount, setShowWordCount] = useState(false)
+  // R1171: code completion
+  const [codeCompletions, setCodeCompletions] = useState<string[]>([])
+  const [showCodeComplete, setShowCodeComplete] = useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

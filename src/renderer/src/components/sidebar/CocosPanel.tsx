@@ -249,6 +249,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1166: asset search
   const [assetSearchQuery, setAssetSearchQuery] = useState('')
   const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])
+  // R1172: scene bookmarks
+  const [sceneBookmarks, setSceneBookmarks] = useState<string[]>([])
+  const [showSceneBookmarks, setShowSceneBookmarks] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

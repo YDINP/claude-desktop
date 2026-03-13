@@ -1656,6 +1656,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // R1161: node animations
   const [nodeAnimations, setNodeAnimations] = React.useState<Record<string, string[]>>({})
   const [showAnimPanel, setShowAnimPanel] = React.useState(false)
+  // R1173: node physics
+  const [nodePhysics, setNodePhysics] = React.useState<Record<string, boolean>>({})
+  const [showPhysicsPanel, setShowPhysicsPanel] = React.useState(false)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {

@@ -360,6 +360,9 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showSchedulePanel, setShowSchedulePanel] = React.useState(false)
   const [compareSessionA, setCompareSessionA] = React.useState<string | null>(null)
   const [compareSessionB, setCompareSessionB] = React.useState<string | null>(null)
+  // R1175: starred sessions
+  const [starredSessions, setStarredSessions] = useState<Set<string>>(new Set())
+  const [showStarredOnly, setShowStarredOnly] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
