@@ -500,13 +500,17 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [welcomePendingInsert, setWelcomePendingInsert] = useState<string | undefined>(undefined)
   const [minimapScroll, setMinimapScroll] = useState({ scrollTop: 0, clientHeight: 1, totalScrollHeight: 1 })
+  const [suggestionIndex, setSuggestionIndex] = useState<number>(-1)
+  const [suggestionPendingInsert, setSuggestionPendingInsert] = useState<string | undefined>(undefined)
+
+  const onSelectSuggestion = useCallback((text: string) => {
+    setSuggestionPendingInsert(text)
+    setSuggestionIndex(-1)
+  }, [])
 
   // ── 뷰 모드 (compact / wide) ──────────────────────────────────────────────
   const [chatViewMode, setChatViewMode] = useState<'compact' | 'wide'>(() =>
     (localStorage.getItem('chat-view-mode') as 'compact' | 'wide') ?? 'compact'
-  )
-  const [showTimestamps, setShowTimestamps] = useState(() =>
-    localStorage.getItem('show-timestamps') === 'true'
   )
   const toggleViewMode = () => setChatViewMode(v => {
     const next = v === 'compact' ? 'wide' : 'compact'
@@ -1649,39 +1653,50 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       )}
 
       {suggestions && suggestions.length > 0 && !chat.isStreaming && (
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 6,
-          padding: '8px 12px',
-          borderTop: '1px solid var(--border)',
-          background: 'var(--bg-secondary)',
-          flexShrink: 0,
-          alignItems: 'center',
-        }}>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', marginRight: 2 }}>제안:</span>
-          {suggestions.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => { handleSend(s); if (onDismissSuggestions) onDismissSuggestions() }}
-              style={{
-                background: 'rgba(82,139,255,0.1)',
-                border: '1px solid rgba(82,139,255,0.3)',
-                borderRadius: 16,
-                fontSize: 12,
-                padding: '4px 12px',
-                cursor: 'pointer',
-                color: 'var(--text-primary)',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(82,139,255,0.2)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(82,139,255,0.1)' }}
-            >{s}</button>
-          ))}
+        <div
+          className="suggestionBar"
+          style={{
+            display: 'flex',
+            flexWrap: 'nowrap',
+            overflowX: 'auto',
+            gap: 6,
+            padding: '8px 12px',
+            borderTop: '1px solid var(--border)',
+            background: 'var(--bg-secondary)',
+            flexShrink: 0,
+            alignItems: 'center',
+            scrollbarWidth: 'none',
+          }}
+        >
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', marginRight: 2, flexShrink: 0 }}>제안:</span>
+          {suggestions.map((s, i) => {
+            const isSelected = i === suggestionIndex
+            return (
+              <button
+                key={i}
+                onClick={() => { onSelectSuggestion(s); if (onDismissSuggestions) onDismissSuggestions() }}
+                onMouseEnter={() => setSuggestionIndex(i)}
+                onMouseLeave={() => setSuggestionIndex(-1)}
+                style={{
+                  background: isSelected ? 'rgba(82,139,255,0.25)' : 'rgba(82,139,255,0.1)',
+                  border: isSelected ? '1px solid rgba(82,139,255,0.6)' : '1px solid rgba(82,139,255,0.3)',
+                  borderRadius: 16,
+                  fontSize: 12,
+                  padding: '4px 12px',
+                  cursor: 'pointer',
+                  color: 'var(--text-primary)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  transition: 'background 0.15s, border-color 0.15s',
+                }}
+              >{s}</button>
+            )
+          })}
           <button
             onClick={onDismissSuggestions}
             style={{
               background: 'none', border: 'none', color: 'var(--text-muted)',
-              fontSize: 14, cursor: 'pointer', padding: '2px 6px', lineHeight: 1, marginLeft: 'auto',
+              fontSize: 14, cursor: 'pointer', padding: '2px 6px', lineHeight: 1, marginLeft: 'auto', flexShrink: 0,
             }}
             title="닫기"
           >×</button>
@@ -1918,9 +1933,10 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         isStreaming={chat.isStreaming}
         disabled={!project.currentPath}
         focusTrigger={focusTrigger}
-        pendingInsert={welcomePendingInsert ?? pendingInsert}
+        pendingInsert={suggestionPendingInsert ?? welcomePendingInsert ?? pendingInsert}
         onPendingInsertConsumed={() => {
-          if (welcomePendingInsert) setWelcomePendingInsert(undefined)
+          if (suggestionPendingInsert) setSuggestionPendingInsert(undefined)
+          else if (welcomePendingInsert) setWelcomePendingInsert(undefined)
           else onPendingInsertConsumed?.()
         }}
         onOpenPromptChain={onOpenPromptChain}

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 676 완료 — Phase DD10 진행 중, QA Pass 557)
+> 마지막 업데이트: 2026-03-13 (Round 680 완료 — Phase DD10 진행 중, QA Pass 560)
 
 ## 개발 루프 실행 방식
 
@@ -652,6 +652,10 @@
 | Round 674 | MessageBubble 인용 답장 (onQuoteReply, 앞 80자 인용) | ✅ |
 | Round 675 | SceneToolbar 노드 정렬 버튼 (onAlignNodes, 6방향 정렬) | ✅ |
 | Round 676 | QA Section 138 추가 (R673/R674/R675, Pass 557) | ✅ |
+| Round 677 | SessionList 세션 병합 UI (mergeMode, mergeTargets) | ✅ |
+| Round 678 | ChatPanel AI 제안 표시 개선 (suggestionIndex, 칩 UI) | ✅ |
+| Round 679 | TerminalPanel 명령어 즐겨찾기 (cmdBookmarks, cmdBookmarkOpen) | ✅ |
+| Round 680 | QA Section 139 추가 (R677/R678/R679, Pass 560) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

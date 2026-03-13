@@ -6424,6 +6424,41 @@ if (existsSync(st675Path)) {
   }
 }
 
+// ── Section 139: Phase DD10 R677~679 기능 체크 ────────────────
+console.log('\n## 139. Phase DD10 R677~679 기능 체크')
+// R677: SessionList 세션 병합
+const sl677Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl677Path)) {
+  const sl677 = readFileSync(sl677Path, 'utf-8')
+  if (sl677.includes('mergeMode') || sl677.includes('mergeTargets') || sl677.includes('mergeSessions')) {
+    log('pass', 'R677', 'SessionList 세션 병합 UI 존재')
+  } else {
+    log('warning', 'R677', 'SessionList 세션 병합 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R678: ChatPanel AI 제안 개선
+const cp678Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp678Path)) {
+  const cp678 = readFileSync(cp678Path, 'utf-8')
+  if (cp678.includes('suggestionIndex') || cp678.includes('onSelectSuggestion') || cp678.includes('suggestionBar')) {
+    log('pass', 'R678', 'ChatPanel AI 제안 표시 개선 존재')
+  } else {
+    log('warning', 'R678', 'ChatPanel AI 제안 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R679: TerminalPanel 명령어 즐겨찾기
+const tp679Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp679Path)) {
+  const tp679 = readFileSync(tp679Path, 'utf-8')
+  if (tp679.includes('cmdBookmarks') || tp679.includes('cmdBookmarkOpen') || tp679.includes('bookmarkCmd')) {
+    log('pass', 'R679', 'TerminalPanel 명령어 즐겨찾기 존재')
+  } else {
+    log('warning', 'R679', 'TerminalPanel 즐겨찾기 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

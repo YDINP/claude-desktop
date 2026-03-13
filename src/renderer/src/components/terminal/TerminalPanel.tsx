@@ -8,6 +8,16 @@ import { recordCommand, getTopCommands } from '../../utils/command-learner'
 
 const QUICK_CMDS_KEY = 'terminalQuickCmds'
 const TAB_COLORS_KEY = 'terminal-tab-colors'
+const CMD_BOOKMARKS_KEY = 'cmd-bookmarks'
+
+const loadCmdBookmarks = (): string[] => {
+  try { return JSON.parse(localStorage.getItem(CMD_BOOKMARKS_KEY) ?? 'null') ?? [] }
+  catch { return [] }
+}
+
+const saveCmdBookmarks = (bookmarks: string[]) => {
+  localStorage.setItem(CMD_BOOKMARKS_KEY, JSON.stringify(bookmarks))
+}
 
 const TAB_COLOR_OPTIONS = [
   { label: '기본', value: '' },
@@ -140,6 +150,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // Quick commands state
   const [quickCmds, setQuickCmds] = useState<QuickCmd[]>(loadQuickCmds)
   const [editingCmds, setEditingCmds] = useState(false)
+  const [cmdBookmarks, setCmdBookmarks] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('cmd-bookmarks') ?? '[]') } catch { return [] }
+  })
+  const [cmdBookmarkOpen, setCmdBookmarkOpen] = useState(false)
 
   // Learned commands state
   const [learnedCmds, setLearnedCmds] = useState<string[]>([])
@@ -170,6 +184,29 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
     setQuickCmds(prev => {
       const next = [...prev, { id: Date.now().toString(), label: '', cmd: '' }]
       saveQuickCmds(next)
+      return next
+    })
+  }
+
+  // Bookmark state
+  const [cmdBookmarks, setCmdBookmarks] = useState<string[]>(loadCmdBookmarks)
+  const [cmdBookmarkOpen, setCmdBookmarkOpen] = useState(false)
+
+  const bookmarkCmd = () => {
+    const current = (inputBufferRef.current[activeTabId] ?? '').trim()
+    if (!current) return
+    setCmdBookmarks(prev => {
+      if (prev.includes(current)) return prev
+      const next = [current, ...prev].slice(0, 10)
+      saveCmdBookmarks(next)
+      return next
+    })
+  }
+
+  const removeBookmark = (cmd: string) => {
+    setCmdBookmarks(prev => {
+      const next = prev.filter(c => c !== cmd)
+      saveCmdBookmarks(next)
       return next
     })
   }
@@ -506,7 +543,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
     }}>
       {/* Tab bar */}
       <div
-        onClick={() => setTabColorMenuOpen(null)}
+        onClick={() => { setTabColorMenuOpen(null); setCmdBookmarkOpen(false) }}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -854,13 +891,75 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             {qc.label || qc.cmd}
           </button>
         ))}
-        <button
-          onClick={() => setEditingCmds(e => !e)}
-          title="빠른 명령어 편집"
-          style={{ marginLeft: 'auto', padding: '2px 6px', fontSize: 11, background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)' }}
-        >
-          &#9881;
-        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, position: 'relative' }}>
+          {/* Bookmark add button */}
+          <button
+            onClick={bookmarkCmd}
+            onContextMenu={e => { e.preventDefault(); setCmdBookmarkOpen(prev => !prev) }}
+            title="현재 입력 명령어 즐겨찾기 추가 (우클릭: 목록)"
+            style={{ padding: '2px 6px', fontSize: 13, background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLElement).style.color = 'var(--accent)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+          >
+            ★
+          </button>
+          {/* Bookmark dropdown */}
+          {cmdBookmarkOpen && (
+            <div
+              onClick={e => e.stopPropagation()}
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                zIndex: 200,
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                minWidth: 200,
+                maxHeight: 260,
+                overflowY: 'auto',
+                marginTop: 2,
+              }}
+            >
+              <div style={{ padding: '4px 8px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>즐겨찾기 ({cmdBookmarks.length}/10)</span>
+                <button onClick={() => setCmdBookmarkOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, padding: 0 }}>×</button>
+              </div>
+              {cmdBookmarks.length === 0 ? (
+                <div style={{ padding: '8px 10px', fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic' }}>즐겨찾기 없음</div>
+              ) : (
+                cmdBookmarks.map((cmd, idx) => (
+                  <div
+                    key={idx}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-tertiary)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                  >
+                    <span
+                      onClick={() => { sendQuickCmd(cmd + '\n'); setCmdBookmarkOpen(false) }}
+                      title={cmd}
+                      style={{ flex: 1, fontSize: 11, color: 'var(--text-primary)', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    >
+                      {cmd.length > 30 ? cmd.slice(0, 30) + '…' : cmd}
+                    </span>
+                    <button
+                      onClick={() => removeBookmark(cmd)}
+                      style={{ background: 'none', border: 'none', color: '#f44336', cursor: 'pointer', fontSize: 12, padding: '0 2px', flexShrink: 0 }}
+                    >×</button>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+          <button
+            onClick={() => setEditingCmds(e => !e)}
+            title="빠른 명령어 편집"
+            style={{ padding: '2px 6px', fontSize: 11, background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)' }}
+          >
+            &#9881;
+          </button>
+        </div>
       </div>
 
       {/* Quick commands edit panel */}

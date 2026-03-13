@@ -184,7 +184,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [mergeMode, setMergeMode] = useState(false)
-  const [mergeSourceId, setMergeSourceId] = useState<string | null>(null)
+  const [mergeTargets, setMergeTargets] = useState<Set<string>>(new Set())
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
   const [archiveOpen, setArchiveOpen] = useState(false)
@@ -227,17 +227,6 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     } catch { /* ignore */ }
     return new Set()
   })
-
-  const duplicateSession = useCallback(async (id: string) => {
-    if (window.api?.duplicateSession) {
-      await window.api.duplicateSession(id)
-    } else if (window.api?.sessionDuplicate) {
-      await window.api.sessionDuplicate(id)
-    } else {
-      console.log('duplicate session:', id)
-    }
-    await refresh()
-  }, [refresh])
 
   const togglePin = useCallback((id: string) => {
     setPinnedSessions(prev => {
@@ -284,6 +273,17 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
       setLoading(false)
     }
   }, [])
+
+  const duplicateSession = useCallback(async (id: string) => {
+    if (window.api?.duplicateSession) {
+      await window.api.duplicateSession(id)
+    } else if (window.api?.sessionDuplicate) {
+      await window.api.sessionDuplicate(id)
+    } else {
+      console.log('duplicate session:', id)
+    }
+    await refresh()
+  }, [refresh])
 
   useEffect(() => {
     refresh()
@@ -346,7 +346,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
         setSelectionMode(false)
         setSelectedIds(new Set())
         setMergeMode(false)
-        setMergeSourceId(null)
+        setMergeTargets(new Set())
       }
     }
     document.addEventListener('keydown', handleKeyDown)
@@ -702,23 +702,13 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
         }}
         onDragEnd={() => { setDragId(null); setDragOverId(null) }}
         onClick={async () => {
-          if (mergeMode && mergeSourceId) {
-            if (mergeSourceId === s.id) { setMergeMode(false); setMergeSourceId(null); return }
-            if (s.locked) { toast('잠금된 세션에는 병합할 수 없습니다', 'error'); return }
-            const sourceSession = sessions.find(x => x.id === mergeSourceId)
-            const sourceName = sourceSession?.title ?? mergeSourceId
-            const targetName = s.title ?? s.id
-            if (window.confirm(`'${sourceName}'의 메시지를 '${targetName}'에 추가할까요?\n(소스 세션은 삭제됩니다)`)) {
-              const result = await window.api.sessionMerge(mergeSourceId, s.id)
-              if (result.ok) {
-                await refresh()
-                toast('세션이 병합되었습니다', 'success')
-              } else {
-                toast('병합 실패: ' + (result.error ?? ''), 'error')
-              }
-            }
-            setMergeMode(false)
-            setMergeSourceId(null)
+          if (mergeMode) {
+            setMergeTargets(prev => {
+              const next = new Set(prev)
+              if (next.has(s.id)) next.delete(s.id)
+              else next.add(s.id)
+              return next
+            })
           } else if (selectionMode) {
             setSelectedIds(prev => {
               const next = new Set(prev)
@@ -1442,13 +1432,23 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           justifyContent: 'space-between',
           gap: 8,
         }}>
-          <span>병합 모드: 대상 세션을 클릭하세요</span>
-          <button
-            onClick={() => { setMergeMode(false); setMergeSourceId(null) }}
-            style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 12, padding: '0 2px', lineHeight: 1 }}
-          >
-            &#x2715;
-          </button>
+          <span>병합 모드: 세션을 선택하세요 ({mergeTargets.size}개 선택됨)</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {mergeTargets.size >= 2 && (
+              <button
+                onClick={() => { console.log('merge sessions:', [...mergeTargets]); setMergeMode(false); setMergeTargets(new Set()) }}
+                style={{ background: '#fff', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 11, padding: '2px 8px', borderRadius: 4, fontWeight: 600, lineHeight: 1.4 }}
+              >
+                병합
+              </button>
+            )}
+            <button
+              onClick={() => { setMergeMode(false); setMergeTargets(new Set()) }}
+              style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 12, padding: '0 2px', lineHeight: 1 }}
+            >
+              &#x2715;
+            </button>
+          </div>
         </div>
       )}
       {/* Collection sections */}
