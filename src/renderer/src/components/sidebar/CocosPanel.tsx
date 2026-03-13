@@ -559,6 +559,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [wizardTemplate, setWizardTemplate] = useState<'empty' | 'ui'>('empty')
   const [wizardCreating, setWizardCreating] = useState(false)
   const [wizardError, setWizardError] = useState<string | null>(null)
+  // R1514: 프리팹 인스턴스화
+  const [prefabPickerOpen, setPrefabPickerOpen] = useState(false)
+  const [insertingPrefab, setInsertingPrefab] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -1369,6 +1372,35 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (!moved) return
     await saveScene(insert(reduced))
   }, [sceneFile, saveScene])
+
+  // R1514: 프리팹 삽입 핸들러
+  const handleInsertPrefab = useCallback(async (prefabPath: string) => {
+    if (!sceneFile?.root || !projectInfo) return
+    setInsertingPrefab(true)
+    setPrefabPickerOpen(false)
+    try {
+      const result = await window.api.ccFileReadScene(prefabPath, projectInfo)
+      if (!result || result.error || !result.root) {
+        console.error('[R1514] 프리팹 로드 실패:', result?.error)
+        return
+      }
+      const prefabRoot: CCSceneNode = result.root
+      const instNode = deepCopyNodeWithNewUuids(prefabRoot, '')
+      // 이름 중복 방지: 파일명 기반
+      const prefabName = prefabPath.replace(/\\/g, '/').split('/').pop()?.replace(/\.prefab$/i, '') ?? 'PrefabInst'
+      const namedInst = { ...instNode, name: prefabName, _rawIndex: undefined }
+      const targetUuid = selectedNode?.uuid ?? sceneFile.root.uuid
+      function insertInto(n: CCSceneNode): CCSceneNode {
+        if (n.uuid === targetUuid) return { ...n, children: [...n.children, namedInst] }
+        return { ...n, children: n.children.map(insertInto) }
+      }
+      await saveScene(insertInto(sceneFile.root))
+    } catch (e) {
+      console.error('[R1514] 프리팹 삽입 오류:', e)
+    } finally {
+      setInsertingPrefab(false)
+    }
+  }, [sceneFile, projectInfo, selectedNode, saveScene])
 
   // 트리 컨텍스트 메뉴용 핸들러들
   const handleTreeAddChild = useCallback(async (parentUuid: string) => {
@@ -2208,6 +2240,39 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   </span>
                 )
               })()}
+              {/* R1514: 프리팹 삽입 버튼 */}
+              {projectInfo.scenes.some(s => s.endsWith('.prefab')) && (
+                <span
+                  onClick={() => setPrefabPickerOpen(p => !p)}
+                  title="프리팹 삽입 (🧩)"
+                  style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: prefabPickerOpen ? '#a78bfa' : '#666', position: 'relative' }}
+                >
+                  {insertingPrefab ? '⟳' : '🧩'}
+                  {prefabPickerOpen && (
+                    <div style={{
+                      position: 'absolute', top: 18, right: 0, zIndex: 999,
+                      background: 'var(--panel-bg, #16213e)', border: '1px solid var(--border)',
+                      borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.5)', minWidth: 180, maxHeight: 200, overflowY: 'auto',
+                    }}
+                    onMouseLeave={() => setPrefabPickerOpen(false)}
+                    >
+                      <div style={{ padding: '4px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>프리팹 선택</div>
+                      {projectInfo.scenes.filter(s => s.endsWith('.prefab')).map(p => (
+                        <div
+                          key={p}
+                          onClick={e => { e.stopPropagation(); handleInsertPrefab(p) }}
+                          style={{ padding: '5px 10px', fontSize: 10, cursor: 'pointer', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(167,139,250,0.15)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                          title={p}
+                        >
+                          🧩 {p.replace(/\\/g, '/').split('/').pop()}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </span>
+              )}
               <span onClick={expandAll} title="전체 펼치기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊞</span>
               <span onClick={collapseAll} title="전체 접기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊟</span>
               <span

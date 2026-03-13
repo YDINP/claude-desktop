@@ -15992,6 +15992,55 @@ if (existsSync(cp420) && existsSync(sv420)) {
   }
 }
 
+// ── Section 421: R1512 정렬 가이드라인 체크 ──────────────────────
+console.log('\n## 421. R1512 SceneView 정렬 가이드라인 체크')
+const sv421 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv421)) {
+  const s421 = readFileSync(sv421, 'utf-8')
+  if (s421.includes("alignGuides") && s421.includes("setAlignGuides") && s421.includes("ALIGN_SNAP_THRESHOLD")) {
+    log('pass', 'R1512-align-state', 'alignGuides 상태 + ALIGN_SNAP_THRESHOLD 선언')
+  } else {
+    log('warning', 'R1512-align-state', 'alignGuides 상태 미선언', 'CCFileSceneView.tsx')
+  }
+  if (s421.includes("R1512") && s421.includes("vPairs") && s421.includes("hPairs")) {
+    log('pass', 'R1512-guide-calc', '드래그 중 V/H 가이드라인 계산 로직 구현 (vPairs/hPairs)')
+  } else {
+    log('warning', 'R1512-guide-calc', '가이드라인 계산 로직 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s421.includes("ag-v-") && s421.includes("ag-h-") && s421.includes("ff4488")) {
+    log('pass', 'R1512-guide-render', 'SVG 정렬 가이드라인 렌더링 (빨간 점선) 구현')
+  } else {
+    log('warning', 'R1512-guide-render', '가이드라인 SVG 렌더링 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s421.includes("setAlignGuides([])")) {
+    log('pass', 'R1512-guide-clear', 'mouseUp 시 alignGuides 클리어 구현')
+  } else {
+    log('warning', 'R1512-guide-clear', 'mouseUp alignGuides 클리어 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 422: R1514 프리팹 인스턴스화 체크 ──────────────────────
+console.log('\n## 422. R1514 Prefab 인스턴스화 체크')
+const cp422 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp422)) {
+  const c422 = readFileSync(cp422, 'utf-8')
+  if (c422.includes('handleInsertPrefab') && c422.includes('ccFileReadScene') && c422.includes('deepCopyNodeWithNewUuids')) {
+    log('pass', 'R1514-insert-prefab', 'handleInsertPrefab — IPC 로드 + deepCopy + 씬 삽입 구현')
+  } else {
+    log('warning', 'R1514-insert-prefab', '프리팹 삽입 핸들러 미구현', 'CocosPanel.tsx')
+  }
+  if (c422.includes('prefabPickerOpen') && c422.includes('setPrefabPickerOpen')) {
+    log('pass', 'R1514-prefab-picker-ui', '프리팹 선택 드롭다운 UI 구현')
+  } else {
+    log('warning', 'R1514-prefab-picker-ui', '프리팹 피커 UI 미구현', 'CocosPanel.tsx')
+  }
+  if (c422.includes("s.endsWith('.prefab')") && c422.includes('insertingPrefab')) {
+    log('pass', 'R1514-prefab-filter', '.prefab 파일 필터링 + 로딩 상태 표시')
+  } else {
+    log('warning', 'R1514-prefab-filter', '프리팹 필터/로딩 상태 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

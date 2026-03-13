@@ -52,6 +52,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R1506: 앵커 포인트 드래그
   const anchorRef = useRef<{ uuid: string; rectX: number; rectY: number; w: number; h: number } | null>(null)
   const [anchorOverride, setAnchorOverride] = useState<{ uuid: string; ax: number; ay: number } | null>(null)
+  // R1512: 정렬 가이드라인 (드래그 시 인접 노드와 정렬 스냅)
+  const [alignGuides, setAlignGuides] = useState<Array<{ type: 'V' | 'H'; pos: number; label?: string }>>([])
+  const ALIGN_SNAP_THRESHOLD = 6 // SVG 픽셀 기준
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
   const [gridStyle, setGridStyle] = useState<'line' | 'dot' | 'none'>('line')
@@ -275,6 +278,33 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         setSnapIndicator(null)
       }
       setDragOverride({ uuid: dragRef.current.uuid, x: nx, y: ny })
+      // R1512: 정렬 가이드라인 계산
+      const draggedFn = flatNodes.find(fn => fn.node.uuid === dragRef.current!.uuid)
+      if (draggedFn) {
+        const dw = draggedFn.node.size?.x ?? 0
+        const dh = draggedFn.node.size?.y ?? 0
+        const dax = draggedFn.node.anchor?.x ?? 0.5
+        const day = draggedFn.node.anchor?.y ?? 0.5
+        const dSvg = { x: cx + nx, y: cy - ny }
+        const dLeft = dSvg.x - dw * dax, dRight = dSvg.x + dw * (1 - dax)
+        const dTop = dSvg.y - dh * (1 - day), dBot = dSvg.y + dh * day
+        const dCX = dSvg.x, dCY = dSvg.y
+        const guides: typeof alignGuides = []
+        for (const fn of flatNodes) {
+          if (fn.node.uuid === dragRef.current!.uuid) continue
+          const sp = { x: cx + fn.worldX, y: cy - fn.worldY }
+          const fw = fn.node.size?.x ?? 0, fh = fn.node.size?.y ?? 0
+          const fax = fn.node.anchor?.x ?? 0.5, fay = fn.node.anchor?.y ?? 0.5
+          const fLeft = sp.x - fw * fax, fRight = sp.x + fw * (1 - fax)
+          const fTop = sp.y - fh * (1 - fay), fBot = sp.y + fh * fay
+          const fCX = sp.x, fCY = sp.y
+          const vPairs: [number,number][] = [[dLeft,fLeft],[dLeft,fCX],[dLeft,fRight],[dCX,fLeft],[dCX,fCX],[dCX,fRight],[dRight,fLeft],[dRight,fCX],[dRight,fRight]]
+          for (const [dp, fp] of vPairs) { if (Math.abs(dp - fp) < ALIGN_SNAP_THRESHOLD) guides.push({ type: 'V', pos: fp }) }
+          const hPairs: [number,number][] = [[dTop,fTop],[dTop,fCY],[dTop,fBot],[dCY,fTop],[dCY,fCY],[dCY,fBot],[dBot,fTop],[dBot,fCY],[dBot,fBot]]
+          for (const [dp, fp] of hPairs) { if (Math.abs(dp - fp) < ALIGN_SNAP_THRESHOLD) guides.push({ type: 'H', pos: fp }) }
+        }
+        setAlignGuides(guides)
+      }
       return
     }
     if (isPanning && panStart.current) {
@@ -306,7 +336,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const scy = Math.round(cy - (my - v.offsetY) / v.zoom)
       setMouseScenePos({ x: scx, y: scy })
     }
-  }, [isPanning, cx, cy, snapSize])
+  }, [isPanning, cx, cy, snapSize, flatNodes])
 
   const handleMouseUp = useCallback(() => {
     // R1506: 앵커 포인트 드래그 완료
@@ -339,11 +369,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       dragRef.current = null
       setDragOverride(null)
       setSnapIndicator(null)
+      setAlignGuides([])
       return
     }
     dragRef.current = null
     setDragOverride(null)
     setSnapIndicator(null)
+    setAlignGuides([])
     setIsPanning(false)
     panStart.current = null
     // rubber-band 완료: 박스 내 노드 선택
@@ -756,6 +788,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })()}
+          {/* R1512: 정렬 가이드라인 */}
+          {alignGuides.length > 0 && (
+            <g pointerEvents="none">
+              {alignGuides.map((g, i) =>
+                g.type === 'V'
+                  ? <line key={`ag-v-${i}`} x1={g.pos} y1={0} x2={g.pos} y2={designH} stroke="#ff4488" strokeWidth={1 / view.zoom} opacity={0.7} strokeDasharray={`${4/view.zoom} ${3/view.zoom}`} />
+                  : <line key={`ag-h-${i}`} x1={0} y1={g.pos} x2={designW} y2={g.pos} stroke="#ff4488" strokeWidth={1 / view.zoom} opacity={0.7} strokeDasharray={`${4/view.zoom} ${3/view.zoom}`} />
+              )}
+            </g>
+          )}
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
           {flatNodes.map(({ node, worldX, worldY }) => {
             const isDragged = dragOverride?.uuid === node.uuid
