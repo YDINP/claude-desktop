@@ -136,6 +136,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   })
   const [nodeLayers, setNodeLayers] = useState<Record<string, number>>({})
   const [showLayerPanel, setShowLayerPanel] = useState(false)
+  const [nodeSearchHistory, setNodeSearchHistory] = useState<string[]>([])
+  const [showNodeSearchHistory, setShowNodeSearchHistory] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -1484,8 +1486,6 @@ function CCFileNodeInspector({
   const [selectedRootNode, setSelectedRootNode] = useState<string | null>(null)
   const [compDependencies, setCompDependencies] = useState<Record<string, string[]>>({})
   const [showCompDeps, setShowCompDeps] = useState(false)
-  const [nodeLayers, setNodeLayers] = useState<Record<string, number>>({})
-  const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [loadingScene, setLoadingScene] = useState<string | null>(null)
   const [assetSearch, setAssetSearch] = useState('')
   const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])

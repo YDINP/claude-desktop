@@ -7999,6 +7999,41 @@ if (existsSync(sl818Path)) {
   }
 }
 
+console.log('\n## 184. Phase DD10 R819~821 기능 체크')
+
+// R819: ChatPanel 북마크 폴더
+const cp819Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp819Path)) {
+  const cp819 = readFileSync(cp819Path, 'utf-8')
+  if (cp819.includes('bookmarkFolders') || cp819.includes('activeBookmarkFolder') || cp819.includes('bmFolders')) {
+    log('pass', 'R819', 'ChatPanel 북마크 폴더 존재')
+  } else {
+    log('warning', 'R819', 'ChatPanel 북마크 폴더 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R820: InputBar 드래프트 자동 저장
+const ib820Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib820Path)) {
+  const ib820 = readFileSync(ib820Path, 'utf-8')
+  if (ib820.includes('draftAutosave') || ib820.includes('lastDraftSaved') || ib820.includes('autosaveDraft')) {
+    log('pass', 'R820', 'InputBar 드래프트 자동 저장 존재')
+  } else {
+    log('warning', 'R820', 'InputBar 자동 저장 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R821: CocosPanel 노드 검색 히스토리
+const cocp821Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp821Path)) {
+  const cocp821 = readFileSync(cocp821Path, 'utf-8')
+  if (cocp821.includes('nodeSearchHistory') || cocp821.includes('showNodeSearchHistory') || cocp821.includes('searchHistoryList')) {
+    log('pass', 'R821', 'CocosPanel 노드 검색 히스토리 존재')
+  } else {
+    log('warning', 'R821', 'CocosPanel 검색 히스토리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
