@@ -5201,6 +5201,60 @@ if (existsSync(mainIndexPath)) {
   }
 }
 
+// ── Section 104: Phase DD6~DD7 기능 체크 ─────────────────
+console.log('\n## 104. Phase DD6~DD7 기능 체크')
+{
+  const sceneViewSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx'), 'utf8')
+  const nodePropertySrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx'), 'utf8')
+  const sessionListSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx'), 'utf8')
+  const chatPanelSrc = readFileSync(join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx'), 'utf8')
+  const fileViewerSrc = readFileSync(join(ROOT, 'src/renderer/src/components/shared/FileViewer.tsx'), 'utf8')
+  const appSrc = readFileSync(join(ROOT, 'src/renderer/src/App.tsx'), 'utf8')
+
+  // R513: Delete 키 씬뷰 삭제
+  if (sceneViewSrc.includes("e.key === 'Delete'") && sceneViewSrc.includes('handleDeleteNode')) {
+    log('pass', 'R513', '씬뷰 Delete 키 핸들러 존재')
+  } else {
+    log('warning', 'R513', '씬뷰 Delete 키 핸들러 없음', 'SceneViewPanel.tsx')
+  }
+  // R518: Inspector 섹션 localStorage 저장
+  if (nodePropertySrc.includes('inspector-sections-open') && nodePropertySrc.includes('localStorage')) {
+    log('pass', 'R518', 'Inspector 섹션 상태 localStorage 저장')
+  } else {
+    log('warning', 'R518', 'Inspector 섹션 상태 localStorage 미구현', 'NodePropertyPanel.tsx')
+  }
+  // R520: 타입 힌트 배지
+  if (nodePropertySrc.includes('getTypeHint') || nodePropertySrc.includes('typeHint')) {
+    log('pass', 'R520', 'Inspector props 타입 힌트 배지 존재')
+  } else {
+    log('warning', 'R520', 'Inspector props 타입 힌트 배지 없음', 'NodePropertyPanel.tsx')
+  }
+  // R523: 레이어 가시성 토글
+  if (sceneViewSrc.includes('hiddenLayers') && sceneViewSrc.includes('allLayers')) {
+    log('pass', 'R523', '씬뷰 레이어 가시성 토글 존재')
+  } else {
+    log('warning', 'R523', '씬뷰 레이어 가시성 토글 없음', 'SceneViewPanel.tsx')
+  }
+  // R529: 시스템 프롬프트 변수
+  if (chatPanelSrc.includes('resolveVars') && (chatPanelSrc.includes('date') && chatPanelSrc.includes('project'))) {
+    log('pass', 'R529', '시스템 프롬프트 변수 치환 존재 (resolveVars)')
+  } else {
+    log('warning', 'R529', '시스템 프롬프트 변수 치환 없음', 'ChatPanel.tsx')
+  }
+  // R532: SessionList 날짜 그룹
+  if (sessionListSrc.includes('getDateGroup') || sessionListSrc.includes('Today') || sessionListSrc.includes('Yesterday')) {
+    log('pass', 'R532', 'SessionList 날짜 그룹 헤더 존재')
+  } else {
+    log('warning', 'R532', 'SessionList 날짜 그룹 헤더 없음', 'SessionList.tsx')
+  }
+  // R533: 파일 탭 dirty 표시
+  if (fileViewerSrc.includes('onDirtyChange') && appSrc.includes('dirtyTabs')) {
+    log('pass', 'R533', '파일 탭 미저장 ● 인디케이터 존재')
+  } else {
+    log('warning', 'R533', '파일 탭 미저장 표시 없음')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
