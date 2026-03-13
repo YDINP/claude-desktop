@@ -516,6 +516,52 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         </div>
       )}
 
+      {/* R1467: 프리팹 인스턴스 뱃지 */}
+      {(() => {
+        // 노드 raw 데이터에서 __prefab 또는 _prefab 필드 확인
+        const hasPrefab = node.components.some(c => {
+          if (!c.props) return false
+          const p = c.props as Record<string, unknown>
+          return p.__prefab != null || p._prefab != null
+        }) || (() => {
+          // 컴포넌트 props 전체에서 prefab 참조 확인
+          for (const c of node.components) {
+            if (c.type === 'cc.PrefabInfo' || c.type === 'cc.CompPrefabInfo') return true
+          }
+          return false
+        })()
+        if (!hasPrefab) return null
+        const prefabUuid = (() => {
+          for (const c of node.components) {
+            if (!c.props) continue
+            const p = c.props as Record<string, unknown>
+            const pref = (p.__prefab ?? p._prefab ?? p.fileId ?? p.asset) as { __uuid__?: string } | string | undefined
+            if (typeof pref === 'string') return pref.slice(0, 8)
+            if (pref && typeof pref === 'object' && pref.__uuid__) return pref.__uuid__.slice(0, 8)
+          }
+          return '?'
+        })()
+        return (
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3,
+              padding: '2px 6px', background: 'rgba(59,130,246,0.12)',
+              border: '1px solid rgba(59,130,246,0.3)', borderRadius: 3,
+              cursor: 'pointer', fontSize: 9,
+            }}
+            title={`프리팹 인스턴스 — 클릭하여 소스 .prefab 하이라이트`}
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('cc-open-file', { detail: { uuid: prefabUuid, type: 'prefab' } }))
+            }}
+          >
+            <span>{'\uD83D\uDCE6'}</span>
+            <span style={{ color: '#60a5fa', fontWeight: 600 }}>프리팹: {prefabUuid}</span>
+            {/* R1467: 오버라이드 표시 placeholder */}
+            <span style={{ marginLeft: 'auto', fontSize: 8, color: 'var(--text-muted)', opacity: 0.6 }}>override</span>
+          </div>
+        )
+      })()}
+
       {/* R1411: 속성 검색 필터 */}
       <div style={{ marginBottom: 4 }}>
         <input
@@ -1659,6 +1705,30 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             boxSizing: 'border-box',
           }}
         />
+      </div>
+
+      {/* R1468: AI 분석 요청 버튼 */}
+      <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+        <button
+          onClick={() => {
+            const comps = node.components.map(c => c.type).join(', ')
+            const msg = `이 Cocos Creator 노드를 분석해줘:\n노드: ${node.name}\n컴포넌트: ${comps}\n주요 속성: position=(${node.x},${node.y}), size=(${node.width},${node.height}), active=${node.active}, opacity=${node.opacity}`
+            window.dispatchEvent(new CustomEvent('cc-chat-prefill', { detail: { message: msg } }))
+          }}
+          style={{
+            width: '100%',
+            background: 'rgba(139,92,246,0.1)',
+            border: '1px solid rgba(139,92,246,0.3)',
+            borderRadius: 3,
+            color: '#a78bfa',
+            cursor: 'pointer',
+            fontSize: 9,
+            padding: '3px 0',
+          }}
+          title="선택 노드 정보를 Claude 채팅창에 프리필"
+        >
+          {'\uD83E\uDD16'} AI 분석
+        </button>
       </div>
 
       {/* Cocos에 적용 */}

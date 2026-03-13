@@ -284,6 +284,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [selectedScene, setSelectedScene] = useState<string>('')
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
+  // R1466: 씬 썸네일 자동 생성
+  const [sceneThumbnails, setSceneThumbnails] = useState<Record<string, string>>(() => {
+    try {
+      const keys = Object.keys(localStorage).filter(k => k.startsWith('scene-thumb-'))
+      const thumbs: Record<string, string> = {}
+      for (const k of keys) {
+        const name = k.replace('scene-thumb-', '')
+        thumbs[name] = localStorage.getItem(k) ?? ''
+      }
+      return thumbs
+    } catch { return {} }
+  })
   const clipboardRef = useRef<CCSceneNode | null>(null)
   const [hideInactive, setHideInactive] = useState(false)
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(() => new Set())
@@ -913,6 +925,30 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         ? { ok: true, text: '저장 완료' }
         : { ok: false, text: result.error ?? '저장 실패' }
       )
+      // R1466: 씬 썸네일 자동 생성 (저장 완료 후 비동기)
+      if (result.success && sceneFile.scenePath) {
+        requestAnimationFrame(() => {
+          try {
+            const svgEl = document.querySelector('.scene-view-svg') as SVGSVGElement | null
+            if (!svgEl) return
+            const serializer = new XMLSerializer()
+            const svgStr = serializer.serializeToString(svgEl)
+            const canvas = document.createElement('canvas')
+            canvas.width = 80; canvas.height = 60
+            const ctx2 = canvas.getContext('2d')
+            if (!ctx2) return
+            const img = new Image()
+            img.onload = () => {
+              ctx2.drawImage(img, 0, 0, 80, 60)
+              const base64 = canvas.toDataURL('image/png')
+              const sceneName = sceneFile.scenePath.replace(/[\\/]/g, '_')
+              try { localStorage.setItem(`scene-thumb-${sceneName}`, base64) } catch { /* ignore */ }
+              setSceneThumbnails(prev => ({ ...prev, [sceneName]: base64 }))
+            }
+            img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr)
+          } catch { /* 썸네일 생성 실패는 무시 */ }
+        })
+      }
       // R1414: 저장 이력 추가
       if (result.success && sceneHistoryKey) {
         let count = 0
@@ -1636,12 +1672,14 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           </select>
         )}
 
-        {/* R1366+R1370: 최근 씬 파일 목록 (최대 8개, 현재 씬 체크 표시) */}
+        {/* R1366+R1370+R1466: 최근 씬 파일 목록 (최대 8개, 현재 씬 체크 표시, 썸네일) */}
         {recentSceneFiles.length > 0 && (
           <div style={{ marginTop: 6 }}>
             <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>최근 씬</div>
             {recentSceneFiles.map(p => {
               const isCurrent = sceneFile?.scenePath === p
+              const thumbKey = p.replace(/[\\/]/g, '_')
+              const thumb = sceneThumbnails[thumbKey]
               return (
                 <div
                   key={p}
@@ -1649,6 +1687,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   style={{ fontSize: 11, cursor: 'pointer', color: isCurrent ? 'var(--success)' : 'var(--accent)', padding: '2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}
                   title={p}
                 >
+                  {/* R1466: 씬 썸네일 (80x60 base64) */}
+                  {thumb ? (
+                    <img src={thumb} alt="" style={{ width: 24, height: 18, borderRadius: 2, flexShrink: 0, objectFit: 'cover', border: '1px solid var(--border)' }} />
+                  ) : (
+                    <span style={{ fontSize: 10, flexShrink: 0, width: 24, textAlign: 'center' }}>{'\uD83D\uDCC4'}</span>
+                  )}
                   {isCurrent && <span style={{ fontSize: 10, flexShrink: 0 }}>{'✓'}</span>}
                   <span>{p.split(/[\\/]/).pop()}</span>
                 </div>

@@ -349,6 +349,47 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     if (nodeClickCount.size === 0) return 1
     return Math.max(...nodeClickCount.values(), 1)
   }, [nodeClickCount])
+  // ── R1464: 씬 노드 애니메이션 프리뷰 ─────────────────────────
+  const [animPlayingUuid, setAnimPlayingUuid] = useState<string | null>(null)
+  const animCssRef = useRef<HTMLStyleElement | null>(null)
+  const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const handleAnimPreviewStart = useCallback((uuid: string, durationMs: number) => {
+    // 이전 애니메이션 정리
+    if (animCssRef.current) { animCssRef.current.remove(); animCssRef.current = null }
+    if (animTimerRef.current) { clearTimeout(animTimerRef.current); animTimerRef.current = null }
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes cc-anim-preview-${uuid.replace(/[^a-zA-Z0-9]/g, '_')} {
+        0% { opacity: 1; transform: translate(0, 0); }
+        25% { opacity: 0.3; transform: translate(2px, -2px); }
+        50% { opacity: 1; transform: translate(0, 0); }
+        75% { opacity: 0.3; transform: translate(-2px, 2px); }
+        100% { opacity: 1; transform: translate(0, 0); }
+      }
+      [data-uuid="${uuid}"] {
+        animation: cc-anim-preview-${uuid.replace(/[^a-zA-Z0-9]/g, '_')} ${durationMs}ms infinite ease-in-out !important;
+      }
+    `
+    document.head.appendChild(style)
+    animCssRef.current = style
+    setAnimPlayingUuid(uuid)
+  }, [])
+  const handleAnimPreviewStop = useCallback(() => {
+    if (animCssRef.current) { animCssRef.current.remove(); animCssRef.current = null }
+    if (animTimerRef.current) { clearTimeout(animTimerRef.current); animTimerRef.current = null }
+    setAnimPlayingUuid(null)
+  }, [])
+
+  // ── R1468: AI 분석 요청 ─────────────────────────────────────
+  const handleAiAnalyze = useCallback((uuid: string) => {
+    const n = nodeMap.get(uuid)
+    if (!n) return
+    const comps = n.components.map(c => c.type).join(', ')
+    const msg = `이 Cocos Creator 노드를 분석해줘:\n노드: ${n.name}\n컴포넌트: ${comps}\n주요 속성: position=(${n.x},${n.y}), size=(${n.width},${n.height}), active=${n.active}, opacity=${n.opacity}`
+    // 채팅창에 프리필 (cc-chat-prefill 이벤트)
+    window.dispatchEvent(new CustomEvent('cc-chat-prefill', { detail: { message: msg } }))
+  }, [nodeMap])
+
   // ── 노드 그룹 색상 (R709) ──────────────────────────────────
   const [nodeGroupColors, setNodeGroupColors] = useState<Record<string, string>>({})
   const [colorPickerNode, setColorPickerNode] = useState<string | null>(null)
@@ -5554,6 +5595,33 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   setNodeTagInput(ctxUuid!)
                   close()
                 }}>🏷 태그 편집</button>
+              )}
+              {/* R1464: 애니메이션 프리뷰 */}
+              {ctxNode && (() => {
+                const hasAnim = ctxNode.components.some(c =>
+                  c.type === 'cc.Tween' || c.type === 'cc.TweenSystem' ||
+                  c.type === 'cc.Animation' || c.type === 'cc.AnimationComponent' ||
+                  c.type === 'cc.SkeletalAnimation'
+                )
+                if (!hasAnim) return null
+                const isPlaying = animPlayingUuid === ctxUuid
+                return isPlaying ? (
+                  <button style={menuStyle} onClick={() => { handleAnimPreviewStop(); close() }}>{'■'} 애니 정지</button>
+                ) : (
+                  <button style={menuStyle} onClick={() => {
+                    const comp = ctxNode.components.find(c =>
+                      c.type === 'cc.Animation' || c.type === 'cc.AnimationComponent' ||
+                      c.type === 'cc.Tween' || c.type === 'cc.TweenSystem'
+                    )
+                    const dur = (comp?.props as Record<string, unknown> | undefined)?.duration as number | undefined
+                    handleAnimPreviewStart(ctxUuid!, dur ? dur * 1000 : 1000)
+                    close()
+                  }}>{'▶'} 애니 프리뷰</button>
+                )
+              })()}
+              {/* R1468: AI 분석 요청 */}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => { handleAiAnalyze(ctxUuid!); close() }}>{'\uD83E\uDD16'} AI 분석</button>
               )}
               {/* R1452: 템플릿으로 저장 */}
               {ctxNode && (

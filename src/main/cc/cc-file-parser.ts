@@ -920,6 +920,82 @@ export function extractSceneMeta(sceneFile: CCSceneFile): CCSceneMeta {
   }
 }
 
+// ── R1465: 씬 diff ─────────────────────────────────────────────────────────
+
+export interface SceneDiff {
+  uuid: string
+  nodeName: string
+  type: 'added' | 'removed' | 'modified'
+  changedFields: string[]
+}
+
+/**
+ * R1465: 두 씬 상태를 비교하여 차이 목록 반환
+ * - added: after에만 존재하는 노드
+ * - removed: before에만 존재하는 노드
+ * - modified: 양쪽 모두 존재하지만 필드가 다른 노드
+ */
+export function diffScenes(
+  before: CCSceneNode,
+  after: CCSceneNode
+): SceneDiff[] {
+  const diffs: SceneDiff[] = []
+  const beforeMap = new Map<string, CCSceneNode>()
+  const afterMap = new Map<string, CCSceneNode>()
+
+  function collectNodes(node: CCSceneNode, map: Map<string, CCSceneNode>): void {
+    map.set(node.uuid, node)
+    for (const child of node.children) collectNodes(child, map)
+  }
+
+  collectNodes(before, beforeMap)
+  collectNodes(after, afterMap)
+
+  // removed: in before but not in after
+  for (const [uuid, node] of beforeMap) {
+    if (!afterMap.has(uuid)) {
+      diffs.push({ uuid, nodeName: node.name, type: 'removed', changedFields: [] })
+    }
+  }
+
+  // added or modified
+  for (const [uuid, aNode] of afterMap) {
+    const bNode = beforeMap.get(uuid)
+    if (!bNode) {
+      diffs.push({ uuid, nodeName: aNode.name, type: 'added', changedFields: [] })
+      continue
+    }
+    // compare fields
+    const changedFields: string[] = []
+    if (bNode.name !== aNode.name) changedFields.push('name')
+    if (bNode.active !== aNode.active) changedFields.push('active')
+    if (bNode.opacity !== aNode.opacity) changedFields.push('opacity')
+    // position
+    if (bNode.position.x !== aNode.position.x || bNode.position.y !== aNode.position.y || bNode.position.z !== aNode.position.z) changedFields.push('position')
+    // scale
+    if (bNode.scale.x !== aNode.scale.x || bNode.scale.y !== aNode.scale.y || bNode.scale.z !== aNode.scale.z) changedFields.push('scale')
+    // size
+    if (bNode.size.x !== aNode.size.x || bNode.size.y !== aNode.size.y) changedFields.push('size')
+    // anchor
+    if (bNode.anchor.x !== aNode.anchor.x || bNode.anchor.y !== aNode.anchor.y) changedFields.push('anchor')
+    // rotation
+    if (JSON.stringify(bNode.rotation) !== JSON.stringify(aNode.rotation)) changedFields.push('rotation')
+    // color
+    if (bNode.color.r !== aNode.color.r || bNode.color.g !== aNode.color.g || bNode.color.b !== aNode.color.b || bNode.color.a !== aNode.color.a) changedFields.push('color')
+    // components count
+    if (bNode.components.length !== aNode.components.length) changedFields.push('components')
+    else if (JSON.stringify(bNode.components.map(c => c.type)) !== JSON.stringify(aNode.components.map(c => c.type))) changedFields.push('components')
+    // children count
+    if (bNode.children.length !== aNode.children.length) changedFields.push('children')
+
+    if (changedFields.length > 0) {
+      diffs.push({ uuid, nodeName: aNode.name, type: 'modified', changedFields })
+    }
+  }
+
+  return diffs
+}
+
 function extractAssetUuids(obj: unknown, textures: Set<string>, audios: Set<string>): void {
   if (!obj || typeof obj !== 'object') return
   if (Array.isArray(obj)) {

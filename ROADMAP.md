@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1463 완료 — Phase DD18 진행 중, QA Pass 1344+)
+> 마지막 업데이트: 2026-03-14 (Round 1469 완료 — Phase DD19 진행 중, QA Pass 1359)
 
 ## 개발 루프 실행 방식
 
@@ -839,6 +839,12 @@
 | Round 1461 | CocosPanel CC 프로젝트 생성 마법사 (3단계: 이름/위치 → CC버전 → 템플릿) | ✅ |
 | Round 1462 | NodeRenderer cc.Shadow SVG feDropShadow 렌더링 | ✅ |
 | Round 1463 | QA Section 399-400 추가 (R1458-R1462 기능 체크, Section 400 달성!) | ✅ |
+| Round 1464 | SceneView Tween/Animation 노드 CSS 애니메이션 프리뷰 (▶/■ 토글) | ✅ |
+| Round 1465 | cc-file-parser diffScenes (added/removed/modified + changedFields) | ✅ |
+| Round 1466 | CocosPanel 씬 저장 시 자동 썸네일 생성 (80x60 canvas → base64 localStorage) | ✅ |
+| Round 1467 | Inspector 프리팹 인스턴스 뱃지 + cc-open-file 소스 표시 | ✅ |
+| Round 1468 | SceneView/Inspector 선택 노드 AI 분석 요청 (cc-chat-prefill) | ✅ |
+| Round 1469 | QA Section 401-402 추가 (R1464-R1468 기능 체크, Pass 1359) | ✅ |
 
 ## QA 프로세스
 

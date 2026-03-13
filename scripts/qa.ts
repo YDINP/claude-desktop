@@ -15532,6 +15532,75 @@ if (existsSync(nr1460)) {
   }
 }
 
+// ── Section 401: R1464/R1465/R1466 기능 체크 ───────────────
+console.log('\n## 401. Phase DD19 R1464~R1466 기능 체크')
+
+// R1464: SceneView 씬 노드 애니메이션 프리뷰
+const svp1464 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1464)) {
+  const s1464 = readFileSync(svp1464, 'utf-8')
+  if (s1464.includes('R1464') && s1464.includes('animPlayingUuid') && s1464.includes('handleAnimPreviewStart') && s1464.includes('handleAnimPreviewStop') && s1464.includes('cc-anim-preview')) {
+    log('pass', 'R1464', 'SceneView 씬 노드 애니메이션 프리뷰 (CSS animation, ▶/■ 토글)')
+  } else {
+    log('warning', 'R1464', 'SceneView 씬 노드 애니메이션 프리뷰 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1465: cc-file-parser diffScenes
+const parser1465 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser1465)) {
+  const p1465 = readFileSync(parser1465, 'utf-8')
+  if (p1465.includes('R1465') && p1465.includes('diffScenes') && p1465.includes('SceneDiff') && p1465.includes('added') && p1465.includes('removed') && p1465.includes('modified') && p1465.includes('changedFields')) {
+    log('pass', 'R1465', 'cc-file-parser diffScenes (added/removed/modified + changedFields)')
+  } else {
+    log('warning', 'R1465', 'cc-file-parser diffScenes 미구현', 'cc/cc-file-parser.ts')
+  }
+}
+
+// R1466: CocosPanel 씬 썸네일 자동 생성
+const cp1466 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1466)) {
+  const c1466 = readFileSync(cp1466, 'utf-8')
+  if (c1466.includes('R1466') && c1466.includes('sceneThumbnails') && c1466.includes('scene-thumb-') && c1466.includes('80') && c1466.includes('60')) {
+    log('pass', 'R1466', 'CocosPanel 씬 저장 시 자동 썸네일 생성 (80x60 canvas → base64 localStorage)')
+  } else {
+    log('warning', 'R1466', 'CocosPanel 씬 썸네일 자동 생성 미구현', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 402: R1467/R1468 기능 체크 ───────────────
+console.log('\n## 402. Phase DD19 R1467~R1468 기능 체크')
+
+// R1467: Inspector 프리팹 인스턴스 표시
+const si1467 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(si1467)) {
+  const i1467 = readFileSync(si1467, 'utf-8')
+  if (i1467.includes('R1467') && i1467.includes('프리팹') && i1467.includes('__prefab') && i1467.includes('_prefab') && i1467.includes('cc-open-file') && i1467.includes('override')) {
+    log('pass', 'R1467', 'Inspector 프리팹 인스턴스 뱃지 (UUID 짧게 + cc-open-file 이벤트 + override placeholder)')
+  } else {
+    log('warning', 'R1467', 'Inspector 프리팹 인스턴스 표시 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1468: SceneView 선택 노드 AI 분석 연동
+if (existsSync(svp1464)) {
+  const s1468 = readFileSync(svp1464, 'utf-8')
+  if (s1468.includes('R1468') && s1468.includes('handleAiAnalyze') && s1468.includes('cc-chat-prefill') && s1468.includes('AI 분석')) {
+    log('pass', 'R1468-SceneView', 'SceneView 선택 노드 AI 분석 요청 (채팅 프리필 이벤트)')
+  } else {
+    log('warning', 'R1468-SceneView', 'SceneView AI 분석 연동 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1468: Inspector AI 분석 버튼
+if (existsSync(si1467)) {
+  const i1468 = readFileSync(si1467, 'utf-8')
+  if (i1468.includes('R1468') && i1468.includes('AI 분석') && i1468.includes('cc-chat-prefill')) {
+    log('pass', 'R1468-Inspector', 'Inspector AI 분석 버튼 (채팅 프리필)')
+  } else {
+    log('warning', 'R1468-Inspector', 'Inspector AI 분석 버튼 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
