@@ -1242,6 +1242,23 @@ function CCFileNodeInspector({
     return path
   }, [sceneFile.root, node.uuid])
 
+  // Z-order (같은 부모 내 순서 이동)
+  const handleZOrder = useCallback(async (dir: 1 | -1) => {
+    if (!sceneFile.root) return
+    function move(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === node.uuid)
+      if (idx < 0) return { ...n, children: n.children.map(move) }
+      const ch = [...n.children]
+      const newIdx = idx + dir
+      if (newIdx < 0 || newIdx >= ch.length) return n
+      ;[ch[idx], ch[newIdx]] = [ch[newIdx], ch[idx]]
+      return { ...n, children: ch }
+    }
+    setSaving(true)
+    await saveScene(move(sceneFile.root))
+    setSaving(false)
+  }, [node.uuid, sceneFile, saveScene])
+
   return (
     <div style={{
       flexShrink: 0, borderTop: '1px solid var(--border)',
@@ -1286,6 +1303,8 @@ function CCFileNodeInspector({
           </button>
           {sceneFile.root?.uuid !== node.uuid && (
             <>
+              <button onClick={() => handleZOrder(-1)} title="앞으로 이동" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: 'pointer', background: 'transparent', color: '#888', border: '1px solid #555', lineHeight: 1.4 }}>↑</button>
+              <button onClick={() => handleZOrder(1)} title="뒤로 이동" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: 'pointer', background: 'transparent', color: '#888', border: '1px solid #555', lineHeight: 1.4 }}>↓</button>
               <button
                 onClick={handleDuplicate}
                 title="노드 복제"
