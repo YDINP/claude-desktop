@@ -422,7 +422,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // 키보드 단축키: Ctrl+Z/Y, Delete, Ctrl+D, Arrow keys
   useEffect(() => {
     if (!sceneFile) return
-    const handler = (e: KeyboardEvent) => {
+    const handler = async (e: KeyboardEvent) => {
       const ctrl = e.ctrlKey || e.metaKey
       // 입력 필드 포커스 시 무시
       const tag = (e.target as HTMLElement).tagName
