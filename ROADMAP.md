@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 502 완료 — DD5-1 씬뷰 그리드 스타일 3단계 순환)
+> 마지막 업데이트: 2026-03-13 (Round 503 완료 — DD5-2 씬뷰 회전 핸들)
 
 ## 완료된 라운드
 
@@ -93,6 +93,7 @@
 | Round 499 | dev | Phase YY3-1: 씬뷰 F키 선택 노드 포커스 — handleFitToSelected, window keydown F 핸들러, 미선택 시 Fit all | ✅ |
 | Round 500 | dev | 특별 라운드: PRD-Phase2.md 업데이트 — Round 472-499 구현 완료 기능 28개 반영, 헤더/기준 동기화 | ✅ |
 | Round 501 | dev | Phase FF5-1: 씬뷰 선택 노드 마칭 앤트 애니메이션 — SVG <style> keyframe, cc-selected-rect className, dasharray 6/3 | ✅ |
+| Round 503 | dev | Phase DD5-2: 씬뷰 회전 핸들 — 선택 노드 상단에 ↻ 핸들, 드래그로 회전, Shift 15° 스냅, onRotate 파일 저장 | ✅ |
 | Round 502 | dev | Phase DD5-1: 씬뷰 그리드 스타일 순환 — gridStyle none/line/dot 3단계, dot은 교차점 circle, ⊹/· 버튼 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |

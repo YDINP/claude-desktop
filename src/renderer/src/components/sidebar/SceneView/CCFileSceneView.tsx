@@ -21,6 +21,7 @@ interface CCFileSceneViewProps {
   onMove?: (uuid: string, x: number, y: number) => void
   onResize?: (uuid: string, w: number, h: number) => void
   onRename?: (uuid: string, name: string) => void
+  onRotate?: (uuid: string, angle: number) => void
 }
 
 /**
@@ -28,7 +29,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -39,6 +40,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
   const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number } | null>(null)
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
+  const rotateRef = useRef<{ uuid: string; centerX: number; centerY: number; startAngle: number; startRotation: number } | null>(null)
+  const [rotateOverride, setRotateOverride] = useState<{ uuid: string; angle: number } | null>(null)
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
   const [gridStyle, setGridStyle] = useState<'line' | 'dot' | 'none'>('line')
@@ -176,6 +179,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [view])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (rotateRef.current) {
+      const svg = svgRef.current
+      if (!svg) return
+      const rect = svg.getBoundingClientRect()
+      const v = viewRef.current
+      const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
+      const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
+      const angle = Math.atan2(svgY - rotateRef.current.centerY, svgX - rotateRef.current.centerX) * 180 / Math.PI
+      const delta = angle - rotateRef.current.startAngle
+      let newAngle = rotateRef.current.startRotation - delta
+      // Shift 키: 15° 단위 스냅
+      if (e.shiftKey) newAngle = Math.round(newAngle / 15) * 15
+      setRotateOverride({ uuid: rotateRef.current.uuid, angle: newAngle })
+      return
+    }
     if (resizeRef.current) {
       const dx = e.clientX - resizeRef.current.startMouseX
       const dy = e.clientY - resizeRef.current.startMouseY
@@ -221,6 +239,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [isPanning, cx, cy])
 
   const handleMouseUp = useCallback(() => {
+    if (rotateRef.current && rotateOverride) {
+      onRotate?.(rotateOverride.uuid, rotateOverride.angle)
+      rotateRef.current = null
+      setRotateOverride(null)
+      return
+    }
+    rotateRef.current = null
+    setRotateOverride(null)
     if (resizeRef.current && resizeOverride) {
       onResize?.(resizeOverride.uuid, resizeOverride.w, resizeOverride.h)
       resizeRef.current = null
@@ -239,7 +265,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     setDragOverride(null)
     setIsPanning(false)
     panStart.current = null
-  }, [dragOverride, resizeOverride, onMove, onResize])
+  }, [rotateOverride, dragOverride, resizeOverride, onRotate, onMove, onResize])
 
   // Fit to view
   const handleFit = useCallback(() => {
@@ -357,7 +383,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       {/* SVG 캔버스 */}
       <svg
         ref={svgRef}
-        style={{ flex: 1, background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : 'default', display: 'block' }}
+        style={{ flex: 1, background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : rotateOverride ? 'crosshair' : 'default', display: 'block' }}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -436,7 +462,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const isSelected = node.uuid === selectedUuid
             const isHovered = node.uuid === hoverUuid && !isSelected
             // CC rotation: Z-euler (반시계방향 양수). SVG: 시계방향 양수 → 부호 반전
-            const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0
+            const rotZ = rotateOverride?.uuid === node.uuid
+              ? rotateOverride.angle
+              : (typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0)
             const rotTransform = rotZ !== 0 ? `rotate(${-rotZ}, ${svgPos.x}, ${svgPos.y})` : undefined
 
             const hasLabel = node.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
@@ -608,6 +636,46 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     {Math.round(w)}×{Math.round(h)}
                   </text>
                 )}
+                {/* 회전 핸들 (선택된 노드) */}
+                {isSelected && (
+                  <>
+                    {/* 핸들 연결선 */}
+                    <line
+                      x1={svgPos.x} y1={rectY}
+                      x2={svgPos.x} y2={rectY - 22 / view.zoom}
+                      stroke="#58a6ff" strokeWidth={1 / view.zoom}
+                      strokeDasharray={`${3 / view.zoom},${2 / view.zoom}`}
+                      style={{ pointerEvents: 'none' }}
+                    />
+                    {/* 회전 핸들 원 */}
+                    <circle
+                      cx={svgPos.x} cy={rectY - 22 / view.zoom}
+                      r={5 / view.zoom}
+                      fill={rotateOverride?.uuid === node.uuid ? '#ff9944' : '#1a1a2e'}
+                      stroke={rotateOverride?.uuid === node.uuid ? '#ff9944' : '#58a6ff'}
+                      strokeWidth={1.5 / view.zoom}
+                      style={{ cursor: 'crosshair' }}
+                      title={`회전: ${Math.round(rotZ)}° (Shift: 15° 스냅)`}
+                      onMouseDown={e => {
+                        e.stopPropagation()
+                        const svg = svgRef.current
+                        if (!svg) return
+                        const svgRect = svg.getBoundingClientRect()
+                        const v = viewRef.current
+                        const svgMouseX = (e.clientX - svgRect.left - v.offsetX) / v.zoom
+                        const svgMouseY = (e.clientY - svgRect.top - v.offsetY) / v.zoom
+                        const startAngle = Math.atan2(svgMouseY - svgPos.y, svgMouseX - svgPos.x) * 180 / Math.PI
+                        rotateRef.current = {
+                          uuid: node.uuid,
+                          centerX: svgPos.x,
+                          centerY: svgPos.y,
+                          startAngle,
+                          startRotation: rotZ,
+                        }
+                      }}
+                    />
+                  </>
+                )}
               </g>
             )
           })}
@@ -751,6 +819,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['좌클릭 드래그', '노드 이동'],
             ['Ctrl+드래그', '10px 그리드 스냅'],
             ['SE 핸들 드래그', '노드 리사이즈'],
+            ['↻ 핸들 드래그', '노드 회전 (Shift: 15°)'],
             ['Escape', '선택 해제'],
             ['⊙◁▷△▽', '정렬 버튼'],
             ['↑↓ (Inspector)', 'Z-order 변경'],

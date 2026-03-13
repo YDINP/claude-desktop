@@ -527,6 +527,21 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(updateSize(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  const handleNodeRotate = useCallback(async (uuid: string, angle: number) => {
+    if (!sceneFile?.root) return
+    const rounded = Math.round(angle * 10) / 10
+    function updateRot(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === uuid) {
+        const rot = typeof n.rotation === 'number'
+          ? rounded
+          : { ...(n.rotation as object), z: rounded }
+        return { ...n, rotation: rot }
+      }
+      return { ...n, children: n.children.map(updateRot) }
+    }
+    await saveScene(updateRot(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   const handleSave = useCallback(async () => {
     if (!sceneFile?.root) return
     setSaving(true)
@@ -846,6 +861,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onMove={handleNodeMove}
               onResize={handleNodeResize}
               onRename={handleRenameInView}
+              onRotate={handleNodeRotate}
               onSelect={uuid => {
                 if (!uuid) { onSelectNode(null); return }
                 const findNode = (n: CCSceneNode): CCSceneNode | null => {
