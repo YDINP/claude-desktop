@@ -1,10 +1,10 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1373 완료 — Phase DD10 R1368~1373)
+> 마지막 업데이트: 2026-03-14 (Round 1379 완료 — Phase DD11 R1374~1379)
 
 ## 현재 상태
-- 마지막 커밋: Round 1368~1373 (Widget Inspector/Color fill/씬 히스토리/뱃지/컴포넌트 추가/QA)
+- 마지막 커밋: Round 1374~1379 (Sprite피커/Layout속성/Claude컨텍스트/노드검색/북마크/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1245
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1251
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -66,6 +66,17 @@
 ## 긴급 버그 수정 (이번 세션)
 - CCFileSceneView.tsx:245 — panStart.current null in setView updater (offX/offY 캡처로 해결)
 - App.tsx — CC 탭 버튼 border/borderBottom 순서 충돌 경고 해소
+
+## Phase DD11 R1374~1379 완료
+
+| 라운드 | 기능 |
+|--------|------|
+| R1374 | SceneInspector cc.Sprite spriteFrame 에셋 피커 UI (openFileDialog, 파일명 표시) |
+| R1375 | SceneInspector cc.Layout 컴포넌트 속성 편집 (type/padding/spacing/resizeMode 드롭다운+NumInput) |
+| R1376 | 씬 파싱 결과 → Claude 채팅 컨텍스트 자동 주입 토글 (useCCFileContext 훅, CocosPanel BoolToggle) |
+| R1377 | NodeHierarchyList 컴포넌트 타입 필터 (cc.Label/Sprite/Button/Layout/Widget 버튼) |
+| R1378 | SceneView 노드 북마크 localStorage per scene 영구 저장 (`scene-bookmarks-{rootUuid}`) |
+| R1379 | QA Section 369-370 추가 (R1374-R1378 기능 체크, Pass 1251) |
 
 ## Phase DD10 R1368~1373 완료
 

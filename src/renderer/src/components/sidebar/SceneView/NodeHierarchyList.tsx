@@ -190,6 +190,7 @@ function NodeRow({
 
 export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, focusUuid, onToggleActive, onCopyNode, onRename, onToggleLock, onToggleVisible }: NodeHierarchyListProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [compTypeFilter, setCompTypeFilter] = useState<string | null>(null)
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [contextMenu, setContextMenu] = useState<{ uuid: string; x: number; y: number } | null>(null)
@@ -230,18 +231,28 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
     })
   }
 
-  const filteredNodes = searchQuery.trim()
+  const filteredNodes = (searchQuery.trim() || compTypeFilter)
     ? (() => {
         const q = searchQuery.trim()
-        if (q.startsWith('tag:')) {
-          const tag = q.slice(4).trim().toLowerCase()
-          return [...nodeMap.values()].filter(n =>
-            (n.tags ?? []).some(t => t.toLowerCase().includes(tag))
-          )
+        let nodes = [...nodeMap.values()]
+        // 컴포넌트 타입 필터
+        if (compTypeFilter) {
+          nodes = nodes.filter(n => n.components.some(c => c.type === compTypeFilter))
         }
-        return [...nodeMap.values()].filter(n =>
-          n.name.toLowerCase().includes(q.toLowerCase())
-        )
+        // 텍스트 검색
+        if (q) {
+          if (q.startsWith('tag:')) {
+            const tag = q.slice(4).trim().toLowerCase()
+            nodes = nodes.filter(n =>
+              (n.tags ?? []).some(t => t.toLowerCase().includes(tag))
+            )
+          } else {
+            nodes = nodes.filter(n =>
+              n.name.toLowerCase().includes(q.toLowerCase())
+            )
+          }
+        }
+        return nodes
       })()
     : null
 
@@ -307,6 +318,33 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
           title="전체 접기"
           style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 10, padding: '1px 3px', lineHeight: 1, flexShrink: 0 }}
         >▸▸</button>
+      </div>
+      {/* R1377: 컴포넌트 타입 필터 버튼 */}
+      <div style={{ padding: '2px 6px', borderBottom: '1px solid var(--border)', flexShrink: 0, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        {(['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Layout', 'cc.Widget'] as const).map(ct => {
+          const shortName = ct.split('.').pop()!
+          const active = compTypeFilter === ct
+          return (
+            <button
+              key={ct}
+              onClick={() => setCompTypeFilter(active ? null : ct)}
+              title={`${ct} 필터${active ? ' (해제)' : ''}`}
+              style={{
+                fontSize: 8, padding: '1px 4px', borderRadius: 3, cursor: 'pointer',
+                background: active ? 'var(--accent-dim)' : 'none',
+                border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                color: active ? 'var(--accent)' : 'var(--text-muted)',
+              }}
+            >{shortName}</button>
+          )
+        })}
+        {compTypeFilter && (
+          <button
+            onClick={() => setCompTypeFilter(null)}
+            title="필터 해제"
+            style={{ fontSize: 8, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', background: 'none', border: '1px solid var(--border)', color: 'var(--warning)' }}
+          >×</button>
+        )}
       </div>
 
       {/* 트리 / 검색 결과 */}

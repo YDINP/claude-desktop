@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1373 완료 — Phase DD10 진행 중, QA Pass 1245)
+> 마지막 업데이트: 2026-03-14 (Round 1379 완료 — Phase DD11 진행 중, QA Pass 1251)
 
 ## 개발 루프 실행 방식
 
@@ -755,6 +755,12 @@
 | Round 1371 | SceneView 노드 컴포넌트 뱃지 (우상단 최대 3개 아이콘, MAX_BADGES) | ✅ |
 | Round 1372 | Inspector 컴포넌트 추가 드롭다운 (ADDABLE_COMPONENTS 7종, 중복 비활성화) | ✅ |
 | Round 1373 | QA Section 367-368 추가 (R1368-R1372 기능 체크) | ✅ |
+| Round 1374 | SceneView cc.Sprite spriteFrame 에셋 피커 UI (openFileDialog, 파일명 표시) | ✅ |
+| Round 1375 | SceneView cc.Layout 컴포넌트 속성 편집 (type/padding/spacing/resizeMode) | ✅ |
+| Round 1376 | 씬 파싱 결과 → Claude 채팅 컨텍스트 자동 주입 토글 (cc-ctx-inject, useCCFileContext) | ✅ |
+| Round 1377 | NodeHierarchyList 컴포넌트 타입 필터 (cc.Label/Sprite/Button/Layout/Widget) | ✅ |
+| Round 1378 | SceneView 노드 북마크 localStorage per scene 영구 저장 + 빠른 이동 | ✅ |
+| Round 1379 | QA Section 369-370 추가 (R1374-R1378 기능 체크, Pass 1251) | ✅ |
 
 ## QA 프로세스
 

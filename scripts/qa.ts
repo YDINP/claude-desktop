@@ -14344,6 +14344,77 @@ if (existsSync(si1368Path)) {
   }
 }
 
+// ── Section 369: R1374/R1375/R1376 기능 체크 ───────────────
+console.log('\n## 369. Phase DD11 R1374~1376 기능 체크')
+
+// R1374: SceneInspector Sprite 에셋 피커
+if (existsSync(si1368Path)) {
+  const si1374 = readFileSync(si1368Path, 'utf-8')
+  if (si1374.includes('Sprite') && si1374.includes('openFileDialog') && si1374.includes('에셋 피커')) {
+    log('pass', 'R1374', 'Sprite 에셋 피커 UI 존재')
+  } else {
+    log('warning', 'R1374', 'Sprite 에셋 피커 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1375: SceneInspector cc.Layout 속성 편집
+if (existsSync(si1368Path)) {
+  const si1375 = readFileSync(si1368Path, 'utf-8')
+  if (si1375.includes('cc.Layout') && si1375.includes('paddingTop') && si1375.includes('spacingX') && si1375.includes('resizeMode')) {
+    log('pass', 'R1375', 'cc.Layout 속성 편집 존재')
+  } else {
+    log('warning', 'R1375', 'cc.Layout 속성 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1376: Claude 컨텍스트 주입 토글
+const ccFileCtxPath = join(ROOT, 'src/renderer/src/hooks/useCCFileContext.ts')
+if (existsSync(ccFileCtxPath)) {
+  const ccFileCtx = readFileSync(ccFileCtxPath, 'utf-8')
+  if (ccFileCtx.includes('cc-ctx-inject') && ccFileCtx.includes('updateCCFileContext') && ccFileCtx.includes('cc-file-scene-context')) {
+    log('pass', 'R1376', 'CC 파일 씬 컨텍스트 훅 존재')
+  } else {
+    log('warning', 'R1376', 'CC 파일 씬 컨텍스트 훅 불완전', 'hooks/useCCFileContext.ts')
+  }
+} else {
+  log('warning', 'R1376', 'useCCFileContext.ts 파일 없음')
+}
+
+const cp1376Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1376Path)) {
+  const cp1376 = readFileSync(cp1376Path, 'utf-8')
+  if (cp1376.includes('Claude 컨텍스트 주입') && cp1376.includes('ccCtxInject') && cp1376.includes('updateCCFileContext')) {
+    log('pass', 'R1376', 'CocosPanel 컨텍스트 주입 토글 존재')
+  } else {
+    log('warning', 'R1376', 'CocosPanel 컨텍스트 주입 토글 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 370: R1377/R1378 기능 체크 ───────────────
+console.log('\n## 370. Phase DD11 R1377~1378 기능 체크')
+
+// R1377: NodeHierarchyList 컴포넌트 타입 필터
+const nhl1377Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nhl1377Path)) {
+  const nhl1377 = readFileSync(nhl1377Path, 'utf-8')
+  if (nhl1377.includes('compTypeFilter') && nhl1377.includes('cc.Label') && nhl1377.includes('cc.Sprite')) {
+    log('pass', 'R1377', 'NodeHierarchyList 컴포넌트 타입 필터 존재')
+  } else {
+    log('warning', 'R1377', 'NodeHierarchyList 컴포넌트 타입 필터 없음', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
+// R1378: SceneView 북마크 localStorage per scene
+const svp1378Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1378Path)) {
+  const svp1378 = readFileSync(svp1378Path, 'utf-8')
+  if (svp1378.includes('scene-bookmarks-') && svp1378.includes('bookmarkedUuids') && svp1378.includes('localStorage')) {
+    log('pass', 'R1378', 'SceneView 북마크 localStorage per scene 존재')
+  } else {
+    log('warning', 'R1378', 'SceneView 북마크 per scene 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

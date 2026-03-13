@@ -693,6 +693,120 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         )
       })()}
 
+      {/* R1374: cc.Sprite 에셋 피커 */}
+      {(() => {
+        const spriteComp = node.components.find(c => c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
+        if (!spriteComp) return null
+        const sfUuid = (spriteComp.props?.spriteFrame as { __uuid__?: string })?.__uuid__ ?? '(없음)'
+        const sfDisplay = sfUuid.length > 16 ? sfUuid.slice(0, 8) + '...' + sfUuid.slice(-6) : sfUuid
+        return (
+          <>
+            <SectionHeader label="Sprite" />
+            <div style={{ fontSize: 9, display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0 }}>SF</span>
+              <span
+                style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'monospace', fontSize: 8, color: 'var(--text-primary)' }}
+                title={sfUuid}
+              >{sfDisplay}</span>
+              <button
+                onClick={async () => {
+                  const paths = await window.api.openFileDialog?.({
+                    title: '스프라이트 이미지 선택',
+                    filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'bmp'] }],
+                  })
+                  if (paths && paths.length > 0) {
+                    const fileName = paths[0].replace(/\\/g, '/').split('/').pop() ?? paths[0]
+                    const newComps = node.components.map(c =>
+                      (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
+                        ? { ...c, props: { ...c.props, _selectedFile: paths[0], spriteFrame: { __uuid__: `placeholder:${fileName}` } } }
+                        : c
+                    )
+                    onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                  }
+                }}
+                title="이미지 파일 선택 (에셋 피커)"
+                style={{
+                  background: 'var(--accent-dim)', border: '1px solid var(--accent)', borderRadius: 3,
+                  color: 'var(--accent)', cursor: 'pointer', fontSize: 9, padding: '1px 5px', flexShrink: 0,
+                }}
+              >📁</button>
+            </div>
+            {(spriteComp.props as Record<string, unknown>)?._selectedFile && (
+              <div style={{ fontSize: 8, color: 'var(--success)', padding: '1px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                title={String((spriteComp.props as Record<string, unknown>)._selectedFile)}>
+                → {String((spriteComp.props as Record<string, unknown>)._selectedFile).replace(/\\/g, '/').split('/').pop()}
+              </div>
+            )}
+          </>
+        )
+      })()}
+
+      {/* R1375: cc.Layout 컴포넌트 속성 편집 */}
+      {(() => {
+        const layoutComp = node.components.find(c => c.type === 'cc.Layout')
+        if (!layoutComp?.props) return null
+        const lp = layoutComp.props as Record<string, unknown>
+        const layoutType = (lp.type as number) ?? 0
+        const resizeMode = (lp.resizeMode as number) ?? 0
+        const layoutTypeLabels = ['NONE', 'HORIZONTAL', 'VERTICAL', 'GRID']
+        const resizeModeLabels = ['NONE', 'CHILDREN', 'CONTAINER']
+        const onLayoutPropChange = (key: string, value: number) => {
+          const newComps = node.components.map(c =>
+            c.type === 'cc.Layout' ? { ...c, props: { ...c.props, [key]: value } } : c
+          )
+          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+        }
+        return (
+          <>
+            <SectionHeader label="Layout" />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 48, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>type</span>
+                <select
+                  value={layoutType}
+                  onChange={e => onLayoutPropChange('type', parseInt(e.target.value))}
+                  style={{ flex: 1, fontSize: 9, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '1px 3px' }}
+                >
+                  {layoutTypeLabels.map((label, i) => (
+                    <option key={i} value={i}>{i} — {label}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+                <NumInput label="padT" value={(lp.paddingTop as number) ?? 0} uuid={node.uuid} prop="layout.paddingTop"
+                  onSave={(_u, _p, v) => onLayoutPropChange('paddingTop', v)} />
+                <NumInput label="padB" value={(lp.paddingBottom as number) ?? 0} uuid={node.uuid} prop="layout.paddingBottom"
+                  onSave={(_u, _p, v) => onLayoutPropChange('paddingBottom', v)} />
+                <NumInput label="padL" value={(lp.paddingLeft as number) ?? 0} uuid={node.uuid} prop="layout.paddingLeft"
+                  onSave={(_u, _p, v) => onLayoutPropChange('paddingLeft', v)} />
+                <NumInput label="padR" value={(lp.paddingRight as number) ?? 0} uuid={node.uuid} prop="layout.paddingRight"
+                  onSave={(_u, _p, v) => onLayoutPropChange('paddingRight', v)} />
+              </div>
+              {(layoutType === 1 || layoutType === 2 || layoutType === 3) && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px', marginTop: 2 }}>
+                  <NumInput label="spX" value={(lp.spacingX as number) ?? 0} uuid={node.uuid} prop="layout.spacingX"
+                    onSave={(_u, _p, v) => onLayoutPropChange('spacingX', v)} />
+                  <NumInput label="spY" value={(lp.spacingY as number) ?? 0} uuid={node.uuid} prop="layout.spacingY"
+                    onSave={(_u, _p, v) => onLayoutPropChange('spacingY', v)} />
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 3 }}>
+                <span style={{ width: 48, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>resize</span>
+                <select
+                  value={resizeMode}
+                  onChange={e => onLayoutPropChange('resizeMode', parseInt(e.target.value))}
+                  style={{ flex: 1, fontSize: 9, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '1px 3px' }}
+                >
+                  {resizeModeLabels.map((label, i) => (
+                    <option key={i} value={i}>{i} — {label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </>
+        )
+      })()}
+
       {/* R1372: 컴포넌트 추가 드롭다운 */}
       {(() => {
         const ADDABLE_COMPONENTS = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource']

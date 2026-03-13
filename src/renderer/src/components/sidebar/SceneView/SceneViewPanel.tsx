@@ -112,7 +112,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [focusMode, setFocusMode] = useState(false)
   const [measureMode, setMeasureMode] = useState(false)
   const [refImageUrl, setRefImageUrl] = useState('')
-  const [bookmarkedUuids, setBookmarkedUuids] = useState<Set<string>>(new Set())
+  // R1378: 북마크를 localStorage per scene으로 영구 저장
+  const [bookmarkedUuids, setBookmarkedUuids] = useState<Set<string>>(() => {
+    try {
+      const key = `scene-bookmarks-${rootUuid ?? 'default'}`
+      return new Set(JSON.parse(localStorage.getItem(key) ?? '[]'))
+    } catch { return new Set() }
+  })
   const [showBookmarkList, setShowBookmarkList] = useState(false)
   const [pinnedUuids, setPinnedUuids] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('scene-pinned') ?? '[]')) }
@@ -135,6 +141,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       localStorage.setItem('scene-view-pan', JSON.stringify({ x: view.offsetX, y: view.offsetY }))
     } catch { /* ignore */ }
   }, [view.zoom, view.offsetX, view.offsetY])
+  // R1378: 북마크 localStorage 영구 저장
+  useEffect(() => {
+    try {
+      const key = `scene-bookmarks-${rootUuid ?? 'default'}`
+      localStorage.setItem(key, JSON.stringify([...bookmarkedUuids]))
+    } catch { /* ignore */ }
+  }, [bookmarkedUuids, rootUuid])
   const targetViewRef = useRef<{ zoom: number; offsetX: number; offsetY: number } | null>(null)
   const animFrameRef = useRef<number | null>(null)
   const [isDirty, setIsDirty] = useState(false)

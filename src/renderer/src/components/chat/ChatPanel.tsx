@@ -167,6 +167,7 @@ import type { ChatMessage } from '../../stores/chat-store'
 import { getActiveTerminalId } from '../../stores/terminal-store'
 import { WelcomeScreen } from '../shared/WelcomeScreen'
 import { useCCContext } from '../../hooks/useCCContext'
+import { useCCFileContext } from '../../hooks/useCCFileContext'
 import { useProjectContext } from '../../hooks/useProjectContext'
 import { useContextFiles } from '../../hooks/useContextFiles'
 import { parseCCActions, executeCCActions } from '../../utils/cc-action-parser'
@@ -471,6 +472,7 @@ const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, total
 
 export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ, onOpenPromptChain }: ChatPanelProps) {
   const ccCtx = useCCContext()
+  const ccFileCtx = useCCFileContext()
   const projectSummary = useProjectContext(project.currentPath ?? null)
   const ctxFiles = useContextFiles(project.currentPath ?? null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -1014,7 +1016,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       window.api.openaiSend?.({ model: openaiModel, messages: history })
     } else {
       const resolvedSystemPrompt = customSystemPrompt ? resolveVars(customSystemPrompt) : ''
-      const parts = [resolvedSystemPrompt, projectSummary, ccCtx.contextString, ctxFiles.contextString].filter(Boolean)
+      const parts = [resolvedSystemPrompt, projectSummary, ccCtx.contextString, ccFileCtx.contextString, ctxFiles.contextString].filter(Boolean)
       const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
       window.api.claudeSend({
         text,
@@ -1023,7 +1025,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
       })
     }
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle])
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, ccFileCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle])
 
   const handleSendWithVarCheck = useCallback((text: string) => {
     const vars = extractVars(text)

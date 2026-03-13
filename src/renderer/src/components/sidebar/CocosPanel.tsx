@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useCCFileProject } from '../../hooks/useCCFileProject'
 import { CCFileSceneView } from './SceneView/CCFileSceneView'
 import type { CCSceneNode, CCSceneFile } from '../../../../shared/ipc-schema'
+import { updateCCFileContext } from '../../hooks/useCCFileContext'
 
 function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   const [checked, setChecked] = useState(value)
@@ -351,6 +352,21 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       return next
     })
   }, [])
+
+  // R1376: Claude 컨텍스트 자동 주입
+  const [ccCtxInject, setCcCtxInject] = useState(() => localStorage.getItem('cc-ctx-inject') !== 'false')
+  useEffect(() => {
+    if (!ccCtxInject) { updateCCFileContext(null); return }
+    const sceneName = sceneFile?.scenePath?.replace(/\\/g, '/').split('/').pop() ?? '(없음)'
+    const version = projectInfo?.version ?? '?'
+    updateCCFileContext({
+      sceneName,
+      version,
+      selectedNodeName: selectedNode?.name,
+      selectedNodeUuid: selectedNode?.uuid,
+      components: selectedNode?.components?.map(c => c.type) ?? [],
+    })
+  }, [ccCtxInject, sceneFile?.scenePath, projectInfo?.version, selectedNode?.uuid, selectedNode?.name, selectedNode?.components])
 
   const handleSceneChange = useCallback(async (path: string) => {
     setSelectedScene(path)
@@ -757,6 +773,14 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 </div>
               )
             })}
+          </div>
+        )}
+
+        {/* R1376: Claude 컨텍스트 주입 토글 */}
+        {sceneFile && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '3px 0' }}>
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', flex: 1 }}>Claude 컨텍스트 주입</span>
+            <BoolToggle value={ccCtxInject} onChange={v => { setCcCtxInject(v); localStorage.setItem('cc-ctx-inject', String(v)) }} />
           </div>
         )}
 
