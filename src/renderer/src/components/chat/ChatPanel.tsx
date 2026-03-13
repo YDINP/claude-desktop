@@ -1118,6 +1118,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // R1218: message reply
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyContext, setReplyContext] = useState<string | null>(null)
+  // R1224: message group by
+  const [msgGroupBy, setMsgGroupBy] = useState<'date' | 'sender' | 'topic' | 'none'>('none')
+  const [showGroupByPanel, setShowGroupByPanel] = useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

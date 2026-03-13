@@ -273,6 +273,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1220: scene export
   const [sceneExportFormat, setSceneExportFormat] = useState<'json' | 'prefab' | 'fbx'>('json')
   const [showExportScene, setShowExportScene] = useState(false)
+  // R1226: node tree view
+  const [nodeTreeExpanded, setNodeTreeExpanded] = useState<Set<string>>(new Set())
+  const [nodeTreeFilter, setNodeTreeFilter] = useState('')
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

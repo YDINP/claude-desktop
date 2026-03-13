@@ -12625,6 +12625,74 @@ if (existsSync(sl1223Path)) {
   }
 }
 
+console.log('\n## 319. Phase DD10 R1224~1226 기능 체크')
+// R1224: ChatPanel 메시지 그룹
+const cp1224Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1224Path)) {
+  const cp1224 = readFileSync(cp1224Path, 'utf-8')
+  if (cp1224.includes('msgGroupBy') || cp1224.includes('showGroupByPanel') || cp1224.includes('groupMessages')) {
+    log('pass', 'R1224', 'ChatPanel 메시지 그룹 존재')
+  } else {
+    log('warning', 'R1224', 'ChatPanel 메시지 그룹 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1225: InputBar 구문 강조
+const ib1225Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1225Path)) {
+  const ib1225 = readFileSync(ib1225Path, 'utf-8')
+  if (ib1225.includes('syntaxHighlight') || ib1225.includes('syntaxTheme') || ib1225.includes('codeHighlight')) {
+    log('pass', 'R1225', 'InputBar 구문 강조 존재')
+  } else {
+    log('warning', 'R1225', 'InputBar 구문 강조 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1226: CocosPanel 노드 트리
+const cocos1226Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1226Path)) {
+  const cocos1226 = readFileSync(cocos1226Path, 'utf-8')
+  if (cocos1226.includes('nodeTreeExpanded') || cocos1226.includes('nodeTreeFilter') || cocos1226.includes('treeExpanded')) {
+    log('pass', 'R1226', 'CocosPanel 노드 트리 존재')
+  } else {
+    log('warning', 'R1226', 'CocosPanel 노드 트리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 320. Phase DD10 R1227~1229 기능 체크')
+// R1227: SceneViewPanel 씬 카메라
+const sv1227Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1227Path)) {
+  const sv1227 = readFileSync(sv1227Path, 'utf-8')
+  if (sv1227.includes('sceneCameras') || sv1227.includes('activeCamera') || sv1227.includes('cameraList')) {
+    log('pass', 'R1227', 'SceneViewPanel 씬 카메라 존재')
+  } else {
+    log('warning', 'R1227', 'SceneViewPanel 씬 카메라 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1228: TerminalPanel 커맨드 큐
+const tp1228Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1228Path)) {
+  const tp1228 = readFileSync(tp1228Path, 'utf-8')
+  if (tp1228.includes('cmdQueue') || tp1228.includes('queueRunning') || tp1228.includes('commandQueue')) {
+    log('pass', 'R1228', 'TerminalPanel 커맨드 큐 존재')
+  } else {
+    log('warning', 'R1228', 'TerminalPanel 커맨드 큐 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1229: SessionList 세션 우선순위
+const sl1229Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1229Path)) {
+  const sl1229 = readFileSync(sl1229Path, 'utf-8')
+  if (sl1229.includes('sessionPriority') || sl1229.includes('sortByPriority') || sl1229.includes('prioritySort')) {
+    log('pass', 'R1229', 'SessionList 세션 우선순위 존재')
+  } else {
+    log('warning', 'R1229', 'SessionList 세션 우선순위 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

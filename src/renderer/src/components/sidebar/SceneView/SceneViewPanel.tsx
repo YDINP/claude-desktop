@@ -1683,6 +1683,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // R1221: node search advanced
   const [nodeSearchFilters, setNodeSearchFilters] = React.useState<Record<string, string>>({})
   const [showAdvancedSearch, setShowAdvancedSearch] = React.useState(false)
+  // R1227: scene camera
+  const [sceneCameras, setSceneCameras] = React.useState<string[]>([])
+  const [activeCamera, setActiveCamera] = React.useState<string | null>(null)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {

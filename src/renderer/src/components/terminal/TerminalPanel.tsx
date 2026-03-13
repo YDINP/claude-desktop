@@ -488,6 +488,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1222: terminal layout
   const [termLayout, setTermLayout] = React.useState<'single' | 'split-h' | 'split-v'>('single')
   const [layoutConfig, setLayoutConfig] = React.useState<Record<string, number>>({})
+  // R1228: terminal command queue
+  const [cmdQueue, setCmdQueue] = React.useState<string[]>([])
+  const [queueRunning, setQueueRunning] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
