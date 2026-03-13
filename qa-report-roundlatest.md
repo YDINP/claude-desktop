@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:32:11.375Z
+> 2026-03-13T11:33:35.196Z
 
 ## Critical
 _없음_
@@ -691,3 +691,6 @@ _없음_
 - ChatPanel 번역 기록 존재
 - InputBar 멀티라인 모드 존재
 - CocosPanel 컴포넌트 의존성 존재
+- SceneViewPanel 노드 즐겨찾기 그룹 존재
+- TerminalPanel 명령어 즐겨찾기 존재
+- SessionList 타임라인 뷰 존재

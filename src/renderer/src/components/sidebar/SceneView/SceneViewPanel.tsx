@@ -265,8 +265,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [redoStack, setRedoStack] = useState<UndoEntry[]>([])
   const [clipboard, setClipboard] = useState<ClipboardEntry[]>([])
   const [copiedNode, setCopiedNode] = useState<SceneNode | null>(null)
-  const [nodeSortKey, setNodeSortKey] = useState<'name' | 'type' | 'order'>('order')
-  const [nodeSortAsc, setNodeSortAsc] = useState<boolean>(true)
+  const [favNodeGroups, setFavNodeGroups] = useState<Array<{ name: string; nodeIds: string[] }>>([])
+  const [showFavGroups, setShowFavGroups] = useState(false)
 
   // ── 마퀴 선택 상태 ─────────────────────────────────────────
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)

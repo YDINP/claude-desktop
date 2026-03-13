@@ -222,6 +222,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showCleanupSettings, setShowCleanupSettings] = useState(false)
   const [sessionIcons, setSessionIcons] = useState<Record<string, string>>({})
   const [showIconPicker, setShowIconPicker] = useState<string | null>(null)
+  const [timelineView, setTimelineView] = useState(false)
+  const [timelineRange, setTimelineRange] = useState<{ start: number; end: number } | null>(null)
   const [showSearchHistory, setShowSearchHistory] = useState(false)
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [ratingFilter, setRatingFilter] = useState<number | null>(null)
@@ -232,8 +234,6 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [compareTargets, setCompareTargets] = useState<string[]>([])
   const [editingMemo, setEditingMemo] = useState<string | null>(null)
   const [showExportMenu, setShowExportMenu] = useState(false)
-  const [sessionIcons, setSessionIcons] = useState<Record<string, string>>({})
-  const [showIconPicker, setShowIconPicker] = useState<string | null>(null)
 
   const TAG_COLORS_KEY = 'session-tag-colors'
   const loadTagColors = (): Record<string, string> => {
@@ -274,6 +274,9 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     } catch { /* ignore */ }
     return new Set()
   })
+
+  const [timelineView, setTimelineView] = useState(false)
+  const [timelineRange, setTimelineRange] = useState<{ start: number; end: number } | null>(null)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

@@ -176,6 +176,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R799: workspace layout
   const [workspaceLayout, setWorkspaceLayout] = useState<'single' | 'split-h' | 'split-v' | 'grid'>('single')
   const [layoutLocked, setLayoutLocked] = useState(false)
+  const [favCmds, setFavCmds] = useState<Array<{ label: string; cmd: string }>>([])
+  const [showFavCmds, setShowFavCmds] = useState(false)
   // R791: filter presets
   const [filterPresets, setFilterPresets] = useState<Array<{ name: string; pattern: string }>>(() => JSON.parse(localStorage.getItem('filter-presets') ?? '[]'))
   const [activeFilterPreset, setActiveFilterPreset] = useState<string | null>(null)
@@ -349,6 +351,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showTermFilter, setShowTermFilter] = useState(false)
   const [termSearchMatches, setTermSearchMatches] = useState<number[]>([])
   const [termSearchIdx, setTermSearchIdx] = useState(0)
+  const [favCmds, setFavCmds] = useState<Array<{ label: string; cmd: string }>>([])
+  const [showFavCmds, setShowFavCmds] = useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

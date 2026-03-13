@@ -7894,6 +7894,41 @@ if (existsSync(cocp809Path)) {
   }
 }
 
+console.log('\n## 181. Phase DD10 R810~812 기능 체크')
+
+// R810: SceneViewPanel 노드 즐겨찾기 그룹
+const svp810Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp810Path)) {
+  const svp810 = readFileSync(svp810Path, 'utf-8')
+  if (svp810.includes('favNodeGroups') || svp810.includes('showFavGroups') || svp810.includes('nodeGroupFav')) {
+    log('pass', 'R810', 'SceneViewPanel 노드 즐겨찾기 그룹 존재')
+  } else {
+    log('warning', 'R810', 'SceneViewPanel 즐겨찾기 그룹 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R811: TerminalPanel 명령어 즐겨찾기
+const tp811Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp811Path)) {
+  const tp811 = readFileSync(tp811Path, 'utf-8')
+  if (tp811.includes('favCmds') || tp811.includes('showFavCmds') || tp811.includes('favCommands')) {
+    log('pass', 'R811', 'TerminalPanel 명령어 즐겨찾기 존재')
+  } else {
+    log('warning', 'R811', 'TerminalPanel 즐겨찾기 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R812: SessionList 타임라인 뷰
+const sl812Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl812Path)) {
+  const sl812 = readFileSync(sl812Path, 'utf-8')
+  if (sl812.includes('timelineView') || sl812.includes('timelineRange') || sl812.includes('showTimeline')) {
+    log('pass', 'R812', 'SessionList 타임라인 뷰 존재')
+  } else {
+    log('warning', 'R812', 'SessionList 타임라인 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
