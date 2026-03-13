@@ -3,7 +3,8 @@ import { SceneTreePanel } from './SceneTreePanel'
 import { NodePropertyPanel } from './NodePropertyPanel'
 import { AssetBrowserPanel } from './AssetBrowserPanel'
 import { useProject } from '../../stores/project-store'
-import type { CCNode } from '../../../../shared/ipc-schema'
+import { useCCFileProject } from '../../hooks/useCCFileProject'
+import type { CCNode, CCSceneNode } from '../../../../shared/ipc-schema'
 
 export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
   defaultPort?: number
@@ -11,6 +12,9 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
   onConnectedChange?: (connected: boolean) => void
 } = {}) {
   const { currentPath } = useProject()
+  const [mode, setMode] = useState<'ws' | 'file'>('ws')
+  const fileProject = useCCFileProject()
+  const [selectedFileNode, setSelectedFileNode] = useState<CCSceneNode | null>(null)
   const mountedRef = useRef(true)
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false } }, [])
   const [connected, setConnected] = useState(false)
@@ -164,13 +168,28 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
       <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
           <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>🎮 Cocos Creator</span>
-          <span style={{
-            fontSize: 10, padding: '2px 6px', borderRadius: 10,
-            background: connected ? 'rgba(63,185,80,0.15)' : reconnectCountdown !== null ? 'rgba(255,165,0,0.15)' : 'rgba(248,81,73,0.15)',
-            color: connected ? 'var(--success, #3fb950)' : reconnectCountdown !== null ? '#ffa500' : 'var(--error, #f85149)',
-          }}>
-            {connected ? `연결됨${uptime ? ` ${uptime}` : ''}` : reconnectCountdown !== null ? `재연결 ${reconnectCountdown}s` : '연결 안됨'}
-          </span>
+          {/* 모드 토글 */}
+          {(['ws', 'file'] as const).map(m => (
+            <button key={m} onClick={() => setMode(m)}
+              title={m === 'ws' ? 'WS Extension 연결 모드' : '파일 직접 편집 모드 (Extension 불필요)'}
+              style={{
+                padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer',
+                border: '1px solid var(--border)',
+                background: mode === m ? 'var(--accent)' : 'none',
+                color: mode === m ? '#fff' : 'var(--text-muted)',
+              }}>
+              {m === 'ws' ? 'WS' : '파일'}
+            </button>
+          ))}
+          {mode === 'ws' && (
+            <span style={{
+              fontSize: 10, padding: '2px 6px', borderRadius: 10,
+              background: connected ? 'rgba(63,185,80,0.15)' : reconnectCountdown !== null ? 'rgba(255,165,0,0.15)' : 'rgba(248,81,73,0.15)',
+              color: connected ? 'var(--success, #3fb950)' : reconnectCountdown !== null ? '#ffa500' : 'var(--error, #f85149)',
+            }}>
+              {connected ? `연결됨${uptime ? ` ${uptime}` : ''}` : reconnectCountdown !== null ? `재연결 ${reconnectCountdown}s` : '연결 안됨'}
+            </span>
+          )}
           {detectedProject && (
             <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 'auto' }}>
               {detectedProject.creatorVersion ?? detectedProject.version}
@@ -255,8 +274,17 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
         )}
       </div>
 
-      {/* 본문 */}
-      {connected ? (
+      {/* 파일 직접 편집 모드 */}
+      {mode === 'file' && (
+        <CCFileProjectUI
+          fileProject={fileProject}
+          selectedNode={selectedFileNode}
+          onSelectNode={setSelectedFileNode}
+        />
+      )}
+
+      {/* WS 연결 모드 본문 */}
+      {mode === 'ws' && connected ? (
         <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
           <SceneTreePanel port={port} onSelectNode={(node) => {
             window.api.ccGetNode?.(port, node.uuid)
@@ -289,7 +317,7 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
             </div>
           )}
         </div>
-      ) : (
+      ) : mode === 'ws' ? (
         <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, lineHeight: 1.7 }}>
           <div style={{ marginBottom: 10, fontWeight: 600, color: 'var(--text-primary)' }}>Extension 설치</div>
           <div style={{ marginBottom: 8, padding: '6px 8px', background: 'var(--bg-tertiary)', borderRadius: 4, fontSize: 10 }}>
@@ -337,7 +365,184 @@ export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
             </ol>
           </details>
         </div>
+      ) : null}
+    </div>
+  )
+}
+
+// ── CC 파일 모드 UI ──────────────────────────────────────────────────────────
+
+interface CCFileProjectUIProps {
+  fileProject: {
+    projectInfo: import('../../../../shared/ipc-schema').CCFileProjectInfo | null
+    sceneFile: import('../../../../shared/ipc-schema').CCSceneFile | null
+    loading: boolean
+    error: string | null
+    openProject: () => Promise<void>
+    loadScene: (scenePath: string) => Promise<void>
+  }
+  selectedNode: CCSceneNode | null
+  onSelectNode: (n: CCSceneNode | null) => void
+}
+
+function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
+  const { projectInfo, sceneFile, loading, error, openProject, loadScene } = fileProject
+  const [selectedScene, setSelectedScene] = useState<string>('')
+
+  const handleSceneChange = useCallback(async (path: string) => {
+    setSelectedScene(path)
+    if (path) await loadScene(path)
+  }, [loadScene])
+
+  return (
+    <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+      {/* 프로젝트 열기 섹션 */}
+      <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
+          <button
+            onClick={openProject}
+            disabled={loading}
+            style={{
+              flex: 1, padding: '4px 8px', background: 'var(--accent)', color: '#fff',
+              borderRadius: 4, fontSize: 11, cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+            }}
+          >
+            {loading ? '로드 중...' : projectInfo?.detected ? '📂 다른 프로젝트 열기' : '📂 CC 프로젝트 열기'}
+          </button>
+        </div>
+
+        {/* 감지된 프로젝트 정보 */}
+        {projectInfo?.detected && (
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+            <div style={{ color: 'var(--accent)', fontWeight: 600, marginBottom: 2 }}>
+              {projectInfo.name}
+              <span style={{ fontWeight: 400, color: 'var(--text-muted)', marginLeft: 6 }}>
+                CC {projectInfo.version} ({projectInfo.creatorVersion})
+              </span>
+            </div>
+            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+              title={projectInfo.projectPath}>
+              📁 {projectInfo.projectPath}
+            </div>
+            <div style={{ marginTop: 2 }}>
+              씬 파일: <strong>{projectInfo.scenes?.length ?? 0}개</strong>
+            </div>
+          </div>
+        )}
+
+        {/* 씬 선택 드롭다운 */}
+        {projectInfo?.scenes && projectInfo.scenes.length > 0 && (
+          <select
+            value={selectedScene}
+            onChange={e => handleSceneChange(e.target.value)}
+            style={{
+              width: '100%', marginTop: 6, padding: '3px 6px', fontSize: 10,
+              background: 'var(--bg-input)', color: 'var(--text-primary)',
+              border: '1px solid var(--border)', borderRadius: 4,
+            }}
+          >
+            <option value="">씬 파일 선택...</option>
+            {projectInfo.scenes.map(s => (
+              <option key={s} value={s}>
+                {s.split(/[\\/]/).pop()}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {error && (
+          <div style={{ marginTop: 6, fontSize: 10, color: 'var(--error, #f85149)', lineHeight: 1.4 }}>
+            {error}
+          </div>
+        )}
+      </div>
+
+      {/* 씬 트리 (파싱된 결과) */}
+      {sceneFile?.root && (
+        <div style={{ flex: 1, overflow: 'auto' }}>
+          <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)' }}>
+            씬: {sceneFile.scenePath.split(/[\\/]/).pop()}
+          </div>
+          <CCFileSceneTree
+            node={sceneFile.root}
+            depth={0}
+            selected={selectedNode}
+            onSelect={onSelectNode}
+          />
+        </div>
       )}
+
+      {/* 안내 (프로젝트 미선택) */}
+      {!projectInfo?.detected && !loading && (
+        <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, lineHeight: 1.7 }}>
+          <div style={{ marginBottom: 8, fontWeight: 600, color: 'var(--text-primary)' }}>파일 직접 편집 모드</div>
+          <div>CC Extension 없이 .fire / .scene 파일을 직접 파싱·편집합니다.</div>
+          <div style={{ marginTop: 6, fontSize: 10 }}>
+            • CC 2.x (.fire) / CC 3.x (.scene) 모두 지원<br />
+            • 에디터 미실행 상태에서도 씬 트리 조회 가능<br />
+            • 저장 시 원본 파일 직접 수정 (자동 백업)
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** 파싱된 CCSceneNode 트리 렌더링 */
+function CCFileSceneTree({
+  node, depth, selected, onSelect,
+}: {
+  node: CCSceneNode
+  depth: number
+  selected: CCSceneNode | null
+  onSelect: (n: CCSceneNode | null) => void
+}) {
+  const [collapsed, setCollapsed] = useState(depth > 2)
+  const hasChildren = node.children.length > 0
+  const isSelected = selected?.uuid === node.uuid
+
+  return (
+    <div>
+      <div
+        onClick={() => onSelect(isSelected ? null : node)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 2,
+          padding: `2px 6px 2px ${8 + depth * 14}px`,
+          cursor: 'pointer', fontSize: 11,
+          background: isSelected ? 'var(--accent-subtle, rgba(88,166,255,0.1))' : 'transparent',
+          color: node.active ? 'var(--text-primary)' : 'var(--text-muted)',
+          userSelect: 'none',
+        }}
+      >
+        {hasChildren ? (
+          <span
+            onClick={e => { e.stopPropagation(); setCollapsed(c => !c) }}
+            style={{ fontSize: 9, width: 12, textAlign: 'center', flexShrink: 0 }}
+          >
+            {collapsed ? '▸' : '▾'}
+          </span>
+        ) : (
+          <span style={{ width: 12, flexShrink: 0 }} />
+        )}
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+          {node.name || '(unnamed)'}
+        </span>
+        {node.components.length > 0 && (
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>
+            {node.components.map(c => c.type.replace('cc.', '')).join(',')}
+          </span>
+        )}
+      </div>
+      {!collapsed && hasChildren && node.children.map(child => (
+        <CCFileSceneTree
+          key={child.uuid}
+          node={child}
+          depth={depth + 1}
+          selected={selected}
+          onSelect={onSelect}
+        />
+      ))}
     </div>
   )
 }
