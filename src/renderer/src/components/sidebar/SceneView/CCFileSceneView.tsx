@@ -389,8 +389,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const hasLabel = node.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
             const hasSprite = node.components.some(c => c.type === 'cc.Sprite')
             const hasBg = node.components.some(c => ['cc.Canvas', 'cc.Layout'].includes(c.type))
+            const hasButton = node.components.some(c => c.type === 'cc.Button' || c.type === 'Button')
+            const hasScroll = node.components.some(c => c.type === 'cc.ScrollView' || c.type === 'cc.ScrollBar')
+            const hasEdit = node.components.some(c => c.type === 'cc.EditBox')
+            const hasSlider = node.components.some(c => c.type === 'cc.Slider' || c.type === 'cc.Toggle' || c.type === 'cc.ToggleGroup')
 
             const fillColor = isHovered ? 'rgba(255,255,255,0.06)'
+              : hasButton ? 'rgba(255,140,60,0.1)'
+              : hasScroll ? 'rgba(60,220,220,0.08)'
+              : hasEdit ? 'rgba(220,100,180,0.1)'
+              : hasSlider ? 'rgba(160,100,255,0.1)'
               : hasBg ? 'rgba(80,120,255,0.08)'
               : hasLabel ? 'rgba(255,200,80,0.12)'
               : hasSprite ? 'rgba(80,220,120,0.12)'
@@ -398,6 +406,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const strokeColor = isSelected ? '#58a6ff'
               : isDragged ? '#ff9944'
               : isHovered ? 'rgba(255,255,255,0.5)'
+              : hasButton ? '#ff8c3c'
+              : hasScroll ? '#3ccccc'
+              : hasEdit ? '#cc64b4'
+              : hasSlider ? '#a064ff'
               : hasBg ? '#4466aa'
               : hasLabel ? '#ccaa44'
               : hasSprite ? '#44aa66'

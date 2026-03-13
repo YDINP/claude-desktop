@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 493 완료 — QQ2-1 Inspector 위치/회전 리셋 버튼)
+> 마지막 업데이트: 2026-03-13 (Round 494 완료 — RR2-1 씬뷰 컴포넌트 타입별 색상 강화)
 
 ## 완료된 라운드
 
@@ -85,6 +85,7 @@
 | Round 491 | dev | Phase AA2-1: 씬뷰 Space 키 패닝 — isSpaceDownRef + window keydown/up, Space+좌클릭 드래그로 팬 | ✅ |
 | Round 492 | dev | Phase JJ2-1: Inspector scale 비율 잠금 🔒 버튼 — lockScale state, X/Y 변경 시 비율 유지 연산 | ✅ |
 | Round 493 | dev | Phase QQ2-1: Inspector 위치/회전 리셋 ↺ 버튼 — 위치 (0,0), 회전 0° 즉시 저장 | ✅ |
+| Round 494 | dev | Phase RR2-1: 씬뷰 컴포넌트 색상 강화 — Button(주황)/ScrollView(청록)/EditBox(분홍)/Slider(보라) 색상 추가 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |
