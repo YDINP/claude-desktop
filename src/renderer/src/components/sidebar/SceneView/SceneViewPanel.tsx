@@ -274,6 +274,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return changed
   }, [diffModeR1381, savedSnapshot, nodeMap])
 
+  // R1431: Before/After 슬라이더 비교 모드
+  const [beforeAfterMode, setBeforeAfterMode] = useState(false)
+  const [sliderX, setSliderX] = useState(0.5) // 0~1 비율
+  const beforeAfterDragRef = useRef(false)
+
   // ── 스냅샷 기록 상태 ────────────────────────────────────────
   const [snapshots, setSnapshots] = useState<Array<{ label: string; timestamp: number; nodes: unknown[] }>>([])
   const [snapshotOpen, setSnapshotOpen] = useState(false)
@@ -451,6 +456,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showCameraControls, setShowCameraControls] = useState(false)
   const [gizmoSize, setGizmoSize] = useState(1.0)
   const [showGizmoSettings, setShowGizmoSettings] = useState(false)
+  // R1428: 히트 테스트 정밀화 상태
+  const [blockInactiveClick, setBlockInactiveClick] = useState(false)
+  const tabCycleRef = useRef<{ lastClickPos: { x: number; y: number }; candidates: string[]; index: number } | null>(null)
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────
@@ -1168,6 +1176,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     if (lockedUuids.has(uuid)) return
     // 핀된 노드는 드래그/선택 불가
     if (pinnedUuids.has(uuid)) return
+    // R1428: 비활성 노드 클릭 방지 옵션
+    const clickedNode = nodeMap.get(uuid)
+    if (blockInactiveClick && clickedNode && !clickedNode.active) return
 
     if (e.altKey) {
       // Alt 클릭: 자식 그룹 접기/펼치기
@@ -1213,6 +1224,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     if (!node) return
 
     const svgCoords = getSvgCoords(e)
+    // R1428: 클릭 위치의 겹치는 노드 후보 기록 (Tab 순환용)
+    const candidates = hitTestAtPoint(svgCoords.x, svgCoords.y)
+    if (candidates.length > 1) {
+      tabCycleRef.current = { lastClickPos: { x: svgCoords.x, y: svgCoords.y }, candidates, index: candidates.indexOf(uuid) }
+    } else {
+      tabCycleRef.current = null
+    }
     const groupOffsets: Record<string, { startX: number; startY: number }> | undefined = isGroupDrag
       ? Object.fromEntries(
           [...selectedUuids].map(uid => {
@@ -1231,7 +1249,45 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       groupOffsets,
     }
     setIsDragging(true)
-  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids, lockedUuids])
+  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids, lockedUuids, blockInactiveClick])
+
+  // R1428: 히트 테스트 — 최소 8px 클릭 영역 확장 + z-order 역순 + Tab 키 순환
+  const hitTestAtPoint = useCallback((svgX: number, svgY: number): string[] => {
+    const minHitPx = 8 / view.zoom
+    const allNodes = [...nodeMap.values()]
+    // z-order: 배열 역순 (최상단 우선)
+    const hits: string[] = []
+    for (let i = allNodes.length - 1; i >= 0; i--) {
+      const n = allNodes[i]
+      if (!n.active && blockInactiveClick) continue
+      if (n.locked || lockedUuids.has(n.uuid)) continue
+      const { sx, sy } = cocosToSvg(n.worldX ?? n.x, n.worldY ?? n.y, DESIGN_W, DESIGN_H)
+      const w = Math.max(n.width, minHitPx)
+      const h = Math.max(n.height, minHitPx)
+      const rx = sx - w * (n.anchorX ?? 0.5)
+      const ry = sy - h * (1 - (n.anchorY ?? 0.5))
+      if (svgX >= rx && svgX <= rx + w && svgY >= ry && svgY <= ry + h) {
+        hits.push(n.uuid)
+      }
+    }
+    return hits
+  }, [nodeMap, view.zoom, DESIGN_W, DESIGN_H, blockInactiveClick, lockedUuids])
+
+  // R1428: Tab 키로 겹치는 노드 순환
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !tabCycleRef.current) return
+      e.preventDefault()
+      const { candidates, index } = tabCycleRef.current
+      if (candidates.length <= 1) return
+      const nextIdx = (index + 1) % candidates.length
+      tabCycleRef.current.index = nextIdx
+      setSelectedUuid(candidates[nextIdx])
+      setSelectedUuids(new Set())
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
 
   // R1416: handleResizeMouseDown — 잠긴 노드 리사이즈 차단
   const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w') => {
@@ -2733,6 +2789,32 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         >
           diff {changedUuids.size > 0 ? `(${changedUuids.size})` : ''}
         </button>
+        {/* R1431: Before/After 슬라이더 비교 토글 */}
+        <button
+          onClick={() => { setBeforeAfterMode(v => !v); if (!beforeAfterMode) setSliderX(0.5) }}
+          title={beforeAfterMode ? 'Before/After 비교 끄기' : 'Before/After 슬라이더 비교'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: beforeAfterMode ? 'rgba(168,85,247,0.25)' : 'rgba(255,255,255,0.06)',
+            border: beforeAfterMode ? '1px solid rgba(168,85,247,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: beforeAfterMode ? '#c084fc' : '#cbd5e1',
+          }}
+        >
+          B/A
+        </button>
+        {/* R1428: 비활성 노드 클릭 방지 토글 */}
+        <button
+          onClick={() => setBlockInactiveClick(v => !v)}
+          title={blockInactiveClick ? '비활성 노드 클릭 허용' : '비활성 노드 클릭 방지'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: blockInactiveClick ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.06)',
+            border: blockInactiveClick ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(255,255,255,0.15)',
+            color: blockInactiveClick ? '#fca5a5' : '#cbd5e1',
+          }}
+        >
+          {blockInactiveClick ? '비활성 차단' : '비활성 허용'}
+        </button>
         {/* 접근 횟수 초기화 버튼 (R702) */}
         {Object.keys(nodeAccessCount).length > 0 && (
           <button
@@ -3512,6 +3594,79 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             />
           )}
         </svg>
+
+        {/* R1431: Before/After 슬라이더 비교 오버레이 */}
+        {beforeAfterMode && savedSnapshot.size > 0 && (() => {
+          const svgRect = svgRef.current?.getBoundingClientRect()
+          const svgW = svgRect?.width ?? 400
+          const svgH = svgRect?.height ?? 300
+          const pixelX = sliderX * svgW
+          return (
+            <div
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 20 }}
+            >
+              {/* Before 영역 라벨 */}
+              <div style={{ position: 'absolute', top: 4, left: 6, fontSize: 9, color: 'rgba(239,68,68,0.8)', pointerEvents: 'none', zIndex: 2 }}>BEFORE</div>
+              {/* After 영역 라벨 */}
+              <div style={{ position: 'absolute', top: 4, right: 6, fontSize: 9, color: 'rgba(96,165,250,0.8)', pointerEvents: 'none', zIndex: 2 }}>AFTER</div>
+              {/* Before 사이드 오버레이 — savedSnapshot 기준 변경된 노드 표시 */}
+              <svg width={svgW} height={svgH} style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
+                <defs>
+                  <clipPath id="r1431-before-clip"><rect x={0} y={0} width={pixelX} height={svgH} /></clipPath>
+                </defs>
+                <g clipPath="url(#r1431-before-clip)">
+                  {[...savedSnapshot.entries()].map(([uuid, snap]) => {
+                    const current = nodeMap.get(uuid)
+                    if (!current) return null
+                    if (snap.x === current.x && snap.y === current.y && snap.w === current.width && snap.h === current.height) return null
+                    const { sx, sy } = cocosToSvg(snap.x, snap.y, DESIGN_W, DESIGN_H)
+                    const rx = sx - snap.w * 0.5
+                    const ry = sy - snap.h * 0.5
+                    return (
+                      <rect key={uuid} x={rx} y={ry} width={snap.w} height={snap.h}
+                        fill="rgba(239,68,68,0.1)" stroke="rgba(239,68,68,0.6)"
+                        strokeWidth={1.5 / view.zoom} rx={2 / view.zoom}
+                        strokeDasharray={`${3 / view.zoom} ${2 / view.zoom}`}
+                      />
+                    )
+                  })}
+                </g>
+              </svg>
+              {/* 슬라이더 바 (드래그 가능) */}
+              <div
+                style={{
+                  position: 'absolute', top: 0, left: pixelX - 1, width: 3, height: '100%',
+                  background: 'rgba(255,255,255,0.8)', cursor: 'ew-resize', pointerEvents: 'auto', zIndex: 3,
+                  boxShadow: '0 0 4px rgba(0,0,0,0.5)',
+                }}
+                onMouseDown={e => {
+                  e.preventDefault()
+                  beforeAfterDragRef.current = true
+                  const handleMove = (ev: MouseEvent) => {
+                    if (!beforeAfterDragRef.current || !svgRef.current) return
+                    const r = svgRef.current.getBoundingClientRect()
+                    const x = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width))
+                    setSliderX(x)
+                  }
+                  const handleUp = () => {
+                    beforeAfterDragRef.current = false
+                    window.removeEventListener('mousemove', handleMove)
+                    window.removeEventListener('mouseup', handleUp)
+                  }
+                  window.addEventListener('mousemove', handleMove)
+                  window.addEventListener('mouseup', handleUp)
+                }}
+              >
+                {/* 드래그 핸들 */}
+                <div style={{
+                  position: 'absolute', top: '50%', left: -8, width: 19, height: 24, marginTop: -12,
+                  background: 'rgba(255,255,255,0.9)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 10, color: '#333', fontWeight: 700, boxShadow: '0 1px 4px rgba(0,0,0,0.4)',
+                }}>⟺</div>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* R1424: 씬 비교 뷰 — 오른쪽 절반에 비교 패널 오버레이 */}
         {compareMode && (

@@ -878,6 +878,47 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     return () => window.removeEventListener('keydown', handler)
   }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene, handleSave, onSelectNode])
 
+  // R1430: 전역 노드 검색 상태
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false)
+  const [globalSearchQuery, setGlobalSearchQuery] = useState('')
+  const [globalSearchResults, setGlobalSearchResults] = useState<Array<{ node: CCSceneNode; path: string }>>([])
+  const globalSearchInputRef = useRef<HTMLInputElement>(null)
+
+  // R1430: Ctrl+F 단축키
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault()
+        setGlobalSearchOpen(true)
+        setTimeout(() => globalSearchInputRef.current?.focus(), 50)
+      }
+      if (e.key === 'Escape' && globalSearchOpen) {
+        setGlobalSearchOpen(false)
+        setGlobalSearchQuery('')
+        setGlobalSearchResults([])
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [globalSearchOpen])
+
+  // R1430: 검색 실행
+  const runGlobalSearch = useCallback((q: string) => {
+    setGlobalSearchQuery(q)
+    if (!q.trim() || !sceneFile?.root) { setGlobalSearchResults([]); return }
+    const lq = q.toLowerCase()
+    const found: Array<{ node: CCSceneNode; path: string }> = []
+    function walk(n: CCSceneNode, parentPath: string): void {
+      const currentPath = parentPath ? `${parentPath}/${n.name}` : n.name
+      const nameMatch = n.name.toLowerCase().includes(lq)
+      const compMatch = n.components.some(c => c.type.toLowerCase().includes(lq))
+      if (nameMatch || compMatch) found.push({ node: n, path: currentPath })
+      for (const child of n.children) walk(child, currentPath)
+    }
+    walk(sceneFile.root, '')
+    setGlobalSearchResults(found.slice(0, 50))
+  }, [sceneFile])
+
   // sceneFile 재로드 시 선택 노드 동기화 (uuid 기반 재탐색)
   useEffect(() => {
     if (!sceneFile?.root || !selectedNode) return
@@ -1042,6 +1083,77 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         if (/\.(fire|scene|prefab)$/i.test(filePath)) { loadScene(filePath); addRecent(filePath); addRecentScene(filePath) }
       }}
     >
+      {/* R1430: 전역 노드 검색 오버레이 */}
+      {globalSearchOpen && (
+        <div style={{
+          position: 'relative', zIndex: 50, borderBottom: '1px solid var(--border)',
+          background: 'var(--bg-secondary, #0d0d1a)', padding: '4px 8px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 11, flexShrink: 0 }}>🔍</span>
+            <input
+              ref={globalSearchInputRef}
+              value={globalSearchQuery}
+              onChange={e => runGlobalSearch(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Escape') { setGlobalSearchOpen(false); setGlobalSearchQuery(''); setGlobalSearchResults([]) }
+              }}
+              placeholder="노드 이름 또는 컴포넌트 타입으로 검색... (Esc 닫기)"
+              style={{
+                flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                color: 'var(--text-primary)', borderRadius: 3, padding: '3px 6px', fontSize: 10, boxSizing: 'border-box',
+              }}
+            />
+            <span
+              onClick={() => { setGlobalSearchOpen(false); setGlobalSearchQuery(''); setGlobalSearchResults([]) }}
+              style={{ cursor: 'pointer', fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}
+            >x</span>
+          </div>
+          {globalSearchResults.length > 0 && (
+            <div style={{
+              marginTop: 4, maxHeight: 200, overflowY: 'auto',
+              borderRadius: 4, border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)',
+            }}>
+              {globalSearchResults.map(({ node: n, path }) => (
+                <div
+                  key={n.uuid}
+                  onClick={() => {
+                    onSelectNode(n)
+                    setGlobalSearchOpen(false)
+                    setGlobalSearchQuery('')
+                    setGlobalSearchResults([])
+                  }}
+                  style={{
+                    padding: '4px 8px', fontSize: 10, cursor: 'pointer', color: 'var(--text-primary)',
+                    borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: 6,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >
+                  <span style={{ fontSize: 10, flexShrink: 0 }}>
+                    {n.components.length > 0 ? n.components[0].type.replace('cc.', '')[0] : '□'}
+                  </span>
+                  <span style={{ fontWeight: 500, flexShrink: 0 }}>{n.name || '(unnamed)'}</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                    {path}
+                  </span>
+                  {n.components.length > 0 && (
+                    <span style={{ fontSize: 8, color: 'var(--accent)', flexShrink: 0 }}>
+                      {n.components.map(c => c.type.replace('cc.', '')).join(', ')}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {globalSearchQuery && globalSearchResults.length === 0 && (
+            <div style={{ marginTop: 4, fontSize: 9, color: 'var(--text-muted)', padding: '2px 4px' }}>
+              검색 결과 없음
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 외부 파일 변경 감지 배너 (R1389: 5초 자동 숨김) */}
       {externalChange && sceneFile && !bannerHidden && (
         <div style={{

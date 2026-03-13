@@ -15061,6 +15061,62 @@ if (existsSync(nodeHierarchyPath)) {
   }
 }
 
+// ── Section 389: R1428/R1429/R1430 기능 체크 ───────────────
+console.log('\n## 389. Phase DD14 R1428~R1430 기능 체크')
+
+// R1428: SceneView 히트 테스트 정밀화
+if (existsSync(sceneViewPath)) {
+  const svp1428 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1428.includes('R1428') && svp1428.includes('hitTestAtPoint') && svp1428.includes('blockInactiveClick') && svp1428.includes('tabCycleRef') && svp1428.includes('minHitPx')) {
+    log('pass', 'R1428', 'SceneView 히트 테스트 정밀화 (최소 8px, z-order 역순, Tab 순환, 비활성 차단)')
+  } else {
+    log('warning', 'R1428', 'SceneView 히트 테스트 정밀화 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1429: Inspector cc.Animation 타임라인 미리보기
+if (existsSync(si1402Path)) {
+  const si1429 = readFileSync(si1402Path, 'utf-8')
+  if (si1429.includes('R1429') && si1429.includes('타임라인') && si1429.includes('barW') && si1429.includes('maxDuration') && si1429.includes('cc.Tween') && si1429.includes('easing')) {
+    log('pass', 'R1429', 'Inspector cc.Animation 타임라인 바 시각화 + cc.Tween 읽기전용 표시')
+  } else {
+    log('warning', 'R1429', 'Inspector cc.Animation 타임라인 미리보기 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1430: CocosPanel 전역 노드 검색
+if (existsSync(cp1398Path)) {
+  const cp1430 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1430.includes('R1430') && cp1430.includes('globalSearchOpen') && cp1430.includes('globalSearchQuery') && cp1430.includes('runGlobalSearch') && cp1430.includes('Ctrl') && cp1430.includes('Esc')) {
+    log('pass', 'R1430', 'CocosPanel 전역 노드 검색 (Ctrl+F, 이름/컴포넌트, Esc 닫기, 경로 표시)')
+  } else {
+    log('warning', 'R1430', 'CocosPanel 전역 노드 검색 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 390: R1431/R1432 기능 체크 ───────────────
+console.log('\n## 390. Phase DD14 R1431~R1432 기능 체크')
+
+// R1431: SceneView Before/After 슬라이더 비교
+if (existsSync(sceneViewPath)) {
+  const svp1431 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1431.includes('R1431') && svp1431.includes('beforeAfterMode') && svp1431.includes('sliderX') && svp1431.includes('r1431-before-clip') && svp1431.includes('BEFORE') && svp1431.includes('AFTER')) {
+    log('pass', 'R1431', 'SceneView Before/After 슬라이더 비교 (SVG clipPath, 드래그 슬라이더)')
+  } else {
+    log('warning', 'R1431', 'SceneView Before/After 슬라이더 비교 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1432: cc-file-parser buildReferenceGraph + detectCycles
+if (existsSync(parserPath)) {
+  const fp1432 = readFileSync(parserPath, 'utf-8')
+  if (fp1432.includes('R1432') && fp1432.includes('buildReferenceGraph') && fp1432.includes('detectCycles') && fp1432.includes('extractUuidRefs') && fp1432.includes('__uuid__')) {
+    log('pass', 'R1432', 'cc-file-parser buildReferenceGraph (UUID 참조 그래프) + detectCycles (순환 참조 탐지)')
+  } else {
+    log('warning', 'R1432', 'cc-file-parser buildReferenceGraph 없음', 'cc/cc-file-parser.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

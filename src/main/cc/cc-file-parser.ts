@@ -532,3 +532,108 @@ export function analyzeScene(sceneFile: CCSceneFile): CCSceneAnalysis {
 
   return { totalNodes, activeNodes, maxDepth, componentCounts, estimatedDrawCalls, warnings }
 }
+
+// ── R1432: UUID 참조 그래프 ─────────────────────────────────────────────────
+
+/**
+ * R1432: 씬 내 노드/컴포넌트 간 UUID 참조 관계를 그래프로 구성
+ * UUID → 참조하는 다른 UUID 목록 (컴포넌트 props에서 __uuid__ 추출)
+ * 순환 참조 탐지에 활용 가능
+ */
+export function buildReferenceGraph(sceneFile: CCSceneFile): Map<string, string[]> {
+  const graph = new Map<string, string[]>()
+  const raw = sceneFile._raw as RawEntry[] | undefined
+  if (!raw) {
+    // _raw 없으면 노드 트리에서 컴포넌트 props 기반 참조 추출
+    buildRefGraphFromTree(sceneFile.root, graph)
+    return graph
+  }
+
+  // raw 배열 전체 순회 — 각 엔트리의 __uuid__ 참조 수집
+  const allNodeUuids = new Set<string>()
+  collectNodeUuids(sceneFile.root, allNodeUuids)
+
+  for (const entry of raw) {
+    const entryId = (entry._id as string | undefined) ?? ''
+    if (!entryId) continue
+    const refs: string[] = []
+    extractUuidRefs(entry, refs, allNodeUuids)
+    if (refs.length > 0) {
+      const existing = graph.get(entryId) ?? []
+      graph.set(entryId, [...existing, ...refs])
+    }
+  }
+
+  return graph
+}
+
+function collectNodeUuids(node: CCSceneNode, set: Set<string>): void {
+  set.add(node.uuid)
+  for (const child of node.children) collectNodeUuids(child, set)
+}
+
+function extractUuidRefs(obj: unknown, refs: string[], knownUuids: Set<string>): void {
+  if (!obj || typeof obj !== 'object') return
+  if (Array.isArray(obj)) {
+    for (const item of obj) extractUuidRefs(item, refs, knownUuids)
+    return
+  }
+  const record = obj as Record<string, unknown>
+  if (typeof record.__uuid__ === 'string') {
+    const uuid = record.__uuid__
+    if (knownUuids.has(uuid)) refs.push(uuid)
+    return
+  }
+  for (const val of Object.values(record)) {
+    if (val && typeof val === 'object') extractUuidRefs(val, refs, knownUuids)
+  }
+}
+
+function buildRefGraphFromTree(node: CCSceneNode, graph: Map<string, string[]>): void {
+  const refs: string[] = []
+  for (const comp of node.components) {
+    if (!comp.props) continue
+    for (const val of Object.values(comp.props)) {
+      if (val && typeof val === 'object') {
+        const r = val as Record<string, unknown>
+        if (typeof r.__uuid__ === 'string') refs.push(r.__uuid__)
+      }
+    }
+  }
+  if (refs.length > 0) {
+    graph.set(node.uuid, refs)
+  }
+  for (const child of node.children) buildRefGraphFromTree(child, graph)
+}
+
+/**
+ * R1432: 참조 그래프에서 순환 참조 탐지
+ * @returns 순환에 포함된 UUID 배열 (순환 없으면 빈 배열)
+ */
+export function detectCycles(graph: Map<string, string[]>): string[][] {
+  const visited = new Set<string>()
+  const stack = new Set<string>()
+  const cycles: string[][] = []
+
+  function dfs(uuid: string, path: string[]): void {
+    if (stack.has(uuid)) {
+      const cycleStart = path.indexOf(uuid)
+      if (cycleStart >= 0) cycles.push(path.slice(cycleStart))
+      return
+    }
+    if (visited.has(uuid)) return
+    visited.add(uuid)
+    stack.add(uuid)
+    const refs = graph.get(uuid) ?? []
+    for (const ref of refs) {
+      dfs(ref, [...path, uuid])
+    }
+    stack.delete(uuid)
+  }
+
+  for (const uuid of graph.keys()) {
+    if (!visited.has(uuid)) dfs(uuid, [])
+  }
+
+  return cycles
+}

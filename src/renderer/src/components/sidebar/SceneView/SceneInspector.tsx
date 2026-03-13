@@ -1198,16 +1198,20 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         )
       })()}
 
-      {/* R1384: cc.Animation 클립 목록 뷰어 */}
+      {/* R1384+R1429: cc.Animation 타임라인 미리보기 */}
       {(() => {
         const animComp = node.components.find(c => c.type === 'cc.Animation')
         if (!animComp?.props) return null
         const ap = animComp.props as Record<string, unknown>
         const defaultClip = ap.defaultClip as { __uuid__?: string } | undefined
         const defaultClipUuid = defaultClip?.__uuid__ ?? ''
-        const clipsRaw = (ap.clips ?? ap._clips ?? []) as Array<{ __uuid__?: string } | null>
-        const clips = clipsRaw.filter((c): c is { __uuid__: string } => !!c && !!c.__uuid__)
+        const clipsRaw = (ap.clips ?? ap._clips ?? []) as Array<{ __uuid__?: string; duration?: number; name?: string; _name?: string; wrapMode?: number; _duration?: number } | null>
+        const clips = clipsRaw.filter((c): c is { __uuid__: string; duration?: number; name?: string; _name?: string; wrapMode?: number; _duration?: number } => !!c && !!c.__uuid__)
         const clipCount = clips.length
+        const playOnLoad = (ap.playOnLoad as boolean) ?? (ap._playOnAwake as boolean) ?? false
+        // R1429: 각 클립의 duration 추출 + 최대 duration 계산
+        const clipDurations = clips.map(c => (c.duration ?? c._duration ?? 0) as number)
+        const maxDuration = Math.max(...clipDurations, 0.001)
         return (
           <>
             <SectionHeader label="Animation" />
@@ -1227,28 +1231,80 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
                   fontSize: 8, padding: '0 5px', borderRadius: 8,
                   background: 'rgba(96,165,250,0.15)', color: 'var(--accent)',
                 }}>{clipCount} clips</span>
+                {playOnLoad && <span style={{ fontSize: 7, color: '#4ade80' }}>autoPlay</span>}
               </div>
-              {clips.map((clip, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 0', paddingLeft: 8 }}>
-                  <span style={{ color: 'var(--text-muted)', fontSize: 8, flexShrink: 0 }}>#{i}</span>
-                  <span style={{ fontFamily: 'monospace', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}
-                    title={clip.__uuid__}>
-                    {clip.__uuid__.length > 16 ? clip.__uuid__.slice(0, 8) + '...' + clip.__uuid__.slice(-6) : clip.__uuid__}
-                  </span>
-                </div>
-              ))}
-              {/* 재생 placeholder */}
-              <button
-                disabled
-                style={{
-                  marginTop: 4, width: '100%', padding: '2px 0', fontSize: 9,
-                  background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)',
-                  borderRadius: 3, color: 'var(--text-muted)', cursor: 'default', opacity: 0.5,
-                }}
-                title="재생 기능은 추후 구현 예정"
-              >
-                ▶ 재생 (미구현)
-              </button>
+              {/* R1429: 타임라인 시각화 */}
+              {clips.map((clip, i) => {
+                const dur = clipDurations[i]
+                const barW = maxDuration > 0 ? (dur / maxDuration) * 100 : 0
+                const clipName = (clip.name ?? clip._name ?? clip.__uuid__.slice(0, 8)) as string
+                const isLoop = (clip.wrapMode ?? 0) === 2
+                return (
+                  <div key={i} style={{ marginBottom: 4 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 4 }}>
+                      <span style={{ color: 'var(--text-muted)', fontSize: 8, flexShrink: 0, width: 14 }}>#{i}</span>
+                      <span style={{ fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)', flex: 1 }}
+                        title={clip.__uuid__}>{clipName}</span>
+                      <span style={{ fontSize: 7, color: 'var(--accent)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{dur.toFixed(2)}s</span>
+                      {isLoop && <span title="Loop" style={{ fontSize: 9, flexShrink: 0 }}>🔁</span>}
+                    </div>
+                    {/* 타임라인 바 */}
+                    <div style={{ marginLeft: 18, marginTop: 1, height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden', position: 'relative' }}>
+                      <div style={{ width: `${barW}%`, height: '100%', background: 'linear-gradient(90deg, rgba(96,165,250,0.5), rgba(96,165,250,0.3))', borderRadius: 3 }} />
+                    </div>
+                  </div>
+                )
+              })}
+              {/* R1429: 재생/정지 placeholder 버튼 */}
+              <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+                <button
+                  disabled
+                  style={{
+                    flex: 1, padding: '2px 0', fontSize: 9,
+                    background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)',
+                    borderRadius: 3, color: 'var(--text-muted)', cursor: 'default', opacity: 0.5,
+                  }}
+                  title="재생 기능 미구현 (placeholder)"
+                >▶</button>
+                <button
+                  disabled
+                  style={{
+                    flex: 1, padding: '2px 0', fontSize: 9,
+                    background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)',
+                    borderRadius: 3, color: 'var(--text-muted)', cursor: 'default', opacity: 0.5,
+                  }}
+                  title="정지 기능 미구현 (placeholder)"
+                >■</button>
+              </div>
+            </div>
+          </>
+        )
+      })()}
+
+      {/* R1429: cc.Tween 속성 읽기전용 표시 */}
+      {(() => {
+        const tweenComp = node.components.find(c => c.type === 'cc.Tween' || c.type === 'cc.tween')
+        if (!tweenComp?.props) return null
+        const tp = tweenComp.props as Record<string, unknown>
+        const duration = (tp.duration as number) ?? (tp._duration as number) ?? 0
+        const delay = (tp.delay as number) ?? (tp._delay as number) ?? 0
+        const easing = (tp.easing as string) ?? (tp._easing as string) ?? 'linear'
+        return (
+          <>
+            <SectionHeader label="Tween" />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>duration</span>
+                <span style={{ color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>{duration.toFixed(2)}s</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>delay</span>
+                <span style={{ color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>{delay.toFixed(2)}s</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>easing</span>
+                <span style={{ color: 'var(--accent)' }}>{easing}</span>
+              </div>
             </div>
           </>
         )

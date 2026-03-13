@@ -803,6 +803,12 @@
 | Round 1425 | Inspector cc.ProgressBar/Slider 속성 편집 (progress, totalLength, reverse) | ✅ |
 | Round 1426 | cc-file-parser buildNodePathIndex + Inspector 노드 경로 표시 + 검색 경로 매칭 | ✅ |
 | Round 1427 | QA Section 387-388 추가 (R1422-R1426 기능 체크, Pass 1313) | ✅ |
+| Round 1428 | SceneView 히트 테스트 정밀화 (최소 8px, z-order 역순, Tab 순환, 비활성 클릭 차단) | ✅ |
+| Round 1429 | Inspector cc.Animation 타임라인 바 시각화 + cc.Tween 읽기전용 표시 | ✅ |
+| Round 1430 | CocosPanel 전역 노드 검색 (Ctrl+F, 이름/컴포넌트, Esc 닫기, 경로 표시) | ✅ |
+| Round 1431 | SceneView Before/After 슬라이더 비교 (SVG clipPath, 드래그, BEFORE/AFTER 라벨) | ✅ |
+| Round 1432 | cc-file-parser buildReferenceGraph (UUID 참조 그래프) + detectCycles (순환 참조 탐지) | ✅ |
+| Round 1433 | QA Section 389-390 추가 (R1428-R1432 기능 체크, Pass 1318) | ✅ |
 
 ## QA 프로세스
 

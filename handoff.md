@@ -1,13 +1,24 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1427 완료 — Phase DD14 R1422~1427)
+> 마지막 업데이트: 2026-03-14 (Round 1433 완료 — Phase DD14 R1428~1433)
 
 ## 현재 상태
-- 마지막 커밋: Round 1422~1427 (그리드커스텀/백업관리/씬비교/ProgressBar/경로인덱스/QA)
+- 마지막 커밋: Round 1428~1433 (히트테스트/애니타임라인/전역검색/Before-After/참조그래프/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1313
+- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1318
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
+
+## Phase DD14 R1428~1433 (2026-03-14)
+
+| 라운드 | 기능 |
+|--------|------|
+| R1428 | SceneView 히트 테스트 정밀화 (최소 8px, z-order 역순, Tab 순환, 비활성 클릭 차단) |
+| R1429 | Inspector cc.Animation 타임라인 바 시각화 + cc.Tween 읽기전용 표시 |
+| R1430 | CocosPanel 전역 노드 검색 (Ctrl+F, 이름/컴포넌트 타입, Esc 닫기, 경로 표시) |
+| R1431 | SceneView Before/After 슬라이더 비교 (SVG clipPath, 드래그 슬라이더, BEFORE/AFTER 라벨) |
+| R1432 | cc-file-parser buildReferenceGraph (UUID 참조 그래프) + detectCycles (순환 참조 탐지) |
+| R1433 | QA Section 389-390 추가 (R1428-R1432 기능 체크, Pass 1318) |
 
 ## Phase DD14 R1422~1427 (2026-03-14)
 
