@@ -15601,6 +15601,58 @@ if (existsSync(si1467)) {
   }
 }
 
+// ── Section 403: R1470~R1472 기능 체크 ──────────────────────
+console.log('\n## 403. Phase DD19 R1470~R1472 기능 체크')
+const cocosP403 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocosP403)) {
+  const c403 = readFileSync(cocosP403, 'utf-8')
+  if (c403.includes('R1470') && c403.includes('hierarchyWidth') && c403.includes('hDividerDragRef') && c403.includes('ew-resize')) {
+    log('pass', 'R1470-layout', 'CocosPanel Cocos 에디터 레이아웃 재설계 (좌우 분할)')
+  } else {
+    log('warning', 'R1470-layout', 'Cocos 에디터 레이아웃 미구현', 'CocosPanel.tsx')
+  }
+  if (c403.includes('R1472') && c403.includes('optgroup') && c403.includes('.prefab')) {
+    log('pass', 'R1472-prefab', 'CocosPanel 프리팹 편집 모드 (씬/프리팹 분리 드롭다운)')
+  } else {
+    log('warning', 'R1472-prefab', '프리팹 편집 모드 미구현', 'CocosPanel.tsx')
+  }
+  if (c403.includes('R1473') && c403.includes('isCustomScript') && c403.includes('커스텀 스크립트')) {
+    log('pass', 'R1473-script', 'Inspector 커스텀 스크립트 변수 편집 지원')
+  } else {
+    log('warning', 'R1473-script', '커스텀 스크립트 변수 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+const nr403 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr403)) {
+  const n403 = readFileSync(nr403, 'utf-8')
+  if (n403.includes('R1471') && n403.includes('RigidBody') && n403.includes('BoxCollider') && n403.includes('CircleCollider')) {
+    log('pass', 'R1471-physics', 'NodeRenderer 물리 컴포넌트 시각화 (RigidBody/BoxCollider/CircleCollider)')
+  } else {
+    log('warning', 'R1471-physics', '물리 컴포넌트 시각화 미구현', 'NodeRenderer.tsx')
+  }
+}
+
+// ── Section 404: R1474 기능 체크 ──────────────────────────
+console.log('\n## 404. Phase DD19 R1474 기능 체크')
+const ccSv404 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(ccSv404)) {
+  const sv404 = readFileSync(ccSv404, 'utf-8')
+  if (sv404.includes('R1474') && sv404.includes('handleScreenshotAI') && sv404.includes('imageBase64') && sv404.includes('cc-chat-prefill')) {
+    log('pass', 'R1474-screenshot', 'CCFileSceneView 스크린샷 → Claude AI 분석 연동')
+  } else {
+    log('warning', 'R1474-screenshot', '씬 스크린샷 AI 분석 미구현', 'CCFileSceneView.tsx')
+  }
+}
+const cp404 = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp404)) {
+  const c404 = readFileSync(cp404, 'utf-8')
+  if (c404.includes('R1474') && c404.includes('cc-chat-prefill') && c404.includes('onPrefill')) {
+    log('pass', 'R1474-chatpanel', 'ChatPanel cc-chat-prefill 이벤트 수신 → 입력창 프리필')
+  } else {
+    log('warning', 'R1474-chatpanel', 'ChatPanel prefill 수신 미구현', 'ChatPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

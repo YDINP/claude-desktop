@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T18:21:28.646Z
+> 2026-03-13T18:44:19.569Z
 
 ## Critical
 _없음_
@@ -1365,3 +1365,15 @@ _없음_
 - SceneToolbar 클릭 히트맵 토글 + 리셋 버튼
 - CocosPanel CC 프로젝트 생성 마법사 (3단계: 이름+위치 → CC버전 → 템플릿)
 - NodeRenderer cc.Shadow SVG feDropShadow 렌더링 (enabled/color/blur/offset)
+- SceneView 씬 노드 애니메이션 프리뷰 (CSS animation, ▶/■ 토글)
+- cc-file-parser diffScenes (added/removed/modified + changedFields)
+- CocosPanel 씬 저장 시 자동 썸네일 생성 (80x60 canvas → base64 localStorage)
+- Inspector 프리팹 인스턴스 뱃지 (UUID 짧게 + cc-open-file 이벤트 + override placeholder)
+- SceneView 선택 노드 AI 분석 요청 (채팅 프리필 이벤트)
+- Inspector AI 분석 버튼 (채팅 프리필)
+- CocosPanel Cocos 에디터 레이아웃 재설계 (좌우 분할)
+- CocosPanel 프리팹 편집 모드 (씬/프리팹 분리 드롭다운)
+- Inspector 커스텀 스크립트 변수 편집 지원
+- NodeRenderer 물리 컴포넌트 시각화 (RigidBody/BoxCollider/CircleCollider)
+- CCFileSceneView 스크린샷 → Claude AI 분석 연동
+- ChatPanel cc-chat-prefill 이벤트 수신 → 입력창 프리필

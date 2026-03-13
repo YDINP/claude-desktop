@@ -552,6 +552,17 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // ── 프롬프트 변수 템플릿 ─────────────────────────────────────────────────────
   const [inputText, setInputText] = useState('')
   const [varModal, setVarModal] = useState<{ text: string; vars: string[] } | null>(null)
+
+  // R1474: cc-chat-prefill 이벤트 → 입력창 프리필 (씬 AI 분석)
+  useEffect(() => {
+    const onPrefill = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { text?: string; message?: string; imageBase64?: string }
+      const msg = detail.text ?? detail.message ?? ''
+      if (msg) setInputText(prev => prev ? prev + '\n\n' + msg : msg)
+    }
+    window.addEventListener('cc-chat-prefill', onPrefill)
+    return () => window.removeEventListener('cc-chat-prefill', onPrefill)
+  }, [])
   const [varValues, setVarValues] = useState<Record<string, string>>({})
   const varInputRefs = useRef<(HTMLInputElement | null)[]>([])
 

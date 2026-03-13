@@ -310,6 +310,11 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     setCollapsedUuids(uuids)
   }, [sceneFile?.root])
   const [sceneViewHeight, setSceneViewHeight] = useState(240)
+  // R1470: Cocos 에디터 레이아웃 — 계층 패널 너비 (좌우 분할)
+  const [hierarchyWidth, setHierarchyWidth] = useState(() => {
+    try { return parseInt(localStorage.getItem('cc-hierarchy-width') ?? '160') } catch { return 160 }
+  })
+  const hDividerDragRef = useRef<{ startX: number; startW: number } | null>(null)
   // R1414: 씬 저장 이력 타임라인
   type SceneHistoryEntry = { timestamp: number; nodeCount: number; size: number }
   const sceneHistoryKey = sceneFile?.scenePath ? `scene-history-${sceneFile.scenePath.replace(/[\\/]/g, '_')}` : null
@@ -1663,12 +1668,22 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               border: '1px solid var(--border)', borderRadius: 4,
             }}
           >
-            <option value="">씬 파일 선택...</option>
-            {projectInfo.scenes.map(s => (
-              <option key={s} value={s}>
-                {s.split(/[\\/]/).pop()}
-              </option>
-            ))}
+            <option value="">씬/프리팹 선택...</option>
+            {/* R1472: 씬/프리팹 그룹 분리 */}
+            {projectInfo.scenes.filter(s => !s.endsWith('.prefab')).length > 0 && (
+              <optgroup label="씬">
+                {projectInfo.scenes.filter(s => !s.endsWith('.prefab')).map(s => (
+                  <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
+                ))}
+              </optgroup>
+            )}
+            {projectInfo.scenes.filter(s => s.endsWith('.prefab')).length > 0 && (
+              <optgroup label="🧩 프리팹">
+                {projectInfo.scenes.filter(s => s.endsWith('.prefab')).map(s => (
+                  <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
+                ))}
+              </optgroup>
+            )}
           </select>
         )}
 
@@ -2032,46 +2047,32 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       )}
 
       {/* 씬 파싱 결과 — SceneView + TreeView + Inspector */}
+      {/* R1470: Cocos 에디터 레이아웃 — 좌(계층) | 우(씬뷰+인스펙터) 수평 분할 */}
       {mainTab === 'scene' && sceneFile?.root && (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-          {/* SVG 씬 뷰 (드래그로 높이 조절) */}
-          <div style={{ height: sceneViewHeight, flexShrink: 0 }}>
-            <CCFileSceneView
-              sceneFile={sceneFile}
-              selectedUuid={selectedNode?.uuid ?? null}
-              onMove={handleNodeMove}
-              onResize={handleNodeResize}
-              onRename={handleRenameInView}
-              onRotate={handleNodeRotate}
-              onMultiMove={handleMultiMove}
-              onSelect={uuid => {
-                if (!uuid) { onSelectNode(null); return }
-                const findNode = (n: CCSceneNode): CCSceneNode | null => {
-                  if (n.uuid === uuid) return n
-                  for (const c of n.children) { const f = findNode(c); if (f) return f }
-                  return null
-                }
-                onSelectNode(findNode(sceneFile.root))
-              }}
-            />
-          </div>
-          {/* 씬뷰 높이 조절 divider */}
-          <div
-            style={{ height: 4, cursor: 'ns-resize', background: 'var(--border)', flexShrink: 0, opacity: 0.5 }}
-            onMouseDown={e => { dividerDragRef.current = { startY: e.clientY, startH: sceneViewHeight } }}
-            onMouseMove={e => {
-              if (!dividerDragRef.current) return
+        <div
+          style={{ flex: 1, display: 'flex', flexDirection: 'row', minHeight: 0, userSelect: hDividerDragRef.current || dividerDragRef.current ? 'none' : undefined }}
+          onMouseMove={e => {
+            if (hDividerDragRef.current) {
+              const dx = e.clientX - hDividerDragRef.current.startX
+              const newW = Math.max(100, Math.min(320, hDividerDragRef.current.startW + dx))
+              setHierarchyWidth(newW)
+              localStorage.setItem('cc-hierarchy-width', String(newW))
+            }
+            if (dividerDragRef.current) {
               const dy = e.clientY - dividerDragRef.current.startY
-              setSceneViewHeight(Math.max(80, Math.min(600, dividerDragRef.current.startH + dy)))
-            }}
-            onMouseUp={() => { dividerDragRef.current = null }}
-            onMouseLeave={() => { dividerDragRef.current = null }}
-          />
-          {/* 씬 트리 */}
-          <div style={{ flex: selectedNode ? 0 : 1, overflow: 'auto', maxHeight: selectedNode ? 180 : undefined }}>
-            <div style={{ padding: '3px 8px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 6, alignItems: 'center' }}>
-              <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>
-                {sceneFile.scenePath.split(/[\\/]/).pop()}
+              setSceneViewHeight(Math.max(120, Math.min(500, dividerDragRef.current.startH - dy)))
+            }
+          }}
+          onMouseUp={() => { hDividerDragRef.current = null; dividerDragRef.current = null }}
+          onMouseLeave={() => { hDividerDragRef.current = null; dividerDragRef.current = null }}
+        >
+          {/* ── 좌: 계층(Hierarchy) 패널 ── */}
+          <div style={{ width: hierarchyWidth, flexShrink: 0, display: 'flex', flexDirection: 'column', minHeight: 0, borderRight: '1px solid var(--border)', background: 'var(--bg-secondary)', overflow: 'hidden' }}>
+            {/* 헤더 */}
+            <div style={{ padding: '3px 6px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0, background: 'rgba(0,0,0,0.15)' }}>
+              {/* R1472: 프리팹 편집 모드 배지 */}
+              <span style={{ fontSize: 9, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: sceneFile.scenePath.endsWith('.prefab') ? '#f0a' : 'var(--text-muted)' }}>
+                {sceneFile.scenePath.endsWith('.prefab') ? '🧩 프리팹' : '계층'}
               </span>
               {(() => {
                 let nodes = 0; let inactive = 0; let comps = 0
@@ -2079,82 +2080,123 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 count(sceneFile.root)
                 return (
                   <span style={{ fontSize: 9, color: '#555', flexShrink: 0 }} title={`노드 ${nodes}개 / 비활성 ${inactive}개 / 컴포넌트 ${comps}개`}>
-                    {nodes}N{inactive > 0 ? <span style={{ color: '#444' }}>(-{inactive})</span> : null}/{comps}C
+                    {nodes}N/{comps}C
                   </span>
                 )
               })()}
-              <TreeSearch root={sceneFile.root} onSelect={onSelectNode} />
-              <span
-                onClick={expandAll}
-                title="전체 펼치기"
-                style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#555', lineHeight: 1 }}
-              >⊞</span>
-              <span
-                onClick={collapseAll}
-                title="전체 접기"
-                style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#555', lineHeight: 1 }}
-              >⊟</span>
+              <span onClick={expandAll} title="전체 펼치기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊞</span>
+              <span onClick={collapseAll} title="전체 접기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊟</span>
               <span
                 onClick={() => setHideInactive(h => !h)}
                 title={hideInactive ? '비활성 노드 표시' : '비활성 노드 숨기기'}
-                style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: hideInactive ? '#58a6ff' : '#555' }}
-              >
-                {hideInactive ? '◑' : '●'}
-              </span>
+                style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: hideInactive ? '#58a6ff' : '#666' }}
+              >{hideInactive ? '◑' : '●'}</span>
             </div>
+            {/* 검색 */}
+            <div style={{ padding: '2px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+              <TreeSearch root={sceneFile.root} onSelect={onSelectNode} />
+            </div>
+            {/* 씬 파일명 */}
+            <div style={{ padding: '2px 6px', fontSize: 9, color: '#555', borderBottom: '1px solid var(--border)', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {sceneFile.scenePath.split(/[\\/]/).pop()}
+            </div>
+            {/* 즐겨찾기 */}
             {favorites.size > 0 && (
-              <div style={{ borderBottom: '1px solid var(--border)', marginBottom: 4, paddingBottom: 4 }}>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', padding: '2px 8px' }}>★ 즐겨찾기</div>
+              <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: 2, flexShrink: 0 }}>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', padding: '1px 6px' }}>★ 즐겨찾기</div>
                 {[...favorites].map(uuid => {
                   const favNode = nodeMap.get(uuid)
                   if (!favNode) return null
                   return (
-                    <div
-                      key={uuid}
-                      style={{ paddingLeft: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
-                      onClick={() => onSelectNode(favNode)}
-                    >
-                      <span style={{ color: '#fbbf24', fontSize: 10 }}>★</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{favNode.name}</span>
+                    <div key={uuid} style={{ paddingLeft: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }} onClick={() => onSelectNode(favNode)}>
+                      <span style={{ color: '#fbbf24', fontSize: 9 }}>★</span>
+                      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{favNode.name}</span>
                     </div>
                   )
                 })}
               </div>
             )}
-            <CCFileSceneTree
-              node={sceneFile.root}
-              depth={0}
-              selected={selectedNode}
-              onSelect={onSelectNode}
-              onReparent={handleReparent}
-              onAddChild={handleTreeAddChild}
-              onDelete={handleTreeDelete}
-              onDuplicate={handleTreeDuplicate}
-              onToggleActive={handleTreeToggleActive}
-              hideInactive={hideInactive}
-              favorites={favorites}
-              onToggleFavorite={toggleFavorite}
-              lockedUuids={lockedUuids}
-              onToggleLocked={toggleLocked}
-              nodeColors={nodeColors}
-              onNodeColorChange={handleNodeColorChange}
-              collapsedUuids={collapsedUuids}
-              onToggleCollapse={(uuid) => setCollapsedUuids(prev => {
-                const next = new Set(prev)
-                if (next.has(uuid)) next.delete(uuid); else next.add(uuid)
-                return next
-              })}
-            />
+            {/* 씬 트리 */}
+            <div style={{ flex: 1, overflow: 'auto' }}>
+              <CCFileSceneTree
+                node={sceneFile.root}
+                depth={0}
+                selected={selectedNode}
+                onSelect={onSelectNode}
+                onReparent={handleReparent}
+                onAddChild={handleTreeAddChild}
+                onDelete={handleTreeDelete}
+                onDuplicate={handleTreeDuplicate}
+                onToggleActive={handleTreeToggleActive}
+                hideInactive={hideInactive}
+                favorites={favorites}
+                onToggleFavorite={toggleFavorite}
+                lockedUuids={lockedUuids}
+                onToggleLocked={toggleLocked}
+                nodeColors={nodeColors}
+                onNodeColorChange={handleNodeColorChange}
+                collapsedUuids={collapsedUuids}
+                onToggleCollapse={(uuid) => setCollapsedUuids(prev => {
+                  const next = new Set(prev)
+                  if (next.has(uuid)) next.delete(uuid); else next.add(uuid)
+                  return next
+                })}
+              />
+            </div>
           </div>
-          {/* 노드 인스펙터 */}
-          {selectedNode && (
-            <CCFileNodeInspector
-              node={selectedNode}
-              sceneFile={sceneFile}
-              saveScene={saveScene}
-              onUpdate={onSelectNode}
-            />
-          )}
+
+          {/* 수평 리사이즈 핸들 */}
+          <div
+            style={{ width: 4, cursor: 'ew-resize', background: 'var(--border)', flexShrink: 0, opacity: 0.4, transition: 'opacity 0.15s' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.background = 'var(--accent)' }}
+            onMouseLeave={e => { if (!hDividerDragRef.current) { (e.currentTarget as HTMLElement).style.opacity = '0.4'; (e.currentTarget as HTMLElement).style.background = 'var(--border)' } }}
+            onMouseDown={e => { e.preventDefault(); hDividerDragRef.current = { startX: e.clientX, startW: hierarchyWidth } }}
+          />
+
+          {/* ── 우: SceneView(상) + Inspector(하) ── */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+            {/* SceneView — flex:1 (남은 공간 전부) */}
+            <div style={{ flex: 1, minHeight: 0 }}>
+              <CCFileSceneView
+                sceneFile={sceneFile}
+                selectedUuid={selectedNode?.uuid ?? null}
+                onMove={handleNodeMove}
+                onResize={handleNodeResize}
+                onRename={handleRenameInView}
+                onRotate={handleNodeRotate}
+                onMultiMove={handleMultiMove}
+                onSelect={uuid => {
+                  if (!uuid) { onSelectNode(null); return }
+                  const findNode = (n: CCSceneNode): CCSceneNode | null => {
+                    if (n.uuid === uuid) return n
+                    for (const c of n.children) { const f = findNode(c); if (f) return f }
+                    return null
+                  }
+                  onSelectNode(findNode(sceneFile.root))
+                }}
+              />
+            </div>
+            {/* 세로 리사이즈 핸들 (인스펙터 높이) */}
+            {selectedNode && (
+              <div
+                style={{ height: 4, cursor: 'ns-resize', background: 'var(--border)', flexShrink: 0, opacity: 0.4, transition: 'opacity 0.15s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.background = 'var(--accent)' }}
+                onMouseLeave={e => { if (!dividerDragRef.current) { (e.currentTarget as HTMLElement).style.opacity = '0.4'; (e.currentTarget as HTMLElement).style.background = 'var(--border)' } }}
+                onMouseDown={e => { e.preventDefault(); dividerDragRef.current = { startY: e.clientY, startH: sceneViewHeight } }}
+              />
+            )}
+            {/* Inspector — 고정 높이 (sceneViewHeight 재사용) */}
+            {selectedNode && (
+              <div style={{ height: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderTop: 'none' }}>
+                <CCFileNodeInspector
+                  node={selectedNode}
+                  sceneFile={sceneFile}
+                  saveScene={saveScene}
+                  onUpdate={onSelectNode}
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -3873,8 +3915,11 @@ function CCFileNodeInspector({
       {secHeader('comps', `컴포넌트 (${draft.components.length})`)}
       {!collapsed['comps'] && (() => {
         const skipTypes = ['cc.UITransform', 'cc.Canvas', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
+        // R1473: 커스텀 스크립트 컴포넌트 (cc. 접두사 없는 타입) 항상 표시
+        const isCustomScript = (type: string) => !type.startsWith('cc.') && !type.startsWith('cc-') && type !== ''
         const visibleComps = draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
           if (skipTypes.includes(c.type)) return false
+          if (isCustomScript(c.type)) return true // 커스텀 스크립트는 props 여부 무관 표시
           return Object.values(c.props).some(v => {
             if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return true
             if (v && typeof v === 'object') {
@@ -3913,8 +3958,12 @@ function CCFileNodeInspector({
             applyAndSave({ components: newComps })
           }}
         >
+          {/* R1473: 커스텀 스크립트 구분선 */}
+          {ci > 0 && isCustomScript(comp.type) && !isCustomScript(visibleComps[ci - 1].comp.type) && (
+            <div style={{ fontSize: 8, color: '#7cf', opacity: 0.6, marginTop: 2, marginBottom: 2, letterSpacing: 1 }}>── 커스텀 스크립트 ──</div>
+          )}
           <div
-            style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
+            style={{ fontSize: 9, color: isCustomScript(comp.type) ? '#7cf' : 'var(--accent)', fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
             onClick={() => setCollapsedComps(s => {
               const n = new Set(s)
               if (n.has(comp.type)) n.delete(comp.type); else n.add(comp.type)
@@ -3931,7 +3980,9 @@ function CCFileNodeInspector({
               title="드래그하여 순서 변경"
             >⠿</span>
             <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(comp.type) ? '▸' : '▾'}</span>
-            <span style={{ flex: 1 }}>{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}</span>
+            <span style={{ flex: 1 }}>
+              {isCustomScript(comp.type) ? '📝 ' : ''}{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
+            </span>
             {showComps.length > 1 && (
               <span style={{ fontSize: 9, color: 'var(--text-muted)', marginRight: 4 }}>#{ci + 1}</span>
             )}

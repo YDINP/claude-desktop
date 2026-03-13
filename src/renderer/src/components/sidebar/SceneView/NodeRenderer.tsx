@@ -326,6 +326,70 @@ export const NodeRenderer = memo(function NodeRenderer({
         />
       )}
 
+      {/* R1471: 물리 컴포넌트 시각화 — RigidBody/BoxCollider/CircleCollider/PolygonCollider */}
+      {lod === 0 && (() => {
+        const rigidBody = node.components.find(c =>
+          c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D' ||
+          c.type === 'cc.physics.RigidBody')
+        const boxCollider = node.components.find(c =>
+          c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D' ||
+          c.type === 'cc.physics2d.PhysicsBoxCollider')
+        const circleCollider = node.components.find(c =>
+          c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D' ||
+          c.type === 'cc.physics2d.PhysicsCircleCollider')
+        const polyCollider = node.components.find(c =>
+          c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D' ||
+          c.type === 'cc.physics2d.PhysicsPolygonCollider')
+        if (!rigidBody && !boxCollider && !circleCollider && !polyCollider) return null
+        // 콜라이더 오프셋 (props에서 읽기)
+        const cOff = boxCollider?.props?.offset as { x?: number; y?: number } | undefined
+        const cSize = boxCollider?.props?.size as { width?: number; height?: number } | undefined
+        const cOffX = (cOff?.x ?? 0) * view.scale
+        const cOffY = (cOff?.y ?? 0) * view.scale
+        const cW = pw + ((cSize?.width ?? 0) * view.scale)
+        const cH = ph + ((cSize?.height ?? 0) * view.scale)
+        return (
+          <g style={{ pointerEvents: 'none' }}>
+            {/* BoxCollider — 녹색 점선 */}
+            {boxCollider && (
+              <rect
+                x={rx + cOffX - (cW - pw) / 2} y={ry - cOffY - (cH - ph) / 2}
+                width={Math.max(cW, 8)} height={Math.max(cH, 8)}
+                fill="rgba(80,255,100,0.06)" stroke="rgba(80,255,100,0.7)"
+                strokeWidth={1} strokeDasharray="4 2" rx={1}
+              />
+            )}
+            {/* CircleCollider — 녹색 점선 원 */}
+            {circleCollider && (() => {
+              const r = (circleCollider.props?.radius as number | undefined ?? Math.min(pw, ph) / 2)
+              const cOffC = circleCollider.props?.offset as { x?: number; y?: number } | undefined
+              const cx2 = rx + pw / 2 + (cOffC?.x ?? 0) * view.scale
+              const cy2 = ry + ph / 2 - (cOffC?.y ?? 0) * view.scale
+              return (
+                <circle
+                  cx={cx2} cy={cy2} r={Math.max(r * view.scale, 4)}
+                  fill="rgba(80,255,100,0.06)" stroke="rgba(80,255,100,0.7)"
+                  strokeWidth={1} strokeDasharray="4 2"
+                />
+              )
+            })()}
+            {/* PolygonCollider — 녹색 다각형 */}
+            {polyCollider && pw > 4 && ph > 4 && (
+              <rect
+                x={rx - 2} y={ry - 2} width={pw + 4} height={ph + 4}
+                fill="rgba(80,255,100,0.06)" stroke="rgba(80,255,100,0.7)"
+                strokeWidth={1} strokeDasharray="2 2"
+              />
+            )}
+            {/* RigidBody 배지 — 우하단 'RB' */}
+            {rigidBody && pw > 16 && ph > 12 && (
+              <text x={rx + pw - 1} y={ry + ph - 1} fontSize={6} fill="rgba(80,255,100,0.9)"
+                fontFamily="var(--font-mono)" textAnchor="end" style={{ userSelect: 'none' }}>RB</text>
+            )}
+          </g>
+        )
+      })()}
+
       {/* R1388: Sprite SLICED/TILED 렌더링 힌트 */}
       {lod === 0 && pw > 20 && ph > 20 && (() => {
         const spriteComp = node.components.find(c => c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')

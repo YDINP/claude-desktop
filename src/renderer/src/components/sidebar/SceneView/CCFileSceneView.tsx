@@ -50,6 +50,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [snapSize, setSnapSize] = useState(10)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
   const [showHelp, setShowHelp] = useState(false)
+  // R1474: 씬뷰 스크린샷 → Claude 비전 분석
+  const [screenshotSending, setScreenshotSending] = useState(false)
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
   const editInputRef = useRef<HTMLInputElement | null>(null)
   const isSpaceDownRef = useRef(false)
@@ -392,6 +394,35 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove])
 
+  // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
+  const handleScreenshotAI = useCallback(() => {
+    if (!svgRef.current || screenshotSending) return
+    setScreenshotSending(true)
+    const svgEl = svgRef.current
+    const svgStr = new XMLSerializer().serializeToString(svgEl)
+    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' })
+    const svgUrl = URL.createObjectURL(svgBlob)
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = svgEl.clientWidth || designW
+      canvas.height = svgEl.clientHeight || designH
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0)
+      URL.revokeObjectURL(svgUrl)
+      const b64 = canvas.toDataURL('image/png')
+      window.dispatchEvent(new CustomEvent('cc-chat-prefill', {
+        detail: {
+          text: '이 Cocos Creator 씬 스크린샷을 분석해 주세요. UI 구조, 레이아웃, 개선 가능한 부분을 설명해 주세요.',
+          imageBase64: b64,
+        }
+      }))
+      setScreenshotSending(false)
+    }
+    img.onerror = () => { URL.revokeObjectURL(svgUrl); setScreenshotSending(false) }
+    img.src = svgUrl
+  }, [svgRef, screenshotSending, designW, designH])
+
   const transform = `translate(${view.offsetX}, ${view.offsetY}) scale(${view.zoom})`
 
   return (
@@ -465,6 +496,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onClick={() => setView(v => ({ ...v, zoom: Math.max(0.1, v.zoom / 1.25) }))}
           style={{ padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >−</button>
+        {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
+        <button
+          onClick={handleScreenshotAI}
+          title="씬 스크린샷 → Claude 비전 분석"
+          disabled={screenshotSending}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: screenshotSending ? 'wait' : 'pointer', border: '1px solid var(--border)', background: screenshotSending ? 'rgba(255,200,50,0.12)' : 'none', color: screenshotSending ? '#fbbf24' : 'var(--text-muted)', opacity: screenshotSending ? 0.6 : 1 }}
+        >{screenshotSending ? '⟳' : '📷'}</button>
         <button
           onClick={() => setShowHelp(h => !h)}
           title="단축키 도움말"
