@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:18:03.816Z
+> 2026-03-13T11:19:00.689Z
 
 ## Critical
 _없음_
@@ -652,3 +652,6 @@ _없음_
 - ChatPanel 메시지 복사 형식 존재
 - TerminalPanel 스크롤 위치 기억 존재
 - SceneViewPanel 노드 타입 필터 존재
+- ChatPanel 메시지 일괄 선택 존재
+- SessionList 검색 히스토리 존재
+- CocosPanel 씬 로드 진행률 존재

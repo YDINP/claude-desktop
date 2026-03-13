@@ -7439,6 +7439,41 @@ if (existsSync(svp770Path)) {
   }
 }
 
+// ── Section 168: Phase DD10 R771~773 기능 체크 ────────────────
+console.log('\n## 168. Phase DD10 R771~773 기능 체크')
+// R771: ChatPanel 메시지 일괄 선택
+const cp771Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp771Path)) {
+  const cp771 = readFileSync(cp771Path, 'utf-8')
+  if (cp771.includes('bulkSelectMode') || cp771.includes('bulkSelected') || cp771.includes('bulkSelect')) {
+    log('pass', 'R771', 'ChatPanel 메시지 일괄 선택 존재')
+  } else {
+    log('warning', 'R771', 'ChatPanel 일괄 선택 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R772: SessionList 검색 히스토리
+const sl772Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl772Path)) {
+  const sl772 = readFileSync(sl772Path, 'utf-8')
+  if (sl772.includes('searchHistory') || sl772.includes('showSearchHistory') || sl772.includes('search-history')) {
+    log('pass', 'R772', 'SessionList 검색 히스토리 존재')
+  } else {
+    log('warning', 'R772', 'SessionList 검색 히스토리 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R773: CocosPanel 씬 로드 진행률
+const cp773Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp773Path)) {
+  const cp773 = readFileSync(cp773Path, 'utf-8')
+  if (cp773.includes('loadProgress') || cp773.includes('loadingScene') || cp773.includes('sceneLoadProgress')) {
+    log('pass', 'R773', 'CocosPanel 씬 로드 진행률 존재')
+  } else {
+    log('warning', 'R773', 'CocosPanel 로드 진행률 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
