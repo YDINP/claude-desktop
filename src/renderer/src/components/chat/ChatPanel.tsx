@@ -167,6 +167,7 @@ import type { ChatMessage } from '../../stores/chat-store'
 import { getActiveTerminalId } from '../../stores/terminal-store'
 import { WelcomeScreen } from '../shared/WelcomeScreen'
 import { useCCContext } from '../../hooks/useCCContext'
+import { useCCFileContext } from '../../hooks/useCCFileContext'
 import { useProjectContext } from '../../hooks/useProjectContext'
 import { useContextFiles } from '../../hooks/useContextFiles'
 import { parseCCActions, executeCCActions } from '../../utils/cc-action-parser'
@@ -471,6 +472,7 @@ const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, total
 
 export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ, onOpenPromptChain }: ChatPanelProps) {
   const ccCtx = useCCContext()
+  const ccFileCtx = useCCFileContext()
   const projectSummary = useProjectContext(project.currentPath ?? null)
   const ctxFiles = useContextFiles(project.currentPath ?? null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -513,6 +515,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showBookmarkPanel, setShowBookmarkPanel] = useState(false)
   const [chatTags, setChatTags] = useState<string[]>([])
   const [showTagPanel, setShowTagPanel] = useState(false)
+  const [chatHistorySearch, setChatHistorySearch] = useState('')
+  const [historySearchResults, setHistorySearchResults] = useState<number[]>([])
 
   const onSelectSuggestion = useCallback((text: string) => {
     setSuggestionPendingInsert(text)
@@ -523,6 +527,12 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [chatViewMode, setChatViewMode] = useState<'compact' | 'wide'>(() =>
     (localStorage.getItem('chat-view-mode') as 'compact' | 'wide') ?? 'compact'
   )
+
+  // ── 채팅 밀도 모드 ─────────────────────────────────────────────────────────
+  const [chatDensity, setChatDensity] = useState<'compact' | 'normal' | 'focus'>(() =>
+    (localStorage.getItem('chat-density') as any) ?? 'normal'
+  )
+  useEffect(() => { localStorage.setItem('chat-density', chatDensity) }, [chatDensity])
   const toggleViewMode = () => setChatViewMode(v => {
     const next = v === 'compact' ? 'wide' : 'compact'
     localStorage.setItem('chat-view-mode', next)
@@ -1006,7 +1016,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       window.api.openaiSend?.({ model: openaiModel, messages: history })
     } else {
       const resolvedSystemPrompt = customSystemPrompt ? resolveVars(customSystemPrompt) : ''
-      const parts = [resolvedSystemPrompt, projectSummary, ccCtx.contextString, ctxFiles.contextString].filter(Boolean)
+      const parts = [resolvedSystemPrompt, projectSummary, ccCtx.contextString, ccFileCtx.contextString, ctxFiles.contextString].filter(Boolean)
       const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
       window.api.claudeSend({
         text,
@@ -1015,7 +1025,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
       })
     }
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle])
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, ccFileCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle])
 
   const handleSendWithVarCheck = useCallback((text: string) => {
     const vars = extractVars(text)
@@ -1136,7 +1146,6 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [accessibilityConfig, setAccessibilityConfig] = useState<Record<string, boolean>>({})
   const [chatVoice, setChatVoice] = useState(false)
   const [voiceLanguage, setVoiceLanguage] = useState('ko-KR')
-  const [chatDensity, setChatDensity] = useState<'compact' | 'normal' | 'spacious'>('normal')
   const [showDensityPicker, setShowDensityPicker] = useState(false)
   const [chatPresets, setChatPresets] = useState<Array<{ name: string; config: Record<string, unknown> }>>([])
   const [showPresetPanel, setShowPresetPanel] = useState(false)
@@ -1360,6 +1369,20 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           </>
         )}
         <ModelSelector value={project.selectedModel} onChange={project.setModel} />
+        {(['compact', 'normal', 'focus'] as const).map(d => (
+          <button
+            key={d}
+            onClick={() => setChatDensity(d)}
+            title={d === 'compact' ? '촘촘 보기' : d === 'normal' ? '기본 보기' : '집중 보기'}
+            style={{
+              background: chatDensity === d ? 'var(--accent, #89b4fa)' : 'none',
+              border: 'none',
+              color: chatDensity === d ? '#1e1e2e' : 'var(--text-muted)',
+              fontSize: 10, fontWeight: 700, cursor: 'pointer',
+              padding: '1px 5px', lineHeight: '16px', borderRadius: 4,
+            }}
+          >{d === 'compact' ? 'C' : d === 'normal' ? 'N' : 'F'}</button>
+        ))}
         <button
           onClick={toggleViewMode}
           title={chatViewMode === 'compact' ? '와이드 뷰로 전환' : '컴팩트 뷰로 전환'}
@@ -1765,12 +1788,16 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             )
           })()}
         </div>
-      ) : (
-      <>
+      ) : (<>
       <div
         ref={scrollContainerRef}
         data-view-mode={chatViewMode}
-        style={{ flex: 1, overflow: 'auto', position: 'relative', paddingRight: showMinimap && messageCount > 0 ? 42 : 0, padding: chatViewMode === 'wide' ? '0 10%' : undefined }}
+        style={{
+          flex: 1, overflow: 'auto', position: 'relative',
+          paddingRight: showMinimap && messageCount > 0 ? 42 : 0,
+          padding: chatViewMode === 'wide' ? '0 10%' : undefined,
+          fontSize: chatDensity === 'compact' ? 11 : chatDensity === 'focus' ? 14 : undefined,
+        }}
         onScroll={handleScroll}
       >
         {messageCount === 0 && !chat.isStreaming ? (
@@ -1822,7 +1849,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                     left: 0,
                     width: '100%',
                     transform: `translateY(${virtualRow.start}px)`,
-                    marginTop: chatViewMode === 'wide' ? (isGrouped ? 4 : 16) : (isGrouped ? 2 : 8),
+                    marginTop: chatDensity === 'compact' ? (isGrouped ? 1 : 4) : chatDensity === 'focus' ? (isGrouped ? 8 : 16) : (chatViewMode === 'wide' ? (isGrouped ? 4 : 16) : (isGrouped ? 2 : 8)),
+                    ...(chatDensity === 'focus' ? { maxWidth: 700, marginLeft: 'auto', marginRight: 'auto' } : {}),
                   }}
                 >
                   {isFoldBoundary && (

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T14:20:09.399Z
+> 2026-03-13T14:41:03.776Z
 
 ## Critical
 _없음_
@@ -1237,3 +1237,14 @@ _없음_
 - SceneViewPanel 씬 카메라 존재
 - TerminalPanel 터미널 로그 존재
 - SessionList 세션 통계 존재
+- ChatPanel 채팅 히스토리 검색 존재
+- InputBar 코드 스니펫 존재
+- CocosPanel 씬 목록 필터 존재
+- SceneViewPanel 씬 라이팅 존재
+- TerminalPanel 자동완성 존재
+- SessionList 세션 병합 존재
+- ChatPanel 채팅 밀도 모드 존재
+- SceneViewPanel 줌 localStorage 지속 저장 존재
+- SceneViewPanel 목업 이미지 오버레이 존재
+- TerminalPanel 폰트 크기 단축키 존재
+- CocosPanel 최근 씬 파일 목록 존재

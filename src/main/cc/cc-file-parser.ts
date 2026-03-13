@@ -143,6 +143,54 @@ function parseTRS2x(trs: unknown): { position: CCVec3; rotationZ: number; scale:
   }
 }
 
+// ── R1380: 컴포넌트별 주요 속성 추출 ─────────────────────────────────────────
+
+const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, unknown>> = {
+  'cc.RichText': e => ({
+    string: e._N$string ?? e.string ?? '',
+    fontSize: e._N$fontSize ?? e._fontSize ?? 0,
+    maxWidth: e._N$maxWidth ?? e._maxWidth ?? 0,
+    lineHeight: e._N$lineHeight ?? e._lineHeight ?? 0,
+  }),
+  'cc.ScrollView': e => ({
+    horizontal: e._N$horizontal ?? e.horizontal ?? false,
+    vertical: e._N$vertical ?? e.vertical ?? true,
+    inertia: e._N$inertia ?? e.inertia ?? true,
+    brake: e._N$brake ?? e.brake ?? 0.75,
+    elastic: e._N$elastic ?? e.elastic ?? true,
+  }),
+  'cc.Mask': e => ({
+    type: e._N$type ?? e._type ?? 0,  // 0=RECT, 1=ELLIPSE, 2=IMAGE_STENCIL
+    alphaThreshold: e._N$alphaThreshold ?? e._alphaThreshold ?? 0,
+    inverted: e._N$inverted ?? e._inverted ?? false,
+  }),
+  'cc.PageView': e => ({
+    direction: e._N$direction ?? e.direction ?? 0,  // 0=HORIZONTAL, 1=VERTICAL
+    scrollThreshold: e._N$scrollThreshold ?? e.scrollThreshold ?? 0.5,
+    autoPageTurningThreshold: e._N$autoPageTurningThreshold ?? e.autoPageTurningThreshold ?? 0.3,
+  }),
+}
+
+function extractComponentProps(type: string, e: RawEntry, isCC2x: boolean): Record<string, unknown> {
+  // 특화 추출기가 있으면 우선 사용
+  const extractor = COMPONENT_PROP_EXTRACTORS[type]
+  if (extractor) {
+    const specialized = extractor(e)
+    // 나머지 일반 props도 병합
+    const general: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(e)) {
+      if (k === '__type__' || k === 'node' || k.startsWith('__')) continue
+      if (isCC2x && k.startsWith('_N$')) {
+        general[k.slice(3)] = v
+      } else {
+        general[k.startsWith('_') ? k.slice(1) : k] = v
+      }
+    }
+    return { ...general, ...specialized }
+  }
+  return {}  // 일반 처리로 폴백
+}
+
 function resolveComponents2x(
   raw: RawEntry[],
   refs: { __id__: number }[] | undefined
@@ -153,6 +201,7 @@ function resolveComponents2x(
     .filter((item): item is { e: RawEntry; idx: number } => !!item.e && item.e.__type__ !== 'cc.CompPrefabInfo')
     .map(({ e, idx }) => {
       const type = (e.__type__ as string | undefined) ?? ''
+      const specialized = extractComponentProps(type, e, true)
       const props: Record<string, unknown> = {}
       for (const [k, v] of Object.entries(e)) {
         if (k === '__type__' || k === 'node' || k.startsWith('__')) continue
@@ -163,7 +212,7 @@ function resolveComponents2x(
           props[k.startsWith('_') ? k.slice(1) : k] = v
         }
       }
-      return { type, props, _rawIndex: idx }
+      return { type, props: { ...props, ...specialized }, _rawIndex: idx }
     })
 }
 
@@ -266,11 +315,12 @@ function resolveComponents3x(
     .filter((item): item is { e: RawEntry; idx: number } => !!item.e && item.e.__type__ !== 'cc.CompPrefabInfo')
     .map(({ e, idx }) => {
       const type = (e.__type__ as string | undefined) ?? ''
+      const specialized = extractComponentProps(type, e, false)
       const props: Record<string, unknown> = {}
       for (const [k, v] of Object.entries(e)) {
         if (k === '__type__' || k === 'node' || k.startsWith('__')) continue
         props[k.startsWith('_') ? k.slice(1) : k] = v
       }
-      return { type, props, _rawIndex: idx }
+      return { type, props: { ...props, ...specialized }, _rawIndex: idx }
     })
 }

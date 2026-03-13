@@ -63,7 +63,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const { nodeMap, rootUuid, loading, refresh, refreshNode, updateNode } = useSceneSync(connected, port)
 
   // ── 뷰 상태 ────────────────────────────────────────────────
-  const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 1 })
+  const [view, setView] = useState<ViewTransform>(() => {
+    try {
+      const z = localStorage.getItem('scene-view-zoom')
+      const p = localStorage.getItem('scene-view-pan')
+      const zoom = z ? parseFloat(z) : 1
+      const pan = p ? JSON.parse(p) : { x: 0, y: 0 }
+      return { offsetX: pan.x, offsetY: pan.y, zoom }
+    } catch { return { offsetX: 0, offsetY: 0, zoom: 1 } }
+  })
   const [activeTool, setActiveTool] = useState<'select' | 'move'>('select')
   const [showRuler, setShowRuler] = useState(false)
   const [canvasSize, setCanvasSize] = useState({ w: 960, h: 640 })
@@ -104,7 +112,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [focusMode, setFocusMode] = useState(false)
   const [measureMode, setMeasureMode] = useState(false)
   const [refImageUrl, setRefImageUrl] = useState('')
-  const [bookmarkedUuids, setBookmarkedUuids] = useState<Set<string>>(new Set())
+  // R1378: 북마크를 localStorage per scene으로 영구 저장
+  const [bookmarkedUuids, setBookmarkedUuids] = useState<Set<string>>(() => {
+    try {
+      const key = `scene-bookmarks-${rootUuid ?? 'default'}`
+      return new Set(JSON.parse(localStorage.getItem(key) ?? '[]'))
+    } catch { return new Set() }
+  })
   const [showBookmarkList, setShowBookmarkList] = useState(false)
   const [pinnedUuids, setPinnedUuids] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('scene-pinned') ?? '[]')) }
@@ -121,6 +135,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
   viewRef.current = view
+  useEffect(() => {
+    try {
+      localStorage.setItem('scene-view-zoom', String(view.zoom))
+      localStorage.setItem('scene-view-pan', JSON.stringify({ x: view.offsetX, y: view.offsetY }))
+    } catch { /* ignore */ }
+  }, [view.zoom, view.offsetX, view.offsetY])
+  // R1378: 북마크 localStorage 영구 저장
+  useEffect(() => {
+    try {
+      const key = `scene-bookmarks-${rootUuid ?? 'default'}`
+      localStorage.setItem(key, JSON.stringify([...bookmarkedUuids]))
+    } catch { /* ignore */ }
+  }, [bookmarkedUuids, rootUuid])
   const targetViewRef = useRef<{ zoom: number; offsetX: number; offsetY: number } | null>(null)
   const animFrameRef = useRef<number | null>(null)
   const [isDirty, setIsDirty] = useState(false)
@@ -151,6 +178,35 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [snapshot, setSnapshot] = useState<Map<string, SnapshotEntry> | null>(null)
   const [showDiff, setShowDiff] = useState(false)
 
+  // ── R1381: 씬 diff 뷰어 — savedSnapshot + diffMode ────────
+  type NodeSnapshot = { x: number; y: number; w: number; h: number; name: string; active: boolean }
+  const [savedSnapshot, setSavedSnapshot] = useState<Map<string, NodeSnapshot>>(new Map())
+  const [diffModeR1381, setDiffModeR1381] = useState(false)
+
+  // savedSnapshot 생성 (씬 로드 시)
+  useEffect(() => {
+    if (nodeMap.size === 0) return
+    const snap = new Map<string, NodeSnapshot>()
+    for (const [uuid, n] of nodeMap.entries()) {
+      snap.set(uuid, { x: n.x, y: n.y, w: n.width, h: n.height, name: n.name, active: n.active })
+    }
+    setSavedSnapshot(snap)
+  }, [rootUuid])  // rootUuid 변경 = 새 씬 로드
+
+  // changedUuids 계산
+  const changedUuids = useMemo(() => {
+    if (!diffModeR1381 || savedSnapshot.size === 0) return new Set<string>()
+    const changed = new Set<string>()
+    for (const [uuid, n] of nodeMap.entries()) {
+      const s = savedSnapshot.get(uuid)
+      if (!s) { changed.add(uuid); continue }
+      if (s.x !== n.x || s.y !== n.y || s.w !== n.width || s.h !== n.height || s.name !== n.name || s.active !== n.active) {
+        changed.add(uuid)
+      }
+    }
+    return changed
+  }, [diffModeR1381, savedSnapshot, nodeMap])
+
   // ── 스냅샷 기록 상태 ────────────────────────────────────────
   const [snapshots, setSnapshots] = useState<Array<{ label: string; timestamp: number; nodes: unknown[] }>>([])
   const [snapshotOpen, setSnapshotOpen] = useState(false)
@@ -173,6 +229,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 히스토리 (R730) ──────────────────────────────────────────
   const [sceneHistory, setSceneHistory] = useState<string[]>([])
   const [showSceneHistory, setShowSceneHistory] = useState(false)
+  // ── R1383: 씬 파일 탭 바 ──────────────────────────────────────
+  const [sceneTabFiles, setSceneTabFiles] = useState<string[]>([])
+  const [activeSceneTab, setActiveSceneTab] = useState<string | null>(null)
+  // 씬 히스토리에서 탭 목록 자동 생성 (최대 5개)
+  useEffect(() => {
+    const unique = [...new Set(sceneHistory)].slice(0, 5)
+    setSceneTabFiles(unique)
+    if (unique.length > 0 && !activeSceneTab) setActiveSceneTab(unique[0])
+  }, [sceneHistory])
   // ── 즐겨찾기 씬 (R736) ──────────────────────────────────────────
   const [favoriteScenes, setFavoriteScenes] = useState<string[]>(() => JSON.parse(localStorage.getItem('fav-scenes') ?? '[]'))
   const [showFavScenes, setShowFavScenes] = useState(false)
@@ -230,6 +295,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 카메라 (R1353) ────────────────────────────────────────
   const [sceneCamera, setSceneCamera] = useState(false)
   const [sceneCameraFov, setSceneCameraFov] = useState(60)
+  // ── 씬 라이팅 (R1359) ────────────────────────────────────────
+  const [sceneLighting, setSceneLighting] = useState(false)
+  const [lightingIntensity, setLightingIntensity] = useState(1.0)
 
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()
@@ -1646,6 +1714,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showChecklist, setShowChecklist] = React.useState(false)
   const [darkOverlay, setDarkOverlay] = React.useState(false)
   const [overlayOpacity, setOverlayOpacity] = React.useState(0.3)
+  // R1364: 목업 이미지 오버레이
+  const [overlayImageSrc, setOverlayImageSrc] = React.useState<string | null>(null)
+
+  const handleOverlayDrop = React.useCallback((e: React.DragEvent) => {
+    const file = e.dataTransfer.files[0]
+    if (!file || !file.type.startsWith('image/')) return
+    e.preventDefault()
+    const reader = new FileReader()
+    reader.onload = ev => setOverlayImageSrc(ev.target?.result as string)
+    reader.readAsDataURL(file)
+  }, [])
   const [sceneLinks, setSceneLinks] = React.useState<Record<string, string>>({})
   const [showLinkPanel, setShowLinkPanel] = React.useState(false)
   const [batchOps, setBatchOps] = React.useState<string[]>([])
@@ -2358,7 +2437,46 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         showQuickActions={showQuickActions}
         onQuickActionsToggle={() => setShowQuickActions(v => !v)}
         onZoomTo={handleZoomTo}
+        hasOverlayImage={!!overlayImageSrc}
+        onClearOverlayImage={() => setOverlayImageSrc(null)}
       />
+
+      {/* R1383: 씬 파일 탭 바 */}
+      {sceneTabFiles.length > 1 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 0,
+          background: 'rgba(0,0,0,0.25)', borderBottom: '1px solid rgba(255,255,255,0.08)',
+          overflowX: 'auto', flexShrink: 0,
+        }}>
+          {sceneTabFiles.map(path => {
+            const name = path.split(/[\\/]/).pop() ?? path
+            const isActive = path === activeSceneTab
+            return (
+              <button
+                key={path}
+                onClick={() => setActiveSceneTab(path)}
+                title={path}
+                style={{
+                  padding: '3px 10px', fontSize: 10, border: 'none', cursor: 'pointer',
+                  background: isActive ? 'rgba(96,165,250,0.2)' : 'transparent',
+                  color: isActive ? '#93c5fd' : '#94a3b8',
+                  borderBottom: isActive ? '2px solid #60a5fa' : '2px solid transparent',
+                  whiteSpace: 'nowrap', flexShrink: 0,
+                }}
+              >
+                {name}
+              </button>
+            )
+          })}
+          {sceneHistory.length > 5 && (
+            <button
+              onClick={() => setShowSceneHistory(true)}
+              style={{ padding: '3px 8px', fontSize: 10, border: 'none', cursor: 'pointer', background: 'transparent', color: '#64748b' }}
+              title="더 많은 씬 보기"
+            >+</button>
+          )}
+        </div>
+      )}
 
       {/* 스냅샷 기록 툴바 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'relative', zIndex: 10 }}>
@@ -2367,6 +2485,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4, color: '#93c5fd', cursor: 'pointer', whiteSpace: 'nowrap' }}
         >
           스냅샷
+        </button>
+        {/* R1381: 씬 diff 뷰어 토글 */}
+        <button
+          onClick={() => setDiffModeR1381(v => !v)}
+          title={diffModeR1381 ? '씬 diff 뷰어 끄기' : '변경된 노드 주황 테두리 강조'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: diffModeR1381 ? 'rgba(251,146,60,0.25)' : 'rgba(255,255,255,0.06)',
+            border: diffModeR1381 ? '1px solid rgba(251,146,60,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: diffModeR1381 ? '#fb923c' : '#cbd5e1',
+          }}
+        >
+          diff {changedUuids.size > 0 ? `(${changedUuids.size})` : ''}
         </button>
         {/* 접근 횟수 초기화 버튼 (R702) */}
         {Object.keys(nodeAccessCount).length > 0 && (
@@ -2498,6 +2629,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       <div
         ref={containerRef}
         tabIndex={0}
+        onDragOver={e => { e.preventDefault() }}
+        onDrop={handleOverlayDrop}
         onKeyDown={e => {
           // input/textarea 포커스 시 무시
           const tag = (e.target as HTMLElement).tagName
@@ -2983,6 +3116,21 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               )
             })}
 
+            {/* R1381: diff 모드 — 변경된 노드에 주황 테두리 */}
+            {diffModeR1381 && changedUuids.size > 0 && [...changedUuids].map(uuid => {
+              const n = nodeMap.get(uuid)
+              if (!n) return null
+              const { sx, sy } = cocosToSvg(n.worldX ?? n.x, n.worldY ?? n.y, DESIGN_W, DESIGN_H)
+              const rx = sx - n.width * 0.5
+              const ry = sy - n.height * 0.5
+              return (
+                <rect key={`diff-${uuid}`} x={rx} y={ry} width={n.width} height={n.height}
+                  fill="none" stroke="rgba(251,146,60,0.8)"
+                  strokeWidth={2 / view.zoom} rx={3 / view.zoom}
+                  style={{ pointerEvents: 'none' }} />
+              )
+            })}
+
             {/* 히트맵 오버레이 */}
             {showHeatmap && nodeMap.size > 0 && (() => {
               const CELL = 50
@@ -3022,6 +3170,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 strokeWidth={1 / view.zoom}
                 strokeDasharray={`${4 / view.zoom} ${2 / view.zoom}`}
                 rx={3 / view.zoom}
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
+            {/* R1364: 목업 이미지 오버레이 */}
+            {overlayImageSrc && (
+              <image
+                href={overlayImageSrc}
+                x={0} y={0}
+                width={DESIGN_W} height={DESIGN_H}
+                opacity={overlayOpacity}
                 style={{ pointerEvents: 'none' }}
               />
             )}

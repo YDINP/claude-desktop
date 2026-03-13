@@ -116,6 +116,9 @@ interface SceneToolbarProps {
   onAlignNodes?: (align: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => void
   sortMode?: 'name' | 'type' | 'z-order'
   onSortChange?: (mode: string) => void
+  // R1364: 목업 이미지 오버레이
+  hasOverlayImage?: boolean
+  onClearOverlayImage?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -232,6 +235,8 @@ export function SceneToolbar({
   onAlignNodes,
   sortMode,
   onSortChange,
+  hasOverlayImage,
+  onClearOverlayImage,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -1087,6 +1092,15 @@ export function SceneToolbar({
       )}
       {onLoadScene && (
         <button style={btnBase} onClick={onLoadScene} title="씬 레이아웃 로드 (localStorage)">📂</button>
+      )}
+
+      {/* R1364: 목업 이미지 오버레이 클리어 */}
+      {onClearOverlayImage && (
+        <button
+          style={hasOverlayImage ? { ...btnBase, color: 'var(--accent)', borderColor: 'var(--accent)' } : btnBase}
+          onClick={onClearOverlayImage}
+          title="목업 이미지 오버레이 (드래그&드롭으로 이미지 추가, 클릭 시 제거)"
+        >🖼</button>
       )}
 
       {/* 새로고침 */}

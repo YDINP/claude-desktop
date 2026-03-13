@@ -1,10 +1,10 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
+> 마지막 업데이트: 2026-03-14 (Round 1385 완료 — Phase DD12 R1380~1385)
 
 ## 현재 상태
-- 마지막 커밋: Round 601~604 (측정도구 + 컨텍스트메뉴 + Bool토글 + QA)
+- 마지막 커밋: Round 1380~1385 (파서강화/씬diff/에셋브라우저/씬탭/Animation뷰어/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 503
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1256
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -66,6 +66,39 @@
 ## 긴급 버그 수정 (이번 세션)
 - CCFileSceneView.tsx:245 — panStart.current null in setView updater (offX/offY 캡처로 해결)
 - App.tsx — CC 탭 버튼 border/borderBottom 순서 충돌 경고 해소
+
+## Phase DD12 R1380~1385 완료
+
+| 라운드 | 기능 |
+|--------|------|
+| R1380 | cc-file-parser RichText/ScrollView/Mask/PageView 컴포넌트 지원 (extractComponentProps) |
+| R1381 | SceneView 씬 diff 뷰어 — savedSnapshot + 변경 노드 주황 테두리 강조 |
+| R1382 | CocosPanel 에셋 브라우저 폴더 트리 뷰 (group/tree 토글, 파일 타입 아이콘) |
+| R1383 | SceneView 씬 파일 탭 바 (sceneHistory 기반, 최대 5개 탭, 클릭 전환) |
+| R1384 | Inspector cc.Animation 클립 목록 뷰어 (defaultClip + clips UUID 표시) |
+| R1385 | QA Section 371-372 추가 (R1380-R1384 기능 체크, Pass 1256) |
+
+## Phase DD11 R1374~1379 완료
+
+| 라운드 | 기능 |
+|--------|------|
+| R1374 | SceneInspector cc.Sprite spriteFrame 에셋 피커 UI (openFileDialog, 파일명 표시) |
+| R1375 | SceneInspector cc.Layout 컴포넌트 속성 편집 (type/padding/spacing/resizeMode 드롭다운+NumInput) |
+| R1376 | 씬 파싱 결과 → Claude 채팅 컨텍스트 자동 주입 토글 (useCCFileContext 훅, CocosPanel BoolToggle) |
+| R1377 | NodeHierarchyList 컴포넌트 타입 필터 (cc.Label/Sprite/Button/Layout/Widget 버튼) |
+| R1378 | SceneView 노드 북마크 localStorage per scene 영구 저장 (`scene-bookmarks-{rootUuid}`) |
+| R1379 | QA Section 369-370 추가 (R1374-R1378 기능 체크, Pass 1251) |
+
+## Phase DD10 R1368~1373 완료
+
+| 라운드 | 기능 |
+|--------|------|
+| R1368 | Inspector cc.Widget 속성 편집 (alignMode 드롭다운, top/bottom/left/right 값, isAbsolute 체크박스) |
+| R1369 | SceneView Sprite/Label 노드 cc.Color fill 렌더링 (compColor/fillColor, rgba fill) |
+| R1370 | CocosPanel 씬 전환 히스토리 최대 8개, 현재 씬 체크 표시, 전체경로 tooltip |
+| R1371 | SceneView 노드 컴포넌트 뱃지 (우상단 최대 3개, 10px 원 배경 + 6px 아이콘) |
+| R1372 | Inspector 컴포넌트 추가 드롭다운 (ADDABLE_COMPONENTS 7종, 중복 비활성화, + 추가 버튼) |
+| R1373 | QA Section 367-368 추가 (R1368-R1372 기능 존재 체크, Pass 1245) |
 
 ## Phase DD8 완료 (Round 535~544)
 
