@@ -295,6 +295,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showPrefabLinks, setShowPrefabLinks] = useState(false)
   const [sceneNotes, setSceneNotes] = useState<Record<string, string>>({})
   const [showNotesPanel, setShowNotesPanel] = useState(false)
+  const [showBoundingBoxes, setShowBoundingBoxes] = useState(false)
+  const [boundingBoxColor, setBoundingBoxColor] = useState('#00ff00')
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────

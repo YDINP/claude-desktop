@@ -8874,6 +8874,41 @@ if (existsSync(cocp893Path)) {
   }
 }
 
+console.log('\n## 209. Phase DD10 R894~896 기능 체크')
+
+// R894: SceneViewPanel 바운딩 박스 오버레이
+const svp894Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp894Path)) {
+  const svp894 = readFileSync(svp894Path, 'utf-8')
+  if (svp894.includes('showBoundingBoxes') || svp894.includes('boundingBoxColor') || svp894.includes('boundingBox')) {
+    log('pass', 'R894', 'SceneViewPanel 바운딩 박스 오버레이 존재')
+  } else {
+    log('warning', 'R894', 'SceneViewPanel 바운딩 박스 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R895: TerminalPanel 분할 뷰
+const tp895Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp895Path)) {
+  const tp895 = readFileSync(tp895Path, 'utf-8')
+  if (tp895.includes('terminalSplit') || tp895.includes('splitRatio') || tp895.includes('splitView')) {
+    log('pass', 'R895', 'TerminalPanel 분할 뷰 존재')
+  } else {
+    log('warning', 'R895', 'TerminalPanel 분할 뷰 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R896: SessionList 세션 관계 그래프
+const sl896Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl896Path)) {
+  const sl896 = readFileSync(sl896Path, 'utf-8')
+  if (sl896.includes('sessionRelations') || sl896.includes('showRelationGraph') || sl896.includes('relationMap')) {
+    log('pass', 'R896', 'SessionList 세션 관계 그래프 존재')
+  } else {
+    log('warning', 'R896', 'SessionList 세션 관계 그래프 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
