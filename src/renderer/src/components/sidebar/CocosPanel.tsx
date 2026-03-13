@@ -1237,6 +1237,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (fresh) onSelectNode(fresh)
   }, [sceneFile])
 
+  // R1595: 최근 선택 노드 히스토리 업데이트 (최대 8개)
+  useEffect(() => {
+    if (!selectedNode) return
+    setNodeHistory(prev => {
+      const filtered = prev.filter(id => id !== selectedNode.uuid)
+      return [selectedNode.uuid, ...filtered].slice(0, 8)
+    })
+  }, [selectedNode?.uuid])
+
   const handleNodeMove = useCallback(async (uuid: string, x: number, y: number) => {
     if (!sceneFile?.root) return
     function updatePos(n: CCSceneNode): CCSceneNode {
@@ -2505,6 +2514,34 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   saveScene={saveScene}
                   onSelectNode={onSelectNode}
                 />
+              </div>
+            )}
+            {/* R1595: 최근 선택 노드 히스토리 */}
+            {nodeHistory.length > 1 && !selectedNode && (
+              <div style={{ padding: '4px 8px', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>최근 선택</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                  {nodeHistory.slice(0, 8).map(uuid => {
+                    const fn = sceneFile?.root ? (() => {
+                      const walk = (n: CCSceneNode): CCSceneNode | null => {
+                        if (n.uuid === uuid) return n
+                        for (const c of n.children) { const f = walk(c); if (f) return f }
+                        return null
+                      }
+                      return walk(sceneFile.root)
+                    })() : null
+                    if (!fn) return null
+                    return (
+                      <span key={uuid}
+                        onClick={() => onSelectNode(fn)}
+                        style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', color: 'var(--text-muted)', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                        onMouseEnter={e => (e.currentTarget.style.borderColor = '#58a6ff')}
+                        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+                        title={fn.name}
+                      >{fn.name}</span>
+                    )
+                  })}
+                </div>
               </div>
             )}
             {multiSelectedUuids.length <= 1 && selectedNode && (

@@ -17056,6 +17056,18 @@ console.log('\n## 485. R1594 SceneView 검색 컴포넌트 타입 포함 체크'
   }
 }
 
+// ── Section 486: R1595 최근 선택 노드 히스토리 ────────────────────────
+console.log('\n## 486. R1595 최근 선택 노드 히스토리 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s486panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s486panel.includes('R1595') && s486panel.includes('nodeHistory') && s486panel.includes('최근 선택') && s486panel.includes('setNodeHistory(prev =>')) {
+    log('pass', 'R1595-node-history', '최근 선택 노드 히스토리 (최대 8개)')
+  } else {
+    log('warning', 'R1595-node-history', '최근 선택 노드 히스토리 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
