@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 458 완료 — U-1 노드 Ctrl+C/V 복사/붙여넣기)
+> 마지막 업데이트: 2026-03-13 (Round 459 완료 — V-1 씬뷰 Ctrl+드래그 10px 그리드 스냅)
 
 ## 완료된 라운드
 
@@ -50,6 +50,7 @@
 | Round 456 | dev | Phase S-1: Inspector 섹션 접기/펼치기 — 위치/크기/회전, 앵커/불투명도, 색상 섹션별 ▸▾ 토글 | ✅ |
 | Round 457 | dev | Phase T-1: Inspector maxHeight 420 확장 + 컴포넌트(N) 섹션 토글 추가 | ✅ |
 | Round 458 | dev | Phase U-1: 노드 Ctrl+C/V 복사/붙여넣기 — clipboardRef 노드 저장, 붙여넣기 시 선택 노드 자식으로 추가 | ✅ |
+| Round 459 | dev | Phase V-1: 씬뷰 Ctrl+드래그 10px 그리드 스냅 — mousemove에서 ctrlKey 감지, round(x/10)*10 스냅 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

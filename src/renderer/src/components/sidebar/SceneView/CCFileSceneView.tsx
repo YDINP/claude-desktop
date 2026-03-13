@@ -160,11 +160,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const dx = e.clientX - dragRef.current.startMouseX
       const dy = e.clientY - dragRef.current.startMouseY
       const z = viewRef.current.zoom
-      setDragOverride({
-        uuid: dragRef.current.uuid,
-        x: dragRef.current.startNodeX + dx / z,
-        y: dragRef.current.startNodeY - dy / z,
-      })
+      let nx = dragRef.current.startNodeX + dx / z
+      let ny = dragRef.current.startNodeY - dy / z
+      // Ctrl 키: 10px 그리드 스냅
+      if (e.ctrlKey || e.metaKey) {
+        const snap = 10
+        nx = Math.round(nx / snap) * snap
+        ny = Math.round(ny / snap) * snap
+      }
+      setDragOverride({ uuid: dragRef.current.uuid, x: nx, y: ny })
       return
     }
     if (!isPanning || !panStart.current) return
@@ -217,7 +221,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         flexShrink: 0, alignItems: 'center', fontSize: 10,
       }}>
         <span style={{ color: 'var(--text-muted)', flex: 1 }}>
-          {designW}×{designH} | {flatNodes.length}개 노드
+          {designW}×{designH} | {flatNodes.length}개 | <span style={{ fontSize: 8 }}>Ctrl드래그=10px스냅</span>
         </span>
         <button
           onClick={handleFit}
