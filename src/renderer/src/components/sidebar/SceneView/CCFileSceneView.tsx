@@ -1128,16 +1128,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
             // 캔버스 범위 밖 노드 감지
             const isOutOfCanvas = effX + w / 2 < -designW / 2 || effX - w / 2 > designW / 2 || effY + h / 2 < -designH / 2 || effY - h / 2 > designH / 2
-            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1)
+            const isSelected = node.uuid === selectedUuid || multiSelected.has(node.uuid)
+            const isHovered = node.uuid === hoverUuid && !isSelected
+            // R1550: 검색 매칭 하이라이트
+            const isSearchMatch = svSearch.trim() ? svSearchMatches.has(node.uuid) : false
+            // R1626: 검색 중 비매칭 노드 dim
+            const searchDim = svSearch.trim() && !isSearchMatch && !isSelected ? 0.2 : 1
+            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5
             const rectX = svgPos.x - w * anchorX
             const rectY = svgPos.y - h * (1 - anchorY)
-            const isSelected = node.uuid === selectedUuid || multiSelected.has(node.uuid)
-            const isHovered = node.uuid === hoverUuid && !isSelected
-            // R1550: 검색 매칭 하이라이트
-            const isSearchMatch = svSearch.trim() ? svSearchMatches.has(node.uuid) : false
             // CC rotation: Z-euler (반시계방향 양수). SVG: 시계방향 양수 → 부호 반전
             const rotZ = rotateOverride?.uuid === node.uuid
               ? rotateOverride.angle

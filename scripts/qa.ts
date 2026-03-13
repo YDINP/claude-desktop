@@ -17430,6 +17430,18 @@ console.log('\n## 516. R1625 Inspector 씬 컴포넌트 분포 요약 칩 체크
   }
 }
 
+// ── Section 517: R1626 SceneView 검색 비매칭 노드 dim ──────────────────
+console.log('\n## 517. R1626 SceneView 검색 비매칭 노드 dim 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s517 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s517.includes('R1626') && s517.includes('searchDim') && s517.includes('isSearchMatch && !isSelected')) {
+    log('pass', 'R1626-search-dim', 'SceneView 검색 비매칭 노드 dim')
+  } else {
+    log('warning', 'R1626-search-dim', 'SceneView 검색 비매칭 노드 dim 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
