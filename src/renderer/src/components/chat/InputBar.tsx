@@ -218,6 +218,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [inputMode, setInputMode] = useState<'text' | 'image' | 'file' | 'mixed'>('text')
   const [customShortcuts, setCustomShortcuts] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('input-shortcuts') ?? '{}'))
   const [showShortcutEditor, setShowShortcutEditor] = useState(false)
+  const [maxTokens, setMaxTokens] = useState<number | null>(null)
+  const [showTokenLimit, setShowTokenLimit] = useState(false)
   const [pendingImages, setPendingImages] = useState<string[]>([])
   const [lastPasteType, setLastPasteType] = useState<string | null>(null)
   const [cursorPosHistory, setCursorPosHistory] = useState<number[]>([])

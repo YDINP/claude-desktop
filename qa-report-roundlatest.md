@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:16:20.210Z
+> 2026-03-13T11:17:11.585Z
 
 ## Critical
 _없음_
@@ -646,3 +646,6 @@ _없음_
 - ChatPanel 메시지 핀 고정 존재
 - SceneViewPanel 노드 가시성 필터 존재
 - SessionList 세션 읽기 상태 존재
+- ChatPanel 대화 통계 존재
+- CocosPanel 에셋 검색 존재
+- InputBar 응답 길이 제한 존재

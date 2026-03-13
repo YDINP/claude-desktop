@@ -7369,6 +7369,41 @@ if (existsSync(sl764Path)) {
   }
 }
 
+// ── Section 166: Phase DD10 R765~767 기능 체크 ────────────────
+console.log('\n## 166. Phase DD10 R765~767 기능 체크')
+// R765: ChatPanel 대화 통계
+const cp765Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp765Path)) {
+  const cp765 = readFileSync(cp765Path, 'utf-8')
+  if (cp765.includes('chatStats') || cp765.includes('showChatStats') || cp765.includes('totalTokens')) {
+    log('pass', 'R765', 'ChatPanel 대화 통계 존재')
+  } else {
+    log('warning', 'R765', 'ChatPanel 대화 통계 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R766: CocosPanel 에셋 검색
+const cp766Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp766Path)) {
+  const cp766 = readFileSync(cp766Path, 'utf-8')
+  if (cp766.includes('assetSearch') || cp766.includes('assetSearchResults') || cp766.includes('assetQuery')) {
+    log('pass', 'R766', 'CocosPanel 에셋 검색 존재')
+  } else {
+    log('warning', 'R766', 'CocosPanel 에셋 검색 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R767: InputBar 응답 길이 제한
+const ib767Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib767Path)) {
+  const ib767 = readFileSync(ib767Path, 'utf-8')
+  if (ib767.includes('maxTokens') || ib767.includes('showTokenLimit') || ib767.includes('tokenLimit')) {
+    log('pass', 'R767', 'InputBar 응답 길이 제한 존재')
+  } else {
+    log('warning', 'R767', 'InputBar 토큰 제한 없음', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
