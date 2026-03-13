@@ -1140,6 +1140,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [chatReactions, setChatReactions] = useState<Record<string, string[]>>({})
   const [showReactionPicker, setShowReactionPicker] = useState(false)
   const [chatFilter, setChatFilter] = useState('')
+  const [chatFilterActive, setChatFilterActive] = useState(false)
   const [chatFilterResults, setChatFilterResults] = useState<string[]>([])
   const [chatGroupBy, setChatGroupBy] = useState<'date' | 'role' | 'none'>('none')
   const [showGroupPanel, setShowGroupPanel] = useState(false)

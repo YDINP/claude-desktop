@@ -415,6 +415,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   // R1345: multiline mode
   const [inputMultiline, setInputMultiline] = useState(false)
   const [multilineRows, setMultilineRows] = useState(3)
+  // R1351: drag and drop file upload
+  const [inputDragDrop, setInputDragDrop] = useState(false)
+  const [dragDropFiles, setDragDropFiles] = useState<string[]>([])
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

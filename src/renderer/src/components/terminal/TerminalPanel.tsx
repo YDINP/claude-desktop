@@ -244,6 +244,11 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1348: terminal theme
   const [termTheme, setTermTheme] = useState<string>('dark')
   const [termThemeCustom, setTermThemeCustom] = useState<boolean>(false)
+
+  // R1354: terminal log save
+  const [termLog, setTermLog] = useState<boolean>(false)
+  const [termLogPath, setTermLogPath] = useState<string>('')
+
   const inputBufferRef = useRef<Record<string, string>>({})
 
   const sendQuickCmd = (cmd: string) => {

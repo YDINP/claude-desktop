@@ -227,6 +227,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 그리드 (R1347) ────────────────────────────────────────
   const [sceneGrid, setSceneGrid] = useState(false)
   const [sceneGridSize, setSceneGridSize] = useState(32)
+  // ── 씬 카메라 (R1353) ────────────────────────────────────────
+  const [sceneCamera, setSceneCamera] = useState(false)
+  const [sceneCameraFov, setSceneCameraFov] = useState(60)
 
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()

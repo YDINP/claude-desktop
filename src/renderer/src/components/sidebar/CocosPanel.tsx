@@ -83,6 +83,8 @@ export function CocosPanel() {
   const [assetBundleConfig, setAssetBundleConfig] = useState('')
   const [editorPlugins, setEditorPlugins] = useState<string[]>([])
   const [showPluginPanel, setShowPluginPanel] = useState(false)
+  const [buildPresets, setBuildPresets] = useState<string[]>([])
+  const [activeBuildPreset, setActiveBuildPreset] = useState('')
   return (
     <CCFileProjectUI
       fileProject={fileProject}

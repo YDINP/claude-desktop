@@ -14089,6 +14089,76 @@ if (existsSync(sl1349Path)) {
   }
 }
 
+console.log('\n## 361. Phase DD10 R1350~1352 기능 체크')
+
+// R1350: ChatPanel 채팅 필터
+const cp1350Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1350Path)) {
+  const cp1350 = readFileSync(cp1350Path, 'utf-8')
+  if (cp1350.includes('chatFilter') || cp1350.includes('chatFilterActive') || cp1350.includes('filterActive')) {
+    log('pass', 'R1350', 'ChatPanel 채팅 필터 존재')
+  } else {
+    log('warning', 'R1350', 'ChatPanel 채팅 필터 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1351: InputBar 드래그앤드롭
+const ib1351Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1351Path)) {
+  const ib1351 = readFileSync(ib1351Path, 'utf-8')
+  if (ib1351.includes('inputDragDrop') || ib1351.includes('dragDropFiles') || ib1351.includes('dragDrop')) {
+    log('pass', 'R1351', 'InputBar 드래그앤드롭 존재')
+  } else {
+    log('warning', 'R1351', 'InputBar 드래그앤드롭 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1352: CocosPanel 빌드 프리셋
+const cocos1352Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1352Path)) {
+  const cocos1352 = readFileSync(cocos1352Path, 'utf-8')
+  if (cocos1352.includes('buildPresets') || cocos1352.includes('activeBuildPreset') || cocos1352.includes('buildPreset')) {
+    log('pass', 'R1352', 'CocosPanel 빌드 프리셋 존재')
+  } else {
+    log('warning', 'R1352', 'CocosPanel 빌드 프리셋 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 362. Phase DD10 R1353~1355 기능 체크')
+
+// R1353: SceneViewPanel 씬 카메라
+const svp1353Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1353Path)) {
+  const svp1353 = readFileSync(svp1353Path, 'utf-8')
+  if (svp1353.includes('sceneCamera') || svp1353.includes('sceneCameraFov') || svp1353.includes('cameraFov')) {
+    log('pass', 'R1353', 'SceneViewPanel 씬 카메라 존재')
+  } else {
+    log('warning', 'R1353', 'SceneViewPanel 씬 카메라 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1354: TerminalPanel 터미널 로그
+const tp1354Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1354Path)) {
+  const tp1354 = readFileSync(tp1354Path, 'utf-8')
+  if (tp1354.includes('termLog') || tp1354.includes('termLogPath') || tp1354.includes('logPath')) {
+    log('pass', 'R1354', 'TerminalPanel 터미널 로그 존재')
+  } else {
+    log('warning', 'R1354', 'TerminalPanel 터미널 로그 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1355: SessionList 세션 통계
+const sl1355Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1355Path)) {
+  const sl1355 = readFileSync(sl1355Path, 'utf-8')
+  if (sl1355.includes('showStatsPanel') || sl1355.includes('sessionStats') || sl1355.includes('statsPanel')) {
+    log('pass', 'R1355', 'SessionList 세션 통계 존재')
+  } else {
+    log('warning', 'R1355', 'SessionList 세션 통계 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

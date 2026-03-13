@@ -410,6 +410,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showRecoveryPanel, setShowRecoveryPanel] = useState(false)
   const [sessionExport, setSessionExport] = useState(false)
   const [exportFormat, setExportFormat] = useState('json')
+  const [sessionStats, setSessionStats] = useState(false)
+  const [showStatsPanel, setShowStatsPanel] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
