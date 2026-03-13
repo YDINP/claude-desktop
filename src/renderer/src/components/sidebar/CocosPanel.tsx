@@ -45,6 +45,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const clipboardRef = useRef<CCSceneNode | null>(null)
   const [hideInactive, setHideInactive] = useState(false)
   const [sceneViewHeight, setSceneViewHeight] = useState(240)
+  const [mainTab, setMainTab] = useState<'scene' | 'assets'>('scene')
   const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('cc-recent-files') ?? '[]') } catch { return [] }
@@ -502,8 +503,25 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         )}
       </div>
 
+      {/* 씬/에셋 탭 바 */}
+      {projectInfo?.detected && (
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+          {(['scene', 'assets'] as const).map(t => (
+            <button key={t} onClick={() => setMainTab(t)}
+              style={{
+                flex: 1, padding: '4px 0', fontSize: 10, border: 'none', cursor: 'pointer',
+                background: mainTab === t ? 'var(--bg-primary)' : 'transparent',
+                color: mainTab === t ? 'var(--accent)' : 'var(--text-muted)',
+                borderBottom: mainTab === t ? '2px solid var(--accent)' : '2px solid transparent',
+                fontWeight: mainTab === t ? 600 : 400,
+              }}
+            >{t === 'scene' ? '🎬 씬 편집' : '📁 에셋'}</button>
+          ))}
+        </div>
+      )}
+
       {/* 씬 파싱 결과 — SceneView + TreeView + Inspector */}
-      {sceneFile?.root && (
+      {mainTab === 'scene' && sceneFile?.root && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           {/* SVG 씬 뷰 (드래그로 높이 조절) */}
           <div style={{ height: sceneViewHeight, flexShrink: 0 }}>
@@ -586,6 +604,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             />
           )}
         </div>
+      )}
+
+      {/* 에셋 탭 */}
+      {mainTab === 'assets' && projectInfo?.detected && (
+        projectInfo.assetsDir
+          ? <CCFileAssetBrowser assetsDir={projectInfo.assetsDir} />
+          : <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11 }}>assetsDir를 감지할 수 없습니다.</div>
       )}
 
       {/* 안내 (프로젝트 미선택) */}
@@ -1482,6 +1507,179 @@ function TreeSearch({ root, onSelect }: { root: CCSceneNode; onSelect: (n: CCSce
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+// ── 에셋 브라우저 ──────────────────────────────────────────────────────────
+
+type AssetEntry = { uuid: string; path: string; relPath: string; type: string }
+
+const ASSET_TYPE_GROUPS: { key: string; icon: string; label: string; types: string[] }[] = [
+  { key: 'texture', icon: '🖼', label: 'Texture', types: ['texture', 'sprite-atlas'] },
+  { key: 'prefab', icon: '📦', label: 'Prefab', types: ['prefab'] },
+  { key: 'scene', icon: '🎬', label: 'Scene', types: ['scene'] },
+  { key: 'script', icon: '📜', label: 'Script', types: ['script'] },
+  { key: 'audio', icon: '🔊', label: 'Audio', types: ['audio'] },
+  { key: 'font', icon: '🔤', label: 'Font', types: ['font'] },
+]
+
+function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
+  const [assets, setAssets] = useState<Record<string, AssetEntry> | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [copied, setCopied] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    window.api.ccFileBuildUUIDMap(assetsDir).then(map => {
+      if (!cancelled) { setAssets(map); setLoading(false) }
+    }).catch(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [assetsDir])
+
+  const grouped = useMemo(() => {
+    if (!assets) return []
+    const entries = Object.values(assets)
+    const lowerQ = search.toLowerCase()
+    const filtered = lowerQ
+      ? entries.filter(e => e.relPath.toLowerCase().includes(lowerQ))
+      : entries
+
+    const groups: { key: string; icon: string; label: string; items: AssetEntry[] }[] = []
+    const assigned = new Set<string>()
+
+    for (const g of ASSET_TYPE_GROUPS) {
+      const items = filtered.filter(e => g.types.includes(e.type))
+      if (items.length > 0) {
+        groups.push({ key: g.key, icon: g.icon, label: g.label, items })
+        items.forEach(i => assigned.add(i.uuid))
+      }
+    }
+
+    const others = filtered.filter(e => !assigned.has(e.uuid))
+    if (others.length > 0) {
+      groups.push({ key: 'other', icon: '📄', label: '기타', items: others })
+    }
+
+    return groups
+  }, [assets, search])
+
+  const handleCopy = useCallback((entry: AssetEntry) => {
+    navigator.clipboard.writeText(entry.relPath).catch(() => {})
+    setCopied(entry.uuid)
+    setTimeout(() => setCopied(null), 1500)
+  }, [])
+
+  const toggleGroup = useCallback((key: string) => {
+    setExpanded(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }, [])
+
+  if (loading) {
+    return (
+      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, textAlign: 'center' }}>
+        에셋 스캔 중...
+      </div>
+    )
+  }
+
+  if (!assets || Object.keys(assets).length === 0) {
+    return (
+      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, textAlign: 'center' }}>
+        에셋을 찾을 수 없습니다
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      {/* 검색 */}
+      <div style={{ padding: '6px 8px', flexShrink: 0 }}>
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="에셋 검색..."
+          style={{
+            width: '100%', fontSize: 11, padding: '4px 8px', boxSizing: 'border-box',
+            background: 'var(--bg-input)', color: 'var(--text-primary)',
+            border: '1px solid var(--border)', borderRadius: 4,
+          }}
+        />
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 3 }}>
+          전체 {Object.keys(assets).length}개 에셋
+        </div>
+      </div>
+      {/* 그룹 리스트 */}
+      <div style={{ flex: 1, overflow: 'auto', padding: '0 8px 8px' }}>
+        {grouped.length === 0 && (
+          <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 10, textAlign: 'center' }}>
+            검색 결과 없음
+          </div>
+        )}
+        {grouped.map(g => (
+          <div key={g.key} style={{ marginBottom: 2 }}>
+            {/* 그룹 헤더 */}
+            <div
+              onClick={() => toggleGroup(g.key)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 4, padding: '4px 4px',
+                cursor: 'pointer', userSelect: 'none', borderRadius: 3,
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+              onMouseLeave={e => (e.currentTarget.style.background = '')}
+            >
+              <span style={{ fontSize: 8, color: 'var(--text-muted)', width: 10 }}>
+                {expanded.has(g.key) ? '▾' : '▸'}
+              </span>
+              <span style={{ fontSize: 11 }}>{g.icon}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-primary)', fontWeight: 500, flex: 1 }}>
+                {g.label}
+              </span>
+              <span style={{
+                fontSize: 9, color: 'var(--text-muted)', padding: '0 5px',
+                background: 'rgba(255,255,255,0.06)', borderRadius: 8,
+              }}>
+                {g.items.length}
+              </span>
+            </div>
+            {/* 그룹 항목 */}
+            {expanded.has(g.key) && g.items.map(item => (
+              <div
+                key={item.uuid}
+                onClick={() => handleCopy(item)}
+                title={`${item.relPath}\n클릭하여 경로 복사`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 4, padding: '3px 6px 3px 22px',
+                  cursor: 'pointer', fontSize: 10, borderRadius: 3,
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.08)')}
+                onMouseLeave={e => (e.currentTarget.style.background = '')}
+              >
+                <span style={{
+                  flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  color: copied === item.uuid ? 'var(--accent)' : 'var(--text-primary)',
+                }}>
+                  {copied === item.uuid ? '✓ 복사됨' : item.relPath.split(/[\\/]/).pop()}
+                </span>
+                <span style={{
+                  fontSize: 9, color: 'var(--text-muted)', overflow: 'hidden',
+                  textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '40%',
+                  direction: 'rtl', textAlign: 'left',
+                }}>
+                  {item.relPath.split(/[\\/]/).slice(0, -1).join('/')}
+                </span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
