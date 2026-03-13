@@ -393,6 +393,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [inputMaxLines, setInputMaxLines] = useState(10)
   const [inputBracketMatch, setInputBracketMatch] = useState(true)
   const [bracketPairs, setBracketPairs] = useState<Array<[number, number]>>([])
+  const [inputAutoIndent, setInputAutoIndent] = useState(true)
+  const [indentGuides, setIndentGuides] = useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

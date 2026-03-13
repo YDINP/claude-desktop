@@ -13389,6 +13389,76 @@ if (existsSync(sl1289Path)) {
   }
 }
 
+console.log('\n## 341. Phase DD10 R1290~1292 기능 체크')
+
+// R1290: ChatPanel 음성 입력
+const cp1290Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1290Path)) {
+  const cp1290 = readFileSync(cp1290Path, 'utf-8')
+  if (cp1290.includes('chatVoice') || cp1290.includes('voiceLanguage') || cp1290.includes('voiceLang')) {
+    log('pass', 'R1290', 'ChatPanel 음성 입력 존재')
+  } else {
+    log('warning', 'R1290', 'ChatPanel 음성 입력 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1291: InputBar 자동 들여쓰기
+const ib1291Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1291Path)) {
+  const ib1291 = readFileSync(ib1291Path, 'utf-8')
+  if (ib1291.includes('inputAutoIndent') || ib1291.includes('indentGuides') || ib1291.includes('autoIndent')) {
+    log('pass', 'R1291', 'InputBar 자동 들여쓰기 존재')
+  } else {
+    log('warning', 'R1291', 'InputBar 자동 들여쓰기 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1292: CocosPanel 성능 통계
+const cocos1292Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1292Path)) {
+  const cocos1292 = readFileSync(cocos1292Path, 'utf-8')
+  if (cocos1292.includes('performanceStats') || cocos1292.includes('showPerfPanel') || cocos1292.includes('perfPanel')) {
+    log('pass', 'R1292', 'CocosPanel 성능 통계 존재')
+  } else {
+    log('warning', 'R1292', 'CocosPanel 성능 통계 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 342. Phase DD10 R1293~1295 기능 체크')
+
+// R1293: SceneViewPanel 씬 스프라이트
+const svp1293Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1293Path)) {
+  const svp1293 = readFileSync(svp1293Path, 'utf-8')
+  if (svp1293.includes('sceneSprites') || svp1293.includes('showSpritePanel') || svp1293.includes('spritePanel')) {
+    log('pass', 'R1293', 'SceneViewPanel 씬 스프라이트 존재')
+  } else {
+    log('warning', 'R1293', 'SceneViewPanel 씬 스프라이트 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1294: TerminalPanel 자동완성
+const tp1294Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1294Path)) {
+  const tp1294 = readFileSync(tp1294Path, 'utf-8')
+  if (tp1294.includes('termAutoComplete') || tp1294.includes('autoCompleteList') || tp1294.includes('autoComplete')) {
+    log('pass', 'R1294', 'TerminalPanel 자동완성 존재')
+  } else {
+    log('warning', 'R1294', 'TerminalPanel 자동완성 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1295: SessionList 세션 태그
+const sl1295Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1295Path)) {
+  const sl1295 = readFileSync(sl1295Path, 'utf-8')
+  if (sl1295.includes('sessionTags') || sl1295.includes('activeTagFilter') || sl1295.includes('tagFilter')) {
+    log('pass', 'R1295', 'SessionList 세션 태그 존재')
+  } else {
+    log('warning', 'R1295', 'SessionList 세션 태그 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

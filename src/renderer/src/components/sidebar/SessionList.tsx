@@ -312,6 +312,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [sessionComments, setSessionComments] = useState<Record<string, string>>({})
   const [showCommentEditor, setShowCommentEditor] = useState(false)
   const [sessionTags, setSessionTags] = useState<Record<string, string[]>>({})
+  const [activeTagFilter, setActiveTagFilter] = useState<string>('')
   const [showTagEditor, setShowTagEditor] = useState(false)
   const [showMemoEditor, setShowMemoEditor] = useState(false)
   const [archiveFilter, setArchiveFilter] = useState(false)

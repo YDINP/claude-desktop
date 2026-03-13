@@ -63,6 +63,8 @@ export function CocosPanel() {
   const [debugOverlay, setDebugOverlay] = useState<string>('none')
   const [assetFilter, setAssetFilter] = useState('')
   const [assetFilterType, setAssetFilterType] = useState<string>('all')
+  const [performanceStats, setPerformanceStats] = useState<Record<string, number>>({})
+  const [showPerfPanel, setShowPerfPanel] = useState(false)
   return (
     <CCFileProjectUI
       fileProject={fileProject}
