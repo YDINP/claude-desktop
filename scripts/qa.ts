@@ -11877,6 +11877,74 @@ if (existsSync(sl1157Path)) {
   }
 }
 
+console.log('\n## 297. Phase DD10 R1158~1160 기능 체크')
+// R1158: ChatPanel 메시지 레이블
+const cp1158Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1158Path)) {
+  const cp1158 = readFileSync(cp1158Path, 'utf-8')
+  if (cp1158.includes('msgLabels') || cp1158.includes('showLabelPanel') || cp1158.includes('labeledMsgs')) {
+    log('pass', 'R1158', 'ChatPanel 메시지 레이블 존재')
+  } else {
+    log('warning', 'R1158', 'ChatPanel 메시지 레이블 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1159: InputBar 입력 히스토리
+const ib1159Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1159Path)) {
+  const ib1159 = readFileSync(ib1159Path, 'utf-8')
+  if (ib1159.includes('inputHistory') || ib1159.includes('inputHistoryIdx') || ib1159.includes('cmdHistory')) {
+    log('pass', 'R1159', 'InputBar 입력 히스토리 존재')
+  } else {
+    log('warning', 'R1159', 'InputBar 입력 히스토리 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1160: CocosPanel 빌드 에러
+const cocos1160Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1160Path)) {
+  const cocos1160 = readFileSync(cocos1160Path, 'utf-8')
+  if (cocos1160.includes('buildErrors') || cocos1160.includes('showBuildErrors') || cocos1160.includes('buildErrList')) {
+    log('pass', 'R1160', 'CocosPanel 빌드 에러 존재')
+  } else {
+    log('warning', 'R1160', 'CocosPanel 빌드 에러 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 298. Phase DD10 R1161~1163 기능 체크')
+// R1161: SceneViewPanel 노드 애니메이션
+const sv1161Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1161Path)) {
+  const sv1161 = readFileSync(sv1161Path, 'utf-8')
+  if (sv1161.includes('nodeAnimations') || sv1161.includes('showAnimPanel') || sv1161.includes('animClips')) {
+    log('pass', 'R1161', 'SceneViewPanel 노드 애니메이션 존재')
+  } else {
+    log('warning', 'R1161', 'SceneViewPanel 노드 애니메이션 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1162: TerminalPanel 출력 검색
+const tp1162Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1162Path)) {
+  const tp1162 = readFileSync(tp1162Path, 'utf-8')
+  if (tp1162.includes('outputSearch') || tp1162.includes('outputSearchResults') || tp1162.includes('termSearch')) {
+    log('pass', 'R1162', 'TerminalPanel 출력 검색 존재')
+  } else {
+    log('warning', 'R1162', 'TerminalPanel 출력 검색 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1163: SessionList 세션 노트
+const sl1163Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1163Path)) {
+  const sl1163 = readFileSync(sl1163Path, 'utf-8')
+  if (sl1163.includes('sessionNotes') || sl1163.includes('editingNote') || sl1163.includes('noteContent')) {
+    log('pass', 'R1163', 'SessionList 세션 노트 존재')
+  } else {
+    log('warning', 'R1163', 'SessionList 세션 노트 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

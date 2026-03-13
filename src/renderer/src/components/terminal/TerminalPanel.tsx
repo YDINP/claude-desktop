@@ -456,6 +456,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1156: terminal profiles
   const [termProfiles, setTermProfiles] = React.useState<Record<string, object>>({})
   const [activeProfile, setActiveProfile] = React.useState<string | null>(null)
+  // R1162: output search
+  const [outputSearch, setOutputSearch] = React.useState('')
+  const [outputSearchResults, setOutputSearchResults] = React.useState<number[]>([])
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

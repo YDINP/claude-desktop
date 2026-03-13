@@ -243,6 +243,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1148: build queue
   const [buildQueue, setBuildQueue] = useState<string[]>([])
   const [showBuildQueue, setShowBuildQueue] = useState(false)
+  // R1160: build errors
+  const [buildErrors, setBuildErrors] = useState<string[]>([])
+  const [showBuildErrors, setShowBuildErrors] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
