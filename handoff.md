@@ -1,29 +1,30 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-13
 
-## 완료 (R1500-1580)
-- [x] R1500~R1567: (이전 세션 완료 — 상세 이력 생략)
-- [x] R1568: cc.Camera Inspector Quick Edit (depth/zoomRatio/fov)
-- [x] R1569: cc.PageView Inspector Quick Edit (direction/scrollThreshold/autoTurning)
-- [x] R1570: SceneView P키 부모 노드 포커스 + FlatNode parentUuid 추적
-- [x] R1571: SceneView Enter키 첫 번째 자식 선택
-- [x] R1572: cc.Mask Inspector Quick Edit (type/inverted/alphaThreshold)
-- [x] R1573: cc.UIOpacity extractor + Inspector Quick Edit
-- [x] R1574: cc.PolygonCollider extractor + SceneView SVG path 시각화
-- [x] R1575: BatchInspector 색상 일괄 편집
-- [x] R1576: cc.DirectionalLight/PointLight Inspector Quick Edit
-- [x] R1577: Inspector 노드 JSON 복사 버튼
-- [x] R1578: SceneView 노드 색상 tint 표시 (■ swatch)
-- [x] R1579: cc.SkeletalAnimation extractor + Inspector Quick Edit
-- [x] R1580: SceneView Tab/Shift+Tab 형제 노드 탐색
-- [x] QA Section 459~471 (Pass 1497)
+## 완료 (R1500-1597)
+- [x] R1500~R1583: (이전 세션 완료 — 상세 이력 생략)
+- [x] R1584: cc.Layout extractor + Inspector Quick Edit
+- [x] R1585: cc.RichText extractor + Inspector Quick Edit (string/fontSize/lineHeight/maxWidth/align/overflow)
+- [x] R1586: cc.EditBox extractor + Inspector Quick Edit (string/placeholder/maxLength/inputMode/inputFlag/returnType)
+- [x] R1587: cc.Toggle/ToggleContainer extractor + Inspector Quick Edit
+- [x] R1588: cc.LabelOutline/LabelShadow extractor + Inspector Quick Edit + dedup
+- [x] R1589: cc.Sprite/Sprite2D extractor + Inspector Quick Edit (type/sizeMode/trim/grayscale)
+- [x] R1590: cc.Graphics extractor + Inspector Quick Edit (lineWidth/fillColor/strokeColor)
+- [x] R1591: cc.BoxCollider/CircleCollider Inspector Quick Edit (offset/size/radius/sensor)
+- [x] R1592: Inspector 위치/크기 정수 반올림 버튼 (⌊⌉)
+- [x] R1593: Inspector 크기 W/H 비율 잠금 버튼 (lockSize)
+- [x] R1594: SceneView 검색 컴포넌트 타입도 매칭 대상 포함
+- [x] R1595: 최근 선택 노드 히스토리 표시 (최대 8개)
+- [x] R1596: SceneView 활성 노드 수 표시 (비활성 노드 있을 때)
+- [x] R1597: Inspector 노드 커스텀 메모 (localStorage, 노드별 개인 노트)
+- [x] QA Section 475~488 (Pass 1514)
 
-## 다음 예정 (R1581+)
-- [ ] R1581: cc.Button state 색상 미리보기 (normal/hover/pressed/disabled)
-- [ ] R1582: SceneView 노드 복사/붙여넣기 (Inspector Ctrl+C, 씬에 Ctrl+V 붙여넣기)
-- [ ] R1583: Inspector cc.Widget Quick Edit (align flags + offsets)
+## 다음 예정 (R1598+)
+- [ ] R1598: 씬 파일 내 prefab/uuid 참조 시각화 (의존성 그래프)
+- [ ] R1599: Inspector 컴포넌트 일괄 복사 (복수 노드 선택 후 같은 컴포넌트 일괄 적용)
+- [ ] R1600: SceneView 마우스 위치에 좌표 표시 오버레이
 
 ## 빌드/QA
 - Build: ✅ 성공
-- Critical: 0, Warning: 5, Pass: 1497
+- Critical: 0, Warning: 5, Pass: 1514
 - Branch: dev

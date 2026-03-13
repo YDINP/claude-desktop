@@ -17092,6 +17092,18 @@ console.log('\n## 488. R1597 Inspector 노드 커스텀 메모 체크')
   }
 }
 
+// ── Section 489: R1598 SceneView 마우스 위치 좌표 오버레이 ────────────
+console.log('\n## 489. R1598 SceneView 마우스 위치 좌표 오버레이 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s489 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s489.includes('R1598') && s489.includes('mouseScenePos') && s489.includes('setMouseScenePos') && s489.includes('마우스 위치 좌표 오버레이')) {
+    log('pass', 'R1598-mouse-pos', 'SceneView 마우스 위치 씬 좌표 오버레이')
+  } else {
+    log('warning', 'R1598-mouse-pos', 'SceneView 마우스 좌표 오버레이 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

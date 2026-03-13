@@ -78,6 +78,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; uuid: string | null } | null>(null)
   // R1500: 스냅 포인트 시각적 피드백
   const [snapIndicator, setSnapIndicator] = useState<{ x: number; y: number } | null>(null)
+  // R1598: 마우스 위치 좌표 오버레이
+  const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
   // R1530: 디자인 레퍼런스 이미지 overlay
@@ -277,6 +279,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [view])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // R1598: 마우스 위치 씬 좌표 업데이트
+    {
+      const svg = svgRef.current
+      if (svg) {
+        const rect = svg.getBoundingClientRect()
+        const v = viewRef.current
+        const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
+        const svgY = -((e.clientY - rect.top - v.offsetY) / v.zoom)  // Y 반전 (씬 좌표계)
+        setMouseScenePos({ x: Math.round(svgX), y: Math.round(svgY) })
+      }
+    }
     // R1506: 앵커 포인트 드래그
     if (anchorRef.current) {
       const svg = svgRef.current
@@ -1891,6 +1904,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </div>
             ) : null
           ))}
+        </div>
+      )}
+      {/* R1598: 마우스 위치 좌표 오버레이 */}
+      {mouseScenePos && (
+        <div style={{ position: 'absolute', bottom: 4, right: 4, fontSize: 9, color: '#556', background: 'rgba(0,0,0,0.4)', padding: '1px 5px', borderRadius: 3, pointerEvents: 'none', userSelect: 'none', fontVariantNumeric: 'tabular-nums' }}>
+          {mouseScenePos.x}, {mouseScenePos.y}
         </div>
       )}
     </div>
