@@ -381,19 +381,46 @@ interface CCFileProjectUIProps {
     error: string | null
     openProject: () => Promise<void>
     loadScene: (scenePath: string) => Promise<void>
+    saveScene: (root: import('../../../../shared/ipc-schema').CCSceneNode) => Promise<{ success: boolean; error?: string }>
+    restoreBackup: () => Promise<{ success: boolean; error?: string }>
   }
   selectedNode: CCSceneNode | null
   onSelectNode: (n: CCSceneNode | null) => void
 }
 
 function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
-  const { projectInfo, sceneFile, loading, error, openProject, loadScene } = fileProject
+  const { projectInfo, sceneFile, loading, error, openProject, loadScene, saveScene, restoreBackup } = fileProject
   const [selectedScene, setSelectedScene] = useState<string>('')
+  const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [saving, setSaving] = useState(false)
 
   const handleSceneChange = useCallback(async (path: string) => {
     setSelectedScene(path)
     if (path) await loadScene(path)
   }, [loadScene])
+
+  const handleSave = useCallback(async () => {
+    if (!sceneFile?.root) return
+    setSaving(true)
+    setSaveMsg(null)
+    const result = await saveScene(sceneFile.root)
+    setSaving(false)
+    setSaveMsg(result.success
+      ? { ok: true, text: '저장 완료' }
+      : { ok: false, text: result.error ?? '저장 실패' }
+    )
+    setTimeout(() => setSaveMsg(null), 3000)
+  }, [sceneFile, saveScene])
+
+  const handleRestore = useCallback(async () => {
+    if (!sceneFile) return
+    const result = await restoreBackup()
+    setSaveMsg(result.success
+      ? { ok: true, text: '백업 복원 완료' }
+      : { ok: false, text: result.error ?? '복원 실패' }
+    )
+    setTimeout(() => setSaveMsg(null), 3000)
+  }, [sceneFile, restoreBackup])
 
   return (
     <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
@@ -450,6 +477,43 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               </option>
             ))}
           </select>
+        )}
+
+        {/* 저장 / 백업 복원 버튼 */}
+        {sceneFile?.root && (
+          <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              title="씬 파일 저장 (.bak 자동 백업)"
+              style={{
+                flex: 1, padding: '3px 0', fontSize: 10, borderRadius: 3,
+                cursor: saving ? 'not-allowed' : 'pointer',
+                background: 'var(--accent)', color: '#fff', opacity: saving ? 0.6 : 1,
+              }}
+            >
+              {saving ? '저장 중...' : '💾 저장'}
+            </button>
+            <button
+              onClick={handleRestore}
+              title=".bak 백업 파일에서 복원"
+              style={{
+                padding: '3px 6px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+                background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)',
+              }}
+            >
+              ↩ 복원
+            </button>
+          </div>
+        )}
+        {saveMsg && (
+          <div style={{
+            marginTop: 4, fontSize: 10, padding: '3px 6px', borderRadius: 3,
+            background: saveMsg.ok ? 'rgba(63,185,80,0.15)' : 'rgba(248,81,73,0.15)',
+            color: saveMsg.ok ? 'var(--success, #3fb950)' : 'var(--error, #f85149)',
+          }}>
+            {saveMsg.text}
+          </div>
         )}
 
         {error && (

@@ -1,13 +1,15 @@
 import { ipcMain, dialog } from 'electron'
 import { detectCCVersion } from '../cc/cc-version-detector'
 import { parseCCScene } from '../cc/cc-file-parser'
+import { saveCCScene, restoreFromBackup } from '../cc/cc-file-saver'
 import {
   CC_FILE_DETECT,
   CC_FILE_OPEN_PROJECT,
   CC_FILE_LIST_SCENES,
   CC_FILE_READ_SCENE,
+  CC_FILE_SAVE_SCENE,
 } from '../../shared/ipc-schema'
-import type { CCFileProjectInfo } from '../../shared/ipc-schema'
+import type { CCFileProjectInfo, CCSceneFile, CCSceneNode } from '../../shared/ipc-schema'
 
 let _registered = false
 
@@ -47,5 +49,19 @@ export function registerCCFileHandlers() {
     } catch (e) {
       return { error: String(e) }
     }
+  })
+
+  /** 수정된 씬 트리 → 파일 저장 (temp→rename 원자적, .bak 백업) */
+  ipcMain.handle(CC_FILE_SAVE_SCENE, async (
+    _e,
+    sceneFile: CCSceneFile,
+    modifiedRoot: CCSceneNode
+  ) => {
+    return saveCCScene(sceneFile, modifiedRoot)
+  })
+
+  /** 백업에서 씬 파일 복원 */
+  ipcMain.handle('cc:file:restoreBackup', async (_e, scenePath: string) => {
+    return restoreFromBackup(scenePath)
   })
 }

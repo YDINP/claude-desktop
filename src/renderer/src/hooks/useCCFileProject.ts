@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import type { CCFileProjectInfo, CCSceneFile } from '../../../../shared/ipc-schema'
+import type { CCFileProjectInfo, CCSceneFile, CCSceneNode } from '../../../../shared/ipc-schema'
 
 export interface CCFileProjectState {
   projectInfo: CCFileProjectInfo | null
@@ -79,6 +79,30 @@ export function useCCFileProject() {
     [projectInfo]
   )
 
+  /** 수정된 씬 트리를 파일에 저장 */
+  const saveScene = useCallback(
+    async (modifiedRoot: CCSceneNode): Promise<{ success: boolean; error?: string }> => {
+      if (!sceneFile) return { success: false, error: '씬 파일이 로드되지 않았습니다.' }
+      try {
+        const result = await window.api.ccFileSaveScene?.(sceneFile, modifiedRoot)
+        return result ?? { success: false, error: 'API 없음' }
+      } catch (e) {
+        return { success: false, error: String(e) }
+      }
+    },
+    [sceneFile]
+  )
+
+  /** 저장 실패 시 .bak에서 복원 */
+  const restoreBackup = useCallback(async () => {
+    if (!sceneFile) return { success: false, error: '씬 파일이 로드되지 않았습니다.' }
+    try {
+      return await window.api.ccFileRestoreBackup?.(sceneFile.scenePath) ?? { success: false }
+    } catch (e) {
+      return { success: false, error: String(e) }
+    }
+  }, [sceneFile])
+
   const clearProject = useCallback(() => {
     setProjectInfo(null)
     setSceneFile(null)
@@ -93,6 +117,8 @@ export function useCCFileProject() {
     openProject,
     detectProject,
     loadScene,
+    saveScene,
+    restoreBackup,
     clearProject,
   }
 }

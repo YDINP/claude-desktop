@@ -300,6 +300,13 @@ contextBridge.exposeInMainWorld('api', {
     projectInfo: import('../shared/ipc-schema').CCFileProjectInfo
   ): Promise<import('../shared/ipc-schema').CCSceneFile | { error: string }> =>
     ipcRenderer.invoke('cc:file:readScene', scenePath, projectInfo),
+  ccFileSaveScene: (
+    sceneFile: import('../shared/ipc-schema').CCSceneFile,
+    modifiedRoot: import('../shared/ipc-schema').CCSceneNode
+  ): Promise<{ success: boolean; backupPath?: string; error?: string }> =>
+    ipcRenderer.invoke('cc:file:saveScene', sceneFile, modifiedRoot),
+  ccFileRestoreBackup: (scenePath: string): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('cc:file:restoreBackup', scenePath),
 })
 
 declare global {
@@ -515,6 +522,11 @@ declare global {
         scenePath: string,
         projectInfo: import('../shared/ipc-schema').CCFileProjectInfo
       ) => Promise<import('../shared/ipc-schema').CCSceneFile | { error: string }>
+      ccFileSaveScene: (
+        sceneFile: import('../shared/ipc-schema').CCSceneFile,
+        modifiedRoot: import('../shared/ipc-schema').CCSceneNode
+      ) => Promise<{ success: boolean; backupPath?: string; error?: string }>
+      ccFileRestoreBackup: (scenePath: string) => Promise<{ success: boolean; error?: string }>
     }
   }
 }
