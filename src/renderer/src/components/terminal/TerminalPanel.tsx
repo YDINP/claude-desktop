@@ -494,6 +494,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1234: terminal scheduler
   const [scheduledCmds, setScheduledCmds] = React.useState<Array<{ cmd: string; time: number }>>([])
   const [showScheduler, setShowScheduler] = React.useState(false)
+  // R1240: alias groups
+  const [aliasGroups, setAliasGroups] = React.useState<Record<string, string[]>>({})
+  const [showAliasGroups, setShowAliasGroups] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T13:41:38.999Z
+> 2026-03-13T13:44:37.463Z
 
 ## Critical
 _없음_
@@ -1117,3 +1117,9 @@ _없음_
 - SceneViewPanel 씬 라이트 존재
 - TerminalPanel 터미널 스케줄러 존재
 - SessionList 세션 템플릿 존재
+- ChatPanel 채팅 내보내기 존재
+- InputBar 멀티 커서 존재
+- CocosPanel 빌드 프로필 존재
+- SceneViewPanel 씬 머티리얼 존재
+- TerminalPanel 별칭 그룹 존재
+- SessionList 세션 워크플로우 존재

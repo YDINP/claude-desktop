@@ -276,6 +276,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1226: node tree view
   const [nodeTreeExpanded, setNodeTreeExpanded] = useState<Set<string>>(new Set())
   const [nodeTreeFilter, setNodeTreeFilter] = useState('')
+  // R1238: build profiles
+  const [buildProfiles, setBuildProfiles] = useState<Record<string, object>>({})
+  const [activeBuildProfile, setActiveBuildProfile] = useState<string | null>(null)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
