@@ -399,6 +399,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         handleUngroup()
         e.preventDefault()
       }
+      // Delete / Backspace — 선택 노드 삭제
+      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedUuid || selectedUuids.size > 0)) {
+        e.preventDefault()
+        handleDeleteNode()
+        return
+      }
       // Ctrl+] / Ctrl+[: z-order 변경 (앞으로/뒤로)
       if ((e.ctrlKey || e.metaKey) && (e.key === ']' || e.key === '[') && selectedUuid) {
         e.preventDefault()
@@ -423,7 +429,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate, handleGroup, handleUngroup, selectedUuid, nodeMap, selectedUuids, isDragging, isResizing])
+  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate, handleGroup, handleUngroup, handleDeleteNode, selectedUuid, nodeMap, selectedUuids, isDragging, isResizing])
 
   // ── Space 키 임시 패닝 모드 ────────────────────────────────
   useEffect(() => {
