@@ -815,6 +815,12 @@
 | Round 1437 | cc-file-saver mtime 기반 충돌 감지 + CocosPanel conflict dialog | ✅ |
 | Round 1438 | 씬 로컬 HTTP 공유 (7332포트, 60초 자동 종료, URL 클립보드 복사) | ✅ |
 | Round 1439 | QA Section 391-392 추가 (R1434-R1438 기능 체크, Pass 1325) | ✅ |
+| Round 1440 | SceneView 씬 JSON 임포트 (붙여넣기 모달, UUID 자동 재생성) | ✅ |
+| Round 1441 | cc-file-parser suggestOptimizations (draw call/노드수/깊이/비활성 비율) | ✅ |
+| Round 1442 | SceneView 정렬 가이드라인 고도화 (레이블/중앙선/스냅임계값) | ✅ |
+| Round 1443 | Inspector 북마크 패널 (★ 토글 + 목록 + 색상 태그) | ✅ |
+| Round 1444 | CocosPanel 스크립트 편집기 연동 (✏️ 버튼, 사용중 강조) | ✅ |
+| Round 1445 | QA Section 393-394 추가 (R1440-R1444 기능 체크, Pass 1332) | ✅ |
 
 ## QA 프로세스
 

@@ -55,6 +55,14 @@ interface ValidationIssue {
   nodeName?: string
 }
 
+// R1441: 최적화 제안 인터페이스 (cc-file-parser와 동기화)
+interface OptimizationSuggestion {
+  type: 'performance' | 'memory' | 'structure'
+  severity: 'high' | 'medium' | 'low'
+  message: string
+  affectedUuids?: string[]
+}
+
 function validateScene(root: CCSceneNode): ValidationIssue[] {
   const issues: ValidationIssue[] = []
   const seenUuids = new Map<string, string>() // uuid → name
@@ -300,6 +308,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1418: 씬 유효성 검사 상태
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
   const [showValidationResults, setShowValidationResults] = useState(false)
+  // R1441: 최적화 제안 상태
+  const [optimizationSuggestions, setOptimizationSuggestions] = useState<OptimizationSuggestion[]>([])
   const [mainTab, setMainTab] = useState<'scene' | 'assets' | 'groups' | 'build'>('scene')
   const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
@@ -1507,6 +1517,24 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 const issues = validateScene(sceneFile.root)
                 setValidationIssues(issues)
                 setShowValidationResults(true)
+                // R1441: 최적화 제안 생성
+                let totalN = 0, activeN = 0, maxD = 0
+                const compCounts: Record<string, number> = {}
+                function walk(n: CCSceneNode, d: number) {
+                  totalN++; if (n.active) activeN++; if (d > maxD) maxD = d
+                  for (const c of n.components) compCounts[c.type] = (compCounts[c.type] ?? 0) + 1
+                  for (const ch of n.children) walk(ch, d + 1)
+                }
+                walk(sceneFile.root, 0)
+                const dcTypes = ['cc.Label', 'cc.Sprite', 'cc.Sprite2D', 'cc.RichText', 'cc.Graphics']
+                const dc = dcTypes.reduce((s, t) => s + (compCounts[t] ?? 0), 0)
+                const sug: OptimizationSuggestion[] = []
+                if (dc > 50) sug.push({ type: 'performance', severity: dc > 100 ? 'high' : 'medium', message: `Draw Call이 ${dc}개입니다. Sprite Atlas 사용 권장` })
+                if (totalN > 500) sug.push({ type: 'memory', severity: totalN > 1000 ? 'high' : 'medium', message: `노드가 너무 많습니다 (${totalN}개). 오브젝트 풀링 고려` })
+                if (maxD > 10) sug.push({ type: 'structure', severity: maxD > 20 ? 'high' : 'medium', message: `씬 계층이 깊습니다 (최대 ${maxD}). 구조 단순화 권장` })
+                const inact = totalN - activeN; const ratio = totalN > 0 ? inact / totalN : 0
+                if (ratio > 0.3) sug.push({ type: 'memory', severity: ratio > 0.5 ? 'high' : 'medium', message: `비활성 노드 비율이 높습니다 (${Math.round(ratio * 100)}%). 불필요한 노드 정리 권장` })
+                setOptimizationSuggestions(sug)
               }}
               style={{
                 width: '100%', padding: '3px 0', fontSize: 10, borderRadius: 3,
@@ -1542,6 +1570,27 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* R1441: 최적화 제안 표시 */}
+        {showValidationResults && optimizationSuggestions.length > 0 && (
+          <div style={{ marginTop: 4, borderRadius: 4, border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)' }}>
+            <div style={{ padding: '4px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', fontWeight: 600 }}>
+              {'\uD83D\uDCA1'} 최적화 제안 ({optimizationSuggestions.length})
+            </div>
+            {optimizationSuggestions.map((s, i) => (
+              <div key={i} style={{
+                padding: '3px 8px', fontSize: 9, borderBottom: '1px solid rgba(255,255,255,0.04)',
+                color: s.severity === 'high' ? '#f87171' : s.severity === 'medium' ? '#fbbf24' : '#94a3b8',
+                display: 'flex', alignItems: 'flex-start', gap: 4,
+              }}>
+                <span style={{ flexShrink: 0, fontSize: 8, padding: '1px 3px', borderRadius: 2, background: s.type === 'performance' ? 'rgba(239,68,68,0.15)' : s.type === 'memory' ? 'rgba(251,191,36,0.15)' : 'rgba(96,165,250,0.15)', color: s.type === 'performance' ? '#fca5a5' : s.type === 'memory' ? '#fde68a' : '#93c5fd' }}>
+                  {s.type === 'performance' ? 'PERF' : s.type === 'memory' ? 'MEM' : 'STRUCT'}
+                </span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.message}>{s.message}</span>
+              </div>
+            ))}
           </div>
         )}
 
@@ -4339,6 +4388,57 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
   const [thumbHover, setThumbHover] = useState<{ path: string; x: number; y: number } | null>(null)
   const thumbTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // R1444: 씬에서 사용 중인 스크립트 UUID 집합
+  const usedScriptUuids = useMemo(() => {
+    const used = new Set<string>()
+    if (!sceneFile?.root || !assets) return used
+    // 씬의 모든 컴포넌트 타입에서 __uuid__ 참조 추출
+    function walkNode(node: CCSceneNode): void {
+      for (const comp of node.components) {
+        // 커스텀 스크립트 타입은 __type__에 UUID가 포함됨
+        if (comp.type && !comp.type.startsWith('cc.')) {
+          used.add(comp.type)
+        }
+        // props에서 __uuid__ 참조 확인
+        if (comp.props) {
+          for (const val of Object.values(comp.props)) {
+            if (val && typeof val === 'object') {
+              const r = val as Record<string, unknown>
+              if (typeof r.__uuid__ === 'string') used.add(r.__uuid__)
+            }
+          }
+        }
+      }
+      for (const child of node.children) walkNode(child)
+    }
+    walkNode(sceneFile.root)
+    return used
+  }, [sceneFile?.root, assets])
+
+  // R1444: 스크립트 파일인지 확인
+  const isScriptFile = useCallback((entry: AssetEntry) => {
+    const ext = entry.path.split('.').pop()?.toLowerCase() ?? ''
+    return ['ts', 'js'].includes(ext) || entry.type === 'script'
+  }, [])
+
+  // R1444: 스크립트가 씬에서 사용 중인지 확인
+  const isScriptUsed = useCallback((entry: AssetEntry) => {
+    if (!isScriptFile(entry)) return false
+    // UUID로 직접 매핑 또는 relPath 기반 매핑
+    if (usedScriptUuids.has(entry.uuid)) return true
+    // 스크립트 이름으로 유추 (UUID가 다를 수 있으므로)
+    const scriptName = entry.relPath.split(/[\\/]/).pop()?.replace(/\.(ts|js)$/, '') ?? ''
+    for (const typeId of usedScriptUuids) {
+      if (typeId.includes(scriptName)) return true
+    }
+    return false
+  }, [isScriptFile, usedScriptUuids])
+
+  // R1444: 파일 탭에서 스크립트 열기
+  const handleOpenScript = useCallback((entry: AssetEntry) => {
+    window.dispatchEvent(new CustomEvent('cc:open-file', { detail: entry.path }))
+  }, [])
+
   // R1398: .prefab 파일을 현재 씬에 인스턴스화
   const handleInstantiatePrefab = useCallback(async (entry: AssetEntry) => {
     if (!sceneFile?.root || !sceneFile._raw) return
@@ -4564,6 +4664,13 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; handleThumbLeave() }}
                   onMouseMove={handleThumbMove}
                 >
+                  {/* R1444: 스크립트 사용 상태 dot */}
+                  {isScriptFile(file) && (
+                    <span style={{
+                      width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                      background: isScriptUsed(file) ? '#22c55e' : '#6b7280',
+                    }} title={isScriptUsed(file) ? '씬에서 사용 중' : '미사용'} />
+                  )}
                   <span style={{ flexShrink: 0 }}>{getAssetFileIcon(fileName)}</span>
                   <span style={{
                     flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -4571,6 +4678,18 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
                   }}>
                     {copied === file.uuid ? '✓ 복사됨' : fileName}
                   </span>
+                  {/* R1444: 스크립트 편집 버튼 */}
+                  {isScriptFile(file) && (
+                    <button
+                      onClick={e => { e.stopPropagation(); handleOpenScript(file) }}
+                      onDoubleClick={e => { e.stopPropagation(); handleOpenScript(file) }}
+                      title="파일 탭에서 편집"
+                      style={{
+                        fontSize: 9, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
+                        borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
+                      }}
+                    >{'\u270F\uFE0F'}</button>
+                  )}
                   {/* R1398: .prefab 트리 뷰 인스턴스화 버튼 */}
                   {file.type === 'prefab' && sceneFile?.root && (
                     <button
@@ -4682,6 +4801,13 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; handleThumbLeave() }}
                 onMouseMove={handleThumbMove}
               >
+                {/* R1444: 스크립트 사용 상태 dot (그룹 뷰) */}
+                {isScriptFile(item) && (
+                  <span style={{
+                    width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                    background: isScriptUsed(item) ? '#22c55e' : '#6b7280',
+                  }} title={isScriptUsed(item) ? '씬에서 사용 중' : '미사용'} />
+                )}
                 <span style={{
                   flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   color: copied === item.uuid ? 'var(--accent)' : 'var(--text-primary)',
@@ -4695,6 +4821,18 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
                 }}>
                   {item.relPath.split(/[\\/]/).slice(0, -1).join('/')}
                 </span>
+                {/* R1444: 스크립트 편집 버튼 (그룹 뷰) */}
+                {isScriptFile(item) && (
+                  <button
+                    onClick={e => { e.stopPropagation(); handleOpenScript(item) }}
+                    onDoubleClick={e => { e.stopPropagation(); handleOpenScript(item) }}
+                    title="파일 탭에서 편집"
+                    style={{
+                      fontSize: 9, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
+                      borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
+                    }}
+                  >{'\u270F\uFE0F'}</button>
+                )}
                 {/* R1398: .prefab 인스턴스화 버튼 */}
                 {item.type === 'prefab' && sceneFile?.root && (
                   <button

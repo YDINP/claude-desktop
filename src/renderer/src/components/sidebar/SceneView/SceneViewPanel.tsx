@@ -244,6 +244,20 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [shareLoading, setShareLoading] = useState(false)
 
+  // ── R1440: 씬 JSON 임포트 모달 ────────────────────────────
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [importJson, setImportJson] = useState('')
+  const [importError, setImportError] = useState<string | null>(null)
+
+  // ── R1442: 정렬 가이드라인 고도화 ─────────────────────────
+  const [showCenterGuide, setShowCenterGuide] = useState(false)
+  const [snapThreshold, setSnapThreshold] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem('align-snap-threshold') ?? '8') } catch { return 8 }
+  })
+  useEffect(() => {
+    try { localStorage.setItem('align-snap-threshold', String(snapThreshold)) } catch { /* ignore */ }
+  }, [snapThreshold])
+
   // ── R1424: 다중 씬 비교 뷰 ─────────────────────────────────
   const [compareMode, setCompareMode] = useState(false)
   const [compareScenePath, setCompareScenePath] = useState<string | null>(null)
@@ -2851,6 +2865,47 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         >
           {shareLoading ? '...' : shareUrl ? '✓ 복사됨' : '\u{1F517}'}
         </button>
+        {/* R1440: 씬 JSON 임포트 버튼 */}
+        <button
+          onClick={() => { setShowImportModal(true); setImportJson(''); setImportError(null) }}
+          title="외부 씬 JSON 붙여넣기로 노드 임포트"
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: showImportModal ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)',
+            border: showImportModal ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: showImportModal ? '#4ade80' : '#cbd5e1',
+          }}
+        >
+          {'\uD83D\uDCE5'} 임포트
+        </button>
+        {/* R1442: Center Guide 토글 */}
+        <button
+          onClick={() => setShowCenterGuide(v => !v)}
+          title={showCenterGuide ? '씬 중앙선 숨기기' : '씬 중앙선 표시 (0,0 기준)'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: showCenterGuide ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)',
+            border: showCenterGuide ? '1px solid rgba(96,165,250,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: showCenterGuide ? '#60a5fa' : '#cbd5e1',
+          }}
+        >
+          {'\u271A'}
+        </button>
+        {/* R1442: 스냅 거리 임계값 설정 */}
+        <select
+          value={snapThreshold}
+          onChange={e => setSnapThreshold(Number(e.target.value))}
+          title={`정렬 스냅 거리: ${snapThreshold}px`}
+          style={{
+            fontSize: 9, padding: '2px 4px', borderRadius: 3, cursor: 'pointer',
+            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
+            color: '#cbd5e1',
+          }}
+        >
+          {[4, 8, 12, 16].map(v => (
+            <option key={v} value={v}>{v}px</option>
+          ))}
+        </select>
         {/* R1428: 비활성 노드 클릭 방지 토글 */}
         <button
           onClick={() => setBlockInactiveClick(v => !v)}
@@ -3086,18 +3141,33 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             )
           })()}
 
-          {/* R1392: 정렬 가이드라인 (스마트 가이드) — X=수직선, Y=수평선, #4af 스타일 */}
-          {alignGuides.length > 0 && (() => {
+          {/* R1392+R1442: 정렬 가이드라인 (스마트 가이드) — 거리 레이블 + 중앙선 */}
+          {(() => {
             const ox = DESIGN_W / 2 * view.zoom + view.offsetX
             const oy = DESIGN_H / 2 * view.zoom + view.offsetY
             return <g style={{ pointerEvents: 'none' }}>
+              {/* R1442: 씬 중앙선 (0,0 기준) 항상 표시 옵션 */}
+              {showCenterGuide && (
+                <>
+                  <line x1={ox} y1={0} x2={ox} y2="100%" stroke="rgba(251,191,36,0.35)" strokeWidth={1} strokeDasharray="6 3" />
+                  <line x1={0} y1={oy} x2="100%" y2={oy} stroke="rgba(251,191,36,0.35)" strokeWidth={1} strokeDasharray="6 3" />
+                  <text x={ox + 4} y={oy - 4} fill="rgba(251,191,36,0.6)" fontSize={8} fontFamily="monospace">0,0</text>
+                </>
+              )}
+              {/* 정렬 가이드 + R1442 거리 레이블 */}
               {alignGuides.map((g, i) => {
                 if (g.x !== undefined) {
                   const px = g.x * view.zoom + ox
-                  return <line key={i} x1={px} y1={0} x2={px} y2="100%" stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
+                  return <g key={i}>
+                    <line x1={px} y1={0} x2={px} y2="100%" stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
+                    <text x={px + 3} y={12} fill="#4af" fontSize={8} fontFamily="monospace" opacity={0.8}>{Math.round(g.x)}px</text>
+                  </g>
                 } else if (g.y !== undefined) {
                   const py = -g.y * view.zoom + oy
-                  return <line key={i} x1={0} y1={py} x2="100%" y2={py} stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
+                  return <g key={i}>
+                    <line x1={0} y1={py} x2="100%" y2={py} stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
+                    <text x={4} y={py - 3} fill="#4af" fontSize={8} fontFamily="monospace" opacity={0.8}>{Math.round(g.y)}px</text>
+                  </g>
                 }
                 return null
               })}
@@ -5018,6 +5088,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             console.error('[ApplyToCocos]', e)
           }
         }}
+        bookmarkedUuids={bookmarkedUuids}
+        onToggleBookmark={(uuid) => {
+          setBookmarkedUuids(prev => {
+            const next = new Set(prev)
+            if (next.has(uuid)) next.delete(uuid); else next.add(uuid)
+            return next
+          })
+        }}
+        nodeColorTags={nodeColorTags}
+        onSelectNode={(uuid) => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
       />
 
       {/* SVG 우클릭 컨텍스트 메뉴 */}
@@ -5237,6 +5317,107 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </>
         )
       })()}
+
+      {/* R1440: 씬 JSON 임포트 모달 */}
+      {showImportModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 10000,
+          background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }} onClick={() => setShowImportModal(false)}>
+          <div
+            style={{
+              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+              borderRadius: 8, padding: 16, width: 400, maxHeight: '70vh',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
+              {'\uD83D\uDCE5'} 씬 JSON 임포트
+            </div>
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 6 }}>
+              CCSceneNode JSON을 붙여넣으세요. UUID 충돌 시 자동 재생성됩니다.
+            </div>
+            <textarea
+              value={importJson}
+              onChange={e => { setImportJson(e.target.value); setImportError(null) }}
+              placeholder='{"uuid":"...","name":"Node","active":true,...}'
+              style={{
+                width: '100%', height: 160, fontSize: 10, fontFamily: 'monospace',
+                background: 'var(--bg-input)', color: 'var(--text-primary)',
+                border: importError ? '1px solid var(--error, #f85149)' : '1px solid var(--border)',
+                borderRadius: 4, padding: 8, resize: 'vertical', boxSizing: 'border-box',
+              }}
+            />
+            {importError && (
+              <div style={{ fontSize: 9, color: 'var(--error, #f85149)', marginTop: 4 }}>{importError}</div>
+            )}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10 }}>
+              <button
+                onClick={() => setShowImportModal(false)}
+                style={{
+                  fontSize: 10, padding: '4px 12px', borderRadius: 4, cursor: 'pointer',
+                  background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)',
+                }}
+              >취소</button>
+              <button
+                onClick={() => {
+                  try {
+                    const parsed = JSON.parse(importJson)
+                    // validate minimal CCSceneNode shape
+                    if (!parsed || typeof parsed !== 'object') throw new Error('JSON 객체가 아닙니다')
+                    const node = parsed as Record<string, unknown>
+                    if (typeof node.name !== 'string' && typeof node.uuid !== 'string') {
+                      throw new Error('유효한 CCSceneNode가 아닙니다 (name/uuid 필수)')
+                    }
+                    // UUID 충돌 검사 → 자동 재생성
+                    const existingUuids = new Set<string>()
+                    nodeMap.forEach((_, uuid) => existingUuids.add(uuid))
+                    function regenerateUuids(obj: Record<string, unknown>): void {
+                      if (typeof obj.uuid === 'string' && existingUuids.has(obj.uuid)) {
+                        obj.uuid = `import-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+                      }
+                      if (Array.isArray(obj.children)) {
+                        for (const child of obj.children) {
+                          if (child && typeof child === 'object') regenerateUuids(child as Record<string, unknown>)
+                        }
+                      }
+                    }
+                    regenerateUuids(node)
+                    // 노드를 현재 씬에 삽입 — 선택 상태로 설정
+                    const uuid = (node.uuid as string) ?? `import-${Date.now()}`
+                    const name = (node.name as string) ?? 'Imported'
+                    const pos = (node.position as { x?: number; y?: number }) ?? {}
+                    const size = (node.size as { x?: number; y?: number; width?: number; height?: number }) ?? {}
+                    const w = size.width ?? size.x ?? 100
+                    const h = size.height ?? size.y ?? 100
+                    updateNode(uuid, {
+                      name,
+                      x: pos.x ?? 0,
+                      y: pos.y ?? 0,
+                      width: typeof w === 'number' ? w : 100,
+                      height: typeof h === 'number' ? h : 100,
+                      active: (node.active as boolean) ?? true,
+                    })
+                    setSelectedUuid(uuid)
+                    setSelectedUuids(new Set([uuid]))
+                    setShowImportModal(false)
+                    setImportJson('')
+                  } catch (err: unknown) {
+                    setImportError((err as Error).message ?? 'JSON 파싱 실패')
+                  }
+                }}
+                disabled={!importJson.trim()}
+                style={{
+                  fontSize: 10, padding: '4px 12px', borderRadius: 4, cursor: 'pointer',
+                  background: 'var(--accent)', border: 'none', color: '#fff',
+                  opacity: importJson.trim() ? 1 : 0.5,
+                }}
+              >임포트</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

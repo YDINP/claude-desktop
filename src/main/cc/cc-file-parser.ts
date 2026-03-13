@@ -606,6 +606,66 @@ function buildRefGraphFromTree(node: CCSceneNode, graph: Map<string, string[]>):
   for (const child of node.children) buildRefGraphFromTree(child, graph)
 }
 
+// ── R1441: 씬 최적화 제안 ─────────────────────────────────────────────────
+
+export interface OptimizationSuggestion {
+  type: 'performance' | 'memory' | 'structure'
+  severity: 'high' | 'medium' | 'low'
+  message: string
+  affectedUuids?: string[]
+}
+
+/**
+ * R1441: 씬 분석 결과 기반 최적화 제안 생성
+ * - draw call 50 초과 → Sprite Atlas 권장
+ * - 노드 500 초과 → 오브젝트 풀링 권장
+ * - 깊이 10 초과 → 구조 단순화 권장
+ * - 비활성 노드 30% 초과 → 불필요 노드 정리 권장
+ */
+export function suggestOptimizations(analysis: CCSceneAnalysis): OptimizationSuggestion[] {
+  const suggestions: OptimizationSuggestion[] = []
+
+  // draw call 50 초과
+  if (analysis.estimatedDrawCalls > 50) {
+    suggestions.push({
+      type: 'performance',
+      severity: analysis.estimatedDrawCalls > 100 ? 'high' : 'medium',
+      message: `Draw Call이 ${analysis.estimatedDrawCalls}개입니다. Sprite Atlas 사용 권장`,
+    })
+  }
+
+  // 노드 500 초과
+  if (analysis.totalNodes > 500) {
+    suggestions.push({
+      type: 'memory',
+      severity: analysis.totalNodes > 1000 ? 'high' : 'medium',
+      message: `노드가 너무 많습니다 (${analysis.totalNodes}개). 오브젝트 풀링 고려`,
+    })
+  }
+
+  // 깊이 10 초과
+  if (analysis.maxDepth > 10) {
+    suggestions.push({
+      type: 'structure',
+      severity: analysis.maxDepth > 20 ? 'high' : 'medium',
+      message: `씬 계층이 깊습니다 (최대 ${analysis.maxDepth}). 구조 단순화 권장`,
+    })
+  }
+
+  // 비활성 노드 30% 초과
+  const inactiveCount = analysis.totalNodes - analysis.activeNodes
+  const inactiveRatio = analysis.totalNodes > 0 ? inactiveCount / analysis.totalNodes : 0
+  if (inactiveRatio > 0.3) {
+    suggestions.push({
+      type: 'memory',
+      severity: inactiveRatio > 0.5 ? 'high' : 'medium',
+      message: `비활성 노드 비율이 높습니다 (${Math.round(inactiveRatio * 100)}%). 불필요한 노드 정리 권장`,
+    })
+  }
+
+  return suggestions
+}
+
 /**
  * R1432: 참조 그래프에서 순환 참조 탐지
  * @returns 순환에 포함된 UUID 배열 (순환 없으면 빈 배열)

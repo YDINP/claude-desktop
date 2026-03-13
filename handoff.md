@@ -1,13 +1,24 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1439 완료 — Phase DD14 R1434~1439)
+> 마지막 업데이트: 2026-03-14 (Round 1445 완료 — Phase DD15 R1440~1445)
 
 ## 현재 상태
-- 마지막 커밋: Round 1434~1439 (에셋썸네일/JSON뷰어/컴포복사/충돌감지/씬공유/QA)
+- 마지막 커밋: Round 1440~1445 (씬임포트/최적화제안/정렬강화/북마크패널/스크립트편집/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1325
+- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1332
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
+
+## Phase DD15 R1440~1445 (2026-03-14)
+
+| 라운드 | 기능 |
+|--------|------|
+| R1440 | SceneView 씬 JSON 임포트 (붙여넣기 모달, UUID 자동 재생성) |
+| R1441 | cc-file-parser suggestOptimizations (draw call/노드수/깊이/비활성 비율) + CocosPanel 표시 |
+| R1442 | SceneView 정렬 가이드라인 고도화 (거리 레이블/중앙선/스냅임계값 4/8/12/16px) |
+| R1443 | Inspector 북마크 패널 (★ 토글 + 목록 + 색상 태그 연동) |
+| R1444 | CocosPanel 스크립트 편집기 연동 (✏️ 버튼 + 사용중 green/미사용 gray dot + cc:open-file 이벤트) |
+| R1445 | QA Section 393-394 추가 (R1440-R1444 기능 체크, Pass 1332) |
 
 ## Phase DD14 R1434~1439 (2026-03-14)
 

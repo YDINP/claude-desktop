@@ -21,6 +21,11 @@ interface SceneInspectorProps {
   nodeMap?: Map<string, SceneNode>
   onSelectParent?: (uuid: string) => void
   focusNameTrigger?: number
+  // R1443: 북마크 패널
+  bookmarkedUuids?: Set<string>
+  onToggleBookmark?: (uuid: string) => void
+  nodeColorTags?: Record<string, string>
+  onSelectNode?: (uuid: string) => void
 }
 
 // 개별 수치 입력 필드
@@ -166,7 +171,7 @@ function ChildList({ childUuids, nodeMap, onSelect }: { childUuids: string[]; no
   )
 }
 
-export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, multiSelectedUuids, onBatchUpdate, onRename, onMemo, onTagsUpdate, onLabelColorUpdate, onApplyToCocos, onComponentClick, connected, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, multiSelectedUuids, onBatchUpdate, onRename, onMemo, onTagsUpdate, onLabelColorUpdate, onApplyToCocos, onComponentClick, connected, nodeMap, onSelectParent, focusNameTrigger, bookmarkedUuids, onToggleBookmark, nodeColorTags, onSelectNode }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -1565,6 +1570,63 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             ))}
           </div>
         </>
+      )}
+
+      {/* R1443: 북마크 패널 */}
+      {bookmarkedUuids && onToggleBookmark && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <SectionHeader label="북마크" />
+            <button
+              onClick={() => onToggleBookmark(node.uuid)}
+              title={bookmarkedUuids.has(node.uuid) ? '북마크 해제' : '북마크 추가'}
+              style={{
+                fontSize: 12, background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                color: bookmarkedUuids.has(node.uuid) ? '#fbbf24' : 'var(--text-muted)',
+              }}
+            >
+              {bookmarkedUuids.has(node.uuid) ? '\u2605' : '\u2606'}
+            </button>
+          </div>
+          {bookmarkedUuids.size > 0 && (
+            <div style={{ maxHeight: 100, overflowY: 'auto' }}>
+              {[...bookmarkedUuids].map(uuid => {
+                const bmNode = nodeMap?.get(uuid)
+                if (!bmNode) return null
+                const tagColor = nodeColorTags?.[uuid]
+                return (
+                  <div
+                    key={uuid}
+                    onClick={() => onSelectNode?.(uuid)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 4, padding: '2px 4px',
+                      fontSize: 9, cursor: 'pointer', borderRadius: 3,
+                      background: uuid === node.uuid ? 'rgba(88,166,255,0.12)' : undefined,
+                    }}
+                    onMouseEnter={e => { if (uuid !== node.uuid) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)' }}
+                    onMouseLeave={e => { if (uuid !== node.uuid) (e.currentTarget as HTMLElement).style.background = '' }}
+                  >
+                    {tagColor && (
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: tagColor, flexShrink: 0 }} />
+                    )}
+                    <span style={{ color: '#fbbf24', flexShrink: 0, fontSize: 8 }}>{'\u2605'}</span>
+                    <span style={{
+                      flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      color: 'var(--text-primary)',
+                    }}>
+                      {bmNode.name || '(unnamed)'}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          {bookmarkedUuids.size === 0 && (
+            <div style={{ fontSize: 8, color: 'var(--text-muted)', padding: '2px 4px' }}>
+              {'\u2606'} 버튼으로 노드를 북마크하세요
+            </div>
+          )}
+        </div>
       )}
 
       {/* JSON 내보내기 */}

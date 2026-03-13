@@ -679,6 +679,16 @@ function AppContent() {
     return () => window.removeEventListener('settings:changed', onSettingsChanged)
   }, [])
 
+  // R1444: CocosPanel 스크립트 편집기 연동 — 글로벌 이벤트로 파일 탭 열기
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const path = (e as CustomEvent<string>).detail
+      if (path) openFile(path)
+    }
+    window.addEventListener('cc:open-file', handler)
+    return () => window.removeEventListener('cc:open-file', handler)
+  }, [])
+
   // ── Sidebar resize & collapse ──
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => localStorage.getItem('sidebar-collapsed') === 'true'

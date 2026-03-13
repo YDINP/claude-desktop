@@ -15192,6 +15192,82 @@ if (existsSync(sceneViewPath)) {
   }
 }
 
+// ── Section 393: R1440/R1441/R1442 기능 체크 ───────────────
+console.log('\n## 393. Phase DD15 R1440~R1442 기능 체크')
+
+// R1440: SceneView 씬 JSON 임포트
+if (existsSync(sceneViewPath)) {
+  const svp1440 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1440.includes('R1440') && svp1440.includes('showImportModal') && svp1440.includes('importJson') && svp1440.includes('임포트') && svp1440.includes('regenerateUuids')) {
+    log('pass', 'R1440', 'SceneView 씬 JSON 임포트 모달 (붙여넣기, UUID 재생성)')
+  } else {
+    log('warning', 'R1440', 'SceneView 씬 JSON 임포트 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1441: cc-file-parser suggestOptimizations
+const parserPath1441 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parserPath1441)) {
+  const parser1441 = readFileSync(parserPath1441, 'utf-8')
+  if (parser1441.includes('R1441') && parser1441.includes('suggestOptimizations') && parser1441.includes('OptimizationSuggestion') && parser1441.includes('Draw Call') && parser1441.includes('오브젝트 풀링') && parser1441.includes('구조 단순화') && parser1441.includes('비활성 노드')) {
+    log('pass', 'R1441', 'cc-file-parser suggestOptimizations (draw call/노드수/깊이/비활성 비율)')
+  } else {
+    log('warning', 'R1441', 'suggestOptimizations 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1441: CocosPanel 최적화 제안 표시
+if (existsSync(cp1398Path)) {
+  const cp1441 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1441.includes('R1441') && cp1441.includes('optimizationSuggestions') && cp1441.includes('최적화 제안')) {
+    log('pass', 'R1441-UI', 'CocosPanel 최적화 제안 표시 (씬 검사 연동)')
+  } else {
+    log('warning', 'R1441-UI', 'CocosPanel 최적화 제안 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1442: SceneView 정렬 가이드라인 고도화
+if (existsSync(sceneViewPath)) {
+  const svp1442 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1442.includes('R1442') && svp1442.includes('showCenterGuide') && svp1442.includes('snapThreshold') && svp1442.includes('align-snap-threshold') && svp1442.includes('px</text>')) {
+    log('pass', 'R1442', 'SceneView 정렬 가이드라인 고도화 (레이블/중앙선/스냅임계값)')
+  } else {
+    log('warning', 'R1442', 'SceneView 정렬 가이드라인 고도화 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// ── Section 394: R1443/R1444 기능 체크 ───────────────
+console.log('\n## 394. Phase DD15 R1443~R1444 기능 체크')
+
+// R1443: Inspector 북마크 패널
+const inspectorPath1443 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(inspectorPath1443)) {
+  const insp1443 = readFileSync(inspectorPath1443, 'utf-8')
+  if (insp1443.includes('R1443') && insp1443.includes('bookmarkedUuids') && insp1443.includes('onToggleBookmark') && insp1443.includes('nodeColorTags') && insp1443.includes('북마크')) {
+    log('pass', 'R1443', 'Inspector 북마크 패널 (★ 토글 + 목록 + 색상 태그)')
+  } else {
+    log('warning', 'R1443', 'Inspector 북마크 패널 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1444: CocosPanel 스크립트 편집기 연동
+if (existsSync(cp1398Path)) {
+  const cp1444 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1444.includes('R1444') && cp1444.includes('isScriptFile') && cp1444.includes('isScriptUsed') && cp1444.includes('handleOpenScript') && cp1444.includes('cc:open-file') && cp1444.includes('#22c55e') && cp1444.includes('#6b7280')) {
+    log('pass', 'R1444', 'CocosPanel 스크립트 편집기 연동 (편집 버튼 + 사용중 강조 green/gray dot)')
+  } else {
+    log('warning', 'R1444', 'CocosPanel 스크립트 편집기 연동 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+// R1444: App.tsx cc:open-file 이벤트 리스너
+if (existsSync(appPath)) {
+  const app1444 = readFileSync(appPath, 'utf-8')
+  if (app1444.includes('R1444') && app1444.includes('cc:open-file') && app1444.includes('openFile')) {
+    log('pass', 'R1444-App', 'App.tsx cc:open-file 이벤트 리스너')
+  } else {
+    log('warning', 'R1444-App', 'App.tsx cc:open-file 리스너 없음', 'App.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
