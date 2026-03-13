@@ -64,6 +64,19 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       return next
     })
   }, [])
+  const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('scene-locked') ?? '[]')) }
+    catch { return new Set() }
+  })
+  const toggleLocked = useCallback((uuid: string) => {
+    setLockedUuids(prev => {
+      const next = new Set(prev)
+      if (next.has(uuid)) next.delete(uuid)
+      else next.add(uuid)
+      localStorage.setItem('scene-locked', JSON.stringify([...next]))
+      return next
+    })
+  }, [])
   const nodeMap = useMemo(() => {
     const map = new Map<string, CCSceneNode>()
     if (!sceneFile?.root) return map
@@ -649,6 +662,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               hideInactive={hideInactive}
               favorites={favorites}
               onToggleFavorite={toggleFavorite}
+              lockedUuids={lockedUuids}
+              onToggleLocked={toggleLocked}
             />
           </div>
           {/* 노드 인스펙터 */}
@@ -709,7 +724,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked,
 }: {
   node: CCSceneNode
   depth: number
@@ -723,6 +738,8 @@ function CCFileSceneTree({
   hideInactive?: boolean
   favorites?: Set<string>
   onToggleFavorite?: (uuid: string) => void
+  lockedUuids?: Set<string>
+  onToggleLocked?: (uuid: string) => void
 }) {
   const [collapsed, setCollapsed] = useState(depth > 2)
   const [isDragOver, setIsDragOver] = useState(false)
@@ -826,6 +843,19 @@ function CCFileSceneTree({
             className={favorites?.has(node.uuid) ? 'fav-star is-fav' : 'fav-star'}
           >★</span>
         )}
+        {!isRoot && (
+          <span
+            onClick={e => { e.stopPropagation(); onToggleLocked?.(node.uuid) }}
+            title={lockedUuids?.has(node.uuid) ? '잠금 해제' : '잠금'}
+            style={{
+              fontSize: 9, cursor: 'pointer', flexShrink: 0,
+              color: '#f87171',
+              opacity: lockedUuids?.has(node.uuid) ? 1 : 0,
+              transition: 'opacity 0.1s',
+            }}
+            className={lockedUuids?.has(node.uuid) ? 'lock-icon is-locked' : 'lock-icon'}
+          >🔒</span>
+        )}
         {node.components.length > 0 && (() => {
           const typeIconMap: Record<string, string> = {
             'cc.Sprite': '🖼', 'cc.Label': 'T', 'cc.RichText': 'T',
@@ -861,6 +891,8 @@ function CCFileSceneTree({
           hideInactive={hideInactive}
           favorites={favorites}
           onToggleFavorite={onToggleFavorite}
+          lockedUuids={lockedUuids}
+          onToggleLocked={onToggleLocked}
         />
       ))}
     </div>
@@ -1009,8 +1041,10 @@ function CCFileNodeInspector({
     }
   }, [node, sceneFile, saveScene, onUpdate])
 
-  // 노드 교체 시 draft + 컴포넌트 접힘 상태 초기화
-  useMemo(() => { setDraft({ ...node }); setCollapsedComps(new Set()) }, [node.uuid])
+  const [propSearch, setPropSearch] = useState('')
+
+  // 노드 교체 시 draft + 컴포넌트 접힘 상태 + propSearch 초기화
+  useMemo(() => { setDraft({ ...node }); setCollapsedComps(new Set()); setPropSearch('') }, [node.uuid])
   const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
   const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null)
@@ -1395,14 +1429,33 @@ function CCFileNodeInspector({
               onMouseLeave={e => (e.currentTarget.style.color = '#666')}
             >✕</span>
           </div>
-          {!collapsedComps.has(ci) && Object.entries(comp.props).filter(([k]) => {
-            // 내부 엔진 props 숨김: objFlags, enabled, playOnLoad, 등
+          {!collapsedComps.has(ci) && (() => {
             const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
-            if (HIDDEN.has(k)) return false
-            // 배열/Map 타입 (cc.Button clickEvents 등) 숨김
-            if (Array.isArray(v)) return false
-            return true
-          }).map(([k, v]) => {
+            const allProps = Object.entries(comp.props).filter(([k, v]) => {
+              if (HIDDEN.has(k)) return false
+              if (Array.isArray(v)) return false
+              return true
+            })
+            const showFilter = allProps.length >= 3
+            const filteredProps = propSearch
+              ? allProps.filter(([k]) => k.toLowerCase().includes(propSearch.toLowerCase()))
+              : allProps
+            return (
+              <>
+                {showFilter && (
+                  <input
+                    placeholder="Filter properties..."
+                    value={propSearch}
+                    onChange={e => setPropSearch(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Escape') setPropSearch('') }}
+                    style={{
+                      width: '100%', boxSizing: 'border-box', marginBottom: 4,
+                      background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px', fontSize: 9,
+                    }}
+                  />
+                )}
+                {filteredProps.map(([k, v]) => {
             if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
               const uuid = (v as { __uuid__: string }).__uuid__
               return (
@@ -1595,7 +1648,10 @@ function CCFileNodeInspector({
                 )}
               </div>
             )
-          })}
+                })}
+              </>
+            )
+          })()}
         </div>
       ))
       })()}

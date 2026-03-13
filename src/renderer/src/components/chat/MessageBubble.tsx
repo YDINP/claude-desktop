@@ -788,7 +788,7 @@ interface ContextMenu {
   y: number
 }
 
-const REACTION_EMOJIS = ['👍', '❤️', '😂', '🤔', '🎉']
+const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '😢']
 
 export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onSetNote, onPrevAlt, altIndex, altCount }: {
   msg: ChatMessage

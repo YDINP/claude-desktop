@@ -103,6 +103,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     try { return new Set(JSON.parse(localStorage.getItem('scene-pinned') ?? '[]')) }
     catch { return new Set() }
   })
+  const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('scene-locked') ?? '[]')) }
+    catch { return new Set() }
+  })
   const viewHistoryRef = useRef<ViewTransform[]>([])
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
@@ -761,11 +765,22 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     })
   }, [])
 
+  const toggleLocked = useCallback((uuid: string) => {
+    setLockedUuids(prev => {
+      const next = new Set(prev)
+      if (next.has(uuid)) next.delete(uuid)
+      else next.add(uuid)
+      localStorage.setItem('scene-locked', JSON.stringify([...next]))
+      return next
+    })
+  }, [])
+
   const handleNodeMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
     e.stopPropagation()
     if (e.button !== 0) return
     // 잠긴 노드는 드래그/선택 불가
     if (nodeMap.get(uuid)?.locked) return
+    if (lockedUuids.has(uuid)) return
     // 핀된 노드는 드래그/선택 불가
     if (pinnedUuids.has(uuid)) return
 
@@ -828,7 +843,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       groupOffsets,
     }
     setIsDragging(true)
-  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids])
+  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids, lockedUuids])
 
   const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w') => {
     e.stopPropagation()
@@ -1865,7 +1880,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             }
           }}
           onRename={handleRename}
-          onToggleLock={(uuid, locked) => updateNode(uuid, { locked })}
+          onToggleLock={(uuid, locked) => {
+            updateNode(uuid, { locked })
+            setLockedUuids(prev => {
+              const next = new Set(prev)
+              if (locked) next.add(uuid)
+              else next.delete(uuid)
+              localStorage.setItem('scene-locked', JSON.stringify([...next]))
+              return next
+            })
+          }}
           onToggleVisible={(uuid, visible) => updateNode(uuid, { visible })}
         />
       )}
@@ -2077,7 +2101,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   hasChildren={node.childUuids.length > 0}
                   collapsed={collapsedUuids.has(uuid)}
                   bookmarked={bookmarkedUuids.has(uuid)}
-                  locked={node.locked === true}
+                  locked={node.locked === true || lockedUuids.has(uuid)}
                   pinned={pinnedUuids.has(uuid)}
                   highlighted={matchedUuids.has(uuid)}
                   designWidth={DESIGN_W}

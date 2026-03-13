@@ -608,6 +608,10 @@
 | Round 562 | 채팅 파일 드래그&드롭 첨부 (readFileAsText, 100KB 제한) | ✅ |
 | Round 563 | SceneTree 노드 즐겨찾기 — ★ 토글 + 핀 섹션 (localStorage) | ✅ |
 | Round 564 | QA Section 110 추가 (R561/R562/R563, Pass 473) | ✅ |
+| Round 565 | Inspector 프로퍼티 키워드 검색 필터 (propSearch, Escape 초기화) | ✅ |
+| Round 566 | 채팅 메시지 이모지 반응 (5종 토글, localStorage 저장) | ✅ |
+| Round 567 | 씬뷰 노드 잠금 — lockedUuids + 🔒 아이콘 + 차단 (localStorage) | ✅ |
+| Round 568 | QA Section 111 추가 (R565/R566/R567, Pass 476) | ✅ |
 
 ## QA 프로세스
 

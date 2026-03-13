@@ -5430,6 +5430,43 @@ if (existsSync(cp563Path)) {
   }
 }
 
+// ── Section 111: Phase DD9 R565~567 기능 체크 ────────────────
+console.log('\n## 111. Phase DD9 R565~567 기능 체크')
+// R565: Inspector 프로퍼티 검색
+const cp565Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp565Path)) {
+  const cp565 = readFileSync(cp565Path, 'utf-8')
+  if (cp565.includes('propSearch') && cp565.includes('setPropSearch')) {
+    log('pass', 'R565', 'Inspector 프로퍼티 검색 필터 존재')
+  } else {
+    log('warning', 'R565', 'Inspector 프로퍼티 검색 필터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R566: 채팅 메시지 이모지 반응
+const mb566Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+const cs566Path = join(ROOT, 'src/renderer/src/stores/chat-store.ts')
+if (existsSync(mb566Path) && existsSync(cs566Path)) {
+  const mb566 = readFileSync(mb566Path, 'utf-8')
+  const cs566 = readFileSync(cs566Path, 'utf-8')
+  if (mb566.includes('reaction') && cs566.includes('toggleReaction')) {
+    log('pass', 'R566', '채팅 메시지 이모지 반응 존재')
+  } else {
+    log('warning', 'R566', '채팅 메시지 이모지 반응 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R567: 씬뷰 노드 잠금
+const svp567Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp567Path)) {
+  const svp567 = readFileSync(svp567Path, 'utf-8')
+  if (svp567.includes('lockedUuids') && svp567.includes('scene-locked')) {
+    log('pass', 'R567', '씬뷰 노드 잠금 기능 존재')
+  } else {
+    log('warning', 'R567', '씬뷰 노드 잠금 기능 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

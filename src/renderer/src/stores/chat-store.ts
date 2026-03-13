@@ -237,20 +237,38 @@ export function useChatStore() {
     )
   }, [])
 
+  const REACTIONS_LS_KEY = 'chat-reactions'
+
+  const loadReactionsFromStorage = (): Record<string, string[]> => {
+    try {
+      return JSON.parse(localStorage.getItem(REACTIONS_LS_KEY) ?? '{}')
+    } catch { return {} }
+  }
+
+  const saveReactionsToStorage = (msgId: string, reactions: string[]) => {
+    try {
+      const all = loadReactionsFromStorage()
+      if (reactions.length === 0) {
+        delete all[msgId]
+      } else {
+        all[msgId] = reactions
+      }
+      localStorage.setItem(REACTIONS_LS_KEY, JSON.stringify(all))
+    } catch { /* ignore */ }
+  }
+
   const toggleReaction = useCallback((messageId: string, emoji: string) => {
     setMessages(state =>
       state.map(m => {
         if (m.id !== messageId) return m
         const reactions = m.reactions ?? []
         const exists = reactions.includes(emoji)
-        return {
-          ...m,
-          reactions: exists
-            ? reactions.filter(r => r !== emoji)
-            : [...reactions, emoji],
-        }
+        const next = exists ? reactions.filter(r => r !== emoji) : [...reactions, emoji]
+        saveReactionsToStorage(messageId, next)
+        return { ...m, reactions: next }
       })
     )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const setMessageNote = useCallback((messageId: string, note: string) => {
@@ -298,10 +316,18 @@ export function useChatStore() {
   }, [])
 
   const hydrate = useCallback((msgs: ChatMessage[], sid: string | null) => {
-    setMessages(msgs)
+    const stored = loadReactionsFromStorage()
+    const merged = msgs.map(m => {
+      const ls = stored[m.id]
+      if (!ls?.length) return m
+      const merged = [...new Set([...(m.reactions ?? []), ...ls])]
+      return { ...m, reactions: merged }
+    })
+    setMessages(merged)
     setSessionId(sid)
     setIsStreaming(false)
     setPendingPermission(null)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return {
