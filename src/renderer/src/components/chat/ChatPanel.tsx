@@ -797,6 +797,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [bookmarkedMsgs, setBookmarkedMsgs] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('bookmarked-msgs') ?? '[]')))
   const [showBookmarks, setShowBookmarks] = useState(false)
   const [reactionStats, setReactionStats] = useState<Record<string, Record<string, number>>>({})
+  const [threadOpen, setThreadOpen] = useState<string | null>(null)
+  const [threadReplies, setThreadReplies] = useState<Record<string, string[]>>({})
   const [showReactionStats, setShowReactionStats] = useState(false)
   const [msgLabels, setMsgLabels] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('msg-labels') ?? '{}') } catch { return {} }

@@ -145,6 +145,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [tabNames, setTabNames] = useState<Record<string, string>>({})
   const [renamingTab, setRenamingTab] = useState<string | null>(null)
 
+  // R722: command stats
+  const [cmdStats, setCmdStats] = useState<Record<string, number>>({})
+  const [showCmdStats, setShowCmdStats] = useState(false)
+
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)

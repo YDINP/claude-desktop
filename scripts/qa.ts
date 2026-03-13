@@ -6844,6 +6844,41 @@ if (existsSync(sl719Path)) {
   }
 }
 
+// ── Section 151: Phase DD10 R720~722 기능 체크 ────────────────
+console.log('\n## 151. Phase DD10 R720~722 기능 체크')
+// R720: ChatPanel 메시지 스레드
+const cp720Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp720Path)) {
+  const cp720 = readFileSync(cp720Path, 'utf-8')
+  if (cp720.includes('threadOpen') || cp720.includes('threadReplies') || cp720.includes('threadMsg')) {
+    log('pass', 'R720', 'ChatPanel 메시지 스레드 존재')
+  } else {
+    log('warning', 'R720', 'ChatPanel 메시지 스레드 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R721: SceneViewPanel 노드 링크
+const svp721Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp721Path)) {
+  const svp721 = readFileSync(svp721Path, 'utf-8')
+  if (svp721.includes('nodeLinks') || svp721.includes('showNodeLinks') || svp721.includes('linkedNodes')) {
+    log('pass', 'R721', 'SceneViewPanel 노드 링크 존재')
+  } else {
+    log('warning', 'R721', 'SceneViewPanel 노드 링크 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R722: TerminalPanel 명령어 통계
+const tp722Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp722Path)) {
+  const tp722 = readFileSync(tp722Path, 'utf-8')
+  if (tp722.includes('cmdStats') || tp722.includes('showCmdStats') || tp722.includes('commandStats')) {
+    log('pass', 'R722', 'TerminalPanel 명령어 통계 존재')
+  } else {
+    log('warning', 'R722', 'TerminalPanel 명령어 통계 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

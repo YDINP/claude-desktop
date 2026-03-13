@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:01:09.258Z
+> 2026-03-13T11:02:10.435Z
 
 ## Critical
 _없음_
@@ -601,3 +601,6 @@ _없음_
 - InputBar 템플릿 변수 자동완성 존재
 - CocosPanel 속성 즐겨찾기 존재
 - SessionList 세션 비교 모드 존재
+- ChatPanel 메시지 스레드 존재
+- SceneViewPanel 노드 링크 존재
+- TerminalPanel 명령어 통계 존재
