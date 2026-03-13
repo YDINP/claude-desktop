@@ -7,6 +7,8 @@
 | 라운드 | 브랜치 | 주요 작업 | 상태 |
 |--------|--------|-----------|------|
 | Round 414 | dev | CC 파일 기반 엔진 Phase A-1 (CC-버전감지): cc-version-detector.ts, CCFileProjectInfo/CCSceneNode 타입, cc-file-handlers IPC, preload 노출 | ✅ |
+| Round 415 | dev | CC 파일 기반 엔진 Phase A-2 (CC-파서-2x/3x): cc-file-parser.ts, _trs TypedArray/UITransform 처리, CCSceneNode 트리 변환 | ✅ |
+| Round 416 | dev | CC 파일 기반 엔진 Phase A-3 (CC-프로젝트-열기): useCCFileProject 훅, CocosPanel WS/파일 모드 토글, CCFileSceneTree UI | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

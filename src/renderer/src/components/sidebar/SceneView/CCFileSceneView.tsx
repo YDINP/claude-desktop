@@ -1,0 +1,258 @@
+import { useState, useRef, useCallback, useMemo } from 'react'
+import type { CCSceneNode, CCSceneFile } from '../../../../../shared/ipc-schema'
+
+interface ViewTransform {
+  offsetX: number
+  offsetY: number
+  zoom: number
+}
+
+interface FlatNode {
+  node: CCSceneNode
+  worldX: number
+  worldY: number
+  depth: number
+}
+
+interface CCFileSceneViewProps {
+  sceneFile: CCSceneFile
+  selectedUuid: string | null
+  onSelect: (uuid: string | null) => void
+}
+
+/**
+ * CC 파일 기반 씬뷰 (Phase A)
+ * SVG 렌더링, 팬/줌, 노드 선택
+ * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
+ */
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect }: CCFileSceneViewProps) {
+  const svgRef = useRef<SVGSVGElement>(null)
+  const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
+  const [isPanning, setIsPanning] = useState(false)
+  const panStart = useRef<{ mouseX: number; mouseY: number; offX: number; offY: number } | null>(null)
+
+  // 캔버스 크기 추정: Canvas 노드 또는 최상위 노드의 size
+  const { designW, designH } = useMemo(() => {
+    const root = sceneFile.root
+    // cc.Scene 루트 아래 첫 번째 노드(Canvas) 탐색
+    const canvasNode = root.children.find(n =>
+      n.name === 'Canvas' || n.components.some(c => c.type === 'cc.Canvas')
+    )
+    const n = canvasNode ?? root.children[0]
+    return {
+      designW: n?.size?.x || 960,
+      designH: n?.size?.y || 640,
+    }
+  }, [sceneFile])
+
+  // 씬 트리 → flat 목록 (world position 누적)
+  const flatNodes = useMemo(() => {
+    const result: FlatNode[] = []
+    function walk(node: CCSceneNode, worldX: number, worldY: number, depth: number) {
+      const x = worldX + (typeof node.position === 'object' ? (node.position as { x: number }).x : 0)
+      const y = worldY + (typeof node.position === 'object' ? (node.position as { y: number }).y : 0)
+      result.push({ node, worldX: x, worldY: y, depth })
+      for (const child of node.children) {
+        walk(child, x, y, depth + 1)
+      }
+    }
+    // Scene 루트 자체는 건너뜀 (이름 없는 컨테이너)
+    for (const child of sceneFile.root.children) {
+      walk(child, 0, 0, 0)
+    }
+    return result
+  }, [sceneFile])
+
+  // CC 좌표 → SVG 좌표 변환
+  // CC: Y-up, center origin. SVG: Y-down, top-left.
+  const cx = designW / 2
+  const cy = designH / 2
+  const ccToSvg = useCallback((ccX: number, ccY: number) => ({
+    x: cx + ccX,
+    y: cy - ccY,
+  }), [cx, cy])
+
+  // 휠 줌
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault()
+    const svg = svgRef.current
+    if (!svg) return
+    const rect = svg.getBoundingClientRect()
+    const mouseX = e.clientX - rect.left
+    const mouseY = e.clientY - rect.top
+    const delta = e.deltaY > 0 ? 0.9 : 1.1
+    setView(v => {
+      const newZoom = Math.max(0.1, Math.min(5, v.zoom * delta))
+      const scale = newZoom / v.zoom
+      return {
+        zoom: newZoom,
+        offsetX: mouseX - (mouseX - v.offsetX) * scale,
+        offsetY: mouseY - (mouseY - v.offsetY) * scale,
+      }
+    })
+  }, [])
+
+  // 패닝 (중간 버튼 또는 Space+드래그)
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 1 || e.button === 2) {
+      e.preventDefault()
+      setIsPanning(true)
+      panStart.current = { mouseX: e.clientX, mouseY: e.clientY, offX: view.offsetX, offY: view.offsetY }
+    }
+  }, [view])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isPanning || !panStart.current) return
+    const dx = e.clientX - panStart.current.mouseX
+    const dy = e.clientY - panStart.current.mouseY
+    setView(v => ({ ...v, offsetX: panStart.current!.offX + dx, offsetY: panStart.current!.offY + dy }))
+  }, [isPanning])
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false)
+    panStart.current = null
+  }, [])
+
+  // Fit to view
+  const handleFit = useCallback(() => {
+    const svg = svgRef.current
+    if (!svg) return
+    const rect = svg.getBoundingClientRect()
+    const zoom = Math.min(rect.width / designW, rect.height / designH) * 0.9
+    setView({
+      zoom,
+      offsetX: (rect.width - designW * zoom) / 2,
+      offsetY: (rect.height - designH * zoom) / 2,
+    })
+  }, [designW, designH])
+
+  const transform = `translate(${view.offsetX}, ${view.offsetY}) scale(${view.zoom})`
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, position: 'relative' }}>
+      {/* 툴바 */}
+      <div style={{
+        display: 'flex', gap: 4, padding: '2px 8px', borderBottom: '1px solid var(--border)',
+        flexShrink: 0, alignItems: 'center', fontSize: 10,
+      }}>
+        <span style={{ color: 'var(--text-muted)', flex: 1 }}>
+          {designW}×{designH} | {flatNodes.length}개 노드
+        </span>
+        <button
+          onClick={handleFit}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
+        >
+          ⊞ Fit
+        </button>
+        <button
+          onClick={() => setView(v => ({ ...v, zoom: Math.min(5, v.zoom * 1.25) }))}
+          style={{ padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
+        >+</button>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 30, textAlign: 'center' }}>
+          {Math.round(view.zoom * 100)}%
+        </span>
+        <button
+          onClick={() => setView(v => ({ ...v, zoom: Math.max(0.1, v.zoom / 1.25) }))}
+          style={{ padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
+        >−</button>
+      </div>
+
+      {/* SVG 캔버스 */}
+      <svg
+        ref={svgRef}
+        style={{ flex: 1, background: '#1a1a2e', cursor: isPanning ? 'grabbing' : 'default', display: 'block' }}
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onContextMenu={e => e.preventDefault()}
+        onClick={() => onSelect(null)}
+      >
+        <g transform={transform}>
+          {/* 게임 캔버스 배경 */}
+          <rect x={0} y={0} width={designW} height={designH}
+            fill="#2d2d44" stroke="#555" strokeWidth={1 / view.zoom} />
+
+          {/* 노드 렌더링 (depth 역순 → 깊은 노드가 위에 표시되지 않도록) */}
+          {flatNodes.filter(fn => fn.node.active).map(({ node, worldX, worldY }) => {
+            const svgPos = ccToSvg(worldX, worldY)
+            const w = node.size?.x || 0
+            const h = node.size?.y || 0
+            if (w === 0 && h === 0) return null  // 크기 없는 노드는 점으로 표시
+
+            const anchorX = node.anchor?.x ?? 0.5
+            const anchorY = node.anchor?.y ?? 0.5
+            const rectX = svgPos.x - w * anchorX
+            const rectY = svgPos.y - h * (1 - anchorY)
+            const isSelected = node.uuid === selectedUuid
+
+            const hasLabel = node.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
+            const hasSprite = node.components.some(c => c.type === 'cc.Sprite')
+            const hasBg = node.components.some(c => ['cc.Canvas', 'cc.Layout'].includes(c.type))
+
+            const fillColor = hasBg ? 'rgba(80,120,255,0.08)'
+              : hasLabel ? 'rgba(255,200,80,0.12)'
+              : hasSprite ? 'rgba(80,220,120,0.12)'
+              : 'rgba(150,150,255,0.08)'
+            const strokeColor = isSelected ? '#58a6ff'
+              : hasBg ? '#4466aa'
+              : hasLabel ? '#ccaa44'
+              : hasSprite ? '#44aa66'
+              : '#666688'
+
+            return (
+              <g key={node.uuid}
+                onClick={e => { e.stopPropagation(); onSelect(node.uuid) }}
+                style={{ cursor: 'pointer' }}
+              >
+                <rect
+                  x={rectX} y={rectY} width={w} height={h}
+                  fill={fillColor}
+                  stroke={strokeColor}
+                  strokeWidth={(isSelected ? 2 : 1) / view.zoom}
+                />
+                {/* 앵커 포인트 */}
+                <circle
+                  cx={svgPos.x} cy={svgPos.y}
+                  r={3 / view.zoom}
+                  fill={isSelected ? '#58a6ff' : '#888'}
+                />
+                {/* 노드 이름 레이블 */}
+                {view.zoom > 0.3 && (
+                  <text
+                    x={rectX + 3 / view.zoom}
+                    y={rectY + 12 / view.zoom}
+                    fontSize={11 / view.zoom}
+                    fill={isSelected ? '#58a6ff' : '#ccc'}
+                    style={{ pointerEvents: 'none', userSelect: 'none' }}
+                  >
+                    {node.name}
+                  </text>
+                )}
+              </g>
+            )
+          })}
+
+          {/* 크기 없는 노드 → 십자 표시 */}
+          {flatNodes.filter(fn => fn.node.active && !(fn.node.size?.x) && !(fn.node.size?.y)).map(({ node, worldX, worldY }) => {
+            const svgPos = ccToSvg(worldX, worldY)
+            const isSelected = node.uuid === selectedUuid
+            const r = 5 / view.zoom
+            return (
+              <g key={`dot_${node.uuid}`}
+                onClick={e => { e.stopPropagation(); onSelect(node.uuid) }}
+                style={{ cursor: 'pointer' }}
+              >
+                <line x1={svgPos.x - r} y1={svgPos.y} x2={svgPos.x + r} y2={svgPos.y}
+                  stroke={isSelected ? '#58a6ff' : '#888'} strokeWidth={1 / view.zoom} />
+                <line x1={svgPos.x} y1={svgPos.y - r} x2={svgPos.x} y2={svgPos.y + r}
+                  stroke={isSelected ? '#58a6ff' : '#888'} strokeWidth={1 / view.zoom} />
+              </g>
+            )
+          })}
+        </g>
+      </svg>
+    </div>
+  )
+}

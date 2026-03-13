@@ -4,6 +4,7 @@ import { NodePropertyPanel } from './NodePropertyPanel'
 import { AssetBrowserPanel } from './AssetBrowserPanel'
 import { useProject } from '../../stores/project-store'
 import { useCCFileProject } from '../../hooks/useCCFileProject'
+import { CCFileSceneView } from './SceneView/CCFileSceneView'
 import type { CCNode, CCSceneNode } from '../../../../shared/ipc-schema'
 
 export function CocosPanel({ defaultPort, onPortChange, onConnectedChange }: {
@@ -458,18 +459,37 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         )}
       </div>
 
-      {/* 씬 트리 (파싱된 결과) */}
+      {/* 씬 파싱 결과 — SceneView + TreeView */}
       {sceneFile?.root && (
-        <div style={{ flex: 1, overflow: 'auto' }}>
-          <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)' }}>
-            씬: {sceneFile.scenePath.split(/[\\/]/).pop()}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+          {/* SVG 씬 뷰 */}
+          <div style={{ height: 280, flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
+            <CCFileSceneView
+              sceneFile={sceneFile}
+              selectedUuid={selectedNode?.uuid ?? null}
+              onSelect={uuid => {
+                if (!uuid) { onSelectNode(null); return }
+                const findNode = (n: CCSceneNode): CCSceneNode | null => {
+                  if (n.uuid === uuid) return n
+                  for (const c of n.children) { const f = findNode(c); if (f) return f }
+                  return null
+                }
+                onSelectNode(findNode(sceneFile.root))
+              }}
+            />
           </div>
-          <CCFileSceneTree
-            node={sceneFile.root}
-            depth={0}
-            selected={selectedNode}
-            onSelect={onSelectNode}
-          />
+          {/* 씬 트리 */}
+          <div style={{ flex: 1, overflow: 'auto' }}>
+            <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)' }}>
+              씬: {sceneFile.scenePath.split(/[\\/]/).pop()}
+            </div>
+            <CCFileSceneTree
+              node={sceneFile.root}
+              depth={0}
+              selected={selectedNode}
+              onSelect={onSelectNode}
+            />
+          </div>
         </div>
       )}
 
