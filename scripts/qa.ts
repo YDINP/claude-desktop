@@ -2312,16 +2312,8 @@ if (existsSync(ft393Path)) {
 
 // ── Section 294: R392 신규 기능 ───────────────────────────────
 console.log('\n## 294. 신규 기능 파일 검사 (R392)')
-// CocosPanel 프로젝트 경로 복사 버튼 (Round 392)
-const ccp392Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
-if (existsSync(ccp392Path)) {
-  const ccp392 = readFileSync(ccp392Path, 'utf-8')
-  if (ccp392.includes('pathCopied') && ccp392.includes('프로젝트 경로 복사')) {
-    log('pass', 'Round392', 'CocosPanel: 프로젝트 경로 복사 버튼 존재')
-  } else {
-    log('warning', 'Round392', 'CocosPanel 경로 복사 미구현', 'sidebar/CocosPanel.tsx')
-  }
-}
+// CocosPanel 프로젝트 경로 복사 버튼 (Round 392) — WS 코드 완전 제거로 체크 면제
+log('pass', 'Round392', 'CocosPanel WS 코드 제거됨 — 경로 복사 체크 면제 (파일 기반 모드 전환)')
 
 // ── Section 293: R391 신규 기능 ───────────────────────────────
 console.log('\n## 293. 신규 기능 파일 검사 (R391)')
@@ -2637,16 +2629,8 @@ if (existsSync(gsp368Path)) {
 
 // ── Section 269: R367 신규 기능 ───────────────────────────────
 console.log('\n## 269. 신규 기능 파일 검사 (R367)')
-// CocosPanel 빠른 포트 버튼 (Round 367)
-const cocos367Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
-if (existsSync(cocos367Path)) {
-  const cocos367 = readFileSync(cocos367Path, 'utf-8')
-  if (cocos367.includes('9090, 9091') && cocos367.includes('CC 2.x') && cocos367.includes('CC 3.x')) {
-    log('pass', 'Round367', 'CocosPanel: 빠른 포트 버튼 (9090/9091, CC 2.x/3.x) 존재')
-  } else {
-    log('warning', 'Round367', 'CocosPanel 빠른 포트 버튼 미구현', 'sidebar/CocosPanel.tsx')
-  }
-}
+// CocosPanel 빠른 포트 버튼 (Round 367) — WS 코드 완전 제거로 체크 면제
+log('pass', 'Round367', 'CocosPanel WS 코드 제거됨 — 빠른 포트 버튼 체크 면제 (파일 기반 모드 전환)')
 
 // ── Section 268: R366 신규 기능 ───────────────────────────────
 console.log('\n## 268. 신규 기능 파일 검사 (R366)')
@@ -2975,16 +2959,8 @@ if (existsSync(cn342Path)) {
 
 // ── Section 243: R341 신규 기능 ───────────────────────────────
 console.log('\n## 243. 신규 기능 파일 검사 (R341)')
-// CocosPanel 연결 유지 시간 표시 (Round 341)
-const cp341Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
-if (existsSync(cp341Path)) {
-  const cp341 = readFileSync(cp341Path, 'utf-8')
-  if (cp341.includes('connectedAt') && cp341.includes('uptime') && cp341.includes('setUptime')) {
-    log('pass', 'Round341', 'CocosPanel: 연결 유지 시간 표시 (connectedAt/uptime) 존재')
-  } else {
-    log('warning', 'Round341', 'CocosPanel 연결 유지 시간 미구현', 'sidebar/CocosPanel.tsx')
-  }
-}
+// CocosPanel 연결 유지 시간 표시 (Round 341) — WS 코드 완전 제거로 체크 면제
+log('pass', 'Round341', 'CocosPanel WS 코드 제거됨 — 연결 유지 시간 체크 면제 (파일 기반 모드 전환)')
 
 // ── Section 242: R340 신규 기능 ───────────────────────────────
 console.log('\n## 242. 신규 기능 파일 검사 (R340)')
