@@ -1649,16 +1649,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       {showMinimap && flatNodes.length > 0 && (() => {
         const MM_W = 100, MM_H = 72
         const svgEl = svgRef.current
-        const svgW = svgEl?.clientWidth ?? designW
-        const svgH = svgEl?.clientHeight ?? designH
+        const svgW = svgEl?.clientWidth ?? effectiveW
+        const svgH = svgEl?.clientHeight ?? effectiveH
         // 뷰포트 영역 (씬 좌표계)
         const vpX = -view.offsetX / view.zoom
         const vpY = -view.offsetY / view.zoom
         const vpW = svgW / view.zoom
         const vpH = svgH / view.zoom
-        // 씬 전체 bounding box (designW x designH 기준)
-        const sceneX = -designW / 2, sceneY = -designH / 2
-        const sceneW = designW, sceneH = designH
+        // R1554: effectiveW/H 기준 (resOverride 반영)
+        const sceneX = -effectiveW / 2, sceneY = -effectiveH / 2
+        const sceneW = effectiveW, sceneH = effectiveH
         const scaleX = MM_W / sceneW
         const scaleY = MM_H / sceneH
         const s = Math.min(scaleX, scaleY)
@@ -1701,11 +1701,26 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             <svg width={MM_W} height={MM_H}>
               {/* 씬 경계 */}
               <rect x={ofX} y={ofY} width={sceneW * s} height={sceneH * s} fill="none" stroke="#333" strokeWidth={0.5} />
-              {/* 노드 점들 */}
+              {/* R1554: 노드 rect/점 (크기 반영) */}
               {flatNodes.map(fn => {
                 const p = toMM(fn.worldX, fn.worldY)
                 const isSelected = fn.node.uuid === selectedUuid || multiSelected.has(fn.node.uuid)
-                return <circle key={fn.node.uuid} cx={p.x} cy={p.y} r={1.5} fill={isSelected ? '#58a6ff' : 'rgba(255,255,255,0.3)'} />
+                const isMatch = svSearch.trim() ? svSearchMatches.has(fn.node.uuid) : false
+                const nw = fn.node.size?.x ?? 0
+                const nh = fn.node.size?.y ?? 0
+                const mw = nw * s, mh = nh * s
+                if (mw > 2 && mh > 2) {
+                  const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+                  return <rect key={fn.node.uuid}
+                    x={p.x - mw * ax} y={p.y - mh * (1 - ay)}
+                    width={mw} height={mh}
+                    fill={isSelected ? 'rgba(88,166,255,0.2)' : isMatch ? 'rgba(255,68,255,0.2)' : 'rgba(255,255,255,0.05)'}
+                    stroke={isSelected ? '#58a6ff' : isMatch ? '#ff44ff' : 'rgba(255,255,255,0.25)'}
+                    strokeWidth={isSelected ? 0.8 : 0.4}
+                  />
+                }
+                return <circle key={fn.node.uuid} cx={p.x} cy={p.y} r={isSelected ? 2 : 1.5}
+                  fill={isSelected ? '#58a6ff' : isMatch ? '#ff44ff' : 'rgba(255,255,255,0.3)'} />
               })}
               {/* 뷰포트 사각형 */}
               <rect x={vpMM.x} y={vpMM.y} width={vpW2} height={vpH2}

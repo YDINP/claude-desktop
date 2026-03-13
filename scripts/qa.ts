@@ -16510,6 +16510,23 @@ console.log('\n## 444. R1553 CCFileBatchInspector 스케일/사이즈 일괄 편
   }
 }
 
+// ── Section 445: R1554 미니맵 effectiveW/H + 노드 rect 표시 ────────
+console.log('\n## 445. R1554 미니맵 개선 (effectiveW/H + 노드 rect 크기 표시) 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s445 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s445.includes('R1554') && s445.includes('effectiveW') && s445.includes('effectiveH') && s445.includes('sceneW = effectiveW')) {
+    log('pass', 'R1554-effective', '미니맵 effectiveW/H 기준 (resOverride 반영)')
+  } else {
+    log('warning', 'R1554-effective', '미니맵 effectiveW/H 미반영', 'CCFileSceneView.tsx')
+  }
+  if (s445.includes('mw > 2 && mh > 2') && s445.includes('svSearchMatches')) {
+    log('pass', 'R1554-rect', '노드 사이즈 rect + 검색 매칭 미니맵 하이라이트')
+  } else {
+    log('warning', 'R1554-rect', '미니맵 노드 rect 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
