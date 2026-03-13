@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 488 완료 — ZZ-1 씬뷰 단축키 도움말 오버레이)
+> 마지막 업데이트: 2026-03-13 (Round 489 완료 — XX-1 Inspector 레이어 편집 드롭다운)
 
 ## 완료된 라운드
 
@@ -80,6 +80,7 @@
 | Round 486 | dev | Phase WW-2: 씬뷰 선택 노드 치수 레이블 — 상단에 w×h SVG text 표시 (zoom > 0.3 시) | ✅ |
 | Round 487 | dev | Phase YY-1: Inspector 컴포넌트 fold/unfold — collapsedComps Set state, ▸/▾ 헤더 토글, props body 조건부 렌더링 | ✅ |
 | Round 488 | dev | Phase ZZ-1: 씬뷰 단축키 도움말 오버레이 — ? 버튼 툴바 추가, showHelp state, 9개 단축키 목록 오버레이 | ✅ |
+| Round 489 | dev | Phase XX-1: Inspector 레이어 편집 드롭다운 — 9개 CC3.x 레이어 옵션, 미지원 값은 hex 표시 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

@@ -1369,15 +1369,26 @@ function CCFileNodeInspector({
       )}
 
       {draft.layer != null && (() => {
-        const layerNames: Record<number, string> = {
-          1: 'DEFAULT', 2: 'IGNORE_RAYCAST', 4: 'GIZMOS', 8: 'EDITOR', 16: 'UI_3D',
-          32: 'SCENE_GIZMO', 64: 'PROFILER', 524288: 'UI_2D', 33554432: 'UI_2D', 1073741824: 'ALL',
-        }
-        const name = layerNames[draft.layer] ?? `0x${draft.layer.toString(16)}`
+        const layerOptions: [number, string][] = [
+          [1, 'DEFAULT'], [2, 'IGNORE_RAYCAST'], [4, 'GIZMOS'], [8, 'EDITOR'],
+          [16, 'UI_3D'], [32, 'SCENE_GIZMO'], [64, 'PROFILER'],
+          [524288, 'UI_2D'], [1073741824, 'ALL'],
+        ]
+        const isKnown = layerOptions.some(([v]) => v === draft.layer)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
             <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>layer</span>
-            <span style={{ fontSize: 9, color: '#888', fontFamily: 'monospace' }}>{name}</span>
+            <select
+              value={isKnown ? draft.layer : 'custom'}
+              onChange={e => { if (e.target.value !== 'custom') applyAndSave({ layer: Number(e.target.value) }) }}
+              style={{
+                flex: 1, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px',
+              }}
+            >
+              {layerOptions.map(([v, n]) => <option key={v} value={v}>{n}</option>)}
+              {!isKnown && <option value="custom">0x{draft.layer.toString(16)}</option>}
+            </select>
           </div>
         )
       })()}
