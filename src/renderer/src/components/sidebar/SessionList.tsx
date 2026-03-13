@@ -220,6 +220,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showExportHistory, setShowExportHistory] = useState(false)
   const [autoCleanupDays, setAutoCleanupDays] = useState<number | null>(null)
   const [showCleanupSettings, setShowCleanupSettings] = useState(false)
+  const [sessionIcons, setSessionIcons] = useState<Record<string, string>>({})
+  const [showIconPicker, setShowIconPicker] = useState<string | null>(null)
   const [showSearchHistory, setShowSearchHistory] = useState(false)
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [ratingFilter, setRatingFilter] = useState<number | null>(null)
@@ -230,6 +232,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [compareTargets, setCompareTargets] = useState<string[]>([])
   const [editingMemo, setEditingMemo] = useState<string | null>(null)
   const [showExportMenu, setShowExportMenu] = useState(false)
+  const [sessionIcons, setSessionIcons] = useState<Record<string, string>>({})
+  const [showIconPicker, setShowIconPicker] = useState<string | null>(null)
 
   const TAG_COLORS_KEY = 'session-tag-colors'
   const loadTagColors = (): Record<string, string> => {

@@ -186,6 +186,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)
+  const [showTabColorPicker, setShowTabColorPicker] = useState<string | null>(null)
 
   // Drag & drop reorder state
   const dragTabRef = useRef<number | null>(null)

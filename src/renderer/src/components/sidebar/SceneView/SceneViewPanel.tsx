@@ -202,6 +202,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [gridSize, setGridSize] = useState(10)
   const [sceneStats, setSceneStats] = useState<{ nodeCount: number; componentCount: number; depth: number }>({ nodeCount: 0, componentCount: 0, depth: 0 })
   const [showSceneStats, setShowSceneStats] = useState(false)
+  const [nodeSortKey, setNodeSortKey] = useState<'name' | 'type' | 'order'>('order')
+  const [nodeSortAsc, setNodeSortAsc] = useState<boolean>(true)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)
@@ -263,6 +265,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [redoStack, setRedoStack] = useState<UndoEntry[]>([])
   const [clipboard, setClipboard] = useState<ClipboardEntry[]>([])
   const [copiedNode, setCopiedNode] = useState<SceneNode | null>(null)
+  const [nodeSortKey, setNodeSortKey] = useState<'name' | 'type' | 'order'>('order')
+  const [nodeSortAsc, setNodeSortAsc] = useState<boolean>(true)
 
   // ── 마퀴 선택 상태 ─────────────────────────────────────────
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)

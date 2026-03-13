@@ -7824,6 +7824,41 @@ if (existsSync(cocp803Path)) {
   }
 }
 
+console.log('\n## 179. Phase DD10 R804~806 기능 체크')
+
+// R804: SessionList 세션 아이콘 커스터마이징
+const sl804Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl804Path)) {
+  const sl804 = readFileSync(sl804Path, 'utf-8')
+  if (sl804.includes('sessionIcons') || sl804.includes('showIconPicker') || sl804.includes('iconMap')) {
+    log('pass', 'R804', 'SessionList 세션 아이콘 커스터마이징 존재')
+  } else {
+    log('warning', 'R804', 'SessionList 아이콘 커스터마이징 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R805: TerminalPanel 탭 색상 커스터마이징
+const tp805Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp805Path)) {
+  const tp805 = readFileSync(tp805Path, 'utf-8')
+  if (tp805.includes('tabColors') || tp805.includes('showTabColorPicker') || tp805.includes('tabColorMap')) {
+    log('pass', 'R805', 'TerminalPanel 탭 색상 커스터마이징 존재')
+  } else {
+    log('warning', 'R805', 'TerminalPanel 탭 색상 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R806: SceneViewPanel 노드 정렬 옵션
+const svp806Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp806Path)) {
+  const svp806 = readFileSync(svp806Path, 'utf-8')
+  if (svp806.includes('nodeSortKey') || svp806.includes('nodeSortAsc') || svp806.includes('sortNodes')) {
+    log('pass', 'R806', 'SceneViewPanel 노드 정렬 옵션 존재')
+  } else {
+    log('warning', 'R806', 'SceneViewPanel 노드 정렬 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:29:33.032Z
+> 2026-03-13T11:30:50.776Z
 
 ## Critical
 _없음_
@@ -685,3 +685,6 @@ _없음_
 - ChatPanel 메시지 접기 임계값 존재
 - InputBar 커스텀 자동완성 존재
 - CocosPanel 루트 노드 목록 존재
+- SessionList 세션 아이콘 커스터마이징 존재
+- TerminalPanel 탭 색상 커스터마이징 존재
+- SceneViewPanel 노드 정렬 옵션 존재
