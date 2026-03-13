@@ -161,6 +161,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [cmdAliases, setCmdAliases] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('cmd-aliases') ?? '{}'))
   const [showAliasEditor, setShowAliasEditor] = useState(false)
 
+  // R755: captured env vars viewer
+  const [envVars, setEnvVars] = useState<Record<string, string>>({})
+  const [showEnvVars, setShowEnvVars] = useState(false)
+
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)

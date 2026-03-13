@@ -215,6 +215,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [autoIndent, setAutoIndent] = useState(true)
   const [savedCursorPos, setSavedCursorPos] = useState(0)
   const [pasteMode, setPasteMode] = useState<'text' | 'code' | 'auto'>('auto')
+  const [inputMode, setInputMode] = useState<'text' | 'image' | 'file' | 'mixed'>('text')
+  const [pendingImages, setPendingImages] = useState<string[]>([])
   const [lastPasteType, setLastPasteType] = useState<string | null>(null)
   const [cursorPosHistory, setCursorPosHistory] = useState<number[]>([])
   const [indentSize, setIndentSize] = useState(2)

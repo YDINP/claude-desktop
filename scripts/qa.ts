@@ -7229,6 +7229,41 @@ if (existsSync(svp752Path)) {
   }
 }
 
+// ── Section 162: Phase DD10 R753~755 기능 체크 ────────────────
+console.log('\n## 162. Phase DD10 R753~755 기능 체크')
+// R753: InputBar 멀티모달 입력
+const ib753Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib753Path)) {
+  const ib753 = readFileSync(ib753Path, 'utf-8')
+  if (ib753.includes('inputMode') || ib753.includes('pendingImages') || ib753.includes('multimodal')) {
+    log('pass', 'R753', 'InputBar 멀티모달 입력 모드 존재')
+  } else {
+    log('warning', 'R753', 'InputBar 멀티모달 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R754: SessionList 세션 평점
+const sl754Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl754Path)) {
+  const sl754 = readFileSync(sl754Path, 'utf-8')
+  if (sl754.includes('sessionRatings') || sl754.includes('ratingFilter') || sl754.includes('session-ratings')) {
+    log('pass', 'R754', 'SessionList 세션 평점 존재')
+  } else {
+    log('warning', 'R754', 'SessionList 세션 평점 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R755: TerminalPanel 환경변수 뷰어
+const tp755Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp755Path)) {
+  const tp755 = readFileSync(tp755Path, 'utf-8')
+  if (tp755.includes('envVars') || tp755.includes('showEnvVars') || tp755.includes('envViewer')) {
+    log('pass', 'R755', 'TerminalPanel 환경변수 뷰어 존재')
+  } else {
+    log('warning', 'R755', 'TerminalPanel 환경변수 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
