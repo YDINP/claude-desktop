@@ -16332,6 +16332,28 @@ if (existsSync(panel434)) {
   }
 }
 
+// ── Section 435: R1543 SceneView 노드 잠금 체크 ──────────────────────
+console.log('\n## 435. R1543 SceneView 노드 잠금 (🔒) 체크')
+const sv435 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv435)) {
+  const s435 = readFileSync(sv435, 'utf-8')
+  if (s435.includes('R1543') && s435.includes('lockedUuids') && s435.includes('toggleLock') && s435.includes('sv-locked-uuids')) {
+    log('pass', 'R1543-state', 'lockedUuids Set + toggleLock + localStorage 연동 구현')
+  } else {
+    log('warning', 'R1543-state', 'lockedUuids 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s435.includes('lockedUuids.has(node.uuid)') && s435.includes('not-allowed') && s435.includes('🔒')) {
+    log('pass', 'R1543-drag-block', '잠긴 노드 드래그 차단 + not-allowed 커서 + 🔒 아이콘')
+  } else {
+    log('warning', 'R1543-drag-block', '드래그 차단/아이콘 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s435.includes('🔓 잠금 해제') && s435.includes('🔒 잠금')) {
+    log('pass', 'R1543-ctx-menu', '컨텍스트 메뉴 잠금/해제 항목 구현')
+  } else {
+    log('warning', 'R1543-ctx-menu', '컨텍스트 메뉴 잠금 항목 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

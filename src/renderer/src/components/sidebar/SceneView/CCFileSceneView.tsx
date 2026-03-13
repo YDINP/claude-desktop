@@ -77,6 +77,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [refImgSrc, setRefImgSrc] = useState<string | null>(null)
   const [refImgOpacity, setRefImgOpacity] = useState(0.3)
   const refImgInputRef = useRef<HTMLInputElement | null>(null)
+  // R1543: 노드 잠금 (locked nodes: drag/resize 방지)
+  const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('sv-locked-uuids') ?? '[]')) }
+    catch { return new Set() }
+  })
+  const toggleLock = (uuid: string) => {
+    setLockedUuids(prev => {
+      const next = new Set(prev)
+      if (next.has(uuid)) next.delete(uuid); else next.add(uuid)
+      localStorage.setItem('sv-locked-uuids', JSON.stringify([...next]))
+      return next
+    })
+  }
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
   const editInputRef = useRef<HTMLInputElement | null>(null)
   // R1491: Label 텍스트 인라인 편집
@@ -918,6 +931,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 onMouseDown={e => {
                   if (e.button !== 0) return
                   e.stopPropagation()
+                  if (lockedUuids.has(node.uuid)) return  // R1543: 잠긴 노드는 드래그 방지
                   const pos = node.position as CCVec3
                   dragRef.current = {
                     uuid: node.uuid,
@@ -927,7 +941,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     startNodeY: pos.y,
                   }
                 }}
-                style={{ cursor: isDragged ? 'grabbing' : 'grab' }}
+                style={{ cursor: lockedUuids.has(node.uuid) ? 'not-allowed' : isDragged ? 'grabbing' : 'grab' }}
               >
                 <title>{node.name}{node.components.length > 0 ? '\n' + node.components.map(c => c.type.split('.').pop()).join(', ') : ''}</title>
                 <rect
@@ -1049,8 +1063,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     </text>
                   )
                 })()}
-                {/* SE 리사이즈 핸들 (선택된 노드만) */}
-                {isSelected && (
+                {/* R1543: 잠금 아이콘 (locked nodes) */}
+                {lockedUuids.has(node.uuid) && (
+                  <text
+                    x={rectX + 2 / view.zoom} y={rectY + 10 / view.zoom}
+                    fontSize={10 / view.zoom}
+                    style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    opacity={0.8}
+                  >🔒</text>
+                )}
+                {/* SE 리사이즈 핸들 (선택된 노드만, 잠긴 노드 제외) */}
+                {isSelected && !lockedUuids.has(node.uuid) && (
                   <rect
                     x={rectX + w - 5 / view.zoom} y={rectY + h - 5 / view.zoom}
                     width={10 / view.zoom} height={10 / view.zoom}
@@ -1558,6 +1581,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ctxMenu.uuid && { label: '붙여넣기 (Ctrl+V)', action: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'v', ctrlKey: true, bubbles: true })) },
             ctxMenu.uuid && { label: '복제 (Ctrl+D)', action: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd', ctrlKey: true, bubbles: true })) },
             ctxMenu.uuid && { label: '삭제 (Del)', action: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true })) },
+            ctxMenu.uuid && { label: lockedUuids.has(ctxMenu.uuid) ? '🔓 잠금 해제' : '🔒 잠금', action: () => { toggleLock(ctxMenu.uuid!); setCtxMenu(null) } },
             { label: '전체 보기 (F)', action: () => handleFit() },
             ctxMenu.uuid && { label: '포커스 (F)', action: () => handleFitToSelected() },
             ctxMenu.uuid && { label: 'AI 분석 ✦', action: () => {
