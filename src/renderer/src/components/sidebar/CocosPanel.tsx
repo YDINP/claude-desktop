@@ -4574,6 +4574,47 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1538: cc.EditBox — 텍스트/플레이스홀더/maxLength 편집
+            if (comp.type === 'cc.EditBox') {
+              const str = String(p.string ?? '')
+              const placeholder = String(p.placeholder ?? '')
+              const maxLength = Number(p.maxLength ?? -1)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>string</span>
+                    <input type="text" defaultValue={str}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>placeholder</span>
+                    <input type="text" defaultValue={placeholder}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholder: e.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-muted)', borderRadius: 3, padding: '1px 4px', fontStyle: 'italic' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>maxLength</span>
+                    <input type="number" defaultValue={maxLength} min={-1}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxLength: parseInt(e.target.value) || -1 } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{maxLength < 0 ? '(unlimited)' : `≤${maxLength}`}</span>
+                  </div>
+                </div>
+              )
+            }
             // R1524: cc.Animation — 클립 드롭다운 + defaultClip 표시
             if (comp.type === 'cc.Animation') {
               const clips = (p._resolvedClips as Array<{ name: string }> | undefined) ?? []

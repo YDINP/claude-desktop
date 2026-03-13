@@ -341,6 +341,15 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
   'cc.Animation': e => ({
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? false,
   }),
+  // R1538: cc.EditBox — 텍스트 입력 컴포넌트
+  'cc.EditBox': e => ({
+    string: e._N$string ?? e._string ?? e.string ?? '',
+    placeholder: e._N$placeholder ?? e._placeholder ?? e.placeholder ?? '',
+    maxLength: e._N$maxLength ?? e._maxLength ?? e.maxLength ?? -1,
+    inputMode: e._N$inputMode ?? e._inputMode ?? e.inputMode ?? 0,
+    inputFlag: e._N$inputFlag ?? e._inputFlag ?? e.inputFlag ?? 0,
+    returnType: e._N$returnType ?? e._returnType ?? e.returnType ?? 0,
+  }),
 }
 
 // R1524: cc.Animation 클립 이름 해결 (embedded __id__ or external __uuid__)

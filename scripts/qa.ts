@@ -16290,6 +16290,27 @@ if (existsSync(panel432)) {
   }
 }
 
+// ── Section 433: R1538 cc.EditBox 파싱 + Inspector Quick Edit 체크 ──────────────────────
+console.log('\n## 433. R1538 cc.EditBox 파싱 + Inspector Quick Edit 체크')
+const parser433 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const panel433 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(parser433)) {
+  const s433p = readFileSync(parser433, 'utf-8')
+  if (s433p.includes('R1538') && s433p.includes("'cc.EditBox'") && s433p.includes('placeholder') && s433p.includes('maxLength')) {
+    log('pass', 'R1538-parser', 'cc.EditBox extractor (string/placeholder/maxLength/inputMode) 추가')
+  } else {
+    log('warning', 'R1538-parser', 'cc.EditBox extractor 미추가', 'cc-file-parser.ts')
+  }
+}
+if (existsSync(panel433)) {
+  const s433c = readFileSync(panel433, 'utf-8')
+  if (s433c.includes('R1538') && s433c.includes("comp.type === 'cc.EditBox'") && s433c.includes('placeholder') && s433c.includes('maxLength')) {
+    log('pass', 'R1538-inspector', 'CocosPanel cc.EditBox Quick Edit UI (string/placeholder/maxLength) 구현')
+  } else {
+    log('warning', 'R1538-inspector', 'cc.EditBox Quick Edit UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
