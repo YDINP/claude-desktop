@@ -3970,6 +3970,14 @@ function CCFileNodeInspector({
               onMouseEnter={e => (e.currentTarget.style.color = '#88aacc')}
               onMouseLeave={e => (e.currentTarget.style.color = '#445')}
             >⎘</span>
+            {/* R1607: UUID 복사 버튼 */}
+            <span
+              title={`UUID 복사: ${node.uuid}`}
+              onClick={() => navigator.clipboard.writeText(node.uuid).then(() => { /* silent */ }).catch(() => { /* silent */ })}
+              style={{ fontSize: 8, color: '#445', padding: '1px 3px', borderRadius: 2, cursor: 'pointer', lineHeight: 1, fontFamily: 'monospace' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#7ee787')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#445')}
+            >#</span>
           </div>
         </div>
       )}

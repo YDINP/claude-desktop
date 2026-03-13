@@ -17202,6 +17202,18 @@ console.log('\n## 497. R1606 COMPONENT_PROP_EXTRACTORS 중복 키 정리 체크'
   }
 }
 
+// ── Section 498: R1607 Inspector UUID 복사 버튼 ──────────────────────
+console.log('\n## 498. R1607 Inspector UUID 복사 버튼 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s498 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s498.includes('R1607') && s498.includes('UUID 복사') && s498.includes('node.uuid')) {
+    log('pass', 'R1607-uuid-copy', 'Inspector UUID 복사 버튼 (#)')
+  } else {
+    log('warning', 'R1607-uuid-copy', 'Inspector UUID 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
