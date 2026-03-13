@@ -33,6 +33,8 @@ interface CCFileSceneViewProps {
   onMultiSelectChange?: (uuids: string[]) => void
   /** R1563: 선택 노드 복제 (Ctrl+D) */
   onDuplicate?: (uuid: string) => void
+  /** R1565: 선택 노드 active 토글 (H 키) */
+  onToggleActive?: (uuid: string) => void
 }
 
 /**
@@ -40,7 +42,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -529,6 +531,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         if (selectedUuid) onDuplicate?.(selectedUuid)
         return
       }
+      // R1565: H — 선택 노드 active 토글 (숨기기/보이기)
+      if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && selectedUuid) {
+        e.preventDefault()
+        onToggleActive?.(selectedUuid)
+        return
+      }
       // R1483: Delete/Backspace — 다중 선택 일괄 삭제
       if (e.key === 'Delete' || e.key === 'Backspace') {
         const multi = multiSelectedRef.current
@@ -562,7 +570,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate])
+  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate, onToggleActive])
 
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
   const handleScreenshotAI = useCallback(() => {
@@ -1639,6 +1647,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['↑↓ (Inspector)', 'Z-order 변경'],
             ['Ctrl+D', '선택 노드 복제'],
             ['Ctrl+N', '새 노드 추가'],
+            ['H', '선택 노드 숨기기/보이기'],
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', gap: 8 }}>
               <span style={{ color: '#58a6ff', minWidth: 100 }}>{k}</span>

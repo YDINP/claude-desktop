@@ -1368,6 +1368,16 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
   }, [sceneFile, saveScene, projectInfo, onSelectNode])
 
+  // R1565: H — 선택 노드 active 토글
+  const handleToggleActive = useCallback(async (uuid: string) => {
+    if (!sceneFile?.root) return
+    function toggle(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === uuid) return { ...n, active: !n.active }
+      return { ...n, children: n.children.map(toggle) }
+    }
+    await saveScene(toggle(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   // R1563: Ctrl+D — 선택 노드 + 하위 트리 복제 (새 UUID 부여)
   const handleDuplicate = useCallback(async (uuid: string) => {
     if (!sceneFile?.root) return
@@ -2443,6 +2453,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onLabelEdit={handleLabelEdit}
                 onAddNode={handleAddNode}
                 onDuplicate={handleDuplicate}
+                onToggleActive={handleToggleActive}
                 onAnchorMove={handleAnchorMove}
                 onMultiSelectChange={setMultiSelectedUuids}
                 onSelect={uuid => {

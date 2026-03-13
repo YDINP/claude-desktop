@@ -16668,6 +16668,20 @@ console.log('\n## 455. R1564 cc.ScrollView Quick Edit 체크')
   }
 }
 
+// ── Section 456: R1565 SceneView H 키 active 토글 ────────────────
+console.log('\n## 456. R1565 SceneView H키 active 토글 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s456sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  const s456panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s456sv.includes("onToggleActive") && s456sv.includes("KeyH") && s456panel.includes('handleToggleActive') && s456panel.includes("active: !n.active")) {
+    log('pass', 'R1565-toggle-active', 'H 키 active 토글: SceneView + CocosPanel handler')
+  } else {
+    log('warning', 'R1565-toggle-active', 'H키 active 토글 미구현', 'CCFileSceneView.tsx / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
