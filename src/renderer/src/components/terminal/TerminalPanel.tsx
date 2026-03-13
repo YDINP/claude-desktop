@@ -435,6 +435,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showFontOptions, setShowFontOptions] = React.useState(false)
   const [notifyOnFinish, setNotifyOnFinish] = React.useState(false)
   const [notifyKeyword, setNotifyKeyword] = React.useState('')
+  const [persistHistory, setPersistHistory] = React.useState(true)
+  const [historyLimit, setHistoryLimit] = React.useState(1000)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

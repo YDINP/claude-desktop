@@ -335,6 +335,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showCharCount, setShowCharCount] = React.useState(true)
   const [lineHeight, setLineHeight] = React.useState(1.5)
   const [compactMode, setCompactMode] = React.useState(false)
+  const [waitingIndicator, setWaitingIndicator] = React.useState(false)
+  const [waitDuration, setWaitDuration] = React.useState(0)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

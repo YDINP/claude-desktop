@@ -348,6 +348,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showCopyDialog, setShowCopyDialog] = React.useState(false)
   const [bookmarkedSessions, setBookmarkedSessions] = React.useState<string[]>([])
   const [showBookmarksOnly, setShowBookmarksOnly] = React.useState(false)
+  const [sessionStats, setSessionStats] = React.useState<Record<string, number>>({})
+  const [showSessionStats, setShowSessionStats] = React.useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
