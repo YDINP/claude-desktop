@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 460 완료 — W-1 씬뷰 미니맵 오버레이)
+> 마지막 업데이트: 2026-03-13 (Round 471 완료 — HH-1 씬뷰 배경색 임시 오버라이드)
 
 ## 완료된 라운드
 
@@ -52,6 +52,17 @@
 | Round 458 | dev | Phase U-1: 노드 Ctrl+C/V 복사/붙여넣기 — clipboardRef 노드 저장, 붙여넣기 시 선택 노드 자식으로 추가 | ✅ |
 | Round 459 | dev | Phase V-1: 씬뷰 Ctrl+드래그 10px 그리드 스냅 — mousemove에서 ctrlKey 감지, round(x/10)*10 스냅 | ✅ |
 | Round 460 | dev | Phase W-1: 씬뷰 미니맵 오버레이 — zoom<0.8 시 우상단 80×60 미니맵, 노드 배치 + 뷰포트 박스 표시 | ✅ |
+| Round 461 | dev | Phase X-1: 씬뷰 툴바 CC 버전 배지 — sceneFile.projectInfo.version 기반 CC 2.x/3.x 배지 표시 | ✅ |
+| Round 462 | dev | Phase Y-1: 씬뷰 마우스 커서 씬 좌표 실시간 HUD — onMouseMove에서 ccX/ccY 계산, 좌하단 표시 | ✅ |
+| Round 463 | dev | Phase Z-1: 씬뷰 노드 호버 하이라이트 — hoverUuid state, onMouseEnter/Leave, 흰 테두리 반투명 | ✅ |
+| Round 464 | dev | Phase AA-1: Inspector 컴포넌트 ✕ 삭제 버튼 — 컴포넌트 헤더 우측 ✕ 클릭 → components 배열에서 제거 | ✅ |
+| Round 465 | dev | Phase BB-1: 최근 씬 파일 목록 — localStorage 기반 최대 6개 저장, 안내 섹션에 빠른 재오픈 목록 표시 | ✅ |
+| Round 466 | dev | Phase CC-1: 씬뷰 배경 더블클릭 Fit — onDoubleClick={handleFit} SVG에 바인딩 | ✅ |
+| Round 467 | dev | Phase DD-1: Inspector 노드 경로 브레드크럼 — root→선택 노드 경로를 Inspector 헤더에 표시 | ✅ |
+| Round 468 | dev | Phase EE-1: Inspector CC 3.x layer 비트 이름 표시 — layerNames 맵핑, DEFAULT/UI_2D 등 표시 | ✅ |
+| Round 469 | dev | Phase FF-1: 씬뷰 그리드 표시 토글 버튼 — showGrid state, ⊹ 버튼 활성/비활성 강조 | ✅ |
+| Round 470 | dev | Phase GG-1: 씬 트리 비활성 노드 숨기기 토글 — hideInactive prop, ●/◑ 버튼, active=false 노드 필터링 | ✅ |
+| Round 471 | dev | Phase HH-1: 씬뷰 배경색 임시 오버라이드 — bgColorOverride state, color picker swatch, 더블클릭 초기화 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |
