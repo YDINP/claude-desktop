@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-12T23:52:41.537Z
+> 2026-03-13T00:27:40.902Z
 
 ## Critical
 _없음_
@@ -199,6 +199,16 @@ _없음_
 - CalendarPanel: 세션 수 합계 표시 존재
 - ClipboardPanel: 검색 필터 존재
 - TasksPanel: 인라인 태스크 편집 존재
+- RunTimeline: 전체 런 요약 복사(allCopied) 존재
+- SceneTreePanel: 씬 트리 텍스트 복사(copyTreeAsText) 존재
+- NodePropertyPanel: Transform 전체 JSON 복사(copyTransform) 존재
+- AssetBrowserPanel: ESC 검색+타입필터 초기화 + copyPath .then() 개선 존재
+- SnippetPanel: 스니펫 복제(handleDuplicate) + ESC 검색 초기화 존재
+- RemotePanel: 상대시간(fmtRelative) + ESC 검색 초기화 존재
+- PluginsPanel: 새로고침 로딩 인디케이터(refreshing) 존재
+- GlobalSearchPanel: ESC 초기화 + Enter 즉시검색 존재
+- PromptChainPanel: 체인 결과 전체 복사(copiedChainId) 존재
+- OutlinePanel: reversed 선언 순서 수정 + ESC 검색 초기화 존재
 - BookmarksPanel: 정렬 토글(기본/최신/오래된) + ESC 검색 초기화 존재
 - WebPreviewPanel: iframe 줌 컨트롤 존재 (+/-/% 버튼)
 - ConnectionPanel: 서버 이름 검색 필터 존재

@@ -50,8 +50,11 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
   })
 
   ipcMain.handle(CC_GET_ASSETS, async (_e, port: number) => {
-    const bridge = getCCBridge(port)
-    return bridge.getAssets()
+    try {
+      return await getCCBridge(port).getAssets()
+    } catch (e) {
+      return { tree: [], error: `에셋 목록 로드 실패 (익스텐션 재설치 필요): ${String(e)}` }
+    }
   })
 
   ipcMain.handle(CC_GET_NODE, async (_e, port = 9090, uuid: string) => {
