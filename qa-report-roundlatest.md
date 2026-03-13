@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T10:59:26.513Z
+> 2026-03-13T11:00:18.819Z
 
 ## Critical
 _없음_
@@ -595,3 +595,6 @@ _없음_
 - CocosPanel 즐겨찾기 태그 존재
 - SessionList 세션 메모 존재
 - SceneToolbar 노드 정렬 옵션 존재
+- ChatPanel 메시지 반응 통계 존재
+- TerminalPanel 탭 이름 변경 존재
+- SceneViewPanel 노드 메모 존재

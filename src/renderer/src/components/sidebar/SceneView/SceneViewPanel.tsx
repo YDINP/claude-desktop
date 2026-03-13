@@ -160,6 +160,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 노드 그룹 색상 (R709) ──────────────────────────────────
   const [nodeGroupColors, setNodeGroupColors] = useState<Record<string, string>>({})
   const [colorPickerNode, setColorPickerNode] = useState<string | null>(null)
+  // ── 노드 메모 (R716) ──────────────────────────────────────────
+  const [nodeMemos, setNodeMemos] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('node-memos') ?? '{}'))
+  const [editingNodeMemo, setEditingNodeMemo] = useState<string | null>(null)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)

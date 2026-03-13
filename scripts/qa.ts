@@ -6774,6 +6774,41 @@ if (existsSync(st713Path)) {
   }
 }
 
+// ── Section 149: Phase DD10 R714~716 기능 체크 ────────────────
+console.log('\n## 149. Phase DD10 R714~716 기능 체크')
+// R714: ChatPanel 메시지 반응 통계
+const cp714Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp714Path)) {
+  const cp714 = readFileSync(cp714Path, 'utf-8')
+  if (cp714.includes('reactionStats') || cp714.includes('showReactionStats') || cp714.includes('reactionCount')) {
+    log('pass', 'R714', 'ChatPanel 메시지 반응 통계 존재')
+  } else {
+    log('warning', 'R714', 'ChatPanel 반응 통계 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R715: TerminalPanel 탭 이름 변경
+const tp715Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp715Path)) {
+  const tp715 = readFileSync(tp715Path, 'utf-8')
+  if (tp715.includes('tabNames') || tp715.includes('editingTabName') || tp715.includes('tabLabel')) {
+    log('pass', 'R715', 'TerminalPanel 탭 이름 변경 존재')
+  } else {
+    log('warning', 'R715', 'TerminalPanel 탭 이름 변경 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R716: SceneViewPanel 노드 메모
+const svp716Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp716Path)) {
+  const svp716 = readFileSync(svp716Path, 'utf-8')
+  if (svp716.includes('nodeMemos') || svp716.includes('editingNodeMemo') || svp716.includes('node-memos')) {
+    log('pass', 'R716', 'SceneViewPanel 노드 메모 존재')
+  } else {
+    log('warning', 'R716', 'SceneViewPanel 노드 메모 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
