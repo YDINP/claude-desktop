@@ -8699,6 +8699,41 @@ if (existsSync(sl878Path)) {
   }
 }
 
+console.log('\n## 204. Phase DD10 R879~881 기능 체크')
+
+// R879: ChatPanel 메시지 드래프트 목록
+const cp879Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp879Path)) {
+  const cp879 = readFileSync(cp879Path, 'utf-8')
+  if (cp879.includes('messageDrafts') || cp879.includes('showDraftList') || cp879.includes('draftList')) {
+    log('pass', 'R879', 'ChatPanel 메시지 드래프트 목록 존재')
+  } else {
+    log('warning', 'R879', 'ChatPanel 메시지 드래프트 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R880: InputBar 슬래시 커맨드 메뉴
+const ib880Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib880Path)) {
+  const ib880 = readFileSync(ib880Path, 'utf-8')
+  if (ib880.includes('slashCommands') || ib880.includes('showSlashMenu') || ib880.includes('slashMenu')) {
+    log('pass', 'R880', 'InputBar 슬래시 커맨드 메뉴 존재')
+  } else {
+    log('warning', 'R880', 'InputBar 슬래시 커맨드 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R881: CocosPanel 애니메이션 프리뷰
+const cocp881Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp881Path)) {
+  const cocp881 = readFileSync(cocp881Path, 'utf-8')
+  if (cocp881.includes('animationPreview') || cocp881.includes('previewAnimation') || cocp881.includes('animPreview')) {
+    log('pass', 'R881', 'CocosPanel 애니메이션 프리뷰 존재')
+  } else {
+    log('warning', 'R881', 'CocosPanel 애니메이션 프리뷰 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
