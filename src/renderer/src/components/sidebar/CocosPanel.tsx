@@ -51,6 +51,8 @@ export function CocosPanel() {
   const [selectedNode, setSelectedNode] = useState<CCSceneNode | null>(null)
   const [pluginList, setPluginList] = useState<string[]>([])
   const [showPluginManager, setShowPluginManager] = useState(false)
+  const [hotReload, setHotReload] = useState(false)
+  const [hotReloadInterval, setHotReloadInterval] = useState(1000)
   return (
     <CCFileProjectUI
       fileProject={fileProject}

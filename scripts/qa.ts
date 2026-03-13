@@ -12899,6 +12899,76 @@ if (existsSync(sl1247Path)) {
   }
 }
 
+console.log('\n## 327. Phase DD10 R1248~1250 기능 체크')
+
+// R1248: ChatPanel 채팅 번역
+const cp1248Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1248Path)) {
+  const cp1248 = readFileSync(cp1248Path, 'utf-8')
+  if (cp1248.includes('chatTranslate') || cp1248.includes('showTranslatePanel') || cp1248.includes('translatePanel')) {
+    log('pass', 'R1248', 'ChatPanel 채팅 번역 존재')
+  } else {
+    log('warning', 'R1248', 'ChatPanel 채팅 번역 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1249: InputBar 멘션 리스트
+const ib1249Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1249Path)) {
+  const ib1249 = readFileSync(ib1249Path, 'utf-8')
+  if (ib1249.includes('inputMentions') || ib1249.includes('showMentionList') || ib1249.includes('mentionList')) {
+    log('pass', 'R1249', 'InputBar 멘션 리스트 존재')
+  } else {
+    log('warning', 'R1249', 'InputBar 멘션 리스트 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1250: CocosPanel 핫 리로드
+const cocos1250Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1250Path)) {
+  const cocos1250 = readFileSync(cocos1250Path, 'utf-8')
+  if (cocos1250.includes('hotReload') || cocos1250.includes('hotReloadInterval') || cocos1250.includes('hotreload')) {
+    log('pass', 'R1250', 'CocosPanel 핫 리로드 존재')
+  } else {
+    log('warning', 'R1250', 'CocosPanel 핫 리로드 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 328. Phase DD10 R1251~1253 기능 체크')
+
+// R1251: SceneViewPanel 씬 파티클
+const svp1251Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1251Path)) {
+  const svp1251 = readFileSync(svp1251Path, 'utf-8')
+  if (svp1251.includes('sceneParticles') || svp1251.includes('showParticlePanel') || svp1251.includes('particlePanel')) {
+    log('pass', 'R1251', 'SceneViewPanel 씬 파티클 존재')
+  } else {
+    log('warning', 'R1251', 'SceneViewPanel 씬 파티클 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1252: TerminalPanel 터미널 프로필
+const tp1252Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1252Path)) {
+  const tp1252 = readFileSync(tp1252Path, 'utf-8')
+  if (tp1252.includes('termProfiles') || tp1252.includes('activeTermProfile') || tp1252.includes('termProfile')) {
+    log('pass', 'R1252', 'TerminalPanel 터미널 프로필 존재')
+  } else {
+    log('warning', 'R1252', 'TerminalPanel 터미널 프로필 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1253: SessionList 세션 배지
+const sl1253Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1253Path)) {
+  const sl1253 = readFileSync(sl1253Path, 'utf-8')
+  if (sl1253.includes('sessionBadges') || sl1253.includes('showBadgePanel') || sl1253.includes('sessionBadge')) {
+    log('pass', 'R1253', 'SessionList 세션 배지 존재')
+  } else {
+    log('warning', 'R1253', 'SessionList 세션 배지 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

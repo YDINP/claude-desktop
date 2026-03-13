@@ -377,6 +377,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   // R1205: session version
   const [sessionVersion, setSessionVersion] = useState<Record<string, number>>({})
   const [showVersionPanel, setShowVersionPanel] = useState(false)
+  const [sessionBadges, setSessionBadges] = useState<Record<string, string>>({})
+  const [showBadgePanel, setShowBadgePanel] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
