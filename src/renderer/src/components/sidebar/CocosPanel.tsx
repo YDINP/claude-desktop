@@ -319,6 +319,14 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1238: build profiles
   const [buildProfiles, setBuildProfiles] = useState<Record<string, object>>({})
   const [activeBuildProfile, setActiveBuildProfile] = useState<string | null>(null)
+  // R1390: CC 프로젝트 설정 뷰어
+  const [showProjectSettings, setShowProjectSettings] = useState(false)
+  const [projectSettings, setProjectSettings] = useState<{
+    designWidth?: number; designHeight?: number; physicsEngine?: string; buildTargets?: string[]
+  } | null>(null)
+  // R1389: 외부 변경 배너 자동 숨김
+  const [bannerHidden, setBannerHidden] = useState(false)
+  const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -367,6 +375,69 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       components: selectedNode?.components?.map(c => c.type) ?? [],
     })
   }, [ccCtxInject, sceneFile?.scenePath, projectInfo?.version, selectedNode?.uuid, selectedNode?.name, selectedNode?.components])
+
+  // R1390: 프로젝트 설정 로드
+  useEffect(() => {
+    if (!projectInfo?.projectPath) { setProjectSettings(null); return }
+    const loadSettings = async () => {
+      try {
+        const projPath = projectInfo.projectPath
+        // project.json 읽기
+        const projJsonPath = projPath + '/project.json'
+        const content = await window.api.fsReadFile?.(projJsonPath) as string | null
+        let designWidth = 960, designHeight = 640
+        let physicsEngine = 'none'
+        const buildTargets: string[] = []
+        if (content) {
+          try {
+            const pj = JSON.parse(content) as Record<string, unknown>
+            const designRes = pj['design-resolution'] as { width?: number; height?: number } | undefined
+            if (designRes) { designWidth = designRes.width ?? 960; designHeight = designRes.height ?? 640 }
+            // CC3.x: packages.builder
+            const pkgs = pj.packages as Record<string, unknown> | undefined
+            const builder = pkgs?.builder as Record<string, unknown> | undefined
+            if (builder?.buildSettings) {
+              const bs = builder.buildSettings as Record<string, unknown>
+              Object.keys(bs).forEach(k => buildTargets.push(k))
+            }
+            // physics engine
+            const physics = pj.physics as Record<string, unknown> | undefined
+            if (physics?.type) physicsEngine = String(physics.type)
+          } catch { /* ignore parse errors */ }
+        }
+        // settings/project.json (CC3.x)
+        try {
+          const settingsPath = projPath + '/settings/project.json'
+          const settingsContent = await window.api.fsReadFile?.(settingsPath) as string | null
+          if (settingsContent) {
+            const sj = JSON.parse(settingsContent) as Record<string, unknown>
+            const generalObj = sj.general as Record<string, unknown> | undefined
+            if (generalObj?.designResolution) {
+              const dr = generalObj.designResolution as { width?: number; height?: number }
+              if (dr.width) designWidth = dr.width
+              if (dr.height) designHeight = dr.height
+            }
+            const physicsObj = sj.physics as Record<string, unknown> | undefined
+            if (physicsObj?.type) physicsEngine = String(physicsObj.type)
+          }
+        } catch { /* settings/project.json 없으면 무시 */ }
+        setProjectSettings({ designWidth, designHeight, physicsEngine, buildTargets })
+      } catch { setProjectSettings(null) }
+    }
+    loadSettings()
+  }, [projectInfo?.projectPath])
+
+  // R1389: 외부 변경 배너 5초 후 자동 숨김
+  useEffect(() => {
+    if (externalChange) {
+      setBannerHidden(false)
+      if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current)
+      bannerTimerRef.current = setTimeout(() => setBannerHidden(true), 5000)
+    } else {
+      setBannerHidden(false)
+    }
+    return () => { if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current) }
+  }, [externalChange])
 
   const handleSceneChange = useCallback(async (path: string) => {
     setSelectedScene(path)
@@ -679,8 +750,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         if (/\.(fire|scene|prefab)$/i.test(filePath)) { loadScene(filePath); addRecent(filePath); addRecentScene(filePath) }
       }}
     >
-      {/* 외부 파일 변경 감지 배너 */}
-      {externalChange && sceneFile && (
+      {/* 외부 파일 변경 감지 배너 (R1389: 5초 자동 숨김) */}
+      {externalChange && sceneFile && !bannerHidden && (
         <div style={{
           padding: '5px 10px', background: '#2d1a00', borderBottom: '1px solid #ff9944',
           display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
@@ -696,6 +767,16 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             }}
           >
             다시 로드
+          </button>
+          <button
+            onClick={() => setBannerHidden(true)}
+            style={{
+              padding: '0 4px', fontSize: 11, borderRadius: 2, cursor: 'pointer',
+              background: 'none', color: '#ff9944', border: 'none', lineHeight: 1,
+            }}
+            title="닫기"
+          >
+            x
           </button>
         </div>
       )}
@@ -732,6 +813,65 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             <div style={{ marginTop: 2 }}>
               씬 파일: <strong>{projectInfo.scenes?.length ?? 0}개</strong>
             </div>
+          </div>
+        )}
+
+        {/* R1390: 프로젝트 설정 뷰어 */}
+        {projectInfo?.detected && (
+          <div style={{ marginTop: 6 }}>
+            <div
+              onClick={() => setShowProjectSettings(v => !v)}
+              style={{
+                fontSize: 10, color: 'var(--text-muted)', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 4,
+                padding: '3px 0', userSelect: 'none',
+              }}
+            >
+              <span style={{ fontSize: 9, transform: showProjectSettings ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s', display: 'inline-block' }}>{'>'}</span>
+              <span>{'⚙'} 프로젝트 설정</span>
+            </div>
+            {showProjectSettings && projectSettings && (
+              <div style={{
+                fontSize: 9, color: 'var(--text-muted)', padding: '4px 6px',
+                background: 'rgba(255,255,255,0.03)', borderRadius: 4, marginTop: 2,
+                border: '1px solid var(--border)', lineHeight: 1.8,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 64, flexShrink: 0 }}>디자인 해상도</span>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 600, fontFamily: 'monospace' }}>
+                    {projectSettings.designWidth} x {projectSettings.designHeight}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 64, flexShrink: 0 }}>물리 엔진</span>
+                  <span style={{
+                    color: projectSettings.physicsEngine === 'none' ? 'var(--text-muted)' : 'var(--accent)',
+                    fontFamily: 'monospace',
+                  }}>
+                    {projectSettings.physicsEngine || 'none'}
+                  </span>
+                </div>
+                {projectSettings.buildTargets && projectSettings.buildTargets.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+                    <span style={{ width: 64, flexShrink: 0 }}>빌드 타겟</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                      {projectSettings.buildTargets.map(t => (
+                        <span key={t} style={{
+                          fontSize: 8, padding: '1px 5px', borderRadius: 8,
+                          background: 'rgba(96,165,250,0.15)', color: 'var(--accent)',
+                        }}>{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 64, flexShrink: 0 }}>CC 버전</span>
+                  <span style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>
+                    {projectInfo.version} ({projectInfo.creatorVersion})
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

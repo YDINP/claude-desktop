@@ -494,6 +494,23 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     if (rootUuid) handleFit()
   }, [rootUuid])
 
+  // ── R1386: deep clone 헬퍼 (UUID 재귀 갱신) ─────────────────
+  const deepCloneNode = useCallback((node: SceneNode, offset = 20): SceneNode => {
+    const newUuid = node.uuid + '-clone-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6)
+    const clonedChildren = node.childUuids.map(cid => {
+      const child = nodeMap.get(cid)
+      return child ? deepCloneNode(child, 0).uuid : cid
+    })
+    return {
+      ...node,
+      uuid: newUuid,
+      name: node.name + '_Copy',
+      x: (node.x ?? 0) + offset,
+      y: (node.y ?? 0) + offset,
+      childUuids: clonedChildren,
+    }
+  }, [nodeMap])
+
   // ── copy / paste (키보드 useEffect보다 먼저 선언 필요) ──────
   const handleCopy = useCallback(() => {
     const uuids = selectedUuids.size > 0 ? selectedUuids : (selectedUuid ? new Set([selectedUuid]) : new Set<string>())
@@ -506,7 +523,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       setClipboard(copied)
       const primaryUuid = [...uuids][0]
       const primaryNode = primaryUuid ? nodeMap.get(primaryUuid) ?? null : null
-      setCopiedNode(primaryNode)
+      setCopiedNode(primaryNode ? { ...primaryNode } : null)
     }
   }, [selectedUuids, selectedUuid, nodeMap])
 
@@ -516,24 +533,26 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     clipboard.forEach(entry => {
       const orig = nodeMap.get(entry.uuid)
       if (orig) {
-        newNodes.push({
-          ...orig,
-          uuid: entry.uuid + '-copy-' + Date.now(),
-          name: entry.name + '_Copy',
-          x: (entry.x ?? 0) + 20,
-          y: (entry.y ?? 0) + 20,
-        })
+        const cloned = deepCloneNode(orig, 20)
+        newNodes.push(cloned)
+        // 재귀적으로 자식 노드도 등록
+        const registerChildren = (parentNode: SceneNode) => {
+          parentNode.childUuids.forEach(cid => {
+            const child = nodeMap.get(cid)
+            if (child) {
+              const clonedChild = deepCloneNode(child, 0)
+              updateNode(clonedChild.uuid, clonedChild)
+              registerChildren(clonedChild)
+            }
+          })
+        }
+        registerChildren(orig)
       }
     })
     if (newNodes.length > 0) {
       newNodes.forEach(n => updateNode(n.uuid, n))
-      if (copiedNode) {
-        console.log(`copy paste: ${copiedNode.name}`)
-      } else if (clipboard.length > 0) {
-        console.log(`copy paste: ${clipboard[0].name}`)
-      }
     }
-  }, [clipboard, copiedNode, nodeMap, updateNode])
+  }, [clipboard, nodeMap, updateNode, deepCloneNode])
 
   // ── 복제 (Ctrl+D): clipboard 변경 없이 직접 노드 복제 ─────
   // ── 그룹화 (Ctrl+G): 선택 노드들을 새 Group 노드 아래로 묶기 ─
@@ -599,20 +618,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   const handleDuplicate = useCallback(() => {
     const uuids = selectedUuids.size > 0 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
-    const baseTs = Date.now()
-    uuids.forEach((uuid, i) => {
+    uuids.forEach((uuid) => {
       const orig = nodeMap.get(uuid)
       if (!orig) return
-      const dupId = orig.uuid + '-dup-' + (baseTs + i)
-      updateNode(dupId, {
-        ...orig,
-        uuid: dupId,
-        name: orig.name + '_Copy',
-        x: (orig.x ?? 0) + 20,
-        y: (orig.y ?? 0) + 20,
-      })
+      const cloned = deepCloneNode(orig, 20)
+      updateNode(cloned.uuid, cloned)
     })
-  }, [selectedUuids, selectedUuid, nodeMap, updateNode])
+  }, [selectedUuids, selectedUuid, nodeMap, updateNode, deepCloneNode])
 
   // ── 단축키 ────────────────────────────────────────────────
   useEffect(() => {

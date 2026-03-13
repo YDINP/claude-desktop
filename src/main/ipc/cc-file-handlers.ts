@@ -15,6 +15,7 @@ import type { CCFileProjectInfo, CCSceneFile, CCSceneNode } from '../../shared/i
 
 let _registered = false
 let _watchUnsubscribe: (() => void) | null = null
+let _partialUpdateUnsubscribe: (() => void) | null = null
 
 export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   if (_registered) return
@@ -25,6 +26,14 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     const win = mainWindow ?? BrowserWindow.getAllWindows()[0]
     if (win && !win.isDestroyed()) {
       win.webContents.send('cc:file:changed', event)
+    }
+  })
+
+  // R1389: 부분 업데이트 이벤트 → renderer로 전달
+  _partialUpdateUnsubscribe = ccFileWatcher.onPartialUpdate(update => {
+    const win = mainWindow ?? BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('cc:scene-partial-update', update)
     }
   })
 

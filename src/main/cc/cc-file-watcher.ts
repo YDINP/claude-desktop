@@ -8,18 +8,32 @@ export interface CCFileChangeEvent {
   timestamp: number
 }
 
+// R1389: 부분 업데이트 이벤트
+export interface CCScenePartialUpdate {
+  changedUuids: string[]
+  fullReload: boolean
+  path: string
+  timestamp: number
+}
+
 type ChangeCallback = (event: CCFileChangeEvent) => void
+type PartialUpdateCallback = (update: CCScenePartialUpdate) => void
 
 /**
- * CC 씬 파일 감시 (Phase B)
+ * CC 씬 파일 감시 (Phase B + R1389 부분 업데이트)
  * chokidar v5 (ESM-only) — 동적 import()로 CJS 환경 호환
  */
 export class CCFileWatcher {
   private watcher: FSWatcher | null = null
   private callbacks = new Set<ChangeCallback>()
+  private partialUpdateCallbacks = new Set<PartialUpdateCallback>()
   private watchedPaths = new Set<string>()
   private pendingPaths: string[] = []
   private initializing = false
+  // R1389: debounce 300ms
+  private debounceTimers = new Map<string, ReturnType<typeof setTimeout>>()
+  // R1389: 이전 파일 내용 캐시 (diff용)
+  private fileContentCache = new Map<string, string>()
 
   /**
    * 씬 파일 또는 디렉토리 감시 시작
@@ -51,8 +65,8 @@ export class CCFileWatcher {
         persistent: true,
         ignoreInitial: true,
         awaitWriteFinish: {
-          stabilityThreshold: 300,
-          pollInterval: 100,
+          stabilityThreshold: 200,
+          pollInterval: 80,
         },
         ignored: (filePath: string) => {
           if (typeof filePath !== 'string') return false
@@ -63,7 +77,7 @@ export class CCFileWatcher {
       })
 
       this.watcher
-        .on('change', (p: string) => this.emit({ type: 'change', path: p, timestamp: Date.now() }))
+        .on('change', (p: string) => this.debouncedChange(p))
         .on('add', (p: string) => this.emit({ type: 'add', path: p, timestamp: Date.now() }))
         .on('unlink', (p: string) => this.emit({ type: 'unlink', path: p, timestamp: Date.now() }))
         .on('error', (err: unknown) => console.error('[cc-file-watcher]', err))
@@ -72,17 +86,79 @@ export class CCFileWatcher {
     }
   }
 
+  // R1389: 300ms debounce change 이벤트
+  private debouncedChange(path: string) {
+    const existing = this.debounceTimers.get(path)
+    if (existing) clearTimeout(existing)
+    this.debounceTimers.set(path, setTimeout(() => {
+      this.debounceTimers.delete(path)
+      this.emit({ type: 'change', path, timestamp: Date.now() })
+      this.emitPartialUpdate(path)
+    }, 300))
+  }
+
+  // R1389: 파일 diff 기반 부분 업데이트 이벤트 전송
+  private async emitPartialUpdate(path: string) {
+    try {
+      const { readFileSync } = await import('fs')
+      const newContent = readFileSync(path, 'utf-8')
+      const oldContent = this.fileContentCache.get(path)
+      this.fileContentCache.set(path, newContent)
+
+      if (!oldContent) {
+        // 캐시 없으면 전체 리로드
+        this.emitPartial({ changedUuids: [], fullReload: true, path, timestamp: Date.now() })
+        return
+      }
+
+      // JSON 파싱 시도 → UUID diff
+      try {
+        const oldArr = JSON.parse(oldContent) as Array<{ _id?: string; __id__?: string }>
+        const newArr = JSON.parse(newContent) as Array<{ _id?: string; __id__?: string }>
+        const changedUuids: string[] = []
+
+        if (Array.isArray(oldArr) && Array.isArray(newArr)) {
+          const maxLen = Math.max(oldArr.length, newArr.length)
+          for (let i = 0; i < maxLen; i++) {
+            const oldItem = oldArr[i]
+            const newItem = newArr[i]
+            if (JSON.stringify(oldItem) !== JSON.stringify(newItem)) {
+              const uuid = (newItem ?? oldItem)?._id ?? (newItem ?? oldItem)?.__id__
+              if (uuid) changedUuids.push(uuid)
+            }
+          }
+          this.emitPartial({ changedUuids, fullReload: changedUuids.length === 0, path, timestamp: Date.now() })
+        } else {
+          this.emitPartial({ changedUuids: [], fullReload: true, path, timestamp: Date.now() })
+        }
+      } catch {
+        this.emitPartial({ changedUuids: [], fullReload: true, path, timestamp: Date.now() })
+      }
+    } catch {
+      this.emitPartial({ changedUuids: [], fullReload: true, path, timestamp: Date.now() })
+    }
+  }
+
+  /** 파일 내용 캐시 초기화 (씬 로드 시 호출) */
+  cacheFileContent(path: string, content: string) {
+    this.fileContentCache.set(path, content)
+  }
+
   unwatch(paths: string | string[]) {
     const list = Array.isArray(paths) ? paths : [paths]
-    list.forEach(p => this.watchedPaths.delete(p))
+    list.forEach(p => { this.watchedPaths.delete(p); this.fileContentCache.delete(p) })
     this.watcher?.unwatch(list)
   }
 
   async close() {
+    for (const timer of this.debounceTimers.values()) clearTimeout(timer)
+    this.debounceTimers.clear()
+    this.fileContentCache.clear()
     await this.watcher?.close()
     this.watcher = null
     this.watchedPaths.clear()
     this.callbacks.clear()
+    this.partialUpdateCallbacks.clear()
   }
 
   onChange(cb: ChangeCallback) {
@@ -90,8 +166,18 @@ export class CCFileWatcher {
     return () => this.callbacks.delete(cb)
   }
 
+  // R1389: 부분 업데이트 콜백 등록
+  onPartialUpdate(cb: PartialUpdateCallback) {
+    this.partialUpdateCallbacks.add(cb)
+    return () => this.partialUpdateCallbacks.delete(cb)
+  }
+
   private emit(event: CCFileChangeEvent) {
     for (const cb of this.callbacks) cb(event)
+  }
+
+  private emitPartial(update: CCScenePartialUpdate) {
+    for (const cb of this.partialUpdateCallbacks) cb(update)
   }
 
   get watchedCount() { return this.watchedPaths.size }

@@ -863,6 +863,79 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         )
       })()}
 
+      {/* R1387: cc.AudioSource 속성 편집 */}
+      {(() => {
+        const audioComp = node.components.find(c => c.type === 'cc.AudioSource')
+        if (!audioComp?.props) return null
+        const ap = audioComp.props as Record<string, unknown>
+        const clipUuid = (ap.clip as { __uuid__?: string })?.__uuid__ ?? (ap._clip as { __uuid__?: string })?.__uuid__ ?? ''
+        const clipDisplay = clipUuid.length > 16 ? clipUuid.slice(0, 8) + '...' + clipUuid.slice(-6) : clipUuid || '(없음)'
+        const volume = (ap.volume as number) ?? (ap._volume as number) ?? 1
+        const loop = (ap.loop as boolean) ?? (ap._loop as boolean) ?? false
+        const playOnLoad = (ap.playOnLoad as boolean) ?? (ap._playOnAwake as boolean) ?? false
+        const preload = (ap.preload as number) ?? 0
+        const preloadLabels = ['NONE', 'METADATA', 'AUTO']
+        const onAudioPropChange = (key: string, value: number | boolean) => {
+          const newComps = node.components.map(c =>
+            c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, [key]: value } } : c
+          )
+          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+        }
+        return (
+          <>
+            <SectionHeader label="AudioSource" />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48 }}>clip</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}
+                  title={clipUuid}>{clipDisplay}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48, fontSize: 9 }}>volume</span>
+                <input
+                  type="range" min={0} max={1} step={0.01} value={volume}
+                  onChange={e => onAudioPropChange('volume', parseFloat(e.target.value))}
+                  style={{ flex: 1, height: 4, accentColor: 'var(--accent)', cursor: 'pointer', minWidth: 0 }}
+                />
+                <span style={{ fontSize: 8, color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums', minWidth: 24, textAlign: 'right' }}>
+                  {volume.toFixed(2)}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48, fontSize: 9 }}>loop</span>
+                <input
+                  type="checkbox" checked={loop}
+                  onChange={e => onAudioPropChange('loop', e.target.checked)}
+                  style={{ width: 12, height: 12, accentColor: 'var(--accent)', cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: 8, color: loop ? 'var(--success)' : 'var(--text-muted)' }}>{loop ? 'ON' : 'OFF'}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48, fontSize: 9 }}>playOnLoad</span>
+                <input
+                  type="checkbox" checked={playOnLoad}
+                  onChange={e => onAudioPropChange('playOnLoad', e.target.checked)}
+                  style={{ width: 12, height: 12, accentColor: 'var(--accent)', cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: 8, color: playOnLoad ? 'var(--success)' : 'var(--text-muted)' }}>{playOnLoad ? 'ON' : 'OFF'}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48, fontSize: 9 }}>preload</span>
+                <select
+                  value={preload}
+                  onChange={e => onAudioPropChange('preload', parseInt(e.target.value))}
+                  style={{ flex: 1, fontSize: 9, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '1px 3px' }}
+                >
+                  {preloadLabels.map((label, i) => (
+                    <option key={i} value={i}>{i} — {label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </>
+        )
+      })()}
+
       {/* R1372: 컴포넌트 추가 드롭다운 */}
       {(() => {
         const ADDABLE_COMPONENTS = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource']

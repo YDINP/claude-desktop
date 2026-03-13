@@ -1,10 +1,10 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1385 완료 — Phase DD12 R1380~1385)
+> 마지막 업데이트: 2026-03-14 (Round 1391 완료 — Phase DD13 R1386~1391)
 
 ## 현재 상태
-- 마지막 커밋: Round 1380~1385 (파서강화/씬diff/에셋브라우저/씬탭/Animation뷰어/QA)
+- 마지막 커밋: Round 1386~1391 (노드복사deepClone/AudioSource/9슬라이스/파일감시/프로젝트설정/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1256
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1264
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)

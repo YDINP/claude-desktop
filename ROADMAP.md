@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1379 완료 — Phase DD11 진행 중, QA Pass 1251)
+> 마지막 업데이트: 2026-03-14 (Round 1391 완료 — Phase DD13 진행 중, QA Pass 1264)
 
 ## 개발 루프 실행 방식
 
@@ -767,6 +767,12 @@
 | Round 1383 | SceneView 씬 파일 탭 바 (sceneHistory 기반, 최대 5개 탭, 클릭 전환) | ✅ |
 | Round 1384 | Inspector cc.Animation 클립 목록 뷰어 (defaultClip + clips UUID 표시) | ✅ |
 | Round 1385 | QA Section 371-372 추가 (R1380-R1384 기능 체크, Pass 1256) | ✅ |
+| Round 1386 | SceneView 노드 복사/붙여넣기/복제 deep clone (Ctrl+C/V/D, 재귀 UUID 갱신) | ✅ |
+| Round 1387 | Inspector cc.AudioSource 속성 편집 (volume/loop/playOnLoad/preload) | ✅ |
+| Round 1388 | NodeRenderer Sprite SLICED/TILED 렌더링 힌트 (점선 격자/x 패턴) | ✅ |
+| Round 1389 | cc-file-watcher 부분 업데이트 IPC + debounce 300ms + 배너 5초 자동 숨김 | ✅ |
+| Round 1390 | CocosPanel CC 프로젝트 설정 뷰어 (버전/해상도/물리엔진/빌드타겟) | ✅ |
+| Round 1391 | QA Section 373-374 추가 (R1386-R1390 기능 체크, Pass 1264) | ✅ |
 
 ## QA 프로세스
 
