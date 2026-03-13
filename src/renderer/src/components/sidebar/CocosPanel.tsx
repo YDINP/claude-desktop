@@ -532,6 +532,57 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     return map
   }, [sceneFile?.root])
 
+  // R1448: 씬 의존성 분석
+  type DepEntry = { uuid: string; path: string; type: string; missing: boolean }
+  const [showDepsAnalysis, setShowDepsAnalysis] = useState(false)
+  const [depsLoading, setDepsLoading] = useState(false)
+  const [depsEntries, setDepsEntries] = useState<DepEntry[]>([])
+  const handleAnalyzeDeps = useCallback(async () => {
+    if (!sceneFile?._raw || !projectInfo?.projectPath) return
+    setDepsLoading(true)
+    setShowDepsAnalysis(true)
+    try {
+      const raw = sceneFile._raw as Record<string, unknown>[]
+      // 씬 내 모든 UUID 참조 추출
+      const referencedUuids = new Set<string>()
+      function extractRefs(obj: unknown): void {
+        if (!obj || typeof obj !== 'object') return
+        if (Array.isArray(obj)) { for (const item of obj) extractRefs(item); return }
+        const rec = obj as Record<string, unknown>
+        if (typeof rec.__uuid__ === 'string') { referencedUuids.add(rec.__uuid__); return }
+        for (const val of Object.values(rec)) {
+          if (val && typeof val === 'object') extractRefs(val)
+        }
+      }
+      for (const entry of raw) extractRefs(entry)
+
+      // 에셋 맵 빌드 (이미 로드된 경우 캐시 사용 가능)
+      const assetsDir = projectInfo.projectPath + '/assets'
+      const assetMap = await window.api.ccFileBuildUUIDMap(assetsDir)
+
+      // UUID 매칭
+      const entries: DepEntry[] = []
+      for (const uuid of referencedUuids) {
+        const asset = assetMap[uuid]
+        if (asset) {
+          entries.push({ uuid, path: asset.relPath, type: asset.type, missing: false })
+        } else {
+          entries.push({ uuid, path: '', type: 'unknown', missing: true })
+        }
+      }
+      // 타입별 정렬 (누락 → 이미지 → 폰트 → 오디오 → 스크립트 → 기타)
+      entries.sort((a, b) => {
+        if (a.missing !== b.missing) return a.missing ? -1 : 1
+        return a.type.localeCompare(b.type)
+      })
+      setDepsEntries(entries)
+    } catch {
+      setDepsEntries([])
+    } finally {
+      setDepsLoading(false)
+    }
+  }, [sceneFile, projectInfo])
+
   const addRecent = useCallback((path: string) => {
     setRecentFiles(prev => {
       const next = [path, ...prev.filter(f => f !== path)].slice(0, 6)
@@ -1591,6 +1642,72 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.message}>{s.message}</span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* R1448: 씬 의존성 분석 */}
+        {sceneFile?.root && (
+          <div style={{ marginTop: 4 }}>
+            <button
+              onClick={handleAnalyzeDeps}
+              disabled={depsLoading}
+              style={{
+                width: '100%', padding: '3px 0', fontSize: 10, borderRadius: 3,
+                cursor: depsLoading ? 'wait' : 'pointer', background: 'none',
+                border: '1px solid var(--border)', color: 'var(--text-muted)',
+              }}
+            >
+              {depsLoading ? '분석 중...' : '\uD83D\uDCE6 의존성 분석'}
+            </button>
+            {showDepsAnalysis && (
+              <div style={{ marginTop: 4, maxHeight: 200, overflowY: 'auto', borderRadius: 4, border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)' }}>
+                <div style={{ padding: '4px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
+                  <span>{depsEntries.length} 에셋 참조 ({depsEntries.filter(d => d.missing).length} 누락)</span>
+                  <span style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => setShowDepsAnalysis(false)}>x</span>
+                </div>
+                {(() => {
+                  // R1448: 타입별 그룹화
+                  const TYPE_LABELS: Record<string, string> = { image: '\uD83D\uDDBC 이미지', font: '\uD83D\uDD24 폰트', audio: '\uD83D\uDD0A 오디오', script: '\uD83D\uDCDC 스크립트', unknown: '\u2753 기타' }
+                  const groups: Record<string, DepEntry[]> = {}
+                  for (const d of depsEntries) {
+                    const group = d.missing ? 'missing' : (d.type in TYPE_LABELS ? d.type : 'unknown')
+                    if (!groups[group]) groups[group] = []
+                    groups[group].push(d)
+                  }
+                  return (
+                    <>
+                      {groups['missing'] && groups['missing'].length > 0 && (
+                        <div>
+                          <div style={{ padding: '3px 8px', fontSize: 9, fontWeight: 600, color: '#f87171', background: 'rgba(248,81,73,0.1)' }}>
+                            {'\u274C'} 누락 ({groups['missing'].length})
+                          </div>
+                          {groups['missing'].map(d => (
+                            <div key={d.uuid} style={{ padding: '2px 8px', fontSize: 9, color: '#f87171', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={d.uuid}>
+                              {d.uuid.slice(0, 12)}...
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {Object.entries(groups).filter(([k]) => k !== 'missing').map(([type, items]) => (
+                        <div key={type}>
+                          <div style={{ padding: '3px 8px', fontSize: 9, fontWeight: 600, color: 'var(--text-muted)', background: 'rgba(255,255,255,0.03)' }}>
+                            {TYPE_LABELS[type] ?? type} ({items.length})
+                          </div>
+                          {items.slice(0, 20).map(d => (
+                            <div key={d.uuid} style={{ padding: '2px 8px', fontSize: 9, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={d.path}>
+                              {d.path || d.uuid.slice(0, 12)}
+                            </div>
+                          ))}
+                          {items.length > 20 && (
+                            <div style={{ padding: '2px 8px', fontSize: 8, color: 'var(--text-muted)' }}>...+{items.length - 20}</div>
+                          )}
+                        </div>
+                      ))}
+                    </>
+                  )
+                })()}
+              </div>
+            )}
           </div>
         )}
 

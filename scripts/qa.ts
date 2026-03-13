@@ -15268,6 +15268,75 @@ if (existsSync(appPath)) {
   }
 }
 
+// ── Section 395: R1446/R1447/R1448 기능 체크 ───────────────
+console.log('\n## 395. Phase DD16 R1446~R1448 기능 체크')
+
+// R1446: SceneView 편집 이력 패널
+const svp1446 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1446)) {
+  const s1446 = readFileSync(svp1446, 'utf-8')
+  if (s1446.includes('R1446') && s1446.includes('editHistory') && s1446.includes('showEditHistory') && s1446.includes('addEditHistory') && s1446.includes('Edit History')) {
+    log('pass', 'R1446', 'SceneView 편집 이력 패널 (editHistory + addEditHistory + 이력 패널 UI)')
+  } else {
+    log('warning', 'R1446', 'SceneView 편집 이력 패널 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1446: SceneToolbar 이력 버튼
+const stb1446 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb1446)) {
+  const t1446 = readFileSync(stb1446, 'utf-8')
+  if (t1446.includes('R1446') && t1446.includes('onToggleEditHistory') && t1446.includes('editHistoryCount')) {
+    log('pass', 'R1446-Toolbar', 'SceneToolbar 편집 이력 버튼')
+  } else {
+    log('warning', 'R1446-Toolbar', 'SceneToolbar 편집 이력 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R1447: cc-file-parser findCanvasNode + getDesignResolution
+const parser1447 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser1447)) {
+  const p1447 = readFileSync(parser1447, 'utf-8')
+  if (p1447.includes('R1447') && p1447.includes('findCanvasNode') && p1447.includes('getDesignResolution') && p1447.includes('cc.Canvas') && p1447.includes('_designResolution') && p1447.includes('orthoHeight')) {
+    log('pass', 'R1447', 'cc-file-parser findCanvasNode + getDesignResolution (2x/3x)')
+  } else {
+    log('warning', 'R1447', 'cc-file-parser Canvas/디자인해상도 함수 없음', 'cc/cc-file-parser.ts')
+  }
+}
+
+// R1448: CocosPanel 의존성 분석
+if (existsSync(cp1398Path)) {
+  const cp1448 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1448.includes('R1448') && cp1448.includes('handleAnalyzeDeps') && cp1448.includes('showDepsAnalysis') && cp1448.includes('depsEntries') && cp1448.includes('missing')) {
+    log('pass', 'R1448', 'CocosPanel 씬 의존성 분석 (타입별 그룹 + 누락 표시)')
+  } else {
+    log('warning', 'R1448', 'CocosPanel 의존성 분석 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 396: R1449/R1450 기능 체크 ───────────────
+console.log('\n## 396. Phase DD16 R1449~R1450 기능 체크')
+
+// R1449: Inspector Transform 리셋 버튼
+const insp1449 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(insp1449)) {
+  const i1449 = readFileSync(insp1449, 'utf-8')
+  if (i1449.includes('R1449') && i1449.includes('전체 Transform 리셋') && i1449.includes('위치를 (0, 0)으로 리셋') && i1449.includes('스케일을 (1, 1)로 리셋') && i1449.includes('회전을 0으로 리셋')) {
+    log('pass', 'R1449', 'Inspector Transform 개별/전체 리셋 버튼 (↺ 위치/회전/스케일/전체)')
+  } else {
+    log('warning', 'R1449', 'Inspector Transform 리셋 버튼 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1450: SceneView 레이어 드래그 재배치
+if (existsSync(svp1446)) {
+  const s1450 = readFileSync(svp1446, 'utf-8')
+  if (s1450.includes('R1450') && s1450.includes('layerDragIdx') && s1450.includes('layerDropIdx') && s1450.includes('onDragStart') && s1450.includes('onDrop') && s1450.includes('#60a5fa')) {
+    log('pass', 'R1450', 'SceneView 레이어 순서 드래그 재배치 (드래그 핸들 + 드롭 인디케이터)')
+  } else {
+    log('warning', 'R1450', 'SceneView 레이어 드래그 재배치 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

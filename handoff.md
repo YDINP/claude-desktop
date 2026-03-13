@@ -1,13 +1,24 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1445 완료 — Phase DD15 R1440~1445)
+> 마지막 업데이트: 2026-03-14 (Round 1451 완료 — Phase DD16 R1446~1451)
 
 ## 현재 상태
-- 마지막 커밋: Round 1440~1445 (씬임포트/최적화제안/정렬강화/북마크패널/스크립트편집/QA)
+- 마지막 커밋: Round 1446~1451 (편집이력/Canvas감지/의존성분석/Transform리셋/레이어드래그/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1332
+- QA: `npm run qa` ✅ Critical 0, Warning 5, Pass 1335
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
+
+## Phase DD16 R1446~1451 (2026-03-14)
+
+| 라운드 | 기능 |
+|--------|------|
+| R1446 | SceneView 편집 이력 패널 (⏱ 버튼, max 100 항목, 드래그/리사이즈/이름변경 기록) |
+| R1447 | cc-file-parser findCanvasNode + getDesignResolution (2x/3x Canvas 자동 감지) |
+| R1448 | CocosPanel 씬 의존성 분석 (📦 버튼, UUID 참조 추출, 타입별 그룹/누락 표시) |
+| R1449 | Inspector Transform 개별/전체 리셋 버튼 (↺ 위치/회전/스케일/전체) |
+| R1450 | SceneView 레이어 순서 드래그 재배치 (⋮⋮ 핸들, 파란 드롭 인디케이터) |
+| R1451 | QA Section 395-396 추가 (R1446-R1450 기능 체크, Pass 1335) |
 
 ## Phase DD15 R1440~1445 (2026-03-14)
 

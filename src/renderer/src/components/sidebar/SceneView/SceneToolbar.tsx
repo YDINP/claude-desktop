@@ -127,6 +127,10 @@ interface SceneToolbarProps {
   // R1424: 씬 비교 뷰
   compareMode?: boolean
   onCompareToggle?: () => void
+  // R1446: 편집 이력
+  showEditHistory?: boolean
+  onToggleEditHistory?: () => void
+  editHistoryCount?: number
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -250,6 +254,9 @@ export function SceneToolbar({
   onGridSettings,
   compareMode,
   onCompareToggle,
+  showEditHistory,
+  onToggleEditHistory,
+  editHistoryCount,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -1146,6 +1153,15 @@ export function SceneToolbar({
           onClick={onClearOverlayImage}
           title="목업 이미지 오버레이 (드래그&드롭으로 이미지 추가, 클릭 시 제거)"
         >🖼</button>
+      )}
+
+      {/* R1446: 편집 이력 */}
+      {onToggleEditHistory && (
+        <button
+          style={showEditHistory ? { ...btnBase, color: 'var(--accent)', borderColor: 'var(--accent)' } : btnBase}
+          onClick={onToggleEditHistory}
+          title={`편집 이력 (${editHistoryCount ?? 0}건)`}
+        >{'⏱'}{editHistoryCount ? <span style={{ fontSize: 8, marginLeft: 1 }}>{editHistoryCount}</span> : null}</button>
       )}
 
       {/* 새로고침 */}

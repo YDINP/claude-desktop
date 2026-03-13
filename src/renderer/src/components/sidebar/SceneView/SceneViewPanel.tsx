@@ -249,6 +249,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [importJson, setImportJson] = useState('')
   const [importError, setImportError] = useState<string | null>(null)
 
+  // ── R1446: 씬 편집 이력 (리플레이용) ──────────────────────
+  type EditHistoryEntry = { timestamp: number; action: string; nodeUuid: string; nodeName: string; before: Record<string, unknown>; after: Record<string, unknown> }
+  const [editHistory, setEditHistory] = useState<EditHistoryEntry[]>([])
+  const [showEditHistory, setShowEditHistory] = useState(false)
+  const addEditHistory = useCallback((action: string, nodeUuid: string, nodeName: string, before: Record<string, unknown>, after: Record<string, unknown>) => {
+    setEditHistory(prev => [{ timestamp: Date.now(), action, nodeUuid, nodeName, before, after }, ...prev].slice(0, 100))
+  }, [])
+
+  // ── R1450: 레이어 드래그 재배치 상태 ──────────────────────
+  const [layerDragIdx, setLayerDragIdx] = useState<number | null>(null)
+  const [layerDropIdx, setLayerDropIdx] = useState<number | null>(null)
+
   // ── R1442: 정렬 가이드라인 고도화 ─────────────────────────
   const [showCenterGuide, setShowCenterGuide] = useState(false)
   const [snapThreshold, setSnapThreshold] = useState<number>(() => {
@@ -1629,6 +1641,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           const entry = { uuid: drag.uuid, name: draggedNode.name, x: Math.round(draggedNode.x), y: Math.round(draggedNode.y), ts: Date.now() }
           return [entry, ...prev.filter(e => e.uuid !== drag.uuid)].slice(0, 20)
         })
+        // R1446: 편집 이력 기록 (드래그 이동)
+        if (draggedNode.x !== drag.startNodeX || draggedNode.y !== drag.startNodeY) {
+          addEditHistory('move', drag.uuid, draggedNode.name, { x: drag.startNodeX, y: drag.startNodeY }, { x: draggedNode.x, y: draggedNode.y })
+        }
       }
       // dragRef.current already nulled at start of handler (race condition fix)
       setIsDragging(false)
@@ -1640,6 +1656,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       const rs = resizeRef.current
       const node = nodeMap.get(rs.uuid)
       if (node) {
+        // R1446: 편집 이력 기록 (리사이즈)
+        if (node.width !== rs.startWidth || node.height !== rs.startHeight) {
+          addEditHistory('resize', rs.uuid, node.name, { width: rs.startWidth, height: rs.startHeight }, { width: node.width, height: node.height })
+        }
         try {
           await window.api.ccSetProperty?.(port, rs.uuid, 'width', node.width)
           await window.api.ccSetProperty?.(port, rs.uuid, 'height', node.height)
@@ -2080,13 +2100,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [updateNode, port])
 
   const handleRename = useCallback(async (uuid: string, name: string) => {
+    const prevNode = nodeMap.get(uuid)
+    // R1446: 편집 이력 기록 (이름 변경)
+    if (prevNode && prevNode.name !== name) {
+      addEditHistory('rename', uuid, name, { name: prevNode.name }, { name })
+    }
     updateNode(uuid, { name })
     try {
       await window.api.ccSetProperty?.(port, uuid, 'name', name)
     } catch (e) {
       console.error('[SceneView] rename failed:', e)
     }
-  }, [updateNode, port])
+  }, [updateNode, port, nodeMap, addEditHistory])
 
   // ── 렌더 순서 ────────────────────────────────────────────
   const renderOrder = useMemo(() => {
@@ -2653,6 +2678,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onZoomTo={handleZoomTo}
         hasOverlayImage={!!overlayImageSrc}
         onClearOverlayImage={() => setOverlayImageSrc(null)}
+        showEditHistory={showEditHistory}
+        onToggleEditHistory={() => setShowEditHistory(v => !v)}
+        editHistoryCount={editHistory.length}
       />
 
       {/* R1422: 그리드 설정 팝업 — Grid 버튼 우클릭으로 열기 */}
@@ -4604,14 +4632,47 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 {showAllToggle ? '👁' : '🙈'}
               </button>
             </div>
-            {/* R1395: 레이어 목록 (가시성/잠금/색상 라벨) */}
-            {topLevelNodes.map(layer => {
+            {/* R1395+R1450: 레이어 목록 (가시성/잠금/색상 라벨 + 드래그 재배치) */}
+            {topLevelNodes.map((layer, layerIdx) => {
               const isHidden = hiddenLayers.has(layer.uuid)
               const isLocked = lockedLayers.has(layer.uuid)
               const childCount = collectDescendants(layer.uuid).length - 1
               const lc = layerColors[layer.uuid]
               return (
-                <div key={layer.uuid} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div
+                  key={layer.uuid}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    borderTop: layerDropIdx === layerIdx && layerDragIdx !== null && layerDragIdx !== layerIdx ? '2px solid #60a5fa' : 'none',
+                    opacity: layerDragIdx === layerIdx ? 0.4 : 1,
+                  }}
+                  onDragOver={e => { e.preventDefault(); setLayerDropIdx(layerIdx) }}
+                  onDragLeave={() => { if (layerDropIdx === layerIdx) setLayerDropIdx(null) }}
+                  onDrop={e => {
+                    e.preventDefault()
+                    if (layerDragIdx !== null && layerDragIdx !== layerIdx && rootUuid) {
+                      // R1450: 레이어 순서 변경 — rootUuid의 childUuids 재배치
+                      const root = nodeMap.get(rootUuid)
+                      if (root) {
+                        const uuids = [...root.childUuids]
+                        const [moved] = uuids.splice(layerDragIdx, 1)
+                        uuids.splice(layerIdx, 0, moved)
+                        updateNode(rootUuid, { childUuids: uuids })
+                      }
+                    }
+                    setLayerDragIdx(null)
+                    setLayerDropIdx(null)
+                  }}
+                >
+                  {/* R1450: 드래그 핸들 */}
+                  <span
+                    draggable
+                    onDragStart={() => setLayerDragIdx(layerIdx)}
+                    onDragEnd={() => { setLayerDragIdx(null); setLayerDropIdx(null) }}
+                    style={{ cursor: 'grab', color: 'rgba(255,255,255,0.3)', fontSize: 10, flexShrink: 0, userSelect: 'none' }}
+                    title="R1450: 드래그하여 레이어 순서 변경"
+                  >{'⋮⋮'}</span>
                   <button
                     onClick={() => setHiddenLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
                     title={isHidden ? '표시' : '숨김'}
@@ -4660,6 +4721,50 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 </div>
               )
             })}
+          </div>
+        )}
+
+        {/* R1446: 편집 이력 패널 (우측 상단) */}
+        {showEditHistory && editHistory.length > 0 && (
+          <div style={{
+            position: 'absolute', top: 4, right: 4, zIndex: 20,
+            width: 200, maxHeight: 240, overflowY: 'auto',
+            background: 'rgba(0,0,0,0.75)', borderRadius: 4,
+            padding: '6px 8px', fontSize: 10,
+            border: '1px solid rgba(255,255,255,0.12)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+              <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Edit History ({editHistory.length})</span>
+              <button
+                onClick={() => setShowEditHistory(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, lineHeight: 1, padding: 0 }}
+              >x</button>
+            </div>
+            {editHistory.map((entry, i) => (
+              <div
+                key={`${entry.timestamp}-${i}`}
+                onClick={() => {
+                  setSelectedUuid(entry.nodeUuid)
+                  setSelectedUuids(new Set([entry.nodeUuid]))
+                }}
+                style={{
+                  display: 'flex', flexDirection: 'column', gap: 1, padding: '3px 0',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer',
+                }}
+              >
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                    {new Date(entry.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </span>
+                  <span style={{ color: entry.action === 'move' ? '#60a5fa' : entry.action === 'resize' ? '#34d399' : '#fbbf24', fontSize: 9, fontWeight: 600, flexShrink: 0 }}>
+                    {entry.action}
+                  </span>
+                </div>
+                <span style={{ color: '#e0e0e0', fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {entry.nodeName}
+                </span>
+              </div>
+            ))}
           </div>
         )}
 

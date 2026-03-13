@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1439 완료 — Phase DD14 진행 중, QA Pass 1325)
+> 마지막 업데이트: 2026-03-14 (Round 1451 완료 — Phase DD16 진행 중, QA Pass 1335)
 
 ## 개발 루프 실행 방식
 
@@ -821,6 +821,12 @@
 | Round 1443 | Inspector 북마크 패널 (★ 토글 + 목록 + 색상 태그) | ✅ |
 | Round 1444 | CocosPanel 스크립트 편집기 연동 (✏️ 버튼, 사용중 강조) | ✅ |
 | Round 1445 | QA Section 393-394 추가 (R1440-R1444 기능 체크, Pass 1332) | ✅ |
+| Round 1446 | SceneView 편집 이력 패널 (⏱ 버튼, max 100 항목, 드래그/리사이즈/이름변경 기록) | ✅ |
+| Round 1447 | cc-file-parser findCanvasNode + getDesignResolution (2x/3x Canvas 자동 감지) | ✅ |
+| Round 1448 | CocosPanel 씬 의존성 분석 (📦 버튼, UUID 참조 추출, 타입별 그룹/누락 표시) | ✅ |
+| Round 1449 | Inspector Transform 개별/전체 리셋 버튼 (↺ 위치/회전/스케일/전체) | ✅ |
+| Round 1450 | SceneView 레이어 순서 드래그 재배치 (⋮⋮ 핸들, 파란 드롭 인디케이터) | ✅ |
+| Round 1451 | QA Section 395-396 추가 (R1446-R1450 기능 체크, Pass 1335) | ✅ |
 
 ## QA 프로세스
 

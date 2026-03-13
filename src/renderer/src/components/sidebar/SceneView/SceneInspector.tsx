@@ -566,6 +566,25 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         )}
       </div>
 
+      {/* R1449: Transform 전체 리셋 버튼 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+        <SectionHeader label="Transform" />
+        <button
+          onClick={() => {
+            trackUpdate(node.uuid, 'x', 0); trackUpdate(node.uuid, 'y', 0)
+            trackUpdate(node.uuid, 'rotation', 0)
+            trackUpdate(node.uuid, 'scaleX', 1); trackUpdate(node.uuid, 'scaleY', 1)
+          }}
+          title="R1449: 전체 Transform 리셋 (위치 0,0 / 회전 0 / 스케일 1,1)"
+          style={{
+            padding: '1px 5px', fontSize: 9, cursor: 'pointer', borderRadius: 3, lineHeight: '14px',
+            background: 'none', border: '1px solid var(--border)',
+            color: (node.x !== 0 || node.y !== 0 || node.rotation !== 0 || node.scaleX !== 1 || node.scaleY !== 1)
+              ? 'var(--accent)' : 'var(--text-muted)',
+          }}
+        >↺ 전체</button>
+      </div>
+
       {/* R1393: Position — 로컬/월드 좌표 토글 */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <SectionHeader label="Position" />
@@ -602,9 +621,9 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           </div>
           <button
             onClick={() => { trackUpdate(node.uuid, 'x', 0); trackUpdate(node.uuid, 'y', 0) }}
-            title="X, Y 위치를 (0, 0)으로 초기화"
+            title="R1449: 위치를 (0, 0)으로 리셋"
             style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.x !== 0 || node.y !== 0) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
-          >⊙</button>
+          >↺</button>
         </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -657,9 +676,9 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         >∝</button>
         <button
           onClick={() => { trackUpdate(node.uuid, 'scaleX', 1); trackUpdate(node.uuid, 'scaleY', 1) }}
-          title="스케일을 (1, 1)로 초기화"
+          title="R1449: 스케일을 (1, 1)로 리셋"
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.scaleX !== 1 || node.scaleY !== 1) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
-        >⊙</button>
+        >↺</button>
       </div>
 
       {/* Rotation */}
@@ -670,9 +689,9 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         </div>
         <button
           onClick={() => trackUpdate(node.uuid, 'rotation', 0)}
-          title="회전을 0으로 초기화"
+          title="R1449: 회전을 0으로 리셋"
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: node.rotation !== 0 ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
-        >⊙</button>
+        >↺</button>
       </div>
 
       {/* Anchor */}

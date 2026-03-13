@@ -666,6 +666,66 @@ export function suggestOptimizations(analysis: CCSceneAnalysis): OptimizationSug
   return suggestions
 }
 
+// ── R1447: Canvas 자동 감지 + 디자인 해상도 ──────────────────────────────────
+
+/**
+ * R1447: 씬 루트에서 Canvas 노드를 자동 감지
+ * - cc.Canvas 컴포넌트 보유 OR 이름이 "Canvas"인 노드
+ */
+export function findCanvasNode(root: CCSceneNode): CCSceneNode | null {
+  // cc.Canvas 컴포넌트 보유 우선
+  if (root.components.some(c => c.type === 'cc.Canvas')) return root
+  for (const child of root.children) {
+    const found = findCanvasNode(child)
+    if (found) return found
+  }
+  // 이름 기반 폴백 (컴포넌트 없는 경우)
+  if (root.name === 'Canvas') return root
+  for (const child of root.children) {
+    if (child.name === 'Canvas') return child
+  }
+  return null
+}
+
+/**
+ * R1447: 씬에서 디자인 해상도 획득
+ * - 2x: cc.Canvas._designResolution 또는 _designResolution 직접 필드
+ * - 3x: Camera 컴포넌트의 orthoHeight 기반 추정 (width = orthoHeight * aspect)
+ * - fallback: { width: 960, height: 640 }
+ */
+export function getDesignResolution(sceneFile: CCSceneFile): { width: number; height: number } {
+  const raw = sceneFile._raw as RawEntry[] | undefined
+  const version = sceneFile.projectInfo?.version ?? '2x'
+
+  if (version === '2x' && raw) {
+    // 2x: cc.Canvas 컴포넌트에서 _designResolution 추출
+    for (const entry of raw) {
+      if (entry.__type__ === 'cc.Canvas') {
+        const dr = entry._designResolution as { width?: number; height?: number } | undefined
+        if (dr?.width && dr?.height) return { width: dr.width, height: dr.height }
+        // _N$ prefix variant
+        const dr2 = entry._N$designResolution as { width?: number; height?: number } | undefined
+        if (dr2?.width && dr2?.height) return { width: dr2.width, height: dr2.height }
+      }
+    }
+  }
+
+  if (version === '3x' && raw) {
+    // 3x: Camera 컴포넌트의 orthoHeight 기반 추정
+    for (const entry of raw) {
+      if (entry.__type__ === 'cc.Camera') {
+        const orthoH = entry._orthoHeight as number | undefined
+        if (orthoH && orthoH > 0) {
+          // 기본 16:9 비율 가정
+          return { width: Math.round(orthoH * 2 * (16 / 9)), height: orthoH * 2 }
+        }
+      }
+    }
+  }
+
+  return { width: 960, height: 640 }
+}
+
 /**
  * R1432: 참조 그래프에서 순환 참조 탐지
  * @returns 순환에 포함된 UUID 배열 (순환 없으면 빈 배열)
