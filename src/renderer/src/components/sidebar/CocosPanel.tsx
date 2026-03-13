@@ -952,11 +952,25 @@ function CCFileSceneTree({
             {node.active ? '●' : '○'}
           </span>
         )}
-        {node.components.length > 0 && (
-          <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>
-            {node.components.map(c => c.type.replace('cc.', '')).join(',')}
-          </span>
-        )}
+        {node.components.length > 0 && (() => {
+          const typeIconMap: Record<string, string> = {
+            'cc.Sprite': '🖼', 'cc.Label': 'T', 'cc.RichText': 'T',
+            'cc.Button': '⊕', 'cc.Canvas': '⊞', 'cc.Layout': '⊟',
+            'cc.ScrollView': '⊠', 'cc.Camera': '📷', 'cc.Animation': '▶',
+            'cc.AudioSource': '♪', 'cc.ParticleSystem': '✦',
+          }
+          const icons = node.components
+            .map(c => typeIconMap[c.type])
+            .filter(Boolean)
+          const label = icons.length > 0
+            ? icons.join('')
+            : node.components[0].type.replace('cc.', '').slice(0, 6)
+          return (
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }} title={node.components.map(c => c.type).join(', ')}>
+              {label}
+            </span>
+          )
+        })()}
       </div>
       {!collapsed && hasChildren && node.children.map(child => (
         <CCFileSceneTree
