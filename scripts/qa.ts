@@ -17152,6 +17152,18 @@ console.log('\n## 493. R1602 SceneView 눈금자 오버레이 (尺) 체크')
   }
 }
 
+// ── Section 494: R1603 Inspector 이벤트 핸들러 표시 ──────────────────
+console.log('\n## 494. R1603 Inspector 이벤트 핸들러 표시 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s494 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s494.includes('R1603') && s494.includes('eventHandlers') && s494.includes('이벤트 핸들러') && s494.includes('eh.handler')) {
+    log('pass', 'R1603-event-handlers', 'Inspector 이벤트 핸들러 표시 (📎)')
+  } else {
+    log('warning', 'R1603-event-handlers', 'Inspector 이벤트 핸들러 표시 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

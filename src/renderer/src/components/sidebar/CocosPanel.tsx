@@ -4449,6 +4449,20 @@ function CCFileNodeInspector({
           )}
         </div>
       )}
+      {/* R1603: 이벤트 핸들러 표시 */}
+      {node.eventHandlers && node.eventHandlers.length > 0 && (
+        <div style={{ marginBottom: 4, padding: '3px 6px', background: 'rgba(88,166,255,0.06)', borderRadius: 3, border: '1px solid rgba(88,166,255,0.12)' }}>
+          <div style={{ fontSize: 8, color: '#58a6ff', marginBottom: 3 }}>📎 이벤트 핸들러</div>
+          {node.eventHandlers.map((eh, i) => (
+            <div key={i} style={{ fontSize: 9, display: 'flex', gap: 4, marginBottom: 1, flexWrap: 'wrap' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0 }}>{eh.component}:{eh.event}</span>
+              <span style={{ color: '#555' }}>→</span>
+              <span style={{ color: '#7ee787', wordBreak: 'break-all' }}>{eh.handler}</span>
+              {eh.target && <span style={{ color: '#555', fontSize: 8 }}>({eh.target})</span>}
+            </div>
+          ))}
+        </div>
+      )}
       {/* R1597: 노드 커스텀 메모 */}
       <div style={{ marginBottom: 4 }}>
         <textarea
