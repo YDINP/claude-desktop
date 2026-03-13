@@ -17214,6 +17214,18 @@ console.log('\n## 498. R1607 Inspector UUID 복사 버튼 체크')
   }
 }
 
+// ── Section 499: R1608 Inspector 컴포넌트 퀵점프 칩 바 ──────────────
+console.log('\n## 499. R1608 Inspector 컴포넌트 퀵점프 칩 바 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s499 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s499.includes('R1608') && s499.includes('퀵점프 칩 바') && s499.includes('cc-comp-') && s499.includes('scrollIntoView')) {
+    log('pass', 'R1608-comp-quickjump', 'Inspector 컴포넌트 퀵점프 칩 바')
+  } else {
+    log('warning', 'R1608-comp-quickjump', 'Inspector 컴포넌트 퀵점프 칩 바 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

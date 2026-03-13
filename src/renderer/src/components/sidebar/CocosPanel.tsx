@@ -4710,8 +4710,24 @@ function CCFileNodeInspector({
           ? visibleComps.filter(({ comp: c }) => c.type.toLowerCase().includes(propSearch.toLowerCase()))
           : null
         const showComps = typeMatchedComps ?? visibleComps
-        return showComps.map(({ comp, origIdx }, ci) => (
+        return (
+        <>
+        {/* R1608: 컴포넌트 퀵점프 칩 바 */}
+        {showComps.length > 3 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, padding: '2px 0 4px' }}>
+            {showComps.map(({ comp, origIdx: oi }) => (
+              <span key={oi}
+                onClick={() => document.getElementById(`cc-comp-${node.uuid}-${oi}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
+                style={{ fontSize: 7, padding: '1px 4px', background: 'rgba(88,166,255,0.08)', border: '1px solid rgba(88,166,255,0.2)', borderRadius: 10, cursor: 'pointer', color: '#7aacff', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.18)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.08)')}
+              >{comp.type.replace('cc.', '')}</span>
+            ))}
+          </div>
+        )}
+        {showComps.map(({ comp, origIdx }, ci) => (
         <div
+          id={`cc-comp-${node.uuid}-${origIdx}`}
           key={`${node.uuid}-${origIdx}`}
           style={{ marginTop: 6, borderTop: dragOverIdx === ci ? '2px solid var(--accent)' : '1px solid var(--border)', paddingTop: 5, opacity: draggingIdx === ci ? 0.4 : 1 }}
           onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverIdx(ci) }}
@@ -6670,7 +6686,9 @@ function CCFileNodeInspector({
             )
           })()}
         </div>
-      ))
+      ))}
+      </>
+      )
       })()}
       {/* 씬 파일 정보 (Inspector 하단) */}
       <div style={{ marginTop: 10, paddingTop: 6, borderTop: '1px solid var(--border)', fontSize: 9, color: '#444', lineHeight: 1.8 }}>
