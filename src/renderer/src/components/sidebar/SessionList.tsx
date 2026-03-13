@@ -334,6 +334,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [bulkSelected, setBulkSelected] = React.useState<string[]>([])
   const [advSearch, setAdvSearch] = React.useState(false)
   const [advSearchQuery, setAdvSearchQuery] = React.useState<Record<string, string>>({})
+  const [sessionLabels, setSessionLabels] = React.useState<Record<string, string>>({})
+  const [showLabelEditor, setShowLabelEditor] = React.useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

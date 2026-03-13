@@ -1063,6 +1063,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [autoCollapse, setAutoCollapse] = React.useState(false)
   const [exportTarget, setExportTarget] = React.useState<'all' | 'selected'>('all')
   const [showExportPanel, setShowExportPanel] = React.useState(false)
+  const [aiSuggestions, setAiSuggestions] = React.useState<string[]>([])
+  const [showAiSuggestions, setShowAiSuggestions] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
