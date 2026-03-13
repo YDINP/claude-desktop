@@ -3924,13 +3924,13 @@ function CCFileNodeInspector({
     )
   }
 
-  // 노드 경로 계산 (root → 선택 노드)
+  // 노드 경로 계산 (root → 선택 노드) — R1648: uuid도 포함
   const nodePath = useMemo(() => {
-    const path: string[] = []
+    const path: { name: string; uuid: string }[] = []
     function find(n: CCSceneNode, target: string): boolean {
-      if (n.uuid === target) { path.push(n.name); return true }
+      if (n.uuid === target) { path.push({ name: n.name, uuid: n.uuid }); return true }
       for (const c of n.children) {
-        path.push(n.name)
+        path.push({ name: n.name, uuid: n.uuid })
         if (find(c, target)) return true
         path.pop()
       }
@@ -3997,11 +3997,12 @@ function CCFileNodeInspector({
     }}>
       {nodePath.length > 1 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-          <div style={{ fontSize: 9, color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={nodePath.join(' / ')}>
+          <div style={{ fontSize: 9, color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={nodePath.map(p => p.name).join(' / ')}>
+            {/* R1648: breadcrumb 클릭으로 부모 노드 선택 */}
             {nodePath.slice(0, -1).map((p, i) => (
-              <span key={i}><span>{p}</span><span style={{ margin: '0 3px' }}>/</span></span>
+              <span key={i}><span style={{ cursor: 'pointer' }} onClick={() => { const n = sceneFile.root && (function find(r: CCSceneNode): CCSceneNode | null { if (r.uuid === p.uuid) return r; for (const c of r.children) { const f = find(c); if (f) return f } return null })(sceneFile.root); if (n) onUpdate(n) }} onMouseEnter={e => (e.currentTarget.style.color = '#88aacc')} onMouseLeave={e => (e.currentTarget.style.color = '')}>{p.name}</span><span style={{ margin: '0 3px' }}>/</span></span>
             ))}
-            <span style={{ color: 'var(--accent)' }}>{nodePath[nodePath.length - 1]}</span>
+            <span style={{ color: 'var(--accent)' }}>{nodePath[nodePath.length - 1]?.name}</span>
           </div>
           {/* R1488: 노드 통계 뱃지 — 깊이/자식/컴포넌트 수 */}
           <div style={{ display: 'flex', gap: 3, flexShrink: 0, alignItems: 'center' }}>
@@ -4010,8 +4011,8 @@ function CCFileNodeInspector({
             {draft.components.length > 0 && <span style={{ fontSize: 8, color: '#556a', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`컴포넌트 ${draft.components.length}개`}>⊕{draft.components.length}</span>}
             {/* R1492: 경로 복사 버튼 */}
             <span
-              title={`경로 복사: ${nodePath.join(' / ')}`}
-              onClick={() => navigator.clipboard.writeText(nodePath.join(' / '))
+              title={`경로 복사: ${nodePath.map(p => p.name).join(' / ')}`}
+              onClick={() => navigator.clipboard.writeText(nodePath.map(p => p.name).join(' / '))
                 .then(() => { /* silent */ })
                 .catch(() => { /* silent */ })}
               style={{ fontSize: 8, color: '#445', padding: '1px 3px', borderRadius: 2, cursor: 'pointer', lineHeight: 1 }}
@@ -4041,7 +4042,7 @@ function CCFileNodeInspector({
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
             <span
-              onClick={() => onSelectNode(nextNode)}
+              onClick={() => onUpdate(nextNode)}
               style={{ fontSize: 8, background: 'rgba(255,153,0,0.12)', border: '1px solid rgba(255,153,0,0.35)', borderRadius: 3, padding: '0 4px', color: '#ff9900', cursor: 'pointer' }}
               title={`씬 내 "${draft.name}" 이름의 노드 ${dupes.length}개 — 클릭: 다음 노드 선택`}>⚠ 중복 이름 ×{dupes.length} ›</span>
           </div>

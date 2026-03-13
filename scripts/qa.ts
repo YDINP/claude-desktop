@@ -15787,7 +15787,7 @@ if (existsSync(sv411) && existsSync(cp411)) {
     log('warning', 'R1491-label-edit', 'Label 인라인 편집 미구현', 'CCFileSceneView.tsx')
   }
   // R1492: 경로 복사
-  if (c411.includes('R1492') && c411.includes('nodePath.join') && c411.includes('navigator.clipboard')) {
+  if (c411.includes('R1492') && c411.includes('navigator.clipboard') && c411.includes('nodePath')) {
     log('pass', 'R1492-path-copy', 'Inspector 노드 경로 복사 버튼 (⎘) 구현')
   } else {
     log('warning', 'R1492-path-copy', 'Inspector 경로 복사 버튼 미구현', 'CocosPanel.tsx')
@@ -17567,7 +17567,7 @@ console.log('\n## 528. R1637 Inspector 중복 이름 배지 체크')
 {
   const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
   const s528 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
-  if (s528.includes('R1637') && s528.includes('중복 이름') && s528.includes('같은 이름 노드 자동 배지') && s528.includes('cnt <= 1')) {
+  if (s528.includes('R1637') && s528.includes('중복 이름') && s528.includes('같은 이름 노드 자동 배지') && s528.includes('dupes.length <= 1')) {
     log('pass', 'R1637-dup-name', 'Inspector 중복 이름 배지')
   } else {
     log('warning', 'R1637-dup-name', 'Inspector 중복 이름 배지 미구현', 'CocosPanel.tsx')
@@ -17627,7 +17627,7 @@ console.log('\n## 533. R1642 Inspector 중복 이름 배지 순환 선택 체크
 {
   const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
   const s533 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
-  if (s533.includes('R1642') && s533.includes('onSelectNode(nextNode)') && s533.includes('(curIdx + 1) % dupes.length')) {
+  if (s533.includes('R1642') && s533.includes('onUpdate(nextNode)') && s533.includes('(curIdx + 1) % dupes.length')) {
     log('pass', 'R1642-dup-cycle', 'Inspector 중복 이름 배지 순환 선택')
   } else {
     log('warning', 'R1642-dup-cycle', 'Inspector 중복 이름 배지 순환 선택 미구현', 'CocosPanel.tsx')
@@ -17691,6 +17691,21 @@ console.log('\n## 538. R1647 Inspector opacity 프리셋 체크')
     log('pass', 'R1647-opacity-preset', 'Inspector opacity 빠른 프리셋 버튼')
   } else {
     log('warning', 'R1647-opacity-preset', 'Inspector opacity 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 539: R1642 bugfix + R1648 breadcrumb 클릭 부모 선택 ───────────
+console.log('\n## 539. R1642 fix + R1648 breadcrumb 클릭 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s539 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  const fix = s539.includes('onUpdate(nextNode)') && !s539.includes('onSelectNode(nextNode)')
+  const breadcrumb = s539.includes('R1648') && s539.includes('onUpdate(n)') && s539.includes('p.uuid')
+  if (fix && breadcrumb) {
+    log('pass', 'R1648-breadcrumb', 'R1642 bugfix + Inspector breadcrumb 클릭 부모 선택')
+  } else {
+    if (!fix) log('warning', 'R1642-fix', 'R1642 onSelectNode→onUpdate 버그 수정 필요', 'CocosPanel.tsx')
+    if (!breadcrumb) log('warning', 'R1648-breadcrumb', 'Inspector breadcrumb 클릭 미구현', 'CocosPanel.tsx')
   }
 }
 
