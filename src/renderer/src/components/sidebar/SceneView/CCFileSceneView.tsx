@@ -86,6 +86,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [hideInactiveNodes, setHideInactiveNodes] = useState(false)
   // R1623: 와이어프레임 모드 (선만 표시)
   const [wireframeMode, setWireframeMode] = useState(false)
+  // R1641: depth 색조 시각화
+  const [depthColorMode, setDepthColorMode] = useState(false)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
   // R1530: 디자인 레퍼런스 이미지 overlay
@@ -902,6 +904,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={wireframeMode ? '와이어프레임 모드 해제' : '와이어프레임 모드 — 선만 표시 (R1623)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${wireframeMode ? '#58a6ff' : 'var(--border)'}`, background: wireframeMode ? 'rgba(88,166,255,0.12)' : 'none', color: wireframeMode ? '#58a6ff' : 'var(--text-muted)' }}
         >⬚</button>
+        {/* R1641: depth 색조 시각화 */}
+        <button
+          onClick={() => setDepthColorMode(d => !d)}
+          title={depthColorMode ? 'Depth 색조 시각화 해제' : 'Depth별 색조 표시 (R1641)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${depthColorMode ? '#a78bfa' : 'var(--border)'}`, background: depthColorMode ? 'rgba(167,139,250,0.12)' : 'none', color: depthColorMode ? '#a78bfa' : 'var(--text-muted)' }}
+        >⧫</button>
         {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
         <button
           onClick={handleScreenshotAI}
@@ -1180,7 +1188,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const hasSlider = node.components.some(c => c.type === 'cc.Slider' || c.type === 'cc.Toggle' || c.type === 'cc.ToggleGroup')
 
             // R1623: 와이어프레임 모드시 fill 투명
+            // R1641: depth 색조 — hue 순환 (30° 간격)
+            const depthHue = depthColorMode ? (fn.depth * 47) % 360 : 0
             const fillColor = wireframeMode ? 'none'
+              : depthColorMode ? `hsla(${depthHue},70%,60%,0.15)`
               : isSearchMatch ? 'rgba(255,68,255,0.12)'
               : isHovered ? 'rgba(255,255,255,0.06)'
               : hasButton ? 'rgba(255,140,60,0.1)'
