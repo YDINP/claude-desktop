@@ -1071,6 +1071,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showSortOptions, setShowSortOptions] = React.useState(false)
   const [readMarkers, setReadMarkers] = React.useState<Record<string, boolean>>({})
   const [showReadStatus, setShowReadStatus] = React.useState(false)
+  const [codeRunTarget, setCodeRunTarget] = React.useState<string | null>(null)
+  const [showCodeRunner, setShowCodeRunner] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

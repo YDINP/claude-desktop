@@ -329,6 +329,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showTemplateList, setShowTemplateList] = React.useState(false)
   const [voiceMemo, setVoiceMemo] = React.useState(false)
   const [voiceMemoUrl, setVoiceMemoUrl] = React.useState<string | null>(null)
+  const [slashCmdOpen, setSlashCmdOpen] = React.useState(false)
+  const [slashCmdQuery, setSlashCmdQuery] = React.useState('')
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

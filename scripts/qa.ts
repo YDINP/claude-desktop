@@ -10857,6 +10857,74 @@ if (existsSync(sl1067Path)) {
   }
 }
 
+console.log('\n## 267. Phase DD10 R1068~1070 기능 체크')
+// R1068: ChatPanel 코드 블록 실행
+const cp1068Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1068Path)) {
+  const cp1068 = readFileSync(cp1068Path, 'utf-8')
+  if (cp1068.includes('codeRunTarget') || cp1068.includes('showCodeRunner') || cp1068.includes('runCode')) {
+    log('pass', 'R1068', 'ChatPanel 코드 블록 실행 존재')
+  } else {
+    log('warning', 'R1068', 'ChatPanel 코드 블록 실행 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1069: InputBar 슬래시 커맨드
+const ib1069Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1069Path)) {
+  const ib1069 = readFileSync(ib1069Path, 'utf-8')
+  if (ib1069.includes('slashCmdOpen') || ib1069.includes('slashCmdQuery') || ib1069.includes('slashCmd')) {
+    log('pass', 'R1069', 'InputBar 슬래시 커맨드 존재')
+  } else {
+    log('warning', 'R1069', 'InputBar 슬래시 커맨드 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1070: CocosPanel 컴포넌트 검색
+const ccp1070Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1070Path)) {
+  const ccp1070 = readFileSync(ccp1070Path, 'utf-8')
+  if (ccp1070.includes('compSearch') || ccp1070.includes('showCompSearch') || ccp1070.includes('compSearchResults')) {
+    log('pass', 'R1070', 'CocosPanel 컴포넌트 검색 존재')
+  } else {
+    log('warning', 'R1070', 'CocosPanel 컴포넌트 검색 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 268. Phase DD10 R1071~1073 기능 체크')
+// R1071: SceneViewPanel 씬 주석
+const sv1071Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1071Path)) {
+  const sv1071 = readFileSync(sv1071Path, 'utf-8')
+  if (sv1071.includes('sceneNotes') || sv1071.includes('showNotesPanel') || sv1071.includes('sceneAnnot')) {
+    log('pass', 'R1071', 'SceneViewPanel 씬 주석 존재')
+  } else {
+    log('warning', 'R1071', 'SceneViewPanel 씬 주석 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1072: TerminalPanel 단축키 맵
+const tp1072Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1072Path)) {
+  const tp1072 = readFileSync(tp1072Path, 'utf-8')
+  if (tp1072.includes('shortcutMap') || tp1072.includes('showShortcutMap') || tp1072.includes('keyMap')) {
+    log('pass', 'R1072', 'TerminalPanel 단축키 맵 존재')
+  } else {
+    log('warning', 'R1072', 'TerminalPanel 단축키 맵 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1073: SessionList 세션 병합
+const sl1073Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1073Path)) {
+  const sl1073 = readFileSync(sl1073Path, 'utf-8')
+  if (sl1073.includes('mergeTarget') || sl1073.includes('showMergeDialog') || sl1073.includes('mergeTargets')) {
+    log('pass', 'R1073', 'SessionList 세션 병합 존재')
+  } else {
+    log('warning', 'R1073', 'SessionList 세션 병합 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

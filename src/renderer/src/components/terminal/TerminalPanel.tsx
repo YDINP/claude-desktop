@@ -427,6 +427,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showCmdBookmarks, setShowCmdBookmarks] = React.useState(false)
   const [sessionLog, setSessionLog] = React.useState<string[]>([])
   const [showSessionLog, setShowSessionLog] = React.useState(false)
+  const [shortcutMap, setShortcutMap] = React.useState<Record<string, string>>({})
+  const [showShortcutMap, setShowShortcutMap] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
