@@ -99,6 +99,8 @@ interface SceneToolbarProps {
   onToggleLayerPanel?: () => void
   showHeatmap?: boolean
   onHeatmapToggle?: () => void
+  showQuickActions?: boolean
+  onQuickActionsToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -200,6 +202,8 @@ export function SceneToolbar({
   onToggleLayerPanel,
   showHeatmap,
   onHeatmapToggle,
+  showQuickActions,
+  onQuickActionsToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -453,6 +457,15 @@ export function SceneToolbar({
           onClick={onHeatmapToggle}
           title="노드 분포 히트맵 오버레이"
         >🌡</button>
+      )}
+
+      {/* 퀵 액션 패널 토글 */}
+      {onQuickActionsToggle && (
+        <button
+          style={showQuickActions ? btnActive : btnBase}
+          onClick={onQuickActionsToggle}
+          title="퀵 액션 패널 표시/숨기기 — 선택 노드 근처에 빠른 조작 버튼 표시"
+        >⚡</button>
       )}
 
       {/* 주석 추가 */}

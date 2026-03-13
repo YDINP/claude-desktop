@@ -5998,6 +5998,41 @@ if (existsSync(nr627Path)) {
   }
 }
 
+// ── Section 127: Phase DD10 R629~631 기능 체크 ────────────────
+console.log('\n## 127. Phase DD10 R629~631 기능 체크')
+// R629: 채팅 컴팩트/와이드 뷰 모드
+const cp629Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp629Path)) {
+  const cp629 = readFileSync(cp629Path, 'utf-8')
+  if (cp629.includes('chatViewMode') && (cp629.includes('wide') || cp629.includes('compact'))) {
+    log('pass', 'R629', '채팅 컴팩트/와이드 뷰 모드 존재')
+  } else {
+    log('warning', 'R629', '채팅 뷰 모드 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R630: 씬뷰 퀵 액션 팝업
+const svp630Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp630Path)) {
+  const svp630 = readFileSync(svp630Path, 'utf-8')
+  if (svp630.includes('showQuickActions') || svp630.includes('quickAction')) {
+    log('pass', 'R630', '씬뷰 퀵 액션 팝업 존재')
+  } else {
+    log('warning', 'R630', '씬뷰 퀵 액션 팝업 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R631: Inspector 스타일 프리셋
+const cp631Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp631Path)) {
+  const cp631 = readFileSync(cp631Path, 'utf-8')
+  if (cp631.includes('stylePresets') || cp631.includes('style-presets')) {
+    log('pass', 'R631', 'Inspector 스타일 프리셋 저장/불러오기 존재')
+  } else {
+    log('warning', 'R631', 'Inspector 스타일 프리셋 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 628 완료 — Phase DD10 진행 중, QA Pass 521)
+> 마지막 업데이트: 2026-03-13 (Round 632 완료 — Phase DD10 진행 중, QA Pass 524)
 
 ## 개발 루프 실행 방식
 
@@ -604,6 +604,10 @@
 | Round 626 | Inspector Z-order 이동 (Z: N/M, ↑↓ 버튼, ⤒⤓ 맨 앞/뒤) | ✅ |
 | Round 627 | NodeRenderer getComponentIcon 렌더링 (cc.Label→T, cc.Sprite→🖼 등) | ✅ |
 | Round 628 | QA Section 126 추가 (R625/R626/R627, Pass 521) | ✅ |
+| Round 629 | 채팅 컴팩트/와이드 뷰 모드 (chatViewMode, ⊟/⊞ 버튼, 10% padding) | ✅ |
+| Round 630 | 씬뷰 퀵 액션 팝업 (showQuickActions, 핀/잠금/숨김/삭제/복사) | ✅ |
+| Round 631 | Inspector 스타일 프리셋 (stylePresets, 💾 저장, 📂 불러오기, × 삭제) | ✅ |
+| Round 632 | QA Section 127 추가 (R629/R630/R631, Pass 524) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

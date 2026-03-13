@@ -995,6 +995,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             onChange={e => setNoteText(e.target.value)}
             placeholder="세션 메모 입력..."
             rows={3}
+            maxLength={200}
             onClick={e => e.stopPropagation()}
             style={{
               width: '100%',
@@ -1004,7 +1005,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
               borderRadius: 4,
               padding: '4px 6px',
               fontSize: 11,
-              resize: 'vertical',
+              resize: 'none',
+              maxHeight: 80,
               fontFamily: 'var(--font-ui)',
               boxSizing: 'border-box',
               outline: 'none',
@@ -1634,6 +1636,18 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
           >
             {'📄'} {'마크다운 내보내기'}
+          </div>
+          <div
+            onClick={(e) => {
+              const id = contextMenu.sessionId
+              setContextMenu(null)
+              handleNoteOpen(e as unknown as React.MouseEvent, id)
+            }}
+            style={{ padding: '6px 12px', fontSize: 12, cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+          >
+            {'📝'} {'메모 추가'}
           </div>
           <div
             onClick={() => {

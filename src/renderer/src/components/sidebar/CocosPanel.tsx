@@ -1375,6 +1375,45 @@ function CCFileNodeInspector({
   })
   const [historyOpen, setHistoryOpen] = useState(false)
 
+  // Round 631: 스타일 프리셋
+  const STYLE_PRESETS_KEY = 'style-presets'
+  type StylePreset = {
+    id: string
+    name: string
+    position: CCSceneNode['position']
+    rotation: CCSceneNode['rotation']
+    scale: CCSceneNode['scale']
+    size: CCSceneNode['size']
+    anchor: CCSceneNode['anchor']
+    opacity: number
+  }
+  const [stylePresets, setStylePresets] = useState<StylePreset[]>(() => {
+    try { return JSON.parse(localStorage.getItem(STYLE_PRESETS_KEY) ?? '[]') }
+    catch { return [] }
+  })
+  const [presetDropdownOpen, setPresetDropdownOpen] = useState(false)
+
+  const saveStylePreset = useCallback(() => {
+    const rawName = window.prompt('프리셋 이름', `${draft.name}-${Date.now()}`)
+    if (rawName === null) return
+    const name = rawName.trim() || `${draft.name}-${Date.now()}`
+    const preset: StylePreset = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      name,
+      position: draft.position,
+      rotation: draft.rotation,
+      scale: draft.scale,
+      size: draft.size,
+      anchor: draft.anchor,
+      opacity: draft.opacity,
+    }
+    setStylePresets(prev => {
+      const next = [preset, ...prev].slice(0, 10)
+      localStorage.setItem(STYLE_PRESETS_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [draft])
+
   const FAV_PROPS_KEY = 'fav-props'
   const [favProps, setFavProps] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(FAV_PROPS_KEY) ?? '[]')) }
@@ -1460,6 +1499,28 @@ function CCFileNodeInspector({
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => { flushSave() }, 50)
   }, [draft, sceneFile, flushSave])
+
+  // Round 631: 프리셋 적용 / 삭제 (applyAndSave 이후 정의)
+  const applyStylePreset = useCallback((preset: StylePreset) => {
+    applyAndSave({
+      position: preset.position,
+      rotation: preset.rotation,
+      scale: preset.scale,
+      size: preset.size,
+      anchor: preset.anchor,
+      opacity: preset.opacity,
+    })
+    setPresetDropdownOpen(false)
+  }, [applyAndSave])
+
+  const deleteStylePreset = useCallback((id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setStylePresets(prev => {
+      const next = prev.filter(p => p.id !== id)
+      localStorage.setItem(STYLE_PRESETS_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
 
   const numInput = (
     label: string,
@@ -1592,6 +1653,67 @@ function CCFileNodeInspector({
             />
             활성
           </label>
+          {/* Round 631: 프리셋 저장 / 불러오기 */}
+          <button
+            onClick={saveStylePreset}
+            title="현재 Transform을 프리셋으로 저장"
+            style={{
+              padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+              background: 'transparent', color: '#fbbf24', border: '1px solid #fbbf24',
+              lineHeight: 1.4,
+            }}
+          >
+            💾
+          </button>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setPresetDropdownOpen(o => !o)}
+              title="저장된 프리셋 불러오기"
+              style={{
+                padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+                background: presetDropdownOpen ? '#1e1e2e' : 'transparent',
+                color: '#60a5fa', border: '1px solid #60a5fa',
+                lineHeight: 1.4,
+              }}
+            >
+              📂
+            </button>
+            {presetDropdownOpen && (
+              <div style={{
+                position: 'absolute', top: '100%', right: 0, marginTop: 2,
+                background: 'var(--bg-secondary, #0d0d1a)', border: '1px solid var(--border, #2a2a3a)',
+                borderRadius: 4, zIndex: 50, minWidth: 160, maxHeight: 240, overflowY: 'auto',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+              }}>
+                {stylePresets.length === 0 ? (
+                  <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--text-muted)' }}>저장된 프리셋 없음</div>
+                ) : stylePresets.map(preset => (
+                  <div
+                    key={preset.id}
+                    onClick={() => applyStylePreset(preset)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '4px 8px', cursor: 'pointer', fontSize: 10,
+                      color: 'var(--text-primary, #ccc)',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover, #1a1a2e)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                      {preset.name}
+                    </span>
+                    <span
+                      onClick={e => deleteStylePreset(preset.id, e)}
+                      style={{ marginLeft: 6, color: '#f85149', cursor: 'pointer', flexShrink: 0 }}
+                      title="프리셋 삭제"
+                    >
+                      ×
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <button
             onClick={() => applyAndSave({
               position: { ...draft.position, x: 0, y: 0 },

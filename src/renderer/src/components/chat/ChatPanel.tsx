@@ -499,6 +499,16 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [welcomePendingInsert, setWelcomePendingInsert] = useState<string | undefined>(undefined)
   const [minimapScroll, setMinimapScroll] = useState({ scrollTop: 0, clientHeight: 1, totalScrollHeight: 1 })
 
+  // ── 뷰 모드 (compact / wide) ──────────────────────────────────────────────
+  const [chatViewMode, setChatViewMode] = useState<'compact' | 'wide'>(() =>
+    (localStorage.getItem('chat-view-mode') as 'compact' | 'wide') ?? 'compact'
+  )
+  const toggleViewMode = () => setChatViewMode(v => {
+    const next = v === 'compact' ? 'wide' : 'compact'
+    localStorage.setItem('chat-view-mode', next)
+    return next
+  })
+
   // ── 프롬프트 변수 템플릿 ─────────────────────────────────────────────────────
   const [inputText, setInputText] = useState('')
   const [varModal, setVarModal] = useState<{ text: string; vars: string[] } | null>(null)
@@ -1009,6 +1019,11 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           </>
         )}
         <ModelSelector value={project.selectedModel} onChange={project.setModel} />
+        <button
+          onClick={toggleViewMode}
+          title={chatViewMode === 'compact' ? '와이드 뷰로 전환' : '컴팩트 뷰로 전환'}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 13, cursor: 'pointer', padding: '2px 4px', lineHeight: 1 }}
+        >{chatViewMode === 'compact' ? '⊟' : '⊞'}</button>
         <ContextUsageIndicator messages={chat.messages} />
         <button
           onClick={() => setShowMinimap(v => !v)}
@@ -1341,7 +1356,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       ) : (
       <div
         ref={scrollContainerRef}
-        style={{ flex: 1, overflow: 'auto', position: 'relative', paddingRight: showMinimap && messageCount > 0 ? 42 : 0 }}
+        data-view-mode={chatViewMode}
+        style={{ flex: 1, overflow: 'auto', position: 'relative', paddingRight: showMinimap && messageCount > 0 ? 42 : 0, padding: chatViewMode === 'wide' ? '0 10%' : undefined }}
         onScroll={handleScroll}
       >
         {messageCount === 0 && !chat.isStreaming ? (
@@ -1384,7 +1400,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                     left: 0,
                     width: '100%',
                     transform: `translateY(${virtualRow.start}px)`,
-                    marginTop: isGrouped ? 2 : 8,
+                    marginTop: chatViewMode === 'wide' ? (isGrouped ? 4 : 16) : (isGrouped ? 2 : 8),
                   }}
                 >
                   {showTimeSep && (
@@ -1423,6 +1439,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                     onReplyTo={onReplyToMessage ? () => onReplyToMessage(msg.text) : undefined}
                     onDelete={() => handleDeleteMessage(msg.id)}
                     onRetry={msg.role === 'user' && !chat.isStreaming ? () => handleRetryMessage(msg.id) : undefined}
+                    viewMode={chatViewMode}
                   />
                 </div>
               )

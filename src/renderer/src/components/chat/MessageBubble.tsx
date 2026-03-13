@@ -889,7 +889,7 @@ interface ContextMenu {
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '😢']
 
-export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onSetNote, onPrevAlt, altIndex, altCount, onDelete, onRetry }: {
+export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onSetNote, onPrevAlt, altIndex, altCount, onDelete, onRetry, viewMode }: {
   msg: ChatMessage
   isLast?: boolean
   isStreaming?: boolean
@@ -916,7 +916,9 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   onSetNote?: (note: string) => void
   onDelete?: () => void
   onRetry?: () => void
+  viewMode?: 'compact' | 'wide'
 }) {
+  const isWide = viewMode === 'wide'
   const isUser = msg.role === 'user'
   const isError = msg.isError === true
   const [isHovered, setIsHovered] = useState(false)

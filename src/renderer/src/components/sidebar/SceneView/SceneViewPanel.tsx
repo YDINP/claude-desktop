@@ -149,6 +149,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 히트맵 상태 ────────────────────────────────────────────
   const [showHeatmap, setShowHeatmap] = useState(false)
 
+  // ── 퀵 액션 패널 상태 ──────────────────────────────────────
+  const [showQuickActions, setShowQuickActions] = useState(true)
+  const [quickActionDismissed, setQuickActionDismissed] = useState(false)
+
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()
     nodeMap.forEach((n, uuid) => {
@@ -753,6 +757,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const t = setTimeout(() => refreshNode(selectedUuid), 200)
     return () => clearTimeout(t)
   }, [selectedUuid, refreshNode])
+
+  // 퀵 액션: 선택 노드가 바뀌면 dismiss 해제
+  useEffect(() => {
+    setQuickActionDismissed(false)
+  }, [selectedUuid])
 
   // ── SVG 좌표 변환 헬퍼 ────────────────────────────────────
   const getSvgCoords = useCallback((e: React.MouseEvent | MouseEvent): { x: number; y: number } => {
@@ -2012,6 +2021,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onToggleLayerPanel={() => setShowLayerPanel(v => !v)}
         showHeatmap={showHeatmap}
         onHeatmapToggle={() => setShowHeatmap(v => !v)}
+        showQuickActions={showQuickActions}
+        onQuickActionsToggle={() => setShowQuickActions(v => !v)}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -3463,6 +3474,117 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             {selectedNode.rotation.toFixed(1)}°
           </div>
         )}
+
+        {/* 퀵 액션 팝업 — 단일 노드 선택 시 우상단에 표시 */}
+        {showQuickActions && !quickActionDismissed && selectedUuids.size === 1 && selectedNode && !isDragging && !isResizing && (() => {
+          const n = selectedNode
+          const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+          // SVG 좌표 → 화면(container) 좌표
+          const screenX = sx * view.zoom + view.offsetX
+          const screenY = sy * view.zoom + view.offsetY
+          const PW = 100
+          const PH = 32
+          const containerW = containerRef.current?.clientWidth ?? 600
+          const containerH = containerRef.current?.clientHeight ?? 400
+          // 노드 우상단 근처에 배치, 뷰포트 클램핑
+          let px = screenX + 8
+          let py = screenY - PH - 8
+          px = Math.max(4, Math.min(px, containerW - PW - 4))
+          py = Math.max(4, Math.min(py, containerH - PH - 4))
+
+          const isPinned = pinnedUuids.has(n.uuid)
+          const isLocked = lockedUuids.has(n.uuid)
+          const topUuid = nodeToTopLevel.get(n.uuid)
+          const isHidden = !!(topUuid && hiddenLayers.has(topUuid))
+
+          const btnStyle: React.CSSProperties = {
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 16,
+            lineHeight: 1,
+            padding: '0 3px',
+            color: 'rgba(255,255,255,0.8)',
+            userSelect: 'none',
+          }
+          return (
+            <>
+              {/* 외부 클릭 시 닫힘 — pointer-events 없는 전체 오버레이 대신 mousedown 감지 */}
+              <div
+                style={{ position: 'absolute', inset: 0, zIndex: 29, background: 'transparent' }}
+                onMouseDown={() => setQuickActionDismissed(true)}
+              />
+              <div
+                onMouseDown={e => e.stopPropagation()}
+                style={{
+                  position: 'absolute',
+                  left: px,
+                  top: py,
+                  width: PW,
+                  height: PH,
+                  zIndex: 30,
+                  background: 'rgba(15,15,25,0.92)',
+                  border: '1px solid rgba(96,165,250,0.45)',
+                  borderRadius: 5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-around',
+                  padding: '0 4px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                  pointerEvents: 'all',
+                }}
+              >
+                {/* 핀 토글 */}
+                <button
+                  style={{ ...btnStyle, color: isPinned ? '#fbbf24' : 'rgba(255,255,255,0.6)' }}
+                  title={isPinned ? '핀 해제' : '핀 고정'}
+                  onClick={e => { e.stopPropagation(); togglePin(n.uuid) }}
+                >📌</button>
+                {/* 잠금 토글 */}
+                <button
+                  style={{ ...btnStyle, color: isLocked ? '#fbbf24' : 'rgba(255,255,255,0.6)' }}
+                  title={isLocked ? '잠금 해제' : '잠금'}
+                  onClick={e => {
+                    e.stopPropagation()
+                    setLockedUuids(prev => {
+                      const next = new Set(prev)
+                      if (isLocked) next.delete(n.uuid); else next.add(n.uuid)
+                      localStorage.setItem('scene-locked', JSON.stringify([...next]))
+                      return next
+                    })
+                    updateNode(n.uuid, { locked: !isLocked })
+                  }}
+                >🔒</button>
+                {/* 숨김 토글 */}
+                <button
+                  style={{ ...btnStyle, opacity: isHidden ? 0.4 : 1 }}
+                  title={isHidden ? '표시' : '숨기기'}
+                  onClick={e => {
+                    e.stopPropagation()
+                    if (!topUuid) return
+                    setHiddenLayers(prev => {
+                      const next = new Set(prev)
+                      if (isHidden) next.delete(topUuid); else next.add(topUuid)
+                      return next
+                    })
+                  }}
+                >👁</button>
+                {/* 삭제 */}
+                <button
+                  style={{ ...btnStyle, color: 'rgba(239,68,68,0.85)' }}
+                  title="삭제"
+                  onClick={e => { e.stopPropagation(); setQuickActionDismissed(true); handleDeleteNode() }}
+                >✂</button>
+                {/* UUID 복사 */}
+                <button
+                  style={{ ...btnStyle, color: 'rgba(167,243,208,0.85)' }}
+                  title="UUID 복사"
+                  onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(n.uuid) }}
+                >📋</button>
+              </div>
+            </>
+          )
+        })()}
 
         {/* 드래그/리사이즈 좌표 오버레이 */}
         {(isDragging || isResizing) && selectedNode && (
