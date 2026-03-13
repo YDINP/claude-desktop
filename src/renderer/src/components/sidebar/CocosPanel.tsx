@@ -429,6 +429,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (ctrl && e.key === 's') { e.preventDefault(); handleSave(); return }
       if (ctrl && e.key === 'z' && canUndo) { e.preventDefault(); undo(); return }
       if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) { e.preventDefault(); redo(); return }
+      if (e.key === 'Escape' && !isInput) { onSelectNode(null); return }
 
       if (isInput) return
 
