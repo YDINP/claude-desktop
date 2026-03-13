@@ -42,17 +42,31 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const spriteCacheRef = useRef<Map<string, string>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
 
-  // 캔버스 크기 추정: Canvas 노드 또는 최상위 노드의 size
-  const { designW, designH } = useMemo(() => {
+  // 캔버스 크기 + 배경색 추정
+  const { designW, designH, bgColor } = useMemo(() => {
     const root = sceneFile.root
-    // cc.Scene 루트 아래 첫 번째 노드(Canvas) 탐색
     const canvasNode = root.children.find(n =>
       n.name === 'Canvas' || n.components.some(c => c.type === 'cc.Canvas')
     )
     const n = canvasNode ?? root.children[0]
+    // Camera clearColor 또는 Canvas backgroundColor 탐색
+    let bgColor = '#1a1a2e'
+    const allNodes = [root, ...(root.children ?? [])]
+    for (const node of allNodes) {
+      for (const comp of node.components) {
+        const cc = comp.props.backgroundColor as { r?: number; g?: number; b?: number } | undefined
+        const cl = comp.props.clearColor as { r?: number; g?: number; b?: number } | undefined
+        const src = cc ?? cl
+        if (src && src.r != null) {
+          bgColor = `rgb(${src.r},${src.g ?? 0},${src.b ?? 0})`
+          break
+        }
+      }
+    }
     return {
       designW: n?.size?.x || 960,
       designH: n?.size?.y || 640,
+      bgColor,
     }
   }, [sceneFile])
 
@@ -239,7 +253,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         <g transform={transform}>
           {/* 게임 캔버스 배경 */}
           <rect x={0} y={0} width={designW} height={designH}
-            fill="#2d2d44" stroke="#555" strokeWidth={1 / view.zoom} />
+            fill={bgColor} stroke="#555" strokeWidth={1 / view.zoom} />
           {/* 그리드 (100px 단위) */}
           {view.zoom > 0.2 && (() => {
             const step = 100
