@@ -142,6 +142,31 @@ app.whenReady().then(() => {
     createWindow()
   })
 
+  // CC Editor detached window
+  ipcMain.handle('cc:open-window', async () => {
+    const preloadPath = join(app.getAppPath(), 'out/preload/index.js')
+    const rendererUrl = process.env['ELECTRON_RENDERER_URL']
+    const ccWin = new BrowserWindow({
+      width: 1200,
+      height: 800,
+      title: 'CC Editor',
+      webPreferences: {
+        preload: preloadPath,
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
+      },
+    })
+    if (isDev && rendererUrl) {
+      ccWin.loadURL(rendererUrl + '#cc-editor')
+    } else if (isDev) {
+      ccWin.loadURL('http://localhost:5173#cc-editor')
+    } else {
+      ccWin.loadFile(join(__dirname, '../renderer/index.html'), { hash: 'cc-editor' })
+    }
+    return true
+  })
+
   // Terminal theme IPC
   ipcMain.handle('app:getTerminalTheme', () => AppConfig.getInstance().getTerminalTheme())
   ipcMain.handle('app:setTerminalTheme', (_, theme: string) => AppConfig.getInstance().setTerminalTheme(theme))

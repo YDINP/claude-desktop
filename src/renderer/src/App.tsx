@@ -22,6 +22,7 @@ import { SettingsPanel } from './components/shared/SettingsPanel'
 import { Lightbox } from './components/shared/Lightbox'
 import { WebPreviewPanel } from './components/sidebar/WebPreviewPanel'
 import { SceneViewPanel } from './components/sidebar/SceneView/SceneViewPanel'
+import { CocosPanel } from './components/sidebar/CocosPanel'
 import { playCompletionSound } from './utils/sound'
 import { recordCost } from './utils/cost-tracker'
 import { aguiDispatch } from './utils/agui-store'
@@ -33,6 +34,7 @@ import { toast } from './utils/toast'
 
 type FileTab = string  // file path
 type MainTab = 'chat' | 'scene' | 'preview' | FileTab
+type CCLayoutMode = 'tab' | 'split' | 'detach'
 
 interface ActiveAgent {
   id: string
@@ -383,7 +385,21 @@ function FileTabBar({ tabs, active, onSelect, onClose }: {
 
 // ── AppContent ───────────────────────────────────────────────────────────────
 
+// ── CC Editor Detached Window ─────────────────────────────────────────────
+
+function CCEditorWindow() {
+  return (
+    <div style={{ width: '100%', height: '100vh', overflow: 'hidden', background: 'var(--bg-primary)' }}>
+      <CocosPanel />
+    </div>
+  )
+}
+
 function AppContent() {
+  // CC 에디터 전용 창 감지
+  const isCCEditorWindow = window.location.hash === '#cc-editor'
+  if (isCCEditorWindow) return <CCEditorWindow />
+
   const project = useProject()
   const chat = useChatStore()
 
@@ -402,6 +418,14 @@ function AppContent() {
   const [wsCCPort, setWsCCPort] = useState<number>(9090)
   const [wsWebPreviewUrl, setWsWebPreviewUrl] = useState<string>('')
   const [wsCCConnected, setWsCCConnected] = useState(false)
+
+  // ── CC Layout mode ──
+  const [ccLayout, setCCLayout] = useState<CCLayoutMode>(() =>
+    (localStorage.getItem('cc-layout-mode') as CCLayoutMode) ?? 'tab'
+  )
+  const [ccTab, setCCTab] = useState<'claude' | 'editor'>('claude')
+  const [ccSplitRatio, setCCSplitRatio] = useState(0.5)
+  const ccSplitRatioRef = useRef(0.5)
 
   // CC 연결 상태에 따라 scene + preview 탭 추가/제거
   useEffect(() => {
@@ -812,6 +836,39 @@ function AppContent() {
     const cur = activeTabRef.current
     // [M-6] scene/preview 탭은 CC 연결 의존 탭 → Ctrl+W로 닫기 불가
     if (cur !== 'chat' && cur !== 'scene' && cur !== 'preview') closeFileTab(cur)
+  }
+
+  // ── CC layout helpers ──
+  const handleCCSplitDragStart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const container = e.currentTarget.parentElement!
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'col-resize'
+    const onMove = (me: MouseEvent) => {
+      const rect = container.getBoundingClientRect()
+      const ratio = Math.min(0.8, Math.max(0.2, (me.clientX - rect.left) / rect.width))
+      ccSplitRatioRef.current = ratio
+      setCCSplitRatio(ratio)
+    }
+    const onUp = () => {
+      document.body.style.userSelect = ''
+      document.body.style.cursor = ''
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
+
+  const openCCEditorWindow = async () => {
+    await window.api.openCCEditorWindow?.()
+    setCCLayout('detach')
+    localStorage.setItem('cc-layout-mode', 'detach')
+  }
+
+  const setCCLayoutMode = (mode: CCLayoutMode) => {
+    setCCLayout(mode)
+    localStorage.setItem('cc-layout-mode', mode)
   }
 
   // ── Sound toggle (from palette) ──
@@ -1519,84 +1576,195 @@ function AppContent() {
             onClose={closeFileTab}
           />
 
+          {/* CC Layout header — chat 탭일 때만 표시 */}
+          {activeTab === 'chat' && (
+            <div style={{
+              display: 'flex', alignItems: 'center',
+              borderBottom: '1px solid var(--border)', flexShrink: 0,
+              background: 'var(--bg-secondary)', height: 30,
+            }}>
+              {ccLayout === 'tab' && (
+                <>
+                  <button
+                    onClick={() => setCCTab('claude')}
+                    style={{
+                      padding: '0 14px', height: 30, fontSize: 12, cursor: 'pointer',
+                      background: ccTab === 'claude' ? 'var(--bg-primary)' : 'transparent',
+                      color: ccTab === 'claude' ? 'var(--text-primary)' : 'var(--text-muted)',
+                      borderBottom: ccTab === 'claude' ? '2px solid var(--accent)' : '2px solid transparent',
+                      border: 'none', borderRight: '1px solid var(--border)',
+                    }}
+                  >Claude</button>
+                  <button
+                    onClick={() => setCCTab('editor')}
+                    style={{
+                      padding: '0 14px', height: 30, fontSize: 12, cursor: 'pointer',
+                      background: ccTab === 'editor' ? 'var(--bg-primary)' : 'transparent',
+                      color: ccTab === 'editor' ? 'var(--text-primary)' : 'var(--text-muted)',
+                      borderBottom: ccTab === 'editor' ? '2px solid var(--accent)' : '2px solid transparent',
+                      border: 'none',
+                    }}
+                  >CC Editor</button>
+                </>
+              )}
+              {ccLayout === 'split' && (
+                <span style={{ padding: '0 12px', fontSize: 11, color: 'var(--text-muted)' }}>
+                  Claude + CC Editor
+                </span>
+              )}
+              {ccLayout === 'detach' && (
+                <span style={{ padding: '0 12px', fontSize: 11, color: 'var(--text-muted)' }}>
+                  CC Editor (detached)
+                </span>
+              )}
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 2, paddingRight: 8 }}>
+                <button
+                  title="Tab mode"
+                  onClick={() => setCCLayoutMode('tab')}
+                  style={{
+                    width: 26, height: 22, fontSize: 13, cursor: 'pointer',
+                    background: ccLayout === 'tab' ? 'var(--accent)' : 'transparent',
+                    color: ccLayout === 'tab' ? '#fff' : 'var(--text-muted)',
+                    border: '1px solid ' + (ccLayout === 'tab' ? 'var(--accent)' : 'var(--border)'),
+                    borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >{'\u25A1'}</button>
+                <button
+                  title="Split mode"
+                  onClick={() => setCCLayoutMode('split')}
+                  style={{
+                    width: 26, height: 22, fontSize: 13, cursor: 'pointer',
+                    background: ccLayout === 'split' ? 'var(--accent)' : 'transparent',
+                    color: ccLayout === 'split' ? '#fff' : 'var(--text-muted)',
+                    border: '1px solid ' + (ccLayout === 'split' ? 'var(--accent)' : 'var(--border)'),
+                    borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >{'\u229E'}</button>
+                <button
+                  title="Detach window"
+                  onClick={openCCEditorWindow}
+                  style={{
+                    width: 26, height: 22, fontSize: 13, cursor: 'pointer',
+                    background: ccLayout === 'detach' ? 'var(--accent)' : 'transparent',
+                    color: ccLayout === 'detach' ? '#fff' : 'var(--text-muted)',
+                    border: '1px solid ' + (ccLayout === 'detach' ? 'var(--accent)' : 'var(--border)'),
+                    borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >{'\u238B'}</button>
+              </div>
+            </div>
+          )}
+
           {/* Content */}
           <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-            <div style={{ position: 'absolute', inset: 0, display: activeTab === 'chat' ? 'flex' : 'none', flexDirection: 'column' }}>
-              {hqMode ? (
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#080810' }}>
-                  <ResourceBar
-                    contextUsage={Math.min(chat.sessionInputTokens / 200000, 1)}
-                    sessionTokens={chat.sessionOutputTokens + chat.sessionInputTokens}
-                    totalCost={project.totalCost}
-                    isStreaming={chat.isStreaming}
-                    model={project.selectedModel ?? ''}
-                    onToggleHQ={handleToggleHQ}
-                    hqMode={hqMode}
-                    cwd={project.currentPath}
-                  />
-                  {/* HQ 중단 영역: AgentBay(좌) + ChatPanel(우) */}
-                  <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-                    <AgentBay
-                      sessions={[]}
-                      agents={activeAgents}
-                      activeSessionId={chat.sessionId ?? null}
+            {/* Chat tab content — CC layout mode applies here */}
+            <div style={{ position: 'absolute', inset: 0, display: activeTab === 'chat' ? 'flex' : 'none', flexDirection: ccLayout === 'split' ? 'row' : 'column' }}>
+              {/* Claude panel — always visible in split, conditional in tab */}
+              <div style={{
+                flex: ccLayout === 'split' ? `0 0 ${ccSplitRatio * 100}%` : 1,
+                overflow: 'hidden',
+                display: (ccLayout === 'tab' && ccTab === 'editor') ? 'none' : 'flex',
+                flexDirection: 'column',
+                minWidth: ccLayout === 'split' ? 300 : undefined,
+              }}>
+                {hqMode ? (
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#080810' }}>
+                    <ResourceBar
+                      contextUsage={Math.min(chat.sessionInputTokens / 200000, 1)}
+                      sessionTokens={chat.sessionOutputTokens + chat.sessionInputTokens}
+                      totalCost={project.totalCost}
                       isStreaming={chat.isStreaming}
-                      toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-5)}
-                      width={agentBayWidth}
-                      onSelectSession={async (sid: string) => {
-                        const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
-                        if (saved?.messages?.length) {
-                          chat.hydrate(saved.messages as ChatMessage[], sid)
-                        } else {
-                          chat.clearMessages()
-                          chat.setSessionId(sid)
-                        }
-                        setSessionTitle(saved?.title)
-                        setSessionCreatedAt(saved?.createdAt)
-                        if (saved?.forkedFrom) {
-                          window.api.claudeClose()
-                        } else {
-                          window.api.claudeResume(sid)
-                        }
-                        // HQ 모드 유지 — 우측 ChatPanel에 로드됨
-                      }}
-                      onNewSession={() => {
-                        chat.clearMessages()
-                        setSessionTitle(undefined)
-                        setSessionCreatedAt(undefined)
-                        window.api.claudeClose()
-                        // HQ 모드 유지
-                      }}
+                      model={project.selectedModel ?? ''}
                       onToggleHQ={handleToggleHQ}
+                      hqMode={hqMode}
+                      cwd={project.currentPath}
                     />
-                    {/* AgentBay 리사이즈 핸들 */}
-                    <div
-                      onMouseDown={(e) => { setIsAgentBayDragging(true); agentBayDragStartX.current = e.clientX; agentBayDragStartW.current = agentBayWidth }}
-                      style={{ width: 4, flexShrink: 0, cursor: 'col-resize', background: isAgentBayDragging ? 'rgba(82,139,255,0.5)' : 'transparent' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(82,139,255,0.5)' }}
-                      onMouseLeave={e => { if (!isAgentBayDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-                    />
-                    {/* 우측: 실제 채팅 패널 */}
-                    <div style={{ flex: 1, overflow: 'hidden', borderLeft: '1px solid var(--border)' }}>
-                      <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
+                    {/* HQ: AgentBay(left) + ChatPanel(right) */}
+                    <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+                      <AgentBay
+                        sessions={[]}
+                        agents={activeAgents}
+                        activeSessionId={chat.sessionId ?? null}
+                        isStreaming={chat.isStreaming}
+                        toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-5)}
+                        width={agentBayWidth}
+                        onSelectSession={async (sid: string) => {
+                          const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
+                          if (saved?.messages?.length) {
+                            chat.hydrate(saved.messages as ChatMessage[], sid)
+                          } else {
+                            chat.clearMessages()
+                            chat.setSessionId(sid)
+                          }
+                          setSessionTitle(saved?.title)
+                          setSessionCreatedAt(saved?.createdAt)
+                          if (saved?.forkedFrom) {
+                            window.api.claudeClose()
+                          } else {
+                            window.api.claudeResume(sid)
+                          }
+                        }}
+                        onNewSession={() => {
+                          chat.clearMessages()
+                          setSessionTitle(undefined)
+                          setSessionCreatedAt(undefined)
+                          window.api.claudeClose()
+                        }}
+                        onToggleHQ={handleToggleHQ}
+                      />
+                      <div
+                        onMouseDown={(e) => { setIsAgentBayDragging(true); agentBayDragStartX.current = e.clientX; agentBayDragStartW.current = agentBayWidth }}
+                        style={{ width: 4, flexShrink: 0, cursor: 'col-resize', background: isAgentBayDragging ? 'rgba(82,139,255,0.5)' : 'transparent' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(82,139,255,0.5)' }}
+                        onMouseLeave={e => { if (!isAgentBayDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                      />
+                      <div style={{ flex: 1, overflow: 'hidden', borderLeft: '1px solid var(--border)' }}>
+                        <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
+                      </div>
                     </div>
+                    <OpsFeed
+                      toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-10)}
+                      isStreaming={chat.isStreaming}
+                      onToolClick={(toolId) => console.log('tool clicked:', toolId)}
+                    />
                   </div>
-                  <OpsFeed
-                    toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-10)}
-                    isStreaming={chat.isStreaming}
-                    onToolClick={(toolId) => console.log('tool clicked:', toolId)}
-                  />
+                ) : (
+                  <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
+                )}
+              </div>
+
+              {/* Split drag handle */}
+              {ccLayout === 'split' && (
+                <div
+                  onMouseDown={handleCCSplitDragStart}
+                  style={{
+                    width: 4, flexShrink: 0, cursor: 'col-resize',
+                    background: 'var(--border)',
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(82,139,255,0.5)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--border)' }}
+                />
+              )}
+
+              {/* CC Editor panel — split or tab:editor */}
+              {ccLayout !== 'detach' && (
+                <div style={{
+                  flex: ccLayout === 'split' ? `0 0 ${(1 - ccSplitRatio) * 100}%` : 1,
+                  overflow: 'hidden',
+                  display: (ccLayout === 'tab' && ccTab === 'claude') ? 'none' : 'flex',
+                  flexDirection: 'column',
+                  minWidth: ccLayout === 'split' ? 300 : undefined,
+                }}>
+                  <CocosPanel />
                 </div>
-              ) : (
-                <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
               )}
             </div>
-            {/* 씬뷰 탭 */}
+
+            {/* Scene view tab */}
             <div style={{ position: 'absolute', inset: 0, display: activeTab === 'scene' ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden' }}>
-              {/* [M-1] key={activeWsId}: 워크스페이스 전환 시 씬 상태 리셋 */}
               <SceneViewPanel key={activeWsId} connected={wsCCConnected} wsKey={activeWsId} port={wsCCPort} />
             </div>
-            {/* 웹 프리뷰 탭 */}
+            {/* Web preview tab */}
             <div style={{ position: 'absolute', inset: 0, display: activeTab === 'preview' ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden' }}>
               <WebPreviewPanel key={activeWsId} defaultUrl={wsWebPreviewUrl} onUrlChange={setWsWebPreviewUrl} />
             </div>
