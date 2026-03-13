@@ -6739,6 +6739,41 @@ if (existsSync(ib710Path)) {
   }
 }
 
+// ── Section 148: Phase DD10 R711~713 기능 체크 ────────────────
+console.log('\n## 148. Phase DD10 R711~713 기능 체크')
+// R711: CocosPanel 즐겨찾기 태그
+const cp711Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp711Path)) {
+  const cp711 = readFileSync(cp711Path, 'utf-8')
+  if (cp711.includes('favoriteTags') || cp711.includes('showFavTags') || cp711.includes('fav-tags')) {
+    log('pass', 'R711', 'CocosPanel 즐겨찾기 태그 존재')
+  } else {
+    log('warning', 'R711', 'CocosPanel 즐겨찾기 태그 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R712: SessionList 세션 메모
+const sl712Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl712Path)) {
+  const sl712 = readFileSync(sl712Path, 'utf-8')
+  if (sl712.includes('sessionMemos') || sl712.includes('editingMemo') || sl712.includes('session-memos')) {
+    log('pass', 'R712', 'SessionList 세션 메모 존재')
+  } else {
+    log('warning', 'R712', 'SessionList 세션 메모 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R713: SceneToolbar 노드 정렬 옵션
+const st713Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(st713Path)) {
+  const st713 = readFileSync(st713Path, 'utf-8')
+  if (st713.includes('sortMode') || st713.includes('onSortChange') || st713.includes('z-order')) {
+    log('pass', 'R713', 'SceneToolbar 노드 정렬 옵션 존재')
+  } else {
+    log('warning', 'R713', 'SceneToolbar 노드 정렬 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

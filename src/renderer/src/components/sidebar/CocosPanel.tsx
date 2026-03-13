@@ -1286,6 +1286,8 @@ function CCFileNodeInspector({
     try { return JSON.parse(localStorage.getItem('favorite-nodes') ?? '[]') } catch { return [] }
   })
   const [favoritesOpen, setFavoritesOpen] = useState(false)
+  const [favoriteTags, setFavoriteTags] = useState<string[]>(() => JSON.parse(localStorage.getItem('fav-tags') ?? '[]'))
+  const [showFavTags, setShowFavTags] = useState(false)
   const [changeHistory, setChangeHistory] = useState<Array<{ timestamp: number; prop: string; oldVal: unknown; newVal: unknown }>>([])
   const [showHistory, setShowHistory] = useState(false)
   const [redoStack, setRedoStack] = useState<Partial<CCSceneNode>[]>([])

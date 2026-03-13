@@ -207,6 +207,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const inlineTagRef = useRef<HTMLInputElement>(null)
   const [exportedId, setExportedId] = useState<string | null>(null)
   const [exportFormat, setExportFormat] = useState<'json' | 'md' | 'txt'>('json')
+  const [sessionMemos, setSessionMemos] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('session-memos') ?? '{}'))
+  const [editingMemo, setEditingMemo] = useState<string | null>(null)
   const [showExportMenu, setShowExportMenu] = useState(false)
 
   const TAG_COLORS_KEY = 'session-tag-colors'

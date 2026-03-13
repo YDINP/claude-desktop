@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T10:58:31.005Z
+> 2026-03-13T10:59:26.513Z
 
 ## Critical
 _없음_
@@ -592,3 +592,6 @@ _없음_
 - ChatPanel 메시지 북마크 존재
 - SceneViewPanel 노드 그룹 색상 존재
 - InputBar 히스토리 검색 존재
+- CocosPanel 즐겨찾기 태그 존재
+- SessionList 세션 메모 존재
+- SceneToolbar 노드 정렬 옵션 존재

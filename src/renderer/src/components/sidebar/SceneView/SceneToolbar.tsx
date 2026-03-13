@@ -114,6 +114,8 @@ interface SceneToolbarProps {
   onToggleSearch?: () => void
   showSearch?: boolean
   onAlignNodes?: (align: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => void
+  sortMode?: 'name' | 'type' | 'z-order'
+  onSortChange?: (mode: string) => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -228,6 +230,8 @@ export function SceneToolbar({
   showSearch,
   onLayoutPreset,
   onAlignNodes,
+  sortMode,
+  onSortChange,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
