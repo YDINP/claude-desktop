@@ -321,7 +321,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [richFormat, setRichFormat] = React.useState(false)
   const [formatOptions, setFormatOptions] = React.useState<string[]>([])
   const [mentionMode, setMentionMode] = React.useState(false)
-  const [mentionQuery, setMentionQuery] = React.useState('')
   const [emojiPickerOpen, setEmojiPickerOpen] = React.useState(false)
   const [recentEmojis, setRecentEmojis] = React.useState<string[]>([])
   const [filePreview, setFilePreview] = React.useState<string | null>(null)
@@ -343,7 +342,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [smartQuotes, setSmartQuotes] = React.useState(false)
   const [typographyMode, setTypographyMode] = React.useState(false)
   const [globalShortcuts, setGlobalShortcuts] = React.useState<Record<string, string>>({})
-  const [showShortcutEditor, setShowShortcutEditor] = React.useState(false)
   const [focusMode, setFocusMode] = React.useState(false)
   const [focusTimer, setFocusTimer] = useState(0)
   const [focusOpacity, setFocusOpacity] = React.useState(0.5)
@@ -360,7 +358,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showCodeComplete, setShowCodeComplete] = useState(false)
   // R1177: text templates
   const [textTemplates, setTextTemplates] = useState<Record<string, string>>({})
-  const [showTemplates, setShowTemplates] = useState(false)
   // R1189: rich text mode
   const [richTextMode, setRichTextMode] = useState(false)
   const [richTextContent, setRichTextContent] = useState('')
@@ -384,7 +381,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [cursorPositions, setCursorPositions] = useState<number[]>([])
   const [inputDragOver, setInputDragOver] = useState(false)
   const [inputGrammar, setInputGrammar] = useState(false)
-  const [grammarSuggestions, setGrammarSuggestions] = useState<string[]>([])
   const [inputTheme, setInputTheme] = useState<'light' | 'dark' | 'auto'>('auto')
   const [inputThemeCustom, setInputThemeCustom] = useState<Record<string, string>>({})
   const [inputPaste, setInputPaste] = useState<string>('')

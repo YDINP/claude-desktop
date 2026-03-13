@@ -182,7 +182,6 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true)
   // R778: terminal color theme
   const [colorTheme, setColorTheme] = useState<'dark' | 'light' | 'solarized' | 'monokai'>('dark')
-  const [customColors, setCustomColors] = useState<Record<string, string>>({})
   // R799: workspace layout
   const [workspaceLayout, setWorkspaceLayout] = useState<'single' | 'split-h' | 'split-v' | 'grid'>('single')
   const [layoutLocked, setLayoutLocked] = useState(false)
@@ -229,12 +228,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showProcessMonitor, setShowProcessMonitor] = useState(false)
   const [savedScrollPos, setSavedScrollPos] = useState<Record<string, number>>({})
   const [autoScrollOnOutput, setAutoScrollOnOutput] = useState(true)
-  const [termSessions, setTermSessions] = useState<string[]>([])
-  const [activeTermSession, setActiveTermSession] = useState('')
   const [termBookmarks, setTermBookmarks] = useState<string[]>([])
   const [showTermBookmarks, setShowTermBookmarks] = useState(false)
-  const [termPipeline, setTermPipeline] = useState<string[]>([])
-  const [showPipelinePanel, setShowPipelinePanel] = useState(false)
   const [termConnections, setTermConnections] = useState<string[]>([])
   const [showConnectionPanel, setShowConnectionPanel] = useState(false)
   const [termAutoComplete, setTermAutoComplete] = useState(true)
@@ -242,7 +237,6 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [termSyntaxHighlight, setTermSyntaxHighlight] = useState(false)
   const [termHighlightRules, setTermHighlightRules] = useState<Record<string, string>>({})
   // R1348: terminal theme
-  const [termTheme, setTermTheme] = useState<string>('dark')
   const [termThemeCustom, setTermThemeCustom] = useState<boolean>(false)
 
   // R1354: terminal log save
@@ -382,7 +376,6 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
 
   // Split layout state
   const [splitLayout, setSplitLayout] = useState<'single' | 'horizontal' | 'vertical'>('single')
-  const [splitRatio, setSplitRatio] = useState(0.5)
   const [splitTabId, setSplitTabId] = useState<string | null>(null)
 
   // Filter state
@@ -408,7 +401,6 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [terminalRecording, setTerminalRecording] = useState(false)
   const [recordedSessions, setRecordedSessions] = useState<Array<{ name: string; data: string[] }>>([])
   const [terminalSplit, setTerminalSplit] = useState<'none' | 'horizontal' | 'vertical'>('none')
-  const [splitRatio, setSplitRatio] = useState(0.5)
   const [terminalSearch, setTerminalSearch] = useState('')
   const [terminalSearchResults, setTerminalSearchResults] = useState<number[]>([])
   const [showEnvEditor, setShowEnvEditor] = useState(false)
@@ -447,8 +439,6 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [processList, setProcessList] = React.useState<string[]>([])
   const [showProcessList, setShowProcessList] = React.useState(false)
   const [showCmdBookmarks, setShowCmdBookmarks] = React.useState(false)
-  const [sessionLog, setSessionLog] = React.useState<string[]>([])
-  const [showSessionLog, setShowSessionLog] = React.useState(false)
   const [shortcutMap, setShortcutMap] = React.useState<Record<string, string>>({})
   const [showShortcutMap, setShowShortcutMap] = React.useState(false)
   const [sharedHistory, setSharedHistory] = React.useState(true)
