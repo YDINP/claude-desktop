@@ -95,6 +95,8 @@ interface SceneToolbarProps {
   showRuler?: boolean
   onToggleRuler?: () => void
   mousePos?: { x: number; y: number } | null
+  showLayerPanel?: boolean
+  onToggleLayerPanel?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -192,6 +194,8 @@ export function SceneToolbar({
   showRuler,
   onToggleRuler,
   mousePos,
+  showLayerPanel,
+  onToggleLayerPanel,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -339,6 +343,17 @@ export function SceneToolbar({
       </button>
 
       <div style={divider} />
+
+      {/* 레이어 패널 */}
+      {onToggleLayerPanel && (
+        <button
+          style={showLayerPanel ? btnActive : btnBase}
+          onClick={onToggleLayerPanel}
+          title="레이어 패널 표시/숨기기"
+        >
+          📋 Layers
+        </button>
+      )}
 
       {/* 룰러 */}
       {onToggleRuler && (

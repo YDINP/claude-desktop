@@ -53,6 +53,7 @@ interface InputBarProps {
   focusTrigger?: number
   pendingInsert?: string
   onPendingInsertConsumed?: () => void
+  onOpenPromptChain?: () => void
 }
 
 const MAX_HISTORY = 100

@@ -14,6 +14,74 @@ import { ThinkingPanel } from './ThinkingPanel'
 
 const RUNNABLE_LANGS = ['bash', 'sh', 'shell', 'zsh', 'fish', 'cmd', 'powershell', 'ps1']
 
+// ── Diff rendering utilities ──────────────────────────────────────────────
+
+type DiffLineType = 'add' | 'remove' | 'hunk' | 'normal'
+
+function parseDiffLine(line: string): { type: DiffLineType; content: string } {
+  if (line.startsWith('+')) return { type: 'add', content: line }
+  if (line.startsWith('-')) return { type: 'remove', content: line }
+  if (line.startsWith('@@')) return { type: 'hunk', content: line }
+  return { type: 'normal', content: line }
+}
+
+function isDiffContent(language: string, code: string): boolean {
+  if (language === 'diff') return true
+  const lines = code.split('\n').filter(l => l.trim() !== '')
+  if (lines.length === 0) return false
+  const diffLines = lines.filter(l => l.startsWith('+') || l.startsWith('-') || l.startsWith('@@'))
+  return diffLines.length / lines.length >= 0.5
+}
+
+const DIFF_LINE_STYLES: Record<DiffLineType, React.CSSProperties> = {
+  add:    { background: 'rgba(0,255,0,0.1)', color: '#4ade80', display: 'block', width: '100%' },
+  remove: { background: 'rgba(255,0,0,0.1)', color: '#f87171', display: 'block', width: '100%' },
+  hunk:   { color: '#60a5fa', fontStyle: 'italic', display: 'block', width: '100%' },
+  normal: { display: 'block', width: '100%' },
+}
+
+function DiffView({ codeString }: { codeString: string }) {
+  const lines = codeString.split('\n')
+  const addCount = lines.filter(l => l.startsWith('+')).length
+  const removeCount = lines.filter(l => l.startsWith('-')).length
+
+  return (
+    <div style={{ margin: '0', borderRadius: '0 0 4px 4px', overflow: 'hidden' }}>
+      {/* Stats header */}
+      <div style={{
+        display: 'flex',
+        gap: 6,
+        padding: '3px 12px',
+        background: '#1e1e2e',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        fontSize: 10,
+      }}>
+        <span style={{ color: '#4ade80' }}>+{addCount}</span>
+        <span style={{ color: '#f87171' }}>-{removeCount}</span>
+      </div>
+      {/* Diff lines */}
+      <pre style={{
+        background: '#1e1e2e',
+        padding: '10px 0',
+        margin: 0,
+        fontSize: 12,
+        fontFamily: 'var(--font-mono, monospace)',
+        overflowX: 'auto',
+        lineHeight: 1.5,
+      }}>
+        {lines.map((line, i) => {
+          const { type, content } = parseDiffLine(line)
+          return (
+            <div key={i} style={{ ...DIFF_LINE_STYLES[type], padding: '0 12px', minHeight: '1.5em' }}>
+              {content}
+            </div>
+          )
+        })}
+      </pre>
+    </div>
+  )
+}
+
 function shortModelName(model: string): string {
   if (model.includes('opus-4')) return 'Opus 4'
   if (model.includes('sonnet-4')) return 'Sonnet 4'
@@ -198,6 +266,7 @@ const CodeBlock = memo(function CodeBlock({
   const runBtnRight = 60
 
   const hasOutput = runOutput !== null
+  const isDiff = isDiffContent(language, codeString)
 
   return (
     <div
@@ -223,22 +292,26 @@ const CodeBlock = memo(function CodeBlock({
           {codeString.split('\n').length} lines
         </span>
       </div>
-      <SyntaxHighlighter
-        style={vscDarkPlus}
-        language={language}
-        PreTag="div"
-        showLineNumbers={codeString.split('\n').length > 3}
-        lineNumberStyle={{ color: 'rgba(150,150,170,0.4)', fontSize: 10, minWidth: '2.5em', userSelect: 'none' }}
-        customStyle={{
-          background: '#1e1e2e',
-          borderRadius: (explanation || hasOutput || docCode || shellResult) ? '0 0 0 0' : '0 0 4px 4px',
-          padding: 12,
-          fontSize: 12,
-          margin: 0,
-        }}
-      >
-        {codeString}
-      </SyntaxHighlighter>
+      {isDiff ? (
+        <DiffView codeString={codeString} />
+      ) : (
+        <SyntaxHighlighter
+          style={vscDarkPlus}
+          language={language}
+          PreTag="div"
+          showLineNumbers={codeString.split('\n').length > 3}
+          lineNumberStyle={{ color: 'rgba(150,150,170,0.4)', fontSize: 10, minWidth: '2.5em', userSelect: 'none' }}
+          customStyle={{
+            background: '#1e1e2e',
+            borderRadius: (explanation || hasOutput || docCode || shellResult) ? '0 0 0 0' : '0 0 4px 4px',
+            padding: 12,
+            fontSize: 12,
+            margin: 0,
+          }}
+        >
+          {codeString}
+        </SyntaxHighlighter>
+      )}
       {isShellExecable && (
         <button
           onClick={handleShellExec}
@@ -786,6 +859,10 @@ function makeMdComponents(
       }
       if (match) {
         return <CodeBlock language={match[1]} codeString={codeString} onRunInTerminal={onRunInTerminal} onQuickAction={onQuickAction} />
+      }
+      // No language specified but content looks like a diff → render as diff
+      if (!match && codeString.includes('\n') && isDiffContent('', codeString)) {
+        return <CodeBlock language="diff" codeString={codeString} onRunInTerminal={onRunInTerminal} onQuickAction={onQuickAction} />
       }
       return (
         <code

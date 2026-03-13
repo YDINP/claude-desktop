@@ -5856,6 +5856,41 @@ if (existsSync(cp611Path)) {
   }
 }
 
+// ── Section 123: Phase DD10 R613~615 기능 체크 ────────────────
+console.log('\n## 123. Phase DD10 R613~615 기능 체크')
+// R613: 채팅 인라인 Diff 렌더링
+const mb613Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb613Path)) {
+  const mb613 = readFileSync(mb613Path, 'utf-8')
+  if (mb613.includes('parseDiffLine') || mb613.includes('isDiffContent')) {
+    log('pass', 'R613', '채팅 인라인 Diff 렌더링 존재')
+  } else {
+    log('warning', 'R613', '채팅 인라인 Diff 렌더링 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R614: 씬뷰 레이어 패널
+const svp614Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp614Path)) {
+  const svp614 = readFileSync(svp614Path, 'utf-8')
+  if (svp614.includes('showLayerPanel') && svp614.includes('hiddenLayers')) {
+    log('pass', 'R614', '씬뷰 레이어 패널 존재')
+  } else {
+    log('warning', 'R614', '씬뷰 레이어 패널 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R615: StatusBar 세션 타이머
+const sb615Path = join(ROOT, 'src/renderer/src/components/shared/StatusBar.tsx')
+if (existsSync(sb615Path)) {
+  const sb615 = readFileSync(sb615Path, 'utf-8')
+  if (sb615.includes('sessionElapsed') || sb615.includes('⏱')) {
+    log('pass', 'R615', 'StatusBar 세션 타이머 존재')
+  } else {
+    log('warning', 'R615', 'StatusBar 세션 타이머 없음', 'shared/StatusBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

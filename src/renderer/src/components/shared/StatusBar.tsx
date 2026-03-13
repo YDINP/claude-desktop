@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { getTodayCost, getMonthlyCost } from '../../utils/cost-tracker'
 
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
@@ -48,7 +48,29 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
   const [showSessionInfo, setShowSessionInfo] = useState(false)
   const [todayCost, setTodayCost] = useState(0)
   const [monthlyCost, setMonthlyCost] = useState(0)
+  const [sessionElapsed, setSessionElapsed] = useState('')
+  const [showCostTooltip, setShowCostTooltip] = useState(false)
   const popupRef = useRef<HTMLDivElement>(null)
+  const costTooltipRef = useRef<HTMLDivElement>(null)
+
+  const fetchCosts = useCallback(() => {
+    setTodayCost(getTodayCost())
+    setMonthlyCost(getMonthlyCost())
+  }, [])
+
+  useEffect(() => {
+    if (!sessionCreatedAt) return
+    const update = () => {
+      const sec = Math.floor((Date.now() - sessionCreatedAt) / 1000)
+      const h = Math.floor(sec / 3600)
+      const m = Math.floor((sec % 3600) / 60)
+      const s = sec % 60
+      setSessionElapsed(`${h}h ${m}m ${s}s`)
+    }
+    update()
+    const id = setInterval(update, 1000)
+    return () => clearInterval(id)
+  }, [sessionCreatedAt])
 
   useEffect(() => {
     if (!cwd) { setGitInfo(null); return }
@@ -151,8 +173,9 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
       )}
       {(totalCost > 0 || totalInputTokens > 0) && (
         <span
-          style={{ marginLeft: (contextUsage !== undefined && contextUsage > 0) ? 0 : 'auto', opacity: 0.85, display: 'flex', alignItems: 'center', gap: 8 }}
-          title={`입력: ${totalInputTokens.toLocaleString()} / 출력: ${totalOutputTokens.toLocaleString()} 토큰`}
+          style={{ marginLeft: (contextUsage !== undefined && contextUsage > 0) ? 0 : 'auto', opacity: 0.85, display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}
+          onMouseEnter={() => { setShowCostTooltip(true); fetchCosts() }}
+          onMouseLeave={() => setShowCostTooltip(false)}
         >
           {totalInputTokens > 0 && (
             <span style={{ opacity: 0.7, fontSize: 10 }}>
@@ -161,7 +184,48 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
               {totalOutputTokens > 1000 ? `${(totalOutputTokens / 1000).toFixed(1)}k` : totalOutputTokens}↓
             </span>
           )}
-          {totalCost > 0 && <span>${totalCost.toFixed(4)}</span>}
+          {totalCost > 0 && <span style={{ cursor: 'default' }}>${totalCost.toFixed(4)}</span>}
+          {showCostTooltip && (
+            <div
+              ref={costTooltipRef}
+              style={{
+                position: 'absolute',
+                bottom: '100%',
+                right: 0,
+                marginBottom: 6,
+                background: 'var(--bg-primary)',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
+                padding: '8px 12px',
+                fontSize: 11,
+                color: 'var(--text-primary)',
+                whiteSpace: 'nowrap',
+                zIndex: 9100,
+                boxShadow: '0 -4px 12px rgba(0,0,0,0.3)',
+                pointerEvents: 'none',
+              }}
+            >
+              {(() => {
+                const pricing = MODEL_PRICING[model] ?? MODEL_PRICING['claude-sonnet-4-6']
+                return (
+                  <>
+                    <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>비용 상세</div>
+                    <div style={{ color: 'var(--text-secondary)', marginBottom: 3 }}>세션: ${totalCost.toFixed(4)}</div>
+                    {todayCost > 0 && <div style={{ color: 'var(--text-secondary)', marginBottom: 3 }}>오늘: ${todayCost.toFixed(4)}</div>}
+                    {monthlyCost > 0 && <div style={{ color: 'var(--text-secondary)', marginBottom: 6 }}>이달: ${monthlyCost.toFixed(4)}</div>}
+                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: 5, color: 'var(--text-muted)', fontSize: 10 }}>
+                      입력 ${pricing.input}/M · 출력 ${pricing.output}/M
+                    </div>
+                  </>
+                )
+              })()}
+            </div>
+          )}
+        </span>
+      )}
+      {sessionElapsed && (
+        <span style={{ fontSize: 10, opacity: 0.65, cursor: 'default' }} title="세션 경과 시간">
+          ⏱ {sessionElapsed}
         </span>
       )}
       {chatFontSize !== undefined && chatFontSize !== 13 && (

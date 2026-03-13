@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 612 완료 — Phase DD10 진행 중, QA Pass 509)
+> 마지막 업데이트: 2026-03-13 (Round 616 완료 — Phase DD10 진행 중, QA Pass 512)
 
 ## 개발 루프 실행 방식
 
@@ -588,6 +588,10 @@
 | Round 610 | 채팅 즐겨찾기 메시지 뷰 탭 (⭐ 필터, export JSON) + 컨텍스트 토큰 인디케이터 | ✅ |
 | Round 611 | Inspector prop 변경 히스토리 트레이 (최근 15개, undo 버튼, 타임스탬프) | ✅ |
 | Round 612 | QA Section 122 추가 (R609/R610/R611, Pass 509) | ✅ |
+| Round 613 | 채팅 인라인 Diff 렌더링 (±줄 색상, 통계 헤더, isDiffContent 감지) | ✅ |
+| Round 614 | 씬뷰 레이어 패널 (showLayerPanel, hiddenLayers, 가시성 토글) | ✅ |
+| Round 615 | StatusBar 세션 경과 타이머 (⏱ Xm Ys, 1초 업데이트) | ✅ |
+| Round 616 | QA Section 123 추가 (R613/R614/R615, Pass 512) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

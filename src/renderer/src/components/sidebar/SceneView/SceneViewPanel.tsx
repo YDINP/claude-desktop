@@ -134,7 +134,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [canvasSearch, setCanvasSearch] = useState('')
   const [showCanvasSearch, setShowCanvasSearch] = useState(false)
   const [nodeSearch, setNodeSearch] = useState('')
-  const [hiddenLayers, setHiddenLayers] = useState<Set<number>>(new Set())
+  const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
+  const [lockedLayers, setLockedLayers] = useState<Set<string>>(new Set())
   const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
@@ -1538,12 +1539,63 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return path
   }, [selectedUuid, nodeMap])
 
-  // 씬 내 고유 레이어 목록
-  const allLayers = useMemo(() => {
-    const s = new Set<number>()
-    nodeMap.forEach(n => { if ((n as any).layer !== undefined) s.add((n as any).layer) })
-    return [...s].sort((a, b) => a - b)
+  // 씬 최상위 자식 노드 목록 (레이어 = rootUuid의 직계 자식)
+  const topLevelNodes = useMemo(() => {
+    if (!rootUuid) return []
+    const root = nodeMap.get(rootUuid)
+    if (!root) return []
+    return root.childUuids
+      .map(uuid => nodeMap.get(uuid))
+      .filter((n): n is import('./types').SceneNode => !!n)
+  }, [nodeMap, rootUuid])
+
+  // 레이어(최상위 노드) 하위 전체 uuid 수집 헬퍼
+  const collectDescendants = useCallback((uuid: string): string[] => {
+    const result: string[] = [uuid]
+    const stack = [uuid]
+    while (stack.length) {
+      const cur = stack.pop()!
+      const node = nodeMap.get(cur)
+      if (node) { node.childUuids.forEach(c => { result.push(c); stack.push(c) }) }
+    }
+    return result
   }, [nodeMap])
+
+  // 레이어 잠금 → lockedUuids 동기화
+  useEffect(() => {
+    setLockedUuids(prev => {
+      const next = new Set(prev)
+      // 이전 레이어 잠금으로 추가된 uuid 제거 후 재계산
+      topLevelNodes.forEach(layer => {
+        const descs = collectDescendants(layer.uuid)
+        if (lockedLayers.has(layer.uuid)) {
+          descs.forEach(u => next.add(u))
+        } else {
+          descs.forEach(u => {
+            // lockedUuids에서 개별 잠금 여부 판단 불가하므로 레이어 잠금 해제 시 해당 uuid만 제거
+            // (개별 잠금은 node.locked 로 관리되므로 Set에서만 제거)
+            next.delete(u)
+          })
+        }
+      })
+      return next
+    })
+  }, [lockedLayers, topLevelNodes, collectDescendants])
+
+  // uuid → 최상위 조상 uuid 매핑 (hiddenLayers 필터에 사용)
+  const nodeToTopLevel = useMemo(() => {
+    const map = new Map<string, string>()
+    topLevelNodes.forEach(layer => {
+      const stack = [layer.uuid]
+      while (stack.length) {
+        const cur = stack.pop()!
+        map.set(cur, layer.uuid)
+        const node = nodeMap.get(cur)
+        if (node) node.childUuids.forEach(c => stack.push(c))
+      }
+    })
+    return map
+  }, [topLevelNodes, nodeMap])
 
   // 씬 내 모든 태그 목록 (태그 필터 드롭다운용)
   const allTags = useMemo(() => {
@@ -1941,6 +1993,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         showRuler={showRuler}
         onToggleRuler={() => setShowRuler(v => !v)}
         mousePos={cursorScenePos}
+        showLayerPanel={showLayerPanel}
+        onToggleLayerPanel={() => setShowLayerPanel(v => !v)}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -2167,7 +2221,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             {renderOrder.map(uuid => {
               const node = nodeMap.get(uuid)
               if (!node) return null
-              if (hiddenLayers.size > 0 && hiddenLayers.has((node as any).layer ?? 0)) return null
+              if (hiddenLayers.size > 0) {
+                const topUuid = nodeToTopLevel.get(uuid)
+                if (topUuid && hiddenLayers.has(topUuid)) return null
+              }
               return (
                 <NodeRenderer
                   key={uuid}
