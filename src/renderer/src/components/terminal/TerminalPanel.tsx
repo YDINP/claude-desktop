@@ -482,6 +482,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1210: terminal git
   const [termGitStatus, setTermGitStatus] = React.useState<string | null>(null)
   const [showGitPanel, setShowGitPanel] = React.useState(false)
+  // R1216: terminal env vars
+  const [termEnvVars, setTermEnvVars] = React.useState<Record<string, string>>({})
+  const [showEnvPanel, setShowEnvPanel] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

@@ -12489,6 +12489,74 @@ if (existsSync(sl1211Path)) {
   }
 }
 
+console.log('\n## 315. Phase DD10 R1212~1214 기능 체크')
+// R1212: ChatPanel 복사 형식
+const cp1212Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1212Path)) {
+  const cp1212 = readFileSync(cp1212Path, 'utf-8')
+  if (cp1212.includes('copyFormat') || cp1212.includes('showCopyFormat') || cp1212.includes('copyMode')) {
+    log('pass', 'R1212', 'ChatPanel 복사 형식 존재')
+  } else {
+    log('warning', 'R1212', 'ChatPanel 복사 형식 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1213: InputBar 커서 스타일
+const ib1213Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1213Path)) {
+  const ib1213 = readFileSync(ib1213Path, 'utf-8')
+  if (ib1213.includes('cursorStyle') || ib1213.includes('cursorBlink') || ib1213.includes('caretStyle')) {
+    log('pass', 'R1213', 'InputBar 커서 스타일 존재')
+  } else {
+    log('warning', 'R1213', 'InputBar 커서 스타일 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1214: CocosPanel 에셋 태그
+const cocos1214Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1214Path)) {
+  const cocos1214 = readFileSync(cocos1214Path, 'utf-8')
+  if (cocos1214.includes('assetTags') || cocos1214.includes('showAssetTags') || cocos1214.includes('taggedAssets')) {
+    log('pass', 'R1214', 'CocosPanel 에셋 태그 존재')
+  } else {
+    log('warning', 'R1214', 'CocosPanel 에셋 태그 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 316. Phase DD10 R1215~1217 기능 체크')
+// R1215: SceneViewPanel 선택 히스토리
+const sv1215Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1215Path)) {
+  const sv1215 = readFileSync(sv1215Path, 'utf-8')
+  if (sv1215.includes('selectionHistory') || sv1215.includes('selHistoryIdx') || sv1215.includes('prevSelection')) {
+    log('pass', 'R1215', 'SceneViewPanel 선택 히스토리 존재')
+  } else {
+    log('warning', 'R1215', 'SceneViewPanel 선택 히스토리 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1216: TerminalPanel 환경 변수
+const tp1216Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1216Path)) {
+  const tp1216 = readFileSync(tp1216Path, 'utf-8')
+  if (tp1216.includes('termEnvVars') || tp1216.includes('showEnvPanel') || tp1216.includes('envVars')) {
+    log('pass', 'R1216', 'TerminalPanel 환경 변수 존재')
+  } else {
+    log('warning', 'R1216', 'TerminalPanel 환경 변수 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1217: SessionList 세션 색상
+const sl1217Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1217Path)) {
+  const sl1217 = readFileSync(sl1217Path, 'utf-8')
+  if (sl1217.includes('sessionColors') || sl1217.includes('showColorPicker') || sl1217.includes('sessionColor')) {
+    log('pass', 'R1217', 'SessionList 세션 색상 존재')
+  } else {
+    log('warning', 'R1217', 'SessionList 세션 색상 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

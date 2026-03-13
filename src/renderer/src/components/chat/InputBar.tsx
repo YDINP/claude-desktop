@@ -366,6 +366,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   // R1207: input stats
   const [inputStats, setInputStats] = useState<{ chars: number; words: number; lines: number }>({ chars: 0, words: 0, lines: 0 })
   const [showInputStats, setShowInputStats] = useState(false)
+  // R1213: cursor style
+  const [cursorStyle, setCursorStyle] = useState<'bar' | 'block' | 'underline'>('bar')
+  const [cursorBlink, setCursorBlink] = useState(true)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
