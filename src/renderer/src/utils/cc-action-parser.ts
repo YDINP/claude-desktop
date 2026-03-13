@@ -1,11 +1,16 @@
 export interface CCAction {
-  type: 'moveNode' | 'setProperty' | 'buildWeb' | 'refreshTree'
+  type: 'moveNode' | 'setProperty' | 'buildWeb' | 'refreshTree' | 'createNode' | 'deleteNode' | 'setActive'
   uuid?: string
   x?: number
   y?: number
   key?: string
   value?: unknown
+  parentUuid?: string
+  nodeName?: string
+  active?: boolean
 }
+
+const ALLOWED_TYPES = ['moveNode', 'setProperty', 'buildWeb', 'refreshTree', 'createNode', 'deleteNode', 'setActive']
 
 /**
  * Claude 응답 텍스트에서 ```cc-action ... ``` 블록 파싱
@@ -19,7 +24,7 @@ export function parseCCActions(text: string): CCAction[] {
       const parsed = JSON.parse(match[1].trim())
       const list = Array.isArray(parsed) ? parsed : [parsed]
       for (const item of list) {
-        if (item.type && ['moveNode', 'setProperty', 'buildWeb', 'refreshTree'].includes(item.type)) {
+        if (item.type && ALLOWED_TYPES.includes(item.type)) {
           actions.push(item as CCAction)
         }
       }
@@ -48,8 +53,26 @@ export async function executeCCActions(actions: CCAction[], port = 9090): Promis
             results.push(`✓ ${action.uuid}.${action.key} = ${JSON.stringify(action.value)}`)
           }
           break
+        case 'setActive':
+          if (action.uuid != null && action.active !== undefined) {
+            await window.api.ccSetProperty?.(port, action.uuid, 'active', action.active)
+            results.push(`✓ setActive: ${action.uuid} → ${action.active}`)
+          }
+          break
+        case 'createNode':
+          if (window.api.ccCreateNode) {
+            await window.api.ccCreateNode(port, action.parentUuid ?? '', action.nodeName ?? 'NewNode')
+            results.push(`✓ createNode: ${action.nodeName ?? 'NewNode'}`)
+          }
+          break
+        case 'deleteNode':
+          if (action.uuid != null && window.api.ccDeleteNode) {
+            await window.api.ccDeleteNode(port, action.uuid)
+            results.push(`✓ deleteNode: ${action.uuid}`)
+          }
+          break
         case 'buildWeb':
-          results.push('웹빌드 트리거 (미구현)')
+          results.push('buildWeb: 미구현 (수동 빌드 필요)')
           break
         case 'refreshTree':
           await window.api.ccGetTree?.(port)

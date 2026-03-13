@@ -72,6 +72,14 @@ export function useCCContext(): CCContext {
     return () => { unsubStatus?.(); unsubEvent?.() }
   }, [refreshTree, updatePort])
 
+  const ccActionGuide = connected ? `
+## CC Scene Edit Actions
+씬 노드를 수정하려면 \`\`\`cc-action 블록을 사용하세요:
+\`\`\`cc-action
+{"type":"moveNode","uuid":"<node-uuid>","x":<x>,"y":<y>}
+\`\`\`
+지원 액션: moveNode(x,y), setProperty(key,value), setActive(active), createNode(parentUuid,nodeName), deleteNode(uuid), refreshTree` : ''
+
   const contextString = connected && sceneTree
     ? [
         '## Current Cocos Creator Scene',
@@ -80,6 +88,7 @@ export function useCCContext(): CCContext {
         selectedNode
           ? `\nSelected Node: ${selectedNode.name} (uuid: ${selectedNode.uuid})${selectedNode.position ? `\n  position: (${Math.round(selectedNode.position.x)}, ${Math.round(selectedNode.position.y)})` : ''}${selectedNode.size ? `\n  size: ${Math.round(selectedNode.size.width)}x${Math.round(selectedNode.size.height)}` : ''}\n  opacity: ${selectedNode.opacity ?? 255}`
           : '',
+        ccActionGuide,
       ].filter(Boolean).join('\n')
     : ''
 

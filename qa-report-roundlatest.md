@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T07:09:04.980Z
+> 2026-03-13T07:52:04.444Z
 
 ## Critical
 _없음_
@@ -456,3 +456,10 @@ _없음_
 - cc-file-parser 재귀 깊이 제한 존재
 - handleSave try/finally 존재 (saving 상태 고착 방지)
 - local:// path traversal 강화됨 (decodeURIComponent + allowedBases)
+- 씬뷰 Delete 키 핸들러 존재
+- Inspector 섹션 상태 localStorage 저장
+- Inspector props 타입 힌트 배지 존재
+- 씬뷰 레이어 가시성 토글 존재
+- 시스템 프롬프트 변수 치환 존재 (resolveVars)
+- SessionList 날짜 그룹 헤더 존재
+- 파일 탭 미저장 ● 인디케이터 존재
