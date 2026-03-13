@@ -4053,9 +4053,21 @@ function CCFileNodeInspector({
           </div>
         )
       })()}
+      {/* R1651: 씬 내 노드 이름 자동완성 datalist */}
+      {(() => {
+        const names = new Set<string>()
+        const walkNames = (n: CCSceneNode) => { names.add(n.name); n.children.forEach(walkNames) }
+        if (sceneFile?.root) walkNames(sceneFile.root)
+        return (
+          <datalist id={`cc-node-names-${node.uuid}`}>
+            {[...names].map(n => <option key={n} value={n} />)}
+          </datalist>
+        )
+      })()}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
         <input
           defaultValue={draft.name}
+          list={`cc-node-names-${node.uuid}`}
           onBlur={e => applyAndSave({ name: e.target.value })}
           style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', background: 'transparent', border: 'none', borderBottom: '1px solid var(--accent)', outline: 'none', flex: 1, minWidth: 0 }}
         />

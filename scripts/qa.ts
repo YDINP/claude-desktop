@@ -17733,6 +17733,18 @@ console.log('\n## 541. R1650 붙여넣기 위치 오프셋 체크')
   }
 }
 
+// ── Section 542: R1651 Inspector 노드 이름 자동완성 datalist ──────────────
+console.log('\n## 542. R1651 Inspector 노드 이름 자동완성 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s542 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s542.includes('R1651') && s542.includes('datalist') && s542.includes('cc-node-names-')) {
+    log('pass', 'R1651-name-datalist', 'Inspector 노드 이름 자동완성 datalist')
+  } else {
+    log('warning', 'R1651-name-datalist', 'Inspector 노드 이름 자동완성 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
