@@ -8979,6 +8979,41 @@ if (existsSync(sl902Path)) {
   }
 }
 
+console.log('\n## 212. Phase DD10 R903~905 기능 체크')
+
+// R903: ChatPanel AI 어시스트 모드
+const cp903Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp903Path)) {
+  const cp903 = readFileSync(cp903Path, 'utf-8')
+  if (cp903.includes('aiAssistMode') || cp903.includes('aiAssistSuggestion') || cp903.includes('assistMode')) {
+    log('pass', 'R903', 'ChatPanel AI 어시스트 모드 존재')
+  } else {
+    log('warning', 'R903', 'ChatPanel AI 어시스트 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R904: InputBar 이미지 첨부
+const ib904Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib904Path)) {
+  const ib904 = readFileSync(ib904Path, 'utf-8')
+  if (ib904.includes('imageAttachments') || ib904.includes('showImagePreview') || ib904.includes('imgAttach')) {
+    log('pass', 'R904', 'InputBar 이미지 첨부 존재')
+  } else {
+    log('warning', 'R904', 'InputBar 이미지 첨부 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R905: CocosPanel 스크립트 에디터
+const cocp905Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp905Path)) {
+  const cocp905 = readFileSync(cocp905Path, 'utf-8')
+  if (cocp905.includes('scriptEditorOpen') || cocp905.includes('editingScript') || cocp905.includes('scriptEditor')) {
+    log('pass', 'R905', 'CocosPanel 스크립트 에디터 존재')
+  } else {
+    log('warning', 'R905', 'CocosPanel 스크립트 에디터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

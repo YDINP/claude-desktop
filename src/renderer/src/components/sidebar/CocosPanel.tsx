@@ -162,6 +162,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showMaterialPanel, setShowMaterialPanel] = useState(false)
   const [physicsDebug, setPhysicsDebug] = useState(false)
   const [physicsDebugOptions, setPhysicsDebugOptions] = useState<{ showColliders: boolean; showJoints: boolean }>({ showColliders: true, showJoints: false })
+  const [scriptEditorOpen, setScriptEditorOpen] = useState(false)
+  const [editingScript, setEditingScript] = useState<string | null>(null)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
