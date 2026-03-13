@@ -420,6 +420,33 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {/* 게임 캔버스 배경 */}
           <rect x={0} y={0} width={designW} height={designH}
             fill={bgColorOverride ?? bgColor} stroke="#555" strokeWidth={1 / view.zoom} />
+          {/* 캔버스 치수 레이블 */}
+          {view.zoom > 0.25 && (
+            <text
+              x={designW / 2} y={-6 / view.zoom}
+              fontSize={10 / view.zoom} fill="rgba(255,255,255,0.25)"
+              textAnchor="middle" style={{ pointerEvents: 'none', userSelect: 'none' }}
+            >{designW} × {designH}</text>
+          )}
+          {/* 좌표축 화살표 (우하단 코너) */}
+          {view.zoom > 0.3 && (() => {
+            const ax = designW + 8 / view.zoom
+            const ay = designH + 8 / view.zoom
+            const al = 18 / view.zoom
+            const aw = 4 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                {/* X축 (→) */}
+                <line x1={ax} y1={ay} x2={ax + al} y2={ay} stroke="rgba(255,80,80,0.5)" strokeWidth={1.5 / view.zoom} />
+                <polygon points={`${ax + al},${ay} ${ax + al - aw},${ay - aw / 1.5} ${ax + al - aw},${ay + aw / 1.5}`} fill="rgba(255,80,80,0.5)" />
+                <text x={ax + al + 3 / view.zoom} y={ay + 1 / view.zoom} fontSize={8 / view.zoom} fill="rgba(255,80,80,0.5)" dominantBaseline="middle">X</text>
+                {/* Y축 (CC Y-up → SVG 상단 = CC +Y) */}
+                <line x1={ax} y1={ay} x2={ax} y2={ay - al} stroke="rgba(80,200,80,0.5)" strokeWidth={1.5 / view.zoom} />
+                <polygon points={`${ax},${ay - al} ${ax - aw / 1.5},${ay - al + aw} ${ax + aw / 1.5},${ay - al + aw}`} fill="rgba(80,200,80,0.5)" />
+                <text x={ax + 2 / view.zoom} y={ay - al - 2 / view.zoom} fontSize={8 / view.zoom} fill="rgba(80,200,80,0.5)">Y</text>
+              </g>
+            )
+          })()}
           {/* 캔버스 외부 빗금 오버레이 */}
           <rect x={-99999} y={-99999} width={199999} height={199999}
             fill="url(#hatchOutside)" mask="url(#outsideMask)" pointerEvents="none" />

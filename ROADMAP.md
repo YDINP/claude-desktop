@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 505 완료 — DD5-4 Inspector 숫자 스크러빙)
+> 마지막 업데이트: 2026-03-13 (Round 506 완료 — DD5-5 씬뷰 캔버스 치수 레이블 + 좌표축)
 
 ## 완료된 라운드
 
@@ -93,6 +93,7 @@
 | Round 499 | dev | Phase YY3-1: 씬뷰 F키 선택 노드 포커스 — handleFitToSelected, window keydown F 핸들러, 미선택 시 Fit all | ✅ |
 | Round 500 | dev | 특별 라운드: PRD-Phase2.md 업데이트 — Round 472-499 구현 완료 기능 28개 반영, 헤더/기준 동기화 | ✅ |
 | Round 501 | dev | Phase FF5-1: 씬뷰 선택 노드 마칭 앤트 애니메이션 — SVG <style> keyframe, cc-selected-rect className, dasharray 6/3 | ✅ |
+| Round 506 | dev | Phase DD5-5: 씬뷰 캔버스 치수 레이블 + XY 좌표축 화살표 (우하단, zoom > 0.3) | ✅ |
 | Round 505 | dev | Phase DD5-4: Inspector 숫자 스크러빙 — ScrubLabel 컴포넌트, 라벨 드래그로 값 조절 (ew-resize 커서) | ✅ |
 | Round 504 | dev | Phase DD5-3: 씬뷰 스냅 크기 드롭다운 — Ctrl+드래그 스냅 1/5/10/25/50px 선택, 도움말 동적 반영 | ✅ |
 | Round 503 | dev | Phase DD5-2: 씬뷰 회전 핸들 — 선택 노드 상단에 ↻ 핸들, 드래그로 회전, Shift 15° 스냅, onRotate 파일 저장 | ✅ |
