@@ -17238,6 +17238,18 @@ console.log('\n## 500. R1609 Inspector 노드 색상 tint 피커 체크')
   }
 }
 
+// ── Section 501: R1610 SceneView 비활성 노드 숨기기 ──────────────────
+console.log('\n## 501. R1610 SceneView 비활성 노드 숨기기 토글 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s501 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s501.includes('R1610') && s501.includes('hideInactiveNodes') && s501.includes('setHideInactiveNodes') && s501.includes('비활성 노드 숨기기')) {
+    log('pass', 'R1610-hide-inactive', 'SceneView 비활성 노드 숨기기 (👁)')
+  } else {
+    log('warning', 'R1610-hide-inactive', 'SceneView 비활성 노드 숨기기 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
