@@ -42,6 +42,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
   const [showGrid, setShowGrid] = useState(true)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
   // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
   const spriteCacheRef = useRef<Map<string, string>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
@@ -285,6 +286,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onClick={() => setView(v => ({ ...v, zoom: Math.max(0.1, v.zoom / 1.25) }))}
           style={{ padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >−</button>
+        <button
+          onClick={() => setShowHelp(h => !h)}
+          title="단축키 도움말"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showHelp ? 'rgba(88,166,255,0.12)' : 'none', color: showHelp ? '#58a6ff' : 'var(--text-muted)' }}
+        >?</button>
       </div>
 
       {/* SVG 캔버스 */}
@@ -612,6 +618,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         )
       })()}
+      {/* 단축키 도움말 오버레이 */}
+      {showHelp && (
+        <div
+          style={{
+            position: 'absolute', top: 32, right: 4,
+            background: 'rgba(0,0,0,0.85)', border: '1px solid #444',
+            borderRadius: 5, padding: '8px 10px', fontSize: 9, color: '#aaa',
+            lineHeight: 1.8, pointerEvents: 'none', zIndex: 10,
+          }}
+        >
+          {[
+            ['휠', '줌 인/아웃'],
+            ['중간 버튼 드래그', '패닝'],
+            ['더블클릭', 'Fit to view'],
+            ['좌클릭 드래그', '노드 이동'],
+            ['Ctrl+드래그', '10px 그리드 스냅'],
+            ['SE 핸들 드래그', '노드 리사이즈'],
+            ['Escape', '선택 해제'],
+            ['⊙◁▷△▽', '정렬 버튼'],
+            ['↑↓ (Inspector)', 'Z-order 변경'],
+          ].map(([k, v]) => (
+            <div key={k} style={{ display: 'flex', gap: 8 }}>
+              <span style={{ color: '#58a6ff', minWidth: 100 }}>{k}</span>
+              <span>{v}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
