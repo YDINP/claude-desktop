@@ -534,7 +534,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {mouseScenePos.x}, {mouseScenePos.y}
         </div>
       )}
-      {/* 선택 노드 HUD */}
+      {/* 선택 노드 HUD + 정렬 버튼 */}
       {selectedUuid && (() => {
         const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
         if (!fn) return null
@@ -542,21 +542,37 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         const pos = node.position as { x: number; y: number }
         const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0
         const w = node.size?.x ?? 0; const h = node.size?.y ?? 0
+        const alignBtn = (label: string, title: string, nx: number, ny: number) => (
+          <span
+            key={label}
+            title={title}
+            onClick={() => onMove?.(selectedUuid, nx, ny)}
+            style={{ cursor: 'pointer', padding: '0 3px', fontSize: 9, color: '#888' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#888')}
+          >{label}</span>
+        )
         return (
           <div style={{
             position: 'absolute', bottom: 4, left: 4, right: 4,
             background: 'rgba(0,0,0,0.6)', borderRadius: 3,
             padding: '2px 8px', fontSize: 9, color: '#ccc',
-            display: 'flex', gap: 10, pointerEvents: 'none',
+            display: 'flex', gap: 8,
           }}>
-            <span><span style={{ color: '#888' }}>pos</span> {Math.round(pos.x)},{Math.round(pos.y)}</span>
-            <span><span style={{ color: '#888' }}>size</span> {Math.round(w)}×{Math.round(h)}</span>
-            {rotZ !== 0 && <span><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
-            <span style={{ color: '#58a6ff', flex: 1, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ pointerEvents: 'none' }}><span style={{ color: '#888' }}>pos</span> {Math.round(pos.x)},{Math.round(pos.y)}</span>
+            <span style={{ pointerEvents: 'none' }}><span style={{ color: '#888' }}>size</span> {Math.round(w)}×{Math.round(h)}</span>
+            {rotZ !== 0 && <span style={{ pointerEvents: 'none' }}><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
+            {/* 정렬 버튼 */}
+            {alignBtn('⊙', '중앙 정렬', 0, 0)}
+            {alignBtn('◁', '좌측 정렬', -(designW / 2 - w / 2), pos.y)}
+            {alignBtn('▷', '우측 정렬', designW / 2 - w / 2, pos.y)}
+            {alignBtn('△', '상단 정렬', pos.x, designH / 2 - h / 2)}
+            {alignBtn('▽', '하단 정렬', pos.x, -(designH / 2 - h / 2))}
+            <span style={{ color: '#58a6ff', flex: 1, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}>
               {node.name}
             </span>
             {mouseScenePos && (
-              <span style={{ color: '#555', flexShrink: 0 }}>
+              <span style={{ color: '#555', flexShrink: 0, pointerEvents: 'none' }}>
                 ✦ {mouseScenePos.x},{mouseScenePos.y}
               </span>
             )}
