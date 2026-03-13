@@ -399,6 +399,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [minimapPosition, setMinimapPosition] = useState<'left' | 'right'>('right')
   const [inputCodeFolding, setInputCodeFolding] = useState(false)
   const [foldedRanges, setFoldedRanges] = useState<Array<[number, number]>>([])
+  const [inputScrollSync, setInputScrollSync] = useState(false)
+  const [scrollSyncTarget, setScrollSyncTarget] = useState<string>('')
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

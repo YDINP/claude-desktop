@@ -1149,6 +1149,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [voiceLanguage, setVoiceLanguage] = useState('ko-KR')
   const [chatDensity, setChatDensity] = useState<'compact' | 'normal' | 'spacious'>('normal')
   const [showDensityPicker, setShowDensityPicker] = useState(false)
+  const [chatPresets, setChatPresets] = useState<Array<{ name: string; config: Record<string, unknown> }>>([])
+  const [showPresetPanel, setShowPresetPanel] = useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

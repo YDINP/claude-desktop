@@ -518,6 +518,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showPipelinePanel, setShowPipelinePanel] = React.useState(false)
   const [termSnippets, setTermSnippets] = useState<Record<string, string>>({})
   const [showSnippetPanel, setShowSnippetPanel] = useState(false)
+  const [termSearch, setTermSearch] = useState('')
+  const [termSearchResults, setTermSearchResults] = useState<number[]>([])
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

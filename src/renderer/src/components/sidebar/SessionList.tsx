@@ -397,6 +397,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showPinnedOnly, setShowPinnedOnly] = useState(false)
   const [sessionTimeline, setSessionTimeline] = useState<Array<{ id: string; timestamp: number }>>([])
   const [showTimelinePanel, setShowTimelinePanel] = useState(false)
+  const [sessionInsights, setSessionInsights] = useState<Record<string, number>>({})
+  const [showInsightPanel, setShowInsightPanel] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

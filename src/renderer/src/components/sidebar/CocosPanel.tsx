@@ -69,6 +69,8 @@ export function CocosPanel() {
   const [showBuildLog, setShowBuildLog] = useState(false)
   const [remoteDebug, setRemoteDebug] = useState(false)
   const [remoteDebugPort, setRemoteDebugPort] = useState(9222)
+  const [scriptTemplates, setScriptTemplates] = useState<string[]>([])
+  const [showScriptTemplates, setShowScriptTemplates] = useState(false)
   return (
     <CCFileProjectUI
       fileProject={fileProject}
