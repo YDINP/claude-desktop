@@ -2337,8 +2337,19 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 return (
                   <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: '#555', flexShrink: 0 }} title={`노드 ${nodes}개 / 비활성 ${inactive}개 / 컴포넌트 ${comps}개`}>
                     {nodes}N/{comps}C
+                    {/* R1639: 컴포넌트 칩 클릭 → 첫 번째 해당 타입 노드 선택 */}
                     {topTypes.map(([type, cnt]) => (
-                      <span key={type} style={{ background: 'rgba(88,166,255,0.1)', border: '1px solid rgba(88,166,255,0.25)', borderRadius: 3, padding: '0 3px', color: '#58a6ff', fontSize: 8 }} title={type}>
+                      <span key={type}
+                        onClick={() => {
+                          const walk = (n: CCSceneNode): CCSceneNode | null => {
+                            if (n.components?.some(c => c.type === type)) return n
+                            for (const child of n.children) { const found = walk(child); if (found) return found }
+                            return null
+                          }
+                          const found = walk(sceneFile.root)
+                          if (found) onSelectNode(found)
+                        }}
+                        style={{ background: 'rgba(88,166,255,0.1)', border: '1px solid rgba(88,166,255,0.25)', borderRadius: 3, padding: '0 3px', color: '#58a6ff', fontSize: 8, cursor: 'pointer' }} title={`${type} — 클릭: 첫 번째 노드 선택`}>
                         {type.replace('cc.', '')}:{cnt}
                       </span>
                     ))}
