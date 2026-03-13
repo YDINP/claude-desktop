@@ -5642,6 +5642,41 @@ if (existsSync(sl587Path)) {
   }
 }
 
+// ── Section 117: Phase DD9 R589~591 기능 체크 ────────────────
+console.log('\n## 117. Phase DD9 R589~591 기능 체크')
+// R589: Zoom to Fit
+const svp589Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp589Path)) {
+  const svp589 = readFileSync(svp589Path, 'utf-8')
+  if (svp589.includes('handleFit') || svp589.includes('fitAll')) {
+    log('pass', 'R589', '씬뷰 Zoom to Fit 존재')
+  } else {
+    log('warning', 'R589', '씬뷰 Zoom to Fit 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R590: 채팅 검색 하이라이트 (assistant 메시지)
+const mb590Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb590Path)) {
+  const mb590 = readFileSync(mb590Path, 'utf-8')
+  if (mb590.includes('highlightMatches') && mb590.includes('highlightQuery')) {
+    log('pass', 'R590', '채팅 검색 하이라이트 (assistant 메시지) 존재')
+  } else {
+    log('warning', 'R590', '채팅 검색 하이라이트 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R591: Inspector Transform 리셋
+const cp591Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp591Path)) {
+  const cp591 = readFileSync(cp591Path, 'utf-8')
+  if (cp591.includes('⟳') && cp591.includes('applyAndSave')) {
+    log('pass', 'R591', 'Inspector Transform 리셋 버튼 존재')
+  } else {
+    log('warning', 'R591', 'Inspector Transform 리셋 버튼 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

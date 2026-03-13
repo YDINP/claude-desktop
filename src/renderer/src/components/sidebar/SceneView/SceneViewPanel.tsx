@@ -183,14 +183,46 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const handleFit = useCallback(() => {
     if (!containerRef.current) return
     const { width, height } = containerRef.current.getBoundingClientRect()
-    const padding = 32
+    const padding = 20
+
+    // 활성 노드 bounding box 계산
+    const activeNodes = [...nodeMap.values()].filter(n => n.active && (n.width > 0 || n.height > 0))
+    if (activeNodes.length > 0) {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+      activeNodes.forEach(n => {
+        const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+        const pw = Math.max(n.width * Math.abs(n.scaleX), 1)
+        const ph = Math.max(n.height * Math.abs(n.scaleY), 1)
+        const rx = sx - pw * n.anchorX
+        const ry = sy - ph * (1 - n.anchorY)
+        minX = Math.min(minX, rx); minY = Math.min(minY, ry)
+        maxX = Math.max(maxX, rx + pw); maxY = Math.max(maxY, ry + ph)
+      })
+      const bboxW = Math.max(maxX - minX, 40)
+      const bboxH = Math.max(maxY - minY, 40)
+      const centerX = (minX + maxX) / 2
+      const centerY = (minY + maxY) / 2
+      const targetZoom = Math.min(
+        (width - padding * 2) / bboxW,
+        (height - padding * 2) / bboxH,
+        4
+      )
+      setView({
+        offsetX: width / 2 - centerX * targetZoom,
+        offsetY: height / 2 - centerY * targetZoom,
+        zoom: targetZoom,
+      })
+      return
+    }
+
+    // fallback: 캔버스 기준
     const zoomX = (width - padding * 2) / DESIGN_W
     const zoomY = (height - padding * 2) / DESIGN_H
     const zoom = Math.min(zoomX, zoomY, 2)
     const offsetX = (width - DESIGN_W * zoom) / 2
     const offsetY = (height - DESIGN_H * zoom) / 2
     setView({ offsetX, offsetY, zoom })
-  }, [canvasSize])
+  }, [canvasSize, nodeMap])
 
   // 선택 노드로 카메라 이동 (G키) — 멀티셀렉트 bounding box 줌 지원
   const handleFocusSelected = useCallback(() => {

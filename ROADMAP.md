@@ -632,6 +632,10 @@
 | Round 586 | 채팅 메시지 복사 버튼 (📋→✓ 1.5초, 기존 Copy 버튼 제거) | ✅ |
 | Round 587 | 세션 통계 (sessionStats, active 세션 항상 표시, hover 세션 compact) | ✅ |
 | Round 588 | QA Section 116 추가 (R585/R586/R587, Pass 491) | ✅ |
+| Round 589 | 씬뷰 Zoom to Fit 개선 (handleFit: 노드 bounding box 기준, anchor 보정) | ✅ |
+| Round 590 | 채팅 검색 하이라이트 — assistant 메시지 ReactMarkdown p/li 적용 | ✅ |
+| Round 591 | Inspector Transform ⟳ Reset 버튼 + scale 행 개별 ↺ 버튼 | ✅ |
+| Round 592 | QA Section 117 추가 (R589/R590/R591, Pass 494) | ✅ |
 
 ## QA 프로세스
 

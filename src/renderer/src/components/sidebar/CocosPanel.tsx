@@ -1293,6 +1293,21 @@ function CCFileNodeInspector({
             활성
           </label>
           <button
+            onClick={() => applyAndSave({
+              position: { ...draft.position, x: 0, y: 0 },
+              rotation: typeof draft.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 },
+              scale: { x: 1, y: 1, z: draft.scale.z ?? 1 },
+            })}
+            title="Transform 리셋 (position 0,0 / rotation 0 / scale 1,1)"
+            style={{
+              padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+              background: 'transparent', color: '#a78bfa', border: '1px solid #a78bfa',
+              lineHeight: 1.4,
+            }}
+          >
+            ⟳ Reset
+          </button>
+          <button
             onClick={handleAddChild}
             title="자식 노드 추가"
             style={{
@@ -1359,6 +1374,7 @@ function CCFileNodeInspector({
             {numInput('H', draft.size.y, v => applyAndSave({ size: { ...draft.size, y: v } }))}
             <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', display: 'flex', alignItems: 'center', gap: 4 }}>
               스케일
+              <span title="스케일 리셋 (1,1)" onClick={() => applyAndSave({ scale: { x: 1, y: 1, z: draft.scale.z ?? 1 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
               <span
                 title={lockScale ? '비율 잠금 해제' : '비율 잠금'}
                 onClick={() => setLockScale(l => !l)}

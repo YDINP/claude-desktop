@@ -668,11 +668,19 @@ function InlineImage({
   )
 }
 
+function applyHighlight(children: React.ReactNode, query: string | undefined): React.ReactNode {
+  if (!query) return children
+  return React.Children.map(children, child =>
+    typeof child === 'string' ? highlightMatches(child, query) : child
+  )
+}
+
 function makeMdComponents(
   onRunInTerminal: (code: string) => void,
   onQuickAction?: (action: 'explain' | 'optimize' | 'fix', code: string, language: string) => void,
   onOpenFile?: (path: string) => void,
-  onImageClick?: (src: string, alt?: string) => void
+  onImageClick?: (src: string, alt?: string) => void,
+  highlightQuery?: string
 ) {
   return {
     img({ src, alt }: { src?: string; alt?: string }) {
@@ -693,17 +701,31 @@ function makeMdComponents(
       )
     },
     p({ children }: { children?: React.ReactNode }) {
-      if (!onOpenFile) return <p>{children}</p>
-      const processed = React.Children.map(children, child =>
-        typeof child === 'string' ? linkifyPaths(child, onOpenFile) : child
-      )
+      if (!onOpenFile && !highlightQuery) return <p>{children}</p>
+      const processed = React.Children.map(children, child => {
+        if (typeof child !== 'string') return child
+        if (onOpenFile) {
+          const linked = linkifyPaths(child, onOpenFile)
+          return highlightQuery ? React.Children.map(linked, c =>
+            typeof c === 'string' ? highlightMatches(c, highlightQuery) : c
+          ) : linked
+        }
+        return highlightMatches(child, highlightQuery!)
+      })
       return <p>{processed}</p>
     },
     li({ children }: { children?: React.ReactNode }) {
-      if (!onOpenFile) return <li>{children}</li>
-      const processed = React.Children.map(children, child =>
-        typeof child === 'string' ? linkifyPaths(child, onOpenFile) : child
-      )
+      if (!onOpenFile && !highlightQuery) return <li>{children}</li>
+      const processed = React.Children.map(children, child => {
+        if (typeof child !== 'string') return child
+        if (onOpenFile) {
+          const linked = linkifyPaths(child, onOpenFile)
+          return highlightQuery ? React.Children.map(linked, c =>
+            typeof c === 'string' ? highlightMatches(c, highlightQuery) : c
+          ) : linked
+        }
+        return highlightMatches(child, highlightQuery!)
+      })
       return <li>{processed}</li>
     },
     a({ href, children }: { href?: string; children?: React.ReactNode }) {
@@ -915,8 +937,8 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   }, [contextMenu, closeContextMenu])
 
   const mdComponents = useMemo(
-    () => makeMdComponents(onRunInTerminal ?? (() => {}), onQuickAction, onOpenFile, onImageClick),
-    [onRunInTerminal, onQuickAction, onOpenFile, onImageClick]
+    () => makeMdComponents(onRunInTerminal ?? (() => {}), onQuickAction, onOpenFile, onImageClick, highlightText),
+    [onRunInTerminal, onQuickAction, onOpenFile, onImageClick, highlightText]
   )
 
   // Defer markdown rendering for completed non-streaming messages to avoid
@@ -929,7 +951,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
 
   // Cache parsed markdown for completed messages — avoids re-parsing when
   // unrelated state (hover, context menu) triggers a re-render.
-  const parsedRef = useRef<{ text: string; node: React.ReactNode } | null>(null)
+  const parsedRef = useRef<{ text: string; highlight: string | undefined; node: React.ReactNode } | null>(null)
 
   const processedDisplayText = useMemo(
     () => preprocessImageTags(displayText),
@@ -938,7 +960,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
 
   const renderedMarkdown = useMemo(() => {
     if (msg.role !== 'assistant' || isStreaming) return null
-    if (parsedRef.current?.text === processedDisplayText) return parsedRef.current.node
+    if (parsedRef.current?.text === processedDisplayText && parsedRef.current?.highlight === highlightText) return parsedRef.current.node
     const node = (
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
@@ -948,9 +970,9 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
         {processedDisplayText}
       </ReactMarkdown>
     )
-    parsedRef.current = { text: processedDisplayText, node }
+    parsedRef.current = { text: processedDisplayText, highlight: highlightText, node }
     return node
-  }, [processedDisplayText, isStreaming, msg.role, mdComponents])
+  }, [processedDisplayText, isStreaming, msg.role, mdComponents, highlightText])
 
   const firstCodeBlock = useMemo(() => {
     if (isUser) return null

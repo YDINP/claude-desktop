@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: Round 585~588 (툴팁딜레이 + 복사버튼 + 세션통계 + QA)
+- 마지막 커밋: Round 589~592 (ZoomFit + 검색하이라이트 + Transform리셋 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 491
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 494
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -175,7 +175,16 @@
 | R587 | SessionList 세션 통계 (active 항상 표시, hover compact) |
 | R588 | QA Section 116 추가 (Pass 491) |
 
-## 다음 예정 (Round 589~)
+## Phase DD9 추가 완료 (Round 589~592)
+
+| 라운드 | 기능 |
+|--------|------|
+| R589 | 씬뷰 handleFit 개선 (노드 bounding box 기준, anchor 보정, zoom 상한 4배) |
+| R590 | MessageBubble 검색 하이라이트 assistant 메시지 p/li 적용 |
+| R591 | CocosPanel Inspector ⟳ Reset 버튼 + scale ↺ 개별 리셋 |
+| R592 | QA Section 117 추가 (Pass 494) |
+
+## 다음 예정 (Round 593~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 
