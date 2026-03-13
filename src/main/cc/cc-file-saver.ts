@@ -52,6 +52,28 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
       patch3x(e, node, raw, uiTransformByNodeIdx)
     }
 
+    // 컴포넌트 props 패치 (Label 텍스트 등)
+    for (const comp of node.components) {
+      if (comp._rawIndex == null) continue
+      const ce = raw[comp._rawIndex]
+      if (!ce) continue
+      for (const [propKey, propVal] of Object.entries(comp.props)) {
+        if (version === '2x') {
+          // 2x: _N$key or _key
+          const nKey = '_N$' + propKey
+          const uKey = '_' + propKey
+          if (nKey in ce) ce[nKey] = propVal
+          else if (uKey in ce) ce[uKey] = propVal
+          else if (propKey in ce) ce[propKey] = propVal
+        } else {
+          // 3x: _key
+          const uKey = '_' + propKey
+          if (uKey in ce) ce[uKey] = propVal
+          else if (propKey in ce) ce[propKey] = propVal
+        }
+      }
+    }
+
     for (const child of node.children) patchNode(child)
   }
 

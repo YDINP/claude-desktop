@@ -134,9 +134,9 @@ function resolveComponents2x(
 ): CCSceneComponent[] {
   if (!refs) return []
   return refs
-    .map(r => raw[r.__id__])
-    .filter((e): e is RawEntry => !!e && e.__type__ !== 'cc.CompPrefabInfo')
-    .map(e => {
+    .map(r => ({ e: raw[r.__id__], idx: r.__id__ }))
+    .filter(({ e }): e is { e: RawEntry; idx: number } => !!e && e.__type__ !== 'cc.CompPrefabInfo')
+    .map(({ e, idx }) => {
       const type = (e.__type__ as string | undefined) ?? ''
       const props: Record<string, unknown> = {}
       for (const [k, v] of Object.entries(e)) {
@@ -148,7 +148,7 @@ function resolveComponents2x(
           props[k.startsWith('_') ? k.slice(1) : k] = v
         }
       }
-      return { type, props }
+      return { type, props, _rawIndex: idx }
     })
 }
 
@@ -244,15 +244,15 @@ function resolveComponents3x(
 ): CCSceneComponent[] {
   if (!refs) return []
   return refs
-    .map(r => raw[r.__id__])
-    .filter((e): e is RawEntry => !!e && e.__type__ !== 'cc.CompPrefabInfo')
-    .map(e => {
+    .map(r => ({ e: raw[r.__id__], idx: r.__id__ }))
+    .filter(({ e }): e is { e: RawEntry; idx: number } => !!e && e.__type__ !== 'cc.CompPrefabInfo')
+    .map(({ e, idx }) => {
       const type = (e.__type__ as string | undefined) ?? ''
       const props: Record<string, unknown> = {}
       for (const [k, v] of Object.entries(e)) {
         if (k === '__type__' || k === 'node' || k.startsWith('__')) continue
         props[k.startsWith('_') ? k.slice(1) : k] = v
       }
-      return { type, props }
+      return { type, props, _rawIndex: idx }
     })
 }

@@ -169,6 +169,8 @@ export interface CCColor { r: number; g: number; b: number; a: number }
 export interface CCSceneComponent {
   type: string
   props: Record<string, unknown>
+  /** raw 배열 내 인덱스 (저장 시 패치용) */
+  _rawIndex?: number
 }
 
 /**

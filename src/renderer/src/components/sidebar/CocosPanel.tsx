@@ -789,6 +789,59 @@ function CCFileNodeInspector({
           {numInput('α', draft.opacity, v => applyAndSave({ opacity: Math.min(255, Math.max(0, Math.round(v))) }))}
         </div>
       </div>
+
+      {/* 컴포넌트 props */}
+      {draft.components.filter(c => {
+        const editableTypes = ['cc.Label', 'cc.RichText', 'cc.Button', 'cc.EditBox', 'cc.ProgressBar']
+        return editableTypes.some(t => c.type === t || c.type.endsWith(t.split('.')[1]))
+      }).map((comp, ci) => (
+        <div key={ci} style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 5 }}>
+          <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4 }}>
+            {comp.type.replace('cc.', '')}
+          </div>
+          {Object.entries(comp.props)
+            .filter(([k]) => ['string', 'fontSize', 'lineHeight', 'text', 'string2'].includes(k))
+            .map(([k, v]) => {
+              const isText = typeof v === 'string'
+              return (
+                <div key={k} style={{ display: 'flex', alignItems: 'flex-start', gap: 4, marginBottom: 3 }}>
+                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, paddingTop: 2 }}>{k}</span>
+                  {isText ? (
+                    <textarea
+                      rows={2}
+                      defaultValue={String(v)}
+                      onBlur={e => applyAndSave({
+                        components: draft.components.map((c, i) =>
+                          i === ci ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
+                        )
+                      })}
+                      style={{
+                        flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                        color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+                        resize: 'vertical', fontFamily: 'inherit',
+                      }}
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      defaultValue={Number(v)}
+                      onBlur={e => applyAndSave({
+                        components: draft.components.map((c, i) =>
+                          i === ci ? { ...c, props: { ...c.props, [k]: parseFloat(e.target.value) || 0 } } : c
+                        )
+                      })}
+                      style={{
+                        flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                        color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+                      }}
+                    />
+                  )}
+                </div>
+              )
+            })
+          }
+        </div>
+      ))}
     </div>
   )
 }
