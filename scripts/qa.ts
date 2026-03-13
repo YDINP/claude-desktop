@@ -17598,6 +17598,18 @@ console.log('\n## 530. R1639 Inspector 컴포넌트 칩 클릭 노드 선택 체
   }
 }
 
+// ── Section 531: R1640 SceneView 선택 노드 월드 좌표 가이드라인 ──────────────────
+console.log('\n## 531. R1640 SceneView 선택 노드 월드 좌표 가이드라인 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s531 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s531.includes('R1640') && s531.includes('월드 좌표 가이드라인') && s531.includes('rgba(88,166,255,0.12)') && s531.includes('x1={sp.x} y1={0}')) {
+    log('pass', 'R1640-world-guides', 'SceneView 선택 노드 월드 좌표 가이드라인')
+  } else {
+    log('warning', 'R1640-world-guides', 'SceneView 선택 노드 월드 좌표 가이드라인 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

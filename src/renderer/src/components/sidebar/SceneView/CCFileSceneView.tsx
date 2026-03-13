@@ -1115,6 +1115,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })()}
+          {/* R1640: 선택 노드 월드 좌표 가이드라인 */}
+          {selectedUuid && (() => {
+            const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!fn) return null
+            const effX = dragOverride?.uuid === selectedUuid ? dragOverride.x : fn.worldX
+            const effY = dragOverride?.uuid === selectedUuid ? dragOverride.y : fn.worldY
+            const sp = ccToSvg(effX, effY)
+            return (
+              <g pointerEvents="none">
+                <line x1={sp.x} y1={0} x2={sp.x} y2={effectiveH} stroke="rgba(88,166,255,0.12)" strokeWidth={1 / view.zoom} />
+                <line x1={0} y1={sp.y} x2={effectiveW} y2={sp.y} stroke="rgba(88,166,255,0.12)" strokeWidth={1 / view.zoom} />
+              </g>
+            )
+          })()}
           {/* R1512: 정렬 가이드라인 */}
           {alignGuides.length > 0 && (
             <g pointerEvents="none">
