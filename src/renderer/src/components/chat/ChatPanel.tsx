@@ -794,6 +794,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showAutoSummary, setShowAutoSummary] = useState(false)
 
   // R701: 메시지 카테고리 레이블
+  const [bookmarkedMsgs, setBookmarkedMsgs] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('bookmarked-msgs') ?? '[]')))
+  const [showBookmarks, setShowBookmarks] = useState(false)
   const [msgLabels, setMsgLabels] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('msg-labels') ?? '{}') } catch { return {} }
   })

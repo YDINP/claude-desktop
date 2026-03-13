@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T10:56:40.934Z
+> 2026-03-13T10:57:40.880Z
 
 ## Critical
 _없음_
@@ -586,3 +586,6 @@ _없음_
 - ChatPanel 메시지 라벨 존재
 - SceneViewPanel 노드 접근 카운터 존재
 - InputBar 스마트 입력 모드 존재
+- CocosPanel 노드 프리셋 카테고리 존재
+- SessionList 내보내기 포맷 선택 존재
+- TerminalPanel 검색 매치 하이라이트 존재

@@ -206,6 +206,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [inlineTagValue, setInlineTagValue] = useState('')
   const inlineTagRef = useRef<HTMLInputElement>(null)
   const [exportedId, setExportedId] = useState<string | null>(null)
+  const [exportFormat, setExportFormat] = useState<'json' | 'md' | 'txt'>('json')
+  const [showExportMenu, setShowExportMenu] = useState(false)
 
   const TAG_COLORS_KEY = 'session-tag-colors'
   const loadTagColors = (): Record<string, string> => {

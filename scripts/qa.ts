@@ -6669,6 +6669,41 @@ if (existsSync(ib703Path)) {
   }
 }
 
+// ── Section 146: Phase DD10 R705~707 기능 체크 ────────────────
+console.log('\n## 146. Phase DD10 R705~707 기능 체크')
+// R705: CocosPanel 노드 프리셋 카테고리
+const cp705Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp705Path)) {
+  const cp705 = readFileSync(cp705Path, 'utf-8')
+  if (cp705.includes('nodePresetCategories') || cp705.includes('selectedPresetCategory') || cp705.includes('presetCategory')) {
+    log('pass', 'R705', 'CocosPanel 노드 프리셋 카테고리 존재')
+  } else {
+    log('warning', 'R705', 'CocosPanel 프리셋 카테고리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R706: SessionList 내보내기 포맷
+const sl706Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl706Path)) {
+  const sl706 = readFileSync(sl706Path, 'utf-8')
+  if (sl706.includes('exportFormat') || sl706.includes('showExportMenu') || sl706.includes('exportType')) {
+    log('pass', 'R706', 'SessionList 내보내기 포맷 선택 존재')
+  } else {
+    log('warning', 'R706', 'SessionList 내보내기 포맷 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R707: TerminalPanel 검색 매치 하이라이트
+const tp707Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp707Path)) {
+  const tp707 = readFileSync(tp707Path, 'utf-8')
+  if (tp707.includes('termSearchMatches') || tp707.includes('termSearchIdx') || tp707.includes('searchMatches')) {
+    log('pass', 'R707', 'TerminalPanel 검색 매치 하이라이트 존재')
+  } else {
+    log('warning', 'R707', 'TerminalPanel 검색 매치 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
