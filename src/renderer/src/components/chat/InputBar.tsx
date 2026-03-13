@@ -356,6 +356,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   // R1171: code completion
   const [codeCompletions, setCodeCompletions] = useState<string[]>([])
   const [showCodeComplete, setShowCodeComplete] = useState(false)
+  // R1177: text templates
+  const [textTemplates, setTextTemplates] = useState<Record<string, string>>({})
+  const [showTemplates, setShowTemplates] = useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

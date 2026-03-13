@@ -464,6 +464,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showSshPanel, setShowSshPanel] = React.useState(false)
   // R1174: terminal macros
   const [termMacros, setTermMacros] = React.useState<Record<string, string>>({})
+  // R1180: terminal plugins
+  const [termPlugins, setTermPlugins] = React.useState<string[]>([])
+  const [showPluginPanel, setShowPluginPanel] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

@@ -1098,6 +1098,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // R1152: message bookmarks
   const [msgBookmarks, setMsgBookmarks] = useState<Set<string>>(new Set())
   const [showBookmarkPanel, setShowBookmarkPanel] = useState(false)
+  // R1176: message schedule
+  const [msgSchedule, setMsgSchedule] = useState<Record<string, number>>({})
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

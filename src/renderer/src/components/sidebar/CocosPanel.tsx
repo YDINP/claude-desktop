@@ -252,6 +252,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1172: scene bookmarks
   const [sceneBookmarks, setSceneBookmarks] = useState<string[]>([])
   const [showSceneBookmarks, setShowSceneBookmarks] = useState(false)
+  // R1178: component search
+  const [componentSearch, setComponentSearch] = useState('')
+  const [componentSearchResults, setComponentSearchResults] = useState<string[]>([])
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

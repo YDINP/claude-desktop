@@ -363,6 +363,9 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   // R1175: starred sessions
   const [starredSessions, setStarredSessions] = useState<Set<string>>(new Set())
   const [showStarredOnly, setShowStarredOnly] = useState(false)
+  // R1181: session activity
+  const [sessionActivity, setSessionActivity] = useState<Record<string, number>>({})
+  const [showActivityPanel, setShowActivityPanel] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
