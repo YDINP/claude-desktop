@@ -16694,6 +16694,20 @@ console.log('\n## 457. R1566 cc.ParticleSystem Quick Edit 체크')
   }
 }
 
+// ── Section 458: R1567 Ctrl+↑↓ 형제 순서 변경 ────────────────
+console.log('\n## 458. R1567 Ctrl+↑↓ 형제 순서 변경 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s458sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  const s458panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s458sv.includes("onReorder") && s458panel.includes('handleReorder') && s458panel.includes('direction: 1 | -1')) {
+    log('pass', 'R1567-reorder', 'Ctrl+↑↓ 형제 순서 변경: SceneView + CocosPanel handler')
+  } else {
+    log('warning', 'R1567-reorder', 'Ctrl+↑↓ 형제 순서 변경 미구현', 'CCFileSceneView.tsx / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

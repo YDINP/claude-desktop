@@ -35,6 +35,8 @@ interface CCFileSceneViewProps {
   onDuplicate?: (uuid: string) => void
   /** R1565: 선택 노드 active 토글 (H 키) */
   onToggleActive?: (uuid: string) => void
+  /** R1567: Ctrl+↑↓ 형제 순서 변경 (1=위로, -1=아래로) */
+  onReorder?: (uuid: string, direction: 1 | -1) => void
 }
 
 /**
@@ -42,7 +44,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -546,7 +548,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           return
         }
       }
+      // R1567: Ctrl+↑↓ — 형제 순서 변경 (위/아래)
+      if ((e.ctrlKey || e.metaKey) && (e.code === 'ArrowUp' || e.code === 'ArrowDown') && selectedUuid) {
+        e.preventDefault()
+        onReorder?.(selectedUuid, e.code === 'ArrowUp' ? 1 : -1)
+        return
+      }
       if (e.code in arrows && selectedUuid) {
+        if (e.ctrlKey || e.metaKey) return  // Ctrl+Arrow는 위에서 처리됨
         e.preventDefault()
         const step = e.shiftKey ? 10 : 1
         const [dx, dy] = arrows[e.code]
@@ -570,7 +579,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate, onToggleActive])
+  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate, onToggleActive, onReorder])
 
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
   const handleScreenshotAI = useCallback(() => {

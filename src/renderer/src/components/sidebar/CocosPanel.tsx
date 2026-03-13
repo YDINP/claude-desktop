@@ -1368,6 +1368,24 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
   }, [sceneFile, saveScene, projectInfo, onSelectNode])
 
+  // R1567: Ctrl+↑↓ — 형제 순서 변경
+  const handleReorder = useCallback(async (uuid: string, direction: 1 | -1) => {
+    if (!sceneFile?.root) return
+    function reorder(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === uuid)
+      if (idx !== -1) {
+        const newIdx = idx - direction  // direction=1(위) → idx 감소
+        if (newIdx < 0 || newIdx >= n.children.length) return n
+        const arr = [...n.children]
+        const [item] = arr.splice(idx, 1)
+        arr.splice(newIdx, 0, item)
+        return { ...n, children: arr }
+      }
+      return { ...n, children: n.children.map(reorder) }
+    }
+    await saveScene(reorder(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   // R1565: H — 선택 노드 active 토글
   const handleToggleActive = useCallback(async (uuid: string) => {
     if (!sceneFile?.root) return
@@ -2454,6 +2472,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onAddNode={handleAddNode}
                 onDuplicate={handleDuplicate}
                 onToggleActive={handleToggleActive}
+                onReorder={handleReorder}
                 onAnchorMove={handleAnchorMove}
                 onMultiSelectChange={setMultiSelectedUuids}
                 onSelect={uuid => {
