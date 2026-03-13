@@ -15920,6 +15920,30 @@ if (existsSync(sv417) && existsSync(cp417) && existsSync(saver417)) {
   }
 }
 
+// ── Section 418: R1506 앵커 포인트 드래그 체크 ──────────────────────
+console.log('\n## 418. Phase E R1506 앵커 포인트 드래그 편집 체크')
+const sv418 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp418 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv418) && existsSync(cp418)) {
+  const s418 = readFileSync(sv418, 'utf-8')
+  const c418 = readFileSync(cp418, 'utf-8')
+  if (s418.includes('R1506') && s418.includes('anchorRef') && s418.includes('anchorOverride')) {
+    log('pass', 'R1506-anchor-ref', 'SceneView anchorRef + anchorOverride 상태 구현')
+  } else {
+    log('warning', 'R1506-anchor-ref', '앵커 드래그 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s418.includes('onAnchorMove') && s418.includes('ffdd44') && s418.includes('polygon')) {
+    log('pass', 'R1506-anchor-diamond', 'SceneView 앵커 다이아몬드 핸들 + onAnchorMove 연결')
+  } else {
+    log('warning', 'R1506-anchor-diamond', '앵커 다이아몬드 미구현', 'CCFileSceneView.tsx')
+  }
+  if (c418.includes('R1506') && c418.includes('handleAnchorMove') && c418.includes('clamped')) {
+    log('pass', 'R1506-cocos-handler', 'CocosPanel handleAnchorMove 콜백 + 0~1 클램핑 구현')
+  } else {
+    log('warning', 'R1506-cocos-handler', 'handleAnchorMove 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

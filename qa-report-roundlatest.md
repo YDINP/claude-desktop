@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T19:31:39.948Z
+> 2026-03-13T19:38:37.124Z
 
 ## Critical
 _없음_
@@ -1407,3 +1407,6 @@ _없음_
 - CocosPanel handleAddNode 콜백 구현
 - cc-file-saver normalizeTree + buildNewRawNode2x/3x 구현
 - SVG 빈 공간 더블클릭 → 노드 추가 (Shift=fit) 구현
+- SceneView anchorRef + anchorOverride 상태 구현
+- SceneView 앵커 다이아몬드 핸들 + onAnchorMove 연결
+- CocosPanel handleAnchorMove 콜백 + 0~1 클램핑 구현

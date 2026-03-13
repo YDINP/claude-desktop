@@ -1243,6 +1243,17 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(updateRot(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  // R1506: 앵커 포인트 드래그 편집 (SceneView ◇ 핸들)
+  const handleAnchorMove = useCallback(async (uuid: string, ax: number, ay: number) => {
+    if (!sceneFile?.root) return
+    const clamped = { x: Math.max(0, Math.min(1, Math.round(ax * 100) / 100)), y: Math.max(0, Math.min(1, Math.round(ay * 100) / 100)) }
+    function updateAnchor(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === uuid) return { ...n, anchor: clamped }
+      return { ...n, children: n.children.map(updateAnchor) }
+    }
+    await saveScene(updateAnchor(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   const handleMultiMove = useCallback(async (moves: Array<{ uuid: string; x: number; y: number }>) => {
     if (!sceneFile?.root) return
     function updateAll(n: CCSceneNode): CCSceneNode {
@@ -2290,6 +2301,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onMultiDelete={handleMultiDelete}
                 onLabelEdit={handleLabelEdit}
                 onAddNode={handleAddNode}
+                onAnchorMove={handleAnchorMove}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }
                   const findNode = (n: CCSceneNode): CCSceneNode | null => {

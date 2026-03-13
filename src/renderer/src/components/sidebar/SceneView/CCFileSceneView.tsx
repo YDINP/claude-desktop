@@ -27,6 +27,8 @@ interface CCFileSceneViewProps {
   onLabelEdit?: (uuid: string, text: string) => void
   /** R1504: 새 노드 추가 (parentUuid=null → root의 자식) */
   onAddNode?: (parentUuid: string | null, pos?: { x: number; y: number }) => void
+  /** R1506: 앵커 포인트 드래그 편집 (0~1 범위) */
+  onAnchorMove?: (uuid: string, ax: number, ay: number) => void
 }
 
 /**
@@ -34,7 +36,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -47,6 +49,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
   const rotateRef = useRef<{ uuid: string; centerX: number; centerY: number; startAngle: number; startRotation: number } | null>(null)
   const [rotateOverride, setRotateOverride] = useState<{ uuid: string; angle: number } | null>(null)
+  // R1506: 앵커 포인트 드래그
+  const anchorRef = useRef<{ uuid: string; rectX: number; rectY: number; w: number; h: number } | null>(null)
+  const [anchorOverride, setAnchorOverride] = useState<{ uuid: string; ax: number; ay: number } | null>(null)
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
   const [gridStyle, setGridStyle] = useState<'line' | 'dot' | 'none'>('line')
@@ -214,6 +219,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [view])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // R1506: 앵커 포인트 드래그
+    if (anchorRef.current) {
+      const svg = svgRef.current
+      if (!svg) return
+      const rect = svg.getBoundingClientRect()
+      const v = viewRef.current
+      const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
+      const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
+      const { rectX, rectY, w, h, uuid } = anchorRef.current
+      const ax = w > 0 ? Math.max(0, Math.min(1, (svgX - rectX) / w)) : 0.5
+      const ay = h > 0 ? Math.max(0, Math.min(1, 1 - (svgY - rectY) / h)) : 0.5
+      setAnchorOverride({ uuid, ax, ay })
+      return
+    }
     if (rotateRef.current) {
       const svg = svgRef.current
       if (!svg) return
@@ -290,6 +309,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [isPanning, cx, cy, snapSize])
 
   const handleMouseUp = useCallback(() => {
+    // R1506: 앵커 포인트 드래그 완료
+    if (anchorRef.current && anchorOverride) {
+      onAnchorMove?.(anchorOverride.uuid, anchorOverride.ax, anchorOverride.ay)
+      anchorRef.current = null
+      setAnchorOverride(null)
+      return
+    }
+    anchorRef.current = null
+    setAnchorOverride(null)
     if (rotateRef.current && rotateOverride) {
       onRotate?.(rotateOverride.uuid, rotateOverride.angle)
       rotateRef.current = null
@@ -343,7 +371,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     selBoxRef.current = null
     setSelectionBox(null)
-  }, [rotateOverride, dragOverride, resizeOverride, selectionBox, flatNodes, ccToSvg, onRotate, onMove, onResize, onSelect])
+  }, [anchorOverride, rotateOverride, dragOverride, resizeOverride, selectionBox, flatNodes, ccToSvg, onAnchorMove, onRotate, onMove, onResize, onSelect])
 
   // Fit to view
   const handleFit = useCallback(() => {
@@ -981,6 +1009,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       strokeDasharray={`${3 / view.zoom},${2 / view.zoom}`}
                       style={{ pointerEvents: 'none' }}
                     />
+                    {/* R1506: 앵커 포인트 다이아몬드 (선택 노드만) */}
+                    {onAnchorMove && (() => {
+                      const effAx = anchorOverride?.uuid === node.uuid ? anchorOverride.ax : anchorX
+                      const effAy = anchorOverride?.uuid === node.uuid ? anchorOverride.ay : anchorY
+                      const apX = rectX + w * effAx
+                      const apY = rectY + h * (1 - effAy)
+                      const ds = 5 / view.zoom
+                      return (
+                        <polygon
+                          points={`${apX},${apY - ds} ${apX + ds},${apY} ${apX},${apY + ds} ${apX - ds},${apY}`}
+                          fill={anchorOverride?.uuid === node.uuid ? '#ffdd44' : '#1a1a2e'}
+                          stroke="#ffdd44"
+                          strokeWidth={1.5 / view.zoom}
+                          style={{ cursor: 'crosshair' }}
+                          title={`앵커: (${effAx.toFixed(2)}, ${effAy.toFixed(2)}) — 드래그로 편집`}
+                          onMouseDown={e => {
+                            e.stopPropagation()
+                            anchorRef.current = {
+                              uuid: node.uuid,
+                              rectX: rectX,
+                              rectY: rectY,
+                              w,
+                              h,
+                            }
+                          }}
+                        />
+                      )
+                    })()}
                     {/* 회전 핸들 원 */}
                     <circle
                       cx={svgPos.x} cy={rectY - 22 / view.zoom}
