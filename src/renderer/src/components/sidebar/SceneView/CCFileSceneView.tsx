@@ -431,6 +431,50 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           })}
         </g>
       </svg>
+      {/* 미니맵 */}
+      {view.zoom < 0.8 && (() => {
+        const mmW = 80; const mmH = 60
+        const mmScale = Math.min(mmW / designW, mmH / designH) * 0.95
+        const mmOffX = (mmW - designW * mmScale) / 2
+        const mmOffY = (mmH - designH * mmScale) / 2
+        // 현재 뷰포트를 게임 좌표로 변환
+        const svgEl = svgRef.current
+        const svgW = svgEl?.clientWidth ?? 300
+        const svgH = svgEl?.clientHeight ?? 200
+        const vpX = -view.offsetX / view.zoom
+        const vpY = -view.offsetY / view.zoom
+        const vpW = svgW / view.zoom
+        const vpH = svgH / view.zoom
+        return (
+          <div style={{
+            position: 'absolute', top: 28, right: 4,
+            width: mmW, height: mmH, background: 'rgba(0,0,0,0.7)',
+            border: '1px solid #444', borderRadius: 3, overflow: 'hidden',
+            pointerEvents: 'none',
+          }}>
+            <svg width={mmW} height={mmH}>
+              {/* 게임 캔버스 */}
+              <rect x={mmOffX} y={mmOffY} width={designW * mmScale} height={designH * mmScale}
+                fill={bgColor} stroke="#666" strokeWidth={0.5} />
+              {/* 노드들 */}
+              {flatNodes.filter(fn => fn.node.size?.x && fn.node.size?.y).map(({ node, worldX, worldY }) => {
+                const sx = mmOffX + (ccToSvg(worldX, worldY).x - node.anchor.x * (node.size.x)) * mmScale
+                const sy = mmOffY + (ccToSvg(worldX, worldY).y - (1 - node.anchor.y) * (node.size.y)) * mmScale
+                const sw = node.size.x * mmScale; const sh = node.size.y * mmScale
+                return <rect key={node.uuid} x={sx} y={sy} width={sw} height={sh}
+                  fill={node.uuid === selectedUuid ? 'rgba(88,166,255,0.4)' : 'rgba(255,255,255,0.1)'}
+                  stroke={node.uuid === selectedUuid ? '#58a6ff' : '#555'} strokeWidth={0.3} />
+              })}
+              {/* 뷰포트 박스 */}
+              <rect
+                x={mmOffX + vpX * mmScale} y={mmOffY + vpY * mmScale}
+                width={vpW * mmScale} height={vpH * mmScale}
+                fill="none" stroke="#58a6ff" strokeWidth={0.8} strokeDasharray="2,1"
+              />
+            </svg>
+          </div>
+        )
+      })()}
       {/* 선택 노드 HUD */}
       {selectedUuid && (() => {
         const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
