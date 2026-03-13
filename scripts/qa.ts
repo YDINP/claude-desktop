@@ -8664,6 +8664,41 @@ if (existsSync(cocp875Path)) {
   }
 }
 
+console.log('\n## 203. Phase DD10 R876~878 기능 체크')
+
+// R876: SceneViewPanel 컴포넌트 검색
+const svp876Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp876Path)) {
+  const svp876 = readFileSync(svp876Path, 'utf-8')
+  if (svp876.includes('componentSearch') || svp876.includes('componentSearchResults') || svp876.includes('compSearch')) {
+    log('pass', 'R876', 'SceneViewPanel 컴포넌트 검색 존재')
+  } else {
+    log('warning', 'R876', 'SceneViewPanel 컴포넌트 검색 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R877: TerminalPanel 출력 캡처
+const tp877Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp877Path)) {
+  const tp877 = readFileSync(tp877Path, 'utf-8')
+  if (tp877.includes('outputCapture') || tp877.includes('capturedOutput') || tp877.includes('captureMode')) {
+    log('pass', 'R877', 'TerminalPanel 출력 캡처 존재')
+  } else {
+    log('warning', 'R877', 'TerminalPanel 출력 캡처 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R878: SessionList 세션 평점
+const sl878Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl878Path)) {
+  const sl878 = readFileSync(sl878Path, 'utf-8')
+  if (sl878.includes('sessionRatings') || sl878.includes('showRatingPanel') || sl878.includes('ratingMap')) {
+    log('pass', 'R878', 'SessionList 세션 평점 존재')
+  } else {
+    log('warning', 'R878', 'SessionList 세션 평점 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

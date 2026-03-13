@@ -212,6 +212,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [lockedSessions, setLockedSessions] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('locked-sessions') ?? '[]')))
   const [sessionColors, setSessionColors] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('session-colors') ?? '{}'))
   const [sessionRatings, setSessionRatings] = useState<Record<string, 1|2|3|4|5>>(() => JSON.parse(localStorage.getItem('session-ratings') ?? '{}'))
+  const [showRatingPanel, setShowRatingPanel] = useState(false)
   const [readSessions, setReadSessions] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('read-sessions') ?? '[]')))
   const [searchHistory, setSearchHistory] = useState<string[]>(() => JSON.parse(localStorage.getItem('session-search-history') ?? '[]'))
   const [sessionSummaries, setSessionSummaries] = useState<Record<string, string>>({})
