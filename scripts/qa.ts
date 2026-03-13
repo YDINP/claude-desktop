@@ -17298,6 +17298,18 @@ console.log('\n## 505. R1614 SceneView 화면 밖 노드 방향 화살표 체크
   }
 }
 
+// ── Section 506: R1615 SceneView cc.Label 텍스트 미리보기 ──────────────────
+console.log('\n## 506. R1615 SceneView cc.Label 텍스트 미리보기 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s506 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s506.includes('R1615') && s506.includes('cc.Label 텍스트 미리보기') && s506.includes("c.type === 'cc.Label'") && s506.includes('props?.string')) {
+    log('pass', 'R1615-label-preview', 'SceneView cc.Label 텍스트 미리보기')
+  } else {
+    log('warning', 'R1615-label-preview', 'SceneView cc.Label 텍스트 미리보기 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

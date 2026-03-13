@@ -1234,6 +1234,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
                       return <tspan fontSize={8 / view.zoom} fill={hex} dx={3 / view.zoom}>■</tspan>
                     })()}
+                    {/* R1615: cc.Label 텍스트 미리보기 */}
+                    {(() => {
+                      const lbl = node.components?.find(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
+                      const str = lbl?.props?.string as string | undefined
+                      if (!str) return null
+                      const preview = str.length > 18 ? str.slice(0, 16) + '…' : str
+                      return <tspan x={rectX + 3 / view.zoom} dy={12 / view.zoom} fontSize={9 / view.zoom} fill="rgba(126,231,135,0.75)">{preview}</tspan>
+                    })()}
                   </text>
                 )}
                 {/* 인라인 이름 편집 (더블클릭 시) */}
