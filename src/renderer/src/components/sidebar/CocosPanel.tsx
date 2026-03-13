@@ -379,18 +379,22 @@ interface CCFileProjectUIProps {
     sceneFile: import('../../../../shared/ipc-schema').CCSceneFile | null
     loading: boolean
     error: string | null
+    externalChange: { path: string; timestamp: number } | null
+    canUndo: boolean
+    canRedo: boolean
     openProject: () => Promise<void>
     loadScene: (scenePath: string) => Promise<void>
     saveScene: (root: import('../../../../shared/ipc-schema').CCSceneNode) => Promise<{ success: boolean; error?: string }>
+    undo: () => Promise<{ success: boolean; error?: string } | undefined>
+    redo: () => Promise<{ success: boolean; error?: string } | undefined>
     restoreBackup: () => Promise<{ success: boolean; error?: string }>
-    externalChange: { path: string; timestamp: number } | null
   }
   selectedNode: CCSceneNode | null
   onSelectNode: (n: CCSceneNode | null) => void
 }
 
 function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
-  const { projectInfo, sceneFile, loading, error, externalChange, openProject, loadScene, saveScene, restoreBackup } = fileProject
+  const { projectInfo, sceneFile, loading, error, externalChange, canUndo, canRedo, openProject, loadScene, saveScene, undo, redo, restoreBackup } = fileProject
   const [selectedScene, setSelectedScene] = useState<string>('')
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
@@ -399,6 +403,30 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     setSelectedScene(path)
     if (path) await loadScene(path)
   }, [loadScene])
+
+  // Ctrl+Z/Y undo/redo
+  useEffect(() => {
+    if (!sceneFile) return
+    const handler = (e: KeyboardEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return
+      if (e.key === 'z' && canUndo) { e.preventDefault(); undo() }
+      if ((e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) { e.preventDefault(); redo() }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [sceneFile, canUndo, canRedo, undo, redo])
+
+  // sceneFile 재로드 시 선택 노드 동기화 (uuid 기반 재탐색)
+  useEffect(() => {
+    if (!sceneFile?.root || !selectedNode) return
+    const find = (n: CCSceneNode): CCSceneNode | null => {
+      if (n.uuid === selectedNode.uuid) return n
+      for (const c of n.children) { const f = find(c); if (f) return f }
+      return null
+    }
+    const fresh = find(sceneFile.root)
+    if (fresh) onSelectNode(fresh)
+  }, [sceneFile])
 
   const handleNodeMove = useCallback(async (uuid: string, x: number, y: number) => {
     if (!sceneFile?.root) return
@@ -510,7 +538,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           </select>
         )}
 
-        {/* 저장 / 백업 복원 버튼 */}
+        {/* 저장 / undo/redo / 백업 복원 버튼 */}
         {sceneFile?.root && (
           <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
             <button
@@ -526,6 +554,34 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               {saving ? '저장 중...' : '💾 저장'}
             </button>
             <button
+              onClick={undo}
+              disabled={!canUndo}
+              title="실행 취소 (Ctrl+Z)"
+              style={{
+                padding: '3px 6px', fontSize: 10, borderRadius: 3,
+                cursor: canUndo ? 'pointer' : 'not-allowed',
+                background: 'none', border: '1px solid var(--border)',
+                color: canUndo ? 'var(--text-primary)' : 'var(--text-muted)',
+                opacity: canUndo ? 1 : 0.4,
+              }}
+            >
+              ↩
+            </button>
+            <button
+              onClick={redo}
+              disabled={!canRedo}
+              title="다시 실행 (Ctrl+Y)"
+              style={{
+                padding: '3px 6px', fontSize: 10, borderRadius: 3,
+                cursor: canRedo ? 'pointer' : 'not-allowed',
+                background: 'none', border: '1px solid var(--border)',
+                color: canRedo ? 'var(--text-primary)' : 'var(--text-muted)',
+                opacity: canRedo ? 1 : 0.4,
+              }}
+            >
+              ↪
+            </button>
+            <button
               onClick={handleRestore}
               title=".bak 백업 파일에서 복원"
               style={{
@@ -533,7 +589,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)',
               }}
             >
-              ↩ 복원
+              .bak
             </button>
           </div>
         )}
@@ -686,6 +742,63 @@ function CCFileNodeInspector({
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
 
+  // 자식 노드 추가
+  const handleAddChild = useCallback(async () => {
+    if (!sceneFile.root || !sceneFile._raw) return
+    const raw = sceneFile._raw as Record<string, unknown>[]
+    const version = sceneFile.projectInfo.version ?? '2x'
+    const newId = 'new-' + Date.now()
+    const newIdx = raw.length
+
+    const newRawEntry: Record<string, unknown> = version === '3x' ? {
+      __type__: 'cc.Node', _id: newId, _name: 'NewNode', _active: true,
+      _children: [], _components: [],
+      _lpos: { x: 0, y: 0, z: 0 }, _lrot: { x: 0, y: 0, z: 0 }, _lscale: { x: 1, y: 1, z: 1 },
+      _color: { r: 255, g: 255, b: 255, a: 255 }, _layer: 33554432,
+      _uiProps: { _localOpacity: 1 },
+    } : {
+      __type__: 'cc.Node', _id: newId, _name: 'NewNode', _active: true,
+      _children: [], _components: [],
+      _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+      _contentSize: { width: 100, height: 100 }, _anchorPoint: { x: 0.5, y: 0.5 },
+      _opacity: 255, _color: { r: 255, g: 255, b: 255, a: 255 },
+    }
+    raw.push(newRawEntry)
+
+    const newNode: CCSceneNode = {
+      uuid: newId, name: 'NewNode', active: true,
+      position: { x: 0, y: 0, z: 0 },
+      rotation: version === '3x' ? { x: 0, y: 0, z: 0 } : 0,
+      scale: { x: 1, y: 1, z: 1 }, size: { x: 100, y: 100 }, anchor: { x: 0.5, y: 0.5 },
+      opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 },
+      components: [], children: [], _rawIndex: newIdx,
+    }
+
+    function addChild(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === node.uuid) return { ...n, children: [...n.children, newNode] }
+      return { ...n, children: n.children.map(addChild) }
+    }
+
+    setSaving(true)
+    const result = await saveScene(addChild(sceneFile.root))
+    setSaving(false)
+    if (result.success) onUpdate(newNode)
+    else { raw.pop(); setMsg({ ok: false, text: result.error ?? '추가 실패' }) }
+  }, [node.uuid, sceneFile, saveScene, onUpdate])
+
+  // 노드 삭제 (루트 보호)
+  const handleDelete = useCallback(async () => {
+    if (!sceneFile.root || sceneFile.root.uuid === node.uuid) return
+    function removeNode(n: CCSceneNode): CCSceneNode {
+      return { ...n, children: n.children.filter(c => c.uuid !== node.uuid).map(removeNode) }
+    }
+    setSaving(true)
+    const result = await saveScene(removeNode(sceneFile.root))
+    setSaving(false)
+    if (result.success) onUpdate(null)
+    else setMsg({ ok: false, text: result.error ?? '삭제 실패' })
+  }, [node.uuid, sceneFile, saveScene, onUpdate])
+
   // 노드 교체 시 draft 초기화
   useMemo(() => { setDraft({ ...node }) }, [node.uuid])
 
@@ -744,7 +857,11 @@ function CCFileNodeInspector({
       padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)', maxHeight: 280, overflowY: 'auto',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)' }}>{draft.name || '(unnamed)'}</span>
+        <input
+          defaultValue={draft.name}
+          onBlur={e => applyAndSave({ name: e.target.value })}
+          style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', background: 'transparent', border: 'none', borderBottom: '1px solid var(--accent)', outline: 'none', flex: 1, minWidth: 0 }}
+        />
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           {saving && <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>저장 중...</span>}
           {msg && <span style={{ fontSize: 9, color: msg.ok ? '#4ade80' : '#f85149' }}>{msg.text}</span>}
@@ -757,6 +874,30 @@ function CCFileNodeInspector({
             />
             활성
           </label>
+          <button
+            onClick={handleAddChild}
+            title="자식 노드 추가"
+            style={{
+              padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+              background: 'transparent', color: '#4ade80', border: '1px solid #4ade80',
+              lineHeight: 1.4,
+            }}
+          >
+            + 자식
+          </button>
+          {sceneFile.root?.uuid !== node.uuid && (
+            <button
+              onClick={handleDelete}
+              title="노드 삭제"
+              style={{
+                padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+                background: 'transparent', color: '#f85149', border: '1px solid #f85149',
+                lineHeight: 1.4,
+              }}
+            >
+              삭제
+            </button>
+          )}
         </div>
       </div>
 

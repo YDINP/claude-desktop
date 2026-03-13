@@ -135,7 +135,7 @@ function resolveComponents2x(
   if (!refs) return []
   return refs
     .map(r => ({ e: raw[r.__id__], idx: r.__id__ }))
-    .filter(({ e }): e is { e: RawEntry; idx: number } => !!e && e.__type__ !== 'cc.CompPrefabInfo')
+    .filter((item): item is { e: RawEntry; idx: number } => !!item.e && item.e.__type__ !== 'cc.CompPrefabInfo')
     .map(({ e, idx }) => {
       const type = (e.__type__ as string | undefined) ?? ''
       const props: Record<string, unknown> = {}
@@ -245,7 +245,7 @@ function resolveComponents3x(
   if (!refs) return []
   return refs
     .map(r => ({ e: raw[r.__id__], idx: r.__id__ }))
-    .filter(({ e }): e is { e: RawEntry; idx: number } => !!e && e.__type__ !== 'cc.CompPrefabInfo')
+    .filter((item): item is { e: RawEntry; idx: number } => !!item.e && item.e.__type__ !== 'cc.CompPrefabInfo')
     .map(({ e, idx }) => {
       const type = (e.__type__ as string | undefined) ?? ''
       const props: Record<string, unknown> = {}

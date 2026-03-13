@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 419 완료 — SceneView QA C-4/M-1 수정, Pass 433)
+> 마지막 업데이트: 2026-03-13 (Round 433 완료 — B-4 undo/redo 스택 + Ctrl+Z/Y 키바인딩)
 
 ## 완료된 라운드
 
@@ -12,6 +12,20 @@
 | Round 417 | dev | CC 파일 기반 엔진 Phase A-4 (CC-씬뷰-파일): CCFileSceneView SVG 렌더러, 팬/줌, 노드 타입별 색상, 앵커 표시 | ✅ |
 | Round 418 | dev | SceneView QA Critical 수정: C-1/C-2 스냅샷 scene/preview 탭 필터, C-7 dragRef race condition, M-6 closeActiveFileTab 가드 | ✅ |
 | Round 419 | dev | SceneView QA C-4/M-1 수정: groupBbox n.width(플랫구조), SceneViewPanel key={activeWsId} 워크스페이스 전환 초기화 | ✅ |
+| Round 420 | dev | CC 파일 기반 Phase A-5 (cc-file-saver): temp→rename 원자적 저장, .bak 자동 백업, 2x/3x 패치 (euler↔quat, UITransform) | ✅ |
+| Round 421 | dev | CC 파일 감시 (cc-file-watcher): chokidar v4, .fire/.scene/.prefab 필터, awaitWriteFinish, onChange 콜백 | ✅ |
+| Round 422 | dev | CC 에셋 리졸버 (cc-asset-resolver): buildUUIDMap/.meta 전수 스캔/subMetas 처리, resolveTextureUrl(local://), extractReferencedUUIDs, preload API 노출 | ✅ |
+| Round 423 | dev | QA 수정: [M-2/3/10] stale closure 의존성 배열 보완, [C-6] 3x designResolution 우선 추출, [M-8] unload listener 정리, [M-9] httpServer error 핸들러 | ✅ |
+| Round 424 | dev | QA 수정: [M-4] handleDuplicate uuid 단일 생성, [M-12] 2x scene-script designResolution null 방어, [M-11] cc-bridge fetch timeout 추가 | ✅ |
+| Round 425 | dev | QA 수정: [M-14] CC_GET_ASSETS port 기본값, [M-7] preview 탭 scene 인덱스 기반 삽입, [M-13] 워크스페이스 저장 scene/preview 필터링 | ✅ |
+| Round 426 | dev | Phase B: CCFileNodeInspector 인스펙터 UI — position/rotation/scale/size/anchor/opacity/active 편집, blur→즉시 auto-save | ✅ |
+| Round 427 | dev | Phase C: CCFileSceneView 드래그 이동 → saveCCScene 연동 (dragRef/dragOverride 주황 임시표시, mouseup→onMove→saveScene) | ✅ |
+| Round 428 | dev | UX: externalChange 파일 외부 수정 감지 배너 + 다시 로드 버튼 | ✅ |
+| Round 429 | dev | Phase C-1: 컴포넌트 props 편집 — CCSceneComponent._rawIndex 추가, 파서 rawIndex 채움, 저장 시 패치, 인스펙터 Label/string/fontSize 편집 UI | ✅ |
+| Round 430 | dev | Phase B-3: 노드 이름 인라인 편집 (span→input, onBlur→applyAndSave) + cc-file-parser TS1230 타입 predicate 수정 | ✅ |
+| Round 431 | dev | Phase D-1: 노드 삭제 — Inspector 삭제 버튼, patchNode _children 동기화 (삭제 시 raw refs 자동 갱신), 루트 보호 | ✅ |
+| Round 432 | dev | Phase D-2: 노드 추가 — handleAddChild (2x/3x raw 엔트리 생성, sceneFile._raw mutation), saveScene 자동 재로드 + chokidar suppress, selectedNode uuid 동기화 | ✅ |
+| Round 433 | dev | Phase B-4: undo/redo 스택 (50단계) — _saveRaw refs 기반 내부 저장, Ctrl+Z/Y 키바인딩, ↩/↪ 버튼 UI | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

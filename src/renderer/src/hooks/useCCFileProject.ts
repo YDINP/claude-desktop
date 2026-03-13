@@ -18,8 +18,15 @@ export function useCCFileProject() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [externalChange, setExternalChange] = useState<{ path: string; timestamp: number } | null>(null)
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
   const sceneFileRef = useRef(sceneFile)
   sceneFileRef.current = sceneFile
+  const projectInfoRef = useRef(projectInfo)
+  projectInfoRef.current = projectInfo
+  const suppressWatchRef = useRef(false)
+  const undoStackRef = useRef<CCSceneNode[]>([])
+  const redoStackRef = useRef<CCSceneNode[]>([])
 
   /** 폴더 선택 다이얼로그로 프로젝트 열기 */
   const openProject = useCallback(async () => {
@@ -40,9 +47,10 @@ export function useCCFileProject() {
     }
   }, [])
 
-  // 로드된 씬 파일 외부 변경 감지 (다른 에디터에서 저장 시)
+  // 로드된 씬 파일 외부 변경 감지 (다른 에디터에서 저장 시 — 자체 저장은 suppress)
   useEffect(() => {
     const unsub = window.api.onCCFileChanged?.((event) => {
+      if (suppressWatchRef.current) { suppressWatchRef.current = false; return }
       const cur = sceneFileRef.current
       if (cur && event.path === cur.scenePath && event.type === 'change') {
         setExternalChange({ path: event.path, timestamp: event.timestamp })
@@ -100,19 +108,63 @@ export function useCCFileProject() {
     [projectInfo]
   )
 
-  /** 수정된 씬 트리를 파일에 저장 */
+  /** 내부 저장 + 재로드 (히스토리 스택 없이) */
+  const _saveRaw = useCallback(async (root: CCSceneNode): Promise<{ success: boolean; error?: string }> => {
+    const sf = sceneFileRef.current
+    const pi = projectInfoRef.current
+    if (!sf) return { success: false, error: '씬 파일이 로드되지 않았습니다.' }
+    try {
+      suppressWatchRef.current = true
+      const result = await window.api.ccFileSaveScene?.(sf, root)
+      if (result?.success && pi) {
+        const fresh = await window.api.ccFileReadScene?.(sf.scenePath, pi)
+        if (fresh && !('error' in fresh)) setSceneFile(fresh)
+      } else {
+        suppressWatchRef.current = false
+      }
+      return result ?? { success: false, error: 'API 없음' }
+    } catch (e) {
+      suppressWatchRef.current = false
+      return { success: false, error: String(e) }
+    }
+  }, [])
+
+  /** 수정된 씬 트리를 파일에 저장 (undo 스냅샷 + 재로드) */
   const saveScene = useCallback(
     async (modifiedRoot: CCSceneNode): Promise<{ success: boolean; error?: string }> => {
-      if (!sceneFile) return { success: false, error: '씬 파일이 로드되지 않았습니다.' }
-      try {
-        const result = await window.api.ccFileSaveScene?.(sceneFile, modifiedRoot)
-        return result ?? { success: false, error: 'API 없음' }
-      } catch (e) {
-        return { success: false, error: String(e) }
-      }
+      const sf = sceneFileRef.current
+      if (!sf?.root) return { success: false, error: '씬 파일이 로드되지 않았습니다.' }
+      // 현재 상태를 undo 스택에 push
+      undoStackRef.current = [...undoStackRef.current.slice(-49), JSON.parse(JSON.stringify(sf.root))]
+      redoStackRef.current = []
+      setCanUndo(true)
+      setCanRedo(false)
+      return _saveRaw(modifiedRoot)
     },
-    [sceneFile]
+    [_saveRaw]
   )
+
+  /** Ctrl+Z — undo */
+  const undo = useCallback(async () => {
+    const prev = undoStackRef.current.pop()
+    const sf = sceneFileRef.current
+    if (!prev || !sf?.root) { setCanUndo(false); return }
+    setCanUndo(undoStackRef.current.length > 0)
+    redoStackRef.current = [...redoStackRef.current, JSON.parse(JSON.stringify(sf.root))]
+    setCanRedo(true)
+    return _saveRaw(prev)
+  }, [_saveRaw])
+
+  /** Ctrl+Y — redo */
+  const redo = useCallback(async () => {
+    const next = redoStackRef.current.pop()
+    const sf = sceneFileRef.current
+    if (!next || !sf?.root) { setCanRedo(false); return }
+    setCanRedo(redoStackRef.current.length > 0)
+    undoStackRef.current = [...undoStackRef.current, JSON.parse(JSON.stringify(sf.root))]
+    setCanUndo(true)
+    return _saveRaw(next)
+  }, [_saveRaw])
 
   /** 저장 실패 시 .bak에서 복원 */
   const restoreBackup = useCallback(async () => {
@@ -136,10 +188,14 @@ export function useCCFileProject() {
     loading,
     error,
     externalChange,
+    canUndo,
+    canRedo,
     openProject,
     detectProject,
     loadScene,
     saveScene,
+    undo,
+    redo,
     restoreBackup,
     clearProject,
   }

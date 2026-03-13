@@ -52,6 +52,13 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
       patch3x(e, node, raw, uiTransformByNodeIdx)
     }
 
+    // _children 동기화 — 트리에서 삭제된 노드를 raw에서도 제거
+    if (Array.isArray(e._children) || node.children.length > 0) {
+      e._children = node.children
+        .filter(c => c._rawIndex != null)
+        .map(c => ({ __id__: c._rawIndex! }))
+    }
+
     // 컴포넌트 props 패치 (Label 텍스트 등)
     for (const comp of node.components) {
       if (comp._rawIndex == null) continue
