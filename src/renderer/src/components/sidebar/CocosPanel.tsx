@@ -3663,6 +3663,16 @@ function CCFileNodeInspector({
     applyAndSave(next)
   }, [redoStack, applyAndSave])
 
+  // R1577: 노드 전체 JSON 복사
+  const [jsonCopyDone, setJsonCopyDone] = useState(false)
+  const handleCopyNodeJson = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(draft, null, 2))
+      setJsonCopyDone(true)
+      setTimeout(() => setJsonCopyDone(false), 1500)
+    } catch { /* ignore */ }
+  }, [draft])
+
   // Round 635: Transform 복사/붙여넣기
   const [copyDone, setCopyDone] = useState(false)
   const handleCopyTransform = useCallback(async () => {
@@ -3986,6 +3996,18 @@ function CCFileNodeInspector({
             }}
           >
             📋
+          </button>
+          {/* R1577: 노드 전체 JSON 복사 */}
+          <button
+            onClick={handleCopyNodeJson}
+            title="노드 전체 JSON 복사 (components 포함)"
+            style={{
+              padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+              background: 'transparent', color: jsonCopyDone ? '#4ade80' : '#94a3b8', border: `1px solid ${jsonCopyDone ? '#4ade80' : '#94a3b8'}`,
+              lineHeight: 1.4,
+            }}
+          >
+            {jsonCopyDone ? '✓' : '{}'}
           </button>
           {/* Round 631: 프리셋 저장 / 불러오기 */}
           <button

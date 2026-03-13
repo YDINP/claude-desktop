@@ -16820,6 +16820,18 @@ console.log('\n## 467. R1576 cc.Light Quick Edit 체크')
   }
 }
 
+// ── Section 468: R1577 Inspector 노드 JSON 복사 버튼 ────────────────
+console.log('\n## 468. R1577 Inspector JSON 복사 버튼 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s468 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s468.includes('handleCopyNodeJson') && s468.includes('jsonCopyDone') && s468.includes('노드 전체 JSON 복사')) {
+    log('pass', 'R1577-json-copy', 'Inspector 노드 전체 JSON 복사 버튼 추가')
+  } else {
+    log('warning', 'R1577-json-copy', 'Inspector JSON 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
