@@ -372,11 +372,15 @@ function buildUiTransformMap(
     if (e.__type__ !== 'cc.UITransform') continue
     const nodeRef = e.node as { __id__?: number } | undefined
     if (nodeRef?.__id__ == null) continue
-    const cs = e._contentSize as { width?: number; height?: number } | undefined
-    const ap = e._anchorPoint as { x?: number; y?: number } | undefined
+    // R1493: _contentSize / contentSize fallback (CC3.x 버전별 필드명 차이)
+    const cs = (e._contentSize ?? e.contentSize) as { width?: number; height?: number } | undefined
+    const ap = (e._anchorPoint ?? e.anchorPoint) as { x?: number; y?: number } | undefined
+    // R1493: width/height 직접 필드도 fallback
+    const w = cs?.width ?? (e._width as number | undefined) ?? (e.width as number | undefined) ?? 0
+    const h = cs?.height ?? (e._height as number | undefined) ?? (e.height as number | undefined) ?? 0
     map.set(nodeRef.__id__, {
-      w: cs?.width ?? 0,
-      h: cs?.height ?? 0,
+      w,
+      h,
       ax: ap?.x ?? 0.5,
       ay: ap?.y ?? 0.5,
     })

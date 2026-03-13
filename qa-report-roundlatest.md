@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T19:09:19.390Z
+> 2026-03-13T19:14:30.961Z
 
 ## Critical
 _없음_
@@ -1390,3 +1390,6 @@ _없음_
 - Inspector COCOS_ENUM_MAP cc.Button/Layout/Mask/ScrollView enum 확장
 - Inspector breadcrumb 노드 통계 뱃지 (깊이/자식/컴포넌트) 구현
 - SceneView 미니맵 오버레이 (뷰포트 사각형 + 노드 점 렌더링) 구현
+- SceneView Label 텍스트 인라인 편집 (더블클릭 foreignObject) 구현
+- Inspector 노드 경로 복사 버튼 (⎘) 구현
+- UITransform _contentSize/contentSize fallback 강화 구현

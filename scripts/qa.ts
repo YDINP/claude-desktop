@@ -15773,6 +15773,39 @@ if (existsSync(sv409) && existsSync(cp409)) {
   }
 }
 
+// ── Section 411: R1491~R1492 기능 체크 ──────────────────────
+console.log('\n## 411. Phase DD23 R1491~R1492 기능 체크')
+const sv411 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp411 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv411) && existsSync(cp411)) {
+  const s411 = readFileSync(sv411, 'utf-8')
+  const c411 = readFileSync(cp411, 'utf-8')
+  // R1491: Label 인라인 편집
+  if (s411.includes('R1491') && s411.includes('editingLabelUuid') && s411.includes('onLabelEdit') && c411.includes('handleLabelEdit')) {
+    log('pass', 'R1491-label-edit', 'SceneView Label 텍스트 인라인 편집 (더블클릭 foreignObject) 구현')
+  } else {
+    log('warning', 'R1491-label-edit', 'Label 인라인 편집 미구현', 'CCFileSceneView.tsx')
+  }
+  // R1492: 경로 복사
+  if (c411.includes('R1492') && c411.includes('nodePath.join') && c411.includes('navigator.clipboard')) {
+    log('pass', 'R1492-path-copy', 'Inspector 노드 경로 복사 버튼 (⎘) 구현')
+  } else {
+    log('warning', 'R1492-path-copy', 'Inspector 경로 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 412: R1493 UITransform fallback 체크 ──────────────────────
+console.log('\n## 412. Phase DD23 R1493 UITransform fallback 체크')
+const fp412 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(fp412)) {
+  const c412 = readFileSync(fp412, 'utf-8')
+  if (c412.includes('R1493') && c412.includes('e.contentSize') && c412.includes('e.anchorPoint')) {
+    log('pass', 'R1493-uitransform-fallback', 'UITransform _contentSize/contentSize fallback 강화 구현')
+  } else {
+    log('warning', 'R1493-uitransform-fallback', 'UITransform fallback 미구현', 'cc-file-parser.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
