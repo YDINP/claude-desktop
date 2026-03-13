@@ -16720,6 +16720,18 @@ console.log('\n## 459. R1568 cc.Camera Quick Edit 체크')
   }
 }
 
+// ── Section 460: R1569 cc.PageView Inspector Quick Edit ────────────────
+console.log('\n## 460. R1569 cc.PageView Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s460 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s460.includes("comp.type === 'cc.PageView'") && s460.includes('scrollThreshold') && s460.includes('autoPageTurningThreshold')) {
+    log('pass', 'R1569-pageview', 'cc.PageView Quick Edit: direction/scrollThreshold/autoTurning')
+  } else {
+    log('warning', 'R1569-pageview', 'cc.PageView Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

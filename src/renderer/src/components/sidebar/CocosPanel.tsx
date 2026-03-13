@@ -4877,6 +4877,45 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1569: cc.PageView — direction/scrollThreshold/autoPageTurningThreshold Quick Edit
+            if (comp.type === 'cc.PageView') {
+              const direction = Number(p.direction ?? p._N$direction ?? 0)
+              const scrollThreshold = Number(p.scrollThreshold ?? p._N$scrollThreshold ?? 0.5)
+              const autoThreshold = Number(p.autoPageTurningThreshold ?? p._N$autoPageTurningThreshold ?? 0.3)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>direction</span>
+                    <select value={direction}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      <option value={0}>Horizontal</option>
+                      <option value={1}>Vertical</option>
+                    </select>
+                  </div>
+                  {[['scrollThreshold', scrollThreshold], ['autoTurning', autoThreshold]].map(([label, val]) => (
+                    <div key={label as string} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>{label as string}</span>
+                      <input type="range" min={0} max={1} step={0.05} value={val as number}
+                        onChange={e => {
+                          const v = parseFloat(e.target.value)
+                          const k = label === 'scrollThreshold' ? 'scrollThreshold' : 'autoPageTurningThreshold'
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [k]: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ flex: 1 }}
+                      />
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{(val as number).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            }
             // R1568: cc.Camera — depth/zoomRatio Quick Edit
             if (comp.type === 'cc.Camera') {
               const depth = Number(p.depth ?? 0)
