@@ -27,6 +27,50 @@ function formatToolInput(name: string, input: unknown): string {
   }
 }
 
+function InlineDiff({ oldStr, newStr }: { oldStr: string; newStr: string }) {
+  const oldLines = oldStr.split('\n')
+  const newLines = newStr.split('\n')
+  const maxLines = 30
+  const rows: { type: 'del' | 'add' | 'ctx'; text: string }[] = []
+
+  oldLines.slice(0, maxLines).forEach(l => rows.push({ type: 'del', text: l }))
+  newLines.slice(0, maxLines).forEach(l => rows.push({ type: 'add', text: l }))
+
+  const truncated = oldLines.length > maxLines || newLines.length > maxLines
+
+  return (
+    <div style={{
+      fontFamily: 'var(--font-mono)',
+      fontSize: 10,
+      lineHeight: 1.5,
+      background: 'var(--bg-tertiary)',
+      borderRadius: 3,
+      padding: '4px 0',
+      overflow: 'auto',
+      maxHeight: 180,
+      marginTop: 6,
+    }}>
+      {rows.map((r, i) => (
+        <div key={i} style={{
+          padding: '0 8px',
+          background: r.type === 'del' ? 'rgba(255,80,80,0.12)' : 'rgba(80,220,80,0.12)',
+          color: r.type === 'del' ? '#ff8a8a' : '#7ddb7d',
+          whiteSpace: 'pre',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}>
+          {r.type === 'del' ? '- ' : '+ '}{r.text}
+        </div>
+      ))}
+      {truncated && (
+        <div style={{ padding: '2px 8px', color: 'var(--text-muted)', fontSize: 10 }}>
+          … (truncated)
+        </div>
+      )}
+    </div>
+  )
+}
+
 export const ToolUseIndicator = memo(function ToolUseIndicator({ tool }: { tool: ToolUseItem }) {
   const [collapsed, setCollapsed] = useState(tool.status === 'done')
 
@@ -43,6 +87,11 @@ export const ToolUseIndicator = memo(function ToolUseIndicator({ tool }: { tool:
   }[tool.status]
 
   const statusIcon = { running: '\u27F3', done: '\u2713', error: '\u2717' }[tool.status]
+
+  const inp = tool.input as Record<string, unknown> | null
+  const showDiff = !collapsed && tool.status === 'done' &&
+    tool.name === 'Edit' && inp &&
+    typeof inp.old_string === 'string' && typeof inp.new_string === 'string'
 
   return (
     <div style={{
@@ -103,7 +152,13 @@ export const ToolUseIndicator = memo(function ToolUseIndicator({ tool }: { tool:
           </div>
         )
       })()}
-      {!collapsed && tool.output && (
+      {showDiff && (
+        <InlineDiff
+          oldStr={String(inp!.old_string)}
+          newStr={String(inp!.new_string)}
+        />
+      )}
+      {!collapsed && !showDiff && tool.output && (
         <div style={{ marginTop: 4 }}>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>Output</div>
           <pre style={{
