@@ -1474,6 +1474,8 @@ function CCFileNodeInspector({
   const [loadProgress, setLoadProgress] = useState(0)
   const [sceneDeps, setSceneDeps] = useState<Record<string, string[]>>({})
   const [showSceneDeps, setShowSceneDeps] = useState(false)
+  const [prefabInstances, setPrefabInstances] = useState<Record<string, number>>({})
+  const [showPrefabStats, setShowPrefabStats] = useState(false)
   const [loadingScene, setLoadingScene] = useState<string | null>(null)
   const [assetSearch, setAssetSearch] = useState('')
   const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])

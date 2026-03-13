@@ -814,6 +814,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [watermarkText, setWatermarkText] = useState<string>('')
   const [persona, setPersona] = useState<string>('default')
   const [personaList, setPersonaList] = useState<Array<{ name: string; prompt: string }>>(() => JSON.parse(localStorage.getItem('personas') ?? '[]'))
+  const [systemPromptDraft, setSystemPromptDraft] = useState<string>('')
+  const [showSystemPromptEditor, setShowSystemPromptEditor] = useState(false)
   const [contextUsage, setContextUsage] = useState(0)
   const [showContextBar, setShowContextBar] = useState(true)
   const [msgTheme, setMsgTheme] = useState<'default' | 'compact' | 'bubble' | 'minimal'>('default')

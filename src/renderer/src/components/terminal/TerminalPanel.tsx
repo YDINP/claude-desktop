@@ -173,6 +173,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R778: terminal color theme
   const [colorTheme, setColorTheme] = useState<'dark' | 'light' | 'solarized' | 'monokai'>('dark')
   const [customColors, setCustomColors] = useState<Record<string, string>>({})
+  // R791: filter presets
+  const [filterPresets, setFilterPresets] = useState<Array<{ name: string; pattern: string }>>(() => JSON.parse(localStorage.getItem('filter-presets') ?? '[]'))
+  const [activeFilterPreset, setActiveFilterPreset] = useState<string | null>(null)
   // R785: session recording
   const [isRecordingSession, setIsRecordingSession] = useState(false)
   const [recordedFrames, setRecordedFrames] = useState<string[]>([])

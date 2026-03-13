@@ -7649,6 +7649,41 @@ if (existsSync(sl788Path)) {
   }
 }
 
+// ── Section 174: Phase DD10 R789~791 기능 체크 ────────────────
+console.log('\n## 174. Phase DD10 R789~791 기능 체크')
+// R789: ChatPanel AI 페르소나
+const cp789Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp789Path)) {
+  const cp789 = readFileSync(cp789Path, 'utf-8')
+  if (cp789.includes('personaList') || cp789.includes('aiPersona') || cp789.includes('personas')) {
+    log('pass', 'R789', 'ChatPanel AI 페르소나 설정 존재')
+  } else {
+    log('warning', 'R789', 'ChatPanel 페르소나 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R790: CocosPanel 프리팹 인스턴스 추적
+const cp790Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp790Path)) {
+  const cp790 = readFileSync(cp790Path, 'utf-8')
+  if (cp790.includes('prefabInstances') || cp790.includes('showPrefabStats') || cp790.includes('prefabCount')) {
+    log('pass', 'R790', 'CocosPanel 프리팹 인스턴스 추적 존재')
+  } else {
+    log('warning', 'R790', 'CocosPanel 프리팹 인스턴스 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R791: TerminalPanel 필터 프리셋
+const tp791Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp791Path)) {
+  const tp791 = readFileSync(tp791Path, 'utf-8')
+  if (tp791.includes('filterPresets') || tp791.includes('activeFilterPreset') || tp791.includes('filter-presets')) {
+    log('pass', 'R791', 'TerminalPanel 필터 프리셋 존재')
+  } else {
+    log('warning', 'R791', 'TerminalPanel 필터 프리셋 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

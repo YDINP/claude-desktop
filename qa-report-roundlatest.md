@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:23:24.819Z
+> 2026-03-13T11:24:18.802Z
 
 ## Critical
 _없음_
@@ -670,3 +670,6 @@ _없음_
 - ChatPanel 컨텍스트 윈도우 시각화 존재
 - SceneViewPanel 씬 버전 관리 존재
 - SessionList 내보내기 이력 존재
+- ChatPanel AI 페르소나 설정 존재
+- CocosPanel 프리팹 인스턴스 추적 존재
+- TerminalPanel 필터 프리셋 존재
