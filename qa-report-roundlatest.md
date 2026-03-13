@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T19:18:19.650Z
+> 2026-03-13T19:21:28.713Z
 
 ## Critical
 _없음_
@@ -1396,3 +1396,5 @@ _없음_
 - SceneView 우클릭 컨텍스트 메뉴 (복사/붙여넣기/삭제/AI 분석) 구현
 - Inspector Raw JSON 뷰 + 복사 버튼 구현
 - SceneView 미니맵 클릭 → 씬 좌표 pan 구현
+- SceneView Ctrl+드래그 스냅 포인트 시각적 피드백 구현
+- SceneView 저장 diff 알림 배너 (5초 자동 소멸) 구현

@@ -15838,6 +15838,25 @@ if (existsSync(sv413) && existsSync(cp414)) {
   }
 }
 
+// ── Section 415: R1500~R1501 기능 체크 ──────────────────────
+console.log('\n## 415. Phase DD25 R1500~R1501 기능 체크')
+const sv415 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp415 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv415) && existsSync(cp415)) {
+  const s415 = readFileSync(sv415, 'utf-8')
+  const c415 = readFileSync(cp415, 'utf-8')
+  if (s415.includes('R1500') && s415.includes('snapIndicator') && s415.includes('ffdd44')) {
+    log('pass', 'R1500-snap-indicator', 'SceneView Ctrl+드래그 스냅 포인트 시각적 피드백 구현')
+  } else {
+    log('warning', 'R1500-snap-indicator', 'SceneView 스냅 피드백 미구현', 'CCFileSceneView.tsx')
+  }
+  if (c415.includes('R1501') && c415.includes('lastDiffDisplay') && c415.includes('setLastDiffDisplay')) {
+    log('pass', 'R1501-diff-banner', 'SceneView 저장 diff 알림 배너 (5초 자동 소멸) 구현')
+  } else {
+    log('warning', 'R1501-diff-banner', '저장 diff 배너 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
