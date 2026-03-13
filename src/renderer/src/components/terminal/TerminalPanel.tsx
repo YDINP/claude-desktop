@@ -441,6 +441,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [splitRatio, setSplitRatio] = React.useState(0.5)
   const [termTheme, setTermTheme] = React.useState<'dark' | 'light' | 'solarized'>('dark')
   const [showThemePicker, setShowThemePicker] = React.useState(false)
+  const [termLineNumbers, setTermLineNumbers] = React.useState(false)
+  const [lineNumberOffset, setLineNumberOffset] = React.useState(1)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

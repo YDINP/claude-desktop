@@ -1638,6 +1638,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [heatmapType, setHeatmapType] = React.useState<'draw' | 'update'>('draw')
   const [sceneChecklist, setSceneChecklist] = React.useState<string[]>([])
   const [showChecklist, setShowChecklist] = React.useState(false)
+  const [darkOverlay, setDarkOverlay] = React.useState(false)
+  const [overlayOpacity, setOverlayOpacity] = React.useState(0.3)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {

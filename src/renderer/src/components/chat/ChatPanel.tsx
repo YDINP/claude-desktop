@@ -1087,6 +1087,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [foldThreshold, setFoldThreshold] = React.useState(500)
   const [msgColors, setMsgColors] = React.useState<Record<string, string>>({})
   const [showColorPalette, setShowColorPalette] = React.useState(false)
+  const [shareTarget, setShareTarget] = React.useState<string | null>(null)
+  const [showSharePanel, setShowSharePanel] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
