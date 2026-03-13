@@ -6564,6 +6564,41 @@ if (existsSync(cp691Path)) {
   }
 }
 
+// ── Section 143: Phase DD10 R693~695 기능 체크 ────────────────
+console.log('\n## 143. Phase DD10 R693~695 기능 체크')
+// R693: ChatPanel 대화 자동 요약
+const cp693Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp693Path)) {
+  const cp693 = readFileSync(cp693Path, 'utf-8')
+  if (cp693.includes('autoSummary') || cp693.includes('showAutoSummary')) {
+    log('pass', 'R693', 'ChatPanel 대화 자동 요약 존재')
+  } else {
+    log('warning', 'R693', 'ChatPanel 자동 요약 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R694: TerminalPanel 분할 레이아웃
+const tp694Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp694Path)) {
+  const tp694 = readFileSync(tp694Path, 'utf-8')
+  if (tp694.includes('splitLayout') || tp694.includes('splitRatio') || tp694.includes('splitTerminal')) {
+    log('pass', 'R694', 'TerminalPanel 분할 레이아웃 존재')
+  } else {
+    log('warning', 'R694', 'TerminalPanel 분할 레이아웃 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R695: SceneViewPanel 노드 태그
+const svp695Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp695Path)) {
+  const svp695 = readFileSync(svp695Path, 'utf-8')
+  if (svp695.includes('nodeTags') || svp695.includes('nodeTagInput') || svp695.includes('addNodeTag')) {
+    log('pass', 'R695', 'SceneViewPanel 노드 태그 존재')
+  } else {
+    log('warning', 'R695', 'SceneViewPanel 노드 태그 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

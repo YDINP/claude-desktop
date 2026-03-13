@@ -298,6 +298,11 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [searchQuery, setSearchQuery] = useState('')
   const searchInputRef = useRef<HTMLInputElement>(null)
 
+  // Split layout state
+  const [splitLayout, setSplitLayout] = useState<'single' | 'horizontal' | 'vertical'>('single')
+  const [splitRatio, setSplitRatio] = useState(0.5)
+  const [splitTabId, setSplitTabId] = useState<string | null>(null)
+
   // Filter state
   const [termFilter, setTermFilter] = useState('')
   const [showTermFilter, setShowTermFilter] = useState(false)
@@ -809,6 +814,41 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           </div>
         )}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, paddingRight: 6 }}>
+          {/* Split layout buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {([
+              { value: 'single', icon: '☐', title: '단일 터미널' },
+              { value: 'horizontal', icon: '⬚', title: '수평 분할 (좌우)' },
+              { value: 'vertical', icon: '⬓', title: '수직 분할 (위아래)' },
+            ] as const).map(({ value, icon, title }) => (
+              <span
+                key={value}
+                title={title}
+                onClick={() => {
+                  setSplitLayout(value)
+                  if (value !== 'single' && !splitTabId) {
+                    const other = tabs.find(t => t.id !== activeTabId)
+                    setSplitTabId(other?.id ?? activeTabId)
+                  }
+                  if (value === 'single') setSplitTabId(null)
+                }}
+                style={{
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  padding: '1px 4px',
+                  borderRadius: 3,
+                  border: splitLayout === value ? '1px solid var(--accent)' : '1px solid var(--border)',
+                  color: splitLayout === value ? 'var(--accent)' : 'var(--text-muted)',
+                  userSelect: 'none',
+                  lineHeight: 1,
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = splitLayout === value ? 'var(--accent)' : 'var(--border)' }}
+              >
+                {icon}
+              </span>
+            ))}
+          </div>
           {/* Filter button */}
           <span
             onClick={() => { setShowTermFilter(prev => !prev); setTimeout(() => filterInputRef.current?.focus(), 50) }}
@@ -1108,18 +1148,112 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
 
       {/* Terminal containers */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-        {tabs.map(tab => (
-          <div
-            key={tab.id}
-            ref={setContainerRef(tab.id)}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              padding: 4,
-              display: tab.id === activeTabId ? 'block' : 'none',
-            }}
-          />
-        ))}
+        {splitLayout === 'single' ? (
+          tabs.map(tab => (
+            <div
+              key={tab.id}
+              ref={setContainerRef(tab.id)}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                padding: 4,
+                display: tab.id === activeTabId ? 'block' : 'none',
+              }}
+            />
+          ))
+        ) : (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            flexDirection: splitLayout === 'horizontal' ? 'row' : 'column',
+          }}>
+            {/* Primary pane */}
+            <div style={{ position: 'relative', flex: `0 0 ${splitRatio * 100}%`, overflow: 'hidden' }}>
+              {tabs.map(tab => (
+                <div
+                  key={tab.id}
+                  ref={setContainerRef(tab.id)}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    padding: 4,
+                    display: tab.id === activeTabId ? 'block' : 'none',
+                  }}
+                />
+              ))}
+            </div>
+            {/* Splitter handle */}
+            <div
+              title="드래그하여 비율 조정"
+              onMouseDown={e => {
+                e.preventDefault()
+                const container = (e.currentTarget as HTMLElement).parentElement
+                if (!container) return
+                const rect = container.getBoundingClientRect()
+                const totalSize = splitLayout === 'horizontal' ? rect.width : rect.height
+                const onMove = (me: MouseEvent) => {
+                  const pos = splitLayout === 'horizontal' ? me.clientX - rect.left : me.clientY - rect.top
+                  setSplitRatio(Math.min(0.85, Math.max(0.15, pos / totalSize)))
+                }
+                const onUp = () => {
+                  window.removeEventListener('mousemove', onMove)
+                  window.removeEventListener('mouseup', onUp)
+                }
+                window.addEventListener('mousemove', onMove)
+                window.addEventListener('mouseup', onUp)
+              }}
+              style={{
+                flexShrink: 0,
+                background: 'var(--border)',
+                cursor: splitLayout === 'horizontal' ? 'col-resize' : 'row-resize',
+                width: splitLayout === 'horizontal' ? 4 : '100%',
+                height: splitLayout === 'vertical' ? 4 : '100%',
+                zIndex: 10,
+                transition: 'background 0.1s',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--accent)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--border)' }}
+            />
+            {/* Secondary pane */}
+            <div style={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
+              {tabs.map(tab => (
+                <div
+                  key={`split-${tab.id}`}
+                  ref={setContainerRef(`split-${tab.id}`)}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    padding: 4,
+                    display: tab.id === splitTabId ? 'block' : 'none',
+                  }}
+                />
+              ))}
+              {/* Secondary pane tab selector */}
+              <div style={{ position: 'absolute', top: 2, right: 4, zIndex: 20, display: 'flex', gap: 2 }}>
+                {tabs.map(tab => (
+                  <span
+                    key={tab.id}
+                    onClick={() => setSplitTabId(tab.id)}
+                    title={tabNames[tab.id] ?? tab.title}
+                    style={{
+                      fontSize: 10,
+                      padding: '1px 5px',
+                      borderRadius: 3,
+                      cursor: 'pointer',
+                      background: tab.id === splitTabId ? 'var(--accent)' : 'var(--bg-secondary)',
+                      color: tab.id === splitTabId ? '#fff' : 'var(--text-muted)',
+                      border: '1px solid var(--border)',
+                      userSelect: 'none',
+                    }}
+                  >
+                    {tabNames[tab.id] ?? tab.title}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         {showTermFilter && termFilter && (
           <div style={{
             position: 'absolute', inset: 0, zIndex: 50,

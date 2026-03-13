@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 692 완료 — Phase DD10 진행 중, QA Pass 569)
+> 마지막 업데이트: 2026-03-13 (Round 696 완료 — Phase DD10 진행 중, QA Pass 572)
 
 ## 개발 루프 실행 방식
 
@@ -668,6 +668,10 @@
 | Round 690 | MessageBubble 번역 버튼 (showTranslation, translatedText, 🌐) | ✅ |
 | Round 691 | CocosPanel 노드 즐겨찾기 (favoriteNodes, favoritesOpen, ☆/★) | ✅ |
 | Round 692 | QA Section 142 추가 (R689/R690/R691, Pass 569) | ✅ |
+| Round 693 | ChatPanel 대화 자동 요약 (autoSummary, showAutoSummary) | ✅ |
+| Round 694 | TerminalPanel 분할 레이아웃 (splitLayout, splitRatio) | ✅ |
+| Round 695 | SceneViewPanel 노드 태그 (nodeTags, nodeTagInput) | ✅ |
+| Round 696 | QA Section 143 추가 (R693/R694/R695, Pass 572) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

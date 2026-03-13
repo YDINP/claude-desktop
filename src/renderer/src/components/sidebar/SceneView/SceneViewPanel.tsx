@@ -117,6 +117,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [nodeColors, setNodeColors] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('node-colors') ?? '{}') } catch { return {} }
   })
+  const [nodeTags, setNodeTags] = useState<Record<string, string[]>>(() => {
+    try { return JSON.parse(localStorage.getItem('node-tags') ?? '{}') } catch { return {} }
+  })
+  const [nodeTagInput, setNodeTagInput] = useState<string | null>(null)
+  const [nodeTagDraft, setNodeTagDraft] = useState('')
   const viewHistoryRef = useRef<ViewTransform[]>([])
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
@@ -163,6 +168,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 애니메이션 미리보기 상태 ────────────────────────────────
   const [animPreview, setAnimPreview] = useState(false)
   const [animFrame, setAnimFrame] = useState(0)
+  const [nodeTags, setNodeTags] = useState<Record<string, string[]>>(() => {
+    try { return JSON.parse(localStorage.getItem('node-tags') ?? '{}') } catch { return {} }
+  })
+  const [nodeTagInput, setNodeTagInput] = useState<string | null>(null)
   const animPreviewIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const handleTakeSnapshot = useCallback(() => {
@@ -2521,6 +2530,31 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               })
             }
 
+            {/* 노드 태그 뱃지 */}
+            {[...nodeMap.values()].filter(n => nodeTags[n.uuid]?.length).map(n => {
+              const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
+              const tags = nodeTags[n.uuid]
+              return (
+                <g key={`tag-${n.uuid}`} style={{ pointerEvents: 'none' }}>
+                  {tags.map((tag, i) => {
+                    const bw = tag.length * 5.5 + 8
+                    const bx = sx - n.width / 2 + i * (bw + 2)
+                    const by = sy - n.height / 2 - 14 / view.zoom
+                    return (
+                      <g key={`tag-${n.uuid}-${i}`}>
+                        <rect x={bx / view.zoom * view.zoom} y={by} width={bw / view.zoom} height={12 / view.zoom}
+                          rx={3 / view.zoom} fill="#7c3aed" opacity={0.85} />
+                        <text x={(bx + bw / 2) / view.zoom * view.zoom} y={by + 8.5 / view.zoom}
+                          textAnchor="middle" fontSize={7 / view.zoom} fill="#fff" fontFamily="sans-serif">
+                          {tag}
+                        </text>
+                      </g>
+                    )
+                  })}
+                </g>
+              )
+            })}
+
             {/* 선택 노드 앵커 포인트 십자 마커 */}
             {selectedNode && (() => {
               const { sx, sy } = cocosToSvg(selectedNode.x, selectedNode.y, DESIGN_W, DESIGN_H)
@@ -4036,6 +4070,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   close()
                 }}>📋 경로 복사</button>
               )}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  const existing = nodeTags[ctxUuid!] ?? []
+                  setNodeTagDraft(existing.join(', '))
+                  setNodeTagInput(ctxUuid!)
+                  close()
+                }}>🏷 태그 편집</button>
+              )}
               <div style={{ height: 1, background: 'var(--border)', margin: '2px 0' }} />
               {ctxNode && (
                 <button style={{ ...menuStyle, color: 'var(--error)' }} onClick={() => {
@@ -4043,6 +4085,66 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   handleDeleteNode()
                 }}>삭제</button>
               )}
+            </div>
+          </>
+        )
+      })()}
+
+      {/* 노드 태그 입력 모달 */}
+      {nodeTagInput && (() => {
+        const addNodeTag = () => {
+          const tags = nodeTagDraft.split(',').map(t => t.trim()).filter(Boolean)
+          setNodeTags(prev => {
+            const next = { ...prev, [nodeTagInput]: tags }
+            if (tags.length === 0) delete next[nodeTagInput]
+            localStorage.setItem('node-tags', JSON.stringify(next))
+            return next
+          })
+          setNodeTagInput(null)
+          setNodeTagDraft('')
+        }
+        const nodeName = nodeMap.get(nodeTagInput)?.name ?? nodeTagInput
+        return (
+          <>
+            <div style={{ position: 'fixed', inset: 0, zIndex: 1999, background: 'rgba(0,0,0,0.4)' }}
+              onClick={() => { setNodeTagInput(null); setNodeTagDraft('') }} />
+            <div style={{
+              position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+              zIndex: 2000, background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+              borderRadius: 6, padding: '16px 20px', minWidth: 280, boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+            }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)' }}>
+                태그 편집 — {nodeName}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 8 }}>
+                쉼표로 구분하여 여러 태그 입력 (예: ui, button, important)
+              </div>
+              <input
+                autoFocus
+                value={nodeTagDraft}
+                onChange={e => setNodeTagDraft(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') addNodeTag()
+                  if (e.key === 'Escape') { setNodeTagInput(null); setNodeTagDraft('') }
+                }}
+                placeholder="태그 입력..."
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: 'var(--bg-primary)', border: '1px solid var(--border)',
+                  borderRadius: 4, padding: '5px 8px', fontSize: 11,
+                  color: 'var(--text-primary)', outline: 'none',
+                }}
+              />
+              <div style={{ display: 'flex', gap: 6, marginTop: 10, justifyContent: 'flex-end' }}>
+                <button onClick={() => { setNodeTagInput(null); setNodeTagDraft('') }}
+                  style={{ fontSize: 11, padding: '4px 10px', background: 'none', border: '1px solid var(--border)', borderRadius: 4, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                  취소
+                </button>
+                <button onClick={addNodeTag}
+                  style={{ fontSize: 11, padding: '4px 10px', background: '#7c3aed', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}>
+                  저장
+                </button>
+              </div>
             </div>
           </>
         )

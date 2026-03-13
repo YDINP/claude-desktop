@@ -499,12 +499,12 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [summaryText, setSummaryText] = useState('')
   const [summaryLoading, setSummaryLoading] = useState(false)
+  const [autoSummary, setAutoSummary] = useState<string | null>(null)
+  const [showAutoSummary, setShowAutoSummary] = useState(false)
   const [welcomePendingInsert, setWelcomePendingInsert] = useState<string | undefined>(undefined)
   const [minimapScroll, setMinimapScroll] = useState({ scrollTop: 0, clientHeight: 1, totalScrollHeight: 1 })
   const [suggestionIndex, setSuggestionIndex] = useState<number>(-1)
   const [suggestionPendingInsert, setSuggestionPendingInsert] = useState<string | undefined>(undefined)
-  const [foldedMessages, setFoldedMessages] = useState<Set<string>>(new Set())
-  const foldThreshold = 20
 
   const onSelectSuggestion = useCallback((text: string) => {
     setSuggestionPendingInsert(text)
@@ -790,6 +790,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const bookmarkIdxRef = useRef(0)
   const [showOnlyBookmarks, setShowOnlyBookmarks] = useState(false)
   const [foldedMessages, setFoldedMessages] = useState<Set<string>>(new Set())
+  const [autoSummary, setAutoSummary] = useState<string | null>(null)
+  const [showAutoSummary, setShowAutoSummary] = useState(false)
 
   const toggleFoldMessages = useCallback(() => {
     if (displayMessages.length < foldThreshold) return
@@ -1156,6 +1158,17 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             fontSize: 13, cursor: 'pointer', padding: '2px 4px', lineHeight: 1,
           }}
         >🕐</button>
+        {chat.messages.length >= foldThreshold && (
+          <button
+            onClick={toggleFoldMessages}
+            title={foldedMessages.size > 0 ? '접힌 메시지 펼치기' : '중간 메시지 접기'}
+            style={{
+              background: 'none', border: 'none',
+              color: foldedMessages.size > 0 ? 'var(--accent, #89b4fa)' : 'var(--text-muted)',
+              fontSize: 11, cursor: 'pointer', padding: '2px 6px',
+            }}
+          >{foldedMessages.size > 0 ? `↕ ${foldedMessages.size}개 메시지 보이기` : '↕ 메시지 숨기기'}</button>
+        )}
         {chat.messages.length > 0 && (
           <button
             onClick={handleSummarize}
@@ -1283,6 +1296,53 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           }}>
             {summaryLoading ? '요약 생성 중...' : summaryText}
           </div>
+        </div>
+      )}
+
+      {/* Auto summary banner */}
+      {chat.messages.length >= 50 && (
+        <div style={{
+          padding: '4px 12px',
+          background: 'var(--bg-tertiary)',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 4,
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              {chat.messages.length}개 메시지
+            </span>
+            <button
+              onClick={() => {
+                if (!autoSummary) setAutoSummary('대화 요약 생성 중...')
+                setShowAutoSummary((v) => !v)
+              }}
+              style={{
+                fontSize: 10,
+                padding: '2px 8px',
+                background: 'var(--bg-input)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border)',
+                borderRadius: 3,
+                cursor: 'pointer',
+              }}
+            >
+              요약 보기
+            </button>
+          </div>
+          {showAutoSummary && autoSummary && (
+            <div style={{
+              fontSize: 12,
+              color: 'var(--text-secondary)',
+              padding: '4px 0',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+            }}>
+              {autoSummary}
+            </div>
+          )}
         </div>
       )}
 
@@ -2020,4 +2080,30 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             </div>
             {([
               ['Ctrl+F', '채팅 검색 토글'],
-             
+              ['Ctrl+B', '즐겨찾기 뷰 토글'],
+              ['Ctrl+W', '뷰 모드 전환 (컴팩트/와이드)'],
+              ['Escape', '검색 닫기'],
+              ['?', '단축키 도움말'],
+            ] as [string, string][]).map(([key, desc]) => (
+              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 10 }}>
+                <kbd style={{
+                  background: 'var(--bg-input, var(--bg-primary))',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  padding: '2px 8px',
+                  fontSize: 11,
+                  fontFamily: 'monospace',
+                  color: 'var(--text-primary)',
+                  minWidth: 80,
+                  textAlign: 'center',
+                  flexShrink: 0,
+                }}>{key}</kbd>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{desc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
