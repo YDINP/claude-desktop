@@ -96,7 +96,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     const q = svSearch.toLowerCase()
     const matches = new Set<string>()
     const walk = (n: CCSceneNode) => {
-      if (n.name.toLowerCase().includes(q) || n.uuid.toLowerCase().includes(q)) matches.add(n.uuid)
+      // R1594: 이름/UUID 외에 컴포넌트 타입도 검색 대상에 포함
+      const compMatch = n.components?.some(c => c.type.toLowerCase().includes(q))
+      if (n.name.toLowerCase().includes(q) || n.uuid.toLowerCase().includes(q) || compMatch) matches.add(n.uuid)
       n.children.forEach(walk)
     }
     walk(sceneFile.root)

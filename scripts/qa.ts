@@ -17044,6 +17044,18 @@ console.log('\n## 484. R1593 Inspector 크기 W/H 비율 잠금 버튼 체크')
   }
 }
 
+// ── Section 485: R1594 SceneView 검색 컴포넌트 타입 포함 ──────────────
+console.log('\n## 485. R1594 SceneView 검색 컴포넌트 타입 포함 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s485 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s485.includes('R1594') && s485.includes('compMatch') && s485.includes('n.components?.some')) {
+    log('pass', 'R1594-search-comp', 'SceneView 검색: 컴포넌트 타입도 매칭 대상 포함')
+  } else {
+    log('warning', 'R1594-search-comp', 'SceneView 검색 컴포넌트 타입 포함 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

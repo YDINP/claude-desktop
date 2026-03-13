@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T21:49:30.876Z
+> 2026-03-13T21:50:38.352Z
 
 ## Critical
 _없음_
@@ -1522,3 +1522,4 @@ _없음_
 - cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Inspector Quick Edit
 - 위치/크기 정수 반올림 버튼 (⌊⌉)
 - 크기 W/H 비율 잠금 버튼 (🔒)
+- SceneView 검색: 컴포넌트 타입도 매칭 대상 포함
