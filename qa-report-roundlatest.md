@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T21:48:21.757Z
+> 2026-03-13T21:49:30.876Z
 
 ## Critical
 _없음_
@@ -1521,3 +1521,4 @@ _없음_
 - cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor
 - cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Inspector Quick Edit
 - 위치/크기 정수 반올림 버튼 (⌊⌉)
+- 크기 W/H 비율 잠금 버튼 (🔒)

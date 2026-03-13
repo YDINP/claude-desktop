@@ -3332,6 +3332,7 @@ function CCFileNodeInspector({
   })
   const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
   const [lockScale, setLockScale] = useState(false)
+  const [lockSize, setLockSize] = useState(false)  // R1593: 크기 비율 잠금
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
 
   // R1484: World Transform — 부모 체인 누산 좌표
@@ -4405,9 +4406,23 @@ function CCFileNodeInspector({
               크기
               {/* R1592: 크기 정수 반올림 버튼 */}
               <span title="크기 정수 반올림 (Round to integer)" onClick={() => applyAndSave({ size: { x: Math.round(draft.size.x), y: Math.round(draft.size.y) } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⌊⌉</span>
+              {/* R1593: 크기 비율 잠금 버튼 */}
+              <span
+                title={lockSize ? '크기 비율 잠금 해제' : '크기 W/H 비율 잠금'}
+                onClick={() => setLockSize(v => !v)}
+                style={{ cursor: 'pointer', fontSize: 9, color: lockSize ? '#58a6ff' : '#555' }}
+                onMouseEnter={e => (e.currentTarget.style.color = lockSize ? '#7fc6ff' : '#888')}
+                onMouseLeave={e => (e.currentTarget.style.color = lockSize ? '#58a6ff' : '#555')}
+              >{lockSize ? '🔒' : '🔓'}</span>
             </div>
-            {numInput('W', draft.size.x, v => applyAndSave({ size: { ...draft.size, x: v } }))}
-            {numInput('H', draft.size.y, v => applyAndSave({ size: { ...draft.size, y: v } }))}
+            {numInput('W', draft.size.x, v => {
+              const ratio = draft.size.x !== 0 ? v / draft.size.x : 1
+              applyAndSave({ size: lockSize ? { x: v, y: draft.size.y * ratio } : { ...draft.size, x: v } })
+            })}
+            {numInput('H', draft.size.y, v => {
+              const ratio = draft.size.y !== 0 ? v / draft.size.y : 1
+              applyAndSave({ size: lockSize ? { x: draft.size.x * ratio, y: v } : { ...draft.size, y: v } })
+            })}
             <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', display: 'flex', alignItems: 'center', gap: 4 }}>
               스케일
               <span title="스케일 리셋 (1,1)" onClick={() => applyAndSave({ scale: { x: 1, y: 1, z: draft.scale.z ?? 1 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
