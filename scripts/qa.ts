@@ -6949,6 +6949,41 @@ if (existsSync(tp728Path)) {
   }
 }
 
+// ── Section 154: Phase DD10 R729~731 기능 체크 ────────────────
+console.log('\n## 154. Phase DD10 R729~731 기능 체크')
+// R729: ChatPanel 메시지 요약 카드
+const cp729Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp729Path)) {
+  const cp729 = readFileSync(cp729Path, 'utf-8')
+  if (cp729.includes('summaryCards') || cp729.includes('showSummaryCard') || cp729.includes('summaryCard')) {
+    log('pass', 'R729', 'ChatPanel 메시지 요약 카드 존재')
+  } else {
+    log('warning', 'R729', 'ChatPanel 요약 카드 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R730: SceneViewPanel 씬 히스토리
+const svp730Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp730Path)) {
+  const svp730 = readFileSync(svp730Path, 'utf-8')
+  if (svp730.includes('sceneHistory') || svp730.includes('showSceneHistory') || svp730.includes('recentScenes')) {
+    log('pass', 'R730', 'SceneViewPanel 씬 히스토리 존재')
+  } else {
+    log('warning', 'R730', 'SceneViewPanel 씬 히스토리 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R731: CocosPanel 컴포넌트 검색 필터
+const cp731Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp731Path)) {
+  const cp731 = readFileSync(cp731Path, 'utf-8')
+  if (cp731.includes('compFilter') || cp731.includes('compFilterFocus') || cp731.includes('componentFilter')) {
+    log('pass', 'R731', 'CocosPanel 컴포넌트 검색 필터 존재')
+  } else {
+    log('warning', 'R731', 'CocosPanel 컴포넌트 필터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:04:29.363Z
+> 2026-03-13T11:05:37.975Z
 
 ## Critical
 _없음_
@@ -610,3 +610,6 @@ _없음_
 - InputBar 음성 매크로 존재
 - SessionList 세션 그룹 존재
 - TerminalPanel 자동 재연결 존재
+- ChatPanel 메시지 요약 카드 존재
+- SceneViewPanel 씬 히스토리 존재
+- CocosPanel 컴포넌트 검색 필터 존재

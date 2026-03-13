@@ -169,6 +169,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 노드 배지 (R725) ──────────────────────────────────────────
   const [nodeBadges, setNodeBadges] = useState<Record<string, string>>({})
   const [badgeEditNode, setBadgeEditNode] = useState<string | null>(null)
+  // ── 씬 히스토리 (R730) ──────────────────────────────────────────
+  const [sceneHistory, setSceneHistory] = useState<string[]>([])
+  const [showSceneHistory, setShowSceneHistory] = useState(false)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)
