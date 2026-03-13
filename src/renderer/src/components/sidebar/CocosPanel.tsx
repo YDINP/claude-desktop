@@ -398,6 +398,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [selectedScene, setSelectedScene] = useState<string>('')
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
+  const clipboardRef = useRef<CCSceneNode | null>(null)
 
   const handleSceneChange = useCallback(async (path: string) => {
     setSelectedScene(path)
@@ -418,6 +419,35 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) { e.preventDefault(); redo(); return }
 
       if (isInput) return
+
+      // Ctrl+C: 선택 노드 클립보드 복사
+      if (ctrl && e.key === 'c' && selectedNode) {
+        e.preventDefault()
+        clipboardRef.current = selectedNode
+        return
+      }
+      // Ctrl+V: 클립보드 노드 붙여넣기 (선택 노드의 자식으로 / 없으면 루트 자식으로)
+      if (ctrl && e.key === 'v' && clipboardRef.current && sceneFile?.root) {
+        e.preventDefault()
+        const srcNode = clipboardRef.current
+        const newId = 'paste-' + Date.now()
+        const raw = sceneFile._raw as Record<string, unknown>[] | undefined
+        const version = sceneFile.projectInfo.version ?? '2x'
+        const newIdx = raw?.length ?? 0
+        if (raw) {
+          const origRaw = srcNode._rawIndex != null ? { ...raw[srcNode._rawIndex] } : {}
+          raw.push({ ...origRaw, _id: newId, _name: srcNode.name + '_Paste', _children: [], _components: [] })
+        }
+        const pasteNode: CCSceneNode = { ...srcNode, uuid: newId, name: srcNode.name + '_Paste', children: [], _rawIndex: newIdx }
+        const parentUuid = selectedNode?.uuid ?? sceneFile.root.uuid
+        function addToParent(n: CCSceneNode): CCSceneNode {
+          if (n.uuid === parentUuid) return { ...n, children: [...n.children, pasteNode] }
+          return { ...n, children: n.children.map(addToParent) }
+        }
+        const result = await saveScene(addToParent(sceneFile.root))
+        if (!result.success && raw) raw.pop()
+        return
+      }
 
       // Delete/Backspace: 선택 노드 삭제
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNode && sceneFile.root?.uuid !== selectedNode.uuid) {
@@ -450,7 +480,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene, handleSave])
+  }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene, handleSave, onSelectNode])
 
   // sceneFile 재로드 시 선택 노드 동기화 (uuid 기반 재탐색)
   useEffect(() => {
