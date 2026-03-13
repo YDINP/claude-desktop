@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:03:19.817Z
+> 2026-03-13T11:04:29.363Z
 
 ## Critical
 _없음_
@@ -607,3 +607,6 @@ _없음_
 - ChatPanel 메시지 평점 존재
 - CocosPanel 노드 의존성 맵 존재
 - SceneViewPanel 노드 배지 존재
+- InputBar 음성 매크로 존재
+- SessionList 세션 그룹 존재
+- TerminalPanel 자동 재연결 존재

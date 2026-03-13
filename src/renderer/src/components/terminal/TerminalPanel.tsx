@@ -149,6 +149,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [cmdStats, setCmdStats] = useState<Record<string, number>>({})
   const [showCmdStats, setShowCmdStats] = useState(false)
 
+  // R728: auto reconnect
+  const [autoReconnect, setAutoReconnect] = useState(true)
+  const [reconnectCount, setReconnectCount] = useState<Record<string, number>>({})
+
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)

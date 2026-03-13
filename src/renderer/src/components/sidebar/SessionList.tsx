@@ -208,6 +208,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [exportedId, setExportedId] = useState<string | null>(null)
   const [exportFormat, setExportFormat] = useState<'json' | 'md' | 'txt'>('json')
   const [sessionMemos, setSessionMemos] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('session-memos') ?? '{}'))
+  const [sessionGroups, setSessionGroups] = useState<Record<string, string[]>>(() => JSON.parse(localStorage.getItem('session-groups') ?? '{}'))
+  const [groupEditName, setGroupEditName] = useState<string | null>(null)
   const [compareMode, setCompareMode] = useState(false)
   const [compareTargets, setCompareTargets] = useState<string[]>([])
   const [editingMemo, setEditingMemo] = useState<string | null>(null)

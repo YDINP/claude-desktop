@@ -6914,6 +6914,41 @@ if (existsSync(svp725Path)) {
   }
 }
 
+// ── Section 153: Phase DD10 R726~728 기능 체크 ────────────────
+console.log('\n## 153. Phase DD10 R726~728 기능 체크')
+// R726: InputBar 음성 매크로
+const ib726Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib726Path)) {
+  const ib726 = readFileSync(ib726Path, 'utf-8')
+  if (ib726.includes('voiceMacros') || ib726.includes('showVoiceMacros') || ib726.includes('voice-macros')) {
+    log('pass', 'R726', 'InputBar 음성 매크로 존재')
+  } else {
+    log('warning', 'R726', 'InputBar 음성 매크로 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R727: SessionList 세션 그룹
+const sl727Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl727Path)) {
+  const sl727 = readFileSync(sl727Path, 'utf-8')
+  if (sl727.includes('sessionGroups') || sl727.includes('groupEditName') || sl727.includes('session-groups')) {
+    log('pass', 'R727', 'SessionList 세션 그룹 존재')
+  } else {
+    log('warning', 'R727', 'SessionList 세션 그룹 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R728: TerminalPanel 자동 재연결
+const tp728Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp728Path)) {
+  const tp728 = readFileSync(tp728Path, 'utf-8')
+  if (tp728.includes('autoReconnect') || tp728.includes('reconnectCount') || tp728.includes('reconnect')) {
+    log('pass', 'R728', 'TerminalPanel 자동 재연결 존재')
+  } else {
+    log('warning', 'R728', 'TerminalPanel 자동 재연결 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
