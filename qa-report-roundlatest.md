@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:10:07.770Z
+> 2026-03-13T11:11:00.687Z
 
 ## Critical
 _없음_
@@ -625,3 +625,6 @@ _없음_
 - ChatPanel 내보내기 템플릿 존재
 - SceneViewPanel 전체 노드 잠금 존재
 - CocosPanel 변경 알림 존재
+- ChatPanel 검색 하이라이트 존재
+- InputBar 붙여넣기 모드 존재
+- SessionList 세션 색상 태그 존재

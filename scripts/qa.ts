@@ -7124,6 +7124,41 @@ if (existsSync(cp743Path)) {
   }
 }
 
+// ── Section 159: Phase DD10 R744~746 기능 체크 ────────────────
+console.log('\n## 159. Phase DD10 R744~746 기능 체크')
+// R744: ChatPanel 검색 하이라이트
+const cp744Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp744Path)) {
+  const cp744 = readFileSync(cp744Path, 'utf-8')
+  if (cp744.includes('searchHighlights') || cp744.includes('searchHlIdx') || cp744.includes('hlSearch')) {
+    log('pass', 'R744', 'ChatPanel 검색 하이라이트 존재')
+  } else {
+    log('warning', 'R744', 'ChatPanel 검색 하이라이트 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R745: InputBar 붙여넣기 모드
+const ib745Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib745Path)) {
+  const ib745 = readFileSync(ib745Path, 'utf-8')
+  if (ib745.includes('pasteMode') || ib745.includes('lastPasteType') || ib745.includes('pasteType')) {
+    log('pass', 'R745', 'InputBar 붙여넣기 모드 존재')
+  } else {
+    log('warning', 'R745', 'InputBar 붙여넣기 모드 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R746: SessionList 세션 색상 태그
+const sl746Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl746Path)) {
+  const sl746 = readFileSync(sl746Path, 'utf-8')
+  if (sl746.includes('sessionColors') || sl746.includes('colorPickerSession') || sl746.includes('session-colors')) {
+    log('pass', 'R746', 'SessionList 세션 색상 태그 존재')
+  } else {
+    log('warning', 'R746', 'SessionList 세션 색상 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

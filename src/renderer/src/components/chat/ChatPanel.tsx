@@ -803,6 +803,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [runningBlocks, setRunningBlocks] = useState<Set<string>>(new Set())
   const [msgExpiry, setMsgExpiry] = useState<Record<string, number>>({})
   const [exportTemplate, setExportTemplate] = useState<'default' | 'minimal' | 'detailed'>('default')
+  const [searchHighlights, setSearchHighlights] = useState<number[]>([])
+  const [searchHlIdx, setSearchHlIdx] = useState(0)
   const [showExportOptions, setShowExportOptions] = useState(false)
   const [showExpiredMsgs, setShowExpiredMsgs] = useState(false)
   const [blockOutputs, setBlockOutputs] = useState<Record<string, string>>({})

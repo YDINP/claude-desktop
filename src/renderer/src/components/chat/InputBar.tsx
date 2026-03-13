@@ -214,6 +214,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [voiceMacros, setVoiceMacros] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('voice-macros') ?? '{}'))
   const [autoIndent, setAutoIndent] = useState(true)
   const [savedCursorPos, setSavedCursorPos] = useState(0)
+  const [pasteMode, setPasteMode] = useState<'text' | 'code' | 'auto'>('auto')
+  const [lastPasteType, setLastPasteType] = useState<string | null>(null)
   const [cursorPosHistory, setCursorPosHistory] = useState<number[]>([])
   const [indentSize, setIndentSize] = useState(2)
   const [showVoiceMacros, setShowVoiceMacros] = useState(false)

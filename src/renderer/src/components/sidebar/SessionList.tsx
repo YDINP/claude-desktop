@@ -210,6 +210,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [sessionMemos, setSessionMemos] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('session-memos') ?? '{}'))
   const [sessionGroups, setSessionGroups] = useState<Record<string, string[]>>(() => JSON.parse(localStorage.getItem('session-groups') ?? '{}'))
   const [lockedSessions, setLockedSessions] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('locked-sessions') ?? '[]')))
+  const [sessionColors, setSessionColors] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('session-colors') ?? '{}'))
+  const [colorPickerSession, setColorPickerSession] = useState<string | null>(null)
   const [lockConfirmId, setLockConfirmId] = useState<string | null>(null)
   const [groupEditName, setGroupEditName] = useState<string | null>(null)
   const [compareMode, setCompareMode] = useState(false)
