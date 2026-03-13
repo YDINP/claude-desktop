@@ -1353,11 +1353,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       )
                       return lines.length > 0 ? <>{lines}</> : null
                     })()}
-                    {/* R1552: cc.BoxCollider/CircleCollider 시각화 */}
+                    {/* R1552/R1574: cc.BoxCollider/CircleCollider/PolygonCollider 시각화 */}
                     {(() => {
                       const boxComp = node.components.find(c => c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D')
                       const circComp = node.components.find(c => c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D')
-                      if (!boxComp && !circComp) return null
+                      const polyComp = node.components.find(c => c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D')
+                      if (!boxComp && !circComp && !polyComp) return null
                       const colliderStroke = '#22cc88'
                       const sw = 1.2 / view.zoom
                       if (boxComp) {
@@ -1381,6 +1382,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                         return <circle cx={svgPos.x + ox} cy={svgPos.y - oy} r={r}
                           fill="none" stroke={colliderStroke} strokeWidth={sw} strokeDasharray={`${3/view.zoom} ${2/view.zoom}`}
                           opacity={0.7} style={{ pointerEvents: 'none' }} />
+                      }
+                      if (polyComp) {
+                        const off = polyComp.props.offset as { x?: number; y?: number } | undefined
+                        const pts = polyComp.props.points as Array<{ x?: number; y?: number }> | undefined
+                        if (pts && pts.length >= 3) {
+                          const ox = off?.x ?? 0, oy = off?.y ?? 0
+                          const d = pts.map((p, i) => {
+                            const px = svgPos.x + ox + (p.x ?? 0)
+                            const py = svgPos.y - oy - (p.y ?? 0)  // CC Y-up
+                            return `${i === 0 ? 'M' : 'L'}${px},${py}`
+                          }).join(' ') + 'Z'
+                          return <path d={d} fill="rgba(34,204,136,0.08)" stroke={colliderStroke}
+                            strokeWidth={sw} strokeDasharray={`${3/view.zoom} ${2/view.zoom}`}
+                            opacity={0.8} style={{ pointerEvents: 'none' }} />
+                        }
                       }
                       return null
                     })()}

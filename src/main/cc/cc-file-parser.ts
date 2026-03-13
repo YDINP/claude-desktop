@@ -440,6 +440,19 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
     sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
   }),
+  // R1574: cc.PolygonCollider — 폴리곤 콜라이더
+  'cc.PolygonCollider': e => ({
+    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
+    points: (e._N$points ?? e._points ?? e.points ?? []) as Array<{ x?: number; y?: number }>,
+    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
+    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
+  }),
+  'cc.PolygonCollider2D': e => ({
+    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
+    points: (e._N$points ?? e._points ?? e.points ?? []) as Array<{ x?: number; y?: number }>,
+    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
+    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
+  }),
   // R1549: dragonBones.ArmatureDisplay — DragonBones 애니메이션
   'dragonBones.ArmatureDisplay': e => ({
     dragonAsset: (e._N$dragonAsset ?? e._dragonAsset ?? e.dragonAsset) as unknown,

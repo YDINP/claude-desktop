@@ -16782,6 +16782,20 @@ console.log('\n## 464. R1573 cc.UIOpacity Quick Edit 체크')
   }
 }
 
+// ── Section 465: R1574 cc.PolygonCollider extractor + SceneView 시각화 ────────────────
+console.log('\n## 465. R1574 cc.PolygonCollider 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s465parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s465sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s465parser.includes("'cc.PolygonCollider'") && s465sv.includes('PolygonCollider') && s465sv.includes("'Z'")) {
+    log('pass', 'R1574-polygon', 'cc.PolygonCollider extractor + SceneView SVG path 시각화')
+  } else {
+    log('warning', 'R1574-polygon', 'cc.PolygonCollider 미구현', 'cc-file-parser.ts / CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
