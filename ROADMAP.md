@@ -880,3 +880,8 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | Round 1473 | Inspector 커스텀 스크립트 변수 편집 (isCustomScript 감지, 📝 아이콘, 청록 헤더) | ✅ |
 | Round 1474 | CCFileSceneView 스크린샷 → Claude AI 비전 분석 (📷 버튼, cc-chat-prefill, ChatPanel 수신) | ✅ |
 | Round 1475 | QA Section 403-404 추가 (R1470-R1474 기능 체크, Pass 1365) | ✅ |
+| Round 1476 | 노드 복사 UUID 자동 재생성 (deepCopyNodeWithNewUuids, crypto.randomUUID, 딥복사) | ✅ |
+| Round 1477 | 씬 저장 시 변경 diff → Claude 컨텍스트 자동 주입 (prevSceneRootRef, lastSaveDiff) | ✅ |
+| Round 1478 | cc-file-parser 대형 씬 청크 스트리밍 파싱 (parseCCSceneChunked, isLargeScene) | ✅ |
+| Round 1479 | Inspector Layer 필드 편집 고도화 (CC2.x/3.x layerOptions, 직접입력, parser fix) | ✅ |
+| Round 1480 | QA Section 405-406 추가 (R1476-R1479 기능 체크, Pass 1371) | ✅ |
