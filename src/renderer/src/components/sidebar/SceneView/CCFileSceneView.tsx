@@ -20,6 +20,7 @@ interface CCFileSceneViewProps {
   onSelect: (uuid: string | null) => void
   onMove?: (uuid: string, x: number, y: number) => void
   onResize?: (uuid: string, w: number, h: number) => void
+  onRename?: (uuid: string, name: string) => void
 }
 
 /**
@@ -27,7 +28,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -43,6 +44,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showGrid, setShowGrid] = useState(true)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
   const [showHelp, setShowHelp] = useState(false)
+  const [editingUuid, setEditingUuid] = useState<string | null>(null)
+  const editInputRef = useRef<HTMLInputElement | null>(null)
   const isSpaceDownRef = useRef(false)
 
   useEffect(() => {
@@ -450,16 +453,42 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   fill={isSelected ? '#58a6ff' : '#888'}
                 />
                 {/* 노드 이름 레이블 */}
-                {view.zoom > 0.3 && (
+                {view.zoom > 0.3 && editingUuid !== node.uuid && (
                   <text
                     x={rectX + 3 / view.zoom}
                     y={rectY + 12 / view.zoom}
                     fontSize={11 / view.zoom}
                     fill={isSelected ? '#58a6ff' : '#ccc'}
-                    style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
+                    onDoubleClick={e => { e.stopPropagation(); setEditingUuid(node.uuid); setTimeout(() => editInputRef.current?.focus(), 30) }}
                   >
                     {node.name}
                   </text>
+                )}
+                {/* 인라인 이름 편집 (더블클릭 시) */}
+                {editingUuid === node.uuid && (
+                  <foreignObject
+                    x={rectX} y={rectY}
+                    width={Math.max(w, 80 / view.zoom)} height={18 / view.zoom}
+                    style={{ overflow: 'visible' }}
+                  >
+                    <input
+                      ref={editInputRef}
+                      defaultValue={node.name}
+                      onBlur={e => { onRename?.(node.uuid, e.target.value); setEditingUuid(null) }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') { onRename?.(node.uuid, e.currentTarget.value); setEditingUuid(null) }
+                        if (e.key === 'Escape') setEditingUuid(null)
+                        e.stopPropagation()
+                      }}
+                      style={{
+                        width: '100%', fontSize: 11 / view.zoom, padding: '1px 3px',
+                        background: '#1a1a2e', border: '1px solid #58a6ff', color: '#58a6ff',
+                        borderRadius: 2, outline: 'none',
+                        transform: `scale(${1 / view.zoom})`, transformOrigin: 'top left',
+                      }}
+                    />
+                  </foreignObject>
                 )}
                 {/* Sprite 이미지 렌더링 */}
                 {hasSprite && (() => {

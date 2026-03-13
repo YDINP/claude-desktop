@@ -653,6 +653,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(toggle(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  const handleRenameInView = useCallback(async (nodeUuid: string, newName: string) => {
+    if (!sceneFile?.root || !newName.trim()) return
+    function rename(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === nodeUuid) return { ...n, name: newName.trim() }
+      return { ...n, children: n.children.map(rename) }
+    }
+    await saveScene(rename(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   const handleRestore = useCallback(async () => {
     if (!sceneFile) return
     const result = await restoreBackup()
@@ -834,6 +843,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               selectedUuid={selectedNode?.uuid ?? null}
               onMove={handleNodeMove}
               onResize={handleNodeResize}
+              onRename={handleRenameInView}
               onSelect={uuid => {
                 if (!uuid) { onSelectNode(null); return }
                 const findNode = (n: CCSceneNode): CCSceneNode | null => {
