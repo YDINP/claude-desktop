@@ -388,6 +388,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showExportSessionDialog, setShowExportSessionDialog] = useState(false)
   const [sessionSearch, setSessionSearch] = useState('')
   const [sessionSearchResults, setSessionSearchResults] = useState<string[]>([])
+  const [sessionFavorites, setSessionFavorites] = useState<string[]>([])
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

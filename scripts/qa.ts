@@ -13179,6 +13179,76 @@ if (existsSync(sl1271Path)) {
   }
 }
 
+console.log('\n## 335. Phase DD10 R1272~1274 기능 체크')
+
+// R1272: ChatPanel 채팅 페이지네이션
+const cp1272Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1272Path)) {
+  const cp1272 = readFileSync(cp1272Path, 'utf-8')
+  if (cp1272.includes('chatPagination') || cp1272.includes('showPaginationBar') || cp1272.includes('pageSize')) {
+    log('pass', 'R1272', 'ChatPanel 채팅 페이지네이션 존재')
+  } else {
+    log('warning', 'R1272', 'ChatPanel 채팅 페이지네이션 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1273: InputBar 붙여넣기 미리보기
+const ib1273Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1273Path)) {
+  const ib1273 = readFileSync(ib1273Path, 'utf-8')
+  if (ib1273.includes('inputPaste') || ib1273.includes('pastePreview') || ib1273.includes('pastePrev')) {
+    log('pass', 'R1273', 'InputBar 붙여넣기 미리보기 존재')
+  } else {
+    log('warning', 'R1273', 'InputBar 붙여넣기 미리보기 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1274: CocosPanel 빌드 타겟
+const cocos1274Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1274Path)) {
+  const cocos1274 = readFileSync(cocos1274Path, 'utf-8')
+  if (cocos1274.includes('buildTarget') || cocos1274.includes('showTargetPanel') || cocos1274.includes('targetPanel')) {
+    log('pass', 'R1274', 'CocosPanel 빌드 타겟 존재')
+  } else {
+    log('warning', 'R1274', 'CocosPanel 빌드 타겟 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 336. Phase DD10 R1275~1277 기능 체크')
+
+// R1275: SceneViewPanel 씬 리지드바디
+const svp1275Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1275Path)) {
+  const svp1275 = readFileSync(svp1275Path, 'utf-8')
+  if (svp1275.includes('sceneRigidbodies') || svp1275.includes('showRigidbodyPanel') || svp1275.includes('rigidbody')) {
+    log('pass', 'R1275', 'SceneViewPanel 씬 리지드바디 존재')
+  } else {
+    log('warning', 'R1275', 'SceneViewPanel 씬 리지드바디 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1276: TerminalPanel 터미널 스니펫
+const tp1276Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1276Path)) {
+  const tp1276 = readFileSync(tp1276Path, 'utf-8')
+  if (tp1276.includes('termSnippets') || tp1276.includes('showSnippetPanel') || tp1276.includes('snippetPanel')) {
+    log('pass', 'R1276', 'TerminalPanel 터미널 스니펫 존재')
+  } else {
+    log('warning', 'R1276', 'TerminalPanel 터미널 스니펫 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1277: SessionList 세션 즐겨찾기
+const sl1277Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1277Path)) {
+  const sl1277 = readFileSync(sl1277Path, 'utf-8')
+  if (sl1277.includes('sessionFavorites') || sl1277.includes('showFavoritesOnly') || sl1277.includes('favoriteSessions')) {
+    log('pass', 'R1277', 'SessionList 세션 즐겨찾기 존재')
+  } else {
+    log('warning', 'R1277', 'SessionList 세션 즐겨찾기 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
