@@ -17310,6 +17310,18 @@ console.log('\n## 506. R1615 SceneView cc.Label 텍스트 미리보기 체크')
   }
 }
 
+// ── Section 507: R1616 SceneView HUD 자식/컴포넌트 수 표시 ──────────────────
+console.log('\n## 507. R1616 SceneView HUD 자식/컴포넌트 수 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s507 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s507.includes('R1616') && s507.includes('자식/컴포넌트 수 표시') && s507.includes('node.children.length') && s507.includes('node.components.length')) {
+    log('pass', 'R1616-hud-child-comp', 'SceneView HUD 자식/컴포넌트 수 표시')
+  } else {
+    log('warning', 'R1616-hud-child-comp', 'SceneView HUD 자식/컴포넌트 수 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

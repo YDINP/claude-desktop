@@ -1865,6 +1865,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 ⊕{multiSelected.size}개
               </span>
             )}
+            {/* R1616: 자식/컴포넌트 수 표시 */}
+            {node.children.length > 0 && (
+              <span style={{ color: '#555', flexShrink: 0, pointerEvents: 'none' }} title={`자식 ${node.children.length}개`}>▸{node.children.length}</span>
+            )}
+            {node.components && node.components.length > 0 && (
+              <span style={{ color: '#555', flexShrink: 0, pointerEvents: 'none' }} title={`컴포넌트 ${node.components.length}개`}>⊞{node.components.length}</span>
+            )}
             <span style={{ color: '#58a6ff', flex: 1, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}>
               {node.name}
             </span>
