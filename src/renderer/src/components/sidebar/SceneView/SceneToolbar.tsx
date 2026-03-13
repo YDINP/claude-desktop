@@ -113,6 +113,7 @@ interface SceneToolbarProps {
   onZoomTo?: (zoom: number) => void
   onToggleSearch?: () => void
   showSearch?: boolean
+  onAlignNodes?: (align: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -226,6 +227,7 @@ export function SceneToolbar({
   onToggleSearch,
   showSearch,
   onLayoutPreset,
+  onAlignNodes,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -839,6 +841,34 @@ export function SceneToolbar({
       >⬇⬇</button>
 
       <div style={divider} />
+
+      {/* 노드 정렬 버튼 그룹 */}
+      {onAlignNodes && (
+        <>
+          {(
+            [
+              { align: 'left',   label: '⇤', title: '왼쪽 정렬' },
+              { align: 'center', label: '↔', title: '수평 중앙 정렬' },
+              { align: 'right',  label: '⇥', title: '오른쪽 정렬' },
+              { align: 'top',    label: '⇡', title: '위쪽 정렬' },
+              { align: 'middle', label: '↕', title: '수직 중앙 정렬' },
+              { align: 'bottom', label: '⇣', title: '아래쪽 정렬' },
+            ] as const
+          ).map(({ align, label, title }) => (
+            <button
+              key={align}
+              className="alignBtn"
+              onClick={() => onAlignNodes(align)}
+              disabled={!selectedUuid}
+              title={title}
+              style={{ ...btnBase, opacity: selectedUuid ? 1 : 0.3 }}
+            >
+              {label}
+            </button>
+          ))}
+          <div style={divider} />
+        </>
+      )}
 
       {/* 정렬 도구 — 멀티셀렉트 시 표시 */}
       {canAlign && (

@@ -876,7 +876,7 @@ interface ContextMenu {
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '😢']
 
-export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onSetNote, onPrevAlt, altIndex, altCount, onDelete, onRetry, viewMode }: {
+export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onQuoteReply, onSetNote, onPrevAlt, altIndex, altCount, onDelete, onRetry, viewMode }: {
   msg: ChatMessage
   isLast?: boolean
   isStreaming?: boolean
@@ -900,6 +900,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   onReaction?: (emoji: string) => void
   onImageClick?: (src: string, alt?: string) => void
   onReplyTo?: () => void
+  onQuoteReply?: (text: string) => void
   onSetNote?: (note: string) => void
   onDelete?: () => void
   onRetry?: () => void
@@ -1425,6 +1426,15 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               ↩
             </button>
           )}
+          {onQuoteReply && (
+            <button
+              onClick={() => onQuoteReply((msg.text ?? '').slice(0, 80))}
+              title="인용 답장"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 13, padding: '2px 4px' }}
+            >
+              ↩
+            </button>
+          )}
           {onSetNote && (
             <button
               onClick={() => { setNoteText(msg.note ?? ''); setNoteOpen(o => !o) }}
@@ -1927,6 +1937,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
     (prev.onReaction === undefined) === (next.onReaction === undefined) &&
     (prev.onImageClick === undefined) === (next.onImageClick === undefined) &&
     (prev.onReplyTo === undefined) === (next.onReplyTo === undefined) &&
+    (prev.onQuoteReply === undefined) === (next.onQuoteReply === undefined) &&
     (prev.onSetNote === undefined) === (next.onSetNote === undefined) &&
     (prev.onDelete === undefined) === (next.onDelete === undefined) &&
     (prev.onRetry === undefined) === (next.onRetry === undefined) &&

@@ -6389,6 +6389,41 @@ if (existsSync(ib671Path)) {
   }
 }
 
+// ── Section 138: Phase DD10 R673~675 기능 체크 ────────────────
+console.log('\n## 138. Phase DD10 R673~675 기능 체크')
+// R673: CocosPanel 노드 프리셋
+const cp673Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp673Path)) {
+  const cp673 = readFileSync(cp673Path, 'utf-8')
+  if (cp673.includes('nodePresets') || cp673.includes('nodePresetOpen') || cp673.includes('presetName')) {
+    log('pass', 'R673', 'CocosPanel 노드 프리셋 저장/불러오기 존재')
+  } else {
+    log('warning', 'R673', 'CocosPanel 노드 프리셋 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R674: MessageBubble 인용 답장
+const mb674Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb674Path)) {
+  const mb674 = readFileSync(mb674Path, 'utf-8')
+  if (mb674.includes('onQuoteReply') || mb674.includes('quoteReply')) {
+    log('pass', 'R674', 'MessageBubble 인용 답장 존재')
+  } else {
+    log('warning', 'R674', 'MessageBubble 인용 답장 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R675: SceneToolbar 노드 정렬
+const st675Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(st675Path)) {
+  const st675 = readFileSync(st675Path, 'utf-8')
+  if (st675.includes('onAlignNodes') || st675.includes('alignNodes')) {
+    log('pass', 'R675', 'SceneToolbar 노드 정렬 버튼 존재')
+  } else {
+    log('warning', 'R675', 'SceneToolbar 정렬 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

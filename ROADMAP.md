@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 672 완료 — Phase DD10 진행 중, QA Pass 554)
+> 마지막 업데이트: 2026-03-13 (Round 676 완료 — Phase DD10 진행 중, QA Pass 557)
 
 ## 개발 루프 실행 방식
 
@@ -648,6 +648,10 @@
 | Round 670 | SceneViewPanel 노드 잠금 (lockedNodes/lockedLayers, 🔒/🔓) | ✅ |
 | Round 671 | InputBar 음성 입력 (isRecording, SpeechRecognition, 🎤) | ✅ |
 | Round 672 | QA Section 137 추가 (R669/R670/R671, Pass 554) | ✅ |
+| Round 673 | CocosPanel 노드 프리셋 저장/불러오기 (nodePresets, nodePresetOpen) | ✅ |
+| Round 674 | MessageBubble 인용 답장 (onQuoteReply, 앞 80자 인용) | ✅ |
+| Round 675 | SceneToolbar 노드 정렬 버튼 (onAlignNodes, 6방향 정렬) | ✅ |
+| Round 676 | QA Section 138 추가 (R673/R674/R675, Pass 557) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

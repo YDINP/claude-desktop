@@ -1276,6 +1276,10 @@ function CCFileNodeInspector({
   const [compOrder, setCompOrder] = useState<string[]>([])
   const [draggedComp, setDraggedComp] = useState<string | null>(null)
   const [colorPickerProp, setColorPickerProp] = useState<string | null>(null)
+  const [nodePresets, setNodePresets] = useState<Array<{ name: string; props: Record<string, unknown> }>>(() => {
+    try { return JSON.parse(localStorage.getItem('node-presets') ?? '[]') } catch { return [] }
+  })
+  const [nodePresetOpen, setNodePresetOpen] = useState(false)
   const [redoStack, setRedoStack] = useState<Partial<CCSceneNode>[]>([])
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const COLLAPSED_COMPS_KEY = 'collapsed-comps'
@@ -1616,6 +1620,42 @@ function CCFileNodeInspector({
     })
   }, [])
 
+  // R673: 노드 프리셋 저장 / 적용 / 삭제
+  const saveNodePreset = useCallback(() => {
+    const rawName = window.prompt('프리셋 이름', `${draft.name}-${Date.now()}`)
+    if (rawName === null) return
+    const name = rawName.trim() || `${draft.name}-${Date.now()}`
+    const props: Record<string, unknown> = {
+      position: draft.position,
+      rotation: draft.rotation,
+      scale: draft.scale,
+      size: draft.size,
+      anchor: draft.anchor,
+      opacity: draft.opacity,
+      active: draft.active,
+      color: draft.color,
+    }
+    setNodePresets(prev => {
+      const next = [{ name, props }, ...prev].slice(0, 20)
+      localStorage.setItem('node-presets', JSON.stringify(next))
+      return next
+    })
+  }, [draft])
+
+  const applyNodePreset = useCallback((preset: { name: string; props: Record<string, unknown> }) => {
+    applyAndSave(preset.props as Partial<CCSceneNode>)
+    setNodePresetOpen(false)
+  }, [applyAndSave])
+
+  const deleteNodePreset = useCallback((idx: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setNodePresets(prev => {
+      const next = prev.filter((_, i) => i !== idx)
+      localStorage.setItem('node-presets', JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   const numInput = (
     label: string,
     value: number,
@@ -1849,6 +1889,67 @@ function CCFileNodeInspector({
                     </span>
                     <span
                       onClick={e => deleteStylePreset(preset.id, e)}
+                      style={{ marginLeft: 6, color: '#f85149', cursor: 'pointer', flexShrink: 0 }}
+                      title="프리셋 삭제"
+                    >
+                      ×
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          {/* R673: 노드 프리셋 저장 / 불러오기 */}
+          <button
+            onClick={saveNodePreset}
+            title="현재 노드 프로퍼티를 프리셋으로 저장"
+            style={{
+              padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+              background: 'transparent', color: '#34d399', border: '1px solid #34d399',
+              lineHeight: 1.4,
+            }}
+          >
+            N+
+          </button>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setNodePresetOpen(o => !o)}
+              title="저장된 노드 프리셋 불러오기"
+              style={{
+                padding: '1px 4px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+                background: nodePresetOpen ? '#1e1e2e' : 'transparent',
+                color: '#34d399', border: '1px solid #34d399',
+                lineHeight: 1.4,
+              }}
+            >
+              N▾
+            </button>
+            {nodePresetOpen && (
+              <div style={{
+                position: 'absolute', top: '100%', right: 0, marginTop: 2,
+                background: 'var(--bg-secondary, #0d0d1a)', border: '1px solid var(--border, #2a2a3a)',
+                borderRadius: 4, zIndex: 50, minWidth: 160, maxHeight: 240, overflowY: 'auto',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+              }}>
+                {nodePresets.length === 0 ? (
+                  <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--text-muted)' }}>저장된 프리셋 없음</div>
+                ) : nodePresets.map((preset, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => applyNodePreset(preset)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '4px 8px', cursor: 'pointer', fontSize: 10,
+                      color: 'var(--text-primary, #ccc)',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover, #1a1a2e)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                      {preset.name}
+                    </span>
+                    <span
+                      onClick={e => deleteNodePreset(idx, e)}
                       style={{ marginLeft: 6, color: '#f85149', cursor: 'pointer', flexShrink: 0 }}
                       title="프리셋 삭제"
                     >
