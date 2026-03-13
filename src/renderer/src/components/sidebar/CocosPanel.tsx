@@ -4858,6 +4858,40 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1566: cc.ParticleSystem / cc.ParticleSystem2D — Quick Edit
+            if (comp.type === 'cc.ParticleSystem' || comp.type === 'cc.ParticleSystem2D') {
+              const duration = Number(p.duration ?? -1)
+              const maxParticles = Number(p.maxParticles ?? 150)
+              const durKey = comp.type === 'cc.ParticleSystem2D' ? '_N$duration' : '_duration'
+              const maxKey = comp.type === 'cc.ParticleSystem2D' ? '_N$totalParticles' : '_N$maxParticles'
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>duration</span>
+                    <input type="number" defaultValue={duration} step={0.5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || -1
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, duration: v, [durKey]: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{duration === -1 ? '(loop)' : 's'}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>maxParticles</span>
+                    <input type="number" defaultValue={maxParticles} min={1} step={10}
+                      onBlur={e => {
+                        const v = Math.max(1, parseInt(e.target.value) || 150)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxParticles: v, [maxKey]: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                </div>
+              )
+            }
             // R1564: cc.ScrollView — horizontal/vertical/inertia/elastic Quick Edit
             if (comp.type === 'cc.ScrollView') {
               const horizontal = !!(p.horizontal ?? p._N$horizontal ?? false)

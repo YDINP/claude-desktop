@@ -16682,6 +16682,18 @@ console.log('\n## 456. R1565 SceneView H키 active 토글 체크')
   }
 }
 
+// ── Section 457: R1566 cc.ParticleSystem Inspector Quick Edit ────────────────
+console.log('\n## 457. R1566 cc.ParticleSystem Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s457 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s457.includes("'cc.ParticleSystem'") && s457.includes("'cc.ParticleSystem2D'") && s457.includes('maxParticles') && s457.includes("'(loop)'")) {
+    log('pass', 'R1566-particle', 'cc.ParticleSystem Quick Edit: duration + maxParticles')
+  } else {
+    log('warning', 'R1566-particle', 'cc.ParticleSystem Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
