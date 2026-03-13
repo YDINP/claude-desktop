@@ -7579,6 +7579,41 @@ if (existsSync(svp782Path)) {
   }
 }
 
+// ── Section 172: Phase DD10 R783~785 기능 체크 ────────────────
+console.log('\n## 172. Phase DD10 R783~785 기능 체크')
+// R783: ChatPanel 메시지 테마
+const cp783Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp783Path)) {
+  const cp783 = readFileSync(cp783Path, 'utf-8')
+  if (cp783.includes('msgTheme') || cp783.includes('msgDensity') || cp783.includes('messageTheme')) {
+    log('pass', 'R783', 'ChatPanel 메시지 테마 존재')
+  } else {
+    log('warning', 'R783', 'ChatPanel 메시지 테마 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R784: InputBar 자동 수정
+const ib784Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib784Path)) {
+  const ib784 = readFileSync(ib784Path, 'utf-8')
+  if (ib784.includes('autoCorrect') || ib784.includes('corrections') || ib784.includes('spellCheck')) {
+    log('pass', 'R784', 'InputBar 자동 수정 제안 존재')
+  } else {
+    log('warning', 'R784', 'InputBar 자동 수정 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R785: TerminalPanel 세션 녹화
+const tp785Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp785Path)) {
+  const tp785 = readFileSync(tp785Path, 'utf-8')
+  if (tp785.includes('isRecordingSession') || tp785.includes('recordedFrames') || tp785.includes('termRecording')) {
+    log('pass', 'R785', 'TerminalPanel 세션 녹화 존재')
+  } else {
+    log('warning', 'R785', 'TerminalPanel 세션 녹화 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

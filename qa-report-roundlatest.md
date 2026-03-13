@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:21:34.601Z
+> 2026-03-13T11:22:27.402Z
 
 ## Critical
 _없음_
@@ -664,3 +664,6 @@ _없음_
 - ChatPanel 메시지 워터마크 존재
 - CocosPanel 씬 의존성 그래프 존재
 - SceneViewPanel 씬 북마크 존재
+- ChatPanel 메시지 테마 존재
+- InputBar 자동 수정 제안 존재
+- TerminalPanel 세션 녹화 존재
