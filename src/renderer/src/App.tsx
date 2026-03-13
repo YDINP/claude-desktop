@@ -1748,7 +1748,7 @@ function AppContent() {
                         onMouseLeave={e => { if (!isAgentBayDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                       />
                       <div style={{ flex: 1, overflow: 'hidden', borderLeft: '1px solid var(--border)' }}>
-                        <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
+                        <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
                       </div>
                     </div>
                     <OpsFeed
@@ -1758,7 +1758,7 @@ function AppContent() {
                     />
                   </div>
                 ) : (
-                  <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} />
+                  <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
                 )}
               </div>
 

@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import type { SceneNode, ViewTransform } from './types'
 import { cocosToSvg, getComponentIcon } from './utils'
 
@@ -20,6 +20,7 @@ interface NodeRendererProps {
   nodeColor?: string
   designWidth?: number
   designHeight?: number
+  flashing?: boolean
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
@@ -52,6 +53,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   locked = false,
   pinned = false,
   highlighted = false,
+  flashing = false,
   nodeColor,
   designWidth = 960,
   designHeight = 640,
@@ -84,6 +86,20 @@ export const NodeRenderer = memo(function NodeRenderer({
   // LOD: 줌 레벨에 따라 렌더링 디테일 단계
   // lod=0: 전체, lod=1: 라벨/아이콘 숨김, lod=2: fill 없음 (테두리만)
   const lod = view.zoom < 0.2 ? 2 : view.zoom < 0.4 ? 1 : 0
+
+  // 컴포넌트 클릭 시 깜빡임 효과
+  const [flashOn, setFlashOn] = useState(false)
+  useEffect(() => {
+    if (!flashing) return
+    let count = 0
+    setFlashOn(true)
+    const id = setInterval(() => {
+      count++
+      setFlashOn(v => !v)
+      if (count >= 5) clearInterval(id)
+    }, 150)
+    return () => clearInterval(id)
+  }, [flashing])
 
   // 화면 픽셀 크기가 2px 미만인 노드는 완전히 스킵
   if (lod === 2 && pw * view.zoom < 2 && ph * view.zoom < 2 && !selected && !hovered) return null
@@ -152,6 +168,47 @@ export const NodeRenderer = memo(function NodeRenderer({
           rx={2}
           style={{ pointerEvents: 'none' }}
         />
+      )}
+
+      {/* 깜빡임 효과 (Inspector 컴포넌트 클릭 시) */}
+      {flashOn && (
+        <rect
+          x={rx - 2}
+          y={ry - 2}
+          width={pw + 4}
+          height={ph + 4}
+          fill="rgba(96,165,250,0.25)"
+          stroke="#60a5fa"
+          strokeWidth={2}
+          rx={3}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+
+      {/* 컴포넌트 아이콘 오버레이 (zoom > 0.5일 때만 표시, 우상단) */}
+      {view.zoom > 0.5 && icon && pw > 10 && ph > 10 && (
+        <g style={{ pointerEvents: 'none' }}>
+          <rect
+            x={rx + pw - Math.max(8, 10 / view.zoom) - 2}
+            y={ry + 1}
+            width={Math.max(8, 10 / view.zoom) + 2}
+            height={Math.max(8, 10 / view.zoom) + 2}
+            fill="rgba(0,0,0,0.4)"
+            rx={2}
+          />
+          <text
+            x={rx + pw - Math.max(8, 10 / view.zoom) / 2 - 1}
+            y={ry + Math.max(8, 10 / view.zoom) + 1}
+            fontSize={Math.max(8, 10 / view.zoom)}
+            fill="rgba(255,255,255,0.7)"
+            textAnchor="middle"
+            dominantBaseline="auto"
+            fontFamily="var(--font-mono)"
+            style={{ userSelect: 'none' }}
+          >
+            {icon}
+          </text>
+        </g>
       )}
 
       {/* 라벨 (LOD: zoom < 0.4 시 숨김) */}

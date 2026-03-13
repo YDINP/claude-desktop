@@ -13,6 +13,7 @@ interface SceneInspectorProps {
   onTagsUpdate?: (uuid: string, tags: string[]) => void
   onLabelColorUpdate?: (uuid: string, color: string | undefined) => void
   onApplyToCocos?: (node: SceneNode) => void
+  onComponentClick?: (uuid: string) => void
   connected?: boolean
   nodeMap?: Map<string, SceneNode>
   onSelectParent?: (uuid: string) => void
@@ -162,7 +163,7 @@ function ChildList({ childUuids, nodeMap, onSelect }: { childUuids: string[]; no
   )
 }
 
-export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, onTagsUpdate, onLabelColorUpdate, onApplyToCocos, connected, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
+export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selectionCount, onRename, onMemo, onTagsUpdate, onLabelColorUpdate, onApplyToCocos, onComponentClick, connected, nodeMap, onSelectParent, focusNameTrigger }: SceneInspectorProps) {
   const [isActive, setIsActive] = useState<boolean>(node?.active ?? true)
   const [nameEditing, setNameEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -601,7 +602,19 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             {node.components.map((c, i) => {
               const icon = getComponentIcon([c])
               return (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    cursor: onComponentClick ? 'pointer' : undefined,
+                    borderRadius: 3,
+                    padding: '1px 3px',
+                  }}
+                  onClick={() => onComponentClick?.(node.uuid)}
+                  title={onComponentClick ? '씬뷰에서 하이라이트' : undefined}
+                  onMouseEnter={e => { if (onComponentClick) (e.currentTarget as HTMLElement).style.background = 'rgba(96,165,250,0.1)' }}
+                  onMouseLeave={e => { if (onComponentClick) (e.currentTarget as HTMLElement).style.background = '' }}
+                >
                   {icon && (
                     <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: 8, width: 10, flexShrink: 0 }}>
                       {icon}

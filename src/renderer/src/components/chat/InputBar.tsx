@@ -54,6 +54,7 @@ interface InputBarProps {
   pendingInsert?: string
   onPendingInsertConsumed?: () => void
   onOpenPromptChain?: () => void
+  onTextChange?: (text: string) => void
 }
 
 const MAX_HISTORY = 100
@@ -164,8 +165,17 @@ function parseMention(text: string, cursorPos: number): string | null {
   return atMatch ? atMatch[1] : null
 }
 
-export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pausedTask, isStreaming, disabled, focusTrigger, pendingInsert, onPendingInsertConsumed }: InputBarProps) {
-  const [text, setText] = useState<string>(() => localStorage.getItem(DRAFT_KEY) ?? '')
+export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pausedTask, isStreaming, disabled, focusTrigger, pendingInsert, onPendingInsertConsumed, onOpenPromptChain, onTextChange }: InputBarProps) {
+  const onTextChangeRef = useRef(onTextChange)
+  useEffect(() => { onTextChangeRef.current = onTextChange }, [onTextChange])
+  const [text, _setText] = useState<string>(() => localStorage.getItem(DRAFT_KEY) ?? '')
+  const setText = useCallback((val: string | ((prev: string) => string)) => {
+    _setText(prev => {
+      const next = typeof val === 'function' ? val(prev) : val
+      onTextChangeRef.current?.(next)
+      return next
+    })
+  }, [])
   const [slashSelected, setSlashSelected] = useState(0)
   const [previewImages, setPreviewImages] = useState<{ dataUrl: string; path: string }[]>([])
   const [customTemplates, setCustomTemplates] = useState<SlashCommand[]>([])
@@ -1442,6 +1452,24 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
             <span style={{ fontSize: 9, color: 'var(--text-muted)', alignSelf: 'center' }}>
               {text.includes('\n') ? `${text.split('\n').length}L ` : ''}{text.length}c
             </span>
+          )}
+          {onOpenPromptChain && (
+            <button
+              onClick={onOpenPromptChain}
+              title="PromptChain 열기"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--text-muted)',
+                fontSize: 16,
+                padding: '4px',
+                flexShrink: 0,
+                lineHeight: 1,
+              }}
+            >
+              ⛓
+            </button>
           )}
           <button
             onClick={handleSend}

@@ -98,6 +98,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showChangeHistory, setShowChangeHistory] = useState(false)
   const [componentFilter, setComponentFilter] = useState<string>('all')
   const [tagFilter, setTagFilter] = useState<string>('all')
+  const [flashUuid, setFlashUuid] = useState<string | null>(null)
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(new Set())
   const [focusMode, setFocusMode] = useState(false)
   const [measureMode, setMeasureMode] = useState(false)
@@ -2246,6 +2248,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   locked={node.locked === true || lockedUuids.has(uuid)}
                   pinned={pinnedUuids.has(uuid)}
                   highlighted={matchedUuids.has(uuid)}
+                  flashing={flashUuid === uuid}
                   nodeColor={nodeColors[uuid]}
                   designWidth={DESIGN_W}
                   designHeight={DESIGN_H}
@@ -3172,36 +3175,66 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           )
         })()}
 
-        {/* 레이어 토글 버튼 + 패널 */}
-        {allLayers.length > 0 && (
-          <div style={{ position: 'absolute', top: 4, right: 4, zIndex: 20 }}>
-            <button
-              onClick={() => setShowLayerPanel(v => !v)}
-              title="레이어 가시성 토글"
-              style={{
-                fontSize: 9, padding: '1px 5px',
-                background: showLayerPanel ? 'var(--accent-dim, rgba(96,165,250,0.2))' : 'rgba(15,15,20,0.8)',
-                border: `1px solid ${showLayerPanel ? 'var(--accent)' : 'rgba(255,255,255,0.15)'}`,
-                borderRadius: 3,
-                color: showLayerPanel ? 'var(--accent)' : 'var(--text-muted)',
-                cursor: 'pointer',
-              }}
-            >
-              L
-            </button>
-            {showLayerPanel && (
-              <div style={{ position: 'absolute', top: 20, right: 0, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, padding: '4px 6px', zIndex: 20, fontSize: 9, minWidth: 100 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--text-primary)' }}>레이어</div>
-                {allLayers.map(layer => (
-                  <div key={layer} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 0' }}>
-                    <input type="checkbox" checked={!hiddenLayers.has(layer)}
-                      onChange={() => setHiddenLayers(prev => { const s = new Set(prev); if (s.has(layer)) s.delete(layer); else s.add(layer); return s })}
-                      style={{ cursor: 'pointer', margin: 0 }} />
-                    <span style={{ color: 'var(--text-primary)' }}>{CC_LAYER_NAMES[layer] ?? `Layer ${layer}`}</span>
-                  </div>
-                ))}
+        {/* 레이어 패널 (좌측 상단, 접이식) */}
+        {showLayerPanel && topLevelNodes.length > 0 && (
+          <div style={{
+            position: 'absolute', top: 4, left: 4, zIndex: 20,
+            width: 150, maxHeight: 200, overflowY: 'auto',
+            background: 'rgba(0,0,0,0.7)', borderRadius: 4,
+            padding: '6px 8px', fontSize: 10,
+            border: '1px solid rgba(255,255,255,0.12)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+              <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Layers</span>
+              <div style={{ display: 'flex', gap: 3 }}>
+                <button
+                  onClick={() => setHiddenLayers(new Set())}
+                  title="모두 표시"
+                  style={{ fontSize: 9, padding: '1px 4px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2, color: '#ccc', cursor: 'pointer' }}
+                >
+                  모두 표시
+                </button>
+                <button
+                  onClick={() => setHiddenLayers(new Set(topLevelNodes.map(n => n.uuid)))}
+                  title="모두 숨김"
+                  style={{ fontSize: 9, padding: '1px 4px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2, color: '#ccc', cursor: 'pointer' }}
+                >
+                  모두 숨김
+                </button>
               </div>
-            )}
+            </div>
+            {topLevelNodes.map(layer => {
+              const isHidden = hiddenLayers.has(layer.uuid)
+              const isLocked = lockedLayers.has(layer.uuid)
+              const childCount = collectDescendants(layer.uuid).length - 1
+              return (
+                <div key={layer.uuid} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <button
+                    onClick={() => setHiddenLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
+                    title={isHidden ? '표시' : '숨김'}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, opacity: isHidden ? 0.4 : 1, lineHeight: 1 }}
+                  >
+                    {isHidden ? '🙈' : '👁'}
+                  </button>
+                  <button
+                    onClick={() => setLockedLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
+                    title={isLocked ? '잠금 해제' : '잠금'}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, opacity: isLocked ? 1 : 0.4, lineHeight: 1 }}
+                  >
+                    {isLocked ? '🔒' : '🔓'}
+                  </button>
+                  <span
+                    style={{ flex: 1, color: isHidden ? 'rgba(255,255,255,0.3)' : '#e0e0e0', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    title={layer.name}
+                  >
+                    {layer.name}
+                  </span>
+                  {childCount > 0 && (
+                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 9 }}>{childCount}</span>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
 
@@ -3501,6 +3534,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         nodeMap={nodeMap}
         onSelectParent={uuid => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
         connected={connected}
+        onComponentClick={(uuid) => {
+          if (flashTimerRef.current) clearTimeout(flashTimerRef.current)
+          setFlashUuid(uuid)
+          flashTimerRef.current = setTimeout(() => setFlashUuid(null), 1200)
+        }}
         onApplyToCocos={async (node) => {
           if (!connected) return
           try {

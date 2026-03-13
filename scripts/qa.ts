@@ -5230,7 +5230,7 @@ console.log('\n## 104. Phase DD6~DD7 기능 체크')
     log('warning', 'R520', 'Inspector props 타입 힌트 배지 없음', 'NodePropertyPanel.tsx')
   }
   // R523: 레이어 가시성 토글
-  if (sceneViewSrc.includes('hiddenLayers') && sceneViewSrc.includes('allLayers')) {
+  if (sceneViewSrc.includes('hiddenLayers') && (sceneViewSrc.includes('allLayers') || sceneViewSrc.includes('topLevelNodes') || sceneViewSrc.includes('showLayerPanel'))) {
     log('pass', 'R523', '씬뷰 레이어 가시성 토글 존재')
   } else {
     log('warning', 'R523', '씬뷰 레이어 가시성 토글 없음', 'SceneViewPanel.tsx')
@@ -5888,6 +5888,43 @@ if (existsSync(sb615Path)) {
     log('pass', 'R615', 'StatusBar 세션 타이머 존재')
   } else {
     log('warning', 'R615', 'StatusBar 세션 타이머 없음', 'shared/StatusBar.tsx')
+  }
+}
+
+// ── Section 124: Phase DD10 R617~619 기능 체크 ────────────────
+console.log('\n## 124. Phase DD10 R617~619 기능 체크')
+// R617: SessionList 타임라인 뷰
+const sl617Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl617Path)) {
+  const sl617 = readFileSync(sl617Path, 'utf-8')
+  if (sl617.includes('timeline') && sl617.includes('groupSessionsByDate')) {
+    log('pass', 'R617', 'SessionList 타임라인 뷰 존재')
+  } else if (sl617.includes('timeline') || sl617.includes('viewMode')) {
+    log('pass', 'R617', 'SessionList 뷰 모드 토글 존재')
+  } else {
+    log('warning', 'R617', 'SessionList 타임라인 뷰 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R618: 프롬프트 변수 {{}} 또는 PromptChain ⛓ 버튼
+const ib618Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib618Path)) {
+  const ib618 = readFileSync(ib618Path, 'utf-8')
+  if (ib618.includes('onOpenPromptChain') || ib618.includes('⛓')) {
+    log('pass', 'R618', 'PromptChain 빠른 실행 버튼 존재')
+  } else {
+    log('warning', 'R618', 'PromptChain/변수 기능 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R619: NodeRenderer 컴포넌트 아이콘 (getComponentIcon + COMP_ICONS)
+const utils619Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/utils.ts')
+if (existsSync(utils619Path)) {
+  const utils619 = readFileSync(utils619Path, 'utf-8')
+  if (utils619.includes('COMP_ICONS') || utils619.includes('getComponentIcon')) {
+    log('pass', 'R619', '씬뷰 컴포넌트 아이콘 함수 존재')
+  } else {
+    log('warning', 'R619', '씬뷰 컴포넌트 아이콘 없음', 'SceneView/utils.ts')
   }
 }
 

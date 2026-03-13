@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T10:06:54.903Z
+> 2026-03-13T10:11:07.066Z
 
 ## Critical
 _없음_
@@ -520,3 +520,6 @@ _없음_
 - 채팅 인라인 Diff 렌더링 존재
 - 씬뷰 레이어 패널 존재
 - StatusBar 세션 타이머 존재
+- SessionList 타임라인 뷰 존재
+- PromptChain 빠른 실행 버튼 존재
+- 씬뷰 컴포넌트 아이콘 함수 존재

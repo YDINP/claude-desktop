@@ -232,6 +232,12 @@ export function AgentPanel() {
     return () => { mountedRef.current = false }
   }, [])
 
+  useEffect(() => {
+    const handler = () => setActiveTab('chains')
+    window.addEventListener('open-prompt-chain', handler)
+    return () => window.removeEventListener('open-prompt-chain', handler)
+  }, [])
+
   const updateTasks = useCallback((next: AgentTask[]) => {
     setTasks(next)
     saveTasks(next)

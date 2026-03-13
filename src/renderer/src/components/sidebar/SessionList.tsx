@@ -55,6 +55,46 @@ function formatTime(ts: number): string {
   return d.toLocaleDateString()
 }
 
+type ViewMode = 'list' | 'timeline'
+
+function formatHHMM(ts: number): string {
+  const d = new Date(ts)
+  return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
+function groupSessionsByDate(sessions: SessionMeta[]): Array<{ label: string; dateStr: string; sessions: SessionMeta[] }> {
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  today.setHours(0, 0, 0, 0)
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1)
+  const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 7)
+
+  const toDateStr = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
+  const todayStr = toDateStr(today)
+  const groups: Array<{ label: string; dateStr: string; sessions: SessionMeta[] }> = [
+    { label: '오늘', dateStr: todayStr, sessions: [] },
+    { label: '어제', dateStr: toDateStr(yesterday), sessions: [] },
+    { label: '이번 주', dateStr: '', sessions: [] },
+    { label: '지난 달', dateStr: '', sessions: [] },
+    { label: '이전', dateStr: '', sessions: [] },
+  ]
+
+  for (const s of sessions) {
+    const ts = s.updatedAt ?? s.createdAt ?? 0
+    const t = new Date(ts)
+    t.setHours(0, 0, 0, 0)
+    if (t.getTime() >= today.getTime()) groups[0].sessions.push(s)
+    else if (t.getTime() >= yesterday.getTime()) groups[1].sessions.push(s)
+    else if (t.getTime() > weekAgo.getTime()) groups[2].sessions.push(s)
+    else if (t.getFullYear() === now.getFullYear() && t.getMonth() === now.getMonth()) groups[3].sessions.push(s)
+    else groups[4].sessions.push(s)
+  }
+
+  return groups.filter(g => g.sessions.length > 0)
+}
+
 function groupSessions(sessions: SessionMeta[]): Array<{ label: string; items: SessionMeta[] }> {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
@@ -137,6 +177,18 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [colorPickerTag, setColorPickerTag] = useState<string | null>(null)
   const [colorPickerPos, setColorPickerPos] = useState({ x: 0, y: 0 })
   const importInputRef = useRef<HTMLInputElement>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = localStorage.getItem('session-view-mode')
+    return saved === 'timeline' ? 'timeline' : 'list'
+  })
+
+  const toggleViewMode = useCallback(() => {
+    setViewMode(prev => {
+      const next: ViewMode = prev === 'list' ? 'timeline' : 'list'
+      localStorage.setItem('session-view-mode', next)
+      return next
+    })
+  }, [])
 
   const setTagColor = (tag: string, color: string) => {
     setTagColors(prev => {
@@ -1121,6 +1173,22 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           </span>
         )}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 2, alignItems: 'center' }}>
+          <button
+            onClick={toggleViewMode}
+            title={viewMode === 'list' ? '타임라인 뷰로 전환' : '리스트 뷰로 전환'}
+            style={{
+              background: viewMode === 'timeline' ? 'var(--accent)' : 'none',
+              border: 'none',
+              color: viewMode === 'timeline' ? '#fff' : 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: 13,
+              padding: '2px 4px',
+              lineHeight: 1,
+              borderRadius: 3,
+            }}
+          >
+            {viewMode === 'list' ? '📅' : '≡'}
+          </button>
           <input
             ref={importInputRef}
             type="file"
@@ -1247,23 +1315,105 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
         </div>
       )}
       {/* Regular sessions grouped by time */}
-      {groups.map(group => (
-        <div key={group.label}>
-          {!search && !filterTag && !filterCustomTag && filterCustomTags.size === 0 && (
+      {viewMode === 'timeline' ? (
+        groupSessionsByDate(unpinnedFiltered).map(group => (
+          <div key={group.label}>
+            {/* Timeline group header */}
             <div style={{
-              fontSize: 9,
-              color: 'var(--text-muted)',
-              padding: '6px 8px 2px',
+              position: 'sticky',
+              top: 0,
+              zIndex: 5,
+              padding: '5px 12px',
+              fontSize: 10,
               fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
+              color: 'var(--text-muted)',
+              background: 'var(--bg-secondary)',
+              borderBottom: '1px solid var(--border)',
+              letterSpacing: '0.3px',
             }}>
-              {group.label}
+              {group.dateStr
+                ? `${group.label} · ${group.dateStr}`
+                : group.label}
             </div>
-          )}
-          {group.items.map(s => renderSessionItem(s))}
-        </div>
-      ))}
+            {/* Timeline items */}
+            <div style={{ paddingLeft: 20, position: 'relative' }}>
+              {/* Vertical timeline line */}
+              <div style={{
+                position: 'absolute',
+                left: 20,
+                top: 0,
+                bottom: 0,
+                width: 1,
+                background: 'var(--border)',
+              }} />
+              {group.sessions.map(s => {
+                const isActive = s.id === activeSessionId
+                return (
+                  <div
+                    key={s.id}
+                    onClick={() => onSelect(s.id)}
+                    style={{
+                      position: 'relative',
+                      padding: '6px 10px 6px 16px',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid var(--border)',
+                      background: isActive ? 'var(--bg-hover)' : 'transparent',
+                    }}
+                    onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                    onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                  >
+                    {/* Circle marker */}
+                    <div style={{
+                      position: 'absolute',
+                      left: -4,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: isActive ? 'var(--accent)' : 'var(--border)',
+                      border: isActive ? '2px solid var(--accent)' : '2px solid var(--bg-secondary)',
+                      zIndex: 1,
+                      flexShrink: 0,
+                    }} />
+                    <div style={{
+                      fontSize: 12,
+                      color: 'var(--text-primary)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {s.title || 'Untitled'}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2, display: 'flex', gap: 6 }}>
+                      <span>{s.messageCount} msgs</span>
+                      <span>{formatHHMM(s.updatedAt ?? s.createdAt)}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))
+      ) : (
+        groups.map(group => (
+          <div key={group.label}>
+            {!search && !filterTag && !filterCustomTag && filterCustomTags.size === 0 && (
+              <div style={{
+                fontSize: 9,
+                color: 'var(--text-muted)',
+                padding: '6px 8px 2px',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}>
+                {group.label}
+              </div>
+            )}
+            {group.items.map(s => renderSessionItem(s))}
+          </div>
+        ))
+      )}
       {/* Archive section */}
       {archivedSessions.length > 0 && (
         <div>

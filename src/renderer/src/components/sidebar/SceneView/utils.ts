@@ -82,13 +82,38 @@ export function svgToCocos(
   }
 }
 
+export const COMP_ICONS: Record<string, string> = {
+  'cc.Label': 'T',
+  'cc.RichText': 'T',
+  'cc.Sprite': '🖼',
+  'cc.Button': '⏹',
+  'cc.Layout': '⊞',
+  'cc.ScrollView': '↕',
+  'cc.Canvas': '🎨',
+  'cc.Animation': '▶',
+  'cc.RigidBody': '⬡',
+  'cc.AudioSource': '♪',
+  'cc.EditBox': 'E',
+  'cc.ProgressBar': 'P',
+  'cc.Toggle': 'G',
+  'cc.Camera': 'C',
+}
+
 export function getComponentIcon(components: { type: string }[]): string {
+  for (const c of components) {
+    const exact = COMP_ICONS[c.type]
+    if (exact) return exact
+  }
   const types = components.map(c => c.type)
-  if (types.some(t => t.includes('Button'))) return 'B'
+  if (types.some(t => t.includes('Button'))) return '⏹'
   if (types.some(t => t.includes('Label') || t.includes('RichText'))) return 'T'
-  if (types.some(t => t.includes('Sprite'))) return 'S'
-  if (types.some(t => t.includes('Layout'))) return 'L'
-  if (types.some(t => t.includes('ScrollView'))) return 'V'
+  if (types.some(t => t.includes('Sprite'))) return '🖼'
+  if (types.some(t => t.includes('Layout'))) return '⊞'
+  if (types.some(t => t.includes('ScrollView'))) return '↕'
+  if (types.some(t => t.includes('Canvas'))) return '🎨'
+  if (types.some(t => t.includes('Animation'))) return '▶'
+  if (types.some(t => t.includes('RigidBody'))) return '⬡'
+  if (types.some(t => t.includes('AudioSource'))) return '♪'
   if (types.some(t => t.includes('EditBox'))) return 'E'
   if (types.some(t => t.includes('ProgressBar'))) return 'P'
   if (types.some(t => t.includes('Toggle'))) return 'G'

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 616 완료 — Phase DD10 진행 중, QA Pass 512)
+> 마지막 업데이트: 2026-03-13 (Round 620 완료 — Phase DD10 진행 중, QA Pass 515)
 
 ## 개발 루프 실행 방식
 
@@ -592,6 +592,10 @@
 | Round 614 | 씬뷰 레이어 패널 (showLayerPanel, hiddenLayers, 가시성 토글) | ✅ |
 | Round 615 | StatusBar 세션 경과 타이머 (⏱ Xm Ys, 1초 업데이트) | ✅ |
 | Round 616 | QA Section 123 추가 (R613/R614/R615, Pass 512) | ✅ |
+| Round 617 | SessionList 타임라인 뷰 (날짜 그룹, ● 마커, viewMode localStorage) | ✅ |
+| Round 618 | InputBar PromptChain ⛓ 빠른 실행 버튼 (onOpenPromptChain) | ✅ |
+| Round 619 | SceneView 컴포넌트 아이콘 오버레이 (COMP_ICONS, getComponentIcon, utils.ts) | ✅ |
+| Round 620 | QA Section 124 추가 (R617/R618/R619, Pass 515) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

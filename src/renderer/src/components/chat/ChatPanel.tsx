@@ -310,6 +310,7 @@ interface ChatPanelProps {
   onSelectSession?: (id: string) => void
   hqMode?: boolean
   onToggleHQ?: () => void
+  onOpenPromptChain?: () => void
 }
 
 const CONTEXT_WINDOW = 200000
@@ -467,7 +468,7 @@ const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, total
   )
 })
 
-export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ }: ChatPanelProps) {
+export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ, onOpenPromptChain }: ChatPanelProps) {
   const ccCtx = useCCContext()
   const projectSummary = useProjectContext(project.currentPath ?? null)
   const ctxFiles = useContextFiles(project.currentPath ?? null)
@@ -497,6 +498,19 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [welcomePendingInsert, setWelcomePendingInsert] = useState<string | undefined>(undefined)
   const [minimapScroll, setMinimapScroll] = useState({ scrollTop: 0, clientHeight: 1, totalScrollHeight: 1 })
+
+  // ── 프롬프트 변수 템플릿 ─────────────────────────────────────────────────────
+  const [inputText, setInputText] = useState('')
+  const [varModal, setVarModal] = useState<{ text: string; vars: string[] } | null>(null)
+  const [varValues, setVarValues] = useState<Record<string, string>>({})
+  const varInputRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  const extractVars = (text: string): string[] => {
+    const matches = [...text.matchAll(/\{\{([^}]+)\}\}/g)]
+    return [...new Set(matches.map(m => m[1].trim()))]
+  }
+
+  const hasVars = extractVars(inputText).length > 0
 
   const handleWelcomeSelectPrompt = useCallback((prompt: string) => {
     setWelcomePendingInsert(prompt)
@@ -764,6 +778,18 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       })
     }
   }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle])
+
+  const handleSendWithVarCheck = useCallback((text: string) => {
+    const vars = extractVars(text)
+    if (vars.length > 0) {
+      const initValues: Record<string, string> = {}
+      vars.forEach(v => { initValues[v] = '' })
+      setVarValues(initValues)
+      setVarModal({ text, vars })
+    } else {
+      handleSend(text)
+    }
+  }, [handleSend]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const PAUSE_STATE_KEY = 'claude:pause-state'
   const [isPaused, setIsPaused] = useState(() => {
@@ -1613,6 +1639,137 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             </div>
           )}
         </div>
+      {/* 변수 감지 인디케이터 */}
+      {hasVars && !varModal && (
+        <div style={{
+          padding: '3px 12px',
+          background: 'rgba(96,165,250,0.08)',
+          borderTop: '1px solid rgba(96,165,250,0.2)',
+          fontSize: 11,
+          color: 'var(--accent, #89b4fa)',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+        }}>
+          <span>🔧</span>
+          <span>변수 {extractVars(inputText).length}개 감지됨 — 전송 시 값 입력</span>
+        </div>
+      )}
+
+      {/* 변수 치환 모달 */}
+      {varModal && (
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-end',
+          pointerEvents: 'none',
+        }}>
+          <div style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border)',
+            borderRadius: '8px 8px 0 0',
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.4)',
+            padding: '14px 16px 12px',
+            width: '100%',
+            maxWidth: 560,
+            pointerEvents: 'all',
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent, #89b4fa)', marginBottom: 10 }}>
+              🔧 변수 값 입력
+            </div>
+            {varModal.vars.map((varName, i) => (
+              <div key={varName} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <label style={{
+                  fontSize: 12, color: 'var(--text-secondary)',
+                  minWidth: 120, fontFamily: 'monospace',
+                  background: 'rgba(96,165,250,0.1)',
+                  borderRadius: 4, padding: '2px 6px',
+                  border: '1px solid rgba(96,165,250,0.2)',
+                }}>
+                  {'{{'}{varName}{'}}'}
+                </label>
+                <input
+                  ref={el => { varInputRefs.current[i] = el }}
+                  type="text"
+                  value={varValues[varName] ?? ''}
+                  onChange={e => setVarValues(prev => ({ ...prev, [varName]: e.target.value }))}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      if (i < varModal.vars.length - 1) {
+                        varInputRefs.current[i + 1]?.focus()
+                      } else {
+                        // 마지막 필드 Enter → 전송
+                        let result = varModal.text
+                        varModal.vars.forEach(v => {
+                          result = result.replace(new RegExp(`\\{\\{${v}\\}\\}`, 'g'), varValues[v] ?? '')
+                        })
+                        setVarModal(null)
+                        handleSend(result)
+                      }
+                    } else if (e.key === 'Escape') {
+                      setVarModal(null)
+                    }
+                  }}
+                  placeholder={`${varName} 값 입력...`}
+                  autoFocus={i === 0}
+                  style={{
+                    flex: 1,
+                    background: 'var(--bg-input, var(--bg-primary))',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-sm, 4px)',
+                    color: 'var(--text-primary)',
+                    fontSize: 13,
+                    padding: '5px 10px',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: 8, marginTop: 10, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setVarModal(null)}
+                style={{
+                  background: 'none',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  color: 'var(--text-muted)',
+                  fontSize: 12,
+                  padding: '5px 14px',
+                  cursor: 'pointer',
+                }}
+              >취소</button>
+              <button
+                onClick={() => {
+                  let result = varModal.text
+                  varModal.vars.forEach(v => {
+                    result = result.replace(new RegExp(`\\{\\{${v}\\}\\}`, 'g'), varValues[v] ?? '')
+                  })
+                  setVarModal(null)
+                  handleSend(result)
+                }}
+                style={{
+                  background: 'var(--accent, #89b4fa)',
+                  border: 'none',
+                  borderRadius: 4,
+                  color: '#1e1e2e',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  padding: '5px 16px',
+                  cursor: 'pointer',
+                }}
+              >치환 후 전송</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Context token indicator bar — 입력창 위 */}
       {(() => {
         const contextUsage = chat.sessionInputTokens > 0 ? Math.min(chat.sessionInputTokens / CONTEXT_WINDOW, 1.0) : 0
@@ -1633,7 +1790,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         )
       })()}
       <InputBar
-        onSend={handleSend}
+        onSend={handleSendWithVarCheck}
         onInterrupt={handleInterrupt}
         onPause={handlePause}
         onResume={handleResume}
@@ -1647,6 +1804,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           if (welcomePendingInsert) setWelcomePendingInsert(undefined)
           else onPendingInsertConsumed?.()
         }}
+        onOpenPromptChain={onOpenPromptChain}
+        onTextChange={setInputText}
       />
     </div>
   )
