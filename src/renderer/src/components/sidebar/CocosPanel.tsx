@@ -2329,6 +2329,11 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 count(sceneFile.root)
                 // R1625: Top 3 컴포넌트 타입 칩
                 const topTypes = Object.entries(typeMap).sort((a, b) => b[1] - a[1]).slice(0, 3)
+                // R1627: 씬 성능 경고
+                const warns: string[] = []
+                if (nodes > 200) warns.push(`노드 수 과다 (${nodes})`)
+                if (comps > 500) warns.push(`컴포넌트 수 과다 (${comps})`)
+                if (inactive > nodes * 0.5 && nodes > 10) warns.push(`비활성 노드 과다 (${inactive}/${nodes})`)
                 return (
                   <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: '#555', flexShrink: 0 }} title={`노드 ${nodes}개 / 비활성 ${inactive}개 / 컴포넌트 ${comps}개`}>
                     {nodes}N/{comps}C
@@ -2337,6 +2342,11 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                         {type.replace('cc.', '')}:{cnt}
                       </span>
                     ))}
+                    {warns.length > 0 && (
+                      <span style={{ background: 'rgba(255,153,0,0.12)', border: '1px solid rgba(255,153,0,0.35)', borderRadius: 3, padding: '0 3px', color: '#ff9900', fontSize: 8, cursor: 'default' }} title={warns.join('\n')}>
+                        ⚠{warns.length}
+                      </span>
+                    )}
                   </span>
                 )
               })()}

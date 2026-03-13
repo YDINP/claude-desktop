@@ -17442,6 +17442,18 @@ console.log('\n## 517. R1626 SceneView 검색 비매칭 노드 dim 체크')
   }
 }
 
+// ── Section 518: R1627 Inspector 씬 성능 경고 칩 ──────────────────
+console.log('\n## 518. R1627 Inspector 씬 성능 경고 칩 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s518 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s518.includes('R1627') && s518.includes('warns') && s518.includes('nodes > 200') && s518.includes('comps > 500')) {
+    log('pass', 'R1627-perf-warn', 'Inspector 씬 성능 경고 칩')
+  } else {
+    log('warning', 'R1627-perf-warn', 'Inspector 씬 성능 경고 칩 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
