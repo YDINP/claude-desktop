@@ -522,6 +522,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         ArrowLeft: [-1, 0], ArrowRight: [1, 0],
         ArrowUp: [0, 1], ArrowDown: [0, -1],
       }
+      // R1583: Ctrl+A — 전체 노드 다중 선택
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault()
+        const allUuids = flatNodes.map(fn => fn.node.uuid)
+        if (allUuids.length > 0) {
+          multiSelectedRef.current = new Set(allUuids)
+          onSelect(allUuids[0])
+          onMultiSelectChange?.(allUuids)
+        }
+        return
+      }
       // R1504: Ctrl+N — 새 노드 추가
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
         e.preventDefault()
@@ -1718,6 +1729,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['Ctrl+↑↓', '형제 순서 변경'],
             ['⊙◁▷△▽', '정렬 버튼'],
             ['↑↓ (Inspector)', 'Z-order 변경'],
+            ['Ctrl+A', '전체 노드 다중 선택'],
             ['Ctrl+D', '선택 노드 복제'],
             ['Ctrl+N', '새 노드 추가'],
             ['H', '선택 노드 숨기기/보이기'],

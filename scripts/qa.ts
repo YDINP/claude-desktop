@@ -16898,6 +16898,18 @@ console.log('\n## 473. R1582 cc.Widget Quick Edit 체크')
   }
 }
 
+// ── Section 474: R1583 SceneView Ctrl+A 전체 선택 ────────────────
+console.log('\n## 474. R1583 SceneView Ctrl+A 전체 선택 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s474 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s474.includes("key === 'a'") && s474.includes('allUuids') && s474.includes('전체 노드 다중 선택')) {
+    log('pass', 'R1583-select-all', 'Ctrl+A 전체 노드 다중 선택')
+  } else {
+    log('warning', 'R1583-select-all', 'Ctrl+A 전체 선택 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
