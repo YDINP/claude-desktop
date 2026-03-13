@@ -4782,6 +4782,46 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1589: cc.Sprite / cc.Sprite2D Quick Edit
+            if (comp.type === 'cc.Sprite' || comp.type === 'cc.Sprite2D') {
+              const SPRITE_TYPE = ['Simple', 'Sliced', 'Tiled', 'Filled']
+              const SIZE_MODE = ['Custom', 'Trimmed', 'Raw']
+              return (
+                <div key={ci} style={{ marginBottom: 6 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>type</label>
+                      <select value={Number(p.type ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'type', Number(ev.target.value))}>
+                        {SPRITE_TYPE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>sizeMode</label>
+                      <select value={Number(p.sizeMode ?? 1)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'sizeMode', Number(ev.target.value))}>
+                        {SIZE_MODE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
+                      <input type="checkbox" checked={!!(p.trim ?? true)}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'trim', ev.target.checked)} />
+                      trim
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
+                      <input type="checkbox" checked={!!(p.grayscale ?? false)}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'grayscale', ev.target.checked)} />
+                      grayscale
+                    </label>
+                  </div>
+                </div>
+              )
+            }
             // R1588: cc.LabelOutline / cc.LabelShadow Quick Edit
             if (comp.type === 'cc.LabelOutline' || comp.type === 'cc.LabelShadow') {
               const toHex = (c: { r?: number; g?: number; b?: number } | undefined) => {

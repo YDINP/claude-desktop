@@ -16980,6 +16980,20 @@ console.log('\n## 479. R1588 cc.LabelOutline/LabelShadow extractor + Inspector �
   }
 }
 
+// ── Section 480: R1589 cc.Sprite extractor + Inspector Quick Edit ──────
+console.log('\n## 480. R1589 cc.Sprite/Sprite2D extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s480parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s480panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s480parser.includes("'cc.Sprite': e =>") && s480panel.includes("comp.type === 'cc.Sprite'") && s480panel.includes('sizeMode') && s480panel.includes('grayscale')) {
+    log('pass', 'R1589-sprite', 'cc.Sprite extractor + Inspector: type/sizeMode/trim/grayscale')
+  } else {
+    log('warning', 'R1589-sprite', 'cc.Sprite Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

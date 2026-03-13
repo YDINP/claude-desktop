@@ -355,6 +355,19 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
   'cc.ToggleContainer': e => ({
     allowSwitchOff: !!(e._N$allowSwitchOff ?? e._allowSwitchOff ?? e.allowSwitchOff ?? false),
   }),
+  // R1589: cc.Sprite / cc.Sprite2D — 스프라이트 컴포넌트
+  'cc.Sprite': e => ({
+    type: (e._N$type ?? e._type ?? e.type ?? 0) as number,  // 0=SIMPLE,1=SLICED,2=TILED,3=FILLED
+    sizeMode: (e._N$sizeMode ?? e._sizeMode ?? e.sizeMode ?? 1) as number,  // 0=CUSTOM,1=TRIMMED,2=RAW
+    trim: !!(e._N$trim ?? e._trim ?? e.trim ?? true),
+    grayscale: !!(e._N$grayscale ?? e._grayscale ?? e.grayscale ?? false),
+  }),
+  'cc.Sprite2D': e => ({
+    type: (e._N$type ?? e._type ?? e.type ?? 0) as number,
+    sizeMode: (e._N$sizeMode ?? e._sizeMode ?? e.sizeMode ?? 1) as number,
+    trim: !!(e._N$trim ?? e._trim ?? e.trim ?? true),
+    grayscale: !!(e._N$grayscale ?? e._grayscale ?? e.grayscale ?? false),
+  }),
   // R1588: cc.LabelOutline — 텍스트 아웃라인 효과
   'cc.LabelOutline': e => {
     const color = e._N$color ?? e._color ?? e.color as { r?: number; g?: number; b?: number; a?: number } | undefined
