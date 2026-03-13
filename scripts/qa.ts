@@ -10177,6 +10177,74 @@ if (existsSync(sl1007Path)) {
   }
 }
 
+console.log('\n## 247. Phase DD10 R1008~1010 기능 체크')
+// R1008: ChatPanel 메시지 타임스탬프
+const cp1008Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1008Path)) {
+  const cp1008 = readFileSync(cp1008Path, 'utf-8')
+  if (cp1008.includes('showTimestamps') || cp1008.includes('timestampFormat') || cp1008.includes('msgTimestamp')) {
+    log('pass', 'R1008', 'ChatPanel 메시지 타임스탬프 존재')
+  } else {
+    log('warning', 'R1008', 'ChatPanel 메시지 타임스탬프 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1009: InputBar 자동 완성 모드
+const ib1009Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1009Path)) {
+  const ib1009 = readFileSync(ib1009Path, 'utf-8')
+  if (ib1009.includes('autocompleteMode') || ib1009.includes('showAutocompleteSettings') || ib1009.includes('autoComplete')) {
+    log('pass', 'R1009', 'InputBar 자동 완성 모드 존재')
+  } else {
+    log('warning', 'R1009', 'InputBar 자동 완성 모드 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1010: CocosPanel 에셋 버전
+const cocos1010Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1010Path)) {
+  const cocos1010 = readFileSync(cocos1010Path, 'utf-8')
+  if (cocos1010.includes('assetVersion') || cocos1010.includes('showVersionHistory') || cocos1010.includes('versionControl')) {
+    log('pass', 'R1010', 'CocosPanel 에셋 버전 존재')
+  } else {
+    log('warning', 'R1010', 'CocosPanel 에셋 버전 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 248. Phase DD10 R1011~1013 기능 체크')
+// R1011: SceneViewPanel 씬 히스토리
+const svp1011Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1011Path)) {
+  const svp1011 = readFileSync(svp1011Path, 'utf-8')
+  if (svp1011.includes('sceneHistory') || svp1011.includes('sceneHistoryIdx') || svp1011.includes('historyStack')) {
+    log('pass', 'R1011', 'SceneViewPanel 씬 히스토리 존재')
+  } else {
+    log('warning', 'R1011', 'SceneViewPanel 씬 히스토리 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1012: TerminalPanel 라인 번호
+const tp1012Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1012Path)) {
+  const tp1012 = readFileSync(tp1012Path, 'utf-8')
+  if (tp1012.includes('showLineNumbers') || tp1012.includes('lineOffset') || tp1012.includes('lineNumber')) {
+    log('pass', 'R1012', 'TerminalPanel 라인 번호 존재')
+  } else {
+    log('warning', 'R1012', 'TerminalPanel 라인 번호 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1013: SessionList 세션 정렬
+const sl1013Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1013Path)) {
+  const sl1013 = readFileSync(sl1013Path, 'utf-8')
+  if (sl1013.includes('sortMode') || sl1013.includes('sortAsc') || sl1013.includes('sessionSort')) {
+    log('pass', 'R1013', 'SessionList 세션 정렬 존재')
+  } else {
+    log('warning', 'R1013', 'SessionList 세션 정렬 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

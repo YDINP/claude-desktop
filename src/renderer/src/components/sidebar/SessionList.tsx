@@ -326,6 +326,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showListStats, setShowListStats] = React.useState(false)
   const [favoriteSessions, setFavoriteSessions] = React.useState<string[]>([])
   const [showFavoritesOnly, setShowFavoritesOnly] = React.useState(false)
+  const [sortMode, setSortMode] = React.useState<'date' | 'name' | 'size'>('date')
+  const [sortAsc, setSortAsc] = React.useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

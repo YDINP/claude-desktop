@@ -311,6 +311,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [lockMessage, setLockMessage] = React.useState('')
   const [multilineShortcut, setMultilineShortcut] = React.useState<'shift' | 'ctrl'>('shift')
   const [showShortcutConfig, setShowShortcutConfig] = React.useState(false)
+  const [autocompleteMode, setAutocompleteMode] = React.useState<'off' | 'basic' | 'ai'>('basic')
+  const [showAutocompleteSettings, setShowAutocompleteSettings] = React.useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
