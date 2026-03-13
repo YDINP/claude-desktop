@@ -80,6 +80,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [snapIndicator, setSnapIndicator] = useState<{ x: number; y: number } | null>(null)
   // R1602: 눈금자 오버레이
   const [showRuler, setShowRuler] = useState(false)
+  // R1605: 편집 잠금 (View-only lock)
+  const [viewLock, setViewLock] = useState(false)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
   // R1530: 디자인 레퍼런스 이미지 overlay
@@ -860,6 +862,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title="눈금자 표시 (R1602)"
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showRuler ? 'rgba(88,166,255,0.12)' : 'none', color: showRuler ? '#58a6ff' : 'var(--text-muted)' }}
         >尺</button>
+        {/* R1605: 편집 잠금 */}
+        <button
+          onClick={() => setViewLock(l => !l)}
+          title={viewLock ? '편집 잠금 해제 (R1605)' : '편집 잠금 — 보기 전용 모드 (R1605)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${viewLock ? '#f85149' : 'var(--border)'}`, background: viewLock ? 'rgba(248,81,73,0.12)' : 'none', color: viewLock ? '#f85149' : 'var(--text-muted)' }}
+        >{viewLock ? '🔒' : '🔓'}</button>
         {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
         <button
           onClick={handleScreenshotAI}
@@ -1167,7 +1175,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 onMouseDown={e => {
                   if (e.button !== 0) return
                   e.stopPropagation()
-                  if (lockedUuids.has(node.uuid)) return  // R1543: 잠긴 노드는 드래그 방지
+                  if (viewLock || lockedUuids.has(node.uuid)) return  // R1605 / R1543: 잠금
                   const pos = node.position as CCVec3
                   dragRef.current = {
                     uuid: node.uuid,
@@ -1321,8 +1329,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     opacity={0.8}
                   >🔒</text>
                 )}
-                {/* SE 리사이즈 핸들 (선택된 노드만, 잠긴 노드 제외) */}
-                {isSelected && !lockedUuids.has(node.uuid) && (
+                {/* SE 리사이즈 핸들 (선택된 노드만, 잠긴/뷰잠금 노드 제외) */}
+                {isSelected && !viewLock && !lockedUuids.has(node.uuid) && (
                   <rect
                     x={rectX + w - 5 / view.zoom} y={rectY + h - 5 / view.zoom}
                     width={10 / view.zoom} height={10 / view.zoom}
@@ -1381,6 +1389,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                           title={`앵커: (${effAx.toFixed(2)}, ${effAy.toFixed(2)}) — 드래그로 편집`}
                           onMouseDown={e => {
                             e.stopPropagation()
+                            if (viewLock) return
                             anchorRef.current = {
                               uuid: node.uuid,
                               rectX: rectX,
@@ -1494,6 +1503,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       title={`회전: ${Math.round(rotZ)}° (Shift: 15° 스냅)`}
                       onMouseDown={e => {
                         e.stopPropagation()
+                        if (viewLock) return
                         const svg = svgRef.current
                         if (!svg) return
                         const svgRect = svg.getBoundingClientRect()

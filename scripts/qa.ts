@@ -17176,6 +17176,18 @@ console.log('\n## 495. R1604 SceneView 선택 노드 부모 하이라이트 체�
   }
 }
 
+// ── Section 496: R1605 SceneView 편집 잠금 ──────────────────────────
+console.log('\n## 496. R1605 SceneView 편집 잠금 (뷰 전용 모드) 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s496 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s496.includes('R1605') && s496.includes('viewLock') && s496.includes('setViewLock') && s496.includes('편집 잠금')) {
+    log('pass', 'R1605-view-lock', 'SceneView 편집 잠금 (🔒/🔓)')
+  } else {
+    log('warning', 'R1605-view-lock', 'SceneView 편집 잠금 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
