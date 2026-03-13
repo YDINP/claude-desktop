@@ -276,8 +276,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   // ── 마퀴 선택 상태 ─────────────────────────────────────────
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)
-  const [nodePresets, setNodePresets] = useState<Array<{ name: string; props: Record<string, unknown> }>>([])
-  const [showPresetPanel, setShowPresetPanel] = useState(false)
+  const [autoLayout, setAutoLayout] = useState<'none' | 'tree' | 'grid' | 'radial'>('none')
+  const [layoutSpacing, setLayoutSpacing] = useState(60)
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────

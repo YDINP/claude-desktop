@@ -208,6 +208,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [editingCmds, setEditingCmds] = useState(false)
   // Learned commands state
   const [learnedCmds, setLearnedCmds] = useState<string[]>([])
+  const [termShortcuts, setTermShortcuts] = useState<Record<string, string>>({})
+  const [showShortcutCustomizer, setShowShortcutCustomizer] = useState(false)
   const inputBufferRef = useRef<Record<string, string>>({})
 
   const sendQuickCmd = (cmd: string) => {
@@ -356,6 +358,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showSharePanel, setShowSharePanel] = useState(false)
   const [inputHistorySearch, setInputHistorySearch] = useState('')
   const [inputHistoryResults, setInputHistoryResults] = useState<string[]>([])
+  const [termShortcuts, setTermShortcuts] = useState<Record<string, string>>({})
+  const [showShortcutCustomizer, setShowShortcutCustomizer] = useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

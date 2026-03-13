@@ -8174,6 +8174,41 @@ if (existsSync(cocp833Path)) {
   }
 }
 
+console.log('\n## 189. Phase DD10 R834~836 기능 체크')
+
+// R834: SceneViewPanel 씬 자동 레이아웃
+const svp834Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp834Path)) {
+  const svp834 = readFileSync(svp834Path, 'utf-8')
+  if (svp834.includes('autoLayout') || svp834.includes('layoutSpacing') || svp834.includes('autoArrange')) {
+    log('pass', 'R834', 'SceneViewPanel 씬 자동 레이아웃 존재')
+  } else {
+    log('warning', 'R834', 'SceneViewPanel 자동 레이아웃 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R835: TerminalPanel 단축키 커스터마이징
+const tp835Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp835Path)) {
+  const tp835 = readFileSync(tp835Path, 'utf-8')
+  if (tp835.includes('termShortcuts') || tp835.includes('showShortcutCustomizer') || tp835.includes('keyBindings')) {
+    log('pass', 'R835', 'TerminalPanel 단축키 커스터마이징 존재')
+  } else {
+    log('warning', 'R835', 'TerminalPanel 단축키 커스터마이징 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R836: SessionList 검색 필터 저장
+const sl836Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl836Path)) {
+  const sl836 = readFileSync(sl836Path, 'utf-8')
+  if (sl836.includes('savedFilters') || sl836.includes('showFilterManager') || sl836.includes('filterPresets')) {
+    log('pass', 'R836', 'SessionList 검색 필터 저장 존재')
+  } else {
+    log('warning', 'R836', 'SessionList 필터 저장 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
