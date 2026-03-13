@@ -4877,6 +4877,53 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1572: cc.Mask — type/inverted/alphaThreshold Quick Edit
+            if (comp.type === 'cc.Mask') {
+              const maskType = Number(p._type ?? p.type ?? 0)
+              const inverted = !!(p._inverted ?? p.inverted ?? false)
+              const alphaThreshold = Number(p._alphaThreshold ?? p.alphaThreshold ?? 0)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>type</span>
+                    <select value={maskType}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _type: v, type: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      <option value={0}>Rect</option>
+                      <option value={1}>Ellipse</option>
+                      <option value={2}>Image Stencil</option>
+                    </select>
+                  </div>
+                  {maskType === 2 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>alphaThresh</span>
+                      <input type="range" min={0} max={1} step={0.01} value={alphaThreshold}
+                        onChange={e => {
+                          const v = parseFloat(e.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _alphaThreshold: v, alphaThreshold: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ flex: 1 }}
+                      />
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{alphaThreshold.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={inverted}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _inverted: e.target.checked, inverted: e.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                    />inverted
+                  </label>
+                </div>
+              )
+            }
             // R1569: cc.PageView — direction/scrollThreshold/autoPageTurningThreshold Quick Edit
             if (comp.type === 'cc.PageView') {
               const direction = Number(p.direction ?? p._N$direction ?? 0)

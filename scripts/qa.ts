@@ -16756,6 +16756,18 @@ console.log('\n## 462. R1571 SceneView Enter키 자식 포커스 체크')
   }
 }
 
+// ── Section 463: R1572 cc.Mask Inspector Quick Edit ────────────────
+console.log('\n## 463. R1572 cc.Mask Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s463 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s463.includes("comp.type === 'cc.Mask'") && s463.includes('alphaThreshold') && s463.includes('inverted') && s463.includes('Image Stencil')) {
+    log('pass', 'R1572-mask', 'cc.Mask Quick Edit: type/inverted/alphaThreshold')
+  } else {
+    log('warning', 'R1572-mask', 'cc.Mask Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
