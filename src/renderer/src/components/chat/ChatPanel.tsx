@@ -1034,6 +1034,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showMsgExportPanel, setShowMsgExportPanel] = useState(false)
   const [chatAnalytics, setChatAnalytics] = React.useState<Record<string, number>>({})
   const [showAnalyticsDashboard, setShowAnalyticsDashboard] = React.useState(false)
+  const [translateEnabled, setTranslateEnabled] = React.useState(false)
+  const [translateTarget, setTranslateTarget] = React.useState('en')
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

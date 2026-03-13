@@ -1592,6 +1592,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 저장 / 로드 슬롯 (localStorage) ──────────────────────
   const [activeSlot, setActiveSlot] = useState(0)
   const [sceneLayers, setSceneLayers] = React.useState<string[]>([])
+  const [snapSettings, setSnapSettings] = React.useState<Record<string, number>>({})
+  const [showSnapPanel, setShowSnapPanel] = React.useState(false)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {

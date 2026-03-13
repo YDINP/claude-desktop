@@ -9361,6 +9361,74 @@ if (existsSync(sl935Path)) {
   }
 }
 
+console.log('\n## 223. Phase DD10 R936~938 기능 체크')
+// R936: ChatPanel 실시간 번역
+const cp936Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp936Path)) {
+  const cp936 = readFileSync(cp936Path, 'utf-8')
+  if (cp936.includes('translateEnabled') || cp936.includes('translateTarget') || cp936.includes('translationMode')) {
+    log('pass', 'R936', 'ChatPanel 실시간 번역 존재')
+  } else {
+    log('warning', 'R936', 'ChatPanel 실시간 번역 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R937: InputBar 이모지 검색
+const ib937Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib937Path)) {
+  const ib937 = readFileSync(ib937Path, 'utf-8')
+  if (ib937.includes('emojiSearch') || ib937.includes('showEmojiSearch') || ib937.includes('emojiPicker')) {
+    log('pass', 'R937', 'InputBar 이모지 검색 존재')
+  } else {
+    log('warning', 'R937', 'InputBar 이모지 검색 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R938: CocosPanel 노드 잠금
+const cocos938Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos938Path)) {
+  const cocos938 = readFileSync(cocos938Path, 'utf-8')
+  if (cocos938.includes('lockedNodes') || cocos938.includes('showLockPanel') || cocos938.includes('nodeLock')) {
+    log('pass', 'R938', 'CocosPanel 노드 잠금 존재')
+  } else {
+    log('warning', 'R938', 'CocosPanel 노드 잠금 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 224. Phase DD10 R939~941 기능 체크')
+// R939: SceneViewPanel 스냅 설정
+const svp939Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp939Path)) {
+  const svp939 = readFileSync(svp939Path, 'utf-8')
+  if (svp939.includes('snapSettings') || svp939.includes('showSnapPanel') || svp939.includes('snapGrid')) {
+    log('pass', 'R939', 'SceneViewPanel 스냅 설정 존재')
+  } else {
+    log('warning', 'R939', 'SceneViewPanel 스냅 설정 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R940: TerminalPanel 터미널 메모
+const tp940Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp940Path)) {
+  const tp940 = readFileSync(tp940Path, 'utf-8')
+  if (tp940.includes('terminalNotes') || tp940.includes('showNotesPanel') || tp940.includes('terminalMemo')) {
+    log('pass', 'R940', 'TerminalPanel 터미널 메모 존재')
+  } else {
+    log('warning', 'R940', 'TerminalPanel 터미널 메모 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R941: SessionList 세션 메모
+const sl941Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl941Path)) {
+  const sl941 = readFileSync(sl941Path, 'utf-8')
+  if (sl941.includes('sessionMemos') || sl941.includes('showMemoEditor') || sl941.includes('memoMap')) {
+    log('pass', 'R941', 'SessionList 세션 메모 존재')
+  } else {
+    log('warning', 'R941', 'SessionList 세션 메모 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

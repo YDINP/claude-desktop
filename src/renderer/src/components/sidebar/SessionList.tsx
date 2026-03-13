@@ -310,6 +310,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showCommentEditor, setShowCommentEditor] = useState(false)
   const [sessionTags, setSessionTags] = useState<Record<string, string[]>>({})
   const [showTagEditor, setShowTagEditor] = useState(false)
+  const [showMemoEditor, setShowMemoEditor] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
