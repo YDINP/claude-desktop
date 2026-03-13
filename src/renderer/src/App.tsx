@@ -1599,8 +1599,8 @@ function AppContent() {
                       padding: '0 14px', height: 30, fontSize: 12, cursor: 'pointer',
                       background: ccTab === 'claude' ? 'var(--bg-primary)' : 'transparent',
                       color: ccTab === 'claude' ? 'var(--text-primary)' : 'var(--text-muted)',
-                      borderBottom: ccTab === 'claude' ? '2px solid var(--accent)' : '2px solid transparent',
                       border: 'none', borderRight: '1px solid var(--border)',
+                      borderBottom: ccTab === 'claude' ? '2px solid var(--accent)' : '2px solid transparent',
                     }}
                   >Claude</button>
                   <button

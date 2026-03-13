@@ -555,6 +555,17 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     }
   }, [chat.sessionId, chat.messages])
 
+  const resolveVars = (prompt: string): string => {
+    const now = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return prompt
+      .replace(/\{\{date\}\}/g, `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`)
+      .replace(/\{\{time\}\}/g, `${pad(now.getHours())}:${pad(now.getMinutes())}`)
+      .replace(/\{\{project\}\}/g, project.currentPath?.split(/[/\\]/).pop() ?? '')
+      .replace(/\{\{model\}\}/g, project.selectedModel)
+      .replace(/\{\{day\}\}/g, ['일','월','화','수','목','금','토'][now.getDay()])
+  }
+
   const handleSend = useCallback((text: string) => {
     if (!project.currentPath) return
     const model = project.selectedModel
@@ -577,7 +588,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       history.push({ role: 'user', content: text })
       window.api.openaiSend?.({ model: openaiModel, messages: history })
     } else {
-      const parts = [customSystemPrompt, projectSummary, ccCtx.contextString, ctxFiles.contextString].filter(Boolean)
+      const resolvedSystemPrompt = customSystemPrompt ? resolveVars(customSystemPrompt) : ''
+      const parts = [resolvedSystemPrompt, projectSummary, ccCtx.contextString, ctxFiles.contextString].filter(Boolean)
       const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
       window.api.claudeSend({
         text,
@@ -871,6 +883,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
               maxHeight: 160,
             }}
           />
+          <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 4 }}>
+            지원 변수: {'{'}'{'{'}date{'}'}{'}'}(YYYY-MM-DD), {'{'}'{'{'}time{'}'}{'}'}(HH:MM), {'{'}'{'{'}project{'}'}{'}'}(프로젝트명), {'{'}'{'{'}model{'}'}{'}'}(모델명), {'{'}'{'{'}day{'}'}{'}'}(요일)
+          </div>
         </div>
       )}
 

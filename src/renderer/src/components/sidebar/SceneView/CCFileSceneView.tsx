@@ -242,7 +242,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     if (isPanning && panStart.current) {
       const dx = e.clientX - panStart.current.mouseX
       const dy = e.clientY - panStart.current.mouseY
-      setView(v => ({ ...v, offsetX: panStart.current!.offX + dx, offsetY: panStart.current!.offY + dy }))
+      const offX = panStart.current.offX
+      const offY = panStart.current.offY
+      setView(v => ({ ...v, offsetX: offX + dx, offsetY: offY + dy }))
     }
     // rubber-band selection box 업데이트
     if (selBoxRef.current && !dragRef.current && !resizeRef.current && !rotateRef.current && !isPanning) {

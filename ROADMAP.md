@@ -503,30 +503,46 @@
 - PromptChain 템플릿 라이브러리
 - AG-UI 이벤트 모델 기반 에이전트 실행 표준화
 
-### Phase DD6 — 예정 (Round 513~523) — CC 씬에디터 완성 단계
+### Phase DD6 — ✅ 완료 (Round 513~523) — CC 씬에디터 완성 단계
 
-#### 🔥 고우선순위 (씬뷰 핵심 기능 완성)
+| 라운드 | 기능 | 상태 |
+|--------|------|------|
+| Round 513 | 씬뷰 Delete/Backspace 키 — 선택 노드 삭제 | ✅ |
+| Round 514 | 씬뷰 리사이즈 핸들 NW/NE/SW/SE — 이미 구현됨 | ✅ |
+| Round 515 | 스마트 정렬 가이드선 — 이미 구현됨 (R206) | ✅ |
+| Round 516 | 씬뷰 Ctrl+Z/Shift+Z — 이미 구현됨 (R98) | ✅ |
+| Round 517 | Inspector 노드 color 피커 — 이미 구현됨 (R507) | ✅ |
+| Round 518 | Inspector 섹션 상태 localStorage 저장 (타입 기반 키) | ✅ |
+| Round 519 | 씬 트리 F2 인라인 이름 편집 | ✅ |
+| Round 520 | Inspector props 타입 힌트 배지 (UUID/Vec2/Vec3/Color/Bool/Num) | ✅ |
+| Round 521 | 터치패드 2손가락 스크롤 패닝 지원 | ✅ |
+| Round 522 | Inspector 컴포넌트 빠른 검색 필터 (3개 이상) | ✅ |
+| Round 523 | 씬뷰 레이어별 가시성 토글 (L 버튼 + CC 레이어 이름) | ✅ |
+
+### Phase DD7 — 예정 (Round 524~534) — AI 어시스턴트 + UX 고도화
+
+#### 🔥 고우선순위 (AI 통합 강화)
 | 라운드 | 기능 | 비고 |
 |--------|------|------|
-| Round 513 | **씬뷰 Delete 키** — 씬뷰에서 선택 노드 삭제 | 트리에는 있으나 씬뷰 미지원 |
-| Round 514 | **씬뷰 4방향 리사이즈 핸들** — NW/NE/SW/SE | 현재 SE만 있음 |
-| Round 515 | **스마트 정렬 가이드선** — 드래그 시 다른 노드 엣지/중심 일치 시 파란선 | Figma/Unity 핵심 UX |
-| Round 516 | **씬뷰 Ctrl+Z/Shift+Z** — 씬뷰 영역 Undo/Redo | 씬뷰에서 직접 실행취소 |
+| Round 524 | **AI 씬 편집 인텐트** — 채팅에서 "버튼을 오른쪽 10px 이동"하면 ccSetProperty 자동 호출 | AI-native 씬 편집 |
+| Round 525 | **씬뷰 노드 주석 (Annotation)** — 씬에 스티커 메모 추가 (로컬 저장) | 협업/문서화 |
+| Round 526 | **Inspector 변경 이력** — 속성 변경 타임라인 (undo/redo 스택 시각화) | 디버깅 편의 |
 
-#### 🟡 중우선순위 (Inspector 강화)
+#### 🟡 중우선순위 (채팅 UX)
 | 라운드 | 기능 | 비고 |
 |--------|------|------|
-| Round 517 | **노드 color 피커** — Inspector 노드 레벨 color {r,g,b} 직접 편집 | 현재 읽기만 가능 |
-| Round 518 | **Inspector 섹션 상태 localStorage 저장** — 접힘/펼침 기억 | UX 불편 해소 |
-| Round 519 | **씬 트리 F2 인라인 이름 편집** — 트리에서 더블클릭/F2로 이름 변경 | 씬뷰는 있으나 트리 미지원 |
-| Round 520 | **Inspector props 타입 힌트 배지** — UUID/Number/Vector 등 | 가독성 향상 |
+| Round 527 | **채팅 메시지 북마크** — 별표 메시지 필터 뷰 | 중요 응답 재참조 |
+| Round 528 | **대화 내보내기 (MD/HTML)** — 세션 전체 Export 버튼 | 기존 saveFile 활용 |
+| Round 529 | **시스템 프롬프트 변수** — {{project}}, {{date}}, {{file}} 자동 치환 | 프롬프트 재사용성 |
 
 #### 🟢 낮은우선순위 (품질 개선)
 | 라운드 | 기능 |
 |--------|------|
-| Round 521 | 씬뷰 핀치 줌 / 터치패드 지원 개선 |
-| Round 522 | Inspector 컴포넌트 빠른 검색 필터 |
-| Round 523 | 씬뷰 레이어별 가시성 토글 |
+| Round 530 | 씬뷰 Pixel Grid — 1px/2px/4px snap 정밀 정렬 |
+| Round 531 | CC Extension 자동 재연결 (포트 스캔 fallback) |
+| Round 532 | SessionList 날짜별 그룹 헤더 (Today/Yesterday/Earlier) |
+| Round 533 | 파일 에디터 탭 미저장 변경 표시 (● 인디케이터) |
+| Round 534 | QA 강화 + handoff.md 갱신 |
 
 ## QA 프로세스
 

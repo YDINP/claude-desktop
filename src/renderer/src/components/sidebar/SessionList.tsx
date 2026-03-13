@@ -63,8 +63,8 @@ function groupSessions(sessions: SessionMeta[]): Array<{ label: string; items: S
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
 
   const groups: { label: string; items: SessionMeta[] }[] = [
-    { label: '오늘', items: [] },
-    { label: '어제', items: [] },
+    { label: 'Today', items: [] },
+    { label: 'Yesterday', items: [] },
     { label: '이번 주', items: [] },
     { label: '이번 달', items: [] },
     { label: '이전', items: [] },
@@ -1008,19 +1008,18 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
       {/* Regular sessions grouped by time */}
       {groups.map(group => (
         <div key={group.label}>
-          <div style={{
-            padding: '4px 12px',
-            fontSize: 10,
-            fontWeight: 600,
-            color: 'var(--text-muted)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            borderBottom: '1px solid var(--border)',
-            marginTop: 4,
-            userSelect: 'none',
-          }}>
-            {group.label}
-          </div>
+          {!search && !filterTag && !filterCustomTag && (
+            <div style={{
+              fontSize: 9,
+              color: 'var(--text-muted)',
+              padding: '6px 8px 2px',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>
+              {group.label}
+            </div>
+          )}
           {group.items.map(s => renderSessionItem(s))}
         </div>
       ))}
