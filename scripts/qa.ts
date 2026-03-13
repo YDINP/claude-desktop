@@ -17358,6 +17358,18 @@ console.log('\n## 510. R1619 SceneView S/E 리사이즈 핸들 체크')
   }
 }
 
+// ── Section 511: R1620 Inspector cc.Label Quick Edit ──────────────────
+console.log('\n## 511. R1620 Inspector cc.Label Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s511 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s511.includes('R1620') && s511.includes('cc.Label — 텍스트 Quick Edit') && s511.includes("comp.type === 'cc.Label'") && s511.includes('_N$string')) {
+    log('pass', 'R1620-label-quick-edit', 'Inspector cc.Label Quick Edit')
+  } else {
+    log('warning', 'R1620-label-quick-edit', 'Inspector cc.Label Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

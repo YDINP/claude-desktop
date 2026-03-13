@@ -5452,6 +5452,38 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1620: cc.Label — 텍스트 Quick Edit (string + fontSize)
+            if (comp.type === 'cc.Label') {
+              const str = String(p.string ?? p.String ?? p._string ?? '')
+              const fs = Number(p.fontSize ?? p._fontSize ?? p._N$fontSize ?? 24)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0, marginTop: 2 }}>string</span>
+                    <textarea
+                      defaultValue={str}
+                      rows={2}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value, _string: e.target.value, _N$string: e.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, boxSizing: 'border-box', fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', resize: 'vertical' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>fontSize</span>
+                    <input type="number" defaultValue={fs} min={1} max={200}
+                      onBlur={e => {
+                        const v = parseInt(e.target.value) || fs
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                </div>
+              )
+            }
             if (comp.type === 'cc.RichText') {
               const str = String(p.string ?? p.String ?? '')
               return (
