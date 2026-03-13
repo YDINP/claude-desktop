@@ -56,6 +56,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showMinimap, setShowMinimap] = useState(true)
   // R1496: 컨텍스트 메뉴
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; uuid: string | null } | null>(null)
+  // R1500: 스냅 포인트 시각적 피드백
+  const [snapIndicator, setSnapIndicator] = useState<{ x: number; y: number } | null>(null)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
@@ -246,6 +248,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       if (e.ctrlKey || e.metaKey) {
         nx = Math.round(nx / snapSize) * snapSize
         ny = Math.round(ny / snapSize) * snapSize
+        // R1500: 스냅 포인트 시각적 피드백
+        setSnapIndicator({ x: nx, y: ny })
+      } else {
+        setSnapIndicator(null)
       }
       setDragOverride({ uuid: dragRef.current.uuid, x: nx, y: ny })
       return
@@ -302,10 +308,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       onMove?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
       dragRef.current = null
       setDragOverride(null)
+      setSnapIndicator(null)
       return
     }
     dragRef.current = null
     setDragOverride(null)
+    setSnapIndicator(null)
     setIsPanning(false)
     panStart.current = null
     // rubber-band 완료: 박스 내 노드 선택
@@ -679,6 +687,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             return els
           })()}
 
+          {/* R1500: 스냅 포인트 시각적 피드백 */}
+          {snapIndicator && (() => {
+            const sp = ccToSvg(snapIndicator.x, snapIndicator.y)
+            const sz = 6 / view.zoom
+            return (
+              <g pointerEvents="none">
+                <circle cx={sp.x} cy={sp.y} r={sz} fill="none" stroke="#ffdd44" strokeWidth={1.5 / view.zoom} opacity={0.8} />
+                <line x1={sp.x - sz * 1.5} y1={sp.y} x2={sp.x + sz * 1.5} y2={sp.y} stroke="#ffdd44" strokeWidth={1 / view.zoom} opacity={0.8} />
+                <line x1={sp.x} y1={sp.y - sz * 1.5} x2={sp.x} y2={sp.y + sz * 1.5} stroke="#ffdd44" strokeWidth={1 / view.zoom} opacity={0.8} />
+              </g>
+            )
+          })()}
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
           {flatNodes.map(({ node, worldX, worldY }) => {
             const isDragged = dragOverride?.uuid === node.uuid

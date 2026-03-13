@@ -300,6 +300,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [selectedScene, setSelectedScene] = useState<string>('')
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
+  // R1501: 마지막 저장 diff 로컬 상태
+  const [lastDiffDisplay, setLastDiffDisplay] = useState<string | null>(null)
   // R1466: 씬 썸네일 자동 생성
   const [sceneThumbnails, setSceneThumbnails] = useState<Record<string, string>>(() => {
     try {
@@ -991,6 +993,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           if (added.length) changes.push(`추가: ${added.slice(0, 3).join(', ')}${added.length > 3 ? ` 외 ${added.length - 3}개` : ''}`)
           if (removed.length) changes.push(`삭제: ${removed.slice(0, 3).join(', ')}${removed.length > 3 ? ` 외 ${removed.length - 3}개` : ''}`)
           if (renamed.length) changes.push(`이름변경: ${renamed.slice(0, 2).join(', ')}`)
+          const diffStr = changes.join(' | ')
           const sceneName = sceneFile.scenePath.replace(/\\/g, '/').split('/').pop() ?? ''
           updateCCFileContext({
             sceneName,
@@ -998,8 +1001,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             selectedNodeName: selectedNode?.name,
             selectedNodeUuid: selectedNode?.uuid,
             components: selectedNode?.components?.map(c => c.type) ?? [],
-            lastSaveDiff: changes.join(' | '),
+            lastSaveDiff: diffStr,
           })
+          // R1501: 로컬 diff 표시 (5초 후 자동 사라짐)
+          if (diffStr) {
+            setLastDiffDisplay(diffStr)
+            setTimeout(() => setLastDiffDisplay(null), 5000)
+          }
         }
         prevSceneRootRef.current = sceneFile.root
       }
@@ -2215,6 +2223,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
           {/* ── 우: SceneView(상) + Inspector(하) ── */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+            {/* R1501: 마지막 저장 diff 알림 배너 */}
+            {lastDiffDisplay && (
+              <div style={{
+                fontSize: 9, padding: '2px 8px', background: 'rgba(74,222,128,0.08)', borderBottom: '1px solid rgba(74,222,128,0.2)',
+                color: '#4ade80', flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+              }}>
+                ✓ {lastDiffDisplay}
+              </div>
+            )}
             {/* SceneView — flex:1 (남은 공간 전부) */}
             <div style={{ flex: 1, minHeight: 0 }}>
               <CCFileSceneView
