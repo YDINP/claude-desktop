@@ -356,6 +356,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showNoteEditor, setShowNoteEditor] = React.useState(false)
   const [sessionPriority, setSessionPriority] = React.useState<Record<string, number>>({})
   const [showPrioritySort, setShowPrioritySort] = React.useState(false)
+  const [sessionSchedule, setSessionSchedule] = React.useState<Record<string, string>>({})
+  const [showSchedulePanel, setShowSchedulePanel] = React.useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

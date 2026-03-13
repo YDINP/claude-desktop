@@ -234,6 +234,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showTagEditor, setShowTagEditor] = React.useState(false)
   const [importSource, setImportSource] = React.useState<string | null>(null)
   const [showImportDialog, setShowImportDialog] = React.useState(false)
+  const [sceneOpHistory, setSceneOpHistory] = React.useState<string[]>([])
+  const [showOpHistory, setShowOpHistory] = React.useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

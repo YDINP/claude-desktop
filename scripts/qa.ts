@@ -11537,6 +11537,74 @@ if (existsSync(sl1127Path)) {
   }
 }
 
+console.log('\n## 287. Phase DD10 R1128~1130 기능 체크')
+// R1128: ChatPanel 메시지 요약
+const cp1128Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1128Path)) {
+  const cp1128 = readFileSync(cp1128Path, 'utf-8')
+  if (cp1128.includes('autoSummary') || cp1128.includes('summaryLength') || cp1128.includes('msgSummary')) {
+    log('pass', 'R1128', 'ChatPanel 메시지 요약 존재')
+  } else {
+    log('warning', 'R1128', 'ChatPanel 메시지 요약 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1129: InputBar 포커스 모드
+const ib1129Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1129Path)) {
+  const ib1129 = readFileSync(ib1129Path, 'utf-8')
+  if (ib1129.includes('focusMode') || ib1129.includes('focusOpacity') || ib1129.includes('writingFocus')) {
+    log('pass', 'R1129', 'InputBar 포커스 모드 존재')
+  } else {
+    log('warning', 'R1129', 'InputBar 포커스 모드 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1130: CocosPanel 씬 히스토리
+const ccp1130Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1130Path)) {
+  const ccp1130 = readFileSync(ccp1130Path, 'utf-8')
+  if (ccp1130.includes('sceneOpHistory') || ccp1130.includes('showOpHistory') || ccp1130.includes('opLog')) {
+    log('pass', 'R1130', 'CocosPanel 씬 히스토리 존재')
+  } else {
+    log('warning', 'R1130', 'CocosPanel 씬 히스토리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 288. Phase DD10 R1131~1133 기능 체크')
+// R1131: SceneViewPanel 씬 배치 작업
+const sv1131Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1131Path)) {
+  const sv1131 = readFileSync(sv1131Path, 'utf-8')
+  if (sv1131.includes('batchOps') || sv1131.includes('showBatchPanel') || sv1131.includes('bulkOps')) {
+    log('pass', 'R1131', 'SceneViewPanel 씬 배치 작업 존재')
+  } else {
+    log('warning', 'R1131', 'SceneViewPanel 씬 배치 작업 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1132: TerminalPanel 작업 큐
+const tp1132Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1132Path)) {
+  const tp1132 = readFileSync(tp1132Path, 'utf-8')
+  if (tp1132.includes('taskQueue') || tp1132.includes('showTaskQueue') || tp1132.includes('cmdQueue')) {
+    log('pass', 'R1132', 'TerminalPanel 작업 큐 존재')
+  } else {
+    log('warning', 'R1132', 'TerminalPanel 작업 큐 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1133: SessionList 세션 일정
+const sl1133Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1133Path)) {
+  const sl1133 = readFileSync(sl1133Path, 'utf-8')
+  if (sl1133.includes('sessionSchedule') || sl1133.includes('showSchedulePanel') || sl1133.includes('schedMap')) {
+    log('pass', 'R1133', 'SessionList 세션 일정 존재')
+  } else {
+    log('warning', 'R1133', 'SessionList 세션 일정 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
