@@ -9973,6 +9973,74 @@ if (existsSync(sl989Path)) {
   }
 }
 
+console.log('\n## 241. Phase DD10 R990~992 기능 체크')
+// R990: ChatPanel 채팅 테마
+const cp990Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp990Path)) {
+  const cp990 = readFileSync(cp990Path, 'utf-8')
+  if (cp990.includes('chatTheme') || cp990.includes('showThemeSelector') || cp990.includes('themeMode')) {
+    log('pass', 'R990', 'ChatPanel 채팅 테마 존재')
+  } else {
+    log('warning', 'R990', 'ChatPanel 채팅 테마 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R991: InputBar 붙여넣기 처리
+const ib991Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib991Path)) {
+  const ib991 = readFileSync(ib991Path, 'utf-8')
+  if (ib991.includes('pasteMode') || ib991.includes('showPasteOptions') || ib991.includes('pasteHandler')) {
+    log('pass', 'R991', 'InputBar 붙여넣기 처리 존재')
+  } else {
+    log('warning', 'R991', 'InputBar 붙여넣기 처리 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R992: CocosPanel 씬 필터
+const cocos992Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos992Path)) {
+  const cocos992 = readFileSync(cocos992Path, 'utf-8')
+  if (cocos992.includes('sceneFilter') || cocos992.includes('sceneFilterResults') || cocos992.includes('sceneSearch')) {
+    log('pass', 'R992', 'CocosPanel 씬 필터 존재')
+  } else {
+    log('warning', 'R992', 'CocosPanel 씬 필터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 242. Phase DD10 R993~995 기능 체크')
+// R993: SceneViewPanel 드래그 모드
+const svp993Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp993Path)) {
+  const svp993 = readFileSync(svp993Path, 'utf-8')
+  if (svp993.includes('dragMode') || svp993.includes('dragTarget') || svp993.includes('dragEnabled')) {
+    log('pass', 'R993', 'SceneViewPanel 드래그 모드 존재')
+  } else {
+    log('warning', 'R993', 'SceneViewPanel 드래그 모드 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R994: TerminalPanel 명령어 팔레트
+const tp994Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp994Path)) {
+  const tp994 = readFileSync(tp994Path, 'utf-8')
+  if (tp994.includes('cmdPalette') || tp994.includes('cmdPaletteQuery') || tp994.includes('commandPalette')) {
+    log('pass', 'R994', 'TerminalPanel 명령어 팔레트 존재')
+  } else {
+    log('warning', 'R994', 'TerminalPanel 명령어 팔레트 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R995: SessionList 세션 색상
+const sl995Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl995Path)) {
+  const sl995 = readFileSync(sl995Path, 'utf-8')
+  if (sl995.includes('sessionColors') || sl995.includes('showColorPicker') || sl995.includes('colorMap')) {
+    log('pass', 'R995', 'SessionList 세션 색상 존재')
+  } else {
+    log('warning', 'R995', 'SessionList 세션 색상 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

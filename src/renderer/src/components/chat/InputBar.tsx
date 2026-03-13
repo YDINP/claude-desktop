@@ -306,6 +306,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [expandedInput, setExpandedInput] = React.useState(false)
   const [inputMaxHeight, setInputMaxHeight] = React.useState(300)
   const [codeLanguage, setCodeLanguage] = React.useState('javascript')
+  const [showPasteOptions, setShowPasteOptions] = React.useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

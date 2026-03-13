@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T12:36:25.594Z
+> 2026-03-13T12:37:47.081Z
 
 ## Critical
 _없음_
@@ -871,3 +871,9 @@ _없음_
 - SceneViewPanel 씬 잠금 존재
 - TerminalPanel 원격 접속 존재
 - SessionList 세션 공유 존재
+- ChatPanel 채팅 테마 존재
+- InputBar 붙여넣기 처리 존재
+- CocosPanel 씬 필터 존재
+- SceneViewPanel 드래그 모드 존재
+- TerminalPanel 명령어 팔레트 존재
+- SessionList 세션 색상 존재

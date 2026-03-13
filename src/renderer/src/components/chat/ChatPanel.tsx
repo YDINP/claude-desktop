@@ -1052,6 +1052,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showMsgStats, setShowMsgStats] = React.useState(false)
   const [searchFilter, setSearchFilter] = React.useState<'all' | 'mine' | 'ai'>('all')
   const [showSearchFilter, setShowSearchFilter] = React.useState(false)
+  const [chatTheme, setChatTheme] = React.useState('default')
+  const [showThemeSelector, setShowThemeSelector] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

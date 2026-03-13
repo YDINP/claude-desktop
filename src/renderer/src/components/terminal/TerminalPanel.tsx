@@ -408,6 +408,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [termFontFamily, setTermFontFamily] = React.useState('monospace')
   const [remoteHost, setRemoteHost] = React.useState('')
   const [showRemotePanel, setShowRemotePanel] = React.useState(false)
+  const [cmdPalette, setCmdPalette] = React.useState(false)
+  const [cmdPaletteQuery, setCmdPaletteQuery] = React.useState('')
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
