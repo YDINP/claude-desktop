@@ -1280,6 +1280,10 @@ function CCFileNodeInspector({
     try { return JSON.parse(localStorage.getItem('node-presets') ?? '[]') } catch { return [] }
   })
   const [nodePresetOpen, setNodePresetOpen] = useState(false)
+  const [favoriteNodes, setFavoriteNodes] = useState<Array<{ uuid: string; name: string }>>(() => {
+    try { return JSON.parse(localStorage.getItem('favorite-nodes') ?? '[]') } catch { return [] }
+  })
+  const [favoritesOpen, setFavoritesOpen] = useState(false)
   const [redoStack, setRedoStack] = useState<Partial<CCSceneNode>[]>([])
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const COLLAPSED_COMPS_KEY = 'collapsed-comps'

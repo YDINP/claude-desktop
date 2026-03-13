@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 688 완료 — Phase DD10 진행 중, QA Pass 566)
+> 마지막 업데이트: 2026-03-13 (Round 692 완료 — Phase DD10 진행 중, QA Pass 569)
 
 ## 개발 루프 실행 방식
 
@@ -664,6 +664,10 @@
 | Round 686 | TerminalPanel 출력 색상 테마 (outputTheme, solarized/monokai) | ✅ |
 | Round 687 | SessionList 세션 아카이브 (archivedSessions, showArchived) | ✅ |
 | Round 688 | QA Section 141 추가 (R685/R686/R687, Pass 566) | ✅ |
+| Round 689 | SceneViewPanel 애니메이션 미리보기 (animPreview, animFrame, 슬라이더) | ✅ |
+| Round 690 | MessageBubble 번역 버튼 (showTranslation, translatedText, 🌐) | ✅ |
+| Round 691 | CocosPanel 노드 즐겨찾기 (favoriteNodes, favoritesOpen, ☆/★) | ✅ |
+| Round 692 | QA Section 142 추가 (R689/R690/R691, Pass 569) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

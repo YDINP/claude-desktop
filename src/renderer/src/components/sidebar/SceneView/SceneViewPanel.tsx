@@ -160,6 +160,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showQuickActions, setShowQuickActions] = useState(true)
   const [quickActionDismissed, setQuickActionDismissed] = useState(false)
 
+  // ── 애니메이션 미리보기 상태 ────────────────────────────────
+  const [animPreview, setAnimPreview] = useState(false)
+  const [animFrame, setAnimFrame] = useState(0)
+  const animPreviewIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()
     nodeMap.forEach((n, uuid) => {
@@ -2157,6 +2162,52 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               </div>
             )}
           </div>
+        )}
+      </div>
+
+      {/* 애니메이션 미리보기 바 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 6px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <button
+          onClick={() => {
+            const next = !animPreview
+            setAnimPreview(next)
+            if (next) {
+              animPreviewIntervalRef.current = setInterval(() => {
+                setAnimFrame(f => {
+                  const nf = f >= 100 ? 0 : f + 1
+                  console.log('anim frame:', nf)
+                  return nf
+                })
+              }, 50)
+            } else {
+              if (animPreviewIntervalRef.current) {
+                clearInterval(animPreviewIntervalRef.current)
+                animPreviewIntervalRef.current = null
+              }
+            }
+          }}
+          style={{ fontSize: 12, padding: '1px 6px', background: animPreview ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 4, color: animPreview ? '#fbbf24' : '#94a3b8', cursor: 'pointer', flexShrink: 0 }}
+          title="애니메이션 미리보기 토글"
+        >
+          {animPreview ? '⏸' : '▶'}
+        </button>
+        {animPreview && (
+          <input
+            className="animSlider"
+            type="range"
+            min={0}
+            max={100}
+            value={animFrame}
+            onChange={e => {
+              const v = Number(e.target.value)
+              setAnimFrame(v)
+              console.log('anim frame:', v)
+            }}
+            style={{ flex: 1, accentColor: '#fbbf24', cursor: 'pointer' }}
+          />
+        )}
+        {animPreview && (
+          <span style={{ fontSize: 11, color: '#94a3b8', minWidth: 28, textAlign: 'right' }}>{animFrame}</span>
         )}
       </div>
 

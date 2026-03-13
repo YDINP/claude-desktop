@@ -6529,6 +6529,41 @@ if (existsSync(sl687Path)) {
   }
 }
 
+// ── Section 142: Phase DD10 R689~691 기능 체크 ────────────────
+console.log('\n## 142. Phase DD10 R689~691 기능 체크')
+// R689: SceneViewPanel 애니메이션 미리보기
+const svp689Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp689Path)) {
+  const svp689 = readFileSync(svp689Path, 'utf-8')
+  if (svp689.includes('animPreview') || svp689.includes('animFrame') || svp689.includes('animSlider')) {
+    log('pass', 'R689', 'SceneViewPanel 애니메이션 미리보기 존재')
+  } else {
+    log('warning', 'R689', 'SceneViewPanel 애니메이션 미리보기 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R690: MessageBubble 번역
+const mb690Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb690Path)) {
+  const mb690 = readFileSync(mb690Path, 'utf-8')
+  if (mb690.includes('showTranslation') || mb690.includes('translatedText') || mb690.includes('translateMsg')) {
+    log('pass', 'R690', 'MessageBubble 번역 버튼 존재')
+  } else {
+    log('warning', 'R690', 'MessageBubble 번역 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R691: CocosPanel 노드 즐겨찾기
+const cp691Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp691Path)) {
+  const cp691 = readFileSync(cp691Path, 'utf-8')
+  if (cp691.includes('favoriteNodes') || cp691.includes('favoritesOpen') || cp691.includes('favoriteNode')) {
+    log('pass', 'R691', 'CocosPanel 노드 즐겨찾기 존재')
+  } else {
+    log('warning', 'R691', 'CocosPanel 즐겨찾기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

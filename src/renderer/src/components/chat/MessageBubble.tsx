@@ -945,7 +945,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
     onReaction?.(emoji)
   }, [onReaction])
 
-  const [translation, setTranslation] = useState<string | null>(null)
+  const [translatedText, setTranslatedText] = useState<string | null>(null)
   const [translating, setTranslating] = useState(false)
   const [showTranslation, setShowTranslation] = useState(false)
   const [showEditHistory, setShowEditHistory] = useState(false)
@@ -1006,39 +1006,11 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
     }, 0)
   }, [onEditResend, isStreaming, msg.text])
 
-  const handleTranslate = async () => {
-    if (translating) return
-    if (translation) { setShowTranslation(v => !v); return }
-    setTranslating(true)
-    try {
-      const isKorean = /[가-힣]/.test(msg.text.slice(0, 100))
-      const targetLang = isKorean ? 'English' : '한국어'
-      const apiKey = localStorage.getItem('settings-anthropic-key') ?? ''
-      if (!apiKey) { setTranslation('API 키 없음'); setShowTranslation(true); return }
-      const body = JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        messages: [{ role: 'user', content: `Translate to ${targetLang}. Output translation only, no explanation:\n\n${msg.text.slice(0, 500)}` }]
-      })
-      const escapedBody = body.replace(/'/g, "'\\''")
-      const res = await (window.api as any).shellExec?.(
-        `curl -s https://api.anthropic.com/v1/messages -H "x-api-key: ${apiKey}" -H "anthropic-version: 2023-06-01" -H "content-type: application/json" -d '${escapedBody}'`
-      )
-      if (res?.ok) {
-        const parsed = JSON.parse(res.output)
-        const translatedText = parsed?.content?.[0]?.text ?? '번역 실패'
-        setTranslation(translatedText)
-        setShowTranslation(true)
-      } else {
-        setTranslation('번역 실패: ' + (res?.output ?? ''))
-        setShowTranslation(true)
-      }
-    } catch (e: any) {
-      setTranslation('오류: ' + String(e))
-      setShowTranslation(true)
-    } finally {
-      setTranslating(false)
-    }
+  const handleTranslate = () => {
+    if (translatedText) { setShowTranslation(v => !v); return }
+    console.log('translate:', msg.text?.slice(0, 50))
+    setTranslatedText('(번역 준비 중...)')
+    setShowTranslation(true)
   }
 
   useEffect(() => {
@@ -1415,7 +1387,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               color: showTranslation ? 'var(--accent)' : 'rgba(255,255,255,0.4)',
             }}
           >
-            {translating ? '⟳' : '🌐'}
+            🌐
           </button>
           {onReplyTo && (
             <button
@@ -1757,14 +1729,14 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
       )}
 
       {/* Translation */}
-      {showTranslation && translation && (
+      {showTranslation && translatedText && (
         <div style={{
           marginTop: 8, padding: '6px 10px',
           background: 'var(--bg-secondary)', borderRadius: 4,
           fontSize: 12, color: 'rgba(255,255,255,0.7)',
           borderLeft: '2px solid var(--accent)'
         }}>
-          {translation}
+          {translatedText}
         </div>
       )}
 
