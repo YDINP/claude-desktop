@@ -827,6 +827,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showReadReceipts, setShowReadReceipts] = useState(false)
   const [conversationInsights, setConversationInsights] = useState<{ totalTokens: number; avgResponseTime: number } | null>(null)
   const [showInsightsPanel, setShowInsightsPanel] = useState(false)
+  const [messageAnalytics, setMessageAnalytics] = useState<{ sent: number; received: number; avgLength: number } | null>(null)
+  const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false)
   const [pinnedMsgs, setPinnedMsgs] = useState<string[]>(() => JSON.parse(localStorage.getItem('pinned-msgs') ?? '[]'))
   const [chatStats, setChatStats] = useState<{ totalTokens: number; avgResponseTime: number; totalMsgs: number }>({ totalTokens: 0, avgResponseTime: 0, totalMsgs: 0 })
   const [copyFormat, setCopyFormat] = useState<'text' | 'markdown' | 'html'>('markdown')

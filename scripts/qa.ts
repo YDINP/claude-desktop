@@ -9189,6 +9189,41 @@ if (existsSync(sl920Path)) {
   }
 }
 
+console.log('\n## 218. Phase DD10 R921~923 기능 체크')
+
+// R921: ChatPanel 메시지 분석
+const cp921Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp921Path)) {
+  const cp921 = readFileSync(cp921Path, 'utf-8')
+  if (cp921.includes('messageAnalytics') || cp921.includes('showAnalyticsPanel') || cp921.includes('msgAnalytics')) {
+    log('pass', 'R921', 'ChatPanel 메시지 분석 패널 존재')
+  } else {
+    log('warning', 'R921', 'ChatPanel 메시지 분석 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R922: InputBar 텍스트 변환 메뉴
+const ib922Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib922Path)) {
+  const ib922 = readFileSync(ib922Path, 'utf-8')
+  if (ib922.includes('textTransform') || ib922.includes('showTransformMenu') || ib922.includes('transformText')) {
+    log('pass', 'R922', 'InputBar 텍스트 변환 메뉴 존재')
+  } else {
+    log('warning', 'R922', 'InputBar 텍스트 변환 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R923: CocosPanel 오디오 에디터
+const cocp923Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp923Path)) {
+  const cocp923 = readFileSync(cocp923Path, 'utf-8')
+  if (cocp923.includes('audioEditorOpen') || cocp923.includes('editingAudio') || cocp923.includes('audioEdit')) {
+    log('pass', 'R923', 'CocosPanel 오디오 에디터 존재')
+  } else {
+    log('warning', 'R923', 'CocosPanel 오디오 에디터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -168,6 +168,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [editingSprite, setEditingSprite] = useState<string | null>(null)
   const [particleEditorOpen, setParticleEditorOpen] = useState(false)
   const [editingParticle, setEditingParticle] = useState<string | null>(null)
+  const [audioEditorOpen, setAudioEditorOpen] = useState(false)
+  const [editingAudio, setEditingAudio] = useState<string | null>(null)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
