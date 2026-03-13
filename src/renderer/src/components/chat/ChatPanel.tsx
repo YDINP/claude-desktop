@@ -1056,6 +1056,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showThemeSelector, setShowThemeSelector] = React.useState(false)
   const [convSummary, setConvSummary] = React.useState('')
   const [showSummaryPanel, setShowSummaryPanel] = React.useState(false)
+  const [msgPriority, setMsgPriority] = React.useState<'normal' | 'high' | 'urgent'>('normal')
+  const [showPriorityFilter, setShowPriorityFilter] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

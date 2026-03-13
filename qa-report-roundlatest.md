@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T12:39:07.298Z
+> 2026-03-13T12:40:22.961Z
 
 ## Critical
 _없음_
@@ -883,3 +883,9 @@ _없음_
 - SceneViewPanel 씬 비교 존재
 - TerminalPanel Round 1000 마일스톤 존재 🎉
 - SessionList 세션 통계 존재
+- ChatPanel 메시지 우선순위 존재
+- InputBar 멀티라인 단축키 존재
+- CocosPanel 씬 태그 존재
+- SceneViewPanel 씬 메모 존재
+- TerminalPanel 출력 줄바꿈 존재
+- SessionList 세션 즐겨찾기 존재

@@ -1604,6 +1604,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [lockReason, setLockReason] = React.useState('')
   const [dragMode, setDragMode] = React.useState<'move' | 'copy' | 'none'>('none')
   const [dragTarget, setDragTarget] = React.useState<string | null>(null)
+  const [sceneMemo, setSceneMemo] = React.useState('')
+  const [showSceneMemo, setShowSceneMemo] = React.useState(false)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {
