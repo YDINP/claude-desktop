@@ -187,7 +187,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [mergeTargets, setMergeTargets] = useState<Set<string>>(new Set())
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
-  const [archiveOpen, setArchiveOpen] = useState(false)
+  const [showArchived, setShowArchived] = useState(false)
   const [openCollections, setOpenCollections] = useState<Set<string>>(new Set())
   const [contextMenu, setContextMenu] = useState<{ sessionId: string; x: number; y: number } | null>(null)
   const contextMenuRef = useRef<HTMLDivElement>(null)
@@ -234,6 +234,24 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
       if (next.has(id)) next.delete(id)
       else next.add(id)
       localStorage.setItem('session-pins', JSON.stringify([...next]))
+      return next
+    })
+  }, [])
+
+  const [archivedSessions, setArchivedSessions] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('session-archives')
+      if (saved) return new Set(JSON.parse(saved) as string[])
+    } catch { /* ignore */ }
+    return new Set()
+  })
+
+  const toggleArchive = useCallback((id: string) => {
+    setArchivedSessions(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      localStorage.setItem('session-archives', JSON.stringify([...next]))
       return next
     })
   }, [])
@@ -610,12 +628,13 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
 
   const ARCHIVE_DAYS = 30
 
-  const { activeSessions, archivedSessions } = useMemo(() => {
-    if (sessions.length === 0) return { activeSessions: [], archivedSessions: [] }
+  const { activeSessions, autoArchivedSessions } = useMemo(() => {
+    if (sessions.length === 0) return { activeSessions: [], autoArchivedSessions: [] }
     const now = Date.now()
     const active: SessionMeta[] = []
     const archived: SessionMeta[] = []
     for (const s of filtered) {
+      if (archivedSessions.has(s.id)) continue
       const ts = s.updatedAt ?? s.createdAt ?? now
       const days = (now - ts) / (1000 * 60 * 60 * 24)
       if (days > ARCHIVE_DAYS && !s.pinned) {
@@ -624,8 +643,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
         active.push(s)
       }
     }
-    return { activeSessions: active, archivedSessions: archived }
-  }, [filtered, sessions.length])
+    return { activeSessions: active, autoArchivedSessions: archived }
+  }, [filtered, sessions.length, archivedSessions])
 
   const collections = useMemo(() => {
     const map = new Map<string, SessionMeta[]>()
@@ -957,6 +976,25 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           title="세션 복제"
         >
           ⧉
+        </button>
+        {/* Archive button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleArchive(s.id) }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: archivedSessions.has(s.id) ? 'var(--accent)' : 'var(--text-muted)',
+            cursor: 'pointer',
+            fontSize: 13,
+            padding: '0 2px',
+            lineHeight: 1,
+            flexShrink: 0,
+            opacity: hoveredSession === s.id || archivedSessions.has(s.id) ? 1 : 0,
+            transition: 'opacity 0.1s',
+          }}
+          title={archivedSessions.has(s.id) ? '아카이브 해제' : '아카이브'}
+        >
+          {'\uD83D\uDCE6'}
         </button>
         {/* Pin button */}
         <button
@@ -1582,11 +1620,11 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           </div>
         ))
       )}
-      {/* Archive section */}
-      {archivedSessions.length > 0 && (
+      {/* Manual archive section */}
+      {archivedSessions.size > 0 && (
         <div>
           <div
-            onClick={() => setArchiveOpen(a => !a)}
+            onClick={() => setShowArchived(a => !a)}
             style={{
               padding: '6px 12px',
               fontSize: 11,
@@ -1601,9 +1639,31 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
               background: 'var(--bg-secondary)',
             }}
           >
-            {'\uD83D\uDCE6'} {'\uC544\uCE74\uC774\uBC0C'} ({archivedSessions.length}) {archiveOpen ? '\u25B4' : '\u25BE'}
+            {'\uD83D\uDCE6'} {'\uC544\uCE74\uC774\uBC0C'} ({archivedSessions.size}) {showArchived ? '\u25B4' : '\u25BE'}
           </div>
-          {archiveOpen && archivedSessions.map(s => renderSessionItem(s))}
+          {showArchived && sessions.filter(s => archivedSessions.has(s.id)).map(s => renderSessionItem(s))}
+        </div>
+      )}
+      {/* Auto archive section (older than 30 days) */}
+      {autoArchivedSessions.length > 0 && (
+        <div>
+          <div
+            style={{
+              padding: '6px 12px',
+              fontSize: 11,
+              fontWeight: 600,
+              color: 'var(--text-muted)',
+              userSelect: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              borderTop: '1px solid var(--border)',
+              background: 'var(--bg-secondary)',
+            }}
+          >
+            {'\uD83D\uDCC5'} {'\uC624\uB798\uB41C \uC138\uC158'} ({autoArchivedSessions.length})
+          </div>
+          {autoArchivedSessions.map(s => renderSessionItem(s))}
         </div>
       )}
       {filtered.length === 0 && search && (

@@ -6494,6 +6494,41 @@ if (existsSync(cp683Path)) {
   }
 }
 
+// ── Section 141: Phase DD10 R685~687 기능 체크 ────────────────
+console.log('\n## 141. Phase DD10 R685~687 기능 체크')
+// R685: InputBar 멀티라인 모드
+const ib685Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib685Path)) {
+  const ib685 = readFileSync(ib685Path, 'utf-8')
+  if (ib685.includes('multilineMode') || ib685.includes('multiline')) {
+    log('pass', 'R685', 'InputBar 멀티라인 모드 존재')
+  } else {
+    log('warning', 'R685', 'InputBar 멀티라인 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R686: TerminalPanel 출력 테마
+const tp686Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp686Path)) {
+  const tp686 = readFileSync(tp686Path, 'utf-8')
+  if (tp686.includes('outputTheme') || tp686.includes('outputThemeOpen')) {
+    log('pass', 'R686', 'TerminalPanel 출력 색상 테마 존재')
+  } else {
+    log('warning', 'R686', 'TerminalPanel 출력 테마 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R687: SessionList 세션 아카이브
+const sl687Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl687Path)) {
+  const sl687 = readFileSync(sl687Path, 'utf-8')
+  if (sl687.includes('archivedSessions') || sl687.includes('toggleArchive') || sl687.includes('showArchived')) {
+    log('pass', 'R687', 'SessionList 세션 아카이브 존재')
+  } else {
+    log('warning', 'R687', 'SessionList 아카이브 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

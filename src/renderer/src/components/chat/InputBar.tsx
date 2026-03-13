@@ -205,6 +205,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     () => localStorage.getItem('selected-model') ?? 'claude-opus-4-6'
   )
   const [ollamaModels, setOllamaModels] = useState<string[]>([])
+  const [multilineMode, setMultilineMode] = useState(false)
+  const multilineModeRef = useRef(false)
   const [isDragging, setIsDragging] = useState(false)
   const [varSuggestions, setVarSuggestions] = useState<string[]>([])
   const [varSuggestionsOpen, setVarSuggestionsOpen] = useState(false)
@@ -422,11 +424,18 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     }, 0)
   }
 
+  const toggleMultilineMode = () => {
+    const next = !multilineModeRef.current
+    multilineModeRef.current = next
+    setMultilineMode(next)
+    setTimeout(() => adjustHeight(), 0)
+  }
+
   const adjustHeight = () => {
     const ta = textareaRef.current
     if (ta) {
       ta.style.height = 'auto'
-      ta.style.height = Math.min(ta.scrollHeight, 200) + 'px'
+      ta.style.height = Math.min(ta.scrollHeight, multilineModeRef.current ? 400 : 200) + 'px'
     }
   }
 
@@ -617,7 +626,27 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       }
     }
 
+    // Shift+Enter: toggle multiline mode
+    if (e.key === 'Enter' && e.shiftKey && !e.ctrlKey) {
+      if (!multilineModeRef.current) {
+        e.preventDefault()
+        toggleMultilineMode()
+        return
+      }
+      // in multiline mode, Shift+Enter inserts newline (default behavior — fall through)
+    }
+
     if (e.key === 'Enter' && !e.shiftKey) {
+      if (multilineModeRef.current) {
+        // multiline mode: Enter inserts newline (default), Ctrl+Enter sends
+        if (e.ctrlKey) {
+          e.preventDefault()
+          if (text.trim() && !isStreaming) {
+            doSend(text.trim())
+          }
+        }
+        return
+      }
       e.preventDefault()
       if (text.trim() && !isStreaming) {
         doSend(text.trim())
@@ -1409,20 +1438,20 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
             setTimeout(() => adjustHeight(), 0)
           }
         }}
-        placeholder={disabled ? 'Open a folder to start...' : 'Message Claude... (/ commands, @file, Enter to send, Shift+Enter for newline)'}
+        placeholder={disabled ? 'Open a folder to start...' : multilineMode ? 'Message Claude... (Enter: 줄바꿈, Ctrl+Enter: 전송, Shift+Enter: 일반 모드)' : 'Message Claude... (/ commands, @file, Enter to send, Shift+Enter: 멀티라인 모드)'}
         disabled={disabled || isStreaming}
         rows={1}
         style={{
           width: '100%',
           background: 'var(--bg-input)',
           color: 'var(--text-primary)',
-          border: `1px solid ${isNavigating ? 'var(--accent-dim)' : isSlashOpen || isMentionOpen || snippetMatches.length > 0 || varSuggestionsOpen ? 'var(--accent)' : 'var(--border)'}`,
+          border: `1px solid ${multilineMode ? 'var(--accent-dim)' : isNavigating ? 'var(--accent-dim)' : isSlashOpen || isMentionOpen || snippetMatches.length > 0 || varSuggestionsOpen ? 'var(--accent)' : 'var(--border)'}`,
           borderRadius: 'var(--radius-sm)',
           padding: '8px 10px',
           fontSize: 13,
           resize: 'none',
-          minHeight: 38,
-          maxHeight: 200,
+          minHeight: multilineMode ? 120 : 38,
+          maxHeight: multilineMode ? 400 : 200,
           overflowY: 'auto',
           lineHeight: 1.5,
           fontFamily: 'var(--font-ui)',
@@ -1430,7 +1459,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         onInput={(e) => {
           const ta = e.target as HTMLTextAreaElement
           ta.style.height = 'auto'
-          ta.style.height = Math.min(ta.scrollHeight, 200) + 'px'
+          ta.style.height = Math.min(ta.scrollHeight, multilineModeRef.current ? 400 : 200) + 'px'
         }}
       />
       {text.trim().length > 0 && (
@@ -1480,6 +1509,18 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           🎤
         </button>
       )}
+
+      <button
+        onClick={toggleMultilineMode}
+        title={multilineMode ? '멀티라인 모드 끄기 (일반 모드로 전환)' : '멀티라인 모드 켜기 (Shift+Enter)'}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: multilineMode ? 'var(--accent)' : 'var(--text-muted)',
+          fontSize: 16, padding: '4px',
+        }}
+      >
+        ⊞
+      </button>
 
       <button
         onClick={() => setShowTemplates(v => !v)}

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 684 완료 — Phase DD10 진행 중, QA Pass 563)
+> 마지막 업데이트: 2026-03-13 (Round 688 완료 — Phase DD10 진행 중, QA Pass 566)
 
 ## 개발 루프 실행 방식
 
@@ -660,6 +660,10 @@
 | Round 682 | ChatPanel 메시지 폴딩 (foldedMessages, foldThreshold=20) | ✅ |
 | Round 683 | CocosPanel 프로퍼티 검색 (propSearchQuery, showPropSearch) | ✅ |
 | Round 684 | QA Section 140 추가 (R681/R682/R683, Pass 563) | ✅ |
+| Round 685 | InputBar 멀티라인 모드 (multilineMode, Ctrl+Enter 전송) | ✅ |
+| Round 686 | TerminalPanel 출력 색상 테마 (outputTheme, solarized/monokai) | ✅ |
+| Round 687 | SessionList 세션 아카이브 (archivedSessions, showArchived) | ✅ |
+| Round 688 | QA Section 141 추가 (R685/R686/R687, Pass 566) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

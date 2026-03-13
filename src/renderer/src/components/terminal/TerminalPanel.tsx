@@ -9,6 +9,21 @@ import { recordCommand, getTopCommands } from '../../utils/command-learner'
 const QUICK_CMDS_KEY = 'terminalQuickCmds'
 const TAB_COLORS_KEY = 'terminal-tab-colors'
 const CMD_BOOKMARKS_KEY = 'cmd-bookmarks'
+const OUTPUT_THEME_KEY = 'terminal-output-theme'
+
+type OutputTheme = 'default' | 'solarized' | 'monokai'
+
+const OUTPUT_THEME_OPTIONS: { label: string; value: OutputTheme }[] = [
+  { label: '기본', value: 'default' },
+  { label: 'Solarized', value: 'solarized' },
+  { label: 'Monokai', value: 'monokai' },
+]
+
+const OUTPUT_THEME_STYLES: Record<OutputTheme, { background: string; color: string }> = {
+  default: { background: '#1a1a1a', color: '#d4d4d4' },
+  solarized: { background: '#002b36', color: '#839496' },
+  monokai: { background: '#272822', color: '#f8f8f2' },
+}
 
 const loadCmdBookmarks = (): string[] => {
   try { return JSON.parse(localStorage.getItem(CMD_BOOKMARKS_KEY) ?? 'null') ?? [] }
@@ -150,11 +165,6 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // Quick commands state
   const [quickCmds, setQuickCmds] = useState<QuickCmd[]>(loadQuickCmds)
   const [editingCmds, setEditingCmds] = useState(false)
-  const [cmdBookmarks, setCmdBookmarks] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('cmd-bookmarks') ?? '[]') } catch { return [] }
-  })
-  const [cmdBookmarkOpen, setCmdBookmarkOpen] = useState(false)
-
   // Learned commands state
   const [learnedCmds, setLearnedCmds] = useState<string[]>([])
   const inputBufferRef = useRef<Record<string, string>>({})
@@ -216,6 +226,12 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const outputBufferRef = useRef<Record<string, string[]>>({})
   const errorLineIdxRef = useRef<Record<string, number>>({})
   const errorTimerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+
+  // Output theme state
+  const [outputTheme, setOutputTheme] = useState<OutputTheme>(
+    () => (localStorage.getItem(OUTPUT_THEME_KEY) as OutputTheme) ?? 'default'
+  )
+  const [outputThemeOpen, setOutputThemeOpen] = useState(false)
 
   // Auto-analyze toggle
   const [autoAnalyze, setAutoAnalyze] = useState<boolean>(
@@ -543,7 +559,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
     }}>
       {/* Tab bar */}
       <div
-        onClick={() => { setTabColorMenuOpen(null); setCmdBookmarkOpen(false) }}
+        onClick={() => { setTabColorMenuOpen(null); setCmdBookmarkOpen(false); setOutputThemeOpen(false) }}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -853,6 +869,77 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               <option key={name} value={name}>{name}</option>
             ))}
           </select>
+          {/* Output theme dropdown */}
+          <div style={{ position: 'relative' }}>
+            <span
+              onClick={e => { e.stopPropagation(); setOutputThemeOpen(prev => !prev) }}
+              title="출력 색상 테마"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 3,
+                cursor: 'pointer', fontSize: 11, padding: '1px 5px',
+                borderRadius: 4,
+                border: outputThemeOpen ? '1px solid var(--accent)' : '1px solid var(--border)',
+                color: outputThemeOpen ? 'var(--accent)' : 'var(--text-muted)',
+                background: 'none', userSelect: 'none',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = outputThemeOpen ? 'var(--accent)' : 'var(--border)' }}
+            >
+              &#127912; {outputTheme}
+            </span>
+            {outputThemeOpen && (
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  zIndex: 200,
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                  padding: '4px 0',
+                  minWidth: 130,
+                  marginTop: 2,
+                }}
+              >
+                {OUTPUT_THEME_OPTIONS.map(opt => (
+                  <div
+                    key={opt.value}
+                    onClick={() => {
+                      setOutputTheme(opt.value)
+                      localStorage.setItem(OUTPUT_THEME_KEY, opt.value)
+                      setOutputThemeOpen(false)
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '4px 10px',
+                      cursor: 'pointer',
+                      fontSize: 11,
+                      color: opt.value === outputTheme ? 'var(--accent)' : 'var(--text-primary)',
+                      fontWeight: opt.value === outputTheme ? 600 : 400,
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-tertiary)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                  >
+                    <span style={{
+                      display: 'inline-block',
+                      width: 12,
+                      height: 12,
+                      borderRadius: 2,
+                      background: OUTPUT_THEME_STYLES[opt.value].background,
+                      border: '1px solid var(--border)',
+                      flexShrink: 0,
+                    }} />
+                    {opt.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -1036,7 +1123,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
         {showTermFilter && termFilter && (
           <div style={{
             position: 'absolute', inset: 0, zIndex: 50,
-            background: '#1a1a1a', overflowY: 'auto',
+            background: OUTPUT_THEME_STYLES[outputTheme].background, overflowY: 'auto',
             padding: '6px 8px', fontFamily: "'Cascadia Code', 'Fira Code', Consolas, monospace",
             fontSize: 12, lineHeight: 1.5,
           }}>
@@ -1045,7 +1132,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               .map((line, i) => {
                 const idx = line.indexOf(termFilter)
                 return (
-                  <div key={i} style={{ color: '#d4d4d4', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                  <div key={i} style={{ color: OUTPUT_THEME_STYLES[outputTheme].color, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
                     {line.slice(0, idx)}
                     <mark style={{ background: 'rgba(255,200,0,0.35)', color: '#ffe066', borderRadius: 2 }}>
                       {line.slice(idx, idx + termFilter.length)}
