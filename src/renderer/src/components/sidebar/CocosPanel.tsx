@@ -1365,6 +1365,24 @@ function CCFileNodeInspector({
           {numInput('aY', draft.anchor.y, v => applyAndSave({ anchor: { ...draft.anchor, y: v } }), 0.01)}
           {numInput('α', draft.opacity, v => applyAndSave({ opacity: Math.min(255, Math.max(0, Math.round(v))) }))}
         </div>
+        {/* 앵커 9-point grid 프리셋 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 14px)', gap: 1, marginTop: 4, justifyContent: 'start' }}>
+          {([0, 0.5, 1] as const).flatMap(ay => ([0, 0.5, 1] as const).map(ax => {
+            const isActive = Math.abs(draft.anchor.x - ax) < 0.01 && Math.abs(draft.anchor.y - ay) < 0.01
+            return (
+              <div
+                key={`${ax}-${ay}`}
+                title={`앵커 (${ax}, ${ay})`}
+                onClick={() => applyAndSave({ anchor: { x: ax, y: ay } })}
+                style={{
+                  width: 14, height: 14, borderRadius: 2, cursor: 'pointer',
+                  background: isActive ? '#58a6ff' : 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}
+              />
+            )
+          }))}
+        </div>
       </div>
       )}
 
