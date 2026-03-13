@@ -305,6 +305,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [lightingOverlay, setLightingOverlay] = useState<'none' | 'diffuse' | 'specular' | 'ambient'>('none')
   const [cameraFov, setCameraFov] = useState(60)
   const [showCameraControls, setShowCameraControls] = useState(false)
+  const [gizmoSize, setGizmoSize] = useState(1.0)
+  const [showGizmoSettings, setShowGizmoSettings] = useState(false)
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────

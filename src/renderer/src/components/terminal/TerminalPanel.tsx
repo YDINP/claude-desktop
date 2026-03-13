@@ -172,6 +172,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R919: terminal macros panel
   const [terminalMacros, setTerminalMacros] = useState<Array<{ name: string; commands: string[] }>>([])
   const [showMacroPanel, setShowMacroPanel] = useState(false)
+  const [pagingEnabled, setPagingEnabled] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
 
   // R761: per-tab process info
   const [processInfo, setProcessInfo] = useState<Record<string, { pid: number; cpu: number; mem: number }>>({})

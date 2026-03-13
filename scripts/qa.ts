@@ -9224,6 +9224,41 @@ if (existsSync(cocp923Path)) {
   }
 }
 
+console.log('\n## 219. Phase DD10 R924~926 기능 체크')
+
+// R924: SceneViewPanel 기즈모 설정
+const svp924Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp924Path)) {
+  const svp924 = readFileSync(svp924Path, 'utf-8')
+  if (svp924.includes('gizmoSize') || svp924.includes('showGizmoSettings') || svp924.includes('gizmoScale')) {
+    log('pass', 'R924', 'SceneViewPanel 기즈모 설정 존재')
+  } else {
+    log('warning', 'R924', 'SceneViewPanel 기즈모 설정 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R925: TerminalPanel 출력 페이징
+const tp925Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp925Path)) {
+  const tp925 = readFileSync(tp925Path, 'utf-8')
+  if (tp925.includes('pagingEnabled') || tp925.includes('currentPage') || tp925.includes('outputPage')) {
+    log('pass', 'R925', 'TerminalPanel 출력 페이징 존재')
+  } else {
+    log('warning', 'R925', 'TerminalPanel 출력 페이징 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R926: SessionList 세션 카테고리
+const sl926Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl926Path)) {
+  const sl926 = readFileSync(sl926Path, 'utf-8')
+  if (sl926.includes('sessionCategories') || sl926.includes('showCategoryManager') || sl926.includes('categoryMap')) {
+    log('pass', 'R926', 'SessionList 세션 카테고리 존재')
+  } else {
+    log('warning', 'R926', 'SessionList 세션 카테고리 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
