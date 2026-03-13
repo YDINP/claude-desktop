@@ -488,6 +488,83 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(insert(reduced))
   }, [sceneFile, saveScene])
 
+  // 트리 컨텍스트 메뉴용 핸들러들
+  const handleTreeAddChild = useCallback(async (parentUuid: string) => {
+    if (!sceneFile?.root || !sceneFile._raw) return
+    const raw = sceneFile._raw as Record<string, unknown>[]
+    const version = sceneFile.projectInfo.version ?? '2x'
+    const newId = 'ctx-' + Date.now()
+    const newIdx = raw.length
+    raw.push(version === '3x' ? {
+      __type__: 'cc.Node', _id: newId, _name: 'NewNode', _active: true,
+      _children: [], _components: [],
+      _lpos: { x: 0, y: 0, z: 0 }, _lrot: { x: 0, y: 0, z: 0 }, _lscale: { x: 1, y: 1, z: 1 },
+      _color: { r: 255, g: 255, b: 255, a: 255 }, _layer: 33554432,
+    } : {
+      __type__: 'cc.Node', _id: newId, _name: 'NewNode', _active: true,
+      _children: [], _components: [],
+      _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+      _contentSize: { width: 100, height: 100 }, _anchorPoint: { x: 0.5, y: 0.5 },
+      _opacity: 255, _color: { r: 255, g: 255, b: 255, a: 255 },
+    })
+    const newNode: CCSceneNode = {
+      uuid: newId, name: 'NewNode', active: true,
+      position: { x: 0, y: 0, z: 0 },
+      rotation: version === '3x' ? { x: 0, y: 0, z: 0 } : 0,
+      scale: { x: 1, y: 1, z: 1 }, size: { x: 100, y: 100 }, anchor: { x: 0.5, y: 0.5 },
+      opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 },
+      components: [], children: [], _rawIndex: newIdx,
+    }
+    function addChild(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === parentUuid) return { ...n, children: [...n.children, newNode] }
+      return { ...n, children: n.children.map(addChild) }
+    }
+    const result = await saveScene(addChild(sceneFile.root))
+    if (!result.success) raw.pop()
+  }, [sceneFile, saveScene])
+
+  const handleTreeDelete = useCallback(async (nodeUuid: string) => {
+    if (!sceneFile?.root || sceneFile.root.uuid === nodeUuid) return
+    function removeNode(n: CCSceneNode): CCSceneNode {
+      return { ...n, children: n.children.filter(c => c.uuid !== nodeUuid).map(removeNode) }
+    }
+    await saveScene(removeNode(sceneFile.root))
+    if (selectedNode?.uuid === nodeUuid) onSelectNode(null)
+  }, [sceneFile, saveScene, selectedNode, onSelectNode])
+
+  const handleTreeDuplicate = useCallback(async (nodeUuid: string) => {
+    if (!sceneFile?.root || !sceneFile._raw) return
+    const raw = sceneFile._raw as Record<string, unknown>[]
+    const findNode = (n: CCSceneNode): CCSceneNode | null => {
+      if (n.uuid === nodeUuid) return n
+      for (const c of n.children) { const f = findNode(c); if (f) return f }
+      return null
+    }
+    const orig = findNode(sceneFile.root)
+    if (!orig) return
+    const newId = 'dup-' + Date.now()
+    const newIdx = raw.length
+    // raw 엔트리 복사 (얕은 복사)
+    const origRaw = orig._rawIndex != null ? { ...raw[orig._rawIndex] } : {}
+    raw.push({ ...origRaw, _id: newId, _name: orig.name + '_Copy', _children: [], _components: [] })
+    const dupNode: CCSceneNode = {
+      ...orig, uuid: newId, name: orig.name + '_Copy',
+      children: [], _rawIndex: newIdx,
+    }
+    // 부모 찾아서 원본 다음에 삽입
+    function insertAfter(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === nodeUuid)
+      if (idx >= 0) {
+        const ch = [...n.children]
+        ch.splice(idx + 1, 0, dupNode)
+        return { ...n, children: ch }
+      }
+      return { ...n, children: n.children.map(insertAfter) }
+    }
+    const result = await saveScene(insertAfter(sceneFile.root))
+    if (!result.success) raw.pop()
+  }, [sceneFile, saveScene])
+
   const handleRestore = useCallback(async () => {
     if (!sceneFile) return
     const result = await restoreBackup()
@@ -683,6 +760,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               selected={selectedNode}
               onSelect={onSelectNode}
               onReparent={handleReparent}
+              onAddChild={handleTreeAddChild}
+              onDelete={handleTreeDelete}
+              onDuplicate={handleTreeDuplicate}
             />
           </div>
           {/* 노드 인스펙터 */}
@@ -715,25 +795,60 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate,
 }: {
   node: CCSceneNode
   depth: number
   selected: CCSceneNode | null
   onSelect: (n: CCSceneNode | null) => void
   onReparent?: (dragUuid: string, dropUuid: string) => void
+  onAddChild?: (uuid: string) => void
+  onDelete?: (uuid: string) => void
+  onDuplicate?: (uuid: string) => void
 }) {
   const [collapsed, setCollapsed] = useState(depth > 2)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null)
   const hasChildren = node.children.length > 0
   const isSelected = selected?.uuid === node.uuid
   const isRoot = depth === 0
 
   return (
     <div>
+      {ctxMenu && (
+        <div
+          style={{
+            position: 'fixed', zIndex: 9999, left: ctxMenu.x, top: ctxMenu.y,
+            background: 'var(--panel-bg, #16213e)', border: '1px solid var(--border)',
+            borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)', minWidth: 120,
+          }}
+          onMouseLeave={() => setCtxMenu(null)}
+        >
+          {[
+            { label: '자식 추가', action: () => { setCtxMenu(null); onAddChild?.(node.uuid) } },
+            ...(!isRoot ? [
+              { label: '복제', action: () => { setCtxMenu(null); onDuplicate?.(node.uuid) } },
+              { label: '삭제', action: () => { setCtxMenu(null); onDelete?.(node.uuid) } },
+            ] : []),
+          ].map(item => (
+            <div key={item.label}
+              onClick={item.action}
+              style={{
+                padding: '6px 12px', fontSize: 11, cursor: 'pointer',
+                color: item.label === '삭제' ? '#ff6b6b' : 'var(--text-primary)',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              {item.label}
+            </div>
+          ))}
+        </div>
+      )}
       <div
         draggable={!isRoot}
-        onClick={() => onSelect(isSelected ? null : node)}
+        onClick={() => { setCtxMenu(null); onSelect(isSelected ? null : node) }}
+        onContextMenu={e => { e.preventDefault(); e.stopPropagation(); onSelect(node); setCtxMenu({ x: e.clientX, y: e.clientY }) }}
         onDragStart={e => { e.stopPropagation(); e.dataTransfer.setData('text/plain', node.uuid) }}
         onDragOver={e => { e.preventDefault(); e.stopPropagation(); setIsDragOver(true) }}
         onDragLeave={() => setIsDragOver(false)}
@@ -779,6 +894,9 @@ function CCFileSceneTree({
           selected={selected}
           onSelect={onSelect}
           onReparent={onReparent}
+          onAddChild={onAddChild}
+          onDelete={onDelete}
+          onDuplicate={onDuplicate}
         />
       ))}
     </div>
