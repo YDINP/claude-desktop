@@ -46,6 +46,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
   const [gridStyle, setGridStyle] = useState<'line' | 'dot' | 'none'>('line')
   const [showNodeNames, setShowNodeNames] = useState(true)
+  const [snapSize, setSnapSize] = useState(10)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
   const [showHelp, setShowHelp] = useState(false)
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
@@ -211,11 +212,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const z = viewRef.current.zoom
       let nx = dragRef.current.startNodeX + dx / z
       let ny = dragRef.current.startNodeY - dy / z
-      // Ctrl 키: 10px 그리드 스냅
+      // Ctrl 키: 그리드 스냅
       if (e.ctrlKey || e.metaKey) {
-        const snap = 10
-        nx = Math.round(nx / snap) * snap
-        ny = Math.round(ny / snap) * snap
+        nx = Math.round(nx / snapSize) * snapSize
+        ny = Math.round(ny / snapSize) * snapSize
       }
       setDragOverride({ uuid: dragRef.current.uuid, x: nx, y: ny })
       return
@@ -338,6 +338,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onDoubleClick={() => setBgColorOverride(null)}
           style={{ width: 18, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
         />
+        <select
+          value={snapSize}
+          onChange={e => setSnapSize(Number(e.target.value))}
+          title="Ctrl+드래그 스냅 크기"
+          style={{ fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 2px', cursor: 'pointer' }}
+        >
+          {[1, 5, 10, 25, 50].map(s => <option key={s} value={s}>{s}px</option>)}
+        </select>
         <button
           onClick={() => setGridStyle(s => s === 'none' ? 'line' : s === 'line' ? 'dot' : 'none')}
           title={`그리드: ${gridStyle === 'none' ? '없음' : gridStyle === 'line' ? '선' : '점'} (클릭으로 전환)`}
@@ -817,7 +825,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['더블클릭', 'Fit to view (전체)'],
             ['F', '선택 노드 중앙 포커스'],
             ['좌클릭 드래그', '노드 이동'],
-            ['Ctrl+드래그', '10px 그리드 스냅'],
+            ['Ctrl+드래그', `${snapSize}px 그리드 스냅`],
             ['SE 핸들 드래그', '노드 리사이즈'],
             ['↻ 핸들 드래그', '노드 회전 (Shift: 15°)'],
             ['Escape', '선택 해제'],
