@@ -273,6 +273,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         onMouseLeave={() => { handleMouseUp(); setMouseScenePos(null) }}
         onContextMenu={e => e.preventDefault()}
         onClick={() => onSelect(null)}
+        onDoubleClick={handleFit}
       >
         <g transform={transform}>
           {/* 게임 캔버스 배경 */}
