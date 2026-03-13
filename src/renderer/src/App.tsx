@@ -396,10 +396,6 @@ function CCEditorWindow() {
 }
 
 function AppContent() {
-  // CC 에디터 전용 창 감지
-  const isCCEditorWindow = window.location.hash === '#cc-editor'
-  if (isCCEditorWindow) return <CCEditorWindow />
-
   const project = useProject()
   const chat = useChatStore()
 
@@ -1927,6 +1923,8 @@ function AppContent() {
 }
 
 export default function App() {
+  const isCCEditorWindow = window.location.hash === '#cc-editor'
+  if (isCCEditorWindow) return <CCEditorWindow />
   return (
     <ProjectProvider>
       <AppContent />

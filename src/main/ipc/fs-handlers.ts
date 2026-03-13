@@ -566,6 +566,7 @@ export function registerFsHandlers(_win: unknown) {
 
         if (debounceTimer) clearTimeout(debounceTimer)
         debounceTimer = setTimeout(() => {
+          if (event.sender.isDestroyed()) return
           event.sender.send('fs:dirChanged', { dirPath, eventType, filename })
         }, 300)
       })
@@ -829,26 +830,21 @@ export function registerFsHandlers(_win: unknown) {
     try {
       if (!query.trim()) return { results: [] }
 
-      const flags = [
+      const rgArgs: string[] = [
         '--line-number',
         '--with-filename',
         '--max-count=50',
         '--max-filesize=500K',
-        options?.caseSensitive ? '' : '--ignore-case',
-        options?.useRegex ? '' : '--fixed-strings',
-        '--glob=!node_modules',
-        '--glob=!.git',
-        '--glob=!dist',
-        '--glob=!out',
-        '--glob=!*.lock',
-        options?.includePattern ? `--glob=${options.includePattern}` : '',
-      ].filter(Boolean).join(' ')
-
-      const escapedQuery = query.replace(/"/g, '\\"')
+      ]
+      if (!options?.caseSensitive) rgArgs.push('--ignore-case')
+      if (!options?.useRegex) rgArgs.push('--fixed-strings')
+      rgArgs.push('--glob=!node_modules', '--glob=!.git', '--glob=!dist', '--glob=!out', '--glob=!*.lock')
+      if (options?.includePattern) rgArgs.push(`--glob=${options.includePattern}`)
+      rgArgs.push('--', query, rootPath)
 
       let stdout = ''
       try {
-        const result = await execAsync(`rg ${flags} "${escapedQuery}" "${rootPath}"`, { maxBuffer: 1024 * 512 })
+        const result = await execFileAsync('rg', rgArgs, { maxBuffer: 1024 * 512 })
         stdout = result.stdout
       } catch (e: unknown) {
         // rg returns exit code 1 when no matches (not an error)

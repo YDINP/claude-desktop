@@ -111,6 +111,7 @@ const win = new BrowserWindow({
 }
 
 let tray: Tray | null = null
+let ccEditorWin: BrowserWindow | null = null
 
 app.whenReady().then(() => {
   protocol.handle('local', async (request) => {
@@ -144,9 +145,13 @@ app.whenReady().then(() => {
 
   // CC Editor detached window
   ipcMain.handle('cc:open-window', async () => {
+    if (ccEditorWin && !ccEditorWin.isDestroyed()) {
+      ccEditorWin.focus()
+      return
+    }
     const preloadPath = join(app.getAppPath(), 'out/preload/index.js')
     const rendererUrl = process.env['ELECTRON_RENDERER_URL']
-    const ccWin = new BrowserWindow({
+    ccEditorWin = new BrowserWindow({
       width: 1200,
       height: 800,
       title: 'CC Editor',
@@ -157,14 +162,14 @@ app.whenReady().then(() => {
         sandbox: false,
       },
     })
+    ccEditorWin.on('closed', () => { ccEditorWin = null })
     if (isDev && rendererUrl) {
-      ccWin.loadURL(rendererUrl + '#cc-editor')
+      ccEditorWin.loadURL(rendererUrl + '#cc-editor')
     } else if (isDev) {
-      ccWin.loadURL('http://localhost:5173#cc-editor')
+      ccEditorWin.loadURL('http://localhost:5173#cc-editor')
     } else {
-      ccWin.loadFile(join(__dirname, '../renderer/index.html'), { hash: 'cc-editor' })
+      ccEditorWin.loadFile(join(__dirname, '../renderer/index.html'), { hash: 'cc-editor' })
     }
-    return true
   })
 
   // Terminal theme IPC

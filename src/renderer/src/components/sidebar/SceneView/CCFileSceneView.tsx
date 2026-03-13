@@ -143,7 +143,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url => {
         if (url) spriteCacheRef.current.set(uuid, url)
         setSpriteCacheVer(v => v + 1)
-      })
+      }).catch(() => {})
     })
   }, [sceneFile, flatNodes])
 
@@ -869,11 +869,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             <svg width={mmW} height={mmH}>
               {/* 게임 캔버스 */}
               <rect x={mmOffX} y={mmOffY} width={designW * mmScale} height={designH * mmScale}
-                fill={bgColor} stroke="#666" strokeWidth={0.5} />
+                fill={bgColorOverride ?? bgColor} stroke="#666" strokeWidth={0.5} />
               {/* 노드들 */}
               {flatNodes.filter(fn => fn.node.size?.x && fn.node.size?.y).map(({ node, worldX, worldY }) => {
-                const sx = mmOffX + (ccToSvg(worldX, worldY).x - node.anchor.x * (node.size.x)) * mmScale
-                const sy = mmOffY + (ccToSvg(worldX, worldY).y - (1 - node.anchor.y) * (node.size.y)) * mmScale
+                const sx = mmOffX + (ccToSvg(worldX, worldY).x - (node.anchor?.x ?? 0.5) * (node.size.x)) * mmScale
+                const sy = mmOffY + (ccToSvg(worldX, worldY).y - (1 - (node.anchor?.y ?? 0.5)) * (node.size.y)) * mmScale
                 const sw = Math.abs(node.size.x) * mmScale; const sh = Math.abs(node.size.y) * mmScale
                 return <rect key={node.uuid} x={sx} y={sy} width={sw} height={sh}
                   fill={node.uuid === selectedUuid ? 'rgba(88,166,255,0.4)' : 'rgba(255,255,255,0.1)'}

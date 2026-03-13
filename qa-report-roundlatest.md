@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T00:27:40.902Z
+> 2026-03-13T06:25:23.452Z
 
 ## Critical
 _없음_
@@ -9,9 +9,9 @@ _없음_
 
 ## Pass
 - tsc --noEmit 오류 없음
-- 100개 소스 파일 검사 완료
+- 108개 소스 파일 검사 완료
 - 자동 재연결 로직 존재
-- cocos 탭 정상 등록
+- CocosPanel App 메인 레이아웃에 통합됨 (탭/나란히/창분리)
 - registerCCHandlers 정상 등록
 - AssetBrowserPanel.tsx 존재
 - CC 3x /assets/tree 엔드포인트 존재
@@ -220,7 +220,7 @@ _없음_
 - DiffPanel: diff 결과 요약 복사 버튼 존재
 - ClipboardPanel: 핀 보호 스마트 삭제 + 핀 카운트 배지 존재
 - FileTree: 파일 검색 결과 카운트 + ESC 초기화 존재
-- CocosPanel: 프로젝트 경로 복사 버튼 존재
+- CocosPanel WS 코드 제거됨 — 경로 복사 체크 면제 (파일 기반 모드 전환)
 - SnippetPanel: 스니펫 전체 내용 펼치기 존재
 - ChangedFilesPanel: 전체 경로 복사 버튼 존재
 - SearchPanel: 검색 결과 전체 복사 버튼 존재
@@ -245,7 +245,7 @@ _없음_
 - CalendarPanel: 다음 이벤트 더 보기 토글 존재
 - SnippetPanel: 카테고리 필터 칩 스니펫 수 표시 존재
 - GlobalSearchPanel: 검색 기록 삭제 (개별 × + 전체 삭제) 존재
-- CocosPanel: 빠른 포트 버튼 (9090/9091, CC 2.x/3.x) 존재
+- CocosPanel WS 코드 제거됨 — 빠른 포트 버튼 체크 면제 (파일 기반 모드 전환)
 - RunTimeline: 진행 중 필터 (showOnlyActive/setShowOnlyActive/shownRuns) 존재
 - ConnectionPanel: 설정 파일 경로 복사 (cfgCopied/setCfgCopied/경로 복사) 존재
 - WebPreviewPanel: URL 복사 버튼 (urlCopied/setUrlCopied/URL 복사) 존재
@@ -271,7 +271,7 @@ _없음_
 - GitPanel: 전체 스테이지/해제 (handleStageAll/handleUnstageAll/stageAllLoading) 존재
 - SnippetPanel: 카테고리 퀵 필터 (catFilter/availableCategories) 존재
 - ConnectionPanel: 자동 핑 토글 (autoPing/setAutoPing/30000) 존재
-- CocosPanel: 연결 유지 시간 표시 (connectedAt/uptime) 존재
+- CocosPanel WS 코드 제거됨 — 연결 유지 시간 체크 면제 (파일 기반 모드 전환)
 - DiffPanel: 최근 비교 히스토리 (diffHistory/DIFF_HISTORY_KEY/showHistory) 존재
 - SearchPanel: 검색 결과 파일 그룹 접기/펼치기 (collapsedFiles/toggleCollapse) 존재
 - AssetBrowserPanel: 타입 필터 버튼 (typeFilter/availableTypes) 존재
