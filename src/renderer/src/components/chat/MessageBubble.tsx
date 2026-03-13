@@ -1354,34 +1354,36 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               >&#9654;</button>
             </div>
           )}
-          {!isUser && onReaction && REACTION_EMOJIS.map(emoji => {
-            const count = msg.reactions?.filter(r => r === emoji).length ?? 0
-            const active = (count > 0)
-            return (
-              <button
-                key={emoji}
-                onClick={() => onReaction(emoji)}
-                title={`${emoji} 반응`}
-                style={{
-                  background: active
-                    ? 'rgba(82,139,255,0.25)'
-                    : 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  padding: '2px 4px',
-                  borderRadius: 12,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                  color: 'var(--text-muted)',
-                  lineHeight: 1,
-                }}
-              >
-                {emoji}{count > 0 && <span style={{ fontSize: 10 }}>{count}</span>}
-              </button>
-            )
-          })}
+          {!isUser && (
+            <div className="reactionBar" style={{ display: 'flex', gap: 2 }}>
+              {REACTION_EMOJIS.map(emoji => {
+                const count = reactions[emoji] ?? 0
+                const active = count > 0
+                return (
+                  <button
+                    key={emoji}
+                    onClick={() => handleLocalReaction(emoji)}
+                    title={`${emoji} 반응`}
+                    style={{
+                      background: active ? 'rgba(82,139,255,0.25)' : 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: 14,
+                      padding: '2px 4px',
+                      borderRadius: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                      color: 'var(--text-muted)',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {emoji}{count > 0 && <span style={{ fontSize: 10 }}>{count}</span>}
+                  </button>
+                )
+              })}
+            </div>
+          )}
           <button
             onClick={handleMsgCopy}
             title="메시지 전체 복사"
@@ -1754,32 +1756,29 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
         </div>
       )}
 
-      {/* Reactions */}
-      {msg.reactions && msg.reactions.length > 0 && (
-        <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
-          {[...new Set(msg.reactions)].map(emoji => {
-            const count = msg.reactions!.filter(r => r === emoji).length
-            return (
-              <button
-                key={emoji}
-                onClick={() => onReaction?.(emoji)}
-                style={{
-                  background: '#2a2a2a',
-                  border: 'none',
-                  borderRadius: 12,
-                  padding: '2px 6px',
-                  fontSize: 12,
-                  color: '#aaa',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 3,
-                }}
-              >
-                {emoji}<span>{count}</span>
-              </button>
-            )
-          })}
+      {/* Reactions — local state badges */}
+      {Object.keys(reactions).length > 0 && (
+        <div className="emojiReactBadges" style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
+          {Object.entries(reactions).map(([emoji, count]) => (
+            <button
+              key={emoji}
+              onClick={() => handleLocalReaction(emoji)}
+              style={{
+                background: 'rgba(82,139,255,0.18)',
+                border: '1px solid rgba(82,139,255,0.35)',
+                borderRadius: 12,
+                padding: '2px 7px',
+                fontSize: 12,
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 3,
+              }}
+            >
+              {emoji}<span style={{ fontSize: 11 }}>{count}</span>
+            </button>
+          ))}
         </div>
       )}
 

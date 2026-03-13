@@ -6179,6 +6179,41 @@ if (existsSync(ib647Path)) {
   }
 }
 
+// ── Section 132: Phase DD10 R649~651 기능 체크 ────────────────
+console.log('\n## 132. Phase DD10 R649~651 기능 체크')
+// R649: SessionList 핀 고정
+const sl649Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl649Path)) {
+  const sl649 = readFileSync(sl649Path, 'utf-8')
+  if (sl649.includes('pinnedSessions') || sl649.includes('togglePin') || sl649.includes('pinned')) {
+    log('pass', 'R649', 'SessionList 핀 고정 기능 존재')
+  } else {
+    log('warning', 'R649', 'SessionList 핀 고정 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R650: SceneViewPanel 노드 복사/붙여넣기
+const svp650Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp650Path)) {
+  const svp650 = readFileSync(svp650Path, 'utf-8')
+  if (svp650.includes('copiedNode') || svp650.includes('copyNode') || svp650.includes('pasteNode')) {
+    log('pass', 'R650', 'SceneViewPanel 노드 복사/붙여넣기 존재')
+  } else {
+    log('warning', 'R650', 'SceneViewPanel 노드 복사 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R651: ChatPanel 메시지 검색
+const cp651Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp651Path)) {
+  const cp651 = readFileSync(cp651Path, 'utf-8')
+  if (cp651.includes('msgSearchQuery') || cp651.includes('showMsgSearch') || (cp651.includes('searchQuery') && cp651.includes('showSearch'))) {
+    log('pass', 'R651', 'ChatPanel 메시지 검색 존재')
+  } else {
+    log('warning', 'R651', 'ChatPanel 메시지 검색 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

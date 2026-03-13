@@ -565,6 +565,10 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [isSearchPending, startSearchTransition] = useTransition()
 
+  // R651: msgSearchQuery / showMsgSearch aliases (동일 state 참조)
+  const msgSearchQuery = searchQuery
+  const showMsgSearch = showSearch
+
   const handleSearchChange = useCallback((value: string) => {
     startSearchTransition(() => {
       setSearchQuery(value)
@@ -1271,9 +1275,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
               outline: 'none',
             }}
           />
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', minWidth: 52, textAlign: 'center' }}>
-            {matchCount > 0 ? `${safeMatchIdx + 1} / ${matchCount}` : '0 / 0'}
-            {isSearchPending && searchQuery && (
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', minWidth: 72, textAlign: 'center' }}>
+            {matchCount > 0 ? `${safeMatchIdx + 1} / ${matchCount}개 매칭` : (msgSearchQuery ? '0개 매칭' : '')}
+            {isSearchPending && msgSearchQuery && (
               <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 4 }}>...</span>
             )}
           </span>

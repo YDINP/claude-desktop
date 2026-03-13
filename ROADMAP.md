@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 648 완료 — Phase DD10 진행 중, QA Pass 536)
+> 마지막 업데이트: 2026-03-13 (Round 652 완료 — Phase DD10 진행 중, QA Pass 539)
 
 ## 개발 루프 실행 방식
 
@@ -624,6 +624,10 @@
 | Round 646 | SceneToolbar 검색 버튼 (onToggleSearch, showSearch prop) | ✅ |
 | Round 647 | InputBar 파일 드래그앤드롭 (dragOver, onDrop, isDragging) | ✅ |
 | Round 648 | QA Section 131 추가 (R645/R646/R647, Pass 536) | ✅ |
+| Round 649 | SessionList 핀 고정 (pinnedSessions, togglePin, localStorage) | ✅ |
+| Round 650 | SceneViewPanel 노드 복사/붙여넣기 (copiedNode, Ctrl+C/V) | ✅ |
+| Round 651 | ChatPanel 메시지 검색 (msgSearchQuery, showMsgSearch aliases) | ✅ |
+| Round 652 | QA Section 132 추가 (R649/R650/R651, Pass 539) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

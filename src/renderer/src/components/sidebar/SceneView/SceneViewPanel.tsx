@@ -187,6 +187,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [undoStack, setUndoStack] = useState<UndoEntry[]>([])
   const [redoStack, setRedoStack] = useState<UndoEntry[]>([])
   const [clipboard, setClipboard] = useState<ClipboardEntry[]>([])
+  const [copiedNode, setCopiedNode] = useState<SceneNode | null>(null)
 
   // ── 마퀴 선택 상태 ─────────────────────────────────────────
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)
@@ -308,7 +309,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       const n = nodeMap.get(uuid)
       if (n) copied.push({ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 })
     })
-    if (copied.length > 0) setClipboard(copied)
+    if (copied.length > 0) {
+      setClipboard(copied)
+      const primaryUuid = [...uuids][0]
+      const primaryNode = primaryUuid ? nodeMap.get(primaryUuid) ?? null : null
+      setCopiedNode(primaryNode)
+    }
   }, [selectedUuids, selectedUuid, nodeMap])
 
   const handlePaste = useCallback(() => {
@@ -328,8 +334,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     })
     if (newNodes.length > 0) {
       newNodes.forEach(n => updateNode(n.uuid, n))
+      if (copiedNode) {
+        console.log(`copy paste: ${copiedNode.name}`)
+      } else if (clipboard.length > 0) {
+        console.log(`copy paste: ${clipboard[0].name}`)
+      }
     }
-  }, [clipboard, nodeMap, updateNode])
+  }, [clipboard, copiedNode, nodeMap, updateNode])
 
   // ── 복제 (Ctrl+D): clipboard 변경 없이 직접 노드 복제 ─────
   // ── 그룹화 (Ctrl+G): 선택 노드들을 새 Group 노드 아래로 묶기 ─
@@ -3087,6 +3098,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               {isDragging && <><span>|</span><span style={{ color: '#f59e0b' }}>드래그 중</span></>}
               {isResizing && <><span>|</span><span style={{ color: '#f59e0b' }}>리사이즈 중</span></>}
               {isDirty && <><span>|</span><span style={{ color: '#f97316' }} title="저장되지 않은 변경 사항">● 저장 안됨</span></>}
+              {copiedNode && <><span>|</span><span style={{ color: '#a78bfa' }} title={`클립보드: ${copiedNode.name}`}>📋 {copiedNode.name}</span></>}
             </>
           )}
         </div>
@@ -3833,7 +3845,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   setSelectedUuid(ctxUuid!)
                   setSelectedUuids(new Set([ctxUuid!]))
                   const n = nodeMap.get(ctxUuid!)
-                  if (n) setClipboard([{ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 }])
+                  if (n) {
+                    setClipboard([{ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 }])
+                    setCopiedNode(n)
+                  }
                   close()
                 }}>복사</button>
               )}

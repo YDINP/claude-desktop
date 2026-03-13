@@ -219,6 +219,24 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     return saved === 'timeline' ? 'timeline' : 'list'
   })
 
+  const [pinnedSessions, setPinnedSessions] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('session-pins')
+      if (saved) return new Set(JSON.parse(saved) as string[])
+    } catch { /* ignore */ }
+    return new Set()
+  })
+
+  const togglePin = useCallback((id: string) => {
+    setPinnedSessions(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      localStorage.setItem('session-pins', JSON.stringify([...next]))
+      return next
+    })
+  }, [])
+
   const toggleViewMode = useCallback(() => {
     setViewMode(prev => {
       const next: ViewMode = prev === 'list' ? 'timeline' : 'list'
