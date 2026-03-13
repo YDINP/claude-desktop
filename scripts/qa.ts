@@ -17418,6 +17418,18 @@ console.log('\n## 515. R1624 SceneView 다중선택 BBox 크기 레이블 체크
   }
 }
 
+// ── Section 516: R1625 Inspector 씬 컴포넌트 분포 요약 칩 ──────────────────
+console.log('\n## 516. R1625 Inspector 씬 컴포넌트 분포 요약 칩 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s516 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s516.includes('R1625') && s516.includes('typeMap') && s516.includes('topTypes') && s516.includes("replace('cc.', '')")) {
+    log('pass', 'R1625-comp-dist', 'Inspector 씬 컴포넌트 분포 요약 칩')
+  } else {
+    log('warning', 'R1625-comp-dist', 'Inspector 씬 컴포넌트 분포 요약 칩 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

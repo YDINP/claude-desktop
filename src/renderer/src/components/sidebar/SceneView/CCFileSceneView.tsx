@@ -2090,7 +2090,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
               const firstType = fn?.node.components?.[0]?.type
               if (!firstType) return false
-              return { label: `같은 "${firstType.replace('cc.','')" 모두 선택`, action: () => {
+              return { label: `같은 "${firstType.replace('cc.', '')}" 모두 선택`, action: () => {
                 const matched = flatNodes.filter(f => f.node.components?.[0]?.type === firstType).map(f => f.node.uuid)
                 setMultiSelected(new Set(matched))
                 if (matched.length > 0) onSelect(matched[0])

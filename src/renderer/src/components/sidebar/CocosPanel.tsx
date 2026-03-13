@@ -2324,11 +2324,19 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               </span>
               {(() => {
                 let nodes = 0; let inactive = 0; let comps = 0
-                function count(n: CCSceneNode) { nodes++; if (!n.active) inactive++; comps += n.components.length; n.children.forEach(count) }
+                const typeMap: Record<string, number> = {}
+                function count(n: CCSceneNode) { nodes++; if (!n.active) inactive++; comps += n.components.length; n.components.forEach(c => { typeMap[c.type] = (typeMap[c.type] ?? 0) + 1 }); n.children.forEach(count) }
                 count(sceneFile.root)
+                // R1625: Top 3 컴포넌트 타입 칩
+                const topTypes = Object.entries(typeMap).sort((a, b) => b[1] - a[1]).slice(0, 3)
                 return (
-                  <span style={{ fontSize: 9, color: '#555', flexShrink: 0 }} title={`노드 ${nodes}개 / 비활성 ${inactive}개 / 컴포넌트 ${comps}개`}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: '#555', flexShrink: 0 }} title={`노드 ${nodes}개 / 비활성 ${inactive}개 / 컴포넌트 ${comps}개`}>
                     {nodes}N/{comps}C
+                    {topTypes.map(([type, cnt]) => (
+                      <span key={type} style={{ background: 'rgba(88,166,255,0.1)', border: '1px solid rgba(88,166,255,0.25)', borderRadius: 3, padding: '0 3px', color: '#58a6ff', fontSize: 8 }} title={type}>
+                        {type.replace('cc.', '')}:{cnt}
+                      </span>
+                    ))}
                   </span>
                 )
               })()}
