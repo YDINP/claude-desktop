@@ -1,10 +1,10 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1379 완료 — Phase DD11 R1374~1379)
+> 마지막 업데이트: 2026-03-14 (Round 1385 완료 — Phase DD12 R1380~1385)
 
 ## 현재 상태
-- 마지막 커밋: Round 1374~1379 (Sprite피커/Layout속성/Claude컨텍스트/노드검색/북마크/QA)
+- 마지막 커밋: Round 1380~1385 (파서강화/씬diff/에셋브라우저/씬탭/Animation뷰어/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1251
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1256
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -66,6 +66,17 @@
 ## 긴급 버그 수정 (이번 세션)
 - CCFileSceneView.tsx:245 — panStart.current null in setView updater (offX/offY 캡처로 해결)
 - App.tsx — CC 탭 버튼 border/borderBottom 순서 충돌 경고 해소
+
+## Phase DD12 R1380~1385 완료
+
+| 라운드 | 기능 |
+|--------|------|
+| R1380 | cc-file-parser RichText/ScrollView/Mask/PageView 컴포넌트 지원 (extractComponentProps) |
+| R1381 | SceneView 씬 diff 뷰어 — savedSnapshot + 변경 노드 주황 테두리 강조 |
+| R1382 | CocosPanel 에셋 브라우저 폴더 트리 뷰 (group/tree 토글, 파일 타입 아이콘) |
+| R1383 | SceneView 씬 파일 탭 바 (sceneHistory 기반, 최대 5개 탭, 클릭 전환) |
+| R1384 | Inspector cc.Animation 클립 목록 뷰어 (defaultClip + clips UUID 표시) |
+| R1385 | QA Section 371-372 추가 (R1380-R1384 기능 체크, Pass 1256) |
 
 ## Phase DD11 R1374~1379 완료
 

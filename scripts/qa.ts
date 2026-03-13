@@ -14415,6 +14415,69 @@ if (existsSync(svp1378Path)) {
   }
 }
 
+// ── Section 371: R1380/R1381/R1382 기능 체크 ───────────────
+console.log('\n## 371. Phase DD12 R1380~R1382 기능 체크')
+
+// R1380: cc-file-parser RichText/ScrollView/Mask/PageView 컴포넌트 지원
+const cfp1380Path = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(cfp1380Path)) {
+  const cfp1380 = readFileSync(cfp1380Path, 'utf-8')
+  if (cfp1380.includes('cc.RichText') && cfp1380.includes('cc.ScrollView') && cfp1380.includes('cc.Mask') && cfp1380.includes('cc.PageView') && cfp1380.includes('extractComponentProps')) {
+    log('pass', 'R1380', 'cc-file-parser RichText/ScrollView/Mask/PageView 컴포넌트 지원')
+  } else {
+    log('warning', 'R1380', 'cc-file-parser 추가 컴포넌트 지원 불완전', 'cc/cc-file-parser.ts')
+  }
+} else {
+  log('warning', 'R1380', 'cc-file-parser.ts 파일 없음')
+}
+
+// R1381: SceneView 씬 diff 뷰어
+const svp1381Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1381Path)) {
+  const svp1381 = readFileSync(svp1381Path, 'utf-8')
+  if (svp1381.includes('diffModeR1381') && svp1381.includes('savedSnapshot') && svp1381.includes('changedUuids')) {
+    log('pass', 'R1381', 'SceneView 씬 diff 뷰어 (savedSnapshot + 주황 테두리)')
+  } else {
+    log('warning', 'R1381', 'SceneView 씬 diff 뷰어 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1382: CocosPanel 에셋 브라우저 폴더 트리
+const cp1382Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1382Path)) {
+  const cp1382 = readFileSync(cp1382Path, 'utf-8')
+  if (cp1382.includes('assetViewMode') && cp1382.includes('buildFolderTree') && cp1382.includes('getAssetFileIcon')) {
+    log('pass', 'R1382', 'CocosPanel 에셋 브라우저 폴더 트리 뷰')
+  } else {
+    log('warning', 'R1382', 'CocosPanel 에셋 브라우저 폴더 트리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 372: R1383/R1384 기능 체크 ───────────────
+console.log('\n## 372. Phase DD12 R1383~R1384 기능 체크')
+
+// R1383: SceneView 씬 파일 탭 바
+const svp1383Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1383Path)) {
+  const svp1383 = readFileSync(svp1383Path, 'utf-8')
+  if (svp1383.includes('sceneTabFiles') && svp1383.includes('activeSceneTab') && svp1383.includes('R1383')) {
+    log('pass', 'R1383', 'SceneView 씬 파일 탭 바 존재')
+  } else {
+    log('warning', 'R1383', 'SceneView 씬 파일 탭 바 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1384: Inspector cc.Animation 클립 목록 뷰어
+const si1384Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(si1384Path)) {
+  const si1384 = readFileSync(si1384Path, 'utf-8')
+  if (si1384.includes('cc.Animation') && si1384.includes('defaultClip') && si1384.includes('clips') && si1384.includes('R1384')) {
+    log('pass', 'R1384', 'Inspector cc.Animation 클립 목록 뷰어')
+  } else {
+    log('warning', 'R1384', 'Inspector Animation 뷰어 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

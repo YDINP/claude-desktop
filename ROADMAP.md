@@ -761,6 +761,12 @@
 | Round 1377 | NodeHierarchyList 컴포넌트 타입 필터 (cc.Label/Sprite/Button/Layout/Widget) | ✅ |
 | Round 1378 | SceneView 노드 북마크 localStorage per scene 영구 저장 + 빠른 이동 | ✅ |
 | Round 1379 | QA Section 369-370 추가 (R1374-R1378 기능 체크, Pass 1251) | ✅ |
+| Round 1380 | cc-file-parser RichText/ScrollView/Mask/PageView 컴포넌트 지원 (extractComponentProps) | ✅ |
+| Round 1381 | SceneView 씬 diff 뷰어 — savedSnapshot + 변경 노드 주황 테두리 강조 | ✅ |
+| Round 1382 | CocosPanel 에셋 브라우저 폴더 트리 뷰 (group/tree 토글, 파일 타입 아이콘) | ✅ |
+| Round 1383 | SceneView 씬 파일 탭 바 (sceneHistory 기반, 최대 5개 탭, 클릭 전환) | ✅ |
+| Round 1384 | Inspector cc.Animation 클립 목록 뷰어 (defaultClip + clips UUID 표시) | ✅ |
+| Round 1385 | QA Section 371-372 추가 (R1380-R1384 기능 체크, Pass 1256) | ✅ |
 
 ## QA 프로세스
 

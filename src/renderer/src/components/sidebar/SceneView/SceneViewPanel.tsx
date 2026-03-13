@@ -178,6 +178,35 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [snapshot, setSnapshot] = useState<Map<string, SnapshotEntry> | null>(null)
   const [showDiff, setShowDiff] = useState(false)
 
+  // ── R1381: 씬 diff 뷰어 — savedSnapshot + diffMode ────────
+  type NodeSnapshot = { x: number; y: number; w: number; h: number; name: string; active: boolean }
+  const [savedSnapshot, setSavedSnapshot] = useState<Map<string, NodeSnapshot>>(new Map())
+  const [diffModeR1381, setDiffModeR1381] = useState(false)
+
+  // savedSnapshot 생성 (씬 로드 시)
+  useEffect(() => {
+    if (nodeMap.size === 0) return
+    const snap = new Map<string, NodeSnapshot>()
+    for (const [uuid, n] of nodeMap.entries()) {
+      snap.set(uuid, { x: n.x, y: n.y, w: n.width, h: n.height, name: n.name, active: n.active })
+    }
+    setSavedSnapshot(snap)
+  }, [rootUuid])  // rootUuid 변경 = 새 씬 로드
+
+  // changedUuids 계산
+  const changedUuids = useMemo(() => {
+    if (!diffModeR1381 || savedSnapshot.size === 0) return new Set<string>()
+    const changed = new Set<string>()
+    for (const [uuid, n] of nodeMap.entries()) {
+      const s = savedSnapshot.get(uuid)
+      if (!s) { changed.add(uuid); continue }
+      if (s.x !== n.x || s.y !== n.y || s.w !== n.width || s.h !== n.height || s.name !== n.name || s.active !== n.active) {
+        changed.add(uuid)
+      }
+    }
+    return changed
+  }, [diffModeR1381, savedSnapshot, nodeMap])
+
   // ── 스냅샷 기록 상태 ────────────────────────────────────────
   const [snapshots, setSnapshots] = useState<Array<{ label: string; timestamp: number; nodes: unknown[] }>>([])
   const [snapshotOpen, setSnapshotOpen] = useState(false)
@@ -200,6 +229,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 히스토리 (R730) ──────────────────────────────────────────
   const [sceneHistory, setSceneHistory] = useState<string[]>([])
   const [showSceneHistory, setShowSceneHistory] = useState(false)
+  // ── R1383: 씬 파일 탭 바 ──────────────────────────────────────
+  const [sceneTabFiles, setSceneTabFiles] = useState<string[]>([])
+  const [activeSceneTab, setActiveSceneTab] = useState<string | null>(null)
+  // 씬 히스토리에서 탭 목록 자동 생성 (최대 5개)
+  useEffect(() => {
+    const unique = [...new Set(sceneHistory)].slice(0, 5)
+    setSceneTabFiles(unique)
+    if (unique.length > 0 && !activeSceneTab) setActiveSceneTab(unique[0])
+  }, [sceneHistory])
   // ── 즐겨찾기 씬 (R736) ──────────────────────────────────────────
   const [favoriteScenes, setFavoriteScenes] = useState<string[]>(() => JSON.parse(localStorage.getItem('fav-scenes') ?? '[]'))
   const [showFavScenes, setShowFavScenes] = useState(false)
@@ -2403,6 +2441,43 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onClearOverlayImage={() => setOverlayImageSrc(null)}
       />
 
+      {/* R1383: 씬 파일 탭 바 */}
+      {sceneTabFiles.length > 1 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 0,
+          background: 'rgba(0,0,0,0.25)', borderBottom: '1px solid rgba(255,255,255,0.08)',
+          overflowX: 'auto', flexShrink: 0,
+        }}>
+          {sceneTabFiles.map(path => {
+            const name = path.split(/[\\/]/).pop() ?? path
+            const isActive = path === activeSceneTab
+            return (
+              <button
+                key={path}
+                onClick={() => setActiveSceneTab(path)}
+                title={path}
+                style={{
+                  padding: '3px 10px', fontSize: 10, border: 'none', cursor: 'pointer',
+                  background: isActive ? 'rgba(96,165,250,0.2)' : 'transparent',
+                  color: isActive ? '#93c5fd' : '#94a3b8',
+                  borderBottom: isActive ? '2px solid #60a5fa' : '2px solid transparent',
+                  whiteSpace: 'nowrap', flexShrink: 0,
+                }}
+              >
+                {name}
+              </button>
+            )
+          })}
+          {sceneHistory.length > 5 && (
+            <button
+              onClick={() => setShowSceneHistory(true)}
+              style={{ padding: '3px 8px', fontSize: 10, border: 'none', cursor: 'pointer', background: 'transparent', color: '#64748b' }}
+              title="더 많은 씬 보기"
+            >+</button>
+          )}
+        </div>
+      )}
+
       {/* 스냅샷 기록 툴바 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'relative', zIndex: 10 }}>
         <button
@@ -2410,6 +2485,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4, color: '#93c5fd', cursor: 'pointer', whiteSpace: 'nowrap' }}
         >
           스냅샷
+        </button>
+        {/* R1381: 씬 diff 뷰어 토글 */}
+        <button
+          onClick={() => setDiffModeR1381(v => !v)}
+          title={diffModeR1381 ? '씬 diff 뷰어 끄기' : '변경된 노드 주황 테두리 강조'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: diffModeR1381 ? 'rgba(251,146,60,0.25)' : 'rgba(255,255,255,0.06)',
+            border: diffModeR1381 ? '1px solid rgba(251,146,60,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: diffModeR1381 ? '#fb923c' : '#cbd5e1',
+          }}
+        >
+          diff {changedUuids.size > 0 ? `(${changedUuids.size})` : ''}
         </button>
         {/* 접근 횟수 초기화 버튼 (R702) */}
         {Object.keys(nodeAccessCount).length > 0 && (
@@ -3025,6 +3113,21 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                         x2={crx + current.width / 2} y2={cry + current.height / 2}
                     stroke="rgba(239,68,68,0.4)" strokeWidth={1 / view.zoom} strokeDasharray={`${3 / view.zoom} ${2 / view.zoom}`} />
                 </g>
+              )
+            })}
+
+            {/* R1381: diff 모드 — 변경된 노드에 주황 테두리 */}
+            {diffModeR1381 && changedUuids.size > 0 && [...changedUuids].map(uuid => {
+              const n = nodeMap.get(uuid)
+              if (!n) return null
+              const { sx, sy } = cocosToSvg(n.worldX ?? n.x, n.worldY ?? n.y, DESIGN_W, DESIGN_H)
+              const rx = sx - n.width * 0.5
+              const ry = sy - n.height * 0.5
+              return (
+                <rect key={`diff-${uuid}`} x={rx} y={ry} width={n.width} height={n.height}
+                  fill="none" stroke="rgba(251,146,60,0.8)"
+                  strokeWidth={2 / view.zoom} rx={3 / view.zoom}
+                  style={{ pointerEvents: 'none' }} />
               )
             })}
 

@@ -807,6 +807,62 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         )
       })()}
 
+      {/* R1384: cc.Animation 클립 목록 뷰어 */}
+      {(() => {
+        const animComp = node.components.find(c => c.type === 'cc.Animation')
+        if (!animComp?.props) return null
+        const ap = animComp.props as Record<string, unknown>
+        const defaultClip = ap.defaultClip as { __uuid__?: string } | undefined
+        const defaultClipUuid = defaultClip?.__uuid__ ?? ''
+        const clipsRaw = (ap.clips ?? ap._clips ?? []) as Array<{ __uuid__?: string } | null>
+        const clips = clipsRaw.filter((c): c is { __uuid__: string } => !!c && !!c.__uuid__)
+        const clipCount = clips.length
+        return (
+          <>
+            <SectionHeader label="Animation" />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              {defaultClipUuid && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                  <span style={{ color: 'var(--text-muted)', flexShrink: 0 }}>default</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--accent)' }}
+                    title={defaultClipUuid}>
+                    {defaultClipUuid.length > 16 ? defaultClipUuid.slice(0, 8) + '...' + defaultClipUuid.slice(-6) : defaultClipUuid}
+                  </span>
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ color: 'var(--text-muted)' }}>clips</span>
+                <span style={{
+                  fontSize: 8, padding: '0 5px', borderRadius: 8,
+                  background: 'rgba(96,165,250,0.15)', color: 'var(--accent)',
+                }}>{clipCount} clips</span>
+              </div>
+              {clips.map((clip, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 0', paddingLeft: 8 }}>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 8, flexShrink: 0 }}>#{i}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}
+                    title={clip.__uuid__}>
+                    {clip.__uuid__.length > 16 ? clip.__uuid__.slice(0, 8) + '...' + clip.__uuid__.slice(-6) : clip.__uuid__}
+                  </span>
+                </div>
+              ))}
+              {/* 재생 placeholder */}
+              <button
+                disabled
+                style={{
+                  marginTop: 4, width: '100%', padding: '2px 0', fontSize: 9,
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)',
+                  borderRadius: 3, color: 'var(--text-muted)', cursor: 'default', opacity: 0.5,
+                }}
+                title="재생 기능은 추후 구현 예정"
+              >
+                ▶ 재생 (미구현)
+              </button>
+            </div>
+          </>
+        )
+      })()}
+
       {/* R1372: 컴포넌트 추가 드롭다운 */}
       {(() => {
         const ADDABLE_COMPONENTS = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource']

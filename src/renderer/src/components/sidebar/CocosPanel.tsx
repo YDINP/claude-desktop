@@ -3406,12 +3406,66 @@ const ASSET_TYPE_GROUPS: { key: string; icon: string; label: string; types: stri
   { key: 'font', icon: '🔤', label: 'Font', types: ['font'] },
 ]
 
+// R1382: 에셋 파일 타입 아이콘 매핑
+function getAssetFileIcon(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase() ?? ''
+  if (['fire', 'scene'].includes(ext)) return '🎬'
+  if (['prefab'].includes(ext)) return '📦'
+  if (['ts', 'js', 'coffee'].includes(ext)) return '📜'
+  if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'svg'].includes(ext)) return '🖼'
+  if (['mp3', 'ogg', 'wav', 'aac'].includes(ext)) return '🔊'
+  if (['ttf', 'otf', 'woff', 'fnt', 'bmfont'].includes(ext)) return '🔤'
+  if (['json', 'plist'].includes(ext)) return '📋'
+  if (['anim', 'clip'].includes(ext)) return '🎞'
+  return '📄'
+}
+
+// R1382: 폴더 트리 빌드
+type FolderNode = { name: string; path: string; children: FolderNode[]; files: AssetEntry[] }
+
+function buildFolderTree(entries: AssetEntry[]): FolderNode {
+  const root: FolderNode = { name: 'assets', path: '', children: [], files: [] }
+  const folderMap = new Map<string, FolderNode>()
+  folderMap.set('', root)
+
+  const getOrCreateFolder = (dirPath: string): FolderNode => {
+    if (folderMap.has(dirPath)) return folderMap.get(dirPath)!
+    const parts = dirPath.split('/')
+    const parentPath = parts.slice(0, -1).join('/')
+    const parent = getOrCreateFolder(parentPath)
+    const folder: FolderNode = { name: parts[parts.length - 1], path: dirPath, children: [], files: [] }
+    parent.children.push(folder)
+    folderMap.set(dirPath, folder)
+    return folder
+  }
+
+  for (const entry of entries) {
+    const parts = entry.relPath.split(/[\\/]/)
+    const dirParts = parts.slice(0, -1)
+    const dirPath = dirParts.join('/')
+    const folder = getOrCreateFolder(dirPath)
+    folder.files.push(entry)
+  }
+
+  // sort children alphabetically
+  const sortFolder = (f: FolderNode) => {
+    f.children.sort((a, b) => a.name.localeCompare(b.name))
+    f.files.sort((a, b) => a.relPath.localeCompare(b.relPath))
+    f.children.forEach(sortFolder)
+  }
+  sortFolder(root)
+  return root
+}
+
 function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
   const [assets, setAssets] = useState<Record<string, AssetEntry> | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [copied, setCopied] = useState<string | null>(null)
+  // R1382: 뷰 모드 — 'group'(기존) vs 'tree'(폴더 트리)
+  const [assetViewMode, setAssetViewMode] = useState<'group' | 'tree'>('group')
+  const [treeExpanded, setTreeExpanded] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     let cancelled = false
@@ -3480,25 +3534,121 @@ function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
     )
   }
 
+  // R1382: 폴더 트리 데이터
+  const folderTree = useMemo(() => {
+    if (!assets) return null
+    const entries = Object.values(assets)
+    const lowerQ = search.toLowerCase()
+    const filtered = lowerQ ? entries.filter(e => e.relPath.toLowerCase().includes(lowerQ)) : entries
+    return buildFolderTree(filtered)
+  }, [assets, search])
+
+  const toggleTreeFolder = useCallback((path: string) => {
+    setTreeExpanded(prev => {
+      const next = new Set(prev)
+      if (next.has(path)) next.delete(path)
+      else next.add(path)
+      return next
+    })
+  }, [])
+
+  // R1382: 재귀 폴더 노드 렌더링
+  const renderFolderNode = (node: FolderNode, depth: number): React.ReactNode => {
+    const hasContent = node.children.length > 0 || node.files.length > 0
+    if (!hasContent) return null
+    const isOpen = treeExpanded.has(node.path)
+    return (
+      <div key={node.path || 'root'} style={{ marginLeft: depth * 12 }}>
+        <div
+          onClick={() => toggleTreeFolder(node.path)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 4, padding: '3px 4px',
+            cursor: 'pointer', borderRadius: 3, fontSize: 10,
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+          onMouseLeave={e => (e.currentTarget.style.background = '')}
+        >
+          <span style={{ fontSize: 8, color: 'var(--text-muted)', width: 10 }}>{isOpen ? '▾' : '▸'}</span>
+          <span>{isOpen ? '📂' : '📁'}</span>
+          <span style={{ flex: 1, color: 'var(--text-primary)', fontWeight: 500 }}>{node.name || 'assets'}</span>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{node.files.length + node.children.length}</span>
+        </div>
+        {isOpen && (
+          <>
+            {node.children.map(child => renderFolderNode(child, depth + 1))}
+            {node.files.map(file => {
+              const fileName = file.relPath.split(/[\\/]/).pop() ?? file.relPath
+              return (
+                <div
+                  key={file.uuid}
+                  onClick={() => handleCopy(file)}
+                  title={`${file.relPath}\n클릭하여 경로 복사`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    padding: '2px 4px 2px 22px', marginLeft: (depth + 1) * 12,
+                    cursor: 'pointer', fontSize: 10, borderRadius: 3,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.08)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >
+                  <span style={{ flexShrink: 0 }}>{getAssetFileIcon(fileName)}</span>
+                  <span style={{
+                    flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    color: copied === file.uuid ? 'var(--accent)' : 'var(--text-primary)',
+                  }}>
+                    {copied === file.uuid ? '✓ 복사됨' : fileName}
+                  </span>
+                </div>
+              )
+            })}
+          </>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-      {/* 검색 */}
+      {/* 검색 + 뷰 모드 토글 */}
       <div style={{ padding: '6px 8px', flexShrink: 0 }}>
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="에셋 검색..."
-          style={{
-            width: '100%', fontSize: 11, padding: '4px 8px', boxSizing: 'border-box',
-            background: 'var(--bg-input)', color: 'var(--text-primary)',
-            border: '1px solid var(--border)', borderRadius: 4,
-          }}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="에셋 검색..."
+            style={{
+              flex: 1, fontSize: 11, padding: '4px 8px', boxSizing: 'border-box',
+              background: 'var(--bg-input)', color: 'var(--text-primary)',
+              border: '1px solid var(--border)', borderRadius: 4,
+            }}
+          />
+          {/* R1382: 뷰 모드 토글 */}
+          <button
+            onClick={() => setAssetViewMode(v => v === 'group' ? 'tree' : 'group')}
+            title={assetViewMode === 'group' ? '폴더 트리 뷰로 전환' : '타입 그룹 뷰로 전환'}
+            style={{
+              fontSize: 11, padding: '3px 6px', border: '1px solid var(--border)',
+              borderRadius: 4, cursor: 'pointer', flexShrink: 0,
+              background: 'var(--bg-input)', color: 'var(--text-primary)',
+            }}
+          >
+            {assetViewMode === 'group' ? '📁' : '📊'}
+          </button>
+        </div>
         <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 3 }}>
-          전체 {Object.keys(assets).length}개 에셋
+          전체 {Object.keys(assets).length}개 에셋 ({assetViewMode === 'group' ? '타입별' : '폴더별'})
         </div>
       </div>
-      {/* 그룹 리스트 */}
+
+      {/* R1382: 폴더 트리 뷰 */}
+      {assetViewMode === 'tree' && folderTree && (
+        <div style={{ flex: 1, overflow: 'auto', padding: '0 8px 8px' }}>
+          {renderFolderNode(folderTree, 0)}
+        </div>
+      )}
+
+      {/* 그룹 리스트 (기존) */}
+      {assetViewMode === 'group' && (
       <div style={{ flex: 1, overflow: 'auto', padding: '0 8px 8px' }}>
         {grouped.length === 0 && (
           <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 10, textAlign: 'center' }}>
@@ -3562,6 +3712,7 @@ function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
           </div>
         ))}
       </div>
+      )}
     </div>
   )
 }
