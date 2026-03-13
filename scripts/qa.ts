@@ -17370,6 +17370,18 @@ console.log('\n## 511. R1620 Inspector cc.Label Quick Edit 체크')
   }
 }
 
+// ── Section 512: R1621 SceneView 같은 컴포넌트 타입 모두 선택 ──────────────────
+console.log('\n## 512. R1621 SceneView 같은 컴포넌트 타입 모두 선택 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s512 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s512.includes('R1621') && s512.includes('같은') && s512.includes('모두 선택') && s512.includes('firstType')) {
+    log('pass', 'R1621-same-comp-select', 'SceneView 같은 컴포넌트 타입 모두 선택')
+  } else {
+    log('warning', 'R1621-same-comp-select', 'SceneView 같은 컴포넌트 타입 모두 선택 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

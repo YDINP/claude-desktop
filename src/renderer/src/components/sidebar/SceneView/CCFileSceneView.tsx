@@ -2054,6 +2054,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               const info = `노드 "${fn.node.name}" 분석 요청:\n- 위치: (${fn.worldX.toFixed(1)}, ${fn.worldY.toFixed(1)})\n- 크기: ${fn.node.size ? `${fn.node.size.x}×${fn.node.size.y}` : '없음'}\n- 컴포넌트: ${fn.node.components.map(c => c.type.replace('cc.','')).join(', ') || '없음'}`
               window.dispatchEvent(new CustomEvent('cc-chat-prefill', { detail: { text: info } }))
             }},
+            // R1621: 같은 컴포넌트 타입 노드 모두 선택
+            ctxMenu.uuid && (() => {
+              const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
+              const firstType = fn?.node.components?.[0]?.type
+              if (!firstType) return false
+              return { label: `같은 "${firstType.replace('cc.','')" 모두 선택`, action: () => {
+                const matched = flatNodes.filter(f => f.node.components?.[0]?.type === firstType).map(f => f.node.uuid)
+                setMultiSelected(new Set(matched))
+                if (matched.length > 0) onSelect(matched[0])
+              }}
+            })(),
           ].filter(Boolean).map((item, i) => (
             item ? (
               <div
