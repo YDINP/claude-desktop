@@ -1293,6 +1293,20 @@ function CCFileNodeInspector({
       </div>
       )}
 
+      {draft.layer != null && (() => {
+        const layerNames: Record<number, string> = {
+          1: 'DEFAULT', 2: 'IGNORE_RAYCAST', 4: 'GIZMOS', 8: 'EDITOR', 16: 'UI_3D',
+          32: 'SCENE_GIZMO', 64: 'PROFILER', 524288: 'UI_2D', 33554432: 'UI_2D', 1073741824: 'ALL',
+        }
+        const name = layerNames[draft.layer] ?? `0x${draft.layer.toString(16)}`
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+            <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>layer</span>
+            <span style={{ fontSize: 9, color: '#888', fontFamily: 'monospace' }}>{name}</span>
+          </div>
+        )
+      })()}
+
       {secHeader('color', '색상')}
       {!collapsed['color'] && (
       <div style={{ marginTop: 0 }}>
