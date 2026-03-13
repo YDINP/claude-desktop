@@ -648,7 +648,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               >
                 <title>{node.name}{node.components.length > 0 ? '\n' + node.components.map(c => c.type.split('.').pop()).join(', ') : ''}</title>
                 <rect
-                  x={rectX} y={rectY} width={w} height={h}
+                  x={rectX} y={rectY} width={Math.max(0, w)} height={Math.max(0, h)}
                   fill={fillColor}
                   stroke={strokeColor}
                   strokeWidth={(isSelected ? 2 : 1) / view.zoom}
@@ -708,7 +708,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <image
                       href={imgUrl}
                       x={rectX} y={rectY}
-                      width={w} height={h}
+                      width={Math.max(0, w)} height={Math.max(0, h)}
                       preserveAspectRatio="xMidYMid meet"
                       style={{ pointerEvents: 'none' }}
                     />
@@ -872,7 +872,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               {flatNodes.filter(fn => fn.node.size?.x && fn.node.size?.y).map(({ node, worldX, worldY }) => {
                 const sx = mmOffX + (ccToSvg(worldX, worldY).x - node.anchor.x * (node.size.x)) * mmScale
                 const sy = mmOffY + (ccToSvg(worldX, worldY).y - (1 - node.anchor.y) * (node.size.y)) * mmScale
-                const sw = node.size.x * mmScale; const sh = node.size.y * mmScale
+                const sw = Math.abs(node.size.x) * mmScale; const sh = Math.abs(node.size.y) * mmScale
                 return <rect key={node.uuid} x={sx} y={sy} width={sw} height={sh}
                   fill={node.uuid === selectedUuid ? 'rgba(88,166,255,0.4)' : 'rgba(255,255,255,0.1)'}
                   stroke={node.uuid === selectedUuid ? '#58a6ff' : '#555'} strokeWidth={0.3} />
@@ -929,8 +929,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             padding: '2px 8px', fontSize: 9, color: '#ccc',
             display: 'flex', gap: 8,
           }}>
-            <span style={{ pointerEvents: 'none', color: dragOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>pos</span> {Math.round(pos.x)},{Math.round(pos.y)}</span>
-            <span style={{ pointerEvents: 'none', color: resizeOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>size</span> {Math.round(w)}×{Math.round(h)}</span>
+            <span style={{ pointerEvents: 'none', color: dragOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>pos</span> {parseFloat(pos.x.toFixed(2))},{parseFloat(pos.y.toFixed(2))}</span>
+            <span style={{ pointerEvents: 'none', color: resizeOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>size</span> {parseFloat(w.toFixed(2))}×{parseFloat(h.toFixed(2))}</span>
             {(rotZ !== 0 || rotateOverride?.uuid === node.uuid) && <span style={{ pointerEvents: 'none', color: rotateOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
             {/* 정렬 버튼 */}
             {alignBtn('⊙', '중앙 정렬', 0, 0)}

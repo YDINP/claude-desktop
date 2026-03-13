@@ -419,6 +419,46 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (path) { await loadScene(path); addRecent(path) }
   }, [loadScene, addRecent])
 
+  const handleTreeDelete = useCallback(async (nodeUuid: string) => {
+    if (!sceneFile?.root || sceneFile.root.uuid === nodeUuid) return
+    function removeNode(n: CCSceneNode): CCSceneNode {
+      return { ...n, children: n.children.filter(c => c.uuid !== nodeUuid).map(removeNode) }
+    }
+    await saveScene(removeNode(sceneFile.root))
+    if (selectedNode?.uuid === nodeUuid) onSelectNode(null)
+  }, [sceneFile, saveScene, selectedNode, onSelectNode])
+
+  const handleTreeDuplicate = useCallback(async (nodeUuid: string) => {
+    if (!sceneFile?.root || !sceneFile._raw) return
+    const raw = sceneFile._raw as Record<string, unknown>[]
+    const findNode = (n: CCSceneNode): CCSceneNode | null => {
+      if (n.uuid === nodeUuid) return n
+      for (const c of n.children) { const f = findNode(c); if (f) return f }
+      return null
+    }
+    const orig = findNode(sceneFile.root)
+    if (!orig) return
+    const newId = 'dup-' + Date.now()
+    const newIdx = raw.length
+    const origRaw = orig._rawIndex != null ? { ...raw[orig._rawIndex] } : {}
+    raw.push({ ...origRaw, _id: newId, _name: orig.name + '_Copy', _children: [], _components: [] })
+    const dupNode: CCSceneNode = {
+      ...orig, uuid: newId, name: orig.name + '_Copy',
+      children: [], _rawIndex: newIdx,
+    }
+    function insertAfter(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === nodeUuid)
+      if (idx >= 0) {
+        const ch = [...n.children]
+        ch.splice(idx + 1, 0, dupNode)
+        return { ...n, children: ch }
+      }
+      return { ...n, children: n.children.map(insertAfter) }
+    }
+    const result = await saveScene(insertAfter(sceneFile.root))
+    if (!result.success) raw.pop()
+  }, [sceneFile, saveScene])
+
   // 키보드 단축키: Ctrl+Z/Y, Delete, Ctrl+D, Arrow keys
   useEffect(() => {
     if (!sceneFile) return
@@ -626,48 +666,6 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       return { ...n, children: n.children.map(addChild) }
     }
     const result = await saveScene(addChild(sceneFile.root))
-    if (!result.success) raw.pop()
-  }, [sceneFile, saveScene])
-
-  const handleTreeDelete = useCallback(async (nodeUuid: string) => {
-    if (!sceneFile?.root || sceneFile.root.uuid === nodeUuid) return
-    function removeNode(n: CCSceneNode): CCSceneNode {
-      return { ...n, children: n.children.filter(c => c.uuid !== nodeUuid).map(removeNode) }
-    }
-    await saveScene(removeNode(sceneFile.root))
-    if (selectedNode?.uuid === nodeUuid) onSelectNode(null)
-  }, [sceneFile, saveScene, selectedNode, onSelectNode])
-
-  const handleTreeDuplicate = useCallback(async (nodeUuid: string) => {
-    if (!sceneFile?.root || !sceneFile._raw) return
-    const raw = sceneFile._raw as Record<string, unknown>[]
-    const findNode = (n: CCSceneNode): CCSceneNode | null => {
-      if (n.uuid === nodeUuid) return n
-      for (const c of n.children) { const f = findNode(c); if (f) return f }
-      return null
-    }
-    const orig = findNode(sceneFile.root)
-    if (!orig) return
-    const newId = 'dup-' + Date.now()
-    const newIdx = raw.length
-    // raw 엔트리 복사 (얕은 복사)
-    const origRaw = orig._rawIndex != null ? { ...raw[orig._rawIndex] } : {}
-    raw.push({ ...origRaw, _id: newId, _name: orig.name + '_Copy', _children: [], _components: [] })
-    const dupNode: CCSceneNode = {
-      ...orig, uuid: newId, name: orig.name + '_Copy',
-      children: [], _rawIndex: newIdx,
-    }
-    // 부모 찾아서 원본 다음에 삽입
-    function insertAfter(n: CCSceneNode): CCSceneNode {
-      const idx = n.children.findIndex(c => c.uuid === nodeUuid)
-      if (idx >= 0) {
-        const ch = [...n.children]
-        ch.splice(idx + 1, 0, dupNode)
-        return { ...n, children: ch }
-      }
-      return { ...n, children: n.children.map(insertAfter) }
-    }
-    const result = await saveScene(insertAfter(sceneFile.root))
     if (!result.success) raw.pop()
   }, [sceneFile, saveScene])
 
@@ -1255,8 +1253,8 @@ function CCFileNodeInspector({
     else { raw.pop(); setMsg({ ok: false, text: result.error ?? '복제 실패' }) }
   }, [node, sceneFile, saveScene, onUpdate])
 
-  // 노드 교체 시 draft 초기화
-  useMemo(() => { setDraft({ ...node }) }, [node.uuid])
+  // 노드 교체 시 draft + 컴포넌트 접힘 상태 초기화
+  useMemo(() => { setDraft({ ...node }); setCollapsedComps(new Set()) }, [node.uuid])
   const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
   const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
 
@@ -1549,7 +1547,7 @@ function CCFileNodeInspector({
           return false
         })
       }).map((comp, ci) => (
-        <div key={ci} style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 5 }}>
+        <div key={`${node.uuid}-${ci}`} style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 5 }}>
           <div
             style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
             onClick={() => setCollapsedComps(s => { const n = new Set(s); n.has(ci) ? n.delete(ci) : n.add(ci); return n })}
