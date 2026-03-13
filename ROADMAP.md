@@ -624,6 +624,10 @@
 | Round 578 | 단축키 도움말 모달 ? 키 단독 토글 (KeyboardShortcutsOverlay, input 포커스 무시) | ✅ |
 | Round 579 | 씬 트리 전체 펼치기/접기 (⊞/⊟ 버튼, expandAll/collapseAll) | ✅ |
 | Round 580 | QA Section 114 추가 (R577/R578/R579, Pass 485) | ✅ |
+| Round 581 | 씬뷰 Marquee 선택 Shift union 버그 수정 + worldX 히트테스트 개선 | ✅ |
+| Round 582 | AI 타이핑 인디케이터 (TypingIndicator, bounce 애니메이션, 이미 구현됨) | ✅ |
+| Round 583 | Inspector cc.Vec2/cc.Vec3 컬러 레이블 (X=빨강, Y=초록, Z=파랑) | ✅ |
+| Round 584 | QA Section 115 추가 (R581/R582/R583, Pass 488) | ✅ |
 
 ## QA 프로세스
 

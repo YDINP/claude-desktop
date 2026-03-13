@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: Round 577~580 (opacity슬라이더 + 단축키모달 + 트리접기 + QA)
+- 마지막 커밋: Round 581~584 (Marquee선택 + 타이핑인디케이터 + Vec2/Vec3 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 485
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 488
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -157,7 +157,16 @@
 | R579 | 씬 트리 ⊞/⊟ 전체 펼치기/접기 (expandAll/collapseAll) |
 | R580 | QA Section 114 추가 (Pass 485) |
 
-## 다음 예정 (Round 581~)
+## Phase DD9 추가 완료 (Round 581~584)
+
+| 라운드 | 기능 |
+|--------|------|
+| R581 | 씬뷰 Marquee Shift union 버그 수정 + worldX 히트테스트 |
+| R582 | AI 타이핑 인디케이터 검증 (TypingIndicator 이미 구현됨) |
+| R583 | Inspector cc.Vec2/Vec3 컬러 레이블 X/Y/Z 분리 표시 |
+| R584 | QA Section 115 추가 (Pass 488) |
+
+## 다음 예정 (Round 585~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 

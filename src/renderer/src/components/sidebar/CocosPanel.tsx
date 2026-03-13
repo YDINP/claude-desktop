@@ -1653,6 +1653,63 @@ function CCFileNodeInspector({
                   </div>
                 )
               }
+              const isVec2 = vobj.__type__ === 'cc.Vec2'
+              const isVec3 = vobj.__type__ === 'cc.Vec3'
+              const isVecType = isVec2 || isVec3
+              const vecAxes = isVec2 ? ['x', 'y'] : isVec3 ? ['x', 'y', 'z'] : null
+              const axisColor: Record<string, string> = { x: '#e05555', y: '#55b055', z: '#4488dd' }
+              if (isVecType && vecAxes) {
+                return (
+                  <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                    <div style={{ display: 'flex', gap: 3, flex: 1 }}>
+                      {vecAxes.map(axis => (
+                        <div key={axis} style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, color: axisColor[axis] ?? 'var(--text-muted)',
+                            marginRight: 2, flexShrink: 0, userSelect: 'none',
+                          }}>{axis.toUpperCase()}</span>
+                          <input type="number" defaultValue={Number(vobj[axis])}
+                            title={axis}
+                            onChange={e => {
+                              const val = parseFloat(e.target.value)
+                              if (!isNaN(val)) applyAndSave({
+                                components: draft.components.map((c, i) =>
+                                  i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
+                                )
+                              })
+                            }}
+                            onBlur={e => applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
+                              )
+                            })}
+                            onWheel={e => {
+                              e.preventDefault()
+                              const el = e.target as HTMLInputElement
+                              const current = parseFloat(el.value)
+                              if (isNaN(current)) return
+                              const delta = e.deltaY < 0 ? 1 : -1
+                              const multiplier = e.shiftKey ? 10 : 1
+                              const newVal = current + delta * multiplier
+                              el.value = String(newVal)
+                              applyAndSave({
+                                components: draft.components.map((c, i) =>
+                                  i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: newVal } } } : c
+                                )
+                              })
+                            }}
+                            style={{
+                              flex: 1, minWidth: 0, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                              color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px', fontSize: 9,
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
               if (numKeys.length >= 2 && numKeys.length <= 3) {
                 return (
                   <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>

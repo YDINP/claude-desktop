@@ -5572,6 +5572,41 @@ if (existsSync(cp579Path)) {
   }
 }
 
+// ── Section 115: Phase DD9 R581~583 기능 체크 ────────────────
+console.log('\n## 115. Phase DD9 R581~583 기능 체크')
+// R581: Marquee 드래그 선택
+const svp581Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp581Path)) {
+  const svp581 = readFileSync(svp581Path, 'utf-8')
+  if (svp581.includes('marquee') || svp581.includes('marqueeRef')) {
+    log('pass', 'R581', '씬뷰 Marquee 드래그 선택 존재')
+  } else {
+    log('warning', 'R581', '씬뷰 Marquee 드래그 선택 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R582: 타이핑 인디케이터
+const cp582Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp582Path)) {
+  const cp582 = readFileSync(cp582Path, 'utf-8')
+  if (cp582.includes('TypingIndicator') || cp582.includes('typing-indicator')) {
+    log('pass', 'R582', 'AI 타이핑 인디케이터 존재')
+  } else {
+    log('warning', 'R582', 'AI 타이핑 인디케이터 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R583: Vec2/Vec3 컬러 레이블
+const cp583Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp583Path)) {
+  const cp583 = readFileSync(cp583Path, 'utf-8')
+  if (cp583.includes('cc.Vec2') && cp583.includes('#e05555')) {
+    log('pass', 'R583', 'Inspector Vec2/Vec3 컬러 레이블 존재')
+  } else {
+    log('warning', 'R583', 'Inspector Vec2/Vec3 컬러 레이블 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

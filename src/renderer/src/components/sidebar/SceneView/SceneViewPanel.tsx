@@ -163,7 +163,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   // ── 마퀴 선택 상태 ─────────────────────────────────────────
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)
-  const marqueeRef = useRef<{ startX: number; startY: number } | null>(null)
+  const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────
   const dragRef = useRef<DragState | null>(null)
@@ -750,7 +750,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         setSelectedUuids(new Set())
       }
       const svgCoords = getSvgCoords(e)
-      marqueeRef.current = { startX: svgCoords.x, startY: svgCoords.y }
+      marqueeRef.current = { startX: svgCoords.x, startY: svgCoords.y, shiftKey: e.shiftKey }
       setMarquee({ startX: svgCoords.x, startY: svgCoords.y, endX: svgCoords.x, endY: svgCoords.y, active: true })
     } else if (e.button === 0) {
       setSelectedUuid(null)
@@ -1054,6 +1054,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setAlignGuides([])
     // 마퀴 종료 → 히트 테스트
     if (marqueeRef.current && marquee) {
+      const wasShift = marqueeRef.current.shiftKey
       marqueeRef.current = null
       const mx1 = Math.min(marquee.startX, marquee.endX)
       const my1 = Math.min(marquee.startY, marquee.endY)
@@ -1064,7 +1065,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       if (mx2 - mx1 > 4 || my2 - my1 > 4) {
         const hit = new Set<string>()
         nodeMap.forEach((node) => {
-          const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
+          // worldX/worldY 우선 사용 (부모 이동 반영), 없으면 로컬 좌표 fallback
+          const nodeX = node.worldX ?? node.x
+          const nodeY = node.worldY ?? node.y
+          const { sx, sy } = cocosToSvg(nodeX, nodeY, DESIGN_W, DESIGN_H)
           const pw = node.width * Math.abs(node.scaleX)
           const ph = node.height * Math.abs(node.scaleY)
           const rx = sx - pw * node.anchorX
@@ -1080,7 +1084,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           }
         })
         if (hit.size > 0) {
-          setSelectedUuids(hit)
+          // Shift: 기존 선택에 추가, 아니면 교체
+          setSelectedUuids(prev => wasShift ? new Set([...prev, ...hit]) : hit)
           const first = hit.values().next().value
           setSelectedUuid(first ?? null)
         }
