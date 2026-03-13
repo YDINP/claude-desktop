@@ -134,6 +134,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [nodeColors, setNodeColors] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('node-colors') ?? '{}') } catch { return {} }
   })
+  const [nodeLayers, setNodeLayers] = useState<Record<string, number>>({})
+  const [showLayerPanel, setShowLayerPanel] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -1299,8 +1301,6 @@ function CCFileNodeInspector({
   })
   const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
   const [lockScale, setLockScale] = useState(false)
-  const [compDependencies, setCompDependencies] = useState<Record<string, string[]>>({})
-  const [showCompDeps, setShowCompDeps] = useState(false)
   const secHeader = (key: string, label: string) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
       style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
@@ -1484,6 +1484,8 @@ function CCFileNodeInspector({
   const [selectedRootNode, setSelectedRootNode] = useState<string | null>(null)
   const [compDependencies, setCompDependencies] = useState<Record<string, string[]>>({})
   const [showCompDeps, setShowCompDeps] = useState(false)
+  const [nodeLayers, setNodeLayers] = useState<Record<string, number>>({})
+  const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [loadingScene, setLoadingScene] = useState<string | null>(null)
   const [assetSearch, setAssetSearch] = useState('')
   const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])

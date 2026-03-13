@@ -7929,6 +7929,41 @@ if (existsSync(sl812Path)) {
   }
 }
 
+console.log('\n## 182. Phase DD10 R813~815 기능 체크')
+
+// R813: ChatPanel 이모지 반응
+const cp813Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp813Path)) {
+  const cp813 = readFileSync(cp813Path, 'utf-8')
+  if (cp813.includes('emojiReactions') || cp813.includes('showEmojiPicker') || cp813.includes('msgEmojis')) {
+    log('pass', 'R813', 'ChatPanel 이모지 반응 존재')
+  } else {
+    log('warning', 'R813', 'ChatPanel 이모지 반응 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R814: InputBar 히스토리 페이지네이션
+const ib814Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib814Path)) {
+  const ib814 = readFileSync(ib814Path, 'utf-8')
+  if (ib814.includes('historyPage') || ib814.includes('historyPageSize') || ib814.includes('historyPagination')) {
+    log('pass', 'R814', 'InputBar 히스토리 페이지네이션 존재')
+  } else {
+    log('warning', 'R814', 'InputBar 페이지네이션 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R815: CocosPanel 노드 레이어
+const cocp815Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp815Path)) {
+  const cocp815 = readFileSync(cocp815Path, 'utf-8')
+  if (cocp815.includes('nodeLayers') || cocp815.includes('showLayerPanel') || cocp815.includes('layerMap')) {
+    log('pass', 'R815', 'CocosPanel 노드 레이어 관리 존재')
+  } else {
+    log('warning', 'R815', 'CocosPanel 레이어 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

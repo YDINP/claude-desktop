@@ -854,8 +854,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     try { return JSON.parse(localStorage.getItem('msg-labels') ?? '{}') } catch { return {} }
   })
   const [showLabelMenu, setShowLabelMenu] = useState<string | null>(null)
-  const [translationHistory, setTranslationHistory] = useState<Array<{ msgId: string; original: string; translated: string; lang: string }>>([])
-  const [showTranslationHistory, setShowTranslationHistory] = useState(false)
+  const [emojiReactions, setEmojiReactions] = useState<Record<string, Record<string, number>>>({})
+  const [showEmojiPicker, setShowEmojiPicker] = useState<string | null>(null)
   const MSG_LABEL_KINDS = ['중요', '질문', '답변', '코드', '오류'] as const
   const MSG_LABEL_COLORS: Record<string, string> = {
     '중요': '#f87171', '질문': '#60a5fa', '답변': '#34d399', '코드': '#c084fc', '오류': '#fbbf24',

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:33:35.196Z
+> 2026-03-13T11:35:23.851Z
 
 ## Critical
 _없음_
@@ -694,3 +694,6 @@ _없음_
 - SceneViewPanel 노드 즐겨찾기 그룹 존재
 - TerminalPanel 명령어 즐겨찾기 존재
 - SessionList 타임라인 뷰 존재
+- ChatPanel 이모지 반응 존재
+- InputBar 히스토리 페이지네이션 존재
+- CocosPanel 노드 레이어 관리 존재
