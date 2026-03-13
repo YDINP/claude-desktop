@@ -1114,6 +1114,34 @@ function CCFileSceneTree({
   )
 }
 
+/** 스크러빙 라벨: 마우스 좌우 드래그로 숫자 값 조절 */
+function ScrubLabel({ label, value, onChange, step = 1 }: { label: string; value: number; onChange: (v: number) => void; step?: number }) {
+  const startRef = useRef<{ x: number; v: number } | null>(null)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    startRef.current = { x: e.clientX, v: value }
+    const onMove = (me: MouseEvent) => {
+      if (!startRef.current) return
+      const dx = me.clientX - startRef.current.x
+      onChange(Math.round((startRef.current.v + dx * step) / step) * step)
+    }
+    const onUp = () => {
+      startRef.current = null
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
+  return (
+    <span
+      onMouseDown={handleMouseDown}
+      title={`드래그로 ${label} 조절`}
+      style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, cursor: 'ew-resize', userSelect: 'none' }}
+    >{label}</span>
+  )
+}
+
 /** CCSceneNode 프로퍼티 인스펙터 — 노드 선택 시 표시 */
 function CCFileNodeInspector({
   node, sceneFile, saveScene, onUpdate,
@@ -1253,7 +1281,7 @@ function CCFileNodeInspector({
     step = 1,
   ) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-      <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{label}</span>
+      <ScrubLabel label={label} value={value} onChange={onChange} step={step} />
       <input
         type="number"
         step={step}
