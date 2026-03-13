@@ -148,6 +148,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showNodeTagFilter, setShowNodeTagFilter] = useState(false)
   const [nodeCopyHistory, setNodeCopyHistory] = useState<Array<{ uuid: string; name: string; ts: number }>>([])
   const [showCopyHistory, setShowCopyHistory] = useState(false)
+  const [nodeGroups, setNodeGroups] = useState<Record<string, string[]>>({})
+  const [showGroupPanel, setShowGroupPanel] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -1490,8 +1492,6 @@ function CCFileNodeInspector({
   const [loadProgress, setLoadProgress] = useState(0)
   const [sceneDeps, setSceneDeps] = useState<Record<string, string[]>>({})
   const [showSceneDeps, setShowSceneDeps] = useState(false)
-  const [nodeCopyHistory, setNodeCopyHistory] = useState<Array<{ uuid: string; name: string; ts: number }>>([])
-  const [showCopyHistory, setShowCopyHistory] = useState(false)
   const [prefabInstances, setPrefabInstances] = useState<Record<string, number>>({})
   const [showPrefabStats, setShowPrefabStats] = useState(false)
   const [profilerData, setProfilerData] = useState<Record<string, { updateTime: number; callCount: number }>>({})

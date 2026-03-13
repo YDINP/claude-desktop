@@ -807,6 +807,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [exportTemplate, setExportTemplate] = useState<'default' | 'minimal' | 'detailed'>('default')
   const [streamSpeed, setStreamSpeed] = useState<'auto' | 'slow' | 'normal' | 'fast'>('auto')
   const [streamChunkSize, setStreamChunkSize] = useState(10)
+  const [messageReactions, setMessageReactions] = useState<Record<string, string[]>>({})
+  const [showReactionPicker, setShowReactionPicker] = useState(false)
   const [pinnedMsgs, setPinnedMsgs] = useState<string[]>(() => JSON.parse(localStorage.getItem('pinned-msgs') ?? '[]'))
   const [chatStats, setChatStats] = useState<{ totalTokens: number; avgResponseTime: number; totalMsgs: number }>({ totalTokens: 0, avgResponseTime: 0, totalMsgs: 0 })
   const [copyFormat, setCopyFormat] = useState<'text' | 'markdown' | 'html'>('markdown')

@@ -8489,6 +8489,41 @@ if (existsSync(sl860Path)) {
   }
 }
 
+console.log('\n## 198. Phase DD10 R861~863 기능 체크')
+
+// R861: ChatPanel 메시지 반응
+const cp861Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp861Path)) {
+  const cp861 = readFileSync(cp861Path, 'utf-8')
+  if (cp861.includes('messageReactions') || cp861.includes('showReactionPicker') || cp861.includes('reactionMap')) {
+    log('pass', 'R861', 'ChatPanel 메시지 반응 존재')
+  } else {
+    log('warning', 'R861', 'ChatPanel 메시지 반응 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R862: InputBar 맞춤법 교정
+const ib862Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib862Path)) {
+  const ib862 = readFileSync(ib862Path, 'utf-8')
+  if (ib862.includes('spellingCorrect') || ib862.includes('spellingErrors') || ib862.includes('spellCheck')) {
+    log('pass', 'R862', 'InputBar 맞춤법 교정 존재')
+  } else {
+    log('warning', 'R862', 'InputBar 맞춤법 교정 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R863: CocosPanel 노드 그룹
+const cocp863Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp863Path)) {
+  const cocp863 = readFileSync(cocp863Path, 'utf-8')
+  if (cocp863.includes('nodeGroups') || cocp863.includes('showGroupPanel') || cocp863.includes('groupNodes')) {
+    log('pass', 'R863', 'CocosPanel 노드 그룹 존재')
+  } else {
+    log('warning', 'R863', 'CocosPanel 노드 그룹 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

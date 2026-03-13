@@ -265,6 +265,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [pastePreprocessRules, setPastePreprocessRules] = useState<Array<{ pattern: string; replace: string }>>([])
   const [autoTagDetect, setAutoTagDetect] = useState(true)
   const [detectedTags, setDetectedTags] = useState<string[]>([])
+  const [spellingCorrect, setSpellingCorrect] = useState(true)
+  const [spellingErrors, setSpellingErrors] = useState<string[]>([])
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
