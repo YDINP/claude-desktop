@@ -8279,6 +8279,41 @@ if (existsSync(sl842Path)) {
   }
 }
 
+console.log('\n## 192. Phase DD10 R843~845 기능 체크')
+
+// R843: ChatPanel 메시지 내보내기 형식
+const cp843Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp843Path)) {
+  const cp843 = readFileSync(cp843Path, 'utf-8')
+  if (cp843.includes('msgExportFormat') || cp843.includes('showMsgExportPanel') || cp843.includes('exportFormat')) {
+    log('pass', 'R843', 'ChatPanel 메시지 내보내기 형식 존재')
+  } else {
+    log('warning', 'R843', 'ChatPanel 내보내기 형식 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R844: InputBar 음성 입력 언어
+const ib844Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib844Path)) {
+  const ib844 = readFileSync(ib844Path, 'utf-8')
+  if (ib844.includes('voiceInputLang') || ib844.includes('showLangPicker') || ib844.includes('speechLang')) {
+    log('pass', 'R844', 'InputBar 음성 입력 언어 존재')
+  } else {
+    log('warning', 'R844', 'InputBar 음성 언어 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R845: CocosPanel 노드 태그 필터
+const cocp845Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp845Path)) {
+  const cocp845 = readFileSync(cocp845Path, 'utf-8')
+  if (cocp845.includes('nodeTagFilter') || cocp845.includes('showNodeTagFilter') || cocp845.includes('tagFilter')) {
+    log('pass', 'R845', 'CocosPanel 노드 태그 필터 존재')
+  } else {
+    log('warning', 'R845', 'CocosPanel 태그 필터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

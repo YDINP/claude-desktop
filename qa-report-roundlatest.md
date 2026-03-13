@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:47:15.137Z
+> 2026-03-13T11:48:37.785Z
 
 ## Critical
 _없음_
@@ -724,3 +724,6 @@ _없음_
 - SceneViewPanel 노드 링크 시각화 존재
 - TerminalPanel 출력 색상 테마 존재
 - SessionList 세션 우선순위 존재
+- ChatPanel 메시지 내보내기 형식 존재
+- InputBar 음성 입력 언어 존재
+- CocosPanel 노드 태그 필터 존재
