@@ -23,6 +23,7 @@ interface CCFileSceneViewProps {
   onRename?: (uuid: string, name: string) => void
   onRotate?: (uuid: string, angle: number) => void
   onMultiMove?: (moves: Array<{ uuid: string; x: number; y: number }>) => void
+  onMultiDelete?: (uuids: string[]) => void
 }
 
 /**
@@ -30,7 +31,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -355,6 +356,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }))
   }, [selectedUuid, flatNodes, ccToSvg, handleFit])
 
+  // R1481: cc-focus-node 이벤트 수신 → 해당 UUID 노드로 pan
+  useEffect(() => {
+    const onFocusNode = (e: Event) => {
+      const uuid = (e as CustomEvent).detail?.uuid as string | undefined
+      if (!uuid) return
+      const svg = svgRef.current
+      if (!svg) return
+      const fn = flatNodes.find(f => f.node.uuid === uuid)
+      if (!fn) return
+      const svgPos = ccToSvg(fn.worldX, fn.worldY)
+      const rect = svg.getBoundingClientRect()
+      const z = viewRef.current.zoom
+      setView(v => ({
+        ...v,
+        offsetX: rect.width / 2 - svgPos.x * z,
+        offsetY: rect.height / 2 - svgPos.y * z,
+      }))
+    }
+    window.addEventListener('cc-focus-node', onFocusNode)
+    return () => window.removeEventListener('cc-focus-node', onFocusNode)
+  }, [flatNodes, ccToSvg])
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement
@@ -367,6 +390,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const arrows: Record<string, [number, number]> = {
         ArrowLeft: [-1, 0], ArrowRight: [1, 0],
         ArrowUp: [0, 1], ArrowDown: [0, -1],
+      }
+      // R1483: Delete/Backspace — 다중 선택 일괄 삭제
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const multi = multiSelectedRef.current
+        if (multi.size > 1) {
+          e.preventDefault()
+          onMultiDelete?.(Array.from(multi))
+          return
+        }
       }
       if (e.code in arrows && selectedUuid) {
         e.preventDefault()
@@ -392,7 +424,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove])
+  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete])
 
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
   const handleScreenshotAI = useCallback(() => {

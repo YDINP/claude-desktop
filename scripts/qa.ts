@@ -15701,6 +15701,38 @@ if (existsSync(ctx406)) {
   }
 }
 
+// ── Section 407: R1481~R1483 기능 체크 ──────────────────────
+console.log('\n## 407. Phase DD21 R1481~R1483 기능 체크')
+const cp407 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const sv407 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(cp407) && existsSync(sv407)) {
+  const c407 = readFileSync(cp407, 'utf-8')
+  const s407 = readFileSync(sv407, 'utf-8')
+  // R1481: cc-focus-node 이벤트
+  if (c407.includes('cc-focus-node') && s407.includes('cc-focus-node') && s407.includes('onFocusNode')) {
+    log('pass', 'R1481-focus-node', 'cc-focus-node 이벤트 dispatch + SceneView 수신 구현')
+  } else {
+    log('warning', 'R1481-focus-node', 'cc-focus-node 미구현', 'CCFileSceneView.tsx')
+  }
+  // R1483: 다중 삭제
+  if (c407.includes('handleMultiDelete') && c407.includes('onMultiDelete') && s407.includes('onMultiDelete')) {
+    log('pass', 'R1483-multi-delete', 'CCFileSceneView onMultiDelete prop + handleMultiDelete 콜백 구현')
+  } else {
+    log('warning', 'R1483-multi-delete', 'onMultiDelete 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 408: R1484 World Transform 체크 ──────────────────────
+console.log('\n## 408. Phase DD21 R1484 Inspector World Transform 체크')
+if (existsSync(cp407)) {
+  const c408 = readFileSync(cp407, 'utf-8')
+  if (c408.includes('R1484') && c408.includes('worldPos') && c408.includes('findChain')) {
+    log('pass', 'R1484-world-transform', 'Inspector World Transform (worldPos useMemo + findChain) 구현')
+  } else {
+    log('warning', 'R1484-world-transform', 'Inspector worldPos 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

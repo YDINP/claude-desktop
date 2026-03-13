@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T18:53:42.617Z
+> 2026-03-13T19:01:51.864Z
 
 ## Critical
 _없음_
@@ -1383,3 +1383,6 @@ _없음_
 - cc-file-parser 청크 스트리밍 파싱 (parseCCSceneChunked/isLargeScene)
 - cc-file-parser CC3.x layer 필드 파싱 수정
 - useCCFileContext lastSaveDiff 필드 + 컨텍스트 문자열 포함
+- cc-focus-node 이벤트 dispatch + SceneView 수신 구현
+- CCFileSceneView onMultiDelete prop + handleMultiDelete 콜백 구현
+- Inspector World Transform (worldPos useMemo + findChain) 구현

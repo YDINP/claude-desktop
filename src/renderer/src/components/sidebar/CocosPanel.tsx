@@ -1245,6 +1245,20 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(updateAll(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  // R1483: 다중 선택 일괄 삭제
+  const handleMultiDelete = useCallback(async (uuids: string[]) => {
+    if (!sceneFile?.root) return
+    const uuidSet = new Set(uuids)
+    // 루트 노드 보호
+    uuidSet.delete(sceneFile.root.uuid)
+    if (uuidSet.size === 0) return
+    function removeNodes(n: CCSceneNode): CCSceneNode {
+      return { ...n, children: n.children.filter(c => !uuidSet.has(c.uuid)).map(removeNodes) }
+    }
+    await saveScene(removeNodes(sceneFile.root))
+    onSelectNode(null)
+  }, [sceneFile, saveScene, onSelectNode])
+
   const handleReparent = useCallback(async (dragUuid: string, dropUuid: string) => {
     if (!sceneFile?.root || dragUuid === dropUuid || sceneFile.root.uuid === dragUuid) return
     // 사이클 방지: drop 대상이 drag 노드의 하위인지 확인
@@ -1390,6 +1404,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   key={n.uuid}
                   onClick={() => {
                     onSelectNode(n)
+                    // R1481: SceneView 자동 포커스
+                    window.dispatchEvent(new CustomEvent('cc-focus-node', { detail: { uuid: n.uuid } }))
                     setGlobalSearchOpen(false)
                     setGlobalSearchQuery('')
                     setGlobalSearchResults([])
@@ -2191,6 +2207,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onRename={handleRenameInView}
                 onRotate={handleNodeRotate}
                 onMultiMove={handleMultiMove}
+                onMultiDelete={handleMultiDelete}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }
                   const findNode = (n: CCSceneNode): CCSceneNode | null => {
@@ -2856,6 +2873,24 @@ function CCFileNodeInspector({
   const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
   const [lockScale, setLockScale] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
+
+  // R1484: World Transform — 부모 체인 누산 좌표
+  const worldPos = useMemo(() => {
+    if (!sceneFile.root) return null
+    function findChain(n: CCSceneNode, target: string, acc: CCSceneNode[]): CCSceneNode[] | null {
+      if (n.uuid === target) return [...acc, n]
+      for (const c of n.children) {
+        const r = findChain(c, target, [...acc, n])
+        if (r) return r
+      }
+      return null
+    }
+    const chain = findChain(sceneFile.root, node.uuid, [])
+    if (!chain) return null
+    let wx = 0, wy = 0
+    for (const n of chain) { wx += (n.position?.x ?? 0); wy += (n.position?.y ?? 0) }
+    return { x: Math.round(wx * 100) / 100, y: Math.round(wy * 100) / 100 }
+  }, [sceneFile.root, node.uuid, draft.position])
   const [showSceneDepsTree, setShowSceneDepsTree] = useState(false)
   const secHeader = (key: string, label: string) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
@@ -3814,6 +3849,13 @@ function CCFileNodeInspector({
             </div>
             {numInput('X', draft.position.x, v => applyAndSave({ position: { ...draft.position, x: v } }))}
             {numInput('Y', draft.position.y, v => applyAndSave({ position: { ...draft.position, y: v } }))}
+            {/* R1484: World Transform 표시 */}
+            {worldPos && (
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.4 }} title="씬 내 절대 좌표 (부모 누산)">
+                <span style={{ color: '#555' }}>W </span>
+                <span>{worldPos.x.toFixed(1)}, {worldPos.y.toFixed(1)}</span>
+              </div>
+            )}
             <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', display: 'flex', alignItems: 'center', gap: 4 }}>
               회전
               <span title="회전 리셋 (0°)" onClick={() => applyAndSave({ rotation: typeof draft.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
