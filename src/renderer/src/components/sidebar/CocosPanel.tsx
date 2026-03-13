@@ -1184,11 +1184,35 @@ function CCFileNodeInspector({
     </div>
   )
 
+  // 노드 경로 계산 (root → 선택 노드)
+  const nodePath = useMemo(() => {
+    const path: string[] = []
+    function find(n: CCSceneNode, target: string): boolean {
+      if (n.uuid === target) { path.push(n.name); return true }
+      for (const c of n.children) {
+        path.push(n.name)
+        if (find(c, target)) return true
+        path.pop()
+      }
+      return false
+    }
+    find(sceneFile.root, node.uuid)
+    return path
+  }, [sceneFile.root, node.uuid])
+
   return (
     <div style={{
       flexShrink: 0, borderTop: '1px solid var(--border)',
       padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)', maxHeight: 420, overflowY: 'auto',
     }}>
+      {nodePath.length > 1 && (
+        <div style={{ fontSize: 9, color: '#555', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={nodePath.join(' / ')}>
+          {nodePath.slice(0, -1).map((p, i) => (
+            <span key={i}><span>{p}</span><span style={{ margin: '0 3px' }}>/</span></span>
+          ))}
+          <span style={{ color: 'var(--accent)' }}>{nodePath[nodePath.length - 1]}</span>
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
         <input
           defaultValue={draft.name}
