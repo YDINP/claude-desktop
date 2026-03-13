@@ -8839,6 +8839,41 @@ if (existsSync(sl890Path)) {
   }
 }
 
+console.log('\n## 208. Phase DD10 R891~893 기능 체크')
+
+// R891: ChatPanel 메시지 폴더
+const cp891Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp891Path)) {
+  const cp891 = readFileSync(cp891Path, 'utf-8')
+  if (cp891.includes('messageFolders') || cp891.includes('activeMsgFolder') || cp891.includes('msgFolder')) {
+    log('pass', 'R891', 'ChatPanel 메시지 폴더 존재')
+  } else {
+    log('warning', 'R891', 'ChatPanel 메시지 폴더 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R892: InputBar 컨텍스트 도움말
+const ib892Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib892Path)) {
+  const ib892 = readFileSync(ib892Path, 'utf-8')
+  if (ib892.includes('contextualHelp') || ib892.includes('showHelpTooltip') || ib892.includes('helpTip')) {
+    log('pass', 'R892', 'InputBar 컨텍스트 도움말 존재')
+  } else {
+    log('warning', 'R892', 'InputBar 컨텍스트 도움말 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R893: CocosPanel 머티리얼 인스펙터
+const cocp893Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp893Path)) {
+  const cocp893 = readFileSync(cocp893Path, 'utf-8')
+  if (cocp893.includes('materialInspector') || cocp893.includes('showMaterialPanel') || cocp893.includes('matPanel')) {
+    log('pass', 'R893', 'CocosPanel 머티리얼 인스펙터 존재')
+  } else {
+    log('warning', 'R893', 'CocosPanel 머티리얼 인스펙터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

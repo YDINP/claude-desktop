@@ -158,6 +158,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [previewAnimation, setPreviewAnimation] = useState<string | null>(null)
   const [nodeEventLog, setNodeEventLog] = useState<Array<{ uuid: string; event: string; ts: number }>>([])
   const [showEventLog, setShowEventLog] = useState(false)
+  const [materialInspector, setMaterialInspector] = useState<string | null>(null)
+  const [showMaterialPanel, setShowMaterialPanel] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
