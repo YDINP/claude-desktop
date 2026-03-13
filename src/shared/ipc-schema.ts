@@ -249,6 +249,9 @@ export const OPENAI_INTERRUPT = 'openai:interrupt'
 // ── Session Search ────────────────────────────────────────────────────────────
 export const SESSION_SEARCH_ALL = 'session:searchAll'
 
+// ── Shell Exec ────────────────────────────────────────────────────────────────
+export const SHELL_EXEC = 'shell:exec'
+
 export interface GlobalSearchResult {
   sessionId: string
   sessionTitle: string

@@ -5283,6 +5283,35 @@ console.log('\n## 105. Phase DD8 기능 체크')
   }
 }
 
+// ── Section 106: Phase DD9 기능 체크 ─────────────────
+console.log('\n## 106. Phase DD9 기능 체크')
+{
+  const sceneViewSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx'), 'utf8')
+  const nodeRendererSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx'), 'utf8')
+  const messageBubbleSrc = readFileSync(join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx'), 'utf8')
+  const fsHandlersSrc = readFileSync(join(ROOT, 'src/main/ipc/fs-handlers.ts'), 'utf8')
+  const cocosPanelSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+
+  // R545: 씬뷰 노드 검색 하이라이트
+  if (sceneViewSrc.includes('matchedUuids') && nodeRendererSrc.includes('highlighted')) {
+    log('pass', 'R545', '씬뷰 노드 검색 하이라이트 존재')
+  } else {
+    log('warning', 'R545', '씬뷰 노드 검색 하이라이트 없음', 'SceneViewPanel.tsx')
+  }
+  // R546: Inspector 실시간 미리보기 (debounce)
+  if (cocosPanelSrc.includes('saveTimerRef') && cocosPanelSrc.includes('flushSave')) {
+    log('pass', 'R546', 'Inspector 실시간 미리보기 debounce 존재')
+  } else {
+    log('warning', 'R546', 'Inspector 실시간 미리보기 없음', 'CocosPanel.tsx')
+  }
+  // R547: 채팅 코드 블록 실행
+  if (messageBubbleSrc.includes('shellExec') && fsHandlersSrc.includes('shell:exec')) {
+    log('pass', 'R547', '채팅 코드 블록 실행 버튼 존재')
+  } else {
+    log('warning', 'R547', '채팅 코드 블록 실행 없음', 'MessageBubble.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

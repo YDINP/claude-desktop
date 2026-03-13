@@ -110,6 +110,8 @@ const CodeBlock = memo(function CodeBlock({
   const [docCode, setDocCode] = useState<string | null>(null)
   const [docLoading, setDocLoading] = useState(false)
   const [docCopied, setDocCopied] = useState(false)
+  const [shellResult, setShellResult] = useState<{ ok: boolean; output: string } | null>(null)
+  const [shellRunning, setShellRunning] = useState(false)
 
   const handleCopy = () => {
     navigator.clipboard.writeText(codeString)
@@ -160,13 +162,39 @@ const CodeBlock = memo(function CodeBlock({
     setHasRun(true)
   }
 
+  const handleShellExec = async () => {
+    if (shellRunning) return
+    setShellRunning(true)
+    setShellResult(null)
+    try {
+      const res = await window.api.shellExec?.(codeString)
+      setShellResult(res ?? { ok: false, output: 'shellExec not available' })
+    } catch (e: any) {
+      setShellResult({ ok: false, output: String(e) })
+    } finally {
+      setShellRunning(false)
+    }
+  }
+
   const isRunnable = onRunInTerminal && RUNNABLE_LANGS.includes(language.toLowerCase())
+  const isShellExecable = RUNNABLE_LANGS.includes(language.toLowerCase())
   const isJsRunnable = JS_LANGS.includes(language.toLowerCase()) && codeString.length < 1000
   const isDocable = DOC_LANGS.includes(language.toLowerCase())
   // Button right positions (each slot is ~52px wide):
-  // Copy: 8, 💡explain: 60, 📝docs: 112, run: 164 (if present)
-  const docBtnRight = (isRunnable || isJsRunnable) ? 164 : 112
-  const explainRight = (isRunnable || isJsRunnable) ? 112 : 60
+  // Copy: 8
+  // 💡explain: 60
+  // 📝docs: 112 (no run) / 164 (with run)
+  // ▶shell:exec (inline): 60 (when isShellExecable, no JS/terminal btn)
+  //                        or 60 always when isShellExecable
+  // ▶terminal: 112 (when both isShellExecable + isRunnable)
+  // JS run: 60 (when isJsRunnable only)
+  const hasAnyRunBtn = isRunnable || isJsRunnable || isShellExecable
+  const docBtnRight = hasAnyRunBtn ? (isRunnable && isShellExecable ? 216 : 164) : 112
+  const explainRight = hasAnyRunBtn ? (isRunnable && isShellExecable ? 164 : 112) : 60
+  // inline exec button: right 60
+  // terminal button (if also present): right 112
+  const shellExecBtnRight = 60
+  const terminalBtnRight = isShellExecable ? 112 : 60
   const runBtnRight = 60
 
   const hasOutput = runOutput !== null
@@ -203,7 +231,7 @@ const CodeBlock = memo(function CodeBlock({
         lineNumberStyle={{ color: 'rgba(150,150,170,0.4)', fontSize: 10, minWidth: '2.5em', userSelect: 'none' }}
         customStyle={{
           background: '#1e1e2e',
-          borderRadius: (explanation || hasOutput || docCode) ? '0 0 0 0' : '0 0 4px 4px',
+          borderRadius: (explanation || hasOutput || docCode || shellResult) ? '0 0 0 0' : '0 0 4px 4px',
           padding: 12,
           fontSize: 12,
           margin: 0,
@@ -211,6 +239,26 @@ const CodeBlock = memo(function CodeBlock({
       >
         {codeString}
       </SyntaxHighlighter>
+      {isShellExecable && (
+        <button
+          onClick={handleShellExec}
+          title="인라인 실행 (shell:exec)"
+          style={{
+            position: 'absolute',
+            top: 6,
+            right: shellExecBtnRight,
+            background: shellResult ? (shellResult.ok ? '#1a3a2e' : '#3a1a1a') : '#1e2a1e',
+            color: shellResult ? (shellResult.ok ? '#86efac' : '#f87171') : '#4ade80',
+            border: 'none',
+            borderRadius: 3,
+            padding: '2px 8px',
+            fontSize: 11,
+            cursor: shellRunning ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {shellRunning ? '⟳' : '▶'}
+        </button>
+      )}
       {isRunnable && (
         <button
           onClick={() => onRunInTerminal!(codeString)}
@@ -218,7 +266,7 @@ const CodeBlock = memo(function CodeBlock({
           style={{
             position: 'absolute',
             top: 6,
-            right: runBtnRight,
+            right: terminalBtnRight,
             background: '#1e3a2e',
             color: '#4ade80',
             border: 'none',
@@ -228,10 +276,10 @@ const CodeBlock = memo(function CodeBlock({
             cursor: 'pointer',
           }}
         >
-          ▶ 실행
+          $ 터미널
         </button>
       )}
-      {isJsRunnable && !isRunnable && (
+      {isJsRunnable && !isRunnable && !isShellExecable && (
         <button
           onClick={handleRunJs}
           title="브라우저 샌드박스에서 JS 실행"
@@ -371,6 +419,53 @@ const CodeBlock = memo(function CodeBlock({
               <div style={{ color: '#f85149', whiteSpace: 'pre-wrap', wordBreak: 'break-all', marginTop: runOutput!.length > 0 ? 4 : 0 }}>{runError}</div>
             )}
           </div>
+        </div>
+      )}
+      {shellResult && (
+        <div style={{
+          background: 'var(--bg-secondary)',
+          borderTop: '1px solid var(--border)',
+          borderRadius: docCode ? 0 : '0 0 4px 4px',
+          fontFamily: 'var(--font-mono)',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '3px 10px',
+            borderBottom: '1px solid var(--border)',
+          }}>
+            <span style={{ color: shellResult.ok ? '#86efac' : '#f87171', fontSize: 10, fontWeight: 600 }}>
+              {shellResult.ok ? '▶ 실행 결과' : '▶ 오류'}
+            </span>
+            <button
+              onClick={() => setShellResult(null)}
+              title="닫기"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                fontSize: 13,
+                padding: '0 2px',
+                lineHeight: 1,
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <pre style={{
+            margin: 0,
+            padding: '8px 10px',
+            fontSize: 12,
+            color: shellResult.ok ? '#86efac' : '#f87171',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-all',
+            maxHeight: 200,
+            overflowY: 'auto',
+          }}>
+            {shellResult.output || '(출력 없음)'}
+          </pre>
         </div>
       )}
       {docCode && (

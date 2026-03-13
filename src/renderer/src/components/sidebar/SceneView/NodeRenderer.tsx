@@ -15,6 +15,7 @@ interface NodeRendererProps {
   collapsed?: boolean
   bookmarked?: boolean
   locked?: boolean
+  highlighted?: boolean
   designWidth?: number
   designHeight?: number
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
@@ -47,6 +48,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   collapsed = false,
   bookmarked = false,
   locked = false,
+  highlighted = false,
   designWidth = 960,
   designHeight = 640,
   onMouseDown,
@@ -128,6 +130,21 @@ export const NodeRenderer = memo(function NodeRenderer({
           stroke="#60a5fa"
           strokeWidth={1.5}
           strokeDasharray="4 2"
+          rx={2}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+
+      {/* 검색 하이라이트 */}
+      {highlighted && (
+        <rect
+          x={rx - 1}
+          y={ry - 1}
+          width={pw + 2}
+          height={ph + 2}
+          fill="rgba(251,191,36,0.15)"
+          stroke="#fbbf24"
+          strokeWidth={2}
           rx={2}
           style={{ pointerEvents: 'none' }}
         />

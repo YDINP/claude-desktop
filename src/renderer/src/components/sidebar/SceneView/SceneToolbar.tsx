@@ -80,6 +80,8 @@ interface SceneToolbarProps {
   allTags?: string[]
   onTagFilterChange?: (tag: string) => void
   onAddAnnotation?: () => void
+  nodeSearch?: string
+  onNodeSearchChange?: (v: string) => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -164,6 +166,8 @@ export function SceneToolbar({
   allTags,
   onTagFilterChange,
   onAddAnnotation,
+  nodeSearch = '',
+  onNodeSearchChange,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -417,6 +421,33 @@ export function SceneToolbar({
             <option key={p.label} value={`${p.w}x${p.h}`}>{p.label}</option>
           ))}
         </select>
+      )}
+
+      {/* 노드 검색 */}
+      {onNodeSearchChange && (
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <input
+            value={nodeSearch}
+            onChange={e => onNodeSearchChange(e.target.value)}
+            placeholder="노드 검색..."
+            style={{
+              width: 120,
+              fontSize: 10,
+              padding: '2px 18px 2px 5px',
+              background: 'var(--bg-secondary)',
+              border: `1px solid ${nodeSearch ? '#fbbf24' : 'var(--border)'}`,
+              borderRadius: 3,
+              color: 'var(--text-primary)',
+              outline: 'none',
+            }}
+          />
+          {nodeSearch && (
+            <span
+              onClick={() => onNodeSearchChange('')}
+              style={{ position: 'absolute', right: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, lineHeight: 1 }}
+            >✕</span>
+          )}
+        </div>
       )}
 
       <div style={{ flex: 1 }} />

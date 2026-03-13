@@ -326,6 +326,10 @@ contextBridge.exposeInMainWorld('api', {
   // CC Editor Window
   openCCEditorWindow: (): Promise<void> =>
     ipcRenderer.invoke('cc:open-window'),
+
+  // Shell exec
+  shellExec: (code: string): Promise<{ ok: boolean; output: string }> =>
+    ipcRenderer.invoke('shell:exec', code),
 })
 
 declare global {
@@ -554,6 +558,8 @@ declare global {
       ccFileExtractUUIDs: (raw: unknown[]) => Promise<string[]>
       // CC Editor Window
       openCCEditorWindow?: () => Promise<void>
+      // Shell exec
+      shellExec?: (code: string) => Promise<{ ok: boolean; output: string }>
     }
   }
 }

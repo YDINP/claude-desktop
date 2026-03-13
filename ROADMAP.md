@@ -1,6 +1,15 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 534 완료 — Phase DD7 전체 완료, QA Pass 455)
+> 마지막 업데이트: 2026-03-13 (Round 544 완료 — Phase DD8 완료, QA Pass 458)
+
+## 개발 루프 실행 방식
+
+> **3팀 IPC 오케스트레이션** — 설계팀/구현팀/QA팀이 독립된 Claude Code 세션으로 분리되어 HTTP IPC 브로커(`localhost:7331`)를 통해 통신.
+> 상세 실행 절차: `Ben_Claude/prompts/claude-desktop-dev-loop.md` (Step 3)
+> 팀 프롬프트: `Ben_Claude/prompts/teams/{design,impl,qa}-team.md`
+> 브로커 서버: `Ben_Claude/scripts/team-broker.ts`
+
+---
 
 ## ★ 핵심 개발 방향
 
@@ -566,22 +575,23 @@
 | Round 542 | 씬뷰 노드 그룹화 — 이미 구현됨 (Ctrl+G/Ctrl+Shift+G) | ✅ |
 | Round 543 | Inspector 배열 속성 편집 — ArrayPropRow (add/remove 버튼) | ✅ |
 | Round 544 | QA Section 105 추가 (R535/R539/R543 체크, Pass 458) | ✅ |
+| Round 545 | 씬뷰 노드 검색 하이라이트 — matchedUuids useMemo + NodeRenderer highlighted prop | ✅ |
+| Round 546 | Inspector 실시간 미리보기 — applyAndSave 50ms debounce (saveTimerRef/flushSave) | ✅ |
+| Round 547 | 채팅 코드 블록 실행 — shell:exec IPC + ▶ 버튼 + 인라인 결과 표시 | ✅ |
+| Round 548 QA | QA Section 106 추가 (R545/R546/R547 체크, Pass 461) | ✅ |
 
-### Phase DD9 — 예정 (Round 545~) — 퍼포먼스 + 고급 UX
+### Phase DD9 — 진행 중 (Round 549~) — 퍼포먼스 + 고급 UX
 
-#### 🔥 고우선순위
-| 라운드 | 기능 | 비고 |
-|--------|------|------|
-| Round 545 | **씬뷰 노드 검색 하이라이트** — 씬뷰 캔버스에서 노드명 검색 시 강조 표시 | 빠른 탐색 |
-| Round 546 | **Inspector 실시간 미리보기** — 슬라이더 드래그 시 씬뷰 즉시 반영 | UX 개선 |
-| Round 547 | **채팅 코드 블록 실행** — Bash 블록에 ▶ 버튼, 결과 인라인 표시 | AI 자동화 |
+#### 🔥 고우선순위 (잔여)
+
+#### 🟡 중우선순위
 
 #### 🟡 중우선순위
 | 라운드 | 기능 | 비고 |
 |--------|------|------|
-| Round 548 | **씬뷰 노드 핀 (Pin)** — 핀된 노드는 드래그/선택에서 제외 | 레이아웃 잠금 |
-| Round 549 | **세션 병합** — 두 세션을 하나로 합치기 | 세션 관리 |
-| Round 550 | **프롬프트 히스토리** — 이전에 보낸 메시지 ↑↓ 키로 탐색 | 생산성 |
+| Round 549 | **씬뷰 노드 핀 (Pin)** — 핀된 노드는 드래그/선택에서 제외 | 레이아웃 잠금 |
+| Round 550 | **세션 병합** — 두 세션을 하나로 합치기 | 세션 관리 |
+| Round 551 | **프롬프트 히스토리** — 이전에 보낸 메시지 ↑↓ 키로 탐색 | 생산성 |
 
 #### 🟢 낮은우선순위
 | 라운드 | 기능 |

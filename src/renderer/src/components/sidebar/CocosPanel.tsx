@@ -956,8 +956,29 @@ function CCFileNodeInspector({
 
   const rotation = typeof draft.rotation === 'number' ? draft.rotation : (draft.rotation as { z: number }).z ?? 0
 
-  // 노드 값 패치 후 씬 저장
-  const applyAndSave = useCallback(async (patch: Partial<CCSceneNode>) => {
+  // debounce 타이머 ref
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingSaveRef = useRef<{ updated: CCSceneNode; root: CCSceneNode } | null>(null)
+
+  // 실제 저장 실행 (debounced)
+  const flushSave = useCallback(async () => {
+    if (!pendingSaveRef.current) return
+    const { updated, root } = pendingSaveRef.current
+    pendingSaveRef.current = null
+    setSaving(true)
+    const result = await saveScene(root)
+    setSaving(false)
+    if (result.success) {
+      setMsg({ ok: true, text: '저장됨' })
+      onUpdate(updated)
+    } else {
+      setMsg({ ok: false, text: result.error ?? '저장 실패' })
+    }
+    setTimeout(() => setMsg(null), 2000)
+  }, [saveScene, onUpdate])
+
+  // 노드 값 패치 후 씬 저장 (draft는 즉시 반영, saveScene은 50ms debounce)
+  const applyAndSave = useCallback((patch: Partial<CCSceneNode>) => {
     if (!sceneFile.root) return
     const updated = { ...draft, ...patch }
     setDraft(updated)
@@ -969,17 +990,11 @@ function CCFileNodeInspector({
     }
     const newRoot = replaceNode(sceneFile.root)
 
-    setSaving(true)
-    const result = await saveScene(newRoot)
-    setSaving(false)
-    if (result.success) {
-      setMsg({ ok: true, text: '저장됨' })
-      onUpdate(updated)
-    } else {
-      setMsg({ ok: false, text: result.error ?? '저장 실패' })
-    }
-    setTimeout(() => setMsg(null), 2000)
-  }, [draft, sceneFile, saveScene, onUpdate])
+    // debounce: 50ms 이내 연속 호출 시 마지막 것만 저장
+    pendingSaveRef.current = { updated, root: newRoot }
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => { flushSave() }, 50)
+  }, [draft, sceneFile, flushSave])
 
   const numInput = (
     label: string,
@@ -1346,6 +1361,14 @@ function CCFileNodeInspector({
                       {numKeys.map(axis => (
                         <input key={axis} type="number" defaultValue={Number(vobj[axis])}
                           title={axis}
+                          onChange={e => {
+                            const val = parseFloat(e.target.value)
+                            if (!isNaN(val)) applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === ci ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
+                              )
+                            })
+                          }}
                           onBlur={e => applyAndSave({
                             components: draft.components.map((c, i) =>
                               i === ci ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
@@ -1421,6 +1444,14 @@ function CCFileNodeInspector({
                   <input
                     type="number"
                     defaultValue={Number(v)}
+                    onChange={e => {
+                      const val = parseFloat(e.target.value)
+                      if (!isNaN(val)) applyAndSave({
+                        components: draft.components.map((c, i) =>
+                          i === ci ? { ...c, props: { ...c.props, [k]: val } } : c
+                        )
+                      })
+                    }}
                     onBlur={e => applyAndSave({
                       components: draft.components.map((c, i) =>
                         i === ci ? { ...c, props: { ...c.props, [k]: parseFloat(e.target.value) || 0 } } : c

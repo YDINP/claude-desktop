@@ -2,7 +2,7 @@
 > 마지막 업데이트: 2026-03-13 (Round 534 완료 — Phase DD7 전체 완료)
 
 ## 현재 상태
-- 마지막 커밋: Round 544 (QA Section 105, Pass 458)
+- 마지막 커밋: flattenTree 중첩 노드 위치 버그 수정 + NodeRenderer designWidth/H props
 - 빌드: `npm run build` ✅
 - QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 458
 - 브랜치: `dev`
@@ -76,8 +76,33 @@
 | R543 | Inspector 배열 속성 편집 — ArrayPropRow (add/remove 버튼) |
 | R544 | QA Section 105 추가 (Pass 458) + ROADMAP Phase DD8 완료 처리 |
 
-## 다음 예정 (Phase DD9 — Round 545~)
-- Round 545: 씬뷰 노드 검색 하이라이트 — 캔버스에서 노드명 검색 시 강조
+## Phase DD9 완료 (Round 545~548)
+
+| 라운드 | 기능 |
+|--------|------|
+| R545 | 씬뷰 노드 검색 하이라이트 — matchedUuids + NodeRenderer highlighted(노란 테두리) |
+| R546 | Inspector 실시간 미리보기 — applyAndSave 50ms debounce (saveTimerRef/flushSave) |
+| R547 | 채팅 코드 블록 실행 — shell:exec IPC + ▶ 버튼 + 인라인 결과 표시 |
+| R548 | QA Section 106 추가 (Pass 461) |
+
+## 다음 예정 (Round 549~)
+- Round 549: 씬뷰 노드 핀 (Pin) — 핀된 노드 드래그/선택 제외
+- Round 550: 세션 병합
+- Round 551: 프롬프트 히스토리 (↑↓ 키)
+
+## 개발 루프 실행 방식 (2026-03-13 업그레이드)
+
+3팀 IPC 오케스트레이션으로 전환 완료.
+
+| 파일 | 역할 |
+|------|------|
+| `Ben_Claude/prompts/claude-desktop-dev-loop.md` | 마스터 루프 프롬프트 (Step 3에 IPC 오케스트레이션 통합) |
+| `Ben_Claude/prompts/teams/design-team.md` | 설계팀 — 파일 충돌 분석, 라운드 설계서 작성 |
+| `Ben_Claude/prompts/teams/impl-team.md` | 구현팀 — worktree 격리, 병렬 구현 |
+| `Ben_Claude/prompts/teams/qa-team.md` | QA팀 — tsc + npm run qa + 코드 리뷰 |
+| `Ben_Claude/scripts/team-broker.ts` | HTTP IPC 브로커 (localhost:7331, long-poll) |
+
+실행: `/orchestrated-dev-loop` 스킬 또는 ralph-loop에서 `claude-desktop-dev-loop.md` 직접 사용.
 - Round 546: Inspector 실시간 미리보기 — 슬라이더 드래그 시 씬뷰 즉시 반영
 - Round 547: 채팅 코드 블록 실행 — Bash 블록 ▶ 버튼, 결과 인라인 표시
 

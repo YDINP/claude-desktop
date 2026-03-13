@@ -602,6 +602,16 @@ export function registerFsHandlers(_win: unknown) {
     }
   })
 
+  ipcMain.handle('shell:exec', async (_, code: string) => {
+    const { execSync } = require('child_process')
+    try {
+      const output = execSync(code, { timeout: 10000, encoding: 'utf8', shell: true })
+      return { ok: true, output: String(output).slice(0, 4000) }
+    } catch (e: any) {
+      return { ok: false, output: e.message?.slice(0, 2000) ?? 'Error' }
+    }
+  })
+
   ipcMain.handle('project:analyze', async (_e, rootPath: string) => analyzeProject(rootPath))
 
   ipcMain.handle('fs:recentFiles', () => AppConfig.getInstance().getRecentFiles())

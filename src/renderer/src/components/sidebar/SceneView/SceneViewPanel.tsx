@@ -88,6 +88,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   changeHistoryRef.current = changeHistory
   const [canvasSearch, setCanvasSearch] = useState('')
   const [showCanvasSearch, setShowCanvasSearch] = useState(false)
+  const [nodeSearch, setNodeSearch] = useState('')
   const [hiddenLayers, setHiddenLayers] = useState<Set<number>>(new Set())
   const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
@@ -1369,6 +1370,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   useEffect(() => { setSearchMatchIndex(0) }, [canvasSearch])
 
+  const matchedUuids = useMemo(() => {
+    if (!nodeSearch.trim()) return new Set<string>()
+    const q = nodeSearch.toLowerCase()
+    const matched = new Set<string>()
+    nodeMap.forEach((n, uuid) => {
+      if (n.name.toLowerCase().includes(q)) matched.add(uuid)
+    })
+    return matched
+  }, [nodeSearch, nodeMap])
+
   // 씬 변경 감지 — 최초 로드 이후 nodeMap 변경 시 dirty 표시
   useEffect(() => {
     if (!nodeMapInitRef.current) {
@@ -1716,6 +1727,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           if (node) updateNode(selectedUuid, { locked: !node.locked })
         }}
         onAddAnnotation={() => handleAddAnnotation()}
+        nodeSearch={nodeSearch}
+        onNodeSearchChange={setNodeSearch}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -1998,6 +2011,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   collapsed={collapsedUuids.has(uuid)}
                   bookmarked={bookmarkedUuids.has(uuid)}
                   locked={node.locked === true}
+                  highlighted={matchedUuids.has(uuid)}
                   designWidth={DESIGN_W}
                   designHeight={DESIGN_H}
                   onMouseDown={handleNodeMouseDown}
