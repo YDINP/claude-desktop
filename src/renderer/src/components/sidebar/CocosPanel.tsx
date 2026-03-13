@@ -4701,6 +4701,61 @@ function CCFileNodeInspector({
           {/* R1520: 컴포넌트 전용 Quick Edit (Toggle/ProgressBar/AudioSource/RichText) */}
           {!collapsedComps.has(comp.type) && (() => {
             const p = comp.props
+            // R1582: cc.Widget — align flags + offsets Quick Edit
+            if (comp.type === 'cc.Widget') {
+              const isTop = !!(p.isAlignTop ?? false)
+              const isBottom = !!(p.isAlignBottom ?? false)
+              const isLeft = !!(p.isAlignLeft ?? false)
+              const isRight = !!(p.isAlignRight ?? false)
+              const alignMode = Number(p.alignMode ?? 1)
+              const edges = [
+                ['top', isTop, 'isAlignTop', 'top'],
+                ['bottom', isBottom, 'isAlignBottom', 'bottom'],
+                ['left', isLeft, 'isAlignLeft', 'left'],
+                ['right', isRight, 'isAlignRight', 'right'],
+              ] as const
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {edges.map(([label, isActive, flag, offsetKey]) => (
+                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', width: 50, flexShrink: 0 }}>
+                        <input type="checkbox" checked={isActive}
+                          onChange={e => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [flag]: e.target.checked } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                        />{label}
+                      </label>
+                      {isActive && (
+                        <input type="number" defaultValue={Number(p[offsetKey] ?? 0)} step={1}
+                          onBlur={ev => {
+                            const v = parseFloat(ev.target.value) || 0
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [offsetKey]: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                      )}
+                    </div>
+                  ))}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>mode</span>
+                    <select value={alignMode}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, alignMode: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      <option value={0}>Once</option>
+                      <option value={1}>Always</option>
+                      <option value={2}>Editor</option>
+                    </select>
+                  </div>
+                </div>
+              )
+            }
             // R1581: cc.Button — transition 타입 + state 색상 미리보기
             if (comp.type === 'cc.Button') {
               const transition = Number(p.transition ?? 0)

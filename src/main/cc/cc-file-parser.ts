@@ -341,6 +341,21 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
   'cc.Animation': e => ({
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? false,
   }),
+  // R1582: cc.Widget — 레이아웃 제약 컴포넌트
+  'cc.Widget': e => ({
+    alignFlags: (e._N$alignFlags ?? e._alignFlags ?? e.alignFlags ?? 0) as number,
+    isAlignTop: !!(e._N$isAlignTop ?? e._isAlignTop ?? e.isAlignTop ?? false),
+    isAlignBottom: !!(e._N$isAlignBottom ?? e._isAlignBottom ?? e.isAlignBottom ?? false),
+    isAlignLeft: !!(e._N$isAlignLeft ?? e._isAlignLeft ?? e.isAlignLeft ?? false),
+    isAlignRight: !!(e._N$isAlignRight ?? e._isAlignRight ?? e.isAlignRight ?? false),
+    top: (e._N$top ?? e._top ?? e.top ?? 0) as number,
+    bottom: (e._N$bottom ?? e._bottom ?? e.bottom ?? 0) as number,
+    left: (e._N$left ?? e._left ?? e.left ?? 0) as number,
+    right: (e._N$right ?? e._right ?? e.right ?? 0) as number,
+    horizontalCenter: (e._N$horizontalCenter ?? e._horizontalCenter ?? e.horizontalCenter ?? 0) as number,
+    verticalCenter: (e._N$verticalCenter ?? e._verticalCenter ?? e.verticalCenter ?? 0) as number,
+    alignMode: (e._N$alignMode ?? e._alignMode ?? e.alignMode ?? 1) as number,  // 0=ONCE,1=ALWAYS,2=EDITOR
+  }),
   // R1581: cc.Button — 버튼 상태 색상 + transition
   'cc.Button': e => {
     const toColor = (v: unknown) => {

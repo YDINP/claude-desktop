@@ -16884,6 +16884,20 @@ console.log('\n## 472. R1581 cc.Button Quick Edit 체크')
   }
 }
 
+// ── Section 473: R1582 cc.Widget extractor + Inspector Quick Edit ────────────────
+console.log('\n## 473. R1582 cc.Widget Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s473parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s473panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s473parser.includes("'cc.Widget': e =>") && s473panel.includes("comp.type === 'cc.Widget'") && s473panel.includes('isAlignTop') && s473panel.includes('alignMode')) {
+    log('pass', 'R1582-widget', 'cc.Widget extractor + Inspector: align flags/offsets/mode')
+  } else {
+    log('warning', 'R1582-widget', 'cc.Widget Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
