@@ -327,6 +327,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     collectParents(sceneFile.root)
     setCollapsedUuids(uuids)
   }, [sceneFile?.root])
+  // R1644: 선택 노드 트리 자동 스크롤
+  useEffect(() => {
+    if (!selectedNode) return
+    const el = document.getElementById(`tree-node-${selectedNode.uuid}`)
+    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [selectedNode?.uuid])
   const [sceneViewHeight, setSceneViewHeight] = useState(240)
   // R1470: Cocos 에디터 레이아웃 — 계층 패널 너비 (좌우 분할)
   const [hierarchyWidth, setHierarchyWidth] = useState(() => {
@@ -3015,6 +3021,7 @@ function CCFileSceneTree({
         </div>
       )}
       <div
+        id={`tree-node-${node.uuid}`}
         className="tree-node-row"
         draggable={!isRoot}
         onClick={() => { setCtxMenu(null); onSelect(isSelected ? null : node) }}

@@ -17646,6 +17646,18 @@ console.log('\n## 534. R1643 SceneView 부모 하이라이트 체크')
   }
 }
 
+// ── Section 535: R1644 씬 트리 선택 노드 자동 스크롤 ──────────────────────
+console.log('\n## 535. R1644 씬 트리 선택 노드 자동 스크롤 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s535 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s535.includes('R1644') && s535.includes('tree-node-${selectedNode.uuid}') && s535.includes('scrollIntoView')) {
+    log('pass', 'R1644-tree-scroll', '씬 트리 선택 노드 자동 스크롤')
+  } else {
+    log('warning', 'R1644-tree-scroll', '씬 트리 자동 스크롤 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
