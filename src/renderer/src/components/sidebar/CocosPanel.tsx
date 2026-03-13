@@ -4715,6 +4715,54 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1556: cc.TiledMap / cc.TiledLayer Quick Edit
+            if (comp.type === 'cc.TiledMap') {
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                    tmxFile: <span style={{ color: '#58a6ff' }}>{typeof p.tmxFile === 'object' && p.tmxFile ? JSON.stringify(p.tmxFile).slice(0, 40) : String(p.tmxFile ?? '(없음)')}</span>
+                  </div>
+                </div>
+              )
+            }
+            if (comp.type === 'cc.TiledLayer') {
+              const layerName = String(p.layerName ?? '')
+              const visible = !!(p.visible ?? true)
+              const layerOpacity = Number(p.opacity ?? 1)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>layerName</span>
+                    <input type="text" defaultValue={layerName}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, layerName: e.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>opacity</span>
+                    <input type="number" defaultValue={layerOpacity} min={0} max={1} step={0.1}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: parseFloat(e.target.value) || 1 } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
+                    <input type="checkbox" checked={visible}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, visible: e.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ margin: 0, accentColor: '#4ade80' }}
+                    />visible
+                  </label>
+                </div>
+              )
+            }
             // R1551: cc.RigidBody — 물리 강체 Quick Edit
             if (comp.type === 'cc.RigidBody' || comp.type === 'cc.RigidBody2D') {
               const rbTypes = ['DYNAMIC', 'STATIC', 'KINEMATIC']

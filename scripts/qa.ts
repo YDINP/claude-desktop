@@ -16539,6 +16539,25 @@ console.log('\n## 446. R1555 SceneView 노드 레이어 번호 표시 체크')
   }
 }
 
+// ── Section 447: R1556 cc.TiledMap/TiledLayer extractor ──────────
+console.log('\n## 447. R1556 cc.TiledMap/TiledLayer 컴포넌트 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s447p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s447ui = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s447p.includes("'cc.TiledMap'") && s447p.includes("'cc.TiledLayer'") && s447p.includes('layerName')) {
+    log('pass', 'R1556-parser', 'cc.TiledMap + cc.TiledLayer extractor 구현')
+  } else {
+    log('warning', 'R1556-parser', 'cc.TiledMap/TiledLayer extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s447ui.includes("comp.type === 'cc.TiledMap'") && s447ui.includes("comp.type === 'cc.TiledLayer'") && s447ui.includes('layerName')) {
+    log('pass', 'R1556-ui', 'Inspector TiledMap/TiledLayer Quick Edit UI')
+  } else {
+    log('warning', 'R1556-ui', 'TiledMap Inspector UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

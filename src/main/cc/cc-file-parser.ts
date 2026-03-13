@@ -370,6 +370,18 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     endSize: e._N$endSize ?? e._endSize ?? e.endSize ?? 50,
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? true,
   }),
+  // R1556: cc.TiledMap — Tiled 맵 컴포넌트
+  'cc.TiledMap': e => ({
+    tmxFile: (e._N$tmxFile ?? e._tmxFile ?? e.tmxFile) as unknown,
+    defaultMapSize: (e._N$defaultMapSize ?? e._defaultMapSize ?? e.defaultMapSize) as unknown,
+    enabled: !!(e._N$enabled ?? e._enabled ?? e.enabled ?? true),
+  }),
+  // R1556: cc.TiledLayer — Tiled 레이어
+  'cc.TiledLayer': e => ({
+    layerName: (e._N$layerName ?? e._layerName ?? e.layerName ?? '') as string,
+    visible: !!(e._N$visible ?? e._visible ?? e.visible ?? true),
+    opacity: (e._N$opacity ?? e._opacity ?? e.opacity ?? 1) as number,
+  }),
   // R1551: cc.RigidBody — 2D 물리 강체
   'cc.RigidBody': e => ({
     type: (e._N$type ?? e._type ?? e.type ?? 0) as number,  // 0=DYNAMIC, 1=STATIC, 2=KINEMATIC
