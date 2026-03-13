@@ -8314,6 +8314,41 @@ if (existsSync(cocp845Path)) {
   }
 }
 
+console.log('\n## 193. Phase DD10 R846~848 기능 체크')
+
+// R846: SceneViewPanel 씬 태그
+const svp846Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp846Path)) {
+  const svp846 = readFileSync(svp846Path, 'utf-8')
+  if (svp846.includes('sceneTagInput') || svp846.includes('sceneTags') || svp846.includes('tagSystem')) {
+    log('pass', 'R846', 'SceneViewPanel 씬 태그 시스템 존재')
+  } else {
+    log('warning', 'R846', 'SceneViewPanel 씬 태그 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R847: TerminalPanel 프로세스 모니터
+const tp847Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp847Path)) {
+  const tp847 = readFileSync(tp847Path, 'utf-8')
+  if (tp847.includes('processMonitor') || tp847.includes('showProcessMonitor') || tp847.includes('procList')) {
+    log('pass', 'R847', 'TerminalPanel 프로세스 모니터 존재')
+  } else {
+    log('warning', 'R847', 'TerminalPanel 프로세스 모니터 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R848: SessionList 세션 잠금 비밀번호
+const sl848Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl848Path)) {
+  const sl848 = readFileSync(sl848Path, 'utf-8')
+  if (sl848.includes('lockPasswords') || sl848.includes('showPasswordDialog') || sl848.includes('sessionPassword')) {
+    log('pass', 'R848', 'SessionList 세션 잠금 비밀번호 존재')
+  } else {
+    log('warning', 'R848', 'SessionList 비밀번호 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
