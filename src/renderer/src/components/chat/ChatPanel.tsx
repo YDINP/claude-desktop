@@ -858,6 +858,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showEmojiPicker, setShowEmojiPicker] = useState<string | null>(null)
   const [bookmarkFolders, setBookmarkFolders] = useState<Array<{ id: string; name: string; msgIds: string[] }>>([])
   const [activeBookmarkFolder, setActiveBookmarkFolder] = useState<string | null>(null)
+  const [qualityScores, setQualityScores] = useState<Record<string, number>>({})
+  const [showQualityPanel, setShowQualityPanel] = useState(false)
   const MSG_LABEL_KINDS = ['중요', '질문', '답변', '코드', '오류'] as const
   const MSG_LABEL_COLORS: Record<string, string> = {
     '중요': '#f87171', '질문': '#60a5fa', '답변': '#34d399', '코드': '#c084fc', '오류': '#fbbf24',
@@ -996,6 +998,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       return s ? JSON.parse(s).taskTitle : null
     } catch { return null }
   })
+  const [qualityScores, setQualityScores] = useState<Record<string, number>>({})
+  const [showQualityPanel, setShowQualityPanel] = useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

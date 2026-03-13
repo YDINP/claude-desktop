@@ -8069,6 +8069,41 @@ if (existsSync(sl824Path)) {
   }
 }
 
+console.log('\n## 186. Phase DD10 R825~827 기능 체크')
+
+// R825: ChatPanel 응답 품질 평가
+const cp825Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp825Path)) {
+  const cp825 = readFileSync(cp825Path, 'utf-8')
+  if (cp825.includes('qualityScores') || cp825.includes('showQualityPanel') || cp825.includes('responseQuality')) {
+    log('pass', 'R825', 'ChatPanel 응답 품질 평가 존재')
+  } else {
+    log('warning', 'R825', 'ChatPanel 품질 평가 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R826: InputBar 커맨드 팔레트
+const ib826Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib826Path)) {
+  const ib826 = readFileSync(ib826Path, 'utf-8')
+  if (ib826.includes('cmdPaletteOpen') || ib826.includes('cmdPaletteQuery') || ib826.includes('commandPalette')) {
+    log('pass', 'R826', 'InputBar 커맨드 팔레트 존재')
+  } else {
+    log('warning', 'R826', 'InputBar 커맨드 팔레트 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R827: CocosPanel 에셋 미리보기 캐시 관리
+const cocp827Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp827Path)) {
+  const cocp827 = readFileSync(cocp827Path, 'utf-8')
+  if (cocp827.includes('previewCacheSize') || cocp827.includes('showCacheManager') || cocp827.includes('cacheStats')) {
+    log('pass', 'R827', 'CocosPanel 에셋 캐시 관리 존재')
+  } else {
+    log('warning', 'R827', 'CocosPanel 캐시 관리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

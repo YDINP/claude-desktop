@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:39:31.650Z
+> 2026-03-13T11:40:52.028Z
 
 ## Critical
 _없음_
@@ -706,3 +706,6 @@ _없음_
 - SceneViewPanel 씬 비교 모드 존재
 - TerminalPanel 세션 공유 링크 존재
 - SessionList 세션 복제 존재
+- ChatPanel 응답 품질 평가 존재
+- InputBar 커맨드 팔레트 존재
+- CocosPanel 에셋 캐시 관리 존재

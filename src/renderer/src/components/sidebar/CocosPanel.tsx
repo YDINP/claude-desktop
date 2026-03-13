@@ -138,6 +138,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [nodeSearchHistory, setNodeSearchHistory] = useState<string[]>([])
   const [showNodeSearchHistory, setShowNodeSearchHistory] = useState(false)
+  const [previewCacheSize, setPreviewCacheSize] = useState(0)
+  const [showCacheManager, setShowCacheManager] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
