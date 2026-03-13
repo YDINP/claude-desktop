@@ -319,6 +319,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1238: build profiles
   const [buildProfiles, setBuildProfiles] = useState<Record<string, object>>({})
   const [activeBuildProfile, setActiveBuildProfile] = useState<string | null>(null)
+  // R1390: CC 프로젝트 설정 뷰어
+  const [showProjectSettings, setShowProjectSettings] = useState(false)
+  const [projectSettings, setProjectSettings] = useState<{
+    designWidth?: number; designHeight?: number; physicsEngine?: string; buildTargets?: string[]
+  } | null>(null)
+  // R1389: 외부 변경 배너 자동 숨김
+  const [bannerHidden, setBannerHidden] = useState(false)
+  const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // R1394: 씬 템플릿 생성
+  const [showNewSceneForm, setShowNewSceneForm] = useState(false)
+  const [newSceneName, setNewSceneName] = useState('NewScene')
+  const [newSceneTemplate, setNewSceneTemplate] = useState<'empty' | 'canvas'>('canvas')
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -367,6 +379,102 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       components: selectedNode?.components?.map(c => c.type) ?? [],
     })
   }, [ccCtxInject, sceneFile?.scenePath, projectInfo?.version, selectedNode?.uuid, selectedNode?.name, selectedNode?.components])
+
+  // R1390: 프로젝트 설정 로드
+  useEffect(() => {
+    if (!projectInfo?.projectPath) { setProjectSettings(null); return }
+    const loadSettings = async () => {
+      try {
+        const projPath = projectInfo.projectPath
+        // project.json 읽기
+        const projJsonPath = projPath + '/project.json'
+        const content = await window.api.fsReadFile?.(projJsonPath) as string | null
+        let designWidth = 960, designHeight = 640
+        let physicsEngine = 'none'
+        const buildTargets: string[] = []
+        if (content) {
+          try {
+            const pj = JSON.parse(content) as Record<string, unknown>
+            const designRes = pj['design-resolution'] as { width?: number; height?: number } | undefined
+            if (designRes) { designWidth = designRes.width ?? 960; designHeight = designRes.height ?? 640 }
+            // CC3.x: packages.builder
+            const pkgs = pj.packages as Record<string, unknown> | undefined
+            const builder = pkgs?.builder as Record<string, unknown> | undefined
+            if (builder?.buildSettings) {
+              const bs = builder.buildSettings as Record<string, unknown>
+              Object.keys(bs).forEach(k => buildTargets.push(k))
+            }
+            // physics engine
+            const physics = pj.physics as Record<string, unknown> | undefined
+            if (physics?.type) physicsEngine = String(physics.type)
+          } catch { /* ignore parse errors */ }
+        }
+        // settings/project.json (CC3.x)
+        try {
+          const settingsPath = projPath + '/settings/project.json'
+          const settingsContent = await window.api.fsReadFile?.(settingsPath) as string | null
+          if (settingsContent) {
+            const sj = JSON.parse(settingsContent) as Record<string, unknown>
+            const generalObj = sj.general as Record<string, unknown> | undefined
+            if (generalObj?.designResolution) {
+              const dr = generalObj.designResolution as { width?: number; height?: number }
+              if (dr.width) designWidth = dr.width
+              if (dr.height) designHeight = dr.height
+            }
+            const physicsObj = sj.physics as Record<string, unknown> | undefined
+            if (physicsObj?.type) physicsEngine = String(physicsObj.type)
+          }
+        } catch { /* settings/project.json 없으면 무시 */ }
+        setProjectSettings({ designWidth, designHeight, physicsEngine, buildTargets })
+      } catch { setProjectSettings(null) }
+    }
+    loadSettings()
+  }, [projectInfo?.projectPath])
+
+  // R1389: 외부 변경 배너 5초 후 자동 숨김
+  useEffect(() => {
+    if (externalChange) {
+      setBannerHidden(false)
+      if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current)
+      bannerTimerRef.current = setTimeout(() => setBannerHidden(true), 5000)
+    } else {
+      setBannerHidden(false)
+    }
+    return () => { if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current) }
+  }, [externalChange])
+
+  // R1394: 새 씬 파일 생성
+  const handleCreateScene = useCallback(async () => {
+    if (!projectInfo?.projectPath || !newSceneName.trim()) return
+    const safeName = newSceneName.trim().replace(/[<>:"/\\|?*]/g, '_')
+    const ext = projectInfo.version === '3x' ? '.scene' : '.fire'
+    const scenePath = projectInfo.projectPath.replace(/\\/g, '/') + '/assets/' + safeName + ext
+    // CC 2.x 최소 씬 구조
+    let sceneJson: unknown[]
+    if (newSceneTemplate === 'canvas') {
+      sceneJson = [
+        { __type__: 'cc.SceneAsset', _name: '', _objFlags: 0, _native: '', scene: { __id__: 1 } },
+        { __type__: 'cc.Scene', _objFlags: 0, _parent: null, _children: [{ __id__: 2 }], _active: true, _level: 0, _components: [], _prefab: null, _opacity: 255, _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 }, _contentSize: { __type__: 'cc.Size', width: 0, height: 0 }, _anchorPoint: { __type__: 'cc.Vec2', x: 0, y: 0 }, _id: 'scene-' + Date.now(), _name: safeName, autoReleaseAssets: false },
+        { __type__: 'cc.Node', _name: 'Canvas', _objFlags: 0, _parent: { __id__: 1 }, _children: [], _active: true, _components: [{ __id__: 3 }], _prefab: null, _opacity: 255, _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 }, _contentSize: { __type__: 'cc.Size', width: 960, height: 640 }, _anchorPoint: { __type__: 'cc.Vec2', x: 0.5, y: 0.5 }, _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0, 0, 0, 0, 0, 0, 1, 1, 1, 1] }, _id: 'canvas-' + Date.now() },
+        { __type__: 'cc.Canvas', _name: '', _objFlags: 0, node: { __id__: 2 }, _enabled: true, _N$designResolution: { __type__: 'cc.Size', width: 960, height: 640 }, _N$fitWidth: false, _N$fitHeight: true },
+      ]
+    } else {
+      sceneJson = [
+        { __type__: 'cc.SceneAsset', _name: '', _objFlags: 0, _native: '', scene: { __id__: 1 } },
+        { __type__: 'cc.Scene', _objFlags: 0, _parent: null, _children: [], _active: true, _level: 0, _components: [], _prefab: null, _opacity: 255, _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 }, _contentSize: { __type__: 'cc.Size', width: 0, height: 0 }, _anchorPoint: { __type__: 'cc.Vec2', x: 0, y: 0 }, _id: 'scene-' + Date.now(), _name: safeName, autoReleaseAssets: false },
+      ]
+    }
+    const content = JSON.stringify(sceneJson, null, 2)
+    try {
+      const result = await window.api.writeTextFile(scenePath, content)
+      if (result?.error) { console.error('씬 생성 실패:', result.error); return }
+      setShowNewSceneForm(false)
+      setNewSceneName('NewScene')
+      // 생성 후 자동으로 열기
+      await loadScene(scenePath)
+      addRecentScene(scenePath)
+    } catch (e) { console.error('씬 생성 오류:', e) }
+  }, [projectInfo, newSceneName, newSceneTemplate, loadScene, addRecentScene])
 
   const handleSceneChange = useCallback(async (path: string) => {
     setSelectedScene(path)
@@ -492,6 +600,75 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (ctrl && e.key === 'd' && selectedNode) {
         e.preventDefault()
         handleTreeDuplicate(selectedNode.uuid)
+        return
+      }
+      // R1399: Ctrl+G — 선택 노드를 새 "Group" 부모로 그룹화
+      if (ctrl && e.key === 'g' && !e.shiftKey && selectedNode && sceneFile.root && sceneFile._raw) {
+        e.preventDefault()
+        const raw = sceneFile._raw as Record<string, unknown>[]
+        const version = sceneFile.projectInfo.version ?? '2x'
+        const groupId = 'group-' + Date.now()
+        const groupIdx = raw.length
+        const pos = selectedNode.position as { x: number; y: number; z: number }
+        // 새 Group raw 엔트리
+        const groupRaw: Record<string, unknown> = version === '3x' ? {
+          __type__: 'cc.Node', _id: groupId, _name: 'Group', _active: true,
+          _children: [], _components: [],
+          _lpos: { x: pos.x, y: pos.y, z: pos.z }, _lrot: { x: 0, y: 0, z: 0 }, _lscale: { x: 1, y: 1, z: 1 },
+          _color: { r: 255, g: 255, b: 255, a: 255 }, _layer: 33554432,
+          _uiProps: { _localOpacity: 1 },
+        } : {
+          __type__: 'cc.Node', _id: groupId, _name: 'Group', _active: true,
+          _children: [], _components: [],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [pos.x, pos.y, pos.z, 0, 0, 0, 1, 1, 1, 1] },
+          _contentSize: { width: 0, height: 0 }, _anchorPoint: { x: 0.5, y: 0.5 },
+          _opacity: 255, _color: { r: 255, g: 255, b: 255, a: 255 },
+        }
+        raw.push(groupRaw)
+        // 선택 노드를 0,0으로 이동 (부모 기준)
+        const childNode: CCSceneNode = { ...selectedNode, position: { x: 0, y: 0, z: pos.z } }
+        const groupNode: CCSceneNode = {
+          uuid: groupId, name: 'Group', active: true,
+          position: pos,
+          rotation: version === '3x' ? { x: 0, y: 0, z: 0 } : 0,
+          scale: { x: 1, y: 1, z: 1 }, size: { x: 0, y: 0 }, anchor: { x: 0.5, y: 0.5 },
+          opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 },
+          components: [], children: [childNode], _rawIndex: groupIdx,
+        }
+        // 선택 노드를 Group으로 교체
+        function wrapNode(n: CCSceneNode): CCSceneNode {
+          const newChildren = n.children.map(c => {
+            if (c.uuid === selectedNode!.uuid) return groupNode
+            return wrapNode(c)
+          })
+          return { ...n, children: newChildren }
+        }
+        const result = await saveScene(wrapNode(sceneFile.root))
+        if (result.success) onSelectNode(groupNode)
+        else raw.pop()
+        return
+      }
+      // R1399: Ctrl+Shift+G — 그룹 해제 (자식을 부모로 올리고 빈 부모 삭제)
+      if (ctrl && e.key === 'G' && e.shiftKey && selectedNode && sceneFile.root && selectedNode.children.length > 0) {
+        e.preventDefault()
+        const ungroupUuid = selectedNode.uuid
+        const parentPos = selectedNode.position as { x: number; y: number; z: number }
+        // 자식 노드들의 위치를 부모 기준으로 재계산
+        const promotedChildren = selectedNode.children.map(child => {
+          const cp = child.position as { x: number; y: number; z: number }
+          return { ...child, position: { x: cp.x + parentPos.x, y: cp.y + parentPos.y, z: cp.z + parentPos.z } }
+        })
+        function ungroupNode(n: CCSceneNode): CCSceneNode {
+          const idx = n.children.findIndex(c => c.uuid === ungroupUuid)
+          if (idx >= 0) {
+            const newChildren = [...n.children]
+            newChildren.splice(idx, 1, ...promotedChildren)
+            return { ...n, children: newChildren }
+          }
+          return { ...n, children: n.children.map(ungroupNode) }
+        }
+        const result = await saveScene(ungroupNode(sceneFile.root))
+        if (result.success && promotedChildren.length > 0) onSelectNode(promotedChildren[0])
         return
       }
       // Arrow keys: 선택 노드 1px 이동
@@ -679,8 +856,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         if (/\.(fire|scene|prefab)$/i.test(filePath)) { loadScene(filePath); addRecent(filePath); addRecentScene(filePath) }
       }}
     >
-      {/* 외부 파일 변경 감지 배너 */}
-      {externalChange && sceneFile && (
+      {/* 외부 파일 변경 감지 배너 (R1389: 5초 자동 숨김) */}
+      {externalChange && sceneFile && !bannerHidden && (
         <div style={{
           padding: '5px 10px', background: '#2d1a00', borderBottom: '1px solid #ff9944',
           display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
@@ -696,6 +873,16 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             }}
           >
             다시 로드
+          </button>
+          <button
+            onClick={() => setBannerHidden(true)}
+            style={{
+              padding: '0 4px', fontSize: 11, borderRadius: 2, cursor: 'pointer',
+              background: 'none', color: '#ff9944', border: 'none', lineHeight: 1,
+            }}
+            title="닫기"
+          >
+            x
           </button>
         </div>
       )}
@@ -732,6 +919,132 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             <div style={{ marginTop: 2 }}>
               씬 파일: <strong>{projectInfo.scenes?.length ?? 0}개</strong>
             </div>
+          </div>
+        )}
+
+        {/* R1390: 프로젝트 설정 뷰어 */}
+        {projectInfo?.detected && (
+          <div style={{ marginTop: 6 }}>
+            <div
+              onClick={() => setShowProjectSettings(v => !v)}
+              style={{
+                fontSize: 10, color: 'var(--text-muted)', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 4,
+                padding: '3px 0', userSelect: 'none',
+              }}
+            >
+              <span style={{ fontSize: 9, transform: showProjectSettings ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s', display: 'inline-block' }}>{'>'}</span>
+              <span>{'⚙'} 프로젝트 설정</span>
+            </div>
+            {showProjectSettings && projectSettings && (
+              <div style={{
+                fontSize: 9, color: 'var(--text-muted)', padding: '4px 6px',
+                background: 'rgba(255,255,255,0.03)', borderRadius: 4, marginTop: 2,
+                border: '1px solid var(--border)', lineHeight: 1.8,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 64, flexShrink: 0 }}>디자인 해상도</span>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 600, fontFamily: 'monospace' }}>
+                    {projectSettings.designWidth} x {projectSettings.designHeight}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 64, flexShrink: 0 }}>물리 엔진</span>
+                  <span style={{
+                    color: projectSettings.physicsEngine === 'none' ? 'var(--text-muted)' : 'var(--accent)',
+                    fontFamily: 'monospace',
+                  }}>
+                    {projectSettings.physicsEngine || 'none'}
+                  </span>
+                </div>
+                {projectSettings.buildTargets && projectSettings.buildTargets.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+                    <span style={{ width: 64, flexShrink: 0 }}>빌드 타겟</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                      {projectSettings.buildTargets.map(t => (
+                        <span key={t} style={{
+                          fontSize: 8, padding: '1px 5px', borderRadius: 8,
+                          background: 'rgba(96,165,250,0.15)', color: 'var(--accent)',
+                        }}>{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 64, flexShrink: 0 }}>CC 버전</span>
+                  <span style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>
+                    {projectInfo.version} ({projectInfo.creatorVersion})
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* R1394: 새 씬 만들기 버튼 + 인라인 폼 */}
+        {projectInfo?.detected && (
+          <div style={{ marginTop: 6 }}>
+            {!showNewSceneForm ? (
+              <button
+                onClick={() => setShowNewSceneForm(true)}
+                style={{
+                  padding: '3px 8px', fontSize: 10, cursor: 'pointer',
+                  background: 'rgba(96,165,250,0.12)', color: 'var(--accent)',
+                  border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4,
+                  display: 'flex', alignItems: 'center', gap: 4,
+                }}
+              >
+                <span style={{ fontSize: 12, lineHeight: 1 }}>+</span> 새 씬 만들기
+              </button>
+            ) : (
+              <div style={{
+                padding: '6px 8px', background: 'rgba(0,0,0,0.2)',
+                border: '1px solid var(--border)', borderRadius: 4,
+                display: 'flex', flexDirection: 'column', gap: 5,
+              }}>
+                <input
+                  value={newSceneName}
+                  onChange={e => setNewSceneName(e.target.value)}
+                  placeholder="씬 이름"
+                  onKeyDown={e => { if (e.key === 'Enter') handleCreateScene(); if (e.key === 'Escape') setShowNewSceneForm(false) }}
+                  autoFocus
+                  style={{
+                    padding: '3px 6px', fontSize: 10,
+                    background: 'var(--bg-input)', color: 'var(--text-primary)',
+                    border: '1px solid var(--border)', borderRadius: 3,
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 4, fontSize: 9 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', color: 'var(--text-muted)' }}>
+                    <input type="radio" name="scnTpl" checked={newSceneTemplate === 'empty'} onChange={() => setNewSceneTemplate('empty')} style={{ margin: 0 }} />
+                    빈 씬
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', color: 'var(--text-muted)' }}>
+                    <input type="radio" name="scnTpl" checked={newSceneTemplate === 'canvas'} onChange={() => setNewSceneTemplate('canvas')} style={{ margin: 0 }} />
+                    Canvas 포함
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    onClick={handleCreateScene}
+                    disabled={!newSceneName.trim()}
+                    style={{
+                      flex: 1, padding: '3px 6px', fontSize: 10, cursor: 'pointer',
+                      background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 3,
+                      opacity: newSceneName.trim() ? 1 : 0.5,
+                    }}
+                  >생성</button>
+                  <button
+                    onClick={() => setShowNewSceneForm(false)}
+                    style={{
+                      padding: '3px 6px', fontSize: 10, cursor: 'pointer',
+                      background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)',
+                      border: '1px solid var(--border)', borderRadius: 3,
+                    }}
+                  >취소</button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1017,7 +1330,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       {/* 에셋 탭 */}
       {mainTab === 'assets' && projectInfo?.detected && (
         projectInfo.assetsDir
-          ? <CCFileAssetBrowser assetsDir={projectInfo.assetsDir} />
+          ? <CCFileAssetBrowser assetsDir={projectInfo.assetsDir} sceneFile={sceneFile ?? undefined} saveScene={saveScene} onSelectNode={onSelectNode} />
           : <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11 }}>assetsDir를 감지할 수 없습니다.</div>
       )}
 
@@ -3457,7 +3770,12 @@ function buildFolderTree(entries: AssetEntry[]): FolderNode {
   return root
 }
 
-function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
+function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
+  assetsDir: string
+  sceneFile?: CCSceneFile
+  saveScene: (root: CCSceneNode) => Promise<{ success: boolean; error?: string }>
+  onSelectNode: (n: CCSceneNode | null) => void
+}) {
   const [assets, setAssets] = useState<Record<string, AssetEntry> | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -3466,6 +3784,91 @@ function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
   // R1382: 뷰 모드 — 'group'(기존) vs 'tree'(폴더 트리)
   const [assetViewMode, setAssetViewMode] = useState<'group' | 'tree'>('group')
   const [treeExpanded, setTreeExpanded] = useState<Set<string>>(new Set())
+  // R1398: 프리팹 인스턴스화 상태
+  const [instantiating, setInstantiating] = useState<string | null>(null)
+
+  // R1398: .prefab 파일을 현재 씬에 인스턴스화
+  const handleInstantiatePrefab = useCallback(async (entry: AssetEntry) => {
+    if (!sceneFile?.root || !sceneFile._raw) return
+    setInstantiating(entry.uuid)
+    try {
+      // prefab 파일 읽기 + 파싱 (readFile → JSON parse → 루트 노드 추출)
+      const prefabContent = await window.api.readFile(entry.path)
+      if (!prefabContent) { setInstantiating(null); return }
+      const prefabRaw = JSON.parse(prefabContent) as Record<string, unknown>[]
+      // Prefab 루트 노드 찾기: cc.Prefab.data → __id__
+      let rootIdx = -1
+      for (const e of prefabRaw) {
+        if (e.__type__ === 'cc.Prefab') {
+          const dataRef = e.data as { __id__?: number } | undefined
+          if (dataRef?.__id__ != null) { rootIdx = dataRef.__id__; break }
+        }
+      }
+      if (rootIdx < 0) rootIdx = prefabRaw.findIndex(e => e.__type__ === 'cc.Node')
+      if (rootIdx < 0) { setInstantiating(null); return }
+
+      const prefabEntry = prefabRaw[rootIdx]
+      const raw = sceneFile._raw as Record<string, unknown>[]
+      const version = sceneFile.projectInfo.version ?? '2x'
+      const newId = 'prefab-' + Date.now()
+      const newIdx = raw.length
+      const prefabName = (prefabEntry._name as string) ?? entry.relPath.split(/[\\/]/).pop()?.replace('.prefab', '') ?? 'Prefab'
+
+      // 새 raw 엔트리 생성
+      const newRawEntry: Record<string, unknown> = version === '3x' ? {
+        __type__: 'cc.Node', _id: newId, _name: prefabName, _active: true,
+        _children: [], _components: [],
+        _lpos: { x: 0, y: 0, z: 0 }, _lrot: { x: 0, y: 0, z: 0 }, _lscale: { x: 1, y: 1, z: 1 },
+        _color: { r: 255, g: 255, b: 255, a: 255 }, _layer: 33554432,
+        _uiProps: { _localOpacity: 1 },
+      } : {
+        __type__: 'cc.Node', _id: newId, _name: prefabName, _active: true,
+        _children: [], _components: [],
+        _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+        _contentSize: { width: (prefabEntry._contentSize as { width?: number })?.width ?? 100, height: (prefabEntry._contentSize as { height?: number })?.height ?? 100 },
+        _anchorPoint: { x: 0.5, y: 0.5 },
+        _opacity: 255, _color: { r: 255, g: 255, b: 255, a: 255 },
+      }
+      raw.push(newRawEntry)
+
+      const cs = prefabEntry._contentSize as { width?: number; height?: number } | undefined
+      const newNode: CCSceneNode = {
+        uuid: newId, name: prefabName, active: true,
+        position: { x: 0, y: 0, z: 0 },
+        rotation: version === '3x' ? { x: 0, y: 0, z: 0 } : 0,
+        scale: { x: 1, y: 1, z: 1 },
+        size: { x: cs?.width ?? 100, y: cs?.height ?? 100 },
+        anchor: { x: 0.5, y: 0.5 },
+        opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 },
+        components: [], children: [], _rawIndex: newIdx,
+      }
+
+      // Canvas 자식으로 추가 (Canvas 없으면 루트 자식)
+      function findCanvas(n: CCSceneNode): CCSceneNode | null {
+        if (n.components.some(c => c.type === 'cc.Canvas')) return n
+        for (const ch of n.children) { const f = findCanvas(ch); if (f) return f }
+        return null
+      }
+      const canvas = findCanvas(sceneFile.root)
+      const parentUuid = canvas?.uuid ?? sceneFile.root.uuid
+
+      function addToParent(n: CCSceneNode): CCSceneNode {
+        if (n.uuid === parentUuid) return { ...n, children: [...n.children, newNode] }
+        return { ...n, children: n.children.map(addToParent) }
+      }
+
+      const result = await saveScene(addToParent(sceneFile.root))
+      if (result.success) {
+        onSelectNode(newNode)
+      } else {
+        raw.pop()
+      }
+    } catch {
+      // parse error — ignore
+    } finally {
+      setInstantiating(null)
+    }
+  }, [sceneFile, saveScene, onSelectNode])
 
   useEffect(() => {
     let cancelled = false
@@ -3598,6 +4001,20 @@ function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
                   }}>
                     {copied === file.uuid ? '✓ 복사됨' : fileName}
                   </span>
+                  {/* R1398: .prefab 트리 뷰 인스턴스화 버튼 */}
+                  {file.type === 'prefab' && sceneFile?.root && (
+                    <button
+                      onClick={e => { e.stopPropagation(); handleInstantiatePrefab(file) }}
+                      disabled={instantiating === file.uuid}
+                      title="씬에 추가"
+                      style={{
+                        fontSize: 10, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
+                        borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
+                        opacity: instantiating === file.uuid ? 0.5 : 1,
+                      }}
+                    >{instantiating === file.uuid ? '...' : '+'}
+                    </button>
+                  )}
                 </div>
               )
             })}
@@ -3707,6 +4124,20 @@ function CCFileAssetBrowser({ assetsDir }: { assetsDir: string }) {
                 }}>
                   {item.relPath.split(/[\\/]/).slice(0, -1).join('/')}
                 </span>
+                {/* R1398: .prefab 인스턴스화 버튼 */}
+                {item.type === 'prefab' && sceneFile?.root && (
+                  <button
+                    onClick={e => { e.stopPropagation(); handleInstantiatePrefab(item) }}
+                    disabled={instantiating === item.uuid}
+                    title="씬에 추가"
+                    style={{
+                      fontSize: 10, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
+                      borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
+                      opacity: instantiating === item.uuid ? 0.5 : 1,
+                    }}
+                  >{instantiating === item.uuid ? '...' : '+'}
+                  </button>
+                )}
               </div>
             ))}
           </div>

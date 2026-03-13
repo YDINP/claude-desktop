@@ -263,6 +263,56 @@ export const NodeRenderer = memo(function NodeRenderer({
         </g>
       )}
 
+      {/* R1388: Sprite SLICED/TILED 렌더링 힌트 */}
+      {lod === 0 && pw > 20 && ph > 20 && (() => {
+        const spriteComp = node.components.find(c => c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
+        const spriteType = spriteComp?.props?.type as number | undefined
+        if (spriteType === 2) {
+          // SLICED: 3x3 점선 격자
+          const thirdW = pw / 3
+          const thirdH = ph / 3
+          return (
+            <g style={{ pointerEvents: 'none' }}>
+              <line x1={rx + thirdW} y1={ry} x2={rx + thirdW} y2={ry + ph}
+                stroke="rgba(255,200,50,0.35)" strokeWidth={0.6} strokeDasharray="3 2" />
+              <line x1={rx + thirdW * 2} y1={ry} x2={rx + thirdW * 2} y2={ry + ph}
+                stroke="rgba(255,200,50,0.35)" strokeWidth={0.6} strokeDasharray="3 2" />
+              <line x1={rx} y1={ry + thirdH} x2={rx + pw} y2={ry + thirdH}
+                stroke="rgba(255,200,50,0.35)" strokeWidth={0.6} strokeDasharray="3 2" />
+              <line x1={rx} y1={ry + thirdH * 2} x2={rx + pw} y2={ry + thirdH * 2}
+                stroke="rgba(255,200,50,0.35)" strokeWidth={0.6} strokeDasharray="3 2" />
+              <text x={rx + 2} y={ry + ph - 2} fontSize={6} fill="rgba(255,200,50,0.5)"
+                fontFamily="var(--font-mono)" style={{ userSelect: 'none' }}>9s</text>
+            </g>
+          )
+        }
+        if (spriteType === 3) {
+          // TILED: small x pattern fill
+          const gap = 12
+          const crosses: React.ReactElement[] = []
+          for (let ix = rx + gap; ix < rx + pw - 4; ix += gap) {
+            for (let iy = ry + gap; iy < ry + ph - 4; iy += gap) {
+              crosses.push(
+                <g key={`${ix}-${iy}`}>
+                  <line x1={ix - 2} y1={iy - 2} x2={ix + 2} y2={iy + 2}
+                    stroke="rgba(150,200,255,0.3)" strokeWidth={0.5} />
+                  <line x1={ix + 2} y1={iy - 2} x2={ix - 2} y2={iy + 2}
+                    stroke="rgba(150,200,255,0.3)" strokeWidth={0.5} />
+                </g>
+              )
+            }
+          }
+          return (
+            <g style={{ pointerEvents: 'none' }}>
+              {crosses}
+              <text x={rx + 2} y={ry + ph - 2} fontSize={6} fill="rgba(150,200,255,0.5)"
+                fontFamily="var(--font-mono)" style={{ userSelect: 'none' }}>tile</text>
+            </g>
+          )
+        }
+        return null
+      })()}
+
       {/* 선택 핸들 (8개) */}
       {selected && HANDLES.map(h => {
         const hx = rx + pw * h.rx

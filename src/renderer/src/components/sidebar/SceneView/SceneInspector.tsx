@@ -172,6 +172,8 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
   const [sizeLocked, setSizeLocked] = useState(false)
   const [memoDraft, setMemoDraft] = useState(node?.memo ?? '')
   const [tagDraft, setTagDraft] = useState('')
+  // R1393: 로컬/월드 좌표 토글
+  const [coordMode, setCoordMode] = useState<'local' | 'world'>('local')
   const nameInputRef = useRef<HTMLInputElement>(null)
   const [history, setHistory] = useState<Array<{ key: string; val: unknown; time: number }>>([])
 
@@ -468,19 +470,68 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         )}
       </div>
 
-      {/* Position */}
-      <SectionHeader label="Position" />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
-          <NumInput label="X" value={node.x} uuid={node.uuid} prop="x" onSave={trackUpdate} />
-          <NumInput label="Y" value={node.y} uuid={node.uuid} prop="y" onSave={trackUpdate} />
+      {/* R1393: Position — 로컬/월드 좌표 토글 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <SectionHeader label="Position" />
+        <div style={{ display: 'flex', gap: 2, marginRight: 2 }}>
+          <button
+            onClick={() => setCoordMode('local')}
+            title="로컬 좌표"
+            style={{
+              padding: '1px 5px', fontSize: 9, fontWeight: 700, cursor: 'pointer',
+              background: coordMode === 'local' ? 'var(--accent)' : 'rgba(255,255,255,0.06)',
+              color: coordMode === 'local' ? '#fff' : 'var(--text-muted)',
+              border: '1px solid ' + (coordMode === 'local' ? 'var(--accent)' : 'var(--border)'),
+              borderRadius: '3px 0 0 3px', lineHeight: '14px',
+            }}
+          >L</button>
+          <button
+            onClick={() => setCoordMode('world')}
+            title="월드 좌표 (읽기 전용)"
+            style={{
+              padding: '1px 5px', fontSize: 9, fontWeight: 700, cursor: 'pointer',
+              background: coordMode === 'world' ? 'var(--accent)' : 'rgba(255,255,255,0.06)',
+              color: coordMode === 'world' ? '#fff' : 'var(--text-muted)',
+              border: '1px solid ' + (coordMode === 'world' ? 'var(--accent)' : 'var(--border)'),
+              borderRadius: '0 3px 3px 0', lineHeight: '14px',
+            }}
+          >W</button>
         </div>
-        <button
-          onClick={() => { trackUpdate(node.uuid, 'x', 0); trackUpdate(node.uuid, 'y', 0) }}
-          title="X, Y 위치를 (0, 0)으로 초기화"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.x !== 0 || node.y !== 0) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
-        >⊙</button>
       </div>
+      {coordMode === 'local' ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+            <NumInput label="X" value={node.x} uuid={node.uuid} prop="x" onSave={trackUpdate} />
+            <NumInput label="Y" value={node.y} uuid={node.uuid} prop="y" onSave={trackUpdate} />
+          </div>
+          <button
+            onClick={() => { trackUpdate(node.uuid, 'x', 0); trackUpdate(node.uuid, 'y', 0) }}
+            title="X, Y 위치를 (0, 0)으로 초기화"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.x !== 0 || node.y !== 0) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+          >⊙</button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0' }}>
+              <span style={{ width: 48, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>WX</span>
+              <span style={{
+                flex: 1, padding: '2px 4px', fontSize: 11, fontFamily: 'monospace',
+                background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)',
+                borderRadius: 3, color: 'var(--text-muted)', cursor: 'default', opacity: 0.8,
+              }}>{node.worldX != null ? Math.round(node.worldX * 100) / 100 : '(계산 필요)'}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0' }}>
+              <span style={{ width: 48, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>WY</span>
+              <span style={{
+                flex: 1, padding: '2px 4px', fontSize: 11, fontFamily: 'monospace',
+                background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)',
+                borderRadius: 3, color: 'var(--text-muted)', cursor: 'default', opacity: 0.8,
+              }}>{node.worldY != null ? Math.round(node.worldY * 100) / 100 : '(계산 필요)'}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Size */}
       <SectionHeader label="Size" />
@@ -858,6 +909,79 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
               >
                 ▶ 재생 (미구현)
               </button>
+            </div>
+          </>
+        )
+      })()}
+
+      {/* R1387: cc.AudioSource 속성 편집 */}
+      {(() => {
+        const audioComp = node.components.find(c => c.type === 'cc.AudioSource')
+        if (!audioComp?.props) return null
+        const ap = audioComp.props as Record<string, unknown>
+        const clipUuid = (ap.clip as { __uuid__?: string })?.__uuid__ ?? (ap._clip as { __uuid__?: string })?.__uuid__ ?? ''
+        const clipDisplay = clipUuid.length > 16 ? clipUuid.slice(0, 8) + '...' + clipUuid.slice(-6) : clipUuid || '(없음)'
+        const volume = (ap.volume as number) ?? (ap._volume as number) ?? 1
+        const loop = (ap.loop as boolean) ?? (ap._loop as boolean) ?? false
+        const playOnLoad = (ap.playOnLoad as boolean) ?? (ap._playOnAwake as boolean) ?? false
+        const preload = (ap.preload as number) ?? 0
+        const preloadLabels = ['NONE', 'METADATA', 'AUTO']
+        const onAudioPropChange = (key: string, value: number | boolean) => {
+          const newComps = node.components.map(c =>
+            c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, [key]: value } } : c
+          )
+          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+        }
+        return (
+          <>
+            <SectionHeader label="AudioSource" />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48 }}>clip</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}
+                  title={clipUuid}>{clipDisplay}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48, fontSize: 9 }}>volume</span>
+                <input
+                  type="range" min={0} max={1} step={0.01} value={volume}
+                  onChange={e => onAudioPropChange('volume', parseFloat(e.target.value))}
+                  style={{ flex: 1, height: 4, accentColor: 'var(--accent)', cursor: 'pointer', minWidth: 0 }}
+                />
+                <span style={{ fontSize: 8, color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums', minWidth: 24, textAlign: 'right' }}>
+                  {volume.toFixed(2)}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48, fontSize: 9 }}>loop</span>
+                <input
+                  type="checkbox" checked={loop}
+                  onChange={e => onAudioPropChange('loop', e.target.checked)}
+                  style={{ width: 12, height: 12, accentColor: 'var(--accent)', cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: 8, color: loop ? 'var(--success)' : 'var(--text-muted)' }}>{loop ? 'ON' : 'OFF'}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48, fontSize: 9 }}>playOnLoad</span>
+                <input
+                  type="checkbox" checked={playOnLoad}
+                  onChange={e => onAudioPropChange('playOnLoad', e.target.checked)}
+                  style={{ width: 12, height: 12, accentColor: 'var(--accent)', cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: 8, color: playOnLoad ? 'var(--success)' : 'var(--text-muted)' }}>{playOnLoad ? 'ON' : 'OFF'}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: 48, fontSize: 9 }}>preload</span>
+                <select
+                  value={preload}
+                  onChange={e => onAudioPropChange('preload', parseInt(e.target.value))}
+                  style={{ flex: 1, fontSize: 9, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '1px 3px' }}
+                >
+                  {preloadLabels.map((label, i) => (
+                    <option key={i} value={i}>{i} — {label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </>
         )

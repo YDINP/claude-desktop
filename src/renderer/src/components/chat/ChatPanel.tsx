@@ -616,6 +616,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     })
   }, [])
 
+  const [showOnlyBookmarks, setShowOnlyBookmarks] = useState(false)
   const displayMessages = useMemo(
     () => showOnlyBookmarks ? chat.messages.filter(m => m.bookmarked) : chat.messages,
     [chat.messages, showOnlyBookmarks]
@@ -808,7 +809,6 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   }, [chat.isStreaming, messageCount, virtualizer, ccCtx.connected, chat.messages])
 
   const bookmarkIdxRef = useRef(0)
-  const [showOnlyBookmarks, setShowOnlyBookmarks] = useState(false)
   const [foldedMessages, setFoldedMessages] = useState<Set<string>>(new Set())
 
   // R701: 메시지 카테고리 레이블

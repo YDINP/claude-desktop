@@ -14478,6 +14478,150 @@ if (existsSync(si1384Path)) {
   }
 }
 
+// ── Section 373: R1386/R1387/R1388 기능 체크 ───────────────
+console.log('\n## 373. Phase DD13 R1386~R1388 기능 체크')
+
+// R1386: SceneView 노드 복사/붙여넣기/복제 (deep clone)
+const svp1386Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1386Path)) {
+  const svp1386 = readFileSync(svp1386Path, 'utf-8')
+  if (svp1386.includes('deepCloneNode') && svp1386.includes('handleCopy') && svp1386.includes('handlePaste') && svp1386.includes('handleDuplicate')) {
+    log('pass', 'R1386', 'SceneView 노드 복사/붙여넣기/복제 (deep clone with UUID)')
+  } else {
+    log('warning', 'R1386', 'SceneView 노드 deep clone 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+  // Ctrl+C/V/D 단축키
+  if (svp1386.includes("key === 'c'") && svp1386.includes('handleCopy') && svp1386.includes("key === 'v'") && svp1386.includes("key === 'd'")) {
+    log('pass', 'R1386', 'Ctrl+C/V/D 단축키 바인딩 존재')
+  } else {
+    log('warning', 'R1386', 'Ctrl+C/V/D 단축키 누락', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1387: Inspector cc.AudioSource 속성 편집
+const si1387Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(si1387Path)) {
+  const si1387 = readFileSync(si1387Path, 'utf-8')
+  if (si1387.includes('cc.AudioSource') && si1387.includes('volume') && si1387.includes('loop') && si1387.includes('playOnLoad') && si1387.includes('preload') && si1387.includes('R1387')) {
+    log('pass', 'R1387', 'Inspector cc.AudioSource 속성 편집 (volume/loop/playOnLoad/preload)')
+  } else {
+    log('warning', 'R1387', 'Inspector AudioSource 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1388: NodeRenderer Sprite SLICED/TILED 렌더링 힌트
+const nr1388Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr1388Path)) {
+  const nr1388 = readFileSync(nr1388Path, 'utf-8')
+  if (nr1388.includes('spriteType === 2') && nr1388.includes('spriteType === 3') && nr1388.includes('R1388') && nr1388.includes('SLICED')) {
+    log('pass', 'R1388', 'NodeRenderer Sprite SLICED/TILED 렌더링 힌트 (점선 격자/x 패턴)')
+  } else {
+    log('warning', 'R1388', 'NodeRenderer SLICED/TILED 힌트 없음', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
+// ── Section 374: R1389/R1390 기능 체크 ───────────────
+console.log('\n## 374. Phase DD13 R1389~R1390 기능 체크')
+
+// R1389: cc-file-watcher 부분 업데이트 + 배너 자동 숨김
+const cfw1389Path = join(ROOT, 'src/main/cc/cc-file-watcher.ts')
+if (existsSync(cfw1389Path)) {
+  const cfw1389 = readFileSync(cfw1389Path, 'utf-8')
+  if (cfw1389.includes('CCScenePartialUpdate') && cfw1389.includes('debouncedChange') && cfw1389.includes('emitPartialUpdate') && cfw1389.includes('onPartialUpdate')) {
+    log('pass', 'R1389', 'cc-file-watcher 부분 업데이트 IPC + debounce 300ms')
+  } else {
+    log('warning', 'R1389', 'cc-file-watcher 부분 업데이트 없음', 'cc/cc-file-watcher.ts')
+  }
+}
+const cfh1389Path = join(ROOT, 'src/main/ipc/cc-file-handlers.ts')
+if (existsSync(cfh1389Path)) {
+  const cfh1389 = readFileSync(cfh1389Path, 'utf-8')
+  if (cfh1389.includes('cc:scene-partial-update') && cfh1389.includes('onPartialUpdate')) {
+    log('pass', 'R1389', 'cc-file-handlers 부분 업데이트 IPC 이벤트 전송')
+  } else {
+    log('warning', 'R1389', 'cc-file-handlers 부분 업데이트 IPC 없음', 'ipc/cc-file-handlers.ts')
+  }
+}
+const cp1389Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1389Path)) {
+  const cp1389 = readFileSync(cp1389Path, 'utf-8')
+  if (cp1389.includes('bannerHidden') && cp1389.includes('bannerTimerRef') && cp1389.includes('5000')) {
+    log('pass', 'R1389', 'CocosPanel 외부 변경 배너 5초 자동 숨김')
+  } else {
+    log('warning', 'R1389', 'CocosPanel 배너 자동 숨김 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1390: CocosPanel CC 프로젝트 설정 뷰어
+if (existsSync(cp1389Path)) {
+  const cp1390 = readFileSync(cp1389Path, 'utf-8')
+  if (cp1390.includes('showProjectSettings') && cp1390.includes('projectSettings') && cp1390.includes('designWidth') && cp1390.includes('physicsEngine') && cp1390.includes('R1390')) {
+    log('pass', 'R1390', 'CocosPanel CC 프로젝트 설정 뷰어 (버전/해상도/물리엔진/빌드타겟)')
+  } else {
+    log('warning', 'R1390', 'CocosPanel 프로젝트 설정 뷰어 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 375: R1392/R1393/R1394 기능 체크 ───────────────
+console.log('\n## 375. Phase DD14 R1392~R1394 기능 체크')
+
+// R1392: SceneView 정렬 가이드라인 SVG 렌더링 (#4af 스타일)
+const svp1392Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1392Path)) {
+  const svp1392 = readFileSync(svp1392Path, 'utf-8')
+  if (svp1392.includes('R1392') && svp1392.includes('#4af') && svp1392.includes('strokeDasharray="4 2"') && svp1392.includes('alignGuides')) {
+    log('pass', 'R1392', 'SceneView 정렬 가이드라인 SVG 렌더링 (#4af, 4 2 dash)')
+  } else {
+    log('warning', 'R1392', 'SceneView 가이드라인 스타일 미적용', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1393: Inspector 로컬/월드 좌표 토글
+const si1393Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(si1393Path)) {
+  const si1393 = readFileSync(si1393Path, 'utf-8')
+  if (si1393.includes('coordMode') && si1393.includes("'local'") && si1393.includes("'world'") && si1393.includes('R1393') && si1393.includes('worldX') && si1393.includes('worldY')) {
+    log('pass', 'R1393', 'Inspector 로컬/월드 좌표 토글 (L/W 버튼, 월드 읽기 전용)')
+  } else {
+    log('warning', 'R1393', 'Inspector 좌표 토글 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1394: CocosPanel 씬 템플릿 생성
+const cp1394Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1394Path)) {
+  const cp1394 = readFileSync(cp1394Path, 'utf-8')
+  if (cp1394.includes('R1394') && cp1394.includes('handleCreateScene') && cp1394.includes('newSceneTemplate') && cp1394.includes('showNewSceneForm') && cp1394.includes('writeTextFile') && cp1394.includes('cc.SceneAsset')) {
+    log('pass', 'R1394', 'CocosPanel 씬 템플릿 생성 (빈씬/Canvas, writeTextFile, 자동 열기)')
+  } else {
+    log('warning', 'R1394', 'CocosPanel 씬 생성 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 376: R1395/R1396 기능 체크 ───────────────
+console.log('\n## 376. Phase DD14 R1395~R1396 기능 체크')
+
+// R1395: SceneView 레이어 패널 (가시성/잠금 영구 저장, 색상 라벨)
+if (existsSync(svp1392Path)) {
+  const svp1395 = readFileSync(svp1392Path, 'utf-8')
+  if (svp1395.includes('R1395') && svp1395.includes('layerColors') && svp1395.includes('scene-hidden-layers') && svp1395.includes('scene-locked-layers') && svp1395.includes('LAYER_COLOR_PALETTE')) {
+    log('pass', 'R1395', 'SceneView 레이어 패널 고도화 (가시성/잠금 영구저장, 색상 라벨)')
+  } else {
+    log('warning', 'R1395', 'SceneView 레이어 패널 고도화 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1396: cc-file-parser 2x _trs 파싱 정밀도 향상
+const cfp1396Path = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(cfp1396Path)) {
+  const cfp1396 = readFileSync(cfp1396Path, 'utf-8')
+  if (cfp1396.includes('R1396') && cfp1396.includes('base64') && cfp1396.includes('_position') && cfp1396.includes('_rotation') && cfp1396.includes('_scale') && cfp1396.includes('Buffer.from')) {
+    log('pass', 'R1396', 'cc-file-parser 2x _trs 파싱 강화 (base64 디코딩, 개별 필드 폴백, 기본값 보장)')
+  } else {
+    log('warning', 'R1396', 'cc-file-parser _trs 파싱 강화 없음', 'cc/cc-file-parser.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
