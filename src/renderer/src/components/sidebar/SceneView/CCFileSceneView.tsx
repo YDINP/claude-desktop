@@ -2146,6 +2146,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         )
       })()}
+      {/* R1629: 리사이즈 중 현재 크기 레이블 */}
+      {resizeOverride && hoverClientPos && (() => {
+        const svgEl = svgRef.current
+        const rect = svgEl?.getBoundingClientRect()
+        const relX = rect ? hoverClientPos.x - rect.left + 14 : 14
+        const relY = rect ? hoverClientPos.y - rect.top - 26 : 0
+        return (
+          <div style={{
+            position: 'absolute', left: relX, top: relY,
+            background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(255,153,68,0.4)',
+            borderRadius: 3, padding: '1px 5px', fontSize: 9,
+            color: '#ff9944', pointerEvents: 'none', userSelect: 'none',
+            fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', zIndex: 100,
+          }}>
+            {Math.round(resizeOverride.w)}×{Math.round(resizeOverride.h)}
+          </div>
+        )
+      })()}
       {/* R1628: 드래그 중 좌표 변화 레이블 */}
       {dragOverride && hoverClientPos && (() => {
         const dr = dragRef.current

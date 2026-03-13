@@ -17466,6 +17466,18 @@ console.log('\n## 519. R1628 SceneView 드래그 중 좌표 변화 레이블 체
   }
 }
 
+// ── Section 520: R1629 SceneView 리사이즈 중 크기 레이블 ──────────────────
+console.log('\n## 520. R1629 SceneView 리사이즈 중 크기 레이블 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s520 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s520.includes('R1629') && s520.includes('resizeOverride && hoverClientPos') && s520.includes('resizeOverride.w') && s520.includes('resizeOverride.h')) {
+    log('pass', 'R1629-resize-label', 'SceneView 리사이즈 중 크기 레이블')
+  } else {
+    log('warning', 'R1629-resize-label', 'SceneView 리사이즈 중 크기 레이블 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
