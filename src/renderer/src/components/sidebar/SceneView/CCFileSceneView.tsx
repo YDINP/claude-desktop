@@ -39,6 +39,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number } | null>(null)
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
+  const [hoverUuid, setHoverUuid] = useState<string | null>(null)
   // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
   const spriteCacheRef = useRef<Map<string, string>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
@@ -310,6 +311,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const rectX = svgPos.x - w * anchorX
             const rectY = svgPos.y - h * (1 - anchorY)
             const isSelected = node.uuid === selectedUuid
+            const isHovered = node.uuid === hoverUuid && !isSelected
             // CC rotation: Z-euler (반시계방향 양수). SVG: 시계방향 양수 → 부호 반전
             const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0
             const rotTransform = rotZ !== 0 ? `rotate(${-rotZ}, ${svgPos.x}, ${svgPos.y})` : undefined
@@ -318,12 +320,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const hasSprite = node.components.some(c => c.type === 'cc.Sprite')
             const hasBg = node.components.some(c => ['cc.Canvas', 'cc.Layout'].includes(c.type))
 
-            const fillColor = hasBg ? 'rgba(80,120,255,0.08)'
+            const fillColor = isHovered ? 'rgba(255,255,255,0.06)'
+              : hasBg ? 'rgba(80,120,255,0.08)'
               : hasLabel ? 'rgba(255,200,80,0.12)'
               : hasSprite ? 'rgba(80,220,120,0.12)'
               : 'rgba(150,150,255,0.08)'
             const strokeColor = isSelected ? '#58a6ff'
               : isDragged ? '#ff9944'
+              : isHovered ? 'rgba(255,255,255,0.5)'
               : hasBg ? '#4466aa'
               : hasLabel ? '#ccaa44'
               : hasSprite ? '#44aa66'
@@ -334,6 +338,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 transform={rotTransform}
                 opacity={nodeOpacity}
                 onClick={e => { e.stopPropagation(); onSelect(node.uuid) }}
+                onMouseEnter={() => setHoverUuid(node.uuid)}
+                onMouseLeave={() => setHoverUuid(null)}
                 onMouseDown={e => {
                   if (e.button !== 0) return
                   e.stopPropagation()
