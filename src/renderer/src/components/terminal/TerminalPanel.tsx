@@ -237,6 +237,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showConnectionPanel, setShowConnectionPanel] = useState(false)
   const [termAutoComplete, setTermAutoComplete] = useState(true)
   const [autoCompleteList, setAutoCompleteList] = useState<string[]>([])
+  const [termSyntaxHighlight, setTermSyntaxHighlight] = useState(false)
+  const [termHighlightRules, setTermHighlightRules] = useState<Record<string, string>>({})
   const inputBufferRef = useRef<Record<string, string>>({})
 
   const sendQuickCmd = (cmd: string) => {

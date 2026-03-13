@@ -897,6 +897,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // R1218: message reply
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyContext, setReplyContext] = useState<string | null>(null)
+  const [chatWidgets, setChatWidgets] = useState<string[]>([])
+  const [showWidgetPanel, setShowWidgetPanel] = useState(false)
   const MSG_LABEL_KINDS = ['중요', '질문', '답변', '코드', '오류'] as const
   const MSG_LABEL_COLORS: Record<string, string> = {
     '중요': '#f87171', '질문': '#60a5fa', '답변': '#34d399', '코드': '#c084fc', '오류': '#fbbf24',
