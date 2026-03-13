@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T10:57:40.880Z
+> 2026-03-13T10:58:31.005Z
 
 ## Critical
 _없음_
@@ -589,3 +589,6 @@ _없음_
 - CocosPanel 노드 프리셋 카테고리 존재
 - SessionList 내보내기 포맷 선택 존재
 - TerminalPanel 검색 매치 하이라이트 존재
+- ChatPanel 메시지 북마크 존재
+- SceneViewPanel 노드 그룹 색상 존재
+- InputBar 히스토리 검색 존재

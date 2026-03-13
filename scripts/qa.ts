@@ -6704,6 +6704,41 @@ if (existsSync(tp707Path)) {
   }
 }
 
+// ── Section 147: Phase DD10 R708~710 기능 체크 ────────────────
+console.log('\n## 147. Phase DD10 R708~710 기능 체크')
+// R708: ChatPanel 메시지 북마크
+const cp708Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp708Path)) {
+  const cp708 = readFileSync(cp708Path, 'utf-8')
+  if (cp708.includes('bookmarkedMsgs') || cp708.includes('showBookmarks') || cp708.includes('bookmarkMsg')) {
+    log('pass', 'R708', 'ChatPanel 메시지 북마크 존재')
+  } else {
+    log('warning', 'R708', 'ChatPanel 메시지 북마크 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R709: SceneViewPanel 노드 그룹 색상
+const svp709Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp709Path)) {
+  const svp709 = readFileSync(svp709Path, 'utf-8')
+  if (svp709.includes('nodeGroupColors') || svp709.includes('colorPickerNode') || svp709.includes('groupColor')) {
+    log('pass', 'R709', 'SceneViewPanel 노드 그룹 색상 존재')
+  } else {
+    log('warning', 'R709', 'SceneViewPanel 노드 그룹 색상 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R710: InputBar 히스토리 검색
+const ib710Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib710Path)) {
+  const ib710 = readFileSync(ib710Path, 'utf-8')
+  if (ib710.includes('historySearch') || ib710.includes('historySearchOpen') || ib710.includes('searchHistory')) {
+    log('pass', 'R710', 'InputBar 히스토리 검색 존재')
+  } else {
+    log('warning', 'R710', 'InputBar 히스토리 검색 없음', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

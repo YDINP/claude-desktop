@@ -157,6 +157,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showHeatmap, setShowHeatmap] = useState(false)
   // ── 노드 접근 빈도 히트맵 (R702) ───────────────────────────
   const [nodeAccessCount, setNodeAccessCount] = useState<Record<string, number>>({})
+  // ── 노드 그룹 색상 (R709) ──────────────────────────────────
+  const [nodeGroupColors, setNodeGroupColors] = useState<Record<string, string>>({})
+  const [colorPickerNode, setColorPickerNode] = useState<string | null>(null)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)
