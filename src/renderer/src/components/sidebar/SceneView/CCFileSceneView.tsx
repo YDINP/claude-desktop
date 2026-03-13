@@ -52,6 +52,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
   const editInputRef = useRef<HTMLInputElement | null>(null)
   const isSpaceDownRef = useRef(false)
+  const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set())
+  const selBoxRef = useRef<{ startSvgX: number; startSvgY: number } | null>(null)
+  const [selectionBox, setSelectionBox] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -176,6 +179,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       e.preventDefault()
       setIsPanning(true)
       panStart.current = { mouseX: e.clientX, mouseY: e.clientY, offX: view.offsetX, offY: view.offsetY }
+    } else if (e.button === 0) {
+      // 빈 공간 드래그: rubber-band 선택 시작
+      const svg = svgRef.current
+      if (!svg) return
+      const rect = svg.getBoundingClientRect()
+      const v = viewRef.current
+      const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
+      const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
+      selBoxRef.current = { startSvgX: svgX, startSvgY: svgY }
     }
   }, [view])
 
@@ -225,6 +237,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const dy = e.clientY - panStart.current.mouseY
       setView(v => ({ ...v, offsetX: panStart.current!.offX + dx, offsetY: panStart.current!.offY + dy }))
     }
+    // rubber-band selection box 업데이트
+    if (selBoxRef.current && !dragRef.current && !resizeRef.current && !rotateRef.current && !isPanning) {
+      const svg = svgRef.current
+      if (svg) {
+        const rect = svg.getBoundingClientRect()
+        const v = viewRef.current
+        const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
+        const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
+        setSelectionBox({ x1: selBoxRef.current.startSvgX, y1: selBoxRef.current.startSvgY, x2: svgX, y2: svgY })
+      }
+    }
     // 마우스 씬 좌표 계산: ccX = (mouseX - offsetX) / zoom - cx, ccY = cy - (mouseY - offsetY) / zoom
     const svg = svgRef.current
     if (svg) {
@@ -265,7 +288,32 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     setDragOverride(null)
     setIsPanning(false)
     panStart.current = null
-  }, [rotateOverride, dragOverride, resizeOverride, onRotate, onMove, onResize])
+    // rubber-band 완료: 박스 내 노드 선택
+    if (selBoxRef.current && selectionBox) {
+      const box = selectionBox
+      const hasSize = Math.abs(box.x2 - box.x1) > 4 || Math.abs(box.y2 - box.y1) > 4
+      if (hasSize) {
+        const minX = Math.min(box.x1, box.x2), maxX = Math.max(box.x1, box.x2)
+        const minY = Math.min(box.y1, box.y2), maxY = Math.max(box.y1, box.y2)
+        const picked = new Set<string>()
+        for (const fn of flatNodes) {
+          if (!fn.node.size?.x && !fn.node.size?.y) continue
+          const sp = ccToSvg(fn.worldX, fn.worldY)
+          const ax = fn.node.anchor?.x ?? 0.5
+          const ay = fn.node.anchor?.y ?? 0.5
+          const rx = sp.x - fn.node.size.x * ax
+          const ry = sp.y - fn.node.size.y * (1 - ay)
+          if (rx < maxX && rx + fn.node.size.x > minX && ry < maxY && ry + fn.node.size.y > minY) {
+            picked.add(fn.node.uuid)
+          }
+        }
+        setMultiSelected(picked)
+        if (picked.size > 0) onSelect([...picked][0])
+      }
+    }
+    selBoxRef.current = null
+    setSelectionBox(null)
+  }, [rotateOverride, dragOverride, resizeOverride, selectionBox, flatNodes, ccToSvg, onRotate, onMove, onResize, onSelect])
 
   // Fit to view
   const handleFit = useCallback(() => {
@@ -413,7 +461,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         onMouseUp={handleMouseUp}
         onMouseLeave={() => { handleMouseUp(); setMouseScenePos(null) }}
         onContextMenu={e => e.preventDefault()}
-        onClick={() => onSelect(null)}
+        onClick={() => { onSelect(null); setMultiSelected(new Set()); selBoxRef.current = null; setSelectionBox(null) }}
         onDoubleClick={handleFit}
       >
         <defs>
@@ -509,7 +557,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const anchorY = node.anchor?.y ?? 0.5
             const rectX = svgPos.x - w * anchorX
             const rectY = svgPos.y - h * (1 - anchorY)
-            const isSelected = node.uuid === selectedUuid
+            const isSelected = node.uuid === selectedUuid || multiSelected.has(node.uuid)
             const isHovered = node.uuid === hoverUuid && !isSelected
             // CC rotation: Z-euler (반시계방향 양수). SVG: 시계방향 양수 → 부호 반전
             const rotZ = rotateOverride?.uuid === node.uuid
@@ -550,7 +598,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               <g key={node.uuid}
                 transform={rotTransform}
                 opacity={nodeOpacity}
-                onClick={e => { e.stopPropagation(); onSelect(node.uuid) }}
+                onClick={e => {
+                  e.stopPropagation()
+                  if (e.ctrlKey || e.metaKey) {
+                    // Ctrl+클릭: 멀티셀렉트 토글
+                    setMultiSelected(s => {
+                      const n = new Set(s)
+                      n.has(node.uuid) ? n.delete(node.uuid) : n.add(node.uuid)
+                      return n
+                    })
+                  } else {
+                    setMultiSelected(new Set())
+                    onSelect(node.uuid)
+                  }
+                }}
                 onMouseEnter={() => setHoverUuid(node.uuid)}
                 onMouseLeave={() => setHoverUuid(null)}
                 onMouseDown={e => {
@@ -748,6 +809,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })}
+          {/* rubber-band 선택 박스 */}
+          {selectionBox && (
+            <rect
+              x={Math.min(selectionBox.x1, selectionBox.x2)}
+              y={Math.min(selectionBox.y1, selectionBox.y2)}
+              width={Math.abs(selectionBox.x2 - selectionBox.x1)}
+              height={Math.abs(selectionBox.y2 - selectionBox.y1)}
+              fill="rgba(88,166,255,0.08)"
+              stroke="#58a6ff"
+              strokeWidth={1 / view.zoom}
+              strokeDasharray={`${3 / view.zoom},${2 / view.zoom}`}
+              style={{ pointerEvents: 'none' }}
+            />
+          )}
         </g>
       </svg>
       {/* 미니맵 */}

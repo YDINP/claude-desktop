@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 508 완료 — DD5-7 씬뷰 화살표 키 이동)
+> 마지막 업데이트: 2026-03-13 (Round 509 완료 — DD5-8 씬뷰 rubber-band 선택 + Ctrl+클릭 멀티셀렉트)
 
 ## 완료된 라운드
 
@@ -93,6 +93,7 @@
 | Round 499 | dev | Phase YY3-1: 씬뷰 F키 선택 노드 포커스 — handleFitToSelected, window keydown F 핸들러, 미선택 시 Fit all | ✅ |
 | Round 500 | dev | 특별 라운드: PRD-Phase2.md 업데이트 — Round 472-499 구현 완료 기능 28개 반영, 헤더/기준 동기화 | ✅ |
 | Round 501 | dev | Phase FF5-1: 씬뷰 선택 노드 마칭 앤트 애니메이션 — SVG <style> keyframe, cc-selected-rect className, dasharray 6/3 | ✅ |
+| Round 509 | dev | Phase DD5-8: 씬뷰 rubber-band 드래그 선택 + Ctrl+클릭 멀티셀렉트 (로컬 multiSelected Set) | ✅ |
 | Round 508 | dev | Phase DD5-7: 씬뷰 화살표 키 이동 — ←↑→↓ 1px, Shift+ 10px, onMove 파일 저장 | ✅ |
 | Round 507 | dev | Phase DD5-6: Inspector RGBA 컬러 피커 + fontStyle 드롭다운 (Normal/Bold/Italic/BoldItalic) | ✅ |
 | Round 506 | dev | Phase DD5-5: 씬뷰 캔버스 치수 레이블 + XY 좌표축 화살표 (우하단, zoom > 0.3) | ✅ |
