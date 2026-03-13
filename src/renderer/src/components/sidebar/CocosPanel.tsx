@@ -2986,6 +2986,9 @@ function CCFileNodeInspector({
     return { x: Math.round(wx * 100) / 100, y: Math.round(wy * 100) / 100 }
   }, [sceneFile.root, node.uuid, draft.position])
   const [showSceneDepsTree, setShowSceneDepsTree] = useState(false)
+  // R1508: Quick Edit CLI 상태 (Rules of Hooks: IIFE 밖 선언 필수)
+  const [cliVal, setCliVal] = useState('')
+  const [cliMsg, setCliMsg] = useState<string | null>(null)
   const secHeader = (key: string, label: string) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
       style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
@@ -4855,8 +4858,6 @@ function CCFileNodeInspector({
       )}
       {/* R1508: 빠른 편집 CLI 입력 바 */}
       {(() => {
-        const [cliVal, setCliVal] = React.useState('')
-        const [cliMsg, setCliMsg] = React.useState<string | null>(null)
         const runCmd = (cmd: string) => {
           const parts = cmd.trim().split(/\s+/)
           const op = parts[0]?.toLowerCase()

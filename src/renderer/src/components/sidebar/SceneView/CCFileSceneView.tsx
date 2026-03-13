@@ -1037,6 +1037,50 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                         />
                       )
                     })()}
+                    {/* R1510: cc.Widget 레이아웃 제약 시각화 */}
+                    {(() => {
+                      const widgetComp = node.components.find(c =>
+                        c.type === 'cc.Widget' || c.type === 'Widget'
+                      )
+                      if (!widgetComp) return null
+                      const flags = (widgetComp.props.alignFlags ?? widgetComp.props._alignFlags ?? 0) as number
+                      const arrowLen = 10 / view.zoom
+                      const arrowHead = 3 / view.zoom
+                      const stroke = '#7c3aed'
+                      const sw = 1.5 / view.zoom
+                      const cx2 = rectX + w / 2
+                      const cy2 = rectY + h / 2
+                      const lines: React.ReactElement[] = []
+                      // TOP=1: 상단 가장자리 → 위쪽 화살표
+                      if (flags & 1) lines.push(
+                        <g key="top" pointerEvents="none">
+                          <line x1={cx2} y1={rectY} x2={cx2} y2={rectY - arrowLen} stroke={stroke} strokeWidth={sw} />
+                          <polygon points={`${cx2},${rectY - arrowLen} ${cx2 - arrowHead},${rectY - arrowLen + arrowHead*1.5} ${cx2 + arrowHead},${rectY - arrowLen + arrowHead*1.5}`} fill={stroke} />
+                        </g>
+                      )
+                      // BOT=4: 하단 가장자리 → 아래쪽 화살표
+                      if (flags & 4) lines.push(
+                        <g key="bot" pointerEvents="none">
+                          <line x1={cx2} y1={rectY + h} x2={cx2} y2={rectY + h + arrowLen} stroke={stroke} strokeWidth={sw} />
+                          <polygon points={`${cx2},${rectY + h + arrowLen} ${cx2 - arrowHead},${rectY + h + arrowLen - arrowHead*1.5} ${cx2 + arrowHead},${rectY + h + arrowLen - arrowHead*1.5}`} fill={stroke} />
+                        </g>
+                      )
+                      // LEFT=8: 좌측 → 왼쪽 화살표
+                      if (flags & 8) lines.push(
+                        <g key="left" pointerEvents="none">
+                          <line x1={rectX} y1={cy2} x2={rectX - arrowLen} y2={cy2} stroke={stroke} strokeWidth={sw} />
+                          <polygon points={`${rectX - arrowLen},${cy2} ${rectX - arrowLen + arrowHead*1.5},${cy2 - arrowHead} ${rectX - arrowLen + arrowHead*1.5},${cy2 + arrowHead}`} fill={stroke} />
+                        </g>
+                      )
+                      // RIGHT=32: 우측 → 오른쪽 화살표
+                      if (flags & 32) lines.push(
+                        <g key="right" pointerEvents="none">
+                          <line x1={rectX + w} y1={cy2} x2={rectX + w + arrowLen} y2={cy2} stroke={stroke} strokeWidth={sw} />
+                          <polygon points={`${rectX + w + arrowLen},${cy2} ${rectX + w + arrowLen - arrowHead*1.5},${cy2 - arrowHead} ${rectX + w + arrowLen - arrowHead*1.5},${cy2 + arrowHead}`} fill={stroke} />
+                        </g>
+                      )
+                      return lines.length > 0 ? <>{lines}</> : null
+                    })()}
                     {/* 회전 핸들 원 */}
                     <circle
                       cx={svgPos.x} cy={rectY - 22 / view.zoom}

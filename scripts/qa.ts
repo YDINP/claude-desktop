@@ -15966,6 +15966,32 @@ if (existsSync(cp419)) {
   }
 }
 
+// ── Section 420: R1508 hook fix + R1510 Widget 시각화 체크 ──────────────────────
+console.log('\n## 420. Phase E R1508 hook fix + R1510 cc.Widget 시각화 체크')
+const cp420 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const sv420 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(cp420) && existsSync(sv420)) {
+  const c420 = readFileSync(cp420, 'utf-8')
+  const s420 = readFileSync(sv420, 'utf-8')
+  // R1508 hook fix: cliVal/cliMsg should be at component top level
+  if (c420.includes("const [cliVal, setCliVal] = useState('')") && c420.includes("const [cliMsg, setCliMsg] = useState<string | null>(null)") && !c420.includes("React.useState('')")) {
+    log('pass', 'R1508-hook-fix', 'Quick Edit CLI useState 컴포넌트 최상위 선언 (Rules of Hooks 준수)')
+  } else {
+    log('warning', 'R1508-hook-fix', 'Quick Edit CLI Rules of Hooks 위반 가능성', 'CocosPanel.tsx')
+  }
+  // R1510 Widget visualization
+  if (s420.includes('R1510') && s420.includes('widgetComp') && s420.includes('alignFlags') && s420.includes('7c3aed')) {
+    log('pass', 'R1510-widget-viz', 'SceneView cc.Widget alignFlags 제약 화살표 시각화 구현')
+  } else {
+    log('warning', 'R1510-widget-viz', 'Widget 시각화 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s420.includes('flags & 1') && s420.includes('flags & 4') && s420.includes('flags & 8') && s420.includes('flags & 32')) {
+    log('pass', 'R1510-widget-flags', 'TOP/BOT/LEFT/RIGHT 4방향 제약 화살표 모두 구현')
+  } else {
+    log('warning', 'R1510-widget-flags', 'Widget 방향 일부 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

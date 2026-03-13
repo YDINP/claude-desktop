@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T19:42:26.030Z
+> 2026-03-13T19:47:25.504Z
 
 ## Critical
 _없음_
@@ -1413,3 +1413,6 @@ _없음_
 - Inspector Quick Edit CLI 입력 상태 + runCmd 함수 구현
 - pos/size/rot/scale/alpha/color/name/active 명령 파서 구현
 - CLI 입력 UI (monosapce placeholder + 피드백) 구현
+- Quick Edit CLI useState 컴포넌트 최상위 선언 (Rules of Hooks 준수)
+- SceneView cc.Widget alignFlags 제약 화살표 시각화 구현
+- TOP/BOT/LEFT/RIGHT 4방향 제약 화살표 모두 구현
