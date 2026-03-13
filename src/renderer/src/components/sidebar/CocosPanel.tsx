@@ -437,6 +437,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(updatePos(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  const handleNodeResize = useCallback(async (uuid: string, w: number, h: number) => {
+    if (!sceneFile?.root) return
+    function updateSize(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === uuid) return { ...n, size: { x: Math.round(w), y: Math.round(h) } }
+      return { ...n, children: n.children.map(updateSize) }
+    }
+    await saveScene(updateSize(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   const handleSave = useCallback(async () => {
     if (!sceneFile?.root) return
     setSaving(true)
@@ -648,6 +657,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               sceneFile={sceneFile}
               selectedUuid={selectedNode?.uuid ?? null}
               onMove={handleNodeMove}
+              onResize={handleNodeResize}
               onSelect={uuid => {
                 if (!uuid) { onSelectNode(null); return }
                 const findNode = (n: CCSceneNode): CCSceneNode | null => {

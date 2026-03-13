@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 436 완료 — D-4 노드 계층 이동 드래그 앤 드롭)
+> 마지막 업데이트: 2026-03-13 (Round 437 완료 — E-1 씬뷰 SE 리사이즈 핸들)
 
 ## 완료된 라운드
 
@@ -28,6 +28,7 @@
 | Round 433 | dev | Phase B-4: undo/redo 스택 (50단계) — _saveRaw refs 기반 내부 저장, Ctrl+Z/Y 키바인딩, ↩/↪ 버튼 UI | ✅ |
 | Round 435 | dev | Phase D-3: 프리팹 파싱 — resolveRootIdx (cc.Prefab.data ref), .prefab 파일 씬 목록 포함 | ✅ |
 | Round 436 | dev | Phase D-4: 노드 계층 이동 — CCFileSceneTree drag&drop, 사이클 방지, 파란 드롭 하이라이트, onReparent → saveScene | ✅ |
+| Round 437 | dev | Phase E-1: 씬뷰 SE 리사이즈 핸들 — resizeRef/resizeOverride, SE corner 핸들, onResize → saveScene size 업데이트 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

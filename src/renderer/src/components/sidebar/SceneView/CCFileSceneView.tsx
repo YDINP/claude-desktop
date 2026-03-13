@@ -19,6 +19,7 @@ interface CCFileSceneViewProps {
   selectedUuid: string | null
   onSelect: (uuid: string | null) => void
   onMove?: (uuid: string, x: number, y: number) => void
+  onResize?: (uuid: string, w: number, h: number) => void
 }
 
 /**
@@ -26,7 +27,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -35,6 +36,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove }: C
   const panStart = useRef<{ mouseX: number; mouseY: number; offX: number; offY: number } | null>(null)
   const dragRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number } | null>(null)
   const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
+  const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number } | null>(null)
+  const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
 
   // 캔버스 크기 추정: Canvas 노드 또는 최상위 노드의 size
   const { designW, designH } = useMemo(() => {
@@ -107,6 +110,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove }: C
   }, [view])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (resizeRef.current) {
+      const dx = e.clientX - resizeRef.current.startMouseX
+      const dy = e.clientY - resizeRef.current.startMouseY
+      const z = viewRef.current.zoom
+      setResizeOverride({
+        uuid: resizeRef.current.uuid,
+        w: Math.max(1, resizeRef.current.startW + dx / z),
+        h: Math.max(1, resizeRef.current.startH + dy / z),
+      })
+      return
+    }
     if (dragRef.current) {
       const dx = e.clientX - dragRef.current.startMouseX
       const dy = e.clientY - dragRef.current.startMouseY
@@ -125,6 +139,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove }: C
   }, [isPanning])
 
   const handleMouseUp = useCallback(() => {
+    if (resizeRef.current && resizeOverride) {
+      onResize?.(resizeOverride.uuid, resizeOverride.w, resizeOverride.h)
+      resizeRef.current = null
+      setResizeOverride(null)
+      return
+    }
+    resizeRef.current = null
+    setResizeOverride(null)
     if (dragRef.current && dragOverride) {
       onMove?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
       dragRef.current = null
@@ -135,7 +157,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove }: C
     setDragOverride(null)
     setIsPanning(false)
     panStart.current = null
-  }, [dragOverride, onMove])
+  }, [dragOverride, resizeOverride, onMove, onResize])
 
   // Fit to view
   const handleFit = useCallback(() => {
@@ -201,11 +223,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove }: C
           {/* 노드 렌더링 (depth 역순 → 깊은 노드가 위에 표시되지 않도록) */}
           {flatNodes.filter(fn => fn.node.active).map(({ node, worldX, worldY }) => {
             const isDragged = dragOverride?.uuid === node.uuid
+            const isResized = resizeOverride?.uuid === node.uuid
             const effX = isDragged ? dragOverride!.x : worldX
             const effY = isDragged ? dragOverride!.y : worldY
             const svgPos = ccToSvg(effX, effY)
-            const w = node.size?.x || 0
-            const h = node.size?.y || 0
+            const w = isResized ? resizeOverride!.w : (node.size?.x || 0)
+            const h = isResized ? resizeOverride!.h : (node.size?.y || 0)
             if (w === 0 && h === 0) return null  // 크기 없는 노드는 점으로 표시
 
             const anchorX = node.anchor?.x ?? 0.5
@@ -269,6 +292,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove }: C
                   >
                     {node.name}
                   </text>
+                )}
+                {/* SE 리사이즈 핸들 (선택된 노드만) */}
+                {isSelected && (
+                  <rect
+                    x={rectX + w - 5 / view.zoom} y={rectY + h - 5 / view.zoom}
+                    width={10 / view.zoom} height={10 / view.zoom}
+                    fill="#58a6ff" stroke="#fff" strokeWidth={1 / view.zoom}
+                    style={{ cursor: 'se-resize' }}
+                    onMouseDown={e => {
+                      e.stopPropagation()
+                      resizeRef.current = {
+                        uuid: node.uuid,
+                        startMouseX: e.clientX,
+                        startMouseY: e.clientY,
+                        startW: resizeOverride?.uuid === node.uuid ? resizeOverride.w : w,
+                        startH: resizeOverride?.uuid === node.uuid ? resizeOverride.h : h,
+                      }
+                    }}
+                  />
                 )}
               </g>
             )
