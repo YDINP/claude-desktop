@@ -16768,6 +16768,20 @@ console.log('\n## 463. R1572 cc.Mask Quick Edit 체크')
   }
 }
 
+// ── Section 464: R1573 cc.UIOpacity extractor + Inspector Quick Edit ────────────────
+console.log('\n## 464. R1573 cc.UIOpacity Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s464parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s464panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s464parser.includes("'cc.UIOpacity'") && s464panel.includes("comp.type === 'cc.UIOpacity'") && s464panel.includes('_opacity')) {
+    log('pass', 'R1573-ui-opacity', 'cc.UIOpacity extractor + Inspector Quick Edit')
+  } else {
+    log('warning', 'R1573-ui-opacity', 'cc.UIOpacity Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

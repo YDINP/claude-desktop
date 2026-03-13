@@ -452,6 +452,10 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     debugBones: !!(e._N$debugBones ?? e._debugBones ?? e.debugBones ?? false),
   }),
   // R1546: sp.Skeleton — Spine 애니메이션
+  // R1573: cc.UIOpacity — CC3.x UI 투명도 컴포넌트
+  'cc.UIOpacity': e => ({
+    opacity: (e._opacity ?? e.opacity ?? 255) as number,
+  }),
   'sp.Skeleton': e => ({
     skeletonData: (e._N$skeletonData ?? e._skeletonData ?? e.skeletonData) as unknown,
     defaultSkin: (e._N$defaultSkin ?? e._defaultSkin ?? e.defaultSkin ?? 'default') as string,

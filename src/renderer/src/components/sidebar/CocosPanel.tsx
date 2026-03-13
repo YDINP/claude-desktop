@@ -4877,6 +4877,24 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1573: cc.UIOpacity — CC3.x opacity Quick Edit
+            if (comp.type === 'cc.UIOpacity') {
+              const uiOpacity = Number(p.opacity ?? 255)
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0 4px 2px' }}>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>opacity</span>
+                  <input type="range" min={0} max={255} step={1} value={uiOpacity}
+                    onChange={e => {
+                      const v = parseInt(e.target.value)
+                      const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: v, _opacity: v } } : c)
+                      applyAndSave({ components: updated })
+                    }}
+                    style={{ flex: 1 }}
+                  />
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{uiOpacity}</span>
+                </div>
+              )
+            }
             // R1572: cc.Mask — type/inverted/alphaThreshold Quick Edit
             if (comp.type === 'cc.Mask') {
               const maskType = Number(p._type ?? p.type ?? 0)
