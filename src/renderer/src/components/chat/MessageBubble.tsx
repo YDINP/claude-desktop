@@ -923,6 +923,25 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   const [noteOpen, setNoteOpen] = useState(false)
   const [noteText, setNoteText] = useState(msg.note ?? '')
 
+  const [reactions, setReactions] = useState<Record<string, number>>(() => {
+    const init: Record<string, number> = {}
+    msg.reactions?.forEach(emoji => { init[emoji] = (init[emoji] ?? 0) + 1 })
+    return init
+  })
+
+  const handleLocalReaction = useCallback((emoji: string) => {
+    setReactions(prev => {
+      const count = prev[emoji] ?? 0
+      if (count > 0) {
+        const next = { ...prev }
+        delete next[emoji]
+        return next
+      }
+      return { ...prev, [emoji]: 1 }
+    })
+    onReaction?.(emoji)
+  }, [onReaction])
+
   const [translation, setTranslation] = useState<string | null>(null)
   const [translating, setTranslating] = useState(false)
   const [showTranslation, setShowTranslation] = useState(false)

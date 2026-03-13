@@ -6144,6 +6144,41 @@ if (existsSync(cp643Path)) {
   }
 }
 
+// ── Section 131: Phase DD10 R645~647 기능 체크 ────────────────
+console.log('\n## 131. Phase DD10 R645~647 기능 체크')
+// R645: 메시지 이모지 리액션
+const mb645Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb645Path)) {
+  const mb645 = readFileSync(mb645Path, 'utf-8')
+  if (mb645.includes('reactions') || mb645.includes('emojiReact') || mb645.includes('reactionBar')) {
+    log('pass', 'R645', '메시지 이모지 리액션 존재')
+  } else {
+    log('warning', 'R645', '메시지 이모지 리액션 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R646: SceneToolbar 검색 버튼
+const st646Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(st646Path)) {
+  const st646 = readFileSync(st646Path, 'utf-8')
+  if (st646.includes('onToggleSearch') || st646.includes('showSearch')) {
+    log('pass', 'R646', 'SceneToolbar 검색 버튼 존재')
+  } else {
+    log('warning', 'R646', 'SceneToolbar 검색 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R647: InputBar 파일 드래그앤드롭
+const ib647Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib647Path)) {
+  const ib647 = readFileSync(ib647Path, 'utf-8')
+  if (ib647.includes('dragOver') || ib647.includes('onDrop') || ib647.includes('isDragging')) {
+    log('pass', 'R647', 'InputBar 파일 드래그앤드롭 존재')
+  } else {
+    log('warning', 'R647', 'InputBar 드래그앤드롭 없음', 'chat/InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

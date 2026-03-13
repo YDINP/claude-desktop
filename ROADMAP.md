@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 644 완료 — Phase DD10 진행 중, QA Pass 533)
+> 마지막 업데이트: 2026-03-13 (Round 648 완료 — Phase DD10 진행 중, QA Pass 536)
 
 ## 개발 루프 실행 방식
 
@@ -620,6 +620,10 @@
 | Round 642 | SessionList 세션 통계 고도화 (sessionStats, SessionStats 타입) | ✅ |
 | Round 643 | CocosPanel 저장 상태 표시 + Undo/Redo (isDirty, undoStack, savedToast) | ✅ |
 | Round 644 | QA Section 130 추가 (R641/R642/R643, Pass 533) | ✅ |
+| Round 645 | MessageBubble 이모지 리액션 (reactions, 👍❤️😂😮 토글) | ✅ |
+| Round 646 | SceneToolbar 검색 버튼 (onToggleSearch, showSearch prop) | ✅ |
+| Round 647 | InputBar 파일 드래그앤드롭 (dragOver, onDrop, isDragging) | ✅ |
+| Round 648 | QA Section 131 추가 (R645/R646/R647, Pass 536) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

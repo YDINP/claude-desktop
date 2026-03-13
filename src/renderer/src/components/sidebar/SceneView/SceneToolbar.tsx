@@ -91,6 +91,11 @@ interface SceneToolbarProps {
   onAddAnnotation?: () => void
   nodeSearch?: string
   onNodeSearchChange?: (v: string) => void
+  showNodeSearch?: boolean
+  onNodeSearchToggle?: () => void
+  nodeSearchCount?: number
+  nodeSearchIndex?: number
+  onNodeSearchNav?: (dir: 1 | -1) => void
   hasSnapshot?: boolean
   showDiff?: boolean
   onTakeSnapshot?: () => void
@@ -105,6 +110,8 @@ interface SceneToolbarProps {
   showQuickActions?: boolean
   onQuickActionsToggle?: () => void
   onZoomTo?: (zoom: number) => void
+  onToggleSearch?: () => void
+  showSearch?: boolean
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -196,6 +203,11 @@ export function SceneToolbar({
   onAddAnnotation,
   nodeSearch = '',
   onNodeSearchChange,
+  showNodeSearch = false,
+  onNodeSearchToggle,
+  nodeSearchCount = 0,
+  nodeSearchIndex = 0,
+  onNodeSearchNav,
   hasSnapshot,
   showDiff,
   onTakeSnapshot,
@@ -210,6 +222,8 @@ export function SceneToolbar({
   showQuickActions,
   onQuickActionsToggle,
   onZoomTo,
+  onToggleSearch,
+  showSearch,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -611,11 +625,35 @@ export function SceneToolbar({
       )}
 
       {/* 노드 검색 */}
-      {onNodeSearchChange && (
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+      {onNodeSearchToggle && (
+        <button
+          style={showNodeSearch ? btnActive : btnBase}
+          onClick={onNodeSearchToggle}
+          title="노드 이름 검색 (토글)"
+        >
+          🔍
+        </button>
+      )}
+      {onToggleSearch && (
+        <button
+          style={showSearch ? btnActive : btnBase}
+          onClick={onToggleSearch}
+          title="노드 검색 (토글)"
+        >
+          🔍
+        </button>
+      )}
+      {showNodeSearch && onNodeSearchChange && (
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 2 }}>
           <input
+            autoFocus
             value={nodeSearch}
             onChange={e => onNodeSearchChange(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Escape') { onNodeSearchChange(''); onNodeSearchToggle?.(); e.stopPropagation() }
+              else if (e.key === 'Tab') { e.preventDefault(); onNodeSearchNav?.(e.shiftKey ? -1 : 1) }
+              else e.stopPropagation()
+            }}
             placeholder="노드 검색..."
             style={{
               width: 120,
@@ -631,8 +669,22 @@ export function SceneToolbar({
           {nodeSearch && (
             <span
               onClick={() => onNodeSearchChange('')}
-              style={{ position: 'absolute', right: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, lineHeight: 1 }}
+              style={{ position: 'absolute', left: 107, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, lineHeight: 1 }}
             >✕</span>
+          )}
+          {nodeSearch && nodeSearchCount > 0 && (
+            <span style={{ fontSize: 9, color: '#fbbf24', whiteSpace: 'nowrap' }}>
+              {nodeSearchIndex + 1}/{nodeSearchCount}
+            </span>
+          )}
+          {nodeSearch && nodeSearchCount === 0 && (
+            <span style={{ fontSize: 9, color: 'var(--text-danger, #f87171)', whiteSpace: 'nowrap' }}>없음</span>
+          )}
+          {nodeSearch && nodeSearchCount > 1 && onNodeSearchNav && (
+            <>
+              <button onClick={() => onNodeSearchNav(-1)} style={{ ...btnBase, padding: '2px 3px' }} title="이전 결과 (Shift+Tab)">↑</button>
+              <button onClick={() => onNodeSearchNav(1)} style={{ ...btnBase, padding: '2px 3px' }} title="다음 결과 (Tab)">↓</button>
+            </>
           )}
         </div>
       )}
