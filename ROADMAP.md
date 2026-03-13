@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 406 완료 — GlobalSearchPanel ESC+Enter, Pass 426)
+> 마지막 업데이트: 2026-03-13 (Round 407 완료 — PluginsPanel 새로고침 인디케이터, Pass 427)
 
 ## 완료된 라운드
 

@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 309: R407 신규 기능 ───────────────────────────────
+console.log('\n## 309. 신규 기능 파일 검사 (R407)')
+// PluginsPanel 새로고침 로딩 상태 (Round 407)
+const pp407Path = join(ROOT, 'src/renderer/src/components/sidebar/PluginsPanel.tsx')
+if (existsSync(pp407Path)) {
+  const pp407 = readFileSync(pp407Path, 'utf-8')
+  if (pp407.includes('refreshing') && pp407.includes('setRefreshing') && pp407.includes('새로고침 중')) {
+    log('pass', 'Round407', 'PluginsPanel: 새로고침 로딩 인디케이터(refreshing) 존재')
+  } else {
+    log('warning', 'Round407', 'PluginsPanel 새로고침 로딩 상태 미구현', 'sidebar/PluginsPanel.tsx')
+  }
+}
+
 // ── Section 308: R406 신규 기능 ───────────────────────────────
 console.log('\n## 308. 신규 기능 파일 검사 (R406)')
 // GlobalSearchPanel ESC + Enter 키 핸들러 (Round 406)

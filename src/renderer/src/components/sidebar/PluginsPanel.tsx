@@ -25,6 +25,7 @@ export function PluginsPanel() {
   const [sortMode, setSortMode] = useState<'default' | 'name' | 'enabled'>('default')
   const [pluginSearch, setPluginSearch] = useState('')
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
 
   const sortedPlugins = useMemo(() => {
     const q = pluginSearch.trim().toLowerCase()
@@ -40,11 +41,13 @@ export function PluginsPanel() {
     return list
   }, [plugins, sortMode, enabledSet, pluginSearch])
 
-  const load = async () => {
-    setLoading(true)
+  const load = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true)
+    else setLoading(true)
     const result = await window.api.pluginsList()
     setPlugins(result)
-    setLoading(false)
+    if (isRefresh) setRefreshing(false)
+    else setLoading(false)
   }
 
   useEffect(() => { load() }, [])
@@ -258,14 +261,17 @@ export function PluginsPanel() {
       {/* Refresh button */}
       <div style={{ padding: '8px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
         <button
-          onClick={load}
+          onClick={() => load(true)}
+          disabled={refreshing}
           style={{
             width: '100%', padding: '5px 0', background: 'var(--bg-hover)',
-            color: 'var(--text-primary)', border: '1px solid var(--border)',
-            borderRadius: 4, fontSize: 11, cursor: 'pointer',
+            color: refreshing ? 'var(--text-muted)' : 'var(--text-primary)',
+            border: '1px solid var(--border)',
+            borderRadius: 4, fontSize: 11, cursor: refreshing ? 'not-allowed' : 'pointer',
+            opacity: refreshing ? 0.7 : 1,
           }}
         >
-          새로고침
+          {refreshing ? '⟳ 새로고침 중...' : '↻ 새로고침'}
         </button>
       </div>
     </div>

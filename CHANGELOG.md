@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 407] — 2026-03-13
+### Added
+- PluginsPanel: 새로고침 로딩 인디케이터 — refreshing 상태로 버튼 비활성화 + "⟳ 새로고침 중..." 표시
+
 ## [Round 406] — 2026-03-13
 ### Added
 - GlobalSearchPanel: ESC 키로 검색 초기화 + Enter 키로 즉시 검색 (디바운스 우회)
