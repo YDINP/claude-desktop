@@ -8559,6 +8559,41 @@ if (existsSync(sl866Path)) {
   }
 }
 
+console.log('\n## 200. Phase DD10 R867~869 기능 체크')
+
+// R867: ChatPanel 핀 메시지 패널
+const cp867Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp867Path)) {
+  const cp867 = readFileSync(cp867Path, 'utf-8')
+  if (cp867.includes('pinnedMessages') && cp867.includes('showPinnedPanel')) {
+    log('pass', 'R867', 'ChatPanel 핀 메시지 패널 존재')
+  } else {
+    log('warning', 'R867', 'ChatPanel 핀 메시지 패널 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R868: InputBar 멘션 제안
+const ib868Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib868Path)) {
+  const ib868 = readFileSync(ib868Path, 'utf-8')
+  if (ib868.includes('mentionSuggestions') || ib868.includes('showMentionList') || ib868.includes('mentionList')) {
+    log('pass', 'R868', 'InputBar 멘션 제안 존재')
+  } else {
+    log('warning', 'R868', 'InputBar 멘션 제안 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R869: CocosPanel 프리팹 검색
+const cocp869Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp869Path)) {
+  const cocp869 = readFileSync(cocp869Path, 'utf-8')
+  if (cocp869.includes('prefabSearch') || cocp869.includes('prefabSearchResults') || cocp869.includes('prefabFilter')) {
+    log('pass', 'R869', 'CocosPanel 프리팹 검색 존재')
+  } else {
+    log('warning', 'R869', 'CocosPanel 프리팹 검색 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
