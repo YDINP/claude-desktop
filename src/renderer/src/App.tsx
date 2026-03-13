@@ -1588,7 +1588,8 @@ function AppContent() {
             </div>
             {/* 씬뷰 탭 */}
             <div style={{ position: 'absolute', inset: 0, display: activeTab === 'scene' ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden' }}>
-              <SceneViewPanel connected={wsCCConnected} wsKey={activeWsId} port={wsCCPort} />
+              {/* [M-1] key={activeWsId}: 워크스페이스 전환 시 씬 상태 리셋 */}
+              <SceneViewPanel key={activeWsId} connected={wsCCConnected} wsKey={activeWsId} port={wsCCPort} />
             </div>
             {/* 웹 프리뷰 탭 */}
             <div style={{ position: 'absolute', inset: 0, display: activeTab === 'preview' ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden' }}>

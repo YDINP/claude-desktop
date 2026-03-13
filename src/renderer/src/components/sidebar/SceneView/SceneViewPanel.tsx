@@ -1495,8 +1495,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       const n = nodeMap.get(uid)
       if (!n) continue
       const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
-      const hw = (n.size?.width ?? 50) / 2
-      const hh = (n.size?.height ?? 50) / 2
+      // [C-4] SceneNode uses flat width/height (not size.width)
+      const hw = (n.width ?? 50) / 2
+      const hh = (n.height ?? 50) / 2
       minX = Math.min(minX, sx - hw)
       minY = Math.min(minY, sy - hh)
       maxX = Math.max(maxX, sx + hw)
