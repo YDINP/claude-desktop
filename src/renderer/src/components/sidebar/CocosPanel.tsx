@@ -44,6 +44,17 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [saving, setSaving] = useState(false)
   const clipboardRef = useRef<CCSceneNode | null>(null)
   const [hideInactive, setHideInactive] = useState(false)
+  const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(() => new Set())
+  const expandAll = useCallback(() => setCollapsedUuids(new Set()), [])
+  const collapseAll = useCallback(() => {
+    if (!sceneFile?.root) return
+    const uuids = new Set<string>()
+    function collectParents(n: CCSceneNode) {
+      if (n.children.length > 0) { uuids.add(n.uuid); n.children.forEach(collectParents) }
+    }
+    collectParents(sceneFile.root)
+    setCollapsedUuids(uuids)
+  }, [sceneFile?.root])
   const [sceneViewHeight, setSceneViewHeight] = useState(240)
   const [mainTab, setMainTab] = useState<'scene' | 'assets'>('scene')
   const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
@@ -635,6 +646,16 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               })()}
               <TreeSearch root={sceneFile.root} onSelect={onSelectNode} />
               <span
+                onClick={expandAll}
+                title="전체 펼치기"
+                style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#555', lineHeight: 1 }}
+              >⊞</span>
+              <span
+                onClick={collapseAll}
+                title="전체 접기"
+                style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#555', lineHeight: 1 }}
+              >⊟</span>
+              <span
                 onClick={() => setHideInactive(h => !h)}
                 title={hideInactive ? '비활성 노드 표시' : '비활성 노드 숨기기'}
                 style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: hideInactive ? '#58a6ff' : '#555' }}
@@ -678,6 +699,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onToggleLocked={toggleLocked}
               nodeColors={nodeColors}
               onNodeColorChange={handleNodeColorChange}
+              collapsedUuids={collapsedUuids}
+              onToggleCollapse={(uuid) => setCollapsedUuids(prev => {
+                const next = new Set(prev)
+                if (next.has(uuid)) next.delete(uuid); else next.add(uuid)
+                return next
+              })}
             />
           </div>
           {/* 노드 인스펙터 */}
@@ -747,7 +774,7 @@ const NODE_COLOR_PALETTE: { color: string; label: string }[] = [
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse,
 }: {
   node: CCSceneNode
   depth: number
@@ -765,8 +792,14 @@ function CCFileSceneTree({
   onToggleLocked?: (uuid: string) => void
   nodeColors?: Record<string, string>
   onNodeColorChange?: (uuid: string, color: string | null) => void
+  collapsedUuids?: Set<string>
+  onToggleCollapse?: (uuid: string) => void
 }) {
-  const [collapsed, setCollapsed] = useState(depth > 2)
+  const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
+  const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
+  const setCollapsed = onToggleCollapse
+    ? (_updater: boolean | ((prev: boolean) => boolean)) => onToggleCollapse(node.uuid)
+    : setLocalCollapsed
   const [isDragOver, setIsDragOver] = useState(false)
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; showColorPicker?: boolean } | null>(null)
   const hasChildren = node.children.length > 0
@@ -951,6 +984,8 @@ function CCFileSceneTree({
           onToggleLocked={onToggleLocked}
           nodeColors={nodeColors}
           onNodeColorChange={onNodeColorChange}
+          collapsedUuids={collapsedUuids}
+          onToggleCollapse={onToggleCollapse}
         />
       ))}
     </div>
@@ -1347,10 +1382,24 @@ function CCFileNodeInspector({
       {secHeader('anchor', '앵커 / 불투명도')}
       {!collapsed['anchor'] && (
       <div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0 6px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
           {numInput('aX', draft.anchor.x, v => applyAndSave({ anchor: { ...draft.anchor, x: v } }), 0.01)}
           {numInput('aY', draft.anchor.y, v => applyAndSave({ anchor: { ...draft.anchor, y: v } }), 0.01)}
-          {numInput('α', draft.opacity, v => applyAndSave({ opacity: Math.min(255, Math.max(0, Math.round(v))) }))}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+          <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>α (불투명)</span>
+          <input
+            type="range"
+            min={0}
+            max={255}
+            step={1}
+            value={draft.opacity ?? 255}
+            onChange={e => applyAndSave({ opacity: Number(e.target.value) })}
+            style={{ flex: 1, cursor: 'pointer', accentColor: 'var(--accent)' }}
+          />
+          <span style={{ width: 36, fontSize: 10, color: 'var(--text-muted)', textAlign: 'right', flexShrink: 0 }}>
+            {Math.round(((draft.opacity ?? 255) / 255) * 100)}%
+          </span>
         </div>
         {/* 앵커 9-point grid 프리셋 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 14px)', gap: 1, marginTop: 4, justifyContent: 'start' }}>

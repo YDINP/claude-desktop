@@ -5537,6 +5537,41 @@ if (existsSync(cp575Path)) {
   }
 }
 
+// ── Section 114: Phase DD9 R577~579 기능 체크 ────────────────
+console.log('\n## 114. Phase DD9 R577~579 기능 체크')
+// R577: Inspector opacity 슬라이더
+const cp577Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp577Path)) {
+  const cp577 = readFileSync(cp577Path, 'utf-8')
+  if (cp577.includes('opacity') && cp577.includes('type="range"')) {
+    log('pass', 'R577', 'Inspector opacity 슬라이더 존재')
+  } else {
+    log('warning', 'R577', 'Inspector opacity 슬라이더 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R578: 단축키 도움말 모달
+const app578Path = join(ROOT, 'src/renderer/src/App.tsx')
+if (existsSync(app578Path)) {
+  const app578 = readFileSync(app578Path, 'utf-8')
+  if (app578.includes('shortcutsOpen') || app578.includes('KeyboardShortcuts')) {
+    log('pass', 'R578', '단축키 도움말 모달 존재')
+  } else {
+    log('warning', 'R578', '단축키 도움말 모달 없음', 'App.tsx')
+  }
+}
+
+// R579: 씬 트리 전체 펼치기/접기
+const cp579Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp579Path)) {
+  const cp579 = readFileSync(cp579Path, 'utf-8')
+  if (cp579.includes('expandAll') && cp579.includes('collapseAll')) {
+    log('pass', 'R579', '씬 트리 전체 펼치기/접기 존재')
+  } else {
+    log('warning', 'R579', '씬 트리 전체 펼치기/접기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

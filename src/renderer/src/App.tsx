@@ -1211,6 +1211,13 @@ function AppContent() {
       } else if (e.ctrlKey && (e.key === '?' || (e.shiftKey && e.key === '/'))) {
         e.preventDefault()
         setShortcutsOpen(o => !o)
+      } else if (e.key === '?' && !e.ctrlKey && !e.altKey) {
+        const tag = (document.activeElement as HTMLElement)?.tagName
+        const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement as HTMLElement)?.isContentEditable
+        if (!isEditable) {
+          e.preventDefault()
+          setShortcutsOpen(o => !o)
+        }
       } else if (e.key === 'Escape' && shortcutsOpen) {
         setShortcutsOpen(false)
       } else if (e.ctrlKey && e.key === '1') {

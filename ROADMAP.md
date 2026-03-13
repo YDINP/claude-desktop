@@ -620,6 +620,10 @@
 | Round 574 | 세션 AI 요약 (우클릭→요약생성, summarizeSession IPC, 모달 결과 표시) | ✅ |
 | Round 575 | Inspector cc.Color 피커 개선 (type=color, alpha 슬라이더 r,g,b,a) | ✅ |
 | Round 576 | QA Section 113 추가 (R573/R574/R575, Pass 482) | ✅ |
+| Round 577 | Inspector opacity 슬라이더 (range 0~255, % 표시, applyAndSave) | ✅ |
+| Round 578 | 단축키 도움말 모달 ? 키 단독 토글 (KeyboardShortcutsOverlay, input 포커스 무시) | ✅ |
+| Round 579 | 씬 트리 전체 펼치기/접기 (⊞/⊟ 버튼, expandAll/collapseAll) | ✅ |
+| Round 580 | QA Section 114 추가 (R577/R578/R579, Pass 485) | ✅ |
 
 ## QA 프로세스
 

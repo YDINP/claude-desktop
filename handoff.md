@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: Round 573~576 (컬러태깅 + AI요약 + cc.Color피커 + QA)
+- 마지막 커밋: Round 577~580 (opacity슬라이더 + 단축키모달 + 트리접기 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 482
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 485
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -148,7 +148,16 @@
 | R575 | Inspector cc.Color 피커 개선 (type=color, alpha 슬라이더, r,g,b,a 표시) |
 | R576 | QA Section 113 추가 (Pass 482) |
 
-## 다음 예정 (Round 577~)
+## Phase DD9 추가 완료 (Round 577~580)
+
+| 라운드 | 기능 |
+|--------|------|
+| R577 | Inspector opacity range 슬라이더 (% 실시간 표시) |
+| R578 | 단축키 도움말 모달 ? 키 토글 (input 포커스 무시) |
+| R579 | 씬 트리 ⊞/⊟ 전체 펼치기/접기 (expandAll/collapseAll) |
+| R580 | QA Section 114 추가 (Pass 485) |
+
+## 다음 예정 (Round 581~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 
