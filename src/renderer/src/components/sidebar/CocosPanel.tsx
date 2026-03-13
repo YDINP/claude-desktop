@@ -1088,6 +1088,7 @@ function CCFileNodeInspector({
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+  const [collapsedComps, setCollapsedComps] = useState<Set<number>>(new Set())
   const secHeader = (key: string, label: string) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
       style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
@@ -1417,17 +1418,21 @@ function CCFileNodeInspector({
         })
       }).map((comp, ci) => (
         <div key={ci} style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 5 }}>
-          <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+          <div
+            style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
+            onClick={() => setCollapsedComps(s => { const n = new Set(s); n.has(ci) ? n.delete(ci) : n.add(ci); return n })}
+          >
+            <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(ci) ? '▸' : '▾'}</span>
             <span style={{ flex: 1 }}>{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}</span>
             <span
               title="컴포넌트 삭제"
-              onClick={() => applyAndSave({ components: draft.components.filter((_, i) => i !== ci) })}
+              onClick={e => { e.stopPropagation(); applyAndSave({ components: draft.components.filter((_, i) => i !== ci) }) }}
               style={{ cursor: 'pointer', color: '#666', fontSize: 10, padding: '0 2px', lineHeight: 1 }}
               onMouseEnter={e => (e.currentTarget.style.color = '#ff6666')}
               onMouseLeave={e => (e.currentTarget.style.color = '#666')}
             >✕</span>
           </div>
-          {Object.entries(comp.props).map(([k, v]) => {
+          {!collapsedComps.has(ci) && Object.entries(comp.props).map(([k, v]) => {
             if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
               const uuid = (v as { __uuid__: string }).__uuid__
               return (
