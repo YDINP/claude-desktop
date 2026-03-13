@@ -971,6 +971,7 @@ function CCFileSceneTree({
           {[
             { label: '자식 추가', action: () => { setCtxMenu(null); onAddChild?.(node.uuid) } },
             ...(!isRoot ? [
+              { label: node.active ? '비활성화' : '활성화', action: () => { setCtxMenu(null); onToggleActive?.(node.uuid) } },
               { label: '복제', action: () => { setCtxMenu(null); onDuplicate?.(node.uuid) } },
               { label: '삭제', action: () => { setCtxMenu(null); onDelete?.(node.uuid) } },
             ] : []),
