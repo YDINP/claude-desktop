@@ -8594,6 +8594,41 @@ if (existsSync(cocp869Path)) {
   }
 }
 
+console.log('\n## 201. Phase DD10 R870~872 기능 체크')
+
+// R870: SceneViewPanel 노드 가시성 그룹
+const svp870Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp870Path)) {
+  const svp870 = readFileSync(svp870Path, 'utf-8')
+  if (svp870.includes('nodeVisibilityGroups') || svp870.includes('showVisibilityGroups') || svp870.includes('visibilityGroup')) {
+    log('pass', 'R870', 'SceneViewPanel 노드 가시성 그룹 존재')
+  } else {
+    log('warning', 'R870', 'SceneViewPanel 노드 가시성 그룹 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R871: TerminalPanel 커맨드 스니펫
+const tp871Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp871Path)) {
+  const tp871 = readFileSync(tp871Path, 'utf-8')
+  if (tp871.includes('commandSnippets') || tp871.includes('showSnippetManager') || tp871.includes('snippetList')) {
+    log('pass', 'R871', 'TerminalPanel 커맨드 스니펫 존재')
+  } else {
+    log('warning', 'R871', 'TerminalPanel 커맨드 스니펫 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R872: SessionList 세션 코멘트
+const sl872Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl872Path)) {
+  const sl872 = readFileSync(sl872Path, 'utf-8')
+  if (sl872.includes('sessionComments') || sl872.includes('showCommentEditor') || sl872.includes('commentMap')) {
+    log('pass', 'R872', 'SessionList 세션 코멘트 존재')
+  } else {
+    log('warning', 'R872', 'SessionList 세션 코멘트 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

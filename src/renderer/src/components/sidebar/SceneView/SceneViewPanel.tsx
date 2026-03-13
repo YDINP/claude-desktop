@@ -287,6 +287,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [treeFilterResults, setTreeFilterResults] = useState<string[]>([])
   const [nodeAliases, setNodeAliases] = useState<Record<string, string>>({})
   const [showAliasEditor, setShowAliasEditor] = useState(false)
+  const [nodeVisibilityGroups, setNodeVisibilityGroups] = useState<Record<string, boolean>>({})
+  const [showVisibilityGroups, setShowVisibilityGroups] = useState(false)
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────
