@@ -4578,6 +4578,33 @@ function CCFileNodeInspector({
             {Math.round(((draft.opacity ?? 255) / 255) * 100)}%
           </span>
         </div>
+        {/* R1609: 노드 색상(tint) 피커 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+          <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>tint</span>
+          <input
+            type="color"
+            value={(() => {
+              const c = draft.color ?? { r: 255, g: 255, b: 255 }
+              return `#${(c.r ?? 255).toString(16).padStart(2,'0')}${(c.g ?? 255).toString(16).padStart(2,'0')}${(c.b ?? 255).toString(16).padStart(2,'0')}`
+            })()}
+            onChange={e => {
+              const hex = e.target.value
+              const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+              applyAndSave({ color: { r, g, b, a: draft.color?.a ?? 255 } })
+            }}
+            title="노드 색상 tint (흰색=기본)"
+            style={{ width: 26, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
+          />
+          {((draft.color?.r ?? 255) !== 255 || (draft.color?.g ?? 255) !== 255 || (draft.color?.b ?? 255) !== 255) && (
+            <span
+              title="tint 초기화 (흰색)"
+              onClick={() => applyAndSave({ color: { r: 255, g: 255, b: 255, a: draft.color?.a ?? 255 } })}
+              style={{ fontSize: 9, color: '#555', cursor: 'pointer' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#555')}
+            >↺</span>
+          )}
+        </div>
         {/* 앵커 9-point grid 프리셋 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 14px)', gap: 1, marginTop: 4, justifyContent: 'start' }}>
           {([0, 0.5, 1] as const).flatMap(ay => ([0, 0.5, 1] as const).map(ax => {

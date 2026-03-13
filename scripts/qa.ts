@@ -17226,6 +17226,18 @@ console.log('\n## 499. R1608 Inspector 컴포넌트 퀵점프 칩 바 체크')
   }
 }
 
+// ── Section 500: R1609 Inspector 노드 색상 tint 피커 ──────────────────
+console.log('\n## 500. R1609 Inspector 노드 색상 tint 피커 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s500 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s500.includes('R1609') && s500.includes('tint') && s500.includes('draft.color') && s500.includes('tint 초기화')) {
+    log('pass', 'R1609-node-tint', 'Inspector 노드 색상 tint 피커')
+  } else {
+    log('warning', 'R1609-node-tint', 'Inspector 노드 tint 피커 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
