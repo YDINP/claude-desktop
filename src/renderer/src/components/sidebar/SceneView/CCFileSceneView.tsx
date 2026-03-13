@@ -54,7 +54,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const panStart = useRef<{ mouseX: number; mouseY: number; offX: number; offY: number } | null>(null)
   const dragRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number } | null>(null)
   const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
-  const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number } | null>(null)
+  const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number; dir: 'SE' | 'S' | 'E' } | null>(null)
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
   const rotateRef = useRef<{ uuid: string; centerX: number; centerY: number; startAngle: number; startRotation: number } | null>(null)
   const [rotateOverride, setRotateOverride] = useState<{ uuid: string; angle: number } | null>(null)
@@ -327,10 +327,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const dx = e.clientX - resizeRef.current.startMouseX
       const dy = e.clientY - resizeRef.current.startMouseY
       const z = viewRef.current.zoom
+      const { dir } = resizeRef.current
       setResizeOverride({
         uuid: resizeRef.current.uuid,
-        w: Math.max(1, resizeRef.current.startW + dx / z),
-        h: Math.max(1, resizeRef.current.startH + dy / z),
+        w: dir !== 'S' ? Math.max(1, resizeRef.current.startW + dx / z) : resizeRef.current.startW,
+        h: dir !== 'E' ? Math.max(1, resizeRef.current.startH + dy / z) : resizeRef.current.startH,
       })
       return
     }
@@ -1346,25 +1347,26 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     opacity={0.8}
                   >🔒</text>
                 )}
-                {/* SE 리사이즈 핸들 (선택된 노드만, 잠긴/뷰잠금 노드 제외) */}
-                {isSelected && !viewLock && !lockedUuids.has(node.uuid) && (
-                  <rect
-                    x={rectX + w - 5 / view.zoom} y={rectY + h - 5 / view.zoom}
-                    width={10 / view.zoom} height={10 / view.zoom}
-                    fill="#58a6ff" stroke="#fff" strokeWidth={1 / view.zoom}
-                    style={{ cursor: 'se-resize' }}
-                    onMouseDown={e => {
-                      e.stopPropagation()
-                      resizeRef.current = {
-                        uuid: node.uuid,
-                        startMouseX: e.clientX,
-                        startMouseY: e.clientY,
-                        startW: resizeOverride?.uuid === node.uuid ? resizeOverride.w : w,
-                        startH: resizeOverride?.uuid === node.uuid ? resizeOverride.h : h,
-                      }
-                    }}
-                  />
-                )}
+                {/* SE/S/E 리사이즈 핸들 (선택된 노드만, 잠긴/뷰잠금 노드 제외) */}
+                {isSelected && !viewLock && !lockedUuids.has(node.uuid) && (() => {
+                  const curW = resizeOverride?.uuid === node.uuid ? resizeOverride.w : w
+                  const curH = resizeOverride?.uuid === node.uuid ? resizeOverride.h : h
+                  const startResize = (e: React.MouseEvent, dir: 'SE' | 'S' | 'E') => {
+                    e.stopPropagation()
+                    resizeRef.current = { uuid: node.uuid, startMouseX: e.clientX, startMouseY: e.clientY, startW: curW, startH: curH, dir }
+                  }
+                  const hs = 8 / view.zoom  // handle size
+                  return (
+                    <>
+                      {/* SE 핸들 */}
+                      <rect x={rectX + w - hs / 2} y={rectY + h - hs / 2} width={hs} height={hs} fill="#58a6ff" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'se-resize' }} onMouseDown={e => startResize(e, 'SE')} />
+                      {/* R1619: S 핸들 (높이만) */}
+                      <rect x={rectX + w / 2 - hs / 2} y={rectY + h - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 's-resize' }} onMouseDown={e => startResize(e, 'S')} />
+                      {/* R1619: E 핸들 (너비만) */}
+                      <rect x={rectX + w - hs / 2} y={rectY + h / 2 - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'e-resize' }} onMouseDown={e => startResize(e, 'E')} />
+                    </>
+                  )
+                })()}
                 {/* 치수 레이블 (선택된 노드, 줌 > 0.3 시만) */}
                 {isSelected && view.zoom > 0.3 && (
                   <text

@@ -17346,6 +17346,18 @@ console.log('\n## 509. R1618 SceneView HUD depth 레벨 표시 체크')
   }
 }
 
+// ── Section 510: R1619 SceneView S/E 단방향 리사이즈 핸들 ──────────────────
+console.log('\n## 510. R1619 SceneView S/E 리사이즈 핸들 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s510 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s510.includes('R1619') && s510.includes('S 핸들') && s510.includes('E 핸들') && s510.includes("dir: 'SE'")) {
+    log('pass', 'R1619-resize-handles', 'SceneView S/E 단방향 리사이즈 핸들')
+  } else {
+    log('warning', 'R1619-resize-handles', 'SceneView S/E 리사이즈 핸들 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
