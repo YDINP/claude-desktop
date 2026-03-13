@@ -258,17 +258,7 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     reverse: e._N$reverse ?? e._reverse ?? e.reverse ?? false,
     direction: e._N$direction ?? e._direction ?? e.direction ?? 0,
   }),
-  // R1400: ParticleSystem 컴포넌트 (3.x)
-  'cc.ParticleSystem': e => {
-    const sc = e._startColor as { r?: number; g?: number; b?: number; a?: number } | undefined
-    const ec = e._endColor as { r?: number; g?: number; b?: number; a?: number } | undefined
-    return {
-      duration: e._duration ?? e.duration ?? -1,
-      maxParticles: e._N$maxParticles ?? e._maxParticles ?? e.maxParticles ?? 150,
-      startColor: sc ? { r: sc.r ?? 255, g: sc.g ?? 255, b: sc.b ?? 255, a: sc.a ?? 255 } : undefined,
-      endColor: ec ? { r: ec.r ?? 0, g: ec.g ?? 0, b: ec.b ?? 0, a: ec.a ?? 0 } : undefined,
-    }
-  },
+  // R1400: ParticleSystem 컴포넌트 (3.x) — R1606: R1540 통합 예정 (아래 항목이 최신)
   // R1400: ParticleSystem2D 컴포넌트 (2.x)
   'cc.ParticleSystem2D': e => {
     const sc = e._startColor as { r?: number; g?: number; b?: number; a?: number } | undefined
@@ -280,19 +270,7 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
       endColor: ec ? { r: ec.r ?? 0, g: ec.g ?? 0, b: ec.b ?? 0, a: ec.a ?? 0 } : undefined,
     }
   },
-  // R1400: Camera 컴포넌트 (2.x/3.x)
-  'cc.Camera': e => ({
-    clearFlags: e._N$clearFlags ?? e._clearFlags ?? e.clearFlags,
-    backgroundColor: (() => {
-      const bg = (e._N$backgroundColor ?? e._backgroundColor ?? e.backgroundColor) as { r?: number; g?: number; b?: number; a?: number } | undefined
-      return bg ? { r: bg.r ?? 0, g: bg.g ?? 0, b: bg.b ?? 0, a: bg.a ?? 255 } : undefined
-    })(),
-    depth: e._N$depth ?? e._depth ?? e.depth ?? 0,
-    zoomRatio: e._N$zoomRatio ?? e._zoomRatio ?? e.zoomRatio ?? 1,  // 2.x
-    fov: e._fov ?? e.fov ?? 45,  // 3.x
-    near: e._near ?? e.near ?? 1,  // 3.x
-    far: e._far ?? e.far ?? 1000,  // 3.x
-  }),
+  // R1400: Camera 컴포넌트 (2.x/3.x) — R1606: R1540 통합 예정 (아래 항목이 최신)
   // R1400: DirectionalLight 컴포넌트
   'cc.DirectionalLight': e => {
     const lc = (e._color ?? e.color) as { r?: number; g?: number; b?: number; a?: number } | undefined
@@ -457,26 +435,38 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     })(),
   }),
   // R1538: cc.EditBox (R1586으로 통합 — 위 항목 참조)
-  // R1540: cc.Camera — 카메라 설정
+  // R1540 + R1400 통합 (R1606 dedup): cc.Camera — 2.x/3.x 통합
   'cc.Camera': e => ({
-    backgroundColor: e._N$backgroundColor ?? e._backgroundColor ?? e.backgroundColor,
+    clearFlags: e._N$clearFlags ?? e._clearFlags ?? e.clearFlags ?? 7,
+    backgroundColor: (() => {
+      const bg = (e._N$backgroundColor ?? e._backgroundColor ?? e.backgroundColor) as { r?: number; g?: number; b?: number; a?: number } | undefined
+      return bg ? { r: bg.r ?? 0, g: bg.g ?? 0, b: bg.b ?? 0, a: bg.a ?? 255 } : undefined
+    })(),
     depth: e._N$depth ?? e._depth ?? e.depth ?? 0,
     cullingMask: e._N$cullingMask ?? e._cullingMask ?? e.cullingMask ?? 0xFFFFFFFF,
-    clearFlags: e._N$clearFlags ?? e._clearFlags ?? e.clearFlags ?? 7,
+    zoomRatio: e._N$zoomRatio ?? e._zoomRatio ?? e.zoomRatio ?? 1,
     fov: e._N$fov ?? e._fov ?? e.fov ?? 45,
+    near: e._near ?? e.near ?? 1,
     nearClip: e._N$nearClip ?? e._nearClip ?? e.nearClip ?? 0.1,
+    far: e._far ?? e.far ?? 1000,
     farClip: e._N$farClip ?? e._farClip ?? e.farClip ?? 4096,
   }),
-  // R1540: cc.ParticleSystem — 파티클 시스템
-  'cc.ParticleSystem': e => ({
-    totalParticles: e._N$totalParticles ?? e._totalParticles ?? e.totalParticles ?? 150,
-    duration: e._N$duration ?? e._duration ?? e.duration ?? -1,
-    emissionRate: e._N$emissionRate ?? e._emissionRate ?? e.emissionRate ?? 10,
-    life: e._N$life ?? e._life ?? e.life ?? 1,
-    startSize: e._N$startSize ?? e._startSize ?? e.startSize ?? 50,
-    endSize: e._N$endSize ?? e._endSize ?? e.endSize ?? 50,
-    playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? true,
-  }),
+  // R1540 + R1400 통합 (R1606 dedup): cc.ParticleSystem — 2.x/3.x 통합
+  'cc.ParticleSystem': e => {
+    const sc = (e._startColor ?? e.startColor) as { r?: number; g?: number; b?: number; a?: number } | undefined
+    const ec = (e._endColor ?? e.endColor) as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      totalParticles: e._N$totalParticles ?? e._totalParticles ?? e.totalParticles ?? e._N$maxParticles ?? e._maxParticles ?? 150,
+      duration: e._N$duration ?? e._duration ?? e.duration ?? -1,
+      emissionRate: e._N$emissionRate ?? e._emissionRate ?? e.emissionRate ?? 10,
+      life: e._N$life ?? e._life ?? e.life ?? 1,
+      startSize: e._N$startSize ?? e._startSize ?? e.startSize ?? 50,
+      endSize: e._N$endSize ?? e._endSize ?? e.endSize ?? 50,
+      playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? true,
+      startColor: sc ? { r: sc.r ?? 255, g: sc.g ?? 255, b: sc.b ?? 255, a: sc.a ?? 255 } : undefined,
+      endColor: ec ? { r: ec.r ?? 0, g: ec.g ?? 0, b: ec.b ?? 0, a: ec.a ?? 0 } : undefined,
+    }
+  },
   // R1557: cc.SafeArea — 모바일 노치/SafeArea 적용
   'cc.SafeArea': _e => ({
     // SafeArea는 적용 여부만 표시 (별도 props 없음)

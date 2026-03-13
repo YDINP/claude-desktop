@@ -17188,6 +17188,20 @@ console.log('\n## 496. R1605 SceneView 편집 잠금 (뷰 전용 모드) 체크'
   }
 }
 
+// ── Section 497: R1606 cc.Camera/cc.ParticleSystem 중복 제거 ──────────
+console.log('\n## 497. R1606 COMPONENT_PROP_EXTRACTORS 중복 키 정리 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const s497 = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const cameraDups = (s497.match(/'cc\.Camera':\s*e\s*=>/g) ?? []).length
+  const particleDups = (s497.match(/'cc\.ParticleSystem':\s*e\s*=>/g) ?? []).length
+  if (cameraDups === 1 && particleDups === 1 && s497.includes('R1606')) {
+    log('pass', 'R1606-dedup', 'cc.Camera/cc.ParticleSystem 중복 제거 완료 (각 1개)')
+  } else {
+    log('warning', 'R1606-dedup', `cc.Camera 중복: ${cameraDups}개, cc.ParticleSystem 중복: ${particleDups}개`, 'cc-file-parser.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
