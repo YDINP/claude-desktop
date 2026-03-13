@@ -221,7 +221,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         flexShrink: 0, alignItems: 'center', fontSize: 10,
       }}>
         <span style={{ color: 'var(--text-muted)', flex: 1 }}>
-          {designW}×{designH} | {flatNodes.length}개 | <span style={{ fontSize: 8 }}>Ctrl드래그=10px스냅</span>
+          {designW}×{designH} | {flatNodes.length}개
+        </span>
+        <span style={{
+          fontSize: 8, padding: '1px 4px', borderRadius: 3, background: 'rgba(88,166,255,0.15)',
+          color: '#58a6ff', flexShrink: 0,
+        }}>
+          CC {sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x'}
         </span>
         <button
           onClick={handleFit}
