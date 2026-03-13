@@ -7474,6 +7474,41 @@ if (existsSync(cp773Path)) {
   }
 }
 
+// ── Section 169: Phase DD10 R774~776 기능 체크 ────────────────
+console.log('\n## 169. Phase DD10 R774~776 기능 체크')
+// R774: ChatPanel 메시지 암호화 표시
+const cp774Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp774Path)) {
+  const cp774 = readFileSync(cp774Path, 'utf-8')
+  if (cp774.includes('encryptedMsgs') || cp774.includes('showEncryptionInfo') || cp774.includes('msgEncrypt')) {
+    log('pass', 'R774', 'ChatPanel 메시지 암호화 표시 존재')
+  } else {
+    log('warning', 'R774', 'ChatPanel 암호화 표시 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R775: InputBar 글로벌 프롬프트 변수
+const ib775Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib775Path)) {
+  const ib775 = readFileSync(ib775Path, 'utf-8')
+  if (ib775.includes('globalVars') || ib775.includes('showGlobalVars') || ib775.includes('global-vars')) {
+    log('pass', 'R775', 'InputBar 글로벌 프롬프트 변수 존재')
+  } else {
+    log('warning', 'R775', 'InputBar 글로벌 변수 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R776: SceneViewPanel 씬 변경 감지
+const svp776Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp776Path)) {
+  const svp776 = readFileSync(svp776Path, 'utf-8')
+  if (svp776.includes('sceneModified') || svp776.includes('lastSavedAt') || svp776.includes('unsavedChanges')) {
+    log('pass', 'R776', 'SceneViewPanel 씬 변경 감지 존재')
+  } else {
+    log('warning', 'R776', 'SceneViewPanel 변경 감지 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

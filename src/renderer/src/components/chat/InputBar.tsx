@@ -220,6 +220,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showShortcutEditor, setShowShortcutEditor] = useState(false)
   const [maxTokens, setMaxTokens] = useState<number | null>(null)
   const [showTokenLimit, setShowTokenLimit] = useState(false)
+  const [globalVars, setGlobalVars] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('global-vars') ?? '{}'))
+  const [showGlobalVars, setShowGlobalVars] = useState(false)
   const [pendingImages, setPendingImages] = useState<string[]>([])
   const [lastPasteType, setLastPasteType] = useState<string | null>(null)
   const [cursorPosHistory, setCursorPosHistory] = useState<number[]>([])

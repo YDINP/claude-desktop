@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:19:00.689Z
+> 2026-03-13T11:19:51.390Z
 
 ## Critical
 _없음_
@@ -655,3 +655,6 @@ _없음_
 - ChatPanel 메시지 일괄 선택 존재
 - SessionList 검색 히스토리 존재
 - CocosPanel 씬 로드 진행률 존재
+- ChatPanel 메시지 암호화 표시 존재
+- InputBar 글로벌 프롬프트 변수 존재
+- SceneViewPanel 씬 변경 감지 존재

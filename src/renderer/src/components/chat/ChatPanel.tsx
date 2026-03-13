@@ -808,6 +808,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [chatStats, setChatStats] = useState<{ totalTokens: number; avgResponseTime: number; totalMsgs: number }>({ totalTokens: 0, avgResponseTime: 0, totalMsgs: 0 })
   const [copyFormat, setCopyFormat] = useState<'text' | 'markdown' | 'html'>('markdown')
   const [bulkSelectMode, setBulkSelectMode] = useState(false)
+  const [encryptedMsgs, setEncryptedMsgs] = useState<Set<string>>(new Set())
+  const [showEncryptionInfo, setShowEncryptionInfo] = useState(false)
   const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set())
   const [showCopyMenu, setShowCopyMenu] = useState<string | null>(null)
   const [showChatStats, setShowChatStats] = useState(false)

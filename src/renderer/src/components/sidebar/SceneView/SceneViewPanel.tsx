@@ -192,6 +192,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [nodeTypeFilter, setNodeTypeFilter] = useState<string[]>([])
   const [showTypeFilter, setShowTypeFilter] = useState(false)
+  const [sceneModified, setSceneModified] = useState(false)
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)
