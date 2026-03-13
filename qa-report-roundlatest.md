@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:05:37.975Z
+> 2026-03-13T11:06:49.784Z
 
 ## Critical
 _없음_
@@ -613,3 +613,6 @@ _없음_
 - ChatPanel 메시지 요약 카드 존재
 - SceneViewPanel 씬 히스토리 존재
 - CocosPanel 컴포넌트 검색 필터 존재
+- InputBar 자동 들여쓰기 존재
+- SessionList 세션 잠금 존재
+- TerminalPanel 정규식 필터 존재

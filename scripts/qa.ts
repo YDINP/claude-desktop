@@ -6984,6 +6984,41 @@ if (existsSync(cp731Path)) {
   }
 }
 
+// ── Section 155: Phase DD10 R732~734 기능 체크 ────────────────
+console.log('\n## 155. Phase DD10 R732~734 기능 체크')
+// R732: InputBar 자동 들여쓰기
+const ib732Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib732Path)) {
+  const ib732 = readFileSync(ib732Path, 'utf-8')
+  if (ib732.includes('autoIndent') || ib732.includes('indentSize') || ib732.includes('autoIndentation')) {
+    log('pass', 'R732', 'InputBar 자동 들여쓰기 존재')
+  } else {
+    log('warning', 'R732', 'InputBar 자동 들여쓰기 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R733: SessionList 세션 잠금
+const sl733Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl733Path)) {
+  const sl733 = readFileSync(sl733Path, 'utf-8')
+  if (sl733.includes('lockedSessions') || sl733.includes('lockConfirmId') || sl733.includes('locked-sessions')) {
+    log('pass', 'R733', 'SessionList 세션 잠금 존재')
+  } else {
+    log('warning', 'R733', 'SessionList 세션 잠금 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R734: TerminalPanel 정규식 필터
+const tp734Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp734Path)) {
+  const tp734 = readFileSync(tp734Path, 'utf-8')
+  if (tp734.includes('filterRegex') || tp734.includes('filterCaseSensitive') || tp734.includes('regexFilter')) {
+    log('pass', 'R734', 'TerminalPanel 정규식 필터 존재')
+  } else {
+    log('warning', 'R734', 'TerminalPanel 정규식 필터 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

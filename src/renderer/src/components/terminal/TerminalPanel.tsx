@@ -313,6 +313,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
 
   // Filter state
   const [termFilter, setTermFilter] = useState('')
+  const [filterRegex, setFilterRegex] = useState(false)
+  const [filterCaseSensitive, setFilterCaseSensitive] = useState(false)
   const [showTermFilter, setShowTermFilter] = useState(false)
   const [termSearchMatches, setTermSearchMatches] = useState<number[]>([])
   const [termSearchIdx, setTermSearchIdx] = useState(0)
