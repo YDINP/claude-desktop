@@ -1799,7 +1799,7 @@ console.log('\n## 81. 신규 기능 파일 검사 (R179)')
 const sceneInspectorPath16 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath16)) {
   const si16 = readFileSync(sceneInspectorPath16, 'utf-8')
-  if (si16.includes('X, Y 위치를 (0, 0)으로 초기화') && si16.includes("onUpdate(node.uuid, 'x', 0)")) {
+  if (si16.includes('X, Y 위치를 (0, 0)으로 초기화') && (si16.includes("onUpdate(node.uuid, 'x', 0)") || si16.includes("trackUpdate(node.uuid, 'x', 0)"))) {
     log('pass', 'Round179', 'SceneInspector: Position 리셋 버튼 존재')
   } else {
     log('warning', 'Round179', 'SceneInspector Position 리셋 미구현', 'SceneView/SceneInspector.tsx')
@@ -1812,7 +1812,7 @@ console.log('\n## 82. 신규 기능 파일 검사 (R180)')
 const sceneInspectorPath17 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath17)) {
   const si17 = readFileSync(sceneInspectorPath17, 'utf-8')
-  if (si17.includes('회전을 0으로 초기화') && si17.includes("onUpdate(node.uuid, 'rotation', 0)")) {
+  if (si17.includes('회전을 0으로 초기화') && (si17.includes("onUpdate(node.uuid, 'rotation', 0)") || si17.includes("trackUpdate(node.uuid, 'rotation', 0)"))) {
     log('pass', 'Round180', 'SceneInspector: Rotation ⊙ 리셋 버튼 존재')
   } else {
     log('warning', 'Round180', 'SceneInspector Rotation 리셋 미구현', 'SceneView/SceneInspector.tsx')
@@ -1825,7 +1825,7 @@ console.log('\n## 83. 신규 기능 파일 검사 (R181)')
 const sceneInspectorPath18 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath18)) {
   const si18 = readFileSync(sceneInspectorPath18, 'utf-8')
-  if (si18.includes('스케일을 (1, 1)로 초기화') && si18.includes("onUpdate(node.uuid, 'scaleX', 1)")) {
+  if (si18.includes('스케일을 (1, 1)로 초기화') && (si18.includes("onUpdate(node.uuid, 'scaleX', 1)") || si18.includes("trackUpdate(node.uuid, 'scaleX', 1)"))) {
     log('pass', 'Round181', 'SceneInspector: Scale ⊙ 리셋 버튼 존재')
   } else {
     log('warning', 'Round181', 'SceneInspector Scale 리셋 미구현', 'SceneView/SceneInspector.tsx')
@@ -1838,7 +1838,7 @@ console.log('\n## 84. 신규 기능 파일 검사 (R182)')
 const sceneInspectorPath19 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath19)) {
   const si19 = readFileSync(sceneInspectorPath19, 'utf-8')
-  if (si19.includes('앵커를 (0.5, 0.5) 중심으로 초기화') && si19.includes("onUpdate(node.uuid, 'anchorX', 0.5)")) {
+  if (si19.includes('앵커를 (0.5, 0.5) 중심으로 초기화') && (si19.includes("onUpdate(node.uuid, 'anchorX', 0.5)") || si19.includes("trackUpdate(node.uuid, 'anchorX', 0.5)"))) {
     log('pass', 'Round182', 'SceneInspector: Anchor ⊙ 리셋 버튼 존재')
   } else {
     log('warning', 'Round182', 'SceneInspector Anchor 리셋 미구현', 'SceneView/SceneInspector.tsx')

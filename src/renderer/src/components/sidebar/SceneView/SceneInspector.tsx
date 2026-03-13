@@ -172,6 +172,14 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
   const [memoDraft, setMemoDraft] = useState(node?.memo ?? '')
   const [tagDraft, setTagDraft] = useState('')
   const nameInputRef = useRef<HTMLInputElement>(null)
+  const [history, setHistory] = useState<Array<{ key: string; val: unknown; time: number }>>([])
+
+  useEffect(() => { setHistory([]) }, [node?.uuid])
+
+  const trackUpdate = (uuid: string, key: string, value: number | boolean) => {
+    setHistory(prev => [{ key, val: value, time: Date.now() }, ...prev].slice(0, 20))
+    onUpdate(uuid, key, value)
+  }
 
   useEffect(() => { setMemoDraft(node?.memo ?? '') }, [node?.uuid])
 
@@ -184,23 +192,23 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
   }, [focusNameTrigger])
 
   const handleScaleUpdate = (uuid: string, prop: string, value: number) => {
-    onUpdate(uuid, prop, value)
+    trackUpdate(uuid, prop, value)
     if (scaleLocked && node) {
       if (prop === 'scaleX' && node.scaleX !== 0) {
-        onUpdate(uuid, 'scaleY', parseFloat((value * node.scaleY / node.scaleX).toFixed(4)))
+        trackUpdate(uuid, 'scaleY', parseFloat((value * node.scaleY / node.scaleX).toFixed(4)))
       } else if (prop === 'scaleY' && node.scaleY !== 0) {
-        onUpdate(uuid, 'scaleX', parseFloat((value * node.scaleX / node.scaleY).toFixed(4)))
+        trackUpdate(uuid, 'scaleX', parseFloat((value * node.scaleX / node.scaleY).toFixed(4)))
       }
     }
   }
 
   const handleSizeUpdate = (uuid: string, prop: string, value: number) => {
-    onUpdate(uuid, prop, value)
+    trackUpdate(uuid, prop, value)
     if (sizeLocked && node) {
       if (prop === 'width' && node.width !== 0) {
-        onUpdate(uuid, 'height', parseFloat((value * node.height / node.width).toFixed(0)))
+        trackUpdate(uuid, 'height', parseFloat((value * node.height / node.width).toFixed(0)))
       } else if (prop === 'height' && node.height !== 0) {
-        onUpdate(uuid, 'width', parseFloat((value * node.width / node.height).toFixed(0)))
+        trackUpdate(uuid, 'width', parseFloat((value * node.width / node.height).toFixed(0)))
       }
     }
   }
@@ -233,7 +241,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
     if (!node) return
     const next = !isActive
     setIsActive(next)
-    onUpdate(node.uuid, 'active', next)
+    trackUpdate(node.uuid, 'active', next)
   }
 
   // 다중 선택 시 집계 뷰
@@ -463,11 +471,11 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
       <SectionHeader label="Position" />
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
-          <NumInput label="X" value={node.x} uuid={node.uuid} prop="x" onSave={onUpdate} />
-          <NumInput label="Y" value={node.y} uuid={node.uuid} prop="y" onSave={onUpdate} />
+          <NumInput label="X" value={node.x} uuid={node.uuid} prop="x" onSave={trackUpdate} />
+          <NumInput label="Y" value={node.y} uuid={node.uuid} prop="y" onSave={trackUpdate} />
         </div>
         <button
-          onClick={() => { onUpdate(node.uuid, 'x', 0); onUpdate(node.uuid, 'y', 0) }}
+          onClick={() => { trackUpdate(node.uuid, 'x', 0); trackUpdate(node.uuid, 'y', 0) }}
           title="X, Y 위치를 (0, 0)으로 초기화"
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.x !== 0 || node.y !== 0) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
         >⊙</button>
@@ -500,7 +508,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: scaleLocked ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
         >∝</button>
         <button
-          onClick={() => { onUpdate(node.uuid, 'scaleX', 1); onUpdate(node.uuid, 'scaleY', 1) }}
+          onClick={() => { trackUpdate(node.uuid, 'scaleX', 1); trackUpdate(node.uuid, 'scaleY', 1) }}
           title="스케일을 (1, 1)로 초기화"
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.scaleX !== 1 || node.scaleY !== 1) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
         >⊙</button>
@@ -510,10 +518,10 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
       <SectionHeader label="Rotation" />
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <div style={{ flex: 1 }}>
-          <NumInput label="Rot" value={node.rotation} decimals={2} uuid={node.uuid} prop="rotation" onSave={onUpdate} />
+          <NumInput label="Rot" value={node.rotation} decimals={2} uuid={node.uuid} prop="rotation" onSave={trackUpdate} />
         </div>
         <button
-          onClick={() => onUpdate(node.uuid, 'rotation', 0)}
+          onClick={() => trackUpdate(node.uuid, 'rotation', 0)}
           title="회전을 0으로 초기화"
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: node.rotation !== 0 ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
         >⊙</button>
@@ -523,11 +531,11 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
       <SectionHeader label="Anchor" />
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
-          <NumInput label="Ax" value={node.anchorX} decimals={2} uuid={node.uuid} prop="anchorX" onSave={onUpdate} />
-          <NumInput label="Ay" value={node.anchorY} decimals={2} uuid={node.uuid} prop="anchorY" onSave={onUpdate} />
+          <NumInput label="Ax" value={node.anchorX} decimals={2} uuid={node.uuid} prop="anchorX" onSave={trackUpdate} />
+          <NumInput label="Ay" value={node.anchorY} decimals={2} uuid={node.uuid} prop="anchorY" onSave={trackUpdate} />
         </div>
         <button
-          onClick={() => { onUpdate(node.uuid, 'anchorX', 0.5); onUpdate(node.uuid, 'anchorY', 0.5) }}
+          onClick={() => { trackUpdate(node.uuid, 'anchorX', 0.5); trackUpdate(node.uuid, 'anchorY', 0.5) }}
           title="앵커를 (0.5, 0.5) 중심으로 초기화"
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: (node.anchorX !== 0.5 || node.anchorY !== 0.5) ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
         >⊙</button>
@@ -581,7 +589,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
       {node.components.some(c => c.type === 'cc.UIOpacity') && (
         <>
           <SectionHeader label="Opacity" />
-          <NumInput label="α" value={node.opacity} uuid={node.uuid} prop="opacity" onSave={onUpdate} />
+          <NumInput label="α" value={node.opacity} uuid={node.uuid} prop="opacity" onSave={trackUpdate} />
         </>
       )}
 
@@ -705,6 +713,22 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             {connected ? '▶ Cocos에 적용' : '⚠ Cocos 미연결'}
           </button>
         </div>
+      )}
+
+      {/* 변경 이력 */}
+      {history.length > 0 && (
+        <>
+          <SectionHeader label="변경 이력" />
+          <div style={{ fontSize: 8, color: 'var(--text-muted)', padding: '2px 0' }}>
+            {history.slice(0, 5).map((h, i) => (
+              <div key={i} style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '1px 0', borderTop: i > 0 ? '1px solid var(--border)' : 'none' }}>
+                <span style={{ color: 'var(--accent)', flexShrink: 0 }}>{h.key}</span>
+                <span style={{ opacity: 0.7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>→ {JSON.stringify(h.val)}</span>
+                <span style={{ flexShrink: 0, marginLeft: 'auto', opacity: 0.5 }}>{new Date(h.time).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* JSON 내보내기 */}

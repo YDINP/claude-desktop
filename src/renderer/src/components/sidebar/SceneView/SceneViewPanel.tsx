@@ -7,6 +7,8 @@ import { SceneInspector } from './SceneInspector'
 import { getRenderOrder, cocosToSvg, getComponentIcon } from './utils'
 import { NodeHierarchyList } from './NodeHierarchyList'
 
+interface Annotation { id: string; svgX: number; svgY: number; text: string }
+
 interface SceneViewPanelProps {
   connected: boolean
   wsKey: string
@@ -90,6 +92,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
+
+  // ── 주석 (Annotation) 상태 ─────────────────────────────────
+  const [annotations, setAnnotations] = useState<Annotation[]>(() => {
+    try { return JSON.parse(localStorage.getItem('sceneview-annotations') ?? '[]') } catch { return [] }
+  })
+  const [editingAnnotId, setEditingAnnotId] = useState<string | null>(null)
 
   // ── 선택 / 호버 상태 ───────────────────────────────────────
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
@@ -1394,6 +1402,22 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const canZOrder = selectedUuids.size === 1
   const canAlign = selectedUuids.size >= 2
 
+  const handleAddAnnotation = useCallback((svgX = 0, svgY = 0) => {
+    const id = `annot-${Date.now()}`
+    const next = [...annotations, { id, svgX, svgY, text: '' }]
+    setAnnotations(next)
+    try { localStorage.setItem('sceneview-annotations', JSON.stringify(next)) } catch {}
+    setEditingAnnotId(id)
+  }, [annotations])
+
+  const handleAnnotUpdate = useCallback((id: string, text: string) => {
+    const next = text
+      ? annotations.map(a => a.id === id ? { ...a, text } : a)
+      : annotations.filter(a => a.id !== id)
+    setAnnotations(next)
+    try { localStorage.setItem('sceneview-annotations', JSON.stringify(next)) } catch {}
+  }, [annotations])
+
   const handleCreateNode = useCallback(async () => {
     const name = 'NewNode'
     try {
@@ -1674,6 +1698,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           const node = nodeMap.get(selectedUuid)
           if (node) updateNode(selectedUuid, { locked: !node.locked })
         }}
+        onAddAnnotation={() => handleAddAnnotation()}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -2196,6 +2221,48 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               </g>
             )
           })()}
+
+          {/* 주석 (Annotation) — 씬 그룹 밖, 화면 좌표로 렌더 */}
+          {annotations.map(a => {
+            const ax = a.svgX * view.zoom + view.offsetX
+            const ay = a.svgY * view.zoom + view.offsetY
+            return (
+              <g key={a.id} transform={`translate(${ax},${ay})`} style={{ cursor: 'move' }}>
+                <rect x={0} y={0} width={120} height={60} rx={4} ry={4}
+                  fill="#fef3c7" stroke="#f59e0b" strokeWidth={1} opacity={0.95} />
+                {editingAnnotId === a.id ? (
+                  <foreignObject x={2} y={2} width={116} height={56}>
+                    <textarea
+                      autoFocus
+                      defaultValue={a.text}
+                      onBlur={e => { handleAnnotUpdate(a.id, e.target.value); setEditingAnnotId(null) }}
+                      onKeyDown={e => { if (e.key === 'Escape') setEditingAnnotId(null); e.stopPropagation() }}
+                      style={{ width: '100%', height: '100%', background: 'transparent', border: 'none', resize: 'none', fontSize: 9, padding: 2, outline: 'none', fontFamily: 'inherit' }}
+                    />
+                  </foreignObject>
+                ) : (
+                  <>
+                    <text x={4} y={12} fontSize={9} fill="#92400e" style={{ userSelect: 'none', pointerEvents: 'none' }}>
+                      {a.text || '(빈 주석)'}
+                    </text>
+                    <rect x={108} y={2} width={12} height={12} rx={2} fill="#f59e0b" opacity={0}
+                      style={{ cursor: 'pointer' }}
+                      onMouseEnter={e => e.currentTarget.setAttribute('opacity', '0.3')}
+                      onMouseLeave={e => e.currentTarget.setAttribute('opacity', '0')}
+                      onClick={e => { e.stopPropagation(); handleAnnotUpdate(a.id, '') }}
+                    />
+                    <text x={114} y={11} fontSize={8} fill="#92400e" textAnchor="middle"
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                      onClick={e => { e.stopPropagation(); handleAnnotUpdate(a.id, '') }}
+                    >×</text>
+                  </>
+                )}
+                <rect x={0} y={0} width={120} height={60} rx={4} ry={4} fill="transparent"
+                  onDoubleClick={e => { e.stopPropagation(); setEditingAnnotId(a.id) }}
+                />
+              </g>
+            )
+          })}
 
           {/* 마퀴 선택 rect */}
           {marquee && (

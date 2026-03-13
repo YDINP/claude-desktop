@@ -79,6 +79,7 @@ interface SceneToolbarProps {
   tagFilter?: string
   allTags?: string[]
   onTagFilterChange?: (tag: string) => void
+  onAddAnnotation?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -162,6 +163,7 @@ export function SceneToolbar({
   tagFilter,
   allTags,
   onTagFilterChange,
+  onAddAnnotation,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -364,6 +366,15 @@ export function SceneToolbar({
           onClick={onMeasureModeToggle}
           title="측정 도구 — 드래그로 거리 측정 (Alt+M)"
         >📏 Ruler</button>
+      )}
+
+      {/* 주석 추가 */}
+      {onAddAnnotation && (
+        <button
+          style={btnBase}
+          onClick={onAddAnnotation}
+          title="씬에 스티커 메모 추가"
+        >📝</button>
       )}
 
       {/* 참조 이미지 */}
