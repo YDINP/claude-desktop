@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 450 완료 — M-1 Inspector 벡터 props {x,y,z} 편집 지원)
+> 마지막 업데이트: 2026-03-13 (Round 451 완료 — N-1 씬 파일 드래그&드롭 열기)
 
 ## 완료된 라운드
 
@@ -42,6 +42,7 @@
 | Round 448 | dev | Phase K-1: 씬뷰 배경색 — Camera.clearColor / Canvas.backgroundColor 파싱 → 씬 캔버스 배경 적용 | ✅ |
 | Round 449 | dev | Phase L-1: 씬 트리 활성화 토글 — ●/○ 버튼, handleTreeToggleActive → saveScene, 비활성 노드 흐릿 표시 | ✅ |
 | Round 450 | dev | Phase M-1: Inspector 벡터 props 편집 — {x,y}/{x,y,z} 타입 props를 2-3개 인라인 숫자 인풋으로 표시/편집 | ✅ |
+| Round 451 | dev | Phase N-1: 씬 파일 드래그&드롭 열기 — .fire/.scene/.prefab 파일을 패널에 드롭하면 자동 로드 (Electron File.path) | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

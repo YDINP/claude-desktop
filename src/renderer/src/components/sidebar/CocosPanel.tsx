@@ -620,7 +620,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   }, [sceneFile, restoreBackup])
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}
+      onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
+      onDrop={e => {
+        e.preventDefault(); e.stopPropagation()
+        const file = e.dataTransfer.files[0]
+        if (!file) return
+        const filePath = (file as File & { path?: string }).path
+        if (!filePath) return
+        if (/\.(fire|scene|prefab)$/i.test(filePath)) loadScene(filePath)
+      }}
+    >
       {/* 외부 파일 변경 감지 배너 */}
       {externalChange && sceneFile && (
         <div style={{
