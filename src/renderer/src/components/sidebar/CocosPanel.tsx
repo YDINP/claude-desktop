@@ -450,6 +450,35 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     setTimeout(() => setSaveMsg(null), 3000)
   }, [sceneFile, saveScene])
 
+  const handleReparent = useCallback(async (dragUuid: string, dropUuid: string) => {
+    if (!sceneFile?.root || dragUuid === dropUuid || sceneFile.root.uuid === dragUuid) return
+    // 사이클 방지: drop 대상이 drag 노드의 하위인지 확인
+    function isDesc(n: CCSceneNode, target: string): boolean {
+      if (n.uuid === target) return true
+      return n.children.some(c => isDesc(c, target))
+    }
+    const findNode = (n: CCSceneNode): CCSceneNode | null => {
+      if (n.uuid === dragUuid) return n
+      for (const c of n.children) { const f = findNode(c); if (f) return f }
+      return null
+    }
+    const dragged = findNode(sceneFile.root)
+    if (!dragged || isDesc(dragged, dropUuid)) return
+
+    let moved: CCSceneNode | null = null
+    function remove(n: CCSceneNode): CCSceneNode {
+      const ch = n.children.filter(c => { if (c.uuid === dragUuid) { moved = c; return false } return true })
+      return { ...n, children: ch.map(remove) }
+    }
+    function insert(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === dropUuid) return { ...n, children: [...n.children, moved!] }
+      return { ...n, children: n.children.map(insert) }
+    }
+    const reduced = remove(sceneFile.root)
+    if (!moved) return
+    await saveScene(insert(reduced))
+  }, [sceneFile, saveScene])
+
   const handleRestore = useCallback(async () => {
     if (!sceneFile) return
     const result = await restoreBackup()
@@ -640,6 +669,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               depth={0}
               selected={selectedNode}
               onSelect={onSelectNode}
+              onReparent={handleReparent}
             />
           </div>
           {/* 노드 인스펙터 */}
@@ -672,28 +702,41 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect,
+  node, depth, selected, onSelect, onReparent,
 }: {
   node: CCSceneNode
   depth: number
   selected: CCSceneNode | null
   onSelect: (n: CCSceneNode | null) => void
+  onReparent?: (dragUuid: string, dropUuid: string) => void
 }) {
   const [collapsed, setCollapsed] = useState(depth > 2)
+  const [isDragOver, setIsDragOver] = useState(false)
   const hasChildren = node.children.length > 0
   const isSelected = selected?.uuid === node.uuid
+  const isRoot = depth === 0
 
   return (
     <div>
       <div
+        draggable={!isRoot}
         onClick={() => onSelect(isSelected ? null : node)}
+        onDragStart={e => { e.stopPropagation(); e.dataTransfer.setData('text/plain', node.uuid) }}
+        onDragOver={e => { e.preventDefault(); e.stopPropagation(); setIsDragOver(true) }}
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={e => {
+          e.preventDefault(); e.stopPropagation(); setIsDragOver(false)
+          const dragUuid = e.dataTransfer.getData('text/plain')
+          if (dragUuid) onReparent?.(dragUuid, node.uuid)
+        }}
         style={{
           display: 'flex', alignItems: 'center', gap: 2,
           padding: `2px 6px 2px ${8 + depth * 14}px`,
-          cursor: 'pointer', fontSize: 11,
-          background: isSelected ? 'var(--accent-subtle, rgba(88,166,255,0.1))' : 'transparent',
+          cursor: isRoot ? 'default' : 'grab', fontSize: 11,
+          background: isDragOver ? 'rgba(88,166,255,0.18)' : isSelected ? 'var(--accent-subtle, rgba(88,166,255,0.1))' : 'transparent',
           color: node.active ? 'var(--text-primary)' : 'var(--text-muted)',
           userSelect: 'none',
+          outline: isDragOver ? '1px dashed #58a6ff' : 'none',
         }}
       >
         {hasChildren ? (
@@ -722,6 +765,7 @@ function CCFileSceneTree({
           depth={depth + 1}
           selected={selected}
           onSelect={onSelect}
+          onReparent={onReparent}
         />
       ))}
     </div>
