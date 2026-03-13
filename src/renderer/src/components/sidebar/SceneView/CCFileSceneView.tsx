@@ -298,15 +298,30 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
       if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey) {
-        const el = e.target as HTMLElement
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
         handleFitToSelected()
+        return
+      }
+      // 화살표 키: 선택 노드 이동 (1px, Shift+10px)
+      const arrows: Record<string, [number, number]> = {
+        ArrowLeft: [-1, 0], ArrowRight: [1, 0],
+        ArrowUp: [0, 1], ArrowDown: [0, -1],
+      }
+      if (e.code in arrows && selectedUuid) {
+        e.preventDefault()
+        const step = e.shiftKey ? 10 : 1
+        const [dx, dy] = arrows[e.code]
+        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+        if (!fn) return
+        const pos = fn.node.position as { x: number; y: number }
+        onMove?.(selectedUuid, pos.x + dx * step, pos.y + dy * step)
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleFitToSelected])
+  }, [handleFitToSelected, selectedUuid, flatNodes, onMove])
 
   const transform = `translate(${view.offsetX}, ${view.offsetY}) scale(${view.zoom})`
 
@@ -856,6 +871,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['SE 핸들 드래그', '노드 리사이즈'],
             ['↻ 핸들 드래그', '노드 회전 (Shift: 15°)'],
             ['Escape', '선택 해제'],
+            ['←↑→↓', '선택 노드 1px 이동'],
+            ['Shift+←↑→↓', '10px 이동'],
             ['⊙◁▷△▽', '정렬 버튼'],
             ['↑↓ (Inspector)', 'Z-order 변경'],
           ].map(([k, v]) => (
