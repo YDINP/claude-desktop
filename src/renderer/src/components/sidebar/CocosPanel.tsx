@@ -985,6 +985,24 @@ function CCFileNodeInspector({
         </div>
       </div>
 
+      {/* 색상 */}
+      <div style={{ marginTop: 4 }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, fontWeight: 600 }}>색상 (R/G/B/A)</div>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={`#${[draft.color.r, draft.color.g, draft.color.b].map(v => Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')).join('')}`}
+            onChange={e => {
+              const hex = e.target.value.slice(1)
+              const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16)
+              applyAndSave({ color: { r, g, b, a: draft.color.a } })
+            }}
+            style={{ width: 28, height: 22, padding: 0, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', background: 'none' }}
+          />
+          {numInput('A', draft.color.a, v => applyAndSave({ color: { ...draft.color, a: Math.min(255,Math.max(0,Math.round(v))) } }))}
+        </div>
+      </div>
+
       {/* 컴포넌트 props */}
       {draft.components.filter(c => {
         const editableTypes = ['cc.Label', 'cc.RichText', 'cc.Button', 'cc.EditBox', 'cc.ProgressBar']
