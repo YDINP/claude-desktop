@@ -1012,6 +1012,14 @@ function CCFileNodeInspector({
         value={value}
         onChange={e => onChange(parseFloat(e.target.value) || 0)}
         onBlur={e => onChange(parseFloat(e.target.value) || 0)}
+        onWheel={e => {
+          e.preventDefault()
+          const current = parseFloat((e.target as HTMLInputElement).value)
+          if (isNaN(current)) return
+          const delta = e.deltaY < 0 ? step : -step
+          const multiplier = e.shiftKey ? 10 : 1
+          onChange(current + delta * multiplier)
+        }}
         style={{
           flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
           color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
@@ -1406,6 +1414,21 @@ function CCFileNodeInspector({
                               i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
                             )
                           })}
+                          onWheel={e => {
+                            e.preventDefault()
+                            const el = e.target as HTMLInputElement
+                            const current = parseFloat(el.value)
+                            if (isNaN(current)) return
+                            const delta = e.deltaY < 0 ? 1 : -1
+                            const multiplier = e.shiftKey ? 10 : 1
+                            const newVal = current + delta * multiplier
+                            el.value = String(newVal)
+                            applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: newVal } } } : c
+                              )
+                            })
+                          }}
                           style={{
                             flex: 1, minWidth: 0, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
                             color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px', fontSize: 9,
@@ -1489,6 +1512,21 @@ function CCFileNodeInspector({
                         i === origIdx ? { ...c, props: { ...c.props, [k]: parseFloat(e.target.value) || 0 } } : c
                       )
                     })}
+                    onWheel={e => {
+                      e.preventDefault()
+                      const el = e.target as HTMLInputElement
+                      const current = parseFloat(el.value)
+                      if (isNaN(current)) return
+                      const delta = e.deltaY < 0 ? 1 : -1
+                      const multiplier = e.shiftKey ? 10 : 1
+                      const newVal = current + delta * multiplier
+                      el.value = String(newVal)
+                      applyAndSave({
+                        components: draft.components.map((c, i) =>
+                          i === origIdx ? { ...c, props: { ...c.props, [k]: newVal } } : c
+                        )
+                      })
+                    }}
                     style={{
                       flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
                       color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,

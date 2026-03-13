@@ -81,6 +81,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
   viewRef.current = view
+  const targetViewRef = useRef<{ zoom: number; offsetX: number; offsetY: number } | null>(null)
+  const animFrameRef = useRef<number | null>(null)
   const [isDirty, setIsDirty] = useState(false)
   const nodeMapInitRef = useRef(false)
   const [refImageOpacity, setRefImageOpacity] = useState(0.3)
@@ -1149,6 +1151,31 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [nodeMap, marquee, view, port])
 
+  // ── 줌 애니메이션 (RAF 보간) ────────────────────────────────
+  const animateToTarget = useCallback(() => {
+    if (!targetViewRef.current) return
+    setView(curr => {
+      const target = targetViewRef.current!
+      const dz = target.zoom - curr.zoom
+      const dx = target.offsetX - curr.offsetX
+      const dy = target.offsetY - curr.offsetY
+      if (Math.abs(dz) < 0.001 && Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
+        targetViewRef.current = null
+        animFrameRef.current = null
+        return target
+      }
+      const EASE = 0.18
+      return {
+        zoom: curr.zoom + dz * EASE,
+        offsetX: curr.offsetX + dx * EASE,
+        offsetY: curr.offsetY + dy * EASE,
+      }
+    })
+    if (targetViewRef.current) {
+      animFrameRef.current = requestAnimationFrame(animateToTarget)
+    }
+  }, [])
+
   // ── 줌 (wheel) — passive: false 필요 ───────────────────────
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault()
@@ -1156,12 +1183,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       // 핀치 줌 / Ctrl+wheel 줌
       const factor = e.deltaY < 0 ? 1.1 : 0.9
       const svgCoords = getSvgCoords(e)
-      setView(prev => {
-        const newZoom = Math.min(8, Math.max(0.1, prev.zoom * factor))
-        const newOffsetX = svgCoords.x - (svgCoords.x - prev.offsetX) * (newZoom / prev.zoom)
-        const newOffsetY = svgCoords.y - (svgCoords.y - prev.offsetY) * (newZoom / prev.zoom)
-        return { zoom: newZoom, offsetX: newOffsetX, offsetY: newOffsetY }
-      })
+      const curr = targetViewRef.current ?? viewRef.current
+      const newZoom = Math.min(8, Math.max(0.1, curr.zoom * factor))
+      const newOffsetX = svgCoords.x - (svgCoords.x - curr.offsetX) * (newZoom / curr.zoom)
+      const newOffsetY = svgCoords.y - (svgCoords.y - curr.offsetY) * (newZoom / curr.zoom)
+      targetViewRef.current = { zoom: newZoom, offsetX: newOffsetX, offsetY: newOffsetY }
+      if (!animFrameRef.current) {
+        animFrameRef.current = requestAnimationFrame(animateToTarget)
+      }
     } else {
       // 2손가락 스크롤 → 패닝
       setView(prev => ({
@@ -1306,6 +1335,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     el.addEventListener('wheel', handleWheel, { passive: false })
     return () => el.removeEventListener('wheel', handleWheel)
   }, [handleWheel])
+
+  // 줌 RAF 애니메이션 cleanup
+  useEffect(() => {
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    }
+  }, [])
 
   // ── Inspector 업데이트 ─────────────────────────────────────
   const handleInspectorUpdate = useCallback(async (uuid: string, prop: string, value: number | boolean) => {
@@ -1673,7 +1709,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onCreateNode={handleCreateNode}
         onDeleteNode={handleDeleteNode}
         onToolChange={setActiveTool}
-        onZoomChange={zoom => setView(prev => ({ ...prev, zoom }))}
+        onZoomChange={zoom => {
+          const curr = targetViewRef.current ?? viewRef.current
+          targetViewRef.current = { zoom, offsetX: curr.offsetX, offsetY: curr.offsetY }
+          if (!animFrameRef.current) {
+            animFrameRef.current = requestAnimationFrame(animateToTarget)
+          }
+        }}
         onGridToggle={() => setGridVisible(v => !v)}
         onSnapToggle={() => setSnapEnabled(v => !v)}
         snapGrid={snapGrid}

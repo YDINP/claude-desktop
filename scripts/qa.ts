@@ -5368,6 +5368,33 @@ console.log('\n## 108. Phase DD9 R553~555 기능 체크')
   }
 }
 
+// ── Section 109: Phase DD9 R557~559 기능 체크 ─────────────────
+console.log('\n## 109. Phase DD9 R557~559 기능 체크')
+{
+  const sceneViewSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx'), 'utf8')
+  const sessionListSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx'), 'utf8')
+  const cocosPanelSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+
+  // R557: smooth zoom RAF
+  if (sceneViewSrc.includes('animateToTarget') && sceneViewSrc.includes('targetViewRef')) {
+    log('pass', 'R557', '씬뷰 smooth zoom 애니메이션 존재')
+  } else {
+    log('warning', 'R557', '씬뷰 smooth zoom 없음', 'SceneViewPanel.tsx')
+  }
+  // R558: 태그 색상 커스터마이즈
+  if (sessionListSrc.includes('tagColors') && sessionListSrc.includes('colorPickerTag')) {
+    log('pass', 'R558', '세션 태그 색상 커스터마이즈 존재')
+  } else {
+    log('warning', 'R558', '세션 태그 색상 없음', 'SessionList.tsx')
+  }
+  // R559: Inspector wheel 증감
+  if (cocosPanelSrc.includes('onWheel') && cocosPanelSrc.includes('shiftKey')) {
+    log('pass', 'R559', 'Inspector 숫자 wheel 증감 존재')
+  } else {
+    log('warning', 'R559', 'Inspector wheel 증감 없음', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

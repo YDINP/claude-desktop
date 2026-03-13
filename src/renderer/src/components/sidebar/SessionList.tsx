@@ -122,6 +122,23 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showTagSuggest, setShowTagSuggest] = useState(false)
   const [filterCustomTag, setFilterCustomTag] = useState<string | null>(null)
 
+  const TAG_COLORS_KEY = 'session-tag-colors'
+  const loadTagColors = (): Record<string, string> => {
+    try { return JSON.parse(localStorage.getItem(TAG_COLORS_KEY) ?? '{}') }
+    catch { return {} }
+  }
+  const [tagColors, setTagColors] = useState<Record<string, string>>(loadTagColors)
+  const [colorPickerTag, setColorPickerTag] = useState<string | null>(null)
+  const [colorPickerPos, setColorPickerPos] = useState({ x: 0, y: 0 })
+
+  const setTagColor = (tag: string, color: string) => {
+    setTagColors(prev => {
+      const next = { ...prev, [tag]: color }
+      localStorage.setItem(TAG_COLORS_KEY, JSON.stringify(next))
+      return next
+    })
+  }
+
   const refreshTemplates = useCallback(async () => {
     try {
       const list = await window.api.listTemplates()
@@ -558,19 +575,30 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
                   {sessionTags.map((t, i) => <TagDot key={i} color={t} />)}
                 </span>
               )}
-              {sessionCustomTags.map(t => (
-                <span
-                  key={t}
-                  onClick={e => { e.stopPropagation(); setFilterCustomTag(t) }}
-                  style={{
-                    background: 'rgba(82,139,255,0.15)', color: '#7ca0ff',
-                    borderRadius: 8, padding: '0px 5px', fontSize: 9, cursor: 'pointer',
-                    border: '1px solid rgba(82,139,255,0.3)', flexShrink: 0,
-                  }}
-                >
-                  {t}
-                </span>
-              ))}
+              {sessionCustomTags.map(t => {
+                const tagColor = tagColors[t]
+                return (
+                  <span
+                    key={t}
+                    onClick={e => { e.stopPropagation(); setFilterCustomTag(t) }}
+                    onContextMenu={e => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setColorPickerTag(t)
+                      setColorPickerPos({ x: e.clientX, y: e.clientY })
+                    }}
+                    style={{
+                      background: tagColor ? `${tagColor}33` : 'rgba(82,139,255,0.15)',
+                      color: tagColor ?? '#7ca0ff',
+                      borderRadius: 8, padding: '0px 5px', fontSize: 9, cursor: 'pointer',
+                      border: tagColor ? `1px solid ${tagColor}66` : '1px solid rgba(82,139,255,0.3)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {t}
+                  </span>
+                )
+              })}
               {s.forkedFrom && (
                 <span style={{ fontSize: 9, color: '#0098ff', flexShrink: 0, letterSpacing: 0 }}>⎇</span>
               )}
@@ -1417,6 +1445,53 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
               ))}
             </div>
           )}
+        </div>
+      )}
+      {/* Tag color picker */}
+      {colorPickerTag && (
+        <div
+          style={{
+            position: 'fixed', left: colorPickerPos.x, top: colorPickerPos.y,
+            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+            borderRadius: 6, padding: 8, zIndex: 10000,
+            display: 'flex', gap: 4, flexWrap: 'wrap', width: 128,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          }}
+          onMouseLeave={() => setColorPickerTag(null)}
+        >
+          {['#60a5fa','#34d399','#fbbf24','#f87171','#a78bfa','#fb923c','#e879f9','#ffffff'].map(c => (
+            <div
+              key={c}
+              onClick={() => { setTagColor(colorPickerTag, c); setColorPickerTag(null) }}
+              style={{
+                width: 20, height: 20, borderRadius: '50%', background: c,
+                cursor: 'pointer',
+                border: tagColors[colorPickerTag] === c ? '2px solid white' : '2px solid transparent',
+                boxSizing: 'border-box',
+                outline: tagColors[colorPickerTag] === c ? '1px solid rgba(255,255,255,0.4)' : 'none',
+              }}
+            />
+          ))}
+          <div
+            onClick={() => {
+              setTagColors(prev => {
+                const next = { ...prev }
+                delete next[colorPickerTag!]
+                localStorage.setItem(TAG_COLORS_KEY, JSON.stringify(next))
+                return next
+              })
+              setColorPickerTag(null)
+            }}
+            style={{
+              width: 20, height: 20, borderRadius: '50%', background: 'var(--border)',
+              cursor: 'pointer', fontSize: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--text-muted)',
+            }}
+            title="색상 초기화"
+          >
+            ✕
+          </div>
         </div>
       )}
     </div>

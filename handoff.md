@@ -94,10 +94,19 @@
 | R551 | 프롬프트 히스토리 — ↑↓ 키 탐색 (기존 Alt+↑↓ → 순수 화살표로 전환) |
 | R552 | QA Section 107 추가 (Pass 464) |
 
-## 다음 예정 (Round 553~)
-- Round 553: 씬뷰 노드 스냅샷 비교 (before/after 오버레이)
-- Round 554: 채팅 메시지 번역 버튼
-- Round 555: Inspector 컴포넌트 순서 재정렬 (drag handle)
+## Phase DD9 추가 완료 (Round 553~556)
+
+| 라운드 | 기능 |
+|--------|------|
+| R553 | Inspector 컴포넌트 drag 재정렬 (⠿ 핸들, origIdx 인덱스 보정) |
+| R554 | 채팅 메시지 번역 버튼 (🌐, shellExec curl Haiku, 캐시 토글) |
+| R555 | 씬뷰 스냅샷 비교 (📷 snap + 👁 diff, 빨간 점선 오버레이) |
+| R556 | QA Section 108 추가 (Pass 467) |
+
+## 다음 예정 (Round 557~)
+- Round 557: 씬뷰 줌 애니메이션 (smooth zoom)
+- Round 558: 세션 태그 색상 커스터마이즈
+- Round 559: Inspector 숫자 인풋 스크롤 증감 (wheel event)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 
