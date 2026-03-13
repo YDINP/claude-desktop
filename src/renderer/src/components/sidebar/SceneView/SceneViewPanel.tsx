@@ -78,6 +78,30 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const DESIGN_W = canvasSize.w
   const DESIGN_H = canvasSize.h
   const [gridVisible, setGridVisible] = useState(true)
+  // R1422: 그리드 커스터마이즈 (크기/색상/불투명도) — localStorage grid-settings
+  const [gridSettings, setGridSettings] = useState<{ size: number; theme: 'light' | 'dark'; opacity: number }>(() => {
+    try {
+      const raw = localStorage.getItem('grid-settings')
+      if (raw) return JSON.parse(raw)
+    } catch { /* ignore */ }
+    return { size: 50, theme: 'dark', opacity: 0.04 }
+  })
+  const [showGridSettings, setShowGridSettings] = useState(false)
+  const gridSettingsRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    try { localStorage.setItem('grid-settings', JSON.stringify(gridSettings)) } catch { /* ignore */ }
+  }, [gridSettings])
+  // R1422: 그리드 설정 팝업 외부 클릭 닫기
+  useEffect(() => {
+    if (!showGridSettings) return
+    const handleClick = (e: MouseEvent) => {
+      if (gridSettingsRef.current && !gridSettingsRef.current.contains(e.target as Node)) {
+        setShowGridSettings(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showGridSettings])
   const [snapEnabled, setSnapEnabled] = useState(false)
   const [snapGrid, setSnapGrid] = useState(4)
   const [showHierarchy, setShowHierarchy] = useState(false)
@@ -211,6 +235,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     try { return JSON.parse(localStorage.getItem(VP_KEY) ?? '[]') } catch { return [] }
   })
   const [showViewportPresets, setShowViewportPresets] = useState(false)
+
+  // ── R1424: 다중 씬 비교 뷰 ─────────────────────────────────
+  const [compareMode, setCompareMode] = useState(false)
+  const [compareScenePath, setCompareScenePath] = useState<string | null>(null)
+  const [compareView, setCompareView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 1 })
 
   // ── 스냅샷 / diff 상태 ─────────────────────────────────────
   const [snapshot, setSnapshot] = useState<Map<string, SnapshotEntry> | null>(null)
@@ -2372,7 +2401,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const sceneTransform = `translate(${view.offsetX} ${view.offsetY}) scale(${view.zoom})`
 
   // ── 그리드 패턴 크기 (줌에 따라 조정) ─────────────────────
-  const gridStep = 50  // 씬 좌표 50px 간격
+  // R1422: 그리드 크기를 사용자 설정에서 가져옴
+  const gridStep = gridSettings.size
 
   if (!connected) {
     return (
@@ -2427,6 +2457,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           }
         }}
         onGridToggle={() => setGridVisible(v => !v)}
+        onGridSettings={() => setShowGridSettings(v => !v)}
+        compareMode={compareMode}
+        onCompareToggle={() => setCompareMode(v => !v)}
         onSnapToggle={() => setSnapEnabled(v => !v)}
         snapGrid={snapGrid}
         onSnapGridChange={setSnapGrid}
@@ -2543,6 +2576,55 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         hasOverlayImage={!!overlayImageSrc}
         onClearOverlayImage={() => setOverlayImageSrc(null)}
       />
+
+      {/* R1422: 그리드 설정 팝업 — Grid 버튼 우클릭으로 열기 */}
+      {showGridSettings && (
+        <div
+          ref={gridSettingsRef}
+          style={{
+            position: 'absolute', top: 30, left: 120, zIndex: 9999,
+            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+            borderRadius: 6, padding: 10, minWidth: 180,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+          }}
+        >
+          <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Grid Settings</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0 }}>Size</span>
+            <select
+              value={gridSettings.size}
+              onChange={e => setGridSettings(prev => ({ ...prev, size: Number(e.target.value) }))}
+              style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '2px 4px' }}
+            >
+              {[8, 16, 32, 50, 64, 128].map(v => (
+                <option key={v} value={v}>{v}px</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0 }}>Color</span>
+            <button
+              onClick={() => setGridSettings(prev => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }))}
+              style={{
+                flex: 1, fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer',
+                background: gridSettings.theme === 'light' ? '#e0e0e0' : '#333',
+                color: gridSettings.theme === 'light' ? '#333' : '#e0e0e0',
+                border: '1px solid var(--border)',
+              }}
+            >{gridSettings.theme === 'light' ? 'Light' : 'Dark'}</button>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0 }}>Alpha</span>
+            <input
+              type="range" min={0.02} max={0.5} step={0.01}
+              value={gridSettings.opacity}
+              onChange={e => setGridSettings(prev => ({ ...prev, opacity: parseFloat(e.target.value) }))}
+              style={{ flex: 1 }}
+            />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{gridSettings.opacity.toFixed(2)}</span>
+          </div>
+        </div>
+      )}
 
       {/* R1419: 뷰포트 프리셋 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '1px 4px', background: 'rgba(0,0,0,0.15)', flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -2849,7 +2931,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 <path
                   d={`M ${gridStep * view.zoom} 0 L 0 0 0 ${gridStep * view.zoom}`}
                   fill="none"
-                  stroke="rgba(255,255,255,0.04)"
+                  stroke={gridSettings.theme === 'light' ? `rgba(0,0,0,${gridSettings.opacity})` : `rgba(255,255,255,${gridSettings.opacity})`}
                   strokeWidth={1}
                 />
               </pattern>
@@ -3430,6 +3512,46 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             />
           )}
         </svg>
+
+        {/* R1424: 씬 비교 뷰 — 오른쪽 절반에 비교 패널 오버레이 */}
+        {compareMode && (
+          <div style={{
+            position: 'absolute', top: 0, right: 0, width: '50%', height: '100%',
+            background: 'var(--bg-primary)', borderLeft: '2px solid var(--accent)',
+            display: 'flex', flexDirection: 'column', zIndex: 50,
+          }}>
+            <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>COMPARE</span>
+              {sceneTabFiles.length > 0 && (
+                <select
+                  value={compareScenePath ?? ''}
+                  onChange={e => setCompareScenePath(e.target.value || null)}
+                  style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '2px 4px' }}
+                >
+                  <option value="">씬 선택...</option>
+                  {sceneTabFiles.map(p => (
+                    <option key={p} value={p}>{p.split(/[\\/]/).pop()}</option>
+                  ))}
+                </select>
+              )}
+              <button
+                onClick={() => { setCompareMode(false); setCompareScenePath(null) }}
+                style={{ fontSize: 9, padding: '1px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
+              >X</button>
+            </div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 10 }}>
+              {!compareScenePath ? (
+                <span>비교할 씬을 선택하세요</span>
+              ) : (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 9, marginBottom: 4 }}>비교 씬: {compareScenePath.split(/[\\/]/).pop()}</div>
+                  <div style={{ fontSize: 8, color: 'var(--text-muted)' }}>읽기 전용 비교 뷰</div>
+                  <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 4 }}>독립 pan/zoom 지원</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 측정 도구 결과 오버레이 (클릭 복사 지원) */}
         {measureMode && measureLine && (() => {

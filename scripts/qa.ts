@@ -14969,6 +14969,98 @@ if (existsSync(si1402Path)) {
   }
 }
 
+// ── Section 387: R1422/R1423/R1424 기능 체크 ───────────────
+console.log('\n## 387. Phase DD14 R1422~R1424 기능 체크')
+
+// R1422: SceneView 그리드 커스터마이즈
+if (existsSync(sceneViewPath)) {
+  const svp1422 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1422.includes('R1422') && svp1422.includes('grid-settings') && svp1422.includes('gridSettings') && svp1422.includes('showGridSettings') && svp1422.includes('gridSettings.size') && svp1422.includes('gridSettings.opacity')) {
+    log('pass', 'R1422', 'SceneView 그리드 커스터마이즈 (크기/색상/불투명도, localStorage grid-settings, 팝업 UI)')
+  } else {
+    log('warning', 'R1422', 'SceneView 그리드 커스터마이즈 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1422: SceneToolbar 그리드 설정 버튼
+if (existsSync(sceneToolbarPath)) {
+  const st1422 = readFileSync(sceneToolbarPath, 'utf-8')
+  if (st1422.includes('onGridSettings') && st1422.includes('R1422')) {
+    log('pass', 'R1422', 'SceneToolbar 그리드 설정 버튼 (우클릭 + 톱니바퀴 아이콘)')
+  } else {
+    log('warning', 'R1422', 'SceneToolbar 그리드 설정 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R1423: CocosPanel 백업 관리 UI
+if (existsSync(cp1398Path)) {
+  const cp1423 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1423.includes('R1423') && cp1423.includes('BackupManager') && cp1423.includes('ccFileListBakFiles') && cp1423.includes('ccFileDeleteAllBakFiles') && cp1423.includes('ccFileRestoreFromBak') && cp1423.includes('백업 파일')) {
+    log('pass', 'R1423', 'CocosPanel 백업 관리 UI (목록/복원/전체삭제, BackupManager 컴포넌트)')
+  } else {
+    log('warning', 'R1423', 'CocosPanel 백업 관리 UI 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1424: SceneView 다중 씬 비교 뷰
+if (existsSync(sceneViewPath)) {
+  const svp1424 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1424.includes('R1424') && svp1424.includes('compareMode') && svp1424.includes('compareScenePath') && svp1424.includes('COMPARE')) {
+    log('pass', 'R1424', 'SceneView 다중 씬 비교 뷰 (좌우 분할, 비교 씬 선택, 읽기 전용)')
+  } else {
+    log('warning', 'R1424', 'SceneView 다중 씬 비교 뷰 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// ── Section 388: R1425/R1426 기능 체크 ───────────────
+console.log('\n## 388. Phase DD14 R1425~R1426 기능 체크')
+
+// R1425: Inspector cc.ProgressBar/Slider 속성 편집
+if (existsSync(si1402Path)) {
+  const si1425 = readFileSync(si1402Path, 'utf-8')
+  if (si1425.includes('R1425') && si1425.includes('cc.ProgressBar') && si1425.includes('cc.Slider') && si1425.includes('progress') && si1425.includes('totalLength') && si1425.includes('reverse')) {
+    log('pass', 'R1425', 'Inspector cc.ProgressBar/Slider 속성 편집 (progress, totalLength, reverse)')
+  } else {
+    log('warning', 'R1425', 'Inspector cc.ProgressBar/Slider 속성 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+// R1425: cc-file-parser ProgressBar/Slider 추출기
+if (existsSync(parserPath)) {
+  const fp1425 = readFileSync(parserPath, 'utf-8')
+  if (fp1425.includes('R1425') && fp1425.includes('cc.ProgressBar') && fp1425.includes('cc.Slider')) {
+    log('pass', 'R1425', 'cc-file-parser ProgressBar/Slider 컴포넌트 추출기 추가')
+  } else {
+    log('warning', 'R1425', 'cc-file-parser ProgressBar/Slider 추출기 없음', 'cc/cc-file-parser.ts')
+  }
+}
+
+// R1426: cc-file-parser buildNodePathIndex
+if (existsSync(parserPath)) {
+  const fp1426 = readFileSync(parserPath, 'utf-8')
+  if (fp1426.includes('R1426') && fp1426.includes('buildNodePathIndex') && fp1426.includes('Map<string, string>')) {
+    log('pass', 'R1426', 'cc-file-parser buildNodePathIndex (UUID -> 전체 경로 인덱스)')
+  } else {
+    log('warning', 'R1426', 'cc-file-parser buildNodePathIndex 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1426: Inspector 노드 경로 표시
+if (existsSync(si1402Path)) {
+  const si1426 = readFileSync(si1402Path, 'utf-8')
+  if (si1426.includes('R1426') && si1426.includes('nodePath') && si1426.includes(' > ')) {
+    log('pass', 'R1426', 'Inspector 선택 노드 전체 경로 표시 (Canvas > Panel > Button)')
+  } else {
+    log('warning', 'R1426', 'Inspector 노드 경로 표시 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+// R1426: NodeHierarchyList 경로 매칭 검색
+if (existsSync(nodeHierarchyPath)) {
+  const nh1426 = readFileSync(nodeHierarchyPath, 'utf-8')
+  if (nh1426.includes('R1426') && nh1426.includes('경로 매칭')) {
+    log('pass', 'R1426', 'NodeHierarchyList 검색 시 경로 매칭 지원')
+  } else {
+    log('warning', 'R1426', 'NodeHierarchyList 경로 매칭 없음', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

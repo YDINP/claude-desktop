@@ -183,6 +183,20 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
   const nameInputRef = useRef<HTMLInputElement>(null)
   const [history, setHistory] = useState<Array<{ key: string; val: unknown; time: number }>>([])
 
+  // R1426: 선택 노드의 전체 경로 (Canvas > Panel > Button)
+  const nodePath = (() => {
+    if (!node || !nodeMap) return ''
+    const parts: string[] = []
+    let current: SceneNode | undefined = node
+    while (current) {
+      parts.unshift(current.name || '(unnamed)')
+      // 부모 찾기: nodeMap의 모든 노드에서 childUuids에 current.uuid를 포함하는 노드
+      const parentEntry = Array.from(nodeMap.values()).find(n => n.childUuids.includes(current!.uuid))
+      current = parentEntry
+    }
+    return parts.join(' > ')
+  })()
+
   useEffect(() => { setHistory([]) }, [node?.uuid])
 
   const trackUpdate = (uuid: string, key: string, value: number | boolean) => {
@@ -481,6 +495,21 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           </button>
         </div>
       </div>
+
+      {/* R1426: 노드 전체 경로 표시 */}
+      {nodePath && (
+        <div
+          title={nodePath}
+          onClick={() => navigator.clipboard.writeText(nodePath)}
+          style={{
+            fontSize: 8, color: 'var(--text-muted)', padding: '1px 4px', marginBottom: 3,
+            background: 'rgba(0,0,0,0.15)', borderRadius: 3, cursor: 'pointer',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}
+        >
+          {nodePath}
+        </div>
+      )}
 
       {/* R1411: 속성 검색 필터 */}
       <div style={{ marginBottom: 4 }}>
@@ -1053,6 +1082,51 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
                   })}
                 </div>
               )}
+            </div>
+          </>
+        )
+      })()}
+
+      {/* R1425: cc.ProgressBar / cc.Slider 속성 편집 */}
+      {(() => {
+        const pbComp = node.components.find(c => c.type === 'cc.ProgressBar' || c.type === 'cc.Slider')
+        if (!pbComp?.props) return null
+        const pp = pbComp.props as Record<string, unknown>
+        const isSlider = pbComp.type === 'cc.Slider'
+        const progress = (pp.progress as number) ?? (pp.value as number) ?? 0
+        const totalLength = (pp.totalLength as number) ?? 0
+        const reverse = (pp.reverse as boolean) ?? false
+        const onPbPropChange = (key: string, value: number | boolean) => {
+          const newComps = node.components.map(c =>
+            (c.type === 'cc.ProgressBar' || c.type === 'cc.Slider') ? { ...c, props: { ...c.props, [key]: value } } : c
+          )
+          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+        }
+        return (
+          <>
+            <SectionHeader label={isSlider ? 'Slider' : 'ProgressBar'} />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>{isSlider ? 'value' : 'progress'}</span>
+                <input
+                  type="range" min={0} max={1} step={0.01}
+                  value={progress}
+                  onChange={e => onPbPropChange(isSlider ? 'value' : 'progress', parseFloat(e.target.value))}
+                  style={{ flex: 1 }}
+                />
+                <span style={{ fontSize: 8, color: 'var(--accent)', width: 28, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{progress.toFixed(2)}</span>
+              </div>
+              {!isSlider && (
+                <NumInput label="totalLen" value={totalLength} uuid={node.uuid} prop="progressbar.totalLength"
+                  onSave={(_u, _p, v) => onPbPropChange('totalLength', v)} />
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 48, color: 'var(--text-muted)', flexShrink: 0 }}>reverse</span>
+                <input type="checkbox" checked={reverse}
+                  onChange={e => onPbPropChange('reverse', e.target.checked)}
+                  style={{ width: 12, height: 12, accentColor: 'var(--accent)', cursor: 'pointer' }} />
+                <span style={{ fontSize: 8, color: reverse ? 'var(--success)' : 'var(--text-muted)' }}>{reverse ? 'ON' : 'OFF'}</span>
+              </div>
             </div>
           </>
         )

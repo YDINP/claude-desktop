@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1415 완료 — Phase DD14 진행 중, QA Pass 1297)
+> 마지막 업데이트: 2026-03-14 (Round 1427 완료 — Phase DD14 진행 중, QA Pass 1313)
 
 ## 개발 루프 실행 방식
 
@@ -797,6 +797,12 @@
 | Round 1419 | SceneView 뷰포트 프리셋 저장/불러오기 (localStorage, 1:1/2:1 기본, 사용자 max 5) | ✅ |
 | Round 1420 | Inspector cc.Button 속성 편집 (interactable, autoGray, transition, duration, 색상 읽기전용) | ✅ |
 | Round 1421 | QA Section 385-386 추가 (R1416-R1420 기능 체크, Pass 1304) | ✅ |
+| Round 1422 | SceneView 그리드 크기/색상/불투명도 커스터마이즈 (localStorage grid-settings, 팝업 UI) | ✅ |
+| Round 1423 | CocosPanel .bak 백업 파일 관리 UI (목록/복원/전체삭제, BackupManager 컴포넌트) | ✅ |
+| Round 1424 | SceneView 다중 씬 비교 뷰 (좌우 분할, 비교 씬 선택 드롭다운, 읽기 전용) | ✅ |
+| Round 1425 | Inspector cc.ProgressBar/Slider 속성 편집 (progress, totalLength, reverse) | ✅ |
+| Round 1426 | cc-file-parser buildNodePathIndex + Inspector 노드 경로 표시 + 검색 경로 매칭 | ✅ |
+| Round 1427 | QA Section 387-388 추가 (R1422-R1426 기능 체크, Pass 1313) | ✅ |
 
 ## QA 프로세스
 

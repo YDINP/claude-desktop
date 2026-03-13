@@ -1,7 +1,7 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { detectCCVersion } from '../cc/cc-version-detector'
 import { parseCCScene } from '../cc/cc-file-parser'
-import { saveCCScene, restoreFromBackup } from '../cc/cc-file-saver'
+import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile } from '../cc/cc-file-saver'
 import { ccFileWatcher } from '../cc/cc-file-watcher'
 import { buildUUIDMap, extractReferencedUUIDs, resolveTextureUrl } from '../cc/cc-asset-resolver'
 import {
@@ -83,6 +83,21 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   /** 백업에서 씬 파일 복원 */
   ipcMain.handle('cc:file:restoreBackup', async (_e, scenePath: string) => {
     return restoreFromBackup(scenePath)
+  })
+
+  /** R1423: .bak 파일 목록 조회 */
+  ipcMain.handle('cc:file:listBakFiles', async (_e, scenePath: string) => {
+    return listBakFiles(scenePath)
+  })
+
+  /** R1423: .bak 파일 전체 삭제 */
+  ipcMain.handle('cc:file:deleteAllBakFiles', async (_e, scenePath: string) => {
+    return deleteAllBakFiles(scenePath)
+  })
+
+  /** R1423: 특정 .bak 파일에서 복원 */
+  ipcMain.handle('cc:file:restoreFromBak', async (_e, bakPath: string, scenePath: string) => {
+    return restoreFromBakFile(bakPath, scenePath)
   })
 
   /** 씬 파일/디렉토리 감시 시작 */

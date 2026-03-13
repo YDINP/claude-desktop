@@ -122,6 +122,11 @@ interface SceneToolbarProps {
   // R1401: 씬 통계 오버레이
   showStatsOverlay?: boolean
   onStatsOverlayToggle?: () => void
+  // R1422: 그리드 설정 팝업
+  onGridSettings?: () => void
+  // R1424: 씬 비교 뷰
+  compareMode?: boolean
+  onCompareToggle?: () => void
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -242,6 +247,9 @@ export function SceneToolbar({
   onClearOverlayImage,
   showStatsOverlay,
   onStatsOverlayToggle,
+  onGridSettings,
+  compareMode,
+  onCompareToggle,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -474,6 +482,17 @@ export function SceneToolbar({
         ⊡ Fit
       </button>
 
+      {/* R1424: 씬 비교 모드 */}
+      {onCompareToggle && (
+        <button
+          style={compareMode ? btnActive : btnBase}
+          onClick={onCompareToggle}
+          title="다중 씬 비교 뷰 — 좌우 분할"
+        >
+          ⊞ Compare
+        </button>
+      )}
+
       <div style={divider} />
 
       {/* 레이어 패널 */}
@@ -502,10 +521,20 @@ export function SceneToolbar({
       <button
         style={gridVisible ? btnActive : btnBase}
         onClick={onGridToggle}
-        title="그리드 표시"
+        onContextMenu={e => { e.preventDefault(); onGridSettings?.() }}
+        title="그리드 표시 (우클릭: 설정)"
       >
         ⊞ Grid
       </button>
+      {onGridSettings && (
+        <button
+          style={btnBase}
+          onClick={onGridSettings}
+          title="그리드 크기/색상/불투명도 설정"
+        >
+          ⚙
+        </button>
+      )}
 
       {/* 레이아웃 프리셋 */}
       {onLayoutPreset && (

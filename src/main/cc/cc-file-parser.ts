@@ -240,6 +240,19 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     scrollThreshold: e._N$scrollThreshold ?? e.scrollThreshold ?? 0.5,
     autoPageTurningThreshold: e._N$autoPageTurningThreshold ?? e.autoPageTurningThreshold ?? 0.3,
   }),
+  // R1425: ProgressBar 컴포넌트
+  'cc.ProgressBar': e => ({
+    progress: e._N$progress ?? e._progress ?? e.progress ?? 0,
+    totalLength: e._N$totalLength ?? e._totalLength ?? e.totalLength ?? 0,
+    reverse: e._N$reverse ?? e._reverse ?? e.reverse ?? false,
+  }),
+  // R1425: Slider 컴포넌트
+  'cc.Slider': e => ({
+    value: e._N$value ?? e._value ?? e.value ?? 0,
+    progress: e._N$progress ?? e._progress ?? e.progress ?? 0,
+    reverse: e._N$reverse ?? e._reverse ?? e.reverse ?? false,
+    direction: e._N$direction ?? e._direction ?? e.direction ?? 0,
+  }),
   // R1400: ParticleSystem 컴포넌트 (3.x)
   'cc.ParticleSystem': e => {
     const sc = e._startColor as { r?: number; g?: number; b?: number; a?: number } | undefined
@@ -445,6 +458,26 @@ function resolveComponents3x(
       }
       return { type, props: { ...props, ...specialized }, _rawIndex: idx }
     })
+}
+
+// ── R1426: 씬 노드 UUID → 경로 인덱스 빌드 ──────────────────────────────────
+
+/**
+ * R1426: UUID → "Canvas/Panel/Button" 형태의 전체 경로 반환
+ */
+export function buildNodePathIndex(root: CCSceneNode): Map<string, string> {
+  const index = new Map<string, string>()
+
+  function walk(node: CCSceneNode, parentPath: string): void {
+    const currentPath = parentPath ? `${parentPath}/${node.name}` : node.name
+    index.set(node.uuid, currentPath)
+    for (const child of node.children) {
+      walk(child, currentPath)
+    }
+  }
+
+  walk(root, '')
+  return index
 }
 
 // ── R1408: 씬 복잡도 분석 함수 ──────────────────────────────────────────────

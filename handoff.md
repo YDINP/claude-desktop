@@ -1,13 +1,24 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1421 완료 — Phase DD14 R1416~1421)
+> 마지막 업데이트: 2026-03-14 (Round 1427 완료 — Phase DD14 R1422~1427)
 
 ## 현재 상태
-- 마지막 커밋: Round 1416~1421 (노드잠금완성/폰트파싱/씬Lint/뷰포트프리셋/Button편집/QA)
+- 마지막 커밋: Round 1422~1427 (그리드커스텀/백업관리/씬비교/ProgressBar/경로인덱스/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1304
+- QA: `npm run qa` ✅ Critical 0, Warning 2, Pass 1313
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
+
+## Phase DD14 R1422~1427 (2026-03-14)
+
+| 라운드 | 기능 |
+|--------|------|
+| R1422 | SceneView 그리드 크기/색상/불투명도 커스터마이즈 (localStorage grid-settings, 팝업 UI, 8~128px) |
+| R1423 | CocosPanel .bak 백업 파일 관리 UI (목록조회/개별복원/전체삭제, BackupManager 컴포넌트) |
+| R1424 | SceneView 다중 씬 비교 뷰 (좌우 50/50 분할, 비교 씬 드롭다운, 읽기 전용) |
+| R1425 | Inspector cc.ProgressBar/Slider 속성 편집 (progress 슬라이더, totalLength, reverse) |
+| R1426 | cc-file-parser buildNodePathIndex + Inspector 노드 전체 경로 표시 + 검색 경로 매칭 |
+| R1427 | QA Section 387-388 추가 (R1422-R1426 체크, Pass 1313) |
 
 ## Phase DD14 R1416~1421 (2026-03-14)
 

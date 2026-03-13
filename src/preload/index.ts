@@ -308,6 +308,13 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('cc:file:saveScene', sceneFile, modifiedRoot),
   ccFileRestoreBackup: (scenePath: string): Promise<{ success: boolean; error?: string }> =>
     ipcRenderer.invoke('cc:file:restoreBackup', scenePath),
+  // R1423: .bak 파일 관리
+  ccFileListBakFiles: (scenePath: string): Promise<Array<{ name: string; path: string; size: number; mtime: number }>> =>
+    ipcRenderer.invoke('cc:file:listBakFiles', scenePath),
+  ccFileDeleteAllBakFiles: (scenePath: string): Promise<{ deleted: number; error?: string }> =>
+    ipcRenderer.invoke('cc:file:deleteAllBakFiles', scenePath),
+  ccFileRestoreFromBak: (bakPath: string, scenePath: string): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('cc:file:restoreFromBak', bakPath, scenePath),
   ccFileWatch: (paths: string | string[]): Promise<{ watching: number }> =>
     ipcRenderer.invoke('cc:file:watch', paths),
   ccFileUnwatch: (paths?: string | string[]): Promise<{ watching: number }> =>
@@ -556,6 +563,10 @@ declare global {
         modifiedRoot: import('../shared/ipc-schema').CCSceneNode
       ) => Promise<{ success: boolean; backupPath?: string; error?: string }>
       ccFileRestoreBackup: (scenePath: string) => Promise<{ success: boolean; error?: string }>
+      // R1423
+      ccFileListBakFiles: (scenePath: string) => Promise<Array<{ name: string; path: string; size: number; mtime: number }>>
+      ccFileDeleteAllBakFiles: (scenePath: string) => Promise<{ deleted: number; error?: string }>
+      ccFileRestoreFromBak: (bakPath: string, scenePath: string) => Promise<{ success: boolean; error?: string }>
       ccFileWatch: (paths: string | string[]) => Promise<{ watching: number }>
       ccFileUnwatch: (paths?: string | string[]) => Promise<{ watching: number }>
       onCCFileChanged: (cb: (event: { type: string; path: string; timestamp: number }) => void) => () => void

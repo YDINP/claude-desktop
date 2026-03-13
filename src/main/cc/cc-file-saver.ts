@@ -186,6 +186,52 @@ function patch3x(
   }
 }
 
+// R1423: 씬 디렉토리의 .bak 파일 목록 반환
+export interface BakFileInfo {
+  name: string
+  path: string
+  size: number
+  mtime: number
+}
+
+export function listBakFiles(scenePath: string): BakFileInfo[] {
+  const dir = path.dirname(scenePath)
+  const baseName = path.basename(scenePath)
+  try {
+    const entries = fs.readdirSync(dir)
+    return entries
+      .filter(e => e.startsWith(baseName) && e.endsWith('.bak'))
+      .map(name => {
+        const fullPath = path.join(dir, name)
+        try {
+          const stat = fs.statSync(fullPath)
+          return { name, path: fullPath, size: stat.size, mtime: stat.mtimeMs }
+        } catch { return null }
+      })
+      .filter((v): v is BakFileInfo => v !== null)
+      .sort((a, b) => b.mtime - a.mtime)
+  } catch { return [] }
+}
+
+// R1423: .bak 파일 전체 삭제
+export function deleteAllBakFiles(scenePath: string): { deleted: number; error?: string } {
+  const baks = listBakFiles(scenePath)
+  let deleted = 0
+  for (const bak of baks) {
+    try { fs.unlinkSync(bak.path); deleted++ } catch { /* ignore */ }
+  }
+  return { deleted }
+}
+
+// R1423: 특정 .bak 파일에서 복원
+export function restoreFromBakFile(bakPath: string, scenePath: string): { success: boolean; error?: string } {
+  if (!fs.existsSync(bakPath)) return { success: false, error: '백업 파일이 존재하지 않습니다.' }
+  try {
+    fs.copyFileSync(bakPath, scenePath)
+    return { success: true }
+  } catch (e) { return { success: false, error: String(e) } }
+}
+
 /**
  * 백업 파일 복원 (저장 실패 시 롤백용)
  */
