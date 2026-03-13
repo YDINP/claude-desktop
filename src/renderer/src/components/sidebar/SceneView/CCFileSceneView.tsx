@@ -1304,6 +1304,37 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       )
                       return lines.length > 0 ? <>{lines}</> : null
                     })()}
+                    {/* R1552: cc.BoxCollider/CircleCollider 시각화 */}
+                    {(() => {
+                      const boxComp = node.components.find(c => c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D')
+                      const circComp = node.components.find(c => c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D')
+                      if (!boxComp && !circComp) return null
+                      const colliderStroke = '#22cc88'
+                      const sw = 1.2 / view.zoom
+                      if (boxComp) {
+                        const off = boxComp.props.offset as { x?: number; y?: number } | undefined
+                        const csz = boxComp.props.size as { width?: number; height?: number } | undefined
+                        const cw = csz?.width ?? w
+                        const ch = csz?.height ?? h
+                        const ox = off?.x ?? 0
+                        const oy = off?.y ?? 0
+                        const cx3 = svgPos.x + ox
+                        const cy3 = svgPos.y - oy  // CC Y-up 반전
+                        return <rect x={cx3 - cw / 2} y={cy3 - ch / 2} width={cw} height={ch}
+                          fill="none" stroke={colliderStroke} strokeWidth={sw} strokeDasharray={`${3/view.zoom} ${2/view.zoom}`}
+                          opacity={0.7} style={{ pointerEvents: 'none' }} />
+                      }
+                      if (circComp) {
+                        const off = circComp.props.offset as { x?: number; y?: number } | undefined
+                        const r = (circComp.props.radius as number | undefined) ?? Math.min(w, h) / 2
+                        const ox = off?.x ?? 0
+                        const oy = off?.y ?? 0
+                        return <circle cx={svgPos.x + ox} cy={svgPos.y - oy} r={r}
+                          fill="none" stroke={colliderStroke} strokeWidth={sw} strokeDasharray={`${3/view.zoom} ${2/view.zoom}`}
+                          opacity={0.7} style={{ pointerEvents: 'none' }} />
+                      }
+                      return null
+                    })()}
                     {/* 회전 핸들 원 */}
                     <circle
                       cx={svgPos.x} cy={rectY - 22 / view.zoom}

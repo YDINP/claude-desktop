@@ -16486,6 +16486,18 @@ console.log('\n## 442. R1551 cc.RigidBody + 콜라이더 물리 컴포넌트 체
   }
 }
 
+// ── Section 443: R1552 SceneView 콜라이더 시각화 ─────────────────
+console.log('\n## 443. R1552 SceneView BoxCollider/CircleCollider 시각화 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s443 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s443.includes('R1552') && s443.includes('cc.BoxCollider') && s443.includes('#22cc88') && s443.includes('cc.CircleCollider')) {
+    log('pass', 'R1552-visual', 'BoxCollider 녹색 점선 rect + CircleCollider 원 SVG 오버레이')
+  } else {
+    log('warning', 'R1552-visual', 'Collider 시각화 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
