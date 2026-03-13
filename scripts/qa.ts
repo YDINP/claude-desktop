@@ -16966,6 +16966,20 @@ console.log('\n## 478. R1587 cc.Toggle/ToggleContainer extractor + Inspector 체
   }
 }
 
+// ── Section 479: R1588 cc.LabelOutline/LabelShadow extractor + Inspector ──
+console.log('\n## 479. R1588 cc.LabelOutline/LabelShadow extractor + Inspector 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s479parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s479panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s479parser.includes("'cc.LabelOutline': e =>") && s479parser.includes("'cc.LabelShadow': e =>") && s479panel.includes("comp.type === 'cc.LabelOutline'") && s479panel.includes('blur') && s479panel.includes('offsetX')) {
+    log('pass', 'R1588-label-effect', 'cc.LabelOutline/LabelShadow extractor + Inspector Quick Edit')
+  } else {
+    log('warning', 'R1588-label-effect', 'cc.LabelOutline/LabelShadow Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

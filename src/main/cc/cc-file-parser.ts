@@ -227,12 +227,7 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     if ('_N$string' in e || '_N$fontSize' in e || '_N$fontFamily' in e) return LABEL_EXTRACTOR_2X(e)
     return LABEL_EXTRACTOR_3X(e)
   },
-  'cc.RichText': e => ({
-    string: e._N$string ?? e.string ?? '',
-    fontSize: e._N$fontSize ?? e._fontSize ?? 0,
-    maxWidth: e._N$maxWidth ?? e._maxWidth ?? 0,
-    lineHeight: e._N$lineHeight ?? e._lineHeight ?? 0,
-  }),
+  // cc.RichText: R1585로 통합 (아래 항목 참조)
   'cc.ScrollView': e => ({
     horizontal: e._N$horizontal ?? e.horizontal ?? false,
     vertical: e._N$vertical ?? e.vertical ?? true,
@@ -314,11 +309,7 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
       intensity: e._intensity ?? e.intensity ?? 1,
     }
   },
-  // R1520: cc.Toggle — 체크박스 상태
-  'cc.Toggle': e => ({
-    isChecked: e._N$isChecked ?? e._isChecked ?? e.isChecked ?? false,
-    checkMark: e._N$checkMark ?? e._checkMark ?? e.checkMark,
-  }),
+  // R1520: cc.Toggle (R1587로 통합 — 아래 항목 참조)
   // R1520: cc.AudioSource — 오디오 클립 설정
   'cc.AudioSource': e => ({
     clip: e._N$clip ?? e._clip ?? e.clip,
@@ -354,15 +345,33 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     autoWrap: !!(e._N$autoWrap ?? e._autoWrap ?? e.autoWrap ?? false),
     startAxis: (e._N$startAxis ?? e._startAxis ?? e.startAxis ?? 0) as number,
   }),
-  // R1587: cc.Toggle — 체크박스/라디오 토글
+  // R1587: cc.Toggle — 체크박스/라디오 토글 (R1520 통합)
   'cc.Toggle': e => ({
     isChecked: !!(e._N$isChecked ?? e._isChecked ?? e.isChecked ?? false),
+    checkMark: e._N$checkMark ?? e._checkMark ?? e.checkMark,
     interactable: !!(e._N$interactable ?? e._interactable ?? e.interactable ?? true),
   }),
   // R1587: cc.ToggleContainer — 토글 그룹 컨테이너
   'cc.ToggleContainer': e => ({
     allowSwitchOff: !!(e._N$allowSwitchOff ?? e._allowSwitchOff ?? e.allowSwitchOff ?? false),
   }),
+  // R1588: cc.LabelOutline — 텍스트 아웃라인 효과
+  'cc.LabelOutline': e => {
+    const color = e._N$color ?? e._color ?? e.color as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      width: (e._N$width ?? e._width ?? e.width ?? 0) as number,
+      color: color ? { r: (color as { r?: number }).r ?? 0, g: (color as { g?: number }).g ?? 0, b: (color as { b?: number }).b ?? 0, a: (color as { a?: number }).a ?? 255 } : { r: 0, g: 0, b: 0, a: 255 },
+    }
+  },
+  // R1588: cc.LabelShadow — 텍스트 그림자 효과
+  'cc.LabelShadow': e => {
+    const color = e._N$color ?? e._color ?? e.color as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      offset: { x: (e._N$offsetX ?? e._offsetX ?? e.offsetX ?? 2) as number, y: (e._N$offsetY ?? e._offsetY ?? e.offsetY ?? -2) as number },
+      blur: (e._N$blur ?? e._blur ?? e.blur ?? 2) as number,
+      color: color ? { r: (color as { r?: number }).r ?? 0, g: (color as { g?: number }).g ?? 0, b: (color as { b?: number }).b ?? 0, a: (color as { a?: number }).a ?? 255 } : { r: 0, g: 0, b: 0, a: 255 },
+    }
+  },
   // R1586: cc.EditBox — 텍스트 입력 필드
   'cc.EditBox': e => ({
     string: (e._N$string ?? e._string ?? e.string ?? '') as string,
@@ -424,15 +433,7 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
       return (dc?._name ?? dc?.__uuid__?.slice(0, 8) ?? '') as string
     })(),
   }),
-  // R1538: cc.EditBox — 텍스트 입력 컴포넌트
-  'cc.EditBox': e => ({
-    string: e._N$string ?? e._string ?? e.string ?? '',
-    placeholder: e._N$placeholder ?? e._placeholder ?? e.placeholder ?? '',
-    maxLength: e._N$maxLength ?? e._maxLength ?? e.maxLength ?? -1,
-    inputMode: e._N$inputMode ?? e._inputMode ?? e.inputMode ?? 0,
-    inputFlag: e._N$inputFlag ?? e._inputFlag ?? e.inputFlag ?? 0,
-    returnType: e._N$returnType ?? e._returnType ?? e.returnType ?? 0,
-  }),
+  // R1538: cc.EditBox (R1586으로 통합 — 위 항목 참조)
   // R1540: cc.Camera — 카메라 설정
   'cc.Camera': e => ({
     backgroundColor: e._N$backgroundColor ?? e._backgroundColor ?? e.backgroundColor,
