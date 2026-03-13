@@ -17164,6 +17164,18 @@ console.log('\n## 494. R1603 Inspector 이벤트 핸들러 표시 체크')
   }
 }
 
+// ── Section 495: R1604 SceneView 선택 노드 부모 하이라이트 ──────────────
+console.log('\n## 495. R1604 SceneView 선택 노드 부모 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s495 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s495.includes('R1604') && s495.includes('부모 하이라이트') && s495.includes('parentUuid') && s495.includes('rgba(180,120,255')) {
+    log('pass', 'R1604-parent-highlight', 'SceneView 선택 노드 부모 하이라이트 (연보라 점선)')
+  } else {
+    log('warning', 'R1604-parent-highlight', 'SceneView 부모 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

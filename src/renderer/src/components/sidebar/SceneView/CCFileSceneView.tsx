@@ -1534,6 +1534,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })}
+          {/* R1604: 선택 노드 부모 하이라이트 (연보라 점선) */}
+          {selectedUuid && (() => {
+            const selFn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!selFn?.parentUuid) return null
+            const parentFn = flatNodes.find(f => f.node.uuid === selFn.parentUuid)
+            if (!parentFn || !parentFn.node.size?.x || !parentFn.node.size?.y) return null
+            const { node: pn, worldX: px, worldY: py } = parentFn
+            const sp = ccToSvg(px, py)
+            const w = pn.size!.x, h = pn.size!.y
+            const ax = pn.anchor?.x ?? 0.5, ay = pn.anchor?.y ?? 0.5
+            return (
+              <rect
+                x={sp.x - w * ax} y={sp.y - h * (1 - ay)}
+                width={w} height={h}
+                fill="none"
+                stroke="rgba(180,120,255,0.45)"
+                strokeWidth={1 / view.zoom}
+                strokeDasharray={`${6 / view.zoom} ${4 / view.zoom}`}
+                style={{ pointerEvents: 'none' }}
+              />
+            )
+          })()}
           {/* rubber-band 선택 박스 */}
           {selectionBox && (
             <rect
