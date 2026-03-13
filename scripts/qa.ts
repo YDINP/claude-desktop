@@ -8244,6 +8244,41 @@ if (existsSync(cocp839Path)) {
   }
 }
 
+console.log('\n## 191. Phase DD10 R840~842 기능 체크')
+
+// R840: SceneViewPanel 노드 링크 시각화
+const svp840Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp840Path)) {
+  const svp840 = readFileSync(svp840Path, 'utf-8')
+  if (svp840.includes('showNodeLinks') || svp840.includes('nodeLinkFilter') || svp840.includes('nodeLinks')) {
+    log('pass', 'R840', 'SceneViewPanel 노드 링크 시각화 존재')
+  } else {
+    log('warning', 'R840', 'SceneViewPanel 노드 링크 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R841: TerminalPanel 출력 색상 테마
+const tp841Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp841Path)) {
+  const tp841 = readFileSync(tp841Path, 'utf-8')
+  if (tp841.includes('outputTheme') || tp841.includes('customOutputColors') || tp841.includes('termTheme')) {
+    log('pass', 'R841', 'TerminalPanel 출력 색상 테마 존재')
+  } else {
+    log('warning', 'R841', 'TerminalPanel 색상 테마 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R842: SessionList 세션 우선순위 정렬
+const sl842Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl842Path)) {
+  const sl842 = readFileSync(sl842Path, 'utf-8')
+  if (sl842.includes('sessionPriority') || sl842.includes('prioritySort') || sl842.includes('sessionPrio')) {
+    log('pass', 'R842', 'SessionList 세션 우선순위 존재')
+  } else {
+    log('warning', 'R842', 'SessionList 우선순위 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

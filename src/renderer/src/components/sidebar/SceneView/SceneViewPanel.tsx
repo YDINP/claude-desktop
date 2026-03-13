@@ -166,6 +166,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 노드 링크 (R721) ──────────────────────────────────────────
   const [nodeLinks, setNodeLinks] = useState<Record<string, string[]>>({})
   const [showNodeLinks, setShowNodeLinks] = useState(false)
+  const [nodeLinkFilter, setNodeLinkFilter] = useState<'all' | 'script' | 'prefab'>('all')
   // ── 노드 배지 (R725) ──────────────────────────────────────────
   const [nodeBadges, setNodeBadges] = useState<Record<string, string>>({})
   const [badgeEditNode, setBadgeEditNode] = useState<string | null>(null)
@@ -278,6 +279,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)
   const [autoLayout, setAutoLayout] = useState<'none' | 'tree' | 'grid' | 'radial'>('none')
   const [layoutSpacing, setLayoutSpacing] = useState(60)
+  const [showNodeLinks, setShowNodeLinks] = useState(false)
+  const [nodeLinkFilter, setNodeLinkFilter] = useState<'all' | 'script' | 'prefab'>('all')
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────

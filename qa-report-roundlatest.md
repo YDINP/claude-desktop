@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:45:58.443Z
+> 2026-03-13T11:47:15.137Z
 
 ## Critical
 _없음_
@@ -721,3 +721,6 @@ _없음_
 - ChatPanel AI 페르소나 존재
 - InputBar 텍스트 서식 존재
 - CocosPanel 컴포넌트 검색 필터 존재
+- SceneViewPanel 노드 링크 시각화 존재
+- TerminalPanel 출력 색상 테마 존재
+- SessionList 세션 우선순위 존재

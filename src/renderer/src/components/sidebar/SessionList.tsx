@@ -281,6 +281,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showArchiveExport, setShowArchiveExport] = useState(false)
   const [savedFilters, setSavedFilters] = useState<Array<{ name: string; query: string }>>([])
   const [showFilterManager, setShowFilterManager] = useState(false)
+  const [sessionPriority, setSessionPriority] = useState<Record<string, 'high' | 'normal' | 'low'>>({})
+  const [prioritySort, setPrioritySort] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
