@@ -7264,6 +7264,41 @@ if (existsSync(tp755Path)) {
   }
 }
 
+// ── Section 163: Phase DD10 R756~758 기능 체크 ────────────────
+console.log('\n## 163. Phase DD10 R756~758 기능 체크')
+// R756: ChatPanel 대화 분기
+const cp756Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp756Path)) {
+  const cp756 = readFileSync(cp756Path, 'utf-8')
+  if (cp756.includes('branchPoint') || cp756.includes('branches') || cp756.includes('chatBranch')) {
+    log('pass', 'R756', 'ChatPanel 대화 분기 존재')
+  } else {
+    log('warning', 'R756', 'ChatPanel 대화 분기 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R757: SceneViewPanel 씬 메모
+const svp757Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp757Path)) {
+  const svp757 = readFileSync(svp757Path, 'utf-8')
+  if (svp757.includes('sceneMemos') || svp757.includes('editingSceneMemo') || svp757.includes('scene-memos')) {
+    log('pass', 'R757', 'SceneViewPanel 씬 메모 존재')
+  } else {
+    log('warning', 'R757', 'SceneViewPanel 씬 메모 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R758: CocosPanel 씬 프리뷰 캐시
+const cp758Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp758Path)) {
+  const cp758 = readFileSync(cp758Path, 'utf-8')
+  if (cp758.includes('previewCache') || cp758.includes('previewLoading') || cp758.includes('scenePreview')) {
+    log('pass', 'R758', 'CocosPanel 씬 프리뷰 캐시 존재')
+  } else {
+    log('warning', 'R758', 'CocosPanel 프리뷰 캐시 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

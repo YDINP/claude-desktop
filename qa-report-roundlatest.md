@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:13:33.168Z
+> 2026-03-13T11:14:31.979Z
 
 ## Critical
 _없음_
@@ -637,3 +637,6 @@ _없음_
 - InputBar 멀티모달 입력 모드 존재
 - SessionList 세션 평점 존재
 - TerminalPanel 환경변수 뷰어 존재
+- ChatPanel 대화 분기 존재
+- SceneViewPanel 씬 메모 존재
+- CocosPanel 씬 프리뷰 캐시 존재

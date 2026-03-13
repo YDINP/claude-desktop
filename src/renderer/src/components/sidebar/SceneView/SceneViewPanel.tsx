@@ -184,6 +184,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 태그 (R752) ──────────────────────────────────────────────
   const [sceneTags, setSceneTags] = useState<Record<string, string[]>>(() => JSON.parse(localStorage.getItem('scene-tags') ?? '{}'))
   const [sceneTagInput, setSceneTagInput] = useState('')
+  // ── 씬 메모 (R757) ──────────────────────────────────────────────
+  const [sceneMemos, setSceneMemos] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('scene-memos') ?? '{}'))
+  const [editingSceneMemo, setEditingSceneMemo] = useState<string | null>(null)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)
