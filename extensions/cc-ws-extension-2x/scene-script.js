@@ -79,6 +79,7 @@ module.exports = {
     if (!canvas) { event.reply('Canvas component not found'); return; }
 
     const dr = canvas.designResolution;
+    if (!dr) { event.reply(null, { width: 960, height: 640 }); return; }
     event.reply(null, { width: dr.width, height: dr.height });
   },
 

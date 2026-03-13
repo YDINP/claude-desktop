@@ -79,25 +79,25 @@ class CCBridge {
   }
 
   async getCanvasSize(): Promise<{ width: number; height: number }> {
-    const resp = await fetch(`http://127.0.0.1:${this._port}/scene/canvas-size`)
+    const resp = await fetch(`http://127.0.0.1:${this._port}/scene/canvas-size`, { signal: AbortSignal.timeout(5000) })
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
     return resp.json()
   }
 
   async getTree() {
-    const resp = await fetch(`http://127.0.0.1:${this._port}/scene/tree`)
+    const resp = await fetch(`http://127.0.0.1:${this._port}/scene/tree`, { signal: AbortSignal.timeout(10000) })
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
     return resp.json()
   }
 
   async getAssets(): Promise<AssetTree> {
-    const resp = await fetch(`http://127.0.0.1:${this._port}/assets/tree`)
+    const resp = await fetch(`http://127.0.0.1:${this._port}/assets/tree`, { signal: AbortSignal.timeout(10000) })
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
     return resp.json()
   }
 
   async getNode(uuid: string) {
-    const resp = await fetch(`http://127.0.0.1:${this._port}/node/${uuid}`)
+    const resp = await fetch(`http://127.0.0.1:${this._port}/node/${uuid}`, { signal: AbortSignal.timeout(5000) })
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
     return resp.json()
   }

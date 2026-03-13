@@ -261,9 +261,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     uuids.forEach(uuid => {
       const orig = nodeMap.get(uuid)
       if (!orig) return
-      updateNode(orig.uuid + '-dup-' + Date.now(), {
+      const dupId = orig.uuid + '-dup-' + Date.now()
+      updateNode(dupId, {
         ...orig,
-        uuid: orig.uuid + '-dup-' + Date.now(),
+        uuid: dupId,
         name: orig.name + '_Copy',
         x: (orig.x ?? 0) + 20,
         y: (orig.y ?? 0) + 20,
