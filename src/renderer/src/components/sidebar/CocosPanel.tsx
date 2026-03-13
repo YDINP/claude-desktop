@@ -3126,6 +3126,8 @@ function CCFileBatchInspector({
   const [batchSizeW, setBatchSizeW] = useState<string>('')
   const [batchSizeH, setBatchSizeH] = useState<string>('')
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
+  // R1575: 색상 일괄 편집
+  const [batchColor, setBatchColor] = useState<string>('')
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -3156,7 +3158,13 @@ function CCFileBatchInspector({
     const scaleY = batchScaleY !== '' ? parseFloat(batchScaleY) : null
     const sizeW = batchSizeW !== '' ? parseFloat(batchSizeW) : null
     const sizeH = batchSizeH !== '' ? parseFloat(batchSizeH) : null
-    if (opacity == null && active == null && dx == null && dy == null && scaleX == null && scaleY == null && sizeW == null && sizeH == null) { setBatchMsg('변경 항목 없음'); return }
+    // R1575: 색상
+    let colorRgb: { r: number; g: number; b: number; a: number } | null = null
+    if (batchColor) {
+      const m = batchColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+      if (m) colorRgb = { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16), a: 255 }
+    }
+    if (opacity == null && active == null && dx == null && dy == null && scaleX == null && scaleY == null && sizeW == null && sizeH == null && !colorRgb) { setBatchMsg('변경 항목 없음'); return }
 
     function applyNode(n: CCSceneNode): CCSceneNode {
       if (uuidSet.has(n.uuid)) {
@@ -3175,6 +3183,7 @@ function CCFileBatchInspector({
           const sz = n.size as { x?: number; y?: number } | undefined
           updated = { ...updated, size: { x: sizeW ?? sz?.x ?? 0, y: sizeH ?? sz?.y ?? 0 } }
         }
+        if (colorRgb) updated = { ...updated, color: colorRgb }
         return { ...updated, children: n.children.map(applyNode) }
       }
       return { ...n, children: n.children.map(applyNode) }
@@ -3182,7 +3191,7 @@ function CCFileBatchInspector({
     const result = await saveScene(applyNode(sceneFile.root))
     setBatchMsg(result.success ? `✓ ${uuids.length}개 노드 적용` : `✗ ${result.error ?? '오류'}`)
     setTimeout(() => setBatchMsg(null), 2500)
-  }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, batchScaleX, batchScaleY, batchSizeW, batchSizeH, uuids.length, saveScene])
+  }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, batchScaleX, batchScaleY, batchSizeW, batchSizeH, batchColor, uuids.length, saveScene])
 
   return (
     <div style={{ padding: '8px 10px', fontSize: 11 }}>
@@ -3247,6 +3256,22 @@ function CCFileBatchInspector({
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
         <input type="number" placeholder="H" value={batchSizeH} onChange={e => setBatchSizeH(e.target.value)} min={0}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+      </div>
+      {/* R1575: 색상 일괄 설정 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>색상</span>
+        <input type="color"
+          value={batchColor || '#ffffff'}
+          onChange={e => setBatchColor(e.target.value)}
+          style={{ width: 28, height: 22, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+          title="모든 선택 노드 색상 일괄 변경"
+        />
+        <input type="text" placeholder="#rrggbb (비워두면 유지)"
+          value={batchColor}
+          onChange={e => setBatchColor(e.target.value)}
+          style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+        />
+        {batchColor && <button onClick={() => setBatchColor('')} style={{ fontSize: 9, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)' }}>✕</button>}
       </div>
       {/* 적용 버튼 */}
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
