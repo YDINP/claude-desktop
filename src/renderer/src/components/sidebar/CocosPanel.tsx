@@ -1089,6 +1089,7 @@ function CCFileNodeInspector({
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const [collapsedComps, setCollapsedComps] = useState<Set<number>>(new Set())
+  const [lockScale, setLockScale] = useState(false)
   const secHeader = (key: string, label: string) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
       style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
@@ -1350,9 +1351,24 @@ function CCFileNodeInspector({
             <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>크기</div>
             {numInput('W', draft.size.x, v => applyAndSave({ size: { ...draft.size, x: v } }))}
             {numInput('H', draft.size.y, v => applyAndSave({ size: { ...draft.size, y: v } }))}
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px' }}>스케일</div>
-            {numInput('X', draft.scale.x, v => applyAndSave({ scale: { ...draft.scale, x: v } }), 0.01)}
-            {numInput('Y', draft.scale.y, v => applyAndSave({ scale: { ...draft.scale, y: v } }), 0.01)}
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', display: 'flex', alignItems: 'center', gap: 4 }}>
+              스케일
+              <span
+                title={lockScale ? '비율 잠금 해제' : '비율 잠금'}
+                onClick={() => setLockScale(l => !l)}
+                style={{ cursor: 'pointer', fontSize: 9, color: lockScale ? '#58a6ff' : '#555' }}
+                onMouseEnter={e => (e.currentTarget.style.color = lockScale ? '#7fc6ff' : '#888')}
+                onMouseLeave={e => (e.currentTarget.style.color = lockScale ? '#58a6ff' : '#555')}
+              >{lockScale ? '🔒' : '🔓'}</span>
+            </div>
+            {numInput('X', draft.scale.x, v => {
+              const ratio = draft.scale.x !== 0 ? v / draft.scale.x : 1
+              applyAndSave({ scale: lockScale ? { x: v, y: draft.scale.y * ratio, z: draft.scale.z ?? 1 } : { ...draft.scale, x: v } })
+            }, 0.01)}
+            {numInput('Y', draft.scale.y, v => {
+              const ratio = draft.scale.y !== 0 ? v / draft.scale.y : 1
+              applyAndSave({ scale: lockScale ? { x: draft.scale.x * ratio, y: v, z: draft.scale.z ?? 1 } : { ...draft.scale, y: v } })
+            }, 0.01)}
           </div>
         </div>
       )}
