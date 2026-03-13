@@ -562,6 +562,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1514: 프리팹 인스턴스화
   const [prefabPickerOpen, setPrefabPickerOpen] = useState(false)
   const [insertingPrefab, setInsertingPrefab] = useState(false)
+  // R1516: 다중 선택 노드 공통 속성 배치 편집
+  const [multiSelectedUuids, setMultiSelectedUuids] = useState<string[]>([])
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -2367,6 +2369,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onLabelEdit={handleLabelEdit}
                 onAddNode={handleAddNode}
                 onAnchorMove={handleAnchorMove}
+                onMultiSelectChange={setMultiSelectedUuids}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }
                   const findNode = (n: CCSceneNode): CCSceneNode | null => {
@@ -2388,7 +2391,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               />
             )}
             {/* Inspector — 고정 높이 (sceneViewHeight 재사용) */}
-            {selectedNode && (
+            {/* R1516: 다중 선택 배치 편집 패널 */}
+            {multiSelectedUuids.length > 1 && sceneFile?.root && (
+              <div style={{ height: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+                <CCFileBatchInspector
+                  uuids={multiSelectedUuids}
+                  sceneFile={sceneFile}
+                  saveScene={saveScene}
+                  onSelectNode={onSelectNode}
+                />
+              </div>
+            )}
+            {multiSelectedUuids.length <= 1 && selectedNode && (
               <div style={{ height: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderTop: 'none' }}>
                 <CCFileNodeInspector
                   node={selectedNode}
@@ -2985,6 +2999,129 @@ function ScrubLabel({ label, value, onChange, step = 1, inputRef }: { label: str
       title={`드래그로 ${label} 조절 (Shift: 미세 조절)`}
       style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, cursor: 'ew-resize', userSelect: 'none' }}
     >{label}</span>
+  )
+}
+
+/** R1516: 다중 노드 공통 속성 배치 편집 패널 */
+function CCFileBatchInspector({
+  uuids, sceneFile, saveScene, onSelectNode,
+}: {
+  uuids: string[]
+  sceneFile: CCSceneFile
+  saveScene: (root: CCSceneNode) => Promise<{ success: boolean; error?: string }>
+  onSelectNode: (n: CCSceneNode | null) => void
+}) {
+  const [batchOpacity, setBatchOpacity] = useState<string>('')
+  const [batchActive, setBatchActive] = useState<'active' | 'inactive' | ''>('')
+  const [batchDx, setBatchDx] = useState<string>('')
+  const [batchDy, setBatchDy] = useState<string>('')
+  const [batchMsg, setBatchMsg] = useState<string | null>(null)
+
+  const uuidSet = useMemo(() => new Set(uuids), [uuids])
+
+  // 공통 opacity / active 값 감지
+  const commonValues = useMemo(() => {
+    if (!sceneFile.root) return null
+    const nodes: CCSceneNode[] = []
+    function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collect) }
+    collect(sceneFile.root)
+    if (nodes.length === 0) return null
+    const opacities = [...new Set(nodes.map(n => n.opacity))]
+    const actives = [...new Set(nodes.map(n => n.active))]
+    return {
+      opacity: opacities.length === 1 ? opacities[0] : null,
+      active: actives.length === 1 ? actives[0] : null,
+      count: nodes.length,
+    }
+  }, [sceneFile.root, uuidSet])
+
+  const applyBatch = useCallback(async () => {
+    if (!sceneFile.root) return
+    const opacity = batchOpacity !== '' ? Math.max(0, Math.min(255, parseInt(batchOpacity))) : null
+    const active = batchActive !== '' ? batchActive === 'active' : null
+    const dx = batchDx !== '' ? parseFloat(batchDx) : null
+    const dy = batchDy !== '' ? parseFloat(batchDy) : null
+    if (opacity == null && active == null && dx == null && dy == null) { setBatchMsg('변경 항목 없음'); return }
+
+    function applyNode(n: CCSceneNode): CCSceneNode {
+      if (uuidSet.has(n.uuid)) {
+        let updated = { ...n }
+        if (opacity != null) updated = { ...updated, opacity }
+        if (active != null) updated = { ...updated, active }
+        if (dx != null || dy != null) {
+          const pos = n.position as { x: number; y: number; z?: number }
+          updated = { ...updated, position: { ...pos, x: pos.x + (dx ?? 0), y: pos.y + (dy ?? 0) } }
+        }
+        return { ...updated, children: n.children.map(applyNode) }
+      }
+      return { ...n, children: n.children.map(applyNode) }
+    }
+    const result = await saveScene(applyNode(sceneFile.root))
+    setBatchMsg(result.success ? `✓ ${uuids.length}개 노드 적용` : `✗ ${result.error ?? '오류'}`)
+    setTimeout(() => setBatchMsg(null), 2500)
+  }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, uuids.length, saveScene])
+
+  return (
+    <div style={{ padding: '8px 10px', fontSize: 11 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#a78bfa', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span>⊕ {uuids.length}개 선택 — 일괄 편집</span>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 400 }}>
+          {commonValues?.opacity != null ? `opacity:${commonValues.opacity}` : ''}
+          {commonValues?.active != null ? ` ${commonValues.active ? '활성' : '비활성'}` : ''}
+        </span>
+      </div>
+      {/* Active 토글 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>Active</span>
+        {(['active', 'inactive', ''] as const).map(v => (
+          <button
+            key={v || 'none'}
+            onClick={() => setBatchActive(v)}
+            style={{
+              fontSize: 9, padding: '1px 6px', cursor: 'pointer', borderRadius: 3,
+              background: batchActive === v ? (v === 'active' ? 'rgba(74,222,128,0.25)' : v === 'inactive' ? 'rgba(248,81,73,0.2)' : 'rgba(255,255,255,0.1)') : 'transparent',
+              border: batchActive === v ? `1px solid ${v === 'active' ? '#4ade80' : v === 'inactive' ? '#f85149' : '#666'}` : '1px solid transparent',
+              color: v === 'active' ? '#4ade80' : v === 'inactive' ? '#f85149' : 'var(--text-muted)',
+            }}
+          >{v === '' ? '(변경 안 함)' : v === 'active' ? '활성화' : '비활성화'}</button>
+        ))}
+      </div>
+      {/* Opacity */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>Opacity</span>
+        <input
+          type="number" min={0} max={255} placeholder={commonValues?.opacity != null ? String(commonValues.opacity) : '혼합'}
+          value={batchOpacity}
+          onChange={e => setBatchOpacity(e.target.value)}
+          style={{ width: 56, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+        />
+        <input type="range" min={0} max={255}
+          value={batchOpacity !== '' ? parseInt(batchOpacity) || 0 : commonValues?.opacity ?? 255}
+          onChange={e => setBatchOpacity(e.target.value)}
+          style={{ flex: 1 }}
+        />
+      </div>
+      {/* Position delta */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>위치 ±</span>
+        <input type="number" placeholder="dX" value={batchDx} onChange={e => setBatchDx(e.target.value)}
+          style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+        <input type="number" placeholder="dY" value={batchDy} onChange={e => setBatchDy(e.target.value)}
+          style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+      </div>
+      {/* 적용 버튼 */}
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <button
+          onClick={applyBatch}
+          style={{ fontSize: 10, padding: '3px 12px', background: 'rgba(167,139,250,0.2)', border: '1px solid #a78bfa', borderRadius: 3, color: '#a78bfa', cursor: 'pointer' }}
+        >일괄 적용</button>
+        <button
+          onClick={() => onSelectNode(null)}
+          style={{ fontSize: 10, padding: '3px 8px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
+        >선택 해제</button>
+        {batchMsg && <span style={{ fontSize: 9, color: batchMsg.startsWith('✓') ? '#4ade80' : '#f85149' }}>{batchMsg}</span>}
+      </div>
+    </div>
   )
 }
 

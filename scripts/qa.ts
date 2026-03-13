@@ -16041,6 +16041,35 @@ if (existsSync(cp422)) {
   }
 }
 
+// ── Section 423: R1516 다중 노드 배치 편집 체크 ──────────────────────
+console.log('\n## 423. R1516 다중 노드 공통 속성 배치 편집 체크')
+const sv423 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp423 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv423) && existsSync(cp423)) {
+  const s423 = readFileSync(sv423, 'utf-8')
+  const c423 = readFileSync(cp423, 'utf-8')
+  if (s423.includes('onMultiSelectChange') && s423.includes('R1516')) {
+    log('pass', 'R1516-sv-prop', 'CCFileSceneView onMultiSelectChange prop + useEffect 구현')
+  } else {
+    log('warning', 'R1516-sv-prop', 'SceneView multiSelectChange prop 미구현', 'CCFileSceneView.tsx')
+  }
+  if (c423.includes('CCFileBatchInspector') && c423.includes('multiSelectedUuids')) {
+    log('pass', 'R1516-batch-inspector', 'CCFileBatchInspector 컴포넌트 + multiSelectedUuids 상태 구현')
+  } else {
+    log('warning', 'R1516-batch-inspector', 'BatchInspector 미구현', 'CocosPanel.tsx')
+  }
+  if (c423.includes('applyBatch') && c423.includes('일괄 적용')) {
+    log('pass', 'R1516-batch-apply', 'applyBatch — opacity/active/position delta 적용 구현')
+  } else {
+    log('warning', 'R1516-batch-apply', 'applyBatch 미구현', 'CocosPanel.tsx')
+  }
+  if (c423.includes('setMultiSelectedUuids') && c423.includes('onMultiSelectChange={setMultiSelectedUuids}')) {
+    log('pass', 'R1516-wire', 'CocosPanel ↔ SceneView multiSelectChange 연결')
+  } else {
+    log('warning', 'R1516-wire', 'multiSelectChange 연결 미완료', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

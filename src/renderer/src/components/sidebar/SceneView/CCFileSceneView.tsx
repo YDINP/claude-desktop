@@ -29,6 +29,8 @@ interface CCFileSceneViewProps {
   onAddNode?: (parentUuid: string | null, pos?: { x: number; y: number }) => void
   /** R1506: 앵커 포인트 드래그 편집 (0~1 범위) */
   onAnchorMove?: (uuid: string, ax: number, ay: number) => void
+  /** R1516: 다중 선택 변경 알림 */
+  onMultiSelectChange?: (uuids: string[]) => void
 }
 
 /**
@@ -36,7 +38,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -81,6 +83,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   multiSelectedRef.current = multiSelected
   const selBoxRef = useRef<{ startSvgX: number; startSvgY: number } | null>(null)
   const [selectionBox, setSelectionBox] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
+
+  // R1516: 다중 선택 변경 → 부모에 알림
+  useEffect(() => {
+    onMultiSelectChange?.(Array.from(multiSelected))
+  }, [multiSelected, onMultiSelectChange])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

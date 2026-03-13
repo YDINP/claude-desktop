@@ -20,11 +20,14 @@
 - [x] R1514: 프리팹 인스턴스화 — 계층 헤더 🧩 버튼, prefab picker dropdown, IPC 로드 + deepCopy + 삽입
 - [x] R1515: QA Section 422 (Pass 1411)
 
-## 다음 예정 (R1516+)
-- [ ] R1516: Inspector 씬 다중 노드 공통 속성 편집 강화 (multiSelectedUuids expose + batch edit)
-- [ ] R1517: SceneView 노드 순서 변경 (Ctrl+Up/Down siblings)
+- [x] R1516: 다중 노드 배치 편집 — CCFileBatchInspector (opacity/active/position delta), onMultiSelectChange prop
+- [x] R1517: QA Section 423 (Pass 1415)
+
+## 다음 예정 (R1518+)
+- [ ] R1518: SceneView 노드 순서 변경 (Ctrl+Up/Down siblings 재배치)
+- [ ] R1519: Inspector 씬 의존성 그래프 시각화 강화
 
 ## 빌드/QA
 - Build: ✅ 성공
-- Critical: 0, Warning: 5, Pass: 1411
+- Critical: 0, Warning: 5, Pass: 1415
 - Branch: dev
