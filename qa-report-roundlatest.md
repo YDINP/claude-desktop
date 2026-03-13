@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T19:14:30.961Z
+> 2026-03-13T19:18:19.650Z
 
 ## Critical
 _없음_
@@ -1393,3 +1393,6 @@ _없음_
 - SceneView Label 텍스트 인라인 편집 (더블클릭 foreignObject) 구현
 - Inspector 노드 경로 복사 버튼 (⎘) 구현
 - UITransform _contentSize/contentSize fallback 강화 구현
+- SceneView 우클릭 컨텍스트 메뉴 (복사/붙여넣기/삭제/AI 분석) 구현
+- Inspector Raw JSON 뷰 + 복사 버튼 구현
+- SceneView 미니맵 클릭 → 씬 좌표 pan 구현

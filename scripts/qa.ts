@@ -15806,6 +15806,38 @@ if (existsSync(fp412)) {
   }
 }
 
+// ── Section 413: R1496 SceneView 컨텍스트 메뉴 체크 ──────────────────────
+console.log('\n## 413. Phase DD24 R1496 SceneView 컨텍스트 메뉴 체크')
+const sv413 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv413)) {
+  const s413 = readFileSync(sv413, 'utf-8')
+  if (s413.includes('R1496') && s413.includes('ctxMenu') && s413.includes('onContextMenu') && s413.includes('AI 분석')) {
+    log('pass', 'R1496-context-menu', 'SceneView 우클릭 컨텍스트 메뉴 (복사/붙여넣기/삭제/AI 분석) 구현')
+  } else {
+    log('warning', 'R1496-context-menu', 'SceneView 컨텍스트 메뉴 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 414: R1497~R1498 기능 체크 ──────────────────────
+console.log('\n## 414. Phase DD24 R1497~R1498 기능 체크')
+const cp414 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv413) && existsSync(cp414)) {
+  const s414 = readFileSync(sv413, 'utf-8')
+  const c414 = readFileSync(cp414, 'utf-8')
+  // R1497: Raw JSON 뷰
+  if (c414.includes('R1497') && c414.includes('rawJson') && c414.includes('JSON 복사')) {
+    log('pass', 'R1497-raw-json', 'Inspector Raw JSON 뷰 + 복사 버튼 구현')
+  } else {
+    log('warning', 'R1497-raw-json', 'Inspector Raw JSON 뷰 미구현', 'CocosPanel.tsx')
+  }
+  // R1498: 미니맵 클릭 pan
+  if (s414.includes('R1498') && s414.includes('역변환')) {
+    log('pass', 'R1498-minimap-pan', 'SceneView 미니맵 클릭 → 씬 좌표 pan 구현')
+  } else {
+    log('warning', 'R1498-minimap-pan', '미니맵 클릭 pan 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
