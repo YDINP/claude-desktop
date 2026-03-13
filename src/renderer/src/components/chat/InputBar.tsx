@@ -313,6 +313,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showShortcutConfig, setShowShortcutConfig] = React.useState(false)
   const [autocompleteMode, setAutocompleteMode] = React.useState<'off' | 'basic' | 'ai'>('basic')
   const [showAutocompleteSettings, setShowAutocompleteSettings] = React.useState(false)
+  const [dragUpload, setDragUpload] = React.useState(false)
+  const [uploadQueue, setUploadQueue] = React.useState<string[]>([])
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

@@ -416,6 +416,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [wrapColumn, setWrapColumn] = React.useState(120)
   const [showLineNumbers, setShowLineNumbers] = React.useState(false)
   const [lineOffset, setLineOffset] = React.useState(0)
+  const [historySearch, setHistorySearch] = React.useState('')
+  const [showHistorySearch, setShowHistorySearch] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

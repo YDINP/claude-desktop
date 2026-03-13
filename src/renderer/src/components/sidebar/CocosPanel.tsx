@@ -198,6 +198,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showSceneTagEditor, setShowSceneTagEditor] = React.useState(false)
   const [assetVersion, setAssetVersion] = React.useState<Record<string, number>>({})
   const [showVersionHistory, setShowVersionHistory] = React.useState(false)
+  const [nodeAnnotations, setNodeAnnotations] = React.useState<Record<string, string>>({})
+  const [showAnnotationPanel, setShowAnnotationPanel] = React.useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
