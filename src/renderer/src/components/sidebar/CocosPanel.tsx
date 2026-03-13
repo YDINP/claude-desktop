@@ -3375,6 +3375,13 @@ function CCFileNodeInspector({
     } catch { /* silent */ }
   }
   // 편집 중인 로컬 상태 (노드 변경 시 초기화)
+  // R1633: 노드 선택 시 초기값 스냅샷 (변경 인디케이터용)
+  const origSnapUuidRef = useRef<string | null>(null)
+  const origSnapRef = useRef<CCSceneNode | null>(null)
+  if (origSnapUuidRef.current !== node.uuid) {
+    origSnapUuidRef.current = node.uuid
+    origSnapRef.current = JSON.parse(JSON.stringify(node))
+  }
   const [draft, setDraft] = useState<CCSceneNode>(() => ({ ...node }))
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
@@ -3435,11 +3442,13 @@ function CCFileNodeInspector({
   // R1508: Quick Edit CLI 상태 (Rules of Hooks: IIFE 밖 선언 필수)
   const [cliVal, setCliVal] = useState('')
   const [cliMsg, setCliMsg] = useState<string | null>(null)
-  const secHeader = (key: string, label: string) => (
+  const secHeader = (key: string, label: string, modified?: boolean) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
       style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
       <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{collapsed[key] ? '▸' : '▾'}</span>
       <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>{label}</span>
+      {/* R1633: 변경 인디케이터 */}
+      {modified && <span style={{ fontSize: 8, color: '#ff9944', lineHeight: 1 }} title="이 세션에서 변경됨">●</span>}
     </div>
   )
 
@@ -4504,7 +4513,17 @@ function CCFileNodeInspector({
           onBlur={e => (e.currentTarget.style.border = `1px solid ${nodeMemo ? '#554' : 'transparent'}`)}
         />
       </div>
-      {secHeader('transform', '위치 / 크기 / 회전')}
+      {secHeader('transform', '위치 / 크기 / 회전', (() => {
+        const os = origSnapRef.current
+        if (!os) return false
+        const curPos = draft.position as { x?: number; y?: number }
+        const osPos = os.position as { x?: number; y?: number }
+        return Math.abs((curPos?.x ?? 0) - (osPos?.x ?? 0)) > 0.05 ||
+          Math.abs((curPos?.y ?? 0) - (osPos?.y ?? 0)) > 0.05 ||
+          Math.abs((draft.size?.x ?? 0) - (os.size?.x ?? 0)) > 0.05 ||
+          Math.abs((draft.size?.y ?? 0) - (os.size?.y ?? 0)) > 0.05 ||
+          Math.abs((draft.opacity ?? 255) - (os.opacity ?? 255)) > 0.5
+      })())}
       {!collapsed['transform'] && (
         <>
         {/* R1617: 트랜스폼 복사/붙여넣기 버튼 */}

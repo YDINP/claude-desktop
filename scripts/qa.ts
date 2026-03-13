@@ -17514,6 +17514,18 @@ console.log('\n## 523. R1632 SceneView Shift+클릭 같은 이름 검색 체크'
   }
 }
 
+// ── Section 524: R1633 Inspector 트랜스폼 변경 인디케이터 ──────────────────
+console.log('\n## 524. R1633 Inspector 트랜스폼 변경 인디케이터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s524 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s524.includes('R1633') && s524.includes('origSnapRef') && s524.includes('origSnapUuidRef') && s524.includes('modified?')) {
+    log('pass', 'R1633-transform-indicator', 'Inspector 트랜스폼 변경 인디케이터')
+  } else {
+    log('warning', 'R1633-transform-indicator', 'Inspector 트랜스폼 변경 인디케이터 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
