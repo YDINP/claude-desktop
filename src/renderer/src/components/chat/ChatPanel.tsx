@@ -870,6 +870,17 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     chat.toggleReaction(messageId, emoji)
   }, [chat.toggleReaction])
 
+  const handleDeleteMessage = useCallback((messageId: string) => {
+    chat.deleteMessage(messageId)
+  }, [chat.deleteMessage])
+
+  const handleRetryMessage = useCallback((messageId: string) => {
+    if (chat.isStreaming || !project.currentPath || !onEditResend) return
+    const msg = chat.messages.find(m => m.id === messageId)
+    if (!msg || msg.role !== 'user') return
+    onEditResend(messageId, msg.text)
+  }, [chat.isStreaming, chat.messages, project.currentPath, onEditResend])
+
   const handleSummarize = useCallback(async () => {
     setSummaryOpen(true)
     setSummaryLoading(true)
@@ -1316,6 +1327,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                     onReaction={msg.role === 'assistant' ? (emoji) => handleReaction(msg.id, emoji) : undefined}
                     onImageClick={onImageClick}
                     onReplyTo={onReplyToMessage ? () => onReplyToMessage(msg.text) : undefined}
+                    onDelete={() => handleDeleteMessage(msg.id)}
+                    onRetry={msg.role === 'user' && !chat.isStreaming ? () => handleRetryMessage(msg.id) : undefined}
                   />
                 </div>
               )

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 544 완료 — Phase DD8 완료, QA Pass 458)
+> 마지막 업데이트: 2026-03-13 (Round 608 완료 — Phase DD9 진행 중, QA Pass 506)
 
 ## 개발 루프 실행 방식
 
@@ -648,6 +648,10 @@
 | Round 602 | 채팅 메시지 컨텍스트 메뉴 (복사/핀/북마크/재시도/삭제) | ✅ |
 | Round 603 | Inspector BoolToggle controlled 스위치 컴포넌트 | ✅ |
 | Round 604 | QA Section 120 추가 (R601/R602/R603, Pass 503) | ✅ |
+| Round 605 | CocosPanel 그룹 패널 탭 (CCFileProjectUI, 자식 노드 그룹, 이름 변경, 가시성 토글) | ✅ |
+| Round 606 | SessionList 다중 태그 필터 (filterCustomTags Set AND 필터, 태그 chip 삭제) | ✅ |
+| Round 607 | Inspector Enum 드롭다운 (overflow/horizontalAlign/verticalAlign/wrapMode) | ✅ |
+| Round 608 | QA Section 121 추가 (R605/R606/R607, Pass 506) | ✅ |
 
 ## QA 프로세스
 

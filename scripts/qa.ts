@@ -5782,6 +5782,41 @@ if (existsSync(cp603Path)) {
   }
 }
 
+// ── Section 121: Phase DD9 R605~607 기능 체크 ────────────────
+console.log('\n## 121. Phase DD9 R605~607 기능 체크')
+// R605: CocosPanel 그룹 패널 탭
+const cp605Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp605Path)) {
+  const cp605 = readFileSync(cp605Path, 'utf-8')
+  if (cp605.includes('CCFileProjectUI') && cp605.includes('children')) {
+    log('pass', 'R605', 'CocosPanel 그룹 패널 탭 존재')
+  } else {
+    log('warning', 'R605', 'CocosPanel 그룹 패널 탭 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R606: SessionList 다중 태그 필터
+const sl606Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl606Path)) {
+  const sl606 = readFileSync(sl606Path, 'utf-8')
+  if (sl606.includes('filterCustomTags')) {
+    log('pass', 'R606', 'SessionList 다중 태그 필터 존재')
+  } else {
+    log('warning', 'R606', 'SessionList 다중 태그 필터 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R607: Inspector Enum 드롭다운
+const cp607Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp607Path)) {
+  const cp607 = readFileSync(cp607Path, 'utf-8')
+  if (cp607.includes('horizontalAlign') && cp607.includes('wrapMode')) {
+    log('pass', 'R607', 'Inspector Enum 드롭다운 존재')
+  } else {
+    log('warning', 'R607', 'Inspector Enum 드롭다운 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -123,6 +123,10 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [customTagInput, setCustomTagInput] = useState('')
   const [showTagSuggest, setShowTagSuggest] = useState(false)
   const [filterCustomTag, setFilterCustomTag] = useState<string | null>(null)
+  const [filterCustomTags, setFilterCustomTags] = useState<Set<string>>(new Set())
+  const [inlineTagInput, setInlineTagInput] = useState<string | null>(null) // sessionId being tagged inline
+  const [inlineTagValue, setInlineTagValue] = useState('')
+  const inlineTagRef = useRef<HTMLInputElement>(null)
 
   const TAG_COLORS_KEY = 'session-tag-colors'
   const loadTagColors = (): Record<string, string> => {
@@ -285,6 +289,34 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     setShowTagSuggest(false)
   }, [sessions])
 
+  const handleRemoveTag = useCallback(async (sessionId: string, tag: string) => {
+    const session = sessions.find(s => s.id === sessionId)
+    if (!session) return
+    const newTags = (session.tags ?? []).filter(t => t !== tag)
+    await window.api.sessionTag(sessionId, newTags)
+    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, tags: newTags } : s))
+  }, [sessions])
+
+  const commitInlineTag = useCallback(async (sessionId: string) => {
+    const trimmed = inlineTagValue.trim().toLowerCase()
+    if (trimmed) {
+      await handleAddCustomTag(sessionId, trimmed)
+    }
+    setInlineTagInput(null)
+    setInlineTagValue('')
+  }, [inlineTagValue, handleAddCustomTag])
+
+  const toggleFilterCustomTag = useCallback((tag: string) => {
+    setFilterCustomTags(prev => {
+      const next = new Set(prev)
+      if (next.has(tag)) next.delete(tag)
+      else next.add(tag)
+      return next
+    })
+    // clear legacy single filter
+    setFilterCustomTag(null)
+  }, [])
+
   const openTagPicker = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -432,8 +464,11 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     if (filterCustomTag) {
       result = result.filter(s => s.tags?.includes(filterCustomTag))
     }
+    if (filterCustomTags.size > 0) {
+      result = result.filter(s => s.tags && Array.from(filterCustomTags).every(t => s.tags!.includes(t)))
+    }
     return result
-  }, [sessions, search, filterTag, filterCustomTag])
+  }, [sessions, search, filterTag, filterCustomTag, filterCustomTags])
 
   const ARCHIVE_DAYS = 30
 
@@ -636,10 +671,11 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
               )}
               {sessionCustomTags.map(t => {
                 const tagColor = tagColors[t]
+                const isFiltered = filterCustomTags.has(t) || filterCustomTag === t
                 return (
                   <span
                     key={t}
-                    onClick={e => { e.stopPropagation(); setFilterCustomTag(t) }}
+                    onClick={e => { e.stopPropagation(); toggleFilterCustomTag(t) }}
                     onContextMenu={e => {
                       e.preventDefault()
                       e.stopPropagation()
@@ -650,11 +686,22 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
                       background: tagColor ? `${tagColor}33` : 'rgba(82,139,255,0.15)',
                       color: tagColor ?? '#7ca0ff',
                       borderRadius: 8, padding: '0px 5px', fontSize: 9, cursor: 'pointer',
-                      border: tagColor ? `1px solid ${tagColor}66` : '1px solid rgba(82,139,255,0.3)',
+                      border: isFiltered
+                        ? `1px solid ${tagColor ?? '#7ca0ff'}`
+                        : tagColor ? `1px solid ${tagColor}66` : '1px solid rgba(82,139,255,0.3)',
                       flexShrink: 0,
+                      display: 'inline-flex', alignItems: 'center', gap: 2,
+                      outline: isFiltered ? `1px solid ${tagColor ?? '#7ca0ff'}44` : 'none',
                     }}
                   >
                     {t}
+                    <span
+                      onClick={e => { e.stopPropagation(); handleRemoveTag(s.id, t) }}
+                      style={{ fontSize: 8, lineHeight: 1, opacity: 0.7, cursor: 'pointer', marginLeft: 1 }}
+                      title="태그 삭제"
+                    >
+                      ✕
+                    </span>
                   </span>
                 )
               })}
@@ -900,6 +947,33 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           </div>
         </div>
       )}
+      {/* Inline tag input */}
+      {inlineTagInput === s.id && (
+        <div
+          style={{ padding: '4px 12px', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: 6 }}
+          onClick={e => e.stopPropagation()}
+        >
+          <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>🏷</span>
+          <input
+            ref={inlineTagRef}
+            autoFocus
+            value={inlineTagValue}
+            onChange={e => setInlineTagValue(e.target.value)}
+            onKeyDown={async e => {
+              e.stopPropagation()
+              if (e.key === 'Enter') { e.preventDefault(); await commitInlineTag(s.id) }
+              if (e.key === 'Escape') { setInlineTagInput(null); setInlineTagValue('') }
+            }}
+            onBlur={() => { setInlineTagInput(null); setInlineTagValue('') }}
+            placeholder="태그 입력 후 Enter..."
+            style={{
+              flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',
+              border: '1px solid var(--accent)', borderRadius: 3, padding: '2px 6px',
+              fontSize: 11, outline: 'none',
+            }}
+          />
+        </div>
+      )}
       {/* Fork children */}
       {depth < 10 && (forkMap.get(s.id) ?? []).map(child => renderSessionItem(child, depth + 1))}
       </div>
@@ -1017,6 +1091,33 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             onClick={() => setFilterCustomTag(null)}
           >
             #{filterCustomTag} ×
+          </span>
+        )}
+        {filterCustomTags.size > 0 && Array.from(filterCustomTags).map(t => {
+          const tagColor = tagColors[t]
+          return (
+            <span
+              key={t}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 3,
+                background: tagColor ? `${tagColor}33` : 'rgba(82,139,255,0.15)',
+                color: tagColor ?? '#7ca0ff',
+                borderRadius: 10, padding: '1px 8px', fontSize: 10,
+                border: tagColor ? `1px solid ${tagColor}66` : '1px solid rgba(82,139,255,0.3)',
+                cursor: 'pointer',
+              }}
+              onClick={() => toggleFilterCustomTag(t)}
+            >
+              #{t} ×
+            </span>
+          )
+        })}
+        {filterCustomTags.size > 0 && (
+          <span
+            style={{ fontSize: 10, color: 'var(--text-muted)', cursor: 'pointer', textDecoration: 'underline' }}
+            onClick={() => setFilterCustomTags(new Set())}
+          >
+            전체 해제
           </span>
         )}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -1148,7 +1249,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
       {/* Regular sessions grouped by time */}
       {groups.map(group => (
         <div key={group.label}>
-          {!search && !filterTag && !filterCustomTag && (
+          {!search && !filterTag && !filterCustomTag && filterCustomTags.size === 0 && (
             <div style={{
               fontSize: 9,
               color: 'var(--text-muted)',
@@ -1349,6 +1450,20 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
           >
             {'📄'} {'마크다운 내보내기'}
+          </div>
+          <div
+            onClick={() => {
+              const id = contextMenu.sessionId
+              setContextMenu(null)
+              setInlineTagInput(id)
+              setInlineTagValue('')
+              setTimeout(() => inlineTagRef.current?.focus(), 50)
+            }}
+            style={{ padding: '6px 12px', fontSize: 12, cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+          >
+            {'🏷'} {'태그 추가'}
           </div>
           <div
             onClick={async () => {

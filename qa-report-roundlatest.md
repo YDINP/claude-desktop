@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T08:54:57.100Z
+> 2026-03-13T09:56:45.278Z
 
 ## Critical
 _없음_
@@ -91,7 +91,7 @@ _없음_
 - NodeHierarchyList: collapsed 상태 + onToggleCollapse + isCollapsed 존재
 - NodeHierarchyList: ▸/▾ 토글 아이콘 존재
 - SceneViewPanel: cursorScenePos 상태 + svgToScene 연동 존재
-- SceneViewPanel: 씬 좌표 오버레이 + 드래그 중 숨김 존재
+- SceneViewPanel: 씬 좌표 오버레이 툴바 연동 존재
 - NodeRenderer: showLabel prop (기본 true) 존재
 - SceneToolbar: showLabels + onLabelsToggle + Aa 버튼 존재
 - SceneViewPanel: showLabels 상태 + NodeRenderer에 showLabel 전달 존재
@@ -107,7 +107,7 @@ _없음_
 - SceneInspector: toHex 헬퍼 + node.color.r/g/b 사용 존재
 - SceneInspector: Color 섹션 헤더 + alpha 변환 존재
 - SceneViewPanel: hoverTooltipPos 상태 + setter 존재
-- SceneViewPanel: 호버 툴팁 렌더링 조건 + 드래그 중 숨김 존재
+- SceneViewPanel: 호버 툴팁 딜레이 렌더링 존재
 - NodeHierarchyList: onToggleActive prop + 활성 인디케이터 dot 존재
 - SceneViewPanel: handleHierarchyToggleActive + NodeHierarchyList 연결 존재
 - NodeHierarchyList: 전체 펼치기 + 전체 접기 버튼 존재
@@ -177,8 +177,8 @@ _없음_
 - SceneInspector: ChildList 컴포넌트 + expanded state 존재
 - SceneInspector: 자식 목록 펼치기 버튼 존재
 - SceneViewPanel: 드래그/리사이즈 중 노드 정보 상태바 존재
-- SceneToolbar: bgLight + onBgToggle prop 존재
-- SceneViewPanel: bgLight state + 체크패턴 분기 존재
+- SceneToolbar: 배경색 토글 prop 존재
+- SceneViewPanel: 배경색 state 존재
 - SceneViewPanel: Alt+Up/Down 계층 탐색 존재
 - SceneInspector: Position 리셋 버튼 존재
 - SceneInspector: Rotation ⊙ 리셋 버튼 존재
@@ -372,7 +372,7 @@ _없음_
 - SceneViewPanel: 드래그 델타 오버레이 구현 존재
 - SceneViewPanel: 그룹 해제 (handleUngroup + Ctrl+Shift+G) 구현 존재
 - SceneViewPanel: Alt+1~9 빠른 색상 레이블 구현 존재
-- SceneViewPanel: 호버 툴팁 리치 정보 (pos/size/components) 구현 존재
+- SceneViewPanel: 호버 툴팁 리치 정보 (첫 컴포넌트, 딜레이) 존재
 - SceneViewPanel: H키 가시성 토글 단축키 구현 존재
 - SceneViewPanel: 컨텍스트 메뉴 확장 항목 구현 존재
 - SceneViewPanel: 멀티셀렉트 bounding box 줌 구현 존재
@@ -478,3 +478,39 @@ _없음_
 - 씬뷰 smooth zoom 애니메이션 존재
 - 세션 태그 색상 커스터마이즈 존재
 - Inspector 숫자 wheel 증감 존재
+- 씬뷰 룰러 툴바 버튼 존재
+- 채팅 파일 드래그&드롭 첨부 존재
+- SceneTree 노드 즐겨찾기 존재
+- Inspector 프로퍼티 검색 필터 존재
+- 채팅 메시지 이모지 반응 존재
+- 씬뷰 노드 잠금 기능 존재
+- 씬뷰 Cocos 좌표 툴바 표시 존재
+- 세션 JSON import/export 존재
+- Inspector 숫자 스크럽 드래그 존재
+- 씬뷰 노드 컬러 태깅 존재
+- 세션 AI 요약 기능 존재
+- Inspector cc.Color 피커 존재
+- Inspector opacity 슬라이더 존재
+- 단축키 도움말 모달 존재
+- 씬 트리 전체 펼치기/접기 존재
+- 씬뷰 Marquee 드래그 선택 존재
+- AI 타이핑 인디케이터 존재
+- Inspector Vec2/Vec3 컬러 레이블 존재
+- 씬뷰 노드 툴팁 300ms 딜레이 존재
+- 채팅 메시지 복사 버튼 ✓ 피드백 존재
+- 세션 통계 표시 존재
+- 씬뷰 Zoom to Fit 존재
+- 채팅 검색 하이라이트 (assistant 메시지) 존재
+- Inspector Transform 리셋 버튼 존재
+- 씬뷰 정렬 가이드라인 존재
+- 채팅 모델 선택기 개선 존재
+- Inspector prop 즐겨찾기 존재
+- 채팅 메시지 핀 고정 존재
+- Inspector 배열 prop 펼치기 존재
+- 씬뷰 배경색 커스터마이즈 존재
+- 씬뷰 측정 도구 소수점 표시 개선 존재
+- 채팅 메시지 컨텍스트 메뉴 존재
+- Inspector Boolean 토글 스위치 존재
+- CocosPanel 그룹 패널 탭 존재
+- SessionList 다중 태그 필터 존재
+- Inspector Enum 드롭다운 존재

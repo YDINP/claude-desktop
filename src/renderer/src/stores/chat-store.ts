@@ -208,6 +208,10 @@ export function useChatStore() {
     })
   }, [])
 
+  const deleteMessage = useCallback((messageId: string) => {
+    setMessages((prev) => prev.filter(m => m.id !== messageId))
+  }, [])
+
   const editMessage = useCallback((messageId: string, newText: string) => {
     setMessages((prev) =>
       prev.map(m => {
@@ -351,6 +355,7 @@ export function useChatStore() {
     finishStreaming,
     clearMessages,
     truncateAfter,
+    deleteMessage,
     editMessage,
     toggleBookmark,
     togglePin,

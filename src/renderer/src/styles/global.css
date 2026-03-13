@@ -72,6 +72,10 @@ code, pre {
 .tree-node-row:hover .fav-star { opacity: 0.5 !important; }
 .tree-node-row:hover .fav-star.is-fav { opacity: 1 !important; }
 
+/* 인스펙터 prop 행 hover시 즐겨찾기 별 표시 */
+.prop-row:hover .prop-fav { opacity: 0.5 !important; }
+.prop-row:hover .prop-fav.is-fav { opacity: 1 !important; }
+
 .splitter {
   background: var(--border);
   flex-shrink: 0;
