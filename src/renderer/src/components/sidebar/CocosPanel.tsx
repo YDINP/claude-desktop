@@ -399,11 +399,22 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
   const clipboardRef = useRef<CCSceneNode | null>(null)
+  const [recentFiles, setRecentFiles] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('cc-recent-files') ?? '[]') } catch { return [] }
+  })
+
+  const addRecent = useCallback((path: string) => {
+    setRecentFiles(prev => {
+      const next = [path, ...prev.filter(f => f !== path)].slice(0, 6)
+      localStorage.setItem('cc-recent-files', JSON.stringify(next))
+      return next
+    })
+  }, [])
 
   const handleSceneChange = useCallback(async (path: string) => {
     setSelectedScene(path)
-    if (path) await loadScene(path)
-  }, [loadScene])
+    if (path) { await loadScene(path); addRecent(path) }
+  }, [loadScene, addRecent])
 
   // 키보드 단축키: Ctrl+Z/Y, Delete, Ctrl+D, Arrow keys
   useEffect(() => {
@@ -660,7 +671,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         if (!file) return
         const filePath = (file as File & { path?: string }).path
         if (!filePath) return
-        if (/\.(fire|scene|prefab)$/i.test(filePath)) loadScene(filePath)
+        if (/\.(fire|scene|prefab)$/i.test(filePath)) { loadScene(filePath); addRecent(filePath) }
       }}
     >
       {/* 외부 파일 변경 감지 배너 */}
@@ -880,6 +891,27 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             • 에디터 미실행 상태에서도 씬 트리 조회 가능<br />
             • 저장 시 원본 파일 직접 수정 (자동 백업)
           </div>
+          {recentFiles.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>최근 파일</div>
+              {recentFiles.map(f => (
+                <div
+                  key={f}
+                  onClick={() => handleSceneChange(f)}
+                  title={f}
+                  style={{
+                    fontSize: 10, padding: '3px 6px', borderRadius: 3, cursor: 'pointer',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    color: 'var(--accent)', marginBottom: 2,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >
+                  {f.split(/[\\/]/).pop()}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
