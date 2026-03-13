@@ -1338,10 +1338,16 @@ function CCFileNodeInspector({
       {!collapsed['transform'] && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 10px' }}>
           <div>
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>위치</div>
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 4 }}>
+              위치
+              <span title="위치 리셋 (0,0)" onClick={() => applyAndSave({ position: { ...draft.position, x: 0, y: 0 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
+            </div>
             {numInput('X', draft.position.x, v => applyAndSave({ position: { ...draft.position, x: v } }))}
             {numInput('Y', draft.position.y, v => applyAndSave({ position: { ...draft.position, y: v } }))}
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px' }}>회전</div>
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', display: 'flex', alignItems: 'center', gap: 4 }}>
+              회전
+              <span title="회전 리셋 (0°)" onClick={() => applyAndSave({ rotation: typeof draft.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
+            </div>
             {numInput('Z°', rotation, v => {
               const r = typeof draft.rotation === 'number' ? v : { ...(draft.rotation as object), z: v } as CCSceneNode['rotation']
               applyAndSave({ rotation: r })
