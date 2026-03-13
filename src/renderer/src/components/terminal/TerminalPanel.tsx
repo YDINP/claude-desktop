@@ -169,6 +169,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [outputThrottle, setOutputThrottle] = useState(false)
   const [throttleInterval, setThrottleInterval] = useState(100)
 
+  // R919: terminal macros panel
+  const [terminalMacros, setTerminalMacros] = useState<Array<{ name: string; commands: string[] }>>([])
+  const [showMacroPanel, setShowMacroPanel] = useState(false)
+
   // R761: per-tab process info
   const [processInfo, setProcessInfo] = useState<Record<string, { pid: number; cpu: number; mem: number }>>({})
   const [showProcessInfo, setShowProcessInfo] = useState(false)

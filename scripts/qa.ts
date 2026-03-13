@@ -9154,6 +9154,41 @@ if (existsSync(cocp917Path)) {
   }
 }
 
+console.log('\n## 217. Phase DD10 R918~920 기능 체크')
+
+// R918: SceneViewPanel 카메라 FOV 컨트롤
+const svp918Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp918Path)) {
+  const svp918 = readFileSync(svp918Path, 'utf-8')
+  if (svp918.includes('cameraFov') || svp918.includes('showCameraControls') || svp918.includes('camFov')) {
+    log('pass', 'R918', 'SceneViewPanel 카메라 FOV 컨트롤 존재')
+  } else {
+    log('warning', 'R918', 'SceneViewPanel 카메라 FOV 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R919: TerminalPanel 터미널 매크로
+const tp919Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp919Path)) {
+  const tp919 = readFileSync(tp919Path, 'utf-8')
+  if (tp919.includes('terminalMacros') || tp919.includes('showMacroPanel') || tp919.includes('macroList')) {
+    log('pass', 'R919', 'TerminalPanel 터미널 매크로 존재')
+  } else {
+    log('warning', 'R919', 'TerminalPanel 터미널 매크로 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R920: SessionList 세션 중복 감지
+const sl920Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl920Path)) {
+  const sl920 = readFileSync(sl920Path, 'utf-8')
+  if (sl920.includes('duplicateSessions') || sl920.includes('showDuplicatePanel') || sl920.includes('dupeSessions')) {
+    log('pass', 'R920', 'SessionList 세션 중복 감지 존재')
+  } else {
+    log('warning', 'R920', 'SessionList 세션 중복 감지 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

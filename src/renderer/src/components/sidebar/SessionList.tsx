@@ -225,6 +225,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [heatmapData, setHeatmapData] = useState<Record<string, number>>({})
   const [sessionExportFormat, setSessionExportFormat] = useState<'json' | 'md' | 'txt'>('json')
   const [showSessionExport, setShowSessionExport] = useState(false)
+  const [duplicateSessions, setDuplicateSessions] = useState<string[][]>([])
+  const [showDuplicatePanel, setShowDuplicatePanel] = useState(false)
   const [readSessions, setReadSessions] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('read-sessions') ?? '[]')))
   const [searchHistory, setSearchHistory] = useState<string[]>(() => JSON.parse(localStorage.getItem('session-search-history') ?? '[]'))
   const [sessionSummaries, setSessionSummaries] = useState<Record<string, string>>({})
