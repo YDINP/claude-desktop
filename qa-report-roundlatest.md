@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:25:21.460Z
+> 2026-03-13T11:26:15.135Z
 
 ## Critical
 _없음_
@@ -676,3 +676,6 @@ _없음_
 - ChatPanel 시스템 프롬프트 편집기 존재
 - SceneViewPanel 노드 배치 그리드 존재
 - InputBar 프롬프트 체이닝 존재
+- ChatPanel 메시지 카테고리 존재
+- SessionList 세션 자동 정리 존재
+- CocosPanel 컴포넌트 프로파일러 존재

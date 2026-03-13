@@ -7719,6 +7719,41 @@ if (existsSync(ib794Path)) {
   }
 }
 
+// ── Section 176: Phase DD10 R795~797 기능 체크 ────────────────
+console.log('\n## 176. Phase DD10 R795~797 기능 체크')
+// R795: ChatPanel 메시지 카테고리
+const cp795Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp795Path)) {
+  const cp795 = readFileSync(cp795Path, 'utf-8')
+  if (cp795.includes('msgCategories') || cp795.includes('categoryFilter') || cp795.includes('msgCategory')) {
+    log('pass', 'R795', 'ChatPanel 메시지 카테고리 존재')
+  } else {
+    log('warning', 'R795', 'ChatPanel 메시지 카테고리 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R796: SessionList 세션 자동 정리
+const sl796Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl796Path)) {
+  const sl796 = readFileSync(sl796Path, 'utf-8')
+  if (sl796.includes('autoCleanupDays') || sl796.includes('showCleanupSettings') || sl796.includes('autoCleanup')) {
+    log('pass', 'R796', 'SessionList 세션 자동 정리 존재')
+  } else {
+    log('warning', 'R796', 'SessionList 자동 정리 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R797: CocosPanel 컴포넌트 프로파일러
+const cp797Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp797Path)) {
+  const cp797 = readFileSync(cp797Path, 'utf-8')
+  if (cp797.includes('profilerData') || cp797.includes('showProfiler') || cp797.includes('componentProfiler')) {
+    log('pass', 'R797', 'CocosPanel 컴포넌트 프로파일러 존재')
+  } else {
+    log('warning', 'R797', 'CocosPanel 프로파일러 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

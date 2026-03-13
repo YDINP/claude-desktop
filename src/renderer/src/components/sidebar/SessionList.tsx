@@ -218,6 +218,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [summaryLoading, setSummaryLoading] = useState<Set<string>>(new Set())
   const [exportHistory, setExportHistory] = useState<Array<{ sessionId: string; format: string; timestamp: number }>>([])
   const [showExportHistory, setShowExportHistory] = useState(false)
+  const [autoCleanupDays, setAutoCleanupDays] = useState<number | null>(null)
+  const [showCleanupSettings, setShowCleanupSettings] = useState(false)
   const [showSearchHistory, setShowSearchHistory] = useState(false)
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [ratingFilter, setRatingFilter] = useState<number | null>(null)
