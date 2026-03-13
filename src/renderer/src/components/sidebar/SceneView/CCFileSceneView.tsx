@@ -40,6 +40,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
+  const [showGrid, setShowGrid] = useState(true)
   // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
   const spriteCacheRef = useRef<Map<string, string>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
@@ -244,6 +245,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           CC {sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x'}
         </span>
         <button
+          onClick={() => setShowGrid(g => !g)}
+          title="그리드 표시 토글"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showGrid ? 'rgba(88,166,255,0.12)' : 'none', color: showGrid ? '#58a6ff' : 'var(--text-muted)' }}
+        >
+          ⊹
+        </button>
+        <button
           onClick={handleFit}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >
@@ -280,7 +288,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           <rect x={0} y={0} width={designW} height={designH}
             fill={bgColor} stroke="#555" strokeWidth={1 / view.zoom} />
           {/* 그리드 (100px 단위) */}
-          {view.zoom > 0.2 && (() => {
+          {showGrid && view.zoom > 0.2 && (() => {
             const step = 100
             const lines: React.ReactElement[] = []
             for (let x = step; x < designW; x += step) {
