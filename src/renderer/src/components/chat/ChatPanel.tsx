@@ -1127,6 +1127,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // R1236: chat export
   const [chatExportFormat, setChatExportFormat] = useState<'json' | 'md' | 'html' | 'pdf'>('md')
   const [showExportPanel, setShowExportPanel] = useState(false)
+  const [chatReactions, setChatReactions] = useState<Record<string, string[]>>({})
+  const [showReactionPicker, setShowReactionPicker] = useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

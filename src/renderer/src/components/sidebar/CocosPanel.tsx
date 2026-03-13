@@ -49,6 +49,8 @@ let transformClipboard: TransformSnapshot | null = null
 export function CocosPanel() {
   const fileProject = useCCFileProject()
   const [selectedNode, setSelectedNode] = useState<CCSceneNode | null>(null)
+  const [pluginList, setPluginList] = useState<string[]>([])
+  const [showPluginManager, setShowPluginManager] = useState(false)
   return (
     <CCFileProjectUI
       fileProject={fileProject}
