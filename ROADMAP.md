@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 456 완료 — S-1 Inspector 섹션 접기/펼치기)
+> 마지막 업데이트: 2026-03-13 (Round 457 완료 — T-1 Inspector maxHeight 확장 + 컴포넌트 섹션 토글)
 
 ## 완료된 라운드
 
@@ -48,6 +48,7 @@
 | Round 454 | dev | Phase Q-1: 씬 트리 컴포넌트 아이콘 — Sprite🖼/Label T/Button⊕/Canvas⊞ 등 타입별 아이콘, hover 전체 타입 표시 | ✅ |
 | Round 455 | dev | Phase R-1: Ctrl+S 씬 저장 단축키 — 기존 키보드 핸들러에 Ctrl+S 추가, handleSave 연결 | ✅ |
 | Round 456 | dev | Phase S-1: Inspector 섹션 접기/펼치기 — 위치/크기/회전, 앵커/불투명도, 색상 섹션별 ▸▾ 토글 | ✅ |
+| Round 457 | dev | Phase T-1: Inspector maxHeight 420 확장 + 컴포넌트(N) 섹션 토글 추가 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

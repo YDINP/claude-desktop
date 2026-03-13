@@ -1125,7 +1125,7 @@ function CCFileNodeInspector({
   return (
     <div style={{
       flexShrink: 0, borderTop: '1px solid var(--border)',
-      padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)', maxHeight: 280, overflowY: 'auto',
+      padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)', maxHeight: 420, overflowY: 'auto',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
         <input
@@ -1227,7 +1227,8 @@ function CCFileNodeInspector({
       )}
 
       {/* 컴포넌트 props */}
-      {draft.components.filter(c => {
+      {secHeader('comps', `컴포넌트 (${draft.components.length})`)}
+      {!collapsed['comps'] && draft.components.filter(c => {
         const skipTypes = ['cc.UITransform', 'cc.Canvas', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
         if (skipTypes.includes(c.type)) return false
         return Object.values(c.props).some(v => {
@@ -1348,6 +1349,7 @@ function CCFileNodeInspector({
 }
 
 /** 씬 트리 노드 이름 검색 + 선택 */
+
 function TreeSearch({ root, onSelect }: { root: CCSceneNode; onSelect: (n: CCSceneNode | null) => void }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<CCSceneNode[]>([])
