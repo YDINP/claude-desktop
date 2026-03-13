@@ -97,14 +97,10 @@ const appPath = join(ROOT, 'src/renderer/src/App.tsx')
 if (existsSync(sidebarPath)) {
   const sidebarContent = readFileSync(sidebarPath, 'utf-8')
   const appContent = existsSync(appPath) ? readFileSync(appPath, 'utf-8') : ''
-  // cocos 탭은 App.tsx 아이콘 탭에 등록될 수 있으므로 두 파일 모두 확인
-  const cocosInSidebar = (sidebarContent.match(/id: 'cocos'/g) ?? []).length
-  const cocosInApp = (appContent.match(/id: 'cocos'/g) ?? []).length
-  const totalCocos = cocosInSidebar + cocosInApp
-  if (totalCocos > 2) {
-    log('critical', 'Sidebar', `cocos 탭 중복 등록: ${totalCocos}회`, 'Sidebar.tsx/App.tsx')
-  } else if (totalCocos >= 1) {
-    log('pass', 'Sidebar', 'cocos 탭 정상 등록')
+  // CocosPanel이 App.tsx 메인 레이아웃에 직접 통합됨 (사이드바 탭 불필요)
+  const cocosInApp = appContent.includes('CocosPanel') && appContent.includes('ccLayout')
+  if (cocosInApp) {
+    log('pass', 'Sidebar', 'CocosPanel App 메인 레이아웃에 통합됨 (탭/나란히/창분리)')
   } else {
     log('warning', 'Sidebar', 'cocos 탭 미등록', 'Sidebar.tsx')
   }
