@@ -26,6 +26,8 @@ export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo):
       ? parseNode2x(raw, rootIdx)
       : parseNode3x(raw, rootIdx, buildUiTransformMap(raw))
 
+  if (!root) throw new Error(`루트 노드 파싱 실패 (depth 초과): ${scenePath}`)
+
   return { projectInfo, scenePath, root, _raw: raw }
 }
 
@@ -62,7 +64,8 @@ function detectVersionFromRaw(raw: RawEntry[]): '2x' | '3x' {
 
 // ── CC 2.x Parser ─────────────────────────────────────────────────────────────
 
-function parseNode2x(raw: RawEntry[], idx: number): CCSceneNode {
+function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | null {
+  if (depth > 100) return null
   const e = raw[idx]
 
   // _trs TypedArray → position/rotation/scale
@@ -89,7 +92,8 @@ function parseNode2x(raw: RawEntry[], idx: number): CCSceneNode {
   const children = childRefs
     .map(r => r.__id__)
     .filter(i => i > 0 && i < raw.length)
-    .map(i => parseNode2x(raw, i))
+    .map(i => parseNode2x(raw, i, depth + 1))
+    .filter((n): n is CCSceneNode => n !== null)
 
   return {
     uuid: (e._id as string | undefined) ?? `_idx${idx}`,
@@ -193,8 +197,10 @@ function buildUiTransformMap(
 function parseNode3x(
   raw: RawEntry[],
   idx: number,
-  uiMap: Map<number, { w: number; h: number; ax: number; ay: number }>
-): CCSceneNode {
+  uiMap: Map<number, { w: number; h: number; ax: number; ay: number }>,
+  depth = 0
+): CCSceneNode | null {
+  if (depth > 100) return null
   const e = raw[idx]
 
   // CC 3.x position/rotation/scale: _lpos/_lrot(euler)/_lscale
@@ -229,7 +235,8 @@ function parseNode3x(
   const children = childRefs
     .map(r => r.__id__)
     .filter(i => i > 0 && i < raw.length)
-    .map(i => parseNode3x(raw, i, uiMap))
+    .map(i => parseNode3x(raw, i, uiMap, depth + 1))
+    .filter((n): n is CCSceneNode => n !== null)
 
   return {
     uuid: (e._id as string | undefined) ?? `_idx${idx}`,

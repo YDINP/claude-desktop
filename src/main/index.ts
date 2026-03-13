@@ -1,5 +1,5 @@
 import { app, BrowserWindow, shell, protocol, globalShortcut, Tray, nativeImage, Menu, nativeTheme, ipcMain } from 'electron'
-import { join } from 'path'
+import { join, resolve } from 'path'
 import { readFile } from 'fs/promises'
 import { registerAllHandlers } from './ipc/router'
 import { AppConfig } from './store/app-config'
@@ -119,9 +119,13 @@ app.whenReady().then(() => {
       const url = new URL(request.url)
       const filePath = url.searchParams.get('path') ?? ''
       if (!filePath) return new Response(null, { status: 400 })
-      // Prevent path traversal: reject any path containing ".."
-      const normalized = filePath.replace(/\\/g, '/')
-      if (normalized.includes('..') || normalized.includes('%2e%2e') || normalized.includes('%2E%2E')) {
+      // Prevent path traversal: decode and resolve, then check against allowed base dirs
+      let decoded: string
+      try { decoded = decodeURIComponent(filePath) } catch { decoded = filePath }
+      const resolvedPath = resolve(decoded)
+      const allowedBases = [app.getPath('userData'), app.getPath('home')]
+      const isAllowed = allowedBases.some(base => resolvedPath.startsWith(resolve(base)))
+      if (!isAllowed) {
         return new Response(null, { status: 403 })
       }
       const data = await readFile(filePath)

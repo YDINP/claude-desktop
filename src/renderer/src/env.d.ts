@@ -53,5 +53,15 @@ interface Window {
     ccMoveNode: (uuid: string, x: number, y: number) => Promise<unknown>
     onCCEvent: (cb: (event: import('../../shared/ipc-schema').CCEvent) => void) => () => void
     onCCStatusChange: (cb: (status: { connected: boolean }) => void) => () => void
+    // Ollama
+    ollamaList: () => Promise<string[]>
+    ollamaSend: (payload: { model: string; messages: Array<{ role: string; content: string }> }) => void
+    ollamaInterrupt: () => void
+    // OpenAI
+    openaiSend?: (payload: { model: string; messages: { role: string; content: string }[] }) => void
+    openaiInterrupt?: () => void
+    // CC File-based editor
+    ccFileBuildUUIDMap?: (assetsDir: string) => Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>>
+    openCCEditorWindow?: () => Promise<void>
   }
 }

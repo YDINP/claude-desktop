@@ -266,7 +266,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const scy = Math.round(cy - (my - v.offsetY) / v.zoom)
       setMouseScenePos({ x: scx, y: scy })
     }
-  }, [isPanning, cx, cy])
+  }, [isPanning, cx, cy, snapSize])
 
   const handleMouseUp = useCallback(() => {
     if (rotateRef.current && rotateOverride) {

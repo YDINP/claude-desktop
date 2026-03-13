@@ -544,6 +544,9 @@ export function registerFsHandlers(_win: unknown) {
   ipcMain.handle('fs:delete', async (_, { filePath, isDir }: { filePath: string; isDir: boolean }) => {
     try {
       if (isDir) {
+        const normalized = path.resolve(filePath)
+        if (normalized.length < 10) throw new Error('unsafe path')
+        if (/^[A-Za-z]:[\\\/]?$/.test(normalized) || normalized === '/') throw new Error('unsafe path')
         await rm(filePath, { recursive: true, force: true })
       } else {
         await unlink(filePath)

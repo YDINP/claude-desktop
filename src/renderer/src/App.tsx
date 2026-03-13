@@ -751,26 +751,23 @@ function AppContent() {
   }
 
   const createOrSwitchWorkspace = (path: string, skipSave = false) => {
-    setWorkspaces(prev => {
-      const existing = prev.find(ws => ws.path === path)
-      if (existing) {
-        // Switch to existing workspace
-        if (!skipSave && activeWsId && activeWsId !== existing.id) {
-          saveCurrentSnapshot()
-        }
-        setActiveWsId(existing.id)
-        applySnapshot(existing.snapshot, path)
-        return prev
-      } else {
-        // Create new workspace
-        if (!skipSave && activeWsId) saveCurrentSnapshot()
-        const id = `ws-${Date.now()}`
-        const snap = { ...EMPTY_SNAPSHOT }
-        setActiveWsId(id)
-        applySnapshot(snap, path)
-        return [...prev, { id, path, snapshot: snap }]
+    const existing = workspaces.find(ws => ws.path === path)
+    if (existing) {
+      // Switch to existing workspace
+      if (!skipSave && activeWsId && activeWsId !== existing.id) {
+        saveCurrentSnapshot()
       }
-    })
+      setActiveWsId(existing.id)
+      applySnapshot(existing.snapshot, path)
+    } else {
+      // Create new workspace
+      if (!skipSave && activeWsId) saveCurrentSnapshot()
+      const id = `ws-${Date.now()}`
+      const snap = { ...EMPTY_SNAPSHOT }
+      setWorkspaces(prev => [...prev, { id, path, snapshot: snap }])
+      setActiveWsId(id)
+      applySnapshot(snap, path)
+    }
   }
 
   const handleOpenFolder = async () => {
@@ -789,15 +786,13 @@ function AppContent() {
   }
 
   const closeWorkspace = (id: string) => {
-    setWorkspaces(prev => {
-      const next = prev.filter(ws => ws.id !== id)
-      if (activeWsId === id && next.length > 0) {
-        const fallback = next[next.length - 1]
-        setActiveWsId(fallback.id)
-        applySnapshot(fallback.snapshot, fallback.path)
-      }
-      return next
-    })
+    const next = workspaces.filter(ws => ws.id !== id)
+    setWorkspaces(next)
+    if (activeWsId === id && next.length > 0) {
+      const fallback = next[next.length - 1]
+      setActiveWsId(fallback.id)
+      applySnapshot(fallback.snapshot, fallback.path)
+    }
   }
 
   // ── File tabs helpers ──

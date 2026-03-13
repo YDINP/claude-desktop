@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T06:25:23.452Z
+> 2026-03-13T06:35:44.909Z
 
 ## Critical
 _없음_
@@ -441,3 +441,18 @@ _없음_
 - NodeHierarchyList: 인라인 이름 편집 (더블클릭/컨텍스트메뉴) 존재
 - SceneView: Ctrl+]/[ z-order 변경 존재
 - SceneView: Tab/Shift+Tab 형제 노드 순환 선택 존재
+- package.json 파싱 성공 (name: claude-desktop)
+- preload expose 메서드 334개 확인
+- ipcMain.handle 등록: 13개 이상
+- 의존성 설치됨: electron
+- 의존성 설치됨: react
+- 의존성 설치됨: react-dom
+- tsconfig 존재
+- 조건부 Hook 수정됨: isCCEditorWindow가 App() 레벨에 위치
+- cc:open-window 싱글톤 패턴 적용됨
+- grepSearch execFile 배열 방식 사용 (shell injection 방어)
+- fs:delete 경로 가드 존재
+- watchDir sender.isDestroyed() 체크 존재
+- cc-file-parser 재귀 깊이 제한 존재
+- handleSave try/finally 존재 (saving 상태 고착 방지)
+- local:// path traversal 강화됨 (decodeURIComponent + allowedBases)

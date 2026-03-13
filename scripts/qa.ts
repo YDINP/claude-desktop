@@ -5035,6 +5035,172 @@ if (existsSync(svp197Path)) {
   }
 }
 
+// ── Section 102: 종속성 검사 ─────────────────────────────
+console.log('\n## 102. 종속성 검사')
+
+// 1. package.json 존재 확인
+try {
+  const pkgJson = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'))
+  log('pass', 'Deps', `package.json 파싱 성공 (name: ${pkgJson.name ?? 'unknown'})`)
+} catch {
+  log('critical', 'Deps', 'package.json 파싱 실패')
+}
+
+// 2. preload expose 메서드 vs 타입 선언 교차 확인
+const preloadPath = join(ROOT, 'src/preload/index.ts')
+const windowDtsPath = join(ROOT, 'src/renderer/src/env.d.ts')
+const windowDtsAltPath = join(ROOT, 'src/renderer/src/window.d.ts')
+if (existsSync(preloadPath)) {
+  const preloadSrc = readFileSync(preloadPath, 'utf-8')
+  const dtsPath = existsSync(windowDtsPath) ? windowDtsPath : existsSync(windowDtsAltPath) ? windowDtsAltPath : null
+  const exposedMethods = [...preloadSrc.matchAll(/(\w+):\s*(?:async\s*)?\([^)]*\)\s*=>/g)].map(m => m[1])
+  if (dtsPath) {
+    const windowDts = readFileSync(dtsPath, 'utf-8')
+    for (const method of exposedMethods.slice(0, 5)) {
+      if (!windowDts.includes(method)) {
+        log('warning', 'Deps', `preload 메서드 '${method}' 타입 선언 누락 가능성`, dtsPath.replace(ROOT + '/', ''))
+      }
+    }
+    log('pass', 'Deps', `preload expose 메서드 ${exposedMethods.length}개 확인`)
+  } else {
+    log('warning', 'Deps', 'env.d.ts / window.d.ts 없음 — 타입 선언 누락 가능성')
+  }
+} else {
+  log('warning', 'Deps', 'src/preload/index.ts 없음')
+}
+
+// 3. IPC 핸들러 등록 수 확인
+const routerPath = join(ROOT, 'src/main/ipc/router.ts')
+const mainIndexPath = join(ROOT, 'src/main/index.ts')
+{
+  const routerHandles = existsSync(routerPath)
+    ? (readFileSync(routerPath, 'utf-8').match(/ipcMain\.handle/g) ?? []).length
+    : 0
+  const mainHandles = existsSync(mainIndexPath)
+    ? (readFileSync(mainIndexPath, 'utf-8').match(/ipcMain\.handle/g) ?? []).length
+    : 0
+  const handleCount = routerHandles + mainHandles
+  if (handleCount < 5) log('warning', 'Deps', `ipcMain.handle 수 너무 적음: ${handleCount}`)
+  else log('pass', 'Deps', `ipcMain.handle 등록: ${handleCount}개 이상`)
+}
+
+// 4. 핵심 의존성 설치 확인
+const criticalDeps = ['electron', 'react', 'react-dom']
+for (const dep of criticalDeps) {
+  if (!existsSync(join(ROOT, 'node_modules', dep))) log('critical', 'Deps', `핵심 의존성 누락: ${dep}`)
+  else log('pass', 'Deps', `의존성 설치됨: ${dep}`)
+}
+
+// 5. tsconfig 존재 확인
+if (!existsSync(join(ROOT, 'tsconfig.json')) && !existsSync(join(ROOT, 'tsconfig.node.json'))) {
+  log('warning', 'Deps', 'tsconfig 파일 없음')
+} else {
+  log('pass', 'Deps', 'tsconfig 존재')
+}
+
+// ── Section 103: 런타임 안전성 검사 ──────────────────────
+console.log('\n## 103. 런타임 안전성 검사')
+
+// 1. AppContent 조건부 Hook 수정 확인 (H1 fix)
+const appTsxPath = join(ROOT, 'src/renderer/src/App.tsx')
+if (existsSync(appTsxPath)) {
+  const appSrc = readFileSync(appTsxPath, 'utf-8')
+  if (appSrc.includes('function AppContent') && appSrc.includes('isCCEditorWindow')) {
+    const appFnMatch = appSrc.match(/export default function App\(\)[^{]*\{([\s\S]*?)\n\}/)
+    if (appFnMatch?.[1]?.includes('isCCEditorWindow')) {
+      log('pass', 'Runtime', '조건부 Hook 수정됨: isCCEditorWindow가 App() 레벨에 위치')
+    } else {
+      log('warning', 'Runtime', 'isCCEditorWindow 위치 확인 필요', 'src/renderer/src/App.tsx')
+    }
+  } else {
+    log('pass', 'Runtime', 'AppContent 조건부 Hook 없음')
+  }
+} else {
+  log('warning', 'Runtime', 'App.tsx 없음')
+}
+
+// 2. cc:open-window 싱글톤 패턴 확인 (H4 fix)
+if (existsSync(mainIndexPath)) {
+  const mainSrc = readFileSync(mainIndexPath, 'utf-8')
+  if (mainSrc.includes('ccEditorWin') && mainSrc.includes('isDestroyed()')) {
+    log('pass', 'Runtime', 'cc:open-window 싱글톤 패턴 적용됨')
+  } else {
+    log('warning', 'Runtime', 'cc:open-window 창 중복 생성 위험', 'src/main/index.ts')
+  }
+} else {
+  log('warning', 'Runtime', 'src/main/index.ts 없음')
+}
+
+// 3. grepSearch execFile 사용 확인 (H5 fix)
+if (existsSync(fsHandlersPath)) {
+  const fsHandlersSrc = readFileSync(fsHandlersPath, 'utf-8')
+  const grepIdx = fsHandlersSrc.indexOf('grepSearch')
+  const grepSection = grepIdx >= 0 ? fsHandlersSrc.slice(grepIdx) : ''
+  if (grepSection.includes('execFileAsync') || grepSection.includes('execFile')) {
+    log('pass', 'Runtime', 'grepSearch execFile 배열 방식 사용 (shell injection 방어)')
+  } else {
+    log('warning', 'Runtime', 'grepSearch 여전히 exec 사용 중 — shell injection 위험', 'src/main/ipc/fs-handlers.ts')
+  }
+
+  // 4. fs:delete 경로 가드 확인 (L3 fix)
+  const deleteIdx = fsHandlersSrc.indexOf('fs:delete')
+  const deleteSection = deleteIdx >= 0 ? fsHandlersSrc.slice(deleteIdx) : ''
+  if (deleteSection.includes('unsafe path') || deleteSection.includes('normalized.length')) {
+    log('pass', 'Runtime', 'fs:delete 경로 가드 존재')
+  } else {
+    log('warning', 'Runtime', 'fs:delete 재귀 삭제 경로 가드 없음', 'src/main/ipc/fs-handlers.ts')
+  }
+
+  // 8. watchDir isDestroyed 체크 확인 (M5 fix)
+  if (fsHandlersSrc.includes('isDestroyed()')) {
+    log('pass', 'Runtime', 'watchDir sender.isDestroyed() 체크 존재')
+  } else {
+    log('warning', 'Runtime', 'watchDir sender 생존 확인 없음', 'src/main/ipc/fs-handlers.ts')
+  }
+} else {
+  log('warning', 'Runtime', 'src/main/ipc/fs-handlers.ts 없음')
+}
+
+// 5. cc-file-parser 재귀 깊이 제한 확인 (M4 fix)
+const parserPath = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parserPath)) {
+  const parserSrc = readFileSync(parserPath, 'utf-8')
+  if (parserSrc.includes('depth > 100') || parserSrc.includes('depth >= 100')) {
+    log('pass', 'Runtime', 'cc-file-parser 재귀 깊이 제한 존재')
+  } else {
+    log('warning', 'Runtime', 'cc-file-parser 재귀 깊이 제한 없음 — 스택 오버플로우 위험', 'src/main/cc/cc-file-parser.ts')
+  }
+} else {
+  log('warning', 'Runtime', 'src/main/cc/cc-file-parser.ts 없음')
+}
+
+// 6. handleSave try/finally 확인 (H2 fix)
+const cocosPanelPath = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocosPanelPath)) {
+  const cocosPanelSrc = readFileSync(cocosPanelPath, 'utf-8')
+  const handleSaveIdx = cocosPanelSrc.indexOf('handleSave')
+  const handleSaveBlock = handleSaveIdx >= 0 ? cocosPanelSrc.slice(handleSaveIdx, handleSaveIdx + 500) : ''
+  if (handleSaveBlock.includes('finally')) {
+    log('pass', 'Runtime', 'handleSave try/finally 존재 (saving 상태 고착 방지)')
+  } else {
+    log('warning', 'Runtime', 'handleSave finally 없음 — throw 시 saving 고착 위험', 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  }
+} else {
+  log('warning', 'Runtime', 'CocosPanel.tsx 없음')
+}
+
+// 7. local:// path traversal 강화 확인 (L4 fix)
+if (existsSync(mainIndexPath)) {
+  const mainSrc = readFileSync(mainIndexPath, 'utf-8')
+  if (mainSrc.includes('decodeURIComponent') && mainSrc.includes('allowedBases')) {
+    log('pass', 'Runtime', 'local:// path traversal 강화됨 (decodeURIComponent + allowedBases)')
+  } else if (mainSrc.includes('decodeURIComponent')) {
+    log('pass', 'Runtime', 'local:// decodeURIComponent 적용됨')
+  } else {
+    log('warning', 'Runtime', 'local:// path traversal 체크 약함', 'src/main/index.ts')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

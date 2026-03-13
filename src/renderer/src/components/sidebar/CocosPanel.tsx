@@ -100,8 +100,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       }
       return { ...n, children: n.children.map(insertAfter) }
     }
-    const result = await saveScene(insertAfter(sceneFile.root))
-    if (!result.success) raw.pop()
+    try {
+      const result = await saveScene(insertAfter(sceneFile.root))
+      if (!result.success) raw.pop()
+    } catch {
+      raw.pop()
+    }
   }, [sceneFile, saveScene])
 
   const handleSave = useCallback(async () => {
@@ -160,8 +164,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           if (n.uuid === parentUuid) return { ...n, children: [...n.children, pasteNode] }
           return { ...n, children: n.children.map(addToParent) }
         }
-        const result = await saveScene(addToParent(sceneFile.root))
-        if (!result.success && raw) raw.pop()
+        try {
+          const result = await saveScene(addToParent(sceneFile.root))
+          if (!result.success && raw) raw.pop()
+        } catch {
+          if (raw) raw.pop()
+        }
         return
       }
 
@@ -313,8 +321,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (n.uuid === parentUuid) return { ...n, children: [...n.children, newNode] }
       return { ...n, children: n.children.map(addChild) }
     }
-    const result = await saveScene(addChild(sceneFile.root))
-    if (!result.success) raw.pop()
+    try {
+      const result = await saveScene(addChild(sceneFile.root))
+      if (!result.success) raw.pop()
+    } catch {
+      raw.pop()
+    }
   }, [sceneFile, saveScene])
 
   const handleTreeToggleActive = useCallback(async (nodeUuid: string) => {
@@ -885,10 +897,16 @@ function CCFileNodeInspector({
     }
 
     setSaving(true)
-    const result = await saveScene(addChild(sceneFile.root))
-    setSaving(false)
-    if (result.success) onUpdate(newNode)
-    else { raw.pop(); setMsg({ ok: false, text: result.error ?? '추가 실패' }) }
+    try {
+      const result = await saveScene(addChild(sceneFile.root))
+      if (result.success) onUpdate(newNode)
+      else { raw.pop(); setMsg({ ok: false, text: result.error ?? '추가 실패' }) }
+    } catch {
+      raw.pop()
+      setMsg({ ok: false, text: '추가 실패' })
+    } finally {
+      setSaving(false)
+    }
   }, [node.uuid, sceneFile, saveScene, onUpdate])
 
   // 노드 삭제 (루트 보호)
@@ -919,10 +937,16 @@ function CCFileNodeInspector({
       return { ...n, children: n.children.map(insertAfter) }
     }
     setSaving(true)
-    const result = await saveScene(insertAfter(sceneFile.root))
-    setSaving(false)
-    if (result.success) onUpdate(dupNode)
-    else { raw.pop(); setMsg({ ok: false, text: result.error ?? '복제 실패' }) }
+    try {
+      const result = await saveScene(insertAfter(sceneFile.root))
+      if (result.success) onUpdate(dupNode)
+      else { raw.pop(); setMsg({ ok: false, text: result.error ?? '복제 실패' }) }
+    } catch {
+      raw.pop()
+      setMsg({ ok: false, text: '복제 실패' })
+    } finally {
+      setSaving(false)
+    }
   }, [node, sceneFile, saveScene, onUpdate])
 
   // 노드 교체 시 draft + 컴포넌트 접힘 상태 초기화
