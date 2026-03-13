@@ -174,6 +174,70 @@ function CompEditRow({ label, value, onSave }: {
   )
 }
 
+function ArrayPropRow({ label, value, onSave }: {
+  label: string
+  value: unknown[]
+  onSave: (arr: unknown[]) => void
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const isPrimitive = value.every(v => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
+
+  return (
+    <div style={{ padding: '1px 0', fontSize: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 72 }}>{label}</span>
+        <span
+          style={{ color: 'var(--accent)', cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => setExpanded(e => !e)}
+        >
+          {expanded ? '▾' : '▸'} [{value.length} items]
+        </span>
+        {isPrimitive && (
+          <button
+            onClick={() => onSave([...value, typeof value[0] === 'number' ? 0 : ''])}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--success)', fontSize: 11, padding: '0 2px' }}
+            title="항목 추가"
+          >+</button>
+        )}
+      </div>
+      {expanded && (
+        <div style={{ paddingLeft: 80, paddingTop: 2 }}>
+          {value.map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+              <span style={{ color: 'var(--text-muted)', minWidth: 20, fontSize: 10 }}>[{i}]</span>
+              {isPrimitive ? (
+                <input
+                  defaultValue={String(item ?? '')}
+                  onBlur={e => {
+                    const arr = [...value]
+                    arr[i] = typeof item === 'number' ? parseFloat(e.target.value) : e.target.value
+                    onSave(arr)
+                  }}
+                  style={{
+                    flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',
+                    border: '1px solid var(--border)', borderRadius: 3, padding: '1px 4px', fontSize: 10,
+                  }}
+                />
+              ) : (
+                <span style={{ color: 'var(--text-primary)', fontSize: 10 }}>
+                  {typeof item === 'object' ? JSON.stringify(item).slice(0, 40) : String(item)}
+                </span>
+              )}
+              {isPrimitive && (
+                <button
+                  onClick={() => onSave(value.filter((_, j) => j !== i))}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--error)', fontSize: 11, padding: '0 2px' }}
+                  title="항목 삭제"
+                >×</button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ComponentSection({ type, props, open, onToggle, onSaveProp, onSaveCompProp }: {
   type: string
   props?: Record<string, unknown>
@@ -212,6 +276,12 @@ function ComponentSection({ type, props, open, onToggle, onSaveProp, onSaveCompP
               return (
                 <CompEditRow key={k} label={k} value={raw}
                   onSave={val => onSaveCompProp!(type, k, val)} />
+              )
+            }
+            if (Array.isArray(raw) && onSaveCompProp) {
+              return (
+                <ArrayPropRow key={k} label={k} value={raw}
+                  onSave={arr => onSaveCompProp!(type, k, arr)} />
               )
             }
             const hint = getTypeHint(raw)
