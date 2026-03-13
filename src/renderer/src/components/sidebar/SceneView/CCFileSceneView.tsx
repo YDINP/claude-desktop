@@ -378,6 +378,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           const hPairs: [number,number][] = [[dTop,fTop],[dTop,fCY],[dTop,fBot],[dCY,fTop],[dCY,fCY],[dCY,fBot],[dBot,fTop],[dBot,fCY],[dBot,fBot]]
           for (const [dp, fp] of hPairs) { if (Math.abs(dp - fp) < ALIGN_SNAP_THRESHOLD) guides.push({ type: 'H', pos: fp }) }
         }
+        // R1634: 캔버스 경계 정렬 가이드 (좌/중/우, 상/중/하)
+        for (const svgX of [0, cx, effectiveW]) {
+          if ([dLeft, dCX, dRight].some(dp => Math.abs(dp - svgX) < ALIGN_SNAP_THRESHOLD)) guides.push({ type: 'V', pos: svgX })
+        }
+        for (const svgY of [0, cy, effectiveH]) {
+          if ([dTop, dCY, dBot].some(dp => Math.abs(dp - svgY) < ALIGN_SNAP_THRESHOLD)) guides.push({ type: 'H', pos: svgY })
+        }
         setAlignGuides(guides)
       }
       return

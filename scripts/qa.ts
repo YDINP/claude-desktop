@@ -17526,6 +17526,18 @@ console.log('\n## 524. R1633 Inspector 트랜스폼 변경 인디케이터 체�
   }
 }
 
+// ── Section 525: R1634 SceneView 캔버스 경계 정렬 가이드 ──────────────────
+console.log('\n## 525. R1634 SceneView 캔버스 경계 정렬 가이드 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s525 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s525.includes('R1634') && s525.includes('캔버스 경계 정렬 가이드') && s525.includes('[0, cx, effectiveW]') && s525.includes('[0, cy, effectiveH]')) {
+    log('pass', 'R1634-canvas-guides', 'SceneView 캔버스 경계 정렬 가이드')
+  } else {
+    log('warning', 'R1634-canvas-guides', 'SceneView 캔버스 경계 정렬 가이드 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
