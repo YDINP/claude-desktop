@@ -1,5 +1,11 @@
 # Changelog — Claude Desktop
 
+## [Round 410] — 2026-03-13
+### Fixed
+- AssetBrowserPanel: copyPath 클립보드 확인 로직 `.then()` 패턴으로 수정 (즉시 상태변경 → 확인 후)
+### Added
+- AssetBrowserPanel: ESC 키로 검색어 + 타입 필터 동시 초기화
+
 ## [Round 409] — 2026-03-13
 ### Added
 - SnippetPanel: 스니펫 복제 버튼(⧉) — 이름에 "(복사)" 접미사 추가 후 저장, 토스트 알림

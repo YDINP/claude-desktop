@@ -85,9 +85,10 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
   }
 
   const copyPath = (path: string) => {
-    navigator.clipboard.writeText(`db://assets/${path}`).catch(() => {})
-    setCopied(path)
-    setTimeout(() => setCopied(null), 1500)
+    navigator.clipboard.writeText(`db://assets/${path}`).then(() => {
+      setCopied(path)
+      setTimeout(() => setCopied(p => p === path ? null : p), 1500)
+    }).catch(() => {})
   }
 
   // Flatten tree for search
@@ -165,6 +166,7 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Escape') { setSearch(''); setTypeFilter(null) } }}
           placeholder="에셋 검색..."
           style={{
             width: '100%', boxSizing: 'border-box',

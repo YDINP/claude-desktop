@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 409 완료 — SnippetPanel 복제+ESC, Pass 429)
+> 마지막 업데이트: 2026-03-13 (Round 410 완료 — AssetBrowserPanel ESC+copyPath 개선, Pass 430)
 
 ## 완료된 라운드
 

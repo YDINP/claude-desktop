@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 312: R410 신규 기능 ───────────────────────────────
+console.log('\n## 312. 신규 기능 파일 검사 (R410)')
+// AssetBrowserPanel ESC + copyPath .then() (Round 410)
+const ab410Path = join(ROOT, 'src/renderer/src/components/sidebar/AssetBrowserPanel.tsx')
+if (existsSync(ab410Path)) {
+  const ab410 = readFileSync(ab410Path, 'utf-8')
+  if (ab410.includes("'Escape'") && ab410.includes('setTypeFilter(null)') && ab410.includes('.then(')) {
+    log('pass', 'Round410', 'AssetBrowserPanel: ESC 검색+타입필터 초기화 + copyPath .then() 개선 존재')
+  } else {
+    log('warning', 'Round410', 'AssetBrowserPanel ESC 또는 copyPath 개선 미구현', 'sidebar/AssetBrowserPanel.tsx')
+  }
+}
+
 // ── Section 311: R409 신규 기능 ───────────────────────────────
 console.log('\n## 311. 신규 기능 파일 검사 (R409)')
 // SnippetPanel ESC + 복제 기능 (Round 409)
