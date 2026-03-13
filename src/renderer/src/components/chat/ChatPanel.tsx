@@ -810,6 +810,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [bulkSelectMode, setBulkSelectMode] = useState(false)
   const [encryptedMsgs, setEncryptedMsgs] = useState<Set<string>>(new Set())
   const [showEncryptionInfo, setShowEncryptionInfo] = useState(false)
+  const [scheduledMsgs, setScheduledMsgs] = useState<Array<{ text: string; sendAt: number }>>([])
+  const [showScheduler, setShowScheduler] = useState(false)
   const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set())
   const [showCopyMenu, setShowCopyMenu] = useState<string | null>(null)
   const [showChatStats, setShowChatStats] = useState(false)

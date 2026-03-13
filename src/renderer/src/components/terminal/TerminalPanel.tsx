@@ -170,6 +170,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showProcessInfo, setShowProcessInfo] = useState(false)
   const [scrollPositions, setScrollPositions] = useState<Record<string, number>>({})
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true)
+  // R778: terminal color theme
+  const [colorTheme, setColorTheme] = useState<'dark' | 'light' | 'solarized' | 'monokai'>('dark')
+  const [customColors, setCustomColors] = useState<Record<string, string>>({})
 
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:19:51.390Z
+> 2026-03-13T11:20:43.866Z
 
 ## Critical
 _없음_
@@ -658,3 +658,6 @@ _없음_
 - ChatPanel 메시지 암호화 표시 존재
 - InputBar 글로벌 프롬프트 변수 존재
 - SceneViewPanel 씬 변경 감지 존재
+- ChatPanel 메시지 예약 전송 존재
+- TerminalPanel 컬러 테마 존재
+- SessionList 세션 요약 자동 생성 존재

@@ -7509,6 +7509,41 @@ if (existsSync(svp776Path)) {
   }
 }
 
+// ── Section 170: Phase DD10 R777~779 기능 체크 ────────────────
+console.log('\n## 170. Phase DD10 R777~779 기능 체크')
+// R777: ChatPanel 메시지 예약 전송
+const cp777Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp777Path)) {
+  const cp777 = readFileSync(cp777Path, 'utf-8')
+  if (cp777.includes('scheduledMsgs') || cp777.includes('showScheduler') || cp777.includes('scheduleMsg')) {
+    log('pass', 'R777', 'ChatPanel 메시지 예약 전송 존재')
+  } else {
+    log('warning', 'R777', 'ChatPanel 예약 전송 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R778: TerminalPanel 컬러 테마
+const tp778Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp778Path)) {
+  const tp778 = readFileSync(tp778Path, 'utf-8')
+  if (tp778.includes('colorTheme') || tp778.includes('customColors') || tp778.includes('termTheme')) {
+    log('pass', 'R778', 'TerminalPanel 컬러 테마 존재')
+  } else {
+    log('warning', 'R778', 'TerminalPanel 컬러 테마 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R779: SessionList 세션 요약
+const sl779Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl779Path)) {
+  const sl779 = readFileSync(sl779Path, 'utf-8')
+  if (sl779.includes('sessionSummaries') || sl779.includes('summaryLoading') || sl779.includes('sessionSummary')) {
+    log('pass', 'R779', 'SessionList 세션 요약 자동 생성 존재')
+  } else {
+    log('warning', 'R779', 'SessionList 세션 요약 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
