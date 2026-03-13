@@ -54,6 +54,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showHelp, setShowHelp] = useState(false)
   // R1489: 미니맵
   const [showMinimap, setShowMinimap] = useState(true)
+  // R1496: 컨텍스트 메뉴
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; uuid: string | null } | null>(null)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
@@ -599,7 +601,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={() => { handleMouseUp(); setMouseScenePos(null) }}
-        onContextMenu={e => e.preventDefault()}
+        onContextMenu={e => { e.preventDefault(); setCtxMenu({ x: e.clientX, y: e.clientY, uuid: selectedUuid }) }}
         onClick={() => { onSelect(null); setMultiSelected(new Set()); selBoxRef.current = null; setSelectionBox(null) }}
         onDoubleClick={handleFit}
       >
@@ -1209,6 +1211,44 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         )
       })()}
+      {/* R1496: 컨텍스트 메뉴 */}
+      {ctxMenu && (
+        <div
+          style={{
+            position: 'fixed', left: ctxMenu.x, top: ctxMenu.y, zIndex: 100,
+            background: '#0d0d1a', border: '1px solid #2a2a3a', borderRadius: 5,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.6)', minWidth: 140, padding: '3px 0',
+          }}
+          onMouseLeave={() => setCtxMenu(null)}
+        >
+          {[
+            ctxMenu.uuid && { label: '복사 (Ctrl+C)', action: () => { /* CocosPanel handles via keyboard */ window.dispatchEvent(new KeyboardEvent('keydown', { key: 'c', ctrlKey: true, bubbles: true })) } },
+            ctxMenu.uuid && { label: '붙여넣기 (Ctrl+V)', action: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'v', ctrlKey: true, bubbles: true })) },
+            ctxMenu.uuid && { label: '복제 (Ctrl+D)', action: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd', ctrlKey: true, bubbles: true })) },
+            ctxMenu.uuid && { label: '삭제 (Del)', action: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true })) },
+            { label: '전체 보기 (F)', action: () => handleFit() },
+            ctxMenu.uuid && { label: '포커스 (F)', action: () => handleFitToSelected() },
+            ctxMenu.uuid && { label: 'AI 분석 ✦', action: () => {
+              const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
+              if (!fn) return
+              const info = `노드 "${fn.node.name}" 분석 요청:\n- 위치: (${fn.worldX.toFixed(1)}, ${fn.worldY.toFixed(1)})\n- 크기: ${fn.node.size ? `${fn.node.size.x}×${fn.node.size.y}` : '없음'}\n- 컴포넌트: ${fn.node.components.map(c => c.type.replace('cc.','')).join(', ') || '없음'}`
+              window.dispatchEvent(new CustomEvent('cc-chat-prefill', { detail: { text: info } }))
+            }},
+          ].filter(Boolean).map((item, i) => (
+            item ? (
+              <div
+                key={i}
+                onClick={() => { item.action(); setCtxMenu(null) }}
+                style={{ padding: '5px 12px', fontSize: 11, cursor: 'pointer', color: item.label.includes('AI') ? '#a78bfa' : 'var(--text-primary, #ccc)' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                {item.label}
+              </div>
+            ) : null
+          ))}
+        </div>
+      )}
     </div>
   )
 }
