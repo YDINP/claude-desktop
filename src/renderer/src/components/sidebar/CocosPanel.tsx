@@ -1571,13 +1571,43 @@ function CCFileNodeInspector({
             // 벡터 타입 {x,y} 또는 {x,y,z} → 인라인 숫자 인풋
             if (v && typeof v === 'object' && !('__uuid__' in (v as object)) && !('__id__' in (v as object))) {
               const vobj = v as Record<string, unknown>
-              const keys = Object.keys(vobj).filter(k => typeof vobj[k] === 'number')
-              if (keys.length >= 2 && keys.length <= 3) {
+              const numKeys = Object.keys(vobj).filter(k => typeof vobj[k] === 'number')
+              // RGBA 컬러 피커: r/g/b 키가 모두 있는 객체
+              const hasRgb = ['r', 'g', 'b'].every(c => c in vobj && typeof vobj[c] === 'number')
+              if (hasRgb) {
+                const r = Math.round(Math.min(255, Math.max(0, Number(vobj.r ?? 0))))
+                const g = Math.round(Math.min(255, Math.max(0, Number(vobj.g ?? 0))))
+                const b = Math.round(Math.min(255, Math.max(0, Number(vobj.b ?? 0))))
+                const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+                return (
+                  <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                    <input
+                      type="color"
+                      defaultValue={hex}
+                      onChange={e => {
+                        const h = e.target.value
+                        const r2 = parseInt(h.slice(1, 3), 16)
+                        const g2 = parseInt(h.slice(3, 5), 16)
+                        const b2 = parseInt(h.slice(5, 7), 16)
+                        applyAndSave({
+                          components: draft.components.map((c, i) =>
+                            i === ci ? { ...c, props: { ...c.props, [k]: { ...vobj, r: r2, g: g2, b: b2 } } } : c
+                          )
+                        })
+                      }}
+                      style={{ width: 36, height: 20, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{r},{g},{b}</span>
+                  </div>
+                )
+              }
+              if (numKeys.length >= 2 && numKeys.length <= 3) {
                 return (
                   <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
                     <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
                     <div style={{ display: 'flex', gap: 2, flex: 1 }}>
-                      {keys.map(axis => (
+                      {numKeys.map(axis => (
                         <input key={axis} type="number" defaultValue={Number(vobj[axis])}
                           title={axis}
                           onBlur={e => applyAndSave({
@@ -1600,6 +1630,28 @@ function CCFileNodeInspector({
             if (typeof v !== 'string' && typeof v !== 'number' && typeof v !== 'boolean') return null
             const isBool = typeof v === 'boolean'
             const isText = typeof v === 'string'
+            // fontStyle → 드롭다운
+            if (k === 'fontStyle' && typeof v === 'number') {
+              return (
+                <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
+                  <select
+                    value={Number(v)}
+                    onChange={e => applyAndSave({
+                      components: draft.components.map((c, i) =>
+                        i === ci ? { ...c, props: { ...c.props, [k]: Number(e.target.value) } } : c
+                      )
+                    })}
+                    style={{ flex: 1, fontSize: 10, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                  >
+                    <option value={0}>Normal</option>
+                    <option value={1}>Bold</option>
+                    <option value={2}>Italic</option>
+                    <option value={3}>BoldItalic</option>
+                  </select>
+                </div>
+              )
+            }
             return (
               <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
                 <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>{k}</span>
