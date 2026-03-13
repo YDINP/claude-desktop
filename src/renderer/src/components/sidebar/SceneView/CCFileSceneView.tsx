@@ -59,6 +59,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const ALIGN_SNAP_THRESHOLD = 6 // SVG 픽셀 기준
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
+  const [hoverClientPos, setHoverClientPos] = useState<{ x: number; y: number } | null>(null)
   const [gridStyle, setGridStyle] = useState<'line' | 'dot' | 'none'>('line')
   const [showNodeNames, setShowNodeNames] = useState(true)
   const [snapSize, setSnapSize] = useState(10)
@@ -879,8 +880,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     onSelect(node.uuid)
                   }
                 }}
-                onMouseEnter={() => setHoverUuid(node.uuid)}
-                onMouseLeave={() => setHoverUuid(null)}
+                onMouseEnter={e => { setHoverUuid(node.uuid); setHoverClientPos({ x: e.clientX, y: e.clientY }) }}
+                onMouseMove={e => { if (hoverUuid === node.uuid) setHoverClientPos({ x: e.clientX, y: e.clientY }) }}
+                onMouseLeave={() => { setHoverUuid(null); setHoverClientPos(null) }}
                 onMouseDown={e => {
                   if (e.button !== 0) return
                   e.stopPropagation()
@@ -1197,6 +1199,58 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           )}
         </g>
       </svg>
+      {/* R1522: 노드 호버 정보 패널 */}
+      {hoverUuid && hoverClientPos && (() => {
+        const fn = flatNodes.find(f => f.node.uuid === hoverUuid)
+        if (!fn) return null
+        const n = fn.node
+        const svgEl = svgRef.current
+        const rect = svgEl?.getBoundingClientRect()
+        const relX = rect ? hoverClientPos.x - rect.left + 14 : 14
+        const relY = rect ? hoverClientPos.y - rect.top + 14 : 14
+        const pos = n.position as { x: number; y: number }
+        const COMP_ICONS: Record<string, string> = {
+          'cc.Label': 'T', 'cc.Sprite': '🖼', 'cc.Button': '⬜', 'cc.Toggle': '☑', 'cc.Slider': '⊟',
+          'cc.ScrollView': '⊠', 'cc.RichText': 'T', 'cc.AudioSource': '♪', 'cc.Widget': '⚓',
+          'cc.Layout': '▤', 'cc.Animation': '▶', 'cc.ProgressBar': '▰', 'cc.VideoPlayer': '▷',
+        }
+        return (
+          <div
+            pointerEvents="none"
+            style={{
+              position: 'absolute', left: relX, top: relY, zIndex: 50, pointerEvents: 'none',
+              background: 'rgba(10,14,28,0.92)', border: '1px solid rgba(88,166,255,0.3)',
+              borderRadius: 5, padding: '5px 8px', fontSize: 9, color: 'var(--text-primary)',
+              maxWidth: 180, boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+            }}
+          >
+            <div style={{ fontWeight: 700, color: '#c9d1d9', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {n.active ? '' : '◌ '}{n.name}
+            </div>
+            <div style={{ color: '#58a6ff', marginBottom: 3 }}>
+              ({Math.round(pos.x)}, {Math.round(pos.y)}) {n.size ? `${Math.round(n.size.x)}×${Math.round(n.size.y)}` : ''}
+            </div>
+            {n.components.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                {n.components.map((c, i) => {
+                  const shortType = c.type.split('.').pop() ?? c.type
+                  const icon = COMP_ICONS[c.type] ?? '⬡'
+                  const hint = c.type === 'cc.Label' ? String(c.props.string ?? c.props.String ?? '').slice(0, 16)
+                    : c.type === 'cc.ProgressBar' ? `${Math.round(Number(c.props.progress ?? 0) * 100)}%`
+                    : c.type === 'cc.Toggle' ? (c.props.isChecked ? '✓' : '○')
+                    : c.type === 'cc.AudioSource' ? `vol:${Math.round(Number(c.props.volume ?? 1) * 100)}%`
+                    : ''
+                  return (
+                    <span key={i} style={{ background: 'rgba(88,166,255,0.12)', borderRadius: 3, padding: '1px 4px', color: '#8ab4f8' }}>
+                      {icon} {shortType}{hint ? ` "${hint}"` : ''}
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )
+      })()}
       {/* 미니맵 */}
       {view.zoom < 0.8 && (() => {
         const mmW = 80; const mmH = 60

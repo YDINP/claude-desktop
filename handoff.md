@@ -29,11 +29,14 @@
 - [x] R1520: cc-file-parser cc.Toggle/AudioSource/VideoPlayer extractor 추가 + Inspector Quick Edit UI (Toggle checkbox/ProgressBar slider/AudioSource volume+loop/RichText textarea)
 - [x] R1521: QA Section 425 (Pass 1422)
 
-## 다음 예정 (R1522+)
-- [ ] R1522: SceneView 노드 호버 정보 패널 강화 (컴포넌트 목록 + props 미리보기)
-- [ ] R1523: cc-file-parser cc.Animation 클립 목록 파싱 + Inspector 편집 UI
+- [x] R1522: SceneView 노드 호버 정보 패널 — hoverClientPos + 컴포넌트 아이콘/props hint 툴팁
+- [x] R1523: QA Section 426 (Pass 1425)
+
+## 다음 예정 (R1524+)
+- [ ] R1524: cc-file-parser cc.Animation 클립 목록 파싱 + Inspector 클립 드롭다운
+- [ ] R1525: SceneView 다중 노드 경계 박스 표시 (BBox overlay)
 
 ## 빌드/QA
 - Build: ✅ 성공
-- Critical: 0, Warning: 5, Pass: 1422
+- Critical: 0, Warning: 5, Pass: 1425
 - Branch: dev

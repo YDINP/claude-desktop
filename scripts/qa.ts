@@ -16123,6 +16123,28 @@ if (existsSync(parser425) && existsSync(cp425)) {
   }
 }
 
+// ── Section 426: R1522 호버 툴팁 패널 체크 ──────────────────────
+console.log('\n## 426. R1522 SceneView 노드 호버 정보 패널 체크')
+const sv426 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv426)) {
+  const s426 = readFileSync(sv426, 'utf-8')
+  if (s426.includes('hoverClientPos') && s426.includes('setHoverClientPos') && s426.includes('R1522')) {
+    log('pass', 'R1522-hover-state', 'hoverClientPos 상태 + onMouseEnter/Move/Leave 이벤트 구현')
+  } else {
+    log('warning', 'R1522-hover-state', 'hoverClientPos 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s426.includes('R1522') && s426.includes('COMP_ICONS') && s426.includes('노드 호버 정보')) {
+    log('pass', 'R1522-tooltip-render', '호버 툴팁 패널 렌더링 (컴포넌트 아이콘 + props 미리보기) 구현')
+  } else {
+    log('warning', 'R1522-tooltip-render', '호버 툴팁 렌더링 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s426.includes('ProgressBar') && s426.includes('cc.Toggle') && s426.includes('AudioSource')) {
+    log('pass', 'R1522-tooltip-comps', '주요 컴포넌트 타입별 hint (progress%/toggle✓/volume%) 표시 구현')
+  } else {
+    log('warning', 'R1522-tooltip-comps', '컴포넌트 hint 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
