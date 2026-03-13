@@ -15944,6 +15944,28 @@ if (existsSync(sv418) && existsSync(cp418)) {
   }
 }
 
+// ── Section 419: R1508 Quick Edit CLI 체크 ──────────────────────
+console.log('\n## 419. Phase E R1508 Inspector Quick Edit CLI 체크')
+const cp419 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp419)) {
+  const c419 = readFileSync(cp419, 'utf-8')
+  if (c419.includes('R1508') && c419.includes('cliVal') && c419.includes('runCmd')) {
+    log('pass', 'R1508-cli-state', 'Inspector Quick Edit CLI 입력 상태 + runCmd 함수 구현')
+  } else {
+    log('warning', 'R1508-cli-state', 'Quick Edit CLI 미구현', 'CocosPanel.tsx')
+  }
+  if (c419.includes("op === 'pos'") && c419.includes("op === 'size'") && c419.includes("op === 'rot'")) {
+    log('pass', 'R1508-cli-commands', 'pos/size/rot/scale/alpha/color/name/active 명령 파서 구현')
+  } else {
+    log('warning', 'R1508-cli-commands', 'CLI 명령 파서 미구현', 'CocosPanel.tsx')
+  }
+  if (c419.includes('pos X Y') && c419.includes('monospace')) {
+    log('pass', 'R1508-cli-ui', 'CLI 입력 UI (monosapce placeholder + 피드백) 구현')
+  } else {
+    log('warning', 'R1508-cli-ui', 'CLI UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

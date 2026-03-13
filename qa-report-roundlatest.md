@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T19:38:37.124Z
+> 2026-03-13T19:42:26.030Z
 
 ## Critical
 _없음_
@@ -1410,3 +1410,6 @@ _없음_
 - SceneView anchorRef + anchorOverride 상태 구현
 - SceneView 앵커 다이아몬드 핸들 + onAnchorMove 연결
 - CocosPanel handleAnchorMove 콜백 + 0~1 클램핑 구현
+- Inspector Quick Edit CLI 입력 상태 + runCmd 함수 구현
+- pos/size/rot/scale/alpha/color/name/active 명령 파서 구현
+- CLI 입력 UI (monosapce placeholder + 피드백) 구현

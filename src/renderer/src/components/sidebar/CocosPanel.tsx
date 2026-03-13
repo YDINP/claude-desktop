@@ -4853,6 +4853,72 @@ function CCFileNodeInspector({
           </button>
         </div>
       )}
+      {/* R1508: 빠른 편집 CLI 입력 바 */}
+      {(() => {
+        const [cliVal, setCliVal] = React.useState('')
+        const [cliMsg, setCliMsg] = React.useState<string | null>(null)
+        const runCmd = (cmd: string) => {
+          const parts = cmd.trim().split(/\s+/)
+          const op = parts[0]?.toLowerCase()
+          const nums = parts.slice(1).map(Number)
+          let patch: Partial<CCSceneNode> | null = null
+          if ((op === 'pos' || op === 'position') && nums.length >= 2 && !isNaN(nums[0]) && !isNaN(nums[1])) {
+            patch = { position: { ...draft.position, x: nums[0], y: nums[1] } }
+          } else if ((op === 'size' || op === 'sz') && nums.length >= 2 && !isNaN(nums[0]) && !isNaN(nums[1])) {
+            patch = { size: { x: nums[0], y: nums[1] } }
+          } else if ((op === 'rot' || op === 'rotation') && nums.length >= 1 && !isNaN(nums[0])) {
+            patch = { rotation: typeof draft.rotation === 'number' ? nums[0] : { ...(draft.rotation as object), z: nums[0] } }
+          } else if ((op === 'scale' || op === 'sc') && nums.length >= 1 && !isNaN(nums[0])) {
+            const sy = !isNaN(nums[1]) ? nums[1] : nums[0]
+            patch = { scale: { ...draft.scale, x: nums[0], y: sy } }
+          } else if ((op === 'alpha' || op === 'opacity') && nums.length >= 1 && !isNaN(nums[0])) {
+            patch = { opacity: Math.max(0, Math.min(255, Math.round(nums[0]))) }
+          } else if ((op === 'color' || op === 'col') && parts[1]) {
+            const hex = parts[1].replace('#', '')
+            if (/^[0-9a-fA-F]{6}$/.test(hex)) {
+              patch = { color: { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16), a: draft.color.a } }
+            }
+          } else if (op === 'name' && parts.slice(1).join(' ').trim()) {
+            patch = { name: parts.slice(1).join(' ').trim() }
+          } else if (op === 'active' || op === 'on') {
+            patch = { active: true }
+          } else if (op === 'inactive' || op === 'off') {
+            patch = { active: false }
+          } else if (op === 'toggle') {
+            patch = { active: !draft.active }
+          } else if ((op === 'anchor' || op === 'ax') && nums.length >= 2 && !isNaN(nums[0]) && !isNaN(nums[1])) {
+            patch = { anchor: { x: Math.max(0,Math.min(1,nums[0])), y: Math.max(0,Math.min(1,nums[1])) } }
+          }
+          if (patch) {
+            applyAndSave(patch)
+            setCliMsg(`✓ ${op}`)
+            setTimeout(() => setCliMsg(null), 1500)
+            setCliVal('')
+          } else {
+            setCliMsg('? 알 수 없는 명령')
+            setTimeout(() => setCliMsg(null), 2000)
+          }
+        }
+        return (
+          <div style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 4 }}>
+            <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+              <span style={{ fontSize: 9, color: '#555', flexShrink: 0 }}>›_</span>
+              <input
+                value={cliVal}
+                onChange={e => setCliVal(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { runCmd(cliVal); e.preventDefault() } }}
+                placeholder="pos X Y · size W H · rot Z · name ..."
+                style={{
+                  flex: 1, fontSize: 9, background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)',
+                  color: 'var(--text-secondary)', borderRadius: 3, padding: '2px 5px', fontFamily: 'monospace',
+                }}
+                title="R1508 Quick Edit: pos X Y | size W H | rot Z | scale SX SY | alpha A | color #RRGGBB | name N | active/inactive/toggle | anchor AX AY"
+              />
+              {cliMsg && <span style={{ fontSize: 9, color: cliMsg.startsWith('✓') ? '#4ade80' : '#f85149', flexShrink: 0 }}>{cliMsg}</span>}
+            </div>
+          </div>
+        )
+      })()}
       {/* Round 643: 저장 완료 토스트 */}
       {savedToast && (
         <div style={{
