@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T13:07:57.626Z
+> 2026-03-13T13:09:52.606Z
 
 ## Critical
 _없음_
@@ -985,3 +985,9 @@ _없음_
 - SceneViewPanel 씬 성능 모드 존재
 - TerminalPanel 입력 히스토리 저장 존재
 - SessionList 세션 통계 존재
+- ChatPanel 메시지 접기 존재
+- InputBar 인라인 이미지 존재
+- CocosPanel 씬 비교 존재
+- SceneViewPanel 씬 히트맵 존재
+- TerminalPanel 멀티플렉서 존재
+- SessionList 세션 알림 존재

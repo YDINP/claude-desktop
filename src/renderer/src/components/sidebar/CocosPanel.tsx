@@ -228,6 +228,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showFavNodes, setShowFavNodes] = React.useState(false)
   const [nodeLock, setNodeLock] = React.useState<string[]>([])
   const [showLockPanel, setShowLockPanel] = React.useState(false)
+  const [compareMode, setCompareMode] = React.useState(false)
+  const [compareTarget, setCompareTarget] = React.useState<string | null>(null)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
