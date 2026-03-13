@@ -1614,6 +1614,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               />
             )
           })()}
+          {/* R1636: 선택 노드 직계 자식 하이라이트 (연초록 점선) */}
+          {selectedUuid && (() => {
+            const selFn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!selFn) return null
+            const children = flatNodes.filter(f => f.parentUuid === selectedUuid && f.node.size?.x && f.node.size?.y)
+            if (children.length === 0) return null
+            return (
+              <g>
+                {children.map(cf => {
+                  const { node: cn, worldX: cx2, worldY: cy2 } = cf
+                  const sp = ccToSvg(cx2, cy2)
+                  const w = cn.size!.x, h = cn.size!.y
+                  const ax = cn.anchor?.x ?? 0.5, ay = cn.anchor?.y ?? 0.5
+                  return (
+                    <rect key={cf.node.uuid}
+                      x={sp.x - w * ax} y={sp.y - h * (1 - ay)}
+                      width={w} height={h}
+                      fill="none"
+                      stroke="rgba(60,220,100,0.25)"
+                      strokeWidth={1 / view.zoom}
+                      strokeDasharray={`${3 / view.zoom} ${3 / view.zoom}`}
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  )
+                })}
+              </g>
+            )
+          })()}
           {/* R1613: 형제 노드 하이라이트 (연노랑 점선) */}
           {selectedUuid && (() => {
             const selFn = flatNodes.find(f => f.node.uuid === selectedUuid)

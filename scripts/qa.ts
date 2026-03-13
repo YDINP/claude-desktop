@@ -17550,6 +17550,18 @@ console.log('\n## 526. R1635 Inspector 트랜스폼 원복 버튼 체크')
   }
 }
 
+// ── Section 527: R1636 SceneView 선택 노드 자식 하이라이트 ──────────────────
+console.log('\n## 527. R1636 SceneView 선택 노드 자식 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s527 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s527.includes('R1636') && s527.includes('직계 자식 하이라이트') && s527.includes('parentUuid === selectedUuid') && s527.includes('rgba(60,220,100')) {
+    log('pass', 'R1636-child-highlight', 'SceneView 선택 노드 자식 하이라이트')
+  } else {
+    log('warning', 'R1636-child-highlight', 'SceneView 선택 노드 자식 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
