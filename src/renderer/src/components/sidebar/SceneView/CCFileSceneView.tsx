@@ -51,6 +51,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [snapSize, setSnapSize] = useState(10)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
   const [showHelp, setShowHelp] = useState(false)
+  // R1489: 미니맵
+  const [showMinimap, setShowMinimap] = useState(true)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
@@ -572,6 +574,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             })}
           </>
         })()}
+        {/* R1489: 미니맵 토글 */}
+        <button
+          onClick={() => setShowMinimap(m => !m)}
+          title="미니맵 토글 (M)"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showMinimap ? 'rgba(88,166,255,0.12)' : 'none', color: showMinimap ? '#58a6ff' : 'var(--text-muted)' }}
+        >⊟</button>
         <button
           onClick={() => setShowHelp(h => !h)}
           title="단축키 도움말"
@@ -1115,6 +1123,57 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         </div>
       )}
+      {/* R1489: 미니맵 오버레이 — 우하단 */}
+      {showMinimap && flatNodes.length > 0 && (() => {
+        const MM_W = 100, MM_H = 72
+        const svgEl = svgRef.current
+        const svgW = svgEl?.clientWidth ?? designW
+        const svgH = svgEl?.clientHeight ?? designH
+        // 뷰포트 영역 (씬 좌표계)
+        const vpX = -view.offsetX / view.zoom
+        const vpY = -view.offsetY / view.zoom
+        const vpW = svgW / view.zoom
+        const vpH = svgH / view.zoom
+        // 씬 전체 bounding box (designW x designH 기준)
+        const sceneX = -designW / 2, sceneY = -designH / 2
+        const sceneW = designW, sceneH = designH
+        const scaleX = MM_W / sceneW
+        const scaleY = MM_H / sceneH
+        const s = Math.min(scaleX, scaleY)
+        const ofX = (MM_W - sceneW * s) / 2
+        const ofY = (MM_H - sceneH * s) / 2
+        const toMM = (x: number, y: number) => ({
+          x: (x - sceneX) * s + ofX,
+          y: (sceneH - (y - sceneY)) * s + ofY,  // Y 반전 (CC Y축 위=+)
+        })
+        const vpMM = toMM(vpX, vpY + vpH)
+        const vpW2 = vpW * s, vpH2 = vpH * s
+        return (
+          <div style={{
+            position: 'absolute', bottom: 8, right: 8, zIndex: 5,
+            width: MM_W, height: MM_H,
+            background: 'rgba(10,10,20,0.85)', border: '1px solid #333',
+            borderRadius: 4, overflow: 'hidden', cursor: 'pointer',
+          }}
+            onClick={() => setShowMinimap(false)}
+            title="미니맵 (클릭하여 숨김)"
+          >
+            <svg width={MM_W} height={MM_H}>
+              {/* 씬 경계 */}
+              <rect x={ofX} y={ofY} width={sceneW * s} height={sceneH * s} fill="none" stroke="#333" strokeWidth={0.5} />
+              {/* 노드 점들 */}
+              {flatNodes.map(fn => {
+                const p = toMM(fn.worldX, fn.worldY)
+                const isSelected = fn.node.uuid === selectedUuid || multiSelected.has(fn.node.uuid)
+                return <circle key={fn.node.uuid} cx={p.x} cy={p.y} r={1.5} fill={isSelected ? '#58a6ff' : 'rgba(255,255,255,0.3)'} />
+              })}
+              {/* 뷰포트 사각형 */}
+              <rect x={vpMM.x} y={vpMM.y} width={vpW2} height={vpH2}
+                fill="rgba(88,166,255,0.06)" stroke="#58a6ff" strokeWidth={0.75} />
+            </svg>
+          </div>
+        )
+      })()}
     </div>
   )
 }
