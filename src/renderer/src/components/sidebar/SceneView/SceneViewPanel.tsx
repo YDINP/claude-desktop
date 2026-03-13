@@ -1705,6 +1705,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showRigidbodyPanel, setShowRigidbodyPanel] = useState(false)
   const [sceneConstraints, setSceneConstraints] = useState<string[]>([])
   const [showConstraintPanel, setShowConstraintPanel] = useState(false)
+  const [sceneTileMap, setSceneTileMap] = useState<string | null>(null)
+  const [showTileMapPanel, setShowTileMapPanel] = useState(false)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {

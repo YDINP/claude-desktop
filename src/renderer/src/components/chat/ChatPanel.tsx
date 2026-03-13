@@ -1141,6 +1141,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showPaginationBar, setShowPaginationBar] = useState(false)
   const [chatSideBySide, setChatSideBySide] = useState(false)
   const [sideBySideWidth, setSideBySideWidth] = useState(50)
+  const [chatAccessibility, setChatAccessibility] = useState(false)
+  const [accessibilityConfig, setAccessibilityConfig] = useState<Record<string, boolean>>({})
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

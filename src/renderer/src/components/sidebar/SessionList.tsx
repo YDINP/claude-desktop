@@ -391,6 +391,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [sessionSearchResults, setSessionSearchResults] = useState<string[]>([])
   const [sessionFavorites, setSessionFavorites] = useState<string[]>([])
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
+  const [sessionPinned, setSessionPinned] = useState<string[]>([])
+  const [showPinnedOnly, setShowPinnedOnly] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

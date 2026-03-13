@@ -448,6 +448,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [splitPane, setSplitPane] = React.useState(false)
   const [splitRatio, setSplitRatio] = React.useState(0.5)
   const [termTheme, setTermTheme] = React.useState<'dark' | 'light' | 'solarized'>('dark')
+  const [termThemeConfig, setTermThemeConfig] = React.useState<Record<string, string>>({})
   const [showThemePicker, setShowThemePicker] = React.useState(false)
   const [termLineNumbers, setTermLineNumbers] = React.useState(false)
   const [lineNumberOffset, setLineNumberOffset] = React.useState(1)
