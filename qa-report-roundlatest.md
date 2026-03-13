@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T21:37:26.449Z
+> 2026-03-13T21:38:42.497Z
 
 ## Critical
 _없음_
@@ -1514,3 +1514,4 @@ _없음_
 - Ctrl+A 전체 노드 다중 선택
 - cc.Layout extractor + Inspector: type/resizeMode/padding/spacing/autoWrap
 - cc.RichText extractor + Inspector: string/fontSize/lineHeight/maxWidth/horizontalAlign/overflow
+- cc.EditBox extractor + Inspector: string/placeholder/maxLength/inputMode/inputFlag/returnType

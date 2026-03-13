@@ -16938,6 +16938,20 @@ console.log('\n## 476. R1585 cc.RichText extractor + Inspector Quick Edit 체크
   }
 }
 
+// ── Section 477: R1586 cc.EditBox extractor + Inspector Quick Edit ───
+console.log('\n## 477. R1586 cc.EditBox extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s477parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s477panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s477parser.includes("'cc.EditBox': e =>") && s477panel.includes("comp.type === 'cc.EditBox'") && s477panel.includes('placeholder') && s477panel.includes('inputMode') && s477panel.includes('returnType')) {
+    log('pass', 'R1586-editbox', 'cc.EditBox extractor + Inspector: string/placeholder/maxLength/inputMode/inputFlag/returnType')
+  } else {
+    log('warning', 'R1586-editbox', 'cc.EditBox Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

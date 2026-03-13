@@ -4782,6 +4782,67 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1586: cc.EditBox — 텍스트 입력 필드 Quick Edit
+            if (comp.type === 'cc.EditBox') {
+              const INPUT_MODE = ['Any', 'EmailAddr', 'Numeric', 'PhoneNumber', 'URL', 'Decimal', 'SingleLine']
+              const INPUT_FLAG = ['Default', 'Password', 'Sensitive', 'InitialCapsWord', 'InitialCapsSentence', 'InitialCapsAllChars']
+              const RETURN_TYPE = ['Default', 'Done', 'Send', 'Search', 'Go', 'Next']
+              return (
+                <div key={ci} style={{ marginBottom: 6 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  <div style={{ marginBottom: 4 }}>
+                    <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>string (초기값)</label>
+                    <input type="text" value={String(p.string ?? '')}
+                      style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'string', ev.target.value)} />
+                  </div>
+                  <div style={{ marginBottom: 4 }}>
+                    <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>placeholder</label>
+                    <input type="text" value={String(p.placeholder ?? '')}
+                      style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'placeholder', ev.target.value)} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>maxLength</label>
+                      <input type="number" value={Number(p.maxLength ?? 20)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'maxLength', Number(ev.target.value))} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>fontSize</label>
+                      <input type="number" value={Number(p.fontSize ?? 20)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'fontSize', Number(ev.target.value))} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>inputMode</label>
+                      <select value={Number(p.inputMode ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'inputMode', Number(ev.target.value))}>
+                        {INPUT_MODE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>inputFlag</label>
+                      <select value={Number(p.inputFlag ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'inputFlag', Number(ev.target.value))}>
+                        {INPUT_FLAG.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>returnType</label>
+                    <select value={Number(p.returnType ?? 0)}
+                      style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'returnType', Number(ev.target.value))}>
+                      {RETURN_TYPE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
+                    </select>
+                  </div>
+                </div>
+              )
+            }
             // R1585: cc.RichText — 서식 텍스트 Quick Edit
             if (comp.type === 'cc.RichText') {
               const HALIGN = ['Left', 'Center', 'Right']

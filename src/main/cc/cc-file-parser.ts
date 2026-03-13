@@ -354,6 +354,16 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     autoWrap: !!(e._N$autoWrap ?? e._autoWrap ?? e.autoWrap ?? false),
     startAxis: (e._N$startAxis ?? e._startAxis ?? e.startAxis ?? 0) as number,
   }),
+  // R1586: cc.EditBox — 텍스트 입력 필드
+  'cc.EditBox': e => ({
+    string: (e._N$string ?? e._string ?? e.string ?? '') as string,
+    placeholder: (e._N$placeholder ?? e._placeholder ?? e.placeholder ?? '') as string,
+    maxLength: (e._N$maxLength ?? e._maxLength ?? e.maxLength ?? 20) as number,
+    fontSize: (e._N$fontSize ?? e._fontSize ?? e.fontSize ?? 20) as number,
+    inputMode: (e._N$inputMode ?? e._inputMode ?? e.inputMode ?? 0) as number,
+    inputFlag: (e._N$inputFlag ?? e._inputFlag ?? e.inputFlag ?? 0) as number,
+    returnType: (e._N$returnType ?? e._returnType ?? e.returnType ?? 0) as number,
+  }),
   // R1585: cc.RichText — 서식 있는 텍스트
   'cc.RichText': e => ({
     string: (e._N$string ?? e._string ?? e.string ?? '') as string,
