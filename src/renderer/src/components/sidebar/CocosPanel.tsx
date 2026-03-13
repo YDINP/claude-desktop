@@ -206,6 +206,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showDepsPanel, setShowDepsPanel] = React.useState(false)
   const [nodeAdvSearch, setNodeAdvSearch] = React.useState(false)
   const [nodeSearchField, setNodeSearchField] = React.useState<'name' | 'tag' | 'uuid'>('name')
+  const [sceneSnapshot, setSceneSnapshot] = React.useState<string | null>(null)
+  const [showSnapshotPanel, setShowSnapshotPanel] = React.useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

@@ -319,6 +319,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [detectedLang, setDetectedLang] = React.useState('')
   const [richFormat, setRichFormat] = React.useState(false)
   const [formatOptions, setFormatOptions] = React.useState<string[]>([])
+  const [mentionMode, setMentionMode] = React.useState(false)
+  const [mentionQuery, setMentionQuery] = React.useState('')
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

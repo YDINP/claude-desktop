@@ -1614,6 +1614,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [modifiedNodes, setModifiedNodes] = React.useState<string[]>([])
   const [sceneLog, setSceneLog] = React.useState<string[]>([])
   const [showSceneLog, setShowSceneLog] = React.useState(false)
+  const [pinnedNodes, setPinnedNodes] = React.useState<string[]>([])
+  const [showPinnedPanel, setShowPinnedPanel] = React.useState(false)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {

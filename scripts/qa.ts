@@ -10517,6 +10517,74 @@ if (existsSync(sl1037Path)) {
   }
 }
 
+console.log('\n## 257. Phase DD10 R1038~1040 기능 체크')
+// R1038: ChatPanel 메시지 검색 필터
+const cp1038Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1038Path)) {
+  const cp1038 = readFileSync(cp1038Path, 'utf-8')
+  if (cp1038.includes('msgSearchFilter') || cp1038.includes('showSearchFilter') || cp1038.includes('filterQuery')) {
+    log('pass', 'R1038', 'ChatPanel 메시지 검색 필터 존재')
+  } else {
+    log('warning', 'R1038', 'ChatPanel 메시지 검색 필터 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1039: InputBar 멘션 자동완성
+const ib1039Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1039Path)) {
+  const ib1039 = readFileSync(ib1039Path, 'utf-8')
+  if (ib1039.includes('mentionMode') || ib1039.includes('mentionQuery') || ib1039.includes('mentionList')) {
+    log('pass', 'R1039', 'InputBar 멘션 자동완성 존재')
+  } else {
+    log('warning', 'R1039', 'InputBar 멘션 자동완성 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1040: CocosPanel 씬 스냅샷
+const ccp1040Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1040Path)) {
+  const ccp1040 = readFileSync(ccp1040Path, 'utf-8')
+  if (ccp1040.includes('sceneSnapshot') || ccp1040.includes('showSnapshotPanel') || ccp1040.includes('sceneSnapshots')) {
+    log('pass', 'R1040', 'CocosPanel 씬 스냅샷 존재')
+  } else {
+    log('warning', 'R1040', 'CocosPanel 씬 스냅샷 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 258. Phase DD10 R1041~1043 기능 체크')
+// R1041: SceneViewPanel 노드 핀
+const sv1041Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1041Path)) {
+  const sv1041 = readFileSync(sv1041Path, 'utf-8')
+  if (sv1041.includes('pinnedNodes') || sv1041.includes('showPinnedPanel') || sv1041.includes('pinned')) {
+    log('pass', 'R1041', 'SceneViewPanel 노드 핀 존재')
+  } else {
+    log('warning', 'R1041', 'SceneViewPanel 노드 핀 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1042: TerminalPanel 커맨드 북마크
+const tp1042Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1042Path)) {
+  const tp1042 = readFileSync(tp1042Path, 'utf-8')
+  if (tp1042.includes('cmdBookmarks') || tp1042.includes('showCmdBookmarks') || tp1042.includes('cmdFav')) {
+    log('pass', 'R1042', 'TerminalPanel 커맨드 북마크 존재')
+  } else {
+    log('warning', 'R1042', 'TerminalPanel 커맨드 북마크 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1043: SessionList 세션 그룹
+const sl1043Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1043Path)) {
+  const sl1043 = readFileSync(sl1043Path, 'utf-8')
+  if (sl1043.includes('sessionGroups') || sl1043.includes('showGroupEditor') || sl1043.includes('groupMap')) {
+    log('pass', 'R1043', 'SessionList 세션 그룹 존재')
+  } else {
+    log('warning', 'R1043', 'SessionList 세션 그룹 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
