@@ -255,6 +255,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [lastDraftSaved, setLastDraftSaved] = useState<number | null>(null)
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
   const [cmdPaletteQuery, setCmdPaletteQuery] = useState('')
+  const [emojiSearch, setEmojiSearch] = useState('')
+  const [emojiSuggestions, setEmojiSuggestions] = useState<Array<{ emoji: string; name: string }>>([])
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

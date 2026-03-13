@@ -8139,6 +8139,41 @@ if (existsSync(sl830Path)) {
   }
 }
 
+console.log('\n## 188. Phase DD10 R831~833 기능 체크')
+
+// R831: ChatPanel 스레드 요약
+const cp831Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp831Path)) {
+  const cp831 = readFileSync(cp831Path, 'utf-8')
+  if (cp831.includes('threadSummaries') || cp831.includes('summaryLoading') || cp831.includes('threadSummary')) {
+    log('pass', 'R831', 'ChatPanel 스레드 요약 존재')
+  } else {
+    log('warning', 'R831', 'ChatPanel 스레드 요약 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R832: InputBar 이모지 자동완성
+const ib832Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib832Path)) {
+  const ib832 = readFileSync(ib832Path, 'utf-8')
+  if (ib832.includes('emojiSearch') || ib832.includes('emojiSuggestions') || ib832.includes('emojiAutoComplete')) {
+    log('pass', 'R832', 'InputBar 이모지 자동완성 존재')
+  } else {
+    log('warning', 'R832', 'InputBar 이모지 자동완성 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R833: CocosPanel 노드 일괄 수정
+const cocp833Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp833Path)) {
+  const cocp833 = readFileSync(cocp833Path, 'utf-8')
+  if (cocp833.includes('batchEditMode') || cocp833.includes('batchEditTargets') || cocp833.includes('batchEdit')) {
+    log('pass', 'R833', 'CocosPanel 노드 일괄 수정 존재')
+  } else {
+    log('warning', 'R833', 'CocosPanel 일괄 수정 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

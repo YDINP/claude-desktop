@@ -140,6 +140,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showNodeSearchHistory, setShowNodeSearchHistory] = useState(false)
   const [previewCacheSize, setPreviewCacheSize] = useState(0)
   const [showCacheManager, setShowCacheManager] = useState(false)
+  const [batchEditMode, setBatchEditMode] = useState(false)
+  const [batchEditTargets, setBatchEditTargets] = useState<string[]>([])
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

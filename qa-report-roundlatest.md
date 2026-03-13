@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:42:01.146Z
+> 2026-03-13T11:43:16.524Z
 
 ## Critical
 _없음_
@@ -712,3 +712,6 @@ _없음_
 - SceneViewPanel 노드 프리셋 존재
 - TerminalPanel 입력 히스토리 검색 존재
 - SessionList 아카이브 내보내기 존재
+- ChatPanel 스레드 요약 존재
+- InputBar 이모지 자동완성 존재
+- CocosPanel 노드 일괄 수정 존재
