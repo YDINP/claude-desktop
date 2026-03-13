@@ -78,7 +78,7 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
 
   /** 씬 파일/디렉토리 감시 시작 */
   ipcMain.handle('cc:file:watch', async (_e, paths: string | string[]) => {
-    ccFileWatcher.watch(paths)
+    await ccFileWatcher.watch(paths)
     return { watching: ccFileWatcher.watchedCount }
   })
 

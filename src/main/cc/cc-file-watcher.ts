@@ -1,4 +1,3 @@
-import chokidar from 'chokidar'
 import type { FSWatcher } from 'chokidar'
 
 export type CCFileChangeType = 'change' | 'add' | 'unlink'
@@ -13,18 +12,19 @@ type ChangeCallback = (event: CCFileChangeEvent) => void
 
 /**
  * CC 씬 파일 감시 (Phase B)
- * chokidar v4 기반, awaitWriteFinish로 저장 중 중복 이벤트 방지
+ * chokidar v5 (ESM-only) — 동적 import()로 CJS 환경 호환
  */
 export class CCFileWatcher {
   private watcher: FSWatcher | null = null
   private callbacks = new Set<ChangeCallback>()
   private watchedPaths = new Set<string>()
+  private pendingPaths: string[] = []
+  private initializing = false
 
   /**
    * 씬 파일 또는 디렉토리 감시 시작
-   * @param paths 감시할 파일/디렉토리 경로 목록
    */
-  watch(paths: string | string[]) {
+  async watch(paths: string | string[]) {
     const list = Array.isArray(paths) ? paths : [paths]
     const newPaths = list.filter(p => !this.watchedPaths.has(p))
     if (newPaths.length === 0) return
@@ -36,43 +36,48 @@ export class CCFileWatcher {
       return
     }
 
-    this.watcher = chokidar.watch(newPaths, {
-      persistent: true,
-      ignoreInitial: true,
-      // Windows에서 안정적인 감지를 위해 awaitWriteFinish 사용
-      awaitWriteFinish: {
-        stabilityThreshold: 300,
-        pollInterval: 100,
-      },
-      // .fire/.scene/.prefab 만 감시
-      ignored: (filePath: string) => {
-        if (typeof filePath !== 'string') return false
-        const lower = filePath.toLowerCase()
-        // 디렉토리는 통과
-        if (!lower.includes('.')) return false
-        return !lower.endsWith('.fire') && !lower.endsWith('.scene') && !lower.endsWith('.prefab')
-      },
-    })
+    if (this.initializing) {
+      this.pendingPaths.push(...newPaths)
+      return
+    }
 
-    this.watcher
-      .on('change', (p: string) => this.emit({ type: 'change', path: p, timestamp: Date.now() }))
-      .on('add', (p: string) => this.emit({ type: 'add', path: p, timestamp: Date.now() }))
-      .on('unlink', (p: string) => this.emit({ type: 'unlink', path: p, timestamp: Date.now() }))
-      .on('error', (err: unknown) => console.error('[cc-file-watcher]', err))
+    this.initializing = true
+    try {
+      const { default: chokidar } = await import('chokidar')
+      const allPaths = [...newPaths, ...this.pendingPaths]
+      this.pendingPaths = []
+
+      this.watcher = chokidar.watch(allPaths, {
+        persistent: true,
+        ignoreInitial: true,
+        awaitWriteFinish: {
+          stabilityThreshold: 300,
+          pollInterval: 100,
+        },
+        ignored: (filePath: string) => {
+          if (typeof filePath !== 'string') return false
+          const lower = filePath.toLowerCase()
+          if (!lower.includes('.')) return false
+          return !lower.endsWith('.fire') && !lower.endsWith('.scene') && !lower.endsWith('.prefab')
+        },
+      })
+
+      this.watcher
+        .on('change', (p: string) => this.emit({ type: 'change', path: p, timestamp: Date.now() }))
+        .on('add', (p: string) => this.emit({ type: 'add', path: p, timestamp: Date.now() }))
+        .on('unlink', (p: string) => this.emit({ type: 'unlink', path: p, timestamp: Date.now() }))
+        .on('error', (err: unknown) => console.error('[cc-file-watcher]', err))
+    } finally {
+      this.initializing = false
+    }
   }
 
-  /**
-   * 특정 경로 감시 해제
-   */
   unwatch(paths: string | string[]) {
     const list = Array.isArray(paths) ? paths : [paths]
     list.forEach(p => this.watchedPaths.delete(p))
     this.watcher?.unwatch(list)
   }
 
-  /**
-   * 모든 감시 중지 및 리소스 해제
-   */
   async close() {
     await this.watcher?.close()
     this.watcher = null
