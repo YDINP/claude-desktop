@@ -8804,6 +8804,41 @@ if (existsSync(cocp887Path)) {
   }
 }
 
+console.log('\n## 207. Phase DD10 R888~890 기능 체크')
+
+// R888: SceneViewPanel 씬 노트
+const svp888Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp888Path)) {
+  const svp888 = readFileSync(svp888Path, 'utf-8')
+  if (svp888.includes('sceneNotes') || svp888.includes('showNotesPanel') || svp888.includes('noteMap')) {
+    log('pass', 'R888', 'SceneViewPanel 씬 노트 패널 존재')
+  } else {
+    log('warning', 'R888', 'SceneViewPanel 씬 노트 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R889: TerminalPanel 터미널 녹화
+const tp889Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp889Path)) {
+  const tp889 = readFileSync(tp889Path, 'utf-8')
+  if (tp889.includes('terminalRecording') || tp889.includes('recordedSessions') || tp889.includes('sessionRecord')) {
+    log('pass', 'R889', 'TerminalPanel 터미널 녹화 존재')
+  } else {
+    log('warning', 'R889', 'TerminalPanel 터미널 녹화 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R890: SessionList 세션 워크플로우
+const sl890Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl890Path)) {
+  const sl890 = readFileSync(sl890Path, 'utf-8')
+  if (sl890.includes('sessionWorkflow') || sl890.includes('showWorkflowPanel') || sl890.includes('workflowId')) {
+    log('pass', 'R890', 'SessionList 세션 워크플로우 존재')
+  } else {
+    log('warning', 'R890', 'SessionList 세션 워크플로우 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
