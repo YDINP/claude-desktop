@@ -200,6 +200,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null)
   const [gridSnap, setGridSnap] = useState(false)
   const [gridSize, setGridSize] = useState(10)
+  const [sceneStats, setSceneStats] = useState<{ nodeCount: number; componentCount: number; depth: number }>({ nodeCount: 0, componentCount: 0, depth: 0 })
+  const [showSceneStats, setShowSceneStats] = useState(false)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)

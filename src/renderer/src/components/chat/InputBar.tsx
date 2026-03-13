@@ -224,6 +224,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [autoCorrect, setAutoCorrect] = useState(false)
   const [chainedPrompts, setChainedPrompts] = useState<string[]>([])
   const [chainMode, setChainMode] = useState(false)
+  const [customCompletions, setCustomCompletions] = useState<Array<{ trigger: string; value: string }>>(() => JSON.parse(localStorage.getItem('custom-completions') ?? '[]'))
+  const [showCompletionEditor, setShowCompletionEditor] = useState(false)
   const [corrections, setCorrections] = useState<Array<{ from: string; to: string }>>([])
   const [showGlobalVars, setShowGlobalVars] = useState(false)
   const [pendingImages, setPendingImages] = useState<string[]>([])

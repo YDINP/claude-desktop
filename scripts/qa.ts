@@ -7754,6 +7754,76 @@ if (existsSync(cp797Path)) {
   }
 }
 
+// ── Section 177: Phase DD10 R798~800 기능 체크 (R800 마일스톤) ──
+console.log('\n## 177. Phase DD10 R798~800 기능 체크 (R800 마일스톤)')
+// R798: ChatPanel 응답 재생성 옵션
+const cp798Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp798Path)) {
+  const cp798 = readFileSync(cp798Path, 'utf-8')
+  if (cp798.includes('regenOptions') || cp798.includes('showRegenOptions') || cp798.includes('regenStyle')) {
+    log('pass', 'R798', 'ChatPanel 응답 재생성 옵션 존재')
+  } else {
+    log('warning', 'R798', 'ChatPanel 재생성 옵션 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R799: TerminalPanel 워크스페이스 레이아웃
+const tp799Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp799Path)) {
+  const tp799 = readFileSync(tp799Path, 'utf-8')
+  if (tp799.includes('workspaceLayout') || tp799.includes('layoutLocked') || tp799.includes('termLayout')) {
+    log('pass', 'R799', 'TerminalPanel 워크스페이스 레이아웃 존재')
+  } else {
+    log('warning', 'R799', 'TerminalPanel 레이아웃 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R800: SceneViewPanel 씬 통계 (마일스톤)
+const svp800Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp800Path)) {
+  const svp800 = readFileSync(svp800Path, 'utf-8')
+  if (svp800.includes('sceneStats') || svp800.includes('showSceneStats') || svp800.includes('nodeCount')) {
+    log('pass', 'R800', '🏆 SceneViewPanel 씬 통계 패널 존재 (R800 마일스톤!)')
+  } else {
+    log('warning', 'R800', 'SceneViewPanel 씬 통계 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+console.log('\n## 178. Phase DD10 R801~803 기능 체크')
+
+// R801: ChatPanel 메시지 접기 임계값
+const cp801Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp801Path)) {
+  const cp801 = readFileSync(cp801Path, 'utf-8')
+  if (cp801.includes('collapseThreshold') || cp801.includes('collapsedByDefault') || cp801.includes('autoCollapse')) {
+    log('pass', 'R801', 'ChatPanel 메시지 접기 임계값 존재')
+  } else {
+    log('warning', 'R801', 'ChatPanel 접기 임계값 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R802: InputBar 커스텀 자동완성
+const ib802Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib802Path)) {
+  const ib802 = readFileSync(ib802Path, 'utf-8')
+  if (ib802.includes('customCompletions') || ib802.includes('showCompletionEditor') || ib802.includes('completionItems')) {
+    log('pass', 'R802', 'InputBar 커스텀 자동완성 존재')
+  } else {
+    log('warning', 'R802', 'InputBar 자동완성 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R803: CocosPanel 루트 노드 목록
+const cocp803Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp803Path)) {
+  const cocp803 = readFileSync(cocp803Path, 'utf-8')
+  if (cocp803.includes('rootNodes') || cocp803.includes('selectedRootNode') || cocp803.includes('rootNodeList')) {
+    log('pass', 'R803', 'CocosPanel 루트 노드 목록 존재')
+  } else {
+    log('warning', 'R803', 'CocosPanel 루트 노드 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

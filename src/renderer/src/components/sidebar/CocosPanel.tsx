@@ -1478,6 +1478,8 @@ function CCFileNodeInspector({
   const [showPrefabStats, setShowPrefabStats] = useState(false)
   const [profilerData, setProfilerData] = useState<Record<string, { updateTime: number; callCount: number }>>({})
   const [showProfiler, setShowProfiler] = useState(false)
+  const [rootNodes, setRootNodes] = useState<string[]>([])
+  const [selectedRootNode, setSelectedRootNode] = useState<string | null>(null)
   const [loadingScene, setLoadingScene] = useState<string | null>(null)
   const [assetSearch, setAssetSearch] = useState('')
   const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])

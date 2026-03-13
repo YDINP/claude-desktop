@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:26:15.135Z
+> 2026-03-13T11:29:33.032Z
 
 ## Critical
 _없음_
@@ -679,3 +679,9 @@ _없음_
 - ChatPanel 메시지 카테고리 존재
 - SessionList 세션 자동 정리 존재
 - CocosPanel 컴포넌트 프로파일러 존재
+- ChatPanel 응답 재생성 옵션 존재
+- TerminalPanel 워크스페이스 레이아웃 존재
+- 🏆 SceneViewPanel 씬 통계 패널 존재 (R800 마일스톤!)
+- ChatPanel 메시지 접기 임계값 존재
+- InputBar 커스텀 자동완성 존재
+- CocosPanel 루트 노드 목록 존재

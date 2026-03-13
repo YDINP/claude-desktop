@@ -173,6 +173,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R778: terminal color theme
   const [colorTheme, setColorTheme] = useState<'dark' | 'light' | 'solarized' | 'monokai'>('dark')
   const [customColors, setCustomColors] = useState<Record<string, string>>({})
+  // R799: workspace layout
+  const [workspaceLayout, setWorkspaceLayout] = useState<'single' | 'split-h' | 'split-v' | 'grid'>('single')
+  const [layoutLocked, setLayoutLocked] = useState(false)
   // R791: filter presets
   const [filterPresets, setFilterPresets] = useState<Array<{ name: string; pattern: string }>>(() => JSON.parse(localStorage.getItem('filter-presets') ?? '[]'))
   const [activeFilterPreset, setActiveFilterPreset] = useState<string | null>(null)

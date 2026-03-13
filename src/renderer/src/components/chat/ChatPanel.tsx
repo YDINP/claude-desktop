@@ -817,6 +817,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [systemPromptDraft, setSystemPromptDraft] = useState<string>('')
   const [msgCategories, setMsgCategories] = useState<Record<string, string>>({})
   const [regenOptions, setRegenOptions] = useState<{ temperature: number; style: string }>({ temperature: 1.0, style: 'default' })
+  const [collapseThreshold, setCollapseThreshold] = useState(500)
+  const [collapsedByDefault, setCollapsedByDefault] = useState(false)
   const [showRegenOptions, setShowRegenOptions] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
   const [showSystemPromptEditor, setShowSystemPromptEditor] = useState(false)
