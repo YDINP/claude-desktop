@@ -237,7 +237,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showPipelinePanel, setShowPipelinePanel] = useState(false)
   const [termConnections, setTermConnections] = useState<string[]>([])
   const [showConnectionPanel, setShowConnectionPanel] = useState(false)
-  const [termAutoComplete, setTermAutoComplete] = useState(true)
+  // R1360: terminal auto complete
+  const [termAutoComplete, setTermAutoComplete] = useState(false)
   const [autoCompleteList, setAutoCompleteList] = useState<string[]>([])
   const [termSyntaxHighlight, setTermSyntaxHighlight] = useState(false)
   const [termHighlightRules, setTermHighlightRules] = useState<Record<string, string>>({})
@@ -686,6 +687,24 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
       for (const id of instancesRef.current.keys()) destroyTab(id)
     }
   }, [destroyTab])
+
+  // R1365: Ctrl+=/-/0 폰트 크기 단축키
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && (e.key === '=' || e.key === '+')) {
+        e.preventDefault()
+        setTermFontSize(prev => Math.min(24, prev + 1))
+      } else if (e.ctrlKey && e.key === '-') {
+        e.preventDefault()
+        setTermFontSize(prev => Math.max(10, prev - 1))
+      } else if (e.ctrlKey && e.key === '0') {
+        e.preventDefault()
+        setTermFontSize(14)
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
 
   const addTab = () => {
     if (tabs.length >= 5) return

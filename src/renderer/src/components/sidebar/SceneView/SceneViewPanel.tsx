@@ -63,7 +63,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const { nodeMap, rootUuid, loading, refresh, refreshNode, updateNode } = useSceneSync(connected, port)
 
   // ── 뷰 상태 ────────────────────────────────────────────────
-  const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 1 })
+  const [view, setView] = useState<ViewTransform>(() => {
+    try {
+      const z = localStorage.getItem('scene-view-zoom')
+      const p = localStorage.getItem('scene-view-pan')
+      const zoom = z ? parseFloat(z) : 1
+      const pan = p ? JSON.parse(p) : { x: 0, y: 0 }
+      return { offsetX: pan.x, offsetY: pan.y, zoom }
+    } catch { return { offsetX: 0, offsetY: 0, zoom: 1 } }
+  })
   const [activeTool, setActiveTool] = useState<'select' | 'move'>('select')
   const [showRuler, setShowRuler] = useState(false)
   const [canvasSize, setCanvasSize] = useState({ w: 960, h: 640 })
@@ -121,6 +129,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
   viewRef.current = view
+  useEffect(() => {
+    try {
+      localStorage.setItem('scene-view-zoom', String(view.zoom))
+      localStorage.setItem('scene-view-pan', JSON.stringify({ x: view.offsetX, y: view.offsetY }))
+    } catch { /* ignore */ }
+  }, [view.zoom, view.offsetX, view.offsetY])
   const targetViewRef = useRef<{ zoom: number; offsetX: number; offsetY: number } | null>(null)
   const animFrameRef = useRef<number | null>(null)
   const [isDirty, setIsDirty] = useState(false)
@@ -230,6 +244,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 카메라 (R1353) ────────────────────────────────────────
   const [sceneCamera, setSceneCamera] = useState(false)
   const [sceneCameraFov, setSceneCameraFov] = useState(60)
+  // ── 씬 라이팅 (R1359) ────────────────────────────────────────
+  const [sceneLighting, setSceneLighting] = useState(false)
+  const [lightingIntensity, setLightingIntensity] = useState(1.0)
 
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()
@@ -1651,6 +1668,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showChecklist, setShowChecklist] = React.useState(false)
   const [darkOverlay, setDarkOverlay] = React.useState(false)
   const [overlayOpacity, setOverlayOpacity] = React.useState(0.3)
+  // R1364: 목업 이미지 오버레이
+  const [overlayImageSrc, setOverlayImageSrc] = React.useState<string | null>(null)
+
+  const handleOverlayDrop = React.useCallback((e: React.DragEvent) => {
+    const file = e.dataTransfer.files[0]
+    if (!file || !file.type.startsWith('image/')) return
+    e.preventDefault()
+    const reader = new FileReader()
+    reader.onload = ev => setOverlayImageSrc(ev.target?.result as string)
+    reader.readAsDataURL(file)
+  }, [])
   const [sceneLinks, setSceneLinks] = React.useState<Record<string, string>>({})
   const [showLinkPanel, setShowLinkPanel] = React.useState(false)
   const [batchOps, setBatchOps] = React.useState<string[]>([])
@@ -2363,6 +2391,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         showQuickActions={showQuickActions}
         onQuickActionsToggle={() => setShowQuickActions(v => !v)}
         onZoomTo={handleZoomTo}
+        hasOverlayImage={!!overlayImageSrc}
+        onClearOverlayImage={() => setOverlayImageSrc(null)}
       />
 
       {/* 스냅샷 기록 툴바 */}
@@ -2503,6 +2533,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       <div
         ref={containerRef}
         tabIndex={0}
+        onDragOver={e => { e.preventDefault() }}
+        onDrop={handleOverlayDrop}
         onKeyDown={e => {
           // input/textarea 포커스 시 무시
           const tag = (e.target as HTMLElement).tagName
@@ -3027,6 +3059,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 strokeWidth={1 / view.zoom}
                 strokeDasharray={`${4 / view.zoom} ${2 / view.zoom}`}
                 rx={3 / view.zoom}
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
+            {/* R1364: 목업 이미지 오버레이 */}
+            {overlayImageSrc && (
+              <image
+                href={overlayImageSrc}
+                x={0} y={0}
+                width={DESIGN_W} height={DESIGN_H}
+                opacity={overlayOpacity}
                 style={{ pointerEvents: 'none' }}
               />
             )}

@@ -85,6 +85,8 @@ export function CocosPanel() {
   const [showPluginPanel, setShowPluginPanel] = useState(false)
   const [buildPresets, setBuildPresets] = useState<string[]>([])
   const [activeBuildPreset, setActiveBuildPreset] = useState('')
+  const [sceneListFilter, setSceneListFilter] = useState('')
+  const [sceneFilterActive, setSceneFilterActive] = useState(false)
   return (
     <CCFileProjectUI
       fileProject={fileProject}
@@ -139,6 +141,10 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('cc-recent-files') ?? '[]') } catch { return [] }
+  })
+  // R1366: 최근 씬 파일 목록
+  const [recentSceneFiles, setRecentSceneFiles] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('recent-scene-files') ?? '[]') } catch { return [] }
   })
   const FAV_KEY = 'scene-tree-favorites'
   const [favorites, setFavorites] = useState<Set<string>>(() => {
@@ -352,10 +358,19 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     })
   }, [])
 
+  // R1366: 최근 씬 파일 업데이트
+  const addRecentScene = useCallback((path: string) => {
+    setRecentSceneFiles(prev => {
+      const next = [path, ...prev.filter(p => p !== path)].slice(0, 5)
+      localStorage.setItem('recent-scene-files', JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   const handleSceneChange = useCallback(async (path: string) => {
     setSelectedScene(path)
-    if (path) { await loadScene(path); addRecent(path) }
-  }, [loadScene, addRecent])
+    if (path) { await loadScene(path); addRecent(path); addRecentScene(path) }
+  }, [loadScene, addRecent, addRecentScene])
 
   const handleTreeDelete = useCallback(async (nodeUuid: string) => {
     if (!sceneFile?.root || sceneFile.root.uuid === nodeUuid) return
@@ -660,7 +675,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         if (!file) return
         const filePath = (file as File & { path?: string }).path
         if (!filePath) return
-        if (/\.(fire|scene|prefab)$/i.test(filePath)) { loadScene(filePath); addRecent(filePath) }
+        if (/\.(fire|scene|prefab)$/i.test(filePath)) { loadScene(filePath); addRecent(filePath); addRecentScene(filePath) }
       }}
     >
       {/* 외부 파일 변경 감지 배너 */}
@@ -737,6 +752,23 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               </option>
             ))}
           </select>
+        )}
+
+        {/* R1366: 최근 씬 파일 목록 */}
+        {recentSceneFiles.length > 0 && (
+          <div style={{ marginTop: 6 }}>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>최근 파일</div>
+            {recentSceneFiles.map(p => (
+              <div
+                key={p}
+                onClick={() => { loadScene(p); addRecentScene(p) }}
+                style={{ fontSize: 11, cursor: 'pointer', color: 'var(--accent)', padding: '2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                title={p}
+              >
+                {p.split(/[\\/]/).pop()}
+              </div>
+            ))}
+          </div>
         )}
 
         {/* 저장 / undo/redo / 백업 복원 버튼 */}

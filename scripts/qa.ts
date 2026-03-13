@@ -14159,6 +14159,134 @@ if (existsSync(sl1355Path)) {
   }
 }
 
+console.log('\n## 363. Phase DD10 R1356~1358 기능 체크')
+
+// R1356: ChatPanel 채팅 히스토리 검색
+const cp1356Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1356Path)) {
+  const cp1356 = readFileSync(cp1356Path, 'utf-8')
+  if (cp1356.includes('chatHistorySearch') || cp1356.includes('historySearchResults') || cp1356.includes('historySearch')) {
+    log('pass', 'R1356', 'ChatPanel 채팅 히스토리 검색 존재')
+  } else {
+    log('warning', 'R1356', 'ChatPanel 채팅 히스토리 검색 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1357: InputBar 코드 스니펫
+const ib1357Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1357Path)) {
+  const ib1357 = readFileSync(ib1357Path, 'utf-8')
+  if (ib1357.includes('inputSnippets') || ib1357.includes('showSnippetMenu') || ib1357.includes('snippetMenu')) {
+    log('pass', 'R1357', 'InputBar 코드 스니펫 존재')
+  } else {
+    log('warning', 'R1357', 'InputBar 코드 스니펫 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1358: CocosPanel 씬 목록 필터
+const cocos1358Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1358Path)) {
+  const cocos1358 = readFileSync(cocos1358Path, 'utf-8')
+  if (cocos1358.includes('sceneListFilter') || cocos1358.includes('sceneFilterActive') || cocos1358.includes('filterActive')) {
+    log('pass', 'R1358', 'CocosPanel 씬 목록 필터 존재')
+  } else {
+    log('warning', 'R1358', 'CocosPanel 씬 목록 필터 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 364. Phase DD10 R1359~1361 기능 체크')
+
+// R1359: SceneViewPanel 씬 라이팅
+const svp1359Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1359Path)) {
+  const svp1359 = readFileSync(svp1359Path, 'utf-8')
+  if (svp1359.includes('sceneLighting') || svp1359.includes('lightingIntensity') || svp1359.includes('lighting')) {
+    log('pass', 'R1359', 'SceneViewPanel 씬 라이팅 존재')
+  } else {
+    log('warning', 'R1359', 'SceneViewPanel 씬 라이팅 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1360: TerminalPanel 자동완성
+const tp1360Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1360Path)) {
+  const tp1360 = readFileSync(tp1360Path, 'utf-8')
+  if (tp1360.includes('termAutoComplete') || tp1360.includes('autoCompleteList') || tp1360.includes('autoComplete')) {
+    log('pass', 'R1360', 'TerminalPanel 자동완성 존재')
+  } else {
+    log('warning', 'R1360', 'TerminalPanel 자동완성 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1361: SessionList 세션 병합
+const sl1361Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1361Path)) {
+  const sl1361 = readFileSync(sl1361Path, 'utf-8')
+  if (sl1361.includes('sessionMerge') || sl1361.includes('mergeTargets') || sl1361.includes('mergeMode')) {
+    log('pass', 'R1361', 'SessionList 세션 병합 존재')
+  } else {
+    log('warning', 'R1361', 'SessionList 세션 병합 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+
+console.log('\n## 365. Phase DD10 R1362~1364 기능 체크')
+
+// R1362: ChatPanel 채팅 밀도 모드
+const cp1362Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1362Path)) {
+  const cp1362 = readFileSync(cp1362Path, 'utf-8')
+  if (cp1362.includes('chatDensity') || cp1362.includes('chat-density')) {
+    log('pass', 'R1362', 'ChatPanel 채팅 밀도 모드 존재')
+  } else {
+    log('warning', 'R1362', 'ChatPanel 채팅 밀도 모드 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1363: SceneViewPanel 줌 localStorage
+const svp1363Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1363Path)) {
+  const svp1363 = readFileSync(svp1363Path, 'utf-8')
+  if (svp1363.includes('scene-view-zoom') || svp1363.includes('scene-view-pan')) {
+    log('pass', 'R1363', 'SceneViewPanel 줌 localStorage 지속 저장 존재')
+  } else {
+    log('warning', 'R1363', 'SceneViewPanel 줌 localStorage 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1364: SceneViewPanel 목업 이미지 오버레이
+if (existsSync(svp1363Path)) {
+  const svp1364 = readFileSync(svp1363Path, 'utf-8')
+  if (svp1364.includes('overlayImageSrc') || svp1364.includes('overlayImage')) {
+    log('pass', 'R1364', 'SceneViewPanel 목업 이미지 오버레이 존재')
+  } else {
+    log('warning', 'R1364', 'SceneViewPanel 목업 이미지 오버레이 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+console.log('\n## 366. Phase DD10 R1365~1366 기능 체크')
+
+// R1365: TerminalPanel Ctrl+=/-  폰트 크기 단축키
+const tp1365Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1365Path)) {
+  const tp1365 = readFileSync(tp1365Path, 'utf-8')
+  if (tp1365.includes("key === '='") || tp1365.includes('Math.min(24')) {
+    log('pass', 'R1365', 'TerminalPanel 폰트 크기 단축키 존재')
+  } else {
+    log('warning', 'R1365', 'TerminalPanel 폰트 크기 단축키 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1366: CocosPanel 최근 씬 파일 목록
+const cocos1366Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1366Path)) {
+  const cocos1366 = readFileSync(cocos1366Path, 'utf-8')
+  if (cocos1366.includes('recentSceneFiles') || cocos1366.includes('recent-scene-files')) {
+    log('pass', 'R1366', 'CocosPanel 최근 씬 파일 목록 존재')
+  } else {
+    log('warning', 'R1366', 'CocosPanel 최근 씬 파일 목록 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
