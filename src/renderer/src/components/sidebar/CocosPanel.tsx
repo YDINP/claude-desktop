@@ -255,6 +255,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1178: component search
   const [componentSearch, setComponentSearch] = useState('')
   const [componentSearchResults, setComponentSearchResults] = useState<string[]>([])
+  // R1184: node filters
+  const [nodeFilters, setNodeFilters] = useState<string[]>([])
+  const [showNodeFilters, setShowNodeFilters] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

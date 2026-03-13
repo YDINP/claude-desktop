@@ -366,6 +366,9 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   // R1181: session activity
   const [sessionActivity, setSessionActivity] = useState<Record<string, number>>({})
   const [showActivityPanel, setShowActivityPanel] = useState(false)
+  // R1187: session sharing
+  const [sessionSharing, setSessionSharing] = useState<Record<string, boolean>>({})
+  const [showSharePanel, setShowSharePanel] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

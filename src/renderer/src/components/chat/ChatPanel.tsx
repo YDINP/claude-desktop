@@ -1100,6 +1100,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showBookmarkPanel, setShowBookmarkPanel] = useState(false)
   // R1176: message schedule
   const [msgSchedule, setMsgSchedule] = useState<Record<string, number>>({})
+  // R1182: message status
+  const [msgStatus, setMsgStatus] = useState<Record<string, 'sent' | 'delivered' | 'read'>>({})
+  const [showStatusPanel, setShowStatusPanel] = useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
