@@ -11469,6 +11469,74 @@ if (existsSync(sl1121Path)) {
   }
 }
 
+console.log('\n## 285. Phase DD10 R1122~1124 기능 체크')
+// R1122: ChatPanel 메시지 투표
+const cp1122Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1122Path)) {
+  const cp1122 = readFileSync(cp1122Path, 'utf-8')
+  if (cp1122.includes('msgVotes') || cp1122.includes('showVotePanel') || cp1122.includes('voteMsg')) {
+    log('pass', 'R1122', 'ChatPanel 메시지 투표 존재')
+  } else {
+    log('warning', 'R1122', 'ChatPanel 메시지 투표 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1123: InputBar 글로벌 단축키
+const ib1123Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1123Path)) {
+  const ib1123 = readFileSync(ib1123Path, 'utf-8')
+  if (ib1123.includes('globalShortcuts') || ib1123.includes('showShortcutEditor') || ib1123.includes('keyBindings')) {
+    log('pass', 'R1123', 'InputBar 글로벌 단축키 존재')
+  } else {
+    log('warning', 'R1123', 'InputBar 글로벌 단축키 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1124: CocosPanel 노드 그룹
+const ccp1124Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1124Path)) {
+  const ccp1124 = readFileSync(ccp1124Path, 'utf-8')
+  if (ccp1124.includes('nodeGroups') || ccp1124.includes('showGroupPanel') || ccp1124.includes('groupNodes')) {
+    log('pass', 'R1124', 'CocosPanel 노드 그룹 존재')
+  } else {
+    log('warning', 'R1124', 'CocosPanel 노드 그룹 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 286. Phase DD10 R1125~1127 기능 체크')
+// R1125: SceneViewPanel 씬 링크
+const sv1125Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1125Path)) {
+  const sv1125 = readFileSync(sv1125Path, 'utf-8')
+  if (sv1125.includes('sceneLinks') || sv1125.includes('showLinkPanel') || sv1125.includes('linkScene')) {
+    log('pass', 'R1125', 'SceneViewPanel 씬 링크 존재')
+  } else {
+    log('warning', 'R1125', 'SceneViewPanel 씬 링크 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1126: TerminalPanel 마크다운 출력
+const tp1126Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1126Path)) {
+  const tp1126 = readFileSync(tp1126Path, 'utf-8')
+  if (tp1126.includes('mdOutput') || tp1126.includes('mdOutputBuffer') || tp1126.includes('markdownOut')) {
+    log('pass', 'R1126', 'TerminalPanel 마크다운 출력 존재')
+  } else {
+    log('warning', 'R1126', 'TerminalPanel 마크다운 출력 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1127: SessionList 세션 우선순위
+const sl1127Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1127Path)) {
+  const sl1127 = readFileSync(sl1127Path, 'utf-8')
+  if (sl1127.includes('sessionPriority') || sl1127.includes('showPrioritySort') || sl1127.includes('priorityMap')) {
+    log('pass', 'R1127', 'SessionList 세션 우선순위 존재')
+  } else {
+    log('warning', 'R1127', 'SessionList 세션 우선순위 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

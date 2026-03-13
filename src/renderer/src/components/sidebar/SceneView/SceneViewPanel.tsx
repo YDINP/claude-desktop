@@ -1640,6 +1640,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showChecklist, setShowChecklist] = React.useState(false)
   const [darkOverlay, setDarkOverlay] = React.useState(false)
   const [overlayOpacity, setOverlayOpacity] = React.useState(0.3)
+  const [sceneLinks, setSceneLinks] = React.useState<Record<string, string>>({})
+  const [showLinkPanel, setShowLinkPanel] = React.useState(false)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {

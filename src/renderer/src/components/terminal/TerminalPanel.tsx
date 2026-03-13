@@ -443,6 +443,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showThemePicker, setShowThemePicker] = React.useState(false)
   const [termLineNumbers, setTermLineNumbers] = React.useState(false)
   const [lineNumberOffset, setLineNumberOffset] = React.useState(1)
+  const [mdOutput, setMdOutput] = React.useState(false)
+  const [mdOutputBuffer, setMdOutputBuffer] = React.useState('')
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
