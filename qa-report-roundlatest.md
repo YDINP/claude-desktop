@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T19:21:28.713Z
+> 2026-03-13T19:31:39.948Z
 
 ## Critical
 _없음_
@@ -1398,3 +1398,12 @@ _없음_
 - SceneView 미니맵 클릭 → 씬 좌표 pan 구현
 - SceneView Ctrl+드래그 스냅 포인트 시각적 피드백 구현
 - SceneView 저장 diff 알림 배너 (5초 자동 소멸) 구현
+- cc-file-saver validateCCScene + ValidationResult 인터페이스 구현
+- DFS 순환 참조 감지 로직 구현
+- 중복 UUID 감지 로직 구현
+- saveCCScene 저장 전 유효성 검사 guard 적용
+- SceneView "+" 버튼 + onAddNode prop 구현
+- Ctrl+N 단축키로 새 노드 추가 구현
+- CocosPanel handleAddNode 콜백 구현
+- cc-file-saver normalizeTree + buildNewRawNode2x/3x 구현
+- SVG 빈 공간 더블클릭 → 노드 추가 (Shift=fit) 구현

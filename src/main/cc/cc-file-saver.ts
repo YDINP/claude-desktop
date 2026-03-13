@@ -57,6 +57,30 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
     })
   }
 
+  // R1504: 새 노드(_rawIndex==null) → raw 배열에 항목 추가 (정규화)
+  function normalizeTree(node: CCSceneNode, parentRawIdx: number | null): CCSceneNode {
+    let cur = node
+    if (cur._rawIndex == null) {
+      const newIdx = raw.length
+      raw.push(version === '2x'
+        ? buildNewRawNode2x(cur, parentRawIdx)
+        : buildNewRawNode3x(cur, parentRawIdx))
+      cur = { ...cur, _rawIndex: newIdx }
+    }
+    const children = cur.children.map(c => normalizeTree(c, cur._rawIndex!))
+    return { ...cur, children }
+  }
+  const normalizedRoot = normalizeTree(modifiedRoot, null)
+
+  // R1502: 저장 전 유효성 검사
+  const validation = validateCCScene(normalizedRoot)
+  if (!validation.valid) {
+    return { success: false, error: `유효성 오류: ${validation.errors.join('; ')}` }
+  }
+  if (validation.warnings.length > 0) {
+    console.warn('[cc-file-saver] 저장 경고:', validation.warnings.join(', '))
+  }
+
   // CCSceneNode 트리 → raw 배열 패치
   function patchNode(node: CCSceneNode) {
     const idx = node._rawIndex
@@ -104,7 +128,7 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
     for (const child of node.children) patchNode(child)
   }
 
-  patchNode(modifiedRoot)
+  patchNode(normalizedRoot)
 
   // ── R1437: 충돌 감지 (mtime 비교) ──────────────────────────────────────────
   const recordedMtime = loadedMtimeMap.get(scenePath)
@@ -138,6 +162,60 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
     return { success: true, backupPath }
   } catch (e) {
     return { success: false, error: String(e) }
+  }
+}
+
+// ── R1504: 새 노드 raw entry 빌드 ─────────────────────────────────────────────
+
+function buildNewRawNode2x(node: CCSceneNode, parentIdx: number | null): RawEntry {
+  const pos = node.position ?? { x: 0, y: 0, z: 0 }
+  const sc = node.scale ?? { x: 1, y: 1, z: 1 }
+  return {
+    __type__: 'cc.Node',
+    _name: node.name,
+    _objFlags: 0,
+    _parent: parentIdx != null ? { __id__: parentIdx } : null,
+    _children: [],
+    _active: node.active ?? true,
+    _components: [],
+    _prefab: null,
+    _trs: {
+      __type__: 'TypedArray',
+      ctor: 'Float64Array',
+      array: [pos.x ?? 0, pos.y ?? 0, pos.z ?? 0, 0, 0, 0, 1, sc.x ?? 1, sc.y ?? 1, sc.z ?? 1],
+    },
+    _contentSize: { width: node.size?.x ?? 100, height: node.size?.y ?? 100 },
+    _anchorPoint: { x: node.anchor?.x ?? 0.5, y: node.anchor?.y ?? 0.5 },
+    _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 },
+    _opacity: node.opacity ?? 255,
+    _skewX: 0,
+    _skewY: 0,
+    _zIndex: 0,
+    groupIndex: 0,
+    id: node.uuid,
+  }
+}
+
+function buildNewRawNode3x(node: CCSceneNode, parentIdx: number | null): RawEntry {
+  const pos = node.position ?? { x: 0, y: 0, z: 0 }
+  const sc = node.scale ?? { x: 1, y: 1, z: 1 }
+  return {
+    __type__: 'cc.Node',
+    _name: node.name,
+    _objFlags: 0,
+    '__editorExtras__': {},
+    _parent: parentIdx != null ? { __id__: parentIdx } : null,
+    _children: [],
+    _active: node.active ?? true,
+    _components: [],
+    _prefab: null,
+    _lpos: { x: pos.x ?? 0, y: pos.y ?? 0, z: pos.z ?? 0 },
+    _lrot: { x: 0, y: 0, z: 0, w: 1 },
+    _lscale: { x: sc.x ?? 1, y: sc.y ?? 1, z: sc.z ?? 1 },
+    _euler: { x: 0, y: 0, z: 0 },
+    _uiProps: { _localOpacity: (node.opacity ?? 255) / 255 },
+    _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 },
+    layer: 33554432,
   }
 }
 
@@ -221,6 +299,47 @@ function patch3x(
       ui._anchorPoint = { x: node.anchor.x, y: node.anchor.y }
     }
   }
+}
+
+// ── R1502: 저장 전 유효성 검사 ────────────────────────────────────────────────
+
+export interface ValidationResult {
+  valid: boolean
+  warnings: string[]
+  errors: string[]
+}
+
+/** 순환 참조 + 중복 UUID + rawIndex null 감지 */
+export function validateCCScene(root: CCSceneNode): ValidationResult {
+  const warnings: string[] = []
+  const errors: string[] = []
+  const allUuids = new Set<string>()
+  const pathStack = new Set<string>()
+
+  function traverse(node: CCSceneNode) {
+    // 순환 참조 감지 (조상 체인에 동일 uuid 존재)
+    if (pathStack.has(node.uuid)) {
+      errors.push(`순환 참조: uuid=${node.uuid} name="${node.name}"`)
+      return
+    }
+    // 중복 UUID 감지
+    if (allUuids.has(node.uuid)) {
+      errors.push(`중복 UUID: uuid=${node.uuid} name="${node.name}"`)
+    } else {
+      allUuids.add(node.uuid)
+    }
+    // _rawIndex null 경고
+    if (node._rawIndex == null) {
+      warnings.push(`_rawIndex 없음: "${node.name}" — 저장 시 무시됩니다`)
+    }
+
+    pathStack.add(node.uuid)
+    for (const child of node.children) traverse(child)
+    pathStack.delete(node.uuid)
+  }
+
+  traverse(root)
+  return { valid: errors.length === 0, warnings, errors }
 }
 
 // R1423: 씬 디렉토리의 .bak 파일 목록 반환

@@ -15857,6 +15857,69 @@ if (existsSync(sv415) && existsSync(cp415)) {
   }
 }
 
+// ── Section 416: R1502 기능 체크 ──────────────────────
+console.log('\n## 416. Phase DD R1502 cc-file-saver validateCCScene 체크')
+const saver416 = join(ROOT, 'src/main/cc/cc-file-saver.ts')
+if (existsSync(saver416)) {
+  const s416 = readFileSync(saver416, 'utf-8')
+  if (s416.includes('R1502') && s416.includes('validateCCScene') && s416.includes('ValidationResult')) {
+    log('pass', 'R1502-validate-export', 'cc-file-saver validateCCScene + ValidationResult 인터페이스 구현')
+  } else {
+    log('warning', 'R1502-validate-export', 'validateCCScene 미구현', 'cc-file-saver.ts')
+  }
+  if (s416.includes('pathStack') && s416.includes('순환 참조')) {
+    log('pass', 'R1502-cycle-detect', 'DFS 순환 참조 감지 로직 구현')
+  } else {
+    log('warning', 'R1502-cycle-detect', '순환 참조 감지 미구현', 'cc-file-saver.ts')
+  }
+  if (s416.includes('중복 UUID') && s416.includes('allUuids')) {
+    log('pass', 'R1502-dup-uuid', '중복 UUID 감지 로직 구현')
+  } else {
+    log('warning', 'R1502-dup-uuid', '중복 UUID 감지 미구현', 'cc-file-saver.ts')
+  }
+  if (s416.includes('validation.valid') && s416.includes('유효성 오류')) {
+    log('pass', 'R1502-save-guard', 'saveCCScene 저장 전 유효성 검사 guard 적용')
+  } else {
+    log('warning', 'R1502-save-guard', 'saveCCScene guard 미적용', 'cc-file-saver.ts')
+  }
+}
+
+// ── Section 417: R1504 노드 추가 기능 체크 ──────────────────────
+console.log('\n## 417. Phase D R1504 노드 추가 기능 체크')
+const sv417 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp417 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const saver417 = join(ROOT, 'src/main/cc/cc-file-saver.ts')
+if (existsSync(sv417) && existsSync(cp417) && existsSync(saver417)) {
+  const s417 = readFileSync(sv417, 'utf-8')
+  const c417 = readFileSync(cp417, 'utf-8')
+  const f417 = readFileSync(saver417, 'utf-8')
+  if (s417.includes('R1504') && s417.includes('onAddNode') && s417.includes('＋')) {
+    log('pass', 'R1504-sceneview-ui', 'SceneView "+" 버튼 + onAddNode prop 구현')
+  } else {
+    log('warning', 'R1504-sceneview-ui', 'SceneView 노드 추가 UI 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s417.includes('Ctrl+N') && s417.includes("e.key === 'n'")) {
+    log('pass', 'R1504-ctrl-n', 'Ctrl+N 단축키로 새 노드 추가 구현')
+  } else {
+    log('warning', 'R1504-ctrl-n', 'Ctrl+N 단축키 미구현', 'CCFileSceneView.tsx')
+  }
+  if (c417.includes('R1504') && c417.includes('handleAddNode') && c417.includes('NewNode')) {
+    log('pass', 'R1504-cocos-handler', 'CocosPanel handleAddNode 콜백 구현')
+  } else {
+    log('warning', 'R1504-cocos-handler', 'handleAddNode 미구현', 'CocosPanel.tsx')
+  }
+  if (f417.includes('R1504') && f417.includes('normalizeTree') && f417.includes('buildNewRawNode2x')) {
+    log('pass', 'R1504-saver-normalize', 'cc-file-saver normalizeTree + buildNewRawNode2x/3x 구현')
+  } else {
+    log('warning', 'R1504-saver-normalize', 'normalizeTree 미구현', 'cc-file-saver.ts')
+  }
+  if (s417.includes('빈 공간 더블클릭') && s417.includes('shiftKey')) {
+    log('pass', 'R1504-dblclick', 'SVG 빈 공간 더블클릭 → 노드 추가 (Shift=fit) 구현')
+  } else {
+    log('warning', 'R1504-dblclick', '더블클릭 노드 추가 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

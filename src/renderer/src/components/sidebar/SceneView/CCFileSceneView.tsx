@@ -25,6 +25,8 @@ interface CCFileSceneViewProps {
   onMultiMove?: (moves: Array<{ uuid: string; x: number; y: number }>) => void
   onMultiDelete?: (uuids: string[]) => void
   onLabelEdit?: (uuid: string, text: string) => void
+  /** R1504: 새 노드 추가 (parentUuid=null → root의 자식) */
+  onAddNode?: (parentUuid: string | null, pos?: { x: number; y: number }) => void
 }
 
 /**
@@ -32,7 +34,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -407,6 +409,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         ArrowLeft: [-1, 0], ArrowRight: [1, 0],
         ArrowUp: [0, 1], ArrowDown: [0, -1],
       }
+      // R1504: Ctrl+N — 새 노드 추가
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault()
+        onAddNode?.(selectedUuid, undefined)
+        return
+      }
       // R1483: Delete/Backspace — 다중 선택 일괄 삭제
       if (e.key === 'Delete' || e.key === 'Backspace') {
         const multi = multiSelectedRef.current
@@ -440,7 +448,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete])
+  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode])
 
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
   const handleScreenshotAI = useCallback(() => {
@@ -588,6 +596,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             })}
           </>
         })()}
+        {/* R1504: 새 노드 추가 */}
+        {onAddNode && (
+          <button
+            onClick={() => onAddNode(selectedUuid, undefined)}
+            title={selectedUuid ? '선택된 노드 하위에 새 노드 추가 (Ctrl+N)' : '루트 하위에 새 노드 추가 (Ctrl+N)'}
+            style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-secondary)', fontWeight: 'bold' }}
+          >＋</button>
+        )}
         {/* R1489: 미니맵 토글 */}
         <button
           onClick={() => setShowMinimap(m => !m)}
@@ -611,7 +627,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         onMouseLeave={() => { handleMouseUp(); setMouseScenePos(null) }}
         onContextMenu={e => { e.preventDefault(); setCtxMenu({ x: e.clientX, y: e.clientY, uuid: selectedUuid }) }}
         onClick={() => { onSelect(null); setMultiSelected(new Set()); selBoxRef.current = null; setSelectionBox(null) }}
-        onDoubleClick={handleFit}
+        onDoubleClick={e => {
+          if (e.shiftKey || !onAddNode) { handleFit(); return }
+          // R1504: 빈 공간 더블클릭 → 클릭 위치에 새 노드 추가
+          const svg = svgRef.current
+          if (!svg) return
+          const rect = svg.getBoundingClientRect()
+          const z = viewRef.current.zoom
+          const svgX = (e.clientX - rect.left - viewRef.current.offsetX) / z
+          const svgY = (e.clientY - rect.top - viewRef.current.offsetY) / z
+          // SVG → CC 좌표 (Y 반전)
+          const ccX = svgX
+          const ccY = -svgY
+          onAddNode(selectedUuid, { x: Math.round(ccX), y: Math.round(ccY) })
+        }}
       >
         <defs>
           {/* 캔버스 외부 빗금 패턴 */}

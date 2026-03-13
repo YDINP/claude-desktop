@@ -1285,6 +1285,51 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(patchLabel(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  // R1504: 새 노드 추가 (SceneView "+" 버튼 또는 Ctrl+N)
+  const handleAddNode = useCallback(async (parentUuid: string | null, pos?: { x: number; y: number }) => {
+    if (!sceneFile?.root) return
+    const version = projectInfo?.version ?? '2x'
+    const newUuid = version === '3x'
+      ? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2, 14))
+      : Math.random().toString(36).slice(2, 14)
+    const newNode: CCSceneNode = {
+      uuid: newUuid,
+      name: 'NewNode',
+      active: true,
+      position: { x: pos?.x ?? 0, y: pos?.y ?? 0, z: 0 },
+      rotation: 0,
+      scale: { x: 1, y: 1, z: 1 },
+      size: { x: 100, y: 100 },
+      anchor: { x: 0.5, y: 0.5 },
+      opacity: 255,
+      color: { r: 255, g: 255, b: 255, a: 255 },
+      components: [],
+      children: [],
+      // _rawIndex undefined → cc-file-saver normalizeTree가 자동 생성
+    }
+    const targetParentUuid = parentUuid ?? sceneFile.root.uuid
+    function insertInto(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === targetParentUuid) return { ...n, children: [...n.children, newNode] }
+      return { ...n, children: n.children.map(insertInto) }
+    }
+    const result = await saveScene(insertInto(sceneFile.root))
+    if (result?.success !== false) {
+      // 추가된 노드를 선택
+      const findAdded = (root: CCSceneNode): CCSceneNode | null => {
+        if (root.uuid === newUuid) return root
+        for (const c of root.children) { const f = findAdded(c); if (f) return f }
+        return null
+      }
+      // sceneFile이 갱신된 후 선택 — 약간 지연 후 처리
+      setTimeout(() => {
+        if (sceneFile?.root) {
+          const added = findAdded(sceneFile.root)
+          if (added) onSelectNode(added)
+        }
+      }, 100)
+    }
+  }, [sceneFile, saveScene, projectInfo, onSelectNode])
+
   const handleReparent = useCallback(async (dragUuid: string, dropUuid: string) => {
     if (!sceneFile?.root || dragUuid === dropUuid || sceneFile.root.uuid === dragUuid) return
     // 사이클 방지: drop 대상이 drag 노드의 하위인지 확인
@@ -2244,6 +2289,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onMultiMove={handleMultiMove}
                 onMultiDelete={handleMultiDelete}
                 onLabelEdit={handleLabelEdit}
+                onAddNode={handleAddNode}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }
                   const findNode = (n: CCSceneNode): CCSceneNode | null => {
