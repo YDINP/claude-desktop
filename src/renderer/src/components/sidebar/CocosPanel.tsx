@@ -4902,6 +4902,45 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1576: cc.DirectionalLight / cc.PointLight — intensity/color Quick Edit
+            if (comp.type === 'cc.DirectionalLight' || comp.type === 'cc.PointLight') {
+              const intensity = Number(p.intensity ?? 1)
+              const lightColor = p.color as { r?: number; g?: number; b?: number } | undefined
+              const hexColor = lightColor
+                ? `#${(lightColor.r ?? 255).toString(16).padStart(2, '0')}${(lightColor.g ?? 255).toString(16).padStart(2, '0')}${(lightColor.b ?? 255).toString(16).padStart(2, '0')}`
+                : '#ffffff'
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>intensity</span>
+                    <input type="range" min={0} max={5} step={0.1} value={intensity}
+                      onChange={e => {
+                        const v = parseFloat(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, intensity: v, _intensity: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{intensity.toFixed(1)}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>color</span>
+                    <input type="color" value={hexColor}
+                      onChange={e => {
+                        const hex = e.target.value
+                        const r = parseInt(hex.slice(1, 3), 16)
+                        const g = parseInt(hex.slice(3, 5), 16)
+                        const b = parseInt(hex.slice(5, 7), 16)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 28, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{hexColor}</span>
+                  </div>
+                </div>
+              )
+            }
             // R1573: cc.UIOpacity — CC3.x opacity Quick Edit
             if (comp.type === 'cc.UIOpacity') {
               const uiOpacity = Number(p.opacity ?? 255)

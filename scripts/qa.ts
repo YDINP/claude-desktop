@@ -16808,6 +16808,18 @@ console.log('\n## 466. R1575 BatchInspector 색상 일괄 편집 체크')
   }
 }
 
+// ── Section 467: R1576 cc.DirectionalLight/PointLight Inspector Quick Edit ────────────────
+console.log('\n## 467. R1576 cc.Light Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s467 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s467.includes("'cc.DirectionalLight'") && s467.includes("'cc.PointLight'") && s467.includes('intensity') && s467.includes('hexColor')) {
+    log('pass', 'R1576-lights', 'cc.DirectionalLight/PointLight Inspector Quick Edit: intensity/color')
+  } else {
+    log('warning', 'R1576-lights', 'cc.Light Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
