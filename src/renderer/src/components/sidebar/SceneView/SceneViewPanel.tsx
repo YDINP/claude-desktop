@@ -181,6 +181,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 비교 (R748) ──────────────────────────────────────────────
   const [compareScene, setCompareScene] = useState<string | null>(null)
   const [showSceneCompare, setShowSceneCompare] = useState(false)
+  // ── 씬 태그 (R752) ──────────────────────────────────────────────
+  const [sceneTags, setSceneTags] = useState<Record<string, string[]>>(() => JSON.parse(localStorage.getItem('scene-tags') ?? '{}'))
+  const [sceneTagInput, setSceneTagInput] = useState('')
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)

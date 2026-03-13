@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:11:50.064Z
+> 2026-03-13T11:12:40.492Z
 
 ## Critical
 _없음_
@@ -631,3 +631,6 @@ _없음_
 - ChatPanel 모델 히스토리 존재
 - SceneViewPanel 씬 비교 존재
 - TerminalPanel 명령어 별칭 존재
+- ChatPanel 스트리밍 제어 존재
+- CocosPanel 템플릿 내보내기 존재
+- SceneViewPanel 씬 태그 존재

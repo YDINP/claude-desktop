@@ -7194,6 +7194,41 @@ if (existsSync(tp749Path)) {
   }
 }
 
+// ── Section 161: Phase DD10 R750~752 기능 체크 ────────────────
+console.log('\n## 161. Phase DD10 R750~752 기능 체크')
+// R750: ChatPanel 스트리밍 제어
+const cp750Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp750Path)) {
+  const cp750 = readFileSync(cp750Path, 'utf-8')
+  if (cp750.includes('streamSpeed') || cp750.includes('pausedStream') || cp750.includes('streamControl')) {
+    log('pass', 'R750', 'ChatPanel 스트리밍 제어 존재')
+  } else {
+    log('warning', 'R750', 'ChatPanel 스트리밍 제어 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R751: CocosPanel 템플릿 내보내기
+const cp751Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp751Path)) {
+  const cp751 = readFileSync(cp751Path, 'utf-8')
+  if (cp751.includes('exportedTemplates') || cp751.includes('templateExportOpen') || cp751.includes('templateExport')) {
+    log('pass', 'R751', 'CocosPanel 템플릿 내보내기 존재')
+  } else {
+    log('warning', 'R751', 'CocosPanel 템플릿 내보내기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R752: SceneViewPanel 씬 태그
+const svp752Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp752Path)) {
+  const svp752 = readFileSync(svp752Path, 'utf-8')
+  if (svp752.includes('sceneTags') || svp752.includes('sceneTagInput') || svp752.includes('scene-tags')) {
+    log('pass', 'R752', 'SceneViewPanel 씬 태그 존재')
+  } else {
+    log('warning', 'R752', 'SceneViewPanel 씬 태그 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
