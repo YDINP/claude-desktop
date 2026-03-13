@@ -808,8 +808,6 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const bookmarkIdxRef = useRef(0)
   const [showOnlyBookmarks, setShowOnlyBookmarks] = useState(false)
   const [foldedMessages, setFoldedMessages] = useState<Set<string>>(new Set())
-  const [autoSummary, setAutoSummary] = useState<string | null>(null)
-  const [showAutoSummary, setShowAutoSummary] = useState(false)
 
   // R701: 메시지 카테고리 레이블
   const [bookmarkedMsgs, setBookmarkedMsgs] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('bookmarked-msgs') ?? '[]')))
@@ -1049,16 +1047,11 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
       return s ? JSON.parse(s).taskTitle : null
     } catch { return null }
   })
-  const [threadSummaries, setThreadSummaries] = useState<Record<string, string>>({})
-  const [summaryLoading, setSummaryLoading] = useState<string | null>(null)
-  const [msgExportFormat, setMsgExportFormat] = useState<'md' | 'txt' | 'html' | 'json'>('md')
-  const [showMsgExportPanel, setShowMsgExportPanel] = useState(false)
   const [chatAnalytics, setChatAnalytics] = React.useState<Record<string, number>>({})
   const [showAnalyticsDashboard, setShowAnalyticsDashboard] = React.useState(false)
   const [translateEnabled, setTranslateEnabled] = React.useState(false)
   const [translateTarget, setTranslateTarget] = React.useState('en')
   const [messageBookmarks, setMessageBookmarks] = React.useState<string[]>([])
-  const [showBookmarkPanel, setShowBookmarkPanel] = React.useState(false)
   const [messageTags, setMessageTags] = React.useState<Record<string, string[]>>({})
   const [showTagFilter, setShowTagFilter] = React.useState(false)
   const [messageLabels, setMessageLabels] = React.useState<Record<string, string>>({})
@@ -1087,11 +1080,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [aiSuggestions, setAiSuggestions] = React.useState<string[]>([])
   const [showAiSuggestions, setShowAiSuggestions] = React.useState(false)
   const [msgSearchFilter, setMsgSearchFilter] = React.useState('')
-  const [showSearchFilter, setShowSearchFilter] = React.useState(false)
   const [msgSortOrder, setMsgSortOrder] = React.useState<'asc' | 'desc'>('asc')
   const [showSortOptions, setShowSortOptions] = React.useState(false)
   const [readMarkers, setReadMarkers] = React.useState<Record<string, boolean>>({})
-  const [showReadStatus, setShowReadStatus] = React.useState(false)
   const [codeRunTarget, setCodeRunTarget] = React.useState<string | null>(null)
   const [showCodeRunner, setShowCodeRunner] = React.useState(false)
   const [threadView, setThreadView] = React.useState(false)
@@ -1118,15 +1109,12 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [msgThreads, setMsgThreads] = useState<Record<string, string[]>>({})
   // R1152: message bookmarks
   const [msgBookmarks, setMsgBookmarks] = useState<Set<string>>(new Set())
-  const [showBookmarkPanel, setShowBookmarkPanel] = useState(false)
   // R1176: message schedule
   const [msgSchedule, setMsgSchedule] = useState<Record<string, number>>({})
   // R1182: message status
   const [msgStatus, setMsgStatus] = useState<Record<string, 'sent' | 'delivered' | 'read'>>({})
   const [showStatusPanel, setShowStatusPanel] = useState(false)
   // R1188: message collapse
-  const [collapsedMsgs, setCollapsedMsgs] = useState<Set<string>>(new Set())
-  const [autoCollapse, setAutoCollapse] = useState(false)
   // R1194: message forward
   const [forwardingMsg, setForwardingMsg] = useState<string | null>(null)
   const [forwardTarget, setForwardTarget] = useState<string | null>(null)
@@ -1134,8 +1122,6 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [msgAnalytics, setMsgAnalytics] = useState<Record<string, number>>({})
   const [showAnalytics, setShowAnalytics] = useState(false)
   // R1218: message reply
-  const [replyingTo, setReplyingTo] = useState<string | null>(null)
-  const [replyContext, setReplyContext] = useState<string | null>(null)
   // R1224: message group by
   const [msgGroupBy, setMsgGroupBy] = useState<'date' | 'sender' | 'topic' | 'none'>('none')
   const [showGroupByPanel, setShowGroupByPanel] = useState(false)
@@ -1144,9 +1130,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [summaryDepth, setSummaryDepth] = useState<'brief' | 'detailed'>('brief')
   // R1236: chat export
   const [chatExportFormat, setChatExportFormat] = useState<'json' | 'md' | 'html' | 'pdf'>('md')
-  const [showExportPanel, setShowExportPanel] = useState(false)
   const [chatReactions, setChatReactions] = useState<Record<string, string[]>>({})
-  const [showReactionPicker, setShowReactionPicker] = useState(false)
   const [chatFilter, setChatFilter] = useState('')
   const [chatFilterActive, setChatFilterActive] = useState(false)
   const [chatFilterResults, setChatFilterResults] = useState<string[]>([])
@@ -1802,7 +1786,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             )
           })()}
         </div>
-      ) : (
+      ) : (<>
       <div
         ref={scrollContainerRef}
         data-view-mode={chatViewMode}
@@ -2003,7 +1987,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           onClick={handleMinimapClick}
         />
       )}
-      </div>
+      </>
       )} {/* end showOnlyBookmarks ternary */}
       </div>
 

@@ -409,7 +409,6 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [terminalRecording, setTerminalRecording] = useState(false)
   const [recordedSessions, setRecordedSessions] = useState<Array<{ name: string; data: string[] }>>([])
   const [terminalSplit, setTerminalSplit] = useState<'none' | 'horizontal' | 'vertical'>('none')
-  const [splitRatio, setSplitRatio] = useState(0.5)
   const [terminalSearch, setTerminalSearch] = useState('')
   const [terminalSearchResults, setTerminalSearchResults] = useState<number[]>([])
   const [showEnvEditor, setShowEnvEditor] = useState(false)
@@ -461,8 +460,6 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [persistHistory, setPersistHistory] = React.useState(true)
   const [historyLimit, setHistoryLimit] = React.useState(1000)
   const [splitPane, setSplitPane] = React.useState(false)
-  const [splitRatio, setSplitRatio] = React.useState(0.5)
-  const [termTheme, setTermTheme] = React.useState<'dark' | 'light' | 'solarized'>('dark')
   const [termThemeConfig, setTermThemeConfig] = React.useState<Record<string, string>>({})
   const [showThemePicker, setShowThemePicker] = React.useState(false)
   const [termLineNumbers, setTermLineNumbers] = React.useState(false)
@@ -473,10 +470,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showTaskQueue, setShowTaskQueue] = React.useState(false)
   // R1144: color output
   const [colorOutput, setColorOutput] = React.useState(true)
-  const [customColors, setCustomColors] = React.useState<Record<string, string>>({})
   // R1150: session log
-  const [sessionLog, setSessionLog] = React.useState<string[]>([])
-  const [showSessionLog, setShowSessionLog] = React.useState(false)
   // R1156: terminal profiles
   const [termProfiles, setTermProfiles] = React.useState<Record<string, object>>({})
   const [activeProfile, setActiveProfile] = React.useState<string | null>(null)
@@ -521,10 +515,6 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1240: alias groups
   const [aliasGroups, setAliasGroups] = React.useState<Record<string, string[]>>({})
   const [showAliasGroups, setShowAliasGroups] = React.useState(false)
-  const [termSessions, setTermSessions] = React.useState<string[]>([])
-  const [activeTermSession, setActiveTermSession] = React.useState('')
-  const [termPipeline, setTermPipeline] = React.useState<string[]>([])
-  const [showPipelinePanel, setShowPipelinePanel] = React.useState(false)
   const [termSnippets, setTermSnippets] = useState<Record<string, string>>({})
   const [showSnippetPanel, setShowSnippetPanel] = useState(false)
   const [termSearch, setTermSearch] = useState('')

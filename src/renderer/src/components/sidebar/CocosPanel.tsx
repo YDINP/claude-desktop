@@ -229,7 +229,6 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [buildSettings, setBuildSettings] = React.useState<Record<string, unknown>>({})
   const [showBuildSettings, setShowBuildSettings] = React.useState(false)
   const [plugins, setPlugins] = React.useState<string[]>([])
-  const [showPluginManager, setShowPluginManager] = React.useState(false)
   const [renderSettings, setRenderSettings] = React.useState<Record<string, unknown>>({})
   const [showRenderSettings, setShowRenderSettings] = React.useState(false)
   const [sceneFilter, setSceneFilter] = React.useState('')
@@ -269,7 +268,6 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [favNodes, setFavNodes] = React.useState<string[]>([])
   const [showFavNodes, setShowFavNodes] = React.useState(false)
   const [nodeLock, setNodeLock] = React.useState<string[]>([])
-  const [showLockPanel, setShowLockPanel] = React.useState(false)
   const [compareMode, setCompareMode] = React.useState(false)
   const [compareTarget, setCompareTarget] = React.useState<string | null>(null)
   const [assetTags, setAssetTags] = React.useState<Record<string, string[]>>({})
@@ -301,7 +299,6 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [nodeFilters, setNodeFilters] = useState<string[]>([])
   const [showNodeFilters, setShowNodeFilters] = useState(false)
   // R1190: scene validation
-  const [sceneValidation, setSceneValidation] = useState<string[]>([])
   const [showValidation, setShowValidation] = useState(false)
   // R1196: resource usage
   const [resourceUsage, setResourceUsage] = useState<Record<string, number>>({})
@@ -321,18 +318,6 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1238: build profiles
   const [buildProfiles, setBuildProfiles] = useState<Record<string, object>>({})
   const [activeBuildProfile, setActiveBuildProfile] = useState<string | null>(null)
-  const [buildWarnings, setBuildWarnings] = useState<string[]>([])
-  const [showWarningsPanel, setShowWarningsPanel] = useState(false)
-  const [remoteDebug, setRemoteDebug] = useState(false)
-  const [remoteDebugPort, setRemoteDebugPort] = useState(9222)
-  const [editorTheme, setEditorTheme] = useState<string>('default')
-  const [showEditorTheme, setShowEditorTheme] = useState(false)
-  const [buildNotify, setBuildNotify] = useState(true)
-  const [buildNotifyConfig, setBuildNotifyConfig] = useState<Record<string, boolean>>({})
-  const [nodeTemplate, setNodeTemplate] = useState<string>('')
-  const [showNodeTemplates, setShowNodeTemplates] = useState(false)
-  const [buildSchedule, setBuildSchedule] = useState<string>('')
-  const [buildScheduleEnabled, setBuildScheduleEnabled] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -1492,7 +1477,6 @@ function CCFileNodeInspector({
 }) {
   // 편집 중인 로컬 상태 (노드 변경 시 초기화)
   const [draft, setDraft] = useState<CCSceneNode>(() => ({ ...node }))
-  const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   // Round 643: 저장 상태 + Undo/Redo
   const [isDirty, setIsDirty] = useState(false)
@@ -1711,7 +1695,6 @@ function CCFileNodeInspector({
   const [showCompDeps, setShowCompDeps] = useState(false)
   const [loadingScene, setLoadingScene] = useState<string | null>(null)
   const [assetSearch, setAssetSearch] = useState('')
-  const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])
   const [previewLoading, setPreviewLoading] = useState<Set<string>>(new Set())
   const [templateExportOpen, setTemplateExportOpen] = useState(false)
   const [notifDismissed, setNotifDismissed] = useState<Set<number>>(new Set())
