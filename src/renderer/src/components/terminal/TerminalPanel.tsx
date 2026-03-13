@@ -227,6 +227,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showProcessMonitor, setShowProcessMonitor] = useState(false)
   const [savedScrollPos, setSavedScrollPos] = useState<Record<string, number>>({})
   const [autoScrollOnOutput, setAutoScrollOnOutput] = useState(true)
+  const [termSessions, setTermSessions] = useState<string[]>([])
+  const [activeTermSession, setActiveTermSession] = useState('')
   const inputBufferRef = useRef<Record<string, string>>({})
 
   const sendQuickCmd = (cmd: string) => {
@@ -497,6 +499,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1240: alias groups
   const [aliasGroups, setAliasGroups] = React.useState<Record<string, string[]>>({})
   const [showAliasGroups, setShowAliasGroups] = React.useState(false)
+  const [termSessions, setTermSessions] = React.useState<string[]>([])
+  const [activeTermSession, setActiveTermSession] = React.useState('')
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

@@ -53,6 +53,8 @@ export function CocosPanel() {
   const [showPluginManager, setShowPluginManager] = useState(false)
   const [hotReload, setHotReload] = useState(false)
   const [hotReloadInterval, setHotReloadInterval] = useState(1000)
+  const [buildWarnings, setBuildWarnings] = useState<string[]>([])
+  const [showWarningsPanel, setShowWarningsPanel] = useState(false)
   return (
     <CCFileProjectUI
       fileProject={fileProject}
@@ -283,6 +285,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1238: build profiles
   const [buildProfiles, setBuildProfiles] = useState<Record<string, object>>({})
   const [activeBuildProfile, setActiveBuildProfile] = useState<string | null>(null)
+  const [buildWarnings, setBuildWarnings] = useState<string[]>([])
+  const [showWarningsPanel, setShowWarningsPanel] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

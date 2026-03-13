@@ -382,6 +382,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   // R1237: multi cursor
   const [multiCursor, setMultiCursor] = useState(false)
   const [cursorPositions, setCursorPositions] = useState<number[]>([])
+  const [inputDragOver, setInputDragOver] = useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

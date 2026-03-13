@@ -379,6 +379,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showVersionPanel, setShowVersionPanel] = useState(false)
   const [sessionBadges, setSessionBadges] = useState<Record<string, string>>({})
   const [showBadgePanel, setShowBadgePanel] = useState(false)
+  const [sessionLayout, setSessionLayout] = useState<'list' | 'grid'>('list')
+  const [sessionLayoutConfig, setSessionLayoutConfig] = useState<Record<string, number>>({})
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

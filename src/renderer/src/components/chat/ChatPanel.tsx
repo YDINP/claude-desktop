@@ -507,6 +507,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [suggestionPendingInsert, setSuggestionPendingInsert] = useState<string | undefined>(undefined)
   const [chatTranslate, setChatTranslate] = useState<string>('none')
   const [showTranslatePanel, setShowTranslatePanel] = useState(false)
+  const [chatFontSize, setChatFontSize] = useState(14)
+  const [chatFontFamily, setChatFontFamily] = useState('default')
 
   const onSelectSuggestion = useCallback((text: string) => {
     setSuggestionPendingInsert(text)
