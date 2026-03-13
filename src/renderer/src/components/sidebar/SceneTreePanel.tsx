@@ -7,15 +7,24 @@ interface SceneTreePanelProps {
 }
 
 const NodeRow = memo(function NodeRow({
-  node, depth, selectedUuid, onSelect, forceExpand, port, onRename
+  node, depth, selectedUuid, onSelect, forceExpand, port, onRename, editingNodeUuid, onForceEditDone
 }: {
   node: CCNode; depth: number; selectedUuid: string | null; onSelect: (n: CCNode) => void; forceExpand?: boolean
   port: number; onRename?: (uuid: string, newName: string) => void
+  editingNodeUuid?: string | null; onForceEditDone?: () => void
 }) {
   const [expanded, setExpanded] = useState(forceExpand !== undefined ? forceExpand : depth < 2)
   const [editing, setEditing] = useState(false)
   const [editName, setEditName] = useState('')
   const hasChildren = (node.children?.length ?? 0) > 0
+
+  useEffect(() => {
+    if (editingNodeUuid === node.uuid) {
+      setEditName(node.name)
+      setEditing(true)
+      onForceEditDone?.()
+    }
+  }, [editingNodeUuid])
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -84,7 +93,7 @@ const NodeRow = memo(function NodeRow({
         </span>
       </div>
       {expanded && hasChildren && (node.children ?? []).map(child => (
-        <NodeRow key={child.uuid} node={child} depth={depth + 1} selectedUuid={selectedUuid} onSelect={onSelect} forceExpand={forceExpand} port={port} onRename={onRename} />
+        <NodeRow key={child.uuid} node={child} depth={depth + 1} selectedUuid={selectedUuid} onSelect={onSelect} forceExpand={forceExpand} port={port} onRename={onRename} editingNodeUuid={editingNodeUuid} onForceEditDone={onForceEditDone} />
       ))}
     </>
   )
@@ -96,6 +105,7 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
   const [nodeSearch, setNodeSearch] = useState('')
   const [hideInactive, setHideInactive] = useState(false)
+  const [editingNodeUuid, setEditingNodeUuid] = useState<string | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const refresh = useCallback(async () => {
@@ -194,7 +204,16 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
   const matchCount = nodeSearch.trim() && tree ? countMatches(tree) : 0
 
   return (
-    <div style={{ borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div
+      style={{ borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', height: '100%' }}
+      tabIndex={-1}
+      onKeyDown={e => {
+        if (e.key === 'F2' && selectedUuid) {
+          e.preventDefault()
+          setEditingNodeUuid(selectedUuid)
+        }
+      }}
+    >
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '6px 10px', fontSize: 10, fontWeight: 600, color: 'var(--text-muted)',
@@ -256,7 +275,7 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
           <div style={{ padding: '8px 10px', color: 'var(--text-muted)', fontSize: 11 }}>씬 없음</div>
         )}
         {tree && visibleRoots.map(root => (
-          <NodeRow key={root.uuid} node={root} depth={0} selectedUuid={selectedUuid} onSelect={handleSelect} forceExpand={nodeSearch !== ''} port={port} onRename={handleRename} />
+          <NodeRow key={root.uuid} node={root} depth={0} selectedUuid={selectedUuid} onSelect={handleSelect} forceExpand={nodeSearch !== ''} port={port} onRename={handleRename} editingNodeUuid={editingNodeUuid} onForceEditDone={() => setEditingNodeUuid(null)} />
         ))}
       </div>
     </div>

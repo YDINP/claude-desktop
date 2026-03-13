@@ -98,6 +98,25 @@ function formatPropValue(value: unknown): string | null {
   return String(value)
 }
 
+function getTypeHint(value: unknown): { label: string; color: string } | null {
+  if (value === null || value === undefined) return null
+  if (typeof value === 'boolean') return { label: 'Bool', color: '#16a34a' }
+  if (typeof value === 'number') return { label: 'Num', color: '#6b7280' }
+  if (typeof value === 'string') {
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (value.length === 36 && uuidRe.test(value)) return { label: 'UUID', color: '#ca8a04' }
+    return { label: 'Str', color: '#6b7280' }
+  }
+  if (typeof value === 'object' && !Array.isArray(value)) {
+    const obj = value as Record<string, unknown>
+    const keys = Object.keys(obj)
+    if ('r' in obj && 'g' in obj && 'b' in obj) return { label: 'Color', color: '#7c3aed' }
+    if ('x' in obj && 'y' in obj && 'z' in obj) return { label: 'Vec3', color: '#2563eb' }
+    if ('x' in obj && 'y' in obj && keys.length === 2) return { label: 'Vec2', color: '#2563eb' }
+  }
+  return null
+}
+
 // cc.Label: string 편집, cc.Button: interactable 토글 등 컴포넌트별 특수 props 편집 행
 const COMP_EDITABLE_KEYS: Record<string, string[]> = {
   'cc.Label':      ['string', 'fontSize', 'lineHeight'],
@@ -195,9 +214,15 @@ function ComponentSection({ type, props, open, onToggle, onSaveProp, onSaveCompP
                   onSave={val => onSaveCompProp!(type, k, val)} />
               )
             }
+            const hint = getTypeHint(raw)
             return (
               <div key={k} style={{ display: 'flex', gap: 4, padding: '1px 0', fontSize: 10, alignItems: 'center' }}>
                 <span style={{ color: 'var(--text-muted)', flexShrink: 0, minWidth: 72 }}>{k}</span>
+                {hint && (
+                  <span style={{ fontSize: 7, padding: '0 3px', borderRadius: 2, background: hint.color, color: '#fff', fontFamily: 'monospace', flexShrink: 0, lineHeight: '14px' }}>
+                    {hint.label}
+                  </span>
+                )}
                 {isColor && colorParts ? (
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ position: 'relative', display: 'inline-block' }}>
@@ -279,7 +304,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
   const extraComponents = (node.components ?? []).filter(
     c => c.type !== 'cc.UITransform' && c.type !== 'cc.UIOpacity'
   )
-  const [openState, setOpenState] = useState<Record<number, boolean>>({})
+  const [openState, setOpenState] = useState<Record<string, boolean>>(() => { try { return JSON.parse(localStorage.getItem('inspector-sections-open') ?? '{}') } catch { return {} } })
   const [uuidCopied, setUuidCopied] = useState(false)
   const [activeToggling, setActiveToggling] = useState(false)
   const [transformCopied, setTransformCopied] = useState(false)
@@ -297,7 +322,11 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
       setTimeout(() => setTransformCopied(false), 1500)
     })
   }, [node])
-  const toggleOpen = (i: number) => setOpenState(prev => ({ ...prev, [i]: !prev[i] }))
+  const toggleOpen = (type: string) => setOpenState(prev => {
+    const next = { ...prev, [type]: !prev[type] }
+    try { localStorage.setItem('inspector-sections-open', JSON.stringify(next)) } catch {}
+    return next
+  })
   const copyUuid = useCallback(() => {
     navigator.clipboard.writeText(node.uuid).then(() => {
       setUuidCopied(true)
@@ -369,7 +398,7 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
 
       {/* 컴포넌트 목록 */}
       {extraComponents.length > 0 && (() => {
-        const allOpen = extraComponents.every((_, i) => !!openState[i])
+        const allOpen = extraComponents.every(c => !!openState[c.type])
         return (
         <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0 3px', borderTop: '1px solid var(--border)', marginTop: 4 }}>
@@ -377,8 +406,9 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
             {extraComponents.length > 1 && (
               <button
                 onClick={() => {
-                  const next: Record<number, boolean> = {}
-                  extraComponents.forEach((_, i) => { next[i] = !allOpen })
+                  const next: Record<string, boolean> = {}
+                  extraComponents.forEach(c => { next[c.type] = !allOpen })
+                  try { localStorage.setItem('inspector-sections-open', JSON.stringify(next)) } catch {}
                   setOpenState(next)
                 }}
                 title={allOpen ? '전체 접기' : '전체 펼치기'}
@@ -393,8 +423,8 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
               key={i}
               type={c.type}
               props={c.props}
-              open={!!openState[i]}
-              onToggle={() => toggleOpen(i)}
+              open={!!openState[c.type]}
+              onToggle={() => toggleOpen(c.type)}
               onSaveProp={(k, v) => save(k, v)}
               onSaveCompProp={saveComp}
             />
