@@ -4924,6 +4924,40 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1579: cc.SkeletalAnimation — CC3.x Quick Edit
+            if (comp.type === 'cc.SkeletalAnimation') {
+              const speedRatio = Number(p.speedRatio ?? 1)
+              const playOnLoad = !!(p.playOnLoad ?? false)
+              const defaultClipName = String(p.defaultClipName ?? '')
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {defaultClipName && (
+                    <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                      defaultClip: <span style={{ color: '#58a6ff' }}>{defaultClipName}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>speedRatio</span>
+                    <input type="number" defaultValue={speedRatio} min={0} step={0.1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 1
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedRatio: v, _speedRatio: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={playOnLoad}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playOnLoad: e.target.checked, _playOnLoad: e.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                    />playOnLoad
+                  </label>
+                </div>
+              )
+            }
             // R1576: cc.DirectionalLight / cc.PointLight — intensity/color Quick Edit
             if (comp.type === 'cc.DirectionalLight' || comp.type === 'cc.PointLight') {
               const intensity = Number(p.intensity ?? 1)

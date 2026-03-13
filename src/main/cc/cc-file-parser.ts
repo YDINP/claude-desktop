@@ -341,6 +341,16 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
   'cc.Animation': e => ({
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? false,
   }),
+  // R1579: cc.SkeletalAnimation — CC3.x 스켈레탈 애니메이션
+  'cc.SkeletalAnimation': e => ({
+    playOnLoad: !!(e._playOnLoad ?? e.playOnLoad ?? false),
+    speedRatio: (e._speedRatio ?? e.speedRatio ?? 1) as number,
+    // _defaultClip 이름 추출 (embedded 또는 uuid 형식)
+    defaultClipName: (() => {
+      const dc = e._defaultClip as { __id__?: number; __uuid__?: string; _name?: string } | undefined
+      return (dc?._name ?? dc?.__uuid__?.slice(0, 8) ?? '') as string
+    })(),
+  }),
   // R1538: cc.EditBox — 텍스트 입력 컴포넌트
   'cc.EditBox': e => ({
     string: e._N$string ?? e._string ?? e.string ?? '',

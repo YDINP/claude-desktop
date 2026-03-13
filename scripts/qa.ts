@@ -16844,6 +16844,20 @@ console.log('\n## 469. R1578 SceneView 색상 tint indicator 체크')
   }
 }
 
+// ── Section 470: R1579 cc.SkeletalAnimation extractor + Inspector Quick Edit ────────────────
+console.log('\n## 470. R1579 cc.SkeletalAnimation Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s470parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s470panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s470parser.includes("'cc.SkeletalAnimation'") && s470panel.includes("comp.type === 'cc.SkeletalAnimation'") && s470panel.includes('speedRatio')) {
+    log('pass', 'R1579-skeletal', 'cc.SkeletalAnimation extractor + Inspector Quick Edit')
+  } else {
+    log('warning', 'R1579-skeletal', 'cc.SkeletalAnimation Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
