@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import type { CCFileProjectInfo, CCSceneFile, CCSceneNode } from '../../../../shared/ipc-schema'
 
 export interface CCFileProjectState {
@@ -17,6 +17,9 @@ export function useCCFileProject() {
   const [sceneFile, setSceneFile] = useState<CCSceneFile | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [externalChange, setExternalChange] = useState<{ path: string; timestamp: number } | null>(null)
+  const sceneFileRef = useRef(sceneFile)
+  sceneFileRef.current = sceneFile
 
   /** 폴더 선택 다이얼로그로 프로젝트 열기 */
   const openProject = useCallback(async () => {
@@ -36,6 +39,24 @@ export function useCCFileProject() {
       setLoading(false)
     }
   }, [])
+
+  // 로드된 씬 파일 외부 변경 감지 (다른 에디터에서 저장 시)
+  useEffect(() => {
+    const unsub = window.api.onCCFileChanged?.((event) => {
+      const cur = sceneFileRef.current
+      if (cur && event.path === cur.scenePath && event.type === 'change') {
+        setExternalChange({ path: event.path, timestamp: event.timestamp })
+      }
+    })
+    return () => unsub?.()
+  }, [])
+
+  // 씬 파일 로드 시 해당 파일 감시 등록
+  useEffect(() => {
+    if (!sceneFile?.scenePath) return
+    window.api.ccFileWatch?.(sceneFile.scenePath)
+    return () => { window.api.ccFileUnwatch?.(sceneFile.scenePath) }
+  }, [sceneFile?.scenePath])
 
   /** 경로로 프로젝트 감지 (자동 감지용) */
   const detectProject = useCallback(async (projectPath: string) => {
@@ -114,6 +135,7 @@ export function useCCFileProject() {
     sceneFile,
     loading,
     error,
+    externalChange,
     openProject,
     detectProject,
     loadScene,

@@ -1,7 +1,8 @@
-import { ipcMain, dialog } from 'electron'
+import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { detectCCVersion } from '../cc/cc-version-detector'
 import { parseCCScene } from '../cc/cc-file-parser'
 import { saveCCScene, restoreFromBackup } from '../cc/cc-file-saver'
+import { ccFileWatcher } from '../cc/cc-file-watcher'
 import {
   CC_FILE_DETECT,
   CC_FILE_OPEN_PROJECT,
@@ -12,10 +13,19 @@ import {
 import type { CCFileProjectInfo, CCSceneFile, CCSceneNode } from '../../shared/ipc-schema'
 
 let _registered = false
+let _watchUnsubscribe: (() => void) | null = null
 
-export function registerCCFileHandlers() {
+export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   if (_registered) return
   _registered = true
+
+  // 파일 변경 이벤트 → renderer로 전달
+  _watchUnsubscribe = ccFileWatcher.onChange(event => {
+    const win = mainWindow ?? BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('cc:file:changed', event)
+    }
+  })
 
   /** 경로 기반 CC 버전 감지 */
   ipcMain.handle(CC_FILE_DETECT, async (_e, projectPath: string) => {
@@ -63,5 +73,21 @@ export function registerCCFileHandlers() {
   /** 백업에서 씬 파일 복원 */
   ipcMain.handle('cc:file:restoreBackup', async (_e, scenePath: string) => {
     return restoreFromBackup(scenePath)
+  })
+
+  /** 씬 파일/디렉토리 감시 시작 */
+  ipcMain.handle('cc:file:watch', async (_e, paths: string | string[]) => {
+    ccFileWatcher.watch(paths)
+    return { watching: ccFileWatcher.watchedCount }
+  })
+
+  /** 감시 해제 */
+  ipcMain.handle('cc:file:unwatch', async (_e, paths?: string | string[]) => {
+    if (paths) {
+      ccFileWatcher.unwatch(paths)
+    } else {
+      await ccFileWatcher.close()
+    }
+    return { watching: ccFileWatcher.watchedCount }
   })
 }

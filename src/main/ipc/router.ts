@@ -19,7 +19,7 @@ export function registerAllHandlers(win: BrowserWindow) {
   registerFsHandlers(win)
   registerSessionHandlers()
   registerCCHandlers(win)
-  registerCCFileHandlers()
+  registerCCFileHandlers(win)
   registerOllamaHandlers(win)
   registerOpenAIHandlers(win)
 

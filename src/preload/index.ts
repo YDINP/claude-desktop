@@ -307,6 +307,15 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('cc:file:saveScene', sceneFile, modifiedRoot),
   ccFileRestoreBackup: (scenePath: string): Promise<{ success: boolean; error?: string }> =>
     ipcRenderer.invoke('cc:file:restoreBackup', scenePath),
+  ccFileWatch: (paths: string | string[]): Promise<{ watching: number }> =>
+    ipcRenderer.invoke('cc:file:watch', paths),
+  ccFileUnwatch: (paths?: string | string[]): Promise<{ watching: number }> =>
+    ipcRenderer.invoke('cc:file:unwatch', paths),
+  onCCFileChanged: (cb: (event: { type: string; path: string; timestamp: number }) => void) => {
+    const handler = (_e: Electron.IpcRendererEvent, data: { type: string; path: string; timestamp: number }) => cb(data)
+    ipcRenderer.on('cc:file:changed', handler)
+    return () => ipcRenderer.removeListener('cc:file:changed', handler)
+  },
 })
 
 declare global {
@@ -527,6 +536,9 @@ declare global {
         modifiedRoot: import('../shared/ipc-schema').CCSceneNode
       ) => Promise<{ success: boolean; backupPath?: string; error?: string }>
       ccFileRestoreBackup: (scenePath: string) => Promise<{ success: boolean; error?: string }>
+      ccFileWatch: (paths: string | string[]) => Promise<{ watching: number }>
+      ccFileUnwatch: (paths?: string | string[]) => Promise<{ watching: number }>
+      onCCFileChanged: (cb: (event: { type: string; path: string; timestamp: number }) => void) => () => void
     }
   }
 }
