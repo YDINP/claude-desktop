@@ -42,6 +42,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
   const [showGrid, setShowGrid] = useState(true)
+  const [showNodeNames, setShowNodeNames] = useState(true)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
   const [showHelp, setShowHelp] = useState(false)
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
@@ -291,6 +292,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           ⊹
         </button>
         <button
+          onClick={() => setShowNodeNames(n => !n)}
+          title="노드 이름 표시 토글"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showNodeNames ? 'rgba(88,166,255,0.12)' : 'none', color: showNodeNames ? '#58a6ff' : 'var(--text-muted)' }}
+        >
+          T
+        </button>
+        <button
           onClick={handleFit}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >
@@ -453,7 +461,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   fill={isSelected ? '#58a6ff' : '#888'}
                 />
                 {/* 노드 이름 레이블 */}
-                {view.zoom > 0.3 && editingUuid !== node.uuid && (
+                {showNodeNames && view.zoom > 0.3 && editingUuid !== node.uuid && (
                   <text
                     x={rectX + 3 / view.zoom}
                     y={rectY + 12 / view.zoom}
