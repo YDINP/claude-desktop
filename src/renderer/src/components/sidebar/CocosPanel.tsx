@@ -4847,6 +4847,47 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1564: cc.ScrollView — horizontal/vertical/inertia/elastic Quick Edit
+            if (comp.type === 'cc.ScrollView') {
+              const horizontal = !!(p.horizontal ?? p._N$horizontal ?? false)
+              const vertical = !!(p.vertical ?? p._N$vertical ?? true)
+              const inertia = !!(p.inertia ?? p._N$inertia ?? true)
+              const elastic = !!(p.elastic ?? p._N$elastic ?? true)
+              const brake = Number(p.brake ?? p._N$brake ?? 0.75)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    {[
+                      ['horizontal', horizontal, 'horizontal'],
+                      ['vertical', vertical, 'vertical'],
+                      ['inertia', inertia, 'inertia'],
+                      ['elastic', elastic, 'elastic'],
+                    ].map(([label, val, key]) => (
+                      <label key={key as string} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                        <input type="checkbox" checked={val as boolean}
+                          onChange={e => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key as string]: e.target.checked } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                        />{label as string}
+                      </label>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>brake</span>
+                    <input type="range" min={0} max={1} step={0.05} value={brake}
+                      onChange={e => {
+                        const v = parseFloat(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, brake: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{brake.toFixed(2)}</span>
+                  </div>
+                </div>
+              )
+            }
             // R1556: cc.TiledMap / cc.TiledLayer Quick Edit
             if (comp.type === 'cc.TiledMap') {
               return (

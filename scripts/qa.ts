@@ -16656,6 +16656,18 @@ console.log('\n## 454. R1563 SceneView Ctrl+D 복제 체크')
   }
 }
 
+// ── Section 455: R1564 cc.ScrollView Inspector Quick Edit ────────────────
+console.log('\n## 455. R1564 cc.ScrollView Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s455 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s455.includes("comp.type === 'cc.ScrollView'") && s455.includes('horizontal') && s455.includes('vertical') && s455.includes('brake')) {
+    log('pass', 'R1564-scrollview', 'cc.ScrollView Inspector Quick Edit: horizontal/vertical/inertia/elastic/brake')
+  } else {
+    log('warning', 'R1564-scrollview', 'cc.ScrollView Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
