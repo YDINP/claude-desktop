@@ -370,6 +370,18 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     endSize: e._N$endSize ?? e._endSize ?? e.endSize ?? 50,
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? true,
   }),
+  // R1546: sp.Skeleton — Spine 애니메이션
+  'sp.Skeleton': e => ({
+    skeletonData: (e._N$skeletonData ?? e._skeletonData ?? e.skeletonData) as unknown,
+    defaultSkin: (e._N$defaultSkin ?? e._defaultSkin ?? e.defaultSkin ?? 'default') as string,
+    defaultAnimation: (e._N$defaultAnimation ?? e._defaultAnimation ?? e.defaultAnimation ?? '') as string,
+    loop: !!(e._N$loop ?? e._loop ?? e.loop ?? true),
+    premultipliedAlpha: !!(e._N$premultipliedAlpha ?? e._premultipliedAlpha ?? e.premultipliedAlpha ?? true),
+    timeScale: (e._N$timeScale ?? e._timeScale ?? e.timeScale ?? 1) as number,
+    paused: !!(e._N$paused ?? e._paused ?? e.paused ?? false),
+    debugSlots: !!(e._N$debugSlots ?? e._debugSlots ?? e.debugSlots ?? false),
+    debugBones: !!(e._N$debugBones ?? e._debugBones ?? e.debugBones ?? false),
+  }),
 }
 
 // R1524: cc.Animation 클립 이름 해결 (embedded __id__ or external __uuid__)

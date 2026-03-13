@@ -16373,6 +16373,25 @@ console.log('\n## 436. R1545 SceneView 줌 % 인라인 입력 체크')
   }
 }
 
+// ── Section 437: R1546 sp.Skeleton extractor + Inspector UI ──
+console.log('\n## 437. R1546 sp.Skeleton Spine 컴포넌트 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s437p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s437ui = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s437p.includes("'sp.Skeleton'") && s437p.includes('defaultSkin') && s437p.includes('defaultAnimation') && s437p.includes('timeScale')) {
+    log('pass', 'R1546-parser', 'sp.Skeleton extractor 구현 (skin/animation/timeScale/loop/paused)')
+  } else {
+    log('warning', 'R1546-parser', 'sp.Skeleton extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s437ui.includes("comp.type === 'sp.Skeleton'") && s437ui.includes('defaultSkin') && s437ui.includes('defaultAnimation') && s437ui.includes('timeScale')) {
+    log('pass', 'R1546-ui', 'Inspector sp.Skeleton Quick Edit UI (skin/animation/timeScale/loop/paused)')
+  } else {
+    log('warning', 'R1546-ui', 'sp.Skeleton Inspector UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
