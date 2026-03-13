@@ -308,6 +308,20 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     if (statsTimerRef.current) clearTimeout(statsTimerRef.current)
   }, [])
 
+  // Active session stats: load immediately when active session changes
+  useEffect(() => {
+    if (!activeSessionId) return
+    if (sessionStats[activeSessionId]) return
+    let cancelled = false
+    ;(async () => {
+      const stats = await window.api.sessionStats(activeSessionId)
+      if (!cancelled && !stats.error) {
+        setSessionStats(prev => ({ ...prev, [activeSessionId]: stats }))
+      }
+    })()
+    return () => { cancelled = true }
+  }, [activeSessionId]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleNoteOpen = useCallback(async (e: React.MouseEvent, sessionId: string) => {
     e.stopPropagation()
     if (noteOpenId === sessionId) {
@@ -662,11 +676,37 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             <span>{formatTime(s.updatedAt)}</span>
             <span>{s.messageCount} msg{s.messageCount !== 1 ? 's' : ''}</span>
           </div>
-          {hoveredSession === s.id && sessionStats[s.id] && (
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2, display: 'flex', gap: 8 }}>
-              <span>💬 {sessionStats[s.id].totalMessages}</span>
-              <span>~{((sessionStats[s.id].estimatedTokens ?? 0) / 1000).toFixed(1)}K tok</span>
-              {sessionStats[s.id].updatedAt && (
+          {sessionStats[s.id] && (isActive || hoveredSession === s.id) && (
+            <div style={{
+              fontSize: 9,
+              color: 'var(--text-muted)',
+              marginTop: isActive ? 4 : 2,
+              display: 'flex',
+              gap: isActive ? 10 : 8,
+              ...(isActive ? {
+                padding: '3px 6px',
+                background: 'rgba(0,152,255,0.06)',
+                borderRadius: 4,
+                border: '1px solid rgba(0,152,255,0.12)',
+              } : {}),
+            }}>
+              <span title="메시지 수">
+                {isActive ? '\uD83D\uDCAC ' : ''}
+                {sessionStats[s.id].totalMessages} msg{(sessionStats[s.id].totalMessages ?? 0) !== 1 ? 's' : ''}
+              </span>
+              {(sessionStats[s.id].estimatedTokens ?? 0) > 0 && (
+                <span title="예상 토큰">
+                  {isActive ? '\uD83E\uDDE0 ' : '~'}
+                  {((sessionStats[s.id].estimatedTokens ?? 0) / 1000).toFixed(1)}K tok
+                </span>
+              )}
+              {isActive && (
+                <span title="생성 시각">
+                  {'\uD83D\uDD52 '}
+                  {new Date(s.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                </span>
+              )}
+              {!isActive && sessionStats[s.id].updatedAt && (
                 <span>{new Date(sessionStats[s.id].updatedAt!).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
               )}
             </div>

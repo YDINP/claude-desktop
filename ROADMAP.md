@@ -628,6 +628,10 @@
 | Round 582 | AI 타이핑 인디케이터 (TypingIndicator, bounce 애니메이션, 이미 구현됨) | ✅ |
 | Round 583 | Inspector cc.Vec2/cc.Vec3 컬러 레이블 (X=빨강, Y=초록, Z=파랑) | ✅ |
 | Round 584 | QA Section 115 추가 (R581/R582/R583, Pass 488) | ✅ |
+| Round 585 | 씬뷰 노드 툴팁 300ms 딜레이 + 위치 수정 + 첫 컴포넌트만 표시 | ✅ |
+| Round 586 | 채팅 메시지 복사 버튼 (📋→✓ 1.5초, 기존 Copy 버튼 제거) | ✅ |
+| Round 587 | 세션 통계 (sessionStats, active 세션 항상 표시, hover 세션 compact) | ✅ |
+| Round 588 | QA Section 116 추가 (R585/R586/R587, Pass 491) | ✅ |
 
 ## QA 프로세스
 

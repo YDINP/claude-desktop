@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: Round 581~584 (Marquee선택 + 타이핑인디케이터 + Vec2/Vec3 + QA)
+- 마지막 커밋: Round 585~588 (툴팁딜레이 + 복사버튼 + 세션통계 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 488
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 491
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -166,7 +166,16 @@
 | R583 | Inspector cc.Vec2/Vec3 컬러 레이블 X/Y/Z 분리 표시 |
 | R584 | QA Section 115 추가 (Pass 488) |
 
-## 다음 예정 (Round 585~)
+## Phase DD9 추가 완료 (Round 585~588)
+
+| 라운드 | 기능 |
+|--------|------|
+| R585 | 씬뷰 노드 툴팁 300ms 딜레이 + 우하단 위치 + 첫 컴포넌트 표시 |
+| R586 | MessageBubble 📋 복사 버튼 (✓ 1.5초 피드백, 기존 Copy 제거) |
+| R587 | SessionList 세션 통계 (active 항상 표시, hover compact) |
+| R588 | QA Section 116 추가 (Pass 491) |
+
+## 다음 예정 (Round 589~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 

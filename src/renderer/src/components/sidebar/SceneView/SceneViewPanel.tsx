@@ -81,6 +81,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [spaceDown, setSpaceDown] = useState(false)
   const [cursorScenePos, setCursorScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverTooltipPos, setHoverTooltipPos] = useState<{ x: number; y: number } | null>(null)
+  const [tooltipVisibleUuid, setTooltipVisibleUuid] = useState<string | null>(null)
+  const tooltipDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [inspectorNameFocus, setInspectorNameFocus] = useState(0)
   const [showMinimap, setShowMinimap] = useState(true)
@@ -894,8 +896,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       return
     }
 
-    // 호버 툴팁 위치
-    setHoverTooltipPos({ x: svgPos.x + 12, y: svgPos.y - 24 })
+    // 호버 툴팁 위치 (마우스 커서 우하단 +10, +10)
+    setHoverTooltipPos({ x: svgPos.x + 10, y: svgPos.y + 10 })
 
     // 마퀴 업데이트
     if (marqueeRef.current) {
@@ -1921,7 +1923,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           onMouseDown={handleSvgMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={() => { setCursorScenePos(null); setHoverTooltipPos(null); handleMouseUp() }}
+          onMouseLeave={() => { setCursorScenePos(null); setHoverTooltipPos(null); if (tooltipDelayRef.current) { clearTimeout(tooltipDelayRef.current); tooltipDelayRef.current = null } setTooltipVisibleUuid(null); handleMouseUp() }}
           onContextMenu={e => {
             e.preventDefault()
             setSvgContextMenu({ uuid: hoveredUuid, x: e.clientX, y: e.clientY })
@@ -2117,8 +2119,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   designWidth={DESIGN_W}
                   designHeight={DESIGN_H}
                   onMouseDown={handleNodeMouseDown}
-                  onMouseEnter={setHoveredUuid}
-                  onMouseLeave={() => setHoveredUuid(null)}
+                  onMouseEnter={(uuid) => {
+                    setHoveredUuid(uuid)
+                    if (tooltipDelayRef.current) clearTimeout(tooltipDelayRef.current)
+                    tooltipDelayRef.current = setTimeout(() => setTooltipVisibleUuid(uuid), 300)
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredUuid(null)
+                    if (tooltipDelayRef.current) { clearTimeout(tooltipDelayRef.current); tooltipDelayRef.current = null }
+                    setTooltipVisibleUuid(null)
+                  }}
                   onDoubleClick={() => { setInspectorNameFocus(v => v + 1) }}
                 />
               )
@@ -2945,18 +2955,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </div>
         )}
 
-        {/* 노드 호버 툴팁 */}
-        {hoveredUuid && hoverTooltipPos && !isDragging && !isResizing && (() => {
-          const hn = nodeMap.get(hoveredUuid)
+        {/* 노드 호버 툴팁 (300ms 딜레이) */}
+        {tooltipVisibleUuid && hoverTooltipPos && !isDragging && !isResizing && (() => {
+          const hn = nodeMap.get(tooltipVisibleUuid)
           if (!hn) return null
           const icon = getComponentIcon(hn.components)
-          const compList = hn.components.map(c => c.type).join(', ')
+          const firstComp = hn.components[0]?.type ?? null
           return (
             <div
               style={{
                 position: 'absolute',
-                left: hoverTooltipPos.x + 8,
-                top: hoverTooltipPos.y - 8,
+                left: hoverTooltipPos.x,
+                top: hoverTooltipPos.y,
                 background: 'rgba(10,10,20,0.92)',
                 color: '#e5e5e5',
                 fontSize: 9,
@@ -2974,17 +2984,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 {icon && <span style={{ color: 'var(--accent)', marginRight: 4 }}>{icon}</span>}
                 {hn.name}
               </div>
-              <div style={{ color: 'rgba(200,200,220,0.7)' }}>
-                pos: {Math.round(hn.x)}, {Math.round(hn.y)}
-              </div>
-              <div style={{ color: 'rgba(200,200,220,0.7)' }}>
-                size: {Math.round(hn.width)} × {Math.round(hn.height)}
-              </div>
-              {compList && (
-                <div style={{ color: 'var(--accent)', marginTop: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {compList}
+              {firstComp && (
+                <div style={{ color: 'var(--accent)', marginBottom: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {firstComp}
                 </div>
               )}
+              <div style={{ color: 'rgba(200,200,220,0.7)' }}>
+                {Math.round(hn.width)} × {Math.round(hn.height)}
+              </div>
               {hn.locked && <div style={{ color: '#f87171' }}>🔒 잠금됨</div>}
               {hn.visible === false && <div style={{ color: '#9ca3af' }}>숨김</div>}
               {hn.memo && <div style={{ color: '#fbbf24', marginTop: 2, maxWidth: 180, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>📝 {hn.memo}</div>}

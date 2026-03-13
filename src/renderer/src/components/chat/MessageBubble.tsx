@@ -1204,23 +1204,22 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               </button>
             )
           })}
-          {!isUser && (
-            <button
-              onClick={handleMdCopy}
-              title="마크다운 복사"
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: mdCopied ? 'var(--accent)' : 'var(--text-muted)',
-                fontSize: 13,
-                padding: '2px 4px',
-                borderRadius: 3,
-              }}
-            >
-              {mdCopied ? '✓' : '📋'}
-            </button>
-          )}
+          <button
+            onClick={handleMsgCopy}
+            title="메시지 전체 복사"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: msgCopied ? 'var(--accent)' : 'var(--text-muted)',
+              fontSize: 13,
+              padding: '2px 4px',
+              borderRadius: 3,
+              transition: 'color 0.15s',
+            }}
+          >
+            {msgCopied ? '✓' : '📋'}
+          </button>
           <button
             onClick={handleTranslate}
             title={showTranslation ? '번역 숨기기' : '번역'}
@@ -1262,17 +1261,6 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               🗒️
             </button>
           )}
-          <button
-            onClick={handleMsgCopy}
-            title="메시지 복사"
-            style={{
-              background: msgCopied ? '#2d5a27' : '#3a3a4a',
-              color: msgCopied ? '#7ec87a' : '#aaa',
-              border: 'none', borderRadius: 3, padding: '2px 8px', fontSize: 11, cursor: 'pointer',
-            }}
-          >
-            {msgCopied ? 'Copied!' : 'Copy'}
-          </button>
         </div>
       )}
 

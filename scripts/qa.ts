@@ -1106,8 +1106,8 @@ if (existsSync(sceneViewPanelPath14)) {
   } else {
     log('warning', 'Round141', 'SceneViewPanel 호버 툴팁 상태 미구현', 'SceneView/SceneViewPanel.tsx')
   }
-  if (svp14.includes('hoveredUuid && hoverTooltipPos') && svp14.includes('!isDragging && !isResizing')) {
-    log('pass', 'Round141', 'SceneViewPanel: 호버 툴팁 렌더링 조건 + 드래그 중 숨김 존재')
+  if (svp14.includes('tooltipVisibleUuid') && svp14.includes('tooltipDelayRef')) {
+    log('pass', 'Round141', 'SceneViewPanel: 호버 툴팁 딜레이 렌더링 존재')
   } else {
     log('warning', 'Round141', 'SceneViewPanel 호버 툴팁 렌더링 미구현', 'SceneView/SceneViewPanel.tsx')
   }
@@ -4272,8 +4272,8 @@ console.log('\n## 142. 신규 기능 파일 검사 (R240)')
 const svp240Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
 if (existsSync(svp240Path)) {
   const svp240 = readFileSync(svp240Path, 'utf-8')
-  if (svp240.includes('compList') && svp240.includes('pos:') && svp240.includes('size:')) {
-    log('pass', 'Round240', 'SceneViewPanel: 호버 툴팁 리치 정보 (pos/size/components) 구현 존재')
+  if (svp240.includes('components[0]') && svp240.includes('tooltipVisibleUuid')) {
+    log('pass', 'Round240', 'SceneViewPanel: 호버 툴팁 리치 정보 (첫 컴포넌트, 딜레이) 존재')
   } else {
     log('warning', 'Round240', 'SceneViewPanel 리치 툴팁 미구현', 'SceneView/SceneViewPanel.tsx')
   }
@@ -5604,6 +5604,41 @@ if (existsSync(cp583Path)) {
     log('pass', 'R583', 'Inspector Vec2/Vec3 컬러 레이블 존재')
   } else {
     log('warning', 'R583', 'Inspector Vec2/Vec3 컬러 레이블 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 116: Phase DD9 R585~587 기능 체크 ────────────────
+console.log('\n## 116. Phase DD9 R585~587 기능 체크')
+// R585: 씬뷰 노드 툴팁 딜레이
+const svp585Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp585Path)) {
+  const svp585 = readFileSync(svp585Path, 'utf-8')
+  if (svp585.includes('tooltipDelayRef') && svp585.includes('tooltipVisibleUuid')) {
+    log('pass', 'R585', '씬뷰 노드 툴팁 300ms 딜레이 존재')
+  } else {
+    log('warning', 'R585', '씬뷰 노드 툴팁 딜레이 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R586: 채팅 메시지 복사 버튼
+const mb586Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb586Path)) {
+  const mb586 = readFileSync(mb586Path, 'utf-8')
+  if (mb586.includes('clipboard') && mb586.includes('copied')) {
+    log('pass', 'R586', '채팅 메시지 복사 버튼 ✓ 피드백 존재')
+  } else {
+    log('warning', 'R586', '채팅 메시지 복사 버튼 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R587: 세션 통계
+const sl587Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl587Path)) {
+  const sl587 = readFileSync(sl587Path, 'utf-8')
+  if (sl587.includes('sessionStats') && sl587.includes('statsTimerRef')) {
+    log('pass', 'R587', '세션 통계 표시 존재')
+  } else {
+    log('warning', 'R587', '세션 통계 표시 없음', 'sidebar/SessionList.tsx')
   }
 }
 
