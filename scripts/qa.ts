@@ -16952,6 +16952,20 @@ console.log('\n## 477. R1586 cc.EditBox extractor + Inspector Quick Edit 체크'
   }
 }
 
+// ── Section 478: R1587 cc.Toggle / cc.ToggleContainer extractor + Inspector ──
+console.log('\n## 478. R1587 cc.Toggle/ToggleContainer extractor + Inspector 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s478parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s478panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s478parser.includes("'cc.Toggle': e =>") && s478parser.includes("'cc.ToggleContainer': e =>") && s478panel.includes("comp.type === 'cc.Toggle'") && s478panel.includes('isChecked') && s478panel.includes('allowSwitchOff')) {
+    log('pass', 'R1587-toggle', 'cc.Toggle/ToggleContainer extractor + Inspector: isChecked/interactable/allowSwitchOff')
+  } else {
+    log('warning', 'R1587-toggle', 'cc.Toggle Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -4782,6 +4782,35 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1587: cc.Toggle / cc.ToggleContainer Quick Edit
+            if (comp.type === 'cc.Toggle' || comp.type === 'cc.ToggleContainer') {
+              return (
+                <div key={ci} style={{ marginBottom: 6 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {comp.type === 'cc.Toggle' && (
+                    <>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, fontSize: 12 }}>
+                        <input type="checkbox" checked={!!(p.isChecked ?? false)}
+                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'isChecked', ev.target.checked)} />
+                        isChecked
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                        <input type="checkbox" checked={!!(p.interactable ?? true)}
+                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'interactable', ev.target.checked)} />
+                        interactable
+                      </label>
+                    </>
+                  )}
+                  {comp.type === 'cc.ToggleContainer' && (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                      <input type="checkbox" checked={!!(p.allowSwitchOff ?? false)}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'allowSwitchOff', ev.target.checked)} />
+                      allowSwitchOff
+                    </label>
+                  )}
+                </div>
+              )
+            }
             // R1586: cc.EditBox — 텍스트 입력 필드 Quick Edit
             if (comp.type === 'cc.EditBox') {
               const INPUT_MODE = ['Any', 'EmailAddr', 'Numeric', 'PhoneNumber', 'URL', 'Decimal', 'SingleLine']

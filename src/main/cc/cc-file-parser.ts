@@ -354,6 +354,15 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     autoWrap: !!(e._N$autoWrap ?? e._autoWrap ?? e.autoWrap ?? false),
     startAxis: (e._N$startAxis ?? e._startAxis ?? e.startAxis ?? 0) as number,
   }),
+  // R1587: cc.Toggle — 체크박스/라디오 토글
+  'cc.Toggle': e => ({
+    isChecked: !!(e._N$isChecked ?? e._isChecked ?? e.isChecked ?? false),
+    interactable: !!(e._N$interactable ?? e._interactable ?? e.interactable ?? true),
+  }),
+  // R1587: cc.ToggleContainer — 토글 그룹 컨테이너
+  'cc.ToggleContainer': e => ({
+    allowSwitchOff: !!(e._N$allowSwitchOff ?? e._allowSwitchOff ?? e.allowSwitchOff ?? false),
+  }),
   // R1586: cc.EditBox — 텍스트 입력 필드
   'cc.EditBox': e => ({
     string: (e._N$string ?? e._string ?? e.string ?? '') as string,
