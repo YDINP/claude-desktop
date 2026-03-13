@@ -413,6 +413,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       const tag = (e.target as HTMLElement).tagName
       const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
 
+      if (ctrl && e.key === 's') { e.preventDefault(); handleSave(); return }
       if (ctrl && e.key === 'z' && canUndo) { e.preventDefault(); undo(); return }
       if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) { e.preventDefault(); redo(); return }
 
@@ -449,7 +450,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene])
+  }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene, handleSave])
 
   // sceneFile 재로드 시 선택 노드 동기화 (uuid 기반 재탐색)
   useEffect(() => {

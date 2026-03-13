@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 454 완료 — Q-1 씬 트리 컴포넌트 타입 아이콘 표시)
+> 마지막 업데이트: 2026-03-13 (Round 455 완료 — R-1 Ctrl+S 씬 저장 단축키)
 
 ## 완료된 라운드
 
@@ -46,6 +46,7 @@
 | Round 452 | dev | Phase O-1: 씬 트리 헤더 통계 — 씬 파일명 옆에 N노드수/C컴포넌트수 즉시 표시 | ✅ |
 | Round 453 | dev | Phase P-1: 씬뷰 선택 HUD — position/size/rotation 하단 오버레이, 노드명 우측 표시 | ✅ |
 | Round 454 | dev | Phase Q-1: 씬 트리 컴포넌트 아이콘 — Sprite🖼/Label T/Button⊕/Canvas⊞ 등 타입별 아이콘, hover 전체 타입 표시 | ✅ |
+| Round 455 | dev | Phase R-1: Ctrl+S 씬 저장 단축키 — 기존 키보드 핸들러에 Ctrl+S 추가, handleSave 연결 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |
