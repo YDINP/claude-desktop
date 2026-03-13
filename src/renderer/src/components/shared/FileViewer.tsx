@@ -13,6 +13,7 @@ interface FileViewerProps {
   onClose?: () => void
   onSplitView?: (path: string) => void
   onAskAI?: (prompt: string) => void
+  onDirtyChange?: (dirty: boolean) => void
 }
 
 type BlameEntry = { hash: string; author: string; date: string; lineNo: number }
@@ -32,7 +33,7 @@ function getLang(filename: string): string {
 
 const IMAGE_EXT = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico', 'bmp'])
 
-export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI }: FileViewerProps) {
+export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyChange }: FileViewerProps) {
   const [content, setContent] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [fontSize, setFontSize] = useState(13)
@@ -43,6 +44,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI }: FileVie
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState('')
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [isDirty, setIsDirty] = useState(false)
   const [splitPreview, setSplitPreview] = useState(false)
 
   // Git blame state
@@ -81,6 +83,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI }: FileVie
     setSplitPreview(false)
     setShowBlame(false)
     setBlameData([])
+    setIsDirty(false); onDirtyChange?.(false)
   }, [path])
 
   const handleSave = async () => {
@@ -89,6 +92,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI }: FileVie
     if (result.ok) {
       setSaveStatus('saved')
       setContent(editContent)
+      setIsDirty(false); onDirtyChange?.(false)
       setTimeout(() => setSaveStatus('idle'), 2000)
     } else {
       setSaveStatus('error')
@@ -295,7 +299,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI }: FileVie
           <div style={{ flex: 1, overflow: 'hidden', borderRight: '1px solid var(--border)', position: 'relative' }}>
             <textarea
               value={editContent}
-              onChange={e => { setEditContent(e.target.value); setSaveStatus('idle') }}
+              onChange={e => { setEditContent(e.target.value); setSaveStatus('idle'); setIsDirty(true); onDirtyChange?.(true) }}
               onKeyDown={e => {
                 if (e.ctrlKey && e.key === 's') { e.preventDefault(); handleSave() }
                 if (e.key === 'Escape') { setIsEditing(false) }
@@ -409,7 +413,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI }: FileVie
               height="100%"
               language={getLang(filename)}
               value={editContent}
-              onChange={(val) => { setEditContent(val ?? ''); setSaveStatus('idle') }}
+              onChange={(val) => { setEditContent(val ?? ''); setSaveStatus('idle'); setIsDirty(true); onDirtyChange?.(true) }}
               theme="vs-dark"
               options={{
                 minimap: { enabled: true },

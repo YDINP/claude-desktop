@@ -327,11 +327,12 @@ function WorkspaceTabBar({ workspaces, activeId, workspaceNames, onSelect, onClo
 
 // ── FileTabBar ───────────────────────────────────────────────────────────────
 
-function FileTabBar({ tabs, active, onSelect, onClose }: {
+function FileTabBar({ tabs, active, onSelect, onClose, dirtyTabs }: {
   tabs: MainTab[]
   active: MainTab
   onSelect: (t: MainTab) => void
   onClose: (t: MainTab) => void
+  dirtyTabs?: Set<string>
 }) {
   return (
     <div style={{
@@ -368,6 +369,9 @@ function FileTabBar({ tabs, active, onSelect, onClose }: {
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {label}
             </span>
+            {dirtyTabs?.has(t) && (
+              <span style={{ color: 'var(--accent)', fontSize: 8, flexShrink: 0 }}>●</span>
+            )}
             {t !== 'chat' && t !== 'scene' && t !== 'preview' && (
               <span
                 onClick={e => { e.stopPropagation(); onClose(t) }}
@@ -418,6 +422,15 @@ function AppContent() {
   const [openTabs, setOpenTabs] = useState<MainTab[]>(['chat'])
   const [activeTab, setActiveTab] = useState<MainTab>('chat')
   const activeTabRef = useRef<MainTab>('chat')
+  const [dirtyTabs, setDirtyTabs] = useState<Set<string>>(new Set())
+  const setTabDirty = useCallback((path: string, dirty: boolean) => {
+    setDirtyTabs(prev => {
+      const s = new Set(prev)
+      if (dirty) s.add(path)
+      else s.delete(path)
+      return s
+    })
+  }, [])
 
   // ── Per-workspace CC / Preview state ──
   const [wsCCPort, setWsCCPort] = useState<number>(9090)
@@ -1582,6 +1595,7 @@ function AppContent() {
             active={activeTab}
             onSelect={t => { activeTabRef.current = t; setActiveTab(t) }}
             onClose={closeFileTab}
+            dirtyTabs={dirtyTabs}
           />
 
           {/* CC Layout header — chat 탭일 때만 표시 */}
@@ -1784,6 +1798,7 @@ function AppContent() {
                     cwd={project.currentPath ?? undefined}
                     onSplitView={splitFilePath ? undefined : (p) => setSplitFilePath(p)}
                     onAskAI={(prompt) => { setActiveTab('chat'); setPendingInsert(prompt) }}
+                    onDirtyChange={(dirty) => setTabDirty(path, dirty)}
                   />
                 </div>
                 {splitFilePath && activeTab === path && (
@@ -1793,6 +1808,7 @@ function AppContent() {
                       cwd={project.currentPath ?? undefined}
                       onClose={() => setSplitFilePath(null)}
                       onAskAI={(prompt) => { setActiveTab('chat'); setPendingInsert(prompt) }}
+                      onDirtyChange={(dirty) => setTabDirty(splitFilePath, dirty)}
                     />
                   </div>
                 )}

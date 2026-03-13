@@ -39,10 +39,13 @@ export function ConnectionPanel() {
   const [configFile, setConfigFile] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [autoPing, setAutoPing] = useState(false)
+  const [autoReconnect, setAutoReconnect] = useState(false)
   const [cfgCopied, setCfgCopied] = useState(false)
   const [copiedServerIdx, setCopiedServerIdx] = useState<number | null>(null)
   const autoPingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const autoReconnectRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const pingAllRef = useRef<() => void>(() => {})
+  const pingServerRef = useRef<(index: number) => void>(() => {})
   const [serverSearch, setServerSearch] = useState('')
 
   const loadServers = useCallback(async () => {
@@ -88,6 +91,22 @@ export function ConnectionPanel() {
     return () => { if (autoPingRef.current) { clearInterval(autoPingRef.current); autoPingRef.current = null } }
   }, [autoPing, servers.length])
 
+  const serversRef = useRef(servers)
+  useEffect(() => { serversRef.current = servers }, [servers])
+
+  // Auto-reconnect interval
+  useEffect(() => {
+    if (autoReconnectRef.current) { clearInterval(autoReconnectRef.current); autoReconnectRef.current = null }
+    if (autoReconnect && servers.length > 0) {
+      autoReconnectRef.current = setInterval(() => {
+        serversRef.current.forEach((s, i) => {
+          if (s.status !== 'alive') pingServerRef.current(i)
+        })
+      }, 10000)
+    }
+    return () => { if (autoReconnectRef.current) { clearInterval(autoReconnectRef.current); autoReconnectRef.current = null } }
+  }, [autoReconnect, servers.length])
+
   const pingServer = useCallback(async (index: number) => {
     const server = servers[index]
     if (!server) return
@@ -113,6 +132,9 @@ export function ConnectionPanel() {
       )
     }
   }, [servers])
+
+  // Keep pingServerRef updated
+  useEffect(() => { pingServerRef.current = pingServer }, [pingServer])
 
   const truncateArgs = (args: string[]) => {
     const joined = args.join(' ')
@@ -158,6 +180,21 @@ export function ConnectionPanel() {
               }}
             >
               {autoPing ? '⟳ ON' : '⟳'}
+            </button>
+          )}
+          {servers.length > 0 && (
+            <button
+              onClick={() => setAutoReconnect(v => !v)}
+              title={autoReconnect ? '자동 재연결 끄기 (10초 간격)' : '자동 재연결 켜기 (10초 간격)'}
+              style={{
+                fontSize: 11, padding: '2px 6px',
+                background: autoReconnect ? '#16a34a' : 'var(--bg-input)',
+                color: autoReconnect ? '#fff' : 'var(--text-muted)',
+                border: `1px solid ${autoReconnect ? '#16a34a' : 'var(--border)'}`,
+                borderRadius: 4, cursor: 'pointer',
+              }}
+            >
+              {autoReconnect ? '⚡ ON' : '⚡'}
             </button>
           )}
           {servers.length > 0 && (
