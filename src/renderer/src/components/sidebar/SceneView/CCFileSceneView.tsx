@@ -913,6 +913,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             })}
           </>
         })()}
+        {/* R1599: 두 노드 선택 시 거리 표시 */}
+        {multiSelected.size === 2 && (() => {
+          const [a, b] = flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
+          if (!a || !b) return null
+          const dx = a.worldX - b.worldX
+          const dy = a.worldY - b.worldY
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          return <span style={{ fontSize: 9, color: '#aaa', marginLeft: 4 }} title="두 노드 중심 간 거리">↔ {dist.toFixed(1)}px</span>
+        })()}
         {/* R1504: 새 노드 추가 */}
         {onAddNode && (
           <button
