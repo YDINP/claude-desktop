@@ -1,7 +1,8 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
+import http from 'http'
 import { detectCCVersion } from '../cc/cc-version-detector'
 import { parseCCScene } from '../cc/cc-file-parser'
-import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile } from '../cc/cc-file-saver'
+import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile, recordSceneMtime, forceOverwriteScene } from '../cc/cc-file-saver'
 import { ccFileWatcher } from '../cc/cc-file-watcher'
 import { buildUUIDMap, extractReferencedUUIDs, resolveTextureUrl } from '../cc/cc-asset-resolver'
 import {
@@ -16,6 +17,9 @@ import type { CCFileProjectInfo, CCSceneFile, CCSceneNode } from '../../shared/i
 let _registered = false
 let _watchUnsubscribe: (() => void) | null = null
 let _partialUpdateUnsubscribe: (() => void) | null = null
+// R1438: 씬 공유 로컬 서버
+let _sceneServer: http.Server | null = null
+let _sceneServerTimer: ReturnType<typeof setTimeout> | null = null
 
 export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   if (_registered) return
@@ -65,7 +69,10 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     projectInfo: CCFileProjectInfo
   ) => {
     try {
-      return parseCCScene(scenePath, projectInfo)
+      const result = parseCCScene(scenePath, projectInfo)
+      // R1437: 로드 시 mtime 기록
+      recordSceneMtime(scenePath)
+      return result
     } catch (e) {
       return { error: String(e) }
     }
@@ -78,6 +85,15 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     modifiedRoot: CCSceneNode
   ) => {
     return saveCCScene(sceneFile, modifiedRoot)
+  })
+
+  /** R1437: 충돌 무시 강제 덮어쓰기 */
+  ipcMain.handle('cc:file:forceOverwrite', async (
+    _e,
+    sceneFile: CCSceneFile,
+    modifiedRoot: CCSceneNode
+  ) => {
+    return forceOverwriteScene(sceneFile, modifiedRoot)
   })
 
   /** 백업에서 씬 파일 복원 */
@@ -148,5 +164,40 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     const { getAllTextureUUIDs } = await import('../cc/cc-asset-resolver')
     const map = buildUUIDMap(assetsDir)
     return getAllTextureUUIDs(map)
+  })
+
+  /** R1438: 씬 로컬 HTTP 서버로 공유 (7332포트, 60초 후 종료) */
+  ipcMain.handle('cc:file:serveScene', async (_e, sceneJson: string) => {
+    // 기존 서버 정리
+    if (_sceneServer) { try { _sceneServer.close() } catch { /* ignore */ } }
+    if (_sceneServerTimer) { clearTimeout(_sceneServerTimer); _sceneServerTimer = null }
+
+    const port = 7332
+    const server = http.createServer((req, res) => {
+      if (req.url === '/scene.json') {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
+        res.end(sceneJson)
+      } else {
+        res.writeHead(404)
+        res.end('Not found')
+      }
+    })
+
+    return new Promise<{ success: boolean; url?: string; error?: string }>((resolve) => {
+      server.on('error', (err) => {
+        resolve({ success: false, error: String(err) })
+      })
+      server.listen(port, '127.0.0.1', () => {
+        _sceneServer = server
+        const url = `http://localhost:${port}/scene.json`
+        // 60초 후 자동 종료
+        _sceneServerTimer = setTimeout(() => {
+          try { server.close() } catch { /* ignore */ }
+          _sceneServer = null
+          _sceneServerTimer = null
+        }, 60000)
+        resolve({ success: true, url })
+      })
+    })
   })
 }

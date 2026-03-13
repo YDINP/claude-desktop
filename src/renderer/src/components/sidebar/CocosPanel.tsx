@@ -272,7 +272,7 @@ interface CCFileProjectUIProps {
 }
 
 function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
-  const { projectInfo, sceneFile, loading, error, externalChange, canUndo, canRedo, openProject, loadScene, saveScene, undo, redo, restoreBackup } = fileProject
+  const { projectInfo, sceneFile, loading, error, externalChange, canUndo, canRedo, conflictInfo, openProject, loadScene, saveScene, undo, redo, restoreBackup, forceOverwrite } = fileProject
   const [selectedScene, setSelectedScene] = useState<string>('')
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
@@ -1181,6 +1181,36 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             title="닫기"
           >
             x
+          </button>
+        </div>
+      )}
+
+      {/* R1437: 충돌 감지 다이얼로그 */}
+      {conflictInfo && (
+        <div style={{
+          padding: '6px 10px', background: '#2d0a0a', borderBottom: '1px solid #ef4444',
+          display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 10, color: '#ef4444', flex: 1 }}>
+            파일이 외부에서 변경됨. 덮어쓸까요?
+          </span>
+          <button
+            onClick={() => forceOverwrite()}
+            style={{
+              padding: '2px 6px', fontSize: 9, borderRadius: 3, cursor: 'pointer',
+              background: '#ef4444', color: '#fff', border: 'none',
+            }}
+          >
+            덮어쓰기
+          </button>
+          <button
+            onClick={() => sceneFile && loadScene(sceneFile.scenePath)}
+            style={{
+              padding: '2px 6px', fontSize: 9, borderRadius: 3, cursor: 'pointer',
+              background: 'none', color: '#ef4444', border: '1px solid #ef4444',
+            }}
+          >
+            다시 로드
           </button>
         </div>
       )}
@@ -4239,6 +4269,56 @@ function buildFolderTree(entries: AssetEntry[]): FolderNode {
   return root
 }
 
+// R1434: 에셋 썸네일 미리보기 팝업
+const THUMB_IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'])
+
+function AssetThumbnailPopup({ path: filePath, anchorX, anchorY }: { path: string; anchorX: number; anchorY: number }) {
+  const [src, setSrc] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState(false)
+  const [fileSize, setFileSize] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
+  const fileName = filePath.split(/[\\/]/).pop() ?? filePath
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setLoadError(false)
+    setSrc(null)
+    window.api.readFileBase64(filePath).then(b64 => {
+      if (cancelled) return
+      if (!b64) { setLoadError(true); setLoading(false); return }
+      const ext = filePath.split('.').pop()?.toLowerCase() ?? 'png'
+      const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'webp' ? 'image/webp' : ext === 'gif' ? 'image/gif' : ext === 'bmp' ? 'image/bmp' : 'image/png'
+      setSrc(`data:${mime};base64,${b64}`)
+      setFileSize(Math.round((b64.length * 3 / 4) / 1024))
+      setLoading(false)
+    }).catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
+    return () => { cancelled = true }
+  }, [filePath])
+
+  // 팝업 위치: 커서 우측, 화면 가장자리 넘지 않도록
+  const popupW = 140
+  const popupH = 160
+  const left = anchorX + popupW > window.innerWidth ? anchorX - popupW - 8 : anchorX + 12
+  const top = anchorY + popupH > window.innerHeight ? window.innerHeight - popupH - 8 : anchorY
+
+  return (
+    <div style={{
+      position: 'fixed', left, top, width: popupW, zIndex: 9999,
+      background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.6)', padding: 6, pointerEvents: 'none',
+    }}>
+      <div style={{ width: 128, height: 128, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)', borderRadius: 4, overflow: 'hidden' }}>
+        {loading && <span style={{ fontSize: 18, animation: 'spin 1s linear infinite' }}>...</span>}
+        {loadError && <span style={{ fontSize: 24 }}>📄</span>}
+        {src && <img src={src} alt={fileName} style={{ maxWidth: 128, maxHeight: 128, objectFit: 'contain' }} />}
+      </div>
+      <div style={{ marginTop: 4, fontSize: 9, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fileName}</div>
+      {fileSize != null && <div style={{ fontSize: 8, color: 'var(--text-muted)' }}>{fileSize} KB</div>}
+    </div>
+  )
+}
+
 function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
   assetsDir: string
   sceneFile?: CCSceneFile
@@ -4255,6 +4335,9 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
   const [treeExpanded, setTreeExpanded] = useState<Set<string>>(new Set())
   // R1398: 프리팹 인스턴스화 상태
   const [instantiating, setInstantiating] = useState<string | null>(null)
+  // R1434: 에셋 썸네일 미리보기 상태
+  const [thumbHover, setThumbHover] = useState<{ path: string; x: number; y: number } | null>(null)
+  const thumbTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // R1398: .prefab 파일을 현재 씬에 인스턴스화
   const handleInstantiatePrefab = useCallback(async (entry: AssetEntry) => {
@@ -4381,6 +4464,23 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
     setTimeout(() => setCopied(null), 1500)
   }, [])
 
+  // R1434: 이미지 에셋 호버 → 썸네일 팝업
+  const handleThumbEnter = useCallback((entry: AssetEntry, e: React.MouseEvent) => {
+    const ext = entry.path.split('.').pop()?.toLowerCase() ?? ''
+    if (!THUMB_IMAGE_EXTS.has(ext)) return
+    if (thumbTimerRef.current) clearTimeout(thumbTimerRef.current)
+    thumbTimerRef.current = setTimeout(() => {
+      setThumbHover({ path: entry.path, x: e.clientX, y: e.clientY })
+    }, 300)
+  }, [])
+  const handleThumbLeave = useCallback(() => {
+    if (thumbTimerRef.current) { clearTimeout(thumbTimerRef.current); thumbTimerRef.current = null }
+    setThumbHover(null)
+  }, [])
+  const handleThumbMove = useCallback((e: React.MouseEvent) => {
+    setThumbHover(prev => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
+  }, [])
+
   const toggleGroup = useCallback((key: string) => {
     setExpanded(prev => {
       const next = new Set(prev)
@@ -4460,8 +4560,9 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
                     padding: '2px 4px 2px 22px', marginLeft: (depth + 1) * 12,
                     cursor: 'pointer', fontSize: 10, borderRadius: 3,
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.08)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.08)'; handleThumbEnter(file, e) }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; handleThumbLeave() }}
+                  onMouseMove={handleThumbMove}
                 >
                   <span style={{ flexShrink: 0 }}>{getAssetFileIcon(fileName)}</span>
                   <span style={{
@@ -4577,8 +4678,9 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
                   display: 'flex', alignItems: 'center', gap: 4, padding: '3px 6px 3px 22px',
                   cursor: 'pointer', fontSize: 10, borderRadius: 3,
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.08)')}
-                onMouseLeave={e => (e.currentTarget.style.background = '')}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.08)'; handleThumbEnter(item, e) }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; handleThumbLeave() }}
+                onMouseMove={handleThumbMove}
               >
                 <span style={{
                   flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -4613,6 +4715,8 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
         ))}
       </div>
       )}
+      {/* R1434: 에셋 썸네일 미리보기 팝업 */}
+      {thumbHover && <AssetThumbnailPopup path={thumbHover.path} anchorX={thumbHover.x} anchorY={thumbHover.y} />}
     </div>
   )
 }

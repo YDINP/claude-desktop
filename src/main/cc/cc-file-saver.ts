@@ -8,6 +8,26 @@ export interface SaveResult {
   success: boolean
   backupPath?: string
   error?: string
+  conflict?: boolean   // R1437: 외부 변경 감지 시 true
+  currentMtime?: number // R1437: 저장 후 mtime 반환
+}
+
+// R1437: 로드 시 mtime 기록 맵 (scenePath → mtimeMs)
+const loadedMtimeMap = new Map<string, number>()
+
+/** R1437: 씬 로드 시 mtime 기록 */
+export function recordSceneMtime(scenePath: string): void {
+  try {
+    const stat = fs.statSync(scenePath)
+    loadedMtimeMap.set(scenePath, stat.mtimeMs)
+  } catch { /* ignore */ }
+}
+
+/** R1437: 강제 덮어쓰기 — mtime 무시하고 저장 */
+export function forceOverwriteScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): SaveResult {
+  // mtime 기록 초기화 후 저장
+  loadedMtimeMap.delete(sceneFile.scenePath)
+  return saveCCScene(sceneFile, modifiedRoot)
 }
 
 /**
@@ -86,6 +106,17 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
 
   patchNode(modifiedRoot)
 
+  // ── R1437: 충돌 감지 (mtime 비교) ──────────────────────────────────────────
+  const recordedMtime = loadedMtimeMap.get(scenePath)
+  if (recordedMtime != null) {
+    try {
+      const currentStat = fs.statSync(scenePath)
+      if (Math.abs(currentStat.mtimeMs - recordedMtime) > 100) {
+        return { success: false, conflict: true, error: '파일이 외부에서 변경되었습니다.', currentMtime: currentStat.mtimeMs }
+      }
+    } catch { /* file may be deleted — proceed with save */ }
+  }
+
   // ── 파일 저장 ────────────────────────────────────────────────────────────────
   try {
     // .bak 백업
@@ -97,6 +128,12 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
     const content = JSON.stringify(raw, null, 2)
     fs.writeFileSync(tmpPath, content, 'utf-8')
     fs.renameSync(tmpPath, scenePath)
+
+    // R1437: 저장 후 mtime 갱신
+    try {
+      const newStat = fs.statSync(scenePath)
+      loadedMtimeMap.set(scenePath, newStat.mtimeMs)
+    } catch { /* ignore */ }
 
     return { success: true, backupPath }
   } catch (e) {

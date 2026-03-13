@@ -781,6 +781,38 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
                     onClick={() => onComponentClick?.(node.uuid)}
                     title={onComponentClick ? '씬뷰에서 하이라이트' : undefined}
                   >{c.type}</span>
+                  {/* R1436: 컴포넌트 복사 버튼 */}
+                  <button
+                    onClick={e => {
+                      e.stopPropagation()
+                      navigator.clipboard.writeText(JSON.stringify({ type: c.type, props: c.props ?? {} }))
+                    }}
+                    title="컴포넌트 JSON 복사"
+                    style={{
+                      fontSize: 8, padding: '0 2px', background: 'none', border: '1px solid var(--border)',
+                      borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer', lineHeight: '12px', flexShrink: 0,
+                    }}
+                  >{'\u{1F4CB}'}</button>
+                  {/* R1436: 컴포넌트 붙여넣기 버튼 */}
+                  <button
+                    onClick={async e => {
+                      e.stopPropagation()
+                      try {
+                        const text = await navigator.clipboard.readText()
+                        const data = JSON.parse(text) as { type?: string; props?: Record<string, unknown> }
+                        if (!data.type) return
+                        const exists = node.components.some(ec => ec.type === data.type)
+                        if (exists && !confirm(`"${data.type}" 컴포넌트가 이미 존재합니다. 중복 추가하시겠습니까?`)) return
+                        const newComps = [...node.components, { type: data.type, props: data.props ?? {} }]
+                        onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                      } catch { /* invalid clipboard */ }
+                    }}
+                    title="클립보드에서 컴포넌트 붙여넣기"
+                    style={{
+                      fontSize: 8, padding: '0 2px', background: 'none', border: '1px solid var(--border)',
+                      borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer', lineHeight: '12px', flexShrink: 0,
+                    }}
+                  >{'\u{1F4E5}'}</button>
                   {/* R1405: 순서 변경 버튼 */}
                   {node.components.length > 1 && (
                     <span style={{ display: 'flex', gap: 1, flexShrink: 0 }}>

@@ -304,8 +304,14 @@ contextBridge.exposeInMainWorld('api', {
   ccFileSaveScene: (
     sceneFile: import('../shared/ipc-schema').CCSceneFile,
     modifiedRoot: import('../shared/ipc-schema').CCSceneNode
-  ): Promise<{ success: boolean; backupPath?: string; error?: string }> =>
+  ): Promise<{ success: boolean; backupPath?: string; error?: string; conflict?: boolean }> =>
     ipcRenderer.invoke('cc:file:saveScene', sceneFile, modifiedRoot),
+  // R1437: 충돌 무시 강제 덮어쓰기
+  ccFileForceOverwrite: (
+    sceneFile: import('../shared/ipc-schema').CCSceneFile,
+    modifiedRoot: import('../shared/ipc-schema').CCSceneNode
+  ): Promise<{ success: boolean; backupPath?: string; error?: string }> =>
+    ipcRenderer.invoke('cc:file:forceOverwrite', sceneFile, modifiedRoot),
   ccFileRestoreBackup: (scenePath: string): Promise<{ success: boolean; error?: string }> =>
     ipcRenderer.invoke('cc:file:restoreBackup', scenePath),
   // R1423: .bak 파일 관리
@@ -330,6 +336,9 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('cc:file:resolveTexture', uuid, assetsDir),
   ccFileExtractUUIDs: (raw: unknown[]): Promise<string[]> =>
     ipcRenderer.invoke('cc:file:extractUUIDs', raw),
+  // R1438: 씬 로컬 HTTP 공유
+  ccFileServeScene: (sceneJson: string): Promise<{ success: boolean; url?: string; error?: string }> =>
+    ipcRenderer.invoke('cc:file:serveScene', sceneJson),
   // R1410: UUID → 에셋 상세 정보
   ccGetAssetInfo: (uuid: string, assetsDir: string): Promise<{ path: string; type: string; name: string } | null> =>
     ipcRenderer.invoke('cc:file:getAssetInfo', uuid, assetsDir),
@@ -561,6 +570,11 @@ declare global {
       ccFileSaveScene: (
         sceneFile: import('../shared/ipc-schema').CCSceneFile,
         modifiedRoot: import('../shared/ipc-schema').CCSceneNode
+      ) => Promise<{ success: boolean; backupPath?: string; error?: string; conflict?: boolean }>
+      // R1437
+      ccFileForceOverwrite: (
+        sceneFile: import('../shared/ipc-schema').CCSceneFile,
+        modifiedRoot: import('../shared/ipc-schema').CCSceneNode
       ) => Promise<{ success: boolean; backupPath?: string; error?: string }>
       ccFileRestoreBackup: (scenePath: string) => Promise<{ success: boolean; error?: string }>
       // R1423
@@ -573,6 +587,8 @@ declare global {
       ccFileBuildUUIDMap: (assetsDir: string) => Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>>
       ccFileResolveTexture: (uuid: string, assetsDir: string) => Promise<string | null>
       ccFileExtractUUIDs: (raw: unknown[]) => Promise<string[]>
+      // R1438
+      ccFileServeScene: (sceneJson: string) => Promise<{ success: boolean; url?: string; error?: string }>
       ccGetAssetInfo?: (uuid: string, assetsDir: string) => Promise<{ path: string; type: string; name: string } | null>
       ccGetAllTextureUUIDs?: (assetsDir: string) => Promise<string[]>
       // CC Editor Window

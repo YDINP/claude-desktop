@@ -236,6 +236,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   })
   const [showViewportPresets, setShowViewportPresets] = useState(false)
 
+  // ── R1435: 씬 JSON 뷰어 ─────────────────────────────────────
+  const [showJsonViewer, setShowJsonViewer] = useState(false)
+  const [jsonViewScope, setJsonViewScope] = useState<'selected' | 'full'>('selected')
+
+  // ── R1438: 씬 공유 로컬 서버 ────────────────────────────────
+  const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const [shareLoading, setShareLoading] = useState(false)
+
   // ── R1424: 다중 씬 비교 뷰 ─────────────────────────────────
   const [compareMode, setCompareMode] = useState(false)
   const [compareScenePath, setCompareScenePath] = useState<string | null>(null)
@@ -2802,6 +2810,47 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         >
           B/A
         </button>
+        {/* R1435: 씬 JSON 뷰어 토글 */}
+        <button
+          onClick={() => setShowJsonViewer(v => !v)}
+          title={showJsonViewer ? '씬 JSON 뷰어 닫기' : '씬 JSON 뷰어 열기'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: showJsonViewer ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)',
+            border: showJsonViewer ? '1px solid rgba(96,165,250,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: showJsonViewer ? '#60a5fa' : '#cbd5e1', fontFamily: 'monospace',
+          }}
+        >
+          {'{ }'}
+        </button>
+        {/* R1438: 씬 공유 링크 */}
+        <button
+          onClick={async () => {
+            setShareLoading(true)
+            try {
+              const data = Array.from(nodeMap.values()).map(n => ({ name: n.name, uuid: n.uuid, x: Math.round(n.x), y: Math.round(n.y), width: Math.round(n.width), height: Math.round(n.height), rotation: n.rotation, active: n.active, components: n.components }))
+              const sceneJson = JSON.stringify({ nodeCount: nodeMap.size, rootUuid, nodes: data }, null, 2)
+              const result = await window.api.ccFileServeScene?.(sceneJson)
+              if (result?.success && result.url) {
+                await navigator.clipboard.writeText(result.url)
+                setShareUrl(result.url)
+                setTimeout(() => setShareUrl(null), 5000)
+              }
+            } catch { /* ignore */ }
+            setShareLoading(false)
+          }}
+          disabled={shareLoading || nodeMap.size === 0}
+          title={shareUrl ? `공유 URL: ${shareUrl}` : '씬 로컬 HTTP 공유 (60초, 클립보드 복사)'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: shareUrl ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)',
+            border: shareUrl ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: shareUrl ? '#4ade80' : '#cbd5e1',
+            opacity: shareLoading || nodeMap.size === 0 ? 0.5 : 1,
+          }}
+        >
+          {shareLoading ? '...' : shareUrl ? '✓ 복사됨' : '\u{1F517}'}
+        </button>
         {/* R1428: 비활성 노드 클릭 방지 토글 */}
         <button
           onClick={() => setBlockInactiveClick(v => !v)}
@@ -3707,6 +3756,52 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             </div>
           </div>
         )}
+
+        {/* R1435: 씬 JSON 뷰어 패널 */}
+        {showJsonViewer && (() => {
+          const selNode = selectedUuid ? nodeMap.get(selectedUuid) : null
+          const jsonSource = jsonViewScope === 'selected' && selNode
+            ? { name: selNode.name, uuid: selNode.uuid, x: selNode.x, y: selNode.y, width: selNode.width, height: selNode.height, rotation: selNode.rotation, anchorX: selNode.anchorX, anchorY: selNode.anchorY, opacity: selNode.opacity, active: selNode.active, components: selNode.components, childCount: selNode.children?.length ?? 0 }
+            : { nodeCount: nodeMap.size, rootUuid, nodes: Array.from(nodeMap.values()).slice(0, 50).map(n => ({ name: n.name, uuid: n.uuid, x: Math.round(n.x), y: Math.round(n.y) })) }
+          const jsonStr = JSON.stringify(jsonSource, null, 2)
+          // R1435: 간단한 syntax highlight
+          const highlighted = jsonStr.replace(
+            /("(?:\\.|[^"\\])*")\s*:/g, '<span style="color:var(--accent,#60a5fa)">$1</span>:'
+          ).replace(
+            /:\s*("(?:\\.|[^"\\])*")/g, ': <span style="color:var(--success,#34d399)">$1</span>'
+          ).replace(
+            /:\s*(-?\d+\.?\d*)/g, ': <span style="color:var(--warning,#fbbf24)">$1</span>'
+          )
+          return (
+            <div style={{
+              position: 'absolute', top: 0, right: 0, width: 240, height: '100%',
+              background: 'var(--bg-primary)', borderLeft: '2px solid var(--accent)',
+              display: 'flex', flexDirection: 'column', zIndex: 55,
+            }}>
+              <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600, fontFamily: 'monospace' }}>JSON</span>
+                <button
+                  onClick={() => setJsonViewScope(v => v === 'selected' ? 'full' : 'selected')}
+                  style={{ fontSize: 8, padding: '1px 4px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-primary)', cursor: 'pointer' }}
+                >{jsonViewScope === 'selected' ? '선택 노드' : '전체 씬'}</button>
+                <span style={{ flex: 1 }} />
+                <button
+                  onClick={() => { navigator.clipboard.writeText(jsonStr) }}
+                  style={{ fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
+                  title="JSON 복사"
+                >복사</button>
+                <button
+                  onClick={() => setShowJsonViewer(false)}
+                  style={{ fontSize: 9, padding: '1px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
+                >X</button>
+              </div>
+              <pre
+                style={{ flex: 1, overflow: 'auto', margin: 0, padding: 8, fontSize: 9, lineHeight: 1.5, color: 'var(--text-primary)', fontFamily: 'var(--font-mono, monospace)', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
+                dangerouslySetInnerHTML={{ __html: highlighted }}
+              />
+            </div>
+          )
+        })()}
 
         {/* 측정 도구 결과 오버레이 (클릭 복사 지원) */}
         {measureMode && measureLine && (() => {

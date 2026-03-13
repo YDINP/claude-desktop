@@ -15117,6 +15117,81 @@ if (existsSync(parserPath)) {
   }
 }
 
+// ── Section 391: R1434/R1435/R1436 기능 체크 ───────────────
+console.log('\n## 391. Phase DD14 R1434~R1436 기능 체크')
+
+// R1434: CocosPanel 에셋 썸네일 미리보기
+if (existsSync(cp1398Path)) {
+  const cp1434 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1434.includes('R1434') && cp1434.includes('AssetThumbnailPopup') && cp1434.includes('thumbHover') && cp1434.includes('THUMB_IMAGE_EXTS') && cp1434.includes('readFileBase64')) {
+    log('pass', 'R1434', 'CocosPanel 에셋 썸네일 호버 미리보기 (128x128, 파일명+크기, 커서 우측)')
+  } else {
+    log('warning', 'R1434', 'CocosPanel 에셋 썸네일 미리보기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1435: SceneView 씬 JSON 뷰어
+if (existsSync(sceneViewPath)) {
+  const svp1435 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1435.includes('R1435') && svp1435.includes('showJsonViewer') && svp1435.includes('jsonViewScope') && svp1435.includes('{ }') && svp1435.includes('syntax highlight') && svp1435.includes('var(--accent)')) {
+    log('pass', 'R1435', 'SceneView 씬 JSON 뷰어 패널 ({ } 버튼, syntax highlight, 선택/전체 토글)')
+  } else {
+    log('warning', 'R1435', 'SceneView 씬 JSON 뷰어 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1436: Inspector 컴포넌트 복사/붙여넣기
+if (existsSync(si1402Path)) {
+  const si1436 = readFileSync(si1402Path, 'utf-8')
+  if (si1436.includes('R1436') && si1436.includes('컴포넌트 JSON 복사') && si1436.includes('클립보드에서 컴포넌트 붙여넣기') && si1436.includes('navigator.clipboard.writeText') && si1436.includes('navigator.clipboard.readText')) {
+    log('pass', 'R1436', 'Inspector 컴포넌트 복사/붙여넣기 (클립보드 JSON, 중복 경고)')
+  } else {
+    log('warning', 'R1436', 'Inspector 컴포넌트 복사/붙여넣기 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// ── Section 392: R1437/R1438 기능 체크 ───────────────
+console.log('\n## 392. Phase DD14 R1437~R1438 기능 체크')
+
+// R1437: cc-file-saver 충돌 해결
+const saverPath1437 = join(ROOT, 'src/main/cc/cc-file-saver.ts')
+if (existsSync(saverPath1437)) {
+  const saver1437 = readFileSync(saverPath1437, 'utf-8')
+  if (saver1437.includes('R1437') && saver1437.includes('loadedMtimeMap') && saver1437.includes('recordSceneMtime') && saver1437.includes('conflict') && saver1437.includes('forceOverwriteScene')) {
+    log('pass', 'R1437', 'cc-file-saver mtime 기반 충돌 감지 + forceOverwrite')
+  } else {
+    log('warning', 'R1437', 'cc-file-saver 충돌 감지 없음', 'cc/cc-file-saver.ts')
+  }
+}
+// R1437: CocosPanel conflict dialog
+if (existsSync(cp1398Path)) {
+  const cp1437 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1437.includes('R1437') && cp1437.includes('conflictInfo') && cp1437.includes('forceOverwrite') && cp1437.includes('덮어쓸까요')) {
+    log('pass', 'R1437-UI', 'CocosPanel conflict dialog (덮어쓰기/다시 로드)')
+  } else {
+    log('warning', 'R1437-UI', 'CocosPanel conflict dialog 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1438: 씬 로컬 HTTP 공유
+const cfh1438Path = join(ROOT, 'src/main/ipc/cc-file-handlers.ts')
+if (existsSync(cfh1438Path)) {
+  const cfh1438 = readFileSync(cfh1438Path, 'utf-8')
+  if (cfh1438.includes('R1438') && cfh1438.includes('serveScene') && cfh1438.includes('7332') && cfh1438.includes('60000') && cfh1438.includes('scene.json')) {
+    log('pass', 'R1438', '씬 로컬 HTTP 공유 (7332포트, 60초 자동 종료, scene.json)')
+  } else {
+    log('warning', 'R1438', '씬 로컬 HTTP 공유 없음', 'ipc/cc-file-handlers.ts')
+  }
+}
+if (existsSync(sceneViewPath)) {
+  const svp1438 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1438.includes('R1438') && svp1438.includes('shareUrl') && svp1438.includes('ccFileServeScene') && svp1438.includes('clipboard')) {
+    log('pass', 'R1438-UI', 'SceneView 씬 공유 버튼 (URL 클립보드 복사)')
+  } else {
+    log('warning', 'R1438-UI', 'SceneView 씬 공유 버튼 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1427 완료 — Phase DD14 진행 중, QA Pass 1313)
+> 마지막 업데이트: 2026-03-14 (Round 1439 완료 — Phase DD14 진행 중, QA Pass 1325)
 
 ## 개발 루프 실행 방식
 
@@ -809,6 +809,12 @@
 | Round 1431 | SceneView Before/After 슬라이더 비교 (SVG clipPath, 드래그, BEFORE/AFTER 라벨) | ✅ |
 | Round 1432 | cc-file-parser buildReferenceGraph (UUID 참조 그래프) + detectCycles (순환 참조 탐지) | ✅ |
 | Round 1433 | QA Section 389-390 추가 (R1428-R1432 기능 체크, Pass 1318) | ✅ |
+| Round 1434 | CocosPanel 에셋 썸네일 호버 미리보기 (128x128, base64, 파일명+크기) | ✅ |
+| Round 1435 | SceneView 씬 JSON 뷰어 패널 ({ } 버튼, syntax highlight, 선택/전체 토글) | ✅ |
+| Round 1436 | Inspector 컴포넌트 복사/붙여넣기 (클립보드 JSON, 중복 경고) | ✅ |
+| Round 1437 | cc-file-saver mtime 기반 충돌 감지 + CocosPanel conflict dialog | ✅ |
+| Round 1438 | 씬 로컬 HTTP 공유 (7332포트, 60초 자동 종료, URL 클립보드 복사) | ✅ |
+| Round 1439 | QA Section 391-392 추가 (R1434-R1438 기능 체크, Pass 1325) | ✅ |
 
 ## QA 프로세스
 
