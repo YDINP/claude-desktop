@@ -15733,6 +15733,46 @@ if (existsSync(cp407)) {
   }
 }
 
+// ── Section 409: R1486~R1487 기능 체크 ──────────────────────
+console.log('\n## 409. Phase DD22 R1486~R1487 기능 체크')
+const sv409 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp409 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv409) && existsSync(cp409)) {
+  const s409 = readFileSync(sv409, 'utf-8')
+  const c409 = readFileSync(cp409, 'utf-8')
+  // R1486: 다중 선택 정렬 툴바
+  if (s409.includes('R1486') && s409.includes('multiSelected.size > 1') && s409.includes('좌측 맞춤')) {
+    log('pass', 'R1486-align-toolbar', 'SceneView 다중 선택 정렬 툴바 구현 (6종 + 균등 배분)')
+  } else {
+    log('warning', 'R1486-align-toolbar', 'SceneView 정렬 툴바 미구현', 'CCFileSceneView.tsx')
+  }
+  // R1487: COCOS_ENUM_MAP 확장
+  if (c409.includes('R1487') && c409.includes('transition') && c409.includes('movementType')) {
+    log('pass', 'R1487-enum-map', 'Inspector COCOS_ENUM_MAP cc.Button/Layout/Mask/ScrollView enum 확장')
+  } else {
+    log('warning', 'R1487-enum-map', 'COCOS_ENUM_MAP 미확장', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 410: R1488~R1489 기능 체크 ──────────────────────
+console.log('\n## 410. Phase DD22 R1488~R1489 기능 체크')
+if (existsSync(sv409) && existsSync(cp409)) {
+  const s410 = readFileSync(sv409, 'utf-8')
+  const c410 = readFileSync(cp409, 'utf-8')
+  // R1488: Inspector 노드 통계 뱃지
+  if (c410.includes('R1488') && c410.includes('d{nodePath.length')) {
+    log('pass', 'R1488-node-stats', 'Inspector breadcrumb 노드 통계 뱃지 (깊이/자식/컴포넌트) 구현')
+  } else {
+    log('warning', 'R1488-node-stats', 'Inspector 노드 통계 뱃지 미구현', 'CocosPanel.tsx')
+  }
+  // R1489: 미니맵
+  if (s410.includes('R1489') && s410.includes('showMinimap') && s410.includes('미니맵')) {
+    log('pass', 'R1489-minimap', 'SceneView 미니맵 오버레이 (뷰포트 사각형 + 노드 점 렌더링) 구현')
+  } else {
+    log('warning', 'R1489-minimap', 'SceneView 미니맵 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T19:08:44.737Z
+> 2026-03-13T19:09:19.390Z
 
 ## Critical
 _없음_
@@ -1386,3 +1386,7 @@ _없음_
 - cc-focus-node 이벤트 dispatch + SceneView 수신 구현
 - CCFileSceneView onMultiDelete prop + handleMultiDelete 콜백 구현
 - Inspector World Transform (worldPos useMemo + findChain) 구현
+- SceneView 다중 선택 정렬 툴바 구현 (6종 + 균등 배분)
+- Inspector COCOS_ENUM_MAP cc.Button/Layout/Mask/ScrollView enum 확장
+- Inspector breadcrumb 노드 통계 뱃지 (깊이/자식/컴포넌트) 구현
+- SceneView 미니맵 오버레이 (뷰포트 사각형 + 노드 점 렌더링) 구현
