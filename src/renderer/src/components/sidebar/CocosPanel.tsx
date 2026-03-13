@@ -4013,42 +4013,72 @@ function CCFileNodeInspector({
               <div style={{
                 position: 'absolute', top: '100%', right: 0, marginTop: 2,
                 background: 'var(--bg-secondary, #0d0d1a)', border: '1px solid var(--border, #2a2a3a)',
-                borderRadius: 4, zIndex: 50, minWidth: 160, maxHeight: 240, overflowY: 'auto',
+                borderRadius: 4, zIndex: 50, minWidth: 180, maxHeight: 280, overflowY: 'auto',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
               }}>
+                {/* R1547: 헤더 */}
+                <div style={{ padding: '4px 8px 2px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
+                  <span>즐겨찾기 노드 ({favoriteNodes.length})</span>
+                  {favoriteNodes.length > 0 && (
+                    <span style={{ cursor: 'pointer', color: '#f85149' }}
+                      onClick={() => { setFavoriteNodes([]); localStorage.setItem('favorite-nodes', '[]') }}
+                      title="전체 삭제"
+                    >전체 삭제</span>
+                  )}
+                </div>
                 {favoriteNodes.length === 0 ? (
                   <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--text-muted)' }}>즐겨찾기 없음</div>
-                ) : favoriteNodes.map(fav => (
-                  <div
-                    key={fav.uuid}
-                    onClick={() => { console.log('favorite select', fav.uuid); setFavoritesOpen(false) }}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '4px 8px', cursor: 'pointer', fontSize: 10,
-                      color: fav.uuid === node.uuid ? '#fbbf24' : 'var(--text-primary, #ccc)',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover, #1a1a2e)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-                      {fav.uuid === node.uuid ? '★ ' : '☆ '}{fav.name}
-                    </span>
-                    <span
-                      onClick={e => {
-                        e.stopPropagation()
-                        setFavoriteNodes(prev => {
-                          const next = prev.filter(f => f.uuid !== fav.uuid)
-                          localStorage.setItem('favorite-nodes', JSON.stringify(next))
-                          return next
-                        })
+                ) : favoriteNodes.map(fav => {
+                  // R1547: 컴포넌트 타입 배지 조회
+                  const findNode = (n: CCSceneNode): CCSceneNode | null => {
+                    if (n.uuid === fav.uuid) return n
+                    for (const c of n.children) { const f = findNode(c); if (f) return f }
+                    return null
+                  }
+                  const favNode = findNode(sceneFile.root)
+                  const primaryComp = favNode?.components?.[0]?.type?.replace(/^cc\.|^sp\./, '') ?? null
+                  return (
+                    <div
+                      key={fav.uuid}
+                      onClick={() => {
+                        if (favNode) onUpdate(favNode)
+                        setFavoritesOpen(false)
                       }}
-                      style={{ marginLeft: 6, color: '#f85149', cursor: 'pointer', flexShrink: 0 }}
-                      title="즐겨찾기 삭제"
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '4px 8px', cursor: favNode ? 'pointer' : 'default', fontSize: 10,
+                        color: fav.uuid === node.uuid ? '#fbbf24' : favNode ? 'var(--text-primary, #ccc)' : 'var(--text-muted)',
+                        opacity: favNode ? 1 : 0.5,
+                      }}
+                      onMouseEnter={e => { if (favNode) e.currentTarget.style.background = 'var(--bg-hover, #1a1a2e)' }}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      title={favNode ? undefined : '노드를 찾을 수 없음 (삭제됨)'}
                     >
-                      ×
-                    </span>
-                  </div>
-                ))}
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                        {fav.uuid === node.uuid ? '★ ' : '☆ '}{fav.name}
+                      </span>
+                      {primaryComp && (
+                        <span style={{ marginLeft: 4, fontSize: 8, color: '#58a6ff', background: 'rgba(88,166,255,0.12)', borderRadius: 2, padding: '0 3px', flexShrink: 0 }}>
+                          {primaryComp}
+                        </span>
+                      )}
+                      <span
+                        onClick={e => {
+                          e.stopPropagation()
+                          setFavoriteNodes(prev => {
+                            const next = prev.filter(f => f.uuid !== fav.uuid)
+                            localStorage.setItem('favorite-nodes', JSON.stringify(next))
+                            return next
+                          })
+                        }}
+                        style={{ marginLeft: 6, color: '#f85149', cursor: 'pointer', flexShrink: 0 }}
+                        title="즐겨찾기 삭제"
+                      >
+                        ×
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>

@@ -16392,6 +16392,23 @@ console.log('\n## 437. R1546 sp.Skeleton Spine 컴포넌트 체크')
   }
 }
 
+// ── Section 438: R1547 즐겨찾기 노드 클릭 탐색 수정 ────────────
+console.log('\n## 438. R1547 즐겨찾기 노드 클릭 탐색 + 컴포넌트 배지 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s438 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s438.includes('R1547') && s438.includes('if (favNode) onUpdate(favNode)') && !s438.includes("console.log('favorite select'")) {
+    log('pass', 'R1547-nav', '즐겨찾기 클릭 → onUpdate(favNode) 탐색 구현 (console.log 제거)')
+  } else {
+    log('warning', 'R1547-nav', '즐겨찾기 클릭 탐색 미구현 또는 console.log 여전히 존재', 'CocosPanel.tsx')
+  }
+  if (s438.includes('primaryComp') && s438.includes("replace(/^cc\\.|^sp\\./, '')") && s438.includes('컴포넌트 타입 배지')) {
+    log('pass', 'R1547-badge', '즐겨찾기 컴포넌트 타입 배지 + 없는 노드 희미하게 표시')
+  } else {
+    log('warning', 'R1547-badge', '즐겨찾기 컴포넌트 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
