@@ -985,8 +985,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
 
     // 드래그 종료 → IPC 전송
-    if (dragRef.current) {
-      const drag = dragRef.current
+    // [C-7] race condition 방지: await 전에 dragRef를 로컬 캡처 후 즉시 null 처리
+    const capturedDrag = dragRef.current
+    if (capturedDrag) {
+      dragRef.current = null
+      const drag = capturedDrag
 
       if (drag.groupOffsets) {
         // 그룹 드래그 완료: 모든 선택 노드 저장
@@ -1039,7 +1042,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           return [entry, ...prev.filter(e => e.uuid !== drag.uuid)].slice(0, 20)
         })
       }
-      dragRef.current = null
+      // dragRef.current already nulled at start of handler (race condition fix)
       setIsDragging(false)
       setDragDelta(null)
     }

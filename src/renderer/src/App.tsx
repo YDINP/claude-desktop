@@ -698,15 +698,26 @@ function AppContent() {
 
   const saveCurrentSnapshot = () => {
     if (!activeWsId) return
-    const snap = { ...wsStateRef.current }
+    const cur = wsStateRef.current
+    // [C-2] scene/preview는 CC 연결 상태 의존 탭 → 스냅샷에서 제외
+    const safeTabs = cur.openTabs.filter(t => t !== 'preview' && t !== 'scene')
+    const safeActive: MainTab = cur.activeTab === 'scene' || cur.activeTab === 'preview'
+      ? (safeTabs[0] ?? 'chat')
+      : cur.activeTab
+    const snap: WorkspaceSnapshot = { ...cur, openTabs: safeTabs, activeTab: safeActive }
     setWorkspaces(prev => prev.map(ws => ws.id === activeWsId ? { ...ws, snapshot: snap } : ws))
   }
 
   const applySnapshot = (snap: WorkspaceSnapshot, path: string) => {
     chat.hydrate(snap.messages, snap.sessionId)
-    setOpenTabs(snap.openTabs.filter(t => t !== 'preview' && t !== 'scene'))
-    activeTabRef.current = snap.activeTab
-    setActiveTab(snap.activeTab)
+    const safeTabs = snap.openTabs.filter(t => t !== 'preview' && t !== 'scene')
+    // [C-1] activeTab이 scene/preview이면 'chat'으로 폴백
+    const safeActive: MainTab = snap.activeTab === 'scene' || snap.activeTab === 'preview'
+      ? 'chat'
+      : snap.activeTab
+    setOpenTabs(safeTabs)
+    activeTabRef.current = safeActive
+    setActiveTab(safeActive)
     setWsCCPort(snap.ccPort ?? 9090)
     setWsWebPreviewUrl(snap.webPreviewUrl ?? '')
     setWsCCConnected(false)
@@ -794,7 +805,8 @@ function AppContent() {
 
   const closeActiveFileTab = () => {
     const cur = activeTabRef.current
-    if (cur !== 'chat') closeFileTab(cur)
+    // [M-6] scene/preview 탭은 CC 연결 의존 탭 → Ctrl+W로 닫기 불가
+    if (cur !== 'chat' && cur !== 'scene' && cur !== 'preview') closeFileTab(cur)
   }
 
   // ── Sound toggle (from palette) ──
