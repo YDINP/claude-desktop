@@ -17721,6 +17721,18 @@ console.log('\n## 540. R1649 SceneView 상태바 노드 크기 체크')
   }
 }
 
+// ── Section 541: R1650 붙여넣기 위치 오프셋 ──────────────────────────────────
+console.log('\n## 541. R1650 붙여넣기 위치 오프셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s541 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s541.includes('R1650') && s541.includes('붙여넣기 위치 오프셋') && s541.includes('p.x + 20')) {
+    log('pass', 'R1650-paste-offset', '붙여넣기 시 위치 오프셋 적용')
+  } else {
+    log('warning', 'R1650-paste-offset', '붙여넣기 위치 오프셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

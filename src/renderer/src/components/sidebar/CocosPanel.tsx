@@ -1056,8 +1056,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (ctrl && e.key === 'v' && clipboardRef.current && sceneFile?.root) {
         e.preventDefault()
         const srcNode = clipboardRef.current
-        // R1476: 딥복사 + UUID 자동 재생성 (자식 포함)
+        // R1476: 딥복사 + UUID 자동 재생성 (자식 포함) / R1650: 붙여넣기 위치 오프셋
         const pasteNode = deepCopyNodeWithNewUuids(srcNode, '_Paste')
+        // R1650: 붙여넣기 시 20px 오프셋 적용 (원본과 겹치지 않도록)
+        if (pasteNode.position) {
+          const p = pasteNode.position as { x: number; y: number; z?: number }
+          pasteNode.position = { ...p, x: p.x + 20, y: p.y - 20 }
+        }
         const parentUuid = selectedNode?.uuid ?? sceneFile.root.uuid
         function addToParent(n: CCSceneNode): CCSceneNode {
           if (n.uuid === parentUuid) return { ...n, children: [...n.children, pasteNode] }
