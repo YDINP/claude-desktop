@@ -77,7 +77,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   const cy = sy
 
   const baseOpacity = node.visible === false ? 0.15 : node.active ? (node.opacity / 255) : 0.3
-  const opacity = dimmed ? baseOpacity * 0.2 : baseOpacity
+  const opacity = dimmed ? baseOpacity * 0.2 : locked ? baseOpacity * 0.5 : baseOpacity
 
   // LOD: 줌 레벨에 따라 렌더링 디테일 단계
   // lod=0: 전체, lod=1: 라벨/아이콘 숨김, lod=2: fill 없음 (테두리만)

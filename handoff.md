@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: Round 565~568 (프로퍼티검색 + 이모지반응 + 노드잠금 + QA)
+- 마지막 커밋: Round 569~572 (좌표표시 + 세션import/export + 스크럽 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 476
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 479
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -130,7 +130,16 @@
 | R567 | 씬뷰 노드 잠금 (lockedUuids, 🔒 아이콘, 클릭/드래그 차단) |
 | R568 | QA Section 111 추가 (Pass 476) |
 
-## 다음 예정 (Round 569~)
+## Phase DD9 추가 완료 (Round 569~572)
+
+| 라운드 | 기능 |
+|--------|------|
+| R569 | 씬뷰 Cocos 좌표 툴바 표시 (mousePos prop → SceneToolbar X/Y) |
+| R570 | 세션 JSON import/export (handleImportSession/handleExportSession) |
+| R571 | Inspector 숫자 스크럽 드래그 (ScrubLabel, Shift×0.1 민감도) |
+| R572 | QA Section 112 추가 (Pass 479) |
+
+## 다음 예정 (Round 573~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 

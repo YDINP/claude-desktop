@@ -946,8 +946,8 @@ if (existsSync(sceneViewPanelPath11)) {
   } else {
     log('warning', 'Round132', 'SceneViewPanel 마우스 씬 좌표 추적 미구현', 'SceneView/SceneViewPanel.tsx')
   }
-  if (svp11.includes('cursorScenePos.x') && svp11.includes('cursorScenePos.y') && svp11.includes('isDragging && !isResizing')) {
-    log('pass', 'Round132', 'SceneViewPanel: 씬 좌표 오버레이 + 드래그 중 숨김 존재')
+  if (svp11.includes('cursorScenePos') && svp11.includes('mousePos')) {
+    log('pass', 'Round132', 'SceneViewPanel: 씬 좌표 오버레이 툴바 연동 존재')
   } else {
     log('warning', 'Round132', 'SceneViewPanel 씬 좌표 오버레이 미구현', 'SceneView/SceneViewPanel.tsx')
   }
@@ -5464,6 +5464,41 @@ if (existsSync(svp567Path)) {
     log('pass', 'R567', '씬뷰 노드 잠금 기능 존재')
   } else {
     log('warning', 'R567', '씬뷰 노드 잠금 기능 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// ── Section 112: Phase DD9 R569~571 기능 체크 ────────────────
+console.log('\n## 112. Phase DD9 R569~571 기능 체크')
+// R569: 씬뷰 좌표 표시 (SceneToolbar)
+const st569Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(st569Path)) {
+  const st569 = readFileSync(st569Path, 'utf-8')
+  if (st569.includes('mousePos')) {
+    log('pass', 'R569', '씬뷰 Cocos 좌표 툴바 표시 존재')
+  } else {
+    log('warning', 'R569', '씬뷰 Cocos 좌표 툴바 표시 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R570: 세션 JSON import/export
+const sl570Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl570Path)) {
+  const sl570 = readFileSync(sl570Path, 'utf-8')
+  if (sl570.includes('handleExportSession') && sl570.includes('handleImportSession')) {
+    log('pass', 'R570', '세션 JSON import/export 존재')
+  } else {
+    log('warning', 'R570', '세션 JSON import/export 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
+// R571: Inspector 숫자 스크럽
+const cp571Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp571Path)) {
+  const cp571 = readFileSync(cp571Path, 'utf-8')
+  if (cp571.includes('ScrubLabel') && cp571.includes('onMouseDown')) {
+    log('pass', 'R571', 'Inspector 숫자 스크럽 드래그 존재')
+  } else {
+    log('warning', 'R571', 'Inspector 숫자 스크럽 없음', 'sidebar/CocosPanel.tsx')
   }
 }
 

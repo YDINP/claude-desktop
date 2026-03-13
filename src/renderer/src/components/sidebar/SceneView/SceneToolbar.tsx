@@ -90,6 +90,7 @@ interface SceneToolbarProps {
   onToggleDiff?: () => void
   showRuler?: boolean
   onToggleRuler?: () => void
+  mousePos?: { x: number; y: number } | null
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -184,6 +185,7 @@ export function SceneToolbar({
   onToggleDiff,
   showRuler,
   onToggleRuler,
+  mousePos,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
@@ -494,6 +496,27 @@ export function SceneToolbar({
       )}
 
       <div style={{ flex: 1 }} />
+
+      {/* 마우스 Cocos 좌표 */}
+      {mousePos != null && (
+        <span
+          style={{
+            fontSize: 9,
+            color: 'var(--text-muted)',
+            fontVariantNumeric: 'tabular-nums',
+            background: 'var(--bg-primary)',
+            border: '1px solid var(--border)',
+            borderRadius: 3,
+            padding: '1px 5px',
+            lineHeight: '16px',
+            userSelect: 'none',
+            minWidth: 80,
+            textAlign: 'center',
+          }}
+        >
+          X: {mousePos.x}, Y: {mousePos.y}
+        </span>
+      )}
 
       {/* 실행 취소 / 다시 실행 */}
       <button

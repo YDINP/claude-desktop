@@ -900,28 +900,37 @@ function CCFileSceneTree({
 }
 
 /** 스크러빙 라벨: 마우스 좌우 드래그로 숫자 값 조절 */
-function ScrubLabel({ label, value, onChange, step = 1 }: { label: string; value: number; onChange: (v: number) => void; step?: number }) {
-  const startRef = useRef<{ x: number; v: number } | null>(null)
+function ScrubLabel({ label, value, onChange, step = 1, inputRef }: { label: string; value: number; onChange: (v: number) => void; step?: number; inputRef?: React.RefObject<HTMLInputElement | null> }) {
+  const startRef = useRef<{ x: number; v: number; moved: boolean } | null>(null)
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
-    startRef.current = { x: e.clientX, v: value }
+    startRef.current = { x: e.clientX, v: value, moved: false }
+    const sensitivity = e.shiftKey ? 0.05 : 0.5
     const onMove = (me: MouseEvent) => {
       if (!startRef.current) return
+      startRef.current.moved = true
       const dx = me.clientX - startRef.current.x
-      onChange(Math.round((startRef.current.v + dx * step) / step) * step)
+      const raw = startRef.current.v + dx * sensitivity * step
+      onChange(Math.round(raw / step) * step)
     }
-    const onUp = () => {
+    const onUp = (ue: MouseEvent) => {
+      const wasDrag = startRef.current?.moved ?? false
       startRef.current = null
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+      if (!wasDrag) {
+        // 클릭으로 처리: input에 포커스
+        inputRef?.current?.focus()
+        inputRef?.current?.select()
+      }
     }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
   }
   return (
     <span
       onMouseDown={handleMouseDown}
-      title={`드래그로 ${label} 조절`}
+      title={`드래그로 ${label} 조절 (Shift: 미세 조절)`}
       style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, cursor: 'ew-resize', userSelect: 'none' }}
     >{label}</span>
   )
@@ -1097,30 +1106,34 @@ function CCFileNodeInspector({
     value: number,
     onChange: (v: number) => void,
     step = 1,
-  ) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-      <ScrubLabel label={label} value={value} onChange={onChange} step={step} />
-      <input
-        type="number"
-        step={step}
-        value={value}
-        onChange={e => onChange(parseFloat(e.target.value) || 0)}
-        onBlur={e => onChange(parseFloat(e.target.value) || 0)}
-        onWheel={e => {
-          e.preventDefault()
-          const current = parseFloat((e.target as HTMLInputElement).value)
-          if (isNaN(current)) return
-          const delta = e.deltaY < 0 ? step : -step
-          const multiplier = e.shiftKey ? 10 : 1
-          onChange(current + delta * multiplier)
-        }}
-        style={{
-          flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
-          color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
-        }}
-      />
-    </div>
-  )
+  ) => {
+    const inputRef = { current: null } as React.RefObject<HTMLInputElement | null>
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+        <ScrubLabel label={label} value={value} onChange={onChange} step={step} inputRef={inputRef} />
+        <input
+          ref={inputRef}
+          type="number"
+          step={step}
+          value={value}
+          onChange={e => onChange(parseFloat(e.target.value) || 0)}
+          onBlur={e => onChange(parseFloat(e.target.value) || 0)}
+          onWheel={e => {
+            e.preventDefault()
+            const current = parseFloat((e.target as HTMLInputElement).value)
+            if (isNaN(current)) return
+            const delta = e.deltaY < 0 ? step : -step
+            const multiplier = e.shiftKey ? 10 : 1
+            onChange(current + delta * multiplier)
+          }}
+          style={{
+            flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+          }}
+        />
+      </div>
+    )
+  }
 
   // 노드 경로 계산 (root → 선택 노드)
   const nodePath = useMemo(() => {

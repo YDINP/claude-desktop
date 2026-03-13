@@ -130,6 +130,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [tagColors, setTagColors] = useState<Record<string, string>>(loadTagColors)
   const [colorPickerTag, setColorPickerTag] = useState<string | null>(null)
   const [colorPickerPos, setColorPickerPos] = useState({ x: 0, y: 0 })
+  const importInputRef = useRef<HTMLInputElement>(null)
 
   const setTagColor = (tag: string, color: string) => {
     setTagColors(prev => {
@@ -344,6 +345,48 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     await window.api.sessionSetCollection(id, collection)
     setSessions(prev => prev.map(s => s.id === id ? { ...s, collection: collection ?? undefined } : s))
   }, [])
+
+  const handleExportSession = useCallback(async (id: string) => {
+    try {
+      const data = await window.api.sessionLoad(id)
+      if (!data) { toast('세션 데이터를 찾을 수 없습니다', 'error'); return }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `session-${id}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast('세션을 내보냈습니다', 'success')
+    } catch (e) {
+      toast('내보내기 실패: ' + String(e), 'error')
+    }
+  }, [])
+
+  const handleImportSession = useCallback(async (file: File) => {
+    try {
+      const text = await file.text()
+      const data = JSON.parse(text) as Record<string, unknown>
+      if (!data || typeof data !== 'object' || !Array.isArray(data.messages)) {
+        toast('유효하지 않은 세션 JSON입니다', 'error')
+        return
+      }
+      const newId = `imported-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+      const session = {
+        ...data,
+        id: newId,
+        title: typeof data.title === 'string' ? `[가져오기] ${data.title}` : '[가져오기] Untitled',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      }
+      await window.api.sessionSave(session)
+      await refresh()
+      toast('세션을 가져왔습니다', 'success')
+      onImportComplete?.()
+    } catch {
+      toast('유효하지 않은 JSON 파일입니다', 'error')
+    }
+  }, [refresh, onImportComplete])
 
   // 모든 세션에서 커스텀 태그 수집 (자동완성용)
   const allCustomTags = useMemo(() => {
@@ -935,6 +978,35 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           </span>
         )}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 2, alignItems: 'center' }}>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".json"
+            style={{ display: 'none' }}
+            onChange={async (e) => {
+              const file = e.target.files?.[0]
+              if (file) await handleImportSession(file)
+              e.target.value = ''
+            }}
+          />
+          <button
+            onClick={() => importInputRef.current?.click()}
+            title="JSON 파일에서 세션 가져오기"
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13, padding: '2px 4px', lineHeight: 1 }}
+          >
+            📥
+          </button>
+          <button
+            onClick={async () => {
+              const targetId = activeSessionId ?? sessions[0]?.id
+              if (!targetId) { toast('내보낼 세션이 없습니다', 'error'); return }
+              await handleExportSession(targetId)
+            }}
+            title="현재 선택된 세션을 JSON으로 내보내기"
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13, padding: '2px 4px', lineHeight: 1 }}
+          >
+            📤
+          </button>
           <button
             onClick={() => { setSelectionMode(p => !p); setSelectedIds(new Set()) }}
             style={{

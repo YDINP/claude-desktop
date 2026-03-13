@@ -1850,6 +1850,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onToggleDiff={() => setShowDiff(v => !v)}
         showRuler={showRuler}
         onToggleRuler={() => setShowRuler(v => !v)}
+        mousePos={cursorScenePos}
       />
 
       {/* 노드 계층 트리 패널 */}
@@ -2909,25 +2910,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </div>
         )}
 
-        {/* 마우스 씬 좌표 표시 */}
-        {cursorScenePos && !isDragging && !isResizing && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 6,
-              right: 44,
-              fontSize: 9,
-              color: 'var(--text-muted)',
-              background: 'rgba(0,0,0,0.5)',
-              padding: '1px 5px',
-              borderRadius: 3,
-              pointerEvents: 'none',
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {cursorScenePos.x}, {cursorScenePos.y}
-          </div>
-        )}
+        {/* 마우스 씬 좌표 표시 (SceneToolbar에 표시되므로 overlay 제거) */}
 
         {/* 드래그 델타 오버레이 */}
         {isDragging && dragDelta && hoverTooltipPos && (

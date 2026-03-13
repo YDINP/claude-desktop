@@ -612,6 +612,10 @@
 | Round 566 | 채팅 메시지 이모지 반응 (5종 토글, localStorage 저장) | ✅ |
 | Round 567 | 씬뷰 노드 잠금 — lockedUuids + 🔒 아이콘 + 차단 (localStorage) | ✅ |
 | Round 568 | QA Section 111 추가 (R565/R566/R567, Pass 476) | ✅ |
+| Round 569 | 씬뷰 Cocos 좌표 툴바 표시 (cursorScenePos → SceneToolbar mousePos) | ✅ |
+| Round 570 | 세션 JSON import/export (📥/📤 버튼, Blob URL 다운로드) | ✅ |
+| Round 571 | Inspector 숫자 스크럽 드래그 (ScrubLabel, sensitivity 0.5/Shift 0.05) | ✅ |
+| Round 572 | QA Section 112 추가 (R569/R570/R571, Pass 479) | ✅ |
 
 ## QA 프로세스
 
