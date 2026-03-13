@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 411] — 2026-03-13
+### Added
+- NodePropertyPanel: Transform 전체 JSON 복사 버튼({}) — position/rotation/scale/size/anchor를 JSON으로 클립보드 복사
+
 ## [Round 410] — 2026-03-13
 ### Fixed
 - AssetBrowserPanel: copyPath 클립보드 확인 로직 `.then()` 패턴으로 수정 (즉시 상태변경 → 확인 후)

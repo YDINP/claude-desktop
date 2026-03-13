@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 313: R411 신규 기능 ───────────────────────────────
+console.log('\n## 313. 신규 기능 파일 검사 (R411)')
+// NodePropertyPanel transform 복사 (Round 411)
+const npp411Path = join(ROOT, 'src/renderer/src/components/sidebar/NodePropertyPanel.tsx')
+if (existsSync(npp411Path)) {
+  const npp411 = readFileSync(npp411Path, 'utf-8')
+  if (npp411.includes('transformCopied') && npp411.includes('copyTransform') && npp411.includes('Transform 전체 JSON')) {
+    log('pass', 'Round411', 'NodePropertyPanel: Transform 전체 JSON 복사(copyTransform) 존재')
+  } else {
+    log('warning', 'Round411', 'NodePropertyPanel transform 복사 미구현', 'sidebar/NodePropertyPanel.tsx')
+  }
+}
+
 // ── Section 312: R410 신규 기능 ───────────────────────────────
 console.log('\n## 312. 신규 기능 파일 검사 (R410)')
 // AssetBrowserPanel ESC + copyPath .then() (Round 410)

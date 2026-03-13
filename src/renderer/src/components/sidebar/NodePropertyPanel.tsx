@@ -282,6 +282,21 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
   const [openState, setOpenState] = useState<Record<number, boolean>>({})
   const [uuidCopied, setUuidCopied] = useState(false)
   const [activeToggling, setActiveToggling] = useState(false)
+  const [transformCopied, setTransformCopied] = useState(false)
+  const copyTransform = useCallback(() => {
+    const data = {
+      name: node.name,
+      position: node.position,
+      rotation: node.rotation,
+      scale: node.scale,
+      size: node.size,
+      anchor: node.anchor,
+    }
+    navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() => {
+      setTransformCopied(true)
+      setTimeout(() => setTransformCopied(false), 1500)
+    })
+  }, [node])
   const toggleOpen = (i: number) => setOpenState(prev => ({ ...prev, [i]: !prev[i] }))
   const copyUuid = useCallback(() => {
     navigator.clipboard.writeText(node.uuid).then(() => {
@@ -319,6 +334,13 @@ export function NodePropertyPanel({ port, node, onUpdate }: NodePropertyPanelPro
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: uuidCopied ? '#4ade80' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0 }}
         >
           {uuidCopied ? '✓' : '📋'}
+        </button>
+        <button
+          onClick={copyTransform}
+          title="Transform 전체 JSON 복사"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: transformCopied ? '#4ade80' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0 }}
+        >
+          {transformCopied ? '✓' : '{}'}
         </button>
       </div>
 
