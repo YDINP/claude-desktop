@@ -11605,6 +11605,74 @@ if (existsSync(sl1133Path)) {
   }
 }
 
+console.log('\n## 289. Phase DD10 R1134~1136 기능 체크')
+// R1134: ChatPanel 인라인 미리보기
+const cp1134Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1134Path)) {
+  const cp1134 = readFileSync(cp1134Path, 'utf-8')
+  if (cp1134.includes('inlinePreview') || cp1134.includes('previewMaxHeight') || cp1134.includes('previewMode')) {
+    log('pass', 'R1134', 'ChatPanel 인라인 미리보기 존재')
+  } else {
+    log('warning', 'R1134', 'ChatPanel 인라인 미리보기 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1135: InputBar 연속 입력 모드
+const ib1135Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1135Path)) {
+  const ib1135 = readFileSync(ib1135Path, 'utf-8')
+  if (ib1135.includes('continuousMode') || ib1135.includes('continuousDelay') || ib1135.includes('streamInput')) {
+    log('pass', 'R1135', 'InputBar 연속 입력 모드 존재')
+  } else {
+    log('warning', 'R1135', 'InputBar 연속 입력 모드 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1136: CocosPanel 씬 권한
+const ccp1136Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1136Path)) {
+  const ccp1136 = readFileSync(ccp1136Path, 'utf-8')
+  if (ccp1136.includes('scenePerms') || ccp1136.includes('showPermPanel') || ccp1136.includes('permMap')) {
+    log('pass', 'R1136', 'CocosPanel 씬 권한 존재')
+  } else {
+    log('warning', 'R1136', 'CocosPanel 씬 권한 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 290. Phase DD10 R1137~1139 기능 체크')
+// R1137: SceneViewPanel 씬 의존성
+const sv1137Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1137Path)) {
+  const sv1137 = readFileSync(sv1137Path, 'utf-8')
+  if (sv1137.includes('sceneDeps') || sv1137.includes('showDepsGraph') || sv1137.includes('depTree')) {
+    log('pass', 'R1137', 'SceneViewPanel 씬 의존성 존재')
+  } else {
+    log('warning', 'R1137', 'SceneViewPanel 씬 의존성 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1138: TerminalPanel 세션 공유
+const tp1138Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1138Path)) {
+  const tp1138 = readFileSync(tp1138Path, 'utf-8')
+  if (tp1138.includes('shareSession') || tp1138.includes('shareCode') || tp1138.includes('termShare')) {
+    log('pass', 'R1138', 'TerminalPanel 세션 공유 존재')
+  } else {
+    log('warning', 'R1138', 'TerminalPanel 세션 공유 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1139: SessionList 세션 비교
+const sl1139Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1139Path)) {
+  const sl1139 = readFileSync(sl1139Path, 'utf-8')
+  if (sl1139.includes('compareSessionA') || sl1139.includes('compareSessionB') || sl1139.includes('diffSessions')) {
+    log('pass', 'R1139', 'SessionList 세션 비교 존재')
+  } else {
+    log('warning', 'R1139', 'SessionList 세션 비교 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

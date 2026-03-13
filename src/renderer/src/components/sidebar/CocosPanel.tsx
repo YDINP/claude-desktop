@@ -236,6 +236,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showImportDialog, setShowImportDialog] = React.useState(false)
   const [sceneOpHistory, setSceneOpHistory] = React.useState<string[]>([])
   const [showOpHistory, setShowOpHistory] = React.useState(false)
+  const [scenePerms, setScenePerms] = React.useState<Record<string, string>>({})
+  const [showPermPanel, setShowPermPanel] = React.useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

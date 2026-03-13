@@ -1091,6 +1091,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showSharePanel, setShowSharePanel] = React.useState(false)
   const [msgVotes, setMsgVotes] = React.useState<Record<string, number>>({})
   const [showVotePanel, setShowVotePanel] = React.useState(false)
+  const [inlinePreview, setInlinePreview] = React.useState(true)
+  const [previewMaxHeight, setPreviewMaxHeight] = React.useState(300)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

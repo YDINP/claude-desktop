@@ -345,6 +345,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showShortcutEditor, setShowShortcutEditor] = React.useState(false)
   const [focusMode, setFocusMode] = React.useState(false)
   const [focusOpacity, setFocusOpacity] = React.useState(0.5)
+  const [continuousMode, setContinuousMode] = React.useState(false)
+  const [continuousDelay, setContinuousDelay] = React.useState(500)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
