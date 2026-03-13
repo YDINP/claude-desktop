@@ -6459,6 +6459,41 @@ if (existsSync(tp679Path)) {
   }
 }
 
+// ── Section 140: Phase DD10 R681~683 기능 체크 ────────────────
+console.log('\n## 140. Phase DD10 R681~683 기능 체크')
+// R681: SceneViewPanel 스냅샷
+const svp681Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp681Path)) {
+  const svp681 = readFileSync(svp681Path, 'utf-8')
+  if (svp681.includes('snapshots') || svp681.includes('snapshotOpen') || svp681.includes('takeSnapshot')) {
+    log('pass', 'R681', 'SceneViewPanel 스냅샷 기록 존재')
+  } else {
+    log('warning', 'R681', 'SceneViewPanel 스냅샷 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R682: ChatPanel 메시지 폴딩
+const cp682Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp682Path)) {
+  const cp682 = readFileSync(cp682Path, 'utf-8')
+  if (cp682.includes('foldedMessages') || cp682.includes('foldThreshold') || cp682.includes('foldMessages')) {
+    log('pass', 'R682', 'ChatPanel 메시지 폴딩 존재')
+  } else {
+    log('warning', 'R682', 'ChatPanel 메시지 폴딩 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R683: CocosPanel 프로퍼티 검색
+const cp683Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp683Path)) {
+  const cp683 = readFileSync(cp683Path, 'utf-8')
+  if (cp683.includes('propSearchQuery') || cp683.includes('showPropSearch') || cp683.includes('propSearch')) {
+    log('pass', 'R683', 'CocosPanel 프로퍼티 검색 존재')
+  } else {
+    log('warning', 'R683', 'CocosPanel 프로퍼티 검색 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

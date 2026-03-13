@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 680 완료 — Phase DD10 진행 중, QA Pass 560)
+> 마지막 업데이트: 2026-03-13 (Round 684 완료 — Phase DD10 진행 중, QA Pass 563)
 
 ## 개발 루프 실행 방식
 
@@ -656,6 +656,10 @@
 | Round 678 | ChatPanel AI 제안 표시 개선 (suggestionIndex, 칩 UI) | ✅ |
 | Round 679 | TerminalPanel 명령어 즐겨찾기 (cmdBookmarks, cmdBookmarkOpen) | ✅ |
 | Round 680 | QA Section 139 추가 (R677/R678/R679, Pass 560) | ✅ |
+| Round 681 | SceneViewPanel 씬 스냅샷 기록 (snapshots, snapshotOpen) | ✅ |
+| Round 682 | ChatPanel 메시지 폴딩 (foldedMessages, foldThreshold=20) | ✅ |
+| Round 683 | CocosPanel 프로퍼티 검색 (propSearchQuery, showPropSearch) | ✅ |
+| Round 684 | QA Section 140 추가 (R681/R682/R683, Pass 563) | ✅ |
 
 ### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 

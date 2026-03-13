@@ -314,6 +314,7 @@ interface ChatPanelProps {
 }
 
 const CONTEXT_WINDOW = 200000
+const foldThreshold = 20
 
 type MsgPosition = 'solo' | 'first' | 'middle' | 'last'
 
@@ -502,6 +503,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [minimapScroll, setMinimapScroll] = useState({ scrollTop: 0, clientHeight: 1, totalScrollHeight: 1 })
   const [suggestionIndex, setSuggestionIndex] = useState<number>(-1)
   const [suggestionPendingInsert, setSuggestionPendingInsert] = useState<string | undefined>(undefined)
+  const [foldedMessages, setFoldedMessages] = useState<Set<string>>(new Set())
+  const foldThreshold = 20
 
   const onSelectSuggestion = useCallback((text: string) => {
     setSuggestionPendingInsert(text)
@@ -786,6 +789,19 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
 
   const bookmarkIdxRef = useRef(0)
   const [showOnlyBookmarks, setShowOnlyBookmarks] = useState(false)
+  const [foldedMessages, setFoldedMessages] = useState<Set<string>>(new Set())
+
+  const toggleFoldMessages = useCallback(() => {
+    if (displayMessages.length < foldThreshold) return
+    // 앞 5개 + 뒤 5개 제외한 중간 메시지들을 fold
+    const foldStart = 5
+    const foldEnd = displayMessages.length - 5
+    const middleIds = displayMessages.slice(foldStart, foldEnd).map(m => m.id)
+    setFoldedMessages(prev => {
+      if (prev.size > 0) return new Set()
+      return new Set(middleIds)
+    })
+  }, [displayMessages])
 
   const jumpToBookmark = useCallback(() => {
     const bookmarked = chat.messages
@@ -1482,6 +1498,15 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             {virtualItems.map((virtualRow) => {
               const msg = displayMessages[virtualRow.index]
               if (!msg) return null
+
+              // fold: 해당 메시지가 접힌 상태면 스킵
+              if (foldedMessages.has(msg.id)) return null
+
+              // fold: fold 구간 시작점 직전에 토글 버튼 삽입
+              const isFoldBoundary = foldedMessages.size > 0 &&
+                virtualRow.index > 0 &&
+                foldedMessages.has(displayMessages[virtualRow.index - 1]?.id ?? '')
+
               const isLast = virtualRow.index === messageCount - 1
               const prevMsg = virtualRow.index > 0 ? displayMessages[virtualRow.index - 1] : null
               const showTimeSep = !!(
@@ -1508,6 +1533,27 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
                     marginTop: chatViewMode === 'wide' ? (isGrouped ? 4 : 16) : (isGrouped ? 2 : 8),
                   }}
                 >
+                  {isFoldBoundary && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '8px 16px' }}>
+                      <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                      <button
+                        onClick={toggleFoldMessages}
+                        style={{
+                          background: 'var(--bg-secondary)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 12,
+                          padding: '3px 12px',
+                          fontSize: 11,
+                          color: 'var(--text-muted)',
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {foldedMessages.size}개 메시지 보이기
+                      </button>
+                      <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                    </div>
+                  )}
                   {showTimeSep && (
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: 8, margin: '8px 16px',
@@ -1974,30 +2020,4 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             </div>
             {([
               ['Ctrl+F', '채팅 검색 토글'],
-              ['Ctrl+B', '즐겨찾기 뷰 토글'],
-              ['Ctrl+W', '뷰 모드 전환 (컴팩트/와이드)'],
-              ['Escape', '검색 닫기'],
-              ['?', '단축키 도움말'],
-            ] as [string, string][]).map(([key, desc]) => (
-              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 10 }}>
-                <kbd style={{
-                  background: 'var(--bg-input, var(--bg-primary))',
-                  border: '1px solid var(--border)',
-                  borderRadius: 4,
-                  padding: '2px 8px',
-                  fontSize: 11,
-                  fontFamily: 'monospace',
-                  color: 'var(--text-primary)',
-                  minWidth: 80,
-                  textAlign: 'center',
-                  flexShrink: 0,
-                }}>{key}</kbd>
-                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{desc}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+             

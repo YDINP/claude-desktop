@@ -1388,6 +1388,7 @@ function CCFileNodeInspector({
   }, [node, sceneFile, saveScene, onUpdate])
 
   const [propSearch, setPropSearch] = useState('')
+  const [showPropSearch, setShowPropSearch] = useState(false)
 
   // Round 611: prop 변경 히스토리
   const PROP_HISTORY_KEY = 'prop-history'
@@ -1454,7 +1455,7 @@ function CCFileNodeInspector({
   }, [])
 
   // 노드 교체 시 draft + 컴포넌트 접힘 상태 + propSearch 초기화
-  useMemo(() => { setDraft({ ...node }); setExpandedArrayProps(new Set()); setPropSearch('') }, [node.uuid])
+  useMemo(() => { setDraft({ ...node }); setExpandedArrayProps(new Set()); setPropSearch(''); setShowPropSearch(false) }, [node.uuid])
   const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
   const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null)
@@ -1776,6 +1777,20 @@ function CCFileNodeInspector({
           style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', background: 'transparent', border: 'none', borderBottom: '1px solid var(--accent)', outline: 'none', flex: 1, minWidth: 0 }}
         />
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          {/* R683: 프로퍼티 검색 토글 */}
+          <button
+            onClick={() => { setShowPropSearch(o => !o); if (showPropSearch) setPropSearch('') }}
+            title="프로퍼티 검색"
+            style={{
+              padding: '1px 4px', fontSize: 11, borderRadius: 3, cursor: 'pointer',
+              background: showPropSearch ? 'rgba(88,166,255,0.15)' : 'transparent',
+              color: showPropSearch ? '#58a6ff' : '#555',
+              border: `1px solid ${showPropSearch ? '#58a6ff' : '#444'}`,
+              lineHeight: 1.4,
+            }}
+          >
+            🔍
+          </button>
           {/* Round 643: 저장 상태 배지 */}
           {saving
             ? <span title="저장 중" style={{ fontSize: 10, color: '#94a3b8' }}>⏳</span>
@@ -2024,6 +2039,32 @@ function CCFileNodeInspector({
         </div>
       </div>
 
+      {/* R683: 프로퍼티 검색창 */}
+      {showPropSearch && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+          <input
+            autoFocus
+            placeholder="프로퍼티 이름 / 값 검색..."
+            value={propSearch}
+            onChange={e => setPropSearch(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Escape') { setPropSearch(''); setShowPropSearch(false) } }}
+            style={{
+              flex: 1, fontSize: 10, padding: '3px 6px', borderRadius: 3,
+              background: 'var(--bg-input, #1a1a2e)', border: '1px solid var(--accent)',
+              color: 'var(--text-primary)', outline: 'none',
+            }}
+          />
+          {propSearch && (
+            <span
+              onClick={() => setPropSearch('')}
+              style={{ cursor: 'pointer', color: '#888', fontSize: 12, lineHeight: 1 }}
+              title="검색 초기화"
+            >
+              ×
+            </span>
+          )}
+        </div>
+      )}
       {secHeader('transform', '위치 / 크기 / 회전')}
       {!collapsed['transform'] && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 10px' }}>

@@ -149,6 +149,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [snapshot, setSnapshot] = useState<Map<string, SnapshotEntry> | null>(null)
   const [showDiff, setShowDiff] = useState(false)
 
+  // ── 스냅샷 기록 상태 ────────────────────────────────────────
+  const [snapshots, setSnapshots] = useState<Array<{ label: string; timestamp: number; nodes: unknown[] }>>([])
+  const [snapshotOpen, setSnapshotOpen] = useState(false)
+
   // ── 히트맵 상태 ────────────────────────────────────────────
   const [showHeatmap, setShowHeatmap] = useState(false)
 
@@ -163,6 +167,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     })
     setSnapshot(snap)
     setShowDiff(true)
+  }, [nodeMap])
+
+  const takeSnapshot = useCallback(() => {
+    const nodes = [...nodeMap.values()] as unknown[]
+    const ts = Date.now()
+    const label = `스냅샷 ${new Date(ts).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+    setSnapshots(prev => {
+      const next = [{ label, timestamp: ts, nodes }, ...prev]
+      return next.slice(0, 5)
+    })
   }, [nodeMap])
 
   // ── 히트맵 밀도 계산 ───────────────────────────────────────
@@ -2108,6 +2122,43 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onQuickActionsToggle={() => setShowQuickActions(v => !v)}
         onZoomTo={handleZoomTo}
       />
+
+      {/* 스냅샷 기록 툴바 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'relative', zIndex: 10 }}>
+        <button
+          onClick={takeSnapshot}
+          style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4, color: '#93c5fd', cursor: 'pointer', whiteSpace: 'nowrap' }}
+        >
+          스냅샷
+        </button>
+        {snapshots.length > 0 && (
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setSnapshotOpen(v => !v)}
+              style={{ fontSize: 11, padding: '2px 8px', background: snapshotOpen ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 4, color: '#cbd5e1', cursor: 'pointer' }}
+            >
+              기록 ({snapshots.length}) ▾
+            </button>
+            {snapshotOpen && (
+              <div
+                style={{ position: 'absolute', top: '100%', left: 0, marginTop: 2, background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, minWidth: 220, zIndex: 100, boxShadow: '0 4px 16px rgba(0,0,0,0.5)' }}
+              >
+                {snapshots.map((s) => (
+                  <div
+                    key={s.timestamp}
+                    onClick={() => { console.log('restore snapshot:', s.label); setSnapshotOpen(false) }}
+                    style={{ padding: '6px 12px', fontSize: 11, color: '#cbd5e1', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(96,165,250,0.15)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = '' }}
+                  >
+                    {s.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* 노드 계층 트리 패널 */}
       {showHierarchy && rootUuid && (
