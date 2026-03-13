@@ -17274,6 +17274,18 @@ console.log('\n## 503. R1612 Inspector 자식 노드 빠른 탐색 칩 체크')
   }
 }
 
+// ── Section 504: R1613 SceneView 형제 노드 하이라이트 ──────────────────
+console.log('\n## 504. R1613 SceneView 형제 노드 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s504 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s504.includes('R1613') && s504.includes('형제 노드 하이라이트') && s504.includes('selFn.parentUuid') && s504.includes('rgba(250,200,60')) {
+    log('pass', 'R1613-sibling-highlight', 'SceneView 형제 노드 하이라이트')
+  } else {
+    log('warning', 'R1613-sibling-highlight', 'SceneView 형제 노드 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

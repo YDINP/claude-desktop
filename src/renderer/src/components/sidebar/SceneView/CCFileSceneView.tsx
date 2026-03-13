@@ -1575,6 +1575,36 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               />
             )
           })()}
+          {/* R1613: 형제 노드 하이라이트 (연노랑 점선) */}
+          {selectedUuid && (() => {
+            const selFn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!selFn?.parentUuid) return null
+            const parentFn = flatNodes.find(f => f.node.uuid === selFn.parentUuid)
+            if (!parentFn) return null
+            const siblings = flatNodes.filter(f => f.parentUuid === selFn.parentUuid && f.node.uuid !== selectedUuid && f.node.size?.x && f.node.size?.y)
+            if (siblings.length === 0) return null
+            return (
+              <g>
+                {siblings.map(sf => {
+                  const { node: sn, worldX: sx, worldY: sy } = sf
+                  const sp = ccToSvg(sx, sy)
+                  const w = sn.size!.x, h = sn.size!.y
+                  const ax = sn.anchor?.x ?? 0.5, ay = sn.anchor?.y ?? 0.5
+                  return (
+                    <rect key={sf.node.uuid}
+                      x={sp.x - w * ax} y={sp.y - h * (1 - ay)}
+                      width={w} height={h}
+                      fill="none"
+                      stroke="rgba(250,200,60,0.3)"
+                      strokeWidth={1 / view.zoom}
+                      strokeDasharray={`${4 / view.zoom} ${4 / view.zoom}`}
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  )
+                })}
+              </g>
+            )
+          })()}
           {/* rubber-band 선택 박스 */}
           {selectionBox && (
             <rect
