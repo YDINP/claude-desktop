@@ -17622,6 +17622,18 @@ console.log('\n## 532. R1641 SceneView depth 색조 시각화 체크')
   }
 }
 
+// ── Section 533: R1642 Inspector 중복 이름 배지 순환 선택 ──────────────────
+console.log('\n## 533. R1642 Inspector 중복 이름 배지 순환 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s533 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s533.includes('R1642') && s533.includes('onSelectNode(nextNode)') && s533.includes('(curIdx + 1) % dupes.length')) {
+    log('pass', 'R1642-dup-cycle', 'Inspector 중복 이름 배지 순환 선택')
+  } else {
+    log('warning', 'R1642-dup-cycle', 'Inspector 중복 이름 배지 순환 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

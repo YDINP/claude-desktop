@@ -4022,17 +4022,21 @@ function CCFileNodeInspector({
           </div>
         </div>
       )}
-      {/* R1637: 같은 이름 노드 자동 배지 */}
+      {/* R1637: 같은 이름 노드 자동 배지 (R1642: 클릭으로 순환 선택) */}
       {(() => {
         if (!sceneFile?.root) return null
-        let cnt = 0
-        const walk = (n: CCSceneNode) => { if (n.name === draft.name) cnt++; n.children.forEach(walk) }
+        const dupes: CCSceneNode[] = []
+        const walk = (n: CCSceneNode) => { if (n.name === draft.name) dupes.push(n); n.children.forEach(walk) }
         walk(sceneFile.root)
-        if (cnt <= 1) return null
+        if (dupes.length <= 1) return null
+        const curIdx = dupes.findIndex(n => n.uuid === node.uuid)
+        const nextNode = dupes[(curIdx + 1) % dupes.length]
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-            <span style={{ fontSize: 8, background: 'rgba(255,153,0,0.12)', border: '1px solid rgba(255,153,0,0.35)', borderRadius: 3, padding: '0 4px', color: '#ff9900' }}
-              title={`씬 내 "${draft.name}" 이름의 노드가 ${cnt}개 있습니다`}>⚠ 중복 이름 ×{cnt}</span>
+            <span
+              onClick={() => onSelectNode(nextNode)}
+              style={{ fontSize: 8, background: 'rgba(255,153,0,0.12)', border: '1px solid rgba(255,153,0,0.35)', borderRadius: 3, padding: '0 4px', color: '#ff9900', cursor: 'pointer' }}
+              title={`씬 내 "${draft.name}" 이름의 노드 ${dupes.length}개 — 클릭: 다음 노드 선택`}>⚠ 중복 이름 ×{dupes.length} ›</span>
           </div>
         )
       })()}
