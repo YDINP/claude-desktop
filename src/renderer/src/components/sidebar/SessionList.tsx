@@ -314,6 +314,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [archiveFilter, setArchiveFilter] = useState(false)
   const [showArchiveStats, setShowArchiveStats] = useState(false)
   const [showGroupEditor, setShowGroupEditor] = React.useState(false)
+  const [sessionAlerts, setSessionAlerts] = React.useState<Record<string, string>>({})
+  const [showAlertManager, setShowAlertManager] = React.useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

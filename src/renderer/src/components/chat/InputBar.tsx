@@ -297,6 +297,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [showLinkPreview, setShowLinkPreview] = React.useState(false)
   const [autoSave, setAutoSave] = React.useState(true)
   const [lastSaved, setLastSaved] = React.useState<Date | null>(null)
+  const [shortcutHelp, setShortcutHelp] = React.useState(false)
+  const [shortcutList, setShortcutList] = React.useState<string[]>([])
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

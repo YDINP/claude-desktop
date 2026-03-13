@@ -398,6 +398,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [shareSession, setShareSession] = React.useState(false)
   const [keyBindings, setKeyBindings] = React.useState<Record<string, string>>({})
   const [showKeyBindings, setShowKeyBindings] = React.useState(false)
+  const [colorize, setColorize] = React.useState(true)
+  const [colorScheme, setColorScheme] = React.useState('default')
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

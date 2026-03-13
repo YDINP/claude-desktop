@@ -180,6 +180,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showFavoritesPanel, setShowFavoritesPanel] = React.useState(false)
   const [nodeHistory, setNodeHistory] = React.useState<string[]>([])
   const [showNodeHistory, setShowNodeHistory] = React.useState(false)
+  const [sceneSnapshots, setSceneSnapshots] = React.useState<string[]>([])
+  const [showSnapshotList, setShowSnapshotList] = React.useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

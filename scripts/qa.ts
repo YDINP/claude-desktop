@@ -9633,6 +9633,74 @@ if (existsSync(sl959Path)) {
   }
 }
 
+console.log('\n## 231. Phase DD10 R960~962 기능 체크')
+// R960: ChatPanel 메시지 분류
+const cp960Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp960Path)) {
+  const cp960 = readFileSync(cp960Path, 'utf-8')
+  if (cp960.includes('messageCategories') || cp960.includes('activeMsgCategory') || cp960.includes('msgCategory')) {
+    log('pass', 'R960', 'ChatPanel 메시지 분류 존재')
+  } else {
+    log('warning', 'R960', 'ChatPanel 메시지 분류 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R961: InputBar 단축키 도움말
+const ib961Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib961Path)) {
+  const ib961 = readFileSync(ib961Path, 'utf-8')
+  if (ib961.includes('shortcutHelp') || ib961.includes('shortcutList') || ib961.includes('keyboardShortcuts')) {
+    log('pass', 'R961', 'InputBar 단축키 도움말 존재')
+  } else {
+    log('warning', 'R961', 'InputBar 단축키 도움말 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R962: CocosPanel 씬 스냅샷
+const cocos962Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos962Path)) {
+  const cocos962 = readFileSync(cocos962Path, 'utf-8')
+  if (cocos962.includes('sceneSnapshots') || cocos962.includes('showSnapshotList') || cocos962.includes('snapshotList')) {
+    log('pass', 'R962', 'CocosPanel 씬 스냅샷 존재')
+  } else {
+    log('warning', 'R962', 'CocosPanel 씬 스냅샷 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 232. Phase DD10 R963~965 기능 체크')
+// R963: SceneViewPanel 노드 정렬
+const svp963Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp963Path)) {
+  const svp963 = readFileSync(svp963Path, 'utf-8')
+  if (svp963.includes('nodeSort') || svp963.includes('nodeSortAsc') || svp963.includes('sortKey')) {
+    log('pass', 'R963', 'SceneViewPanel 노드 정렬 존재')
+  } else {
+    log('warning', 'R963', 'SceneViewPanel 노드 정렬 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R964: TerminalPanel 출력 색상화
+const tp964Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp964Path)) {
+  const tp964 = readFileSync(tp964Path, 'utf-8')
+  if (tp964.includes('colorize') || tp964.includes('colorScheme') || tp964.includes('outputColor')) {
+    log('pass', 'R964', 'TerminalPanel 출력 색상화 존재')
+  } else {
+    log('warning', 'R964', 'TerminalPanel 출력 색상화 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R965: SessionList 세션 알림
+const sl965Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl965Path)) {
+  const sl965 = readFileSync(sl965Path, 'utf-8')
+  if (sl965.includes('sessionAlerts') || sl965.includes('showAlertManager') || sl965.includes('alertMap')) {
+    log('pass', 'R965', 'SessionList 세션 알림 존재')
+  } else {
+    log('warning', 'R965', 'SessionList 세션 알림 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
