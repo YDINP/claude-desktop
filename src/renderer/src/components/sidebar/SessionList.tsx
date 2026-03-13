@@ -454,16 +454,14 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
         onDragEnd={() => { setDragId(null); setDragOverId(null) }}
         onClick={async () => {
           if (mergeMode && mergeSourceId) {
-            if (mergeSourceId === s.id) return
+            if (mergeSourceId === s.id) { setMergeMode(false); setMergeSourceId(null); return }
             if (s.locked) { toast('잠금된 세션에는 병합할 수 없습니다', 'error'); return }
             const sourceSession = sessions.find(x => x.id === mergeSourceId)
             const sourceName = sourceSession?.title ?? mergeSourceId
             const targetName = s.title ?? s.id
-            if (window.confirm(`'${sourceName}'의 메시지를 '${targetName}'에 추가할까요?`)) {
-              const defaultTitle = `${sourceName} + ${targetName}`
-              const title = window.prompt('병합 세션 제목:', defaultTitle) ?? defaultTitle
-              const result = await window.api.sessionMerge([mergeSourceId, s.id], title)
-              if (result.success) {
+            if (window.confirm(`'${sourceName}'의 메시지를 '${targetName}'에 추가할까요?\n(소스 세션은 삭제됩니다)`)) {
+              const result = await window.api.sessionMerge(mergeSourceId, s.id)
+              if (result.ok) {
                 await refresh()
                 toast('세션이 병합되었습니다', 'success')
               } else {
@@ -1098,18 +1096,20 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
               <button
                 onClick={async () => {
                   const ids = Array.from(selectedIds)
-                  const firstSession = sessions.find(s => s.id === ids[0])
-                  const defaultTitle = `${firstSession?.title ?? '세션'} (병합)`
-                  const title = window.prompt('병합 세션 제목:', defaultTitle)
-                  if (title === null) return
-                  const result = await window.api.sessionMerge(ids, title || defaultTitle)
-                  if (result.success) {
+                  const targetId = ids[0]
+                  const sourceIds = ids.slice(1)
+                  const targetSession = sessions.find(s => s.id === targetId)
+                  if (!window.confirm(`${ids.length}개 세션을 '${targetSession?.title ?? targetId}'으로 병합할까요?\n(나머지 세션은 삭제됩니다)`)) return
+                  let failed = false
+                  for (const srcId of sourceIds) {
+                    const result = await window.api.sessionMerge(srcId, targetId)
+                    if (!result.ok) { toast('병합 실패: ' + (result.error ?? ''), 'error'); failed = true; break }
+                  }
+                  if (!failed) {
                     await refresh()
                     setSelectedIds(new Set())
                     setSelectionMode(false)
                     toast('세션이 병합되었습니다', 'success')
-                  } else {
-                    toast('병합 실패: ' + (result.error ?? ''), 'error')
                   }
                 }}
                 style={{

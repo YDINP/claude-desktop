@@ -76,6 +76,8 @@ interface SceneToolbarProps {
   onBookmarkListToggle?: () => void
   isSelectedLocked?: boolean
   onLockToggle?: () => void
+  isPinned?: boolean
+  onTogglePin?: () => void
   tagFilter?: string
   allTags?: string[]
   onTagFilterChange?: (tag: string) => void
@@ -162,6 +164,8 @@ export function SceneToolbar({
   onBookmarkListToggle,
   isSelectedLocked,
   onLockToggle,
+  isPinned,
+  onTogglePin,
   tagFilter,
   allTags,
   onTagFilterChange,
@@ -547,6 +551,13 @@ export function SceneToolbar({
           onClick={onLockToggle}
           title="노드 잠금/해제 (Alt+L) — 잠긴 노드는 드래그/리사이즈 불가"
         >🔒</button>
+      )}
+      {onTogglePin && selectedUuid && (
+        <button
+          style={{ ...btnBase, color: isPinned ? '#fbbf24' : 'rgba(255,255,255,0.5)' }}
+          onClick={onTogglePin}
+          title={isPinned ? '핀 해제' : '핀 고정 — 핀된 노드는 드래그/선택 불가'}
+        >📌</button>
       )}
 
       <div style={divider} />

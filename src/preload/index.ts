@@ -174,7 +174,8 @@ contextBridge.exposeInMainWorld('api', {
   sessionGetNote: (sessionId: string) => ipcRenderer.invoke('session:getNote', { sessionId }),
   sessionSetNote: (sessionId: string, note: string) => ipcRenderer.invoke('session:setNote', { sessionId, note }),
   sessionDuplicate: (sessionId: string) => ipcRenderer.invoke('session:duplicate', { sessionId }),
-  sessionMerge: (sessionIds: string[], newTitle?: string) => ipcRenderer.invoke('session:merge', { sessionIds, newTitle }),
+  sessionMerge: (sourceId: string, targetId: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('session:merge', sourceId, targetId),
   sessionReorder: (fromId: string, toId: string) => ipcRenderer.invoke('session:reorder', { fromId, toId }),
   sessionSetLocked: (id: string, locked: boolean) => ipcRenderer.invoke('session:setLocked', { id, locked }),
   sessionSetCollection: (id: string, collection: string | null) => ipcRenderer.invoke('session:setCollection', { id, collection }),
@@ -464,7 +465,7 @@ declare global {
       sessionGetNote: (sessionId: string) => Promise<{ note: string }>
       sessionSetNote: (sessionId: string, note: string) => Promise<{ success: boolean }>
       sessionDuplicate: (sessionId: string) => Promise<{ success: boolean; sessionId?: string; error?: string }>
-      sessionMerge: (sessionIds: string[], newTitle?: string) => Promise<{ success: boolean; newSessionId?: string; error?: string }>
+      sessionMerge: (sourceId: string, targetId: string) => Promise<{ ok: boolean; error?: string }>
       sessionReorder: (fromId: string, toId: string) => Promise<void>
       sessionSetLocked: (id: string, locked: boolean) => Promise<boolean>
       sessionSetCollection: (id: string, collection: string | null) => Promise<void>

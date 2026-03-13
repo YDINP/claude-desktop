@@ -85,10 +85,19 @@
 | R547 | 채팅 코드 블록 실행 — shell:exec IPC + ▶ 버튼 + 인라인 결과 표시 |
 | R548 | QA Section 106 추가 (Pass 461) |
 
-## 다음 예정 (Round 549~)
-- Round 549: 씬뷰 노드 핀 (Pin) — 핀된 노드 드래그/선택 제외
-- Round 550: 세션 병합
-- Round 551: 프롬프트 히스토리 (↑↓ 키)
+## Phase DD9 추가 완료 (Round 549~552)
+
+| 라운드 | 기능 |
+|--------|------|
+| R549 | 씬뷰 노드 핀 — pinnedUuids localStorage + 📌 아이콘 + 드래그/선택 차단 |
+| R550 | 세션 병합 — session:merge IPC, mergeMode UI (source→target append) |
+| R551 | 프롬프트 히스토리 — ↑↓ 키 탐색 (기존 Alt+↑↓ → 순수 화살표로 전환) |
+| R552 | QA Section 107 추가 (Pass 464) |
+
+## 다음 예정 (Round 553~)
+- Round 553: 씬뷰 노드 스냅샷 비교 (before/after 오버레이)
+- Round 554: 채팅 메시지 번역 버튼
+- Round 555: Inspector 컴포넌트 순서 재정렬 (drag handle)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 

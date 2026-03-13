@@ -5312,6 +5312,34 @@ console.log('\n## 106. Phase DD9 기능 체크')
   }
 }
 
+// ── Section 107: Phase DD9 R549~551 기능 체크 ─────────────────
+console.log('\n## 107. Phase DD9 R549~551 기능 체크')
+{
+  const sceneViewSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx'), 'utf8')
+  const nodeRendererSrc = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx'), 'utf8')
+  const inputBarSrc = readFileSync(join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx'), 'utf8')
+  const sessionHandlersSrc = readFileSync(join(ROOT, 'src/main/ipc/session-handlers.ts'), 'utf8')
+
+  // R549: 씬뷰 노드 핀
+  if (sceneViewSrc.includes('pinnedUuids') && nodeRendererSrc.includes('pinned')) {
+    log('pass', 'R549', '씬뷰 노드 핀 기능 존재')
+  } else {
+    log('warning', 'R549', '씬뷰 노드 핀 없음', 'SceneViewPanel.tsx')
+  }
+  // R550: 세션 병합
+  if (sessionHandlersSrc.includes('session:merge')) {
+    log('pass', 'R550', '세션 병합 IPC 핸들러 존재')
+  } else {
+    log('warning', 'R550', '세션 병합 핸들러 없음', 'session-handlers.ts')
+  }
+  // R551: 프롬프트 히스토리 ↑↓
+  if (inputBarSrc.includes('historyIdx') || inputBarSrc.includes('histIdxRef') || inputBarSrc.includes('historyIdxRef')) {
+    log('pass', 'R551', '프롬프트 히스토리 ↑↓ 탐색 존재')
+  } else {
+    log('warning', 'R551', '프롬프트 히스토리 없음', 'InputBar.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

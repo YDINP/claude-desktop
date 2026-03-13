@@ -249,6 +249,9 @@ export const OPENAI_INTERRUPT = 'openai:interrupt'
 // ── Session Search ────────────────────────────────────────────────────────────
 export const SESSION_SEARCH_ALL = 'session:searchAll'
 
+// ── Session Merge ─────────────────────────────────────────────────────────────
+export const SESSION_MERGE = 'session:merge'
+
 // ── Shell Exec ────────────────────────────────────────────────────────────────
 export const SHELL_EXEC = 'shell:exec'
 

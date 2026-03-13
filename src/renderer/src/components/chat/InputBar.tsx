@@ -543,10 +543,10 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       return
     }
 
-    if (e.altKey && e.key === 'ArrowUp') {
-      e.preventDefault()
+    if (!e.altKey && e.key === 'ArrowUp' && !e.shiftKey && !text.includes('\n')) {
       const hist = historyRef.current
       if (hist.length === 0) return
+      e.preventDefault()
       if (historyIdxRef.current === -1) savedInputRef.current = text
       const newIdx = Math.min(historyIdxRef.current + 1, hist.length - 1)
       historyIdxRef.current = newIdx
@@ -555,7 +555,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       return
     }
 
-    if (e.altKey && e.key === 'ArrowDown') {
+    if (!e.altKey && e.key === 'ArrowDown' && !e.shiftKey && !text.includes('\n')) {
+      if (historyIdxRef.current === -1) return
       e.preventDefault()
       if (historyIdxRef.current <= 0) {
         historyIdxRef.current = -1

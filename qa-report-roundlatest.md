@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T08:01:05.868Z
+> 2026-03-13T08:40:27.374Z
 
 ## Critical
 _없음_
@@ -442,7 +442,7 @@ _없음_
 - SceneView: Ctrl+]/[ z-order 변경 존재
 - SceneView: Tab/Shift+Tab 형제 노드 순환 선택 존재
 - package.json 파싱 성공 (name: claude-desktop)
-- preload expose 메서드 334개 확인
+- preload expose 메서드 333개 확인
 - ipcMain.handle 등록: 13개 이상
 - 의존성 설치됨: electron
 - 의존성 설치됨: react
@@ -466,3 +466,9 @@ _없음_
 - UndoEntry prop 타입 지원 (Inspector 속성 변경 undo)
 - Edit 도구 인라인 diff 렌더링 존재
 - Inspector 배열 속성 편집 컴포넌트 존재
+- 씬뷰 노드 검색 하이라이트 존재
+- Inspector 실시간 미리보기 debounce 존재
+- 채팅 코드 블록 실행 버튼 존재
+- 씬뷰 노드 핀 기능 존재
+- 세션 병합 IPC 핸들러 존재
+- 프롬프트 히스토리 ↑↓ 탐색 존재

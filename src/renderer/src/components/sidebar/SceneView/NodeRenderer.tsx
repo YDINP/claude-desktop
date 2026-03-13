@@ -15,6 +15,7 @@ interface NodeRendererProps {
   collapsed?: boolean
   bookmarked?: boolean
   locked?: boolean
+  pinned?: boolean
   highlighted?: boolean
   designWidth?: number
   designHeight?: number
@@ -48,6 +49,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   collapsed = false,
   bookmarked = false,
   locked = false,
+  pinned = false,
   highlighted = false,
   designWidth = 960,
   designHeight = 640,
@@ -218,6 +220,17 @@ export const NodeRenderer = memo(function NodeRenderer({
           fill="#f87171"
           style={{ pointerEvents: 'none', userSelect: 'none' }}
         >🔒</text>
+      )}
+
+      {/* 핀 아이콘 */}
+      {pinned && lod === 0 && (
+        <text
+          x={rx + pw - (locked ? 20 : 10)}
+          y={ry + 10}
+          fontSize={10}
+          fill="#fbbf24"
+          style={{ pointerEvents: 'none', userSelect: 'none' }}
+        >📌</text>
       )}
 
       {/* 자식 그룹 접힘 표시 — Alt+클릭으로 토글 */}

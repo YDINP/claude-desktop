@@ -631,56 +631,45 @@ ${messages.map(m => `<div class="msg ${m.role === 'user' ? 'user' : 'assistant'}
     }
   })
 
-  ipcMain.handle('session:merge', async (_, { sessionIds, newTitle }: { sessionIds: string[]; newTitle?: string }) => {
-    if (!Array.isArray(sessionIds) || sessionIds.length < 2) return { success: false, error: 'Need at least 2 sessions' }
-    if (!sessionIds.every(id => validateSessionId(id))) return { success: false, error: 'Invalid session ID' }
+  ipcMain.handle('session:merge', async (_, sourceId: string, targetId: string) => {
+    if (!validateSessionId(sourceId) || !validateSessionId(targetId)) return { ok: false, error: 'Invalid session ID' }
+    if (sourceId === targetId) return { ok: false, error: 'Source and target must be different' }
     try {
-      const loaded: StoredSession[] = []
-      for (const id of sessionIds) {
-        const p = join(sessionsDir, `${id}.json`)
-        if (!await fileExists(p)) return { success: false, error: `Session not found: ${id}` }
-        loaded.push(JSON.parse(await readFile(p, 'utf-8')) as StoredSession)
-      }
+      const sourcePath = join(sessionsDir, `${sourceId}.json`)
+      const targetPath = join(sessionsDir, `${targetId}.json`)
+      if (!await fileExists(sourcePath)) return { ok: false, error: `Source session not found: ${sourceId}` }
+      if (!await fileExists(targetPath)) return { ok: false, error: `Target session not found: ${targetId}` }
 
-      const allMessages: unknown[] = []
-      for (const s of loaded) {
-        allMessages.push(...(s.messages ?? []))
-      }
+      const source = JSON.parse(await readFile(sourcePath, 'utf-8')) as StoredSession
+      const target = JSON.parse(await readFile(targetPath, 'utf-8')) as StoredSession
 
-      const first = loaded[0]
-      const title = newTitle ?? `${first.title ?? '세션'} (병합)`
-      const newId = `session-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+      const mergedMessages = [...(target.messages ?? []), ...(source.messages ?? [])]
       const now = Date.now()
 
-      const newSession: StoredSession = {
-        id: newId,
-        title,
-        cwd: first.cwd,
-        model: first.model,
-        messages: allMessages,
-        createdAt: now,
+      const updatedTarget: StoredSession = {
+        ...target,
+        messages: mergedMessages,
         updatedAt: now,
       }
 
-      await writeFile(join(sessionsDir, `${newId}.json`), JSON.stringify(newSession, null, 2), 'utf-8')
+      await writeFile(targetPath, JSON.stringify(updatedTarget, null, 2), 'utf-8')
 
+      // Delete source file
+      await unlink(sourcePath)
+
+      // Update index: remove source, update target messageCount
       const index = await readIndex()
-      const meta: SessionMeta = {
-        id: newId,
-        title,
-        cwd: first.cwd,
-        model: first.model,
-        updatedAt: now,
-        createdAt: now,
-        messageCount: allMessages.length,
+      const filteredIndex = index.filter(s => s.id !== sourceId)
+      const targetEntry = filteredIndex.find(s => s.id === targetId)
+      if (targetEntry) {
+        targetEntry.messageCount = mergedMessages.length
+        targetEntry.updatedAt = now
       }
-      const filteredIndex = index.filter(s => !sessionIds.includes(s.id))
-      filteredIndex.unshift(meta)
       await writeIndex(filteredIndex)
 
-      return { success: true, newSessionId: newId }
+      return { ok: true }
     } catch (e) {
-      return { success: false, error: String(e) }
+      return { ok: false, error: String(e) }
     }
   })
 

@@ -72,6 +72,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [refImageUrl, setRefImageUrl] = useState('')
   const [bookmarkedUuids, setBookmarkedUuids] = useState<Set<string>>(new Set())
   const [showBookmarkList, setShowBookmarkList] = useState(false)
+  const [pinnedUuids, setPinnedUuids] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('scene-pinned') ?? '[]')) }
+    catch { return new Set() }
+  })
   const viewHistoryRef = useRef<ViewTransform[]>([])
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
@@ -705,11 +709,23 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [activeTool, view, getSvgCoords, canvasSize])
 
+  const togglePin = useCallback((uuid: string) => {
+    setPinnedUuids(prev => {
+      const next = new Set(prev)
+      if (next.has(uuid)) next.delete(uuid)
+      else next.add(uuid)
+      localStorage.setItem('scene-pinned', JSON.stringify([...next]))
+      return next
+    })
+  }, [])
+
   const handleNodeMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
     e.stopPropagation()
     if (e.button !== 0) return
     // 잠긴 노드는 드래그/선택 불가
     if (nodeMap.get(uuid)?.locked) return
+    // 핀된 노드는 드래그/선택 불가
+    if (pinnedUuids.has(uuid)) return
 
     if (e.altKey) {
       // Alt 클릭: 자식 그룹 접기/펼치기
@@ -770,7 +786,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       groupOffsets,
     }
     setIsDragging(true)
-  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize])
+  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids])
 
   const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w') => {
     e.stopPropagation()
@@ -1726,6 +1742,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           const node = nodeMap.get(selectedUuid)
           if (node) updateNode(selectedUuid, { locked: !node.locked })
         }}
+        isPinned={selectedUuid ? pinnedUuids.has(selectedUuid) : false}
+        onTogglePin={() => { if (selectedUuid) togglePin(selectedUuid) }}
         onAddAnnotation={() => handleAddAnnotation()}
         nodeSearch={nodeSearch}
         onNodeSearchChange={setNodeSearch}
@@ -2011,6 +2029,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   collapsed={collapsedUuids.has(uuid)}
                   bookmarked={bookmarkedUuids.has(uuid)}
                   locked={node.locked === true}
+                  pinned={pinnedUuids.has(uuid)}
                   highlighted={matchedUuids.has(uuid)}
                   designWidth={DESIGN_W}
                   designHeight={DESIGN_H}
