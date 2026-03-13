@@ -400,6 +400,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showKeyBindings, setShowKeyBindings] = React.useState(false)
   const [colorize, setColorize] = React.useState(true)
   const [colorScheme, setColorScheme] = React.useState('default')
+  const [autoScroll, setAutoScroll] = React.useState(true)
+  const [scrollLock, setScrollLock] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

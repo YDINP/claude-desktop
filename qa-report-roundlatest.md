@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T12:31:31.745Z
+> 2026-03-13T12:32:41.443Z
 
 ## Critical
 _없음_
@@ -847,3 +847,9 @@ _없음_
 - SceneViewPanel 노드 정렬 존재
 - TerminalPanel 출력 색상화 존재
 - SessionList 세션 알림 존재
+- ChatPanel 읽음 표시 설정 존재
+- InputBar 인라인 이미지 존재
+- CocosPanel 리소스 미리보기 존재
+- SceneViewPanel 씬 통계 존재
+- TerminalPanel 자동 스크롤 존재
+- SessionList 세션 내보내기 존재

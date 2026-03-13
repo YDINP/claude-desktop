@@ -9701,6 +9701,74 @@ if (existsSync(sl965Path)) {
   }
 }
 
+console.log('\n## 233. Phase DD10 R966~968 기능 체크')
+// R966: ChatPanel 읽음 표시 설정
+const cp966Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp966Path)) {
+  const cp966 = readFileSync(cp966Path, 'utf-8')
+  if (cp966.includes('readStatus') || cp966.includes('showReadStatus') || cp966.includes('readReceipt')) {
+    log('pass', 'R966', 'ChatPanel 읽음 표시 설정 존재')
+  } else {
+    log('warning', 'R966', 'ChatPanel 읽음 표시 설정 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R967: InputBar 인라인 이미지
+const ib967Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib967Path)) {
+  const ib967 = readFileSync(ib967Path, 'utf-8')
+  if (ib967.includes('inlineImages') || ib967.includes('showImageGallery') || ib967.includes('imageInline')) {
+    log('pass', 'R967', 'InputBar 인라인 이미지 존재')
+  } else {
+    log('warning', 'R967', 'InputBar 인라인 이미지 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R968: CocosPanel 리소스 미리보기
+const cocos968Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos968Path)) {
+  const cocos968 = readFileSync(cocos968Path, 'utf-8')
+  if (cocos968.includes('resourcePreview') || cocos968.includes('showResourcePreview') || cocos968.includes('previewResource')) {
+    log('pass', 'R968', 'CocosPanel 리소스 미리보기 존재')
+  } else {
+    log('warning', 'R968', 'CocosPanel 리소스 미리보기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 234. Phase DD10 R969~971 기능 체크')
+// R969: SceneViewPanel 씬 통계
+const svp969Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp969Path)) {
+  const svp969 = readFileSync(svp969Path, 'utf-8')
+  if (svp969.includes('sceneStats') || svp969.includes('showSceneStats') || svp969.includes('sceneMetrics')) {
+    log('pass', 'R969', 'SceneViewPanel 씬 통계 존재')
+  } else {
+    log('warning', 'R969', 'SceneViewPanel 씬 통계 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R970: TerminalPanel 자동 스크롤
+const tp970Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp970Path)) {
+  const tp970 = readFileSync(tp970Path, 'utf-8')
+  if (tp970.includes('autoScroll') || tp970.includes('scrollLock') || tp970.includes('autoScrollEnabled')) {
+    log('pass', 'R970', 'TerminalPanel 자동 스크롤 존재')
+  } else {
+    log('warning', 'R970', 'TerminalPanel 자동 스크롤 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R971: SessionList 세션 내보내기
+const sl971Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl971Path)) {
+  const sl971 = readFileSync(sl971Path, 'utf-8')
+  if (sl971.includes('exportFormat') || sl971.includes('showExportDialog') || sl971.includes('sessionExport')) {
+    log('pass', 'R971', 'SessionList 세션 내보내기 존재')
+  } else {
+    log('warning', 'R971', 'SessionList 세션 내보내기 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
