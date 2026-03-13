@@ -7054,6 +7054,41 @@ if (existsSync(cp737Path)) {
   }
 }
 
+// ── Section 157: Phase DD10 R738~740 기능 체크 ────────────────
+console.log('\n## 157. Phase DD10 R738~740 기능 체크')
+// R738: ChatPanel 메시지 만료 타이머
+const cp738Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp738Path)) {
+  const cp738 = readFileSync(cp738Path, 'utf-8')
+  if (cp738.includes('msgExpiry') || cp738.includes('showExpiredMsgs') || cp738.includes('expiredMsg')) {
+    log('pass', 'R738', 'ChatPanel 메시지 만료 타이머 존재')
+  } else {
+    log('warning', 'R738', 'ChatPanel 메시지 만료 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R739: InputBar 커서 위치 기억
+const ib739Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib739Path)) {
+  const ib739 = readFileSync(ib739Path, 'utf-8')
+  if (ib739.includes('savedCursorPos') || ib739.includes('cursorPosHistory') || ib739.includes('cursorPos')) {
+    log('pass', 'R739', 'InputBar 커서 위치 기억 존재')
+  } else {
+    log('warning', 'R739', 'InputBar 커서 위치 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R740: TerminalPanel 세션 공유
+const tp740Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp740Path)) {
+  const tp740 = readFileSync(tp740Path, 'utf-8')
+  if (tp740.includes('sharedTabs') || tp740.includes('shareCode') || tp740.includes('shareSession')) {
+    log('pass', 'R740', 'TerminalPanel 세션 공유 존재')
+  } else {
+    log('warning', 'R740', 'TerminalPanel 세션 공유 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

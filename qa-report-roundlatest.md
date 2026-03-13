@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:07:58.868Z
+> 2026-03-13T11:09:09.208Z
 
 ## Critical
 _없음_
@@ -619,3 +619,6 @@ _없음_
 - ChatPanel 코드 블록 실행 존재
 - SceneViewPanel 씬 즐겨찾기 존재
 - CocosPanel 스크립트 실행 로그 존재
+- ChatPanel 메시지 만료 타이머 존재
+- InputBar 커서 위치 기억 존재
+- TerminalPanel 세션 공유 존재

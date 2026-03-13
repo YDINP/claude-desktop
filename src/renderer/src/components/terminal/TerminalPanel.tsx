@@ -153,6 +153,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [autoReconnect, setAutoReconnect] = useState(true)
   const [reconnectCount, setReconnectCount] = useState<Record<string, number>>({})
 
+  // R740: tab sharing
+  const [sharedTabs, setSharedTabs] = useState<Set<string>>(new Set())
+  const [shareCode, setShareCode] = useState<string | null>(null)
+
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)
