@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 440 완료 — F-1 Inspector 색상 에디터 (color picker + A 슬라이더))
+> 마지막 업데이트: 2026-03-13 (Round 441 완료 — F-2 씬 트리 노드 이름 검색)
 
 ## 완료된 라운드
 
@@ -32,6 +32,7 @@
 | Round 438 | dev | Phase E-2/E-3: 씬뷰 100px 그리드+중앙 십자선, 노드 회전 SVG rotate() 적용 (CC Z-euler → SVG 부호 반전) | ✅ |
 | Round 439 | dev | Phase E-4: 비활성 노드 반투명(opacity 0.2) 표시 + nodeOpacity = node.opacity/255 SVG 적용 | ✅ |
 | Round 440 | dev | Phase F-1: Inspector 색상 에디터 — HTML color picker (RGB) + A 슬라이더, hex↔rgba 변환 | ✅ |
+| Round 441 | dev | Phase F-2: 씬 트리 노드 검색 — TreeSearch 컴포넌트, 이름 부분 일치, 드롭다운 결과 최대 8개, 선택 시 Inspector 포커스 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

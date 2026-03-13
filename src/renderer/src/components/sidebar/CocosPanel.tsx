@@ -671,8 +671,11 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           </div>
           {/* 씬 트리 */}
           <div style={{ flex: selectedNode ? 0 : 1, overflow: 'auto', maxHeight: selectedNode ? 180 : undefined }}>
-            <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)' }}>
-              씬: {sceneFile.scenePath.split(/[\\/]/).pop()}
+            <div style={{ padding: '3px 8px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 6, alignItems: 'center' }}>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>
+                {sceneFile.scenePath.split(/[\\/]/).pop()}
+              </span>
+              <TreeSearch root={sceneFile.root} onSelect={onSelectNode} />
             </div>
             <CCFileSceneTree
               node={sceneFile.root}
@@ -1055,6 +1058,68 @@ function CCFileNodeInspector({
           }
         </div>
       ))}
+    </div>
+  )
+}
+
+/** 씬 트리 노드 이름 검색 + 선택 */
+function TreeSearch({ root, onSelect }: { root: CCSceneNode; onSelect: (n: CCSceneNode | null) => void }) {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<CCSceneNode[]>([])
+  const [open, setOpen] = useState(false)
+
+  const search = useCallback((q: string) => {
+    setQuery(q)
+    if (!q.trim()) { setResults([]); setOpen(false); return }
+    const found: CCSceneNode[] = []
+    function walk(n: CCSceneNode) {
+      if (n.name.toLowerCase().includes(q.toLowerCase())) found.push(n)
+      n.children.forEach(walk)
+    }
+    walk(root)
+    setResults(found.slice(0, 8))
+    setOpen(true)
+  }, [root])
+
+  return (
+    <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+      <input
+        value={query}
+        onChange={e => search(e.target.value)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        placeholder="노드 검색..."
+        style={{
+          width: '100%', background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+          color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px', fontSize: 10, boxSizing: 'border-box',
+        }}
+      />
+      {open && results.length > 0 && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
+          background: 'var(--bg-secondary, #0d0d1a)', border: '1px solid var(--border)',
+          borderRadius: 4, maxHeight: 160, overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+        }}>
+          {results.map(n => (
+            <div
+              key={n.uuid}
+              onMouseDown={() => { onSelect(n); setQuery(''); setOpen(false) }}
+              style={{
+                padding: '4px 8px', fontSize: 10, cursor: 'pointer', color: 'var(--text-primary)',
+                borderBottom: '1px solid var(--border)',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-subtle, rgba(88,166,255,0.1))')}
+              onMouseLeave={e => (e.currentTarget.style.background = '')}
+            >
+              {n.name || '(unnamed)'}
+              {n.components.length > 0 && (
+                <span style={{ marginLeft: 4, color: 'var(--text-muted)', fontSize: 9 }}>
+                  {n.components[0].type.replace('cc.','')}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
