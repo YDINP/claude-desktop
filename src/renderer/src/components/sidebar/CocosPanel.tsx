@@ -4681,6 +4681,70 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1551: cc.RigidBody — 물리 강체 Quick Edit
+            if (comp.type === 'cc.RigidBody' || comp.type === 'cc.RigidBody2D') {
+              const rbTypes = ['DYNAMIC', 'STATIC', 'KINEMATIC']
+              const rbType = Number(p.type ?? 0)
+              const mass = Number(p.mass ?? 1)
+              const linearDamping = Number(p.linearDamping ?? 0)
+              const gravityScale = Number(p.gravityScale ?? 1)
+              const fixedRotation = !!(p.fixedRotation ?? false)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>type</span>
+                    <select defaultValue={rbType}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: parseInt(e.target.value) } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      {rbTypes.map((t, i) => <option key={i} value={i}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>mass</span>
+                    <input type="number" defaultValue={mass} min={0} step={0.1}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mass: parseFloat(e.target.value) || 1 } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>gravityScale</span>
+                    <input type="number" defaultValue={gravityScale} step={0.1}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, gravityScale: parseFloat(e.target.value) || 1 } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>linearDamp</span>
+                    <input type="number" defaultValue={linearDamping} min={0} step={0.1}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearDamping: parseFloat(e.target.value) || 0 } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
+                    <input type="checkbox" checked={fixedRotation}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fixedRotation: e.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ margin: 0, accentColor: '#58a6ff' }}
+                    />fixedRotation
+                  </label>
+                </div>
+              )
+            }
             // R1549: dragonBones.ArmatureDisplay — DragonBones Quick Edit
             if (comp.type === 'dragonBones.ArmatureDisplay') {
               const armatureName = String(p.armatureName ?? '')

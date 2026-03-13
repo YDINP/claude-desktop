@@ -16467,6 +16467,25 @@ console.log('\n## 441. R1550 SceneView 노드 검색 + 하이라이트 체크')
   }
 }
 
+// ── Section 442: R1551 cc.RigidBody/Collider extractor ───────────
+console.log('\n## 442. R1551 cc.RigidBody + 콜라이더 물리 컴포넌트 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s442p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s442ui = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s442p.includes("'cc.RigidBody'") && s442p.includes('gravityScale') && s442p.includes('fixedRotation') && s442p.includes("'cc.BoxCollider'")) {
+    log('pass', 'R1551-parser', 'cc.RigidBody/2D + BoxCollider/CircleCollider extractor 구현')
+  } else {
+    log('warning', 'R1551-parser', 'cc.RigidBody/Collider extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s442ui.includes("comp.type === 'cc.RigidBody'") && s442ui.includes('gravityScale') && s442ui.includes('DYNAMIC') && s442ui.includes('KINEMATIC')) {
+    log('pass', 'R1551-ui', 'Inspector RigidBody Quick Edit (type/mass/gravityScale/linearDamp/fixedRotation)')
+  } else {
+    log('warning', 'R1551-ui', 'RigidBody Inspector UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

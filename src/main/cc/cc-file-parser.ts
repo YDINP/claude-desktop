@@ -370,6 +370,51 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     endSize: e._N$endSize ?? e._endSize ?? e.endSize ?? 50,
     playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? true,
   }),
+  // R1551: cc.RigidBody — 2D 물리 강체
+  'cc.RigidBody': e => ({
+    type: (e._N$type ?? e._type ?? e.type ?? 0) as number,  // 0=DYNAMIC, 1=STATIC, 2=KINEMATIC
+    mass: (e._N$mass ?? e._mass ?? e.mass ?? 1) as number,
+    linearDamping: (e._N$linearDamping ?? e._linearDamping ?? e.linearDamping ?? 0) as number,
+    angularDamping: (e._N$angularDamping ?? e._angularDamping ?? e.angularDamping ?? 0) as number,
+    gravityScale: (e._N$gravityScale ?? e._gravityScale ?? e.gravityScale ?? 1) as number,
+    fixedRotation: !!(e._N$fixedRotation ?? e._fixedRotation ?? e.fixedRotation ?? false),
+    allowSleep: !!(e._N$allowSleep ?? e._allowSleep ?? e.allowSleep ?? true),
+    bullet: !!(e._N$bullet ?? e._bullet ?? e.bullet ?? false),
+  }),
+  'cc.RigidBody2D': e => ({
+    type: (e._N$type ?? e._type ?? e.type ?? 0) as number,
+    mass: (e._N$mass ?? e._mass ?? e.mass ?? 1) as number,
+    linearDamping: (e._N$linearDamping ?? e._linearDamping ?? e.linearDamping ?? 0) as number,
+    angularDamping: (e._N$angularDamping ?? e._angularDamping ?? e.angularDamping ?? 0) as number,
+    gravityScale: (e._N$gravityScale ?? e._gravityScale ?? e.gravityScale ?? 1) as number,
+    fixedRotation: !!(e._N$fixedRotation ?? e._fixedRotation ?? e.fixedRotation ?? false),
+  }),
+  // R1551: cc.BoxCollider — 박스 콜라이더
+  'cc.BoxCollider': e => ({
+    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
+    size: (e._N$size ?? e._size ?? e.size) as { width?: number; height?: number } | undefined,
+    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
+    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
+  }),
+  'cc.BoxCollider2D': e => ({
+    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
+    size: (e._N$size ?? e._size ?? e.size) as { width?: number; height?: number } | undefined,
+    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
+    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
+  }),
+  // R1551: cc.CircleCollider — 원형 콜라이더
+  'cc.CircleCollider': e => ({
+    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
+    radius: (e._N$radius ?? e._radius ?? e.radius ?? 0) as number,
+    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
+    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
+  }),
+  'cc.CircleCollider2D': e => ({
+    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
+    radius: (e._N$radius ?? e._radius ?? e.radius ?? 0) as number,
+    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
+    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
+  }),
   // R1549: dragonBones.ArmatureDisplay — DragonBones 애니메이션
   'dragonBones.ArmatureDisplay': e => ({
     dragonAsset: (e._N$dragonAsset ?? e._dragonAsset ?? e.dragonAsset) as unknown,
