@@ -389,7 +389,12 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     })
   }, [])
 
-  const messageCount = chat.messages.length
+  const displayMessages = useMemo(
+    () => showOnlyBookmarks ? chat.messages.filter(m => m.bookmarked) : chat.messages,
+    [chat.messages, showOnlyBookmarks]
+  )
+
+  const messageCount = displayMessages.length
 
   // searchTrigger prop 변화 시 검색창 열기 (App.tsx에서 Ctrl+F 시 증가)
   useEffect(() => {
@@ -458,7 +463,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   }, [handleSearchPrev, handleSearchNext])
 
   const virtualizer = useVirtualizer({
-    count: messageCount,
+    count: displayMessages.length,
     getScrollElement: () => scrollContainerRef.current,
     estimateSize: () => 250,
     overscan: 5,
@@ -509,6 +514,7 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   }, [chat.isStreaming, messageCount, virtualizer, ccCtx.connected, chat.messages])
 
   const bookmarkIdxRef = useRef(0)
+  const [showOnlyBookmarks, setShowOnlyBookmarks] = useState(false)
 
   const jumpToBookmark = useCallback(() => {
     const bookmarked = chat.messages
@@ -771,14 +777,26 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         <ExportHtmlButton messages={chat.messages} sessionName={chat.messages.find(m => m.role === 'user')?.text.slice(0, 30).replace(/[^\w\s가-힣]/g, '').trim()} />
         <ExportPdfButton messages={chat.messages} sessionId={chat.sessionId} />
         {chat.messages.some(m => m.bookmarked) && (
-          <button
-            onClick={jumpToBookmark}
-            title="다음 북마크로 이동"
-            style={{
-              background: 'none', border: 'none', color: 'var(--warning, #fbbf24)',
-              fontSize: 13, cursor: 'pointer', padding: '2px 6px',
-            }}
-          >★</button>
+          <>
+            <button
+              onClick={jumpToBookmark}
+              title="다음 북마크로 이동"
+              style={{
+                background: 'none', border: 'none', color: 'var(--warning, #fbbf24)',
+                fontSize: 13, cursor: 'pointer', padding: '2px 6px',
+              }}
+            >★</button>
+            <button
+              onClick={() => setShowOnlyBookmarks(v => !v)}
+              title={showOnlyBookmarks ? '전체 메시지 보기' : '북마크 메시지만 보기'}
+              style={{
+                background: showOnlyBookmarks ? 'var(--warning, #fbbf24)' : 'none',
+                border: 'none',
+                color: showOnlyBookmarks ? '#000' : 'var(--warning, #fbbf24)',
+                fontSize: 10, cursor: 'pointer', padding: '2px 6px', borderRadius: 3,
+              }}
+            >★ 필터</button>
+          </>
         )}
         <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Model:</span>
         <select
@@ -1079,10 +1097,10 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             }}
           >
             {virtualItems.map((virtualRow) => {
-              const msg = chat.messages[virtualRow.index]
+              const msg = displayMessages[virtualRow.index]
               if (!msg) return null
               const isLast = virtualRow.index === messageCount - 1
-              const prevMsg = virtualRow.index > 0 ? chat.messages[virtualRow.index - 1] : null
+              const prevMsg = virtualRow.index > 0 ? displayMessages[virtualRow.index - 1] : null
               const showTimeSep = !!(
                 msg.timestamp &&
                 prevMsg?.timestamp &&
