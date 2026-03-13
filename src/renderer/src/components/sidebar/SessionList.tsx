@@ -277,6 +277,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [timelineRange, setTimelineRange] = useState<{ start: number; end: number } | null>(null)
   const [cloningSession, setCloningSession] = useState<string | null>(null)
   const [cloneDepth, setCloneDepth] = useState<'full' | 'shallow'>('full')
+  const [archiveExportFormat, setArchiveExportFormat] = useState<'json' | 'md' | 'txt'>('json')
+  const [showArchiveExport, setShowArchiveExport] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {

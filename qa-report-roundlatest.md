@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:40:52.028Z
+> 2026-03-13T11:42:01.146Z
 
 ## Critical
 _없음_
@@ -709,3 +709,6 @@ _없음_
 - ChatPanel 응답 품질 평가 존재
 - InputBar 커맨드 팔레트 존재
 - CocosPanel 에셋 캐시 관리 존재
+- SceneViewPanel 노드 프리셋 존재
+- TerminalPanel 입력 히스토리 검색 존재
+- SessionList 아카이브 내보내기 존재

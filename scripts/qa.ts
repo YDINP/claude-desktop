@@ -8104,6 +8104,41 @@ if (existsSync(cocp827Path)) {
   }
 }
 
+console.log('\n## 187. Phase DD10 R828~830 기능 체크')
+
+// R828: SceneViewPanel 노드 프리셋
+const svp828Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp828Path)) {
+  const svp828 = readFileSync(svp828Path, 'utf-8')
+  if (svp828.includes('nodePresets') || svp828.includes('showPresetPanel') || svp828.includes('presetNodes')) {
+    log('pass', 'R828', 'SceneViewPanel 노드 프리셋 존재')
+  } else {
+    log('warning', 'R828', 'SceneViewPanel 노드 프리셋 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R829: TerminalPanel 입력 히스토리 검색
+const tp829Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp829Path)) {
+  const tp829 = readFileSync(tp829Path, 'utf-8')
+  if (tp829.includes('inputHistorySearch') || tp829.includes('inputHistoryResults') || tp829.includes('historySearch')) {
+    log('pass', 'R829', 'TerminalPanel 입력 히스토리 검색 존재')
+  } else {
+    log('warning', 'R829', 'TerminalPanel 히스토리 검색 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R830: SessionList 아카이브 내보내기
+const sl830Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl830Path)) {
+  const sl830 = readFileSync(sl830Path, 'utf-8')
+  if (sl830.includes('archiveExportFormat') || sl830.includes('showArchiveExport') || sl830.includes('archiveExport')) {
+    log('pass', 'R830', 'SessionList 아카이브 내보내기 존재')
+  } else {
+    log('warning', 'R830', 'SessionList 아카이브 내보내기 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

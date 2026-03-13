@@ -354,6 +354,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [outputFilter, setOutputFilter] = useState('')
   const [shareLink, setShareLink] = useState<string | null>(null)
   const [showSharePanel, setShowSharePanel] = useState(false)
+  const [inputHistorySearch, setInputHistorySearch] = useState('')
+  const [inputHistoryResults, setInputHistoryResults] = useState<string[]>([])
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
