@@ -197,6 +197,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
 
   const [tabGroups, setTabGroups] = useState<Array<{ name: string; tabIds: string[] }>>([])
   const [activeTabGroup, setActiveTabGroup] = useState<string | null>(null)
+  const [termTabs, setTermTabs] = useState<Array<{ id: string; title: string }>>([])
+  const [activeTermTab, setActiveTermTab] = useState<string>('')
 
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)

@@ -1711,6 +1711,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showSpritePanel, setShowSpritePanel] = useState(false)
   const [sceneUI, setSceneUI] = useState<string[]>([])
   const [showUIPanel, setShowUIPanel] = useState(false)
+  const [sceneNetworks, setSceneNetworks] = useState<string[]>([])
+  const [showNetworkPanel, setShowNetworkPanel] = useState(false)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
 
   const saveToSlot = useCallback((slot: number) => {

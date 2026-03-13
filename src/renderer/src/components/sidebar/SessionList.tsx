@@ -395,6 +395,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
   const [sessionPinned, setSessionPinned] = useState<string[]>([])
   const [showPinnedOnly, setShowPinnedOnly] = useState(false)
+  const [sessionTimeline, setSessionTimeline] = useState<Array<{ id: string; timestamp: number }>>([])
+  const [showTimelinePanel, setShowTimelinePanel] = useState(false)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
