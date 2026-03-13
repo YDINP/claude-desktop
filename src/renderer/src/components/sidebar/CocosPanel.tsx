@@ -1273,8 +1273,15 @@ function CCFileNodeInspector({
         })
       }).map((comp, ci) => (
         <div key={ci} style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 5 }}>
-          <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4 }}>
-            {comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
+          <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+            <span style={{ flex: 1 }}>{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}</span>
+            <span
+              title="컴포넌트 삭제"
+              onClick={() => applyAndSave({ components: draft.components.filter((_, i) => i !== ci) })}
+              style={{ cursor: 'pointer', color: '#666', fontSize: 10, padding: '0 2px', lineHeight: 1 }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#ff6666')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#666')}
+            >✕</span>
           </div>
           {Object.entries(comp.props).map(([k, v]) => {
             if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
