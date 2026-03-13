@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1457 완료 — Phase DD17 진행 중, QA Pass 1344)
+> 마지막 업데이트: 2026-03-14 (Round 1463 완료 — Phase DD18 진행 중, QA Pass 1344+)
 
 ## 개발 루프 실행 방식
 
@@ -833,6 +833,12 @@
 | Round 1455 | SceneView 카메라 뷰 북마크 Ctrl+1~5 저장/이동 (200ms lerp) | ✅ |
 | Round 1456 | Inspector cc.UIOpacity/UITransform 직접 편집 섹션 | ✅ |
 | Round 1457 | QA Section 397-398 추가 (R1452-R1456 기능 체크, Pass 1344) | ✅ |
+| Round 1458 | SceneView 자동 레이아웃 (수평/수직 균등배분 + 격자 + 원형 배치) | ✅ |
+| Round 1459 | cc-file-parser extractSceneMeta (스크립트/텍스처/물리/트윈/애니메이션 감지) | ✅ |
+| Round 1460 | SceneView 노드 클릭 히트맵 (선택 빈도 색상 시각화 + 리셋) | ✅ |
+| Round 1461 | CocosPanel CC 프로젝트 생성 마법사 (3단계: 이름/위치 → CC버전 → 템플릿) | ✅ |
+| Round 1462 | NodeRenderer cc.Shadow SVG feDropShadow 렌더링 | ✅ |
+| Round 1463 | QA Section 399-400 추가 (R1458-R1462 기능 체크, Section 400 달성!) | ✅ |
 
 ## QA 프로세스
 

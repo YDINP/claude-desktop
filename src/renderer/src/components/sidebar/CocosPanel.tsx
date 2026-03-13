@@ -515,6 +515,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showNewSceneForm, setShowNewSceneForm] = useState(false)
   const [newSceneName, setNewSceneName] = useState('NewScene')
   const [newSceneTemplate, setNewSceneTemplate] = useState<'empty' | 'canvas'>('canvas')
+  // R1461: 새 CC 프로젝트 생성 마법사 상태
+  const [showProjectWizard, setShowProjectWizard] = useState(false)
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1)
+  const [wizardProjectName, setWizardProjectName] = useState('NewProject')
+  const [wizardSavePath, setWizardSavePath] = useState('')
+  const [wizardCCVersion, setWizardCCVersion] = useState<'2x' | '3x'>('2x')
+  const [wizardTemplate, setWizardTemplate] = useState<'empty' | 'ui'>('empty')
+  const [wizardCreating, setWizardCreating] = useState(false)
+  const [wizardError, setWizardError] = useState<string | null>(null)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -592,6 +601,71 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (batchToastRef.current) clearTimeout(batchToastRef.current)
     batchToastRef.current = setTimeout(() => setBatchToast(null), 2500)
   }, [])
+
+  // R1461: 프로젝트 생성 핸들러
+  const handleCreateProject = useCallback(async () => {
+    if (!wizardProjectName.trim() || !wizardSavePath.trim()) {
+      setWizardError('프로젝트 이름과 저장 위치를 입력하세요')
+      return
+    }
+    setWizardCreating(true)
+    setWizardError(null)
+    try {
+      const projectPath = `${wizardSavePath}/${wizardProjectName}`
+      // assets/scenes 폴더 구조 생성
+      await window.api.createDir(projectPath, 'assets')
+      await window.api.createDir(`${projectPath}/assets`, 'scenes')
+
+      // 씬 파일 생성
+      if (wizardCCVersion === '2x') {
+        const sceneContent = wizardTemplate === 'ui'
+          ? JSON.stringify([
+            { "__type__": "cc.SceneAsset", "_name": "", "scene": { "__id__": 1 } },
+            { "__type__": "cc.Scene", "_name": "Main", "_active": true, "_children": [{ "__id__": 2 }], "_components": [], "_id": "scene-root" },
+            { "__type__": "cc.Node", "_name": "Canvas", "_active": true, "_children": [], "_components": [{ "__id__": 3 }, { "__id__": 4 }], "_contentSize": { "width": 960, "height": 640 }, "_anchorPoint": { "x": 0.5, "y": 0.5 }, "_trs": { "__type__": "TypedArray", "ctor": "Float64Array", "array": [0,0,0,0,0,0,1,1,1,1] }, "_id": "canvas-node" },
+            { "__type__": "cc.Canvas", "_designResolution": { "width": 960, "height": 640 }, "node": { "__id__": 2 } },
+            { "__type__": "cc.Widget", "isAlignTop": true, "isAlignBottom": true, "isAlignLeft": true, "isAlignRight": true, "node": { "__id__": 2 } }
+          ], null, 2)
+          : JSON.stringify([
+            { "__type__": "cc.SceneAsset", "_name": "", "scene": { "__id__": 1 } },
+            { "__type__": "cc.Scene", "_name": "Main", "_active": true, "_children": [], "_components": [], "_id": "scene-root" }
+          ], null, 2)
+        await window.api.createFile(`${projectPath}/assets/scenes`, 'Main.fire')
+        await window.api.writeTextFile?.(`${projectPath}/assets/scenes/Main.fire`, sceneContent)
+        // project.json
+        const projJson = JSON.stringify({ engine: "cocos-creator-js", packages: "packages://", id: wizardProjectName }, null, 2)
+        await window.api.createFile(projectPath, 'project.json')
+        await window.api.writeTextFile?.(`${projectPath}/project.json`, projJson)
+      } else {
+        // 3.x
+        const sceneContent = wizardTemplate === 'ui'
+          ? JSON.stringify([
+            { "__type__": "cc.SceneAsset", "_name": "", "scene": { "__id__": 1 } },
+            { "__type__": "cc.Scene", "_name": "Main", "_active": true, "_children": [{ "__id__": 2 }], "_components": [], "_id": "scene-root" },
+            { "__type__": "cc.Node", "_name": "Canvas", "_active": true, "_children": [], "_components": [{ "__id__": 3 }, { "__id__": 4 }], "_lpos": { "x": 0, "y": 0, "z": 0 }, "_lrot": { "x": 0, "y": 0, "z": 0 }, "_lscale": { "x": 1, "y": 1, "z": 1 }, "_id": "canvas-node" },
+            { "__type__": "cc.UITransform", "_contentSize": { "width": 960, "height": 640 }, "_anchorPoint": { "x": 0.5, "y": 0.5 }, "node": { "__id__": 2 } },
+            { "__type__": "cc.Canvas", "node": { "__id__": 2 } }
+          ], null, 2)
+          : JSON.stringify([
+            { "__type__": "cc.SceneAsset", "_name": "", "scene": { "__id__": 1 } },
+            { "__type__": "cc.Scene", "_name": "Main", "_active": true, "_children": [], "_components": [], "_id": "scene-root" }
+          ], null, 2)
+        await window.api.createFile(`${projectPath}/assets/scenes`, 'Main.scene')
+        await window.api.writeTextFile?.(`${projectPath}/assets/scenes/Main.scene`, sceneContent)
+        const pkgJson = JSON.stringify({ name: wizardProjectName, uuid: crypto.randomUUID?.() ?? 'temp-uuid', creator: { version: "3.8.0" } }, null, 2)
+        await window.api.createFile(projectPath, 'package.json')
+        await window.api.writeTextFile?.(`${projectPath}/package.json`, pkgJson)
+      }
+
+      setShowProjectWizard(false)
+      // 생성 후 프로젝트 열기 — 직접 경로 지정
+      showBatchToast(`프로젝트 "${wizardProjectName}" 생성 완료`)
+    } catch (err) {
+      setWizardError((err as Error).message ?? '프로젝트 생성 실패')
+    } finally {
+      setWizardCreating(false)
+    }
+  }, [wizardProjectName, wizardSavePath, wizardCCVersion, wizardTemplate, showBatchToast])
 
   const handleBatchFontSize = useCallback(() => {
     if (!sceneFile?.root) return
@@ -1359,6 +1433,17 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           >
             {loading ? '로드 중...' : projectInfo?.detected ? '📂 다른 프로젝트 열기' : '📂 CC 프로젝트 열기'}
           </button>
+          {/* R1461: 새 프로젝트 생성 마법사 */}
+          <button
+            onClick={() => { setShowProjectWizard(true); setWizardStep(1); setWizardError(null) }}
+            style={{
+              padding: '4px 8px', background: 'rgba(96,165,250,0.12)', color: 'var(--accent)',
+              border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4, fontSize: 10,
+              cursor: 'pointer', whiteSpace: 'nowrap',
+            }}
+          >
+            {'🆕'} 새 프로젝트
+          </button>
         </div>
 
         {/* 감지된 프로젝트 정보 */}
@@ -1438,6 +1523,31 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             )}
           </div>
         )}
+
+        {/* R1459: 씬 메타데이터 표시 */}
+        {sceneFile && (() => {
+          const meta = sceneFile._sceneMeta as { version?: string; canvasSize?: { width: number; height: number }; nodeCount?: number; scriptUuids?: string[]; textureUuids?: string[]; audioUuids?: string[]; hasPhysics?: boolean; hasTween?: boolean; hasAnimation?: boolean } | undefined
+          if (!meta) return null
+          return (
+            <div style={{
+              fontSize: 9, color: 'var(--text-muted)', padding: '4px 6px', marginTop: 4,
+              background: 'rgba(255,255,255,0.03)', borderRadius: 4,
+              border: '1px solid var(--border)', lineHeight: 1.8,
+            }}>
+              <div style={{ fontWeight: 600, fontSize: 10, color: 'var(--text-primary)', marginBottom: 2 }}>{'📊'} 씬 메타</div>
+              <div>노드: <b>{meta.nodeCount ?? 0}</b></div>
+              <div>캔버스: {meta.canvasSize?.width}x{meta.canvasSize?.height}</div>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                {meta.hasPhysics && <span style={{ fontSize: 8, padding: '0 4px', borderRadius: 8, background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>Physics</span>}
+                {meta.hasAnimation && <span style={{ fontSize: 8, padding: '0 4px', borderRadius: 8, background: 'rgba(96,165,250,0.15)', color: '#60a5fa' }}>Animation</span>}
+                {meta.hasTween && <span style={{ fontSize: 8, padding: '0 4px', borderRadius: 8, background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>Tween</span>}
+              </div>
+              {(meta.scriptUuids?.length ?? 0) > 0 && <div>스크립트: {meta.scriptUuids?.length}개</div>}
+              {(meta.textureUuids?.length ?? 0) > 0 && <div>텍스처: {meta.textureUuids?.length}개</div>}
+              {(meta.audioUuids?.length ?? 0) > 0 && <div>오디오: {meta.audioUuids?.length}개</div>}
+            </div>
+          )
+        })()}
 
         {/* R1394: 새 씬 만들기 버튼 + 인라인 폼 */}
         {projectInfo?.detected && (
@@ -5091,6 +5201,117 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
       )}
       {/* R1434: 에셋 썸네일 미리보기 팝업 */}
       {thumbHover && <AssetThumbnailPopup path={thumbHover.path} anchorX={thumbHover.x} anchorY={thumbHover.y} />}
+      {/* R1461: 프로젝트 생성 마법사 모달 */}
+      {showProjectWizard && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: 'var(--bg-secondary)', borderRadius: 8, padding: 16,
+            minWidth: 280, maxWidth: 340, boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+            border: '1px solid var(--border)',
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)' }}>
+              {'🆕'} 새 CC 프로젝트 (Step {wizardStep}/3)
+            </div>
+            {wizardStep === 1 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <label style={{ fontSize: 10, color: 'var(--text-muted)' }}>프로젝트 이름</label>
+                <input
+                  value={wizardProjectName}
+                  onChange={e => setWizardProjectName(e.target.value)}
+                  style={{ padding: '4px 8px', fontSize: 11, borderRadius: 4, border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+                />
+                <label style={{ fontSize: 10, color: 'var(--text-muted)' }}>저장 위치</label>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <input
+                    value={wizardSavePath}
+                    onChange={e => setWizardSavePath(e.target.value)}
+                    placeholder="C:/Users/.../Projects"
+                    style={{ flex: 1, padding: '4px 8px', fontSize: 10, borderRadius: 4, border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+                  />
+                  <button
+                    onClick={async () => {
+                      const path = await window.api.openFolder()
+                      if (path) setWizardSavePath(path)
+                    }}
+                    style={{ padding: '4px 8px', fontSize: 10, cursor: 'pointer', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4 }}
+                  >{'...'}</button>
+                </div>
+              </div>
+            )}
+            {wizardStep === 2 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <label style={{ fontSize: 10, color: 'var(--text-muted)' }}>CC 버전 선택</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {(['2x', '3x'] as const).map(v => (
+                    <button
+                      key={v}
+                      onClick={() => setWizardCCVersion(v)}
+                      style={{
+                        flex: 1, padding: '8px 0', fontSize: 11, borderRadius: 4, cursor: 'pointer',
+                        background: wizardCCVersion === v ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
+                        color: wizardCCVersion === v ? '#fff' : 'var(--text-primary)',
+                        border: wizardCCVersion === v ? 'none' : '1px solid var(--border)',
+                        fontWeight: wizardCCVersion === v ? 600 : 400,
+                      }}
+                    >CC {v === '2x' ? '2.x' : '3.x'}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {wizardStep === 3 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <label style={{ fontSize: 10, color: 'var(--text-muted)' }}>프로젝트 템플릿</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {([{ key: 'empty' as const, label: '빈 프로젝트' }, { key: 'ui' as const, label: 'UI 프로젝트' }]).map(t => (
+                    <button
+                      key={t.key}
+                      onClick={() => setWizardTemplate(t.key)}
+                      style={{
+                        flex: 1, padding: '8px 0', fontSize: 11, borderRadius: 4, cursor: 'pointer',
+                        background: wizardTemplate === t.key ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
+                        color: wizardTemplate === t.key ? '#fff' : 'var(--text-primary)',
+                        border: wizardTemplate === t.key ? 'none' : '1px solid var(--border)',
+                        fontWeight: wizardTemplate === t.key ? 600 : 400,
+                      }}
+                    >{t.label}</button>
+                  ))}
+                </div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 4 }}>
+                  {wizardProjectName}/{wizardCCVersion === '2x' ? 'assets/scenes/Main.fire' : 'assets/scenes/Main.scene'}
+                </div>
+              </div>
+            )}
+            {wizardError && <div style={{ fontSize: 10, color: '#ef4444', marginTop: 6 }}>{wizardError}</div>}
+            <div style={{ display: 'flex', gap: 6, marginTop: 12, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowProjectWizard(false)}
+                style={{ padding: '4px 12px', fontSize: 10, borderRadius: 4, cursor: 'pointer', background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+              >취소</button>
+              {wizardStep > 1 && (
+                <button
+                  onClick={() => setWizardStep((wizardStep - 1) as 1 | 2 | 3)}
+                  style={{ padding: '4px 12px', fontSize: 10, borderRadius: 4, cursor: 'pointer', background: 'none', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                >이전</button>
+              )}
+              {wizardStep < 3 ? (
+                <button
+                  onClick={() => setWizardStep((wizardStep + 1) as 1 | 2 | 3)}
+                  style={{ padding: '4px 12px', fontSize: 10, borderRadius: 4, cursor: 'pointer', background: 'var(--accent)', border: 'none', color: '#fff' }}
+                >다음</button>
+              ) : (
+                <button
+                  onClick={handleCreateProject}
+                  disabled={wizardCreating}
+                  style={{ padding: '4px 12px', fontSize: 10, borderRadius: 4, cursor: wizardCreating ? 'wait' : 'pointer', background: '#22c55e', border: 'none', color: '#fff', opacity: wizardCreating ? 0.6 : 1 }}
+                >{wizardCreating ? '생성 중...' : '생성'}</button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

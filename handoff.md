@@ -1,13 +1,24 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-14 (Round 1457 완료 — Phase DD17 R1452~1457)
+> 마지막 업데이트: 2026-03-14 (Round 1463 완료 — Phase DD18 R1458~1463)
 
 ## 현재 상태
-- 마지막 커밋: Round 1452~1457 (노드템플릿/이벤트파싱/일괄처리/뷰북마크/UIOpacity편집/QA)
+- 마지막 커밋: Round 1458~1463 (자동정렬/씬메타/히트맵/프로젝트생성/그림자효과/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 5, Pass 1344
+- QA: `npm run qa` ✅ Critical 0, Warning 5, Pass 1353
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
+
+## Phase DD18 R1458~1463 (2026-03-14)
+
+| 라운드 | 기능 |
+|--------|------|
+| R1458 | SceneView 자동 레이아웃 (수평/수직 균등배분 + 격자 + 원형 배치 드롭다운) |
+| R1459 | cc-file-parser extractSceneMeta (스크립트/텍스처/오디오/물리/트윈/애니메이션 감지) + CocosPanel 표시 |
+| R1460 | SceneView 노드 클릭 히트맵 (선택 빈도 색상 시각화 + 리셋) |
+| R1461 | CocosPanel CC 프로젝트 생성 마법사 (3단계: 이름+위치 → CC버전 → 템플릿) |
+| R1462 | NodeRenderer cc.Shadow SVG feDropShadow 렌더링 (enabled/color/blur/offset) |
+| R1463 | QA Section 399-400 추가 (R1458-R1462 기능 체크, Section 400 달성!, Pass 1353) |
 
 ## Phase DD17 R1452~1457 (2026-03-14)
 

@@ -3,6 +3,7 @@ import type {
   CCSceneNode, CCSceneComponent, CCSceneFile,
   CCVec2, CCVec3, CCColor, CCFileProjectInfo,
 } from '../../shared/ipc-schema'
+// CCSceneNode is used by extractSceneMeta (R1459)
 
 type RawEntry = Record<string, unknown>
 
@@ -822,4 +823,129 @@ export function detectCycles(graph: Map<string, string[]>): string[][] {
   }
 
   return cycles
+}
+
+// ── R1459: 씬 메타데이터 추출 ─────────────────────────────────────────────
+
+export interface CCSceneMeta {
+  version: '2x' | '3x'
+  canvasSize: { width: number; height: number }
+  nodeCount: number
+  scriptUuids: string[]
+  textureUuids: string[]
+  audioUuids: string[]
+  hasPhysics: boolean
+  hasTween: boolean
+  hasAnimation: boolean
+}
+
+/**
+ * R1459: 씬 파일에서 메타데이터 추출
+ * - 스크립트/텍스처/오디오 UUID, 물리/트윈/애니메이션 존재 여부
+ */
+export function extractSceneMeta(sceneFile: CCSceneFile): CCSceneMeta {
+  const raw = sceneFile._raw as RawEntry[] | undefined
+  const version = sceneFile.projectInfo?.version ?? '2x'
+  const designRes = getDesignResolution(sceneFile)
+
+  // 노드 수 카운트
+  let nodeCount = 0
+  function countNodes(node: CCSceneNode): void {
+    nodeCount++
+    for (const child of node.children) countNodes(child)
+  }
+  countNodes(sceneFile.root)
+
+  const scriptUuids = new Set<string>()
+  const textureUuids = new Set<string>()
+  const audioUuids = new Set<string>()
+  let hasPhysics = false
+  let hasTween = false
+  let hasAnimation = false
+
+  const PHYSICS_TYPES = ['cc.RigidBody', 'cc.RigidBody2D', 'cc.BoxCollider', 'cc.CircleCollider', 'cc.PolygonCollider', 'cc.BoxCollider2D', 'cc.CircleCollider2D', 'cc.RigidBody3D', 'cc.Collider', 'cc.Collider2D', 'cc.PhysicsCollider']
+  const ANIM_TYPES = ['cc.Animation', 'cc.AnimationComponent', 'cc.SkeletalAnimation', 'cc.Skeleton']
+
+  if (raw) {
+    for (const entry of raw) {
+      const type = (entry.__type__ as string) ?? ''
+
+      // 물리 컴포넌트 감지
+      if (PHYSICS_TYPES.includes(type)) hasPhysics = true
+
+      // 애니메이션 컴포넌트 감지
+      if (ANIM_TYPES.includes(type)) hasAnimation = true
+
+      // 커스텀 스크립트 감지 (cc. 접두사가 아닌 __type__)
+      if (type && !type.startsWith('cc.') && type !== 'cc.Prefab' && !type.startsWith('_')) {
+        // UUID 형태 여부 체크 (스크립트 컴포넌트는 UUID를 __type__으로 사용)
+        if (/^[0-9a-f]{8,}/.test(type) || type.includes('$')) {
+          scriptUuids.add(type)
+        }
+      }
+
+      // __uuid__ 참조에서 텍스처/오디오 추출
+      extractAssetUuids(entry, textureUuids, audioUuids)
+
+      // cc.Tween 감지 (3.x)
+      if (type === 'cc.Tween' || type === 'cc.TweenSystem') hasTween = true
+    }
+  }
+
+  // 노드 트리에서 추가 감지
+  function walkMeta(node: CCSceneNode): void {
+    for (const comp of node.components) {
+      if (PHYSICS_TYPES.includes(comp.type)) hasPhysics = true
+      if (ANIM_TYPES.includes(comp.type)) hasAnimation = true
+      if (comp.type && !comp.type.startsWith('cc.')) {
+        if (/^[0-9a-f]{8,}/.test(comp.type) || comp.type.includes('$')) {
+          scriptUuids.add(comp.type)
+        }
+      }
+    }
+    for (const child of node.children) walkMeta(child)
+  }
+  walkMeta(sceneFile.root)
+
+  return {
+    version,
+    canvasSize: designRes,
+    nodeCount,
+    scriptUuids: [...scriptUuids],
+    textureUuids: [...textureUuids],
+    audioUuids: [...audioUuids],
+    hasPhysics,
+    hasTween,
+    hasAnimation,
+  }
+}
+
+function extractAssetUuids(obj: unknown, textures: Set<string>, audios: Set<string>): void {
+  if (!obj || typeof obj !== 'object') return
+  if (Array.isArray(obj)) {
+    for (const item of obj) extractAssetUuids(item, textures, audios)
+    return
+  }
+  const record = obj as Record<string, unknown>
+  // spriteFrame / texture 참조
+  if (typeof record.__uuid__ === 'string') {
+    const uuid = record.__uuid__
+    // 간단한 휴리스틱: 키 이름으로 구분
+    textures.add(uuid)
+  }
+  // 오디오 필드 패턴 (_clip, _audioClip, audioClip)
+  for (const [key, val] of Object.entries(record)) {
+    if ((key === '_clip' || key === '_audioClip' || key === 'audioClip' || key === 'clip') && val && typeof val === 'object') {
+      const ref = val as Record<string, unknown>
+      if (typeof ref.__uuid__ === 'string') {
+        audios.add(ref.__uuid__)
+      }
+    }
+    if (key === '_spriteFrame' || key === 'spriteFrame' || key === '_texture' || key === 'texture') {
+      if (val && typeof val === 'object') {
+        const ref = val as Record<string, unknown>
+        if (typeof ref.__uuid__ === 'string') textures.add(ref.__uuid__)
+      }
+    }
+  }
 }

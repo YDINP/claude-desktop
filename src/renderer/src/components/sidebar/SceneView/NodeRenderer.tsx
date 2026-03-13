@@ -21,6 +21,8 @@ interface NodeRendererProps {
   designWidth?: number
   designHeight?: number
   flashing?: boolean
+  /** R1460: 히트맵 강도 (0~1, undefined면 미적용) */
+  heatmapIntensity?: number
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
@@ -57,6 +59,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   nodeColor,
   designWidth = 960,
   designHeight = 640,
+  heatmapIntensity,
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
@@ -126,6 +129,12 @@ export const NodeRenderer = memo(function NodeRenderer({
   const MAX_BADGES = 3
   const icons = node.components.slice(0, MAX_BADGES).map(c => getComponentIcon([c]))
 
+  // R1462: cc.Shadow 컴포넌트 감지
+  const shadowComp = node.components.find(c => c.type === 'cc.Shadow')
+  const shadowEnabled = shadowComp?.props?.enabled !== false && !!shadowComp
+  const shadowProps = shadowComp?.props as { color?: { r: number; g: number; b: number; a: number }; blur?: number; offset?: { x: number; y: number } } | undefined
+  const shadowFilterId = shadowEnabled ? `shadow-${node.uuid.replace(/[^a-zA-Z0-9]/g, '')}` : null
+
   return (
     <g
       opacity={opacity}
@@ -136,6 +145,19 @@ export const NodeRenderer = memo(function NodeRenderer({
       onMouseLeave={onMouseLeave}
       style={{ cursor: 'move' }}
     >
+      {/* R1462: cc.Shadow SVG filter defs */}
+      {shadowFilterId && shadowEnabled && (
+        <defs>
+          <filter id={shadowFilterId} x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow
+              dx={(shadowProps?.offset?.x ?? 2) / 4}
+              dy={-(shadowProps?.offset?.y ?? -2) / 4}
+              stdDeviation={(shadowProps?.blur ?? 4) / 3}
+              floodColor={shadowProps?.color ? `rgba(${shadowProps.color.r},${shadowProps.color.g},${shadowProps.color.b},${(shadowProps.color.a ?? 255) / 255})` : 'rgba(0,0,0,0.5)'}
+            />
+          </filter>
+        </defs>
+      )}
       {/* 노드 바디 */}
       <rect
         x={rx}
@@ -147,6 +169,7 @@ export const NodeRenderer = memo(function NodeRenderer({
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDash}
         rx={2}
+        filter={shadowFilterId ? `url(#${shadowFilterId})` : undefined}
       >
         {selected && node.components.length > 0 && (
           <title>{node.components.map(c => c.type).join(', ')}</title>
@@ -195,6 +218,19 @@ export const NodeRenderer = memo(function NodeRenderer({
           stroke="#60a5fa"
           strokeWidth={2}
           rx={3}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+
+      {/* R1460: 히트맵 오버레이 (클릭 빈도 색상) */}
+      {heatmapIntensity != null && heatmapIntensity > 0 && (
+        <rect
+          x={rx}
+          y={ry}
+          width={pw}
+          height={ph}
+          fill={`rgba(${Math.round(255)},${Math.round(140 * (1 - heatmapIntensity))},${Math.round(0)},${0.15 + heatmapIntensity * 0.45})`}
+          rx={2}
           style={{ pointerEvents: 'none' }}
         />
       )}

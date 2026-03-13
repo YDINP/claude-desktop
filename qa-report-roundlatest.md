@@ -1,15 +1,19 @@
 # QA Report — Round latest
-> 2026-03-13T14:41:03.776Z
+> 2026-03-13T18:21:28.646Z
 
 ## Critical
 _없음_
 
 ## Warning
-_없음_
+- [SceneView/SceneInspector.tsx] SceneInspector Position 리셋 미구현
+- [SceneView/SceneInspector.tsx] SceneInspector Rotation 리셋 미구현
+- [SceneView/SceneInspector.tsx] SceneInspector Scale 리셋 미구현
+- [SceneView/SceneViewPanel.tsx] SceneViewPanel PNG 내보내기 미구현
+- [src/renderer/src/components/sidebar/CocosPanel.tsx] handleSave finally 없음 — throw 시 saving 고착 위험
 
 ## Pass
 - tsc --noEmit 오류 없음
-- 108개 소스 파일 검사 완료
+- 109개 소스 파일 검사 완료
 - 자동 재연결 로직 존재
 - CocosPanel App 메인 레이아웃에 통합됨 (탭/나란히/창분리)
 - registerCCHandlers 정상 등록
@@ -180,9 +184,6 @@ _없음_
 - SceneToolbar: 배경색 토글 prop 존재
 - SceneViewPanel: 배경색 state 존재
 - SceneViewPanel: Alt+Up/Down 계층 탐색 존재
-- SceneInspector: Position 리셋 버튼 존재
-- SceneInspector: Rotation ⊙ 리셋 버튼 존재
-- SceneInspector: Scale ⊙ 리셋 버튼 존재
 - SceneInspector: Anchor ⊙ 리셋 버튼 존재
 - SceneInspector: 조상 Breadcrumb 경로 표시 존재
 - SceneView: 미니맵 오버레이 존재
@@ -385,7 +386,6 @@ _없음_
 - SceneViewPanel: 노드 크기 맞추기 (W/H/both) 구현 존재
 - SceneToolbar: 크기 맞추기 버튼 3종 존재
 - SceneViewPanel: 씬 변경 감지 + Dirty 표시 구현 존재
-- SceneViewPanel: PNG 내보내기 (SVG→Canvas→PNG) 구현 존재
 - SceneToolbar: PNG 내보내기 버튼 존재
 - SceneViewPanel: 카메라 뷰 히스토리 + Alt+←/→ 네비게이션 존재
 - SceneViewPanel: 즐겨찾기 상태 + 목록 팝업 + Ctrl+B 단축키 존재
@@ -442,7 +442,7 @@ _없음_
 - SceneView: Ctrl+]/[ z-order 변경 존재
 - SceneView: Tab/Shift+Tab 형제 노드 순환 선택 존재
 - package.json 파싱 성공 (name: claude-desktop)
-- preload expose 메서드 333개 확인
+- preload expose 메서드 337개 확인
 - ipcMain.handle 등록: 13개 이상
 - 의존성 설치됨: electron
 - 의존성 설치됨: react
@@ -454,7 +454,6 @@ _없음_
 - fs:delete 경로 가드 존재
 - watchDir sender.isDestroyed() 체크 존재
 - cc-file-parser 재귀 깊이 제한 존재
-- handleSave try/finally 존재 (saving 상태 고착 방지)
 - local:// path traversal 강화됨 (decodeURIComponent + allowedBases)
 - 씬뷰 Delete 키 핸들러 존재
 - Inspector 섹션 상태 localStorage 저장
@@ -1248,3 +1247,121 @@ _없음_
 - SceneViewPanel 목업 이미지 오버레이 존재
 - TerminalPanel 폰트 크기 단축키 존재
 - CocosPanel 최근 씬 파일 목록 존재
+- Widget Inspector 섹션 존재
+- Color fill 렌더링 존재
+- 씬 히스토리 존재
+- 컴포넌트 뱃지 존재
+- 컴포넌트 추가 드롭다운 존재
+- Sprite 에셋 피커 UI 존재
+- cc.Layout 속성 편집 존재
+- CC 파일 씬 컨텍스트 훅 존재
+- CocosPanel 컨텍스트 주입 토글 존재
+- NodeHierarchyList 컴포넌트 타입 필터 존재
+- SceneView 북마크 localStorage per scene 존재
+- cc-file-parser RichText/ScrollView/Mask/PageView 컴포넌트 지원
+- SceneView 씬 diff 뷰어 (savedSnapshot + 주황 테두리)
+- CocosPanel 에셋 브라우저 폴더 트리 뷰
+- SceneView 씬 파일 탭 바 존재
+- Inspector cc.Animation 클립 목록 뷰어
+- SceneView 노드 복사/붙여넣기/복제 (deep clone with UUID)
+- Ctrl+C/V/D 단축키 바인딩 존재
+- Inspector cc.AudioSource 속성 편집 (volume/loop/playOnLoad/preload)
+- NodeRenderer Sprite SLICED/TILED 렌더링 힌트 (점선 격자/x 패턴)
+- cc-file-watcher 부분 업데이트 IPC + debounce 300ms
+- cc-file-handlers 부분 업데이트 IPC 이벤트 전송
+- CocosPanel 외부 변경 배너 5초 자동 숨김
+- CocosPanel CC 프로젝트 설정 뷰어 (버전/해상도/물리엔진/빌드타겟)
+- SceneView 정렬 가이드라인 SVG 렌더링 (#4af, 4 2 dash)
+- Inspector 로컬/월드 좌표 토글 (L/W 버튼, 월드 읽기 전용)
+- CocosPanel 씬 템플릿 생성 (빈씬/Canvas, writeTextFile, 자동 열기)
+- SceneView 레이어 패널 고도화 (가시성/잠금 영구저장, 색상 라벨)
+- cc-file-parser 2x _trs 파싱 강화 (base64 디코딩, 개별 필드 폴백, 기본값 보장)
+- CocosPanel 프리팹 인스턴스화 UI (readFile → JSON parse → 씬 추가)
+- SceneView 노드 그룹화 Ctrl+G / 해제 Ctrl+Shift+G
+- CocosPanel Ctrl+G/Ctrl+Shift+G 그룹화/해제 (씬 파일 패치)
+- cc-file-parser 파티클/카메라/조명 컴포넌트 추출
+- NodeRenderer Camera/ParticleSystem 시각 힌트 (테두리 + 라벨 접두사)
+- SceneView 씬 통계 오버레이 (I키, 노드수/컴포넌트 분포, localStorage)
+- Inspector 노드 참조 필드 표시 (__id__/__uuid__ 감지, 링크 아이콘)
+- SceneView PNG 내보내기 (배경색/해상도 1x/2x/4x, 타임스탬프 파일명)
+- Inspector 컴포넌트 순서 변경 (↑↓ 버튼, 첫/마지막 비활성화)
+- CocosPanel CC 빌드 트리거 UI (플랫폼 드롭다운, CLI 미리보기)
+- SceneView 노드 색상 태그 (7색 팔레트, localStorage per scene, 컨텍스트메뉴)
+- NodeHierarchyList 색상 태그 dot 표시
+- cc-file-parser analyzeScene 복잡도 분석 (노드수/깊이/컴포넌트/draw call/경고)
+- ChatPanel: React import 정상
+- InputBar: React import 정상
+- TerminalPanel: React import 정상
+- CocosPanel: React import 정상
+- SceneViewPanel: React import 정상
+- SessionList: React import 정상
+- SceneInspector: React import 정상
+- NodeHierarchyList: React import 정상
+- NodeRenderer: React import 정상
+- ChatPanel: showOnlyBookmarks TDZ 없음
+- CCFileNodeInspector: saving state 정상 선언
+- cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs)
+- preload API 노출: ccGetAssetInfo, ccGetAllTextureUUIDs
+- SceneInspector 속성 검색 필터 (propFilter, Esc 초기화, 컴포넌트명/props 필터)
+- SceneView 채팅 연동 노드 하이라이트 (cc-highlight-node 이벤트, 3초 깜빡임)
+- ChatPanel cc-highlight-node dispatch (AI 응답에서 노드명 추출)
+- Inspector 다중 노드 일괄 편집 (active 토글, position 오프셋, 일괄 적용 버튼)
+- CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5개/더보기, 복원 TODO)
+- SceneView 노드 잠금 완성 (resize/rotate 차단, lockedUuids 체크)
+- cc-file-parser Label 폰트 필드 강화 파싱 (2x/3x, fontFamily, spacingX/Y, overflow)
+- SceneInspector Label 폰트 속성 표시 (fontFamily, spacingX/Y, overflow)
+- CocosPanel 씬 유효성 검사 (UUID중복, 빈이름, Canvas, 깊이 경고, 비활성부모)
+- SceneView 뷰포트 프리셋 저장/불러오기 (localStorage, 기본 1:1/2:1, 사용자 max 5)
+- Inspector cc.Button 속성 편집 (interactable, autoGray, transition, duration, 색상 읽기전용)
+- SceneView 그리드 커스터마이즈 (크기/색상/불투명도, localStorage grid-settings, 팝업 UI)
+- SceneToolbar 그리드 설정 버튼 (우클릭 + 톱니바퀴 아이콘)
+- CocosPanel 백업 관리 UI (목록/복원/전체삭제, BackupManager 컴포넌트)
+- SceneView 다중 씬 비교 뷰 (좌우 분할, 비교 씬 선택, 읽기 전용)
+- Inspector cc.ProgressBar/Slider 속성 편집 (progress, totalLength, reverse)
+- cc-file-parser ProgressBar/Slider 컴포넌트 추출기 추가
+- cc-file-parser buildNodePathIndex (UUID -> 전체 경로 인덱스)
+- Inspector 선택 노드 전체 경로 표시 (Canvas > Panel > Button)
+- NodeHierarchyList 검색 시 경로 매칭 지원
+- SceneView 히트 테스트 정밀화 (최소 8px, z-order 역순, Tab 순환, 비활성 차단)
+- Inspector cc.Animation 타임라인 바 시각화 + cc.Tween 읽기전용 표시
+- CocosPanel 전역 노드 검색 (Ctrl+F, 이름/컴포넌트, Esc 닫기, 경로 표시)
+- SceneView Before/After 슬라이더 비교 (SVG clipPath, 드래그 슬라이더)
+- cc-file-parser buildReferenceGraph (UUID 참조 그래프) + detectCycles (순환 참조 탐지)
+- CocosPanel 에셋 썸네일 호버 미리보기 (128x128, 파일명+크기, 커서 우측)
+- SceneView 씬 JSON 뷰어 패널 ({ } 버튼, syntax highlight, 선택/전체 토글)
+- Inspector 컴포넌트 복사/붙여넣기 (클립보드 JSON, 중복 경고)
+- cc-file-saver mtime 기반 충돌 감지 + forceOverwrite
+- CocosPanel conflict dialog (덮어쓰기/다시 로드)
+- 씬 로컬 HTTP 공유 (7332포트, 60초 자동 종료, scene.json)
+- SceneView 씬 공유 버튼 (URL 클립보드 복사)
+- SceneView 씬 JSON 임포트 모달 (붙여넣기, UUID 재생성)
+- cc-file-parser suggestOptimizations (draw call/노드수/깊이/비활성 비율)
+- CocosPanel 최적화 제안 표시 (씬 검사 연동)
+- SceneView 정렬 가이드라인 고도화 (레이블/중앙선/스냅임계값)
+- Inspector 북마크 패널 (★ 토글 + 목록 + 색상 태그)
+- CocosPanel 스크립트 편집기 연동 (편집 버튼 + 사용중 강조 green/gray dot)
+- App.tsx cc:open-file 이벤트 리스너
+- SceneView 편집 이력 패널 (editHistory + addEditHistory + 이력 패널 UI)
+- SceneToolbar 편집 이력 버튼
+- cc-file-parser findCanvasNode + getDesignResolution (2x/3x)
+- CocosPanel 씬 의존성 분석 (타입별 그룹 + 누락 표시)
+- Inspector Transform 개별/전체 리셋 버튼 (↺ 위치/회전/스케일/전체)
+- SceneView 레이어 순서 드래그 재배치 (드래그 핸들 + 드롭 인디케이터)
+- SceneView 노드 템플릿 라이브러리 (📌, max 10, 기본 2개, 드롭다운)
+- SceneView 우클릭 메뉴 템플릿 저장
+- cc-file-parser Button/Toggle/Slider 이벤트 핸들러 파싱
+- CCSceneNode eventHandlers 필드 추가
+- SceneInspector 이벤트 핸들러 읽기전용 표시 (🔔 이벤트 섹션)
+- CocosPanel 씬 일괄 처리 (폰트통일/비활성삭제/이름정규화 + 토스트)
+- SceneView 카메라 뷰 북마크 (Ctrl+1~5 저장/이동, 200ms lerp, 숫자 뱃지)
+- Inspector cc.UIOpacity/cc.UITransform 직접 편집 섹션 (슬라이더 + contentSize + anchorPoint)
+- SceneNode types.ts eventHandlers 필드
+- SceneView 자동 레이아웃 (수평/수직 균등배분 + 원형 배치 + 드롭다운)
+- SceneToolbar 자동정렬 드롭다운 (수평/수직/격자/원형)
+- cc-file-parser extractSceneMeta (스크립트/텍스처/오디오/물리/트윈/애니메이션 감지)
+- CocosPanel 씬 메타데이터 표시 (Physics/Animation/Tween 뱃지)
+- SceneView 노드 클릭 히트맵 (빈도 색상 시각화 + 리셋)
+- NodeRenderer heatmapIntensity 히트맵 오버레이 렌더링
+- SceneToolbar 클릭 히트맵 토글 + 리셋 버튼
+- CocosPanel CC 프로젝트 생성 마법사 (3단계: 이름+위치 → CC버전 → 템플릿)
+- NodeRenderer cc.Shadow SVG feDropShadow 렌더링 (enabled/color/blur/offset)

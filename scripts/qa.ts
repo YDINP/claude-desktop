@@ -15435,6 +15435,103 @@ if (existsSync(types1456)) {
   }
 }
 
+// ── Section 399: R1458/R1459/R1460 기능 체크 ───────────────
+console.log('\n## 399. Phase DD18 R1458~R1460 기능 체크')
+
+// R1458: SceneView 자동 레이아웃
+const svp1458 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1458)) {
+  const s1458 = readFileSync(svp1458, 'utf-8')
+  if (s1458.includes('R1458') && s1458.includes('handleDistributeHEqual') && s1458.includes('handleDistributeVEqual') && s1458.includes('handleCircularLayout') && s1458.includes('showAutoLayoutMenu')) {
+    log('pass', 'R1458', 'SceneView 자동 레이아웃 (수평/수직 균등배분 + 원형 배치 + 드롭다운)')
+  } else {
+    log('warning', 'R1458', 'SceneView 자동 레이아웃 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1458: SceneToolbar 자동정렬 버튼
+const stb1458 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb1458)) {
+  const st1458 = readFileSync(stb1458, 'utf-8')
+  if (st1458.includes('onDistributeHEqual') && st1458.includes('onCircularLayout') && st1458.includes('autoLayoutOpen') && st1458.includes('자동정렬')) {
+    log('pass', 'R1458-Toolbar', 'SceneToolbar 자동정렬 드롭다운 (수평/수직/격자/원형)')
+  } else {
+    log('warning', 'R1458-Toolbar', 'SceneToolbar 자동정렬 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R1459: cc-file-parser extractSceneMeta
+const parser1459 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser1459)) {
+  const p1459 = readFileSync(parser1459, 'utf-8')
+  if (p1459.includes('R1459') && p1459.includes('extractSceneMeta') && p1459.includes('CCSceneMeta') && p1459.includes('scriptUuids') && p1459.includes('textureUuids') && p1459.includes('audioUuids') && p1459.includes('hasPhysics') && p1459.includes('hasTween') && p1459.includes('hasAnimation')) {
+    log('pass', 'R1459', 'cc-file-parser extractSceneMeta (스크립트/텍스처/오디오/물리/트윈/애니메이션 감지)')
+  } else {
+    log('warning', 'R1459', 'cc-file-parser extractSceneMeta 미구현', 'cc/cc-file-parser.ts')
+  }
+}
+// R1459: CocosPanel 씬 메타 표시
+const cp1459 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1459)) {
+  const c1459 = readFileSync(cp1459, 'utf-8')
+  if (c1459.includes('R1459') && c1459.includes('씬 메타') && c1459.includes('_sceneMeta') && c1459.includes('hasPhysics') && c1459.includes('hasAnimation')) {
+    log('pass', 'R1459-Panel', 'CocosPanel 씬 메타데이터 표시 (Physics/Animation/Tween 뱃지)')
+  } else {
+    log('warning', 'R1459-Panel', 'CocosPanel 씬 메타 표시 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1460: SceneView 노드 클릭 히트맵
+if (existsSync(svp1458)) {
+  const s1460 = readFileSync(svp1458, 'utf-8')
+  if (s1460.includes('R1460') && s1460.includes('nodeClickCount') && s1460.includes('showClickHeatmap') && s1460.includes('maxClickCount') && s1460.includes('heatmapIntensity')) {
+    log('pass', 'R1460', 'SceneView 노드 클릭 히트맵 (빈도 색상 시각화 + 리셋)')
+  } else {
+    log('warning', 'R1460', 'SceneView 노드 클릭 히트맵 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1460: NodeRenderer heatmapIntensity 프롭
+const nr1460 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr1460)) {
+  const n1460 = readFileSync(nr1460, 'utf-8')
+  if (n1460.includes('R1460') && n1460.includes('heatmapIntensity')) {
+    log('pass', 'R1460-Renderer', 'NodeRenderer heatmapIntensity 히트맵 오버레이 렌더링')
+  } else {
+    log('warning', 'R1460-Renderer', 'NodeRenderer heatmapIntensity 없음', 'SceneView/NodeRenderer.tsx')
+  }
+}
+// R1460: SceneToolbar 클릭 히트맵 버튼
+if (existsSync(stb1458)) {
+  const st1460 = readFileSync(stb1458, 'utf-8')
+  if (st1460.includes('R1460') && st1460.includes('onClickHeatmapToggle') && st1460.includes('onClickHeatmapReset') && st1460.includes('히트맵')) {
+    log('pass', 'R1460-Toolbar', 'SceneToolbar 클릭 히트맵 토글 + 리셋 버튼')
+  } else {
+    log('warning', 'R1460-Toolbar', 'SceneToolbar 클릭 히트맵 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// ── Section 400: R1461/R1462 기능 체크 (Section 400 달성!) ─────
+console.log('\n## 400. Phase DD18 R1461~R1462 기능 체크 (Section 400!)')
+
+// R1461: CocosPanel 프로젝트 생성 마법사
+if (existsSync(cp1459)) {
+  const c1461 = readFileSync(cp1459, 'utf-8')
+  if (c1461.includes('R1461') && c1461.includes('showProjectWizard') && c1461.includes('wizardStep') && c1461.includes('wizardProjectName') && c1461.includes('wizardCCVersion') && c1461.includes('wizardTemplate') && c1461.includes('handleCreateProject') && c1461.includes('새 프로젝트')) {
+    log('pass', 'R1461', 'CocosPanel CC 프로젝트 생성 마법사 (3단계: 이름+위치 → CC버전 → 템플릿)')
+  } else {
+    log('warning', 'R1461', 'CocosPanel 프로젝트 생성 마법사 미구현', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1462: NodeRenderer cc.Shadow SVG feDropShadow
+if (existsSync(nr1460)) {
+  const n1462 = readFileSync(nr1460, 'utf-8')
+  if (n1462.includes('R1462') && n1462.includes('cc.Shadow') && n1462.includes('feDropShadow') && n1462.includes('shadowFilterId') && n1462.includes('shadowEnabled') && n1462.includes('shadowProps')) {
+    log('pass', 'R1462', 'NodeRenderer cc.Shadow SVG feDropShadow 렌더링 (enabled/color/blur/offset)')
+  } else {
+    log('warning', 'R1462', 'NodeRenderer cc.Shadow feDropShadow 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

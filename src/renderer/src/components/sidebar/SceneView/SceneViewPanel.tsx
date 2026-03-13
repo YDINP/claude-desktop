@@ -342,6 +342,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showHeatmap, setShowHeatmap] = useState(false)
   // ── 노드 접근 빈도 히트맵 (R702) ───────────────────────────
   const [nodeAccessCount, setNodeAccessCount] = useState<Record<string, number>>({})
+  // ── R1460: 노드 클릭 횟수 히트맵 ────────────────────────────
+  const [nodeClickCount, setNodeClickCount] = useState<Map<string, number>>(new Map())
+  const [showClickHeatmap, setShowClickHeatmap] = useState(false)
+  const maxClickCount = useMemo(() => {
+    if (nodeClickCount.size === 0) return 1
+    return Math.max(...nodeClickCount.values(), 1)
+  }, [nodeClickCount])
   // ── 노드 그룹 색상 (R709) ──────────────────────────────────
   const [nodeGroupColors, setNodeGroupColors] = useState<Record<string, string>>({})
   const [colorPickerNode, setColorPickerNode] = useState<string | null>(null)
@@ -1322,6 +1329,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
     // 접근 횟수 누적 (R702)
     setNodeAccessCount(prev => ({ ...prev, [uuid]: (prev[uuid] ?? 0) + 1 }))
+    // R1460: 클릭 히트맵 카운트 증가
+    setNodeClickCount(prev => { const next = new Map(prev); next.set(uuid, (next.get(uuid) ?? 0) + 1); return next })
 
     const node = nodeMap.get(uuid)
     if (!node) return
@@ -2547,6 +2556,78 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [selectedUuids, nodeMap, port, updateNode])
 
+  // ── R1458: 수평 균등 배분 ────────────────────────────────────
+  const handleDistributeHEqual = useCallback(async () => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 2) return
+    const sorted = [...nodes].sort((a, b) => a.x - b.x)
+    const minX = sorted[0].x
+    const maxX = sorted[sorted.length - 1].x
+    const step = nodes.length > 1 ? (maxX - minX) / (nodes.length - 1) : 0
+    for (let i = 0; i < sorted.length; i++) {
+      const n = sorted[i]
+      const newX = minX + step * i
+      updateNode(n.uuid, { x: newX })
+      try { await window.api.ccSetProperty?.(port, n.uuid, 'x', newX) } catch (_) {}
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
+
+  // ── R1458: 수직 균등 배분 ────────────────────────────────────
+  const handleDistributeVEqual = useCallback(async () => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 2) return
+    const sorted = [...nodes].sort((a, b) => a.y - b.y)
+    const minY = sorted[0].y
+    const maxY = sorted[sorted.length - 1].y
+    const step = nodes.length > 1 ? (maxY - minY) / (nodes.length - 1) : 0
+    for (let i = 0; i < sorted.length; i++) {
+      const n = sorted[i]
+      const newY = minY + step * i
+      updateNode(n.uuid, { y: newY })
+      try { await window.api.ccSetProperty?.(port, n.uuid, 'y', newY) } catch (_) {}
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
+
+  // ── R1458: 원형 배치 ──────────────────────────────────────────
+  const handleCircularLayout = useCallback(async () => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 2) return
+    // 중심점: 선택 노드들의 평균 좌표
+    const cx = nodes.reduce((s, n) => s + n.x, 0) / nodes.length
+    const cy = nodes.reduce((s, n) => s + n.y, 0) / nodes.length
+    // 반지름: 노드 수에 비례
+    const radius = Math.max(80, nodes.length * 30)
+    const angleStep = (2 * Math.PI) / nodes.length
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i]
+      const angle = angleStep * i - Math.PI / 2 // 12시 방향 시작
+      const newX = cx + radius * Math.cos(angle)
+      const newY = cy + radius * Math.sin(angle)
+      updateNode(n.uuid, { x: newX, y: newY })
+      try {
+        await window.api.ccSetProperty?.(port, n.uuid, 'x', newX)
+        await window.api.ccSetProperty?.(port, n.uuid, 'y', newY)
+      } catch (_) {}
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
+
+  // ── R1458: 자동정렬 드롭다운 상태 ──────────────────────────
+  const [showAutoLayoutMenu, setShowAutoLayoutMenu] = useState(false)
+  const autoLayoutMenuRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!showAutoLayoutMenu) return
+    const handleClick = (e: MouseEvent) => {
+      if (autoLayoutMenuRef.current && !autoLayoutMenuRef.current.contains(e.target as Node)) {
+        setShowAutoLayoutMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showAutoLayoutMenu])
+
   // ── 멀티셀렉트 그룹 bbox 계산 ──────────────────────────────
   const groupBbox = useMemo(() => {
     if (selectedUuids.size < 2) return null
@@ -2682,6 +2763,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onMatchHeight={() => handleMatchSize('H')}
         onMatchBoth={() => handleMatchSize('both')}
         onGridLayout={() => handleGridLayout()}
+        onDistributeHEqual={handleDistributeHEqual}
+        onDistributeVEqual={handleDistributeVEqual}
+        onCircularLayout={handleCircularLayout}
         onUndo={() => {
           setUndoStack(prev => {
             if (prev.length === 0) return prev
@@ -2742,6 +2826,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onToggleLayerPanel={() => setShowLayerPanel(v => !v)}
         showHeatmap={showHeatmap}
         onHeatmapToggle={() => setShowHeatmap(v => !v)}
+        showClickHeatmap={showClickHeatmap}
+        onClickHeatmapToggle={() => setShowClickHeatmap(v => !v)}
+        onClickHeatmapReset={() => setNodeClickCount(new Map())}
         showQuickActions={showQuickActions}
         onQuickActionsToggle={() => setShowQuickActions(v => !v)}
         onZoomTo={handleZoomTo}
@@ -3500,6 +3587,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                     : nodeColors[uuid]}
                   designWidth={DESIGN_W}
                   designHeight={DESIGN_H}
+                  heatmapIntensity={showClickHeatmap ? ((nodeClickCount.get(uuid) ?? 0) / maxClickCount) : undefined}
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={(uuid) => {
                     setHoveredUuid(uuid)
