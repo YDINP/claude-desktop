@@ -7964,6 +7964,41 @@ if (existsSync(cocp815Path)) {
   }
 }
 
+console.log('\n## 183. Phase DD10 R816~818 기능 체크')
+
+// R816: SceneViewPanel 씬 스냅샷 비교
+const svp816Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp816Path)) {
+  const svp816 = readFileSync(svp816Path, 'utf-8')
+  if (svp816.includes('sceneSnapshots') || svp816.includes('showSnapshotDiff') || svp816.includes('snapshotList')) {
+    log('pass', 'R816', 'SceneViewPanel 씬 스냅샷 비교 존재')
+  } else {
+    log('warning', 'R816', 'SceneViewPanel 스냅샷 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R817: TerminalPanel 출력 필터링
+const tp817Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp817Path)) {
+  const tp817 = readFileSync(tp817Path, 'utf-8')
+  if (tp817.includes('outputFilter') || tp817.includes('filterCaseSensitive') || tp817.includes('termFilter')) {
+    log('pass', 'R817', 'TerminalPanel 출력 필터링 존재')
+  } else {
+    log('warning', 'R817', 'TerminalPanel 출력 필터 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R818: SessionList 세션 병합
+const sl818Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl818Path)) {
+  const sl818 = readFileSync(sl818Path, 'utf-8')
+  if (sl818.includes('mergeTargets') || sl818.includes('showMergeConfirm') || sl818.includes('mergeSessions')) {
+    log('pass', 'R818', 'SessionList 세션 병합 존재')
+  } else {
+    log('warning', 'R818', 'SessionList 병합 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

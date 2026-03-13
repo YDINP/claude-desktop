@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:35:23.851Z
+> 2026-03-13T11:36:30.787Z
 
 ## Critical
 _없음_
@@ -697,3 +697,6 @@ _없음_
 - ChatPanel 이모지 반응 존재
 - InputBar 히스토리 페이지네이션 존재
 - CocosPanel 노드 레이어 관리 존재
+- SceneViewPanel 씬 스냅샷 비교 존재
+- TerminalPanel 출력 필터링 존재
+- SessionList 세션 병합 존재
