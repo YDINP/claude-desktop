@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 446 완료 — I-1 씬 트리 우클릭 컨텍스트 메뉴 + 노드 복제)
+> 마지막 업데이트: 2026-03-13 (Round 447 완료 — J-1 씬뷰 키보드 단축키 Delete/Ctrl+D/Arrow)
 
 ## 완료된 라운드
 
@@ -38,6 +38,7 @@
 | Round 444 | dev | Phase H-2: 씬뷰 Sprite 이미지 렌더링 — spriteFrame UUID → local:// URL 비동기 해상, SVG image 렌더링 | ✅ |
 | Round 445 | dev | Phase G-2: Inspector UUID 레퍼런스 표시 — __uuid__ 타입 props를 읽기 전용 배지로 표시, hover 툴팁 full UUID | ✅ |
 | Round 446 | dev | Phase I-1: 씬 트리 우클릭 컨텍스트 메뉴 — 자식 추가/복제/삭제, handleTreeDuplicate (얕은 복사+sibling 삽입) | ✅ |
+| Round 447 | dev | Phase J-1: 씬뷰 키보드 단축키 — Delete(삭제), Ctrl+D(복제), Arrow(1px이동), Shift+Arrow(10px이동), 입력 포커스 시 무시 | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |

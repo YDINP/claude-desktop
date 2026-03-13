@@ -404,17 +404,52 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (path) await loadScene(path)
   }, [loadScene])
 
-  // Ctrl+Z/Y undo/redo
+  // 키보드 단축키: Ctrl+Z/Y, Delete, Ctrl+D, Arrow keys
   useEffect(() => {
     if (!sceneFile) return
     const handler = (e: KeyboardEvent) => {
-      if (!e.ctrlKey && !e.metaKey) return
-      if (e.key === 'z' && canUndo) { e.preventDefault(); undo() }
-      if ((e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) { e.preventDefault(); redo() }
+      const ctrl = e.ctrlKey || e.metaKey
+      // 입력 필드 포커스 시 무시
+      const tag = (e.target as HTMLElement).tagName
+      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+
+      if (ctrl && e.key === 'z' && canUndo) { e.preventDefault(); undo(); return }
+      if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) { e.preventDefault(); redo(); return }
+
+      if (isInput) return
+
+      // Delete/Backspace: 선택 노드 삭제
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNode && sceneFile.root?.uuid !== selectedNode.uuid) {
+        e.preventDefault()
+        handleTreeDelete(selectedNode.uuid)
+        return
+      }
+      // Ctrl+D: 선택 노드 복제
+      if (ctrl && e.key === 'd' && selectedNode) {
+        e.preventDefault()
+        handleTreeDuplicate(selectedNode.uuid)
+        return
+      }
+      // Arrow keys: 선택 노드 1px 이동
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key) && selectedNode && sceneFile.root) {
+        e.preventDefault()
+        const dx = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0
+        const dy = e.key === 'ArrowUp' ? 1 : e.key === 'ArrowDown' ? -1 : 0
+        const step = e.shiftKey ? 10 : 1
+        const pos = selectedNode.position as { x: number; y: number; z: number }
+        function moveNode(n: CCSceneNode): CCSceneNode {
+          if (n.uuid === selectedNode!.uuid) {
+            return { ...n, position: { ...pos, x: pos.x + dx * step, y: pos.y + dy * step } }
+          }
+          return { ...n, children: n.children.map(moveNode) }
+        }
+        saveScene(moveNode(sceneFile.root))
+        return
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [sceneFile, canUndo, canRedo, undo, redo])
+  }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene])
 
   // sceneFile 재로드 시 선택 노드 동기화 (uuid 기반 재탐색)
   useEffect(() => {
