@@ -17478,6 +17478,18 @@ console.log('\n## 520. R1629 SceneView 리사이즈 중 크기 레이블 체크'
   }
 }
 
+// ── Section 521: R1630 SceneView 회전 중 각도 레이블 ──────────────────
+console.log('\n## 521. R1630 SceneView 회전 중 각도 레이블 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s521 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s521.includes('R1630') && s521.includes('rotateOverride && hoverClientPos') && s521.includes("toFixed(1)") && s521.includes("°")) {
+    log('pass', 'R1630-rotate-label', 'SceneView 회전 중 각도 레이블')
+  } else {
+    log('warning', 'R1630-rotate-label', 'SceneView 회전 중 각도 레이블 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

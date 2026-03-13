@@ -2146,6 +2146,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         )
       })()}
+      {/* R1630: 회전 중 각도 레이블 */}
+      {rotateOverride && hoverClientPos && (() => {
+        const svgEl = svgRef.current
+        const rect = svgEl?.getBoundingClientRect()
+        const relX = rect ? hoverClientPos.x - rect.left + 14 : 14
+        const relY = rect ? hoverClientPos.y - rect.top - 26 : 0
+        const angle = ((rotateOverride.angle % 360) + 360) % 360
+        return (
+          <div style={{
+            position: 'absolute', left: relX, top: relY,
+            background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(167,139,250,0.4)',
+            borderRadius: 3, padding: '1px 5px', fontSize: 9,
+            color: '#a78bfa', pointerEvents: 'none', userSelect: 'none',
+            fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', zIndex: 100,
+          }}>
+            {angle.toFixed(1)}°
+          </div>
+        )
+      })()}
       {/* R1629: 리사이즈 중 현재 크기 레이블 */}
       {resizeOverride && hoverClientPos && (() => {
         const svgEl = svgRef.current
