@@ -5817,6 +5817,45 @@ if (existsSync(cp607Path)) {
   }
 }
 
+// ── Section 122: Phase DD10 R609~611 기능 체크 ────────────────
+console.log('\n## 122. Phase DD10 R609~611 기능 체크')
+// R609: 씬뷰 스크린샷 + 미니맵
+const svp609Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp609Path)) {
+  const svp609 = readFileSync(svp609Path, 'utf-8')
+  if (svp609.includes('showMinimap') && svp609.includes('screenshot')) {
+    log('pass', 'R609', '씬뷰 스크린샷 + 미니맵 존재')
+  } else if (svp609.includes('showMinimap') || svp609.includes('screenshotDone')) {
+    log('pass', 'R609', '씬뷰 미니맵/스크린샷 기능 존재')
+  } else {
+    log('warning', 'R609', '씬뷰 스크린샷/미니맵 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R610: 채팅 즐겨찾기 뷰
+const cp610Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp610Path)) {
+  const cp610 = readFileSync(cp610Path, 'utf-8')
+  if (cp610.includes('showOnlyBookmarks') && cp610.includes('exportAll')) {
+    log('pass', 'R610', '채팅 즐겨찾기 뷰 + export 존재')
+  } else if (cp610.includes('showOnlyBookmarks')) {
+    log('pass', 'R610', '채팅 즐겨찾기 뷰 존재')
+  } else {
+    log('warning', 'R610', '채팅 즐겨찾기 뷰 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R611: Inspector prop 변경 히스토리
+const cp611Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp611Path)) {
+  const cp611 = readFileSync(cp611Path, 'utf-8')
+  if (cp611.includes('propHistory')) {
+    log('pass', 'R611', 'Inspector prop 변경 히스토리 존재')
+  } else {
+    log('warning', 'R611', 'Inspector prop 변경 히스토리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

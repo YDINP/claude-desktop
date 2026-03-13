@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 608 완료 — Phase DD9 진행 중, QA Pass 506)
+> 마지막 업데이트: 2026-03-13 (Round 612 완료 — Phase DD10 진행 중, QA Pass 509)
 
 ## 개발 루프 실행 방식
 
@@ -580,7 +580,16 @@
 | Round 547 | 채팅 코드 블록 실행 — shell:exec IPC + ▶ 버튼 + 인라인 결과 표시 | ✅ |
 | Round 548 QA | QA Section 106 추가 (R545/R546/R547 체크, Pass 461) | ✅ |
 
-### Phase DD9 — 진행 중 (Round 549~) — 퍼포먼스 + 고급 UX
+### Phase DD10 — 진행 중 (Round 609~) — 씬뷰 Export + 채팅 강화 + Inspector 히스토리
+
+| 라운드 | 기능 | 비고 |
+|--------|------|------|
+| Round 609 | 씬뷰 스크린샷 (📷) + 미니맵 오버뷰 (우하단 썸네일, pan indicator) | ✅ |
+| Round 610 | 채팅 즐겨찾기 메시지 뷰 탭 (⭐ 필터, export JSON) + 컨텍스트 토큰 인디케이터 | ✅ |
+| Round 611 | Inspector prop 변경 히스토리 트레이 (최근 15개, undo 버튼, 타임스탬프) | ✅ |
+| Round 612 | QA Section 122 추가 (R609/R610/R611, Pass 509) | ✅ |
+
+### Phase DD9 — ✅ 완료 (Round 549~608) — 퍼포먼스 + 고급 UX
 
 #### 🔥 고우선순위 (잔여)
 

@@ -961,14 +961,25 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             >★</button>
             <button
               onClick={() => setShowOnlyBookmarks(v => !v)}
-              title={showOnlyBookmarks ? '전체 메시지 보기' : '북마크 메시지만 보기'}
+              title={showOnlyBookmarks ? '전체 메시지 보기' : '즐겨찾기 뷰 보기'}
               style={{
                 background: showOnlyBookmarks ? 'var(--warning, #fbbf24)' : 'none',
-                border: 'none',
+                border: '1px solid var(--warning, #fbbf24)',
                 color: showOnlyBookmarks ? '#000' : 'var(--warning, #fbbf24)',
                 fontSize: 10, cursor: 'pointer', padding: '2px 6px', borderRadius: 3,
+                display: 'inline-flex', alignItems: 'center', gap: 3,
               }}
-            >★ 필터</button>
+            >
+              ⭐
+              <span style={{
+                background: showOnlyBookmarks ? 'rgba(0,0,0,0.2)' : 'var(--warning, #fbbf24)',
+                color: showOnlyBookmarks ? '#000' : '#000',
+                borderRadius: 8, fontSize: 9, padding: '0 4px', lineHeight: '14px',
+                minWidth: 14, textAlign: 'center', fontWeight: 700,
+              }}>
+                {chat.messages.filter(m => m.bookmarked).length}
+              </span>
+            </button>
           </>
         )}
         <ModelSelector value={project.selectedModel} onChange={project.setModel} />
@@ -1227,24 +1238,81 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
         )
       })()}
 
-      {/* Context usage bar */}
-      {chat.sessionInputTokens > 0 && (
-        <div
-          title={`컨텍스트: ${chat.sessionInputTokens.toLocaleString()} / 200,000 토큰`}
-          style={{ height: 3, background: 'var(--border)', flexShrink: 0, cursor: 'default' }}
-        >
-          <div style={{
-            height: '100%',
-            width: `${Math.min(chat.sessionInputTokens / 200000 * 100, 100)}%`,
-            background: chat.sessionInputTokens > 160000 ? '#f87171' :
-                        chat.sessionInputTokens > 100000 ? '#fbbf24' : 'var(--accent)',
-            transition: 'width 0.3s ease',
-          }} />
-        </div>
-      )}
 
       {/* Messages - virtualized */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex' }}>
+      {showOnlyBookmarks ? (
+        /* ── 즐겨찾기 전용 뷰 ─────────────────────────────────────── */
+        <div style={{ flex: 1, overflow: 'auto', padding: '8px 12px' }}>
+          {(() => {
+            const bookmarked = chat.messages.filter(m => m.bookmarked)
+            const exportAll = () => {
+              const blob = new Blob([JSON.stringify(bookmarked, null, 2)], { type: 'application/json' })
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `bookmarks-${Date.now()}.json`
+              a.click()
+              URL.revokeObjectURL(url)
+            }
+            const exportOne = (msg: (typeof bookmarked)[number]) => {
+              const blob = new Blob([JSON.stringify(msg, null, 2)], { type: 'application/json' })
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `bookmark-${msg.id}.json`
+              a.click()
+              URL.revokeObjectURL(url)
+            }
+            if (!bookmarked.length) {
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200, color: 'var(--text-muted)', fontSize: 13 }}>
+                  즐겨찾기한 메시지가 없습니다
+                </div>
+              )
+            }
+            return (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, paddingBottom: 6, borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>즐겨찾기 {bookmarked.length}개</span>
+                  <button
+                    onClick={exportAll}
+                    style={{
+                      background: 'none', border: '1px solid var(--border)',
+                      color: 'var(--text-secondary)', fontSize: 10,
+                      padding: '2px 8px', borderRadius: 3, cursor: 'pointer',
+                    }}
+                  >전체 즐겨찾기 내보내기</button>
+                </div>
+                {bookmarked.map(msg => (
+                  <div key={msg.id} style={{
+                    marginBottom: 8, padding: '8px 10px',
+                    background: 'var(--bg-secondary)', borderRadius: 6,
+                    border: '1px solid var(--border)',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                        {msg.role === 'user' ? '나' : 'Claude'} · {msg.timestamp ? new Date(msg.timestamp).toLocaleString('ko-KR') : ''}
+                      </span>
+                      <button
+                        onClick={() => exportOne(msg)}
+                        title="JSON 다운로드"
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          color: 'var(--text-muted)', fontSize: 12, padding: '0 4px',
+                        }}
+                      >📤</button>
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: 200, overflow: 'hidden' }}>
+                      {msg.text.slice(0, 500)}{msg.text.length > 500 ? '…' : ''}
+                    </div>
+                  </div>
+                ))}
+              </>
+            )
+          })()}
+        </div>
+      ) : (
       <div
         ref={scrollContainerRef}
         style={{ flex: 1, overflow: 'auto', position: 'relative', paddingRight: showMinimap && messageCount > 0 ? 42 : 0 }}
@@ -1359,6 +1427,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           onClick={handleMinimapClick}
         />
       )}
+      </div>
+      )} {/* end showOnlyBookmarks ternary */}
       </div>
 
       {/* Scroll to top button */}
@@ -1543,6 +1613,25 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             </div>
           )}
         </div>
+      {/* Context token indicator bar — 입력창 위 */}
+      {(() => {
+        const contextUsage = chat.sessionInputTokens > 0 ? Math.min(chat.sessionInputTokens / CONTEXT_WINDOW, 1.0) : 0
+        if (contextUsage <= 0) return null
+        const barColor = contextUsage >= 0.8 ? '#f87171' : contextUsage >= 0.5 ? '#fbbf24' : '#4ade80'
+        return (
+          <div
+            title={`컨텍스트 ${Math.round(contextUsage * 100)}% 사용`}
+            style={{ height: 3, background: 'var(--border)', flexShrink: 0, cursor: 'default' }}
+          >
+            <div style={{
+              height: '100%',
+              width: `${contextUsage * 100}%`,
+              background: barColor,
+              transition: 'width 0.3s ease',
+            }} />
+          </div>
+        )
+      })()}
       <InputBar
         onSend={handleSend}
         onInterrupt={handleInterrupt}

@@ -52,6 +52,8 @@ interface SceneToolbarProps {
   onMinimapToggle?: () => void
   canvasSize?: { w: number; h: number }
   onCanvasSizeChange?: (w: number, h: number) => void
+  onScreenshot?: () => void
+  screenshotDone?: boolean
   onExportSvg?: () => void
   onExportPng?: () => void
   onSaveScene?: () => void
@@ -147,6 +149,8 @@ export function SceneToolbar({
   onMinimapToggle,
   canvasSize,
   onCanvasSizeChange,
+  onScreenshot,
+  screenshotDone,
   onExportSvg,
   onExportPng,
   onSaveScene,
@@ -775,6 +779,15 @@ export function SceneToolbar({
       >
         #
       </button>
+
+      {/* 씬뷰 스크린샷 */}
+      {onScreenshot && (
+        <button
+          style={screenshotDone ? { ...btnActive, color: '#4ade80', borderColor: '#4ade80' } : btnBase}
+          onClick={onScreenshot}
+          title="씬뷰 스크린샷 — PNG 다운로드 + 클립보드 복사"
+        >{screenshotDone ? '✓' : '📷'}</button>
+      )}
 
       {/* SVG/PNG 내보내기 */}
       {onExportSvg && (

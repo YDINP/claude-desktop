@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T09:56:45.278Z
+> 2026-03-13T10:03:17.798Z
 
 ## Critical
 _없음_
@@ -514,3 +514,6 @@ _없음_
 - CocosPanel 그룹 패널 탭 존재
 - SessionList 다중 태그 필터 존재
 - Inspector Enum 드롭다운 존재
+- 씬뷰 스크린샷 + 미니맵 존재
+- 채팅 즐겨찾기 뷰 + export 존재
+- Inspector prop 변경 히스토리 존재

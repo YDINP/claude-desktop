@@ -1361,6 +1361,16 @@ function CCFileNodeInspector({
   }, [node, sceneFile, saveScene, onUpdate])
 
   const [propSearch, setPropSearch] = useState('')
+
+  // Round 611: prop 변경 히스토리
+  const PROP_HISTORY_KEY = 'prop-history'
+  type PropHistoryEntry = { id: string; propKey: string; nodeName: string; oldValue: unknown; newValue: unknown; ts: number }
+  const [propHistory, setPropHistory] = useState<PropHistoryEntry[]>(() => {
+    try { return JSON.parse(localStorage.getItem(PROP_HISTORY_KEY) ?? '[]') }
+    catch { return [] }
+  })
+  const [historyOpen, setHistoryOpen] = useState(false)
+
   const FAV_PROPS_KEY = 'fav-props'
   const [favProps, setFavProps] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(FAV_PROPS_KEY) ?? '[]')) }
@@ -1412,6 +1422,27 @@ function CCFileNodeInspector({
     if (!sceneFile.root) return
     const updated = { ...draft, ...patch }
     setDraft(updated)
+
+    // Round 611: 히스토리 기록
+    const patchKeys = Object.keys(patch)
+    if (patchKeys.length > 0) {
+      const propKey = patchKeys[0]
+      const oldValue = (draft as Record<string, unknown>)[propKey]
+      const newValue = (patch as Record<string, unknown>)[propKey]
+      const entry: PropHistoryEntry = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        propKey,
+        nodeName: draft.name ?? draft.uuid,
+        oldValue,
+        newValue,
+        ts: Date.now(),
+      }
+      setPropHistory(prev => {
+        const next = [entry, ...prev].slice(0, 15)
+        localStorage.setItem(PROP_HISTORY_KEY, JSON.stringify(next))
+        return next
+      })
+    }
 
     // sceneFile.root에서 uuid 찾아 교체
     function replaceNode(n: CCSceneNode): CCSceneNode {
@@ -2275,6 +2306,84 @@ function CCFileNodeInspector({
               ))}
             </div>
           </details>
+        )
+      })()}
+
+      {/* Round 611: 변경 이력 트레이 */}
+      {(() => {
+        const fmtVal = (v: unknown): string => {
+          if (v === null || v === undefined) return 'null'
+          if (typeof v === 'boolean') return v ? 'true' : 'false'
+          if (typeof v === 'number') return Number.isInteger(v) ? String(v) : v.toFixed(2)
+          if (typeof v === 'string') return v.length > 20 ? v.slice(0, 20) + '…' : v
+          return JSON.stringify(v).slice(0, 30) + (JSON.stringify(v).length > 30 ? '…' : '')
+        }
+        const fmtTime = (ts: number): string => {
+          const d = new Date(ts)
+          return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`
+        }
+        return (
+          <div style={{ marginTop: 8, borderTop: '1px solid var(--border)' }}>
+            <div
+              onClick={() => setHistoryOpen(o => !o)}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '4px 0', cursor: 'pointer', userSelect: 'none',
+              }}
+            >
+              <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                {historyOpen ? '▾' : '▸'} 📋 변경 이력 ({propHistory.length})
+              </span>
+              {propHistory.length > 0 && (
+                <span
+                  onClick={e => {
+                    e.stopPropagation()
+                    setPropHistory([])
+                    localStorage.removeItem(PROP_HISTORY_KEY)
+                  }}
+                  title="이력 지우기"
+                  style={{ fontSize: 10, color: '#555', cursor: 'pointer', padding: '0 2px' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#f85149')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#555')}
+                >
+                  ×
+                </span>
+              )}
+            </div>
+            {historyOpen && (
+              <div style={{ maxHeight: 180, overflowY: 'auto' }}>
+                {propHistory.length === 0 ? (
+                  <div style={{ fontSize: 10, color: '#444', padding: '4px 0' }}>이력 없음</div>
+                ) : propHistory.map(h => (
+                  <div
+                    key={h.id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 4,
+                      padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    }}
+                  >
+                    <span
+                      title="실행 취소 (undo)"
+                      onClick={() => applyAndSave({ [h.propKey]: h.oldValue } as Partial<CCSceneNode>)}
+                      style={{ fontSize: 10, cursor: 'pointer', color: '#555', flexShrink: 0 }}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+                      onMouseLeave={e => (e.currentTarget.style.color = '#555')}
+                    >
+                      ↩
+                    </span>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ color: 'var(--text-primary)' }}>[{h.nodeName}]</span>{' '}
+                      <span style={{ fontFamily: 'monospace' }}>{h.propKey}</span>:{' '}
+                      <span style={{ fontFamily: 'monospace', color: '#f85149' }}>{fmtVal(h.oldValue)}</span>
+                      {' → '}
+                      <span style={{ fontFamily: 'monospace', color: '#3fb950' }}>{fmtVal(h.newValue)}</span>
+                    </span>
+                    <span style={{ fontSize: 10, color: '#444', flexShrink: 0 }}>{fmtTime(h.ts)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )
       })()}
     </div>

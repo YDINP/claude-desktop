@@ -1383,6 +1383,46 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     img.src = svgUrl
   }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
 
+  // ── 씬뷰 스크린샷 (SVG 캔버스 → PNG 다운로드 + 클립보드) ───────
+  const [screenshotDone, setScreenshotDone] = useState(false)
+
+  const handleScreenshot = useCallback(async () => {
+    if (!svgRef.current) return
+    const svgEl = svgRef.current
+    const svgStr = new XMLSerializer().serializeToString(svgEl)
+    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' })
+    const svgUrl = URL.createObjectURL(svgBlob)
+    const img = new Image()
+    img.onload = async () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = svgEl.clientWidth || DESIGN_W
+      canvas.height = svgEl.clientHeight || DESIGN_H
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0)
+      URL.revokeObjectURL(svgUrl)
+      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+      canvas.toBlob(async (blob) => {
+        if (!blob) return
+        // 다운로드
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `scene-${ts}.png`
+        a.click()
+        URL.revokeObjectURL(url)
+        // 클립보드 복사
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+        } catch {
+          // 클립보드 미지원 환경 무시
+        }
+        setScreenshotDone(true)
+        setTimeout(() => setScreenshotDone(false), 1500)
+      }, 'image/png')
+    }
+    img.src = svgUrl
+  }, [svgRef, DESIGN_W, DESIGN_H])
+
   // ── 씬 저장 / 로드 슬롯 (localStorage) ──────────────────────
   const [activeSlot, setActiveSlot] = useState(0)
   const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
@@ -1825,6 +1865,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onMinimapToggle={() => setShowMinimap(v => !v)}
         canvasSize={canvasSize}
         onCanvasSizeChange={(w, h) => { setCanvasSize({ w, h }); setTimeout(handleFit, 50) }}
+        onScreenshot={handleScreenshot}
+        screenshotDone={screenshotDone}
         onExportSvg={handleExportSvg}
         onExportPng={handleExportPng}
         onSaveScene={handleSaveScene}
@@ -3108,7 +3150,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
         {/* 미니맵 오버레이 */}
         {showMinimap && nodeMap.size > 0 && (() => {
-          const MM_W = 120, MM_H = 80
+          const MM_W = 90, MM_H = 60
           // 씬 전체 노드 bounding box 계산 (디자인 좌표 기준)
           let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
           nodeMap.forEach(n => {
@@ -3132,8 +3174,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 right: 6,
                 width: MM_W,
                 height: MM_H,
-                background: 'rgba(15,15,20,0.82)',
-                border: '1px solid rgba(255,255,255,0.12)',
+                background: 'rgba(0,0,0,0.6)',
+                border: '1px solid var(--border)',
                 borderRadius: 4,
                 overflow: 'hidden',
                 cursor: 'crosshair',
