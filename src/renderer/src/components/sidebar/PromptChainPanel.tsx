@@ -138,6 +138,7 @@ export function PromptChainPanel() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isRunning, setIsRunning] = useState(false)
   const [showTemplates, setShowTemplates] = useState(false)
+  const [copiedChainId, setCopiedChainId] = useState<string | null>(null)
 
   useEffect(() => {
     const loaded = loadChains()
@@ -441,6 +442,28 @@ export function PromptChainPanel() {
               )}
             </div>
             <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+              {selectedChain.steps.some(s => s.status === 'done' && s.result) && (
+                <button
+                  onClick={() => {
+                    const lines = selectedChain.steps
+                      .filter(s => s.status === 'done' && s.result)
+                      .map((s, i) => `## ${s.label ?? `Step ${i + 1}`}\n\n${s.result}`)
+                      .join('\n\n---\n\n')
+                    navigator.clipboard.writeText(lines).then(() => {
+                      setCopiedChainId(selectedChain.id)
+                      setTimeout(() => setCopiedChainId(id => id === selectedChain.id ? null : id), 1500)
+                    })
+                  }}
+                  title="완료된 단계 결과 전체 복사"
+                  style={{
+                    ...btnBase, padding: '3px 7px', fontSize: 11,
+                    background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                    color: copiedChainId === selectedChain.id ? '#4ade80' : 'var(--text-muted)',
+                  }}
+                >
+                  {copiedChainId === selectedChain.id ? '✓' : '📋'}
+                </button>
+              )}
               <button
                 onClick={() => clearResults(selectedChain.id)}
                 style={{

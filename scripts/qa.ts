@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 307: R405 신규 기능 ───────────────────────────────
+console.log('\n## 307. 신규 기능 파일 검사 (R405)')
+// PromptChainPanel 체인 결과 전체 복사 (Round 405)
+const pcp405Path = join(ROOT, 'src/renderer/src/components/sidebar/PromptChainPanel.tsx')
+if (existsSync(pcp405Path)) {
+  const pcp405 = readFileSync(pcp405Path, 'utf-8')
+  if (pcp405.includes('copiedChainId') && pcp405.includes('결과 전체 복사') && pcp405.includes('setCopiedChainId')) {
+    log('pass', 'Round405', 'PromptChainPanel: 체인 결과 전체 복사(copiedChainId) 존재')
+  } else {
+    log('warning', 'Round405', 'PromptChainPanel 결과 복사 미구현', 'sidebar/PromptChainPanel.tsx')
+  }
+}
+
 // ── Section 306: R404 신규 기능 ───────────────────────────────
 console.log('\n## 306. 신규 기능 파일 검사 (R404)')
 // OutlinePanel reversed 선언 순서 수정 + ESC (Round 404)

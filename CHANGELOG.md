@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 405] — 2026-03-13
+### Added
+- PromptChainPanel: 체인 결과 전체 복사 — 완료된 단계 결과를 Markdown 형식으로 클립보드에 복사하는 📋 버튼
+
 ## [Round 404] — 2026-03-13
 ### Fixed
 - OutlinePanel: `reversed` 상태 선언을 `items` useMemo 이전으로 이동 (TDZ 참조 순서 버그 수정)
