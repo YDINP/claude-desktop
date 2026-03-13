@@ -4782,6 +4782,43 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1590: cc.Graphics Quick Edit
+            if (comp.type === 'cc.Graphics') {
+              const toHex = (c: { r?: number; g?: number; b?: number } | undefined) => {
+                if (!c) return '#ffffff'
+                return `#${[(c.r ?? 255), (c.g ?? 255), (c.b ?? 255)].map(v => v.toString(16).padStart(2, '0')).join('')}`
+              }
+              const fromHex = (hex: string, a = 255) => {
+                const n = parseInt(hex.replace('#', ''), 16)
+                return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a }
+              }
+              return (
+                <div key={ci} style={{ marginBottom: 6 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>lineWidth</label>
+                      <input type="number" min={0} value={Number(p.lineWidth ?? 1)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'lineWidth', Number(ev.target.value))} />
+                    </div>
+                    <div />
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>fillColor</label>
+                      <input type="color" value={toHex(p.fillColor as { r?: number; g?: number; b?: number } | undefined)}
+                        style={{ width: '100%', height: 22, border: '1px solid #444', borderRadius: 3, cursor: 'pointer' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillColor', fromHex(ev.target.value, 255))} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>strokeColor</label>
+                      <input type="color" value={toHex(p.strokeColor as { r?: number; g?: number; b?: number } | undefined)}
+                        style={{ width: '100%', height: 22, border: '1px solid #444', borderRadius: 3, cursor: 'pointer' }}
+                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'strokeColor', fromHex(ev.target.value, 255))} />
+                    </div>
+                  </div>
+                </div>
+              )
+            }
             // R1589: cc.Sprite / cc.Sprite2D Quick Edit
             if (comp.type === 'cc.Sprite' || comp.type === 'cc.Sprite2D') {
               const SPRITE_TYPE = ['Simple', 'Sliced', 'Tiled', 'Filled']

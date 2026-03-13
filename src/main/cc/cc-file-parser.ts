@@ -355,6 +355,16 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
   'cc.ToggleContainer': e => ({
     allowSwitchOff: !!(e._N$allowSwitchOff ?? e._allowSwitchOff ?? e.allowSwitchOff ?? false),
   }),
+  // R1590: cc.Graphics — 벡터 그래픽 컴포넌트
+  'cc.Graphics': e => {
+    const fc = e._N$fillColor ?? e._fillColor ?? e.fillColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    const sc = e._N$strokeColor ?? e._strokeColor ?? e.strokeColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      lineWidth: (e._N$lineWidth ?? e._lineWidth ?? e.lineWidth ?? 1) as number,
+      fillColor: fc ? { r: (fc as { r?: number }).r ?? 255, g: (fc as { g?: number }).g ?? 255, b: (fc as { b?: number }).b ?? 255, a: (fc as { a?: number }).a ?? 255 } : undefined,
+      strokeColor: sc ? { r: (sc as { r?: number }).r ?? 0, g: (sc as { g?: number }).g ?? 0, b: (sc as { b?: number }).b ?? 0, a: (sc as { a?: number }).a ?? 255 } : undefined,
+    }
+  },
   // R1589: cc.Sprite / cc.Sprite2D — 스프라이트 컴포넌트
   'cc.Sprite': e => ({
     type: (e._N$type ?? e._type ?? e.type ?? 0) as number,  // 0=SIMPLE,1=SLICED,2=TILED,3=FILLED

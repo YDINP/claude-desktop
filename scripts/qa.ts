@@ -16994,6 +16994,20 @@ console.log('\n## 480. R1589 cc.Sprite/Sprite2D extractor + Inspector Quick Edit
   }
 }
 
+// ── Section 481: R1590 cc.Graphics extractor + Inspector Quick Edit ────
+console.log('\n## 481. R1590 cc.Graphics extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s481parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s481panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s481parser.includes("'cc.Graphics': e =>") && s481panel.includes("comp.type === 'cc.Graphics'") && s481panel.includes('lineWidth') && s481panel.includes('fillColor') && s481panel.includes('strokeColor')) {
+    log('pass', 'R1590-graphics', 'cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor')
+  } else {
+    log('warning', 'R1590-graphics', 'cc.Graphics Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

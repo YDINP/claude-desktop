@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T21:43:54.605Z
+> 2026-03-13T21:44:47.465Z
 
 ## Critical
 _없음_
@@ -1518,3 +1518,4 @@ _없음_
 - cc.Toggle/ToggleContainer extractor + Inspector: isChecked/interactable/allowSwitchOff
 - cc.LabelOutline/LabelShadow extractor + Inspector Quick Edit
 - cc.Sprite extractor + Inspector: type/sizeMode/trim/grayscale
+- cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor
