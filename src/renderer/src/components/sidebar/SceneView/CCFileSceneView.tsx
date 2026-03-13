@@ -41,6 +41,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
   const [showGrid, setShowGrid] = useState(true)
+  const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
   // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
   const spriteCacheRef = useRef<Map<string, string>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
@@ -244,6 +245,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         }}>
           CC {sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x'}
         </span>
+        <input
+          type="color"
+          value={bgColorOverride ?? bgColor.startsWith('rgb') ? (() => {
+            const m = (bgColorOverride ?? bgColor).match(/\d+/g)
+            if (!m) return '#1a1a2e'
+            return `#${m.slice(0, 3).map(n => parseInt(n).toString(16).padStart(2, '0')).join('')}`
+          })() : (bgColorOverride ?? bgColor)}
+          title="배경색 변경 (뷰 전용)"
+          onChange={e => setBgColorOverride(e.target.value)}
+          onDoubleClick={() => setBgColorOverride(null)}
+          style={{ width: 18, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
+        />
         <button
           onClick={() => setShowGrid(g => !g)}
           title="그리드 표시 토글"
@@ -286,7 +299,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         <g transform={transform}>
           {/* 게임 캔버스 배경 */}
           <rect x={0} y={0} width={designW} height={designH}
-            fill={bgColor} stroke="#555" strokeWidth={1 / view.zoom} />
+            fill={bgColorOverride ?? bgColor} stroke="#555" strokeWidth={1 / view.zoom} />
           {/* 그리드 (100px 단위) */}
           {showGrid && view.zoom > 0.2 && (() => {
             const step = 100
