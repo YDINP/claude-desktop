@@ -1465,6 +1465,32 @@ function CCFileNodeInspector({
           })}
         </div>
       ))}
+      {!collapsed['comps'] && (() => {
+        const compTypes = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource', 'cc.RichText', 'cc.EditBox']
+        return (
+          <details style={{ marginTop: 6 }}>
+            <summary style={{ fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', padding: '3px 0' }}>
+              + 컴포넌트 추가
+            </summary>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 4 }}>
+              {compTypes.map(ct => (
+                <span
+                  key={ct}
+                  onClick={() => applyAndSave({ components: [...draft.components, { type: ct, props: {} }] })}
+                  style={{
+                    fontSize: 9, padding: '2px 5px', borderRadius: 3, cursor: 'pointer',
+                    border: '1px solid var(--border)', color: 'var(--text-muted)',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = '#58a6ff')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+                >
+                  {ct.split('.').pop()}
+                </span>
+              ))}
+            </div>
+          </details>
+        )
+      })()}
     </div>
   )
 }
