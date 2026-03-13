@@ -16577,6 +16577,23 @@ console.log('\n## 448. R1557 SafeArea/BlockInputEvents 컴포넌트 + 툴팁 아
   }
 }
 
+// ── Section 449: R1558 TreeSearch 키보드 탐색 + 컴포넌트 검색 ────────
+console.log('\n## 449. R1558 TreeSearch 키보드 탐색 + 컴포넌트 타입 검색 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s449 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s449.includes('R1558') && s449.includes('activeIdx') && s449.includes('ArrowDown') && s449.includes('ArrowUp')) {
+    log('pass', 'R1558-keyboard', 'TreeSearch ↑↓ 키보드 탐색 + Enter 선택 + Escape 닫기')
+  } else {
+    log('warning', 'R1558-keyboard', 'TreeSearch 키보드 탐색 미구현', 'CocosPanel.tsx')
+  }
+  if (s449.includes('compMatch') && s449.includes('c.type.toLowerCase().includes(ql)')) {
+    log('pass', 'R1558-comp-search', '컴포넌트 타입 검색 (이름 + 타입 모두 검색)')
+  } else {
+    log('warning', 'R1558-comp-search', '컴포넌트 타입 검색 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

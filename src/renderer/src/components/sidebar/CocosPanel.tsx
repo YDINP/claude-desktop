@@ -5690,17 +5690,24 @@ function TreeSearch({ root, onSelect }: { root: CCSceneNode; onSelect: (n: CCSce
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<CCSceneNode[]>([])
   const [open, setOpen] = useState(false)
+  // R1558: 키보드 탐색
+  const [activeIdx, setActiveIdx] = useState(-1)
 
   const search = useCallback((q: string) => {
     setQuery(q)
+    setActiveIdx(-1)
     if (!q.trim()) { setResults([]); setOpen(false); return }
+    const ql = q.toLowerCase()
     const found: CCSceneNode[] = []
     function walk(n: CCSceneNode) {
-      if (n.name.toLowerCase().includes(q.toLowerCase())) found.push(n)
+      // R1558: 이름 + 컴포넌트 타입 모두 검색
+      const nameMatch = n.name.toLowerCase().includes(ql)
+      const compMatch = n.components.some(c => c.type.toLowerCase().includes(ql))
+      if (nameMatch || compMatch) found.push(n)
       n.children.forEach(walk)
     }
     walk(root)
-    setResults(found.slice(0, 8))
+    setResults(found.slice(0, 12))
     setOpen(true)
   }, [root])
 
@@ -5710,7 +5717,19 @@ function TreeSearch({ root, onSelect }: { root: CCSceneNode; onSelect: (n: CCSce
         value={query}
         onChange={e => search(e.target.value)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
-        placeholder="노드 검색..."
+        placeholder="노드/컴포넌트 검색..."
+        onKeyDown={e => {
+          // R1558: ↑↓ 탐색, Enter 선택, Escape 닫기
+          if (!open || results.length === 0) return
+          if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIdx(i => Math.min(i + 1, results.length - 1)) }
+          else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIdx(i => Math.max(i - 1, 0)) }
+          else if (e.key === 'Enter') {
+            e.preventDefault()
+            const idx = activeIdx >= 0 ? activeIdx : 0
+            if (results[idx]) { onSelect(results[idx]); setQuery(''); setOpen(false) }
+          }
+          else if (e.key === 'Escape') { setOpen(false); setQuery('') }
+        }}
         style={{
           width: '100%', background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
           color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px', fontSize: 10, boxSizing: 'border-box',
@@ -5720,27 +5739,31 @@ function TreeSearch({ root, onSelect }: { root: CCSceneNode; onSelect: (n: CCSce
         <div style={{
           position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
           background: 'var(--bg-secondary, #0d0d1a)', border: '1px solid var(--border)',
-          borderRadius: 4, maxHeight: 160, overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+          borderRadius: 4, maxHeight: 180, overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
         }}>
-          {results.map(n => (
+          {results.map((n, i) => (
             <div
               key={n.uuid}
               onMouseDown={() => { onSelect(n); setQuery(''); setOpen(false) }}
+              onMouseEnter={() => setActiveIdx(i)}
               style={{
-                padding: '4px 8px', fontSize: 10, cursor: 'pointer', color: 'var(--text-primary)',
-                borderBottom: '1px solid var(--border)',
+                padding: '4px 8px', fontSize: 10, cursor: 'pointer',
+                color: 'var(--text-primary)', borderBottom: '1px solid var(--border)',
+                background: i === activeIdx ? 'rgba(88,166,255,0.15)' : 'transparent',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-subtle, rgba(88,166,255,0.1))')}
-              onMouseLeave={e => (e.currentTarget.style.background = '')}
             >
               {n.name || '(unnamed)'}
               {n.components.length > 0 && (
-                <span style={{ marginLeft: 4, color: 'var(--text-muted)', fontSize: 9 }}>
-                  {n.components[0].type.replace('cc.','')}
+                <span style={{ marginLeft: 4, color: '#58a6ff', fontSize: 8 }}>
+                  {n.components.map(c => c.type.split('.').pop()).join(' · ')}
                 </span>
               )}
+              {!n.active && <span style={{ marginLeft: 4, fontSize: 8, color: '#f85149' }}>◌</span>}
             </div>
           ))}
+          <div style={{ padding: '2px 8px', fontSize: 8, color: 'var(--text-muted)' }}>
+            {results.length}개 결과 {results.length === 12 ? '(최대 12개)' : ''}
+          </div>
         </div>
       )}
     </div>
