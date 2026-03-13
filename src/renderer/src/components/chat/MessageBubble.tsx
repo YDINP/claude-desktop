@@ -161,11 +161,13 @@ const CodeBlock = memo(function CodeBlock({
   language,
   codeString,
   onRunInTerminal,
+  onRunCode,
   onQuickAction,
 }: {
   language: string
   codeString: string
   onRunInTerminal?: (code: string) => void
+  onRunCode?: (code: string) => void
   onQuickAction?: (action: 'explain' | 'optimize' | 'fix', code: string, language: string) => void
 }) {
   const [copied, setCopied] = useState(false)
@@ -180,6 +182,9 @@ const CodeBlock = memo(function CodeBlock({
   const [docCopied, setDocCopied] = useState(false)
   const [shellResult, setShellResult] = useState<{ ok: boolean; output: string } | null>(null)
   const [shellRunning, setShellRunning] = useState(false)
+  const [terminalRunning, setTerminalRunning] = useState(false)
+
+  const effectiveRunInTerminal = onRunCode ?? onRunInTerminal
 
   const handleCopy = () => {
     navigator.clipboard.writeText(codeString)
@@ -244,7 +249,14 @@ const CodeBlock = memo(function CodeBlock({
     }
   }
 
-  const isRunnable = onRunInTerminal && RUNNABLE_LANGS.includes(language.toLowerCase())
+  const handleRunInTerminal = () => {
+    if (!effectiveRunInTerminal) return
+    effectiveRunInTerminal(codeString)
+    setTerminalRunning(true)
+    setTimeout(() => setTerminalRunning(false), 500)
+  }
+
+  const isRunnable = effectiveRunInTerminal && RUNNABLE_LANGS.includes(language.toLowerCase())
   const isShellExecable = RUNNABLE_LANGS.includes(language.toLowerCase())
   const isJsRunnable = JS_LANGS.includes(language.toLowerCase()) && codeString.length < 1000
   const isDocable = DOC_LANGS.includes(language.toLowerCase())
@@ -282,15 +294,123 @@ const CodeBlock = memo(function CodeBlock({
         background: 'var(--bg-tertiary)',
         borderBottom: '1px solid var(--border)',
         borderRadius: '4px 4px 0 0',
-        padding: '4px 12px',
+        padding: '4px 8px 4px 12px',
         fontSize: 11,
+        gap: 4,
       }}>
-        <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'lowercase' }}>
+        <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'lowercase', flex: 1 }}>
           {language || 'text'}
         </span>
-        <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>
+        <span style={{ color: 'var(--text-muted)', fontSize: 10, marginRight: 4 }}>
           {codeString.split('\n').length} lines
         </span>
+        {/* Header action buttons */}
+        {isRunnable && (
+          <button
+            onClick={handleRunInTerminal}
+            title="터미널에서 실행"
+            style={{
+              background: '#1e3a2e',
+              color: '#4ade80',
+              border: 'none',
+              borderRadius: 3,
+              padding: '2px 8px',
+              fontSize: 11,
+              cursor: 'pointer',
+              lineHeight: 1.4,
+            }}
+          >
+            {terminalRunning ? '⟳' : '▶ 터미널'}
+          </button>
+        )}
+        {isShellExecable && (
+          <button
+            onClick={handleShellExec}
+            title="인라인 실행 (shell:exec)"
+            style={{
+              background: shellResult ? (shellResult.ok ? '#1a3a2e' : '#3a1a1a') : '#1e2a1e',
+              color: shellResult ? (shellResult.ok ? '#86efac' : '#f87171') : '#4ade80',
+              border: 'none',
+              borderRadius: 3,
+              padding: '2px 8px',
+              fontSize: 11,
+              cursor: shellRunning ? 'not-allowed' : 'pointer',
+              lineHeight: 1.4,
+            }}
+          >
+            {shellRunning ? '⟳' : '▶'}
+          </button>
+        )}
+        {isJsRunnable && !isRunnable && !isShellExecable && (
+          <button
+            onClick={handleRunJs}
+            title="브라우저 샌드박스에서 JS 실행"
+            style={{
+              background: '#1e2a3e',
+              color: '#7ec8a0',
+              border: 'none',
+              borderRadius: 3,
+              padding: '2px 8px',
+              fontSize: 11,
+              cursor: 'pointer',
+              lineHeight: 1.4,
+            }}
+          >
+            {hasRun ? '⟳ 재실행' : '▶ 실행'}
+          </button>
+        )}
+        {isDocable && (
+          <button
+            onClick={handleGenerateDocs}
+            title={docCode ? '문서화 닫기' : 'JSDoc/docstring 생성'}
+            style={{
+              background: docCode ? '#1a2a3e' : '#3a3a4a',
+              color: docCode ? '#4a90e2' : '#aaa',
+              border: 'none',
+              borderRadius: 3,
+              padding: '2px 6px',
+              fontSize: 11,
+              cursor: 'pointer',
+              transition: 'background 0.15s, color 0.15s',
+              lineHeight: 1.4,
+            }}
+          >
+            {docLoading ? '...' : docCode ? '✕' : '📝'}
+          </button>
+        )}
+        <button
+          onClick={handleExplain}
+          title={explanation ? '설명 닫기' : 'AI 코드 설명'}
+          style={{
+            background: explanation ? '#2a3a5e' : '#3a3a4a',
+            color: explanation ? '#60a5fa' : '#aaa',
+            border: 'none',
+            borderRadius: 3,
+            padding: '2px 6px',
+            fontSize: 11,
+            cursor: 'pointer',
+            transition: 'background 0.15s, color 0.15s',
+            lineHeight: 1.4,
+          }}
+        >
+          {explainLoading ? '...' : explanation ? '✕' : '💡'}
+        </button>
+        <button
+          onClick={handleCopy}
+          style={{
+            background: copied ? '#2d5a27' : '#3a3a4a',
+            color: copied ? '#7ec87a' : '#aaa',
+            border: 'none',
+            borderRadius: 3,
+            padding: '2px 8px',
+            fontSize: 11,
+            cursor: 'pointer',
+            transition: 'background 0.15s, color 0.15s',
+            lineHeight: 1.4,
+          }}
+        >
+          {copied ? 'Copied!' : 'Copy'}
+        </button>
       </div>
       {isDiff ? (
         <DiffView codeString={codeString} />
@@ -312,124 +432,6 @@ const CodeBlock = memo(function CodeBlock({
           {codeString}
         </SyntaxHighlighter>
       )}
-      {isShellExecable && (
-        <button
-          onClick={handleShellExec}
-          title="인라인 실행 (shell:exec)"
-          style={{
-            position: 'absolute',
-            top: 6,
-            right: shellExecBtnRight,
-            background: shellResult ? (shellResult.ok ? '#1a3a2e' : '#3a1a1a') : '#1e2a1e',
-            color: shellResult ? (shellResult.ok ? '#86efac' : '#f87171') : '#4ade80',
-            border: 'none',
-            borderRadius: 3,
-            padding: '2px 8px',
-            fontSize: 11,
-            cursor: shellRunning ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {shellRunning ? '⟳' : '▶'}
-        </button>
-      )}
-      {isRunnable && (
-        <button
-          onClick={() => onRunInTerminal!(codeString)}
-          title="터미널에서 실행"
-          style={{
-            position: 'absolute',
-            top: 6,
-            right: terminalBtnRight,
-            background: '#1e3a2e',
-            color: '#4ade80',
-            border: 'none',
-            borderRadius: 3,
-            padding: '2px 8px',
-            fontSize: 11,
-            cursor: 'pointer',
-          }}
-        >
-          $ 터미널
-        </button>
-      )}
-      {isJsRunnable && !isRunnable && !isShellExecable && (
-        <button
-          onClick={handleRunJs}
-          title="브라우저 샌드박스에서 JS 실행"
-          style={{
-            position: 'absolute',
-            top: 6,
-            right: runBtnRight,
-            background: hasRun ? '#1e2a3e' : '#1e2a3e',
-            color: '#7ec8a0',
-            border: 'none',
-            borderRadius: 3,
-            padding: '2px 8px',
-            fontSize: 11,
-            cursor: 'pointer',
-          }}
-        >
-          {hasRun ? '⟳ 재실행' : '▶ 실행'}
-        </button>
-      )}
-      {isDocable && (
-        <button
-          onClick={handleGenerateDocs}
-          title={docCode ? '문서화 닫기' : 'JSDoc/docstring 생성'}
-          style={{
-            position: 'absolute',
-            top: 6,
-            right: docBtnRight,
-            background: docCode ? '#1a2a3e' : '#3a3a4a',
-            color: docCode ? '#4a90e2' : '#aaa',
-            border: 'none',
-            borderRadius: 3,
-            padding: '2px 6px',
-            fontSize: 11,
-            cursor: 'pointer',
-            transition: 'background 0.15s, color 0.15s',
-          }}
-        >
-          {docLoading ? '...' : docCode ? '✕' : '📝'}
-        </button>
-      )}
-      <button
-        onClick={handleExplain}
-        title={explanation ? '설명 닫기' : 'AI 코드 설명'}
-        style={{
-          position: 'absolute',
-          top: 6,
-          right: explainRight,
-          background: explanation ? '#2a3a5e' : '#3a3a4a',
-          color: explanation ? '#60a5fa' : '#aaa',
-          border: 'none',
-          borderRadius: 3,
-          padding: '2px 6px',
-          fontSize: 11,
-          cursor: 'pointer',
-          transition: 'background 0.15s, color 0.15s',
-        }}
-      >
-        {explainLoading ? '...' : explanation ? '✕' : '💡'}
-      </button>
-      <button
-        onClick={handleCopy}
-        style={{
-          position: 'absolute',
-          top: 6,
-          right: 8,
-          background: copied ? '#2d5a27' : '#3a3a4a',
-          color: copied ? '#7ec87a' : '#aaa',
-          border: 'none',
-          borderRadius: 3,
-          padding: '2px 8px',
-          fontSize: 11,
-          cursor: 'pointer',
-          transition: 'background 0.15s, color 0.15s',
-        }}
-      >
-        {copied ? 'Copied!' : 'Copy'}
-      </button>
       {explanation && (
         <div style={{
           padding: '8px 12px',

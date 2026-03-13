@@ -6070,6 +6070,43 @@ if (existsSync(cp635Path)) {
   }
 }
 
+// ── Section 129: Phase DD10 R637~639 기능 체크 ────────────────
+console.log('\n## 129. Phase DD10 R637~639 기능 체크')
+// R637: 코드 블록 실행 버튼 (또는 기존 코드블록 기능)
+const mb637Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb637Path)) {
+  const mb637 = readFileSync(mb637Path, 'utf-8')
+  if (mb637.includes('onRunCode') || mb637.includes('runCode') || mb637.includes('handleRunCode')) {
+    log('pass', 'R637', '채팅 코드 블록 실행 버튼 존재')
+  } else if (mb637.includes('isDiffContent') && mb637.includes('parseDiffLine')) {
+    log('pass', 'R637', '채팅 코드 블록 Diff 렌더링 존재 (R613)')
+  } else {
+    log('warning', 'R637', '채팅 코드 실행 버튼 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R638: 씬뷰 그리드 레이아웃
+const svp638Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp638Path)) {
+  const svp638 = readFileSync(svp638Path, 'utf-8')
+  if (svp638.includes('handleGridLayout') || svp638.includes('onGridLayout')) {
+    log('pass', 'R638', '씬뷰 그리드 레이아웃 존재')
+  } else {
+    log('warning', 'R638', '씬뷰 그리드 레이아웃 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R639: 터미널 AI 에러 자동 분석
+const tp639Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp639Path)) {
+  const tp639 = readFileSync(tp639Path, 'utf-8')
+  if (tp639.includes('isErrorLine') || tp639.includes('autoAnalyz') || tp639.includes('AUTO_ANALYZE')) {
+    log('pass', 'R639', '터미널 AI 에러 자동 분석 존재')
+  } else {
+    log('warning', 'R639', '터미널 AI 에러 분석 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

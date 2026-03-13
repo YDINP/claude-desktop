@@ -27,6 +27,7 @@ interface SceneToolbarProps {
   onMatchWidth?: () => void
   onMatchHeight?: () => void
   onMatchBoth?: () => void
+  onGridLayout?: () => void
   selectedUuid?: string | null
   onCreateNode?: () => void
   onDeleteNode?: () => void
@@ -131,6 +132,7 @@ export function SceneToolbar({
   onMatchWidth,
   onMatchHeight,
   onMatchBoth,
+  onGridLayout,
   selectedUuid,
   onCreateNode,
   onDeleteNode,
@@ -732,6 +734,7 @@ export function SceneToolbar({
           {onMatchWidth && <button onClick={onMatchWidth} title="같은 너비로 맞추기" style={btnBase}>↔W</button>}
           {onMatchHeight && <button onClick={onMatchHeight} title="같은 높이로 맞추기" style={btnBase}>↕H</button>}
           {onMatchBoth && <button onClick={onMatchBoth} title="같은 크기로 맞추기" style={btnBase}>⊞</button>}
+          {onGridLayout && <button onClick={onGridLayout} title="그리드 자동 배치 (N×M)" style={btnBase}>⊟</button>}
         </>
       )}
 

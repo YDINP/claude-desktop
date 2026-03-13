@@ -1847,6 +1847,32 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [selectedUuids, nodeMap, port, updateNode])
 
+  const handleGridLayout = useCallback(async (gridGap = 20) => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 2) return
+
+    const cols = Math.ceil(Math.sqrt(nodes.length))
+    // 시작 위치: 가장 왼쪽-상단 노드 기준
+    const startX = Math.min(...nodes.map(n => n.x - n.width * (n.anchorX ?? 0.5)))
+    const startY = Math.max(...nodes.map(n => n.y + n.height * (1 - (n.anchorY ?? 0.5))))
+
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i]
+      const col = i % cols
+      const row = Math.floor(i / cols)
+      const newX = startX + col * (n.width + gridGap) + n.width * (n.anchorX ?? 0.5)
+      const newY = startY - row * (n.height + gridGap) - n.height * (1 - (n.anchorY ?? 0.5))
+      updateNode(n.uuid, { x: newX, y: newY })
+      try {
+        await window.api.ccSetProperty?.(port, n.uuid, 'x', newX)
+        await window.api.ccSetProperty?.(port, n.uuid, 'y', newY)
+      } catch (e) {
+        console.error('[SceneView] gridLayout failed:', e)
+      }
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
+
   // ── 멀티셀렉트 그룹 bbox 계산 ──────────────────────────────
   const groupBbox = useMemo(() => {
     if (selectedUuids.size < 2) return null
@@ -1975,6 +2001,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onMatchWidth={() => handleMatchSize('W')}
         onMatchHeight={() => handleMatchSize('H')}
         onMatchBoth={() => handleMatchSize('both')}
+        onGridLayout={() => handleGridLayout()}
         onUndo={() => {
           setUndoStack(prev => {
             if (prev.length === 0) return prev

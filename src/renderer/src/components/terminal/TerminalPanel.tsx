@@ -67,7 +67,22 @@ const TERM_THEME = {
   cyan: '#4fc1ff', white: '#d4d4d4',
 }
 
-const ERROR_PATTERN = /error|FAILED|failed|npm ERR|SyntaxError|TypeError|ReferenceError|Cannot find|ENOENT|exit code [^0]/i
+const ERROR_PATTERNS = [
+  /TypeError:/,
+  /ReferenceError:/,
+  /SyntaxError:/,
+  /Error: Cannot find module/,
+  /Build failed/i,
+  /ENOENT/,
+  /EACCES/,
+  /npm ERR/,
+  /FAILED/,
+  /exit code [^0]/i,
+]
+
+const isErrorLine = (line: string): boolean => ERROR_PATTERNS.some(p => p.test(line))
+
+const AUTO_ANALYZE_KEY = 'terminal-auto-analyze'
 
 const stripAnsi = (text: string) => text.replace(/\x1b\[[0-9;]*[mGKHF]/g, '')
 
@@ -140,14 +155,36 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // AI error detection state (per-tab)
   const [errorBanners, setErrorBanners] = useState<Record<string, boolean>>({})
   const outputBufferRef = useRef<Record<string, string[]>>({})
+  const errorLineIdxRef = useRef<Record<string, number>>({})
   const errorTimerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
 
-  const handleAskClaude = () => {
-    const buf = outputBufferRef.current[activeTabId] ?? []
-    const recentOutput = buf.slice(-50).join('\n')
-    const prompt = `터미널 에러 분석해줘:\n\`\`\`\n${recentOutput}\n\`\`\``
+  // Auto-analyze toggle
+  const [autoAnalyze, setAutoAnalyze] = useState<boolean>(
+    () => localStorage.getItem(AUTO_ANALYZE_KEY) === 'true'
+  )
+  const autoAnalyzeRef = useRef(autoAnalyze)
+  useEffect(() => {
+    autoAnalyzeRef.current = autoAnalyze
+    localStorage.setItem(AUTO_ANALYZE_KEY, autoAnalyze ? 'true' : 'false')
+  }, [autoAnalyze])
+
+  const buildErrorContext = (tabId: string): string => {
+    const buf = outputBufferRef.current[tabId] ?? []
+    const errIdx = errorLineIdxRef.current[tabId] ?? buf.length - 1
+    const start = Math.max(0, errIdx - 10)
+    const end = Math.min(buf.length, errIdx + 11)
+    return buf.slice(start, end).join('\n')
+  }
+
+  const sendErrorToAI = (tabId: string) => {
+    const context = buildErrorContext(tabId)
+    const prompt = `터미널 에러가 발생했습니다:\n\`\`\`\n${context}\n\`\`\`\n\n작업 디렉토리: ${cwd}`
     onAskAI?.(prompt)
-    setErrorBanners(prev => ({ ...prev, [activeTabId]: false }))
+    setErrorBanners(prev => ({ ...prev, [tabId]: false }))
+  }
+
+  const handleAskClaude = () => {
+    sendErrorToAI(activeTabId)
   }
 
   // Recording state
@@ -210,13 +247,21 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
       const lines = clean.split(/\r?\n/).filter(l => l.length > 0)
       const buf = outputBufferRef.current[id] ?? []
       const newBuf = [...buf, ...lines]
-      outputBufferRef.current[id] = newBuf.length > 100 ? newBuf.slice(-100) : newBuf
-      if (ERROR_PATTERN.test(clean)) {
+      const trimmed = newBuf.length > 200 ? newBuf.slice(-200) : newBuf
+      outputBufferRef.current[id] = trimmed
+      const errorRelIdx = lines.findIndex(l => isErrorLine(l))
+      if (errorRelIdx !== -1) {
+        const absIdx = trimmed.length - lines.length + errorRelIdx
+        errorLineIdxRef.current[id] = Math.max(0, absIdx)
         setErrorBanners(prev => ({ ...prev, [id]: true }))
         if (errorTimerRef.current[id]) clearTimeout(errorTimerRef.current[id])
         errorTimerRef.current[id] = setTimeout(() => {
           setErrorBanners(prev => ({ ...prev, [id]: false }))
-        }, 5000)
+        }, 8000)
+        if (autoAnalyzeRef.current) {
+          // slight delay so buffer is fully written
+          setTimeout(() => sendErrorToAI(id), 100)
+        }
       }
     })
     return removeListener
@@ -745,7 +790,16 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
                 background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4,
                 padding: '2px 8px', fontSize: 11, cursor: 'pointer',
               }}
-            >🤖 Claude에게 물어보기</button>
+            >🤖 AI 분석</button>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none' }}>
+              <input
+                type="checkbox"
+                checked={autoAnalyze}
+                onChange={e => setAutoAnalyze(e.target.checked)}
+                style={{ cursor: 'pointer' }}
+              />
+              자동 분석
+            </label>
             <button
               onClick={() => setErrorBanners(prev => ({ ...prev, [activeTabId]: false }))}
               style={{
