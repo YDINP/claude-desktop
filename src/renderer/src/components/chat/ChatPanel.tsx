@@ -1095,6 +1095,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [previewMaxHeight, setPreviewMaxHeight] = React.useState(300)
   // R1146: message threads
   const [msgThreads, setMsgThreads] = useState<Record<string, string[]>>({})
+  // R1152: message bookmarks
+  const [msgBookmarks, setMsgBookmarks] = useState<Set<string>>(new Set())
+  const [showBookmarkPanel, setShowBookmarkPanel] = useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

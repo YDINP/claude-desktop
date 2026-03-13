@@ -453,6 +453,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R1150: session log
   const [sessionLog, setSessionLog] = React.useState<string[]>([])
   const [showSessionLog, setShowSessionLog] = React.useState(false)
+  // R1156: terminal profiles
+  const [termProfiles, setTermProfiles] = React.useState<Record<string, object>>({})
+  const [activeProfile, setActiveProfile] = React.useState<string | null>(null)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
