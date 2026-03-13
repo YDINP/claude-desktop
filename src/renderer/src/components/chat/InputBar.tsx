@@ -206,6 +206,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   )
   const [ollamaModels, setOllamaModels] = useState<string[]>([])
   const [multilineMode, setMultilineMode] = useState(false)
+  const [lineWrap, setLineWrap] = useState(true)
   const multilineModeRef = useRef(false)
   const [isDragging, setIsDragging] = useState(false)
   const [smartInput, setSmartInput] = useState<boolean>(() => localStorage.getItem('smart-input') === 'true')

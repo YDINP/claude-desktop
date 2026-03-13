@@ -7859,6 +7859,41 @@ if (existsSync(svp806Path)) {
   }
 }
 
+console.log('\n## 180. Phase DD10 R807~809 기능 체크')
+
+// R807: ChatPanel 번역 기록
+const cp807Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp807Path)) {
+  const cp807 = readFileSync(cp807Path, 'utf-8')
+  if (cp807.includes('translationHistory') || cp807.includes('showTranslationHistory') || cp807.includes('translateLog')) {
+    log('pass', 'R807', 'ChatPanel 번역 기록 존재')
+  } else {
+    log('warning', 'R807', 'ChatPanel 번역 기록 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R808: InputBar 멀티라인 모드
+const ib808Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib808Path)) {
+  const ib808 = readFileSync(ib808Path, 'utf-8')
+  if (ib808.includes('multilineMode') || ib808.includes('lineWrap') || ib808.includes('multiLine')) {
+    log('pass', 'R808', 'InputBar 멀티라인 모드 존재')
+  } else {
+    log('warning', 'R808', 'InputBar 멀티라인 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R809: CocosPanel 컴포넌트 의존성
+const cocp809Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp809Path)) {
+  const cocp809 = readFileSync(cocp809Path, 'utf-8')
+  if (cocp809.includes('compDependencies') || cocp809.includes('showCompDeps') || cocp809.includes('depGraph')) {
+    log('pass', 'R809', 'CocosPanel 컴포넌트 의존성 존재')
+  } else {
+    log('warning', 'R809', 'CocosPanel 의존성 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

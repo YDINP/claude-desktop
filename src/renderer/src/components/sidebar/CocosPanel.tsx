@@ -1299,6 +1299,8 @@ function CCFileNodeInspector({
   })
   const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
   const [lockScale, setLockScale] = useState(false)
+  const [compDependencies, setCompDependencies] = useState<Record<string, string[]>>({})
+  const [showCompDeps, setShowCompDeps] = useState(false)
   const secHeader = (key: string, label: string) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
       style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
@@ -1480,6 +1482,8 @@ function CCFileNodeInspector({
   const [showProfiler, setShowProfiler] = useState(false)
   const [rootNodes, setRootNodes] = useState<string[]>([])
   const [selectedRootNode, setSelectedRootNode] = useState<string | null>(null)
+  const [compDependencies, setCompDependencies] = useState<Record<string, string[]>>({})
+  const [showCompDeps, setShowCompDeps] = useState(false)
   const [loadingScene, setLoadingScene] = useState<string | null>(null)
   const [assetSearch, setAssetSearch] = useState('')
   const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])

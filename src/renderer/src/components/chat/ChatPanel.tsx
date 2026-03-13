@@ -817,6 +817,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [systemPromptDraft, setSystemPromptDraft] = useState<string>('')
   const [msgCategories, setMsgCategories] = useState<Record<string, string>>({})
   const [regenOptions, setRegenOptions] = useState<{ temperature: number; style: string }>({ temperature: 1.0, style: 'default' })
+  const [translationHistory, setTranslationHistory] = useState<Array<{ msgId: string; original: string; translated: string; lang: string }>>([])
+  const [showTranslationHistory, setShowTranslationHistory] = useState(false)
   const [collapseThreshold, setCollapseThreshold] = useState(500)
   const [collapsedByDefault, setCollapsedByDefault] = useState(false)
   const [showRegenOptions, setShowRegenOptions] = useState(false)
@@ -852,6 +854,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     try { return JSON.parse(localStorage.getItem('msg-labels') ?? '{}') } catch { return {} }
   })
   const [showLabelMenu, setShowLabelMenu] = useState<string | null>(null)
+  const [translationHistory, setTranslationHistory] = useState<Array<{ msgId: string; original: string; translated: string; lang: string }>>([])
+  const [showTranslationHistory, setShowTranslationHistory] = useState(false)
   const MSG_LABEL_KINDS = ['중요', '질문', '답변', '코드', '오류'] as const
   const MSG_LABEL_COLORS: Record<string, string> = {
     '중요': '#f87171', '질문': '#60a5fa', '답변': '#34d399', '코드': '#c084fc', '오류': '#fbbf24',
