@@ -3,6 +3,38 @@ import { useCCFileProject } from '../../hooks/useCCFileProject'
 import { CCFileSceneView } from './SceneView/CCFileSceneView'
 import type { CCSceneNode, CCSceneFile } from '../../../../shared/ipc-schema'
 
+function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  const [checked, setChecked] = useState(value)
+  return (
+    <label style={{ position: 'relative', display: 'inline-block', width: 32, height: 16, flexShrink: 0, cursor: 'pointer' }}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={e => {
+          setChecked(e.target.checked)
+          onChange(e.target.checked)
+        }}
+        style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+      />
+      <span style={{
+        position: 'absolute', inset: 0,
+        background: checked ? '#4caf50' : '#555',
+        borderRadius: 16,
+        transition: 'background 0.2s ease',
+      }} />
+      <span style={{
+        position: 'absolute',
+        top: 2, left: checked ? 18 : 2,
+        width: 12, height: 12,
+        background: '#fff',
+        borderRadius: '50%',
+        transition: 'left 0.2s ease',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.4)',
+      }} />
+    </label>
+  )
+}
+
 export function CocosPanel() {
   const fileProject = useCCFileProject()
   const [selectedNode, setSelectedNode] = useState<CCSceneNode | null>(null)
@@ -1929,15 +1961,13 @@ function CCFileNodeInspector({
               <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
                 <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{k}{favBtn}</span>
                 {isBool ? (
-                  <input
-                    type="checkbox"
-                    defaultChecked={Boolean(v)}
-                    onChange={e => applyAndSave({
+                  <BoolToggle
+                    value={Boolean(v)}
+                    onChange={checked => applyAndSave({
                       components: draft.components.map((c, i) =>
-                        i === origIdx ? { ...c, props: { ...c.props, [k]: e.target.checked } } : c
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: checked } } : c
                       )
                     })}
-                    style={{ margin: 0, cursor: 'pointer' }}
                   />
                 ) : isText ? (
                   <textarea

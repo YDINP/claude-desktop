@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: Round 597~600 (핀고정 + 배열펼치기 + 배경색 + QA) — Pass 500 🎉
+- 마지막 커밋: Round 601~604 (측정도구 + 컨텍스트메뉴 + Bool토글 + QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 500
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 503
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -202,7 +202,16 @@
 | R599 | 씬뷰 배경색 🎨 커스터마이즈 (다크/라이트/체커/커스텀, sceneBg localStorage) |
 | R600 | QA Section 119 추가 (Pass 500 🎉) |
 
-## 다음 예정 (Round 601~)
+## Phase DD9 추가 완료 (Round 601~604)
+
+| 라운드 | 기능 |
+|--------|------|
+| R601 | 씬뷰 측정 도구 소수점 1자리 + 클릭 복사 + tick 마커 overlay |
+| R602 | MessageBubble onContextMenu 메뉴 (복사/핀/북마크/재시도/삭제) |
+| R603 | CocosPanel BoolToggle controlled 컴포넌트 (애니메이션 핸들) |
+| R604 | QA Section 120 추가 (Pass 503) |
+
+## 다음 예정 (Round 605~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 

@@ -644,6 +644,10 @@
 | Round 598 | Inspector 배열 prop 펼치기 (expandedArrayProps, 요소별 편집) | ✅ |
 | Round 599 | 씬뷰 배경색 커스터마이즈 (🎨 팔레트, sceneBg, scene-bg localStorage) | ✅ |
 | Round 600 | QA Section 119 추가 (R597/R598/R599, Pass 500 🎉) | ✅ |
+| Round 601 | 씬뷰 측정 도구 소수점 1자리 + 클릭 복사 + 끝점 tick 마커 | ✅ |
+| Round 602 | 채팅 메시지 컨텍스트 메뉴 (복사/핀/북마크/재시도/삭제) | ✅ |
+| Round 603 | Inspector BoolToggle controlled 스위치 컴포넌트 | ✅ |
+| Round 604 | QA Section 120 추가 (R601/R602/R603, Pass 503) | ✅ |
 
 ## QA 프로세스
 

@@ -658,7 +658,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         })
         return
       }
-      if (e.altKey && (e.key === 'm' || e.key === 'M')) {
+      if ((e.altKey || e.shiftKey) && (e.key === 'm' || e.key === 'M')) {
         e.preventDefault()
         setMeasureMode(v => !v)
         setMeasureLine(null)
@@ -2227,10 +2227,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             {measureMode && measureLine && (() => {
               const dx = (measureLine.x2 - measureLine.x1) / view.zoom
               const dy = (measureLine.y2 - measureLine.y1) / view.zoom
-              const dist = Math.sqrt(dx * dx + dy * dy)
-              const angle = Math.atan2(dy, dx) * 180 / Math.PI
-              const mx = (measureLine.x1 + measureLine.x2) / 2
-              const my = (measureLine.y1 + measureLine.y2) / 2
+              const tickLen = 6 / view.zoom
+              const angle = Math.atan2(dy, dx)
+              const perpCos = Math.cos(angle + Math.PI / 2)
+              const perpSin = Math.sin(angle + Math.PI / 2)
               return (
                 <g style={{ pointerEvents: 'none' }}>
                   <line
@@ -2239,16 +2239,20 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                     stroke="#f97316" strokeWidth={1.5 / view.zoom}
                     strokeDasharray={`${4 / view.zoom} ${2 / view.zoom}`}
                   />
+                  {/* 시작점 tick */}
+                  <line
+                    x1={measureLine.x1 - perpCos * tickLen} y1={measureLine.y1 - perpSin * tickLen}
+                    x2={measureLine.x1 + perpCos * tickLen} y2={measureLine.y1 + perpSin * tickLen}
+                    stroke="#f97316" strokeWidth={1.5 / view.zoom}
+                  />
+                  {/* 끝점 tick */}
+                  <line
+                    x1={measureLine.x2 - perpCos * tickLen} y1={measureLine.y2 - perpSin * tickLen}
+                    x2={measureLine.x2 + perpCos * tickLen} y2={measureLine.y2 + perpSin * tickLen}
+                    stroke="#f97316" strokeWidth={1.5 / view.zoom}
+                  />
                   <circle cx={measureLine.x1} cy={measureLine.y1} r={3 / view.zoom} fill="#f97316" />
                   <circle cx={measureLine.x2} cy={measureLine.y2} r={3 / view.zoom} fill="#f97316" />
-                  <rect x={mx - 28 / view.zoom} y={my - 8 / view.zoom}
-                    width={56 / view.zoom} height={16 / view.zoom}
-                    fill="rgba(0,0,0,0.7)" rx={2 / view.zoom} />
-                  <text x={mx} y={my + 4 / view.zoom}
-                    fontSize={9 / view.zoom} fill="#f97316" textAnchor="middle"
-                    fontFamily="var(--font-mono)" style={{ userSelect: 'none' }}>
-                    {Math.round(dist)}px {Math.round(angle)}°
-                  </text>
                 </g>
               )
             })()}
@@ -2482,6 +2486,44 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             />
           )}
         </svg>
+
+        {/* 측정 도구 결과 오버레이 (클릭 복사 지원) */}
+        {measureMode && measureLine && (() => {
+          const dx = (measureLine.x2 - measureLine.x1) / view.zoom
+          const dy = (measureLine.y2 - measureLine.y1) / view.zoom
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI
+          const mx = (measureLine.x1 + measureLine.x2) / 2
+          const my = (measureLine.y1 + measureLine.y2) / 2
+          const label = `${dist.toFixed(1)}px  ${angleDeg.toFixed(1)}°`
+          return (
+            <div
+              title="클릭하여 복사"
+              onClick={() => { navigator.clipboard.writeText(label) }}
+              style={{
+                position: 'absolute',
+                left: mx,
+                top: my,
+                transform: 'translate(-50%, -110%)',
+                background: 'rgba(0,0,0,0.82)',
+                color: '#f97316',
+                fontSize: 11,
+                fontFamily: 'var(--font-mono, monospace)',
+                padding: '3px 8px',
+                borderRadius: 4,
+                whiteSpace: 'nowrap',
+                cursor: 'pointer',
+                userSelect: 'none',
+                zIndex: 20,
+                border: '1px solid rgba(249,115,22,0.4)',
+                lineHeight: '1.4',
+                pointerEvents: 'all',
+              }}
+            >
+              {dist.toFixed(1)} px &nbsp; {angleDeg.toFixed(1)}°
+            </div>
+          )
+        })()}
 
         {/* 눈금자 오버레이 (position absolute, SVG 외부) */}
         {showRuler && containerRef.current && (() => {

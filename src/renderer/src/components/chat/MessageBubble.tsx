@@ -812,7 +812,7 @@ interface ContextMenu {
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '😢']
 
-export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onSetNote, onPrevAlt, altIndex, altCount }: {
+export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStreaming, onRegenerate, isMatched, isCurrentMatch, highlightText, isSearchMatch, onRunInTerminal, onFork, onEditResend, onQuickAction, onBookmark, isBookmarked, onTogglePin, isPinned, onOpenFile, onReaction, onImageClick, onReplyTo, onSetNote, onPrevAlt, altIndex, altCount, onDelete, onRetry }: {
   msg: ChatMessage
   isLast?: boolean
   isStreaming?: boolean
@@ -837,6 +837,8 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   onImageClick?: (src: string, alt?: string) => void
   onReplyTo?: () => void
   onSetNote?: (note: string) => void
+  onDelete?: () => void
+  onRetry?: () => void
 }) {
   const isUser = msg.role === 'user'
   const isError = msg.isError === true
@@ -1056,7 +1058,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
           >
-            복사
+            📋 복사
           </div>
           {onFork && (
             <div
@@ -1088,8 +1090,51 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
             >
-              코드 블록 복사
+              📋 코드 블록 복사
             </div>
+          )}
+          {onTogglePin && (
+            <div
+              onClick={() => { onTogglePin(); closeContextMenu() }}
+              style={{ padding: '7px 14px', fontSize: 12, cursor: 'pointer', color: 'var(--text-primary)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+            >
+              📌 {isPinned ? '핀 해제' : '핀 고정'}
+            </div>
+          )}
+          {onBookmark && (
+            <div
+              onClick={() => { onBookmark(); closeContextMenu() }}
+              style={{ padding: '7px 14px', fontSize: 12, cursor: 'pointer', color: 'var(--text-primary)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+            >
+              ★ {isBookmarked ? '북마크 해제' : '북마크'}
+            </div>
+          )}
+          {isUser && onRetry && !isStreaming && (
+            <div
+              onClick={() => { onRetry(); closeContextMenu() }}
+              style={{ padding: '7px 14px', fontSize: 12, cursor: 'pointer', color: 'var(--text-primary)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+            >
+              🔁 재시도
+            </div>
+          )}
+          {onDelete && (
+            <>
+              <div style={{ height: 1, background: 'var(--border)', margin: '3px 0' }} />
+              <div
+                onClick={() => { onDelete(); closeContextMenu() }}
+                style={{ padding: '7px 14px', fontSize: 12, cursor: 'pointer', color: '#f87171' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              >
+                🗑️ 삭제
+              </div>
+            </>
           )}
         </div>
       )}
@@ -1751,6 +1796,8 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
     (prev.onImageClick === undefined) === (next.onImageClick === undefined) &&
     (prev.onReplyTo === undefined) === (next.onReplyTo === undefined) &&
     (prev.onSetNote === undefined) === (next.onSetNote === undefined) &&
+    (prev.onDelete === undefined) === (next.onDelete === undefined) &&
+    (prev.onRetry === undefined) === (next.onRetry === undefined) &&
     JSON.stringify(prev.msg.reactions) === JSON.stringify(next.msg.reactions) &&
     prev.msg.note === next.msg.note &&
     (prev.msg.editHistory?.length ?? 0) === (next.msg.editHistory?.length ?? 0) &&

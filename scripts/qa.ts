@@ -5747,6 +5747,41 @@ if (existsSync(svp599Path)) {
   }
 }
 
+// ── Section 120: Phase DD9 R601~603 기능 체크 ────────────────
+console.log('\n## 120. Phase DD9 R601~603 기능 체크')
+// R601: 측정 도구 개선
+const svp601Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp601Path)) {
+  const svp601 = readFileSync(svp601Path, 'utf-8')
+  if (svp601.includes('measureMode') && svp601.includes('toFixed')) {
+    log('pass', 'R601', '씬뷰 측정 도구 소수점 표시 개선 존재')
+  } else {
+    log('warning', 'R601', '씬뷰 측정 도구 개선 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R602: 채팅 메시지 컨텍스트 메뉴
+const mb602Path = join(ROOT, 'src/renderer/src/components/chat/MessageBubble.tsx')
+if (existsSync(mb602Path)) {
+  const mb602 = readFileSync(mb602Path, 'utf-8')
+  if (mb602.includes('onContextMenu') || mb602.includes('contextMenu')) {
+    log('pass', 'R602', '채팅 메시지 컨텍스트 메뉴 존재')
+  } else {
+    log('warning', 'R602', '채팅 메시지 컨텍스트 메뉴 없음', 'chat/MessageBubble.tsx')
+  }
+}
+
+// R603: Inspector Boolean 토글 스위치
+const cp603Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp603Path)) {
+  const cp603 = readFileSync(cp603Path, 'utf-8')
+  if (cp603.includes('BoolToggle')) {
+    log('pass', 'R603', 'Inspector Boolean 토글 스위치 존재')
+  } else {
+    log('warning', 'R603', 'Inspector Boolean 토글 스위치 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
