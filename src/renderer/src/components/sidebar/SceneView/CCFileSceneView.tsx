@@ -376,6 +376,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 }}
                 style={{ cursor: isDragged ? 'grabbing' : 'grab' }}
               >
+                <title>{node.name}{node.components.length > 0 ? '\n' + node.components.map(c => c.type.split('.').pop()).join(', ') : ''}</title>
                 <rect
                   x={rectX} y={rectY} width={w} height={h}
                   fill={fillColor}
