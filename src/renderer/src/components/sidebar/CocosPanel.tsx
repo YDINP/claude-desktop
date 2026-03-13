@@ -3945,7 +3945,7 @@ function CCFileNodeInspector({
     return path
   }, [sceneFile.root, node.uuid])
 
-  // Z-order 정보 (같은 부모 내 인덱스, 형제 수)
+  // Z-order 정보 (같은 부모 내 인덱스, 형제 수) + R1652: 부모 노드 크기
   const zOrderInfo = useMemo(() => {
     function findParent(n: CCSceneNode): CCSceneNode | null {
       for (const c of n.children) {
@@ -3958,7 +3958,7 @@ function CCFileNodeInspector({
     const parent = findParent(sceneFile.root)
     if (!parent) return null
     const idx = parent.children.findIndex(c => c.uuid === node.uuid)
-    return { idx, total: parent.children.length }
+    return { idx, total: parent.children.length, parentSize: parent.size }
   }, [sceneFile.root, node.uuid])
 
   // Z-order (같은 부모 내 순서 이동)
@@ -4645,6 +4645,10 @@ function CCFileNodeInspector({
               크기
               {/* R1592: 크기 정수 반올림 버튼 */}
               <span title="크기 정수 반올림 (Round to integer)" onClick={() => applyAndSave({ size: { x: Math.round(draft.size.x), y: Math.round(draft.size.y) } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⌊⌉</span>
+              {/* R1652: 부모 크기에 맞추기 버튼 */}
+              {zOrderInfo?.parentSize?.x && zOrderInfo?.parentSize?.y && (
+                <span title={`부모 크기에 맞추기 (${Math.round(zOrderInfo.parentSize.x)}×${Math.round(zOrderInfo.parentSize.y)})`} onClick={() => applyAndSave({ size: { x: zOrderInfo.parentSize!.x, y: zOrderInfo.parentSize!.y } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⊞↑</span>
+              )}
               {/* R1593: 크기 비율 잠금 버튼 */}
               <span
                 title={lockSize ? '크기 비율 잠금 해제' : '크기 W/H 비율 잠금'}
