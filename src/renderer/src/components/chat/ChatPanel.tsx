@@ -1077,6 +1077,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [threadRoot, setThreadRoot] = React.useState<string | null>(null)
   const [favMsgs, setFavMsgs] = React.useState<string[]>([])
   const [showFavMsgs, setShowFavMsgs] = React.useState(false)
+  const [msgCategory, setMsgCategory] = React.useState<string>('all')
+  const [showCategoryFilter, setShowCategoryFilter] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
