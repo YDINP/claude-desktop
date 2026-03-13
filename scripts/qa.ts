@@ -17140,6 +17140,18 @@ console.log('\n## 492. R1601 SceneView 줌 퀵점프 버튼 (½/1×/2×) 체크'
   }
 }
 
+// ── Section 493: R1602 SceneView 눈금자 오버레이 ──────────────────────
+console.log('\n## 493. R1602 SceneView 눈금자 오버레이 (尺) 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s493 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s493.includes('R1602') && s493.includes('showRuler') && s493.includes('setShowRuler') && s493.includes('尺')) {
+    log('pass', 'R1602-ruler', 'SceneView 눈금자 오버레이 (尺 토글)')
+  } else {
+    log('warning', 'R1602-ruler', 'SceneView 눈금자 오버레이 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

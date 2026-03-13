@@ -78,8 +78,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; uuid: string | null } | null>(null)
   // R1500: 스냅 포인트 시각적 피드백
   const [snapIndicator, setSnapIndicator] = useState<{ x: number; y: number } | null>(null)
-  // R1598: 마우스 위치 좌표 오버레이
-  const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
+  // R1602: 눈금자 오버레이
+  const [showRuler, setShowRuler] = useState(false)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
   // R1530: 디자인 레퍼런스 이미지 overlay
@@ -854,6 +854,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             style={{ padding: '0 3px', fontSize: 8, borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', background: Math.abs(view.zoom - z) < 0.01 ? 'rgba(88,166,255,0.15)' : 'none', color: Math.abs(view.zoom - z) < 0.01 ? '#58a6ff' : 'var(--text-muted)', lineHeight: '14px' }}
           >{z === 1 ? '1×' : z === 0.5 ? '½' : '2×'}</button>
         ))}
+        {/* R1602: 눈금자 토글 */}
+        <button
+          onClick={() => setShowRuler(r => !r)}
+          title="눈금자 표시 (R1602)"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showRuler ? 'rgba(88,166,255,0.12)' : 'none', color: showRuler ? '#58a6ff' : 'var(--text-muted)' }}
+        >尺</button>
         {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
         <button
           onClick={handleScreenshotAI}
@@ -1572,6 +1578,56 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })()}
         </g>
+        {/* R1602: 눈금자 오버레이 (SVG viewport 좌표계) */}
+        {showRuler && (() => {
+          const svgEl = svgRef.current
+          const svgW = svgEl?.clientWidth ?? 600
+          const svgH = svgEl?.clientHeight ?? 400
+          const THICK = 14
+          const step = view.zoom > 2 ? 10 : view.zoom > 1 ? 20 : view.zoom > 0.5 ? 50 : view.zoom > 0.25 ? 100 : 200
+          const labelStep = step * 5
+          const xTicks: React.ReactNode[] = []
+          const x0 = Math.ceil(-view.offsetX / view.zoom / step) * step
+          const x1 = Math.floor((svgW - view.offsetX) / view.zoom / step) * step
+          for (let c = x0; c <= x1; c += step) {
+            const px = c * view.zoom + view.offsetX
+            const isMajor = c % labelStep === 0
+            xTicks.push(
+              <g key={`xr${c}`} pointerEvents="none">
+                <line x1={px} y1={isMajor ? 0 : THICK * 0.45} x2={px} y2={THICK} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+                {isMajor && <text x={px + 2} y={THICK - 2} fontSize={7} fill="rgba(255,255,255,0.5)">{c}</text>}
+              </g>
+            )
+          }
+          const yTicks: React.ReactNode[] = []
+          const y0 = Math.ceil((view.offsetY - svgH) / view.zoom / step) * step
+          const y1 = Math.floor(view.offsetY / view.zoom / step) * step
+          for (let c = y0; c <= y1; c += step) {
+            const py = -c * view.zoom + view.offsetY
+            const isMajor = c % labelStep === 0
+            yTicks.push(
+              <g key={`yr${c}`} pointerEvents="none">
+                <line x1={isMajor ? 0 : THICK * 0.45} y1={py} x2={THICK} y2={py} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+                {isMajor && <text x={1} y={py - 1} fontSize={7} fill="rgba(255,255,255,0.5)" transform={`rotate(-90,${THICK / 2},${py})`}>{c}</text>}
+              </g>
+            )
+          }
+          return (
+            <g pointerEvents="none">
+              <rect x={THICK} y={0} width={svgW - THICK} height={THICK} fill="rgba(0,0,0,0.72)" />
+              <rect x={0} y={THICK} width={THICK} height={svgH - THICK} fill="rgba(0,0,0,0.72)" />
+              <rect x={0} y={0} width={THICK} height={THICK} fill="rgba(15,15,25,0.9)" />
+              {xTicks}
+              {yTicks}
+              {view.offsetX > THICK && view.offsetX < svgW && (
+                <line x1={view.offsetX} y1={0} x2={view.offsetX} y2={THICK} stroke="#58a6ff" strokeWidth={1.5} />
+              )}
+              {view.offsetY > THICK && view.offsetY < svgH && (
+                <line x1={0} y1={view.offsetY} x2={THICK} y2={view.offsetY} stroke="#58a6ff" strokeWidth={1.5} />
+              )}
+            </g>
+          )
+        })()}
       </svg>
       {/* R1522: 노드 호버 정보 패널 */}
       {hoverUuid && hoverClientPos && (() => {
