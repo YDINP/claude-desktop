@@ -890,6 +890,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [threadSummaryLoading, setThreadSummaryLoading] = useState<string | null>(null)
   const [msgExportFormat, setMsgExportFormat] = useState<'md' | 'txt' | 'html' | 'json'>('md')
   const [showMsgExportPanel, setShowMsgExportPanel] = useState(false)
+  // R1218: message reply
+  const [replyingTo, setReplyingTo] = useState<string | null>(null)
+  const [replyContext, setReplyContext] = useState<string | null>(null)
   const MSG_LABEL_KINDS = ['중요', '질문', '답변', '코드', '오류'] as const
   const MSG_LABEL_COLORS: Record<string, string> = {
     '중요': '#f87171', '질문': '#60a5fa', '답변': '#34d399', '코드': '#c084fc', '오류': '#fbbf24',
@@ -1112,6 +1115,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // R1200: message analytics
   const [msgAnalytics, setMsgAnalytics] = useState<Record<string, number>>({})
   const [showAnalytics, setShowAnalytics] = useState(false)
+  // R1218: message reply
+  const [replyingTo, setReplyingTo] = useState<string | null>(null)
+  const [replyContext, setReplyContext] = useState<string | null>(null)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

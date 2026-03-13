@@ -270,6 +270,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1208: deploy config
   const [deployConfig, setDeployConfig] = useState<Record<string, string>>({})
   const [showDeployPanel, setShowDeployPanel] = useState(false)
+  // R1220: scene export
+  const [sceneExportFormat, setSceneExportFormat] = useState<'json' | 'prefab' | 'fbx'>('json')
+  const [showExportScene, setShowExportScene] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
