@@ -208,6 +208,57 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     scrollThreshold: e._N$scrollThreshold ?? e.scrollThreshold ?? 0.5,
     autoPageTurningThreshold: e._N$autoPageTurningThreshold ?? e.autoPageTurningThreshold ?? 0.3,
   }),
+  // R1400: ParticleSystem 컴포넌트 (3.x)
+  'cc.ParticleSystem': e => {
+    const sc = e._startColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    const ec = e._endColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      duration: e._duration ?? e.duration ?? -1,
+      maxParticles: e._N$maxParticles ?? e._maxParticles ?? e.maxParticles ?? 150,
+      startColor: sc ? { r: sc.r ?? 255, g: sc.g ?? 255, b: sc.b ?? 255, a: sc.a ?? 255 } : undefined,
+      endColor: ec ? { r: ec.r ?? 0, g: ec.g ?? 0, b: ec.b ?? 0, a: ec.a ?? 0 } : undefined,
+    }
+  },
+  // R1400: ParticleSystem2D 컴포넌트 (2.x)
+  'cc.ParticleSystem2D': e => {
+    const sc = e._startColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    const ec = e._endColor as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      duration: e._N$duration ?? e._duration ?? e.duration ?? -1,
+      maxParticles: e._N$totalParticles ?? e._totalParticles ?? e.totalParticles ?? 150,
+      startColor: sc ? { r: sc.r ?? 255, g: sc.g ?? 255, b: sc.b ?? 255, a: sc.a ?? 255 } : undefined,
+      endColor: ec ? { r: ec.r ?? 0, g: ec.g ?? 0, b: ec.b ?? 0, a: ec.a ?? 0 } : undefined,
+    }
+  },
+  // R1400: Camera 컴포넌트 (2.x/3.x)
+  'cc.Camera': e => ({
+    clearFlags: e._N$clearFlags ?? e._clearFlags ?? e.clearFlags,
+    backgroundColor: (() => {
+      const bg = (e._N$backgroundColor ?? e._backgroundColor ?? e.backgroundColor) as { r?: number; g?: number; b?: number; a?: number } | undefined
+      return bg ? { r: bg.r ?? 0, g: bg.g ?? 0, b: bg.b ?? 0, a: bg.a ?? 255 } : undefined
+    })(),
+    depth: e._N$depth ?? e._depth ?? e.depth ?? 0,
+    zoomRatio: e._N$zoomRatio ?? e._zoomRatio ?? e.zoomRatio ?? 1,  // 2.x
+    fov: e._fov ?? e.fov ?? 45,  // 3.x
+    near: e._near ?? e.near ?? 1,  // 3.x
+    far: e._far ?? e.far ?? 1000,  // 3.x
+  }),
+  // R1400: DirectionalLight 컴포넌트
+  'cc.DirectionalLight': e => {
+    const lc = (e._color ?? e.color) as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      color: lc ? { r: lc.r ?? 255, g: lc.g ?? 255, b: lc.b ?? 255, a: lc.a ?? 255 } : undefined,
+      intensity: e._intensity ?? e.intensity ?? 1,
+    }
+  },
+  // R1400: PointLight 컴포넌트
+  'cc.PointLight': e => {
+    const lc = (e._color ?? e.color) as { r?: number; g?: number; b?: number; a?: number } | undefined
+    return {
+      color: lc ? { r: lc.r ?? 255, g: lc.g ?? 255, b: lc.b ?? 255, a: lc.a ?? 255 } : undefined,
+      intensity: e._intensity ?? e.intensity ?? 1,
+    }
+  },
 }
 
 function extractComponentProps(type: string, e: RawEntry, isCC2x: boolean): Record<string, unknown> {
@@ -362,4 +413,57 @@ function resolveComponents3x(
       }
       return { type, props: { ...props, ...specialized }, _rawIndex: idx }
     })
+}
+
+// ── R1408: 씬 복잡도 분석 함수 ──────────────────────────────────────────────
+
+export interface CCSceneAnalysis {
+  totalNodes: number
+  activeNodes: number
+  maxDepth: number
+  componentCounts: Record<string, number>
+  estimatedDrawCalls: number
+  warnings: string[]
+}
+
+/**
+ * R1408: 씬 파일 전체 복잡도 분석
+ * - 노드 수, 최대 깊이, 컴포넌트 분포, 추정 draw call, 경고 생성
+ */
+export function analyzeScene(sceneFile: CCSceneFile): CCSceneAnalysis {
+  let totalNodes = 0
+  let activeNodes = 0
+  let maxDepth = 0
+  const componentCounts: Record<string, number> = {}
+  const warnings: string[] = []
+
+  function walk(node: CCSceneNode, depth: number): void {
+    totalNodes++
+    if (node.active !== false) activeNodes++
+    if (depth > maxDepth) maxDepth = depth
+
+    for (const comp of node.components) {
+      componentCounts[comp.type] = (componentCounts[comp.type] ?? 0) + 1
+    }
+
+    for (const child of node.children) {
+      walk(child, depth + 1)
+    }
+  }
+
+  walk(sceneFile.root, 0)
+
+  // 추정 draw call: Label + Sprite 수 합산 (각각 최소 1 draw call)
+  const DRAW_CALL_TYPES = ['cc.Label', 'cc.Sprite', 'cc.Sprite2D', 'cc.RichText', 'cc.Graphics']
+  const estimatedDrawCalls = DRAW_CALL_TYPES.reduce((sum, type) => sum + (componentCounts[type] ?? 0), 0)
+
+  // 경고 생성
+  if (totalNodes > 200) warnings.push(`노드 ${totalNodes}개 — 200개 초과 (성능 주의)`)
+  if (totalNodes > 500) warnings.push(`노드 ${totalNodes}개 — 500개 초과 (심각한 성능 저하 우려)`)
+  if (maxDepth > 10) warnings.push(`중첩 깊이 ${maxDepth} — 10 초과 (구조 단순화 권장)`)
+  if (maxDepth > 20) warnings.push(`중첩 깊이 ${maxDepth} — 20 초과 (심각한 구조 문제)`)
+  if (estimatedDrawCalls > 100) warnings.push(`추정 draw call ${estimatedDrawCalls} — 100 초과 (렌더링 최적화 필요)`)
+  if ((componentCounts['cc.Label'] ?? 0) > 50) warnings.push(`Label ${componentCounts['cc.Label']}개 — 50개 초과 (동적 배칭 확인)`)
+
+  return { totalNodes, activeNodes, maxDepth, componentCounts, estimatedDrawCalls, warnings }
 }

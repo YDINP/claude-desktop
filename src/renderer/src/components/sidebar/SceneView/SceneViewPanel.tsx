@@ -103,6 +103,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showConnections, setShowConnections] = useState(false)
   const [showStats, setShowStats] = useState(false)
   const [showNodeInfo, setShowNodeInfo] = useState(false)
+  // R1401: 씬 통계 오버레이 (localStorage 영구 저장)
+  const [showStatsOverlay, setShowStatsOverlay] = useState(() => {
+    try { return localStorage.getItem('scene-stats-overlay') === 'true' } catch { return false }
+  })
   const [showChangeHistory, setShowChangeHistory] = useState(false)
   const [componentFilter, setComponentFilter] = useState<string>('all')
   const [tagFilter, setTagFilter] = useState<string>('all')
@@ -131,6 +135,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [nodeColors, setNodeColors] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('node-colors') ?? '{}') } catch { return {} }
   })
+  // R1407: 노드 색상 태그 (7색 팔레트, localStorage per scene)
+  const COLOR_TAG_PALETTE = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899']
+  const [nodeColorTags, setNodeColorTags] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem(`node-color-tags-${rootUuid ?? 'default'}`) ?? '{}') } catch { return {} }
+  })
+  const [showColorTagPicker, setShowColorTagPicker] = useState<{ uuid: string; x: number; y: number } | null>(null)
+  useEffect(() => {
+    try { localStorage.setItem(`node-color-tags-${rootUuid ?? 'default'}`, JSON.stringify(nodeColorTags)) } catch { /* ignore */ }
+  }, [nodeColorTags, rootUuid])
   const viewHistoryRef = useRef<ViewTransform[]>([])
   const viewHistIdxRef = useRef(-1)
   const viewRef = useRef(view)
@@ -148,6 +161,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       localStorage.setItem(key, JSON.stringify([...bookmarkedUuids]))
     } catch { /* ignore */ }
   }, [bookmarkedUuids, rootUuid])
+  // R1401: 통계 오버레이 localStorage 영구 저장
+  useEffect(() => {
+    try { localStorage.setItem('scene-stats-overlay', String(showStatsOverlay)) } catch { /* ignore */ }
+  }, [showStatsOverlay])
   const targetViewRef = useRef<{ zoom: number; offsetX: number; offsetY: number } | null>(null)
   const animFrameRef = useRef<number | null>(null)
   const [isDirty, setIsDirty] = useState(false)
@@ -660,7 +677,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         viewHistIdxRef.current = viewHistoryRef.current.length - 1
         handleFocusSelected()
       }
-      if (e.key === 'i' || e.key === 'I') setShowNodeInfo(v => !v)
+      // R1401: I키 — 씬 통계 오버레이, Shift+I — 노드 상세 정보
+      if ((e.key === 'i' || e.key === 'I') && !e.shiftKey) setShowStatsOverlay(v => !v)
+      if (e.key === 'I' && e.shiftKey) setShowNodeInfo(v => !v)
       // P — 부모 노드 선택
       if ((e.key === 'p' || e.key === 'P') && selectedUuid) {
         const node = nodeMap.get(selectedUuid)
@@ -1595,21 +1614,30 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     URL.revokeObjectURL(url)
   }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
 
-  // ── PNG 내보내기 (SVG → Canvas → PNG) ──────────────────────
+  // R1404: PNG 내보내기 설정 (배경색, 해상도)
+  const [pngExportBg, setPngExportBg] = useState<'dark' | 'light' | 'transparent'>('dark')
+  const [pngExportScale, setPngExportScale] = useState<1 | 2 | 4>(1)
+  const [showPngExportPanel, setShowPngExportPanel] = useState(false)
+  const PNG_BG_COLORS: Record<string, string> = { dark: '#1a1a2e', light: '#f8f8f8', transparent: 'transparent' }
+
+  // ── R1404: PNG 내보내기 (SVG -> Canvas -> PNG, 해상도/배경 선택) ──
   const handleExportPng = useCallback(async () => {
-    // 씬 SVG 직렬화 (handleExportSvg와 동일한 SVG 생성)
     if (!svgRef.current) return
+    const scale = pngExportScale
+    const bgFill = PNG_BG_COLORS[pngExportBg] ?? '#1a1a2e'
     const ns = 'http://www.w3.org/2000/svg'
     const exportSvg = document.createElementNS(ns, 'svg')
     exportSvg.setAttribute('xmlns', ns)
-    exportSvg.setAttribute('width', String(DESIGN_W))
-    exportSvg.setAttribute('height', String(DESIGN_H))
+    exportSvg.setAttribute('width', String(DESIGN_W * scale))
+    exportSvg.setAttribute('height', String(DESIGN_H * scale))
     exportSvg.setAttribute('viewBox', `${-DESIGN_W / 2} ${-DESIGN_H / 2} ${DESIGN_W} ${DESIGN_H}`)
-    const bg = document.createElementNS(ns, 'rect')
-    bg.setAttribute('x', String(-DESIGN_W / 2)); bg.setAttribute('y', String(-DESIGN_H / 2))
-    bg.setAttribute('width', String(DESIGN_W)); bg.setAttribute('height', String(DESIGN_H))
-    bg.setAttribute('fill', '#1a1a2e')
-    exportSvg.appendChild(bg)
+    if (bgFill !== 'transparent') {
+      const bg = document.createElementNS(ns, 'rect')
+      bg.setAttribute('x', String(-DESIGN_W / 2)); bg.setAttribute('y', String(-DESIGN_H / 2))
+      bg.setAttribute('width', String(DESIGN_W)); bg.setAttribute('height', String(DESIGN_H))
+      bg.setAttribute('fill', bgFill)
+      exportSvg.appendChild(bg)
+    }
     nodeMap.forEach(n => {
       if (!n.active) return
       const rect = document.createElementNS(ns, 'rect')
@@ -1636,16 +1664,21 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const img = new Image()
     img.onload = () => {
       const canvas = document.createElement('canvas')
-      canvas.width = DESIGN_W; canvas.height = DESIGN_H
+      canvas.width = DESIGN_W * scale; canvas.height = DESIGN_H * scale
       const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0)
+      ctx.drawImage(img, 0, 0, DESIGN_W * scale, DESIGN_H * scale)
       URL.revokeObjectURL(svgUrl)
-      const pngUrl = canvas.toDataURL('image/png')
-      const a = document.createElement('a')
-      a.href = pngUrl; a.download = 'scene.png'; a.click()
+      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+      canvas.toBlob(blob => {
+        if (!blob) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url; a.download = `scene-${ts}.png`; a.click()
+        URL.revokeObjectURL(url)
+      }, 'image/png')
     }
     img.src = svgUrl
-  }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
+  }, [svgRef, nodeMap, DESIGN_W, DESIGN_H, pngExportScale, pngExportBg])
 
   // ── 씬뷰 스크린샷 (SVG 캔버스 → PNG 다운로드 + 클립보드) ───────
   const [screenshotDone, setScreenshotDone] = useState(false)
@@ -2363,6 +2396,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onConnectionsToggle={() => setShowConnections(v => !v)}
         showStats={showStats}
         onStatsToggle={() => setShowStats(v => !v)}
+        showStatsOverlay={showStatsOverlay}
+        onStatsOverlayToggle={() => setShowStatsOverlay(v => !v)}
         showLabels={showLabels}
         onLabelsToggle={() => setShowLabels(v => !v)}
         sceneBg={sceneBg}
@@ -2377,7 +2412,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onScreenshot={handleScreenshot}
         screenshotDone={screenshotDone}
         onExportSvg={handleExportSvg}
-        onExportPng={handleExportPng}
+        onExportPng={() => setShowPngExportPanel(v => !v)}
         onSaveScene={handleSaveScene}
         onLoadScene={handleLoadScene}
         activeSlot={activeSlot}
@@ -2648,6 +2683,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             })
           }}
           onToggleVisible={(uuid, visible) => updateNode(uuid, { visible })}
+          nodeColorTags={nodeColorTags}
         />
       )}
 
@@ -3721,6 +3757,88 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </div>
         )}
 
+        {/* R1401: 씬 통계 오버레이 */}
+        {showStatsOverlay && (() => {
+          // 전체/활성 노드 수 + 상위 5개 컴포넌트 타입
+          let totalNodes = 0
+          let activeNodes = 0
+          const compCounts: Record<string, number> = {}
+          nodeMap.forEach(n => {
+            totalNodes++
+            if (n.active && n.visible !== false) activeNodes++
+            n.components?.forEach(c => { compCounts[c.type] = (compCounts[c.type] ?? 0) + 1 })
+          })
+          const topComps = Object.entries(compCounts).sort((a, b) => b[1] - a[1]).slice(0, 5)
+          return (
+            <div style={{
+              position: 'absolute', bottom: 8, right: 8, zIndex: 90,
+              background: 'rgba(10,10,15,0.88)', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 4, padding: '5px 8px', fontSize: 10, color: 'var(--text-muted)',
+              fontFamily: 'var(--font-mono)', lineHeight: 1.7, pointerEvents: 'none',
+              minWidth: 120,
+            }}>
+              <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: 2, fontSize: 10 }}>Scene Stats</div>
+              <div>Nodes: {totalNodes}</div>
+              <div>Active: {activeNodes}</div>
+              {topComps.length > 0 && (
+                <>
+                  <div style={{ marginTop: 3, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 3, fontSize: 9, color: 'var(--text-secondary)' }}>Top Components</div>
+                  {topComps.map(([type, count]) => (
+                    <div key={type} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 9 }}>
+                      <span>{type.replace('cc.', '')}</span>
+                      <span style={{ color: 'var(--accent)' }}>{count}</span>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )
+        })()}
+
+        {/* R1404: PNG 내보내기 설정 패널 */}
+        {showPngExportPanel && (
+          <div style={{
+            position: 'absolute', top: 40, right: 8, zIndex: 110,
+            background: 'rgba(10,10,15,0.94)', border: '1px solid var(--border)',
+            borderRadius: 6, padding: '8px 10px', fontSize: 10, color: 'var(--text-primary)',
+            minWidth: 180, boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+          }}>
+            <div style={{ fontWeight: 600, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>PNG Export</span>
+              <button onClick={() => setShowPngExportPanel(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12 }}>x</button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>BG</span>
+              {(['dark', 'light', 'transparent'] as const).map(bg => (
+                <button key={bg} onClick={() => setPngExportBg(bg)} style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer',
+                  background: pngExportBg === bg ? 'var(--accent)' : 'var(--bg-primary)',
+                  color: pngExportBg === bg ? '#fff' : 'var(--text-muted)',
+                  border: '1px solid var(--border)',
+                }}>{bg}</button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>Scale</span>
+              {([1, 2, 4] as const).map(s => (
+                <button key={s} onClick={() => setPngExportScale(s)} style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer',
+                  background: pngExportScale === s ? 'var(--accent)' : 'var(--bg-primary)',
+                  color: pngExportScale === s ? '#fff' : 'var(--text-muted)',
+                  border: '1px solid var(--border)',
+                }}>{s}x</button>
+              ))}
+            </div>
+            <div style={{ fontSize: 8, color: 'var(--text-muted)', marginBottom: 4 }}>
+              Output: {DESIGN_W * pngExportScale} x {DESIGN_H * pngExportScale}px
+            </div>
+            <button onClick={() => { handleExportPng(); setShowPngExportPanel(false) }} style={{
+              width: '100%', padding: '4px 0', fontSize: 10, fontWeight: 600, cursor: 'pointer',
+              background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4,
+            }}>Export PNG</button>
+          </div>
+        )}
+
         {/* 씬 캔버스 검색 오버레이 */}
         {showCanvasSearch && (
           <div
@@ -4390,7 +4508,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               ['Alt+L', '선택 노드 잠금/해제'],
               ['Alt+1~9', '색상 레이블 지정 (Alt+0: 초기화)'],
               ['Alt+[ / Alt+]', '선택 노드 투명도 -10 / +10'],
-              ['I', '선택 노드 상세 정보 오버레이'],
+              ['I', '씬 통계 오버레이 (노드수/컴포넌트 분포)'],
+              ['Shift+I', '선택 노드 상세 정보 오버레이'],
               ['P', '부모 노드 선택'],
               ['?', '단축키 도움말 토글'],
             ].map(([key, desc]) => (
@@ -4526,6 +4645,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   close()
                 }}>🏷 태그 편집</button>
               )}
+              {/* R1407: 색상 태그 */}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  setShowColorTagPicker({ uuid: ctxUuid!, x: svgContextMenu!.x + 160, y: svgContextMenu!.y })
+                  close()
+                }}>🎨 색상 태그</button>
+              )}
               <div style={{ height: 1, background: 'var(--border)', margin: '2px 0' }} />
               {ctxNode && (
                 <button style={{ ...menuStyle, color: 'var(--error)' }} onClick={() => {
@@ -4592,6 +4718,55 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   style={{ fontSize: 11, padding: '4px 10px', background: '#7c3aed', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}>
                   저장
                 </button>
+              </div>
+            </div>
+          </>
+        )
+      })()}
+
+      {/* R1407: 색상 태그 피커 */}
+      {showColorTagPicker && (() => {
+        const closeTag = () => setShowColorTagPicker(null)
+        const currentColor = nodeColorTags[showColorTagPicker.uuid]
+        return (
+          <>
+            <div style={{ position: 'fixed', inset: 0, zIndex: 1999 }} onClick={closeTag} />
+            <div style={{
+              position: 'fixed', left: showColorTagPicker.x, top: showColorTagPicker.y,
+              zIndex: 2000, background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+              borderRadius: 6, padding: '8px 10px', boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+            }}>
+              <div style={{ fontSize: 10, color: 'var(--text-primary)', fontWeight: 600, marginBottom: 6 }}>색상 태그</div>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                {COLOR_TAG_PALETTE.map(c => (
+                  <span
+                    key={c}
+                    onClick={() => {
+                      setNodeColorTags(prev => ({ ...prev, [showColorTagPicker.uuid]: c }))
+                      setNodeColors(prev => { const next = { ...prev, [showColorTagPicker.uuid]: c }; localStorage.setItem('node-colors', JSON.stringify(next)); return next })
+                      closeTag()
+                    }}
+                    style={{
+                      width: 20, height: 20, borderRadius: '50%', background: c, cursor: 'pointer',
+                      border: currentColor === c ? '2px solid #fff' : '2px solid transparent',
+                      boxShadow: currentColor === c ? '0 0 4px rgba(255,255,255,0.4)' : 'none',
+                    }}
+                  />
+                ))}
+                {/* 태그 제거 */}
+                <span
+                  onClick={() => {
+                    setNodeColorTags(prev => { const next = { ...prev }; delete next[showColorTagPicker.uuid]; return next })
+                    setNodeColors(prev => { const next = { ...prev }; delete next[showColorTagPicker.uuid]; localStorage.setItem('node-colors', JSON.stringify(next)); return next })
+                    closeTag()
+                  }}
+                  style={{
+                    width: 20, height: 20, borderRadius: '50%', cursor: 'pointer',
+                    border: '1px dashed var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 10, color: 'var(--text-muted)',
+                  }}
+                  title="색상 제거"
+                >x</span>
               </div>
             </div>
           </>

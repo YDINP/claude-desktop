@@ -14622,6 +14622,192 @@ if (existsSync(cfp1396Path)) {
   }
 }
 
+// ── Section 377: R1398/R1399/R1400 기능 체크 ───────────────
+console.log('\n## 377. Phase DD14 R1398~R1400 기능 체크')
+
+// R1398: CocosPanel 프리팹 인스턴스화 UI
+const cp1398Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1398Path)) {
+  const cp1398 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1398.includes('R1398') && cp1398.includes('handleInstantiatePrefab') && cp1398.includes('prefabContent') && cp1398.includes('cc.Prefab') && cp1398.includes('instantiating')) {
+    log('pass', 'R1398', 'CocosPanel 프리팹 인스턴스화 UI (readFile → JSON parse → 씬 추가)')
+  } else {
+    log('warning', 'R1398', 'CocosPanel 프리팹 인스턴스화 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1399: SceneView 노드 그룹화 Ctrl+G / Ctrl+Shift+G
+if (existsSync(sceneViewPath)) {
+  const svp1399 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1399.includes('handleGroup') && svp1399.includes('handleUngroup') && svp1399.includes("'Group'")) {
+    log('pass', 'R1399', 'SceneView 노드 그룹화 Ctrl+G / 해제 Ctrl+Shift+G')
+  } else {
+    log('warning', 'R1399', 'SceneView 노드 그룹화 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1399: CocosPanel에서도 Ctrl+G/Ctrl+Shift+G
+if (existsSync(cp1398Path)) {
+  const cp1399 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1399.includes('R1399') && cp1399.includes('Group') && cp1399.includes('ungroupNode')) {
+    log('pass', 'R1399', 'CocosPanel Ctrl+G/Ctrl+Shift+G 그룹화/해제 (씬 파일 패치)')
+  } else {
+    log('warning', 'R1399', 'CocosPanel 그룹화 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1400: cc-file-parser 파티클/카메라/조명 컴포넌트
+const cfp1400Path = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(cfp1400Path)) {
+  const cfp1400 = readFileSync(cfp1400Path, 'utf-8')
+  if (cfp1400.includes('R1400') && cfp1400.includes('cc.ParticleSystem') && cfp1400.includes('cc.Camera') && cfp1400.includes('cc.DirectionalLight') && cfp1400.includes('cc.PointLight')) {
+    log('pass', 'R1400', 'cc-file-parser 파티클/카메라/조명 컴포넌트 추출')
+  } else {
+    log('warning', 'R1400', 'cc-file-parser 파티클/카메라/조명 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1400: NodeRenderer Camera/ParticleSystem 시각 힌트
+const nr1400Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr1400Path)) {
+  const nr1400 = readFileSync(nr1400Path, 'utf-8')
+  if (nr1400.includes('R1400') && nr1400.includes('cc.Camera') && nr1400.includes('cc.ParticleSystem')) {
+    log('pass', 'R1400', 'NodeRenderer Camera/ParticleSystem 시각 힌트 (테두리 + 라벨 접두사)')
+  } else {
+    log('warning', 'R1400', 'NodeRenderer 시각 힌트 없음', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
+// ── Section 378: R1401/R1402 기능 체크 ───────────────
+console.log('\n## 378. Phase DD14 R1401~R1402 기능 체크')
+
+// R1401: SceneView 씬 통계 오버레이
+if (existsSync(sceneViewPath)) {
+  const svp1401 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1401.includes('showStatsOverlay') && svp1401.includes('scene-stats-overlay') && svp1401.includes('Scene Stats') && svp1401.includes('Top Components')) {
+    log('pass', 'R1401', 'SceneView 씬 통계 오버레이 (I키, 노드수/컴포넌트 분포, localStorage)')
+  } else {
+    log('warning', 'R1401', 'SceneView 씬 통계 오버레이 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1402: Inspector 노드 참조 필드 표시
+const si1402Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(si1402Path)) {
+  const si1402 = readFileSync(si1402Path, 'utf-8')
+  if (si1402.includes('R1402') && si1402.includes('__id__') && si1402.includes('__uuid__')) {
+    log('pass', 'R1402', 'Inspector 노드 참조 필드 표시 (__id__/__uuid__ 감지, 링크 아이콘)')
+  } else {
+    log('warning', 'R1402', 'Inspector 노드 참조 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// ── Section 379: R1404/R1405/R1406 기능 체크 ───────────────
+console.log('\n## 379. Phase DD14 R1404~R1406 기능 체크')
+
+// R1404: SceneView PNG 내보내기 (해상도/배경 선택)
+if (existsSync(sceneViewPath)) {
+  const svp1404 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1404.includes('R1404') && svp1404.includes('pngExportScale') && svp1404.includes('pngExportBg') && svp1404.includes('showPngExportPanel') && svp1404.includes('PNG Export')) {
+    log('pass', 'R1404', 'SceneView PNG 내보내기 (배경색/해상도 1x/2x/4x, 타임스탬프 파일명)')
+  } else {
+    log('warning', 'R1404', 'SceneView PNG 내보내기 고도화 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1405: Inspector 컴포넌트 순서 변경 ↑↓
+if (existsSync(si1402Path)) {
+  const si1405 = readFileSync(si1402Path, 'utf-8')
+  if (si1405.includes('R1405') && si1405.includes('\u2191') && si1405.includes('\u2193') && si1405.includes('위로 이동') && si1405.includes('아래로 이동')) {
+    log('pass', 'R1405', 'Inspector 컴포넌트 순서 변경 (↑↓ 버튼, 첫/마지막 비활성화)')
+  } else {
+    log('warning', 'R1405', 'Inspector 컴포넌트 순서 변경 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1406: CocosPanel CC 빌드 트리거 UI
+if (existsSync(cp1398Path)) {
+  const cp1406 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1406.includes('R1406') && cp1406.includes('buildPlatform') && cp1406.includes('빌드 트리거') && cp1406.includes('web-mobile') && cp1406.includes('web-desktop') && cp1406.includes('CC_EDITOR_PATHS')) {
+    log('pass', 'R1406', 'CocosPanel CC 빌드 트리거 UI (플랫폼 드롭다운, CLI 미리보기)')
+  } else {
+    log('warning', 'R1406', 'CocosPanel 빌드 트리거 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 380: R1407/R1408 기능 체크 ───────────────
+console.log('\n## 380. Phase DD14 R1407~R1408 기능 체크')
+
+// R1407: SceneView 노드 색상 태그
+if (existsSync(sceneViewPath)) {
+  const svp1407 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1407.includes('R1407') && svp1407.includes('nodeColorTags') && svp1407.includes('COLOR_TAG_PALETTE') && svp1407.includes('showColorTagPicker') && svp1407.includes('node-color-tags-')) {
+    log('pass', 'R1407', 'SceneView 노드 색상 태그 (7색 팔레트, localStorage per scene, 컨텍스트메뉴)')
+  } else {
+    log('warning', 'R1407', 'SceneView 노드 색상 태그 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1407: NodeHierarchyList 색상 태그 dot
+const nhl1407Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeHierarchyList.tsx')
+if (existsSync(nhl1407Path)) {
+  const nhl1407 = readFileSync(nhl1407Path, 'utf-8')
+  if (nhl1407.includes('R1407') && nhl1407.includes('nodeColorTags')) {
+    log('pass', 'R1407', 'NodeHierarchyList 색상 태그 dot 표시')
+  } else {
+    log('warning', 'R1407', 'NodeHierarchyList 색상 태그 dot 없음', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
+// R1408: cc-file-parser analyzeScene 복잡도 분석
+if (existsSync(cfp1400Path)) {
+  const cfp1408 = readFileSync(cfp1400Path, 'utf-8')
+  if (cfp1408.includes('R1408') && cfp1408.includes('analyzeScene') && cfp1408.includes('CCSceneAnalysis') && cfp1408.includes('estimatedDrawCalls') && cfp1408.includes('maxDepth') && cfp1408.includes('componentCounts')) {
+    log('pass', 'R1408', 'cc-file-parser analyzeScene 복잡도 분석 (노드수/깊이/컴포넌트/draw call/경고)')
+  } else {
+    log('warning', 'R1408', 'cc-file-parser analyzeScene 없음', 'cc/cc-file-parser.ts')
+  }
+}
+
+// ── Section 381: 런타임 에러 방지 — React import 검사 ────────────────────────
+{
+  const RENDERER = join(ROOT, 'src/renderer/src/components')
+  const checkFiles = [
+    ['chat/ChatPanel.tsx', 'ChatPanel'],
+    ['chat/InputBar.tsx', 'InputBar'],
+    ['terminal/TerminalPanel.tsx', 'TerminalPanel'],
+    ['sidebar/CocosPanel.tsx', 'CocosPanel'],
+    ['sidebar/SceneView/SceneViewPanel.tsx', 'SceneViewPanel'],
+    ['sidebar/SessionList.tsx', 'SessionList'],
+  ]
+  for (const [rel, name] of checkFiles) {
+    const fpath = join(RENDERER, rel)
+    if (!existsSync(fpath)) continue
+    const src = readFileSync(fpath, 'utf-8')
+    const hasReactDotUsage = /React\.(useState|useEffect|useCallback|useRef|useMemo|createContext|forwardRef)\b/.test(src)
+    const hasReactImport = /^import React[,\s]/.test(src)
+    if (hasReactDotUsage && !hasReactImport) {
+      log('critical', 'RuntimeError', `${name}: React.* 사용하지만 import React 없음 — 런타임 ReferenceError 발생`, rel)
+    } else {
+      log('pass', 'RuntimeError', `${name}: React import 정상`)
+    }
+  }
+}
+
+// ── Section 382: useState TDZ 검사 ────────────────────────────────────────────
+{
+  const chatPanelPath = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+  if (existsSync(chatPanelPath)) {
+    const src = readFileSync(chatPanelPath, 'utf-8')
+    const lines = src.split('\n')
+    // useMemo/useEffect 보다 useState 선언이 앞에 있는지 확인 (displayMessages)
+    const memoIdx = lines.findIndex(l => l.includes('displayMessages') && l.includes('useMemo'))
+    const stateIdx = lines.findIndex(l => l.includes('showOnlyBookmarks') && l.includes('useState'))
+    if (memoIdx !== -1 && stateIdx !== -1 && stateIdx > memoIdx) {
+      log('critical', 'RuntimeError', 'ChatPanel: showOnlyBookmarks useState가 useMemo보다 뒤에 선언됨 (TDZ)', 'chat/ChatPanel.tsx')
+    } else {
+      log('pass', 'RuntimeError', 'ChatPanel: showOnlyBookmarks TDZ 없음')
+    }
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

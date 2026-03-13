@@ -645,7 +645,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         </>
       )}
 
-      {/* 컴포넌트 목록 */}
+      {/* R1405: 컴포넌트 목록 (순서 변경 ↑↓ 버튼) */}
       {node.components.length > 0 && (
         <>
           <SectionHeader label="Components" />
@@ -661,8 +661,6 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
                     borderRadius: 3,
                     padding: '1px 3px',
                   }}
-                  onClick={() => onComponentClick?.(node.uuid)}
-                  title={onComponentClick ? '씬뷰에서 하이라이트' : undefined}
                   onMouseEnter={e => { if (onComponentClick) (e.currentTarget as HTMLElement).style.background = 'rgba(96,165,250,0.1)' }}
                   onMouseLeave={e => { if (onComponentClick) (e.currentTarget as HTMLElement).style.background = '' }}
                 >
@@ -671,13 +669,83 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
                       {icon}
                     </span>
                   )}
-                  <span>{c.type}</span>
+                  <span
+                    style={{ flex: 1, cursor: onComponentClick ? 'pointer' : undefined }}
+                    onClick={() => onComponentClick?.(node.uuid)}
+                    title={onComponentClick ? '씬뷰에서 하이라이트' : undefined}
+                  >{c.type}</span>
+                  {/* R1405: 순서 변경 버튼 */}
+                  {node.components.length > 1 && (
+                    <span style={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+                      <button
+                        disabled={i === 0}
+                        onClick={e => {
+                          e.stopPropagation()
+                          const newComps = [...node.components]
+                          ;[newComps[i - 1], newComps[i]] = [newComps[i], newComps[i - 1]]
+                          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                        }}
+                        title="위로 이동"
+                        style={{
+                          fontSize: 8, padding: '0 2px', background: 'none', border: '1px solid var(--border)',
+                          borderRadius: 2, color: i === 0 ? 'var(--border)' : 'var(--text-muted)',
+                          cursor: i === 0 ? 'default' : 'pointer', lineHeight: '12px',
+                        }}
+                      >{'\u2191'}</button>
+                      <button
+                        disabled={i === node.components.length - 1}
+                        onClick={e => {
+                          e.stopPropagation()
+                          const newComps = [...node.components]
+                          ;[newComps[i], newComps[i + 1]] = [newComps[i + 1], newComps[i]]
+                          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                        }}
+                        title="아래로 이동"
+                        style={{
+                          fontSize: 8, padding: '0 2px', background: 'none', border: '1px solid var(--border)',
+                          borderRadius: 2, color: i === node.components.length - 1 ? 'var(--border)' : 'var(--text-muted)',
+                          cursor: i === node.components.length - 1 ? 'default' : 'pointer', lineHeight: '12px',
+                        }}
+                      >{'\u2193'}</button>
+                    </span>
+                  )}
                 </div>
               )
             })}
           </div>
         </>
       )}
+
+      {/* R1402: 컴포넌트 props 내 노드 참조 필드 표시 */}
+      {node.components.length > 0 && (() => {
+        const refs: { comp: string; key: string; display: string }[] = []
+        for (const c of node.components) {
+          if (!c.props) continue
+          for (const [k, v] of Object.entries(c.props as Record<string, unknown>)) {
+            if (v && typeof v === 'object' && !Array.isArray(v)) {
+              const obj = v as Record<string, unknown>
+              if (typeof obj.__id__ === 'number') {
+                refs.push({ comp: c.type.replace('cc.', ''), key: k, display: `#${obj.__id__}` })
+              } else if (typeof obj.__uuid__ === 'string') {
+                const uuid = obj.__uuid__ as string
+                refs.push({ comp: c.type.replace('cc.', ''), key: k, display: uuid.length > 8 ? uuid.slice(0, 8) + '...' : uuid })
+              }
+            }
+          }
+        }
+        if (refs.length === 0) return null
+        return (
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2, padding: '2px 3px' }}>
+            {refs.map((r, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 1 }}>
+                <span style={{ color: 'var(--accent)', fontSize: 8 }}>{'\uD83D\uDD17'}</span>
+                <span style={{ color: 'var(--text-secondary)' }}>{r.comp}.{r.key}</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 8, color: 'var(--text-muted)' }}>{r.display}</span>
+              </div>
+            ))}
+          </div>
+        )
+      })()}
 
       {/* R1368: cc.Widget 속성 편집 */}
       {(() => {

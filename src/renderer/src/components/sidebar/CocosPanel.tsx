@@ -138,7 +138,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     setCollapsedUuids(uuids)
   }, [sceneFile?.root])
   const [sceneViewHeight, setSceneViewHeight] = useState(240)
-  const [mainTab, setMainTab] = useState<'scene' | 'assets' | 'groups'>('scene')
+  const [mainTab, setMainTab] = useState<'scene' | 'assets' | 'groups' | 'build'>('scene')
   const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('cc-recent-files') ?? '[]') } catch { return [] }
@@ -324,6 +324,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [projectSettings, setProjectSettings] = useState<{
     designWidth?: number; designHeight?: number; physicsEngine?: string; buildTargets?: string[]
   } | null>(null)
+  // R1406: CC 빌드 트리거 UI
+  const [buildPlatform, setBuildPlatform] = useState<'web-mobile' | 'web-desktop' | 'android' | 'ios'>('web-mobile')
+  const [buildRunning, setBuildRunning] = useState(false)
+  const [buildResult, setBuildResult] = useState<{ ok: boolean; msg: string } | null>(null)
+  const CC_EDITOR_PATHS: Record<string, string> = {
+    '2.4.13': 'C:/ProgramData/cocos/editors/Creator/2.4.13/CocosCreator.exe',
+    '2.4.5': 'C:/ProgramData/cocos/editors/Creator/2.4.5/CocosCreator.exe',
+    '3.6.1': 'C:/ProgramData/cocos/editors/Creator/3.6.1/CocosCreator.exe',
+    '3.7.1': 'C:/ProgramData/cocos/editors/Creator/3.7.1/CocosCreator.exe',
+    '3.8.2': 'C:/ProgramData/cocos/editors/Creator/3.8.2/CocosCreator.exe',
+    '3.8.6': 'C:/ProgramData/cocos/editors/Creator/3.8.6/CocosCreator.exe',
+  }
   // R1389: 외부 변경 배너 자동 숨김
   const [bannerHidden, setBannerHidden] = useState(false)
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -1172,7 +1184,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       {/* 씬/에셋 탭 바 */}
       {projectInfo?.detected && (
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-          {(['scene', 'groups', 'assets'] as const).map(t => (
+          {(['scene', 'groups', 'assets', 'build'] as const).map(t => (
             <button key={t} onClick={() => setMainTab(t)}
               style={{
                 flex: 1, padding: '4px 0', fontSize: 10, border: 'none', cursor: 'pointer',
@@ -1181,7 +1193,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 borderBottom: mainTab === t ? '2px solid var(--accent)' : '2px solid transparent',
                 fontWeight: mainTab === t ? 600 : 400,
               }}
-            >{t === 'scene' ? '🎬 씬 편집' : t === 'groups' ? '📦 그룹' : '📁 에셋'}</button>
+            >{t === 'scene' ? '🎬 씬' : t === 'groups' ? '📦 그룹' : t === 'assets' ? '📁 에셋' : '🔨 빌드'}</button>
           ))}
         </div>
       )}
@@ -1332,6 +1344,98 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         projectInfo.assetsDir
           ? <CCFileAssetBrowser assetsDir={projectInfo.assetsDir} sceneFile={sceneFile ?? undefined} saveScene={saveScene} onSelectNode={onSelectNode} />
           : <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11 }}>assetsDir를 감지할 수 없습니다.</div>
+      )}
+
+      {/* R1406: 빌드 탭 */}
+      {mainTab === 'build' && projectInfo?.detected && (
+        <div style={{ padding: 12, fontSize: 11, color: 'var(--text-primary)', lineHeight: 1.8 }}>
+          <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 8 }}>CC 빌드 트리거</div>
+          {/* 프로젝트 경로 */}
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 6 }}>
+            프로젝트: {projectInfo.projectPath ?? '(경로 미감지)'}
+          </div>
+          {/* CC 버전 */}
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 8 }}>
+            CC 버전: {projectInfo.version ?? 'auto-detect'}
+          </div>
+          {/* 플랫폼 선택 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>플랫폼</span>
+            <select
+              value={buildPlatform}
+              onChange={e => setBuildPlatform(e.target.value as typeof buildPlatform)}
+              style={{
+                flex: 1, fontSize: 10, background: 'var(--bg-primary)', color: 'var(--text-primary)',
+                border: '1px solid var(--border)', borderRadius: 3, padding: '3px 6px',
+              }}
+            >
+              <option value="web-mobile">web-mobile</option>
+              <option value="web-desktop">web-desktop</option>
+              <option value="android">android</option>
+              <option value="ios">ios</option>
+            </select>
+          </div>
+          {/* 빌드 경로 */}
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 8 }}>
+            출력 경로: {projectInfo.projectPath ? projectInfo.projectPath.replace(/\\/g, '/') + '/build/' + buildPlatform : '(미설정)'}
+          </div>
+          {/* 빌드 버튼 */}
+          <button
+            disabled={buildRunning || !projectInfo.projectPath}
+            onClick={async () => {
+              // R1406: TODO — window.api.runCommand 또는 window.api.shellExec이 구현되면 실제 CLI 빌드 실행
+              // 현재는 빌드 명령 미리보기 + UI 시뮬레이션
+              setBuildRunning(true)
+              setBuildResult(null)
+              const version = projectInfo.version ?? '2.4.13'
+              const editorPath = CC_EDITOR_PATHS[version] ?? CC_EDITOR_PATHS['2.4.13']
+              const projPath = (projectInfo.projectPath ?? '').replace(/\\/g, '/')
+              const isCC3 = version.startsWith('3')
+              const cmd = isCC3
+                ? `"${editorPath}" --project "${projPath}" --build "platform=${buildPlatform}"`
+                : `"${editorPath}" --path "${projPath}" --build "platform=${buildPlatform}"`
+              console.log('[R1406] Build command:', cmd)
+              // 시뮬레이션: 2초 후 완료 (실제 실행은 IPC 구현 시)
+              setTimeout(() => {
+                setBuildRunning(false)
+                setBuildResult({ ok: true, msg: `빌드 명령 준비됨 (${buildPlatform}). IPC 실행 대기 중.` })
+              }, 1500)
+            }}
+            style={{
+              width: '100%', padding: '6px 0', fontSize: 11, fontWeight: 600, cursor: buildRunning ? 'wait' : 'pointer',
+              background: buildRunning ? 'var(--border)' : 'var(--accent)', color: '#fff',
+              border: 'none', borderRadius: 4, opacity: buildRunning ? 0.6 : 1,
+            }}
+          >
+            {buildRunning ? '빌드 중...' : '🔨 빌드 실행'}
+          </button>
+          {/* 빌드 결과 */}
+          {buildResult && (
+            <div style={{
+              marginTop: 8, padding: '6px 8px', borderRadius: 4, fontSize: 10,
+              background: buildResult.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+              color: buildResult.ok ? 'var(--success)' : 'var(--error)',
+              border: `1px solid ${buildResult.ok ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
+            }}>
+              {buildResult.ok ? '✅' : '❌'} {buildResult.msg}
+            </div>
+          )}
+          {/* CLI 명령 미리보기 */}
+          <div style={{ marginTop: 12, padding: '6px 8px', borderRadius: 4, background: 'var(--bg-primary)', fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', wordBreak: 'break-all' }}>
+            {(() => {
+              const version = projectInfo.version ?? '2.4.13'
+              const editorPath = CC_EDITOR_PATHS[version] ?? CC_EDITOR_PATHS['2.4.13']
+              const projPath = (projectInfo.projectPath ?? '').replace(/\\/g, '/')
+              const isCC3 = version.startsWith('3')
+              return isCC3
+                ? `"${editorPath}" --project "${projPath}" --build "platform=${buildPlatform}"`
+                : `"${editorPath}" --path "${projPath}" --build "platform=${buildPlatform}"`
+            })()}
+          </div>
+        </div>
+      )}
+      {mainTab === 'build' && !projectInfo?.detected && (
+        <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11 }}>프로젝트를 먼저 열어주세요.</div>
       )}
 
       {/* 안내 (프로젝트 미선택) */}

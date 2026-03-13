@@ -226,19 +226,26 @@ export const NodeRenderer = memo(function NodeRenderer({
       )}
 
       {/* 라벨 (LOD: zoom < 0.4 시 숨김) */}
-      {lod === 0 && showLabel && (pw > 20 && ph > 12) && (
-        <text
-          x={rx + (icon ? 16 : 4)}
-          y={ry + 11}
-          fontSize={Math.max(8, Math.min(11, 11 / view.zoom))}
-          fill="rgba(255, 255, 255, 0.7)"
-          fontFamily="var(--font-mono)"
-          style={{ pointerEvents: 'none', userSelect: 'none' }}
-        >
-          {node.name.length > 12 ? node.name.slice(0, 12) + '\u2026' : node.name}
-          {node.name.length > 12 && <title>{node.name}</title>}
-        </text>
-      )}
+      {lod === 0 && showLabel && (pw > 20 && ph > 12) && (() => {
+        // R1400: Camera/ParticleSystem 노드 라벨 접두사
+        const hasCamera = node.components.some(c => c.type === 'cc.Camera')
+        const hasParticle = node.components.some(c => c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D')
+        const prefix = hasCamera ? '\uD83D\uDCF7 ' : hasParticle ? '\u2728 ' : ''
+        const displayName = prefix + (node.name.length > 12 ? node.name.slice(0, 12) + '\u2026' : node.name)
+        return (
+          <text
+            x={rx + (icon ? 16 : 4)}
+            y={ry + 11}
+            fontSize={Math.max(8, Math.min(11, 11 / view.zoom))}
+            fill="rgba(255, 255, 255, 0.7)"
+            fontFamily="var(--font-mono)"
+            style={{ pointerEvents: 'none', userSelect: 'none' }}
+          >
+            {displayName}
+            {node.name.length > 12 && <title>{node.name}</title>}
+          </text>
+        )
+      })()}
 
       {/* R1371: 컴포넌트 뱃지 (우상단, 최대 3개) */}
       {showLabel && lod === 0 && pw > 20 && ph > 14 && icons.some(Boolean) && (
@@ -261,6 +268,26 @@ export const NodeRenderer = memo(function NodeRenderer({
             )
           })}
         </g>
+      )}
+
+      {/* R1400: Camera 노드 시각 힌트 — 파란 테두리 (#4af) */}
+      {lod === 0 && pw > 10 && ph > 10 && node.components.some(c => c.type === 'cc.Camera') && (
+        <rect
+          x={rx - 1} y={ry - 1} width={pw + 2} height={ph + 2}
+          fill="none" stroke="rgba(68,170,255,0.5)" strokeWidth={1.5}
+          strokeDasharray="6 3" rx={3}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+
+      {/* R1400: ParticleSystem 노드 시각 힌트 — 주황 테두리 (#fa4) */}
+      {lod === 0 && pw > 10 && ph > 10 && node.components.some(c => c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') && (
+        <rect
+          x={rx - 1} y={ry - 1} width={pw + 2} height={ph + 2}
+          fill="none" stroke="rgba(255,170,68,0.5)" strokeWidth={1.5}
+          strokeDasharray="6 3" rx={3}
+          style={{ pointerEvents: 'none' }}
+        />
       )}
 
       {/* R1388: Sprite SLICED/TILED 렌더링 힌트 */}

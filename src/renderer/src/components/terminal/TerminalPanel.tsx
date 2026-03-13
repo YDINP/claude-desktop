@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, DragEvent, ChangeEvent } from 'react'
+import React, { useEffect, useRef, useState, useCallback, DragEvent, ChangeEvent } from 'react'
 import { Terminal, type ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { SearchAddon } from '@xterm/addon-search'
