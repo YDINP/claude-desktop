@@ -254,6 +254,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [sessionSearch, setSessionSearch] = useState('')
   const [sessionSearchResults, setSessionSearchResults] = useState<string[]>([])
+  const [sessionPins, setSessionPins] = useState<string[]>([])
+  const [showPinnedOnly, setShowPinnedOnly] = useState(false)
 
   const TAG_COLORS_KEY = 'session-tag-colors'
   const loadTagColors = (): Record<string, string> => {

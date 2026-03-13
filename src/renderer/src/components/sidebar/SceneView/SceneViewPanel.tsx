@@ -224,6 +224,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 오버레이 (R1341) ─────────────────────────────────────
   const [sceneOverlay, setSceneOverlay] = useState(false)
   const [showOverlayPanel, setShowOverlayPanel] = useState(false)
+  // ── 씬 그리드 (R1347) ────────────────────────────────────────
+  const [sceneGrid, setSceneGrid] = useState(false)
+  const [sceneGridSize, setSceneGridSize] = useState(32)
 
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()

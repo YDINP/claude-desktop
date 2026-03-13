@@ -412,6 +412,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   // R1339: input auto save
   const [inputAutoSave, setInputAutoSave] = useState(false)
   const [autoSaveInterval, setAutoSaveInterval] = useState(30)
+  // R1345: multiline mode
+  const [inputMultiline, setInputMultiline] = useState(false)
+  const [multilineRows, setMultilineRows] = useState(3)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

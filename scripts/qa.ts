@@ -14019,6 +14019,76 @@ if (existsSync(sl1343Path)) {
   }
 }
 
+console.log('\n## 359. Phase DD10 R1344~1346 기능 체크')
+
+// R1344: ChatPanel 채팅 태그
+const cp1344Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1344Path)) {
+  const cp1344 = readFileSync(cp1344Path, 'utf-8')
+  if (cp1344.includes('chatTags') || cp1344.includes('showTagPanel') || cp1344.includes('tagPanel')) {
+    log('pass', 'R1344', 'ChatPanel 채팅 태그 존재')
+  } else {
+    log('warning', 'R1344', 'ChatPanel 채팅 태그 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1345: InputBar 멀티라인 모드
+const ib1345Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1345Path)) {
+  const ib1345 = readFileSync(ib1345Path, 'utf-8')
+  if (ib1345.includes('inputMultiline') || ib1345.includes('multilineRows') || ib1345.includes('multiline')) {
+    log('pass', 'R1345', 'InputBar 멀티라인 모드 존재')
+  } else {
+    log('warning', 'R1345', 'InputBar 멀티라인 모드 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1346: CocosPanel 에디터 플러그인
+const cocos1346Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1346Path)) {
+  const cocos1346 = readFileSync(cocos1346Path, 'utf-8')
+  if (cocos1346.includes('editorPlugins') || cocos1346.includes('showPluginPanel') || cocos1346.includes('pluginPanel')) {
+    log('pass', 'R1346', 'CocosPanel 에디터 플러그인 존재')
+  } else {
+    log('warning', 'R1346', 'CocosPanel 에디터 플러그인 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 360. Phase DD10 R1347~1349 기능 체크')
+
+// R1347: SceneViewPanel 씬 그리드
+const svp1347Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1347Path)) {
+  const svp1347 = readFileSync(svp1347Path, 'utf-8')
+  if (svp1347.includes('sceneGrid') || svp1347.includes('sceneGridSize') || svp1347.includes('gridSize')) {
+    log('pass', 'R1347', 'SceneViewPanel 씬 그리드 존재')
+  } else {
+    log('warning', 'R1347', 'SceneViewPanel 씬 그리드 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1348: TerminalPanel 터미널 테마
+const tp1348Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1348Path)) {
+  const tp1348 = readFileSync(tp1348Path, 'utf-8')
+  if (tp1348.includes('termTheme') || tp1348.includes('termThemeCustom') || tp1348.includes('themeCustom')) {
+    log('pass', 'R1348', 'TerminalPanel 터미널 테마 존재')
+  } else {
+    log('warning', 'R1348', 'TerminalPanel 터미널 테마 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1349: SessionList 세션 핀고정
+const sl1349Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1349Path)) {
+  const sl1349 = readFileSync(sl1349Path, 'utf-8')
+  if (sl1349.includes('sessionPins') || sl1349.includes('showPinnedOnly') || sl1349.includes('pinnedOnly')) {
+    log('pass', 'R1349', 'SessionList 세션 핀고정 존재')
+  } else {
+    log('warning', 'R1349', 'SessionList 세션 핀고정 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

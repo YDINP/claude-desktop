@@ -241,6 +241,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [autoCompleteList, setAutoCompleteList] = useState<string[]>([])
   const [termSyntaxHighlight, setTermSyntaxHighlight] = useState(false)
   const [termHighlightRules, setTermHighlightRules] = useState<Record<string, string>>({})
+  // R1348: terminal theme
+  const [termTheme, setTermTheme] = useState<string>('dark')
+  const [termThemeCustom, setTermThemeCustom] = useState<boolean>(false)
   const inputBufferRef = useRef<Record<string, string>>({})
 
   const sendQuickCmd = (cmd: string) => {
