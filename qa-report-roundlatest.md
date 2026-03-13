@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:15:26.978Z
+> 2026-03-13T11:16:20.210Z
 
 ## Critical
 _없음_
@@ -643,3 +643,6 @@ _없음_
 - ChatPanel 번역 언어 선택 존재
 - InputBar 단축키 커스터마이징 존재
 - TerminalPanel 프로세스 모니터 존재
+- ChatPanel 메시지 핀 고정 존재
+- SceneViewPanel 노드 가시성 필터 존재
+- SessionList 세션 읽기 상태 존재

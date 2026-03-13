@@ -187,6 +187,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 씬 메모 (R757) ──────────────────────────────────────────────
   const [sceneMemos, setSceneMemos] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('scene-memos') ?? '{}'))
   const [editingSceneMemo, setEditingSceneMemo] = useState<string | null>(null)
+  // ── 노드 필터 (R763) ─────────────────────────────────────────
+  const [visFilter, setVisFilter] = useState<'all' | 'visible' | 'hidden'>('all')
+  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all')
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)

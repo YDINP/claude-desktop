@@ -7334,6 +7334,41 @@ if (existsSync(tp761Path)) {
   }
 }
 
+// ── Section 165: Phase DD10 R762~764 기능 체크 ────────────────
+console.log('\n## 165. Phase DD10 R762~764 기능 체크')
+// R762: ChatPanel 메시지 핀 고정
+const cp762Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp762Path)) {
+  const cp762 = readFileSync(cp762Path, 'utf-8')
+  if (cp762.includes('pinnedMsgs') || cp762.includes('showPinnedOnly') || cp762.includes('pinned-msgs')) {
+    log('pass', 'R762', 'ChatPanel 메시지 핀 고정 존재')
+  } else {
+    log('warning', 'R762', 'ChatPanel 메시지 핀 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R763: SceneViewPanel 노드 가시성 필터
+const svp763Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp763Path)) {
+  const svp763 = readFileSync(svp763Path, 'utf-8')
+  if (svp763.includes('visFilter') || svp763.includes('activeFilter') || svp763.includes('visibilityFilter')) {
+    log('pass', 'R763', 'SceneViewPanel 노드 가시성 필터 존재')
+  } else {
+    log('warning', 'R763', 'SceneViewPanel 가시성 필터 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R764: SessionList 세션 읽기 상태
+const sl764Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl764Path)) {
+  const sl764 = readFileSync(sl764Path, 'utf-8')
+  if (sl764.includes('readSessions') || sl764.includes('showUnreadOnly') || sl764.includes('read-sessions')) {
+    log('pass', 'R764', 'SessionList 세션 읽기 상태 존재')
+  } else {
+    log('warning', 'R764', 'SessionList 읽기 상태 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
