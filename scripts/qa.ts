@@ -16273,6 +16273,23 @@ if (existsSync(panel431)) {
   }
 }
 
+// ── Section 432: R1536 PropSearch 하이라이트 체크 ──────────────────────
+console.log('\n## 432. R1536 PropSearch 하이라이트 체크')
+const panel432 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(panel432)) {
+  const s432 = readFileSync(panel432, 'utf-8')
+  if (s432.includes('R1536') && s432.includes('propKeyLabel') && s432.includes('rgba(250,204,21')) {
+    log('pass', 'R1536-highlight', 'PropSearch propKeyLabel 하이라이트 헬퍼 구현 (노란 mark)')
+  } else {
+    log('warning', 'R1536-highlight', 'propKeyLabel 하이라이트 미구현', 'CocosPanel.tsx')
+  }
+  if (s432.includes('{propKeyLabel(k)}{favBtn}')) {
+    log('pass', 'R1536-applied', 'propKeyLabel(k)를 모든 prop 키 레이블에 적용')
+  } else {
+    log('warning', 'R1536-applied', 'propKeyLabel 미적용', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
