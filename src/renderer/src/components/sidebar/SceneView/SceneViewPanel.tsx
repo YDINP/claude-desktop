@@ -190,6 +190,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // ── 노드 필터 (R763) ─────────────────────────────────────────
   const [visFilter, setVisFilter] = useState<'all' | 'visible' | 'hidden'>('all')
   const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [nodeTypeFilter, setNodeTypeFilter] = useState<string[]>([])
+  const [showTypeFilter, setShowTypeFilter] = useState(false)
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)

@@ -7404,6 +7404,41 @@ if (existsSync(ib767Path)) {
   }
 }
 
+// ── Section 167: Phase DD10 R768~770 기능 체크 ────────────────
+console.log('\n## 167. Phase DD10 R768~770 기능 체크')
+// R768: ChatPanel 메시지 복사 형식
+const cp768Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp768Path)) {
+  const cp768 = readFileSync(cp768Path, 'utf-8')
+  if (cp768.includes('copyFormat') || cp768.includes('showCopyMenu') || cp768.includes('copyType')) {
+    log('pass', 'R768', 'ChatPanel 메시지 복사 형식 존재')
+  } else {
+    log('warning', 'R768', 'ChatPanel 복사 형식 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R769: TerminalPanel 스크롤 위치 기억
+const tp769Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp769Path)) {
+  const tp769 = readFileSync(tp769Path, 'utf-8')
+  if (tp769.includes('scrollPositions') || tp769.includes('autoScrollEnabled') || tp769.includes('scrollPos')) {
+    log('pass', 'R769', 'TerminalPanel 스크롤 위치 기억 존재')
+  } else {
+    log('warning', 'R769', 'TerminalPanel 스크롤 위치 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R770: SceneViewPanel 노드 타입 필터
+const svp770Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp770Path)) {
+  const svp770 = readFileSync(svp770Path, 'utf-8')
+  if (svp770.includes('nodeTypeFilter') || svp770.includes('showTypeFilter') || svp770.includes('typeFilter')) {
+    log('pass', 'R770', 'SceneViewPanel 노드 타입 필터 존재')
+  } else {
+    log('warning', 'R770', 'SceneViewPanel 타입 필터 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

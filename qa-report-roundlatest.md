@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:17:11.585Z
+> 2026-03-13T11:18:03.816Z
 
 ## Critical
 _없음_
@@ -649,3 +649,6 @@ _없음_
 - ChatPanel 대화 통계 존재
 - CocosPanel 에셋 검색 존재
 - InputBar 응답 길이 제한 존재
+- ChatPanel 메시지 복사 형식 존재
+- TerminalPanel 스크롤 위치 기억 존재
+- SceneViewPanel 노드 타입 필터 존재

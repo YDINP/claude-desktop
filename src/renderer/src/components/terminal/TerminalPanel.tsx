@@ -168,6 +168,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   // R761: per-tab process info
   const [processInfo, setProcessInfo] = useState<Record<string, { pid: number; cpu: number; mem: number }>>({})
   const [showProcessInfo, setShowProcessInfo] = useState(false)
+  const [scrollPositions, setScrollPositions] = useState<Record<string, number>>({})
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true)
 
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
