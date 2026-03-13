@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+
+export type SceneBgValue = 'dark' | 'light' | 'checker' | string
 
 interface SceneToolbarProps {
   activeTool: 'select' | 'move'
@@ -44,8 +46,8 @@ interface SceneToolbarProps {
   onHierarchyToggle?: () => void
   showLabels?: boolean
   onLabelsToggle?: () => void
-  bgLight?: boolean
-  onBgToggle?: () => void
+  sceneBg?: SceneBgValue
+  onSceneBgChange?: (bg: SceneBgValue) => void
   showMinimap?: boolean
   onMinimapToggle?: () => void
   canvasSize?: { w: number; h: number }
@@ -139,8 +141,8 @@ export function SceneToolbar({
   onHierarchyToggle,
   showLabels,
   onLabelsToggle,
-  bgLight,
-  onBgToggle,
+  sceneBg = 'dark',
+  onSceneBgChange,
   showMinimap,
   onMinimapToggle,
   canvasSize,
@@ -189,6 +191,26 @@ export function SceneToolbar({
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
+  const [bgPaletteOpen, setBgPaletteOpen] = useState(false)
+  const [customColor, setCustomColor] = useState(
+    sceneBg !== 'dark' && sceneBg !== 'light' && sceneBg !== 'checker' ? sceneBg : '#1a1a2e'
+  )
+  const bgBtnRef = useRef<HTMLButtonElement>(null)
+  const paletteRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!bgPaletteOpen) return
+    const handleClick = (e: MouseEvent) => {
+      if (
+        paletteRef.current && !paletteRef.current.contains(e.target as Node) &&
+        bgBtnRef.current && !bgBtnRef.current.contains(e.target as Node)
+      ) {
+        setBgPaletteOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [bgPaletteOpen])
 
   const zoomIn = () => {
     const next = ZOOM_STEPS.find(z => z > zoom) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]
@@ -633,14 +655,90 @@ export function SceneToolbar({
         Aa
       </button>
 
-      {/* 배경 밝기 토글 */}
-      <button
-        style={bgLight ? btnActive : btnBase}
-        onClick={onBgToggle}
-        title="배경 밝기 전환 (밝은/어두운)"
-      >
-        ◑
-      </button>
+      {/* 배경색 팔레트 */}
+      <div style={{ position: 'relative' }}>
+        <button
+          ref={bgBtnRef}
+          style={bgPaletteOpen || (sceneBg !== 'dark') ? btnActive : btnBase}
+          onClick={() => setBgPaletteOpen(v => !v)}
+          title="씬 배경색 변경"
+        >
+          🎨
+        </button>
+        {bgPaletteOpen && onSceneBgChange && (
+          <div
+            ref={paletteRef}
+            style={{
+              position: 'absolute',
+              top: '100%',
+              right: 0,
+              marginTop: 4,
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              padding: 8,
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+              minWidth: 140,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+            }}
+          >
+            {([
+              { label: '다크 (기본)', value: 'dark', swatch: '#1e1e1e' },
+              { label: '라이트', value: 'light', swatch: '#e0e0e0' },
+              { label: '체커보드 (투명)', value: 'checker', swatch: null },
+            ] as const).map(item => (
+              <button
+                key={item.value}
+                onClick={() => { onSceneBgChange(item.value); setBgPaletteOpen(false) }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: sceneBg === item.value ? 'var(--accent-dim)' : 'transparent',
+                  border: `1px solid ${sceneBg === item.value ? 'var(--accent)' : 'transparent'}`,
+                  borderRadius: 3, padding: '3px 6px', cursor: 'pointer',
+                  color: 'var(--text-primary)', fontSize: 10, textAlign: 'left',
+                }}
+              >
+                {item.swatch ? (
+                  <span style={{ width: 12, height: 12, borderRadius: 2, background: item.swatch, border: '1px solid rgba(255,255,255,0.15)', flexShrink: 0 }} />
+                ) : (
+                  <span style={{
+                    width: 12, height: 12, borderRadius: 2, flexShrink: 0,
+                    backgroundImage: 'repeating-conic-gradient(#888 0% 25%, #555 0% 50%)',
+                    backgroundSize: '6px 6px',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                  }} />
+                )}
+                {item.label}
+              </button>
+            ))}
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 4 }}>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>커스텀 컬러</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <input
+                  type="color"
+                  value={customColor}
+                  onChange={e => setCustomColor(e.target.value)}
+                  style={{ width: 24, height: 20, padding: 0, border: 'none', cursor: 'pointer', background: 'none' }}
+                />
+                <button
+                  onClick={() => { onSceneBgChange(customColor); setBgPaletteOpen(false) }}
+                  style={{
+                    ...btnBase,
+                    background: sceneBg === customColor ? 'var(--accent-dim)' : undefined,
+                    border: `1px solid ${sceneBg === customColor ? 'var(--accent)' : 'var(--border)'}`,
+                    fontSize: 9,
+                  }}
+                >
+                  적용
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* 미니맵 토글 */}
       <button

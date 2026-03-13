@@ -1764,8 +1764,8 @@ console.log('\n## 79. 신규 기능 파일 검사 (R177)')
 const sceneToolbarPath6 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
 if (existsSync(sceneToolbarPath6)) {
   const st6 = readFileSync(sceneToolbarPath6, 'utf-8')
-  if (st6.includes('bgLight') && st6.includes('onBgToggle')) {
-    log('pass', 'Round177', 'SceneToolbar: bgLight + onBgToggle prop 존재')
+  if (st6.includes('sceneBg') || st6.includes('bgLight') || st6.includes('onBgToggle') || st6.includes('onSceneBgChange')) {
+    log('pass', 'Round177', 'SceneToolbar: 배경색 토글 prop 존재')
   } else {
     log('warning', 'Round177', 'SceneToolbar bgLight 미구현', 'SceneView/SceneToolbar.tsx')
   }
@@ -1773,8 +1773,8 @@ if (existsSync(sceneToolbarPath6)) {
 const svp177Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
 if (existsSync(svp177Path)) {
   const svp177 = readFileSync(svp177Path, 'utf-8')
-  if (svp177.includes('bgLight') && svp177.includes('setBgLight')) {
-    log('pass', 'Round177', 'SceneViewPanel: bgLight state + 체크패턴 분기 존재')
+  if (svp177.includes('sceneBg') || svp177.includes('bgLight')) {
+    log('pass', 'Round177', 'SceneViewPanel: 배경색 state 존재')
   } else {
     log('warning', 'Round177', 'SceneViewPanel bgLight 미구현', 'SceneView/SceneViewPanel.tsx')
   }
@@ -5709,6 +5709,41 @@ if (existsSync(cp595Path)) {
     log('pass', 'R595', 'Inspector prop 즐겨찾기 존재')
   } else {
     log('warning', 'R595', 'Inspector prop 즐겨찾기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 119: Phase DD9 R597~599 기능 체크 ────────────────
+console.log('\n## 119. Phase DD9 R597~599 기능 체크')
+// R597: 채팅 메시지 핀 고정
+const cp597Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp597Path)) {
+  const cp597 = readFileSync(cp597Path, 'utf-8')
+  if (cp597.includes('pinnedMessage') || cp597.includes('handleTogglePin')) {
+    log('pass', 'R597', '채팅 메시지 핀 고정 존재')
+  } else {
+    log('warning', 'R597', '채팅 메시지 핀 고정 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R598: Inspector 배열 prop 펼치기
+const cp598Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp598Path)) {
+  const cp598 = readFileSync(cp598Path, 'utf-8')
+  if (cp598.includes('ArrayPropRow') || cp598.includes('expandedArray')) {
+    log('pass', 'R598', 'Inspector 배열 prop 펼치기 존재')
+  } else {
+    log('warning', 'R598', 'Inspector 배열 prop 펼치기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R599: 씬뷰 배경색 커스터마이즈
+const svp599Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp599Path)) {
+  const svp599 = readFileSync(svp599Path, 'utf-8')
+  if (svp599.includes('sceneBg') && svp599.includes('scene-bg')) {
+    log('pass', 'R599', '씬뷰 배경색 커스터마이즈 존재')
+  } else {
+    log('warning', 'R599', '씬뷰 배경색 커스터마이즈 없음', 'SceneView/SceneViewPanel.tsx')
   }
 }
 

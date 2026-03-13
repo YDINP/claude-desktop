@@ -3,6 +3,7 @@ import type { SceneNode, ViewTransform, DragState, ResizeState, MarqueeState, Un
 import { useSceneSync } from './useSceneSync'
 import { NodeRenderer } from './NodeRenderer'
 import { SceneToolbar } from './SceneToolbar'
+import type { SceneBgValue } from './SceneToolbar'
 import { SceneInspector } from './SceneInspector'
 import { getRenderOrder, cocosToSvg, getComponentIcon } from './utils'
 import { NodeHierarchyList } from './NodeHierarchyList'
@@ -87,7 +88,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [inspectorNameFocus, setInspectorNameFocus] = useState(0)
   const [showMinimap, setShowMinimap] = useState(true)
   const [svgContextMenu, setSvgContextMenu] = useState<{ uuid: string | null; x: number; y: number } | null>(null)
-  const [bgLight, setBgLight] = useState(false)
+  const [sceneBg, setSceneBg] = useState<SceneBgValue>(() => {
+    return (localStorage.getItem('scene-bg') as SceneBgValue) ?? 'dark'
+  })
   const [alignGuides, setAlignGuides] = useState<{ x?: number; y?: number }[]>([])
   const [showConnections, setShowConnections] = useState(false)
   const [showStats, setShowStats] = useState(false)
@@ -1813,8 +1816,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onStatsToggle={() => setShowStats(v => !v)}
         showLabels={showLabels}
         onLabelsToggle={() => setShowLabels(v => !v)}
-        bgLight={bgLight}
-        onBgToggle={() => setBgLight(v => !v)}
+        sceneBg={sceneBg}
+        onSceneBgChange={(bg) => {
+          setSceneBg(bg)
+          localStorage.setItem('scene-bg', bg)
+        }}
         showMinimap={showMinimap}
         onMinimapToggle={() => setShowMinimap(v => !v)}
         canvasSize={canvasSize}
@@ -1945,6 +1951,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           position: 'relative',
           overflow: 'hidden',
           cursor: isPanningActive ? 'grabbing' : (activeTool === 'move' || spaceDown) ? 'grab' : 'default',
+          background: sceneBg === 'checker' ? undefined
+            : sceneBg === 'dark' ? '#1e1e1e'
+            : sceneBg === 'light' ? '#e8e8e8'
+            : sceneBg,
+          backgroundImage: sceneBg === 'checker'
+            ? 'repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%)'
+            : undefined,
+          backgroundSize: sceneBg === 'checker' ? '16px 16px' : undefined,
         }}
       >
         <svg
@@ -1962,20 +1976,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           }}
         >
           <defs>
-            {/* 체크패턴 배경 */}
-            <pattern
-              id="checker"
-              x="0"
-              y="0"
-              width="16"
-              height="16"
-              patternUnits="userSpaceOnUse"
-            >
-              <rect width="8" height="8" fill={bgLight ? '#e0e0e0' : '#242424'} />
-              <rect x="8" y="0" width="8" height="8" fill={bgLight ? '#d0d0d0' : '#1e1e1e'} />
-              <rect x="0" y="8" width="8" height="8" fill={bgLight ? '#d0d0d0' : '#1e1e1e'} />
-              <rect x="8" y="8" width="8" height="8" fill={bgLight ? '#e0e0e0' : '#242424'} />
-            </pattern>
 
             {/* 연결선 화살표 마커 */}
             <marker id="conn-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -2002,8 +2002,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             )}
           </defs>
 
-          {/* 배경 */}
-          <rect width="100%" height="100%" fill="url(#checker)" />
+          {/* 배경 (div 레벨에서 처리됨) */}
+          <rect width="100%" height="100%" fill="none" />
           {gridVisible && <rect width="100%" height="100%" fill="url(#grid)" />}
 
           {/* 원점(0,0) 십자선 — 씬 그룹 바깥(화면 좌표로 그림) */}

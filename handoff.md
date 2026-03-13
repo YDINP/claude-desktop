@@ -2,9 +2,9 @@
 > 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
 
 ## 현재 상태
-- 마지막 커밋: Round 593~596 (가이드라인 + 모델선택기 + prop즐겨찾기 + QA)
+- 마지막 커밋: Round 597~600 (핀고정 + 배열펼치기 + 배경색 + QA) — Pass 500 🎉
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 497
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 500
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -193,7 +193,16 @@
 | R595 | CocosPanel Inspector prop 즐겨찾기 ☆/★ (compType:propKey 형식, fav-props) |
 | R596 | QA Section 118 추가 (Pass 497) |
 
-## 다음 예정 (Round 597~)
+## Phase DD9 추가 완료 (Round 597~600)
+
+| 라운드 | 기능 |
+|--------|------|
+| R597 | 채팅 메시지 핀 고정 (3개 제한, 클릭→스크롤) |
+| R598 | Inspector 배열 prop 펼치기/접기 (expandedArrayProps, 인덱스 편집) |
+| R599 | 씬뷰 배경색 🎨 커스터마이즈 (다크/라이트/체커/커스텀, sceneBg localStorage) |
+| R600 | QA Section 119 추가 (Pass 500 🎉) |
+
+## 다음 예정 (Round 601~)
 
 ## 개발 루프 실행 방식 (2026-03-13 업그레이드)
 

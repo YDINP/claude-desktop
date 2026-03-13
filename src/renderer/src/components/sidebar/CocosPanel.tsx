@@ -1044,6 +1044,7 @@ function CCFileNodeInspector({
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const [collapsedComps, setCollapsedComps] = useState<Set<number>>(new Set())
+  const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
   const [lockScale, setLockScale] = useState(false)
   const secHeader = (key: string, label: string) => (
     <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
@@ -1161,7 +1162,7 @@ function CCFileNodeInspector({
   }, [])
 
   // 노드 교체 시 draft + 컴포넌트 접힘 상태 + propSearch 초기화
-  useMemo(() => { setDraft({ ...node }); setCollapsedComps(new Set()); setPropSearch('') }, [node.uuid])
+  useMemo(() => { setDraft({ ...node }); setCollapsedComps(new Set()); setExpandedArrayProps(new Set()); setPropSearch('') }, [node.uuid])
   const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
   const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null)
@@ -1582,9 +1583,8 @@ function CCFileNodeInspector({
           </div>
           {!collapsedComps.has(ci) && (() => {
             const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
-            const allProps = Object.entries(comp.props).filter(([k, v]) => {
+            const allProps = Object.entries(comp.props).filter(([k]) => {
               if (HIDDEN.has(k)) return false
-              if (Array.isArray(v)) return false
               return true
             })
             const showFilter = allProps.length >= 3
@@ -1809,6 +1809,96 @@ function CCFileNodeInspector({
                 )
               }
               return null
+            }
+            // 배열 타입 — 펼치기/접기 토글 + 요소별 편집
+            if (Array.isArray(v)) {
+              const arrKey = `${comp.type}:${k}:${ci}`
+              const isExpanded = expandedArrayProps.has(arrKey)
+              const arr = v as unknown[]
+              return (
+                <div key={k} className="prop-row" style={{ marginBottom: 3 }}>
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', userSelect: 'none' }}
+                    onClick={() => setExpandedArrayProps(prev => {
+                      const next = new Set(prev)
+                      if (next.has(arrKey)) next.delete(arrKey)
+                      else next.add(arrKey)
+                      return next
+                    })}
+                  >
+                    <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>{isExpanded ? '▾' : '▸'}</span>
+                    <span style={{ width: 48, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{k}{favBtn}</span>
+                    <span style={{ fontSize: 9, color: '#666' }}>[{arr.length}]</span>
+                  </div>
+                  {isExpanded && arr.map((elem, elemIdx) => {
+                    const elemLabel = `[${elemIdx}]`
+                    if (elem !== null && typeof elem === 'object' && '__type__' in (elem as object)) {
+                      return (
+                        <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
+                          <span style={{ width: 44, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                          <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '1px 4px' }}>
+                            {String((elem as Record<string, unknown>).__type__)}
+                          </span>
+                        </div>
+                      )
+                    }
+                    if (typeof elem === 'number') {
+                      return (
+                        <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
+                          <span style={{ width: 44, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                          <input
+                            type="number"
+                            defaultValue={elem}
+                            onBlur={e => {
+                              const val = parseFloat(e.target.value)
+                              if (isNaN(val)) return
+                              const newArr = [...arr]
+                              newArr[elemIdx] = val
+                              applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                            }}
+                            onWheel={e => {
+                              e.preventDefault()
+                              const el = e.target as HTMLInputElement
+                              const current = parseFloat(el.value)
+                              if (isNaN(current)) return
+                              const delta = e.deltaY < 0 ? 1 : -1
+                              const newVal = current + delta * (e.shiftKey ? 10 : 1)
+                              el.value = String(newVal)
+                              const newArr = [...arr]
+                              newArr[elemIdx] = newVal
+                              applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                            }}
+                            style={{ flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 9 }}
+                          />
+                        </div>
+                      )
+                    }
+                    if (typeof elem === 'string') {
+                      return (
+                        <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
+                          <span style={{ width: 44, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                          <input
+                            type="text"
+                            defaultValue={elem}
+                            onBlur={e => {
+                              const newArr = [...arr]
+                              newArr[elemIdx] = e.target.value
+                              applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                            }}
+                            style={{ flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 9 }}
+                          />
+                        </div>
+                      )
+                    }
+                    return (
+                      <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
+                        <span style={{ width: 44, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                        <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace' }}>{JSON.stringify(elem)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
             }
             if (typeof v !== 'string' && typeof v !== 'number' && typeof v !== 'boolean') return null
             const isBool = typeof v === 'boolean'

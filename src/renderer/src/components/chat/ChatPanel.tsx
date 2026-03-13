@@ -859,9 +859,12 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   }, [chat.toggleBookmark])
 
   const handleTogglePin = useCallback((messageId: string) => {
+    const msg = chat.messages.find(m => m.id === messageId)
+    const pinnedCount = chat.messages.filter(m => m.pinned).length
+    if (!msg?.pinned && pinnedCount >= 3) return
     if (onTogglePin) onTogglePin(messageId)
     else chat.togglePin(messageId)
-  }, [onTogglePin, chat.togglePin])
+  }, [onTogglePin, chat.togglePin, chat.messages])
 
   const handleReaction = useCallback((messageId: string, emoji: string) => {
     chat.toggleReaction(messageId, emoji)
@@ -1192,12 +1195,23 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
             >
               📌 핀 메시지 {pinnedMessages.length}개 {pinnedOpen ? '▴' : '▾'}
             </div>
-            {pinnedOpen && pinnedMessages.map(m => (
-              <div key={m.id} style={{ padding: '6px 16px', fontSize: 12, borderTop: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-                <span style={{ fontWeight: 600 }}>{m.role}: </span>
-                {m.text.slice(0, 120)}{m.text.length > 120 ? '…' : ''}
-              </div>
-            ))}
+            {pinnedOpen && pinnedMessages.map(m => {
+              const msgIdx = displayMessages.findIndex(dm => dm.id === m.id)
+              return (
+                <div
+                  key={m.id}
+                  onClick={() => {
+                    if (msgIdx !== -1) virtualizer.scrollToIndex(msgIdx, { align: 'center', behavior: 'smooth' })
+                  }}
+                  style={{ padding: '6px 16px', fontSize: 12, borderTop: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '' }}
+                >
+                  <span style={{ fontWeight: 600 }}>{m.role}: </span>
+                  {m.text.slice(0, 120)}{m.text.length > 120 ? '…' : ''}
+                </div>
+              )
+            })}
           </div>
         )
       })()}

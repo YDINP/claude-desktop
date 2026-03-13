@@ -640,6 +640,10 @@
 | Round 594 | 채팅 ModelSelector 컴포넌트 (🧠/⚖️/⚡ 아이콘, recent-model, 설명) | ✅ |
 | Round 595 | Inspector prop 즐겨찾기 (favProps ☆/★, fav-props localStorage) | ✅ |
 | Round 596 | QA Section 118 추가 (R593/R594/R595, Pass 497) | ✅ |
+| Round 597 | 채팅 메시지 핀 고정 (3개 제한, 클릭 스크롤, handleTogglePin) | ✅ |
+| Round 598 | Inspector 배열 prop 펼치기 (expandedArrayProps, 요소별 편집) | ✅ |
+| Round 599 | 씬뷰 배경색 커스터마이즈 (🎨 팔레트, sceneBg, scene-bg localStorage) | ✅ |
+| Round 600 | QA Section 119 추가 (R597/R598/R599, Pass 500 🎉) | ✅ |
 
 ## QA 프로세스
 
