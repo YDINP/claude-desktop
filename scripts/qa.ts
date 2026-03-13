@@ -8384,6 +8384,41 @@ if (existsSync(cocp851Path)) {
   }
 }
 
+console.log('\n## 195. Phase DD10 R852~854 기능 체크')
+
+// R852: SceneViewPanel 씬 로딩 진행률
+const svp852Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp852Path)) {
+  const svp852 = readFileSync(svp852Path, 'utf-8')
+  if (svp852.includes('sceneLoadProgress') || svp852.includes('sceneLoadStatus') || svp852.includes('loadProgress')) {
+    log('pass', 'R852', 'SceneViewPanel 씬 로딩 진행률 존재')
+  } else {
+    log('warning', 'R852', 'SceneViewPanel 로딩 진행률 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R853: TerminalPanel 스크롤 위치 기억
+const tp853Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp853Path)) {
+  const tp853 = readFileSync(tp853Path, 'utf-8')
+  if (tp853.includes('savedScrollPos') || tp853.includes('autoScrollOnOutput') || tp853.includes('scrollMemory')) {
+    log('pass', 'R853', 'TerminalPanel 스크롤 위치 기억 존재')
+  } else {
+    log('warning', 'R853', 'TerminalPanel 스크롤 기억 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R854: SessionList 세션 자동 백업
+const sl854Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl854Path)) {
+  const sl854 = readFileSync(sl854Path, 'utf-8')
+  if (sl854.includes('autoBackupEnabled') || sl854.includes('autoBackupInterval') || sl854.includes('backupAuto')) {
+    log('pass', 'R854', 'SessionList 세션 자동 백업 존재')
+  } else {
+    log('warning', 'R854', 'SessionList 자동 백업 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

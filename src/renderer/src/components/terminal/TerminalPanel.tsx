@@ -212,6 +212,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [showShortcutCustomizer, setShowShortcutCustomizer] = useState(false)
   const [processMonitor, setProcessMonitor] = useState<Array<{ pid: number; name: string; cpu: number }>>([])
   const [showProcessMonitor, setShowProcessMonitor] = useState(false)
+  const [savedScrollPos, setSavedScrollPos] = useState<Record<string, number>>({})
+  const [autoScrollOnOutput, setAutoScrollOnOutput] = useState(true)
   const inputBufferRef = useRef<Record<string, string>>({})
 
   const sendQuickCmd = (cmd: string) => {

@@ -285,6 +285,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [prioritySort, setPrioritySort] = useState(false)
   const [lockPasswords, setLockPasswords] = useState<Record<string, string>>({})
   const [showPasswordDialog, setShowPasswordDialog] = useState<string | null>(null)
+  const [autoBackupEnabled, setAutoBackupEnabled] = useState(false)
+  const [autoBackupInterval, setAutoBackupInterval] = useState(60)
 
   const toggleArchive = useCallback((id: string) => {
     setArchivedSessions(prev => {
