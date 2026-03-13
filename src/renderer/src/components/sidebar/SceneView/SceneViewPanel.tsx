@@ -221,6 +221,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [nodeTagInput, setNodeTagInput] = useState<string | null>(null)
   const [nodeTagDraft, setNodeTagDraft] = useState('')
   const animPreviewIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // ── 씬 오버레이 (R1341) ─────────────────────────────────────
+  const [sceneOverlay, setSceneOverlay] = useState(false)
+  const [showOverlayPanel, setShowOverlayPanel] = useState(false)
 
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()

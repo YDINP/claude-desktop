@@ -79,6 +79,8 @@ export function CocosPanel() {
   const [showNodeTemplates, setShowNodeTemplates] = useState(false)
   const [buildSchedule, setBuildSchedule] = useState<string>('')
   const [buildScheduleEnabled, setBuildScheduleEnabled] = useState(false)
+  const [assetBundle, setAssetBundle] = useState(false)
+  const [assetBundleConfig, setAssetBundleConfig] = useState('')
   return (
     <CCFileProjectUI
       fileProject={fileProject}
