@@ -1069,6 +1069,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showSearchFilter, setShowSearchFilter] = React.useState(false)
   const [msgSortOrder, setMsgSortOrder] = React.useState<'asc' | 'desc'>('asc')
   const [showSortOptions, setShowSortOptions] = React.useState(false)
+  const [readMarkers, setReadMarkers] = React.useState<Record<string, boolean>>({})
+  const [showReadStatus, setShowReadStatus] = React.useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

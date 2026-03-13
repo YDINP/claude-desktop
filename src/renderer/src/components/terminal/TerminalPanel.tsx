@@ -425,6 +425,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [processList, setProcessList] = React.useState<string[]>([])
   const [showProcessList, setShowProcessList] = React.useState(false)
   const [showCmdBookmarks, setShowCmdBookmarks] = React.useState(false)
+  const [sessionLog, setSessionLog] = React.useState<string[]>([])
+  const [showSessionLog, setShowSessionLog] = React.useState(false)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount

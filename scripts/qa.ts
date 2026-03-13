@@ -10653,6 +10653,74 @@ if (existsSync(sl1049Path)) {
   }
 }
 
+console.log('\n## 261. Phase DD10 R1050~1052 기능 체크')
+// R1050: ChatPanel 읽음 표시
+const cp1050Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1050Path)) {
+  const cp1050 = readFileSync(cp1050Path, 'utf-8')
+  if (cp1050.includes('readMarkers') || cp1050.includes('showReadStatus') || cp1050.includes('readStatus')) {
+    log('pass', 'R1050', 'ChatPanel 읽음 표시 존재')
+  } else {
+    log('warning', 'R1050', 'ChatPanel 읽음 표시 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1051: InputBar 파일 미리보기
+const ib1051Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1051Path)) {
+  const ib1051 = readFileSync(ib1051Path, 'utf-8')
+  if (ib1051.includes('filePreview') || ib1051.includes('showFilePreview') || ib1051.includes('previewFile')) {
+    log('pass', 'R1051', 'InputBar 파일 미리보기 존재')
+  } else {
+    log('warning', 'R1051', 'InputBar 파일 미리보기 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1052: CocosPanel 씬 템플릿
+const ccp1052Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1052Path)) {
+  const ccp1052 = readFileSync(ccp1052Path, 'utf-8')
+  if (ccp1052.includes('sceneTemplates') || ccp1052.includes('showTemplatePanel') || ccp1052.includes('templateList')) {
+    log('pass', 'R1052', 'CocosPanel 씬 템플릿 존재')
+  } else {
+    log('warning', 'R1052', 'CocosPanel 씬 템플릿 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 262. Phase DD10 R1053~1055 기능 체크')
+// R1053: SceneViewPanel 씬 diff
+const sv1053Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1053Path)) {
+  const sv1053 = readFileSync(sv1053Path, 'utf-8')
+  if (sv1053.includes('sceneDiff') || sv1053.includes('showDiffPanel') || sv1053.includes('diffView')) {
+    log('pass', 'R1053', 'SceneViewPanel 씬 diff 존재')
+  } else {
+    log('warning', 'R1053', 'SceneViewPanel 씬 diff 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1054: TerminalPanel 세션 로그
+const tp1054Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1054Path)) {
+  const tp1054 = readFileSync(tp1054Path, 'utf-8')
+  if (tp1054.includes('sessionLog') || tp1054.includes('showSessionLog') || tp1054.includes('termLog')) {
+    log('pass', 'R1054', 'TerminalPanel 세션 로그 존재')
+  } else {
+    log('warning', 'R1054', 'TerminalPanel 세션 로그 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1055: SessionList 세션 내보내기
+const sl1055Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1055Path)) {
+  const sl1055 = readFileSync(sl1055Path, 'utf-8')
+  if (sl1055.includes('exportFormat') || sl1055.includes('showExportDialog') || sl1055.includes('exportMode')) {
+    log('pass', 'R1055', 'SessionList 세션 내보내기 존재')
+  } else {
+    log('warning', 'R1055', 'SessionList 세션 내보내기 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

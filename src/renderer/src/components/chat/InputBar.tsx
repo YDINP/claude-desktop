@@ -323,6 +323,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [mentionQuery, setMentionQuery] = React.useState('')
   const [emojiPickerOpen, setEmojiPickerOpen] = React.useState(false)
   const [recentEmojis, setRecentEmojis] = React.useState<string[]>([])
+  const [filePreview, setFilePreview] = React.useState<string | null>(null)
+  const [showFilePreview, setShowFilePreview] = React.useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
