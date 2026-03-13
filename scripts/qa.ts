@@ -9429,6 +9429,74 @@ if (existsSync(sl941Path)) {
   }
 }
 
+console.log('\n## 225. Phase DD10 R942~944 기능 체크')
+// R942: ChatPanel 메시지 북마크
+const cp942Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp942Path)) {
+  const cp942 = readFileSync(cp942Path, 'utf-8')
+  if (cp942.includes('messageBookmarks') || cp942.includes('showBookmarkPanel') || cp942.includes('bookmarkedMessages')) {
+    log('pass', 'R942', 'ChatPanel 메시지 북마크 존재')
+  } else {
+    log('warning', 'R942', 'ChatPanel 메시지 북마크 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R943: InputBar 텍스트 크기 조절
+const ib943Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib943Path)) {
+  const ib943 = readFileSync(ib943Path, 'utf-8')
+  if (ib943.includes('fontSize') || ib943.includes('showFontSizeControl') || ib943.includes('textSize')) {
+    log('pass', 'R943', 'InputBar 텍스트 크기 조절 존재')
+  } else {
+    log('warning', 'R943', 'InputBar 텍스트 크기 조절 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R944: CocosPanel 컴포넌트 검색
+const cocos944Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos944Path)) {
+  const cocos944 = readFileSync(cocos944Path, 'utf-8')
+  if (cocos944.includes('compSearch') || cocos944.includes('compSearchResults') || cocos944.includes('componentFilter')) {
+    log('pass', 'R944', 'CocosPanel 컴포넌트 검색 존재')
+  } else {
+    log('warning', 'R944', 'CocosPanel 컴포넌트 검색 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 226. Phase DD10 R945~947 기능 체크')
+// R945: SceneViewPanel 그리드 오버레이
+const svp945Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp945Path)) {
+  const svp945 = readFileSync(svp945Path, 'utf-8')
+  if (svp945.includes('showGrid') || svp945.includes('gridSize') || svp945.includes('gridOverlay')) {
+    log('pass', 'R945', 'SceneViewPanel 그리드 오버레이 존재')
+  } else {
+    log('warning', 'R945', 'SceneViewPanel 그리드 오버레이 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R946: TerminalPanel 출력 필터
+const tp946Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp946Path)) {
+  const tp946 = readFileSync(tp946Path, 'utf-8')
+  if (tp946.includes('outputFilter') || tp946.includes('filterActive') || tp946.includes('filterOutput')) {
+    log('pass', 'R946', 'TerminalPanel 출력 필터 존재')
+  } else {
+    log('warning', 'R946', 'TerminalPanel 출력 필터 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R947: SessionList 세션 핀
+const sl947Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl947Path)) {
+  const sl947 = readFileSync(sl947Path, 'utf-8')
+  if (sl947.includes('pinnedSessions') || sl947.includes('showPinnedOnly') || sl947.includes('pinnedFiltered')) {
+    log('pass', 'R947', 'SessionList 세션 핀 존재')
+  } else {
+    log('warning', 'R947', 'SessionList 세션 핀 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

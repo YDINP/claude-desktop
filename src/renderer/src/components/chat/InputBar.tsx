@@ -291,6 +291,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [grammarSuggestions, setGrammarSuggestions] = useState<Array<{ offset: number; text: string; suggestion: string }>>([])
   const [voiceInput, setVoiceInput] = React.useState(false)
   const [voiceTranscript, setVoiceTranscript] = React.useState('')
+  const [fontSize, setFontSize] = React.useState(14)
+  const [showFontSizeControl, setShowFontSizeControl] = React.useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
