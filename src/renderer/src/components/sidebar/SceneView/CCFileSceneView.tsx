@@ -1872,6 +1872,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             {node.components && node.components.length > 0 && (
               <span style={{ color: '#555', flexShrink: 0, pointerEvents: 'none' }} title={`컴포넌트 ${node.components.length}개`}>⊞{node.components.length}</span>
             )}
+            {/* R1618: depth 레벨 표시 */}
+            <span style={{ color: '#444', flexShrink: 0, pointerEvents: 'none' }} title={`계층 깊이 D${fn.depth}`}>D{fn.depth}</span>
             <span style={{ color: '#58a6ff', flex: 1, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}>
               {node.name}
             </span>

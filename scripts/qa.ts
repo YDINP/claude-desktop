@@ -17334,6 +17334,18 @@ console.log('\n## 508. R1617 Inspector 트랜스폼 복사/붙여넣기 체크')
   }
 }
 
+// ── Section 509: R1618 SceneView HUD depth 레벨 표시 ──────────────────
+console.log('\n## 509. R1618 SceneView HUD depth 레벨 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s509 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s509.includes('R1618') && s509.includes('depth 레벨 표시') && s509.includes('fn.depth') && s509.includes('계층 깊이')) {
+    log('pass', 'R1618-hud-depth', 'SceneView HUD depth 레벨 표시')
+  } else {
+    log('warning', 'R1618-hud-depth', 'SceneView HUD depth 레벨 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
