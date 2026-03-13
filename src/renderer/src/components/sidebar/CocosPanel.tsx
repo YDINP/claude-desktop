@@ -1971,6 +1971,7 @@ function CCFileNodeInspector({
   // 편집 중인 로컬 상태 (노드 변경 시 초기화)
   const [draft, setDraft] = useState<CCSceneNode>(() => ({ ...node }))
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [saving, setSaving] = useState(false)
   // Round 643: 저장 상태 + Undo/Redo
   const [isDirty, setIsDirty] = useState(false)
   const [savedToast, setSavedToast] = useState(false)

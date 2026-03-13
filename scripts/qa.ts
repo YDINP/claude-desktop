@@ -14811,6 +14811,22 @@ if (existsSync(cfp1400Path)) {
   }
 }
 
+// ── Section 382b: CCFileNodeInspector saving 변수 검사 ───────────────────────
+{
+  const cocosPanelPath = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  if (existsSync(cocosPanelPath)) {
+    const src = readFileSync(cocosPanelPath, 'utf-8')
+    const lines = src.split('\n')
+    const inspectorStart = lines.findIndex(l => l.includes('function CCFileNodeInspector'))
+    const savingInInspector = lines.slice(inspectorStart, inspectorStart + 100).some(l => l.match(/const \[saving.*useState/))
+    if (inspectorStart !== -1 && !savingInInspector) {
+      log('critical', 'RuntimeError', 'CCFileNodeInspector: saving state 선언 없음 — ReferenceError 발생', 'sidebar/CocosPanel.tsx')
+    } else {
+      log('pass', 'RuntimeError', 'CCFileNodeInspector: saving state 정상 선언')
+    }
+  }
+}
+
 // ── Section 383: R1410/R1411/R1412 기능 체크 ───────────────
 console.log('\n## 383. Phase DD14 R1410~R1412 기능 체크')
 
