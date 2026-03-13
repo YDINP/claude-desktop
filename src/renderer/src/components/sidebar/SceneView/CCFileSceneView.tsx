@@ -41,7 +41,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
-  const [showGrid, setShowGrid] = useState(true)
+  const [gridStyle, setGridStyle] = useState<'line' | 'dot' | 'none'>('line')
   const [showNodeNames, setShowNodeNames] = useState(true)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
   const [showHelp, setShowHelp] = useState(false)
@@ -313,11 +313,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           style={{ width: 18, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
         />
         <button
-          onClick={() => setShowGrid(g => !g)}
-          title="그리드 표시 토글"
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showGrid ? 'rgba(88,166,255,0.12)' : 'none', color: showGrid ? '#58a6ff' : 'var(--text-muted)' }}
+          onClick={() => setGridStyle(s => s === 'none' ? 'line' : s === 'line' ? 'dot' : 'none')}
+          title={`그리드: ${gridStyle === 'none' ? '없음' : gridStyle === 'line' ? '선' : '점'} (클릭으로 전환)`}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: gridStyle !== 'none' ? 'rgba(88,166,255,0.12)' : 'none', color: gridStyle !== 'none' ? '#58a6ff' : 'var(--text-muted)' }}
         >
-          ⊹
+          {gridStyle === 'dot' ? '·' : '⊹'}
         </button>
         <button
           onClick={() => setShowNodeNames(n => !n)}
@@ -390,19 +390,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           <rect x={-99999} y={-99999} width={199999} height={199999}
             fill="url(#hatchOutside)" mask="url(#outsideMask)" pointerEvents="none" />
           {/* 그리드 (100px 단위) */}
-          {showGrid && view.zoom > 0.2 && (() => {
+          {gridStyle !== 'none' && view.zoom > 0.2 && (() => {
             const step = 100
-            const lines: React.ReactElement[] = []
-            for (let x = step; x < designW; x += step) {
-              lines.push(<line key={`gv${x}`} x1={x} y1={0} x2={x} y2={designH} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
+            const els: React.ReactElement[] = []
+            if (gridStyle === 'line') {
+              for (let x = step; x < designW; x += step) {
+                els.push(<line key={`gv${x}`} x1={x} y1={0} x2={x} y2={designH} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
+              }
+              for (let y = step; y < designH; y += step) {
+                els.push(<line key={`gh${y}`} x1={0} y1={y} x2={designW} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
+              }
+            } else {
+              // dot 그리드: 교차점에만 점 표시
+              for (let x = step; x < designW; x += step) {
+                for (let y = step; y < designH; y += step) {
+                  els.push(<circle key={`d${x}${y}`} cx={x} cy={y} r={1/view.zoom} fill="rgba(255,255,255,0.15)" />)
+                }
+              }
             }
-            for (let y = step; y < designH; y += step) {
-              lines.push(<line key={`gh${y}`} x1={0} y1={y} x2={designW} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth={1/view.zoom} />)
-            }
-            // 중앙 십자선
-            lines.push(<line key="cx" x1={designW/2} y1={0} x2={designW/2} y2={designH} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
-            lines.push(<line key="cy" x1={0} y1={designH/2} x2={designW} y2={designH/2} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
-            return lines
+            // 중앙 십자선 (항상 표시)
+            els.push(<line key="cx" x1={designW/2} y1={0} x2={designW/2} y2={designH} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
+            els.push(<line key="cy" x1={0} y1={designH/2} x2={designW} y2={designH/2} stroke="rgba(88,166,255,0.15)" strokeWidth={1/view.zoom} />)
+            return els
           })()}
 
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
