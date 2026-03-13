@@ -12353,6 +12353,74 @@ if (existsSync(sl1199Path)) {
   }
 }
 
+console.log('\n## 311. Phase DD10 R1200~1202 기능 체크')
+// R1200: ChatPanel 메시지 분석
+const cp1200Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1200Path)) {
+  const cp1200 = readFileSync(cp1200Path, 'utf-8')
+  if (cp1200.includes('msgAnalytics') || cp1200.includes('showAnalytics') || cp1200.includes('chatAnalytics')) {
+    log('pass', 'R1200', 'ChatPanel 메시지 분석 존재')
+  } else {
+    log('warning', 'R1200', 'ChatPanel 메시지 분석 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1201: InputBar 집중 모드
+const ib1201Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1201Path)) {
+  const ib1201 = readFileSync(ib1201Path, 'utf-8')
+  if (ib1201.includes('focusMode') || ib1201.includes('focusTimer') || ib1201.includes('focusOpacity')) {
+    log('pass', 'R1201', 'InputBar 집중 모드 존재')
+  } else {
+    log('warning', 'R1201', 'InputBar 집중 모드 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1202: CocosPanel 빌드 히스토리
+const cocos1202Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos1202Path)) {
+  const cocos1202 = readFileSync(cocos1202Path, 'utf-8')
+  if (cocos1202.includes('buildHistory') || cocos1202.includes('showBuildHistory') || cocos1202.includes('buildLog')) {
+    log('pass', 'R1202', 'CocosPanel 빌드 히스토리 존재')
+  } else {
+    log('warning', 'R1202', 'CocosPanel 빌드 히스토리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 312. Phase DD10 R1203~1205 기능 체크')
+// R1203: SceneViewPanel 씬 메트릭
+const sv1203Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1203Path)) {
+  const sv1203 = readFileSync(sv1203Path, 'utf-8')
+  if (sv1203.includes('sceneMetrics') || sv1203.includes('showMetricsPanel') || sv1203.includes('nodeCount')) {
+    log('pass', 'R1203', 'SceneViewPanel 씬 메트릭 존재')
+  } else {
+    log('warning', 'R1203', 'SceneViewPanel 씬 메트릭 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1204: TerminalPanel 터미널 diff
+const tp1204Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1204Path)) {
+  const tp1204 = readFileSync(tp1204Path, 'utf-8')
+  if (tp1204.includes('termDiff') || tp1204.includes('showDiffPanel') || tp1204.includes('diffOutput')) {
+    log('pass', 'R1204', 'TerminalPanel 터미널 diff 존재')
+  } else {
+    log('warning', 'R1204', 'TerminalPanel 터미널 diff 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1205: SessionList 세션 버전
+const sl1205Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1205Path)) {
+  const sl1205 = readFileSync(sl1205Path, 'utf-8')
+  if (sl1205.includes('sessionVersion') || sl1205.includes('showVersionPanel') || sl1205.includes('versionHistory')) {
+    log('pass', 'R1205', 'SessionList 세션 버전 존재')
+  } else {
+    log('warning', 'R1205', 'SessionList 세션 버전 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

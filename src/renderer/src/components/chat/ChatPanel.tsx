@@ -1109,6 +1109,9 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // R1194: message forward
   const [forwardingMsg, setForwardingMsg] = useState<string | null>(null)
   const [forwardTarget, setForwardTarget] = useState<string | null>(null)
+  // R1200: message analytics
+  const [msgAnalytics, setMsgAnalytics] = useState<Record<string, number>>({})
+  const [showAnalytics, setShowAnalytics] = useState(false)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

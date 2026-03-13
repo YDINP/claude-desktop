@@ -264,6 +264,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1196: resource usage
   const [resourceUsage, setResourceUsage] = useState<Record<string, number>>({})
   const [showResourcePanel, setShowResourcePanel] = useState(false)
+  // R1202: build history
+  const [buildHistory, setBuildHistory] = useState<string[]>([])
+  const [showBuildHistory, setShowBuildHistory] = useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

@@ -344,6 +344,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [globalShortcuts, setGlobalShortcuts] = React.useState<Record<string, string>>({})
   const [showShortcutEditor, setShowShortcutEditor] = React.useState(false)
   const [focusMode, setFocusMode] = React.useState(false)
+  const [focusTimer, setFocusTimer] = useState(0)
   const [focusOpacity, setFocusOpacity] = React.useState(0.5)
   const [continuousMode, setContinuousMode] = React.useState(false)
   const [continuousDelay, setContinuousDelay] = React.useState(500)
