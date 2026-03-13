@@ -550,7 +550,7 @@ export function registerFsHandlers(_win: unknown) {
         const normalized = path.resolve(filePath)
         if (normalized.length < 10) throw new Error('unsafe path')
         if (/^[A-Za-z]:[\\\/]?$/.test(normalized) || normalized === '/') throw new Error('unsafe path')
-        await rm(filePath, { recursive: true, force: true })
+        await rm(normalized, { recursive: true, force: true })
       } else {
         await unlink(filePath)
       }
