@@ -4426,6 +4426,31 @@ function CCFileNodeInspector({
               }}
               style={{ cursor: 'pointer', color: compCopied === comp.type ? '#58a6ff' : '#666', fontSize: 9, padding: '0 3px', lineHeight: 1 }}
             >{compCopied === comp.type ? '✓' : '⎘'}</span>
+            {/* R1528: 컴포넌트 순서 변경 ▲▼ */}
+            <span
+              title="위로 이동"
+              onClick={e => {
+                e.stopPropagation()
+                if (origIdx <= 0) return
+                const comps = [...draft.components]
+                const [moved] = comps.splice(origIdx, 1)
+                comps.splice(origIdx - 1, 0, moved)
+                applyAndSave({ components: comps })
+              }}
+              style={{ cursor: origIdx > 0 ? 'pointer' : 'default', color: origIdx > 0 ? '#666' : '#2a2a2a', fontSize: 9, padding: '0 2px', lineHeight: 1 }}
+            >▲</span>
+            <span
+              title="아래로 이동"
+              onClick={e => {
+                e.stopPropagation()
+                if (origIdx >= draft.components.length - 1) return
+                const comps = [...draft.components]
+                const [moved] = comps.splice(origIdx, 1)
+                comps.splice(origIdx + 1, 0, moved)
+                applyAndSave({ components: comps })
+              }}
+              style={{ cursor: origIdx < draft.components.length - 1 ? 'pointer' : 'default', color: origIdx < draft.components.length - 1 ? '#666' : '#2a2a2a', fontSize: 9, padding: '0 2px', lineHeight: 1 }}
+            >▼</span>
             <span
               title="컴포넌트 삭제"
               onClick={e => { e.stopPropagation(); applyAndSave({ components: draft.components.filter((_, i) => i !== origIdx) }) }}

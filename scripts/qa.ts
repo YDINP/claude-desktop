@@ -16190,6 +16190,23 @@ if (existsSync(sv428)) {
   }
 }
 
+// ── Section 429: R1528 Inspector 컴포넌트 순서 변경 체크 ──────────────────────
+console.log('\n## 429. R1528 Inspector 컴포넌트 순서 변경 (▲▼ 버튼) 체크')
+const panel429 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(panel429)) {
+  const s429 = readFileSync(panel429, 'utf-8')
+  if (s429.includes('R1528') && s429.includes('위로 이동') && s429.includes('아래로 이동')) {
+    log('pass', 'R1528-reorder-buttons', '컴포넌트 ▲▼ 순서 변경 버튼 UI 구현')
+  } else {
+    log('warning', 'R1528-reorder-buttons', '▲▼ 버튼 미구현', 'CocosPanel.tsx')
+  }
+  if (s429.includes('comps.splice(origIdx, 1)') && s429.includes('comps.splice(origIdx - 1, 0, moved)') && s429.includes('comps.splice(origIdx + 1, 0, moved)')) {
+    log('pass', 'R1528-reorder-logic', '컴포넌트 배열 splice 이동 로직 구현')
+  } else {
+    log('warning', 'R1528-reorder-logic', '배열 이동 로직 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
