@@ -16832,6 +16832,18 @@ console.log('\n## 468. R1577 Inspector JSON 복사 버튼 체크')
   }
 }
 
+// ── Section 469: R1578 SceneView 노드 색상 tint 표시 ────────────────
+console.log('\n## 469. R1578 SceneView 색상 tint indicator 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s469 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s469.includes('R1578') && s469.includes('색상 tint') && s469.includes('r === 255 && g === 255 && b === 255')) {
+    log('pass', 'R1578-tint', 'SceneView 노드 색상 tint 표시 (비흰색일 때 ■ swatch)')
+  } else {
+    log('warning', 'R1578-tint', 'SceneView 색상 tint 표시 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

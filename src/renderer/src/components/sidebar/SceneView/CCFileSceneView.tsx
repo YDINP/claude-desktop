@@ -1134,6 +1134,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     {node.layer != null && node.layer !== 1048576 && (
                       <tspan fontSize={8 / view.zoom} fill="rgba(251,191,36,0.7)" dx={3 / view.zoom}>[L{node.layer}]</tspan>
                     )}
+                    {/* R1578: 색상 tint 표시 (흰색/기본이 아닐 때) */}
+                    {(() => {
+                      const c = node.color as { r?: number; g?: number; b?: number } | undefined
+                      if (!c) return null
+                      const { r = 255, g = 255, b = 255 } = c
+                      if (r === 255 && g === 255 && b === 255) return null
+                      const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+                      return <tspan fontSize={8 / view.zoom} fill={hex} dx={3 / view.zoom}>■</tspan>
+                    })()}
                   </text>
                 )}
                 {/* 인라인 이름 편집 (더블클릭 시) */}
