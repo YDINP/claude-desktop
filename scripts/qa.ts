@@ -17682,6 +17682,18 @@ console.log('\n## 537. R1646 Inspector 색상 변경 인디케이터 체크')
   }
 }
 
+// ── Section 538: R1647 Inspector opacity 빠른 프리셋 버튼 ─────────────────
+console.log('\n## 538. R1647 Inspector opacity 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s538 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s538.includes('R1647') && s538.includes('0, 64, 128, 191, 255') && s538.includes('opacity 빠른 프리셋')) {
+    log('pass', 'R1647-opacity-preset', 'Inspector opacity 빠른 프리셋 버튼')
+  } else {
+    log('warning', 'R1647-opacity-preset', 'Inspector opacity 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

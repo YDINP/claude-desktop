@@ -4697,6 +4697,17 @@ function CCFileNodeInspector({
             {Math.round(((draft.opacity ?? 255) / 255) * 100)}%
           </span>
         </div>
+        {/* R1647: opacity 빠른 프리셋 */}
+        <div style={{ display: 'flex', gap: 3, marginBottom: 4, marginTop: 2 }}>
+          {([0, 64, 128, 191, 255] as const).map(v => (
+            <span
+              key={v}
+              onClick={() => applyAndSave({ opacity: v })}
+              title={`opacity ${Math.round(v / 255 * 100)}%`}
+              style={{ fontSize: 8, padding: '0 3px', borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', color: Math.abs((draft.opacity ?? 255) - v) < 2 ? '#58a6ff' : 'var(--text-muted)', background: Math.abs((draft.opacity ?? 255) - v) < 2 ? 'rgba(88,166,255,0.12)' : 'none', userSelect: 'none' }}
+            >{Math.round(v / 255 * 100)}%</span>
+          ))}
+        </div>
         {/* R1609: 노드 색상(tint) 피커 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
           <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>tint</span>
