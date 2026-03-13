@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 471 완료 — HH-1 씬뷰 배경색 임시 오버라이드)
+> 마지막 업데이트: 2026-03-13 (Round 472 완료 — II-1 PRD 완료 기준 동기화)
 
 ## 완료된 라운드
 
@@ -63,6 +63,7 @@
 | Round 469 | dev | Phase FF-1: 씬뷰 그리드 표시 토글 버튼 — showGrid state, ⊹ 버튼 활성/비활성 강조 | ✅ |
 | Round 470 | dev | Phase GG-1: 씬 트리 비활성 노드 숨기기 토글 — hideInactive prop, ●/◑ 버튼, active=false 노드 필터링 | ✅ |
 | Round 471 | dev | Phase HH-1: 씬뷰 배경색 임시 오버라이드 — bgColorOverride state, color picker swatch, 더블클릭 초기화 | ✅ |
+| Round 472 | docs | Phase II-1: PRD-CC-에디터-통합-Phase2.md 완료 기준 동기화 (Round 414-471 완료 항목 체크) | ✅ |
 | Round 1~60 | main | 초기 개발 (60라운드) | ✅ |
 | Round 61 | main | 보안(Shell Injection 수정)/안정성/성능/디자인 Critical 수정 | ✅ |
 | Round 62 | main | 안정성(session 검증/IPC cleanup/debounce) + 디자인 Quick Wins + 성능 최적화 | ✅ |
