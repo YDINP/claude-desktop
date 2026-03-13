@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T11:52:23.855Z
+> 2026-03-13T11:53:35.896Z
 
 ## Critical
 _없음_
@@ -736,3 +736,6 @@ _없음_
 - SceneViewPanel 씬 로딩 진행률 존재
 - TerminalPanel 스크롤 위치 기억 존재
 - SessionList 세션 자동 백업 존재
+- ChatPanel 스트리밍 속도 제어 존재
+- InputBar 자동 태그 감지 존재
+- CocosPanel 노드 복사 이력 존재

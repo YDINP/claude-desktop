@@ -8419,6 +8419,41 @@ if (existsSync(sl854Path)) {
   }
 }
 
+console.log('\n## 196. Phase DD10 R855~857 기능 체크')
+
+// R855: ChatPanel 스트리밍 속도 제어
+const cp855Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp855Path)) {
+  const cp855 = readFileSync(cp855Path, 'utf-8')
+  if (cp855.includes('streamSpeed') || cp855.includes('streamChunkSize') || cp855.includes('streamRate')) {
+    log('pass', 'R855', 'ChatPanel 스트리밍 속도 제어 존재')
+  } else {
+    log('warning', 'R855', 'ChatPanel 스트리밍 속도 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R856: InputBar 자동 태그 감지
+const ib856Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib856Path)) {
+  const ib856 = readFileSync(ib856Path, 'utf-8')
+  if (ib856.includes('autoTagDetect') || ib856.includes('detectedTags') || ib856.includes('tagDetection')) {
+    log('pass', 'R856', 'InputBar 자동 태그 감지 존재')
+  } else {
+    log('warning', 'R856', 'InputBar 태그 감지 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R857: CocosPanel 노드 복사 이력
+const cocp857Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocp857Path)) {
+  const cocp857 = readFileSync(cocp857Path, 'utf-8')
+  if (cocp857.includes('nodeCopyHistory') || cocp857.includes('showCopyHistory') || cocp857.includes('copyLog')) {
+    log('pass', 'R857', 'CocosPanel 노드 복사 이력 존재')
+  } else {
+    log('warning', 'R857', 'CocosPanel 복사 이력 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
