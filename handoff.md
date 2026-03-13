@@ -1,19 +1,21 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-13
 
-## 완료 (R1486-1491)
-- [x] R1486: SceneView 다중 선택 정렬 툴바 (6종 + 균등 배분)
-- [x] R1487: Inspector COCOS_ENUM_MAP 확장 (Button/Layout/Mask/ScrollView enum)
-- [x] R1488: Inspector breadcrumb 노드 통계 뱃지 (깊이/자식/컴포넌트)
-- [x] R1489: SceneView 미니맵 오버레이 (100×72px, 뷰포트 사각형 + 노드 점)
-- [x] R1490: QA Section 409-410 (Pass 1378)
+## 완료 (R1491-1499)
 - [x] R1491: SceneView Label 텍스트 인라인 편집 (더블클릭 → foreignObject input)
+- [x] R1492: Inspector 노드 경로 복사 버튼 (⎘)
+- [x] R1493: cc-file-parser UITransform _contentSize/contentSize fallback 강화
+- [x] R1495: QA Section 411-412 (Pass 1381)
+- [x] R1496: SceneView 우클릭 컨텍스트 메뉴 (복사/붙여넣기/삭제/AI 분석)
+- [x] R1497: Inspector Raw JSON 뷰 + 복사 버튼
+- [x] R1498: 미니맵 클릭 → 씬 좌표 pan
+- [x] R1499: QA Section 413-414 (Pass 1384)
 
-## 다음 예정 (R1492+)
-- [ ] R1492: Inspector 씬 노드 path 복사 버튼 (클립보드)
-- [ ] R1493: SceneView 노드 스냅-to-grid 시각화 (스냅 포인트 하이라이트)
-- [ ] R1494: cc-file-parser CC3.x UITransform anchor/size fallback 강화
-- [ ] R1495: QA Section 411-412
+## 다음 예정 (R1500+)
+- [ ] R1500: SceneView 노드 스냅-to-grid 시각적 피드백 (스냅 포인트 하이라이트)
+- [ ] R1501: Inspector 씬 diff 요약 뷰 (lastSaveDiff 히스토리 표시)
+- [ ] R1502: cc-file-saver 저장 시 자동 유효성 검사 (노드 순환 감지)
+- [ ] R1503: QA Section 415-416
 
 ## 빌드/QA
 - Build: ✅ 성공
