@@ -346,7 +346,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1366: 최근 씬 파일 업데이트
   const addRecentScene = useCallback((path: string) => {
     setRecentSceneFiles(prev => {
-      const next = [path, ...prev.filter(p => p !== path)].slice(0, 5)
+      const next = [path, ...prev.filter(p => p !== path)].slice(0, 8)
       localStorage.setItem('recent-scene-files', JSON.stringify(next))
       return next
     })
@@ -739,20 +739,24 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           </select>
         )}
 
-        {/* R1366: 최근 씬 파일 목록 */}
+        {/* R1366+R1370: 최근 씬 파일 목록 (최대 8개, 현재 씬 체크 표시) */}
         {recentSceneFiles.length > 0 && (
           <div style={{ marginTop: 6 }}>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>최근 파일</div>
-            {recentSceneFiles.map(p => (
-              <div
-                key={p}
-                onClick={() => { loadScene(p); addRecentScene(p) }}
-                style={{ fontSize: 11, cursor: 'pointer', color: 'var(--accent)', padding: '2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                title={p}
-              >
-                {p.split(/[\\/]/).pop()}
-              </div>
-            ))}
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>최근 씬</div>
+            {recentSceneFiles.map(p => {
+              const isCurrent = sceneFile?.scenePath === p
+              return (
+                <div
+                  key={p}
+                  onClick={() => { loadScene(p); addRecentScene(p) }}
+                  style={{ fontSize: 11, cursor: 'pointer', color: isCurrent ? 'var(--success)' : 'var(--accent)', padding: '2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}
+                  title={p}
+                >
+                  {isCurrent && <span style={{ fontSize: 10, flexShrink: 0 }}>{'✓'}</span>}
+                  <span>{p.split(/[\\/]/).pop()}</span>
+                </div>
+              )
+            })}
           </div>
         )}
 

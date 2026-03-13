@@ -18,7 +18,7 @@ export interface SceneNode {
   color: { r: number; g: number; b: number; a: number }
   parentUuid: string | null
   childUuids: string[]
-  components: { type: string }[]
+  components: { type: string; props?: Record<string, unknown> }[]
   locked?: boolean
   memo?: string
   visible?: boolean

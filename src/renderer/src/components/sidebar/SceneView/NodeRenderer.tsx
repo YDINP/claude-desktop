@@ -116,6 +116,16 @@ export const NodeRenderer = memo(function NodeRenderer({
 
   const icon = getComponentIcon(node.components)
 
+  // R1369: Sprite/Label/RichText 컴포넌트 컬러 fill
+  const colorComp = node.components.find(c => c.type === 'cc.Sprite' || c.type === 'cc.Label' || c.type === 'cc.RichText')
+  const compColor = colorComp?.props?.color as { r: number; g: number; b: number; a: number } | undefined
+  const fillColor = compColor ?? (node.color.r !== 255 || node.color.g !== 255 || node.color.b !== 255 ? node.color : undefined)
+  const compFillStr = fillColor ? `rgba(${fillColor.r},${fillColor.g},${fillColor.b},${(fillColor.a ?? 255) / 255 * 0.3})` : undefined
+
+  // R1371: 컴포넌트 뱃지 아이콘 (우상단, 최대 3개)
+  const MAX_BADGES = 3
+  const icons = node.components.slice(0, MAX_BADGES).map(c => getComponentIcon([c]))
+
   return (
     <g
       opacity={opacity}
@@ -132,7 +142,7 @@ export const NodeRenderer = memo(function NodeRenderer({
         y={ry}
         width={pw}
         height={ph}
-        fill={lod >= 2 ? 'none' : nodeColor ? `${nodeColor}26` : node.labelColor ? `${node.labelColor}33` : 'rgba(255, 255, 255, 0.04)'}
+        fill={lod >= 2 ? 'none' : compFillStr ? compFillStr : nodeColor ? `${nodeColor}26` : node.labelColor ? `${node.labelColor}33` : 'rgba(255, 255, 255, 0.04)'}
         stroke={nodeColor ?? node.labelColor ?? strokeColor}
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDash}
@@ -228,6 +238,29 @@ export const NodeRenderer = memo(function NodeRenderer({
           {node.name.length > 12 ? node.name.slice(0, 12) + '\u2026' : node.name}
           {node.name.length > 12 && <title>{node.name}</title>}
         </text>
+      )}
+
+      {/* R1371: 컴포넌트 뱃지 (우상단, 최대 3개) */}
+      {showLabel && lod === 0 && pw > 20 && ph > 14 && icons.some(Boolean) && (
+        <g style={{ pointerEvents: 'none' }}>
+          {icons.map((ic, idx) => {
+            if (!ic) return null
+            const bx = rx + pw - (idx + 1) * 12 - 1
+            const by = ry + 1
+            return (
+              <g key={idx}>
+                <circle cx={bx + 5} cy={by + 5} r={5} fill="rgba(0,0,0,0.55)" />
+                <text
+                  x={bx + 5} y={by + 8}
+                  fontSize={6} fill="rgba(255,255,255,0.85)"
+                  textAnchor="middle" dominantBaseline="auto"
+                  fontFamily="var(--font-mono)"
+                  style={{ userSelect: 'none' }}
+                >{ic}</text>
+              </g>
+            )
+          })}
+        </g>
       )}
 
       {/* 선택 핸들 (8개) */}

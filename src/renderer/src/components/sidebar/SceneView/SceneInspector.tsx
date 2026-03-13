@@ -628,6 +628,107 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         </>
       )}
 
+      {/* R1368: cc.Widget 속성 편집 */}
+      {(() => {
+        const widgetComp = node.components.find(c => c.type === 'cc.Widget')
+        if (!widgetComp?.props) return null
+        const wp = widgetComp.props as Record<string, unknown>
+        const alignMode = (wp.alignMode as number) ?? 0
+        const alignModeLabels = ['ONCE', 'ON_WINDOW_RESIZE', 'ALWAYS']
+        return (
+          <>
+            <SectionHeader label="Widget" />
+            <div style={{ fontSize: 9, padding: '2px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 48, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>alignMode</span>
+                <select
+                  value={alignMode}
+                  onChange={e => {
+                    const val = parseInt(e.target.value)
+                    const newComps = node.components.map(c =>
+                      c.type === 'cc.Widget' ? { ...c, props: { ...c.props, alignMode: val } } : c
+                    )
+                    onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                  }}
+                  style={{ flex: 1, fontSize: 9, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '1px 3px' }}
+                >
+                  {alignModeLabels.map((label, i) => (
+                    <option key={i} value={i}>{i} — {label}</option>
+                  ))}
+                </select>
+              </div>
+              {(['top', 'bottom', 'left', 'right'] as const).map(side => {
+                const boolKey = `isAbsolute${side.charAt(0).toUpperCase()}${side.slice(1)}` as string
+                const isAbs = (wp[boolKey] as boolean) ?? false
+                const val = (wp[side] as number) ?? 0
+                return (
+                  <div key={side} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 0' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 2, width: 48, flexShrink: 0 }}>
+                      <input
+                        type="checkbox"
+                        checked={isAbs}
+                        onChange={e => {
+                          const newComps = node.components.map(c =>
+                            c.type === 'cc.Widget' ? { ...c, props: { ...c.props, [boolKey]: e.target.checked } } : c
+                          )
+                          onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                        }}
+                        style={{ width: 10, height: 10, accentColor: 'var(--accent)' }}
+                      />
+                      <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{side}</span>
+                    </label>
+                    <NumInput label="" value={val} decimals={1} uuid={node.uuid} prop={`widget.${side}`}
+                      onSave={(_uuid, _prop, v) => {
+                        const newComps = node.components.map(c =>
+                          c.type === 'cc.Widget' ? { ...c, props: { ...c.props, [side]: v } } : c
+                        )
+                        onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+                      }}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          </>
+        )
+      })()}
+
+      {/* R1372: 컴포넌트 추가 드롭다운 */}
+      {(() => {
+        const ADDABLE_COMPONENTS = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource']
+        const existingTypes = new Set(node.components.map(c => c.type))
+        return (
+          <div style={{ marginTop: 4, paddingTop: 3, borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <select
+              id="add-comp-select"
+              style={{ flex: 1, fontSize: 9, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '2px 4px' }}
+            >
+              {ADDABLE_COMPONENTS.map(ct => (
+                <option key={ct} value={ct} disabled={existingTypes.has(ct)}>
+                  {ct.split('.').pop()}{existingTypes.has(ct) ? ' (있음)' : ''}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => {
+                const sel = (document.getElementById('add-comp-select') as HTMLSelectElement)?.value
+                if (!sel || existingTypes.has(sel)) return
+                const newComps = [...node.components, { type: sel, props: {} }]
+                onUpdate(node.uuid, 'components' as string, newComps as unknown as number)
+              }}
+              disabled={ADDABLE_COMPONENTS.every(ct => existingTypes.has(ct))}
+              style={{
+                fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer',
+                background: 'var(--accent-dim)', color: 'var(--accent)',
+                border: '1px solid var(--accent)', opacity: ADDABLE_COMPONENTS.every(ct => existingTypes.has(ct)) ? 0.4 : 1,
+              }}
+            >
+              + 추가
+            </button>
+          </div>
+        )
+      })()}
+
       {/* 노드 메모 */}
       <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
         <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>메모</div>

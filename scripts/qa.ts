@@ -14287,6 +14287,63 @@ if (existsSync(cocos1366Path)) {
     log('warning', 'R1366', 'CocosPanel 최근 씬 파일 목록 없음', 'sidebar/CocosPanel.tsx')
   }
 }
+console.log('\n## 367. Phase DD10 R1368~1370 기능 체크')
+
+// R1368: Inspector cc.Widget 속성 편집
+const si1368Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(si1368Path)) {
+  const si1368 = readFileSync(si1368Path, 'utf-8')
+  if (si1368.includes('cc.Widget') && si1368.includes('alignMode')) {
+    log('pass', 'R1368', 'Widget Inspector 섹션 존재')
+  } else {
+    log('warning', 'R1368', 'Widget Inspector 섹션 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1369: SceneView Sprite/Label 컬러 fill
+const nr1369Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr1369Path)) {
+  const nr1369 = readFileSync(nr1369Path, 'utf-8')
+  if (nr1369.includes('compColor') && nr1369.includes('fillColor')) {
+    log('pass', 'R1369', 'Color fill 렌더링 존재')
+  } else {
+    log('warning', 'R1369', 'Color fill 렌더링 없음', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
+// R1370: CocosPanel 씬 전환 히스토리
+const cp1370Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1370Path)) {
+  const cp1370 = readFileSync(cp1370Path, 'utf-8')
+  if (cp1370.includes('recentScenes') || cp1370.includes('recent-scene-files')) {
+    log('pass', 'R1370', '씬 히스토리 존재')
+  } else {
+    log('warning', 'R1370', '씬 히스토리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 368. Phase DD10 R1371~1372 기능 체크')
+
+// R1371: NodeRenderer 컴포넌트 뱃지
+if (existsSync(nr1369Path)) {
+  const nr1371 = readFileSync(nr1369Path, 'utf-8')
+  if (nr1371.includes('MAX_BADGES') && nr1371.includes('icons')) {
+    log('pass', 'R1371', '컴포넌트 뱃지 존재')
+  } else {
+    log('warning', 'R1371', '컴포넌트 뱃지 없음', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
+// R1372: Inspector 컴포넌트 추가 드롭다운
+if (existsSync(si1368Path)) {
+  const si1372 = readFileSync(si1368Path, 'utf-8')
+  if (si1372.includes('ADDABLE_COMPONENTS') && si1372.includes('추가')) {
+    log('pass', 'R1372', '컴포넌트 추가 드롭다운 존재')
+  } else {
+    log('warning', 'R1372', '컴포넌트 추가 드롭다운 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

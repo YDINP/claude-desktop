@@ -1,10 +1,10 @@
 # Handoff — Claude Desktop Electron App
-> 마지막 업데이트: 2026-03-13 (Round 564 완료 — Phase DD9 R561~564)
+> 마지막 업데이트: 2026-03-14 (Round 1373 완료 — Phase DD10 R1368~1373)
 
 ## 현재 상태
-- 마지막 커밋: Round 601~604 (측정도구 + 컨텍스트메뉴 + Bool토글 + QA)
+- 마지막 커밋: Round 1368~1373 (Widget Inspector/Color fill/씬 히스토리/뱃지/컴포넌트 추가/QA)
 - 빌드: `npm run build` ✅
-- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 503
+- QA: `npm run qa` ✅ Critical 0, Warning 0, Pass 1245
 - 브랜치: `dev`
 - 앱 위치: `C:\Users\a\Documents\claude-desktop`
 - GitHub: `https://github.com/YDINP/claude-desktop` (main 브랜치)
@@ -66,6 +66,17 @@
 ## 긴급 버그 수정 (이번 세션)
 - CCFileSceneView.tsx:245 — panStart.current null in setView updater (offX/offY 캡처로 해결)
 - App.tsx — CC 탭 버튼 border/borderBottom 순서 충돌 경고 해소
+
+## Phase DD10 R1368~1373 완료
+
+| 라운드 | 기능 |
+|--------|------|
+| R1368 | Inspector cc.Widget 속성 편집 (alignMode 드롭다운, top/bottom/left/right 값, isAbsolute 체크박스) |
+| R1369 | SceneView Sprite/Label 노드 cc.Color fill 렌더링 (compColor/fillColor, rgba fill) |
+| R1370 | CocosPanel 씬 전환 히스토리 최대 8개, 현재 씬 체크 표시, 전체경로 tooltip |
+| R1371 | SceneView 노드 컴포넌트 뱃지 (우상단 최대 3개, 10px 원 배경 + 6px 아이콘) |
+| R1372 | Inspector 컴포넌트 추가 드롭다운 (ADDABLE_COMPONENTS 7종, 중복 비활성화, + 추가 버튼) |
+| R1373 | QA Section 367-368 추가 (R1368-R1372 기능 존재 체크, Pass 1245) |
 
 ## Phase DD8 완료 (Round 535~544)
 
