@@ -1073,6 +1073,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   const [showReadStatus, setShowReadStatus] = React.useState(false)
   const [codeRunTarget, setCodeRunTarget] = React.useState<string | null>(null)
   const [showCodeRunner, setShowCodeRunner] = React.useState(false)
+  const [threadView, setThreadView] = React.useState(false)
+  const [threadRoot, setThreadRoot] = React.useState<string | null>(null)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)

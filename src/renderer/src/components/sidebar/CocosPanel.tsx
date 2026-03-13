@@ -218,6 +218,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showValidationPanel, setShowValidationPanel] = React.useState(false)
   const [compSearch, setCompSearch] = React.useState('')
   const [showCompSearch, setShowCompSearch] = React.useState(false)
+  const [autoSave, setAutoSave] = React.useState(false)
+  const [autoSaveInterval, setAutoSaveInterval] = React.useState(30)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }

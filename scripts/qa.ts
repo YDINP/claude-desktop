@@ -10925,6 +10925,74 @@ if (existsSync(sl1073Path)) {
   }
 }
 
+console.log('\n## 269. Phase DD10 R1074~1076 기능 체크')
+// R1074: ChatPanel 메시지 스레드
+const cp1074Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1074Path)) {
+  const cp1074 = readFileSync(cp1074Path, 'utf-8')
+  if (cp1074.includes('threadView') || cp1074.includes('threadRoot') || cp1074.includes('msgThread')) {
+    log('pass', 'R1074', 'ChatPanel 메시지 스레드 존재')
+  } else {
+    log('warning', 'R1074', 'ChatPanel 메시지 스레드 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1075: InputBar 글자 수 제한
+const ib1075Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1075Path)) {
+  const ib1075 = readFileSync(ib1075Path, 'utf-8')
+  if (ib1075.includes('charLimit') || ib1075.includes('showCharCount') || ib1075.includes('charCount')) {
+    log('pass', 'R1075', 'InputBar 글자 수 제한 존재')
+  } else {
+    log('warning', 'R1075', 'InputBar 글자 수 제한 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1076: CocosPanel 씬 자동저장
+const ccp1076Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1076Path)) {
+  const ccp1076 = readFileSync(ccp1076Path, 'utf-8')
+  if (ccp1076.includes('autoSave') || ccp1076.includes('autoSaveInterval') || ccp1076.includes('autoSaveEnabled')) {
+    log('pass', 'R1076', 'CocosPanel 씬 자동저장 존재')
+  } else {
+    log('warning', 'R1076', 'CocosPanel 씬 자동저장 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 270. Phase DD10 R1077~1079 기능 체크')
+// R1077: SceneViewPanel 씬 퀵액션
+const sv1077Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1077Path)) {
+  const sv1077 = readFileSync(sv1077Path, 'utf-8')
+  if (sv1077.includes('quickActions') || sv1077.includes('showQuickActions') || sv1077.includes('sceneActions')) {
+    log('pass', 'R1077', 'SceneViewPanel 씬 퀵액션 존재')
+  } else {
+    log('warning', 'R1077', 'SceneViewPanel 씬 퀵액션 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1078: TerminalPanel 스크롤 잠금
+const tp1078Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1078Path)) {
+  const tp1078 = readFileSync(tp1078Path, 'utf-8')
+  if (tp1078.includes('scrollLock') || tp1078.includes('scrollPos') || tp1078.includes('lockScroll')) {
+    log('pass', 'R1078', 'TerminalPanel 스크롤 잠금 존재')
+  } else {
+    log('warning', 'R1078', 'TerminalPanel 스크롤 잠금 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1079: SessionList 세션 태그 필터
+const sl1079Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1079Path)) {
+  const sl1079 = readFileSync(sl1079Path, 'utf-8')
+  if (sl1079.includes('tagFilter') || sl1079.includes('showTagFilterPanel') || sl1079.includes('filterTag')) {
+    log('pass', 'R1079', 'SessionList 세션 태그 필터 존재')
+  } else {
+    log('warning', 'R1079', 'SessionList 세션 태그 필터 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
