@@ -301,6 +301,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [profilerStats, setProfilerStats] = useState<{ fps: number; drawCalls: number; triangles: number } | null>(null)
   const [renderMode, setRenderMode] = useState<'normal' | 'wireframe' | 'overdraw'>('normal')
   const [showRenderOptions, setShowRenderOptions] = useState(false)
+  const [lightingDebug, setLightingDebug] = useState(false)
+  const [lightingOverlay, setLightingOverlay] = useState<'none' | 'diffuse' | 'specular' | 'ambient'>('none')
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────

@@ -223,6 +223,8 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const [showBookmarkList, setShowBookmarkList] = useState(false)
   const [sessionHeatmap, setSessionHeatmap] = useState(false)
   const [heatmapData, setHeatmapData] = useState<Record<string, number>>({})
+  const [sessionExportFormat, setSessionExportFormat] = useState<'json' | 'md' | 'txt'>('json')
+  const [showSessionExport, setShowSessionExport] = useState(false)
   const [readSessions, setReadSessions] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('read-sessions') ?? '[]')))
   const [searchHistory, setSearchHistory] = useState<string[]>(() => JSON.parse(localStorage.getItem('session-search-history') ?? '[]'))
   const [sessionSummaries, setSessionSummaries] = useState<Record<string, string>>({})

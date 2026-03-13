@@ -9084,6 +9084,41 @@ if (existsSync(cocp911Path)) {
   }
 }
 
+console.log('\n## 215. Phase DD10 R912~914 기능 체크')
+
+// R912: SceneViewPanel 라이팅 디버그
+const svp912Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp912Path)) {
+  const svp912 = readFileSync(svp912Path, 'utf-8')
+  if (svp912.includes('lightingDebug') || svp912.includes('lightingOverlay') || svp912.includes('diffuse')) {
+    log('pass', 'R912', 'SceneViewPanel 라이팅 디버그 존재')
+  } else {
+    log('warning', 'R912', 'SceneViewPanel 라이팅 디버그 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R913: TerminalPanel 출력 스로틀
+const tp913Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp913Path)) {
+  const tp913 = readFileSync(tp913Path, 'utf-8')
+  if (tp913.includes('outputThrottle') || tp913.includes('throttleInterval') || tp913.includes('throttleOutput')) {
+    log('pass', 'R913', 'TerminalPanel 출력 스로틀 존재')
+  } else {
+    log('warning', 'R913', 'TerminalPanel 출력 스로틀 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R914: SessionList 세션 내보내기 옵션
+const sl914Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl914Path)) {
+  const sl914 = readFileSync(sl914Path, 'utf-8')
+  if (sl914.includes('sessionExportFormat') || sl914.includes('showSessionExport') || sl914.includes('exportSession')) {
+    log('pass', 'R914', 'SessionList 세션 내보내기 옵션 존재')
+  } else {
+    log('warning', 'R914', 'SessionList 세션 내보내기 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

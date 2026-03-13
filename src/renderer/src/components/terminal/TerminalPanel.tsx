@@ -165,6 +165,10 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [envVars, setEnvVars] = useState<Record<string, string>>({})
   const [showEnvVars, setShowEnvVars] = useState(false)
 
+  // R913: output throttle control
+  const [outputThrottle, setOutputThrottle] = useState(false)
+  const [throttleInterval, setThrottleInterval] = useState(100)
+
   // R761: per-tab process info
   const [processInfo, setProcessInfo] = useState<Record<string, { pid: number; cpu: number; mem: number }>>({})
   const [showProcessInfo, setShowProcessInfo] = useState(false)
