@@ -11129,6 +11129,74 @@ if (existsSync(sl1091Path)) {
   }
 }
 
+console.log('\n## 275. Phase DD10 R1092~1094 기능 체크')
+// R1092: ChatPanel 채팅 배경
+const cp1092Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp1092Path)) {
+  const cp1092 = readFileSync(cp1092Path, 'utf-8')
+  if (cp1092.includes('chatBg') || cp1092.includes('showBgPicker') || cp1092.includes('bgColor')) {
+    log('pass', 'R1092', 'ChatPanel 채팅 배경 존재')
+  } else {
+    log('warning', 'R1092', 'ChatPanel 채팅 배경 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R1093: InputBar 줄 높이
+const ib1093Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib1093Path)) {
+  const ib1093 = readFileSync(ib1093Path, 'utf-8')
+  if (ib1093.includes('lineHeight') || ib1093.includes('compactMode') || ib1093.includes('inputHeight')) {
+    log('pass', 'R1093', 'InputBar 줄 높이 존재')
+  } else {
+    log('warning', 'R1093', 'InputBar 줄 높이 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R1094: CocosPanel 노드 즐겨찾기
+const ccp1094Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(ccp1094Path)) {
+  const ccp1094 = readFileSync(ccp1094Path, 'utf-8')
+  if (ccp1094.includes('favNodes') || ccp1094.includes('showFavNodes') || ccp1094.includes('favoriteNodes')) {
+    log('pass', 'R1094', 'CocosPanel 노드 즐겨찾기 존재')
+  } else {
+    log('warning', 'R1094', 'CocosPanel 노드 즐겨찾기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 276. Phase DD10 R1095~1097 기능 체크')
+// R1095: SceneViewPanel 씬 워크플로우
+const sv1095Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(sv1095Path)) {
+  const sv1095 = readFileSync(sv1095Path, 'utf-8')
+  if (sv1095.includes('workflowSteps') || sv1095.includes('showWorkflow') || sv1095.includes('sceneWorkflow')) {
+    log('pass', 'R1095', 'SceneViewPanel 씬 워크플로우 존재')
+  } else {
+    log('warning', 'R1095', 'SceneViewPanel 씬 워크플로우 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1096: TerminalPanel 알림 설정
+const tp1096Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp1096Path)) {
+  const tp1096 = readFileSync(tp1096Path, 'utf-8')
+  if (tp1096.includes('notifyOnFinish') || tp1096.includes('notifyKeyword') || tp1096.includes('termNotify')) {
+    log('pass', 'R1096', 'TerminalPanel 알림 설정 존재')
+  } else {
+    log('warning', 'R1096', 'TerminalPanel 알림 설정 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R1097: SessionList 세션 북마크
+const sl1097Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl1097Path)) {
+  const sl1097 = readFileSync(sl1097Path, 'utf-8')
+  if (sl1097.includes('bookmarkedSessions') || sl1097.includes('showBookmarksOnly') || sl1097.includes('sessionBookmarks')) {
+    log('pass', 'R1097', 'SessionList 세션 북마크 존재')
+  } else {
+    log('warning', 'R1097', 'SessionList 세션 북마크 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

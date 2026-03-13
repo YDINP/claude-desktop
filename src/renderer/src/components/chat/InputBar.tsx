@@ -333,6 +333,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [slashCmdQuery, setSlashCmdQuery] = React.useState('')
   const [charLimit, setCharLimit] = React.useState(0)
   const [showCharCount, setShowCharCount] = React.useState(true)
+  const [lineHeight, setLineHeight] = React.useState(1.5)
+  const [compactMode, setCompactMode] = React.useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

@@ -224,6 +224,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showPrefabPreview, setShowPrefabPreview] = React.useState(false)
   const [sceneExportPath, setSceneExportPath] = React.useState('')
   const [showExportOptions, setShowExportOptions] = React.useState(false)
+  const [favNodes, setFavNodes] = React.useState<string[]>([])
+  const [showFavNodes, setShowFavNodes] = React.useState(false)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
