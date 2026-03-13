@@ -851,10 +851,14 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 {sceneFile.scenePath.split(/[\\/]/).pop()}
               </span>
               {(() => {
-                let nodes = 0; let comps = 0
-                function count(n: CCSceneNode) { nodes++; comps += n.components.length; n.children.forEach(count) }
+                let nodes = 0; let inactive = 0; let comps = 0
+                function count(n: CCSceneNode) { nodes++; if (!n.active) inactive++; comps += n.components.length; n.children.forEach(count) }
                 count(sceneFile.root)
-                return <span style={{ fontSize: 9, color: '#555', flexShrink: 0 }}>{nodes}N/{comps}C</span>
+                return (
+                  <span style={{ fontSize: 9, color: '#555', flexShrink: 0 }} title={`노드 ${nodes}개 / 비활성 ${inactive}개 / 컴포넌트 ${comps}개`}>
+                    {nodes}N{inactive > 0 ? <span style={{ color: '#444' }}>(-{inactive})</span> : null}/{comps}C
+                  </span>
+                )
               })()}
               <TreeSearch root={sceneFile.root} onSelect={onSelectNode} />
               <span
