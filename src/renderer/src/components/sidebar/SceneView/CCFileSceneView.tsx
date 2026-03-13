@@ -1085,6 +1085,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     onDoubleClick={e => { e.stopPropagation(); setEditingUuid(node.uuid); setTimeout(() => editInputRef.current?.focus(), 30) }}
                   >
                     {node.name}
+                    {/* R1555: CC3.x layer 번호 표시 (기본 레이어=1048576 제외) */}
+                    {node.layer != null && node.layer !== 1048576 && (
+                      <tspan fontSize={8 / view.zoom} fill="rgba(251,191,36,0.7)" dx={3 / view.zoom}>[L{node.layer}]</tspan>
+                    )}
                   </text>
                 )}
                 {/* 인라인 이름 편집 (더블클릭 시) */}
@@ -1461,6 +1465,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             </div>
             <div style={{ color: '#58a6ff', marginBottom: 3 }}>
               ({Math.round(pos.x)}, {Math.round(pos.y)}) {n.size ? `${Math.round(n.size.x)}×${Math.round(n.size.y)}` : ''}
+              {/* R1555: layer 표시 */}
+              {n.layer != null && n.layer !== 1048576 && <span style={{ marginLeft: 4, color: 'rgba(251,191,36,0.8)', fontSize: 8 }}>L{n.layer}</span>}
             </div>
             {n.components.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>

@@ -16527,6 +16527,18 @@ console.log('\n## 445. R1554 미니맵 개선 (effectiveW/H + 노드 rect 크기
   }
 }
 
+// ── Section 446: R1555 SceneView 레이어 번호 표시 ───────────────────
+console.log('\n## 446. R1555 SceneView 노드 레이어 번호 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s446 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s446.includes('R1555') && s446.includes('node.layer') && s446.includes('1048576') && s446.includes('[L{node.layer}]')) {
+    log('pass', 'R1555-label', 'CC3.x layer 번호 tspan 표시 (기본 레이어 1048576 제외)')
+  } else {
+    log('warning', 'R1555-label', 'layer 번호 표시 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
