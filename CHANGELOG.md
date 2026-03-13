@@ -1,5 +1,9 @@
 # Changelog — Claude Desktop
 
+## [Round 408] — 2026-03-13
+### Added
+- RemotePanel: 저장된 호스트 최근 접속 시간 상대 표시(방금/N분 전/N시간 전/N일 전) + ESC 검색 초기화
+
 ## [Round 407] — 2026-03-13
 ### Added
 - PluginsPanel: 새로고침 로딩 인디케이터 — refreshing 상태로 버튼 비활성화 + "⟳ 새로고침 중..." 표시

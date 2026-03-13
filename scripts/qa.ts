@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 310: R408 신규 기능 ───────────────────────────────
+console.log('\n## 310. 신규 기능 파일 검사 (R408)')
+// RemotePanel ESC + 상대시간 표시 (Round 408)
+const rp408Path = join(ROOT, 'src/renderer/src/components/sidebar/RemotePanel.tsx')
+if (existsSync(rp408Path)) {
+  const rp408 = readFileSync(rp408Path, 'utf-8')
+  if (rp408.includes('fmtRelative') && rp408.includes("'Escape'") && rp408.includes('방금')) {
+    log('pass', 'Round408', 'RemotePanel: 상대시간(fmtRelative) + ESC 검색 초기화 존재')
+  } else {
+    log('warning', 'Round408', 'RemotePanel fmtRelative 또는 ESC 미구현', 'sidebar/RemotePanel.tsx')
+  }
+}
+
 // ── Section 309: R407 신규 기능 ───────────────────────────────
 console.log('\n## 309. 신규 기능 파일 검사 (R407)')
 // PluginsPanel 새로고침 로딩 상태 (Round 407)

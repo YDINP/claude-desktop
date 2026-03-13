@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react'
 
+function fmtRelative(ts: number): string {
+  const diff = Date.now() - ts
+  if (diff < 60000) return '방금'
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}분 전`
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}시간 전`
+  return `${Math.floor(diff / 86400000)}일 전`
+}
+
 interface SshHost {
   alias: string
   hostname: string
@@ -201,6 +209,7 @@ export function RemotePanel() {
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Escape' && setQuery('')}
             placeholder="호스트 검색..."
             style={{ ...inputStyle, padding: '3px 7px', fontSize: 11 }}
           />
@@ -247,8 +256,10 @@ export function RemotePanel() {
               <div style={hostInfoStyle}>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
                   {h.label}
-                  {h.lastUsed && Date.now() - h.lastUsed < 86400000 && (
-                    <span style={{ fontSize: 9, padding: '0 4px', borderRadius: 8, background: 'var(--accent)', color: '#fff', flexShrink: 0 }}>최근</span>
+                  {h.lastUsed && (
+                    <span title={new Date(h.lastUsed).toLocaleString('ko-KR')} style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>
+                      {fmtRelative(h.lastUsed)}
+                    </span>
                   )}
                 </div>
                 <div style={{ fontSize: 10, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
