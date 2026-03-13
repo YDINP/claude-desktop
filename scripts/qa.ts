@@ -9497,6 +9497,74 @@ if (existsSync(sl947Path)) {
   }
 }
 
+console.log('\n## 227. Phase DD10 R948~950 기능 체크')
+// R948: ChatPanel 메시지 태그
+const cp948Path = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp948Path)) {
+  const cp948 = readFileSync(cp948Path, 'utf-8')
+  if (cp948.includes('messageTags') || cp948.includes('showTagFilter') || cp948.includes('taggedMessages')) {
+    log('pass', 'R948', 'ChatPanel 메시지 태그 존재')
+  } else {
+    log('warning', 'R948', 'ChatPanel 메시지 태그 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// R949: InputBar 링크 미리보기
+const ib949Path = join(ROOT, 'src/renderer/src/components/chat/InputBar.tsx')
+if (existsSync(ib949Path)) {
+  const ib949 = readFileSync(ib949Path, 'utf-8')
+  if (ib949.includes('linkPreview') || ib949.includes('showLinkPreview') || ib949.includes('urlPreview')) {
+    log('pass', 'R949', 'InputBar 링크 미리보기 존재')
+  } else {
+    log('warning', 'R949', 'InputBar 링크 미리보기 없음', 'chat/InputBar.tsx')
+  }
+}
+
+// R950: CocosPanel 에셋 즐겨찾기
+const cocos950Path = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocos950Path)) {
+  const cocos950 = readFileSync(cocos950Path, 'utf-8')
+  if (cocos950.includes('assetFavorites') || cocos950.includes('showFavoritesPanel') || cocos950.includes('favoriteAssets')) {
+    log('pass', 'R950', 'CocosPanel 에셋 즐겨찾기 존재')
+  } else {
+    log('warning', 'R950', 'CocosPanel 에셋 즐겨찾기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+console.log('\n## 228. Phase DD10 R951~953 기능 체크')
+// R951: SceneViewPanel 색상 테마
+const svp951Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp951Path)) {
+  const svp951 = readFileSync(svp951Path, 'utf-8')
+  if (svp951.includes('sceneColorTheme') || svp951.includes('showThemePanel') || svp951.includes('colorTheme')) {
+    log('pass', 'R951', 'SceneViewPanel 색상 테마 존재')
+  } else {
+    log('warning', 'R951', 'SceneViewPanel 색상 테마 없음', 'sidebar/SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R952: TerminalPanel 세션 공유
+const tp952Path = join(ROOT, 'src/renderer/src/components/terminal/TerminalPanel.tsx')
+if (existsSync(tp952Path)) {
+  const tp952 = readFileSync(tp952Path, 'utf-8')
+  if (tp952.includes('shareSession') || tp952.includes('shareLink') || tp952.includes('sessionShare')) {
+    log('pass', 'R952', 'TerminalPanel 세션 공유 존재')
+  } else {
+    log('warning', 'R952', 'TerminalPanel 세션 공유 없음', 'terminal/TerminalPanel.tsx')
+  }
+}
+
+// R953: SessionList 아카이브 통계
+const sl953Path = join(ROOT, 'src/renderer/src/components/sidebar/SessionList.tsx')
+if (existsSync(sl953Path)) {
+  const sl953 = readFileSync(sl953Path, 'utf-8')
+  if (sl953.includes('archiveFilter') || sl953.includes('showArchiveStats') || sl953.includes('archiveStats')) {
+    log('pass', 'R953', 'SessionList 아카이브 통계 존재')
+  } else {
+    log('warning', 'R953', 'SessionList 아카이브 통계 없음', 'sidebar/SessionList.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
