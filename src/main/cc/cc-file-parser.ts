@@ -333,6 +333,24 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     keepAspectRatio: e._N$keepAspectRatio ?? e._keepAspectRatio ?? e.keepAspectRatio ?? true,
     isFullscreen: e._N$isFullscreen ?? e._isFullscreen ?? e.isFullscreen ?? false,
   }),
+  // R1524: cc.Animation — 기본 props (클립 이름은 resolveComponents*에서 해결)
+  'cc.Animation': e => ({
+    playOnLoad: e._N$playOnLoad ?? e._playOnLoad ?? e.playOnLoad ?? false,
+  }),
+}
+
+// R1524: cc.Animation 클립 이름 해결 (embedded __id__ or external __uuid__)
+function resolveAnimationClipNames(e: RawEntry, raw: RawEntry[]): { name: string }[] {
+  const clipRefs = (e._N$clips ?? e._clips ?? e.clips) as unknown
+  if (!Array.isArray(clipRefs)) return []
+  return (clipRefs as { __id__?: number; __uuid__?: string }[]).map(ref => {
+    if (ref?.__id__ != null) {
+      const clip = raw[ref.__id__]
+      return { name: (clip?._name as string | undefined) ?? (clip?.name as string | undefined) ?? `clip_${ref.__id__}` }
+    }
+    if (ref?.__uuid__) return { name: ref.__uuid__ }
+    return { name: 'unknown' }
+  })
 }
 
 function extractComponentProps(type: string, e: RawEntry, isCC2x: boolean): Record<string, unknown> {
@@ -374,6 +392,15 @@ function resolveComponents2x(
           props[k.slice(3)] = v
         } else {
           props[k.startsWith('_') ? k.slice(1) : k] = v
+        }
+      }
+      // R1524: cc.Animation 클립 이름 해결
+      if (type === 'cc.Animation') {
+        props['_resolvedClips'] = resolveAnimationClipNames(e, raw)
+        const defRef = (e._N$defaultClip ?? e._defaultClip) as { __id__?: number } | null | undefined
+        if (defRef?.__id__ != null) {
+          const defClip = raw[defRef.__id__]
+          props['_defaultClipName'] = (defClip?._name as string | undefined) ?? `clip_${defRef.__id__}`
         }
       }
       return { type, props: { ...props, ...specialized }, _rawIndex: idx }
@@ -494,6 +521,15 @@ function resolveComponents3x(
       for (const [k, v] of Object.entries(e)) {
         if (k === '__type__' || k === 'node' || k.startsWith('__')) continue
         props[k.startsWith('_') ? k.slice(1) : k] = v
+      }
+      // R1524: cc.Animation 클립 이름 해결
+      if (type === 'cc.Animation') {
+        props['_resolvedClips'] = resolveAnimationClipNames(e, raw)
+        const defRef = e._defaultClip as { __id__?: number } | null | undefined
+        if (defRef?.__id__ != null) {
+          const defClip = raw[defRef.__id__]
+          props['_defaultClipName'] = (defClip?._name as string | undefined) ?? `clip_${defRef.__id__}`
+        }
       }
       return { type, props: { ...props, ...specialized }, _rawIndex: idx }
     })

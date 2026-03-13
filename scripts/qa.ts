@@ -16145,6 +16145,32 @@ if (existsSync(sv426)) {
   }
 }
 
+// ── Section 427: R1524 cc.Animation 클립 파싱 + 드롭다운 체크 ──────────────────────
+console.log('\n## 427. R1524 cc.Animation 클립 파싱 + Inspector 드롭다운 체크')
+const parser427 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const panel427 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(parser427)) {
+  const s427p = readFileSync(parser427, 'utf-8')
+  if (s427p.includes('resolveAnimationClipNames') && s427p.includes('R1524')) {
+    log('pass', 'R1524-parser-resolver', 'cc-file-parser resolveAnimationClipNames 구현 확인')
+  } else {
+    log('warning', 'R1524-parser-resolver', 'resolveAnimationClipNames 미구현', 'cc-file-parser.ts')
+  }
+  if (s427p.includes("'cc.Animation'") && s427p.includes('_resolvedClips') && s427p.includes('_defaultClipName')) {
+    log('pass', 'R1524-parser-inject', '_resolvedClips + _defaultClipName 주입 확인 (2x/3x)')
+  } else {
+    log('warning', 'R1524-parser-inject', '_resolvedClips/_defaultClipName 미주입', 'cc-file-parser.ts')
+  }
+}
+if (existsSync(panel427)) {
+  const s427c = readFileSync(panel427, 'utf-8')
+  if (s427c.includes('R1524') && s427c.includes("comp.type === 'cc.Animation'") && s427c.includes('_resolvedClips') && s427c.includes('clips.length')) {
+    log('pass', 'R1524-inspector-dropdown', 'CocosPanel cc.Animation 클립 드롭다운 UI 구현 확인')
+  } else {
+    log('warning', 'R1524-inspector-dropdown', 'cc.Animation 드롭다운 UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

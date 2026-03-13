@@ -4517,6 +4517,29 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1524: cc.Animation — 클립 드롭다운 + defaultClip 표시
+            if (comp.type === 'cc.Animation') {
+              const clips = (p._resolvedClips as Array<{ name: string }> | undefined) ?? []
+              const defaultClipName = p._defaultClipName as string | undefined
+              if (clips.length === 0) return null
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>default</span>
+                    <select
+                      defaultValue={defaultClipName ?? clips[0]?.name}
+                      title="R1524: 클립 목록 (read-only)"
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      {clips.map(c => (
+                        <option key={c.name} value={c.name}>{c.name === defaultClipName ? `★ ${c.name}` : c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', paddingLeft: 62 }}>{clips.length} clip{clips.length !== 1 ? 's' : ''}</span>
+                </div>
+              )
+            }
             return null
           })()}
           {(!collapsedComps.has(comp.type) || typeMatchedComps !== null) && (() => {
