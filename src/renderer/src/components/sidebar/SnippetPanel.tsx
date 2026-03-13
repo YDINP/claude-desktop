@@ -130,6 +130,19 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
     setSnippets(prev => prev.filter(s => s.id !== id))
   }
 
+  const handleDuplicate = async (s: Snippet) => {
+    const copy: Snippet = {
+      ...s,
+      id: `snip-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      name: `${s.name} (복사)`,
+      createdAt: Date.now(),
+    }
+    await window.api.snippetSave(copy)
+    const updated = await window.api.snippetList() as Snippet[]
+    setSnippets(updated)
+    showToast(`"${copy.name}" 복제됨`)
+  }
+
   // Feature 1: Import from file
   const handleImportClick = () => {
     fileInputRef.current?.click()
@@ -320,6 +333,16 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
           편집
         </button>
         <button
+          onClick={() => handleDuplicate(s)}
+          title="스니펫 복제"
+          style={{
+            padding: '3px 6px', background: 'transparent', color: 'var(--text-muted)',
+            borderRadius: 3, fontSize: 11,
+          }}
+        >
+          ⧉
+        </button>
+        <button
           onClick={() => handleDelete(s.id)}
           style={{
             padding: '3px 8px', background: 'transparent', color: 'var(--error, #f87171)',
@@ -339,6 +362,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
         <input
           value={filter}
           onChange={e => setFilter(e.target.value)}
+          onKeyDown={e => e.key === 'Escape' && setFilter('')}
           placeholder="스니펫 검색..."
           style={{
             flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',

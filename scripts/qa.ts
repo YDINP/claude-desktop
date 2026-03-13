@@ -2036,6 +2036,19 @@ if (existsSync(tasksPanelPath)) {
   }
 }
 
+// ── Section 311: R409 신규 기능 ───────────────────────────────
+console.log('\n## 311. 신규 기능 파일 검사 (R409)')
+// SnippetPanel ESC + 복제 기능 (Round 409)
+const sp409Path = join(ROOT, 'src/renderer/src/components/sidebar/SnippetPanel.tsx')
+if (existsSync(sp409Path)) {
+  const sp409 = readFileSync(sp409Path, 'utf-8')
+  if (sp409.includes('handleDuplicate') && sp409.includes('복제됨') && sp409.includes("'Escape'")) {
+    log('pass', 'Round409', 'SnippetPanel: 스니펫 복제(handleDuplicate) + ESC 검색 초기화 존재')
+  } else {
+    log('warning', 'Round409', 'SnippetPanel 복제 또는 ESC 미구현', 'sidebar/SnippetPanel.tsx')
+  }
+}
+
 // ── Section 310: R408 신규 기능 ───────────────────────────────
 console.log('\n## 310. 신규 기능 파일 검사 (R408)')
 // RemotePanel ESC + 상대시간 표시 (Round 408)

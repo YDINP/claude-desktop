@@ -1,5 +1,11 @@
 # Changelog — Claude Desktop
 
+## [Round 409] — 2026-03-13
+### Added
+- SnippetPanel: 스니펫 복제 버튼(⧉) — 이름에 "(복사)" 접미사 추가 후 저장, 토스트 알림
+### Added
+- SnippetPanel: ESC 키로 스니펫 검색 초기화
+
 ## [Round 408] — 2026-03-13
 ### Added
 - RemotePanel: 저장된 호스트 최근 접속 시간 상대 표시(방금/N분 전/N시간 전/N일 전) + ESC 검색 초기화

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-13 (Round 408 완료 — RemotePanel 상대시간+ESC, Pass 428)
+> 마지막 업데이트: 2026-03-13 (Round 409 완료 — SnippetPanel 복제+ESC, Pass 429)
 
 ## 완료된 라운드
 
