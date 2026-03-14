@@ -24125,6 +24125,24 @@ if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
   log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
 }
 
+// ── Section 1171: R2219 BatchInspector cc.LabelOutline enabled (CC2.x) ──────────
+console.log('\n## 1171. R2219 BatchInspector cc.LabelOutline enabled 체크')
+const s1171 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1171.includes('R2219') && s1171.includes('applyLabelOutlineEnabled') && s1171.includes('OutEn')) {
+  log('pass', 'R2219-batch-labeloutline-enabled', 'BatchInspector cc.LabelOutline enabled 일괄 설정')
+} else {
+  log('warning', 'R2219-batch-labeloutline-enabled', 'BatchInspector cc.LabelOutline enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1172: R2219 BatchInspector cc.LabelShadow enabled (CC2.x) ──────────
+console.log('\n## 1172. R2219 BatchInspector cc.LabelShadow enabled 체크')
+const s1172 = s1171
+if (s1172.includes('R2219') && s1172.includes('applyLabelShadowEnabled') && s1172.includes('ShdEn')) {
+  log('pass', 'R2219-batch-labelshadow-enabled', 'BatchInspector cc.LabelShadow enabled 일괄 설정')
+} else {
+  log('warning', 'R2219-batch-labelshadow-enabled', 'BatchInspector cc.LabelShadow enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1169: R2218 BatchInspector cc.BoxCollider2D enabled ──────────
 console.log('\n## 1169. R2218 BatchInspector cc.BoxCollider2D enabled 체크')
 const s1169 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -7575,6 +7575,58 @@ function CCFileBatchInspector({
           />
         </div>
       )}
+      {/* R2219: 공통 cc.LabelOutline enabled (컴포넌트 레벨) 일괄 설정 (CC2.x) */}
+      {commonCompTypes.includes('cc.LabelOutline') && (() => {
+        const applyLabelOutlineEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelOutlineEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelOutlineEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.LabelOutline'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelOutlineEnabled(sceneFile.root) })
+          setBatchMsg(`✓ LabelOutline enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>OutEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyLabelOutlineEnabled(v)} title={`LabelOutline enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2219: 공통 cc.LabelShadow enabled (컴포넌트 레벨) 일괄 설정 (CC2.x) */}
+      {commonCompTypes.includes('cc.LabelShadow') && (() => {
+        const applyLabelShadowEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelShadowEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelShadowEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.LabelShadow'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelShadowEnabled(sceneFile.root) })
+          setBatchMsg(`✓ LabelShadow enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>ShdEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyLabelShadowEnabled(v)} title={`LabelShadow enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1861: 공통 cc.LabelShadow blur 일괄 설정 */}
       {commonCompTypes.includes('cc.LabelShadow') && (() => {
         const applyShadowBlur = async (blur: number) => {
