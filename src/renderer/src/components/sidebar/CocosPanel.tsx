@@ -8521,6 +8521,58 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2189: 공통 cc.ParticleSystem sourcePos.x 일괄 설정 */}
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
+        const applyParticlePosX = async (x: number) => {
+          if (!sceneFile.root) return
+          function patchParticlePosX(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchParticlePosX)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D')
+              ? { ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), x }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), x } } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchParticlePosX(sceneFile.root) })
+          setBatchMsg(`✓ ParticleSystem sourcePos.x=${x} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#aee', width: 48, flexShrink: 0 }}>PSposX</span>
+            {[0, 50, 100, 200, 300, 500].map(v => (
+              <span key={v} onClick={() => applyParticlePosX(v)} title={`sourcePos.x=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#aee', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2189: 공통 cc.ParticleSystem sourcePos.y 일괄 설정 */}
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
+        const applyParticlePosY = async (y: number) => {
+          if (!sceneFile.root) return
+          function patchParticlePosY(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchParticlePosY)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D')
+              ? { ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), y }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), y } } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchParticlePosY(sceneFile.root) })
+          setBatchMsg(`✓ ParticleSystem sourcePos.y=${y} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#aee', width: 48, flexShrink: 0 }}>PSposY</span>
+            {[0, 50, 100, 200, 300, 500].map(v => (
+              <span key={v} onClick={() => applyParticlePosY(v)} title={`sourcePos.y=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#aee', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1932: 공통 cc.ParticleSystem loop 일괄 설정 */}
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleLoop = async (loop: boolean) => {
