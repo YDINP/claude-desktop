@@ -5571,6 +5571,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1979: 공통 cc.ParticleSystem autoRemoveOnFinish 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSAutoRemove = async (autoRemoveOnFinish: boolean) => {
+          if (!sceneFile.root) return
+          function patchPSAutoRemove(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSAutoRemove)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, autoRemoveOnFinish, _autoRemoveOnFinish: autoRemoveOnFinish } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSAutoRemove(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS autoRemove=${autoRemoveOnFinish} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSautorm</span>
+            <span onClick={() => applyPSAutoRemove(true)} title="autoRemoveOnFinish ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>rm✓</span>
+            <span onClick={() => applyPSAutoRemove(false)} title="autoRemoveOnFinish OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>rm✗</span>
+          </div>
+        )
+      })()}
       {/* R1977: 공통 cc.ParticleSystem srcBlendFactor/dstBlendFactor 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSBlend = async (src: number, dst: number, label: string) => {
