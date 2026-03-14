@@ -18659,6 +18659,18 @@ console.log('\n## 618. R1727 cc.ProgressBar reverse + totalLength 체크')
   }
 }
 
+// ── Section 619: R1728 트리 Ctrl+클릭 다중 선택 ──────────────────────────────
+console.log('\n## 619. R1728 트리 Ctrl+클릭 다중 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s619 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s619.includes('R1728') && s619.includes('onCtrlSelect') && s619.includes('multiSelectedUuids') && s619.includes('ctrlKey')) {
+    log('pass', 'R1728-tree-ctrl-select', '트리 Ctrl+클릭 다중 선택')
+  } else {
+    log('warning', 'R1728-tree-ctrl-select', '트리 Ctrl+클릭 다중 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

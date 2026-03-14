@@ -2783,6 +2783,10 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 highlightQuery={treeHighlightQuery}
                 nodeBookmarks={nodeBookmarks}
                 onReorder={handleReorder}
+                multiSelectedUuids={multiSelectedUuids}
+                onCtrlSelect={uuid => setMultiSelectedUuids(prev =>
+                  prev.includes(uuid) ? prev.filter(u => u !== uuid) : [...prev, uuid]
+                )}
               />
             </div>
           </div>
@@ -3233,7 +3237,7 @@ function GroupPanel({
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder, multiSelectedUuids, onCtrlSelect,
 }: {
   node: CCSceneNode
   depth: number
@@ -3257,6 +3261,9 @@ function CCFileSceneTree({
   nodeBookmarks?: Record<string, string>
   /** R1724: 형제 순서 이동 */
   onReorder?: (uuid: string, direction: 1 | -1) => void
+  /** R1728: Ctrl+클릭 다중 선택 */
+  multiSelectedUuids?: string[]
+  onCtrlSelect?: (uuid: string) => void
 }) {
   const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
   const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
@@ -3349,7 +3356,16 @@ function CCFileSceneTree({
         id={`tree-node-${node.uuid}`}
         className="tree-node-row"
         draggable={!isRoot}
-        onClick={() => { setCtxMenu(null); onSelect(isSelected ? null : node) }}
+        onClick={e => {
+          setCtxMenu(null)
+          // R1728: Ctrl+클릭으로 다중 선택 토글
+          if ((e.ctrlKey || e.metaKey) && onCtrlSelect) {
+            e.stopPropagation()
+            onCtrlSelect(node.uuid)
+          } else {
+            onSelect(isSelected ? null : node)
+          }
+        }}
         onContextMenu={e => { e.preventDefault(); e.stopPropagation(); onSelect(node); setCtxMenu({ x: e.clientX, y: e.clientY }) }}
         onDragStart={e => { e.stopPropagation(); e.dataTransfer.setData('text/plain', node.uuid) }}
         onDragOver={e => { e.preventDefault(); e.stopPropagation(); setIsDragOver(true) }}
@@ -3363,7 +3379,7 @@ function CCFileSceneTree({
           display: 'flex', alignItems: 'center', gap: 2,
           padding: `2px 6px 2px ${8 + depth * 14}px`,
           cursor: isRoot ? 'default' : 'grab', fontSize: 11,
-          background: isDragOver ? 'rgba(88,166,255,0.18)' : isSelected ? 'var(--accent-subtle, rgba(88,166,255,0.1))' : nodeColors?.[node.uuid] ? `${nodeColors[node.uuid]}26` : 'transparent',
+          background: isDragOver ? 'rgba(88,166,255,0.18)' : isSelected ? 'var(--accent-subtle, rgba(88,166,255,0.1))' : multiSelectedUuids?.includes(node.uuid) ? 'rgba(167,139,250,0.15)' : nodeColors?.[node.uuid] ? `${nodeColors[node.uuid]}26` : 'transparent',
           color: node.active ? 'var(--text-primary)' : 'var(--text-muted)',
           userSelect: 'none',
           outline: isDragOver ? '1px dashed #58a6ff' : 'none',
@@ -3478,6 +3494,8 @@ function CCFileSceneTree({
           highlightQuery={highlightQuery}
           nodeBookmarks={nodeBookmarks}
           onReorder={onReorder}
+          multiSelectedUuids={multiSelectedUuids}
+          onCtrlSelect={onCtrlSelect}
         />
       ))}
     </div>
