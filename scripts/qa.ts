@@ -22394,6 +22394,18 @@ console.log('\n## 929. R2038 BatchInspector cc.BoxCollider offset 체크')
   }
 }
 
+// ── Section 930: R2039 BatchInspector cc.CircleCollider offset ──────────
+console.log('\n## 930. R2039 BatchInspector cc.CircleCollider offset 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s930 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s930.includes('R2039') && s930.includes('patchCircleOffset') && s930.includes('applyCircleOffset')) {
+    log('pass', 'R2039-batch-circle-offset', 'BatchInspector cc.CircleCollider offset 일괄 설정')
+  } else {
+    log('warning', 'R2039-batch-circle-offset', 'BatchInspector cc.CircleCollider offset 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

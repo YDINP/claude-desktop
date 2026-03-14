@@ -8429,6 +8429,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2039: 공통 cc.CircleCollider offset 일괄 설정 */}
+      {commonCompTypes.includes('cc.CircleCollider') && (() => {
+        const applyCircleOffset = async (ox: number, oy: number) => {
+          if (!sceneFile.root) return
+          function patchCircleOffset(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCircleOffset)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const offset = { x: ox, y: oy }
+            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchCircleOffset(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ CircleCollider offset=(${ox},${oy}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>CircOff</span>
+            {([['0,0',0,0],['0,10',0,10],['0,-10',0,-10],['10,0',10,0]] as [string,number,number][]).map(([label,ox,oy]) => (
+              <span key={label} onClick={() => applyCircleOffset(ox, oy)} title={`offset=(${ox},${oy})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1995: 공통 cc.CircleCollider radius 일괄 설정 */}
       {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleRadius = async (radius: number) => {
