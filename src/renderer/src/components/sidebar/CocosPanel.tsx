@@ -2692,6 +2692,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   sceneFile={sceneFile}
                   saveScene={saveScene}
                   onUpdate={onSelectNode}
+                  lockedUuids={lockedUuids}
+                  onToggleLocked={toggleLocked}
                 />
               </div>
             )}
@@ -3470,12 +3472,14 @@ function CCFileBatchInspector({
 
 /** CCSceneNode 프로퍼티 인스펙터 — 노드 선택 시 표시 */
 function CCFileNodeInspector({
-  node, sceneFile, saveScene, onUpdate,
+  node, sceneFile, saveScene, onUpdate, lockedUuids, onToggleLocked,
 }: {
   node: CCSceneNode
   sceneFile: CCSceneFile
   saveScene: (root: CCSceneNode) => Promise<{ success: boolean; error?: string }>
   onUpdate: (n: CCSceneNode | null) => void
+  lockedUuids?: Set<string>
+  onToggleLocked?: (uuid: string) => void
 }) {
   // R1597: 노드 커스텀 메모 (localStorage 기반)
   const NOTES_KEY = 'cc-node-notes'
@@ -4145,6 +4149,16 @@ function CCFileNodeInspector({
               onMouseEnter={e => (e.currentTarget.style.color = '#88aacc')}
               onMouseLeave={e => (e.currentTarget.style.color = '#445')}
             >⎘</span>
+            {/* R1663: 잠금 토글 버튼 */}
+            {onToggleLocked && (
+              <span
+                title={lockedUuids?.has(node.uuid) ? '잠금 해제 (편집 가능)' : '잠금 (SceneView 이동/리사이즈 방지)'}
+                onClick={() => onToggleLocked(node.uuid)}
+                style={{ fontSize: 9, color: lockedUuids?.has(node.uuid) ? '#f97316' : '#445', padding: '1px 3px', borderRadius: 2, cursor: 'pointer', lineHeight: 1 }}
+                onMouseEnter={e => (e.currentTarget.style.color = lockedUuids?.has(node.uuid) ? '#fbbf24' : '#888')}
+                onMouseLeave={e => (e.currentTarget.style.color = lockedUuids?.has(node.uuid) ? '#f97316' : '#445')}
+              >{lockedUuids?.has(node.uuid) ? '🔒' : '🔓'}</span>
+            )}
             {/* R1607: UUID 복사 버튼 */}
             <span
               title={`UUID 복사: ${node.uuid}`}

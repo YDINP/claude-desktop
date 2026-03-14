@@ -17877,6 +17877,18 @@ console.log('\n## 553. R1662 컴포넌트 배지 팝업 체크')
   }
 }
 
+// ── Section 554: R1663 Inspector 잠금 토글 버튼 ──────────────────────
+console.log('\n## 554. R1663 Inspector 잠금 토글 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s554 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s554.includes('R1663') && s554.includes('onToggleLocked') && s554.includes('lockedUuids') && s554.includes('잠금 토글')) {
+    log('pass', 'R1663-lock-toggle', 'Inspector 잠금 토글 버튼')
+  } else {
+    log('warning', 'R1663-lock-toggle', 'Inspector 잠금 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
