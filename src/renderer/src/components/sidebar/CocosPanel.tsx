@@ -523,6 +523,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1184: node filters
   const [nodeFilters, setNodeFilters] = useState<string[]>([])
   const [showNodeFilters, setShowNodeFilters] = useState(false)
+  // R1664: 씬 트리 이름 하이라이트
+  const [treeHighlightQuery, setTreeHighlightQuery] = useState('')
   // R1190: scene validation
   const [showValidation, setShowValidation] = useState(false)
   // R1196: resource usage
@@ -2491,7 +2493,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             </div>
             {/* 검색 */}
             <div style={{ padding: '2px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-              <TreeSearch root={sceneFile.root} onSelect={onSelectNode} />
+              <TreeSearch root={sceneFile.root} onSelect={onSelectNode} onQueryChange={setTreeHighlightQuery} />
             </div>
             {/* R1654: 컴포넌트 필터 패널 */}
             {showNodeFilters && (
@@ -2584,6 +2586,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   if (next.has(uuid)) next.delete(uuid); else next.add(uuid)
                   return next
                 })}
+                highlightQuery={treeHighlightQuery}
               />
             </div>
           </div>
@@ -3032,7 +3035,7 @@ function GroupPanel({
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery,
 }: {
   node: CCSceneNode
   depth: number
@@ -3052,6 +3055,7 @@ function CCFileSceneTree({
   onNodeColorChange?: (uuid: string, color: string | null) => void
   collapsedUuids?: Set<string>
   onToggleCollapse?: (uuid: string) => void
+  highlightQuery?: string
 }) {
   const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
   const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
@@ -3167,7 +3171,14 @@ function CCFileSceneTree({
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: nodeColors[node.uuid], flexShrink: 0, display: 'inline-block' }} />
         )}
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-          {node.name || '(unnamed)'}
+          {(() => {
+            const name = node.name || '(unnamed)'
+            const ql = highlightQuery?.trim().toLowerCase()
+            if (!ql) return name
+            const idx = name.toLowerCase().indexOf(ql)
+            if (idx < 0) return name
+            return <>{name.slice(0, idx)}<span style={{ background: '#fbbf24', color: '#1a1a2e', borderRadius: 2 }}>{name.slice(idx, idx + ql.length)}</span>{name.slice(idx + ql.length)}</>
+          })()}
         </span>
         {!isRoot && (
           <span
@@ -3245,6 +3256,7 @@ function CCFileSceneTree({
           onNodeColorChange={onNodeColorChange}
           collapsedUuids={collapsedUuids}
           onToggleCollapse={onToggleCollapse}
+          highlightQuery={highlightQuery}
         />
       ))}
     </div>
@@ -7373,7 +7385,7 @@ function CCFileNodeInspector({
 
 /** 씬 트리 노드 이름 검색 + 선택 */
 
-function TreeSearch({ root, onSelect }: { root: CCSceneNode; onSelect: (n: CCSceneNode | null) => void }) {
+function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSelect: (n: CCSceneNode | null) => void; onQueryChange?: (q: string) => void }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<CCSceneNode[]>([])
   const [open, setOpen] = useState(false)
@@ -7383,6 +7395,7 @@ function TreeSearch({ root, onSelect }: { root: CCSceneNode; onSelect: (n: CCSce
   const search = useCallback((q: string) => {
     setQuery(q)
     setActiveIdx(-1)
+    onQueryChange?.(q)
     if (!q.trim()) { setResults([]); setOpen(false); return }
     const ql = q.toLowerCase()
     const found: CCSceneNode[] = []

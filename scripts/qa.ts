@@ -17889,6 +17889,18 @@ console.log('\n## 554. R1663 Inspector 잠금 토글 체크')
   }
 }
 
+// ── Section 555: R1664 씬 트리 검색어 하이라이트 ──────────────────────
+console.log('\n## 555. R1664 씬 트리 검색어 하이라이트 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s555 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s555.includes('highlightQuery') && s555.includes('onQueryChange') && s555.includes('treeHighlightQuery') && s555.includes('fbbf24')) {
+    log('pass', 'R1664-tree-highlight', '씬 트리 검색어 하이라이트')
+  } else {
+    log('warning', 'R1664-tree-highlight', '씬 트리 검색어 하이라이트 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
