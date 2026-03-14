@@ -8972,7 +8972,7 @@ function CCFileBatchInspector({
           function patchVideo(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchVideo)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, [key]: value } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchVideo(sceneFile.root))
@@ -9022,7 +9022,7 @@ function CCFileBatchInspector({
           function patchVideoFullscreen(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchVideoFullscreen)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, fullScreenEnabled } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, fullScreenEnabled, _fullScreenEnabled: fullScreenEnabled, _N$fullScreenEnabled: fullScreenEnabled } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchVideoFullscreen(sceneFile.root)

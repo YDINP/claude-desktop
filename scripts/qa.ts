@@ -24925,6 +24925,20 @@ if (
   log('warning', 'R2276-node-particle-color-pageview-slide-cc3x', '단일노드 ParticleSystem _color / PageView slideDuration CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1281: R2277 BatchInspector cc.VideoPlayer loop/muted + fullScreenEnabled _* (CC3.x) ──────────
+console.log('\n## 1281. R2277 BatchInspector cc.VideoPlayer _loop/_muted/_fullScreenEnabled CC3.x 체크')
+const s1281 = s1280
+if (
+  s1281.includes('[`_${key}`]: value, [`_N$${key}`]: value') &&
+  s1281.includes('applyVideoToggle') &&
+  s1281.includes('_fullScreenEnabled: fullScreenEnabled, _N$fullScreenEnabled') &&
+  s1281.includes('applyVideoFullscreen')
+) {
+  log('pass', 'R2277-batch-vp-loopmutedfullscreen-cc3x', 'BatchInspector cc.VideoPlayer _loop/_muted/_fullScreenEnabled (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2277-batch-vp-loopmutedfullscreen-cc3x', 'BatchInspector cc.VideoPlayer CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
