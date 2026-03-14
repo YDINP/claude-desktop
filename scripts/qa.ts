@@ -17939,6 +17939,18 @@ console.log('\n## 558. R1667 컴포넌트 필터 custom type 체크')
   }
 }
 
+// ── Section 559: R1668 유사 노드 섹션 ──────────────────────
+console.log('\n## 559. R1668 유사 노드 섹션 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s559 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s559.includes('R1668') && s559.includes('유사 노드') && s559.includes('walkSim') && s559.includes('overlap')) {
+    log('pass', 'R1668-similar-nodes', '유사 노드 섹션 (공통 컴포넌트 타입 기반)')
+  } else {
+    log('warning', 'R1668-similar-nodes', '유사 노드 섹션 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
