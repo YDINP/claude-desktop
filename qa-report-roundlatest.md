@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:22:06.822Z
+> 2026-03-14T05:22:46.685Z
 
 ## Critical
 _없음_
@@ -1798,3 +1798,4 @@ _없음_
 - BatchInspector cc.AudioSource pitch 일괄 설정
 - BatchInspector cc.Sprite blendFactor 일괄 설정 (Normal/Add/Mul)
 - BatchInspector cc.Label spacingX 일괄 설정
+- BatchInspector cc.Slider direction 일괄 설정 (H/V)

@@ -20354,6 +20354,18 @@ console.log('\n## 759. R1868 BatchInspector cc.Label spacingX 체크')
   }
 }
 
+// ── Section 760: R1869 BatchInspector cc.Slider direction ─────────────────
+console.log('\n## 760. R1869 BatchInspector cc.Slider direction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s760 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s760.includes('R1869') && s760.includes('applySliderDir') && s760.includes('patchSliderDir')) {
+    log('pass', 'R1869-batch-slider-dir', 'BatchInspector cc.Slider direction 일괄 설정 (H/V)')
+  } else {
+    log('warning', 'R1869-batch-slider-dir', 'BatchInspector cc.Slider direction 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

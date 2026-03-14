@@ -4508,6 +4508,28 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1869: 공통 cc.Slider direction 일괄 설정 */}
+      {commonCompTypes.includes('cc.Slider') && (() => {
+        const applySliderDir = async (direction: number) => {
+          if (!sceneFile.root) return
+          function patchSliderDir(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSliderDir)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, direction, _N$direction: direction } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchSliderDir(sceneFile.root))
+          setBatchMsg(`✓ Slider direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>SliderDir</span>
+            <span onClick={() => applySliderDir(0)} title="direction = Horizontal" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>H→</span>
+            <span onClick={() => applySliderDir(1)} title="direction = Vertical" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>V↓</span>
+          </div>
+        )
+      })()}
       {/* R1828: 공통 cc.AudioSource volume 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioVol = async (volume: number) => {
