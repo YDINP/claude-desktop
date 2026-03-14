@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:54:21.062Z
+> 2026-03-14T05:55:00.704Z
 
 ## Critical
 _없음_
@@ -1829,3 +1829,4 @@ _없음_
 - BatchInspector cc.Button zoomScale 일괄 설정
 - BatchInspector cc.RigidBody angularDamping 일괄 설정
 - BatchInspector cc.Sprite grayscale 일괄 설정
+- BatchInspector cc.Toggle interactable 일괄 설정

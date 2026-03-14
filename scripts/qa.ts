@@ -20726,6 +20726,18 @@ console.log('\n## 790. R1899 BatchInspector cc.Sprite grayscale 체크')
   }
 }
 
+// ── Section 791: R1900 BatchInspector cc.Toggle interactable ──────────
+console.log('\n## 791. R1900 BatchInspector cc.Toggle interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s791 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s791.includes('R1900') && s791.includes('applyToggleInteract') && s791.includes('patchToggleInteract')) {
+    log('pass', 'R1900-batch-toggle-interactable', 'BatchInspector cc.Toggle interactable 일괄 설정')
+  } else {
+    log('warning', 'R1900-batch-toggle-interactable', 'BatchInspector cc.Toggle interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

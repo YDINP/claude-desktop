@@ -4173,6 +4173,26 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1900: 공통 cc.Toggle interactable 일괄 설정 */}
+      {commonCompTypes.includes('cc.Toggle') && (() => {
+        const applyToggleInteract = async (interactable: boolean) => {
+          if (!sceneFile.root) return
+          function patchToggleInteract(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchToggleInteract)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, interactable } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchToggleInteract(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>TogInter</span>
+            <span onClick={() => applyToggleInteract(true)} title="interactable ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>inter✓</span>
+            <span onClick={() => applyToggleInteract(false)} title="interactable OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f85149', userSelect: 'none' }}>inter✗</span>
+          </div>
+        )
+      })()}
       {/* R1884: 공통 cc.Button transition 일괄 설정 */}
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnTransition = async (transition: number) => {
