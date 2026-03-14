@@ -4140,6 +4140,30 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1842: 공통 cc.VideoPlayer loop/muted 일괄 설정 */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoToggle = async (key: 'loop' | 'muted', value: boolean) => {
+          if (!sceneFile.root) return
+          function patchVideo(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideo)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, [key]: value } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchVideo(sceneFile.root))
+          setBatchMsg(`✓ VideoPlayer ${key}=${value} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>Video</span>
+            <span onClick={() => applyVideoToggle('loop', true)} title="loop ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>loop✓</span>
+            <span onClick={() => applyVideoToggle('loop', false)} title="loop OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>loop✗</span>
+            <span onClick={() => applyVideoToggle('muted', true)} title="muted ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>mute✓</span>
+            <span onClick={() => applyVideoToggle('muted', false)} title="muted OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>mute✗</span>
+          </div>
+        )
+      })()}
       {/* R1839: 공통 dragonBones.ArmatureDisplay timeScale 일괄 설정 */}
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBSpeed = async (timeScale: number) => {

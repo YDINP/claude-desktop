@@ -20027,6 +20027,18 @@ console.log('\n## 732. R1841 cc.ParticleSystem speed/speedVar 체크')
   }
 }
 
+// ── Section 733: R1842 BatchInspector cc.VideoPlayer loop/muted 일괄 ──────────
+console.log('\n## 733. R1842 BatchInspector cc.VideoPlayer loop/muted 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s733 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s733.includes('R1842') && s733.includes("'cc.VideoPlayer'") && s733.includes('applyVideoToggle') && s733.includes("'muted'")) {
+    log('pass', 'R1842-batch-videoplayer', 'BatchInspector cc.VideoPlayer loop/muted 일괄 설정')
+  } else {
+    log('warning', 'R1842-batch-videoplayer', 'BatchInspector cc.VideoPlayer loop/muted 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
