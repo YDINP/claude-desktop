@@ -18071,6 +18071,18 @@ console.log('\n## 569. R1678 최근 선택 노드 히스토리 체크')
   }
 }
 
+// ── Section 570: R1679 TreeSearch 전체 결과 수 + 더 보기 ──────────────────
+console.log('\n## 570. R1679 TreeSearch 전체 결과 수 + 더 보기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s570 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s570.includes('R1679') && s570.includes('totalFound') && s570.includes('더 보기') && s570.includes('pageSize')) {
+    log('pass', 'R1679-tree-search-total', 'TreeSearch 전체 결과 수 및 더 보기')
+  } else {
+    log('warning', 'R1679-tree-search-total', 'TreeSearch 전체 결과 수 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

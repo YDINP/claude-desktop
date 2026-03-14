@@ -7678,15 +7678,18 @@ function CCFileNodeInspector({
 function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSelect: (n: CCSceneNode | null) => void; onQueryChange?: (q: string) => void }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<CCSceneNode[]>([])
+  const [totalFound, setTotalFound] = useState(0)
   const [open, setOpen] = useState(false)
   // R1558: 키보드 탐색
   const [activeIdx, setActiveIdx] = useState(-1)
+  // R1679: 더 보기 (페이지 크기 증가)
+  const [pageSize, setPageSize] = useState(12)
 
-  const search = useCallback((q: string) => {
+  const search = useCallback((q: string, ps?: number) => {
     setQuery(q)
     setActiveIdx(-1)
     onQueryChange?.(q)
-    if (!q.trim()) { setResults([]); setOpen(false); return }
+    if (!q.trim()) { setResults([]); setTotalFound(0); setOpen(false); setPageSize(12); return }
     const ql = q.toLowerCase()
     const found: CCSceneNode[] = []
     function walk(n: CCSceneNode) {
@@ -7697,9 +7700,11 @@ function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSe
       n.children.forEach(walk)
     }
     walk(root)
-    setResults(found.slice(0, 12))
+    const limit = ps ?? pageSize
+    setTotalFound(found.length)
+    setResults(found.slice(0, limit))
     setOpen(true)
-  }, [root])
+  }, [root, pageSize])
 
   return (
     <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
@@ -7751,8 +7756,15 @@ function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSe
               {!n.active && <span style={{ marginLeft: 4, fontSize: 8, color: '#f85149' }}>◌</span>}
             </div>
           ))}
-          <div style={{ padding: '2px 8px', fontSize: 8, color: 'var(--text-muted)' }}>
-            {results.length}개 결과 {results.length === 12 ? '(최대 12개)' : ''}
+          {/* R1679: 전체 결과 수 + 더 보기 */}
+          <div style={{ padding: '2px 8px', fontSize: 8, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{results.length < totalFound ? `${results.length} / ${totalFound}개` : `${totalFound}개`}</span>
+            {results.length < totalFound && (
+              <span
+                onMouseDown={e => { e.preventDefault(); const np = pageSize + 12; setPageSize(np); search(query, np) }}
+                style={{ cursor: 'pointer', color: '#58a6ff', fontSize: 8 }}
+              >더 보기 ▾</span>
+            )}
           </div>
         </div>
       )}
