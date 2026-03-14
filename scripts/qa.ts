@@ -20570,6 +20570,18 @@ console.log('\n## 777. R1886 BatchInspector cc.ProgressBar totalLength 체크')
   }
 }
 
+// ── Section 778: R1887 cc.ParticleSystem angle/angleVar ──────────
+console.log('\n## 778. R1887 cc.ParticleSystem angle/angleVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s778 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s778.includes('R1887') && s778.includes('_N$angle') && s778.includes('angleVar')) {
+    log('pass', 'R1887-particle-angle', 'cc.ParticleSystem angle/angleVar 편집')
+  } else {
+    log('warning', 'R1887-particle-angle', 'cc.ParticleSystem angle/angleVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

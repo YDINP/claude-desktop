@@ -10470,6 +10470,34 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R1887: angle / angleVar */}
+                  {(() => {
+                    const angle = Number(p.angle ?? p._angle ?? p._N$angle ?? 90)
+                    const angleVar = Number(p.angleVar ?? p._angleVar ?? p._N$angleVar ?? 0)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>angle</span>
+                        <input type="number" defaultValue={angle} key={`ang-${angle}`} step={1}
+                          onBlur={e => {
+                            const v = parseFloat(e.target.value) || 90
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angle: v, _angle: v, _N$angle: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>°</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>±var</span>
+                        <input type="number" defaultValue={angleVar} key={`angv-${angleVar}`} min={0} step={1}
+                          onBlur={e => {
+                            const v = Math.max(0, parseFloat(e.target.value) || 0)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angleVar: v, _angleVar: v, _N$angleVar: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }
