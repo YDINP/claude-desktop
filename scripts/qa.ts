@@ -19919,6 +19919,18 @@ console.log('\n## 723. R1832 cc.Canvas resolutionPolicy 체크')
   }
 }
 
+// ── Section 724: R1833 cc.ParticleSystem startSize/endSize 편집 ─────────────
+console.log('\n## 724. R1833 cc.ParticleSystem startSize/endSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s724 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s724.includes('R1833') && s724.includes('startSize') && s724.includes('_N$startSize') && s724.includes('endSize')) {
+    log('pass', 'R1833-particle-startsize-endsize', 'cc.ParticleSystem startSize/endSize 편집')
+  } else {
+    log('warning', 'R1833-particle-startsize-endsize', 'cc.ParticleSystem startSize/endSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

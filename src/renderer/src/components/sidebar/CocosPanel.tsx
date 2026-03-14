@@ -9125,6 +9125,8 @@ function CCFileNodeInspector({
               const duration = Number(p.duration ?? -1)
               const maxParticles = Number(p.maxParticles ?? 150)
               const emitRate = Number(p.emissionRate ?? p._emissionRate ?? p._N$emissionRate ?? 10)
+              const startSize = Number(p.startSize ?? p._startSize ?? p._N$startSize ?? 50)
+              const endSize = Number(p.endSize ?? p._endSize ?? p._N$endSize ?? 0)
               const durKey = comp.type === 'cc.ParticleSystem2D' ? '_N$duration' : '_duration'
               const maxKey = comp.type === 'cc.ParticleSystem2D' ? '_N$totalParticles' : '_N$maxParticles'
               return (
@@ -9157,6 +9159,27 @@ function CCFileNodeInspector({
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  {/* R1833: startSize / endSize */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startSize</span>
+                    <input type="number" defaultValue={startSize} key={`ss-${startSize}`} min={0} step={5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startSize: v, _startSize: v, _N$startSize: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>end</span>
+                    <input type="number" defaultValue={endSize} key={`es-${endSize}`} min={0} step={5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endSize: v, _endSize: v, _N$endSize: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                   </div>
                   {/* R1815: emitRate 퀵 프리셋 */}
