@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:34:23.546Z
+> 2026-03-14T01:35:32.693Z
 
 ## Critical
 _없음_
@@ -1633,3 +1633,4 @@ _없음_
 - cc.AudioSource 클립 uuid 복사
 - Inspector 노드 UUID 표시 + 복사
 - SceneView 형제 그룹 하이라이트
+- 전체 컴포넌트 enabled 토글

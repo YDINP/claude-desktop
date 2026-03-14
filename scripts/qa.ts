@@ -18371,6 +18371,18 @@ console.log('\n## 594. R1703 SceneView 형제 그룹 하이라이트 체크')
   }
 }
 
+// ── Section 595: R1704 전체 컴포넌트 enabled 토글 ──────────────────────────
+console.log('\n## 595. R1704 전체 컴포넌트 enabled 토글 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s595 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s595.includes('R1704') && s595.includes('전체 컴포넌트 enabled') && s595.includes('allEnabled')) {
+    log('pass', 'R1704-all-comp-enabled-toggle', '전체 컴포넌트 enabled 토글')
+  } else {
+    log('warning', 'R1704-all-comp-enabled-toggle', '전체 컴포넌트 enabled 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

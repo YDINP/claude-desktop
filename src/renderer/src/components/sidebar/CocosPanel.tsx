@@ -5375,6 +5375,22 @@ function CCFileNodeInspector({
           <div style={{ display: 'flex', gap: 3, marginBottom: 3 }}>
             <span title="모두 접기" onClick={() => { const allTypes = draft.components.map(c => c.type); setCollapsedComps(prev => { const n = new Set(prev); allTypes.forEach(t => n.add(t)); localStorage.setItem(COLLAPSED_COMPS_KEY, JSON.stringify([...n])); return n }) }} style={{ fontSize: 8, cursor: 'pointer', color: '#555', padding: '0 3px' }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>▸▸</span>
             <span title="모두 펴기" onClick={() => { const allTypes = draft.components.map(c => c.type); setCollapsedComps(prev => { const n = new Set(prev); allTypes.forEach(t => n.delete(t)); localStorage.setItem(COLLAPSED_COMPS_KEY, JSON.stringify([...n])); return n }) }} style={{ fontSize: 8, cursor: 'pointer', color: '#555', padding: '0 3px' }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>▾▾</span>
+            {/* R1704: 전체 컴포넌트 enabled 토글 */}
+            {(() => {
+              const allEnabled = draft.components.every(c => c.props.enabled !== false)
+              return (
+                <span
+                  title={allEnabled ? '모든 컴포넌트 비활성화 (R1704)' : '모든 컴포넌트 활성화 (R1704)'}
+                  onClick={() => {
+                    const updated = draft.components.map(c => ({ ...c, props: { ...c.props, enabled: !allEnabled } }))
+                    applyAndSave({ components: updated })
+                  }}
+                  style={{ fontSize: 8, cursor: 'pointer', color: allEnabled ? '#555' : '#fbbf24', padding: '0 3px' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = allEnabled ? '#aaa' : '#f59e0b')}
+                  onMouseLeave={e => (e.currentTarget.style.color = allEnabled ? '#555' : '#fbbf24')}
+                >{allEnabled ? '⏸' : '▶'}</span>
+              )
+            })()}
           </div>
         )}
       </div>
