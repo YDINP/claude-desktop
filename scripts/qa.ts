@@ -21218,6 +21218,18 @@ console.log('\n## 831. R1940 BatchInspector cc.Label overflow 체크')
   }
 }
 
+// ── Section 832: R1941 BatchInspector cc.Camera zoomRatio ──────────
+console.log('\n## 832. R1941 BatchInspector cc.Camera zoomRatio 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s832 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s832.includes('R1941') && s832.includes('patchCamZoom') && s832.includes('applyCamZoom')) {
+    log('pass', 'R1941-batch-camera-zoomratio', 'BatchInspector cc.Camera zoomRatio 일괄 설정')
+  } else {
+    log('warning', 'R1941-batch-camera-zoomratio', 'BatchInspector cc.Camera zoomRatio 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

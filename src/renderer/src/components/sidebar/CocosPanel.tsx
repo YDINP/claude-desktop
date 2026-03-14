@@ -5522,6 +5522,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1941: 공통 cc.Camera zoomRatio 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamZoom = async (zoomRatio: number) => {
+          if (!sceneFile.root) return
+          function patchCamZoom(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamZoom)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, zoomRatio, _zoomRatio: zoomRatio } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchCamZoom(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Camera zoom=${zoomRatio} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#818cf8', width: 48, flexShrink: 0 }}>CamZoom</span>
+            {([0.5, 1, 1.5, 2] as const).map(v => (
+              <span key={v} title={`zoomRatio = ${v}`}
+                onClick={() => applyCamZoom(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#818cf8', userSelect: 'none' }}
+              >{v}x</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
