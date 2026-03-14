@@ -4647,6 +4647,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1936: 공통 cc.PageView bounceEnabled 일괄 설정 */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPVBounce = async (v: boolean) => {
+          if (!sceneFile.root) return
+          function patchPVBounce(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPVBounce)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, bounceEnabled: v, _N$bounceEnabled: v } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPVBounce(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PageView bounce=${v} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>PVbounce</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`bounceEnabled = ${v}`}
+                onClick={() => applyPVBounce(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{v ? 'bnc✓' : 'bnc✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1875: 공통 cc.PageView slideDuration 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVSlideDur = async (dur: number) => {

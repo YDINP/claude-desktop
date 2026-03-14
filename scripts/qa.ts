@@ -21158,6 +21158,18 @@ console.log('\n## 826. R1935 BatchInspector cc.ScrollView elastic 체크')
   }
 }
 
+// ── Section 827: R1936 BatchInspector cc.PageView bounceEnabled ──────────
+console.log('\n## 827. R1936 BatchInspector cc.PageView bounceEnabled 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s827 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s827.includes('R1936') && s827.includes('patchPVBounce') && s827.includes('applyPVBounce')) {
+    log('pass', 'R1936-batch-pageview-bounce', 'BatchInspector cc.PageView bounceEnabled 일괄 설정')
+  } else {
+    log('warning', 'R1936-batch-pageview-bounce', 'BatchInspector cc.PageView bounceEnabled 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
