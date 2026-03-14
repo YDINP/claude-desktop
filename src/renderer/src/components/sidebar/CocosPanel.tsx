@@ -4256,6 +4256,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1942: 공통 cc.RichText lineHeight 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichLineH = async (lineHeight: number) => {
+          if (!sceneFile.root) return
+          function patchRichLineH(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichLineH)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchRichLineH(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ RichText lineH=${lineHeight} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>RTlineH</span>
+            {([20, 24, 28, 32, 40] as const).map(v => (
+              <span key={v} title={`lineHeight = ${v}`}
+                onClick={() => applyRichLineH(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {

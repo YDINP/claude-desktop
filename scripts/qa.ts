@@ -21230,6 +21230,18 @@ console.log('\n## 832. R1941 BatchInspector cc.Camera zoomRatio 체크')
   }
 }
 
+// ── Section 833: R1942 BatchInspector cc.RichText lineHeight ──────────
+console.log('\n## 833. R1942 BatchInspector cc.RichText lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s833 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s833.includes('R1942') && s833.includes('patchRichLineH') && s833.includes('applyRichLineH')) {
+    log('pass', 'R1942-batch-richtext-lineheight', 'BatchInspector cc.RichText lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R1942-batch-richtext-lineheight', 'BatchInspector cc.RichText lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
