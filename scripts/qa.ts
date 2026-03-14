@@ -17829,6 +17829,18 @@ console.log('\n## 549. R1658 Escape 키 부모 노드 선택 체크')
   }
 }
 
+// ── Section 550: R1659 SceneView 솔로 모드 ──────────────────────
+console.log('\n## 550. R1659 SceneView 솔로 모드 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s550 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s550.includes('R1659') && s550.includes('soloMode') && s550.includes('soloDim')) {
+    log('pass', 'R1659-solo-mode', 'SceneView 솔로 모드 (선택 노드 외 흐리게)')
+  } else {
+    log('warning', 'R1659-solo-mode', 'SceneView 솔로 모드 미구현', 'SceneView/CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

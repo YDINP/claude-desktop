@@ -88,6 +88,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
   const [depthColorMode, setDepthColorMode] = useState(false)
+  // R1659: 솔로 모드 (선택 노드 외 흐리게)
+  const [soloMode, setSoloMode] = useState(false)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
   const [screenshotSending, setScreenshotSending] = useState(false)
   // R1530: 디자인 레퍼런스 이미지 overlay
@@ -904,6 +906,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={wireframeMode ? '와이어프레임 모드 해제' : '와이어프레임 모드 — 선만 표시 (R1623)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${wireframeMode ? '#58a6ff' : 'var(--border)'}`, background: wireframeMode ? 'rgba(88,166,255,0.12)' : 'none', color: wireframeMode ? '#58a6ff' : 'var(--text-muted)' }}
         >⬚</button>
+        {/* R1659: 솔로 모드 */}
+        <button
+          onClick={() => setSoloMode(m => !m)}
+          title={soloMode ? '솔로 모드 해제' : '솔로 모드 (선택 노드 외 흐리게)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${soloMode ? '#f97316' : 'var(--border)'}`, background: soloMode ? 'rgba(249,115,22,0.12)' : 'none', color: soloMode ? '#f97316' : 'var(--text-muted)' }}
+        >◎</button>
         {/* R1641: depth 색조 시각화 */}
         <button
           onClick={() => setDepthColorMode(d => !d)}
@@ -1167,7 +1175,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const isSearchMatch = svSearch.trim() ? svSearchMatches.has(node.uuid) : false
             // R1626: 검색 중 비매칭 노드 dim
             const searchDim = svSearch.trim() && !isSearchMatch && !isSelected ? 0.2 : 1
-            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim
+            // R1659: 솔로 모드 — 선택 노드 외 흐리게
+            const soloDim = soloMode && !isSelected && !isHovered ? 0.12 : 1
+            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5
