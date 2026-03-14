@@ -23222,6 +23222,18 @@ console.log('\n## 998. R2107 BatchInspector cc.MotionStreak color 체크')
   }
 }
 
+// ── Section 999: R2108 BatchInspector cc.AudioSource loop ──────────
+console.log('\n## 999. R2108 BatchInspector cc.AudioSource loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s999 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s999.includes('R2108') && s999.includes('patchAudioLoop') && s999.includes('applyAudioLoop')) {
+    log('pass', 'R2108-batch-audio-loop', 'BatchInspector cc.AudioSource loop 일괄 설정')
+  } else {
+    log('warning', 'R2108-batch-audio-loop', 'BatchInspector cc.AudioSource loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

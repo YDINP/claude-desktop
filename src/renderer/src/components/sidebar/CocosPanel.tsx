@@ -8562,6 +8562,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2108: 공통 cc.AudioSource loop 일괄 설정 */}
+      {commonCompTypes.includes('cc.AudioSource') && (() => {
+        const applyAudioLoop = async (loop: boolean) => {
+          if (!sceneFile.root) return
+          function patchAudioLoop(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAudioLoop)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, loop, _loop: loop } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchAudioLoop(sceneFile.root) })
+          setBatchMsg(`✓ AudioSource loop=${loop} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>AudLoop</span>
+            <span onClick={() => applyAudioLoop(true)} title="loop ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>loop✓</span>
+            <span onClick={() => applyAudioLoop(false)} title="loop OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>loop✗</span>
+          </div>
+        )
+      })()}
       {/* R1828: 공통 cc.AudioSource volume 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioVol = async (volume: number) => {
