@@ -9225,6 +9225,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2097: 공통 cc.Widget bottom 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetBot = async (bottom: number) => {
+          if (!sceneFile.root) return
+          function patchWidgetBot(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetBot)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, bottom, _bottom: bottom, _N$bottom: bottom } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetBot(sceneFile.root) })
+          setBatchMsg(`✓ Widget bottom=${bottom} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WgtBot</span>
+            {[0, 10, 20, 30, 50, 100].map(v => (
+              <span key={v} title={`bottom = ${v}`}
+                onClick={() => applyWidgetBot(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2096: 공통 cc.Widget top 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetTop = async (top: number) => {

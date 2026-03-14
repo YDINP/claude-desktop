@@ -23090,6 +23090,18 @@ console.log('\n## 987. R2096 BatchInspector cc.Widget top 체크')
   }
 }
 
+// ── Section 988: R2097 BatchInspector cc.Widget bottom ──────────
+console.log('\n## 988. R2097 BatchInspector cc.Widget bottom 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s988 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s988.includes('R2097') && s988.includes('patchWidgetBot') && s988.includes('applyWidgetBot')) {
+    log('pass', 'R2097-batch-widget-bottom', 'BatchInspector cc.Widget bottom 일괄 설정')
+  } else {
+    log('warning', 'R2097-batch-widget-bottom', 'BatchInspector cc.Widget bottom 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
