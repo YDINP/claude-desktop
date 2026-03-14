@@ -17913,6 +17913,20 @@ console.log('\n## 556. R1665 다중 선택 정렬 버튼 체크')
   }
 }
 
+// ── Section 557: R1666 Inspector pulse 미리보기 ──────────────────────
+console.log('\n## 557. R1666 Inspector pulse 미리보기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const svpFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s557cp = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  const s557sv = existsSync(svpFile) ? readFileSync(svpFile, 'utf8') : ''
+  if (s557cp.includes('pulseUuid') && s557cp.includes('onPulse') && s557sv.includes('cc-pulse-ring') && s557sv.includes('pulseUuid')) {
+    log('pass', 'R1666-pulse-preview', 'Inspector pulse 미리보기 (SceneView 노드 강조)')
+  } else {
+    log('warning', 'R1666-pulse-preview', 'Inspector pulse 미리보기 미구현', 'CocosPanel.tsx / CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

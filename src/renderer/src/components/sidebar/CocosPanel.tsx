@@ -583,6 +583,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [insertingPrefab, setInsertingPrefab] = useState(false)
   // R1516: 다중 선택 노드 공통 속성 배치 편집
   const [multiSelectedUuids, setMultiSelectedUuids] = useState<string[]>([])
+  // R1666: 선택 노드 pulse 미리보기
+  const [pulseUuid, setPulseUuid] = useState<string | null>(null)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -2628,6 +2630,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onReorder={handleReorder}
                 onAnchorMove={handleAnchorMove}
                 onMultiSelectChange={setMultiSelectedUuids}
+                pulseUuid={pulseUuid}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }
                   const findNode = (n: CCSceneNode): CCSceneNode | null => {
@@ -2697,6 +2700,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   onUpdate={onSelectNode}
                   lockedUuids={lockedUuids}
                   onToggleLocked={toggleLocked}
+                  onPulse={uuid => { setPulseUuid(uuid); setTimeout(() => setPulseUuid(null), 1400) }}
                 />
               </div>
             )}
@@ -3544,7 +3548,7 @@ function CCFileBatchInspector({
 
 /** CCSceneNode 프로퍼티 인스펙터 — 노드 선택 시 표시 */
 function CCFileNodeInspector({
-  node, sceneFile, saveScene, onUpdate, lockedUuids, onToggleLocked,
+  node, sceneFile, saveScene, onUpdate, lockedUuids, onToggleLocked, onPulse,
 }: {
   node: CCSceneNode
   sceneFile: CCSceneFile
@@ -3552,6 +3556,7 @@ function CCFileNodeInspector({
   onUpdate: (n: CCSceneNode | null) => void
   lockedUuids?: Set<string>
   onToggleLocked?: (uuid: string) => void
+  onPulse?: (uuid: string) => void
 }) {
   // R1597: 노드 커스텀 메모 (localStorage 기반)
   const NOTES_KEY = 'cc-node-notes'
@@ -4230,6 +4235,16 @@ function CCFileNodeInspector({
                 onMouseEnter={e => (e.currentTarget.style.color = lockedUuids?.has(node.uuid) ? '#fbbf24' : '#888')}
                 onMouseLeave={e => (e.currentTarget.style.color = lockedUuids?.has(node.uuid) ? '#f97316' : '#445')}
               >{lockedUuids?.has(node.uuid) ? '🔒' : '🔓'}</span>
+            )}
+            {/* R1666: pulse 미리보기 버튼 */}
+            {onPulse && (
+              <span
+                title="SceneView에서 노드 위치 강조 (pulse)"
+                onClick={() => onPulse(node.uuid)}
+                style={{ fontSize: 9, color: '#445', padding: '1px 3px', borderRadius: 2, cursor: 'pointer', lineHeight: 1 }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#fbbf24')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#445')}
+              >✨</span>
             )}
             {/* R1607: UUID 복사 버튼 */}
             <span

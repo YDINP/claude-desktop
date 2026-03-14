@@ -38,6 +38,8 @@ interface CCFileSceneViewProps {
   onToggleActive?: (uuid: string) => void
   /** R1567: Ctrl+↑↓ 형제 순서 변경 (1=위로, -1=아래로) */
   onReorder?: (uuid: string, direction: 1 | -1) => void
+  /** R1666: 선택 노드 pulse 미리보기 uuid */
+  pulseUuid?: string | null
 }
 
 /**
@@ -45,7 +47,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -1053,6 +1055,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           <style>{`
             @keyframes march { to { stroke-dashoffset: -20; } }
             .cc-selected-rect { stroke-dasharray: 6 3; animation: march 0.6s linear infinite; }
+            @keyframes cc-pulse { 0%,100% { opacity:0; transform:scale(1); } 50% { opacity:0.7; transform:scale(1.06); } }
+            .cc-pulse-ring { animation: cc-pulse 0.45s ease-in-out 3; pointer-events:none; }
           `}</style>
         </defs>
         <g transform={transform}>
@@ -1273,6 +1277,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   strokeWidth={(isSelected ? 2 : 1) / view.zoom}
                   className={isSelected ? 'cc-selected-rect' : undefined}
                 />
+                {/* R1666: pulse 미리보기 링 */}
+                {node.uuid === pulseUuid && (
+                  <rect
+                    key={`pulse-${pulseUuid}`}
+                    x={rectX - 4 / view.zoom} y={rectY - 4 / view.zoom}
+                    width={Math.max(0, w) + 8 / view.zoom} height={Math.max(0, h) + 8 / view.zoom}
+                    fill="none" stroke="#fbbf24" strokeWidth={3 / view.zoom} rx={3 / view.zoom}
+                    className="cc-pulse-ring"
+                    style={{ transformOrigin: `${svgPos.x}px ${svgPos.y}px` }}
+                  />
+                )}
                 {/* 앵커 포인트 */}
                 <circle
                   cx={svgPos.x} cy={svgPos.y}
