@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T03:52:17.585Z
+> 2026-03-14T03:55:05.792Z
 
 ## Critical
 _없음_
@@ -1717,3 +1717,4 @@ _없음_
 - cc.AudioSource volume 퀵 프리셋 버튼
 - cc.Label fontSize 표준 크기 프리셋 버튼
 - cc.Label lineHeight 퀵 프리셋 버튼
+- cc.Sprite type/sizeMode 버튼

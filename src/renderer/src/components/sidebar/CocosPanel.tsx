@@ -6952,6 +6952,8 @@ function CCFileNodeInspector({
               // R1696: spriteFrame uuid 추출
               const sfRaw = p._spriteFrame ?? p.spriteFrame
               const sfUuid = (sfRaw as Record<string,unknown> | null)?.__uuid__ as string | undefined
+              const spriteTypeVal = Number(p.type ?? p._type ?? 0)
+              const sizeModeVal = Number(p.sizeMode ?? p._sizeMode ?? 1)
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
@@ -6969,33 +6971,34 @@ function CCFileNodeInspector({
                       >⎘</span>
                     </div>
                   )}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>type</label>
-                      <select value={Number(p.type ?? 0)}
-                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'type', Number(ev.target.value))}>
-                        {SPRITE_TYPE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>sizeMode</label>
-                      <select value={Number(p.sizeMode ?? 1)}
-                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'sizeMode', Number(ev.target.value))}>
-                        {SIZE_MODE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
-                      </select>
-                    </div>
+                  {/* R1788: Sprite type/sizeMode 버튼 (applyAndSave) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 3 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>type</span>
+                    {SPRITE_TYPE.map((l, i) => (
+                      <span key={i} title={l}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: i, _type: i } } : c); applyAndSave({ components: updated }) }}
+                        style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${spriteTypeVal === i ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: spriteTypeVal === i ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{l}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>size</span>
+                    {SIZE_MODE.map((l, i) => (
+                      <span key={i} title={l}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sizeMode: i, _sizeMode: i } } : c); applyAndSave({ components: updated }) }}
+                        style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${sizeModeVal === i ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: sizeModeVal === i ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{l}</span>
+                    ))}
                   </div>
                   <div style={{ display: 'flex', gap: 12 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                       <input type="checkbox" checked={!!(p.trim ?? true)}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'trim', ev.target.checked)} />
+                        onChange={ev => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, trim: ev.target.checked } } : c); applyAndSave({ components: updated }) }} />
                       trim
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                       <input type="checkbox" checked={!!(p.grayscale ?? false)}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'grayscale', ev.target.checked)} />
+                        onChange={ev => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, grayscale: ev.target.checked } } : c); applyAndSave({ components: updated }) }} />
                       grayscale
                     </label>
                   </div>

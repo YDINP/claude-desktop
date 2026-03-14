@@ -19379,6 +19379,18 @@ console.log('\n## 678. R1787 cc.Label lineHeight 퀵 프리셋 체크')
   }
 }
 
+// ── Section 679: R1788 cc.Sprite type/sizeMode 버튼 ──────────────────────────
+console.log('\n## 679. R1788 cc.Sprite type/sizeMode 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s679 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s679.includes('R1788') && s679.includes('Sprite type/sizeMode 버튼') && s679.includes('spriteTypeVal')) {
+    log('pass', 'R1788-sprite-type-btn', 'cc.Sprite type/sizeMode 버튼')
+  } else {
+    log('warning', 'R1788-sprite-type-btn', 'cc.Sprite type/sizeMode 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
