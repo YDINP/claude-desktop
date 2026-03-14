@@ -21398,6 +21398,18 @@ console.log('\n## 846. R1955 BatchInspector cc.Label color 체크')
   }
 }
 
+// ── Section 847: R1956 BatchInspector cc.RichText fontColor ──────────
+console.log('\n## 847. R1956 BatchInspector cc.RichText fontColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s847 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s847.includes('R1956') && s847.includes('patchRichFontColor') && s847.includes('applyRichFontColor')) {
+    log('pass', 'R1956-batch-richtext-fontcolor', 'BatchInspector cc.RichText fontColor 일괄 설정')
+  } else {
+    log('warning', 'R1956-batch-richtext-fontcolor', 'BatchInspector cc.RichText fontColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
