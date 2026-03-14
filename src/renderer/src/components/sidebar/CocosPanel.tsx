@@ -8965,6 +8965,52 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2150: 공통 cc.TiledLayer opacity 일괄 설정 */}
+      {commonCompTypes.includes('cc.TiledLayer') && (() => {
+        const applyTiledLayerOpacity = async (opacity: number) => {
+          if (!sceneFile.root) return
+          function patchTiledLayerOpacity(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchTiledLayerOpacity)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.TiledLayer' ? { ...c, props: { ...c.props, opacity } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchTiledLayerOpacity(sceneFile.root) })
+          setBatchMsg(`✓ TiledLayer opacity=${opacity} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>TLOpacity</span>
+            {[0, 0.25, 0.5, 0.75, 1].map(v => (
+              <span key={v} onClick={() => applyTiledLayerOpacity(v)} title={`opacity=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2151: 공통 cc.TiledLayer visible 일괄 설정 */}
+      {commonCompTypes.includes('cc.TiledLayer') && (() => {
+        const applyTiledLayerVisible = async (visible: boolean) => {
+          if (!sceneFile.root) return
+          function patchTiledLayerVisible(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchTiledLayerVisible)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.TiledLayer' ? { ...c, props: { ...c.props, visible } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchTiledLayerVisible(sceneFile.root) })
+          setBatchMsg(`✓ TiledLayer visible=${visible} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>TLVisible</span>
+            <span onClick={() => applyTiledLayerVisible(true)} title="visible ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>show✓</span>
+            <span onClick={() => applyTiledLayerVisible(false)} title="visible OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>hide✗</span>
+          </div>
+        )
+      })()}
       {/* R1836: 공통 cc.SkeletalAnimation speedRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {

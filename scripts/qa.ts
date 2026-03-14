@@ -23726,6 +23726,30 @@ console.log('\n## 1040. R2149 BatchInspector cc.ParticleSystem endColorVar 체�
   }
 }
 
+// ── Section 1041: R2150 BatchInspector cc.TiledLayer opacity ──────────
+console.log('\n## 1041. R2150 BatchInspector cc.TiledLayer opacity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1041 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1041.includes('R2150') && s1041.includes('patchTiledLayerOpacity') && s1041.includes('applyTiledLayerOpacity')) {
+    log('pass', 'R2150-batch-tiledlayer-opacity', 'BatchInspector cc.TiledLayer opacity 일괄 설정')
+  } else {
+    log('warning', 'R2150-batch-tiledlayer-opacity', 'BatchInspector cc.TiledLayer opacity 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1042: R2151 BatchInspector cc.TiledLayer visible ──────────
+console.log('\n## 1042. R2151 BatchInspector cc.TiledLayer visible 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1042 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1042.includes('R2151') && s1042.includes('patchTiledLayerVisible') && s1042.includes('applyTiledLayerVisible')) {
+    log('pass', 'R2151-batch-tiledlayer-visible', 'BatchInspector cc.TiledLayer visible 일괄 설정')
+  } else {
+    log('warning', 'R2151-batch-tiledlayer-visible', 'BatchInspector cc.TiledLayer visible 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
