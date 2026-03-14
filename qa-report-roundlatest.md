@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:41:20.738Z
+> 2026-03-14T01:45:04.731Z
 
 ## Critical
 _없음_
@@ -1636,3 +1636,4 @@ _없음_
 - 전체 컴포넌트 enabled 토글
 - SceneView 선택 이력 탐색
 - 일괄 회전 편집
+- 씬 트리 collapsed 상태 세션 간 저장

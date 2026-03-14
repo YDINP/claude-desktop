@@ -338,6 +338,20 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     collectParents(sceneFile.root)
     setCollapsedUuids(uuids)
   }, [sceneFile?.root])
+  // R1707: 씬 경로별 collapsed 상태 localStorage 저장/복원
+  const collapsedPersistKey = sceneFile?.scenePath ? `tree-collapsed:${sceneFile.scenePath}` : null
+  useEffect(() => {
+    if (!collapsedPersistKey) return
+    try {
+      const saved = localStorage.getItem(collapsedPersistKey)
+      if (saved) setCollapsedUuids(new Set(JSON.parse(saved) as string[]))
+      else setCollapsedUuids(new Set())
+    } catch { setCollapsedUuids(new Set()) }
+  }, [collapsedPersistKey])
+  useEffect(() => {
+    if (!collapsedPersistKey) return
+    try { localStorage.setItem(collapsedPersistKey, JSON.stringify([...collapsedUuids])) } catch {}
+  }, [collapsedPersistKey, collapsedUuids])
   // R1644: 선택 노드 트리 자동 스크롤
   useEffect(() => {
     if (!selectedNode) return

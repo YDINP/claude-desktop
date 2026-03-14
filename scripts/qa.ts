@@ -18407,6 +18407,18 @@ console.log('\n## 597. R1706 일괄 회전 편집 체크')
   }
 }
 
+// ── Section 598: R1707 씬 트리 collapsed 상태 persist ───────────────────────
+console.log('\n## 598. R1707 씬 트리 collapsed 상태 localStorage 저장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s598 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s598.includes('R1707') && s598.includes('collapsedPersistKey') && s598.includes('tree-collapsed:')) {
+    log('pass', 'R1707-collapsed-persist', '씬 트리 collapsed 상태 세션 간 저장')
+  } else {
+    log('warning', 'R1707-collapsed-persist', '씬 트리 collapsed 상태 persist 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
