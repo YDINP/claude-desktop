@@ -20774,6 +20774,18 @@ console.log('\n## 794. R1903 BatchInspector cc.RichText fontSize 체크')
   }
 }
 
+// ── Section 795: R1904 BatchInspector cc.Slider interactable ──────────
+console.log('\n## 795. R1904 BatchInspector cc.Slider interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s795 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s795.includes('R1904') && s795.includes('applySliderInteract') && s795.includes('patchSliderInteract')) {
+    log('pass', 'R1904-batch-slider-interactable', 'BatchInspector cc.Slider interactable 일괄 설정')
+  } else {
+    log('warning', 'R1904-batch-slider-interactable', 'BatchInspector cc.Slider interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

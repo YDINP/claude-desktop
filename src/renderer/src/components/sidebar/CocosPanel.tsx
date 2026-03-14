@@ -4925,6 +4925,26 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1904: 공통 cc.Slider interactable 일괄 설정 */}
+      {commonCompTypes.includes('cc.Slider') && (() => {
+        const applySliderInteract = async (interactable: boolean) => {
+          if (!sceneFile.root) return
+          function patchSliderInteract(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSliderInteract)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, interactable, _N$interactable: interactable } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSliderInteract(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>SldrInter</span>
+            <span onClick={() => applySliderInteract(true)} title="interactable ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>inter✓</span>
+            <span onClick={() => applySliderInteract(false)} title="interactable OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f85149', userSelect: 'none' }}>inter✗</span>
+          </div>
+        )
+      })()}
       {/* R1828: 공통 cc.AudioSource volume 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioVol = async (volume: number) => {
