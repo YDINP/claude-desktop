@@ -18155,6 +18155,18 @@ console.log('\n## 576. R1685 SceneView Shift+드래그 축 제한 체크')
   }
 }
 
+// ── Section 577: R1686 Inspector 균등 스케일 버튼 ────────────────────────
+console.log('\n## 577. R1686 Inspector 균등 스케일 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s577 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s577.includes('R1686') && s577.includes('균등 스케일') && s577.includes('X=Y')) {
+    log('pass', 'R1686-uniform-scale', 'Inspector 균등 스케일 버튼 (⊟)')
+  } else {
+    log('warning', 'R1686-uniform-scale', 'Inspector 균등 스케일 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

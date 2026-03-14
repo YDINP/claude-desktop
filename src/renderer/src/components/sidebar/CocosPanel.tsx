@@ -5107,6 +5107,10 @@ function CCFileNodeInspector({
               {/* R1645: X/Y 반전 버튼 */}
               <span title="X 반전 (scaleX 부호 반전)" onClick={() => applyAndSave({ scale: { ...draft.scale, x: -draft.scale.x } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↔</span>
               <span title="Y 반전 (scaleY 부호 반전)" onClick={() => applyAndSave({ scale: { ...draft.scale, y: -draft.scale.y } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↕</span>
+              {/* R1686: 균등 스케일 (X=Y=평균) */}
+              {draft.scale.x !== draft.scale.y && (
+                <span title={`균등 스케일 X=Y (평균: ${((draft.scale.x + draft.scale.y) / 2).toFixed(2)})`} onClick={() => { const avg = (draft.scale.x + draft.scale.y) / 2; applyAndSave({ scale: { ...draft.scale, x: avg, y: avg } }) }} style={{ cursor: 'pointer', color: '#fbbf24', fontSize: 8, padding: '0 2px', borderRadius: 2 }} onMouseEnter={e => (e.currentTarget.style.color = '#fde68a')} onMouseLeave={e => (e.currentTarget.style.color = '#fbbf24')}>⊟</span>
+              )}
             </div>
             {numInput('X', draft.scale.x, v => {
               const ratio = draft.scale.x !== 0 ? v / draft.scale.x : 1
