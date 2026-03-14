@@ -7940,6 +7940,8 @@ function CCFileNodeInspector({
               const str = String(p.string ?? '')
               const placeholder = String(p.placeholder ?? '')
               const maxLength = Number(p.maxLength ?? -1)
+              // R1791: inputFlag
+              const inputFlag = Number(p.inputFlag ?? p._inputFlag ?? 0)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -7972,6 +7974,16 @@ function CCFileNodeInspector({
                       style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{maxLength < 0 ? '(unlimited)' : `≤${maxLength}`}</span>
+                  </div>
+                  {/* R1791: inputFlag 버튼 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>inputFlag</span>
+                    {([['Any', 0], ['Passwd', 3], ['Email', 1], ['Phone', 4], ['Num', 5]] as const).map(([l, v]) => (
+                      <span key={v} title={l}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputFlag: v, _inputFlag: v } } : c); applyAndSave({ components: updated }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${inputFlag === v ? '#f59e0b' : 'var(--border)'}`, borderRadius: 2, color: inputFlag === v ? '#f59e0b' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{l}</span>
+                    ))}
                   </div>
                 </div>
               )

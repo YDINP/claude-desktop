@@ -19415,6 +19415,18 @@ console.log('\n## 681. R1790 cc.Camera clearFlags + backgroundColor 체크')
   }
 }
 
+// ── Section 682: R1791 cc.EditBox inputFlag 버튼 ─────────────────────────────
+console.log('\n## 682. R1791 cc.EditBox inputFlag 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s682 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s682.includes('R1791') && s682.includes('inputFlag 버튼') && s682.includes('Passwd')) {
+    log('pass', 'R1791-editbox-inputflag', 'cc.EditBox inputFlag 버튼')
+  } else {
+    log('warning', 'R1791-editbox-inputflag', 'cc.EditBox inputFlag 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
