@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:41:02.874Z
+> 2026-03-14T05:42:39.283Z
 
 ## Critical
 _없음_
@@ -1817,3 +1817,4 @@ _없음_
 - BatchInspector cc.SkeletalAnimation playOnLoad 일괄 설정
 - BatchInspector cc.ProgressBar totalLength 일괄 설정
 - cc.ParticleSystem angle/angleVar 편집
+- BatchInspector cc.RichText maxWidth 일괄 설정

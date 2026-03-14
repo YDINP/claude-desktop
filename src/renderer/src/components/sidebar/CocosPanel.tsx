@@ -4100,6 +4100,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1888: 공통 cc.RichText maxWidth 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichMaxW = async (w: number) => {
+          if (!sceneFile.root) return
+          function patchRichMaxW(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichMaxW)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, maxWidth: w, _N$maxWidth: w } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRichMaxW(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Rich maxW</span>
+            {([0, 100, 200, 300, 400, 600] as const).map(v => (
+              <span key={v} title={v === 0 ? 'maxWidth=0 (무제한)' : `maxWidth=${v}`}
+                onClick={() => applyRichMaxW(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{v === 0 ? '∞' : v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1764: 공통 cc.Toggle isChecked 일괄 설정 */}
       {commonCompTypes.includes('cc.Toggle') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

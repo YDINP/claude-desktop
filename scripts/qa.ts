@@ -20582,6 +20582,18 @@ console.log('\n## 778. R1887 cc.ParticleSystem angle/angleVar 체크')
   }
 }
 
+// ── Section 779: R1888 BatchInspector cc.RichText maxWidth ──────────
+console.log('\n## 779. R1888 BatchInspector cc.RichText maxWidth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s779 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s779.includes('R1888') && s779.includes('applyRichMaxW') && s779.includes('patchRichMaxW')) {
+    log('pass', 'R1888-batch-richtext-maxwidth', 'BatchInspector cc.RichText maxWidth 일괄 설정')
+  } else {
+    log('warning', 'R1888-batch-richtext-maxwidth', 'BatchInspector cc.RichText maxWidth 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
