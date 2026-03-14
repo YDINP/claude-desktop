@@ -9266,6 +9266,9 @@ function CCFileNodeInspector({
               const emitRate = Number(p.emissionRate ?? p._emissionRate ?? p._N$emissionRate ?? 10)
               const startSize = Number(p.startSize ?? p._startSize ?? p._N$startSize ?? 50)
               const endSize = Number(p.endSize ?? p._endSize ?? p._N$endSize ?? 0)
+              // R1841: speed / speedVar
+              const speed = Number(p.speed ?? p._speed ?? p._N$speed ?? 180)
+              const speedVar = Number(p.speedVar ?? p._speedVar ?? p._N$speedVar ?? 50)
               const durKey = comp.type === 'cc.ParticleSystem2D' ? '_N$duration' : '_duration'
               const maxKey = comp.type === 'cc.ParticleSystem2D' ? '_N$totalParticles' : '_N$maxParticles'
               return (
@@ -9341,6 +9344,27 @@ function CCFileNodeInspector({
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${emitRate === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: emitRate === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}
+                  </div>
+                  {/* R1841: speed / speedVar */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>speed</span>
+                    <input type="number" defaultValue={speed} key={`spd-${speed}`} min={0} step={10}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speed: v, _speed: v, _N$speed: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>var</span>
+                    <input type="number" defaultValue={speedVar} key={`spdv-${speedVar}`} min={0} step={10}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedVar: v, _speedVar: v, _N$speedVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
                   </div>
                   {/* R1834: startColor / endColor */}
                   {(() => {

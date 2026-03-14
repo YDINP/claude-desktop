@@ -20015,6 +20015,18 @@ console.log('\n## 731. R1840 cc.Button transition 퀵 버튼 체크')
   }
 }
 
+// ── Section 732: R1841 cc.ParticleSystem speed/speedVar 편집 ─────────────────
+console.log('\n## 732. R1841 cc.ParticleSystem speed/speedVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s732 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s732.includes('R1841') && s732.includes('_N$speed') && s732.includes('speedVar') && s732.includes('_N$speedVar')) {
+    log('pass', 'R1841-particle-speed', 'cc.ParticleSystem speed/speedVar 편집')
+  } else {
+    log('warning', 'R1841-particle-speed', 'cc.ParticleSystem speed/speedVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

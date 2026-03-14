@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:53:10.256Z
+> 2026-03-14T04:54:06.302Z
 
 ## Critical
 _없음_
@@ -1770,3 +1770,4 @@ _없음_
 - BatchInspector sp.Skeleton timeScale 일괄 설정
 - BatchInspector dragonBones.ArmatureDisplay timeScale 일괄 설정
 - cc.Button transition 퀵 버튼 (None/Color/Sprite/Scale)
+- cc.ParticleSystem speed/speedVar 편집
