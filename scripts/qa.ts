@@ -24095,6 +24095,150 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1126: R2197 BatchInspector cc.Layout enabled ──────────
+console.log('\n## 1126. R2197 BatchInspector cc.Layout enabled (컴포넌트 레벨) 체크')
+const s1126 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1126.includes('R2197') && s1126.includes('applyLayoutEnabled') && s1126.includes('LyComp')) {
+  log('pass', 'R2197-batch-layout-enabled', 'BatchInspector cc.Layout enabled 일괄 설정')
+} else {
+  log('warning', 'R2197-batch-layout-enabled', 'BatchInspector cc.Layout enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1127: R2197 BatchInspector cc.ProgressBar enabled ──────────
+console.log('\n## 1127. R2197 BatchInspector cc.ProgressBar enabled (컴포넌트 레벨) 체크')
+const s1127 = s1126
+if (s1127.includes('R2197') && s1127.includes('applyPBEnabled') && s1127.includes('PBComp')) {
+  log('pass', 'R2197-batch-progressbar-enabled', 'BatchInspector cc.ProgressBar enabled 일괄 설정')
+} else {
+  log('warning', 'R2197-batch-progressbar-enabled', 'BatchInspector cc.ProgressBar enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1124: R2196 BatchInspector cc.AudioSource enabled ──────────
+console.log('\n## 1124. R2196 BatchInspector cc.AudioSource enabled (컴포넌트 레벨) 체크')
+const s1124 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1124.includes('R2196') && s1124.includes('applyAudioEnabled') && s1124.includes('ASComp')) {
+  log('pass', 'R2196-batch-audiosource-enabled', 'BatchInspector cc.AudioSource enabled 일괄 설정')
+} else {
+  log('warning', 'R2196-batch-audiosource-enabled', 'BatchInspector cc.AudioSource enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1125: R2196 BatchInspector cc.VideoPlayer enabled ──────────
+console.log('\n## 1125. R2196 BatchInspector cc.VideoPlayer enabled (컴포넌트 레벨) 체크')
+const s1125 = s1124
+if (s1125.includes('R2196') && s1125.includes('applyVideoEnabled') && s1125.includes('VPComp')) {
+  log('pass', 'R2196-batch-videoplayer-enabled', 'BatchInspector cc.VideoPlayer enabled 일괄 설정')
+} else {
+  log('warning', 'R2196-batch-videoplayer-enabled', 'BatchInspector cc.VideoPlayer enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1122: R2195 BatchInspector cc.Slider enabled ──────────
+console.log('\n## 1122. R2195 BatchInspector cc.Slider enabled (컴포넌트 레벨) 체크')
+const s1122 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1122.includes('R2195') && s1122.includes('applySliderEnabled') && s1122.includes('SLDComp')) {
+  log('pass', 'R2195-batch-slider-enabled', 'BatchInspector cc.Slider enabled 일괄 설정')
+} else {
+  log('warning', 'R2195-batch-slider-enabled', 'BatchInspector cc.Slider enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1123: R2195 BatchInspector cc.Toggle enabled ──────────
+console.log('\n## 1123. R2195 BatchInspector cc.Toggle enabled (컴포넌트 레벨) 체크')
+const s1123 = s1122
+if (s1123.includes('R2195') && s1123.includes('applyToggleEnabled') && s1123.includes('TGLComp')) {
+  log('pass', 'R2195-batch-toggle-enabled', 'BatchInspector cc.Toggle enabled 일괄 설정')
+} else {
+  log('warning', 'R2195-batch-toggle-enabled', 'BatchInspector cc.Toggle enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1120: R2194 BatchInspector cc.ParticleSystem enabled ──────────
+console.log('\n## 1120. R2194 BatchInspector cc.ParticleSystem enabled (컴포넌트 레벨) 체크')
+const s1120 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1120.includes('R2194') && s1120.includes('applyParticleEnabled') && s1120.includes('PSComp')) {
+  log('pass', 'R2194-batch-particle-enabled', 'BatchInspector cc.ParticleSystem enabled 일괄 설정')
+} else {
+  log('warning', 'R2194-batch-particle-enabled', 'BatchInspector cc.ParticleSystem enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1121: R2194 BatchInspector cc.Graphics enabled ──────────
+console.log('\n## 1121. R2194 BatchInspector cc.Graphics enabled (컴포넌트 레벨) 체크')
+const s1121 = s1120
+if (s1121.includes('R2194') && s1121.includes('applyGraphicsEnabled') && s1121.includes('GfxComp')) {
+  log('pass', 'R2194-batch-graphics-enabled', 'BatchInspector cc.Graphics enabled 일괄 설정')
+} else {
+  log('warning', 'R2194-batch-graphics-enabled', 'BatchInspector cc.Graphics enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1118: R2193 BatchInspector cc.ScrollView enabled ──────────
+console.log('\n## 1118. R2193 BatchInspector cc.ScrollView enabled (컴포넌트 레벨) 체크')
+const s1118 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1118.includes('R2193') && s1118.includes('applySVEnabled') && s1118.includes('SVComp')) {
+  log('pass', 'R2193-batch-scrollview-enabled', 'BatchInspector cc.ScrollView enabled 일괄 설정')
+} else {
+  log('warning', 'R2193-batch-scrollview-enabled', 'BatchInspector cc.ScrollView enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1119: R2193 BatchInspector cc.Mask enabled ──────────
+console.log('\n## 1119. R2193 BatchInspector cc.Mask enabled (컴포넌트 레벨) 체크')
+const s1119 = s1118
+if (s1119.includes('R2193') && s1119.includes('applyMaskEnabled') && s1119.includes('MskComp')) {
+  log('pass', 'R2193-batch-mask-enabled', 'BatchInspector cc.Mask enabled 일괄 설정')
+} else {
+  log('warning', 'R2193-batch-mask-enabled', 'BatchInspector cc.Mask enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1116: R2192 BatchInspector cc.Button enabled ──────────
+console.log('\n## 1116. R2192 BatchInspector cc.Button enabled (컴포넌트 레벨) 체크')
+const s1116 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1116.includes('R2192') && s1116.includes('applyButtonEnabled') && s1116.includes('BtnComp')) {
+  log('pass', 'R2192-batch-button-enabled', 'BatchInspector cc.Button enabled 일괄 설정')
+} else {
+  log('warning', 'R2192-batch-button-enabled', 'BatchInspector cc.Button enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1117: R2192 BatchInspector cc.RichText enabled ──────────
+console.log('\n## 1117. R2192 BatchInspector cc.RichText enabled (컴포넌트 레벨) 체크')
+const s1117 = s1116
+if (s1117.includes('R2192') && s1117.includes('applyRichTextEnabled') && s1117.includes('RTComp')) {
+  log('pass', 'R2192-batch-richtext-enabled', 'BatchInspector cc.RichText enabled 일괄 설정')
+} else {
+  log('warning', 'R2192-batch-richtext-enabled', 'BatchInspector cc.RichText enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1114: R2191 BatchInspector cc.Animation enabled ──────────
+console.log('\n## 1114. R2191 BatchInspector cc.Animation enabled (컴포넌트 레벨) 체크')
+const s1114 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1114.includes('R2191') && s1114.includes('applyAnimEnabled') && s1114.includes('AnimComp')) {
+  log('pass', 'R2191-batch-anim-enabled', 'BatchInspector cc.Animation enabled 일괄 설정')
+} else {
+  log('warning', 'R2191-batch-anim-enabled', 'BatchInspector cc.Animation enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1115: R2191 BatchInspector cc.Label enabled ──────────
+console.log('\n## 1115. R2191 BatchInspector cc.Label enabled (컴포넌트 레벨) 체크')
+const s1115 = s1114
+if (s1115.includes('R2191') && s1115.includes('applyLabelEnabled') && s1115.includes('LblComp')) {
+  log('pass', 'R2191-batch-label-enabled', 'BatchInspector cc.Label enabled 일괄 설정')
+} else {
+  log('warning', 'R2191-batch-label-enabled', 'BatchInspector cc.Label enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1112: R2190 BatchInspector cc.MotionStreak timeToLive ──────────
+console.log('\n## 1112. R2190 BatchInspector cc.MotionStreak timeToLive 체크')
+const s1112 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1112.includes('R2190') && s1112.includes('applyMSTtl') && s1112.includes('MStlive')) {
+  log('pass', 'R2190-batch-motionstreak-ttl', 'BatchInspector cc.MotionStreak timeToLive 일괄 설정')
+} else {
+  log('warning', 'R2190-batch-motionstreak-ttl', 'BatchInspector cc.MotionStreak timeToLive 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1113: R2190 BatchInspector cc.Sprite enabled ──────────
+console.log('\n## 1113. R2190 BatchInspector cc.Sprite enabled (컴포넌트 레벨) 체크')
+const s1113 = s1112
+if (s1113.includes('R2190') && s1113.includes('applySpriteEnabled') && s1113.includes('SpComp')) {
+  log('pass', 'R2190-batch-sprite-enabled', 'BatchInspector cc.Sprite enabled (컴포넌트 레벨) 일괄 설정')
+} else {
+  log('warning', 'R2190-batch-sprite-enabled', 'BatchInspector cc.Sprite enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1110: R2189 BatchInspector cc.ParticleSystem sourcePos.x ──────────
 console.log('\n## 1110. R2189 BatchInspector cc.ParticleSystem sourcePos.x 체크')
 const s1110 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
