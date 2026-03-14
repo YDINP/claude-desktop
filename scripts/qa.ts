@@ -21110,6 +21110,18 @@ console.log('\n## 822. R1931 BatchInspector sp.Skeleton loop 체크')
   }
 }
 
+// ── Section 823: R1932 BatchInspector cc.ParticleSystem loop ──────────
+console.log('\n## 823. R1932 BatchInspector cc.ParticleSystem loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s823 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s823.includes('R1932') && s823.includes('patchParticleLoop') && s823.includes('applyParticleLoop')) {
+    log('pass', 'R1932-batch-particle-loop', 'BatchInspector cc.ParticleSystem loop 일괄 설정')
+  } else {
+    log('warning', 'R1932-batch-particle-loop', 'BatchInspector cc.ParticleSystem loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

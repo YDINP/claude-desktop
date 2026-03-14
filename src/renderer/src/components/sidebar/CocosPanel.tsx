@@ -4957,6 +4957,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1932: 공통 cc.ParticleSystem loop 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyParticleLoop = async (loop: boolean) => {
+          if (!sceneFile.root) return
+          function patchParticleLoop(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchParticleLoop)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            // loop is achieved by setting duration = -1 or duration = positive
+            const dur = loop ? -1 : 1
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchParticleLoop(sceneFile.root) })
+          setBatchMsg(`✓ ParticleSystem loop=${loop} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Ploop</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={v ? 'loop (duration=-1)' : 'once (duration=1)'}
+                onClick={() => applyParticleLoop(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{v ? 'loop' : 'once'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1846: 공통 cc.ParticleSystem startSize 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyParticleSize = async (startSize: number) => {
