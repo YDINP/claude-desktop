@@ -21542,6 +21542,18 @@ console.log('\n## 858. R1967 BatchInspector cc.PageView scrollThreshold 체크')
   }
 }
 
+// ── Section 859: R1968 BatchInspector cc.RigidBody fixedRotation ──────────
+console.log('\n## 859. R1968 BatchInspector cc.RigidBody fixedRotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s859 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s859.includes('R1968') && s859.includes('patchRBFixedRot') && s859.includes('applyRBFixedRot')) {
+    log('pass', 'R1968-batch-rigidbody-fixedrot', 'BatchInspector cc.RigidBody fixedRotation 일괄 설정')
+  } else {
+    log('warning', 'R1968-batch-rigidbody-fixedrot', 'BatchInspector cc.RigidBody fixedRotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
