@@ -1338,6 +1338,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [globalSearchQuery, setGlobalSearchQuery] = useState('')
   const [globalSearchResults, setGlobalSearchResults] = useState<Array<{ node: CCSceneNode; path: string }>>([])
   const globalSearchInputRef = useRef<HTMLInputElement>(null)
+  // R1734: 검색 결과 컴포넌트 타입 필터
+  const [globalSearchCompFilter, setGlobalSearchCompFilter] = useState('')
 
   // R1729: 매칭 cc.Label 목록
   const labelReplaceMatches = useMemo(() => {
@@ -1355,6 +1357,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     walk(sceneFile.root)
     return matches
   }, [showLabelReplace, labelFindText, sceneFile])
+
+  // R1734: 컴포넌트 타입 필터 적용
+  const filteredGlobalResults = useMemo(() => {
+    if (!globalSearchCompFilter) return globalSearchResults
+    return globalSearchResults.filter(r => r.node.components.some(c => c.type === globalSearchCompFilter))
+  }, [globalSearchResults, globalSearchCompFilter])
 
   // R1430: Ctrl+F 단축키
   useEffect(() => {
@@ -1790,15 +1798,25 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           </div>
           {globalSearchResults.length > 0 && (
             <div style={{ marginTop: 4 }}>
+              {/* R1734: 컴포넌트 타입 필터 */}
+              <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginBottom: 3 }}>
+                {['', 'cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Layout', 'cc.ScrollView'].map(ct => (
+                  <span
+                    key={ct || 'all'}
+                    onClick={() => setGlobalSearchCompFilter(ct)}
+                    style={{ fontSize: 8, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: `1px solid ${globalSearchCompFilter === ct ? '#58a6ff' : 'var(--border)'}`, background: globalSearchCompFilter === ct ? 'rgba(88,166,255,0.15)' : 'transparent', color: globalSearchCompFilter === ct ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                  >{ct ? ct.replace('cc.', '') : '전체'}</span>
+                ))}
+              </div>
               {/* R1719: 검색 결과 "모두 선택" 버튼 */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
-                <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{globalSearchResults.length}개 결과</span>
+                <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{filteredGlobalResults.length}개 결과{globalSearchCompFilter ? ` (${globalSearchCompFilter.replace('cc.', '')} 필터)` : ''}</span>
                 <span
                   title="검색 결과 노드 모두 선택 (다중 선택)"
                   onClick={() => {
-                    const uuids = globalSearchResults.map(r => r.node.uuid)
+                    const uuids = filteredGlobalResults.map(r => r.node.uuid)
                     if (uuids.length > 0) {
-                      onSelectNode(globalSearchResults[0].node)
+                      onSelectNode(filteredGlobalResults[0].node)
                       setMultiSelectedUuids(uuids)
                     }
                   }}
@@ -1811,7 +1829,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               maxHeight: 200, overflowY: 'auto',
               borderRadius: 4, border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)',
             }}>
-              {globalSearchResults.map(({ node: n, path }) => (
+              {filteredGlobalResults.map(({ node: n, path }) => (
                 <div
                   key={n.uuid}
                   onClick={() => {

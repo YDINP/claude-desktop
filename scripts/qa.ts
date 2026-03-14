@@ -18731,6 +18731,18 @@ console.log('\n## 624. R1733 스케일 스텝 버튼 체크')
   }
 }
 
+// ── Section 625: R1734 Global Search 컴포넌트 필터 ────────────────────────────
+console.log('\n## 625. R1734 Global Search 컴포넌트 필터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s625 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s625.includes('R1734') && s625.includes('globalSearchCompFilter') && s625.includes('filteredGlobalResults')) {
+    log('pass', 'R1734-global-comp-filter', 'Global Search 컴포넌트 타입 필터')
+  } else {
+    log('warning', 'R1734-global-comp-filter', 'Global Search 컴포넌트 필터 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
