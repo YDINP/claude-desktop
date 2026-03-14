@@ -21650,6 +21650,18 @@ console.log('\n## 867. R1976 BatchInspector cc.ParticleSystem positionType 체�
   }
 }
 
+// ── Section 868: R1977 BatchInspector cc.ParticleSystem blendFactor ──────────
+console.log('\n## 868. R1977 BatchInspector cc.ParticleSystem blendFactor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s868 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s868.includes('R1977') && s868.includes('patchPSBlend') && s868.includes('applyPSBlend')) {
+    log('pass', 'R1977-batch-ps-blend', 'BatchInspector cc.ParticleSystem blendFactor 일괄 설정')
+  } else {
+    log('warning', 'R1977-batch-ps-blend', 'BatchInspector cc.ParticleSystem blendFactor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

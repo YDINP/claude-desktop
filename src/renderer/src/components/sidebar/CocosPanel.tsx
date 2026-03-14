@@ -5529,6 +5529,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1977: 공통 cc.ParticleSystem srcBlendFactor/dstBlendFactor 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSBlend = async (src: number, dst: number, label: string) => {
+          if (!sceneFile.root) return
+          function patchPSBlend(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSBlend)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSBlend(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS blend=${label} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSblend</span>
+            <span onClick={() => applyPSBlend(770, 771, 'Add')} title="src=ONE(770) dst=ONE_MINUS_SRC_ALPHA(771)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>Add</span>
+            <span onClick={() => applyPSBlend(770, 1)} title="src=ONE(770) dst=ONE(1) — Additive"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>Addv</span>
+            <span onClick={() => applyPSBlend(774, 771, 'Norm')} title="src=SRC_ALPHA(774) dst=ONE_MINUS_SRC_ALPHA(771) — Normal"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>Norm</span>
+          </div>
+        )
+      })()}
       {/* R1976: 공통 cc.ParticleSystem positionType 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSPosType = async (positionType: number) => {
