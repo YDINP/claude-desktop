@@ -19535,6 +19535,18 @@ console.log('\n## 691. R1800 BatchInspector cc.Label vAlign 체크')
   }
 }
 
+// ── Section 692: R1801 BatchInspector cc.Sprite type ─────────────────────────
+console.log('\n## 692. R1801 BatchInspector cc.Sprite type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s692 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s692.includes('R1801') && s692.includes('patchSpriteType') && s692.includes('_type: v')) {
+    log('pass', 'R1801-batch-sprite-type', 'BatchInspector cc.Sprite type 일괄 설정')
+  } else {
+    log('warning', 'R1801-batch-sprite-type', 'BatchInspector cc.Sprite type 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

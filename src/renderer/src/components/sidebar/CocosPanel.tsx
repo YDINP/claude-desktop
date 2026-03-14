@@ -4100,6 +4100,31 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>tint</span>
         </div>
       )}
+      {/* R1801: 공통 cc.Sprite type 일괄 설정 */}
+      {commonCompTypes.includes('cc.Sprite') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>Sprite typ</span>
+          {([['Smp', 0], ['Slc', 1], ['Til', 2], ['Fil', 3]] as const).map(([l, v]) => (
+            <span key={v} title={['Simple', 'Sliced', 'Tiled', 'Filled'][v]}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                function patchSpriteType(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchSpriteType)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, type: v, _type: v } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchSpriteType(sceneFile.root))
+                setBatchMsg(`✓ Sprite type ${['Simple','Sliced','Tiled','Filled'][v]} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#4ade80')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+            >{l}</span>
+          ))}
+        </div>
+      )}
       {/* R1762: 공통 cc.Label fontFamily 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
