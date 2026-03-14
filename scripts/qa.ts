@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1088: R2178 BatchInspector cc.Camera orthoHeight ──────────
+console.log('\n## 1088. R2178 BatchInspector cc.Camera orthoHeight 체크')
+const s1088 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1088.includes('R2178') && s1088.includes('applyCamOrthoHeight') && s1088.includes('CamOrtH')) {
+  log('pass', 'R2178-batch-camera-orthoheight', 'BatchInspector cc.Camera orthoHeight 일괄 설정')
+} else {
+  log('warning', 'R2178-batch-camera-orthoheight', 'BatchInspector cc.Camera orthoHeight 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1089: R2178 BatchInspector cc.UITransform priority ──────────
+console.log('\n## 1089. R2178 BatchInspector cc.UITransform priority 체크')
+const s1089 = s1088
+if (s1089.includes('R2178') && s1089.includes('applyUITransPriority') && s1089.includes('UITPri')) {
+  log('pass', 'R2178-batch-uitransform-priority', 'BatchInspector cc.UITransform priority 일괄 설정')
+} else {
+  log('warning', 'R2178-batch-uitransform-priority', 'BatchInspector cc.UITransform priority 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1086: R2177 BatchInspector cc.EditBox lineCount ──────────
 console.log('\n## 1086. R2177 BatchInspector cc.EditBox lineCount 체크')
 const s1086 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -5816,6 +5816,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2178: 공통 cc.UITransform priority 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.UITransform') && (() => {
+        const applyUITransPriority = async (priority: number) => {
+          if (!sceneFile.root) return
+          function patchUITransPriority(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchUITransPriority)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, priority, _priority: priority } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchUITransPriority(sceneFile.root) })
+          setBatchMsg(`✓ UITransform priority=${priority} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>UITPri</span>
+            {[0, 1, 2, 5, 10, 100].map(v => (
+              <span key={v} onClick={() => applyUITransPriority(v)} title={`priority=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {
@@ -10295,6 +10319,30 @@ function CCFileBatchInspector({
                 onClick={() => applyCamFov(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#818cf8', userSelect: 'none' }}
               >{v}°</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2178: 공통 cc.Camera orthoHeight 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamOrthoHeight = async (orthoHeight: number) => {
+          if (!sceneFile.root) return
+          function patchCamOrthoHeight(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamOrthoHeight)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, orthoHeight, _orthoHeight: orthoHeight } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCamOrthoHeight(sceneFile.root) })
+          setBatchMsg(`✓ Camera orthoHeight=${orthoHeight} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>CamOrtH</span>
+            {[100, 200, 360, 480, 540, 720].map(v => (
+              <span key={v} onClick={() => applyCamOrthoHeight(v)} title={`orthoHeight=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{v}</span>
             ))}
           </div>
         )
