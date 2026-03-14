@@ -7438,6 +7438,48 @@ function CCFileNodeInspector({
                       grayscale
                     </label>
                   </div>
+                  {/* R1827: 색조(hue) 슬라이더 — 노드 tint 색상 H 조정 */}
+                  {(() => {
+                    const c = draft.color ?? { r: 255, g: 255, b: 255, a: 255 }
+                    const r1 = c.r/255, g1 = c.g/255, b1 = c.b/255
+                    const max = Math.max(r1,g1,b1), min = Math.min(r1,g1,b1), d = max - min
+                    const l = (max+min)/2
+                    const s = d === 0 ? 0 : d / (1 - Math.abs(2*l - 1))
+                    let h = 0
+                    if (d !== 0) {
+                      if (max === r1) h = ((g1-b1)/d + 6) % 6
+                      else if (max === g1) h = (b1-r1)/d + 2
+                      else h = (r1-g1)/d + 4
+                      h = h/6*360
+                    }
+                    const curHue = Math.round(h)
+                    const applyHue = (hDeg: number) => {
+                      const hN = hDeg/360, q = l < 0.5 ? l*(1+s) : l+s-l*s, p2 = 2*l-q
+                      const hue2rgb = (p3: number, q3: number, t: number) => {
+                        if (t<0) t+=1; if (t>1) t-=1
+                        if (t<1/6) return p3+(q3-p3)*6*t
+                        if (t<1/2) return q3
+                        if (t<2/3) return p3+(q3-p3)*(2/3-t)*6
+                        return p3
+                      }
+                      const nr = Math.round(hue2rgb(p2,q,hN+1/3)*255)
+                      const ng = Math.round(hue2rgb(p2,q,hN)*255)
+                      const nb = Math.round(hue2rgb(p2,q,hN-1/3)*255)
+                      applyAndSave({ color: { r: nr, g: ng, b: nb, a: c.a } })
+                    }
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>hue</span>
+                        <input type="range" min={0} max={359} step={1} value={curHue}
+                          onChange={e => applyHue(parseInt(e.target.value))}
+                          style={{ flex: 1,
+                            background: `linear-gradient(to right,hsl(0,${s*100}%,${l*100}%),hsl(60,${s*100}%,${l*100}%),hsl(120,${s*100}%,${l*100}%),hsl(180,${s*100}%,${l*100}%),hsl(240,${s*100}%,${l*100}%),hsl(300,${s*100}%,${l*100}%),hsl(360,${s*100}%,${l*100}%))`,
+                            height: 6, borderRadius: 3, cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 24, textAlign: 'right' }}>{curHue}°</span>
+                      </div>
+                    )
+                  })()}
                   {/* R1711/R1810: Filled 타입 — fillType/fillStart/fillRange applyAndSave 교체 */}
                   {Number(p.type ?? 0) === 3 && (
                     <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>

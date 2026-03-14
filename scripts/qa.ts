@@ -19847,6 +19847,18 @@ console.log('\n## 717. R1826 sp.Skeleton 확장 체크')
   }
 }
 
+// ── Section 718: R1827 cc.Sprite 색조(hue) 슬라이더 ────────────────────────
+console.log('\n## 718. R1827 cc.Sprite hue 슬라이더 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s718 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s718.includes('R1827') && s718.includes('applyHue') && s718.includes('hue2rgb') && s718.includes('curHue')) {
+    log('pass', 'R1827-sprite-hue-slider', 'cc.Sprite 색조(hue) 슬라이더')
+  } else {
+    log('warning', 'R1827-sprite-hue-slider', 'cc.Sprite hue 슬라이더 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
