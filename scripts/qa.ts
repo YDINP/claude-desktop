@@ -24113,6 +24113,24 @@ if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.inc
   log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1162: R2215 BatchInspector cc.Label _underlineHeight (CC3.x) ──────────
+console.log('\n## 1162. R2215 BatchInspector cc.Label _underlineHeight 체크')
+const s1162 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1162.includes('R2215') && s1162.includes('applyLabelULHeight') && s1162.includes('LblULH')) {
+  log('pass', 'R2215-batch-label-underlineheight', 'BatchInspector cc.Label _underlineHeight 일괄 설정')
+} else {
+  log('warning', 'R2215-batch-label-underlineheight', 'BatchInspector cc.Label _underlineHeight 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1163: R2215 BatchInspector cc.Sprite _color (CC3.x) ──────────
+console.log('\n## 1163. R2215 BatchInspector cc.Sprite _color 체크')
+const s1163 = s1162
+if (s1163.includes('R2215') && s1163.includes('applySpriteClr') && s1163.includes('SprClr')) {
+  log('pass', 'R2215-batch-sprite-color', 'BatchInspector cc.Sprite _color 일괄 설정')
+} else {
+  log('warning', 'R2215-batch-sprite-color', 'BatchInspector cc.Sprite _color 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1160: R2214 BatchInspector node _rotationX (CC2.x) ──────────
 console.log('\n## 1160. R2214 BatchInspector node _rotationX 체크')
 const s1160 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

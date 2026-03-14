@@ -5278,6 +5278,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2215: 공통 cc.Label _underlineHeight 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelULHeight = async (underlineHeight: number) => {
+          if (!sceneFile.root) return
+          function patchLabelULHeight(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelULHeight)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label'
+              ? { ...c, props: { ...c.props, underlineHeight, _underlineHeight: underlineHeight } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelULHeight(sceneFile.root) })
+          setBatchMsg(`✓ Label underlineHeight=${underlineHeight} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblULH</span>
+            {[1, 2, 3, 4, 5, 6, 8].map(v => (
+              <span key={v} onClick={() => applyLabelULHeight(v)} title={`underlineHeight=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1955: 공통 cc.Label color 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelColor = async (hex: string) => {
@@ -14243,6 +14269,34 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprGray</span>
             <span onClick={() => applySprGray(true)} title="grayscale ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>gray✓</span>
             <span onClick={() => applySprGray(false)} title="grayscale OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>gray✗</span>
+          </div>
+        )
+      })()}
+      {/* R2215: 공통 cc.Sprite _color 일괄 설정 (CC3.x 컴포넌트 레벨 색상) */}
+      {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
+        const applySpriteClr = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const colorObj = { r, g, b, a: 255 }
+          function patchSpriteClr(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpriteClr)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
+              ? { ...c, props: { ...c.props, _color: colorObj } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpriteClr(sceneFile.root) })
+          setBatchMsg(`✓ Sprite _color=${hex} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprClr</span>
+            {(['#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff8800', '#888888'] as const).map(c => (
+              <span key={c} title={c} onClick={() => applySpriteClr(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, cursor: 'pointer',
+                  border: '1px solid var(--border)', display: 'inline-block' }} />
+            ))}
           </div>
         )
       })()}
