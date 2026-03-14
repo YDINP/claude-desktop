@@ -13563,7 +13563,7 @@ function CCFileBatchInspector({
           function patchWidgetMargin(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchWidgetMargin)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, top: v, bottom: v, left: v, right: v, _N$top: v, _N$bottom: v, _N$left: v, _N$right: v } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, top: v, _top: v, bottom: v, _bottom: v, left: v, _left: v, right: v, _right: v, _N$top: v, _N$bottom: v, _N$left: v, _N$right: v } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchWidgetMargin(sceneFile.root)
@@ -14423,7 +14423,7 @@ function CCFileBatchInspector({
           function patchPBLength(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPBLength)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, totalLength, _N$totalLength: totalLength } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchPBLength(sceneFile.root))

@@ -24737,6 +24737,24 @@ if (s1262.includes('_elasticDuration: v, _N$elasticDuration: v')) {
   log('warning', 'R2264-node-sv-elasticduration-cc3x', '단일노드 cc.ScrollView _elasticDuration CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1263: R2265 BatchInspector cc.Widget _top/_bottom/_left/_right (CC3.x) ──────────
+console.log('\n## 1263. R2265 BatchInspector cc.Widget _top/_bottom/_left/_right CC3.x 체크')
+const s1263 = s1262
+if (s1263.includes('_top: v, bottom: v, _bottom: v') && s1263.includes('applyWidgetMargin')) {
+  log('pass', 'R2265-batch-widget-margin-cc3x', 'BatchInspector cc.Widget 4방향 _top/_bottom/_left/_right (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2265-batch-widget-margin-cc3x', 'BatchInspector cc.Widget 4방향 CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1264: R2265 BatchInspector cc.ProgressBar _totalLength (CC3.x) ──────────
+console.log('\n## 1264. R2265 BatchInspector cc.ProgressBar _totalLength CC3.x 체크')
+const s1264 = s1263
+if (s1264.includes('_totalLength: totalLength, _N$totalLength') && s1264.includes('applyPBLength')) {
+  log('pass', 'R2265-batch-pb-totallength-cc3x', 'BatchInspector cc.ProgressBar _totalLength (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2265-batch-pb-totallength-cc3x', 'BatchInspector cc.ProgressBar _totalLength CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
