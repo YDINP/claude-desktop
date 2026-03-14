@@ -20366,6 +20366,18 @@ console.log('\n## 760. R1869 BatchInspector cc.Slider direction 체크')
   }
 }
 
+// ── Section 761: R1870 cc.PolygonCollider inspector ───────────────────────
+console.log('\n## 761. R1870 cc.PolygonCollider inspector 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s761 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s761.includes('R1870') && s761.includes('cc.PolygonCollider') && s761.includes('cc.PolygonCollider2D')) {
+    log('pass', 'R1870-polygon-collider', 'cc.PolygonCollider sensor/friction/restitution 편집')
+  } else {
+    log('warning', 'R1870-polygon-collider', 'cc.PolygonCollider 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -10371,6 +10371,61 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R1870: cc.PolygonCollider — sensor / friction / restitution 편집
+            if (comp.type === 'cc.PolygonCollider' || comp.type === 'cc.PolygonCollider2D') {
+              const off = p.offset as { x?: number; y?: number } | undefined
+              return (
+                <div key={ci} style={{ marginBottom: 6 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>offset X</label>
+                      <input type="number" defaultValue={Number(off?.x ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => {
+                          const newOff = { ...(off ?? {}), x: Number(ev.target.value) }
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>offset Y</label>
+                      <input type="number" defaultValue={Number(off?.y ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => {
+                          const newOff = { ...(off ?? {}), y: Number(ev.target.value) }
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
+                    </div>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, marginBottom: 4 }}>
+                    <input type="checkbox" checked={!!(p.sensor ?? false)}
+                      onChange={ev => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sensor: ev.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }} />
+                    sensor
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>friction</label>
+                      <input type="number" defaultValue={Number(p.friction ?? 0.2)} min={0} step={0.1}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, friction: v } } : c); applyAndSave({ components: u }) }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>restitution</label>
+                      <input type="number" defaultValue={Number(p.restitution ?? 0)} min={0} step={0.1}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, restitution: v } } : c); applyAndSave({ components: u }) }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            }
             // R1551: cc.RigidBody — 물리 강체 Quick Edit
             if (comp.type === 'cc.RigidBody' || comp.type === 'cc.RigidBody2D') {
               const rbTypes = ['DYNAMIC', 'STATIC', 'KINEMATIC']

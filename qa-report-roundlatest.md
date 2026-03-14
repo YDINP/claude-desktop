@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:22:46.685Z
+> 2026-03-14T05:23:47.093Z
 
 ## Critical
 _없음_
@@ -1799,3 +1799,4 @@ _없음_
 - BatchInspector cc.Sprite blendFactor 일괄 설정 (Normal/Add/Mul)
 - BatchInspector cc.Label spacingX 일괄 설정
 - BatchInspector cc.Slider direction 일괄 설정 (H/V)
+- cc.PolygonCollider sensor/friction/restitution 편집
