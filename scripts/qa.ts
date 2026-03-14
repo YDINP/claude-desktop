@@ -21854,6 +21854,18 @@ console.log('\n## 884. R1993 BatchInspector node layer 체크')
   }
 }
 
+// ── Section 885: R1994 BatchInspector cc.BoxCollider size ──────────
+console.log('\n## 885. R1994 BatchInspector cc.BoxCollider size 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s885 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s885.includes('R1994') && s885.includes('patchBoxSize') && s885.includes('applyBoxSize')) {
+    log('pass', 'R1994-batch-box-size', 'BatchInspector cc.BoxCollider size 일괄 설정')
+  } else {
+    log('warning', 'R1994-batch-box-size', 'BatchInspector cc.BoxCollider size 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

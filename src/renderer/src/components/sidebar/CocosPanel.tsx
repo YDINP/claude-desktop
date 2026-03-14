@@ -7393,6 +7393,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1994: 공통 cc.BoxCollider size 일괄 설정 */}
+      {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
+        const boxType = commonCompTypes.includes('cc.BoxCollider') ? 'cc.BoxCollider' : 'cc.BoxCollider2D'
+        const applyBoxSize = async (w: number, h: number) => {
+          if (!sceneFile.root) return
+          function patchBoxSize(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBoxSize)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, size: { width: w, height: h }, _size: { width: w, height: h } } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchBoxSize(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ BoxCollider size=${w}×${h} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>BoxSize</span>
+            {([[50,50],[100,100],[200,100],[100,200]] as const).map(([w, h]) => (
+              <span key={`${w}x${h}`} onClick={() => applyBoxSize(w, h)} title={`size=${w}×${h}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{w}×{h}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1886: 공통 cc.ProgressBar totalLength 일괄 설정 */}
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBLength = async (totalLength: number) => {
