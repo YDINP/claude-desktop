@@ -4414,6 +4414,29 @@ function CCFileBatchInspector({
           />
         </div>
       )}
+      {/* R1910: 공통 cc.LabelShadow color 일괄 설정 */}
+      {commonCompTypes.includes('cc.LabelShadow') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>Shd clr</span>
+          <input type="color" defaultValue="#000000"
+            onChange={async e => {
+              const hex = e.target.value
+              if (!sceneFile.root) return
+              const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+              const col = { r, g, b, a: 255 }
+              function patchShadowColor(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchShadowColor)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, color: col, _color: col } } : c)
+                return { ...n, components: updComps, children }
+              }
+              await saveScene({ ...sceneFile, root: patchShadowColor(sceneFile.root) })
+            }}
+            style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+            title="cc.LabelShadow 색상 일괄 설정"
+          />
+        </div>
+      )}
       {/* R1859: 공통 cc.ScrollView horizontal/vertical/inertia 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollToggle = async (key: 'horizontal' | 'vertical' | 'inertia', value: boolean) => {

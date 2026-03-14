@@ -20846,6 +20846,18 @@ console.log('\n## 800. R1909 BatchInspector cc.LabelOutline color 체크')
   }
 }
 
+// ── Section 801: R1910 BatchInspector cc.LabelShadow color ──────────
+console.log('\n## 801. R1910 BatchInspector cc.LabelShadow color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s801 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s801.includes('R1910') && s801.includes('patchShadowColor') && s801.includes('LabelShadow')) {
+    log('pass', 'R1910-batch-labelshadow-color', 'BatchInspector cc.LabelShadow color 일괄 설정')
+  } else {
+    log('warning', 'R1910-batch-labelshadow-color', 'BatchInspector cc.LabelShadow color 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
