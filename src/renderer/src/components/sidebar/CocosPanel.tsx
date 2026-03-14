@@ -4126,6 +4126,48 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1978: 공통 cc.Label bold/italic 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelBold = async (isBold: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelBold(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelBold)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, isBold, _isBold: isBold, _N$isBold: isBold } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelBold(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Label bold=${isBold} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const applyLabelItalic = async (isItalic: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelItalic(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelItalic)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, isItalic, _isItalic: isItalic, _N$isItalic: isItalic } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelItalic(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Label italic=${isItalic} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>LbStyle</span>
+            <span onClick={() => applyLabelBold(true)} title="bold ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none', fontWeight: 'bold' }}>B✓</span>
+            <span onClick={() => applyLabelBold(false)} title="bold OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>B✗</span>
+            <span onClick={() => applyLabelItalic(true)} title="italic ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none', fontStyle: 'italic' }}>I✓</span>
+            <span onClick={() => applyLabelItalic(false)} title="italic OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>I✗</span>
+          </div>
+        )
+      })()}
       {/* R1955: 공통 cc.Label color 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelColor = async (hex: string) => {

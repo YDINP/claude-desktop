@@ -21662,6 +21662,18 @@ console.log('\n## 868. R1977 BatchInspector cc.ParticleSystem blendFactor 체크
   }
 }
 
+// ── Section 869: R1978 BatchInspector cc.Label bold/italic ──────────
+console.log('\n## 869. R1978 BatchInspector cc.Label bold/italic 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s869 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s869.includes('R1978') && s869.includes('patchLabelBold') && s869.includes('applyLabelBold') && s869.includes('patchLabelItalic')) {
+    log('pass', 'R1978-batch-label-style', 'BatchInspector cc.Label bold/italic 일괄 설정')
+  } else {
+    log('warning', 'R1978-batch-label-style', 'BatchInspector cc.Label bold/italic 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
