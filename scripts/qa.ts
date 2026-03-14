@@ -22310,6 +22310,18 @@ console.log('\n## 922. R2031 BatchInspector cc.ParticleSystem startSpin 체크')
   }
 }
 
+// ── Section 923: R2032 BatchInspector cc.ParticleSystem endSpin ──────────
+console.log('\n## 923. R2032 BatchInspector cc.ParticleSystem endSpin 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s923 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s923.includes('R2032') && s923.includes('patchPSEndSpin') && s923.includes('applyPSEndSpin')) {
+    log('pass', 'R2032-batch-ps-endspin', 'BatchInspector cc.ParticleSystem endSpin 일괄 설정')
+  } else {
+    log('warning', 'R2032-batch-ps-endspin', 'BatchInspector cc.ParticleSystem endSpin 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
