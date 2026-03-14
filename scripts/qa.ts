@@ -21914,6 +21914,18 @@ console.log('\n## 889. R1998 BatchInspector cc.ParticleSystem startSizeVar 체�
   }
 }
 
+// ── Section 890: R1999 BatchInspector cc.ParticleSystem speedVar ──────────
+console.log('\n## 890. R1999 BatchInspector cc.ParticleSystem speedVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s890 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s890.includes('R1999') && s890.includes('patchPSSpeedVar') && s890.includes('applyPSSpeedVar')) {
+    log('pass', 'R1999-batch-ps-speedvar', 'BatchInspector cc.ParticleSystem speedVar 일괄 설정')
+  } else {
+    log('warning', 'R1999-batch-ps-speedvar', 'BatchInspector cc.ParticleSystem speedVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

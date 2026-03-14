@@ -6161,6 +6161,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1999: 공통 cc.ParticleSystem speedVar 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSSpeedVar = async (speedVar: number) => {
+          if (!sceneFile.root) return
+          function patchPSSpeedVar(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSSpeedVar)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, speedVar, _speedVar: speedVar, _N$speedVar: speedVar } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSSpeedVar(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS speedVar=${speedVar} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSspdVar</span>
+            {[0, 10, 25, 50, 100].map(v => (
+              <span key={v} onClick={() => applyPSSpeedVar(v)} title={`speedVar=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1998: 공통 cc.ParticleSystem startSizeVar 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSStartSizeVar = async (startSizeVar: number) => {
