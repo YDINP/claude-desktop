@@ -2782,6 +2782,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 })}
                 highlightQuery={treeHighlightQuery}
                 nodeBookmarks={nodeBookmarks}
+                onReorder={handleReorder}
               />
             </div>
           </div>
@@ -3232,7 +3233,7 @@ function GroupPanel({
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder,
 }: {
   node: CCSceneNode
   depth: number
@@ -3254,6 +3255,8 @@ function CCFileSceneTree({
   onToggleCollapse?: (uuid: string) => void
   highlightQuery?: string
   nodeBookmarks?: Record<string, string>
+  /** R1724: 형제 순서 이동 */
+  onReorder?: (uuid: string, direction: 1 | -1) => void
 }) {
   const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
   const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
@@ -3290,6 +3293,11 @@ function CCFileSceneTree({
               ...(hasChildren ? [
                 { label: '자식 모두 활성화', action: () => { setCtxMenu(null); node.children.forEach(c => onToggleActive && !c.active && onToggleActive(c.uuid)) } },
                 { label: '자식 모두 비활성화', action: () => { setCtxMenu(null); node.children.forEach(c => onToggleActive && c.active && onToggleActive(c.uuid)) } },
+              ] : []),
+              // R1724: 형제 순서 이동
+              ...(onReorder ? [
+                { label: '▲ 위로 이동', action: () => { setCtxMenu(null); onReorder(node.uuid, -1) } },
+                { label: '▼ 아래로 이동', action: () => { setCtxMenu(null); onReorder(node.uuid, 1) } },
               ] : []),
               { label: '복제', action: () => { setCtxMenu(null); onDuplicate?.(node.uuid) } },
               { label: '삭제', action: () => { setCtxMenu(null); onDelete?.(node.uuid) } },
@@ -3469,6 +3477,7 @@ function CCFileSceneTree({
           onToggleCollapse={onToggleCollapse}
           highlightQuery={highlightQuery}
           nodeBookmarks={nodeBookmarks}
+          onReorder={onReorder}
         />
       ))}
     </div>

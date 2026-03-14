@@ -18611,6 +18611,18 @@ console.log('\n## 614. R1723 cc.Label lineHeight Quick Edit 체크')
   }
 }
 
+// ── Section 615: R1724 트리 컨텍스트 메뉴 형제 순서 이동 ──────────────────────
+console.log('\n## 615. R1724 트리 컨텍스트 메뉴 형제 순서 이동 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s615 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s615.includes('R1724') && s615.includes('위로 이동') && s615.includes('아래로 이동') && s615.includes('onReorder')) {
+    log('pass', 'R1724-tree-reorder-menu', '트리 컨텍스트 메뉴 형제 순서 이동')
+  } else {
+    log('warning', 'R1724-tree-reorder-menu', '트리 컨텍스트 메뉴 형제 순서 이동 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
