@@ -19241,7 +19241,7 @@ function CCFileNodeInspector({
                       rows={3}
                       style={{ width: '100%', fontSize: 11, resize: 'vertical', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px', boxSizing: 'border-box' }}
                       onBlur={ev => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: ev.target.value, _N$string: ev.target.value } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: ev.target.value, _string: ev.target.value, _N$string: ev.target.value } } : c)
                         applyAndSave({ components: updated })
                       }}
                     />
@@ -19253,14 +19253,14 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const v = Number(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _N$fontSize: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c)
                           applyAndSave({ components: updated })
                         }} />
                       {/* R1808: fontSize 프리셋 */}
                       <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', marginTop: 2 }}>
                         {[12, 16, 20, 24, 32, 48].map(v => (
                           <span key={v} onClick={() => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _N$fontSize: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c)
                             applyAndSave({ components: updated })
                           }} style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Number(p.fontSize ?? 40) === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: Number(p.fontSize ?? 40) === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}>{v}</span>
                         ))}
@@ -19272,7 +19272,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const v = Number(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineHeight: v, _N$lineHeight: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineHeight: v, _lineHeight: v, _N$lineHeight: v } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -19282,7 +19282,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const v = Number(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxWidth: v, _N$maxWidth: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxWidth: v, _maxWidth: v, _N$maxWidth: v } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -19292,7 +19292,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onChange={ev => {
                           const v = parseInt(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalAlign: v, _N$horizontalAlign: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalAlign: v, _horizontalAlign: v, _N$horizontalAlign: v } } : c)
                           applyAndSave({ components: updated })
                         }}>
                         {HALIGN.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}

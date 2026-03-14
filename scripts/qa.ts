@@ -24791,6 +24791,20 @@ if (s1268.includes('_horizontalDirection: v, _N$horizontalDirection') && s1268.i
   log('warning', 'R2267-node-layout-direction-cc3x', '단일노드 cc.Layout direction CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1269: R2268 단일노드 cc.RichText _string/_fontSize/_lineHeight/_maxWidth/_horizontalAlign (CC3.x) ──────────
+console.log('\n## 1269. R2268 단일노드 cc.RichText 5종 CC3.x 체크')
+const s1269 = s1268
+if (
+  s1269.includes('_string: ev.target.value, _N$string') &&
+  s1269.includes('_lineHeight: v, _N$lineHeight: v') &&
+  s1269.includes('_maxWidth: v, _N$maxWidth: v') &&
+  s1269.includes('_horizontalAlign: v, _N$horizontalAlign: v')
+) {
+  log('pass', 'R2268-node-richtext-props-cc3x', '단일노드 cc.RichText _string/_fontSize/_lineHeight/_maxWidth/_horizontalAlign (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2268-node-richtext-props-cc3x', '단일노드 cc.RichText CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
