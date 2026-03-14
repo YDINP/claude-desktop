@@ -21938,6 +21938,18 @@ console.log('\n## 891. R2000 BatchInspector cc.VideoPlayer keepAspectRatio 체�
   }
 }
 
+// ── Section 892: R2001 BatchInspector cc.ParticleSystem lifeVar ──────────
+console.log('\n## 892. R2001 BatchInspector cc.ParticleSystem lifeVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s892 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s892.includes('R2001') && s892.includes('patchPSLifeVar') && s892.includes('applyPSLifeVar')) {
+    log('pass', 'R2001-batch-ps-lifevar', 'BatchInspector cc.ParticleSystem lifeVar 일괄 설정')
+  } else {
+    log('warning', 'R2001-batch-ps-lifevar', 'BatchInspector cc.ParticleSystem lifeVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
