@@ -19067,6 +19067,18 @@ console.log('\n## 652. R1761 BatchInspector cc.AudioSource volume 일괄 체크'
   }
 }
 
+// ── Section 653: R1762 BatchInspector cc.Label fontFamily 일괄 ───────────────
+console.log('\n## 653. R1762 BatchInspector cc.Label fontFamily 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s653 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s653.includes('R1762') && s653.includes('cc.Label fontFamily 일괄 설정') && s653.includes('patchFont') && s653.includes('_N$fontFamily')) {
+    log('pass', 'R1762-batch-label-font', 'BatchInspector cc.Label fontFamily 일괄 설정')
+  } else {
+    log('warning', 'R1762-batch-label-font', 'BatchInspector cc.Label fontFamily 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

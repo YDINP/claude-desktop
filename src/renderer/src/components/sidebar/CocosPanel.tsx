@@ -3896,6 +3896,29 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>tint</span>
         </div>
       )}
+      {/* R1762: 공통 cc.Label fontFamily 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label 폰트</span>
+          <input type="text" placeholder="fontFamily (빈칸=기본)"
+            style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+            onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
+            onBlur={async e => {
+              const ff = e.target.value.trim()
+              if (!sceneFile.root) return
+              function patchFont(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchFont)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontFamily: ff, _fontFamily: ff, _N$fontFamily: ff } } : c)
+                return { ...n, components: updComps, children }
+              }
+              await saveScene(patchFont(sceneFile.root))
+              setBatchMsg(`✓ fontFamily "${ff}" (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+          />
+        </div>
+      )}
       {/* R1758: 공통 cc.Label 텍스트 색상 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
