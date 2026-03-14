@@ -8358,6 +8358,18 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{brake.toFixed(2)}</span>
                   </div>
+                  {/* R1784: brake 퀵 프리셋 */}
+                  <div style={{ display: 'flex', gap: 3, paddingLeft: 60 }}>
+                    {[0, 0.5, 0.75, 1].map(v => (
+                      <span key={v} title={`brake = ${v}`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, brake: v, _N$brake: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(brake - v) < 0.01 ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(brake - v) < 0.01 ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
                   {/* R1740: content 자식 노드 크기 퀵 편집 */}
                   {contentNode && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, borderTop: '1px solid var(--border)', paddingTop: 3 }}>

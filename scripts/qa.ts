@@ -19331,6 +19331,18 @@ console.log('\n## 674. R1783 cc.Layout spacing 퀵 프리셋 체크')
   }
 }
 
+// ── Section 675: R1784 cc.ScrollView brake 퀵 프리셋 ─────────────────────────
+console.log('\n## 675. R1784 cc.ScrollView brake 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s675 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s675.includes('R1784') && s675.includes('brake 퀵 프리셋')) {
+    log('pass', 'R1784-scrollview-brake', 'cc.ScrollView brake 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1784-scrollview-brake', 'cc.ScrollView brake 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
