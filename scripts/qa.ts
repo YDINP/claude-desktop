@@ -19739,6 +19739,18 @@ console.log('\n## 708. R1817 cc.RigidBody gravityScale 퀵 프리셋 체크')
   }
 }
 
+// ── Section 709: R1818 sp.Skeleton timeScale 퀵 프리셋 ───────────────────────
+console.log('\n## 709. R1818 sp.Skeleton timeScale 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s709 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s709.includes('R1818') && s709.includes('timeScale 퀵 프리셋') && s709.includes('timeScale: v')) {
+    log('pass', 'R1818-spine-timescale-preset', 'sp.Skeleton timeScale 퀵 프리셋')
+  } else {
+    log('warning', 'R1818-spine-timescale-preset', 'sp.Skeleton timeScale 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
