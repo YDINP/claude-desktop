@@ -9658,6 +9658,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2140: 공통 cc.Layout autoWrap 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutAutoWrap = async (autoWrap: boolean) => {
+          if (!sceneFile.root) return
+          function patchLayoutAutoWrap(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutAutoWrap)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, autoWrap, _autoWrap: autoWrap } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLayoutAutoWrap(sceneFile.root) })
+          setBatchMsg(`✓ Layout autoWrap=${autoWrap} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LAutoWrp</span>
+            <span onClick={() => applyLayoutAutoWrap(true)} title="autoWrap ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>wrap✓</span>
+            <span onClick={() => applyLayoutAutoWrap(false)} title="autoWrap OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>wrap✗</span>
+          </div>
+        )
+      })()}
       {/* R2112: 공통 cc.Layout affectedByScale 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutAffected = async (affectedByScale: boolean) => {

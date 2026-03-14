@@ -23606,6 +23606,18 @@ console.log('\n## 1030. R2139 BatchInspector sp.Skeleton paused 체크')
   }
 }
 
+// ── Section 1031: R2140 BatchInspector cc.Layout autoWrap ──────────
+console.log('\n## 1031. R2140 BatchInspector cc.Layout autoWrap 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1031 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1031.includes('R2140') && s1031.includes('patchLayoutAutoWrap') && s1031.includes('applyLayoutAutoWrap')) {
+    log('pass', 'R2140-batch-layout-autowrap', 'BatchInspector cc.Layout autoWrap 일괄 설정')
+  } else {
+    log('warning', 'R2140-batch-layout-autowrap', 'BatchInspector cc.Layout autoWrap 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
