@@ -17817,6 +17817,18 @@ console.log('\n## 548. R1657 [ ] 키 형제 선택 체크')
   }
 }
 
+// ── Section 549: R1658 Escape 키 부모 선택 ──────────────────────
+console.log('\n## 549. R1658 Escape 키 부모 노드 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s549 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s549.includes('R1658') && s549.includes('parentMap') && s549.includes('parentMap.has(selectedNode')) {
+    log('pass', 'R1658-escape-parent', 'Escape 키 부모 노드 선택')
+  } else {
+    log('warning', 'R1658-escape-parent', 'Escape 키 부모 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -598,6 +598,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     return map
   }, [sceneFile?.root])
 
+  // R1658: 부모 노드 맵 (uuid → parent uuid)
+  const parentMap = useMemo(() => {
+    const map = new Map<string, string>()
+    if (!sceneFile?.root) return map
+    function walk(n: CCSceneNode, parentUuid: string | null) {
+      if (parentUuid) map.set(n.uuid, parentUuid)
+      n.children.forEach(c => walk(c, n.uuid))
+    }
+    walk(sceneFile.root, null)
+    return map
+  }, [sceneFile?.root])
+
   // R1654: 컴포넌트 필터 적용 트리
   const filteredRoot = useMemo(() => {
     if (!sceneFile?.root) return null
@@ -1067,7 +1079,16 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (ctrl && e.key === 's') { e.preventDefault(); handleSave(); return }
       if (ctrl && e.key === 'z' && canUndo) { e.preventDefault(); undo(); return }
       if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) { e.preventDefault(); redo(); return }
-      if (e.key === 'Escape' && !isInput) { onSelectNode(null); return }
+      // R1658: Escape → 부모 노드 선택 (루트에서는 선택 해제)
+      if (e.key === 'Escape' && !isInput) {
+        if (selectedNode && parentMap.has(selectedNode.uuid)) {
+          const parentUuid = parentMap.get(selectedNode.uuid)!
+          onSelectNode(nodeMap.get(parentUuid) ?? null)
+        } else {
+          onSelectNode(null)
+        }
+        return
+      }
 
       if (isInput) return
 
@@ -1238,7 +1259,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene, handleSave, onSelectNode])
+  }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene, handleSave, onSelectNode, parentMap, nodeMap])
 
   // R1430: 전역 노드 검색 상태
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false)
