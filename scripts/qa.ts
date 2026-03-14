@@ -22142,6 +22142,18 @@ console.log('\n## 908. R2017 BatchInspector cc.Label lineHeight 체크')
   }
 }
 
+// ── Section 909: R2018 BatchInspector cc.Label overflow ──────────
+console.log('\n## 909. R2018 BatchInspector cc.Label overflow 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s909 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s909.includes('R2018') && s909.includes('patchLabelOverflow') && s909.includes('applyLabelOverflow')) {
+    log('pass', 'R2018-batch-label-overflow', 'BatchInspector cc.Label overflow 일괄 설정')
+  } else {
+    log('warning', 'R2018-batch-label-overflow', 'BatchInspector cc.Label overflow 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
