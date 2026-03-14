@@ -4689,6 +4689,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1893: 공통 cc.ParticleSystem speed 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyParticleSpeed = async (speed: number) => {
+          if (!sceneFile.root) return
+          function patchParticleSpeed(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchParticleSpeed)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchParticleSpeed(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Pspeed</span>
+            {([30, 60, 100, 180, 300, 500] as const).map(v => (
+              <span key={v} title={`speed = ${v}`}
+                onClick={() => applyParticleSpeed(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1836: 공통 cc.SkeletalAnimation speedRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {

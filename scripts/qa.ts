@@ -20642,6 +20642,18 @@ console.log('\n## 783. R1892 cc.Camera inspector 체크')
   }
 }
 
+// ── Section 784: R1893 BatchInspector cc.ParticleSystem speed ──────────
+console.log('\n## 784. R1893 BatchInspector cc.ParticleSystem speed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s784 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s784.includes('R1893') && s784.includes('applyParticleSpeed') && s784.includes('patchParticleSpeed')) {
+    log('pass', 'R1893-batch-particle-speed', 'BatchInspector cc.ParticleSystem speed 일괄 설정')
+  } else {
+    log('warning', 'R1893-batch-particle-speed', 'BatchInspector cc.ParticleSystem speed 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
