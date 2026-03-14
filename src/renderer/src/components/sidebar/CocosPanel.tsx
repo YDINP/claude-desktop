@@ -4899,6 +4899,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1914: 공통 cc.ParticleSystem maxParticles 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyMaxParticles = async (maxParticles: number) => {
+          if (!sceneFile.root) return
+          function patchMaxParticles(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMaxParticles)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, maxParticles, _maxParticles: maxParticles, _N$maxParticles: maxParticles } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchMaxParticles(sceneFile.root) })
+          setBatchMsg(`✓ ParticleSystem maxParticles ${maxParticles} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>maxPart</span>
+            {([50, 100, 150, 200, 300, 500] as const).map(v => (
+              <span key={v} title={`maxParticles = ${v}`}
+                onClick={() => applyMaxParticles(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1836: 공통 cc.SkeletalAnimation speedRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {

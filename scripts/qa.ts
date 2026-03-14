@@ -20894,6 +20894,18 @@ console.log('\n## 804. R1913 cc.ParticleSystem posVar 편집 체크')
   }
 }
 
+// ── Section 805: R1914 BatchInspector cc.ParticleSystem maxParticles ──────────
+console.log('\n## 805. R1914 BatchInspector cc.ParticleSystem maxParticles 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s805 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s805.includes('R1914') && s805.includes('patchMaxParticles') && s805.includes('applyMaxParticles')) {
+    log('pass', 'R1914-batch-particle-maxparticles', 'BatchInspector cc.ParticleSystem maxParticles 일괄 설정')
+  } else {
+    log('warning', 'R1914-batch-particle-maxparticles', 'BatchInspector cc.ParticleSystem maxParticles 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
