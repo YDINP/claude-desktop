@@ -22646,6 +22646,18 @@ console.log('\n## 950. R2059 BatchInspector cc.ParticleSystem startRadius 체크
   }
 }
 
+// ── Section 951: R2060 BatchInspector cc.ParticleSystem endRadius ──────────
+console.log('\n## 951. R2060 BatchInspector cc.ParticleSystem endRadius 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s951 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s951.includes('R2060') && s951.includes('patchPSEndRadius') && s951.includes('applyPSEndRadius')) {
+    log('pass', 'R2060-batch-ps-endradius', 'BatchInspector cc.ParticleSystem endRadius 일괄 설정')
+  } else {
+    log('warning', 'R2060-batch-ps-endradius', 'BatchInspector cc.ParticleSystem endRadius 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
