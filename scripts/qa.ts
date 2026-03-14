@@ -21746,6 +21746,18 @@ console.log('\n## 875. R1984 BatchInspector cc.Animation wrapMode 체크')
   }
 }
 
+// ── Section 876: R1985 BatchInspector cc.Label underline ──────────
+console.log('\n## 876. R1985 BatchInspector cc.Label underline 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s876 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s876.includes('R1985') && s876.includes('patchLabelUnderline') && s876.includes('applyLabelUnderline')) {
+    log('pass', 'R1985-batch-label-underline', 'BatchInspector cc.Label underline 일괄 설정')
+  } else {
+    log('warning', 'R1985-batch-label-underline', 'BatchInspector cc.Label underline 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
