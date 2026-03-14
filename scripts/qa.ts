@@ -24113,6 +24113,24 @@ if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.inc
   log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1156: R2212 BatchInspector cc.Label shadowOffset (CC3.x) ──────────
+console.log('\n## 1156. R2212 BatchInspector cc.Label shadowOffset 체크')
+const s1156 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1156.includes('R2212') && s1156.includes('applyLabelShdOff') && s1156.includes('LblShdO')) {
+  log('pass', 'R2212-batch-label-shadowoffset', 'BatchInspector cc.Label shadowOffset 일괄 설정')
+} else {
+  log('warning', 'R2212-batch-label-shadowoffset', 'BatchInspector cc.Label shadowOffset 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1157: R2212 BatchInspector cc.EditBox placeholderFontColor ──────────
+console.log('\n## 1157. R2212 BatchInspector cc.EditBox placeholderFontColor 체크')
+const s1157 = s1156
+if (s1157.includes('R2212') && s1157.includes('applyEBPlaceholderClr') && s1157.includes('EBphClr')) {
+  log('pass', 'R2212-batch-editbox-placeholdercolor', 'BatchInspector cc.EditBox placeholderFontColor 일괄 설정')
+} else {
+  log('warning', 'R2212-batch-editbox-placeholdercolor', 'BatchInspector cc.EditBox placeholderFontColor 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1154: R2211 BatchInspector cc.Label shadowColor (CC3.x) ──────────
 console.log('\n## 1154. R2211 BatchInspector cc.Label shadowColor 체크')
 const s1154 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
