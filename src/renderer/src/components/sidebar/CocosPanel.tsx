@@ -4432,6 +4432,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2019: 공통 cc.Label horizontalAlign 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelHAlign = async (horizontalAlign: number) => {
+          if (!sceneFile.root) return
+          function patchLabelHAlign(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelHAlign)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelHAlign(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names = ['L','C','R']
+          setBatchMsg(`✓ Label hAlign=${names[horizontalAlign]??horizontalAlign} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>LblHA</span>
+            {([['L',0],['C',1],['R',2]] as [string,number][]).map(([label,v]) => (
+              <span key={v} onClick={() => applyLabelHAlign(v)} title={`horizontalAlign=${label}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2018: 공통 cc.Label overflow 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelOverflow = async (overflow: number) => {

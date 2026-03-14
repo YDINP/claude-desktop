@@ -22154,6 +22154,18 @@ console.log('\n## 909. R2018 BatchInspector cc.Label overflow 체크')
   }
 }
 
+// ── Section 910: R2019 BatchInspector cc.Label horizontalAlign ──────────
+console.log('\n## 910. R2019 BatchInspector cc.Label horizontalAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s910 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s910.includes('R2019') && s910.includes('patchLabelHAlign') && s910.includes('applyLabelHAlign')) {
+    log('pass', 'R2019-batch-label-halign', 'BatchInspector cc.Label horizontalAlign 일괄 설정')
+  } else {
+    log('warning', 'R2019-batch-label-halign', 'BatchInspector cc.Label horizontalAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
