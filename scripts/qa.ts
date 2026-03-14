@@ -20630,6 +20630,18 @@ console.log('\n## 782. R1891 BatchInspector cc.Sprite flipX/flipY 체크')
   }
 }
 
+// ── Section 783: R1892 cc.Camera inspector ──────────
+console.log('\n## 783. R1892 cc.Camera inspector 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s783 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s783.includes('R1892') && s783.includes('backgroundColor') && s783.includes('clearFlags')) {
+    log('pass', 'R1892-camera-inspector', 'cc.Camera backgroundColor/clearFlags/depth 편집')
+  } else {
+    log('warning', 'R1892-camera-inspector', 'cc.Camera inspector 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
