@@ -20099,6 +20099,18 @@ console.log('\n## 738. R1847 cc.PageView slideDuration 체크')
   }
 }
 
+// ── Section 739: R1848 cc.MotionStreak 편집 ──────────────────────────────────
+console.log('\n## 739. R1848 cc.MotionStreak 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s739 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s739.includes('R1848') && s739.includes("'cc.MotionStreak'") && s739.includes('_N$fade') && s739.includes('fastMode')) {
+    log('pass', 'R1848-motionstreak', 'cc.MotionStreak fade/minSeg/stroke/color/fastMode 편집')
+  } else {
+    log('warning', 'R1848-motionstreak', 'cc.MotionStreak 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

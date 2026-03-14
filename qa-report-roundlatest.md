@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:59:59.188Z
+> 2026-03-14T05:00:56.238Z
 
 ## Critical
 _없음_
@@ -1777,3 +1777,4 @@ _없음_
 - cc.ParticleSystem gravity x/y 편집
 - BatchInspector cc.ParticleSystem startSize 일괄 설정
 - cc.PageView slideDuration 편집 + 프리셋
+- cc.MotionStreak fade/minSeg/stroke/color/fastMode 편집
