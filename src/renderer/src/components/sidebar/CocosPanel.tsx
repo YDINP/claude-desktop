@@ -3765,6 +3765,8 @@ function CCFileNodeInspector({
   const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null)
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
+  // R1662: 같은 컴포넌트 타입 노드 목록 팝업
+  const [sameCompPopup, setSameCompPopup] = useState<string | null>(null) // 팝업을 열 comp type
 
   const rotation = typeof draft.rotation === 'number' ? draft.rotation : (draft.rotation as { z: number }).z ?? 0
 
@@ -5133,9 +5135,32 @@ function CCFileNodeInspector({
             <span style={{ flex: 1, opacity: comp.props.enabled === false ? 0.5 : 1 }}>
               {isCustomScript(comp.type) ? '📝 ' : ''}{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
             </span>
-            {/* R1660: 씬 내 동일 타입 노드 수 배지 */}
+            {/* R1660/R1662: 씬 내 동일 타입 노드 수 배지 + 팝업 */}
             {(compTypeCountMap[comp.type] ?? 0) > 1 && (
-              <span title={`씬 내 ${comp.type} 컴포넌트 보유 노드: ${compTypeCountMap[comp.type]}개`} style={{ fontSize: 7, padding: '1px 3px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', color: '#666', marginRight: 3, flexShrink: 0 }}>×{compTypeCountMap[comp.type]}</span>
+              <span
+                title={`씬 내 ${comp.type} 컴포넌트 보유 노드: ${compTypeCountMap[comp.type]}개 (클릭: 목록)`}
+                onClick={e => { e.stopPropagation(); setSameCompPopup(sameCompPopup === comp.type ? null : comp.type) }}
+                style={{ fontSize: 7, padding: '1px 3px', borderRadius: 8, background: sameCompPopup === comp.type ? 'rgba(88,166,255,0.15)' : 'rgba(255,255,255,0.06)', color: sameCompPopup === comp.type ? '#58a6ff' : '#666', marginRight: 3, flexShrink: 0, cursor: 'pointer', position: 'relative' }}
+              >
+                ×{compTypeCountMap[comp.type]}
+                {/* R1662: 같은 타입 노드 목록 팝업 */}
+                {sameCompPopup === comp.type && (() => {
+                  const nodes: CCSceneNode[] = []
+                  function findNodes(n: CCSceneNode) { if (n.components.some(c => c.type === comp.type)) nodes.push(n); n.children.forEach(findNodes) }
+                  findNodes(sceneFile.root)
+                  return (
+                    <div onClick={e => e.stopPropagation()} style={{ position: 'absolute', top: '100%', right: 0, zIndex: 200, background: 'var(--panel-bg, #16213e)', border: '1px solid var(--border)', borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)', minWidth: 140, maxHeight: 160, overflowY: 'auto', fontSize: 9 }}>
+                      <div style={{ padding: '3px 6px', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', fontSize: 8 }}>{comp.type.split('.').pop()} 보유 노드 ({nodes.length})</div>
+                      {nodes.map(n => (
+                        <div key={n.uuid} onClick={() => { onUpdate(n); setSameCompPopup(null) }} style={{ padding: '4px 8px', cursor: 'pointer', color: n.uuid === node.uuid ? '#58a6ff' : 'var(--text-primary)', background: 'transparent', fontWeight: n.uuid === node.uuid ? 700 : 400 }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                          {n.active ? '' : '◌ '}{n.name || '(unnamed)'}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
+              </span>
             )}
             {showComps.length > 1 && (
               <span style={{ fontSize: 9, color: 'var(--text-muted)', marginRight: 4 }}>#{ci + 1}</span>

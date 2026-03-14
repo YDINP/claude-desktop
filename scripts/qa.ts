@@ -17865,6 +17865,18 @@ console.log('\n## 552. R1661 Inspector 하위 노드 수 배지 체크')
   }
 }
 
+// ── Section 553: R1662 컴포넌트 배지 클릭 노드 목록 팝업 ──────────────────────
+console.log('\n## 553. R1662 컴포넌트 배지 팝업 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s553 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s553.includes('R1662') && s553.includes('sameCompPopup') && s553.includes('findNodes')) {
+    log('pass', 'R1662-comp-popup', 'Inspector 컴포넌트 배지 클릭 → 같은 타입 노드 목록 팝업')
+  } else {
+    log('warning', 'R1662-comp-popup', 'Inspector 컴포넌트 배지 팝업 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
