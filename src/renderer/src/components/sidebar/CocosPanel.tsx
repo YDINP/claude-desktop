@@ -5698,6 +5698,53 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2172: 공통 cc.Graphics lineCap 일괄 설정 */}
+      {commonCompTypes.includes('cc.Graphics') && (() => {
+        const applyGraphicsLineCap = async (lineCap: number) => {
+          if (!sceneFile.root) return
+          function patchGraphicsLineCap(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchGraphicsLineCap)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, lineCap, _lineCap: lineCap } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchGraphicsLineCap(sceneFile.root) })
+          setBatchMsg(`✓ Graphics lineCap=${['butt','round','square'][lineCap] ?? lineCap} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>GfxCap</span>
+            {([['Butt', 0], ['Round', 1], ['Square', 2]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applyGraphicsLineCap(v)} title={`lineCap=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2172: 공통 cc.Widget enabled 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchWidgetEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Widget enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>WgtEn</span>
+            {([['enabled✓', true], ['enabled✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyWidgetEnabled(v)} title={`Widget enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {

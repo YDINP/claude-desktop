@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1076: R2172 BatchInspector cc.Graphics lineCap ──────────
+console.log('\n## 1076. R2172 BatchInspector cc.Graphics lineCap 체크')
+const s1076 = s1075
+if (s1076.includes('R2172') && s1076.includes('applyGraphicsLineCap') && s1076.includes('GfxCap')) {
+  log('pass', 'R2172-batch-graphics-linecap', 'BatchInspector cc.Graphics lineCap 일괄 설정')
+} else {
+  log('warning', 'R2172-batch-graphics-linecap', 'BatchInspector cc.Graphics lineCap 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1077: R2172 BatchInspector cc.Widget enabled ──────────
+console.log('\n## 1077. R2172 BatchInspector cc.Widget enabled 체크')
+const s1077 = s1076
+if (s1077.includes('R2172') && s1077.includes('applyWidgetEnabled') && s1077.includes('WgtEn')) {
+  log('pass', 'R2172-batch-widget-enabled', 'BatchInspector cc.Widget enabled 일괄 설정')
+} else {
+  log('warning', 'R2172-batch-widget-enabled', 'BatchInspector cc.Widget enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
