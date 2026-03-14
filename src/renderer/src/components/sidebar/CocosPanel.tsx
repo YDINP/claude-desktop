@@ -7251,6 +7251,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2134: 공통 sp.Skeleton useTint 일괄 설정 */}
+      {commonCompTypes.includes('sp.Skeleton') && (() => {
+        const applySpineUseTint = async (useTint: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpineUseTint(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpineUseTint)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, useTint } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpineUseTint(sceneFile.root) })
+          setBatchMsg(`✓ Spine useTint=${useTint} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>SpTint</span>
+            <span onClick={() => applySpineUseTint(true)} title="useTint ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>tint✓</span>
+            <span onClick={() => applySpineUseTint(false)} title="useTint OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>tint✗</span>
+          </div>
+        )
+      })()}
       {/* R1932: 공통 cc.ParticleSystem loop 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyParticleLoop = async (loop: boolean) => {

@@ -23534,6 +23534,18 @@ console.log('\n## 1024. R2133 BatchInspector cc.SkeletalAnimation defaultCaching
   }
 }
 
+// ── Section 1025: R2134 BatchInspector sp.Skeleton useTint ──────────
+console.log('\n## 1025. R2134 BatchInspector sp.Skeleton useTint 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1025 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1025.includes('R2134') && s1025.includes('patchSpineUseTint') && s1025.includes('applySpineUseTint')) {
+    log('pass', 'R2134-batch-spine-usetint', 'BatchInspector sp.Skeleton useTint 일괄 설정')
+  } else {
+    log('warning', 'R2134-batch-spine-usetint', 'BatchInspector sp.Skeleton useTint 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
