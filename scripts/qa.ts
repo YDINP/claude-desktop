@@ -22274,6 +22274,18 @@ console.log('\n## 919. R2028 BatchInspector cc.ParticleSystem speed 체크')
   }
 }
 
+// ── Section 920: R2029 BatchInspector cc.ParticleSystem radialAccel ──────────
+console.log('\n## 920. R2029 BatchInspector cc.ParticleSystem radialAccel 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s920 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s920.includes('R2029') && s920.includes('patchPSRadialAccel') && s920.includes('applyPSRadialAccel')) {
+    log('pass', 'R2029-batch-ps-radialaccel', 'BatchInspector cc.ParticleSystem radialAccel 일괄 설정')
+  } else {
+    log('warning', 'R2029-batch-ps-radialaccel', 'BatchInspector cc.ParticleSystem radialAccel 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
