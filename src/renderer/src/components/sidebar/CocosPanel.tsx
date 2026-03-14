@@ -7069,6 +7069,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2059: 공통 cc.ParticleSystem startRadius 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSStartRadius = async (startRadius: number) => {
+          if (!sceneFile.root) return
+          function patchPSStartRadius(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSStartRadius)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startRadius, _startRadius: startRadius, _N$startRadius: startRadius } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSStartRadius(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS startRadius=${startRadius} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSstRad</span>
+            {[0, 50, 100, 150, 200, 300].map(v => (
+              <span key={v} onClick={() => applyPSStartRadius(v)} title={`startRadius=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2016: 공통 cc.ParticleSystem rotatePerSVar 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSRotPerSVar = async (rotatePerSVar: number) => {

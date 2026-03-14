@@ -22634,6 +22634,18 @@ console.log('\n## 949. R2058 BatchInspector cc.Camera orthographic 체크')
   }
 }
 
+// ── Section 950: R2059 BatchInspector cc.ParticleSystem startRadius ──────────
+console.log('\n## 950. R2059 BatchInspector cc.ParticleSystem startRadius 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s950 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s950.includes('R2059') && s950.includes('patchPSStartRadius') && s950.includes('applyPSStartRadius')) {
+    log('pass', 'R2059-batch-ps-startradius', 'BatchInspector cc.ParticleSystem startRadius 일괄 설정')
+  } else {
+    log('warning', 'R2059-batch-ps-startradius', 'BatchInspector cc.ParticleSystem startRadius 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
