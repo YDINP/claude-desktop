@@ -22502,6 +22502,18 @@ console.log('\n## 938. R2047 BatchInspector cc.ParticleSystem startSpinVar 체�
   }
 }
 
+// ── Section 939: R2048 BatchInspector cc.ParticleSystem endSpinVar ──────────
+console.log('\n## 939. R2048 BatchInspector cc.ParticleSystem endSpinVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s939 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s939.includes('R2048') && s939.includes('patchPSEndSpinVar') && s939.includes('applyPSEndSpinVar')) {
+    log('pass', 'R2048-batch-ps-endspinvar', 'BatchInspector cc.ParticleSystem endSpinVar 일괄 설정')
+  } else {
+    log('warning', 'R2048-batch-ps-endspinvar', 'BatchInspector cc.ParticleSystem endSpinVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

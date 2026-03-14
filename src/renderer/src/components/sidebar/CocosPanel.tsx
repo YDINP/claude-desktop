@@ -6744,6 +6744,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2048: 공통 cc.ParticleSystem endSpinVar 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSEndSpinVar = async (endSpinVar: number) => {
+          if (!sceneFile.root) return
+          function patchPSEndSpinVar(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSEndSpinVar)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endSpinVar, _endSpinVar: endSpinVar, _N$endSpinVar: endSpinVar } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSEndSpinVar(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS endSpinVar=${endSpinVar}° (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSendSpV</span>
+            {[0, 15, 30, 45, 90, 180].map(v => (
+              <span key={v} onClick={() => applyPSEndSpinVar(v)} title={`endSpinVar=${v}°`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}°</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2047: 공통 cc.ParticleSystem startSpinVar 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSStartSpinVar = async (startSpinVar: number) => {
