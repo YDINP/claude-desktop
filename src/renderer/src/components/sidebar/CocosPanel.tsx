@@ -5126,6 +5126,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1886: 공통 cc.ProgressBar totalLength 일괄 설정 */}
+      {commonCompTypes.includes('cc.ProgressBar') && (() => {
+        const applyPBLength = async (totalLength: number) => {
+          if (!sceneFile.root) return
+          function patchPBLength(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPBLength)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, totalLength, _N$totalLength: totalLength } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchPBLength(sceneFile.root))
+          setBatchMsg(`✓ ProgressBar totalLength=${totalLength} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PBlen</span>
+            {([50, 100, 200, 300, 500] as const).map(v => (
+              <span key={v} title={`totalLength = ${v}`}
+                onClick={() => applyPBLength(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1771: 공통 cc.ProgressBar progress 일괄 설정 */}
       {commonCompTypes.includes('cc.ProgressBar') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

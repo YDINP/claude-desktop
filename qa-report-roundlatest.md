@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:37:48.249Z
+> 2026-03-14T05:38:35.111Z
 
 ## Critical
 _없음_
@@ -1815,3 +1815,4 @@ _없음_
 - BatchInspector cc.MotionStreak stroke 일괄 설정
 - BatchInspector cc.Button transition 일괄 설정 (None/Color/Sprite/Scale)
 - BatchInspector cc.SkeletalAnimation playOnLoad 일괄 설정
+- BatchInspector cc.ProgressBar totalLength 일괄 설정
