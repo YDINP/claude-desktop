@@ -4045,6 +4045,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1855: 공통 cc.Label lineHeight 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelLH = async (lh: number) => {
+          if (!sceneFile.root) return
+          function patchLH(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLH)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchLH(sceneFile.root))
+          setBatchMsg(`✓ Label lineH ${lh} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label lnH</span>
+            {([0, 20, 24, 32, 40, 48] as const).map(v => (
+              <span key={v} title={v === 0 ? 'lineHeight=0 (자동)' : `lineHeight=${v}`}
+                onClick={() => applyLabelLH(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{v === 0 ? 'auto' : v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1764: 공통 cc.Toggle isChecked 일괄 설정 */}
       {commonCompTypes.includes('cc.Toggle') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

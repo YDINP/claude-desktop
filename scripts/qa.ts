@@ -20186,6 +20186,18 @@ console.log('\n## 745. R1854 BatchInspector cc.Label bold/italic 체크')
   }
 }
 
+// ── Section 746: R1855 BatchInspector cc.Label lineHeight 일괄 ───────────────
+console.log('\n## 746. R1855 BatchInspector cc.Label lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s746 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s746.includes('R1855') && s746.includes('applyLabelLH') && s746.includes('patchLH') && s746.includes('_N$lineHeight')) {
+    log('pass', 'R1855-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R1855-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
