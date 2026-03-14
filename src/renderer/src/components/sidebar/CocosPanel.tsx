@@ -20392,7 +20392,7 @@ function CCFileNodeInspector({
                     <input type="number" defaultValue={speedRatio} min={0} step={0.1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 1
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedRatio: v, _speedRatio: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedRatio: v, _speedRatio: v, _N$speedRatio: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -20401,7 +20401,7 @@ function CCFileNodeInspector({
                     {([0.5, 1, 1.5, 2] as const).map(v => (
                       <span key={v} title={`speedRatio = ×${v}`}
                         onClick={() => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedRatio: v, _speedRatio: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedRatio: v, _speedRatio: v, _N$speedRatio: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${speedRatio === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: speedRatio === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
@@ -20526,7 +20526,7 @@ function CCFileNodeInspector({
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={inverted}
                       onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _inverted: e.target.checked, inverted: e.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inverted: e.target.checked, _inverted: e.target.checked, _N$inverted: e.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }}
                     />inverted

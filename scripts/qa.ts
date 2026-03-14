@@ -25110,6 +25110,18 @@ if (
   log('warning', 'R2289-layout-cellsize-autowrap-skelanim-tiledlayer-cc3x', 'Layout/SkeletalAnimation/TiledLayer CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1294: R2290 cc.SkeletalAnimation speedRatio _N$ + cc.Slider inverted _N$ (CC3.x) ──────────
+console.log('\n## 1294. R2290 SkeletalAnimation speedRatio + Slider inverted _N$ CC3.x 체크')
+const s1294 = s1293
+if (
+  s1294.includes('speedRatio: v, _speedRatio: v, _N$speedRatio: v') &&
+  s1294.includes('inverted: e.target.checked, _inverted: e.target.checked, _N$inverted: e.target.checked')
+) {
+  log('pass', 'R2290-skelanim-speedratio-slider-inverted-n-cc3x', 'cc.SkeletalAnimation speedRatio _N$ + cc.Slider inverted _N$ (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2290-skelanim-speedratio-slider-inverted-n-cc3x', 'SkeletalAnimation/Slider CC3.x _N$ 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
