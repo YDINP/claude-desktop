@@ -20594,6 +20594,18 @@ console.log('\n## 779. R1888 BatchInspector cc.RichText maxWidth 체크')
   }
 }
 
+// ── Section 780: R1889 cc.ParticleSystem speed/speedVar ──────────
+console.log('\n## 780. R1889 cc.ParticleSystem speed/speedVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s780 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s780.includes('R1889') && s780.includes('_N$speed') && s780.includes('speedVar')) {
+    log('pass', 'R1889-particle-speed', 'cc.ParticleSystem speed/speedVar 편집')
+  } else {
+    log('warning', 'R1889-particle-speed', 'cc.ParticleSystem speed/speedVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
