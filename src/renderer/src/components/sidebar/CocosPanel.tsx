@@ -6541,6 +6541,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2031: 공통 cc.ParticleSystem startSpin 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSStartSpin = async (startSpin: number) => {
+          if (!sceneFile.root) return
+          function patchPSStartSpin(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSStartSpin)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startSpin, _startSpin: startSpin, _N$startSpin: startSpin } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSStartSpin(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS startSpin=${startSpin}° (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSstSpin</span>
+            {[0, 45, 90, 180, 270, 360].map(v => (
+              <span key={v} onClick={() => applyPSStartSpin(v)} title={`startSpin=${v}°`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}°</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2030: 공통 cc.ParticleSystem tangentialAccel 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSTangAccel = async (tangentialAccel: number) => {

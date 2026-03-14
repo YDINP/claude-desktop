@@ -22298,6 +22298,18 @@ console.log('\n## 921. R2030 BatchInspector cc.ParticleSystem tangentialAccel �
   }
 }
 
+// ── Section 922: R2031 BatchInspector cc.ParticleSystem startSpin ──────────
+console.log('\n## 922. R2031 BatchInspector cc.ParticleSystem startSpin 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s922 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s922.includes('R2031') && s922.includes('patchPSStartSpin') && s922.includes('applyPSStartSpin')) {
+    log('pass', 'R2031-batch-ps-startspin', 'BatchInspector cc.ParticleSystem startSpin 일괄 설정')
+  } else {
+    log('warning', 'R2031-batch-ps-startspin', 'BatchInspector cc.ParticleSystem startSpin 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
