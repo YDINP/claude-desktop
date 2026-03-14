@@ -11382,6 +11382,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2197: 공통 cc.Layout enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchLayoutEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLayoutEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Layout enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LyComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyLayoutEnabled(v)} title={`Layout enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2024: 공통 cc.Layout paddingRight 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPadRight = async (paddingRight: number) => {
@@ -13061,6 +13087,32 @@ function CCFileBatchInspector({
                 onClick={() => applyPBLength(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
               >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2197: 공통 cc.ProgressBar enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.ProgressBar') && (() => {
+        const applyPBEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchPBEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPBEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPBEnabled(sceneFile.root) })
+          setBatchMsg(`✓ ProgressBar enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PBComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyPBEnabled(v)} title={`ProgressBar enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )

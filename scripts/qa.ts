@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1126: R2197 BatchInspector cc.Layout enabled ──────────
+console.log('\n## 1126. R2197 BatchInspector cc.Layout enabled (컴포넌트 레벨) 체크')
+const s1126 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1126.includes('R2197') && s1126.includes('applyLayoutEnabled') && s1126.includes('LyComp')) {
+  log('pass', 'R2197-batch-layout-enabled', 'BatchInspector cc.Layout enabled 일괄 설정')
+} else {
+  log('warning', 'R2197-batch-layout-enabled', 'BatchInspector cc.Layout enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1127: R2197 BatchInspector cc.ProgressBar enabled ──────────
+console.log('\n## 1127. R2197 BatchInspector cc.ProgressBar enabled (컴포넌트 레벨) 체크')
+const s1127 = s1126
+if (s1127.includes('R2197') && s1127.includes('applyPBEnabled') && s1127.includes('PBComp')) {
+  log('pass', 'R2197-batch-progressbar-enabled', 'BatchInspector cc.ProgressBar enabled 일괄 설정')
+} else {
+  log('warning', 'R2197-batch-progressbar-enabled', 'BatchInspector cc.ProgressBar enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1124: R2196 BatchInspector cc.AudioSource enabled ──────────
 console.log('\n## 1124. R2196 BatchInspector cc.AudioSource enabled (컴포넌트 레벨) 체크')
 const s1124 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
