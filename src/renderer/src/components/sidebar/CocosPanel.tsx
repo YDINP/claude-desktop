@@ -7393,6 +7393,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1995: 공통 cc.CircleCollider radius 일괄 설정 */}
+      {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
+        const applyCircleRadius = async (radius: number) => {
+          if (!sceneFile.root) return
+          function patchCircleRadius(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCircleRadius)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, radius, _radius: radius } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchCircleRadius(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ CircleCollider radius=${radius} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>CirRad</span>
+            {[25, 50, 75, 100, 150].map(v => (
+              <span key={v} onClick={() => applyCircleRadius(v)} title={`radius=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1994: 공통 cc.BoxCollider size 일괄 설정 */}
       {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const boxType = commonCompTypes.includes('cc.BoxCollider') ? 'cc.BoxCollider' : 'cc.BoxCollider2D'

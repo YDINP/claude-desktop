@@ -21866,6 +21866,18 @@ console.log('\n## 885. R1994 BatchInspector cc.BoxCollider size 체크')
   }
 }
 
+// ── Section 886: R1995 BatchInspector cc.CircleCollider radius ──────────
+console.log('\n## 886. R1995 BatchInspector cc.CircleCollider radius 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s886 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s886.includes('R1995') && s886.includes('patchCircleRadius') && s886.includes('applyCircleRadius')) {
+    log('pass', 'R1995-batch-circle-radius', 'BatchInspector cc.CircleCollider radius 일괄 설정')
+  } else {
+    log('warning', 'R1995-batch-circle-radius', 'BatchInspector cc.CircleCollider radius 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
