@@ -20930,6 +20930,18 @@ console.log('\n## 807. R1916 BatchInspector cc.ProgressBar reverse 체크')
   }
 }
 
+// ── Section 808: R1917 BatchInspector cc.RigidBody bullet ──────────
+console.log('\n## 808. R1917 BatchInspector cc.RigidBody bullet 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s808 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s808.includes('R1917') && s808.includes('patchRBBullet') && s808.includes('applyRBBullet')) {
+    log('pass', 'R1917-batch-rigidbody-bullet', 'BatchInspector cc.RigidBody bullet 일괄 설정')
+  } else {
+    log('warning', 'R1917-batch-rigidbody-bullet', 'BatchInspector cc.RigidBody bullet 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

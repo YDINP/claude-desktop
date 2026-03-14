@@ -5455,6 +5455,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1917: 공통 cc.RigidBody bullet 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBBullet = async (bullet: boolean) => {
+          if (!sceneFile.root) return
+          function patchRBBullet(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBBullet)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, bullet } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRBBullet(sceneFile.root) })
+          setBatchMsg(`✓ RigidBody bullet=${bullet} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBbullet</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`bullet = ${v}`}
+                onClick={() => applyRBBullet(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v ? 'blt✓' : 'blt✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1863: 공통 cc.Mask type 일괄 설정 */}
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskType = async (type: number) => {
