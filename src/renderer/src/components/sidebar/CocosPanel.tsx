@@ -4430,6 +4430,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1883: 공통 cc.MotionStreak stroke 일괄 설정 */}
+      {commonCompTypes.includes('cc.MotionStreak') && (() => {
+        const applyMotionStroke = async (stroke: number) => {
+          if (!sceneFile.root) return
+          function patchMotionStroke(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMotionStroke)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchMotionStroke(sceneFile.root))
+          setBatchMsg(`✓ MotionStreak stroke=${stroke} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>MSstroke</span>
+            {([8, 16, 32, 64, 128] as const).map(v => (
+              <span key={v} title={`stroke = ${v}`}
+                onClick={() => applyMotionStroke(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1880: 공통 cc.MotionStreak fade 일괄 설정 */}
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMotionFade = async (fade: number) => {

@@ -20522,6 +20522,18 @@ console.log('\n## 773. R1882 BatchInspector cc.Sprite sizeMode 체크')
   }
 }
 
+// ── Section 774: R1883 BatchInspector cc.MotionStreak stroke ──────────────
+console.log('\n## 774. R1883 BatchInspector cc.MotionStreak stroke 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s774 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s774.includes('R1883') && s774.includes('applyMotionStroke') && s774.includes('patchMotionStroke')) {
+    log('pass', 'R1883-batch-motionstreak-stroke', 'BatchInspector cc.MotionStreak stroke 일괄 설정')
+  } else {
+    log('warning', 'R1883-batch-motionstreak-stroke', 'BatchInspector cc.MotionStreak stroke 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
