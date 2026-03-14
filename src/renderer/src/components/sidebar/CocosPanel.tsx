@@ -8279,6 +8279,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2188: 공통 dragonBones.ArmatureDisplay blendMode 일괄 설정 */}
+      {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
+        const applyDBBlendMode = async (blendMode: number) => {
+          if (!sceneFile.root) return
+          function patchDBBlendMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchDBBlendMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, blendMode, _blendMode: blendMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchDBBlendMode(sceneFile.root) })
+          setBatchMsg(`✓ DragonBones blendMode=${['NORM','ADD','MULT'][blendMode] ?? blendMode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#c084fc', width: 48, flexShrink: 0 }}>DBblend</span>
+            {([['NORM', 0], ['ADD', 10], ['MULT', 12]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applyDBBlendMode(v)} title={`blendMode=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#c084fc', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1838: 공통 sp.Skeleton timeScale 일괄 설정 */}
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineSpeed = async (timeScale: number) => {
@@ -8470,6 +8494,30 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>tint✓</span>
             <span onClick={() => applySpineUseTint(false)} title="useTint OFF"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>tint✗</span>
+          </div>
+        )
+      })()}
+      {/* R2188: 공통 sp.Skeleton enableBatch 일괄 설정 */}
+      {commonCompTypes.includes('sp.Skeleton') && (() => {
+        const applySpineEnableBatch = async (enableBatch: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpineEnableBatch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpineEnableBatch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, enableBatch } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpineEnableBatch(sceneFile.root) })
+          setBatchMsg(`✓ Spine enableBatch=${enableBatch} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>SpBatch</span>
+            {([['batch✓', true], ['batch✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applySpineEnableBatch(v)} title={`enableBatch=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>{l}</span>
+            ))}
           </div>
         )
       })()}

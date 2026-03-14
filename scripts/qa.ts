@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1108: R2188 BatchInspector sp.Skeleton enableBatch ──────────
+console.log('\n## 1108. R2188 BatchInspector sp.Skeleton enableBatch 체크')
+const s1108 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1108.includes('R2188') && s1108.includes('applySpineEnableBatch') && s1108.includes('SpBatch')) {
+  log('pass', 'R2188-batch-spine-enablebatch', 'BatchInspector sp.Skeleton enableBatch 일괄 설정')
+} else {
+  log('warning', 'R2188-batch-spine-enablebatch', 'BatchInspector sp.Skeleton enableBatch 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1109: R2188 BatchInspector dragonBones.ArmatureDisplay blendMode ──────────
+console.log('\n## 1109. R2188 BatchInspector dragonBones.ArmatureDisplay blendMode 체크')
+const s1109 = s1108
+if (s1109.includes('R2188') && s1109.includes('applyDBBlendMode') && s1109.includes('DBblend')) {
+  log('pass', 'R2188-batch-db-blendmode', 'BatchInspector dragonBones.ArmatureDisplay blendMode 일괄 설정')
+} else {
+  log('warning', 'R2188-batch-db-blendmode', 'BatchInspector dragonBones.ArmatureDisplay blendMode 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1104: R2186 BatchInspector cc.Scrollbar direction ──────────
 console.log('\n## 1104. R2186 BatchInspector cc.Scrollbar direction 체크')
 const s1104 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
