@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1078: R2173 BatchInspector cc.Label platformFont ──────────
+console.log('\n## 1078. R2173 BatchInspector cc.Label platformFont 체크')
+const s1078 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1078.includes('R2173') && s1078.includes('applyLabelPlatFont') && s1078.includes('PlatFont')) {
+  log('pass', 'R2173-batch-label-platformfont', 'BatchInspector cc.Label platformFont 일괄 설정')
+} else {
+  log('warning', 'R2173-batch-label-platformfont', 'BatchInspector cc.Label platformFont 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1079: R2173 BatchInspector cc.ProgressBar startWidth ──────────
+console.log('\n## 1079. R2173 BatchInspector cc.ProgressBar startWidth 체크')
+const s1079 = s1078
+if (s1079.includes('R2173') && s1079.includes('applyPBStartWidth') && s1079.includes('PBstW')) {
+  log('pass', 'R2173-batch-progressbar-startwidth', 'BatchInspector cc.ProgressBar startWidth 일괄 설정')
+} else {
+  log('warning', 'R2173-batch-progressbar-startwidth', 'BatchInspector cc.ProgressBar startWidth 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1076: R2172 BatchInspector cc.Graphics lineCap ──────────
 console.log('\n## 1076. R2172 BatchInspector cc.Graphics lineCap 체크')
 const s1076 = s1075

@@ -5254,6 +5254,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2173: 공통 cc.Label platformFont 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelPlatFont = async (platformFont: string) => {
+          if (!sceneFile.root) return
+          function patchLabelPlatFont(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelPlatFont)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, platformFont, _platformFont: platformFont, _N$platformFont: platformFont } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelPlatFont(sceneFile.root) })
+          setBatchMsg(`✓ Label platformFont="${platformFont}" (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>PlatFont</span>
+            {(['', 'Arial', 'sans-serif', 'serif', 'monospace'] as const).map(f => (
+              <span key={f || 'default'} onClick={() => applyLabelPlatFont(f)} title={`platformFont="${f || '(기본)'}"`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{f || 'def'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1888: 공통 cc.RichText maxWidth 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichMaxW = async (w: number) => {
@@ -12056,6 +12080,30 @@ function CCFileBatchInspector({
             {([['H', 0], ['V', 1], ['Fill', 2]] as const).map(([l, v]) => (
               <span key={v} onClick={() => applyPBMode(v)} title={`mode=${l}(${v})`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2173: 공통 cc.ProgressBar startWidth 일괄 설정 */}
+      {commonCompTypes.includes('cc.ProgressBar') && (() => {
+        const applyPBStartWidth = async (startWidth: number) => {
+          if (!sceneFile.root) return
+          function patchPBStartWidth(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPBStartWidth)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, startWidth, _N$startWidth: startWidth } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPBStartWidth(sceneFile.root) })
+          setBatchMsg(`✓ ProgressBar startWidth=${startWidth} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>PBstW</span>
+            {[0, 1, 5, 10, 20, 50].map(v => (
+              <span key={v} onClick={() => applyPBStartWidth(v)} title={`startWidth=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
             ))}
           </div>
         )
