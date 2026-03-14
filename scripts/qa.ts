@@ -24305,6 +24305,60 @@ if (s1214.includes('_horizontal: horizontal') && s1214.includes('patchSVHoriz'))
   log('warning', 'R2240-batch-scrollview-horizontal-cc3x', 'BatchInspector cc.ScrollView horizontal _horizontal CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1215: R2241 BatchInspector cc.ScrollView _vertical (CC3.x) ──────────
+console.log('\n## 1215. R2241 BatchInspector cc.ScrollView _vertical CC3.x 체크')
+const s1215 = s1214
+if (s1215.includes('_vertical: vertical') && s1215.includes('patchSVVert')) {
+  log('pass', 'R2241-batch-scrollview-vertical-cc3x', 'BatchInspector cc.ScrollView _vertical (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2241-batch-scrollview-vertical-cc3x', 'BatchInspector cc.ScrollView _vertical CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1216: R2241 BatchInspector cc.ScrollView _cancelInnerEvents (CC3.x) ──────────
+console.log('\n## 1216. R2241 BatchInspector cc.ScrollView _cancelInnerEvents CC3.x 체크')
+const s1216 = s1215
+if (s1216.includes('_cancelInnerEvents: cancelInnerEvents') && s1216.includes('patchSVCancelInner')) {
+  log('pass', 'R2241-batch-scrollview-cancelinnerevents-cc3x', 'BatchInspector cc.ScrollView _cancelInnerEvents (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2241-batch-scrollview-cancelinnerevents-cc3x', 'BatchInspector cc.ScrollView _cancelInnerEvents CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1217: R2242 BatchInspector cc.Scrollbar _autoHideTime (CC3.x) ──────────
+console.log('\n## 1217. R2242 BatchInspector cc.Scrollbar _autoHideTime CC3.x 체크')
+const s1217 = s1216
+if (s1217.includes('_autoHideTime: autoHideTime') && s1217.includes('patchSBAutoHideTime')) {
+  log('pass', 'R2242-batch-scrollbar-autohidetime-cc3x', 'BatchInspector cc.Scrollbar _autoHideTime (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2242-batch-scrollbar-autohidetime-cc3x', 'BatchInspector cc.Scrollbar _autoHideTime CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1218: R2242 BatchInspector cc.Scrollbar _direction (CC3.x) ──────────
+console.log('\n## 1218. R2242 BatchInspector cc.Scrollbar _direction CC3.x 체크')
+const s1218 = s1217
+if (s1218.includes('_direction: direction') && s1218.includes('patchSBDir')) {
+  log('pass', 'R2242-batch-scrollbar-direction-cc3x', 'BatchInspector cc.Scrollbar _direction (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2242-batch-scrollbar-direction-cc3x', 'BatchInspector cc.Scrollbar _direction CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1219: R2243 BatchInspector cc.ScrollView _bounceTime (CC3.x) ──────────
+console.log('\n## 1219. R2243 BatchInspector cc.ScrollView _bounceTime CC3.x 체크')
+const s1219 = s1218
+if (s1219.includes('_bounceTime: bounceTime') && s1219.includes('patchSVBounceTime')) {
+  log('pass', 'R2243-batch-scrollview-bouncetime-cc3x', 'BatchInspector cc.ScrollView _bounceTime (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2243-batch-scrollview-bouncetime-cc3x', 'BatchInspector cc.ScrollView _bounceTime CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1220: R2243 BatchInspector cc.ScrollView _bounce (CC3.x) ──────────
+console.log('\n## 1220. R2243 BatchInspector cc.ScrollView _bounce CC3.x 체크')
+const s1220 = s1219
+if (s1220.includes('_bounce: bounce') && s1220.includes('patchScrollBounce')) {
+  log('pass', 'R2243-batch-scrollview-bounce-cc3x', 'BatchInspector cc.ScrollView _bounce (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2243-batch-scrollview-bounce-cc3x', 'BatchInspector cc.ScrollView _bounce CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -8185,11 +8185,11 @@ function CCFileBatchInspector({
           function patchSBAutoHideTime(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSBAutoHideTime)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, autoHideTime, _N$autoHideTime: autoHideTime } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSBAutoHideTime(sceneFile.root) })
-          setBatchMsg(`✓ Scrollbar autoHideTime=${autoHideTime} (${uuids.length}개)`)
+          setBatchMsg(`✓ Scrollbar autoHideTime=${autoHideTime} (${uuids.length}개)`) // R2242: _autoHideTime CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8244,11 +8244,11 @@ function CCFileBatchInspector({
           function patchSBDir(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSBDir)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, direction, _N$direction: direction } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSBDir(sceneFile.root) })
-          setBatchMsg(`✓ Scrollbar direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`)
+          setBatchMsg(`✓ Scrollbar direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`) // R2242: _direction CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8268,11 +8268,11 @@ function CCFileBatchInspector({
           function patchSVBounceTime(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVBounceTime)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounceTime, _N$bounceTime: bounceTime } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounceTime, _bounceTime: bounceTime, _N$bounceTime: bounceTime } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSVBounceTime(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView bounceTime=${bounceTime} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView bounceTime=${bounceTime} (${uuids.length}개)`) // R2243: _bounceTime CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8292,11 +8292,11 @@ function CCFileBatchInspector({
           function patchScrollBounce(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchScrollBounce)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounce, _N$bounce: bounce } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounce, _bounce: bounce, _N$bounce: bounce } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchScrollBounce(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView bounce=${bounce} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView bounce=${bounce} (${uuids.length}개)`) // R2243: _bounce CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8363,11 +8363,11 @@ function CCFileBatchInspector({
           function patchSVVert(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVVert)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, vertical, _N$vertical: vertical } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, vertical, _vertical: vertical, _N$vertical: vertical } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSVVert(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView vertical=${vertical} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView vertical=${vertical} (${uuids.length}개)`) // R2241: _vertical CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -8386,11 +8386,11 @@ function CCFileBatchInspector({
           function patchSVCancelInner(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVCancelInner)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, cancelInnerEvents, _N$cancelInnerEvents: cancelInnerEvents } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, cancelInnerEvents, _cancelInnerEvents: cancelInnerEvents, _N$cancelInnerEvents: cancelInnerEvents } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSVCancelInner(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView cancelInnerEvents=${cancelInnerEvents} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView cancelInnerEvents=${cancelInnerEvents} (${uuids.length}개)`) // R2241: _cancelInnerEvents CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
