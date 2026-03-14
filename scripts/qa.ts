@@ -24755,6 +24755,24 @@ if (s1264.includes('_totalLength: totalLength, _N$totalLength') && s1264.include
   log('warning', 'R2265-batch-pb-totallength-cc3x', 'BatchInspector cc.ProgressBar _totalLength CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1265: R2266 BatchInspector cc.ProgressBar _reverse (CC3.x) ──────────
+console.log('\n## 1265. R2266 BatchInspector cc.ProgressBar _reverse CC3.x 체크')
+const s1265 = s1264
+if (s1265.includes('_reverse: reverse, _N$reverse') && s1265.includes('applyPBReverse')) {
+  log('pass', 'R2266-batch-pb-reverse-cc3x', 'BatchInspector cc.ProgressBar _reverse (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2266-batch-pb-reverse-cc3x', 'BatchInspector cc.ProgressBar _reverse CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1266: R2266 BatchInspector cc.ProgressBar _mode (CC3.x) ──────────
+console.log('\n## 1266. R2266 BatchInspector cc.ProgressBar _mode CC3.x 체크')
+const s1266 = s1265
+if (s1266.includes('_mode: mode, _N$mode') && s1266.includes('applyPBMode')) {
+  log('pass', 'R2266-batch-pb-mode-cc3x', 'BatchInspector cc.ProgressBar _mode (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2266-batch-pb-mode-cc3x', 'BatchInspector cc.ProgressBar _mode CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

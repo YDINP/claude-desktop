@@ -14497,7 +14497,7 @@ function CCFileBatchInspector({
           function patchPBRev(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPBRev)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, reverse, _N$reverse: reverse } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchPBRev(sceneFile.root))
@@ -14519,7 +14519,7 @@ function CCFileBatchInspector({
           function patchPBMode(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPBMode)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, mode, _N$mode: mode } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, mode, _mode: mode, _N$mode: mode } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPBMode(sceneFile.root)
