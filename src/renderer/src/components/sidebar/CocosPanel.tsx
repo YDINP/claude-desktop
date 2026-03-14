@@ -4633,6 +4633,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1871: 공통 cc.RigidBody mass 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBMass = async (mass: number) => {
+          if (!sceneFile.root) return
+          function patchRBMass(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBMass)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, mass } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchRBMass(sceneFile.root))
+          setBatchMsg(`✓ RigidBody mass ${mass} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RB mass</span>
+            {([0.1, 0.5, 1, 2, 5, 10] as const).map(v => (
+              <span key={v} title={`mass = ${v}`}
+                onClick={() => applyRBMass(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1857: 공통 cc.RigidBody gravityScale 일괄 설정 */}
       {commonCompTypes.includes('cc.RigidBody') && (() => {
         const applyRBGravScale = async (gs: number) => {

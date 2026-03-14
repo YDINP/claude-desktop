@@ -20378,6 +20378,18 @@ console.log('\n## 761. R1870 cc.PolygonCollider inspector 체크')
   }
 }
 
+// ── Section 762: R1871 BatchInspector cc.RigidBody mass ───────────────────
+console.log('\n## 762. R1871 BatchInspector cc.RigidBody mass 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s762 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s762.includes('R1871') && s762.includes('applyRBMass') && s762.includes('patchRBMass')) {
+    log('pass', 'R1871-batch-rb-mass', 'BatchInspector cc.RigidBody mass 일괄 설정')
+  } else {
+    log('warning', 'R1871-batch-rb-mass', 'BatchInspector cc.RigidBody mass 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

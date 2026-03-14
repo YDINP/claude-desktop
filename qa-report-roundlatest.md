@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:23:47.093Z
+> 2026-03-14T05:24:39.131Z
 
 ## Critical
 _없음_
@@ -1800,3 +1800,4 @@ _없음_
 - BatchInspector cc.Label spacingX 일괄 설정
 - BatchInspector cc.Slider direction 일괄 설정 (H/V)
 - cc.PolygonCollider sensor/friction/restitution 편집
+- BatchInspector cc.RigidBody mass 일괄 설정
