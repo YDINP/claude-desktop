@@ -23138,6 +23138,18 @@ console.log('\n## 991. R2100 BatchInspector cc.Widget horizontalCenter 체크')
   }
 }
 
+// ── Section 992: R2101 BatchInspector cc.Widget verticalCenter ──────────
+console.log('\n## 992. R2101 BatchInspector cc.Widget verticalCenter 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s992 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s992.includes('R2101') && s992.includes('patchWidgetVCenter') && s992.includes('applyWidgetVCenter')) {
+    log('pass', 'R2101-batch-widget-vcenter', 'BatchInspector cc.Widget verticalCenter 일괄 설정')
+  } else {
+    log('warning', 'R2101-batch-widget-vcenter', 'BatchInspector cc.Widget verticalCenter 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

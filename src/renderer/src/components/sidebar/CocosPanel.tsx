@@ -9225,6 +9225,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2101: 공통 cc.Widget verticalCenter 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetVCenter = async (verticalCenter: number) => {
+          if (!sceneFile.root) return
+          function patchWidgetVCenter(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetVCenter)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, verticalCenter, _verticalCenter: verticalCenter, _N$verticalCenter: verticalCenter } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetVCenter(sceneFile.root) })
+          setBatchMsg(`✓ Widget verticalCenter=${verticalCenter} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WgtVC</span>
+            {[0, 10, 20, 30, 50, 100].map(v => (
+              <span key={v} title={`verticalCenter = ${v}`}
+                onClick={() => applyWidgetVCenter(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2100: 공통 cc.Widget horizontalCenter 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetHCenter = async (horizontalCenter: number) => {

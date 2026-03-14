@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:34:55.846Z
+> 2026-03-14T08:35:22.114Z
 
 ## Critical
 _없음_
@@ -2030,3 +2030,4 @@ _없음_
 - BatchInspector cc.Widget left 일괄 설정
 - BatchInspector cc.Widget right 일괄 설정
 - BatchInspector cc.Widget horizontalCenter 일괄 설정
+- BatchInspector cc.Widget verticalCenter 일괄 설정
