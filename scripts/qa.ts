@@ -21374,6 +21374,18 @@ console.log('\n## 844. R1953 BatchInspector cc.RigidBody angularVelocity 체크'
   }
 }
 
+// ── Section 845: R1954 BatchInspector cc.Sprite grayscale ──────────
+console.log('\n## 845. R1954 BatchInspector cc.Sprite grayscale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s845 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s845.includes('R1954') && s845.includes('patchSprGray') && s845.includes('applySprGray')) {
+    log('pass', 'R1954-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 일괄 설정')
+  } else {
+    log('warning', 'R1954-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
