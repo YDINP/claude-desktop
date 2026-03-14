@@ -7635,6 +7635,18 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Math.round(progress * 100)}%</span>
                   </div>
+                  {/* R1765: progress 퀵 프리셋 */}
+                  <div style={{ display: 'flex', gap: 3, paddingLeft: 62 }}>
+                    {[0, 0.25, 0.5, 0.75, 1].map(v => (
+                      <span key={v}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, progress: v, _N$progress: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, cursor: 'pointer', padding: '1px 3px', borderRadius: 2, border: `1px solid ${Math.abs(progress - v) < 0.01 ? '#58a6ff' : 'var(--border)'}`, color: Math.abs(progress - v) < 0.01 ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{Math.round(v * 100)}%</span>
+                    ))}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>direction</span>
                     <select value={direction}

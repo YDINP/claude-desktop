@@ -19103,6 +19103,18 @@ console.log('\n## 655. R1764 BatchInspector cc.Toggle isChecked 일괄 체크')
   }
 }
 
+// ── Section 656: R1765 cc.Slider progress 퀵 프리셋 ─────────────────────────
+console.log('\n## 656. R1765 cc.Slider progress 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s656 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s656.includes('R1765') && s656.includes('progress 퀵 프리셋') && s656.includes('_N$progress: v')) {
+    log('pass', 'R1765-slider-presets', 'cc.Slider progress 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1765-slider-presets', 'cc.Slider progress 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
