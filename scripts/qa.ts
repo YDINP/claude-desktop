@@ -19631,6 +19631,18 @@ console.log('\n## 699. R1808 cc.RichText applyAndSave 업그레이드 체크')
   }
 }
 
+// ── Section 700: R1809 BatchInspector 크기배율 커스텀 입력 ────────────────────
+console.log('\n## 700. R1809 BatchInspector 크기배율 커스텀 입력 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s700 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s700.includes('R1809') && s700.includes('커스텀 배율') && s700.includes('applyMult')) {
+    log('pass', 'R1809-batch-size-custom-mult', 'BatchInspector 크기배율 커스텀 입력')
+  } else {
+    log('warning', 'R1809-batch-size-custom-mult', 'BatchInspector 크기배율 커스텀 입력 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
