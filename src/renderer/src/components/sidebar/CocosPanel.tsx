@@ -4123,6 +4123,26 @@ function CCFileBatchInspector({
           </span>
         ))}
         {batchRot && <span onClick={() => setBatchRot('')} style={{ fontSize: 9, cursor: 'pointer', color: 'var(--text-muted)' }}>✕</span>}
+        {/* R1776: 회전 일괄 정규화 (-180~180) */}
+        <span title="선택 노드 회전 일괄 정규화 (-180~180 범위)"
+          onClick={async () => {
+            if (!sceneFile.root) return
+            function patchNorm(n: CCSceneNode): CCSceneNode {
+              const children = n.children.map(patchNorm)
+              if (!uuidSet.has(n.uuid)) return { ...n, children }
+              const r = typeof n.rotation === 'number' ? n.rotation : (n.rotation as { z?: number }).z ?? 0
+              const norm = ((r % 360) + 540) % 360 - 180
+              const newRot = typeof n.rotation === 'number' ? norm : { ...(n.rotation as object), z: norm } as CCSceneNode['rotation']
+              return { ...n, rotation: newRot, children }
+            }
+            await saveScene(patchNorm(sceneFile.root))
+            setBatchMsg(`✓ 회전 정규화 (${uuids.length}개)`)
+            setTimeout(() => setBatchMsg(null), 2000)
+          }}
+          style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 3, border: '1px solid rgba(248,113,113,0.4)', color: '#f87171', userSelect: 'none' }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#fca5a5')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#f87171')}
+        >norm</span>
       </div>
       {/* R1575: 색상 일괄 설정 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>

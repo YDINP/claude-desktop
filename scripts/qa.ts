@@ -19235,6 +19235,18 @@ console.log('\n## 666. R1775 Inspector 회전 정규화 버튼 체크')
   }
 }
 
+// ── Section 667: R1776 BatchInspector 회전 일괄 정규화 ───────────────────────
+console.log('\n## 667. R1776 BatchInspector 회전 일괄 정규화 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s667 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s667.includes('R1776') && s667.includes('patchNorm') && s667.includes('회전 정규화')) {
+    log('pass', 'R1776-batch-norm', 'BatchInspector 회전 일괄 정규화')
+  } else {
+    log('warning', 'R1776-batch-norm', 'BatchInspector 회전 일괄 정규화 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
