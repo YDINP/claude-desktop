@@ -13,6 +13,8 @@ interface FlatNode {
   worldY: number
   depth: number
   parentUuid: string | null  // R1570
+  siblingIdx: number  // R1687
+  siblingTotal: number  // R1687
 }
 
 interface CCFileSceneViewProps {
@@ -73,6 +75,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [hoverClientPos, setHoverClientPos] = useState<{ x: number; y: number } | null>(null)
   const [gridStyle, setGridStyle] = useState<'line' | 'dot' | 'none'>('line')
   const [showNodeNames, setShowNodeNames] = useState(true)
+  // R1687: 형제 순서 인덱스 표시 토글
+  const [showZOrder, setShowZOrder] = useState(false)
   const [snapSize, setSnapSize] = useState(10)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
   // R1681: 선택 노드 테두리 색상 사용자 설정
@@ -210,17 +214,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // 씬 트리 → flat 목록 (world position 누적)
   const flatNodes = useMemo(() => {
     const result: FlatNode[] = []
-    function walk(node: CCSceneNode, worldX: number, worldY: number, depth: number, parentUuid: string | null) {
+    function walk(node: CCSceneNode, worldX: number, worldY: number, depth: number, parentUuid: string | null, siblingIdx: number, siblingTotal: number) {
       const x = worldX + (typeof node.position === 'object' ? (node.position as { x: number }).x : 0)
       const y = worldY + (typeof node.position === 'object' ? (node.position as { y: number }).y : 0)
-      result.push({ node, worldX: x, worldY: y, depth, parentUuid })
-      for (const child of node.children) {
-        walk(child, x, y, depth + 1, node.uuid)
+      result.push({ node, worldX: x, worldY: y, depth, parentUuid, siblingIdx, siblingTotal })
+      for (let i = 0; i < node.children.length; i++) {
+        walk(node.children[i], x, y, depth + 1, node.uuid, i, node.children.length)
       }
     }
     // Scene 루트 자체는 건너뜀 (이름 없는 컨테이너)
-    for (const child of sceneFile.root.children) {
-      walk(child, 0, 0, 0, null)
+    for (let i = 0; i < sceneFile.root.children.length; i++) {
+      walk(sceneFile.root.children[i], 0, 0, 0, null, i, sceneFile.root.children.length)
     }
     return result
   }, [sceneFile])
@@ -877,6 +881,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         >
           T
         </button>
+        {/* R1687: z-order 표시 버튼 */}
+        <button
+          onClick={() => setShowZOrder(n => !n)}
+          title="형제 순서(z-order) 인덱스 표시 토글"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showZOrder ? 'rgba(251,191,36,0.12)' : 'none', color: showZOrder ? '#fbbf24' : 'var(--text-muted)' }}
+        >#</button>
         <button
           onClick={handleFit}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
@@ -1385,6 +1395,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     })()}
                   </text>
                 )}
+                {/* R1687: z-order 배지 */}
+                {showZOrder && view.zoom > 0.25 && (() => {
+                  const fn2 = flatNodes.find(f => f.node.uuid === node.uuid)
+                  if (!fn2) return null
+                  return (
+                    <g pointerEvents="none">
+                      <rect x={rectX + w - 16 / view.zoom} y={rectY + 2 / view.zoom} width={14 / view.zoom} height={10 / view.zoom} fill="rgba(0,0,0,0.55)" rx={2 / view.zoom} />
+                      <text x={rectX + w - 9 / view.zoom} y={rectY + 10 / view.zoom} fontSize={8 / view.zoom} fill="#fbbf24" textAnchor="middle" style={{ userSelect: 'none' }}>{fn2.siblingIdx}</text>
+                    </g>
+                  )
+                })()}
                 {/* 인라인 이름 편집 (더블클릭 시) */}
                 {editingUuid === node.uuid && (
                   <foreignObject

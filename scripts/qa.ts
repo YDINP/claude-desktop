@@ -18167,6 +18167,18 @@ console.log('\n## 577. R1686 Inspector 균등 스케일 버튼 체크')
   }
 }
 
+// ── Section 578: R1687 SceneView z-order 배지 ────────────────────────────
+console.log('\n## 578. R1687 SceneView z-order 배지 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s578 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s578.includes('R1687') && s578.includes('showZOrder') && s578.includes('siblingIdx') && s578.includes('siblingTotal')) {
+    log('pass', 'R1687-zorder-badge', 'SceneView z-order 배지 (형제 순서 인덱스)')
+  } else {
+    log('warning', 'R1687-zorder-badge', 'SceneView z-order 배지 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
