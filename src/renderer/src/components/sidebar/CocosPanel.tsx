@@ -6067,6 +6067,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2223: 공통 cc.RichText lineHeight 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRTLineHeight = async (lineHeight: number) => {
+          if (!sceneFile.root) return
+          function patchRTLineHeight(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRTLineHeight)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText'
+              ? { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRTLineHeight(sceneFile.root) })
+          setBatchMsg(`✓ RichText lineHeight=${lineHeight} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>RTLineH</span>
+            {[20, 24, 28, 32, 36, 40, 48].map(v => (
+              <span key={v} onClick={() => applyRTLineHeight(v)} title={`lineHeight=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1888: 공통 cc.RichText maxWidth 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichMaxW = async (w: number) => {
@@ -11961,6 +11987,32 @@ function CCFileBatchInspector({
                 onClick={() => applySliderStep(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
               >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2223: 공통 cc.AudioSource _pitch 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.AudioSource') && (() => {
+        const applyAudioPitch = async (pitch: number) => {
+          if (!sceneFile.root) return
+          function patchAudioPitch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAudioPitch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource'
+              ? { ...c, props: { ...c.props, pitch, _pitch: pitch } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchAudioPitch(sceneFile.root) })
+          setBatchMsg(`✓ AudioSource pitch=${pitch} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#facc15', width: 48, flexShrink: 0 }}>ASPitch</span>
+            {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map(v => (
+              <span key={v} onClick={() => applyAudioPitch(v)} title={`_pitch=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#facc15', userSelect: 'none' }}>{v}</span>
             ))}
           </div>
         )

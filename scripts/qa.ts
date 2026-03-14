@@ -24125,6 +24125,24 @@ if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
   log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
 }
 
+// ── Section 1179: R2223 BatchInspector cc.AudioSource _pitch (CC3.x) ──────────
+console.log('\n## 1179. R2223 BatchInspector cc.AudioSource _pitch 체크')
+const s1179 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1179.includes('R2223') && s1179.includes('applyAudioPitch') && s1179.includes('ASPitch')) {
+  log('pass', 'R2223-batch-audiosource-pitch', 'BatchInspector cc.AudioSource _pitch 일괄 설정')
+} else {
+  log('warning', 'R2223-batch-audiosource-pitch', 'BatchInspector cc.AudioSource _pitch 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1180: R2223 BatchInspector cc.RichText lineHeight ──────────
+console.log('\n## 1180. R2223 BatchInspector cc.RichText lineHeight 체크')
+const s1180 = s1179
+if (s1180.includes('R2223') && s1180.includes('applyRTLineHeight') && s1180.includes('RTLineH')) {
+  log('pass', 'R2223-batch-richtext-lineheight', 'BatchInspector cc.RichText lineHeight 일괄 설정')
+} else {
+  log('warning', 'R2223-batch-richtext-lineheight', 'BatchInspector cc.RichText lineHeight 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1177: R2222 BatchInspector cc.TiledLayer enabled ──────────
 console.log('\n## 1177. R2222 BatchInspector cc.TiledLayer enabled 체크')
 const s1177 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
