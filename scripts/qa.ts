@@ -21962,6 +21962,18 @@ console.log('\n## 893. R2002 BatchInspector cc.ParticleSystem gravity 체크')
   }
 }
 
+// ── Section 894: R2003 BatchInspector node scale ──────────
+console.log('\n## 894. R2003 BatchInspector node scale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s894 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s894.includes('R2003') && s894.includes('patchNodeScale') && s894.includes('applyNodeScale')) {
+    log('pass', 'R2003-batch-node-scale', 'BatchInspector node scale 일괄 설정')
+  } else {
+    log('warning', 'R2003-batch-node-scale', 'BatchInspector node scale 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

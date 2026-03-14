@@ -3834,6 +3834,30 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2003: 노드 scale 일괄 설정 */}
+      {(() => {
+        const applyNodeScale = async (s: number) => {
+          if (!sceneFile.root) return
+          function patchNodeScale(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeScale)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, scale: { x: s, y: s, z: s }, children }
+          }
+          const patchedRoot = patchNodeScale(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ scale=${s} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Scale</span>
+            {[0.5, 0.75, 1, 1.25, 1.5, 2].map(v => (
+              <span key={v} onClick={() => applyNodeScale(v)} title={`scale=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}x</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1996: 노드 color(tint) 일괄 설정 */}
       {(() => {
         const applyNodeTint = async (hex: string) => {
