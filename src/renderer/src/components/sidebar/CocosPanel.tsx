@@ -4329,6 +4329,52 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2166: 노드 _skewX 일괄 설정 (CC2.x) */}
+      {(() => {
+        const applySkewX = async (skewX: number) => {
+          if (!sceneFile.root) return
+          function patchSkewX(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSkewX)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, _skewX: skewX, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSkewX(sceneFile.root) })
+          setBatchMsg(`✓ _skewX=${skewX} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>skewX</span>
+            {[0, 10, 20, 30, 45, -10].map(v => (
+              <span key={v} onClick={() => applySkewX(v)} title={`_skewX=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2166: 노드 _skewY 일괄 설정 (CC2.x) */}
+      {(() => {
+        const applySkewY = async (skewY: number) => {
+          if (!sceneFile.root) return
+          function patchSkewY(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSkewY)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, _skewY: skewY, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSkewY(sceneFile.root) })
+          setBatchMsg(`✓ _skewY=${skewY} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>skewY</span>
+            {[0, 10, 20, 30, 45, -10].map(v => (
+              <span key={v} onClick={() => applySkewY(v)} title={`_skewY=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2006: 노드 rotation 일괄 설정 */}
       {(() => {
         const applyNodeRotation = async (deg: number) => {

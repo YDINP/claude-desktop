@@ -23969,6 +23969,24 @@ if (s1063.includes('R2165') && s1063.includes('applyLabelSysFont') && s1063.incl
   log('warning', 'R2165-batch-label-sysfont', 'BatchInspector cc.Label isSystemFontUsed 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1064: R2166 BatchInspector 노드 _skewX ──────────
+console.log('\n## 1064. R2166 BatchInspector 노드 _skewX 체크')
+const s1064 = s1063
+if (s1064.includes('R2166') && s1064.includes('applySkewX') && s1064.includes('skewX')) {
+  log('pass', 'R2166-batch-node-skewx', 'BatchInspector 노드 _skewX 일괄 설정')
+} else {
+  log('warning', 'R2166-batch-node-skewx', 'BatchInspector 노드 _skewX 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1065: R2166 BatchInspector 노드 _skewY ──────────
+console.log('\n## 1065. R2166 BatchInspector 노드 _skewY 체크')
+const s1065 = s1064
+if (s1065.includes('R2166') && s1065.includes('applySkewY') && s1065.includes('skewY')) {
+  log('pass', 'R2166-batch-node-skewy', 'BatchInspector 노드 _skewY 일괄 설정')
+} else {
+  log('warning', 'R2166-batch-node-skewy', 'BatchInspector 노드 _skewY 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
