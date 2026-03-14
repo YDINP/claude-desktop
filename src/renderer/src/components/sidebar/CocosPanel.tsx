@@ -9225,6 +9225,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2098: 공통 cc.Widget left 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetLeft = async (left: number) => {
+          if (!sceneFile.root) return
+          function patchWidgetLeft(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetLeft)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, left, _left: left, _N$left: left } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetLeft(sceneFile.root) })
+          setBatchMsg(`✓ Widget left=${left} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WgtLeft</span>
+            {[0, 10, 20, 30, 50, 100].map(v => (
+              <span key={v} title={`left = ${v}`}
+                onClick={() => applyWidgetLeft(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2097: 공통 cc.Widget bottom 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetBot = async (bottom: number) => {

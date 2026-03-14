@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:33:43.125Z
+> 2026-03-14T08:34:05.011Z
 
 ## Critical
 _없음_
@@ -2027,3 +2027,4 @@ _없음_
 - BatchInspector cc.PolygonCollider restitution 일괄 설정
 - BatchInspector cc.Widget top 일괄 설정
 - BatchInspector cc.Widget bottom 일괄 설정
+- BatchInspector cc.Widget left 일괄 설정
