@@ -23114,6 +23114,18 @@ console.log('\n## 989. R2098 BatchInspector cc.Widget left 체크')
   }
 }
 
+// ── Section 990: R2099 BatchInspector cc.Widget right ──────────
+console.log('\n## 990. R2099 BatchInspector cc.Widget right 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s990 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s990.includes('R2099') && s990.includes('patchWidgetRight') && s990.includes('applyWidgetRight')) {
+    log('pass', 'R2099-batch-widget-right', 'BatchInspector cc.Widget right 일괄 설정')
+  } else {
+    log('warning', 'R2099-batch-widget-right', 'BatchInspector cc.Widget right 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
