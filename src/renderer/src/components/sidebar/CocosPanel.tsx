@@ -539,6 +539,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1184: node filters
   const [nodeFilters, setNodeFilters] = useState<string[]>([])
   const [showNodeFilters, setShowNodeFilters] = useState(false)
+  // R1715: 색상 태그 필터
+  const [colorTagFilter, setColorTagFilter] = useState<string | null>(null)
   // R1664: 씬 트리 이름 하이라이트
   const [treeHighlightQuery, setTreeHighlightQuery] = useState('')
   // R1190: scene validation
@@ -646,17 +648,19 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1654: 컴포넌트 필터 적용 트리
   const filteredRoot = useMemo(() => {
     if (!sceneFile?.root) return null
-    if (nodeFilters.length === 0) return sceneFile.root
+    if (nodeFilters.length === 0 && !colorTagFilter) return sceneFile.root
     function keep(n: CCSceneNode): CCSceneNode | null {
       // R1667: 정확 일치 OR custom 타입 부분 문자열 매칭
-      const match = n.components.some(c => nodeFilters.some(f => c.type === f || c.type.toLowerCase().includes(f.toLowerCase())))
+      const compMatch = nodeFilters.length === 0 || n.components.some(c => nodeFilters.some(f => c.type === f || c.type.toLowerCase().includes(f.toLowerCase())))
+      // R1715: 색상 태그 필터
+      const colorMatch = !colorTagFilter || nodeColors[n.uuid] === colorTagFilter
       const filteredChildren = n.children.map(keep).filter(Boolean) as CCSceneNode[]
-      if (!match && filteredChildren.length === 0) return null
+      if (!(compMatch && colorMatch) && filteredChildren.length === 0) return null
       return { ...n, children: filteredChildren }
     }
     const result = keep(sceneFile.root)
     return result ?? { ...sceneFile.root, children: [] }
-  }, [sceneFile?.root, nodeFilters])
+  }, [sceneFile?.root, nodeFilters, colorTagFilter, nodeColors])
 
   // R1448: 씬 의존성 분석
   type DepEntry = { uuid: string; path: string; type: string; missing: boolean }
@@ -2597,6 +2601,17 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 title={hideInactive ? '비활성 노드 표시' : '비활성 노드 숨기기'}
                 style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: hideInactive ? '#58a6ff' : '#666' }}
               >{hideInactive ? '◑' : '●'}</span>
+              {/* R1715: 색상 태그 필터 */}
+              {Object.values(nodeColors).length > 0 && (() => {
+                const usedColors = [...new Set(Object.values(nodeColors).filter(Boolean))]
+                return usedColors.map(color => (
+                  <span key={color}
+                    title={`색상 태그 필터: ${color === colorTagFilter ? '해제' : color}`}
+                    onClick={() => setColorTagFilter(colorTagFilter === color ? null : color)}
+                    style={{ width: 10, height: 10, borderRadius: '50%', background: color, display: 'inline-block', cursor: 'pointer', flexShrink: 0, border: colorTagFilter === color ? '2px solid #fff' : '1px solid rgba(0,0,0,0.3)', boxSizing: 'border-box' }}
+                  />
+                ))
+              })()}
               {/* R1654: 컴포넌트 필터 토글 버튼 */}
               <span
                 onClick={() => setShowNodeFilters(v => !v)}

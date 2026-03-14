@@ -18503,6 +18503,18 @@ console.log('\n## 605. R1714 cc.Label 텍스트 색상 편집 체크')
   }
 }
 
+// ── Section 606: R1715 씬 트리 색상 태그 필터 ───────────────────────────────
+console.log('\n## 606. R1715 씬 트리 색상 태그 필터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s606 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s606.includes('R1715') && s606.includes('colorTagFilter') && s606.includes('색상 태그 필터')) {
+    log('pass', 'R1715-color-tag-filter', '씬 트리 색상 태그 필터')
+  } else {
+    log('warning', 'R1715-color-tag-filter', '씬 트리 색상 태그 필터 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
