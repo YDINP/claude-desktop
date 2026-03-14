@@ -8589,6 +8589,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2080: 공통 cc.Layout resizeMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutResizeMode = async (resizeMode: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutResizeMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutResizeMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, resizeMode, _N$resizeMode: resizeMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLayoutResizeMode(sceneFile.root) })
+          setBatchMsg(`✓ Layout resizeMode=${resizeMode} (${uuids.length}개)`)
+        }
+        // 0=NONE, 1=CONTAINER, 2=CHILDREN
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LresM</span>
+            {([0, 1, 2] as const).map((v, i) => (
+              <span key={v} title={`resizeMode = ${v} (${['None','Cont','Chld'][i]})`}
+                onClick={() => applyLayoutResizeMode(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{['None','Cont','Chld'][i]}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2079: 공통 cc.Layout constraint 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutConstraint = async (constraint: number) => {
