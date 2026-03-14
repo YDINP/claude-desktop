@@ -5856,6 +5856,36 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1939: 공통 cc.RigidBody linearVelocity 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBLinearVel = async (x: number, y: number) => {
+          if (!sceneFile.root) return
+          function patchRBLinearVel(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBLinearVel)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const vel = { x, y }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchRBLinearVel(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ RigidBody vel=(${x},${y}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBvel</span>
+            {([0, 1, 5, 10] as const).map(v => (
+              <span key={v} title={`linearVelocity = {x:0,y:${v}}`}
+                onClick={() => applyRBLinearVel(0, v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >↑{v}</span>
+            ))}
+            <span title="stop" onClick={() => applyRBLinearVel(0, 0)}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>■</span>
+          </div>
+        )
+      })()}
       {/* R1863: 공통 cc.Mask type 일괄 설정 */}
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskType = async (type: number) => {

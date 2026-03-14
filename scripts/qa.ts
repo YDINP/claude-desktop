@@ -21194,6 +21194,18 @@ console.log('\n## 829. R1938 cc.ParticleSystem endSpin/endSpinVar 체크')
   }
 }
 
+// ── Section 830: R1939 BatchInspector cc.RigidBody linearVelocity ──────────
+console.log('\n## 830. R1939 BatchInspector cc.RigidBody linearVelocity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s830 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s830.includes('R1939') && s830.includes('patchRBLinearVel') && s830.includes('applyRBLinearVel')) {
+    log('pass', 'R1939-batch-rigidbody-linearvel', 'BatchInspector cc.RigidBody linearVelocity 일괄 설정')
+  } else {
+    log('warning', 'R1939-batch-rigidbody-linearvel', 'BatchInspector cc.RigidBody linearVelocity 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
