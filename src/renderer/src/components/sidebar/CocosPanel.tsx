@@ -7467,6 +7467,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2056: 공통 cc.SkeletalAnimation speed 일괄 설정 */}
+      {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
+        const applySkelSpeed = async (speed: number) => {
+          if (!sceneFile.root) return
+          function patchSkelSpeed(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSkelSpeed)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSkelSpeed(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ SkeletalAnim speed=${speed}x (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>SkelSpd</span>
+            {[0.25, 0.5, 0.75, 1, 1.5, 2].map(v => (
+              <span key={v} onClick={() => applySkelSpeed(v)} title={`speed=${v}x`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{v}x</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2045: 공통 cc.SkeletalAnimation wrapMode 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkelWrapMode = async (wrapMode: number) => {

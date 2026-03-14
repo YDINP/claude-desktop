@@ -22598,6 +22598,18 @@ console.log('\n## 946. R2055 BatchInspector cc.ParticleSystem gravity.x 체크')
   }
 }
 
+// ── Section 947: R2056 BatchInspector cc.SkeletalAnimation speed ──────────
+console.log('\n## 947. R2056 BatchInspector cc.SkeletalAnimation speed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s947 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s947.includes('R2056') && s947.includes('patchSkelSpeed') && s947.includes('applySkelSpeed')) {
+    log('pass', 'R2056-batch-skel-speed', 'BatchInspector cc.SkeletalAnimation speed 일괄 설정')
+  } else {
+    log('warning', 'R2056-batch-skel-speed', 'BatchInspector cc.SkeletalAnimation speed 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
