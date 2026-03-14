@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1130: R2199 BatchInspector cc.Camera enabled ──────────
+console.log('\n## 1130. R2199 BatchInspector cc.Camera enabled (컴포넌트 레벨) 체크')
+const s1130 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1130.includes('R2199') && s1130.includes('applyCameraEnabled') && s1130.includes('CamComp')) {
+  log('pass', 'R2199-batch-camera-enabled', 'BatchInspector cc.Camera enabled 일괄 설정')
+} else {
+  log('warning', 'R2199-batch-camera-enabled', 'BatchInspector cc.Camera enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1131: R2199 BatchInspector cc.ToggleContainer enabled ──────────
+console.log('\n## 1131. R2199 BatchInspector cc.ToggleContainer enabled (컴포넌트 레벨) 체크')
+const s1131 = s1130
+if (s1131.includes('R2199') && s1131.includes('applyTCEnabled') && s1131.includes('TCComp')) {
+  log('pass', 'R2199-batch-togglecontainer-enabled', 'BatchInspector cc.ToggleContainer enabled 일괄 설정')
+} else {
+  log('warning', 'R2199-batch-togglecontainer-enabled', 'BatchInspector cc.ToggleContainer enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1128: R2198 BatchInspector cc.EditBox enabled ──────────
 console.log('\n## 1128. R2198 BatchInspector cc.EditBox enabled (컴포넌트 레벨) 체크')
 const s1128 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

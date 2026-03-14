@@ -6199,6 +6199,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2199: 공통 cc.ToggleContainer enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.ToggleContainer') && (() => {
+        const applyTCEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchTCEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchTCEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ToggleContainer'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchTCEnabled(sceneFile.root) })
+          setBatchMsg(`✓ ToggleContainer enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>TCComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyTCEnabled(v)} title={`ToggleContainer enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2182: 공통 cc.ToggleContainer autoCheckToggle 일괄 설정 */}
       {commonCompTypes.includes('cc.ToggleContainer') && (() => {
         const applyTCAutoCheck = async (autoCheckToggle: boolean) => {
@@ -11021,6 +11047,32 @@ function CCFileBatchInspector({
                 onClick={() => applyAudioEnd(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#facc15', userSelect: 'none' }}
               >{v < 0 ? '∞' : v + 's'}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2199: 공통 cc.Camera enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCameraEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchCameraEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCameraEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCameraEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Camera enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>CamComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyCameraEnabled(v)} title={`Camera enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
