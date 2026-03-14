@@ -21242,6 +21242,18 @@ console.log('\n## 833. R1942 BatchInspector cc.RichText lineHeight 체크')
   }
 }
 
+// ── Section 834: R1943 BatchInspector cc.EditBox fontSize ──────────
+console.log('\n## 834. R1943 BatchInspector cc.EditBox fontSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s834 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s834.includes('R1943') && s834.includes('patchEditBoxFontSize') && s834.includes('applyEditBoxFontSize')) {
+    log('pass', 'R1943-batch-editbox-fontsize', 'BatchInspector cc.EditBox fontSize 일괄 설정')
+  } else {
+    log('warning', 'R1943-batch-editbox-fontsize', 'BatchInspector cc.EditBox fontSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
