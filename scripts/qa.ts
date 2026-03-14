@@ -23342,6 +23342,18 @@ console.log('\n## 1008. R2117 BatchInspector cc.ParticleSystem gravity.y 체크'
   }
 }
 
+// ── Section 1009: R2118 BatchInspector cc.ParticleSystem startRotation ──────────
+console.log('\n## 1009. R2118 BatchInspector cc.ParticleSystem startRotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1009 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1009.includes('R2118') && s1009.includes('patchPSStartRot') && s1009.includes('applyPSStartRot')) {
+    log('pass', 'R2118-batch-ps-startrot', 'BatchInspector cc.ParticleSystem startRotation 일괄 설정')
+  } else {
+    log('warning', 'R2118-batch-ps-startrot', 'BatchInspector cc.ParticleSystem startRotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
