@@ -23078,6 +23078,18 @@ console.log('\n## 986. R2095 BatchInspector cc.PolygonCollider restitution 체�
   }
 }
 
+// ── Section 987: R2096 BatchInspector cc.Widget top ──────────
+console.log('\n## 987. R2096 BatchInspector cc.Widget top 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s987 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s987.includes('R2096') && s987.includes('patchWidgetTop') && s987.includes('applyWidgetTop')) {
+    log('pass', 'R2096-batch-widget-top', 'BatchInspector cc.Widget top 일괄 설정')
+  } else {
+    log('warning', 'R2096-batch-widget-top', 'BatchInspector cc.Widget top 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

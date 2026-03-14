@@ -9225,6 +9225,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2096: 공통 cc.Widget top 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetTop = async (top: number) => {
+          if (!sceneFile.root) return
+          function patchWidgetTop(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetTop)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, top, _top: top, _N$top: top } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetTop(sceneFile.root) })
+          setBatchMsg(`✓ Widget top=${top} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WgtTop</span>
+            {[0, 10, 20, 30, 50, 100].map(v => (
+              <span key={v} title={`top = ${v}`}
+                onClick={() => applyWidgetTop(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2043: 공통 cc.Widget alignMode 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetAlignMode = async (alignMode: number) => {
