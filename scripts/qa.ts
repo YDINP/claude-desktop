@@ -25187,6 +25187,21 @@ if (
   log('warning', 'R2294-batch-btn-cam-layout-sprite-cc3x', 'BatchInspector Button/Camera/Layout/Sprite CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1299: R2295 UITransform contentSize + RigidBody linearVelocity _N$ + Mask type/inverted/alphaThreshold _N$ (CC3.x) ──────────
+console.log('\n## 1299. R2295 UITransform contentSize + RigidBody linearVelocity _N$ + Mask _N$ CC3.x 체크')
+const s1299 = s1298
+if (
+  s1299.includes('contentSize: newSize, _contentSize: newSize') &&
+  s1299.includes('linearVelocity: vel, _linearVelocity: vel, _N$linearVelocity: vel') &&
+  s1299.includes('type, _type: type, _N$type: type') &&
+  s1299.includes('inverted, _inverted: inverted, _N$inverted: inverted') &&
+  s1299.includes('alphaThreshold, _alphaThreshold: alphaThreshold, _N$alphaThreshold: alphaThreshold')
+) {
+  log('pass', 'R2295-uitransform-rb-mask-cc3x', 'cc.UITransform contentSize + cc.RigidBody linearVelocity _N$ + cc.Mask _N$ (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2295-uitransform-rb-mask-cc3x', 'UITransform/RigidBody/Mask CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

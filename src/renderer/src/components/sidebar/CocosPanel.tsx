@@ -3843,7 +3843,7 @@ function CCFileBatchInspector({
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             // CC2.x uses size field; CC3.x uses UITransform component
             const newSize = { width: w, height: h }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize, _contentSize: newSize } } : c)
             return { ...n, size: newSize, components: updComps, children }
           }
           const patchedRoot = patchNodeSize(sceneFile.root)
@@ -3870,7 +3870,7 @@ function CCFileBatchInspector({
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const curH = n.size?.height ?? 100
             const newSize = { width: w, height: curH }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize, _contentSize: newSize } } : c)
             return { ...n, size: newSize, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchNodeWidth(sceneFile.root) })
@@ -3897,7 +3897,7 @@ function CCFileBatchInspector({
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const curW = n.size?.width ?? 100
             const newSize = { width: curW, height: h }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize, _contentSize: newSize } } : c)
             return { ...n, size: newSize, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchNodeHeight(sceneFile.root) })
@@ -13798,7 +13798,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchRBLinearVel)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const vel = { x, y }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel, _N$linearVelocity: vel } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBLinearVel(sceneFile.root)
@@ -14218,7 +14218,7 @@ function CCFileBatchInspector({
           function patchMaskType(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchMaskType)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, _type: type, type } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, type, _type: type, _N$type: type } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchMaskType(sceneFile.root))
@@ -14245,7 +14245,7 @@ function CCFileBatchInspector({
           function patchMask(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchMask)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, _inverted: inverted, inverted } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, inverted, _inverted: inverted, _N$inverted: inverted } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchMask(sceneFile.root))
@@ -14267,7 +14267,7 @@ function CCFileBatchInspector({
           function patchMaskAlpha(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchMaskAlpha)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, _alphaThreshold: alphaThreshold, alphaThreshold } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, alphaThreshold, _alphaThreshold: alphaThreshold, _N$alphaThreshold: alphaThreshold } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchMaskAlpha(sceneFile.root)
