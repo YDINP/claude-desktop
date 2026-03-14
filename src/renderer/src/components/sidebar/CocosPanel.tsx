@@ -4636,6 +4636,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1986: 공통 cc.EditBox returnType 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEditReturnType = async (returnType: number) => {
+          if (!sceneFile.root) return
+          function patchEditReturnType(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEditReturnType)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, returnType, _N$returnType: returnType } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchEditReturnType(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names = ['Dflt', 'Done', 'Send', 'Srch', 'Go', 'Next']
+          setBatchMsg(`✓ EditBox returnType=${names[returnType] ?? returnType} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>EBret</span>
+            {([['Dflt', 0], ['Done', 1], ['Send', 2], ['Go', 4]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applyEditReturnType(v)} title={`returnType=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1884: 공통 cc.Button transition 일괄 설정 */}
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnTransition = async (transition: number) => {

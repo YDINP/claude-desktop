@@ -21758,6 +21758,18 @@ console.log('\n## 876. R1985 BatchInspector cc.Label underline 체크')
   }
 }
 
+// ── Section 877: R1986 BatchInspector cc.EditBox returnType ──────────
+console.log('\n## 877. R1986 BatchInspector cc.EditBox returnType 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s877 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s877.includes('R1986') && s877.includes('patchEditReturnType') && s877.includes('applyEditReturnType')) {
+    log('pass', 'R1986-batch-editbox-returntype', 'BatchInspector cc.EditBox returnType 일괄 설정')
+  } else {
+    log('warning', 'R1986-batch-editbox-returntype', 'BatchInspector cc.EditBox returnType 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
