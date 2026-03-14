@@ -21734,6 +21734,18 @@ console.log('\n## 874. R1983 BatchInspector node active 체크')
   }
 }
 
+// ── Section 875: R1984 BatchInspector cc.Animation wrapMode ──────────
+console.log('\n## 875. R1984 BatchInspector cc.Animation wrapMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s875 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s875.includes('R1984') && s875.includes('patchAnimWrapMode') && s875.includes('applyAnimWrapMode')) {
+    log('pass', 'R1984-batch-anim-wrapmode', 'BatchInspector cc.Animation wrapMode 일괄 설정')
+  } else {
+    log('warning', 'R1984-batch-anim-wrapmode', 'BatchInspector cc.Animation wrapMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

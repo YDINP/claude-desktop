@@ -5353,6 +5353,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1984: 공통 cc.Animation wrapMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.Animation') && (() => {
+        const applyAnimWrapMode = async (wrapMode: number) => {
+          if (!sceneFile.root) return
+          function patchAnimWrapMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAnimWrapMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, defaultClipSettings: { ...(c.props.defaultClipSettings as object ?? {}), wrapMode } } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchAnimWrapMode(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names: Record<number, string> = { 0: 'Default', 1: 'Normal', 2: 'Loop', 3: 'PingPong', 4: 'Reverse', 5: 'LoopRev' }
+          setBatchMsg(`✓ Anim wrapMode=${names[wrapMode] ?? wrapMode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fbbf24', width: 48, flexShrink: 0 }}>AnimWrap</span>
+            {([['Dflt', 0], ['Norm', 1], ['Loop', 2], ['Ping', 3]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applyAnimWrapMode(v)} title={`wrapMode=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#fbbf24', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1842: 공통 cc.VideoPlayer loop/muted 일괄 설정 */}
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoToggle = async (key: 'loop' | 'muted', value: boolean) => {
