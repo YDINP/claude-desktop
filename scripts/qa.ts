@@ -20414,6 +20414,18 @@ console.log('\n## 764. R1873 BatchInspector cc.ParticleSystem duration 체크')
   }
 }
 
+// ── Section 765: R1874 BatchInspector cc.ParticleSystem maxParticles ──────
+console.log('\n## 765. R1874 BatchInspector cc.ParticleSystem maxParticles 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s765 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s765.includes('R1874') && s765.includes('applyParticleMax') && s765.includes('patchParticleMax')) {
+    log('pass', 'R1874-batch-particle-max', 'BatchInspector cc.ParticleSystem maxParticles 일괄 설정')
+  } else {
+    log('warning', 'R1874-batch-particle-max', 'BatchInspector cc.ParticleSystem maxParticles 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
