@@ -11103,6 +11103,34 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R1913: posVar x / y */}
+                  {(() => {
+                    const posVarRaw = p.posVar ?? p._posVar ?? p._N$posVar as Record<string,number> | undefined
+                    const pvx = Number((posVarRaw as Record<string,number>|undefined)?.x ?? 0)
+                    const pvy = Number((posVarRaw as Record<string,number>|undefined)?.y ?? 0)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>posVar x</span>
+                        <input type="number" defaultValue={pvx} key={`pvx-${pvx}`} min={0} step={10}
+                          onBlur={e => {
+                            const v = Math.max(0, parseFloat(e.target.value) || 0)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, posVar: { x: v, y: pvy }, _posVar: { x: v, y: pvy }, _N$posVar: { x: v, y: pvy } } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 14, flexShrink: 0, marginLeft: 4 }}>y</span>
+                        <input type="number" defaultValue={pvy} key={`pvy-${pvy}`} min={0} step={10}
+                          onBlur={e => {
+                            const v = Math.max(0, parseFloat(e.target.value) || 0)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, posVar: { x: pvx, y: v }, _posVar: { x: pvx, y: v }, _N$posVar: { x: pvx, y: v } } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }

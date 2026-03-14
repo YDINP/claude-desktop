@@ -20882,6 +20882,18 @@ console.log('\n## 803. R1912 BatchInspector cc.Camera depth 체크')
   }
 }
 
+// ── Section 804: R1913 cc.ParticleSystem posVar ──────────
+console.log('\n## 804. R1913 cc.ParticleSystem posVar 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s804 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s804.includes('R1913') && s804.includes('posVar') && s804.includes('_N$posVar')) {
+    log('pass', 'R1913-particle-posvar', 'cc.ParticleSystem posVar x/y 편집')
+  } else {
+    log('warning', 'R1913-particle-posvar', 'cc.ParticleSystem posVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
