@@ -20277,7 +20277,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>remoteURL</span>
                     <input type="text" defaultValue={url}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, remoteURL: e.target.value, _N$remoteURL: e.target.value } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, remoteURL: e.target.value, _remoteURL: e.target.value, _N$remoteURL: e.target.value } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -20563,7 +20563,7 @@ function CCFileNodeInspector({
                     <input type="number" defaultValue={slideDuration} key={`sd-${slideDuration}`} min={0} step={0.05}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0.3
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, slideDuration: v, _N$slideDuration: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, slideDuration: v, _slideDuration: v, _N$slideDuration: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -20599,14 +20599,14 @@ function CCFileNodeInspector({
                         <input type="number" defaultValue={interval} key={`apt-${interval}`} min={0} step={0.5}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0)
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoPageTurningInterval: v, _N$autoPageTurningInterval: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoPageTurningInterval: v, _autoPageTurningInterval: v, _N$autoPageTurningInterval: v } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                         />
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>s (0=off)</span>
                         {([0, 1, 2, 3, 5] as const).map(v => (
-                          <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoPageTurningInterval: v, _N$autoPageTurningInterval: v } } : c); applyAndSave({ components: u }) }}
+                          <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoPageTurningInterval: v, _autoPageTurningInterval: v, _N$autoPageTurningInterval: v } } : c); applyAndSave({ components: u }) }}
                             style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${interval === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: interval === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
                           >{v === 0 ? 'off' : v}</span>
                         ))}
