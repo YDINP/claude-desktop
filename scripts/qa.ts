@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1144: R2206 BatchInspector cc.Sprite blendMode ──────────
+console.log('\n## 1144. R2206 BatchInspector cc.Sprite blendMode(srcBlendFactor/dstBlendFactor) 체크')
+const s1144 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1144.includes('R2206') && s1144.includes('applySpBlend') && s1144.includes('SpBlend')) {
+  log('pass', 'R2206-batch-sprite-blend', 'BatchInspector cc.Sprite blendMode 일괄 설정')
+} else {
+  log('warning', 'R2206-batch-sprite-blend', 'BatchInspector cc.Sprite blendMode 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1145: R2206 BatchInspector cc.PageView autoPlay ──────────
+console.log('\n## 1145. R2206 BatchInspector cc.PageView autoPlay 체크')
+const s1145 = s1144
+if (s1145.includes('R2206') && s1145.includes('applyPVAutoPlay') && s1145.includes('PVauto')) {
+  log('pass', 'R2206-batch-pageview-autoplay', 'BatchInspector cc.PageView autoPlay 일괄 설정')
+} else {
+  log('warning', 'R2206-batch-pageview-autoplay', 'BatchInspector cc.PageView autoPlay 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1142: R2205 BatchInspector cc.Label enableOutline ──────────
 console.log('\n## 1142. R2205 BatchInspector cc.Label enableOutline (CC3.x) 체크')
 const s1142 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

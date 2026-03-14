@@ -7949,6 +7949,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2206: 공통 cc.PageView autoPlay 일괄 설정 */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPVAutoPlay = async (autoPlay: boolean) => {
+          if (!sceneFile.root) return
+          function patchPVAutoPlay(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPVAutoPlay)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView'
+              ? { ...c, props: { ...c.props, autoPlay, _autoPlay: autoPlay } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPVAutoPlay(sceneFile.root) })
+          setBatchMsg(`✓ PageView autoPlay=${autoPlay} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PVauto</span>
+            {([['auto✓', true], ['auto✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyPVAutoPlay(v)} title={`autoPlay=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1966: 공통 cc.PageView autoPageTurningInterval 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVAutoInterval = async (interval: number) => {
@@ -13894,6 +13920,32 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>trim✓</span>
             <span onClick={() => applySpriteTrim(false)} title="trim OFF"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>trim✗</span>
+          </div>
+        )
+      })()}
+      {/* R2206: 공통 cc.Sprite blendMode(srcBlendFactor/dstBlendFactor) 일괄 설정 */}
+      {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
+        const applySpBlend = async (src: number, dst: number, label: string) => {
+          if (!sceneFile.root) return
+          function patchSpBlend(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpBlend)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
+              ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpBlend(sceneFile.root) })
+          setBatchMsg(`✓ Sprite blend=${label} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SpBlend</span>
+            {([['Norm', 770, 771], ['Add', 1, 1], ['Mul', 774, 771], ['Scr', 1, 771]] as [string, number, number][]).map(([l, s, d]) => (
+              <span key={l} onClick={() => applySpBlend(s, d, l)} title={`src=${s},dst=${d}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{l}</span>
+            ))}
           </div>
         )
       })()}
