@@ -3834,6 +3834,34 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1996: 노드 color(tint) 일괄 설정 */}
+      {(() => {
+        const applyNodeTint = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          function patchNodeTint(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeTint)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, color: { r, g, b, a: n.color?.a ?? 255 }, children }
+          }
+          const patchedRoot = patchNodeTint(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ node tint=${hex} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Tint</span>
+            <input type="color" defaultValue="#ffffff"
+              style={{ width: 20, height: 16, padding: 0, border: 'none', cursor: 'pointer', borderRadius: 2, background: 'none' }}
+              onChange={e => applyNodeTint(e.target.value)} />
+            {['#ffffff','#ff0000','#00ff00','#0000ff','#ffff00'].map(c => (
+              <span key={c} onClick={() => applyNodeTint(c)} title={c}
+                style={{ width: 12, height: 12, borderRadius: 2, background: c, cursor: 'pointer', border: '1px solid var(--border)', flexShrink: 0 }} />
+            ))}
+          </div>
+        )
+      })()}
       {/* R1993: 노드 layer 일괄 설정 (CC3.x) */}
       {(() => {
         const applyNodeLayer = async (layer: number) => {
