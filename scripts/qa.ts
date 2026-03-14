@@ -23835,6 +23835,32 @@ console.log('\n## 1049. R2158 BatchInspector cc.ParticleSystem2D/PolygonCollider
   }
 }
 
+// ── Section 1050: R2159 BatchInspector cc.BoxCollider2D 확장 ──────────
+console.log('\n## 1050. R2159 BatchInspector cc.BoxCollider2D 확장 체크')
+const s1050 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (
+  s1050.includes('cc.BoxCollider2D') &&
+  s1050.includes("c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'") &&
+  s1050.includes("commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')")
+) {
+  log('pass', 'R2159-batch-boxcollider2d', 'BatchInspector cc.BoxCollider2D 확장 (sensor/density/friction/restitution)')
+} else {
+  log('warning', 'R2159-batch-boxcollider2d', 'BatchInspector cc.BoxCollider2D 확장 미적용', 'CocosPanel.tsx')
+}
+
+// ── Section 1051: R2159 BatchInspector cc.CircleCollider2D 확장 ──────────
+console.log('\n## 1051. R2159 BatchInspector cc.CircleCollider2D 확장 체크')
+const s1051 = s1050
+if (
+  s1051.includes('cc.CircleCollider2D') &&
+  s1051.includes("c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'") &&
+  s1051.includes("commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')")
+) {
+  log('pass', 'R2159-batch-circlecollider2d', 'BatchInspector cc.CircleCollider2D 확장 (sensor/density/friction/restitution)')
+} else {
+  log('warning', 'R2159-batch-circlecollider2d', 'BatchInspector cc.CircleCollider2D 확장 미적용', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

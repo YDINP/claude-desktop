@@ -4036,13 +4036,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2092: 공통 cc.CircleCollider restitution 일괄 설정 */}
-      {commonCompTypes.includes('cc.CircleCollider') && (() => {
+      {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleRestitution = async (restitution: number) => {
           if (!sceneFile.root) return
           function patchCircleRestitution(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleRestitution)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, restitution } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, restitution } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleRestitution(sceneFile.root) })
@@ -4061,13 +4061,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2090: 공통 cc.CircleCollider friction 일괄 설정 */}
-      {commonCompTypes.includes('cc.CircleCollider') && (() => {
+      {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleFriction = async (friction: number) => {
           if (!sceneFile.root) return
           function patchCircleFriction(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleFriction)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, friction } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, friction } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleFriction(sceneFile.root) })
@@ -4086,13 +4086,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2088: 공통 cc.CircleCollider density 일괄 설정 */}
-      {commonCompTypes.includes('cc.CircleCollider') && (() => {
+      {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleDensity = async (density: number) => {
           if (!sceneFile.root) return
           function patchCircleDensity(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleDensity)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, density } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, density } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleDensity(sceneFile.root) })
@@ -4111,13 +4111,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2083: 공통 cc.CircleCollider sensor 일괄 설정 */}
-      {commonCompTypes.includes('cc.CircleCollider') && (() => {
+      {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleSensor = async (sensor: boolean) => {
           if (!sceneFile.root) return
           function patchCircleSensor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleSensor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, sensor } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, sensor } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleSensor(sceneFile.root) })
@@ -4136,13 +4136,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2091: 공통 cc.BoxCollider restitution 일괄 설정 */}
-      {commonCompTypes.includes('cc.BoxCollider') && (() => {
+      {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const applyBoxRestitution = async (restitution: number) => {
           if (!sceneFile.root) return
           function patchBoxRestitution(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBoxRestitution)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, restitution } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, restitution } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxRestitution(sceneFile.root) })
@@ -4161,13 +4161,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2089: 공통 cc.BoxCollider friction 일괄 설정 */}
-      {commonCompTypes.includes('cc.BoxCollider') && (() => {
+      {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const applyBoxFriction = async (friction: number) => {
           if (!sceneFile.root) return
           function patchBoxFriction(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBoxFriction)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, friction } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, friction } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxFriction(sceneFile.root) })
@@ -4186,13 +4186,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2087: 공통 cc.BoxCollider density 일괄 설정 */}
-      {commonCompTypes.includes('cc.BoxCollider') && (() => {
+      {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const applyBoxDensity = async (density: number) => {
           if (!sceneFile.root) return
           function patchBoxDensity(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBoxDensity)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, density } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, density } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxDensity(sceneFile.root) })
@@ -4211,13 +4211,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2082: 공통 cc.BoxCollider sensor 일괄 설정 */}
-      {commonCompTypes.includes('cc.BoxCollider') && (() => {
+      {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const applyBoxSensor = async (sensor: boolean) => {
           if (!sceneFile.root) return
           function patchBoxSensor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBoxSensor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, sensor } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, sensor } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxSensor(sceneFile.root) })
