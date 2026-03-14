@@ -7695,7 +7695,7 @@ function CCFileBatchInspector({
               function patchVol(n: CCSceneNode): CCSceneNode {
                 const children = n.children.map(patchVol)
                 if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, volume: vol } } : c)
+                const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, volume: vol, _volume: vol, _N$volume: vol } } : c)
                 return { ...n, components: updComps, children }
               }
               await saveScene(patchVol(sceneFile.root))
@@ -8773,7 +8773,7 @@ function CCFileBatchInspector({
                 function patchAudio(n: CCSceneNode): CCSceneNode {
                   const children = n.children.map(patchAudio)
                   if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, [key]: val } } : c)
+                  const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } } : c)
                   return { ...n, components: updComps, children }
                 }
                 await saveScene(patchAudio(sceneFile.root))
