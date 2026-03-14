@@ -362,6 +362,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [showValidationResults, setShowValidationResults] = useState(false)
   // R1441: 최적화 제안 상태
   const [optimizationSuggestions, setOptimizationSuggestions] = useState<OptimizationSuggestion[]>([])
+  // R1684: 씬 통계 패널
+  const [showSceneStats, setShowSceneStats] = useState(false)
   const [mainTab, setMainTab] = useState<'scene' | 'assets' | 'groups' | 'build'>('scene')
   const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
@@ -2243,6 +2245,41 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.message}>{s.message}</span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* R1684: 씬 컴포넌트 통계 */}
+        {sceneFile?.root && (
+          <div style={{ marginTop: 4 }}>
+            <button
+              onClick={() => setShowSceneStats(v => !v)}
+              style={{ width: '100%', padding: '3px 0', fontSize: 10, borderRadius: 3, cursor: 'pointer', background: showSceneStats ? 'rgba(88,166,255,0.1)' : 'none', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+            >📊 씬 통계</button>
+            {showSceneStats && (() => {
+              const counts: Record<string, number> = {}
+              let total = 0, active = 0
+              function walkStats(n: CCSceneNode) {
+                total++; if (n.active !== false) active++
+                n.components.forEach(c => { counts[c.type] = (counts[c.type] ?? 0) + 1 })
+                n.children.forEach(walkStats)
+              }
+              walkStats(sceneFile.root)
+              const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15)
+              return (
+                <div style={{ marginTop: 4, padding: '6px 8px', borderRadius: 4, border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)', fontSize: 9 }}>
+                  <div style={{ color: 'var(--text-muted)', marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
+                    <span>노드: <span style={{ color: '#c9d1d9' }}>{total}</span> (활성 {active})</span>
+                    <span style={{ cursor: 'pointer', color: '#555' }} onClick={() => setShowSceneStats(false)}>✕</span>
+                  </div>
+                  {sorted.map(([type, count]) => (
+                    <div key={type} style={{ display: 'flex', justifyContent: 'space-between', gap: 4, marginBottom: 2 }}>
+                      <span style={{ color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={type}>{type.includes('.') ? type.split('.').pop() : type}</span>
+                      <span style={{ color: '#58a6ff', flexShrink: 0 }}>{count}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
         )}
 

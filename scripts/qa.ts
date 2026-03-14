@@ -18131,6 +18131,18 @@ console.log('\n## 574. R1683 SceneView 드래그 ghost 체크')
   }
 }
 
+// ── Section 575: R1684 씬 컴포넌트 통계 패널 ──────────────────────────────
+console.log('\n## 575. R1684 씬 컴포넌트 통계 패널 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s575 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s575.includes('R1684') && s575.includes('showSceneStats') && s575.includes('씬 통계') && s575.includes('walkStats')) {
+    log('pass', 'R1684-scene-stats', '씬 컴포넌트 통계 패널')
+  } else {
+    log('warning', 'R1684-scene-stats', '씬 컴포넌트 통계 패널 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
