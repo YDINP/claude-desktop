@@ -21386,6 +21386,18 @@ console.log('\n## 845. R1954 BatchInspector cc.Sprite grayscale 체크')
   }
 }
 
+// ── Section 846: R1955 BatchInspector cc.Label color ──────────
+console.log('\n## 846. R1955 BatchInspector cc.Label color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s846 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s846.includes('R1955') && s846.includes('patchLabelColor') && s846.includes('applyLabelColor')) {
+    log('pass', 'R1955-batch-label-color', 'BatchInspector cc.Label color 일괄 설정')
+  } else {
+    log('warning', 'R1955-batch-label-color', 'BatchInspector cc.Label color 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
