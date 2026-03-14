@@ -5962,6 +5962,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2194: 공통 cc.Graphics enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Graphics') && (() => {
+        const applyGraphicsEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchGraphicsEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchGraphicsEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Graphics'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchGraphicsEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Graphics enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>GfxComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyGraphicsEnabled(v)} title={`Graphics enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2179: 공통 cc.Graphics fillOpacity + strokeOpacity 일괄 설정 */}
       {commonCompTypes.includes('cc.Graphics') && (() => {
         const applyGfxFillOpacity = async (fillOpacity: number) => {
@@ -8650,6 +8676,32 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>tint✓</span>
             <span onClick={() => applySpineUseTint(false)} title="useTint OFF"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>tint✗</span>
+          </div>
+        )
+      })()}
+      {/* R2194: 공통 cc.ParticleSystem enabled (컴포넌트 레벨) 일괄 설정 */}
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
+        const applyParticleEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchParticleEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchParticleEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D')
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchParticleEnabled(sceneFile.root) })
+          setBatchMsg(`✓ ParticleSystem enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#aee', width: 48, flexShrink: 0 }}>PSComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyParticleEnabled(v)} title={`ParticleSystem enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#aee', userSelect: 'none' }}>{l}</span>
+            ))}
           </div>
         )
       })()}

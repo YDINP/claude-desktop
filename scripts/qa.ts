@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1120: R2194 BatchInspector cc.ParticleSystem enabled ──────────
+console.log('\n## 1120. R2194 BatchInspector cc.ParticleSystem enabled (컴포넌트 레벨) 체크')
+const s1120 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1120.includes('R2194') && s1120.includes('applyParticleEnabled') && s1120.includes('PSComp')) {
+  log('pass', 'R2194-batch-particle-enabled', 'BatchInspector cc.ParticleSystem enabled 일괄 설정')
+} else {
+  log('warning', 'R2194-batch-particle-enabled', 'BatchInspector cc.ParticleSystem enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1121: R2194 BatchInspector cc.Graphics enabled ──────────
+console.log('\n## 1121. R2194 BatchInspector cc.Graphics enabled (컴포넌트 레벨) 체크')
+const s1121 = s1120
+if (s1121.includes('R2194') && s1121.includes('applyGraphicsEnabled') && s1121.includes('GfxComp')) {
+  log('pass', 'R2194-batch-graphics-enabled', 'BatchInspector cc.Graphics enabled 일괄 설정')
+} else {
+  log('warning', 'R2194-batch-graphics-enabled', 'BatchInspector cc.Graphics enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1118: R2193 BatchInspector cc.ScrollView enabled ──────────
 console.log('\n## 1118. R2193 BatchInspector cc.ScrollView enabled (컴포넌트 레벨) 체크')
 const s1118 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
