@@ -23810,6 +23810,18 @@ console.log('\n## 1047. R2156 BatchInspector cc.PolygonCollider offset 체크')
   }
 }
 
+// ── Section 1048: R2157 BatchInspector cc.RigidBody2D 확장 ──────────
+console.log('\n## 1048. R2157 BatchInspector cc.RigidBody2D 확장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1048 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1048.includes("commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')")) {
+    log('pass', 'R2157-batch-rigidbody2d', 'BatchInspector cc.RigidBody2D 확장 (기존 배치에 포함)')
+  } else {
+    log('warning', 'R2157-batch-rigidbody2d', 'BatchInspector cc.RigidBody2D 확장 미적용', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

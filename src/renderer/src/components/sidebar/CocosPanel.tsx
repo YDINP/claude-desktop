@@ -10700,13 +10700,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1881: 공통 cc.RigidBody type 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBType = async (type: number) => {
           if (!sceneFile.root) return
           function patchRBType(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBType)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, type } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, type } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBType(sceneFile.root))
@@ -10727,13 +10727,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1871: 공통 cc.RigidBody mass 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBMass = async (mass: number) => {
           if (!sceneFile.root) return
           function patchRBMass(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBMass)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, mass } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, mass } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBMass(sceneFile.root))
@@ -10753,13 +10753,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1857: 공통 cc.RigidBody gravityScale 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBGravScale = async (gs: number) => {
           if (!sceneFile.root) return
           function patchRBGS(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBGS)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, gravityScale: gs } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, gravityScale: gs } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBGS(sceneFile.root))
@@ -10779,13 +10779,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1851: 공통 cc.RigidBody fixedRotation 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBFixRot = async (fixedRotation: boolean) => {
           if (!sceneFile.root) return
           function patchRBFixRot(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBFixRot)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, fixedRotation } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, fixedRotation } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBFixRot(sceneFile.root))
@@ -10801,13 +10801,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1824: 공통 cc.RigidBody linearDamping 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBDamp = async (linearDamping: number) => {
           if (!sceneFile.root || isNaN(linearDamping)) return
           function patchRBDamp(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBDamp)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, linearDamping } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearDamping } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBDamp(sceneFile.root))
@@ -10833,13 +10833,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1898: 공통 cc.RigidBody angularDamping 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyAngularDamp = async (angularDamping: number) => {
           if (!sceneFile.root) return
           function patchAngularDamp(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchAngularDamp)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, angularDamping } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularDamping } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchAngularDamp(sceneFile.root) })
@@ -10857,13 +10857,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1917: 공통 cc.RigidBody bullet 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBBullet = async (bullet: boolean) => {
           if (!sceneFile.root) return
           function patchRBBullet(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBBullet)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, bullet } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, bullet } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBBullet(sceneFile.root) })
@@ -10883,13 +10883,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1922: 공통 cc.RigidBody allowSleep 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBSleep = async (allowSleep: boolean) => {
           if (!sceneFile.root) return
           function patchRBSleep(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBSleep)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, allowSleep } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, allowSleep } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBSleep(sceneFile.root) })
@@ -10909,14 +10909,14 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1939: 공통 cc.RigidBody linearVelocity 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBLinearVel = async (x: number, y: number) => {
           if (!sceneFile.root) return
           function patchRBLinearVel(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBLinearVel)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const vel = { x, y }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBLinearVel(sceneFile.root)
@@ -10939,13 +10939,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1953: 공통 cc.RigidBody angularVelocity 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBAngVel = async (angularVelocity: number) => {
           if (!sceneFile.root) return
           function patchRBAngVel(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBAngVel)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, angularVelocity, _angularVelocity: angularVelocity } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularVelocity, _angularVelocity: angularVelocity } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBAngVel(sceneFile.root)
@@ -10966,13 +10966,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1968: 공통 cc.RigidBody fixedRotation 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBFixedRot = async (fixedRotation: boolean) => {
           if (!sceneFile.root) return
           function patchRBFixedRot(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBFixedRot)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBFixedRot(sceneFile.root)
@@ -10991,13 +10991,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2070: 공통 cc.RigidBody angularDamping 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBAngDamp = async (angularDamping: number) => {
           if (!sceneFile.root) return
           function patchRBAngDamp(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBAngDamp)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, angularDamping } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularDamping } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBAngDamp(sceneFile.root) })
@@ -11016,13 +11016,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2069: 공통 cc.RigidBody linearDamping 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBLinearDamp = async (linearDamping: number) => {
           if (!sceneFile.root) return
           function patchRBLinearDamp(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBLinearDamp)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, linearDamping } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearDamping } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBLinearDamp(sceneFile.root) })
@@ -11041,13 +11041,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2009: 공통 cc.RigidBody enabledContactListener 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBContactListener = async (enabledContactListener: boolean) => {
           if (!sceneFile.root) return
           function patchRBContactListener(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBContactListener)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, enabledContactListener } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, enabledContactListener } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBContactListener(sceneFile.root)
@@ -11066,13 +11066,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1975: 공통 cc.RigidBody awake 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBAwake = async (awake: boolean) => {
           if (!sceneFile.root) return
           function patchRBAwake(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBAwake)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, awake } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, awake } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBAwake(sceneFile.root)
@@ -11091,13 +11091,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1997: 공통 cc.RigidBody sleepThreshold 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBSleepThresh = async (sleepThreshold: number) => {
           if (!sceneFile.root) return
           function patchRBSleepThresh(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBSleepThresh)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, sleepThreshold } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, sleepThreshold } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBSleepThresh(sceneFile.root)
@@ -11116,13 +11116,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2129: 공통 cc.RigidBody angularVelocityLimit 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBAngVelLim = async (angularVelocityLimit: number) => {
           if (!sceneFile.root) return
           function patchRBAngVelLim(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBAngVelLim)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, angularVelocityLimit, _angularVelocityLimit: angularVelocityLimit } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularVelocityLimit, _angularVelocityLimit: angularVelocityLimit } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBAngVelLim(sceneFile.root) })
@@ -11139,13 +11139,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2128: 공통 cc.RigidBody linearVelocityLimit 일괄 설정 */}
-      {commonCompTypes.includes('cc.RigidBody') && (() => {
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBLinVelLim = async (linearVelocityLimit: number) => {
           if (!sceneFile.root) return
           function patchRBLinVelLim(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBLinVelLim)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, linearVelocityLimit, _linearVelocityLimit: linearVelocityLimit } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearVelocityLimit, _linearVelocityLimit: linearVelocityLimit } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBLinVelLim(sceneFile.root) })
