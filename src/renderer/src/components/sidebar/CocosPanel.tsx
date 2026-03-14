@@ -5669,9 +5669,26 @@ function CCFileNodeInspector({
             if (comp.type === 'cc.Sprite' || comp.type === 'cc.Sprite2D') {
               const SPRITE_TYPE = ['Simple', 'Sliced', 'Tiled', 'Filled']
               const SIZE_MODE = ['Custom', 'Trimmed', 'Raw']
+              // R1696: spriteFrame uuid 추출
+              const sfRaw = p._spriteFrame ?? p.spriteFrame
+              const sfUuid = (sfRaw as Record<string,unknown> | null)?.__uuid__ as string | undefined
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {/* R1696: spriteFrame uuid 표시 + 복사 버튼 */}
+                  {sfUuid && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>sf uuid</span>
+                      <span style={{ fontSize: 8, color: '#4ade80', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={sfUuid}>{sfUuid}</span>
+                      <span
+                        title="spriteFrame UUID 복사"
+                        onClick={() => navigator.clipboard.writeText(sfUuid).catch(() => {})}
+                        style={{ fontSize: 9, cursor: 'pointer', color: '#666', flexShrink: 0, padding: '0 2px' }}
+                        onMouseEnter={e => (e.currentTarget.style.color = '#4ade80')}
+                        onMouseLeave={e => (e.currentTarget.style.color = '#666')}
+                      >⎘</span>
+                    </div>
+                  )}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>type</label>

@@ -18275,6 +18275,18 @@ console.log('\n## 586. R1695 SceneView 드래그 경계 스냅 체크')
   }
 }
 
+// ── Section 587: R1696 cc.Sprite spriteFrame uuid 복사 ──────────────────────
+console.log('\n## 587. R1696 cc.Sprite spriteFrame uuid 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s587 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s587.includes('R1696') && s587.includes('spriteFrame') && s587.includes('sfUuid')) {
+    log('pass', 'R1696-sprite-uuid-copy', 'cc.Sprite spriteFrame uuid 복사')
+  } else {
+    log('warning', 'R1696-sprite-uuid-copy', 'cc.Sprite spriteFrame uuid 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:25:12.779Z
+> 2026-03-14T01:26:14.834Z
 
 ## Critical
 _없음_
@@ -1625,3 +1625,4 @@ _없음_
 - SceneView 좌표 핀 마커
 - 씬 트리 검색 히스토리
 - SceneView 드래그 노드 경계 스냅
+- cc.Sprite spriteFrame uuid 복사
