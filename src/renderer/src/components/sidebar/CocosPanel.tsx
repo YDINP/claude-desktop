@@ -3877,6 +3877,39 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1802: 공통 cc.Label bold/italic 일괄 토글 */}
+      {commonCompTypes.includes('cc.Label') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label 스타일</span>
+          {([
+            { label: 'B', key: 'isBold', title: 'Bold 일괄 설정' },
+            { label: 'I', key: 'isItalic', title: 'Italic 일괄 설정' },
+            { label: 'U', key: 'isUnderline', title: 'Underline 일괄 설정' },
+          ] as const).map(({ label, key, title }) => (
+            <React.Fragment key={key}>
+              {(['on', 'off'] as const).map(v => (
+                <span key={v}
+                  title={`${title} → ${v}`}
+                  onClick={async () => {
+                    if (!sceneFile.root) return
+                    const val = v === 'on'
+                    function patchStyle(n: CCSceneNode): CCSceneNode {
+                      const children = n.children.map(patchStyle)
+                      if (!uuidSet.has(n.uuid)) return { ...n, children }
+                      const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } } : c)
+                      return { ...n, components: updComps, children }
+                    }
+                    await saveScene(patchStyle(sceneFile.root))
+                    setBatchMsg(`✓ ${key} ${v} (${uuids.length}개)`)
+                    setTimeout(() => setBatchMsg(null), 2000)
+                  }}
+                  style={{ fontSize: v === 'on' ? 9 : 7, fontWeight: label === 'B' ? 700 : 400, fontStyle: label === 'I' ? 'italic' : 'normal', textDecoration: label === 'U' ? 'underline' : 'none', cursor: 'pointer', padding: '1px 3px', borderRadius: 2, border: `1px solid ${v === 'on' ? 'rgba(88,166,255,0.4)' : 'var(--border)'}`, color: v === 'on' ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                >{label}{v === 'on' ? '✓' : '✕'}</span>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
       {/* R1800: 공통 cc.Label vAlign 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

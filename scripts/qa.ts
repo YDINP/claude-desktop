@@ -19547,6 +19547,18 @@ console.log('\n## 692. R1801 BatchInspector cc.Sprite type 체크')
   }
 }
 
+// ── Section 693: R1802 BatchInspector cc.Label bold/italic/underline ─────────
+console.log('\n## 693. R1802 BatchInspector cc.Label bold/italic/underline 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s693 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s693.includes('R1802') && s693.includes('patchStyle') && s693.includes('isUnderline')) {
+    log('pass', 'R1802-batch-label-style', 'BatchInspector cc.Label bold/italic/underline 일괄 설정')
+  } else {
+    log('warning', 'R1802-batch-label-style', 'BatchInspector cc.Label bold/italic/underline 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
