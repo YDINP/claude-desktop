@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:51:45.261Z
+> 2026-03-14T05:53:05.890Z
 
 ## Critical
 _없음_
@@ -1827,3 +1827,4 @@ _없음_
 - BatchInspector cc.UIOpacity opacity 일괄 설정
 - BatchInspector cc.ParticleSystem angle 일괄 설정
 - BatchInspector cc.Button zoomScale 일괄 설정
+- BatchInspector cc.RigidBody angularDamping 일괄 설정

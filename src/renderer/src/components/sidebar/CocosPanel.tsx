@@ -5193,6 +5193,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1898: 공통 cc.RigidBody angularDamping 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyAngularDamp = async (angularDamping: number) => {
+          if (!sceneFile.root) return
+          function patchAngularDamp(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAngularDamp)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, angularDamping } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchAngularDamp(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>RB angD</span>
+            {([0, 0.1, 0.5, 1, 5] as const).map(v => (
+              <span key={v} title={`angularDamping = ${v}`}
+                onClick={() => applyAngularDamp(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1863: 공통 cc.Mask type 일괄 설정 */}
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskType = async (type: number) => {

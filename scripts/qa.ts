@@ -20702,6 +20702,18 @@ console.log('\n## 788. R1897 BatchInspector cc.Button zoomScale 체크')
   }
 }
 
+// ── Section 789: R1898 BatchInspector cc.RigidBody angularDamping ──────────
+console.log('\n## 789. R1898 BatchInspector cc.RigidBody angularDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s789 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s789.includes('R1898') && s789.includes('applyAngularDamp') && s789.includes('patchAngularDamp')) {
+    log('pass', 'R1898-batch-rb-angulardamping', 'BatchInspector cc.RigidBody angularDamping 일괄 설정')
+  } else {
+    log('warning', 'R1898-batch-rb-angulardamping', 'BatchInspector cc.RigidBody angularDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
