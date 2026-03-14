@@ -22490,6 +22490,18 @@ console.log('\n## 937. R2046 BatchInspector cc.VideoPlayer resourceType 체크')
   }
 }
 
+// ── Section 938: R2047 BatchInspector cc.ParticleSystem startSpinVar ──────────
+console.log('\n## 938. R2047 BatchInspector cc.ParticleSystem startSpinVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s938 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s938.includes('R2047') && s938.includes('patchPSStartSpinVar') && s938.includes('applyPSStartSpinVar')) {
+    log('pass', 'R2047-batch-ps-startspinvar', 'BatchInspector cc.ParticleSystem startSpinVar 일괄 설정')
+  } else {
+    log('warning', 'R2047-batch-ps-startspinvar', 'BatchInspector cc.ParticleSystem startSpinVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
