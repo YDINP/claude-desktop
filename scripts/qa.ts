@@ -21134,6 +21134,18 @@ console.log('\n## 824. R1933 BatchInspector cc.Sprite fillStart 체크')
   }
 }
 
+// ── Section 825: R1934 BatchInspector cc.Layout affectedByScale ──────────
+console.log('\n## 825. R1934 BatchInspector cc.Layout affectedByScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s825 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s825.includes('R1934') && s825.includes('patchLayoutScale') && s825.includes('applyLayoutScale')) {
+    log('pass', 'R1934-batch-layout-affectedbyscale', 'BatchInspector cc.Layout affectedByScale 일괄 설정')
+  } else {
+    log('warning', 'R1934-batch-layout-affectedbyscale', 'BatchInspector cc.Layout affectedByScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -5540,6 +5540,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1934: 공통 cc.Layout affectedByScale 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutScale = async (affectedByScale: boolean) => {
+          if (!sceneFile.root) return
+          function patchLayoutScale(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutScale)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, affectedByScale, _affectedByScale: affectedByScale } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLayoutScale(sceneFile.root) })
+          setBatchMsg(`✓ Layout affectedByScale=${affectedByScale} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Lscale</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`affectedByScale = ${v}`}
+                onClick={() => applyLayoutScale(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{v ? 'sc✓' : 'sc✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1822: 공통 cc.Widget alignment 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
