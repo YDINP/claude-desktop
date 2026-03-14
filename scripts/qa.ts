@@ -21638,6 +21638,18 @@ console.log('\n## 866. R1975 BatchInspector cc.RigidBody awake 체크')
   }
 }
 
+// ── Section 867: R1976 BatchInspector cc.ParticleSystem positionType ──────────
+console.log('\n## 867. R1976 BatchInspector cc.ParticleSystem positionType 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s867 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s867.includes('R1976') && s867.includes('patchPSPosType') && s867.includes('applyPSPosType')) {
+    log('pass', 'R1976-batch-ps-postype', 'BatchInspector cc.ParticleSystem positionType 일괄 설정')
+  } else {
+    log('warning', 'R1976-batch-ps-postype', 'BatchInspector cc.ParticleSystem positionType 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
