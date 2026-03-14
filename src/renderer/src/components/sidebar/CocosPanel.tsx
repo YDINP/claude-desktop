@@ -3965,6 +3965,54 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2204: 노드 posX 독립 일괄 설정 (Y 유지) */}
+      {(() => {
+        const applyNodePosX = async (x: number) => {
+          if (!sceneFile.root) return
+          function patchNodePosX(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodePosX)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, position: { ...(n.position || { x: 0, y: 0, z: 0 }), x }, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodePosX(sceneFile.root) })
+          setBatchMsg(`✓ posX=${x} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodX</span>
+            {[-200, -100, -50, 0, 50, 100, 200].map(v => (
+              <span key={v} onClick={() => applyNodePosX(v)} title={`posX=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2204: 노드 posY 독립 일괄 설정 (X 유지) */}
+      {(() => {
+        const applyNodePosY = async (y: number) => {
+          if (!sceneFile.root) return
+          function patchNodePosY(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodePosY)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, position: { ...(n.position || { x: 0, y: 0, z: 0 }), y }, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodePosY(sceneFile.root) })
+          setBatchMsg(`✓ posY=${y} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodY</span>
+            {[-200, -100, -50, 0, 50, 100, 200].map(v => (
+              <span key={v} onClick={() => applyNodePosY(v)} title={`posY=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2095: 공통 cc.PolygonCollider restitution 일괄 설정 */}
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyRest = async (restitution: number) => {

@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1140: R2204 BatchInspector node posX 독립 ──────────
+console.log('\n## 1140. R2204 BatchInspector 노드 posX 독립 조절 체크')
+const s1140 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1140.includes('R2204') && s1140.includes('applyNodePosX') && s1140.includes('NodX')) {
+  log('pass', 'R2204-batch-node-posX', '노드 posX 독립 일괄 설정')
+} else {
+  log('warning', 'R2204-batch-node-posX', '노드 posX 독립 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1141: R2204 BatchInspector node posY 독립 ──────────
+console.log('\n## 1141. R2204 BatchInspector 노드 posY 독립 조절 체크')
+const s1141 = s1140
+if (s1141.includes('R2204') && s1141.includes('applyNodePosY') && s1141.includes('NodY')) {
+  log('pass', 'R2204-batch-node-posY', '노드 posY 독립 일괄 설정')
+} else {
+  log('warning', 'R2204-batch-node-posY', '노드 posY 독립 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1138: R2203 BatchInspector node width 독립 ──────────
 console.log('\n## 1138. R2203 BatchInspector 노드 width 독립 조절 체크')
 const s1138 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
