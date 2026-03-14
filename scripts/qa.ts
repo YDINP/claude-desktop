@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1132: R2200 BatchInspector cc.PageView enabled ──────────
+console.log('\n## 1132. R2200 BatchInspector cc.PageView enabled (컴포넌트 레벨) 체크')
+const s1132 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1132.includes('R2200') && s1132.includes('applyPVEnabled') && s1132.includes('PVComp')) {
+  log('pass', 'R2200-batch-pageview-enabled', 'BatchInspector cc.PageView enabled 일괄 설정')
+} else {
+  log('warning', 'R2200-batch-pageview-enabled', 'BatchInspector cc.PageView enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1133: R2200 BatchInspector cc.MotionStreak enabled ──────────
+console.log('\n## 1133. R2200 BatchInspector cc.MotionStreak enabled (컴포넌트 레벨) 체크')
+const s1133 = s1132
+if (s1133.includes('R2200') && s1133.includes('applyMotionEnabled') && s1133.includes('MSComp')) {
+  log('pass', 'R2200-batch-motionstreak-enabled', 'BatchInspector cc.MotionStreak enabled 일괄 설정')
+} else {
+  log('warning', 'R2200-batch-motionstreak-enabled', 'BatchInspector cc.MotionStreak enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1130: R2199 BatchInspector cc.Camera enabled ──────────
 console.log('\n## 1130. R2199 BatchInspector cc.Camera enabled (컴포넌트 레벨) 체크')
 const s1130 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

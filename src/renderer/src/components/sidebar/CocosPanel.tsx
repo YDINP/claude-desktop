@@ -7594,6 +7594,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2200: 공통 cc.PageView enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPVEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchPVEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPVEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPVEnabled(sceneFile.root) })
+          setBatchMsg(`✓ PageView enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PVComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyPVEnabled(v)} title={`PageView enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2180: 공통 cc.PageView effectType 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVEffectType = async (effectType: number) => {
@@ -8327,6 +8353,32 @@ function CCFileBatchInspector({
             {[1, 2, 5, 10, 20, 50].map(v => (
               <span key={v} onClick={() => applyMSMinSeg(v)} title={`minSeg=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2200: 공통 cc.MotionStreak enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.MotionStreak') && (() => {
+        const applyMotionEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchMotionEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMotionEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.MotionStreak'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchMotionEnabled(sceneFile.root) })
+          setBatchMsg(`✓ MotionStreak enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#c8a', width: 48, flexShrink: 0 }}>MSComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyMotionEnabled(v)} title={`MotionStreak enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#c8a', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
