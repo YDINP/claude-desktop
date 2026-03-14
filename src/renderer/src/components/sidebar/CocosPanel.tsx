@@ -9730,6 +9730,15 @@ function CCFileNodeInspector({
                       {rbTypes.map((t, i) => <option key={i} value={i}>{t}</option>)}
                     </select>
                   </div>
+                  {/* R1843: type 퀵 버튼 */}
+                  <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}></span>
+                    {rbTypes.map((t, v) => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: `1px solid ${rbType === v ? '#34d399' : 'var(--border)'}`, color: rbType === v ? '#34d399' : 'var(--text-muted)', background: 'var(--bg-primary)' }}
+                      >{t[0]}{t.slice(1,3).toLowerCase()}</span>
+                    ))}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>mass</span>
                     <input type="number" defaultValue={mass} min={0} step={0.1}

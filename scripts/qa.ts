@@ -20039,6 +20039,18 @@ console.log('\n## 733. R1842 BatchInspector cc.VideoPlayer loop/muted 체크')
   }
 }
 
+// ── Section 734: R1843 cc.RigidBody type 퀵 버튼 ──────────────────────────────
+console.log('\n## 734. R1843 cc.RigidBody type 퀵 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s734 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s734.includes('R1843') && s734.includes('rbTypes') && s734.includes("'DYNAMIC'")) {
+    log('pass', 'R1843-rigidbody-type-quick', 'cc.RigidBody type 퀵 버튼 (DYN/STA/KIN)')
+  } else {
+    log('warning', 'R1843-rigidbody-type-quick', 'cc.RigidBody type 퀵 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

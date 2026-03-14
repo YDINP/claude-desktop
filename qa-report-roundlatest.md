@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:55:29.708Z
+> 2026-03-14T04:56:33.844Z
 
 ## Critical
 _없음_
@@ -1772,3 +1772,4 @@ _없음_
 - cc.Button transition 퀵 버튼 (None/Color/Sprite/Scale)
 - cc.ParticleSystem speed/speedVar 편집
 - BatchInspector cc.VideoPlayer loop/muted 일괄 설정
+- cc.RigidBody type 퀵 버튼 (DYN/STA/KIN)
