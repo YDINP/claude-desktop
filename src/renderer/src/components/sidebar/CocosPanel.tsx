@@ -14971,7 +14971,7 @@ function CCFileNodeInspector({
       anchor: draft.anchor,
       opacity: draft.opacity,
     }
-    transformClipboard = snap
+    transformClipboard.current = snap
     try {
       await navigator.clipboard.writeText(JSON.stringify(snap))
     } catch { /* fallback already set */ }
@@ -14988,7 +14988,7 @@ function CCFileNodeInspector({
         snap = parsed as TransformSnapshot
       }
     } catch { /* ignore, try fallback */ }
-    if (!snap && transformClipboard) snap = transformClipboard
+    if (!snap && transformClipboard.current) snap = transformClipboard.current
     if (!snap) return
     applyAndSave({
       position: snap.position,
