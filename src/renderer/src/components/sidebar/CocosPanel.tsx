@@ -7585,7 +7585,7 @@ function CCFileBatchInspector({
           function patchBtnHoverColor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBtnHoverColor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, hoverColor: { r, g, b, a: 255 } } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, hoverColor: { r, g, b, a: 255 }, _hoverColor: { r, g, b, a: 255 }, _N$hoverColor: { r, g, b, a: 255 } } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBtnHoverColor(sceneFile.root) })
@@ -12307,7 +12307,7 @@ function CCFileBatchInspector({
           function patchCamBg(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCamBg)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, backgroundColor: col } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, backgroundColor: col, _backgroundColor: col, _N$backgroundColor: col } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCamBg(sceneFile.root) })
@@ -12591,7 +12591,7 @@ function CCFileBatchInspector({
                 function patchLayoutType(n: CCSceneNode): CCSceneNode {
                   const children = n.children.map(patchLayoutType)
                   if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, type: v, layoutType: v } } : c)
+                  const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, type: v, layoutType: v, _type: v, _layoutType: v, _N$type: v, _N$layoutType: v } } : c)
                   return { ...n, components: updComps, children }
                 }
                 await saveScene(patchLayoutType(sceneFile.root))
@@ -12814,7 +12814,7 @@ function CCFileBatchInspector({
           function patchLayoutPad(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchLayoutPad)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, paddingLeft: pad, paddingRight: pad, paddingTop: pad, paddingBottom: pad } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, paddingLeft: pad, paddingRight: pad, paddingTop: pad, paddingBottom: pad, _paddingLeft: pad, _paddingRight: pad, _paddingTop: pad, _paddingBottom: pad, _N$paddingLeft: pad, _N$paddingRight: pad, _N$paddingTop: pad, _N$paddingBottom: pad } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchLayoutPad(sceneFile.root))
@@ -13089,7 +13089,7 @@ function CCFileBatchInspector({
           function patchLayoutSpacing(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchLayoutSpacing)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, spacingX: sp, spacingY: sp } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, spacingX: sp, spacingY: sp, _spacingX: sp, _spacingY: sp, _N$spacingX: sp, _N$spacingY: sp } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchLayoutSpacing(sceneFile.root))
@@ -15646,7 +15646,7 @@ function CCFileBatchInspector({
                 function patchGray(n: CCSceneNode): CCSceneNode {
                   const children = n.children.map(patchGray)
                   if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, grayscale: val } } : c)
+                  const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, grayscale: val, _grayscale: val, _N$grayscale: val } } : c)
                   return { ...n, components: updComps, children }
                 }
                 await saveScene(patchGray(sceneFile.root))
@@ -18584,7 +18584,7 @@ function CCFileNodeInspector({
                     <select value={layoutType}
                       onChange={e => {
                         const v = parseInt(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: v, layoutType: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: v, layoutType: v, _type: v, _layoutType: v, _N$type: v, _N$layoutType: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}

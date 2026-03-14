@@ -25171,6 +25171,22 @@ if (
   log('warning', 'R2293-node-videoplayer-collider-cc3x', 'VideoPlayer/Collider CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1298: R2294 BatchInspector Button hoverColor + Camera bg + Layout type/padding/spacing + Sprite grayscale _* (CC3.x) ──────────
+console.log('\n## 1298. R2294 Batch Button hoverColor + Camera bg + Layout + Sprite grayscale CC3.x 체크')
+const s1298 = s1297
+if (
+  s1298.includes('hoverColor: { r, g, b, a: 255 }, _hoverColor: { r, g, b, a: 255 }, _N$hoverColor: { r, g, b, a: 255 }') &&
+  s1298.includes('backgroundColor: col, _backgroundColor: col, _N$backgroundColor: col') &&
+  s1298.includes('type: v, layoutType: v, _type: v, _layoutType: v, _N$type: v, _N$layoutType: v') &&
+  s1298.includes('_paddingLeft: pad, _paddingRight: pad, _paddingTop: pad, _paddingBottom: pad, _N$paddingLeft: pad') &&
+  s1298.includes('spacingX: sp, spacingY: sp, _spacingX: sp, _spacingY: sp, _N$spacingX: sp, _N$spacingY: sp') &&
+  s1298.includes('grayscale: val, _grayscale: val, _N$grayscale: val')
+) {
+  log('pass', 'R2294-batch-btn-cam-layout-sprite-cc3x', 'BatchInspector Button hoverColor + Camera bg + Layout type/padding/spacing + Sprite grayscale _* (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2294-batch-btn-cam-layout-sprite-cc3x', 'BatchInspector Button/Camera/Layout/Sprite CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
