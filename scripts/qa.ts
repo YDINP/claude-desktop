@@ -21794,6 +21794,18 @@ console.log('\n## 879. R1988 BatchInspector cc.Mask alphaThreshold 체크')
   }
 }
 
+// ── Section 880: R1989 BatchInspector cc.Camera cullingMask ──────────
+console.log('\n## 880. R1989 BatchInspector cc.Camera cullingMask 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s880 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s880.includes('R1989') && s880.includes('patchCamCulling') && s880.includes('applyCamCulling')) {
+    log('pass', 'R1989-batch-cam-culling', 'BatchInspector cc.Camera cullingMask 일괄 설정')
+  } else {
+    log('warning', 'R1989-batch-cam-culling', 'BatchInspector cc.Camera cullingMask 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

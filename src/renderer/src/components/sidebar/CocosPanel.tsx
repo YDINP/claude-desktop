@@ -6589,6 +6589,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1989: 공통 cc.Camera cullingMask 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamCulling = async (cullingMask: number) => {
+          if (!sceneFile.root) return
+          function patchCamCulling(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamCulling)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, cullingMask, _cullingMask: cullingMask } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchCamCulling(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const labels: Record<number, string> = { [-1 >>> 0]: 'All', 0: 'None', 1: 'Dflt' }
+          setBatchMsg(`✓ Camera cullingMask=${labels[cullingMask >>> 0] ?? cullingMask} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#818cf8', width: 48, flexShrink: 0 }}>CamCull</span>
+            <span onClick={() => applyCamCulling(-1)} title="cullingMask=ALL(-1)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#818cf8', userSelect: 'none' }}>All</span>
+            <span onClick={() => applyCamCulling(0)} title="cullingMask=NONE(0)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>None</span>
+            <span onClick={() => applyCamCulling(1)} title="cullingMask=DEFAULT(1)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#818cf8', userSelect: 'none' }}>Dflt</span>
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
