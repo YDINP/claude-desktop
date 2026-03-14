@@ -8008,6 +8008,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2119: 공통 cc.ParticleSystem endRotation 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSEndRot = async (endRotation: number) => {
+          if (!sceneFile.root) return
+          function patchPSEndRot(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSEndRot)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endRotation, _endRotation: endRotation } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPSEndRot(sceneFile.root) })
+          setBatchMsg(`✓ PS endRotation=${endRotation} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSendRt</span>
+            {[0, 45, 90, 180, 270, 360].map(v => (
+              <span key={v} onClick={() => applyPSEndRot(v)} title={`endRotation=${v}°`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2118: 공통 cc.ParticleSystem startRotation 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSStartRot = async (startRotation: number) => {

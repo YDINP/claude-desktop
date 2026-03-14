@@ -23354,6 +23354,18 @@ console.log('\n## 1009. R2118 BatchInspector cc.ParticleSystem startRotation 체
   }
 }
 
+// ── Section 1010: R2119 BatchInspector cc.ParticleSystem endRotation ──────────
+console.log('\n## 1010. R2119 BatchInspector cc.ParticleSystem endRotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1010 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1010.includes('R2119') && s1010.includes('patchPSEndRot') && s1010.includes('applyPSEndRot')) {
+    log('pass', 'R2119-batch-ps-endrot', 'BatchInspector cc.ParticleSystem endRotation 일괄 설정')
+  } else {
+    log('warning', 'R2119-batch-ps-endrot', 'BatchInspector cc.ParticleSystem endRotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
