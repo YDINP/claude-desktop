@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1134: R2201 BatchInspector sp.Skeleton enabled ──────────
+console.log('\n## 1134. R2201 BatchInspector sp.Skeleton enabled (컴포넌트 레벨) 체크')
+const s1134 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1134.includes('R2201') && s1134.includes('applySpineEnabled') && s1134.includes('SpComp')) {
+  log('pass', 'R2201-batch-spine-enabled', 'BatchInspector sp.Skeleton enabled 일괄 설정')
+} else {
+  log('warning', 'R2201-batch-spine-enabled', 'BatchInspector sp.Skeleton enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1135: R2201 BatchInspector dragonBones.ArmatureDisplay enabled ──────────
+console.log('\n## 1135. R2201 BatchInspector dragonBones.ArmatureDisplay enabled (컴포넌트 레벨) 체크')
+const s1135 = s1134
+if (s1135.includes('R2201') && s1135.includes('applyDBEnabled') && s1135.includes('DBComp')) {
+  log('pass', 'R2201-batch-db-enabled', 'BatchInspector dragonBones.ArmatureDisplay enabled 일괄 설정')
+} else {
+  log('warning', 'R2201-batch-db-enabled', 'BatchInspector dragonBones.ArmatureDisplay enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1132: R2200 BatchInspector cc.PageView enabled ──────────
 console.log('\n## 1132. R2200 BatchInspector cc.PageView enabled (컴포넌트 레벨) 체크')
 const s1132 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

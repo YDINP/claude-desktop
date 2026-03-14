@@ -8669,6 +8669,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2201: 공통 dragonBones.ArmatureDisplay enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
+        const applyDBEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchDBEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchDBEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchDBEnabled(sceneFile.root) })
+          setBatchMsg(`✓ dragonBones.ArmatureDisplay enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#c084fc', width: 48, flexShrink: 0 }}>DBComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyDBEnabled(v)} title={`dragonBones.ArmatureDisplay enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#c084fc', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2188: 공통 dragonBones.ArmatureDisplay blendMode 일괄 설정 */}
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBBlendMode = async (blendMode: number) => {
@@ -8909,6 +8935,32 @@ function CCFileBatchInspector({
               <span key={String(v)} onClick={() => applyParticleEnabled(v)} title={`ParticleSystem enabled=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
                   border: '1px solid var(--border)', color: '#aee', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2201: 공통 sp.Skeleton enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('sp.Skeleton') && (() => {
+        const applySpineEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpineEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpineEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpineEnabled(sceneFile.root) })
+          setBatchMsg(`✓ sp.Skeleton enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>SpComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applySpineEnabled(v)} title={`sp.Skeleton enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
