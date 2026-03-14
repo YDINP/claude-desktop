@@ -4595,6 +4595,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2010: 공통 cc.RichText verticalAlign 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichVAlign = async (verticalAlign: number) => {
+          if (!sceneFile.root) return
+          function patchRichVAlign(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichVAlign)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, verticalAlign, _verticalAlign: verticalAlign, _N$verticalAlign: verticalAlign } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchRichVAlign(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names = ['Top', 'Ctr', 'Bot']
+          setBatchMsg(`✓ RichText vAlign=${names[verticalAlign] ?? verticalAlign} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>RTvAlign</span>
+            {([['Top', 0], ['Ctr', 1], ['Bot', 2]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applyRichVAlign(v)} title={`verticalAlign=${l}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1982: 공통 cc.RichText maxWidth 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichMaxWidth = async (maxWidth: number) => {

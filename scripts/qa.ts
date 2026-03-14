@@ -22046,6 +22046,18 @@ console.log('\n## 900. R2009 BatchInspector cc.RigidBody enabledContactListener 
   }
 }
 
+// ── Section 901: R2010 BatchInspector cc.RichText verticalAlign ──────────
+console.log('\n## 901. R2010 BatchInspector cc.RichText verticalAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s901 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s901.includes('R2010') && s901.includes('patchRichVAlign') && s901.includes('applyRichVAlign')) {
+    log('pass', 'R2010-batch-rich-valign', 'BatchInspector cc.RichText verticalAlign 일괄 설정')
+  } else {
+    log('warning', 'R2010-batch-rich-valign', 'BatchInspector cc.RichText verticalAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
