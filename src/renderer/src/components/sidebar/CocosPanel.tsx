@@ -5146,6 +5146,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2086: 공통 cc.EditBox inputFlag 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEditInputFlag = async (inputFlag: number) => {
+          if (!sceneFile.root) return
+          function patchEditInputFlag(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEditInputFlag)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputFlag, _N$inputFlag: inputFlag } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEditInputFlag(sceneFile.root) })
+          setBatchMsg(`✓ EditBox inputFlag=${inputFlag} (${uuids.length}개)`)
+        }
+        // 0=Default, 1=InitialCapsFWord, 2=InitialCapsSentence, 3=InitialCapsAllChars, 4=Sensitive
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>EBflg</span>
+            {([0, 1, 4] as const).map((v, i) => (
+              <span key={v} title={`inputFlag = ${v} (${['Def','Init','Sens'][i]})`}
+                onClick={() => applyEditInputFlag(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{['Def','Init','Sens'][i]}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2085: 공통 cc.EditBox inputMode 일괄 설정 */}
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditInputMode = async (inputMode: number) => {

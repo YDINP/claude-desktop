@@ -22958,6 +22958,18 @@ console.log('\n## 976. R2085 BatchInspector cc.EditBox inputMode 체크')
   }
 }
 
+// ── Section 977: R2086 BatchInspector cc.EditBox inputFlag ──────────
+console.log('\n## 977. R2086 BatchInspector cc.EditBox inputFlag 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s977 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s977.includes('R2086') && s977.includes('patchEditInputFlag') && s977.includes('applyEditInputFlag')) {
+    log('pass', 'R2086-batch-editbox-inputflag', 'BatchInspector cc.EditBox inputFlag 일괄 설정')
+  } else {
+    log('warning', 'R2086-batch-editbox-inputflag', 'BatchInspector cc.EditBox inputFlag 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

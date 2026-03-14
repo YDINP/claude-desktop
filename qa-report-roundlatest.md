@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:26:10.074Z
+> 2026-03-14T08:26:50.117Z
 
 ## Critical
 _없음_
@@ -2015,3 +2015,4 @@ _없음_
 - BatchInspector cc.CircleCollider sensor 일괄 설정
 - BatchInspector cc.PolygonCollider sensor 일괄 설정
 - BatchInspector cc.EditBox inputMode 일괄 설정
+- BatchInspector cc.EditBox inputFlag 일괄 설정
