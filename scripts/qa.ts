@@ -20138,6 +20138,18 @@ console.log('\n## 741. R1850 cc.CircleCollider friction/restitution 체크')
   }
 }
 
+// ── Section 742: R1851 BatchInspector cc.RigidBody fixedRotation 일괄 ─────────
+console.log('\n## 742. R1851 BatchInspector cc.RigidBody fixedRotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s742 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s742.includes('R1851') && s742.includes('applyRBFixRot') && s742.includes('fixedRotation') && s742.includes('patchRBFixRot')) {
+    log('pass', 'R1851-batch-rb-fixedrotation', 'BatchInspector cc.RigidBody fixedRotation 일괄 설정')
+  } else {
+    log('warning', 'R1851-batch-rb-fixedrotation', 'BatchInspector cc.RigidBody fixedRotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

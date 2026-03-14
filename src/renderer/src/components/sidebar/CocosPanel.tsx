@@ -4397,6 +4397,28 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1851: 공통 cc.RigidBody fixedRotation 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBFixRot = async (fixedRotation: boolean) => {
+          if (!sceneFile.root) return
+          function patchRBFixRot(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBFixRot)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, fixedRotation } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchRBFixRot(sceneFile.root))
+          setBatchMsg(`✓ RigidBody fixedRotation=${fixedRotation} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>fixRot</span>
+            <span onClick={() => applyRBFixRot(true)} title="fixedRotation = true" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>lock✓</span>
+            <span onClick={() => applyRBFixRot(false)} title="fixedRotation = false" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>lock✗</span>
+          </div>
+        )
+      })()}
       {/* R1824: 공통 cc.RigidBody linearDamping 일괄 설정 */}
       {commonCompTypes.includes('cc.RigidBody') && (() => {
         const applyRBDamp = async (linearDamping: number) => {
