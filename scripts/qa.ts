@@ -23582,6 +23582,18 @@ console.log('\n## 1028. R2137 BatchInspector cc.MotionStreak fastMode 체크')
   }
 }
 
+// ── Section 1029: R2138 BatchInspector dragonBones.ArmatureDisplay debugBones ──────────
+console.log('\n## 1029. R2138 BatchInspector dragonBones.ArmatureDisplay debugBones 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1029 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1029.includes('R2138') && s1029.includes('patchDBDebugBones') && s1029.includes('applyDBDebugBones')) {
+    log('pass', 'R2138-batch-db-debugbones', 'BatchInspector dragonBones.ArmatureDisplay debugBones 일괄 설정')
+  } else {
+    log('warning', 'R2138-batch-db-debugbones', 'BatchInspector dragonBones.ArmatureDisplay debugBones 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

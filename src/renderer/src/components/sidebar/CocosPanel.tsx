@@ -7172,6 +7172,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2138: 공통 dragonBones.ArmatureDisplay debugBones 일괄 설정 */}
+      {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
+        const applyDBDebugBones = async (debugBones: boolean) => {
+          if (!sceneFile.root) return
+          function patchDBDebugBones(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchDBDebugBones)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, debugBones } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchDBDebugBones(sceneFile.root) })
+          setBatchMsg(`✓ DragonBones debugBones=${debugBones} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>DBDbgBn</span>
+            <span onClick={() => applyDBDebugBones(true)} title="debugBones ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>bn✓</span>
+            <span onClick={() => applyDBDebugBones(false)} title="debugBones OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>bn✗</span>
+          </div>
+        )
+      })()}
       {/* R1838: 공통 sp.Skeleton timeScale 일괄 설정 */}
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineSpeed = async (timeScale: number) => {
