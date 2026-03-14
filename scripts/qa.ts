@@ -21038,6 +21038,18 @@ console.log('\n## 816. R1925 BatchInspector cc.Label cacheMode 체크')
   }
 }
 
+// ── Section 817: R1926 BatchInspector cc.MotionStreak minSeg ──────────
+console.log('\n## 817. R1926 BatchInspector cc.MotionStreak minSeg 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s817 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s817.includes('R1926') && s817.includes('patchMotionSeg') && s817.includes('applyMotionSeg')) {
+    log('pass', 'R1926-batch-motionstreak-minseg', 'BatchInspector cc.MotionStreak minSeg 일괄 설정')
+  } else {
+    log('warning', 'R1926-batch-motionstreak-minseg', 'BatchInspector cc.MotionStreak minSeg 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
