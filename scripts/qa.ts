@@ -20750,6 +20750,18 @@ console.log('\n## 792. R1901 cc.PageView autoPageTurningInterval 체크')
   }
 }
 
+// ── Section 793: R1902 cc.Slider interactable ──────────
+console.log('\n## 793. R1902 cc.Slider interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s793 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s793.includes('R1902') && s793.includes('Slider') && s793.includes('interactable')) {
+    log('pass', 'R1902-slider-interactable', 'cc.Slider interactable 편집')
+  } else {
+    log('warning', 'R1902-slider-interactable', 'cc.Slider interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

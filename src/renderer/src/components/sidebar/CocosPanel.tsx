@@ -10129,6 +10129,16 @@ function CCFileNodeInspector({
                       <option value={1}>Vertical</option>
                     </select>
                   </div>
+                  {/* R1902: interactable */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.interactable ?? p._N$interactable ?? true)}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked, _N$interactable: e.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                    />
+                    <span style={{ color: !!(p.interactable ?? p._N$interactable ?? true) ? 'var(--text-muted)' : '#f85149' }}>interactable</span>
+                  </label>
                 </div>
               )
             }
