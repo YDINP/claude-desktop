@@ -24125,6 +24125,24 @@ if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
   log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
 }
 
+// ── Section 1167: R2217 BatchInspector cc.UIOpacity enabled (CC3.x) ──────────
+console.log('\n## 1167. R2217 BatchInspector cc.UIOpacity enabled 체크')
+const s1167 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1167.includes('R2217') && s1167.includes('applyUIOpacityEnabled') && s1167.includes('UIOpEn')) {
+  log('pass', 'R2217-batch-uiopacity-enabled', 'BatchInspector cc.UIOpacity enabled 일괄 설정')
+} else {
+  log('warning', 'R2217-batch-uiopacity-enabled', 'BatchInspector cc.UIOpacity enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1168: R2217 BatchInspector cc.RigidBody enabled ──────────
+console.log('\n## 1168. R2217 BatchInspector cc.RigidBody enabled 체크')
+const s1168 = s1167
+if (s1168.includes('R2217') && s1168.includes('applyRBEnabled') && s1168.includes('RBEn')) {
+  log('pass', 'R2217-batch-rigidbody-enabled', 'BatchInspector cc.RigidBody enabled 일괄 설정')
+} else {
+  log('warning', 'R2217-batch-rigidbody-enabled', 'BatchInspector cc.RigidBody enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1165: R2216 BatchInspector cc.Sprite _useGrayscale (CC3.x) ──────────
 console.log('\n## 1165. R2216 BatchInspector cc.Sprite _useGrayscale 체크')
 const s1165 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

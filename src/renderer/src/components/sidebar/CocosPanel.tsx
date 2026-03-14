@@ -6673,6 +6673,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2217: 공통 cc.UIOpacity enabled (컴포넌트 레벨) 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.UIOpacity') && (() => {
+        const applyUIOpacityEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchUIOpacityEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchUIOpacityEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.UIOpacity'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchUIOpacityEnabled(sceneFile.root) })
+          setBatchMsg(`✓ UIOpacity enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>UIOpEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyUIOpacityEnabled(v)} title={`UIOpacity enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2195: 공통 cc.Toggle enabled (컴포넌트 레벨) 일괄 설정 */}
       {commonCompTypes.includes('cc.Toggle') && (() => {
         const applyToggleEnabled = async (enabled: boolean) => {
@@ -13501,6 +13527,32 @@ function CCFileBatchInspector({
                 onClick={() => applyRBLinearDamp(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
               >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2217: 공통 cc.RigidBody enabled (컴포넌트 레벨) 일괄 설정 */}
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
+        const applyRBEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchRBEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D')
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRBEnabled(sceneFile.root) })
+          setBatchMsg(`✓ RigidBody enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyRBEnabled(v)} title={`RigidBody enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
