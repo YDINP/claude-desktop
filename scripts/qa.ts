@@ -24873,6 +24873,20 @@ if (s1276.includes('maxParticles: max, _maxParticles: max, _N$maxParticles') && 
   log('warning', 'R2272-batch-particle-maxparticles-cc3x', 'BatchInspector cc.ParticleSystem _maxParticles CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1277: R2273 BatchInspector + 단일노드 cc.Canvas _fitWidth/_fitHeight (CC3.x) ──────────
+console.log('\n## 1277. R2273 cc.Canvas _fitWidth/_fitHeight CC3.x 체크')
+const s1277 = s1276
+if (
+  s1277.includes('fitWidth, _fitWidth: fitWidth, _N$fitWidth') &&
+  s1277.includes('fitHeight, _fitHeight: fitHeight, _N$fitHeight') &&
+  s1277.includes('fitWidth: e.target.checked, _fitWidth: e.target.checked') &&
+  s1277.includes('fitHeight: e.target.checked, _fitHeight: e.target.checked')
+) {
+  log('pass', 'R2273-canvas-fitwidth-fitheight-cc3x', 'cc.Canvas _fitWidth/_fitHeight (CC3.x) 갭 수정 (Batch + 단일노드)')
+} else {
+  log('warning', 'R2273-canvas-fitwidth-fitheight-cc3x', 'cc.Canvas fitWidth/fitHeight CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

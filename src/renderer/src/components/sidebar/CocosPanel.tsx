@@ -11571,7 +11571,7 @@ function CCFileBatchInspector({
           function patchCanvasFitWidth(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCanvasFitWidth)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, fitWidth, _N$fitWidth: fitWidth } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, _N$fitWidth: fitWidth } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCanvasFitWidth(sceneFile.root) })
@@ -11618,7 +11618,7 @@ function CCFileBatchInspector({
           function patchCanvasFitHeight(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCanvasFitHeight)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, fitHeight, _N$fitHeight: fitHeight } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, fitHeight, _fitHeight: fitHeight, _N$fitHeight: fitHeight } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCanvasFitHeight(sceneFile.root) })
@@ -19346,7 +19346,7 @@ function CCFileNodeInspector({
                     <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={fw}
                         onChange={e => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _N$fitWidth: e.target.checked, fitWidth: e.target.checked } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fitWidth: e.target.checked, _fitWidth: e.target.checked, _N$fitWidth: e.target.checked } } : c)
                           applyAndSave({ components: updated })
                         }}
                       />fitWidth
@@ -19354,7 +19354,7 @@ function CCFileNodeInspector({
                     <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={fh}
                         onChange={e => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _N$fitHeight: e.target.checked, fitHeight: e.target.checked } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fitHeight: e.target.checked, _fitHeight: e.target.checked, _N$fitHeight: e.target.checked } } : c)
                           applyAndSave({ components: updated })
                         }}
                       />fitHeight
