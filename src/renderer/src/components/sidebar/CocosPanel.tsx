@@ -5585,6 +5585,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2000: 공통 cc.VideoPlayer keepAspectRatio 일괄 설정 */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoKeepAspect = async (keepAspectRatio: boolean) => {
+          if (!sceneFile.root) return
+          function patchVideoKeepAspect(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideoKeepAspect)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, keepAspectRatio } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchVideoKeepAspect(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ VideoPlayer keepAspect=${keepAspectRatio} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>VideoAR</span>
+            <span onClick={() => applyVideoKeepAspect(true)} title="keepAspectRatio ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>ar✓</span>
+            <span onClick={() => applyVideoKeepAspect(false)} title="keepAspectRatio OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>ar✗</span>
+          </div>
+        )
+      })()}
       {/* R1883: 공통 cc.MotionStreak stroke 일괄 설정 */}
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMotionStroke = async (stroke: number) => {

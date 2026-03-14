@@ -21926,6 +21926,18 @@ console.log('\n## 890. R1999 BatchInspector cc.ParticleSystem speedVar 체크')
   }
 }
 
+// ── Section 891: R2000 BatchInspector cc.VideoPlayer keepAspectRatio ──────────
+console.log('\n## 891. R2000 BatchInspector cc.VideoPlayer keepAspectRatio 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s891 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s891.includes('R2000') && s891.includes('patchVideoKeepAspect') && s891.includes('applyVideoKeepAspect')) {
+    log('pass', 'R2000-batch-video-keepaspect', 'BatchInspector cc.VideoPlayer keepAspectRatio 일괄 설정 (R2000 마일스톤!)')
+  } else {
+    log('warning', 'R2000-batch-video-keepaspect', 'BatchInspector cc.VideoPlayer keepAspectRatio 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
