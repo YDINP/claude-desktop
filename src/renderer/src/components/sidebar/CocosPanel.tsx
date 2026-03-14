@@ -3834,6 +3834,30 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1983: 노드 active/inactive 일괄 설정 */}
+      {(() => {
+        const applyNodeActive = async (active: boolean) => {
+          if (!sceneFile.root) return
+          function patchNodeActive(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeActive)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, active, children }
+          }
+          const patchedRoot = patchNodeActive(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ node active=${active} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodeAct</span>
+            <span onClick={() => applyNodeActive(true)} title="active ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>act✓</span>
+            <span onClick={() => applyNodeActive(false)} title="active OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f85149', userSelect: 'none' }}>act✗</span>
+          </div>
+        )
+      })()}
       {/* R1749: 공통 cc.Label fontSize 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

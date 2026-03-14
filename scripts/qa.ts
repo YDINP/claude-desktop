@@ -21722,6 +21722,18 @@ console.log('\n## 873. R1982 BatchInspector cc.RichText maxWidth 체크')
   }
 }
 
+// ── Section 874: R1983 BatchInspector node active ──────────
+console.log('\n## 874. R1983 BatchInspector node active 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s874 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s874.includes('R1983') && s874.includes('patchNodeActive') && s874.includes('applyNodeActive')) {
+    log('pass', 'R1983-batch-node-active', 'BatchInspector node active 일괄 설정')
+  } else {
+    log('warning', 'R1983-batch-node-active', 'BatchInspector node active 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
