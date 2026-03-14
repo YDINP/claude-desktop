@@ -5093,6 +5093,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1912: 공통 cc.Camera depth 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamDepth = async (depth: number) => {
+          if (!sceneFile.root) return
+          function patchCamDepth(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamDepth)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, depth, _depth: depth } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchCamDepth(sceneFile.root))
+          setBatchMsg(`✓ Camera depth ${depth} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>CamDepth</span>
+            {([-2, -1, 0, 1, 2] as const).map(v => (
+              <span key={v} title={`Camera depth = ${v}`}
+                onClick={() => applyCamDepth(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

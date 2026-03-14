@@ -20870,6 +20870,18 @@ console.log('\n## 802. R1911 BatchInspector cc.AudioSource preload 체크')
   }
 }
 
+// ── Section 803: R1912 BatchInspector cc.Camera depth ──────────
+console.log('\n## 803. R1912 BatchInspector cc.Camera depth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s803 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s803.includes('R1912') && s803.includes('patchCamDepth') && s803.includes('applyCamDepth')) {
+    log('pass', 'R1912-batch-camera-depth', 'BatchInspector cc.Camera depth 일괄 설정')
+  } else {
+    log('warning', 'R1912-batch-camera-depth', 'BatchInspector cc.Camera depth 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
