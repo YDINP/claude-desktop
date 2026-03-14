@@ -18575,6 +18575,18 @@ console.log('\n## 611. R1720 cc.Label overflow + align 체크')
   }
 }
 
+// ── Section 612: R1721 Inspector 형제 노드 탐색 버튼 ─────────────────────────
+console.log('\n## 612. R1721 Inspector 형제 노드 탐색 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s612 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s612.includes('R1721') && s612.includes('siblings') && s612.includes('이전 형제') && s612.includes('다음 형제')) {
+    log('pass', 'R1721-sibling-nav', 'Inspector 형제 노드 탐색 버튼 ◀ ▶')
+  } else {
+    log('warning', 'R1721-sibling-nav', 'Inspector 형제 노드 탐색 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -4385,6 +4385,18 @@ function CCFileNodeInspector({
     return path
   }, [sceneFile.root, node.uuid])
 
+  // R1721: 형제 노드 목록 (이전/다음 탐색용)
+  const siblings = useMemo(() => {
+    if (nodePath.length < 2) return []
+    const parentUuid = nodePath[nodePath.length - 2].uuid
+    function findParent(n: CCSceneNode): CCSceneNode | null {
+      if (n.uuid === parentUuid) return n
+      for (const c of n.children) { const f = findParent(c); if (f) return f }
+      return null
+    }
+    return findParent(sceneFile.root)?.children ?? []
+  }, [nodePath, sceneFile.root])
+
   // R1677: 비활성 조상 경고 (조상 중 active:false 노드 탐지)
   const inactiveAncestors = useMemo(() => {
     const inactive: string[] = []
@@ -4492,6 +4504,25 @@ function CCFileNodeInspector({
             {/* R1661: 전체 하위 노드 수 */}
             {totalDescendants > draft.children.length && <span style={{ fontSize: 8, color: '#454', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`전체 하위 노드 ${totalDescendants}개`}>⊲{totalDescendants}</span>}
             {draft.components.length > 0 && <span style={{ fontSize: 8, color: '#556a', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`컴포넌트 ${draft.components.length}개`}>⊕{draft.components.length}</span>}
+            {/* R1721: 형제 노드 탐색 버튼 ◀ ▶ */}
+            {siblings.length > 1 && (() => {
+              const idx = siblings.findIndex(s => s.uuid === node.uuid)
+              const prevNode = idx > 0 ? siblings[idx - 1] : null
+              const nextNode = idx < siblings.length - 1 ? siblings[idx + 1] : null
+              return (
+                <>
+                  <span title={prevNode ? `이전 형제: ${prevNode.name}` : '이전 형제 없음'}
+                    onClick={() => prevNode && onUpdate(prevNode)}
+                    style={{ fontSize: 9, padding: '1px 3px', borderRadius: 2, lineHeight: 1, cursor: prevNode ? 'pointer' : 'default', color: prevNode ? '#88aacc' : '#333' }}
+                  >◀</span>
+                  <span style={{ fontSize: 8, color: '#333' }}>{idx + 1}/{siblings.length}</span>
+                  <span title={nextNode ? `다음 형제: ${nextNode.name}` : '다음 형제 없음'}
+                    onClick={() => nextNode && onUpdate(nextNode)}
+                    style={{ fontSize: 9, padding: '1px 3px', borderRadius: 2, lineHeight: 1, cursor: nextNode ? 'pointer' : 'default', color: nextNode ? '#88aacc' : '#333' }}
+                  >▶</span>
+                </>
+              )
+            })()}
             {/* R1492: 경로 복사 버튼 */}
             <span
               title={`경로 복사: ${nodePath.map(p => p.name).join(' / ')}`}
