@@ -22346,6 +22346,18 @@ console.log('\n## 925. R2034 BatchInspector cc.Label verticalAlign 체크')
   }
 }
 
+// ── Section 926: R2035 BatchInspector cc.RichText lineHeight ──────────
+console.log('\n## 926. R2035 BatchInspector cc.RichText lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s926 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s926.includes('R2035') && s926.includes('patchRichLineH') && s926.includes('applyRichLineH')) {
+    log('pass', 'R2035-batch-rich-lineheight', 'BatchInspector cc.RichText lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R2035-batch-rich-lineheight', 'BatchInspector cc.RichText lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
