@@ -19172,7 +19172,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onChange={ev => {
                           const v = parseInt(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputMode: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputMode: v, _inputMode: v, _N$inputMode: v } } : c)
                           applyAndSave({ components: updated })
                         }}>
                         {INPUT_MODE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
@@ -19197,7 +19197,7 @@ function CCFileNodeInspector({
                       style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                       onChange={ev => {
                         const v = parseInt(ev.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, returnType: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, returnType: v, _returnType: v, _N$returnType: v } } : c)
                         applyAndSave({ components: updated })
                       }}>
                       {RETURN_TYPE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
@@ -20119,7 +20119,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>string</span>
                     <input type="text" defaultValue={str}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value, _string: e.target.value, _N$string: e.target.value } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -20129,7 +20129,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>placeholder</span>
                     <input type="text" defaultValue={placeholder}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholder: e.target.value } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholder: e.target.value, _placeholder: e.target.value, _N$placeholder: e.target.value } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-muted)', borderRadius: 3, padding: '1px 4px', fontStyle: 'italic' }}
@@ -20139,7 +20139,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>maxLength</span>
                     <input type="number" defaultValue={maxLength} min={-1}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxLength: parseInt(e.target.value) || -1 } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxLength: parseInt(e.target.value) || -1, _maxLength: parseInt(e.target.value) || -1, _N$maxLength: parseInt(e.target.value) || -1 } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}

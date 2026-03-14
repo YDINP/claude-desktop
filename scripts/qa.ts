@@ -24979,6 +24979,21 @@ if (
   log('warning', 'R2280-node-toggle-label-button-interactable-cc3x', '단일노드 interactable/overflow CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1285: R2281 단일노드 cc.EditBox _string/_placeholder/_maxLength/_inputMode/_returnType (CC3.x) ──────────
+console.log('\n## 1285. R2281 단일노드 cc.EditBox 5종 CC3.x 체크')
+const s1285 = s1284
+if (
+  s1285.includes('string: e.target.value, _string: e.target.value, _N$string: e.target.value') &&
+  s1285.includes('_placeholder: e.target.value, _N$placeholder') &&
+  s1285.includes('_maxLength: parseInt(e.target.value) || -1, _N$maxLength') &&
+  s1285.includes('_inputMode: v, _N$inputMode: v') &&
+  s1285.includes('_returnType: v, _N$returnType: v')
+) {
+  log('pass', 'R2281-node-editbox-props-cc3x', '단일노드 cc.EditBox _string/_placeholder/_maxLength/_inputMode/_returnType (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2281-node-editbox-props-cc3x', '단일노드 cc.EditBox CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
