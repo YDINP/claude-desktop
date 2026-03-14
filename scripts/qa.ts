@@ -22754,6 +22754,18 @@ console.log('\n## 959. R2068 BatchInspector cc.Layout cellSize 체크')
   }
 }
 
+// ── Section 960: R2069 BatchInspector cc.RigidBody linearDamping ──────────
+console.log('\n## 960. R2069 BatchInspector cc.RigidBody linearDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s960 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s960.includes('R2069') && s960.includes('patchRBLinearDamp') && s960.includes('applyRBLinearDamp')) {
+    log('pass', 'R2069-batch-rb-lineardamp', 'BatchInspector cc.RigidBody linearDamping 일괄 설정')
+  } else {
+    log('warning', 'R2069-batch-rb-lineardamp', 'BatchInspector cc.RigidBody linearDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

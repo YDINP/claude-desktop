@@ -8962,6 +8962,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2069: 공통 cc.RigidBody linearDamping 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBLinearDamp = async (linearDamping: number) => {
+          if (!sceneFile.root) return
+          function patchRBLinearDamp(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBLinearDamp)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, linearDamping } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRBLinearDamp(sceneFile.root) })
+          setBatchMsg(`✓ RigidBody linearDamping=${linearDamping} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBlinD</span>
+            {[0, 0.1, 0.5, 1, 2, 5].map(v => (
+              <span key={v} title={`linearDamping = ${v}`}
+                onClick={() => applyRBLinearDamp(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2009: 공통 cc.RigidBody enabledContactListener 일괄 설정 */}
       {commonCompTypes.includes('cc.RigidBody') && (() => {
         const applyRBContactListener = async (enabledContactListener: boolean) => {
