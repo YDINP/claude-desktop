@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T06:03:22.080Z
+> 2026-03-14T06:04:06.133Z
 
 ## Critical
 _없음_
@@ -1838,3 +1838,4 @@ _없음_
 - BatchInspector cc.ProgressBar progress 일괄 설정
 - cc.ParticleSystem startRadius/endRadius 편집
 - BatchInspector cc.EditBox inputMode 일괄 설정
+- BatchInspector cc.LabelOutline color 일괄 설정

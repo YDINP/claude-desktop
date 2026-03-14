@@ -20834,6 +20834,18 @@ console.log('\n## 799. R1908 BatchInspector cc.EditBox inputMode 체크')
   }
 }
 
+// ── Section 800: R1909 BatchInspector cc.LabelOutline color ──────────
+console.log('\n## 800. R1909 BatchInspector cc.LabelOutline color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s800 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s800.includes('R1909') && s800.includes('patchOLColor') && s800.includes('LabelOutline')) {
+    log('pass', 'R1909-batch-labeloutline-color', 'BatchInspector cc.LabelOutline color 일괄 설정')
+  } else {
+    log('warning', 'R1909-batch-labeloutline-color', 'BatchInspector cc.LabelOutline color 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
