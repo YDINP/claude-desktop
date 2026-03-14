@@ -21902,6 +21902,18 @@ console.log('\n## 888. R1997 BatchInspector cc.RigidBody sleepThreshold 체크')
   }
 }
 
+// ── Section 889: R1998 BatchInspector cc.ParticleSystem startSizeVar ──────────
+console.log('\n## 889. R1998 BatchInspector cc.ParticleSystem startSizeVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s889 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s889.includes('R1998') && s889.includes('patchPSStartSizeVar') && s889.includes('applyPSStartSizeVar')) {
+    log('pass', 'R1998-batch-ps-startsizevar', 'BatchInspector cc.ParticleSystem startSizeVar 일괄 설정')
+  } else {
+    log('warning', 'R1998-batch-ps-startsizevar', 'BatchInspector cc.ParticleSystem startSizeVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
