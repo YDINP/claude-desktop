@@ -19223,6 +19223,18 @@ console.log('\n## 665. R1774 Inspector 레이어 이름 배지 체크')
   }
 }
 
+// ── Section 666: R1775 Inspector 회전 정규화 버튼 ────────────────────────────
+console.log('\n## 666. R1775 Inspector 회전 정규화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s666 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s666.includes('R1775') && s666.includes('회전 정규화') && s666.includes('normalize')) {
+    log('pass', 'R1775-rotation-normalize', 'Inspector 회전 정규화 버튼 (-180~180)')
+  } else {
+    log('warning', 'R1775-rotation-normalize', 'Inspector 회전 정규화 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

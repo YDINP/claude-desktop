@@ -6057,6 +6057,19 @@ function CCFileNodeInspector({
               <span title="회전 리셋 (0°)" onClick={() => applyAndSave({ rotation: typeof draft.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
               {/* R1653: 회전 부호 반전 버튼 */}
               <span title="회전 부호 반전 (±)" onClick={() => { const r = typeof draft.rotation === 'number' ? -draft.rotation : { ...(draft.rotation as object), z: -(draft.rotation as {z?:number}).z! } as CCSceneNode['rotation']; applyAndSave({ rotation: r }) }} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>±</span>
+              {/* R1775: 회전 정규화 버튼 (-180~180) */}
+              {Math.abs(rotation) > 180 && (
+                <span title={`회전 정규화: ${rotation}° → ${((((rotation % 360) + 540) % 360) - 180).toFixed(1)}°`}
+                  onClick={() => {
+                    const norm = ((rotation % 360) + 540) % 360 - 180
+                    const r = typeof draft.rotation === 'number' ? norm : { ...(draft.rotation as object), z: norm } as CCSceneNode['rotation']
+                    applyAndSave({ rotation: r })
+                  }}
+                  style={{ cursor: 'pointer', color: '#f87171', fontSize: 8, padding: '0 2px', border: '1px solid rgba(248,113,113,0.4)', borderRadius: 2 }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#fca5a5')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#f87171')}
+                >normalize</span>
+              )}
             </div>
             {numInput('Z°', rotation, v => {
               const r = typeof draft.rotation === 'number' ? v : { ...(draft.rotation as object), z: v } as CCSceneNode['rotation']
