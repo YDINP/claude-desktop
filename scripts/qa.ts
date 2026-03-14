@@ -18995,6 +18995,18 @@ console.log('\n## 646. R1755 cc.Canvas 해상도 퀵 편집 체크')
   }
 }
 
+// ── Section 647: R1756 BatchInspector 전체 필드 초기화 버튼 ──────────────────
+console.log('\n## 647. R1756 BatchInspector 전체 필드 초기화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s647 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s647.includes('R1756') && s647.includes('전체 필드 초기화') && s647.includes('setBatchOpacity') && s647.includes('setBatchColor')) {
+    log('pass', 'R1756-batch-reset-all', 'BatchInspector 전체 필드 초기화 버튼')
+  } else {
+    log('warning', 'R1756-batch-reset-all', 'BatchInspector 전체 필드 초기화 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

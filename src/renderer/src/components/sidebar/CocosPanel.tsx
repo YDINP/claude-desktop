@@ -4145,11 +4145,21 @@ function CCFileBatchInspector({
         ))}
       </div>
       {/* 적용 버튼 */}
-      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
         <button
           onClick={applyBatch}
           style={{ fontSize: 10, padding: '3px 12px', background: 'rgba(167,139,250,0.2)', border: '1px solid #a78bfa', borderRadius: 3, color: '#a78bfa', cursor: 'pointer' }}
         >일괄 적용</button>
+        {/* R1756: 전체 필드 초기화 버튼 */}
+        <button
+          title="모든 배치 입력 필드 초기화"
+          onClick={() => {
+            setBatchOpacity(''); setBatchActive(''); setBatchDx(''); setBatchDy('')
+            setBatchScaleX(''); setBatchScaleY(''); setBatchSizeW(''); setBatchSizeH('')
+            setBatchColor(''); setBatchRot(''); setBatchLayer(''); setBatchNamePrefix(''); setBatchNameSuffix('')
+          }}
+          style={{ fontSize: 9, padding: '3px 8px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
+        >↺ 초기화</button>
         <button
           onClick={() => onSelectNode(null)}
           style={{ fontSize: 10, padding: '3px 8px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
