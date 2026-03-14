@@ -6323,7 +6323,7 @@ function CCFileNodeInspector({
               const ratio = draft.scale.y !== 0 ? v / draft.scale.y : 1
               applyAndSave({ scale: lockScale ? { x: draft.scale.x * ratio, y: v, z: draft.scale.z ?? 1 } : { ...draft.scale, y: v } })
             }, 0.01)}
-            {/* R1733: 스케일 스텝 버튼 ×0.5/×2 */}
+            {/* R1733: 스케일 스텝 버튼 ×0.5/×2 / R1782: int 정수화 */}
             <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
               {([0.5, 2] as const).map(mult => (
                 <span
@@ -6335,6 +6335,12 @@ function CCFileNodeInspector({
                   onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                 >×{mult}</span>
               ))}
+              <span title="스케일 정수화 (소수점 제거)"
+                onClick={() => applyAndSave({ scale: { x: Math.round(draft.scale.x), y: Math.round(draft.scale.y), z: Math.round(draft.scale.z ?? 1) } })}
+                style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
+              >int</span>
             </div>
           </div>
         </div>

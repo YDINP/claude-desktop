@@ -19307,6 +19307,18 @@ console.log('\n## 672. R1781 BatchInspector 일괄 정수화 체크')
   }
 }
 
+// ── Section 673: R1782 Inspector 스케일 정수화 버튼 ──────────────────────────
+console.log('\n## 673. R1782 Inspector 스케일 정수화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s673 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s673.includes('R1782') && s673.includes('스케일 정수화')) {
+    log('pass', 'R1782-scale-int', 'Inspector 스케일 정수화 버튼')
+  } else {
+    log('warning', 'R1782-scale-int', 'Inspector 스케일 정수화 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
