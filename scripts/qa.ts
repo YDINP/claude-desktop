@@ -22742,6 +22742,18 @@ console.log('\n## 958. R2067 BatchInspector cc.PageView direction 체크')
   }
 }
 
+// ── Section 959: R2068 BatchInspector cc.Layout cellSize ──────────
+console.log('\n## 959. R2068 BatchInspector cc.Layout cellSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s959 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s959.includes('R2068') && s959.includes('patchLayoutCell') && s959.includes('applyLayoutCell')) {
+    log('pass', 'R2068-batch-layout-cellsize', 'BatchInspector cc.Layout cellSize 일괄 설정')
+  } else {
+    log('warning', 'R2068-batch-layout-cellsize', 'BatchInspector cc.Layout cellSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

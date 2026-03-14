@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:11:34.297Z
+> 2026-03-14T08:12:30.351Z
 
 ## Critical
 _없음_
@@ -1997,3 +1997,4 @@ _없음_
 - BatchInspector cc.ScrollView bounce 일괄 설정
 - BatchInspector cc.RichText fontSize 일괄 설정
 - BatchInspector cc.PageView direction 일괄 설정
+- BatchInspector cc.Layout cellSize 일괄 설정
