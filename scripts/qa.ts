@@ -20063,6 +20063,18 @@ console.log('\n## 735. R1844 cc.ParticleSystem lifespan/lifespanVar 체크')
   }
 }
 
+// ── Section 736: R1845 cc.ParticleSystem gravity x/y ─────────────────────────
+console.log('\n## 736. R1845 cc.ParticleSystem gravity x/y 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s736 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s736.includes('R1845') && s736.includes('_N$gravity') && s736.includes('gravX') && s736.includes('gravY')) {
+    log('pass', 'R1845-particle-gravity', 'cc.ParticleSystem gravity x/y 편집')
+  } else {
+    log('warning', 'R1845-particle-gravity', 'cc.ParticleSystem gravity 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

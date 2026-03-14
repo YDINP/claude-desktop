@@ -9296,6 +9296,10 @@ function CCFileNodeInspector({
               // R1844: lifespan / lifespanVar
               const lifespan = Number(p.life ?? p._life ?? p._N$life ?? 1)
               const lifespanVar = Number(p.lifeVar ?? p._lifeVar ?? p._N$lifeVar ?? 0)
+              // R1845: gravity
+              const grav = p.gravity ?? p._gravity ?? p._N$gravity as { x?: number; y?: number } | undefined
+              const gravX = Number((grav as Record<string,number>|undefined)?.x ?? 0)
+              const gravY = Number((grav as Record<string,number>|undefined)?.y ?? 0)
               const durKey = comp.type === 'cc.ParticleSystem2D' ? '_N$duration' : '_duration'
               const maxKey = comp.type === 'cc.ParticleSystem2D' ? '_N$totalParticles' : '_N$maxParticles'
               return (
@@ -9371,6 +9375,30 @@ function CCFileNodeInspector({
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${emitRate === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: emitRate === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}
+                  </div>
+                  {/* R1845: gravity x/y */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>gravity</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>x</span>
+                    <input type="number" defaultValue={gravX} key={`gx-${gravX}`} step={10}
+                      onBlur={e => {
+                        const x = parseFloat(e.target.value) || 0
+                        const ng = { x, y: gravY }
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, gravity: ng, _gravity: ng, _N$gravity: ng } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>y</span>
+                    <input type="number" defaultValue={gravY} key={`gy-${gravY}`} step={10}
+                      onBlur={e => {
+                        const y = parseFloat(e.target.value) || 0
+                        const ng = { x: gravX, y }
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, gravity: ng, _gravity: ng, _N$gravity: ng } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
                   </div>
                   {/* R1841: speed / speedVar */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
