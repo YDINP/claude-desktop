@@ -5752,6 +5752,17 @@ function CCFileNodeInspector({
                 >H{d > 0 ? '+' : ''}{d}</span>
               ))}
             </div>
+            {/* R1744: 크기 배율 버튼 ×0.5/×2 */}
+            <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
+              {([0.5, 2] as const).map(mult => (
+                <span key={mult} title={`크기 ×${mult}`}
+                  onClick={() => applyAndSave({ size: { x: draft.size.x * mult, y: lockSize ? draft.size.y * mult : draft.size.y * mult } })}
+                  style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                >×{mult}</span>
+              ))}
+            </div>
             {/* R1670: 크기 % 표시 */}
             {showPct && zOrderInfo?.parentSize && (() => {
               const pw = zOrderInfo.parentSize!.x, ph = zOrderInfo.parentSize!.y
