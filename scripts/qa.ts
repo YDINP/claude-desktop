@@ -21182,6 +21182,18 @@ console.log('\n## 828. R1937 cc.ParticleSystem startSpin/startSpinVar 체크')
   }
 }
 
+// ── Section 829: R1938 cc.ParticleSystem endSpin/endSpinVar single-node ──────────
+console.log('\n## 829. R1938 cc.ParticleSystem endSpin/endSpinVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s829 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s829.includes('R1938') && s829.includes('endSpin') && s829.includes('endSpinVar')) {
+    log('pass', 'R1938-single-particle-endspin', 'cc.ParticleSystem endSpin/endSpinVar single-node 편집')
+  } else {
+    log('warning', 'R1938-single-particle-endspin', 'cc.ParticleSystem endSpin/endSpinVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

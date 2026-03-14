@@ -11734,6 +11734,33 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R1938: endSpin / endSpinVar */}
+                  {(() => {
+                    const endSpin = Number(p.endSpin ?? p._endSpin ?? p._N$endSpin ?? 0)
+                    const endSpinVar = Number(p.endSpinVar ?? p._endSpinVar ?? p._N$endSpinVar ?? 0)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>endSpin</span>
+                        <input type="number" defaultValue={endSpin} key={`es-${endSpin}`} step={10}
+                          onBlur={e => {
+                            const v = parseFloat(e.target.value) || 0
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endSpin: v, _endSpin: v, _N$endSpin: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>var</span>
+                        <input type="number" defaultValue={endSpinVar} key={`esv-${endSpinVar}`} min={0} step={10}
+                          onBlur={e => {
+                            const v = Math.max(0, parseFloat(e.target.value) || 0)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endSpinVar: v, _endSpinVar: v, _N$endSpinVar: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                      </div>
+                    )
+                  })()}
                   {/* R1924: startColor / startColorVar */}
                   {(() => {
                     const scRaw = p.startColor as { r?: number; g?: number; b?: number } | undefined
