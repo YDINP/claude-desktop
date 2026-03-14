@@ -24125,6 +24125,24 @@ if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
   log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
 }
 
+// ── Section 1177: R2222 BatchInspector cc.TiledLayer enabled ──────────
+console.log('\n## 1177. R2222 BatchInspector cc.TiledLayer enabled 체크')
+const s1177 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1177.includes('R2222') && s1177.includes('applyTiledLayerEnabled') && s1177.includes('TileEn')) {
+  log('pass', 'R2222-batch-tiledlayer-enabled', 'BatchInspector cc.TiledLayer enabled 일괄 설정')
+} else {
+  log('warning', 'R2222-batch-tiledlayer-enabled', 'BatchInspector cc.TiledLayer enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1178: R2222 BatchInspector cc.UITransform _anchorPoint (CC3.x) ──────────
+console.log('\n## 1178. R2222 BatchInspector cc.UITransform _anchorPoint 체크')
+const s1178 = s1177
+if (s1178.includes('R2222') && s1178.includes('applyUITransAnchor') && s1178.includes('UITAnc')) {
+  log('pass', 'R2222-batch-uitransform-anchorpoint', 'BatchInspector cc.UITransform _anchorPoint 프리셋 일괄 설정')
+} else {
+  log('warning', 'R2222-batch-uitransform-anchorpoint', 'BatchInspector cc.UITransform _anchorPoint 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1175: R2221 BatchInspector cc.DirectionalLight/PointLight enabled (CC3.x) ──────────
 console.log('\n## 1175. R2221 BatchInspector cc.DirectionalLight/PointLight enabled 체크')
 const s1175 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

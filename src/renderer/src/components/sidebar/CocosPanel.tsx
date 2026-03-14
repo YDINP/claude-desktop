@@ -6753,6 +6753,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2222: 공통 cc.UITransform _anchorPoint 프리셋 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.UITransform') && (() => {
+        const applyUITransAnchor = async (ax: number, ay: number) => {
+          if (!sceneFile.root) return
+          function patchUITransAnchor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchUITransAnchor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const _anchorPoint = { x: ax, y: ay }
+            const updComps = n.components.map(c => c.type === 'cc.UITransform'
+              ? { ...c, props: { ...c.props, _anchorPoint } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchUITransAnchor(sceneFile.root) })
+          setBatchMsg(`✓ UITransform anchorPoint=(${ax},${ay}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>UITAnc</span>
+            {([['C', 0.5, 0.5], ['TL', 0, 1], ['TR', 1, 1], ['BL', 0, 0], ['BR', 1, 0], ['TC', 0.5, 1], ['BC', 0.5, 0]] as [string, number, number][]).map(([l, ax, ay]) => (
+              <span key={l} onClick={() => applyUITransAnchor(ax, ay)} title={`anchorPoint=(${ax},${ay})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {
@@ -11331,6 +11358,32 @@ function CCFileBatchInspector({
               <span key={c} title={c} onClick={() => applyPSEndColorVar(c)}
                 style={{ width: 14, height: 14, borderRadius: 2, background: c, border: '1px solid var(--border)', cursor: 'pointer', display: 'inline-block', flexShrink: 0 }}
               />
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2222: 공통 cc.TiledLayer enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.TiledLayer') && (() => {
+        const applyTiledLayerEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchTiledLayerEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchTiledLayerEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.TiledLayer'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchTiledLayerEnabled(sceneFile.root) })
+          setBatchMsg(`✓ TiledLayer enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#6ee7b7', width: 48, flexShrink: 0 }}>TileEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyTiledLayerEnabled(v)} title={`TiledLayer enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
