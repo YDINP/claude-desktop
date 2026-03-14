@@ -4189,6 +4189,38 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1824: 공통 cc.RigidBody linearDamping 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBDamp = async (linearDamping: number) => {
+          if (!sceneFile.root || isNaN(linearDamping)) return
+          function patchRBDamp(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBDamp)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, linearDamping } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchRBDamp(sceneFile.root))
+          setBatchMsg(`✓ RigidBody linearDamping ${linearDamping} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>RB damp</span>
+            {([0, 0.1, 0.5, 1, 5] as const).map(v => (
+              <span key={v} title={`linearDamping = ${v}`}
+                onClick={() => applyRBDamp(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+            <input type="number" placeholder="?" step={0.1} min={0}
+              style={{ width: 36, fontSize: 8, background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text)', padding: '1px 3px' }}
+              onKeyDown={e => { if (e.key === 'Enter') { const v = parseFloat((e.target as HTMLInputElement).value); if (!isNaN(v)) { applyRBDamp(v);(e.target as HTMLInputElement).value = '' } } }}
+              onBlur={e => { if (e.target.value) { applyRBDamp(parseFloat(e.target.value)); e.target.value = '' } }}
+              title="linearDamping 직접 입력 후 Enter"
+            />
+          </div>
+        )
+      })()}
       {/* R1771: 공통 cc.ProgressBar progress 일괄 설정 */}
       {commonCompTypes.includes('cc.ProgressBar') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

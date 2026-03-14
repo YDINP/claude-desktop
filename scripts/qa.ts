@@ -19811,6 +19811,18 @@ console.log('\n## 714. R1823 cc.Button 상태색 리셋 체크')
   }
 }
 
+// ── Section 715: R1824 BatchInspector cc.RigidBody linearDamping 일괄 설정 ──
+console.log('\n## 715. R1824 BatchInspector cc.RigidBody linearDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s715 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s715.includes('R1824') && s715.includes('patchRBDamp') && s715.includes("c.type === 'cc.RigidBody'") && s715.includes('linearDamping')) {
+    log('pass', 'R1824-batch-rb-lineardamping', 'BatchInspector cc.RigidBody linearDamping 일괄 설정')
+  } else {
+    log('warning', 'R1824-batch-rb-lineardamping', 'BatchInspector cc.RigidBody linearDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
