@@ -19606,7 +19606,7 @@ function CCFileNodeInspector({
                         <span key={l} title={`normalColor = ${l}`}
                           onClick={() => {
                             const col = { ...c, a: 255 }
-                            const updated = draft.components.map(comp2 => comp2 === comp ? { ...comp2, props: { ...comp2.props, normalColor: col, _N$normalColor: col } } : comp2)
+                            const updated = draft.components.map(comp2 => comp2 === comp ? { ...comp2, props: { ...comp2.props, normalColor: col, _normalColor: col, _N$normalColor: col } } : comp2)
                             applyAndSave({ components: updated })
                           }}
                           style={{ width: 16, height: 14, background: `rgb(${c.r},${c.g},${c.b})`, border: '1px solid #555', borderRadius: 2, cursor: 'pointer', display: 'inline-block' }}
@@ -19627,10 +19627,10 @@ function CCFileNodeInspector({
                             disabledColor: { r: 120, g: 120, b: 120, a: 200 },
                           }
                           const updated = draft.components.map(c2 => c2 === comp ? { ...c2, props: { ...c2.props,
-                            normalColor: defs.normalColor, _N$normalColor: defs.normalColor,
-                            hoverColor: defs.hoverColor, _N$hoverColor: defs.hoverColor,
-                            pressedColor: defs.pressedColor, _N$pressedColor: defs.pressedColor,
-                            disabledColor: defs.disabledColor, _N$disabledColor: defs.disabledColor,
+                            normalColor: defs.normalColor, _normalColor: defs.normalColor, _N$normalColor: defs.normalColor,
+                            hoverColor: defs.hoverColor, _hoverColor: defs.hoverColor, _N$hoverColor: defs.hoverColor,
+                            pressedColor: defs.pressedColor, _pressedColor: defs.pressedColor, _N$pressedColor: defs.pressedColor,
+                            disabledColor: defs.disabledColor, _disabledColor: defs.disabledColor, _N$disabledColor: defs.disabledColor,
                           } } : c2)
                           applyAndSave({ components: updated })
                         }}
