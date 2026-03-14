@@ -19691,6 +19691,18 @@ console.log('\n## 704. R1813 cc.Graphics + Physics Colliders applyAndSave 체크
   }
 }
 
+// ── Section 705: R1814 cc.SkeletalAnimation speedRatio 퀵 프리셋 ───────────────
+console.log('\n## 705. R1814 cc.SkeletalAnimation speedRatio 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s705 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s705.includes('R1814') && s705.includes('speedRatio 퀵 프리셋') && s705.includes('_speedRatio: v')) {
+    log('pass', 'R1814-skeletal-speedratio-preset', 'cc.SkeletalAnimation speedRatio 퀵 프리셋')
+  } else {
+    log('warning', 'R1814-skeletal-speedratio-preset', 'cc.SkeletalAnimation speedRatio 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

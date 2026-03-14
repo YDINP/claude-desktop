@@ -8581,6 +8581,16 @@ function CCFileNodeInspector({
                       }}
                       style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
+                    {/* R1814: speedRatio 퀵 프리셋 */}
+                    {([0.5, 1, 1.5, 2] as const).map(v => (
+                      <span key={v} title={`speedRatio = ×${v}`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedRatio: v, _speedRatio: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${speedRatio === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: speedRatio === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >×{v}</span>
+                    ))}
                   </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={playOnLoad}

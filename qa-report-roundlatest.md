@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:21:50.409Z
+> 2026-03-14T04:22:47.370Z
 
 ## Critical
 _없음_
@@ -1743,3 +1743,4 @@ _없음_
 - cc.LabelOutline/LabelShadow applyAndSave
 - cc.Toggle/EditBox(legacy) applyAndSave
 - cc.Graphics + Collider applyAndSave
+- cc.SkeletalAnimation speedRatio 퀵 프리셋
