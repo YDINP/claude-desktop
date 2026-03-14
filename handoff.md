@@ -1,32 +1,28 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-15
 
-## 완료 (R1500-2275)
-- [x] R1500~R2225: (이전 세션 완료)
-- [x] R2226~R2261: CC3.x 갭 수정 (Label/EditBox/ScrollView/Scrollbar/PageView/VideoPlayer/Canvas/Button/RichText/Slider/Layout/Widget 등)
-- [x] R2262: cc.Layout _cellSize + cc.Widget _isAbs* 6종
-- [x] R2263: BatchInspector cc.ScrollView _toggle 3종 + 단일노드 ParticleSystem _startColor/_endColor
-- [x] R2264: 단일노드 cc.ScrollView _brake + _elasticDuration
-- [x] R2265: BatchInspector cc.Widget 4방향 _top/_bottom/_left/_right + cc.ProgressBar _totalLength
-- [x] R2266: BatchInspector cc.ProgressBar _reverse + _mode
-- [x] R2267: BatchInspector cc.ProgressBar _startWidth + 단일노드 cc.Layout _horizontalDirection/_verticalDirection
-- [x] R2268: 단일노드 cc.RichText _string/_fontSize/_lineHeight/_maxWidth/_horizontalAlign
-- [x] R2269: 단일노드 cc.Canvas _resolutionPolicy + stateColors _colorKey
-- [x] R2270: 단일노드 cc.Button normalColor + reset 4색
-- [x] R2271: 단일노드 cc.ProgressBar _totalLength/_reverse + cc.Label _horizontalAlign/_verticalAlign
-- [x] R2272: 단일노드 cc.Button _duration + BatchInspector cc.ParticleSystem _maxParticles/_totalParticles
-- [x] R2273: cc.Canvas _fitWidth/_fitHeight (BatchInspector + 단일노드 동시)
-- [x] R2274: 단일노드 cc.Label _string + cc.Slider _progress + cc.Button _interactable
-- [x] R2275: 단일노드 cc.VideoPlayer _remoteURL + cc.PageView _slideDuration/_autoPageTurningInterval
+## 완료 (R1500-2305)
+- [x] R1500~R2275: (이전 세션 완료)
+- [x] R2276~R2297: CC3.x 갭 수정 (TiledLayer/RigidBody/Toggle/DragonBones/sp.Skeleton/Layout/VideoPlayer/Canvas/Collider 등)
+- [x] R2298: BatchInspector `enabled` → `_enabled` (CC3.x 전체 36건 replace_all)
+- [x] R2299: BatchInspector UIOpacity opacity + TiledLayer opacity + Toggle interactable _N$* 갭 수정
+- [x] R2300: BatchInspector PageView direction + VideoPlayer keepAspectRatio + MotionStreak stroke/fade _N$* 갭 수정
+- [x] R2301: BatchInspector dragonBones/sp.Skeleton timeScale/debugBones/premultipliedAlpha/paused/debugSlots/useTint/enableBatch _N$* 갭 수정
+- [x] R2302: BatchInspector dragonBones/sp.Skeleton/SkeletalAnimation playOnLoad/loop + TiledLayer visible _N$* 갭 수정 (CC3.x=_only, CC2.x=_N$)
+- [x] R2303: BatchInspector AudioSource volume/preload/startTime/endTime + Layout resizeMode + Widget isAlignVerticalCenter/isAlignHorizontalCenter _N$* 갭 수정
+- [x] R2304: BatchInspector RigidBody type/mass/fixedRotation/linearDamping(×2)/angularDamping(×2)/bullet/allowSleep/enabledContactListener/awake/sleepThreshold _N$* 갭 수정
+- [x] R2305: BatchInspector ProgressBar totalLength/progress/reverse + Sprite grayscale _N$* 갭 수정
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2310** ← R2275 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2340** ← R2305 현재
 - Branch: dev
 - 체크포인트 QA: CONDITIONAL_PASS (기존 누적 이슈 유지, 신규 Critical 없음)
+- 최근 커밋: `1150ab8` (R2301-R2305), `90df328` (R2298-R2300)
 
-## 다음 예정 (R2276+)
-- 단일노드 ParticleSystem color (line 20741): `color: col, _N$color: col` → `_color: col` 추가 필요
-- 추가 갭 스캔: `_N$` 패턴에서 `_*` 누락 항목 계속 탐색
+## 다음 예정 (R2306+)
+- 추가 갭 스캔: `{ ...c.props, [prop] } }` 패턴 중 bare shorthand 잔존 여부 재확인
+  - 현재 스캔 결과: **잔존 없음** — 모든 BatchInspector shorthand 패턴 수정 완료
+- 단일노드 인스펙터 갭 추가 스캔: 다양한 컴포넌트의 `setXxx` 핸들러 내 `{ ...c.props, prop: value }` 패턴 (이미 대부분 수정됨)
 - ISSUE-06 items 3~6 (CC Editor 재설계): 별도 기획 필요
 
 ## ISSUE-06 상태
