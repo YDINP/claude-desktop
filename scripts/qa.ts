@@ -20438,6 +20438,18 @@ console.log('\n## 766. R1875 BatchInspector cc.PageView slideDuration 체크')
   }
 }
 
+// ── Section 767: R1876 BatchInspector cc.ScrollView brake ─────────────────
+console.log('\n## 767. R1876 BatchInspector cc.ScrollView brake 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s767 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s767.includes('R1876') && s767.includes('applyScrollBrake') && s767.includes('patchScrollBrake')) {
+    log('pass', 'R1876-batch-scrollview-brake', 'BatchInspector cc.ScrollView brake 일괄 설정')
+  } else {
+    log('warning', 'R1876-batch-scrollview-brake', 'BatchInspector cc.ScrollView brake 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

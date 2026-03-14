@@ -4250,6 +4250,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1876: 공통 cc.ScrollView brake 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applyScrollBrake = async (brake: number) => {
+          if (!sceneFile.root) return
+          function patchScrollBrake(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchScrollBrake)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, brake, _N$brake: brake } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchScrollBrake(sceneFile.root))
+          setBatchMsg(`✓ ScrollView brake=${brake} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SVbrake</span>
+            {([0, 0.5, 0.75, 1] as const).map(v => (
+              <span key={v} title={`brake = ${v}`}
+                onClick={() => applyScrollBrake(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1875: 공통 cc.PageView slideDuration 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVSlideDur = async (dur: number) => {
