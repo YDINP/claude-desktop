@@ -19775,6 +19775,18 @@ console.log('\n## 711. R1820 cc.Layout direction 버튼 체크')
   }
 }
 
+// ── Section 712: R1821 BatchInspector cc.Layout type 일괄 설정 ───────────────
+console.log('\n## 712. R1821 BatchInspector cc.Layout type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s712 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s712.includes('R1821') && s712.includes('patchLayoutType') && s712.includes("c.type === 'cc.Layout'")) {
+    log('pass', 'R1821-batch-layout-type', 'BatchInspector cc.Layout type 일괄 설정')
+  } else {
+    log('warning', 'R1821-batch-layout-type', 'BatchInspector cc.Layout type 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

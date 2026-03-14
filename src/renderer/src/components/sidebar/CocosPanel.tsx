@@ -4138,6 +4138,29 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1821: 공통 cc.Layout type 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Layout</span>
+          {([['None', 0], ['H', 1], ['V', 2], ['Grid', 3]] as const).map(([l, v]) => (
+            <span key={v} title={`layout type = ${l}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                function patchLayoutType(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchLayoutType)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, type: v, layoutType: v } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchLayoutType(sceneFile.root))
+                setBatchMsg(`✓ Layout type ${l} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+            >{l}</span>
+          ))}
+        </div>
+      )}
       {/* R1771: 공통 cc.ProgressBar progress 일괄 설정 */}
       {commonCompTypes.includes('cc.ProgressBar') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
