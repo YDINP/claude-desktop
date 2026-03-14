@@ -23246,6 +23246,18 @@ console.log('\n## 1000. R2109 BatchInspector cc.AudioSource playOnLoad 체크')
   }
 }
 
+// ── Section 1001: R2110 BatchInspector cc.EditBox tabIndex ──────────
+console.log('\n## 1001. R2110 BatchInspector cc.EditBox tabIndex 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1001 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1001.includes('R2110') && s1001.includes('patchEditTabIndex') && s1001.includes('applyEditTabIndex')) {
+    log('pass', 'R2110-batch-edit-tabindex', 'BatchInspector cc.EditBox tabIndex 일괄 설정')
+  } else {
+    log('warning', 'R2110-batch-edit-tabindex', 'BatchInspector cc.EditBox tabIndex 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -5466,6 +5466,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2110: 공통 cc.EditBox tabIndex 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEditTabIndex = async (tabIndex: number) => {
+          if (!sceneFile.root) return
+          function patchEditTabIndex(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEditTabIndex)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, tabIndex, _tabIndex: tabIndex } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEditTabIndex(sceneFile.root) })
+          setBatchMsg(`✓ EditBox tabIndex=${tabIndex} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>EditTab</span>
+            {[0, 1, 2, 3, 4, 5].map(v => (
+              <span key={v} onClick={() => applyEditTabIndex(v)} title={`tabIndex=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2085: 공통 cc.EditBox inputMode 일괄 설정 */}
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditInputMode = async (inputMode: number) => {
