@@ -19907,6 +19907,18 @@ console.log('\n## 722. R1831 cc.ScrollView elasticDuration 체크')
   }
 }
 
+// ── Section 723: R1832 cc.Canvas resolutionPolicy 퀵 선택 ───────────────────
+console.log('\n## 723. R1832 cc.Canvas resolutionPolicy 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s723 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s723.includes('R1832') && s723.includes('resolutionPolicy') && s723.includes('SHOW_ALL') && s723.includes('NO_BORDER')) {
+    log('pass', 'R1832-canvas-resolutionpolicy', 'cc.Canvas resolutionPolicy 퀵 선택')
+  } else {
+    log('warning', 'R1832-canvas-resolutionpolicy', 'cc.Canvas resolutionPolicy 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

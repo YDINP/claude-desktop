@@ -7927,6 +7927,25 @@ function CCFileNodeInspector({
                       />fitHeight
                     </label>
                   </div>
+                  {/* R1832: resolutionPolicy 퀵 선택 */}
+                  {(() => {
+                    const rp = Number(p.resolutionPolicy ?? p._N$resolutionPolicy ?? -1)
+                    const opts: [string, number][] = [['SHOW_ALL', 0], ['NO_BORDER', 1], ['EXACT_FIT', 2], ['FIX_H', 3], ['FIX_W', 4]]
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>policy</span>
+                        {opts.map(([l, v]) => (
+                          <span key={v} title={`resolutionPolicy = ${l} (${v})`}
+                            onClick={() => {
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, resolutionPolicy: v, _N$resolutionPolicy: v } } : c)
+                              applyAndSave({ components: updated })
+                            }}
+                            style={{ fontSize: 7, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${rp === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: rp === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                          >{l}</span>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }
