@@ -6159,7 +6159,7 @@ function CCFileNodeInspector({
       </div>
       {/* R1536: PropSearch 키 하이라이트 헬퍼 */}
       {!collapsed['comps'] && (() => {
-        const skipTypes = ['cc.UITransform', 'cc.Canvas', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
+        const skipTypes = ['cc.UITransform', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
         // R1473: 커스텀 스크립트 컴포넌트 (cc. 접두사 없는 타입) 항상 표시
         const isCustomScript = (type: string) => !type.startsWith('cc.') && !type.startsWith('cc-') && type !== ''
         const visibleComps = draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
@@ -6804,6 +6804,55 @@ function CCFileNodeInspector({
                       onChange={ev => onPropChange?.(node.uuid, comp.type, 'overflow', Number(ev.target.value))}>
                       {OVERFLOW.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
                     </select>
+                  </div>
+                </div>
+              )
+            }
+            // R1755: cc.Canvas — 해상도 + fitWidth/fitHeight 퀵 편집
+            if (comp.type === 'cc.Canvas') {
+              const dr = (p._N$designResolution ?? p._designResolution ?? p.designResolution ?? {}) as { width?: number; height?: number }
+              const fw = !!(p._N$fitWidth ?? p.fitWidth ?? false)
+              const fh = !!(p._N$fitHeight ?? p.fitHeight ?? true)
+              return (
+                <div key={ci} style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>resolution</span>
+                    <input type="number" defaultValue={dr.width ?? 960} min={1}
+                      onBlur={e => {
+                        const w = parseInt(e.target.value) || (dr.width ?? 960)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _N$designResolution: { ...dr, width: w }, _designResolution: { ...dr, width: w } } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>×</span>
+                    <input type="number" defaultValue={dr.height ?? 640} min={1}
+                      onBlur={e => {
+                        const h = parseInt(e.target.value) || (dr.height ?? 640)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _N$designResolution: { ...dr, height: h }, _designResolution: { ...dr, height: h } } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={fw}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _N$fitWidth: e.target.checked, fitWidth: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                      />fitWidth
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={fh}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _N$fitHeight: e.target.checked, fitHeight: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                      />fitHeight
+                    </label>
                   </div>
                 </div>
               )

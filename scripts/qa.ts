@@ -18983,6 +18983,18 @@ console.log('\n## 645. R1754 BatchInspector 순서 번호 추가 체크')
   }
 }
 
+// ── Section 646: R1755 cc.Canvas 해상도 퀵 편집 ──────────────────────────────
+console.log('\n## 646. R1755 cc.Canvas 해상도 퀵 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s646 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s646.includes('R1755') && s646.includes('cc.Canvas') && s646.includes('designResolution') && s646.includes('fitWidth') && s646.includes('fitHeight')) {
+    log('pass', 'R1755-canvas-resolution', 'cc.Canvas 해상도/fitWidth/fitHeight 퀵 편집')
+  } else {
+    log('warning', 'R1755-canvas-resolution', 'cc.Canvas 해상도 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
