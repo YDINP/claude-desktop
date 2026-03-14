@@ -25096,6 +25096,20 @@ if (
   log('warning', 'R2288-skeleton-skin-anim-paused-debug-cc3x', 'sp.Skeleton CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1293: R2289 단일노드 cc.Layout cellSize/autoWrap + SkeletalAnimation playOnLoad + TiledLayer opacity _* (CC3.x) ──────────
+console.log('\n## 1293. R2289 Layout cellSize/autoWrap + SkeletalAnimation playOnLoad + TiledLayer opacity CC3.x 체크')
+const s1293 = s1292
+if (
+  s1293.includes('cellSize: newCell, _cellSize: newCell, _N$cellSize: newCell') &&
+  s1293.includes('_autoWrap: e.target.checked, _N$autoWrap: e.target.checked') &&
+  s1293.includes('_playOnLoad: e.target.checked, _N$playOnLoad: e.target.checked') &&
+  s1293.includes('_opacity: parseFloat(e.target.value) || 1, _N$opacity: parseFloat(e.target.value) || 1')
+) {
+  log('pass', 'R2289-layout-cellsize-autowrap-skelanim-tiledlayer-cc3x', '단일노드 Layout cellSize/autoWrap + SkeletalAnimation playOnLoad + TiledLayer opacity _* (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2289-layout-cellsize-autowrap-skelanim-tiledlayer-cc3x', 'Layout/SkeletalAnimation/TiledLayer CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

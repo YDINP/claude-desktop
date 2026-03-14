@@ -18705,7 +18705,7 @@ function CCFileNodeInspector({
                               onBlur={e => {
                                 const v = parseFloat(e.target.value) || 0
                                 const newCell = { width: key === 'width' ? v : cellW, height: key === 'height' ? v : cellH }
-                                const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cellSize: newCell } } : c)
+                                const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cellSize: newCell, _cellSize: newCell, _N$cellSize: newCell } } : c)
                                 applyAndSave({ components: updated })
                               }}
                               placeholder={label}
@@ -18716,7 +18716,7 @@ function CCFileNodeInspector({
                         <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                           <input type="checkbox" checked={autoWrap}
                             onChange={e => {
-                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoWrap: e.target.checked } } : c)
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoWrap: e.target.checked, _autoWrap: e.target.checked, _N$autoWrap: e.target.checked } } : c)
                               applyAndSave({ components: updated })
                             }}
                           />autoWrap
@@ -20411,7 +20411,7 @@ function CCFileNodeInspector({
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={playOnLoad}
                       onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playOnLoad: e.target.checked, _playOnLoad: e.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playOnLoad: e.target.checked, _playOnLoad: e.target.checked, _N$playOnLoad: e.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }}
                     />playOnLoad
@@ -21322,7 +21322,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>opacity</span>
                     <input type="number" defaultValue={layerOpacity} min={0} max={1} step={0.1}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: parseFloat(e.target.value) || 1 } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: parseFloat(e.target.value) || 1, _opacity: parseFloat(e.target.value) || 1, _N$opacity: parseFloat(e.target.value) || 1 } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
