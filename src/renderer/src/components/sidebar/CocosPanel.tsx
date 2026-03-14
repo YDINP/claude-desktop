@@ -7164,7 +7164,7 @@ function CCFileNodeInspector({
                 </div>
               )
             }
-            // R1590: cc.Graphics Quick Edit
+            // R1590/R1813: cc.Graphics Quick Edit (applyAndSave)
             if (comp.type === 'cc.Graphics') {
               const toHex = (c: { r?: number; g?: number; b?: number } | undefined) => {
                 if (!c) return '#ffffff'
@@ -7180,22 +7180,34 @@ function CCFileNodeInspector({
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>lineWidth</label>
-                      <input type="number" min={0} value={Number(p.lineWidth ?? 1)}
+                      <input type="number" min={0} defaultValue={Number(p.lineWidth ?? 1)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'lineWidth', Number(ev.target.value))} />
+                        onBlur={ev => {
+                          const v = Number(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineWidth: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div />
                     <div>
                       <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>fillColor</label>
                       <input type="color" value={toHex(p.fillColor as { r?: number; g?: number; b?: number } | undefined)}
                         style={{ width: '100%', height: 22, border: '1px solid #444', borderRadius: 3, cursor: 'pointer' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillColor', fromHex(ev.target.value, 255))} />
+                        onChange={ev => {
+                          const col = fromHex(ev.target.value, 255)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillColor: col } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>strokeColor</label>
                       <input type="color" value={toHex(p.strokeColor as { r?: number; g?: number; b?: number } | undefined)}
                         style={{ width: '100%', height: 22, border: '1px solid #444', borderRadius: 3, cursor: 'pointer' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'strokeColor', fromHex(ev.target.value, 255))} />
+                        onChange={ev => {
+                          const col = fromHex(ev.target.value, 255)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, strokeColor: col } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                   </div>
                 </div>
@@ -9005,7 +9017,7 @@ function CCFileNodeInspector({
                 </div>
               )
             }
-            // R1591: cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Quick Edit
+            // R1591/R1813: cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Quick Edit (applyAndSave)
             if (comp.type === 'cc.BoxCollider' || comp.type === 'cc.BoxCollider2D') {
               const off = p.offset as { x?: number; y?: number } | undefined
               const sz = p.size as { width?: number; height?: number } | undefined
@@ -9015,32 +9027,51 @@ function CCFileNodeInspector({
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>offset X</label>
-                      <input type="number" value={Number(off?.x ?? 0)}
+                      <input type="number" defaultValue={Number(off?.x ?? 0)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'offset', { ...(off ?? {}), x: Number(ev.target.value) })} />
+                        onBlur={ev => {
+                          const newOff = { ...(off ?? {}), x: Number(ev.target.value) }
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>offset Y</label>
-                      <input type="number" value={Number(off?.y ?? 0)}
+                      <input type="number" defaultValue={Number(off?.y ?? 0)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'offset', { ...(off ?? {}), y: Number(ev.target.value) })} />
+                        onBlur={ev => {
+                          const newOff = { ...(off ?? {}), y: Number(ev.target.value) }
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>width</label>
-                      <input type="number" min={0} value={Number(sz?.width ?? 100)}
+                      <input type="number" min={0} defaultValue={Number(sz?.width ?? 100)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'size', { ...(sz ?? {}), width: Number(ev.target.value) })} />
+                        onBlur={ev => {
+                          const newSz = { ...(sz ?? {}), width: Number(ev.target.value) }
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, size: newSz } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>height</label>
-                      <input type="number" min={0} value={Number(sz?.height ?? 100)}
+                      <input type="number" min={0} defaultValue={Number(sz?.height ?? 100)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'size', { ...(sz ?? {}), height: Number(ev.target.value) })} />
+                        onBlur={ev => {
+                          const newSz = { ...(sz ?? {}), height: Number(ev.target.value) }
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, size: newSz } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                   </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                     <input type="checkbox" checked={!!(p.sensor ?? false)}
-                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'sensor', ev.target.checked)} />
+                      onChange={ev => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sensor: ev.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }} />
                     sensor
                   </label>
                 </div>
@@ -9054,26 +9085,41 @@ function CCFileNodeInspector({
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>offset X</label>
-                      <input type="number" value={Number(off?.x ?? 0)}
+                      <input type="number" defaultValue={Number(off?.x ?? 0)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'offset', { ...(off ?? {}), x: Number(ev.target.value) })} />
+                        onBlur={ev => {
+                          const newOff = { ...(off ?? {}), x: Number(ev.target.value) }
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>offset Y</label>
-                      <input type="number" value={Number(off?.y ?? 0)}
+                      <input type="number" defaultValue={Number(off?.y ?? 0)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'offset', { ...(off ?? {}), y: Number(ev.target.value) })} />
+                        onBlur={ev => {
+                          const newOff = { ...(off ?? {}), y: Number(ev.target.value) }
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>radius</label>
-                      <input type="number" min={0} value={Number(p.radius ?? 50)}
+                      <input type="number" min={0} defaultValue={Number(p.radius ?? 50)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'radius', Number(ev.target.value))} />
+                        onBlur={ev => {
+                          const v = Number(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, radius: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                         <input type="checkbox" checked={!!(p.sensor ?? false)}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'sensor', ev.target.checked)} />
+                          onChange={ev => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sensor: ev.target.checked } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
                         sensor
                       </label>
                     </div>

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:20:28.185Z
+> 2026-03-14T04:21:50.409Z
 
 ## Critical
 _없음_
@@ -1742,3 +1742,4 @@ _없음_
 - cc.Sprite Filled fillType/fillRange applyAndSave
 - cc.LabelOutline/LabelShadow applyAndSave
 - cc.Toggle/EditBox(legacy) applyAndSave
+- cc.Graphics + Collider applyAndSave

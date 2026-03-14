@@ -19679,6 +19679,18 @@ console.log('\n## 703. R1812 cc.Toggle/EditBox applyAndSave 체크')
   }
 }
 
+// ── Section 704: R1813 cc.Graphics + Physics Colliders applyAndSave ──────────
+console.log('\n## 704. R1813 cc.Graphics + Physics Colliders applyAndSave 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s704 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s704.includes('R1813') && s704.includes('strokeColor: col') && s704.includes('sensor: ev.target.checked')) {
+    log('pass', 'R1813-graphics-physics-applyandsave', 'cc.Graphics + Collider applyAndSave')
+  } else {
+    log('warning', 'R1813-graphics-physics-applyandsave', 'cc.Graphics/Collider applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
