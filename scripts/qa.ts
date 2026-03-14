@@ -21494,6 +21494,18 @@ console.log('\n## 854. R1963 BatchInspector cc.LabelOutline width 체크')
   }
 }
 
+// ── Section 855: R1964 BatchInspector cc.LabelShadow blur ──────────
+console.log('\n## 855. R1964 BatchInspector cc.LabelShadow blur 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s855 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s855.includes('R1964') && s855.includes('patchLabelShadowBlur') && s855.includes('applyLabelShadowBlur')) {
+    log('pass', 'R1964-batch-labelshadow-blur', 'BatchInspector cc.LabelShadow blur 일괄 설정')
+  } else {
+    log('warning', 'R1964-batch-labelshadow-blur', 'BatchInspector cc.LabelShadow blur 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

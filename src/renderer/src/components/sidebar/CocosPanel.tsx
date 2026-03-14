@@ -4866,6 +4866,33 @@ function CCFileBatchInspector({
           />
         </div>
       )}
+      {/* R1964: 공통 cc.LabelShadow blur 일괄 설정 */}
+      {commonCompTypes.includes('cc.LabelShadow') && (() => {
+        const applyLabelShadowBlur = async (blur: number) => {
+          if (!sceneFile.root) return
+          function patchLabelShadowBlur(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelShadowBlur)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, blur, _blur: blur, _N$blur: blur } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelShadowBlur(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ LabelShadow blur=${blur} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>Shdblur</span>
+            {([0, 1, 2, 3, 5] as const).map(v => (
+              <span key={v} title={`LabelShadow blur = ${v}`}
+                onClick={() => applyLabelShadowBlur(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f59e0b', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1859: 공통 cc.ScrollView horizontal/vertical/inertia 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollToggle = async (key: 'horizontal' | 'vertical' | 'inertia', value: boolean) => {
