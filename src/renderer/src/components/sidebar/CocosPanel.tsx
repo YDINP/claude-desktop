@@ -6169,6 +6169,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2116: 공통 cc.ScrollView vertical 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVVert = async (vertical: boolean) => {
+          if (!sceneFile.root) return
+          function patchSVVert(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVVert)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, vertical, _N$vertical: vertical } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSVVert(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView vertical=${vertical} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SVVert</span>
+            <span onClick={() => applySVVert(true)} title="vertical ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>V✓</span>
+            <span onClick={() => applySVVert(false)} title="vertical OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>V✗</span>
+          </div>
+        )
+      })()}
       {/* R2004: 공통 cc.ScrollView pagingEnabled 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVPaging = async (pagingEnabled: boolean) => {

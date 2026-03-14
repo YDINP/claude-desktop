@@ -23318,6 +23318,18 @@ console.log('\n## 1006. R2115 BatchInspector cc.ScrollView horizontal 체크')
   }
 }
 
+// ── Section 1007: R2116 BatchInspector cc.ScrollView vertical ──────────
+console.log('\n## 1007. R2116 BatchInspector cc.ScrollView vertical 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1007 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1007.includes('R2116') && s1007.includes('patchSVVert') && s1007.includes('applySVVert')) {
+    log('pass', 'R2116-batch-sv-vert', 'BatchInspector cc.ScrollView vertical 일괄 설정')
+  } else {
+    log('warning', 'R2116-batch-sv-vert', 'BatchInspector cc.ScrollView vertical 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
