@@ -23042,6 +23042,18 @@ console.log('\n## 983. R2092 BatchInspector cc.CircleCollider restitution 체크
   }
 }
 
+// ── Section 984: R2093 BatchInspector cc.PolygonCollider density ──────────
+console.log('\n## 984. R2093 BatchInspector cc.PolygonCollider density 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s984 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s984.includes('R2093') && s984.includes('patchPolyDens') && s984.includes('applyPolyDens')) {
+    log('pass', 'R2093-batch-poly-density', 'BatchInspector cc.PolygonCollider density 일괄 설정')
+  } else {
+    log('warning', 'R2093-batch-poly-density', 'BatchInspector cc.PolygonCollider density 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

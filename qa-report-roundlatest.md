@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:30:03.089Z
+> 2026-03-14T08:31:04.623Z
 
 ## Critical
 _없음_
@@ -2022,3 +2022,4 @@ _없음_
 - BatchInspector cc.CircleCollider friction 일괄 설정
 - BatchInspector cc.BoxCollider restitution 일괄 설정
 - BatchInspector cc.CircleCollider restitution 일괄 설정
+- BatchInspector cc.PolygonCollider density 일괄 설정
