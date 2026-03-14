@@ -17999,6 +17999,18 @@ console.log('\n## 563. R1672 노드 북마크 체크')
   }
 }
 
+// ── Section 564: R1673 컴포넌트 prop diff 표시 ──────────────────────
+console.log('\n## 564. R1673 컴포넌트 prop diff 표시 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s564 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s564.includes('R1673') && s564.includes('isPropChanged') && s564.includes('origComp') && s564.includes('변경됨')) {
+    log('pass', 'R1673-prop-diff', '컴포넌트 prop diff 표시 (변경된 prop 황색 dot)')
+  } else {
+    log('warning', 'R1673-prop-diff', '컴포넌트 prop diff 표시 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

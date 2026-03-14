@@ -6801,13 +6801,22 @@ function CCFileNodeInspector({
                 {/* R1536: PropSearch 하이라이트 */}
                 {filteredProps.map(([k, v]) => {
             const isFavProp = favProps.has(`${comp.type}:${k}`)
+            // R1673: 원본 대비 변경된 prop 감지
+            const origComp = origSnapRef.current?.components[origIdx]
+            const origVal = origComp?.props[k]
+            const isPropChanged = origComp !== undefined && JSON.stringify(v) !== JSON.stringify(origVal)
             // R1536: propSearch 매칭 시 키 이름 하이라이트
             const propKeyLabel = (key: string): React.ReactNode => {
-              if (!propSearch) return key
-              const lk = key.toLowerCase(), lq = propSearch.toLowerCase()
-              const idx = lk.indexOf(lq)
-              if (idx < 0) return key
-              return <>{key.slice(0, idx)}<mark style={{ background: 'rgba(250,204,21,0.25)', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{key.slice(idx, idx + propSearch.length)}</mark>{key.slice(idx + propSearch.length)}</>
+              const baseLabel = (() => {
+                if (!propSearch) return key
+                const lk = key.toLowerCase(), lq = propSearch.toLowerCase()
+                const i = lk.indexOf(lq)
+                if (i < 0) return key
+                return <>{key.slice(0, i)}<mark style={{ background: 'rgba(250,204,21,0.25)', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{key.slice(i, i + propSearch.length)}</mark>{key.slice(i + propSearch.length)}</>
+              })()
+              return isPropChanged
+                ? <><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: '#fbbf24', marginRight: 3, flexShrink: 0, verticalAlign: 'middle' }} title="변경됨" />{baseLabel}</>
+                : baseLabel
             }
             const favBtn = (
               <span
