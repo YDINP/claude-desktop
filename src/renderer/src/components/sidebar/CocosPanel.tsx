@@ -6775,6 +6775,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2196: 공통 cc.AudioSource enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.AudioSource') && (() => {
+        const applyAudioEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchAudioEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAudioEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchAudioEnabled(sceneFile.root) })
+          setBatchMsg(`✓ AudioSource enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#facc15', width: 48, flexShrink: 0 }}>ASComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyAudioEnabled(v)} title={`AudioSource enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#facc15', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1761: 공통 cc.AudioSource volume 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7870,6 +7896,32 @@ function CCFileBatchInspector({
             {([['Dflt', 0], ['Norm', 1], ['Loop', 2], ['Ping', 3]] as const).map(([l, v]) => (
               <span key={v} onClick={() => applyAnimWrapMode(v)} title={`wrapMode=${l}(${v})`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#fbbf24', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2196: 공통 cc.VideoPlayer enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchVideoEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideoEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchVideoEnabled(sceneFile.root) })
+          setBatchMsg(`✓ VideoPlayer enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>VPComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyVideoEnabled(v)} title={`VideoPlayer enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )

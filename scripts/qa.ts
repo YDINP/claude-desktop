@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1124: R2196 BatchInspector cc.AudioSource enabled ──────────
+console.log('\n## 1124. R2196 BatchInspector cc.AudioSource enabled (컴포넌트 레벨) 체크')
+const s1124 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1124.includes('R2196') && s1124.includes('applyAudioEnabled') && s1124.includes('ASComp')) {
+  log('pass', 'R2196-batch-audiosource-enabled', 'BatchInspector cc.AudioSource enabled 일괄 설정')
+} else {
+  log('warning', 'R2196-batch-audiosource-enabled', 'BatchInspector cc.AudioSource enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1125: R2196 BatchInspector cc.VideoPlayer enabled ──────────
+console.log('\n## 1125. R2196 BatchInspector cc.VideoPlayer enabled (컴포넌트 레벨) 체크')
+const s1125 = s1124
+if (s1125.includes('R2196') && s1125.includes('applyVideoEnabled') && s1125.includes('VPComp')) {
+  log('pass', 'R2196-batch-videoplayer-enabled', 'BatchInspector cc.VideoPlayer enabled 일괄 설정')
+} else {
+  log('warning', 'R2196-batch-videoplayer-enabled', 'BatchInspector cc.VideoPlayer enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1122: R2195 BatchInspector cc.Slider enabled ──────────
 console.log('\n## 1122. R2195 BatchInspector cc.Slider enabled (컴포넌트 레벨) 체크')
 const s1122 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
