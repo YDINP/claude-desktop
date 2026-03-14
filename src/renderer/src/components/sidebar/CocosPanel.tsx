@@ -4996,9 +4996,37 @@ function CCFileNodeInspector({
       })())}
       {!collapsed['anchor'] && (
       <div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
-          {numInput('aX', draft.anchor.x, v => applyAndSave({ anchor: { ...draft.anchor, x: v } }), 0.01)}
-          {numInput('aY', draft.anchor.y, v => applyAndSave({ anchor: { ...draft.anchor, y: v } }), 0.01)}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+          <div style={{ flex: 1 }}>
+            {numInput('aX', draft.anchor.x, v => applyAndSave({ anchor: { ...draft.anchor, x: v } }), 0.01)}
+            {numInput('aY', draft.anchor.y, v => applyAndSave({ anchor: { ...draft.anchor, y: v } }), 0.01)}
+          </div>
+          {/* R1671: 앵커 9-point 프리셋 그리드 */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 16px)', gap: 2, flexShrink: 0 }}>
+            {([1, 1, 0.5, 1, 1, 1, 0, 0.5, 0.5, 0.5, 1, 0.5, 0, 0, 0.5, 0, 1, 0] as number[]).reduce<Array<[number,number]>>((acc, _, i, arr) => i % 2 === 0 ? [...acc, [arr[i], arr[i+1]]] : acc, []).map(([ax, ay]) => {
+              const isActive = Math.abs((draft.anchor.x ?? 0.5) - ax) < 0.01 && Math.abs((draft.anchor.y ?? 0.5) - ay) < 0.01
+              const labels: Record<string, string> = {
+                '0,1': '↖', '0.5,1': '↑', '1,1': '↗',
+                '0,0.5': '←', '0.5,0.5': '⊕', '1,0.5': '→',
+                '0,0': '↙', '0.5,0': '↓', '1,0': '↘',
+              }
+              const label = labels[`${ax},${ay}`] ?? '·'
+              return (
+                <span
+                  key={`${ax}-${ay}`}
+                  title={`앵커 (${ax}, ${ay})`}
+                  onClick={() => applyAndSave({ anchor: { x: ax, y: ay } })}
+                  style={{
+                    width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 9, cursor: 'pointer', borderRadius: 2, userSelect: 'none',
+                    background: isActive ? 'rgba(88,166,255,0.2)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${isActive ? '#58a6ff' : 'var(--border)'}`,
+                    color: isActive ? '#58a6ff' : 'var(--text-muted)',
+                  }}
+                >{label}</span>
+              )
+            })}
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
           <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>α (불투명)</span>
@@ -5061,24 +5089,6 @@ function CCFileNodeInspector({
               style={{ width: 10, height: 10, borderRadius: 2, cursor: 'pointer', flexShrink: 0, border: '1px solid rgba(255,255,255,0.15)', background: `rgb(${c.r},${c.g},${c.b})` }}
             />
           ))}
-        </div>
-        {/* 앵커 9-point grid 프리셋 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 14px)', gap: 1, marginTop: 4, justifyContent: 'start' }}>
-          {([0, 0.5, 1] as const).flatMap(ay => ([0, 0.5, 1] as const).map(ax => {
-            const isActive = Math.abs(draft.anchor.x - ax) < 0.01 && Math.abs(draft.anchor.y - ay) < 0.01
-            return (
-              <div
-                key={`${ax}-${ay}`}
-                title={`앵커 (${ax}, ${ay})`}
-                onClick={() => applyAndSave({ anchor: { x: ax, y: ay } })}
-                style={{
-                  width: 14, height: 14, borderRadius: 2, cursor: 'pointer',
-                  background: isActive ? '#58a6ff' : 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                }}
-              />
-            )
-          }))}
         </div>
       </div>
       )}

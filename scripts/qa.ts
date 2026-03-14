@@ -17975,6 +17975,18 @@ console.log('\n## 561. R1670 Inspector 위치/크기 % 토글 체크')
   }
 }
 
+// ── Section 562: R1671 앵커 9-point 프리셋 그리드 ──────────────────────
+console.log('\n## 562. R1671 앵커 9-point 프리셋 그리드 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s562 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s562.includes('R1671') && s562.includes('9-point') && s562.includes('↖') && s562.includes('⊕')) {
+    log('pass', 'R1671-anchor-grid', '앵커 9-point 프리셋 그리드')
+  } else {
+    log('warning', 'R1671-anchor-grid', '앵커 9-point 프리셋 그리드 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
