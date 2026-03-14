@@ -23879,6 +23879,24 @@ if (s1053.includes('R2160') && s1053.includes('applyCircleOffset') && s1053.incl
   log('warning', 'R2160-batch-circlecollider2d-offset', 'BatchInspector cc.CircleCollider2D offset 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1054: R2161 BatchInspector 노드 _zIndex ──────────
+console.log('\n## 1054. R2161 BatchInspector 노드 _zIndex 체크')
+const s1054 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1054.includes('R2161') && s1054.includes('applyZIndex') && s1054.includes('_zIndex')) {
+  log('pass', 'R2161-batch-zindex', 'BatchInspector 노드 _zIndex 일괄 설정')
+} else {
+  log('warning', 'R2161-batch-zindex', 'BatchInspector 노드 _zIndex 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1055: R2161 BatchInspector cc.RigidBody group ──────────
+console.log('\n## 1055. R2161 BatchInspector cc.RigidBody group 체크')
+const s1055 = s1054
+if (s1055.includes('R2161') && s1055.includes('applyRBGroup') && s1055.includes('RBGrp')) {
+  log('pass', 'R2161-batch-rigidbody-group', 'BatchInspector cc.RigidBody group 일괄 설정')
+} else {
+  log('warning', 'R2161-batch-rigidbody-group', 'BatchInspector cc.RigidBody group 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

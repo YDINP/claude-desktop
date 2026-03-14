@@ -4283,6 +4283,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2161: 노드 _zIndex 일괄 설정 (CC2.x z-order) */}
+      {(() => {
+        const applyZIndex = async (zIndex: number) => {
+          if (!sceneFile.root) return
+          function patchZIndex(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchZIndex)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, _zIndex: zIndex, children }
+          }
+          await saveScene({ ...sceneFile, root: patchZIndex(sceneFile.root) })
+          setBatchMsg(`✓ _zIndex=${zIndex} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>zIdx</span>
+            {[0, 1, 2, 5, 10, -1].map(v => (
+              <span key={v} onClick={() => applyZIndex(v)} title={`_zIndex=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2006: 노드 rotation 일괄 설정 */}
       {(() => {
         const applyNodeRotation = async (deg: number) => {
@@ -11204,6 +11227,29 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBlinV</span>
             {[0, 1, 5, 10, 50, 100].map(v => (
               <span key={v} onClick={() => applyRBLinVelLim(v)} title={`linearVelocityLimit=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2161: 공통 cc.RigidBody group 일괄 설정 */}
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
+        const applyRBGroup = async (group: number) => {
+          if (!sceneFile.root) return
+          function patchRBGroup(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBGroup)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, group, _group: group } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRBGroup(sceneFile.root) })
+          setBatchMsg(`✓ RigidBody group=${group} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBGrp</span>
+            {[0, 1, 2, 3, 4, 5].map(v => (
+              <span key={v} onClick={() => applyRBGroup(v)} title={`group=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
             ))}
           </div>
