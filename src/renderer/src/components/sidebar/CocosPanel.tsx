@@ -1328,11 +1328,33 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     return () => window.removeEventListener('keydown', handler)
   }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene, handleSave, onSelectNode, parentMap, nodeMap, nodeBookmarks])
 
+  // R1729: cc.Label Find & Replace 상태
+  const [showLabelReplace, setShowLabelReplace] = useState(false)
+  const [labelFindText, setLabelFindText] = useState('')
+  const [labelReplaceText, setLabelReplaceText] = useState('')
+
   // R1430: 전역 노드 검색 상태
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false)
   const [globalSearchQuery, setGlobalSearchQuery] = useState('')
   const [globalSearchResults, setGlobalSearchResults] = useState<Array<{ node: CCSceneNode; path: string }>>([])
   const globalSearchInputRef = useRef<HTMLInputElement>(null)
+
+  // R1729: 매칭 cc.Label 목록
+  const labelReplaceMatches = useMemo(() => {
+    if (!showLabelReplace || !labelFindText.trim() || !sceneFile?.root) return []
+    const matches: Array<{ node: CCSceneNode; current: string }> = []
+    function walk(n: CCSceneNode) {
+      const labelComp = n.components.find(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
+      if (labelComp) {
+        const p = labelComp.props as Record<string, unknown>
+        const str = String(p._string ?? p.string ?? '')
+        if (str.includes(labelFindText)) matches.push({ node: n, current: str })
+      }
+      n.children.forEach(walk)
+    }
+    walk(sceneFile.root)
+    return matches
+  }, [showLabelReplace, labelFindText, sceneFile])
 
   // R1430: Ctrl+F 단축키
   useEffect(() => {
@@ -1475,6 +1497,28 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
     await saveScene(patchLabel(sceneFile.root))
   }, [sceneFile, saveScene])
+
+  // R1729: cc.Label 전체 교체
+  const handleLabelReplaceAll = useCallback(async () => {
+    if (!sceneFile?.root || !labelFindText.trim() || labelReplaceMatches.length === 0) return
+    const uuidSet = new Set(labelReplaceMatches.map(m => m.node.uuid))
+    function patchAll(n: CCSceneNode): CCSceneNode {
+      const children = n.children.map(patchAll)
+      if (!uuidSet.has(n.uuid)) return { ...n, children }
+      const updatedComps = n.components.map(c => {
+        if (c.type !== 'cc.Label' && c.type !== 'cc.RichText') return c
+        const p = c.props as Record<string, unknown>
+        const propKey = '_string' in p ? '_string' : 'string'
+        const current = String(p[propKey] ?? '')
+        const replaced = current.split(labelFindText).join(labelReplaceText)
+        return { ...c, props: { ...c.props, [propKey]: replaced } }
+      })
+      return { ...n, components: updatedComps, children }
+    }
+    await saveScene(patchAll(sceneFile.root))
+    setLabelFindText('')
+    setLabelReplaceText('')
+  }, [sceneFile, saveScene, labelFindText, labelReplaceText, labelReplaceMatches])
 
   // R1504: 새 노드 추가 (SceneView "+" 버튼 또는 Ctrl+N)
   const handleAddNode = useCallback(async (parentUuid: string | null, pos?: { x: number; y: number }) => {
@@ -2637,6 +2681,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 title={nodeFilters.length > 0 ? `컴포넌트 필터 활성 (${nodeFilters.length})` : '컴포넌트 타입 필터'}
                 style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: nodeFilters.length > 0 ? '#58a6ff' : showNodeFilters ? '#aaa' : '#666' }}
               >⊳</span>
+              {/* R1729: cc.Label Find & Replace 토글 */}
+              <span
+                onClick={() => setShowLabelReplace(v => !v)}
+                title="cc.Label 텍스트 찾기/바꾸기 (R1729)"
+                style={{ cursor: 'pointer', fontSize: 9, flexShrink: 0, color: showLabelReplace ? '#58a6ff' : '#666', fontWeight: showLabelReplace ? 700 : 400, letterSpacing: -0.5 }}
+              >ab</span>
             </div>
             {/* 검색 */}
             <div style={{ padding: '2px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
@@ -2705,6 +2755,41 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                     <span onClick={() => setNodeFilters(prev => prev.filter(f => f !== ct))} style={{ cursor: 'pointer', color: '#f85149' }}>✕</span>
                   </span>
                 ))}
+              </div>
+            )}
+            {/* R1729: cc.Label Find & Replace 패널 */}
+            {showLabelReplace && (
+              <div style={{ padding: '4px 6px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>찾기</span>
+                  <input
+                    value={labelFindText}
+                    onChange={e => setLabelFindText(e.target.value)}
+                    placeholder="찾을 텍스트..."
+                    style={{ flex: 1, fontSize: 10, padding: '2px 4px', background: 'var(--input-bg, rgba(255,255,255,0.05))', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-primary)', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>바꿈</span>
+                  <input
+                    value={labelReplaceText}
+                    onChange={e => setLabelReplaceText(e.target.value)}
+                    placeholder="바꿀 텍스트..."
+                    style={{ flex: 1, fontSize: 10, padding: '2px 4px', background: 'var(--input-bg, rgba(255,255,255,0.05))', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-primary)', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', flex: 1 }}>
+                    {labelFindText.trim() ? `${labelReplaceMatches.length}개 매칭` : 'cc.Label 텍스트 일괄 치환'}
+                  </span>
+                  {labelReplaceMatches.length > 0 && (
+                    <span
+                      onClick={handleLabelReplaceAll}
+                      title={`${labelReplaceMatches.length}개 cc.Label에서 "${labelFindText}" → "${labelReplaceText}" 교체`}
+                      style={{ fontSize: 9, padding: '2px 6px', borderRadius: 2, cursor: 'pointer', background: 'rgba(88,166,255,0.15)', color: '#58a6ff', border: '1px solid rgba(88,166,255,0.3)', userSelect: 'none' }}
+                    >전체 교체 ({labelReplaceMatches.length})</span>
+                  )}
+                </div>
               </div>
             )}
             {/* R1559: 씬 파일명 + 통계 */}

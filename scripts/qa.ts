@@ -18671,6 +18671,18 @@ console.log('\n## 619. R1728 트리 Ctrl+클릭 다중 선택 체크')
   }
 }
 
+// ── Section 620: R1729 cc.Label Find & Replace ────────────────────────────────
+console.log('\n## 620. R1729 cc.Label Find & Replace 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s620 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s620.includes('R1729') && s620.includes('showLabelReplace') && s620.includes('labelFindText') && s620.includes('handleLabelReplaceAll') && s620.includes('labelReplaceMatches')) {
+    log('pass', 'R1729-label-find-replace', 'cc.Label Find & Replace')
+  } else {
+    log('warning', 'R1729-label-find-replace', 'cc.Label Find & Replace 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
