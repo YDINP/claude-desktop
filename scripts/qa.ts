@@ -19175,6 +19175,18 @@ console.log('\n## 661. R1770 cc.ProgressBar progress 퀵 프리셋 체크')
   }
 }
 
+// ── Section 662: R1771 BatchInspector cc.ProgressBar progress 일괄 ───────────
+console.log('\n## 662. R1771 BatchInspector cc.ProgressBar progress 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s662 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s662.includes('R1771') && s662.includes('patchProgress') && s662.includes("'cc.ProgressBar'")) {
+    log('pass', 'R1771-batch-progress', 'BatchInspector cc.ProgressBar progress 일괄 설정')
+  } else {
+    log('warning', 'R1771-batch-progress', 'BatchInspector cc.ProgressBar progress 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -3921,6 +3921,28 @@ function CCFileBatchInspector({
           />
         </div>
       )}
+      {/* R1771: 공통 cc.ProgressBar progress 일괄 설정 */}
+      {commonCompTypes.includes('cc.ProgressBar') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Progress</span>
+          <input type="range" min={0} max={1} step={0.01} defaultValue={0}
+            onMouseUp={async e => {
+              const prog = parseFloat((e.target as HTMLInputElement).value)
+              if (!sceneFile.root) return
+              function patchProgress(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchProgress)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, progress: prog } } : c)
+                return { ...n, components: updComps, children }
+              }
+              await saveScene(patchProgress(sceneFile.root))
+              setBatchMsg(`✓ progress ${Math.round(prog * 100)}% (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ flex: 1 }}
+          />
+        </div>
+      )}
       {/* R1760: 공통 cc.Sprite tint 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
