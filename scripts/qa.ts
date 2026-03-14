@@ -24837,6 +24837,24 @@ if (
   log('warning', 'R2270-node-button-colors-cc3x', '단일노드 cc.Button 색상 CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1273: R2271 단일노드 cc.ProgressBar _totalLength/_reverse (CC3.x) ──────────
+console.log('\n## 1273. R2271 단일노드 cc.ProgressBar _totalLength/_reverse CC3.x 체크')
+const s1273 = s1272
+if (s1273.includes('_totalLength: v, _N$totalLength: v') && s1273.includes('_reverse: e.target.checked, _N$reverse')) {
+  log('pass', 'R2271-node-pb-totallength-reverse-cc3x', '단일노드 cc.ProgressBar _totalLength/_reverse (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2271-node-pb-totallength-reverse-cc3x', '단일노드 cc.ProgressBar CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1274: R2271 단일노드 cc.Label _horizontalAlign/_verticalAlign (CC3.x) ──────────
+console.log('\n## 1274. R2271 단일노드 cc.Label _horizontalAlign/_verticalAlign CC3.x 체크')
+const s1274 = s1273
+if (s1274.includes('_horizontalAlign: i, _N$horizontalAlign: i') && s1274.includes('_verticalAlign: i, _N$verticalAlign: i')) {
+  log('pass', 'R2271-node-label-align-cc3x', '단일노드 cc.Label _horizontalAlign/_verticalAlign (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2271-node-label-align-cc3x', '단일노드 cc.Label align CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

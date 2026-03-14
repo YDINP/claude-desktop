@@ -19705,7 +19705,7 @@ function CCFileNodeInspector({
                     <input type="number" defaultValue={totalLength} min={0} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 100
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, totalLength: v, _N$totalLength: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, totalLength: v, _totalLength: v, _N$totalLength: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -19713,7 +19713,7 @@ function CCFileNodeInspector({
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={reverse}
                         onChange={e => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, reverse: e.target.checked, _N$reverse: e.target.checked } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, reverse: e.target.checked, _reverse: e.target.checked, _N$reverse: e.target.checked } } : c)
                           applyAndSave({ components: updated })
                         }}
                       />reverse
@@ -19980,7 +19980,7 @@ function CCFileNodeInspector({
                       {(['L', 'C', 'R'] as const).map((lbl, i) => (
                         <span key={lbl}
                           onClick={() => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalAlign: i, _N$horizontalAlign: i } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalAlign: i, _horizontalAlign: i, _N$horizontalAlign: i } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ fontSize: 9, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: `1px solid ${hAlign === i ? '#58a6ff' : 'var(--border)'}`, color: hAlign === i ? '#58a6ff' : 'var(--text-muted)', background: hAlign === i ? 'rgba(88,166,255,0.1)' : 'transparent' }}
@@ -19990,7 +19990,7 @@ function CCFileNodeInspector({
                       {(['T', 'M', 'B'] as const).map((lbl, i) => (
                         <span key={lbl}
                           onClick={() => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, verticalAlign: i, _N$verticalAlign: i } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, verticalAlign: i, _verticalAlign: i, _N$verticalAlign: i } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ fontSize: 9, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: `1px solid ${vAlign === i ? '#58a6ff' : 'var(--border)'}`, color: vAlign === i ? '#58a6ff' : 'var(--text-muted)', background: vAlign === i ? 'rgba(88,166,255,0.1)' : 'transparent' }}
