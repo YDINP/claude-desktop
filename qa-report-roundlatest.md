@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:18:25.055Z
+> 2026-03-14T01:21:40.004Z
 
 ## Critical
 _없음_
@@ -1622,3 +1622,4 @@ _없음_
 - 회전 핸들 각도 표시
 - cc.Label 멀티라인 미리보기
 - SceneView 시각적 숨기기 토글
+- SceneView 좌표 핀 마커

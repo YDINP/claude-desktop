@@ -96,6 +96,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [hideInactiveNodes, setHideInactiveNodes] = useState(false)
   // R1692: 시각적 숨기기 (에디터 전용, active 불변)
   const [hiddenUuids, setHiddenUuids] = useState<Set<string>>(new Set())
+  // R1693: 좌표 핀 마커 (Ctrl+P로 추가, 클릭으로 삭제)
+  const [pinMarkers, setPinMarkers] = useState<{ id: number; ccX: number; ccY: number }[]>([])
+  const pinIdRef = useRef(0)
+  const hoverClientPosRef = useRef<{ x: number; y: number } | null>(null)
   // R1623: 와이어프레임 모드 (선만 표시)
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
@@ -460,6 +464,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const scy = Math.round(cy - (my - v.offsetY) / v.zoom)
       setMouseScenePos({ x: scx, y: scy })
     }
+    hoverClientPosRef.current = { x: e.clientX, y: e.clientY }  // R1693
   }, [isPanning, cx, cy, snapSize, flatNodes])
 
   const handleMouseUp = useCallback(() => {
@@ -616,6 +621,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
         e.preventDefault()
         if (selectedUuid) onDuplicate?.(selectedUuid)
+        return
+      }
+      // R1693: Ctrl+P — 마우스 위치에 핀 마커 추가
+      if ((e.ctrlKey || e.metaKey) && e.code === 'KeyP') {
+        e.preventDefault()
+        const svgEl = svgRef.current
+        if (svgEl && hoverClientPosRef.current) {
+          const rect = svgEl.getBoundingClientRect()
+          const v = viewRef.current
+          const svgX = (hoverClientPosRef.current.x - rect.left - v.offsetX) / v.zoom
+          const svgY = (hoverClientPosRef.current.y - rect.top - v.offsetY) / v.zoom
+          const ccX = Math.round(svgX - designW / 2)
+          const ccY = Math.round(-(svgY - designH / 2))
+          setPinMarkers(prev => [...prev, { id: ++pinIdRef.current, ccX, ccY }])
+        }
         return
       }
       // R1570: P — 선택 노드 부모 노드로 포커스
@@ -973,6 +993,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             title={`시각적으로 숨긴 노드 ${hiddenUuids.size}개 — 클릭하여 모두 표시 (R1692)`}
             style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.5)', background: 'rgba(251,146,60,0.12)', color: '#fb923c' }}
           >👁‍🗨 {hiddenUuids.size}</button>
+        )}
+        {/* R1693: 핀 마커 카운트 + 초기화 */}
+        {pinMarkers.length > 0 && (
+          <button
+            onClick={() => setPinMarkers([])}
+            title={`핀 마커 ${pinMarkers.length}개 — 클릭하여 모두 삭제 (R1693)`}
+            style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(244,114,182,0.5)', background: 'rgba(244,114,182,0.12)', color: '#f472b6' }}
+          >📌 {pinMarkers.length}</button>
         )}
         {/* R1623: 와이어프레임 모드 */}
         <button
@@ -1338,8 +1366,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     onSelect(node.uuid)
                   }
                 }}
-                onMouseEnter={e => { setHoverUuid(node.uuid); setHoverClientPos({ x: e.clientX, y: e.clientY }) }}
-                onMouseMove={e => { if (hoverUuid === node.uuid) setHoverClientPos({ x: e.clientX, y: e.clientY }) }}
+                onMouseEnter={e => { setHoverUuid(node.uuid); setHoverClientPos({ x: e.clientX, y: e.clientY }); hoverClientPosRef.current = { x: e.clientX, y: e.clientY } }}
+                onMouseMove={e => { if (hoverUuid === node.uuid) { setHoverClientPos({ x: e.clientX, y: e.clientY }); hoverClientPosRef.current = { x: e.clientX, y: e.clientY } } }}
                 onMouseLeave={() => { setHoverUuid(null); setHoverClientPos(null) }}
                 onMouseDown={e => {
                   if (e.button !== 0) return
@@ -1756,6 +1784,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   stroke={isSelected ? '#58a6ff' : '#888'} strokeWidth={1 / view.zoom} />
                 <line x1={svgPos.x} y1={svgPos.y - r} x2={svgPos.x} y2={svgPos.y + r}
                   stroke={isSelected ? '#58a6ff' : '#888'} strokeWidth={1 / view.zoom} />
+              </g>
+            )
+          })}
+          {/* R1693: 좌표 핀 마커 */}
+          {pinMarkers.map(pm => {
+            const sp = ccToSvg(pm.ccX, pm.ccY)
+            const r = 6 / view.zoom
+            return (
+              <g key={pm.id} style={{ cursor: 'pointer' }} onClick={() => setPinMarkers(prev => prev.filter(p => p.id !== pm.id))}>
+                <line x1={sp.x} y1={sp.y - r} x2={sp.x} y2={sp.y + r} stroke="#f472b6" strokeWidth={1.5 / view.zoom} />
+                <line x1={sp.x - r} y1={sp.y} x2={sp.x + r} y2={sp.y} stroke="#f472b6" strokeWidth={1.5 / view.zoom} />
+                <circle cx={sp.x} cy={sp.y} r={2 / view.zoom} fill="#f472b6" />
+                <text x={sp.x + 5 / view.zoom} y={sp.y - 4 / view.zoom} fontSize={8 / view.zoom} fill="#f472b6" fontFamily="monospace" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+                  {pm.ccX},{pm.ccY}
+                </text>
               </g>
             )
           })}

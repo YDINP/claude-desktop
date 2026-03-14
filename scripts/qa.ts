@@ -18239,6 +18239,18 @@ console.log('\n## 583. R1692 SceneView 시각적 숨기기 토글 체크')
   }
 }
 
+// ── Section 584: R1693 SceneView 좌표 핀 마커 ──────────────────────────────
+console.log('\n## 584. R1693 SceneView 좌표 핀 마커 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s584 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s584.includes('R1693') && s584.includes('pinMarkers') && s584.includes('Ctrl+P')) {
+    log('pass', 'R1693-pin-markers', 'SceneView 좌표 핀 마커')
+  } else {
+    log('warning', 'R1693-pin-markers', 'SceneView 좌표 핀 마커 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
