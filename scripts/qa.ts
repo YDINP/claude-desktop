@@ -20222,6 +20222,18 @@ console.log('\n## 748. R1857 BatchInspector cc.RigidBody gravityScale 체크')
   }
 }
 
+// ── Section 749: R1858 BatchInspector cc.PageView direction 일괄 ──────────────
+console.log('\n## 749. R1858 BatchInspector cc.PageView direction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s749 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s749.includes('R1858') && s749.includes('applyPVDir') && s749.includes("'cc.PageView'") && s749.includes('patchPVDir')) {
+    log('pass', 'R1858-batch-pageview-dir', 'BatchInspector cc.PageView direction H/V 일괄 설정')
+  } else {
+    log('warning', 'R1858-batch-pageview-dir', 'BatchInspector cc.PageView direction 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

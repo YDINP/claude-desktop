@@ -4146,6 +4146,28 @@ function CCFileBatchInspector({
           />
         </div>
       )}
+      {/* R1858: 공통 cc.PageView direction 일괄 설정 */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPVDir = async (direction: number) => {
+          if (!sceneFile.root) return
+          function patchPVDir(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPVDir)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, direction } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchPVDir(sceneFile.root))
+          setBatchMsg(`✓ PageView dir=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>PageView</span>
+            <span onClick={() => applyPVDir(0)} title="방향: Horizontal" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>H→</span>
+            <span onClick={() => applyPVDir(1)} title="방향: Vertical" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>V↓</span>
+          </div>
+        )
+      })()}
       {/* R1795: 공통 cc.AudioSource loop/playOnLoad 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
