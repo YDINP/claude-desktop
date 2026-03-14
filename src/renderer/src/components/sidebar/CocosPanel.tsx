@@ -4691,6 +4691,28 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1885: 공통 cc.SkeletalAnimation playOnLoad 일괄 설정 */}
+      {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
+        const applySkelPlayOnLoad = async (playOnLoad: boolean) => {
+          if (!sceneFile.root) return
+          function patchSkelPOL(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSkelPOL)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, playOnLoad } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchSkelPOL(sceneFile.root))
+          setBatchMsg(`✓ SkeletalAnim playOnLoad=${playOnLoad} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>SkelPOL</span>
+            <span onClick={() => applySkelPlayOnLoad(true)} title="playOnLoad ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>play✓</span>
+            <span onClick={() => applySkelPlayOnLoad(false)} title="playOnLoad OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>play✗</span>
+          </div>
+        )
+      })()}
       {/* R1835: 공통 cc.Slider progress 일괄 설정 */}
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderProg = async (progress: number) => {

@@ -20546,6 +20546,18 @@ console.log('\n## 775. R1884 BatchInspector cc.Button transition 체크')
   }
 }
 
+// ── Section 776: R1885 BatchInspector cc.SkeletalAnimation playOnLoad ─────
+console.log('\n## 776. R1885 BatchInspector cc.SkeletalAnimation playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s776 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s776.includes('R1885') && s776.includes('applySkelPlayOnLoad') && s776.includes('patchSkelPOL')) {
+    log('pass', 'R1885-batch-skel-playonload', 'BatchInspector cc.SkeletalAnimation playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R1885-batch-skel-playonload', 'BatchInspector cc.SkeletalAnimation playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
