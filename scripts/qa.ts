@@ -19163,6 +19163,18 @@ console.log('\n## 660. R1769 BatchInspector cc.Button interactable 체크')
   }
 }
 
+// ── Section 661: R1770 cc.ProgressBar progress 퀵 프리셋 ─────────────────────
+console.log('\n## 661. R1770 cc.ProgressBar progress 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s661 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s661.includes('R1770') && s661.includes('ProgressBar progress 퀵 프리셋')) {
+    log('pass', 'R1770-progressbar-presets', 'cc.ProgressBar progress 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1770-progressbar-presets', 'cc.ProgressBar progress 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
