@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:29:18.989Z
+> 2026-03-14T01:30:19.237Z
 
 ## Critical
 _없음_
@@ -1629,3 +1629,4 @@ _없음_
 - SceneView 레이블 폰트 크기 조정
 - 다중 선택 공통 컴포넌트 표시
 - SceneView 선택 노드 정보 오버레이
+- cc.Animation 클립 이름 복사

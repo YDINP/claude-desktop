@@ -6271,7 +6271,7 @@ function CCFileNodeInspector({
                 </div>
               )
             }
-            // R1524: cc.Animation — 클립 드롭다운 + defaultClip 표시
+            // R1524: cc.Animation — 클립 드롭다운 + defaultClip 표시 / R1700: 클립 목록 + 이름 복사
             if (comp.type === 'cc.Animation') {
               const clips = (p._resolvedClips as Array<{ name: string }> | undefined) ?? []
               const defaultClipName = p._defaultClipName as string | undefined
@@ -6290,7 +6290,33 @@ function CCFileNodeInspector({
                       ))}
                     </select>
                   </div>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)', paddingLeft: 62 }}>{clips.length} clip{clips.length !== 1 ? 's' : ''}</span>
+                  {/* R1700: 클립 목록 + 이름 복사 */}
+                  <div style={{ paddingLeft: 62 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                      <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{clips.length} clips</span>
+                      <span
+                        title="모든 클립명 복사"
+                        onClick={() => navigator.clipboard.writeText(clips.map(c => c.name).join(', ')).catch(() => {})}
+                        style={{ fontSize: 8, cursor: 'pointer', color: '#666', padding: '0 3px' }}
+                        onMouseEnter={e => (e.currentTarget.style.color = '#f472b6')}
+                        onMouseLeave={e => (e.currentTarget.style.color = '#666')}
+                      >⎘ all</span>
+                    </div>
+                    {clips.map(c => (
+                      <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 1 }}>
+                        <span style={{ fontSize: 8, color: c.name === defaultClipName ? '#f472b6' : 'var(--text-muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {c.name === defaultClipName ? '★ ' : ''}{c.name}
+                        </span>
+                        <span
+                          title={`"${c.name}" 복사`}
+                          onClick={() => navigator.clipboard.writeText(c.name).catch(() => {})}
+                          style={{ fontSize: 8, cursor: 'pointer', color: '#555', flexShrink: 0 }}
+                          onMouseEnter={e => (e.currentTarget.style.color = '#f472b6')}
+                          onMouseLeave={e => (e.currentTarget.style.color = '#555')}
+                        >⎘</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )
             }
