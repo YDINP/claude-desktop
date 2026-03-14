@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T06:00:25.526Z
+> 2026-03-14T06:02:27.104Z
 
 ## Critical
 _없음_
@@ -1836,3 +1836,4 @@ _없음_
 - BatchInspector cc.Slider interactable 일괄 설정
 - cc.ParticleSystem radialAccel/tangentialAccel 편집
 - BatchInspector cc.ProgressBar progress 일괄 설정
+- cc.ParticleSystem startRadius/endRadius 편집

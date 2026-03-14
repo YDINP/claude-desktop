@@ -10899,6 +10899,33 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R1907: startRadius / endRadius (radial mode) */}
+                  {(() => {
+                    const startRadius = Number(p.startRadius ?? p._startRadius ?? p._N$startRadius ?? 0)
+                    const endRadius = Number(p.endRadius ?? p._endRadius ?? p._N$endRadius ?? 0)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startR</span>
+                        <input type="number" defaultValue={startRadius} key={`sr-${startRadius}`} min={0} step={10}
+                          onBlur={e => {
+                            const v = Math.max(0, parseFloat(e.target.value) || 0)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startRadius: v, _startRadius: v, _N$startRadius: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>endR</span>
+                        <input type="number" defaultValue={endRadius} key={`er-${endRadius}`} min={0} step={10}
+                          onBlur={e => {
+                            const v = Math.max(0, parseFloat(e.target.value) || 0)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endRadius: v, _endRadius: v, _N$endRadius: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                      </div>
+                    )
+                  })()}
                   {/* R1905: radialAccel / tangentialAccel */}
                   {(() => {
                     const radialAccel = Number(p.radialAccel ?? p._radialAccel ?? p._N$radialAccel ?? 0)

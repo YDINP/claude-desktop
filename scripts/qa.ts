@@ -20810,6 +20810,18 @@ console.log('\n## 797. R1906 BatchInspector cc.ProgressBar progress 체크')
   }
 }
 
+// ── Section 798: R1907 cc.ParticleSystem startRadius/endRadius ──────────
+console.log('\n## 798. R1907 cc.ParticleSystem startRadius/endRadius 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s798 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s798.includes('R1907') && s798.includes('startRadius') && s798.includes('endRadius')) {
+    log('pass', 'R1907-particle-radius', 'cc.ParticleSystem startRadius/endRadius 편집')
+  } else {
+    log('warning', 'R1907-particle-radius', 'cc.ParticleSystem startRadius/endRadius 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
