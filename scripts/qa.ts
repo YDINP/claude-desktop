@@ -18467,6 +18467,18 @@ console.log('\n## 602. R1711 cc.Sprite Filled 모드 편집 체크')
   }
 }
 
+// ── Section 603: R1712 씬 트리 컨텍스트 메뉴 확장 ──────────────────────────
+console.log('\n## 603. R1712 씬 트리 컨텍스트 메뉴 확장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s603 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s603.includes('R1712') && s603.includes('즐겨찾기 추가') && s603.includes('자식 모두 활성화')) {
+    log('pass', 'R1712-ctx-menu-extend', '씬 트리 컨텍스트 메뉴 확장')
+  } else {
+    log('warning', 'R1712-ctx-menu-extend', '씬 트리 컨텍스트 메뉴 확장 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -3241,12 +3241,19 @@ function CCFileSceneTree({
         >
           {[
             { label: '자식 추가', action: () => { setCtxMenu(null); onAddChild?.(node.uuid) } },
+            // R1712: 즐겨찾기 토글
+            onToggleFavorite ? { label: favorites?.has(node.uuid) ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가', action: () => { setCtxMenu(null); onToggleFavorite(node.uuid) } } : null,
             ...(!isRoot ? [
               { label: node.active ? '비활성화' : '활성화', action: () => { setCtxMenu(null); onToggleActive?.(node.uuid) } },
+              // R1712: 자식 일괄 활성/비활성
+              ...(hasChildren ? [
+                { label: '자식 모두 활성화', action: () => { setCtxMenu(null); node.children.forEach(c => onToggleActive && !c.active && onToggleActive(c.uuid)) } },
+                { label: '자식 모두 비활성화', action: () => { setCtxMenu(null); node.children.forEach(c => onToggleActive && c.active && onToggleActive(c.uuid)) } },
+              ] : []),
               { label: '복제', action: () => { setCtxMenu(null); onDuplicate?.(node.uuid) } },
               { label: '삭제', action: () => { setCtxMenu(null); onDelete?.(node.uuid) } },
             ] : []),
-          ].map(item => (
+          ].filter(Boolean).map(item => (
             <div key={item.label}
               onClick={item.action}
               style={{

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:51:07.681Z
+> 2026-03-14T01:52:40.459Z
 
 ## Critical
 _없음_
@@ -1641,3 +1641,4 @@ _없음_
 - cc.Layout Grid cellSize 편집
 - 씬 트리 구조 텍스트 복사
 - cc.Sprite Filled 모드 fillType/fillStart/fillRange 편집
+- 씬 트리 컨텍스트 메뉴 확장
