@@ -18095,6 +18095,18 @@ console.log('\n## 571. R1680 컴포넌트 타입별 색상 구분 체크')
   }
 }
 
+// ── Section 572: R1681 SceneView 선택 테두리 색상 사용자 설정 ───────────────
+console.log('\n## 572. R1681 SceneView 선택 테두리 색상 설정 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s572 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s572.includes('R1681') && s572.includes('selectionColor') && s572.includes('setSelectionColor')) {
+    log('pass', 'R1681-selection-color', 'SceneView 선택 테두리 색상 사용자 설정')
+  } else {
+    log('warning', 'R1681-selection-color', 'SceneView 선택 테두리 색상 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

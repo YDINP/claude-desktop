@@ -73,6 +73,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showNodeNames, setShowNodeNames] = useState(true)
   const [snapSize, setSnapSize] = useState(10)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
+  // R1681: 선택 노드 테두리 색상 사용자 설정
+  const [selectionColor, setSelectionColor] = useState('#58a6ff')
   const [showHelp, setShowHelp] = useState(false)
   // R1489: 미니맵
   const [showMinimap, setShowMinimap] = useState(true)
@@ -831,6 +833,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onDoubleClick={() => setBgColorOverride(null)}
           style={{ width: 18, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
         />
+        {/* R1681: 선택 노드 테두리 색상 */}
+        <input
+          type="color"
+          value={selectionColor}
+          title="선택 노드 테두리 색상 (더블클릭: 초기화)"
+          onChange={e => setSelectionColor(e.target.value)}
+          onDoubleClick={() => setSelectionColor('#58a6ff')}
+          style={{ width: 18, height: 18, border: `2px solid ${selectionColor}`, borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0, background: 'transparent' }}
+        />
         {/* R1674: snap size 사용자 설정 (custom 입력 + datalist 프리셋) */}
         <>
           <datalist id="snap-size-list">
@@ -1237,7 +1248,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               : hasLabel ? 'rgba(255,200,80,0.12)'
               : hasSprite ? 'rgba(80,220,120,0.12)'
               : 'rgba(150,150,255,0.08)'
-            const strokeColor = isSelected ? '#58a6ff'
+            const strokeColor = isSelected ? selectionColor
               : isDragged ? '#ff9944'
               : isSearchMatch ? '#ff44ff'
               : isHovered ? 'rgba(255,255,255,0.5)'
@@ -1491,7 +1502,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <line
                       x1={svgPos.x} y1={rectY}
                       x2={svgPos.x} y2={rectY - 22 / view.zoom}
-                      stroke="#58a6ff" strokeWidth={1 / view.zoom}
+                      stroke={selectionColor} strokeWidth={1 / view.zoom}
                       strokeDasharray={`${3 / view.zoom},${2 / view.zoom}`}
                       style={{ pointerEvents: 'none' }}
                     />
@@ -1774,7 +1785,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               width={Math.abs(selectionBox.x2 - selectionBox.x1)}
               height={Math.abs(selectionBox.y2 - selectionBox.y1)}
               fill="rgba(88,166,255,0.08)"
-              stroke="#58a6ff"
+              stroke={selectionColor}
               strokeWidth={1 / view.zoom}
               strokeDasharray={`${3 / view.zoom},${2 / view.zoom}`}
               style={{ pointerEvents: 'none' }}
