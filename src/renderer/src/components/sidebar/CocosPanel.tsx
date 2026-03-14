@@ -4375,6 +4375,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2184: 노드 cascadeColorEnabled 일괄 설정 (CC2.x) */}
+      {(() => {
+        const applyNodeCascadeColor = async (cascadeColorEnabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchNodeCascadeColor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeCascadeColor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, cascadeColorEnabled, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeCascadeColor(sceneFile.root) })
+          setBatchMsg(`✓ cascadeColorEnabled=${cascadeColorEnabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>CscCol</span>
+            {([['col✓', true], ['col✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyNodeCascadeColor(v)} title={`cascadeColorEnabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2183: 노드 cascadeOpacityEnabled 일괄 설정 (CC2.x) */}
       {(() => {
         const applyNodeCascadeOpacity = async (cascadeOpacityEnabled: boolean) => {
@@ -5320,6 +5343,30 @@ function CCFileBatchInspector({
             {(['', 'Arial', 'sans-serif', 'serif', 'monospace'] as const).map(f => (
               <span key={f || 'default'} onClick={() => applyLabelPlatFont(f)} title={`platformFont="${f || '(기본)'}"`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{f || 'def'}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2184: 공통 cc.Label enableGradient 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelGradient = async (enableGradient: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelGradient(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelGradient)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, enableGradient, _enableGradient: enableGradient } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelGradient(sceneFile.root) })
+          setBatchMsg(`✓ Label enableGradient=${enableGradient} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblGrad</span>
+            {([['grad✓', true], ['grad✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyLabelGradient(v)} title={`enableGradient=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )

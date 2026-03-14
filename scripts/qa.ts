@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1100: R2184 BatchInspector 노드 cascadeColorEnabled ──────────
+console.log('\n## 1100. R2184 BatchInspector 노드 cascadeColorEnabled 체크')
+const s1100 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1100.includes('R2184') && s1100.includes('applyNodeCascadeColor') && s1100.includes('CscCol')) {
+  log('pass', 'R2184-batch-node-cascadecolor', 'BatchInspector 노드 cascadeColorEnabled 일괄 설정')
+} else {
+  log('warning', 'R2184-batch-node-cascadecolor', 'BatchInspector 노드 cascadeColorEnabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1101: R2184 BatchInspector cc.Label enableGradient ──────────
+console.log('\n## 1101. R2184 BatchInspector cc.Label enableGradient 체크')
+const s1101 = s1100
+if (s1101.includes('R2184') && s1101.includes('applyLabelGradient') && s1101.includes('LblGrad')) {
+  log('pass', 'R2184-batch-label-enablegradient', 'BatchInspector cc.Label enableGradient 일괄 설정')
+} else {
+  log('warning', 'R2184-batch-label-enablegradient', 'BatchInspector cc.Label enableGradient 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1098: R2183 BatchInspector cc.Sprite packable ──────────
 console.log('\n## 1098. R2183 BatchInspector cc.Sprite packable 체크')
 const s1098 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
