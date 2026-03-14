@@ -21122,6 +21122,18 @@ console.log('\n## 823. R1932 BatchInspector cc.ParticleSystem loop 체크')
   }
 }
 
+// ── Section 824: R1933 BatchInspector cc.Sprite fillStart ──────────
+console.log('\n## 824. R1933 BatchInspector cc.Sprite fillStart 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s824 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s824.includes('R1933') && s824.includes('patchFillStart') && s824.includes('applyFillStart')) {
+    log('pass', 'R1933-batch-sprite-fillstart', 'BatchInspector cc.Sprite fillStart 일괄 설정')
+  } else {
+    log('warning', 'R1933-batch-sprite-fillstart', 'BatchInspector cc.Sprite fillStart 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -6104,6 +6104,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1933: 공통 cc.Sprite fillStart 일괄 설정 (Filled 타입) */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applyFillStart = async (fillStart: number) => {
+          if (!sceneFile.root) return
+          function patchFillStart(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchFillStart)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, fillStart, _fillStart: fillStart } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchFillStart(sceneFile.root) })
+          setBatchMsg(`✓ Sprite fillStart ${fillStart} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>FillSt</span>
+            {([0, 0.25, 0.5, 0.75, 1] as const).map(v => (
+              <span key={v} title={`fillStart = ${v}`}
+                onClick={() => applyFillStart(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}
+              >{Math.round(v * 100)}%</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1867: 공통 cc.Sprite blendFactor 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprBlend = async (src: number, dst: number) => {
