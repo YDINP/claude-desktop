@@ -8589,6 +8589,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2079: 공통 cc.Layout constraint 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutConstraint = async (constraint: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutConstraint(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutConstraint)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, constraint, _N$constraint: constraint } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLayoutConstraint(sceneFile.root) })
+          setBatchMsg(`✓ Layout constraint=${constraint} (${uuids.length}개)`)
+        }
+        // 0=NONE, 1=FIXED_ROW, 2=FIXED_COL
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Lconst</span>
+            {([0, 1, 2] as const).map((v, i) => (
+              <span key={v} title={`constraint = ${v} (${['None','FixRow','FixCol'][i]})`}
+                onClick={() => applyLayoutConstraint(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{['None','FRow','FCol'][i]}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2078: 공통 cc.Layout startAxis 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutStartAxis = async (startAxis: number) => {

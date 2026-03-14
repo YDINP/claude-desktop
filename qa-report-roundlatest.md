@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:19:20.211Z
+> 2026-03-14T08:20:13.183Z
 
 ## Critical
 _없음_
@@ -2008,3 +2008,4 @@ _없음_
 - BatchInspector cc.MotionStreak stroke 일괄 설정
 - BatchInspector cc.PageView pageTurningSpeed 일괄 설정
 - BatchInspector cc.Layout startAxis 일괄 설정
+- BatchInspector cc.Layout constraint 일괄 설정

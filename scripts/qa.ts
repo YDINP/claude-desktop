@@ -22874,6 +22874,18 @@ console.log('\n## 969. R2078 BatchInspector cc.Layout startAxis 체크')
   }
 }
 
+// ── Section 970: R2079 BatchInspector cc.Layout constraint ──────────
+console.log('\n## 970. R2079 BatchInspector cc.Layout constraint 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s970 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s970.includes('R2079') && s970.includes('patchLayoutConstraint') && s970.includes('applyLayoutConstraint')) {
+    log('pass', 'R2079-batch-layout-constraint', 'BatchInspector cc.Layout constraint 일괄 설정')
+  } else {
+    log('warning', 'R2079-batch-layout-constraint', 'BatchInspector cc.Layout constraint 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
