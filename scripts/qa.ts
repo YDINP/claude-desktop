@@ -20966,6 +20966,18 @@ console.log('\n## 810. R1919 cc.Camera fov 편집 체크')
   }
 }
 
+// ── Section 811: R1920 BatchInspector cc.Camera backgroundColor ──────────
+console.log('\n## 811. R1920 BatchInspector cc.Camera backgroundColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s811 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s811.includes('R1920') && s811.includes('patchCamBg') && s811.includes('applyCamBg')) {
+    log('pass', 'R1920-batch-camera-bgcolor', 'BatchInspector cc.Camera backgroundColor 일괄 설정')
+  } else {
+    log('warning', 'R1920-batch-camera-bgcolor', 'BatchInspector cc.Camera backgroundColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

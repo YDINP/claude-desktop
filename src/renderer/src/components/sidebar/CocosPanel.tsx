@@ -5171,6 +5171,38 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1920: 공통 cc.Camera backgroundColor 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamBg = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const col = { r, g, b, a: 255 }
+          function patchCamBg(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamBg)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, backgroundColor: col } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCamBg(sceneFile.root) })
+          setBatchMsg(`✓ Camera bgColor ${hex} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>CamBg</span>
+            <input type="color" defaultValue="#000000"
+              onChange={e => applyCamBg(e.target.value)}
+              style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer' }}
+            />
+            {(['#000000','#ffffff','#ff0000','#0000ff'] as const).map(c => (
+              <span key={c} title={c}
+                onClick={() => applyCamBg(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, cursor: 'pointer', border: '1px solid var(--border)', flexShrink: 0 }}
+              />
+            ))}
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
