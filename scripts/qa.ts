@@ -24701,6 +24701,24 @@ if (s1258.includes('_isAbsTop: isAbs') && s1258.includes('patchWidgetIsAbs')) {
   log('warning', 'R2262-batch-widget-isabsflags-cc3x', 'BatchInspector cc.Widget _isAbs* CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1259: R2263 BatchInspector cc.ScrollView _horizontal/_vertical/_inertia (CC3.x) ──────────
+console.log('\n## 1259. R2263 BatchInspector cc.ScrollView _toggle 3종 CC3.x 체크')
+const s1259 = s1258
+if (s1259.includes('[`_${key}`]: value') && s1259.includes('applyScrollToggle')) {
+  log('pass', 'R2263-batch-sv-toggle-cc3x', 'BatchInspector cc.ScrollView _horizontal/_vertical/_inertia (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2263-batch-sv-toggle-cc3x', 'BatchInspector cc.ScrollView toggle CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1260: R2263 단일노드 cc.ParticleSystem2D _startColor/_endColor (CC3.x) ──────────
+console.log('\n## 1260. R2263 단일노드 cc.ParticleSystem2D _startColor/_endColor CC3.x 체크')
+const s1260 = s1259
+if (s1260.includes('_startColor: col, _N$startColor: col') && s1260.includes('_endColor: col, _N$endColor: col')) {
+  log('pass', 'R2263-node-particle-color-cc3x', '단일노드 cc.ParticleSystem2D _startColor/_endColor (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2263-node-particle-color-cc3x', '단일노드 cc.ParticleSystem2D startColor/endColor CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

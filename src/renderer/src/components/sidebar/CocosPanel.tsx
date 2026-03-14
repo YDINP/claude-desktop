@@ -7945,7 +7945,7 @@ function CCFileBatchInspector({
           function patchSV(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSV)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, [key]: value, [`_N$${key}`]: value } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchSV(sceneFile.root))
@@ -20924,7 +20924,7 @@ function CCFileNodeInspector({
                           onChange={e => {
                             const h = e.target.value; const r2 = parseInt(h.slice(1,3),16), g2 = parseInt(h.slice(3,5),16), b2 = parseInt(h.slice(5,7),16)
                             const col = { r: r2, g: g2, b: b2, a: 255 }
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startColor: col, _N$startColor: col } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startColor: col, _startColor: col, _N$startColor: col } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ width: 24, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
@@ -20934,7 +20934,7 @@ function CCFileNodeInspector({
                           onChange={e => {
                             const h = e.target.value; const r2 = parseInt(h.slice(1,3),16), g2 = parseInt(h.slice(3,5),16), b2 = parseInt(h.slice(5,7),16)
                             const col = { r: r2, g: g2, b: b2, a: 255 }
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endColor: col, _N$endColor: col } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endColor: col, _endColor: col, _N$endColor: col } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ width: 24, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
