@@ -23390,6 +23390,18 @@ console.log('\n## 1012. R2121 BatchInspector cc.ParticleSystem endRotationVar �
   }
 }
 
+// ── Section 1013: R2122 BatchInspector cc.Widget isAlignTop ──────────
+console.log('\n## 1013. R2122 BatchInspector cc.Widget isAlignTop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1013 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1013.includes('R2122') && s1013.includes('patchWidgetIsAlignTop') && s1013.includes('applyWidgetIsAlignTop')) {
+    log('pass', 'R2122-batch-widget-isaligntop', 'BatchInspector cc.Widget isAlignTop 일괄 설정')
+  } else {
+    log('warning', 'R2122-batch-widget-isaligntop', 'BatchInspector cc.Widget isAlignTop 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

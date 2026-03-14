@@ -9797,6 +9797,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2122: 공통 cc.Widget isAlignTop 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetIsAlignTop = async (isAlignTop: boolean) => {
+          if (!sceneFile.root) return
+          function patchWidgetIsAlignTop(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetIsAlignTop)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignTop, _isAlignTop: isAlignTop } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetIsAlignTop(sceneFile.root) })
+          setBatchMsg(`✓ Widget isAlignTop=${isAlignTop} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WATop</span>
+            <span onClick={() => applyWidgetIsAlignTop(true)} title="isAlignTop ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>T✓</span>
+            <span onClick={() => applyWidgetIsAlignTop(false)} title="isAlignTop OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>T✗</span>
+          </div>
+        )
+      })()}
       {/* R2096: 공통 cc.Widget top 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetTop = async (top: number) => {
