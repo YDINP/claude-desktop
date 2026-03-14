@@ -7933,6 +7933,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2058: 공통 cc.Camera orthographic 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamOrtho = async (ortho: boolean) => {
+          if (!sceneFile.root) return
+          function patchCamOrtho(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamOrtho)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, ortho, _ortho: ortho } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchCamOrtho(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Camera ortho=${ortho} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>CamOrtho</span>
+            {([['ort✓',true],['ort✗',false]] as [string,boolean][]).map(([label,v]) => (
+              <span key={label} onClick={() => applyCamOrtho(v)} title={`orthographic=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1989: 공통 cc.Camera cullingMask 일괄 설정 */}
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamCulling = async (cullingMask: number) => {

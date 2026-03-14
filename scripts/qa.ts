@@ -22622,6 +22622,18 @@ console.log('\n## 948. R2057 BatchInspector cc.Layout wrapMode 체크')
   }
 }
 
+// ── Section 949: R2058 BatchInspector cc.Camera orthographic ──────────
+console.log('\n## 949. R2058 BatchInspector cc.Camera orthographic 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s949 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s949.includes('R2058') && s949.includes('patchCamOrtho') && s949.includes('applyCamOrtho')) {
+    log('pass', 'R2058-batch-cam-ortho', 'BatchInspector cc.Camera orthographic 일괄 설정')
+  } else {
+    log('warning', 'R2058-batch-cam-ortho', 'BatchInspector cc.Camera orthographic 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
