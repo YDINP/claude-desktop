@@ -37,6 +37,8 @@ export function useCCFileProject() {
       if (info?.detected) {
         setProjectInfo(info)
         setSceneFile(null)
+        // ISSUE-06: 마지막 프로젝트 경로 저장 → 다음 오픈 시 자동 로드
+        if (info.projectPath) localStorage.setItem('cc-last-project-path', info.projectPath)
       } else if (info !== null) {
         setError('Cocos Creator 프로젝트를 찾을 수 없습니다.')
       }
@@ -45,6 +47,23 @@ export function useCCFileProject() {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  // ISSUE-06: 마운트 시 마지막 프로젝트 자동 로드
+  useEffect(() => {
+    const lastPath = localStorage.getItem('cc-last-project-path')
+    if (!lastPath) return
+    setLoading(true)
+    setError(null)
+    window.api.ccFileDetect?.(lastPath)
+      .then(info => {
+        if (info?.detected) {
+          setProjectInfo(info)
+          setSceneFile(null)
+        }
+      })
+      .catch(() => { /* 경로가 더 이상 유효하지 않으면 무시 */ })
+      .finally(() => setLoading(false))
   }, [])
 
   // 로드된 씬 파일 외부 변경 감지 (다른 에디터에서 저장 시 — 자체 저장은 suppress)
@@ -76,6 +95,7 @@ export function useCCFileProject() {
       if (info?.detected) {
         setProjectInfo(info)
         setSceneFile(null)
+        if (info.projectPath) localStorage.setItem('cc-last-project-path', info.projectPath)
       }
     } catch (e) {
       setError(String(e))
