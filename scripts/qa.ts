@@ -18899,6 +18899,18 @@ console.log('\n## 638. R1747 Tree 자식 노드 수 배지 체크')
   }
 }
 
+// ── Section 639: R1748 cc.Layout 패딩 균등 버튼 ──────────────────────────────
+console.log('\n## 639. R1748 cc.Layout 패딩 균등 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s639 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s639.includes('R1748') && s639.includes('패딩 균등 버튼') && s639.includes('paddingLeft: v') && s639.includes('paddingBottom: v')) {
+    log('pass', 'R1748-layout-pad-equal', 'cc.Layout 패딩 균등 버튼')
+  } else {
+    log('warning', 'R1748-layout-pad-equal', 'cc.Layout 패딩 균등 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

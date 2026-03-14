@@ -6329,6 +6329,18 @@ function CCFileNodeInspector({
                         style={{ width: 32, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       />
                     ))}
+                    {/* R1748: 패딩 균등 버튼 */}
+                    <span
+                      title="모든 패딩 동일하게 (최솟값)"
+                      onClick={() => {
+                        const v = Math.min(pLeft, pRight, pTop, pBottom)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, paddingLeft: v, paddingRight: v, paddingTop: v, paddingBottom: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ fontSize: 8, cursor: 'pointer', padding: '0 3px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                    >=</span>
                   </div>
                   {layoutType === 3 && (() => {
                     // R1709: Grid cellSize 편집
