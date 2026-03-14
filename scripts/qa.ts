@@ -23987,6 +23987,24 @@ if (s1065.includes('R2166') && s1065.includes('applySkewY') && s1065.includes('s
   log('warning', 'R2166-batch-node-skewy', 'BatchInspector 노드 _skewY 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1066: R2167 BatchInspector cc.Camera near ──────────
+console.log('\n## 1066. R2167 BatchInspector cc.Camera near 체크')
+const s1066 = s1065
+if (s1066.includes('R2167') && s1066.includes('applyCamNear') && s1066.includes('CamNear')) {
+  log('pass', 'R2167-batch-camera-near', 'BatchInspector cc.Camera near 일괄 설정')
+} else {
+  log('warning', 'R2167-batch-camera-near', 'BatchInspector cc.Camera near 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1067: R2167 BatchInspector cc.Camera far ──────────
+console.log('\n## 1067. R2167 BatchInspector cc.Camera far 체크')
+const s1067 = s1066
+if (s1067.includes('R2167') && s1067.includes('applyCamFar') && s1067.includes('CamFar')) {
+  log('pass', 'R2167-batch-camera-far', 'BatchInspector cc.Camera far 일괄 설정')
+} else {
+  log('warning', 'R2167-batch-camera-far', 'BatchInspector cc.Camera far 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

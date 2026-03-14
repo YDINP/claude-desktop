@@ -10070,6 +10070,52 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2167: 공통 cc.Camera near 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamNear = async (near: number) => {
+          if (!sceneFile.root) return
+          function patchCamNear(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamNear)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, near, _near: near } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCamNear(sceneFile.root) })
+          setBatchMsg(`✓ Camera near=${near} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>CamNear</span>
+            {[0.001, 0.01, 0.1, 1].map(v => (
+              <span key={v} onClick={() => applyCamNear(v)} title={`near=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2167: 공통 cc.Camera far 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamFar = async (far: number) => {
+          if (!sceneFile.root) return
+          function patchCamFar(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamFar)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, far, _far: far } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCamFar(sceneFile.root) })
+          setBatchMsg(`✓ Camera far=${far} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>CamFar</span>
+            {[100, 500, 1000, 2000, 10000].map(v => (
+              <span key={v} onClick={() => applyCamFar(v)} title={`far=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
