@@ -19667,6 +19667,18 @@ console.log('\n## 702. R1811 cc.LabelOutline/LabelShadow applyAndSave 체크')
   }
 }
 
+// ── Section 703: R1812 cc.Toggle/ToggleContainer + EditBox applyAndSave ──────
+console.log('\n## 703. R1812 cc.Toggle/EditBox applyAndSave 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s703 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s703.includes('R1812') && s703.includes('allowSwitchOff: ev.target.checked') && s703.includes('_placeholder: ev.target.value')) {
+    log('pass', 'R1812-toggle-editbox-applyandsave', 'cc.Toggle/EditBox(legacy) applyAndSave')
+  } else {
+    log('warning', 'R1812-toggle-editbox-applyandsave', 'cc.Toggle/EditBox applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

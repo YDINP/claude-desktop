@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:19:12.695Z
+> 2026-03-14T04:20:28.185Z
 
 ## Critical
 _없음_
@@ -1741,3 +1741,4 @@ _없음_
 - BatchInspector 크기배율 커스텀 입력
 - cc.Sprite Filled fillType/fillRange applyAndSave
 - cc.LabelOutline/LabelShadow applyAndSave
+- cc.Toggle/EditBox(legacy) applyAndSave

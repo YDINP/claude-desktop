@@ -7400,7 +7400,7 @@ function CCFileNodeInspector({
                 </div>
               )
             }
-            // R1587: cc.Toggle / cc.ToggleContainer Quick Edit
+            // R1587/R1812: cc.Toggle / cc.ToggleContainer Quick Edit (applyAndSave)
             if (comp.type === 'cc.Toggle' || comp.type === 'cc.ToggleContainer') {
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
@@ -7409,12 +7409,18 @@ function CCFileNodeInspector({
                     <>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, fontSize: 12 }}>
                         <input type="checkbox" checked={!!(p.isChecked ?? false)}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'isChecked', ev.target.checked)} />
+                          onChange={ev => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: ev.target.checked } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
                         isChecked
                       </label>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
                         <input type="checkbox" checked={!!(p.interactable ?? true)}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'interactable', ev.target.checked)} />
+                          onChange={ev => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: ev.target.checked } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
                         interactable
                       </label>
                     </>
@@ -7422,14 +7428,17 @@ function CCFileNodeInspector({
                   {comp.type === 'cc.ToggleContainer' && (
                     <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
                       <input type="checkbox" checked={!!(p.allowSwitchOff ?? false)}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'allowSwitchOff', ev.target.checked)} />
+                        onChange={ev => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, allowSwitchOff: ev.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                       allowSwitchOff
                     </label>
                   )}
                 </div>
               )
             }
-            // R1586: cc.EditBox — 텍스트 입력 필드 Quick Edit
+            // R1586/R1812: cc.EditBox — 텍스트 입력 필드 Quick Edit (applyAndSave)
             if (comp.type === 'cc.EditBox') {
               const INPUT_MODE = ['Any', 'EmailAddr', 'Numeric', 'PhoneNumber', 'URL', 'Decimal', 'SingleLine']
               const INPUT_FLAG = ['Default', 'Password', 'Sensitive', 'InitialCapsWord', 'InitialCapsSentence', 'InitialCapsAllChars']
@@ -7439,34 +7448,52 @@ function CCFileNodeInspector({
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
                   <div style={{ marginBottom: 4 }}>
                     <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>string (초기값)</label>
-                    <input type="text" value={String(p.string ?? '')}
+                    <input type="text" defaultValue={String(p.string ?? '')}
                       style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'string', ev.target.value)} />
+                      onBlur={ev => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: ev.target.value, _string: ev.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }} />
                   </div>
                   <div style={{ marginBottom: 4 }}>
                     <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>placeholder</label>
-                    <input type="text" value={String(p.placeholder ?? '')}
+                    <input type="text" defaultValue={String(p.placeholder ?? '')}
                       style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'placeholder', ev.target.value)} />
+                      onBlur={ev => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholder: ev.target.value, _placeholder: ev.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }} />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>maxLength</label>
-                      <input type="number" value={Number(p.maxLength ?? 20)}
+                      <input type="number" defaultValue={Number(p.maxLength ?? 20)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'maxLength', Number(ev.target.value))} />
+                        onBlur={ev => {
+                          const v = Number(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxLength: v, _maxLength: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>fontSize</label>
-                      <input type="number" value={Number(p.fontSize ?? 20)}
+                      <input type="number" defaultValue={Number(p.fontSize ?? 20)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'fontSize', Number(ev.target.value))} />
+                        onBlur={ev => {
+                          const v = Number(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>inputMode</label>
                       <select value={Number(p.inputMode ?? 0)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'inputMode', Number(ev.target.value))}>
+                        onChange={ev => {
+                          const v = parseInt(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputMode: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}>
                         {INPUT_MODE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
                       </select>
                     </div>
@@ -7474,7 +7501,11 @@ function CCFileNodeInspector({
                       <label style={{ display: 'block', fontSize: 11 }}>inputFlag</label>
                       <select value={Number(p.inputFlag ?? 0)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'inputFlag', Number(ev.target.value))}>
+                        onChange={ev => {
+                          const v = parseInt(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputFlag: v, _inputFlag: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}>
                         {INPUT_FLAG.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
                       </select>
                     </div>
@@ -7483,7 +7514,11 @@ function CCFileNodeInspector({
                     <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>returnType</label>
                     <select value={Number(p.returnType ?? 0)}
                       style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'returnType', Number(ev.target.value))}>
+                      onChange={ev => {
+                        const v = parseInt(ev.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, returnType: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}>
                       {RETURN_TYPE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
                     </select>
                   </div>
