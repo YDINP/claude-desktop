@@ -8022,6 +8022,30 @@ function CCFileNodeInspector({
                       ))}
                     </div>
                   )}
+                  {/* R1823: 상태색 CC 기본값 리셋 */}
+                  {transition === 1 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>reset:</span>
+                      <span title="CC 2.x 기본값으로 모든 상태색 리셋&#10;normal=white, hover=white, pressed=gray(200), disabled=gray(120,a=200)"
+                        onClick={() => {
+                          const defs = {
+                            normalColor: { r: 255, g: 255, b: 255, a: 255 },
+                            hoverColor: { r: 255, g: 255, b: 255, a: 255 },
+                            pressedColor: { r: 200, g: 200, b: 200, a: 255 },
+                            disabledColor: { r: 120, g: 120, b: 120, a: 200 },
+                          }
+                          const updated = draft.components.map(c2 => c2 === comp ? { ...c2, props: { ...c2.props,
+                            normalColor: defs.normalColor, _N$normalColor: defs.normalColor,
+                            hoverColor: defs.hoverColor, _N$hoverColor: defs.hoverColor,
+                            pressedColor: defs.pressedColor, _N$pressedColor: defs.pressedColor,
+                            disabledColor: defs.disabledColor, _N$disabledColor: defs.disabledColor,
+                          } } : c2)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '1px 5px', background: '#374151', border: '1px solid #555', borderRadius: 2, cursor: 'pointer', color: '#d1d5db' }}
+                      >↺ defaults</span>
+                    </div>
+                  )}
                 </div>
               )
             }

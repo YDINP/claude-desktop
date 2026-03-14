@@ -19799,6 +19799,18 @@ console.log('\n## 713. R1822 BatchInspector cc.Widget alignment 체크')
   }
 }
 
+// ── Section 714: R1823 cc.Button 상태색 CC 기본값 리셋 ──────────────────────
+console.log('\n## 714. R1823 cc.Button 상태색 리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s714 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s714.includes('R1823') && s714.includes('_N$disabledColor: defs.disabledColor') && s714.includes('↺ defaults')) {
+    log('pass', 'R1823-button-reset-colors', 'cc.Button 상태색 CC 기본값 리셋 버튼')
+  } else {
+    log('warning', 'R1823-button-reset-colors', 'cc.Button 상태색 리셋 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
