@@ -21290,6 +21290,18 @@ console.log('\n## 837. R1946 BatchInspector cc.Button pressedColor 체크')
   }
 }
 
+// ── Section 838: R1947 BatchInspector cc.Button disabledColor ──────────
+console.log('\n## 838. R1947 BatchInspector cc.Button disabledColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s838 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s838.includes('R1947') && s838.includes('patchBtnDisabledColor') && s838.includes('applyBtnDisabledColor')) {
+    log('pass', 'R1947-batch-button-disabledcolor', 'BatchInspector cc.Button disabledColor 일괄 설정')
+  } else {
+    log('warning', 'R1947-batch-button-disabledcolor', 'BatchInspector cc.Button disabledColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
