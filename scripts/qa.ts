@@ -19955,6 +19955,18 @@ console.log('\n## 726. R1835 BatchInspector cc.Slider progress 체크')
   }
 }
 
+// ── Section 727: R1836 BatchInspector cc.SkeletalAnimation speedRatio 일괄 ──
+console.log('\n## 727. R1836 BatchInspector cc.SkeletalAnimation speedRatio 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s727 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s727.includes('R1836') && s727.includes('patchSkeletal') && s727.includes("c.type === 'cc.SkeletalAnimation'") && s727.includes('_speedRatio: speedRatio')) {
+    log('pass', 'R1836-batch-skeletal-speed', 'BatchInspector cc.SkeletalAnimation speedRatio 일괄 설정')
+  } else {
+    log('warning', 'R1836-batch-skeletal-speed', 'BatchInspector cc.SkeletalAnimation speedRatio 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
