@@ -18287,6 +18287,18 @@ console.log('\n## 587. R1696 cc.Sprite spriteFrame uuid 복사 체크')
   }
 }
 
+// ── Section 588: R1697 SceneView 레이블 폰트 크기 조정 ──────────────────────
+console.log('\n## 588. R1697 SceneView 레이블 폰트 크기 조정 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s588 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s588.includes('R1697') && s588.includes('labelFontSize') && s588.includes('A-') && s588.includes('A+')) {
+    log('pass', 'R1697-label-font-size', 'SceneView 레이블 폰트 크기 조정')
+  } else {
+    log('warning', 'R1697-label-font-size', 'SceneView 레이블 폰트 크기 조정 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

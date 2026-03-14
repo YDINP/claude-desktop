@@ -100,6 +100,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [pinMarkers, setPinMarkers] = useState<{ id: number; ccX: number; ccY: number }[]>([])
   const pinIdRef = useRef(0)
   const hoverClientPosRef = useRef<{ x: number; y: number } | null>(null)
+  // R1697: 노드 레이블 폰트 크기 (기본 11px)
+  const [labelFontSize, setLabelFontSize] = useState(11)
   // R1623: 와이어프레임 모드 (선만 표시)
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
@@ -940,6 +942,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         >
           T
         </button>
+        {/* R1697: 레이블 폰트 크기 조정 */}
+        {showNodeNames && (
+          <>
+            <span
+              onClick={() => setLabelFontSize(s => Math.max(6, s - 1))}
+              title="레이블 폰트 크기 감소 (R1697)"
+              style={{ fontSize: 9, cursor: 'pointer', color: 'var(--text-muted)', userSelect: 'none', padding: '0 2px' }}
+            >A-</span>
+            <span style={{ fontSize: 8, color: '#555', minWidth: 14, textAlign: 'center' }}>{labelFontSize}</span>
+            <span
+              onClick={() => setLabelFontSize(s => Math.min(20, s + 1))}
+              title="레이블 폰트 크기 증가 (R1697)"
+              style={{ fontSize: 9, cursor: 'pointer', color: 'var(--text-muted)', userSelect: 'none', padding: '0 2px' }}
+            >A+</span>
+          </>
+        )}
         {/* R1687: z-order 표시 버튼 */}
         <button
           onClick={() => setShowZOrder(n => !n)}
@@ -1441,8 +1459,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {showNodeNames && view.zoom > 0.3 && editingUuid !== node.uuid && (
                   <text
                     x={rectX + 3 / view.zoom}
-                    y={rectY + 12 / view.zoom}
-                    fontSize={11 / view.zoom}
+                    y={rectY + labelFontSize / view.zoom}
+                    fontSize={labelFontSize / view.zoom}  {/* R1697 */}
                     fill={isSelected ? '#58a6ff' : '#ccc'}
                     style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
                     onDoubleClick={e => { e.stopPropagation(); setEditingUuid(node.uuid); setTimeout(() => editInputRef.current?.focus(), 30) }}
