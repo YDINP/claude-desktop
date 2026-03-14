@@ -6,7 +6,7 @@
 - [x] R2159: BatchInspector cc.BoxCollider2D + CircleCollider2D 확장 (sensor/density/friction/restitution)
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2086** ← R2161 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2089** ← R2163 현재
 - Branch: dev
 
 ## 완료 (R2079-R2119)
