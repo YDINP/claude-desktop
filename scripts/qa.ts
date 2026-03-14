@@ -20402,6 +20402,18 @@ console.log('\n## 763. R1872 BatchInspector cc.BoxCollider/CircleCollider sensor
   }
 }
 
+// ── Section 764: R1873 BatchInspector cc.ParticleSystem duration ──────────
+console.log('\n## 764. R1873 BatchInspector cc.ParticleSystem duration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s764 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s764.includes('R1873') && s764.includes('applyParticleDur') && s764.includes('patchParticleDur')) {
+    log('pass', 'R1873-batch-particle-dur', 'BatchInspector cc.ParticleSystem duration 일괄 설정')
+  } else {
+    log('warning', 'R1873-batch-particle-dur', 'BatchInspector cc.ParticleSystem duration 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

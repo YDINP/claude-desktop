@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:26:40.476Z
+> 2026-03-14T05:27:44.698Z
 
 ## Critical
 _없음_
@@ -1802,3 +1802,4 @@ _없음_
 - cc.PolygonCollider sensor/friction/restitution 편집
 - BatchInspector cc.RigidBody mass 일괄 설정
 - BatchInspector cc.BoxCollider/CircleCollider sensor 일괄 설정
+- BatchInspector cc.ParticleSystem duration 일괄 설정

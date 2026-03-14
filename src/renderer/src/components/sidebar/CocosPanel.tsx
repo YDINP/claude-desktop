@@ -4456,6 +4456,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1873: 공통 cc.ParticleSystem duration 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyParticleDur = async (dur: number) => {
+          if (!sceneFile.root) return
+          function patchParticleDur(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchParticleDur)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, duration: dur, _duration: dur } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchParticleDur(sceneFile.root))
+          setBatchMsg(`✓ Particle duration ${dur < 0 ? '∞' : `${dur}s`} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Pdur</span>
+            {([[-1,'∞'], [1,'1s'], [2,'2s'], [5,'5s'], [10,'10s']] as [number, string][]).map(([v, l]) => (
+              <span key={v} title={`duration = ${v < 0 ? '무한' : `${v}s`}`}
+                onClick={() => applyParticleDur(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1836: 공통 cc.SkeletalAnimation speedRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {
