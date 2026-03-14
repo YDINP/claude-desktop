@@ -20486,6 +20486,18 @@ console.log('\n## 770. R1879 BatchInspector cc.Layout spacingX/Y 체크')
   }
 }
 
+// ── Section 771: R1880 BatchInspector cc.MotionStreak fade ────────────────
+console.log('\n## 771. R1880 BatchInspector cc.MotionStreak fade 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s771 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s771.includes('R1880') && s771.includes('applyMotionFade') && s771.includes('patchMotionFade')) {
+    log('pass', 'R1880-batch-motionstreak-fade', 'BatchInspector cc.MotionStreak fade 일괄 설정')
+  } else {
+    log('warning', 'R1880-batch-motionstreak-fade', 'BatchInspector cc.MotionStreak fade 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

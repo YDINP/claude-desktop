@@ -4430,6 +4430,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1880: 공통 cc.MotionStreak fade 일괄 설정 */}
+      {commonCompTypes.includes('cc.MotionStreak') && (() => {
+        const applyMotionFade = async (fade: number) => {
+          if (!sceneFile.root) return
+          function patchMotionFade(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMotionFade)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchMotionFade(sceneFile.root))
+          setBatchMsg(`✓ MotionStreak fade=${fade} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>MSfade</span>
+            {([0.1, 0.3, 0.5, 1, 2, 3] as const).map(v => (
+              <span key={v} title={`fade = ${v}s`}
+                onClick={() => applyMotionFade(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1839: 공통 dragonBones.ArmatureDisplay timeScale 일괄 설정 */}
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBSpeed = async (timeScale: number) => {
