@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:30:01.248Z
+> 2026-03-14T04:53:10.256Z
 
 ## Critical
 _없음_
@@ -1752,3 +1752,21 @@ _없음_
 - cc.Layout verticalDirection/horizontalDirection 버튼
 - BatchInspector cc.Layout type 일괄 설정
 - BatchInspector cc.Widget alignment 일괄 설정
+- cc.Button 상태색 CC 기본값 리셋 버튼
+- BatchInspector cc.RigidBody linearDamping 일괄 설정
+- BatchInspector 선택 노드 이름 정규화
+- sp.Skeleton premultipliedAlpha/debugSlots/debugBones 추가
+- cc.Sprite 색조(hue) 슬라이더
+- BatchInspector cc.AudioSource volume 일괄 설정
+- cc.RigidBody linearDamping 퀵 프리셋
+- cc.RigidBody angularDamping 편집 + 퀵 프리셋
+- cc.ScrollView elasticDuration 편집 + 프리셋
+- cc.Canvas resolutionPolicy 퀵 선택
+- cc.ParticleSystem startSize/endSize 편집
+- cc.ParticleSystem startColor/endColor 색상 피커
+- BatchInspector cc.Slider progress 일괄 설정
+- BatchInspector cc.SkeletalAnimation speedRatio 일괄 설정
+- BatchInspector cc.ParticleSystem emitRate 일괄 설정
+- BatchInspector sp.Skeleton timeScale 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay timeScale 일괄 설정
+- cc.Button transition 퀵 버튼 (None/Color/Sprite/Scale)

@@ -20003,6 +20003,18 @@ console.log('\n## 730. R1839 BatchInspector dragonBones timeScale 체크')
   }
 }
 
+// ── Section 731: R1840 cc.Button transition 퀵 버튼 ──────────────────────────
+console.log('\n## 731. R1840 cc.Button transition 퀵 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s731 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s731.includes('R1840') && s731.includes("'None',0") && s731.includes("'Scale',3")) {
+    log('pass', 'R1840-btn-transition-quick', 'cc.Button transition 퀵 버튼 (None/Color/Sprite/Scale)')
+  } else {
+    log('warning', 'R1840-btn-transition-quick', 'cc.Button transition 퀵 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

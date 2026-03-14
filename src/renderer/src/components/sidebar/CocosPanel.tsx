@@ -8214,6 +8214,15 @@ function CCFileNodeInspector({
                       <option value={3}>Scale</option>
                     </select>
                   </div>
+                  {/* R1840: transition 퀵 버튼 */}
+                  <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}></span>
+                    {([['None',0],['Color',1],['Sprite',2],['Scale',3]] as [string,number][]).map(([label,v]) => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, transition: v, _transition: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: `1px solid ${transition === v ? '#fb923c' : 'var(--border)'}`, color: transition === v ? '#fb923c' : 'var(--text-muted)', background: 'var(--bg-primary)' }}
+                      >{label}</span>
+                    ))}
+                  </div>
                   {/* R1725: duration (Color/Scale) */}
                   {(transition === 1 || transition === 3) && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
