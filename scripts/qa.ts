@@ -20123,6 +20123,21 @@ console.log('\n## 740. R1849 cc.BoxCollider friction/restitution 체크')
   }
 }
 
+// ── Section 741: R1850 cc.CircleCollider friction/restitution ────────────────
+console.log('\n## 741. R1850 cc.CircleCollider friction/restitution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s741 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  // R1850 follows the CircleCollider sensor checkbox
+  const idx = s741.indexOf("'cc.RigidBody' || comp.type === 'cc.RigidBody2D'")
+  const chunk = idx > 0 ? s741.slice(Math.max(0, idx - 3000), idx) : ''
+  if (s741.includes('R1850') && chunk.includes('restitution') && chunk.includes('friction')) {
+    log('pass', 'R1850-circlecollider-friction', 'cc.CircleCollider friction/restitution 편집')
+  } else {
+    log('warning', 'R1850-circlecollider-friction', 'cc.CircleCollider friction/restitution 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
