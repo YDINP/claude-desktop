@@ -19151,6 +19151,18 @@ console.log('\n## 659. R1768 BatchInspector X/Y 균등 배치 체크')
   }
 }
 
+// ── Section 660: R1769 BatchInspector cc.Button interactable 일괄 ────────────
+console.log('\n## 660. R1769 BatchInspector cc.Button interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s660 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s660.includes('R1769') && s660.includes('patchInteract') && s660.includes("interactable: interact")) {
+    log('pass', 'R1769-batch-button', 'BatchInspector cc.Button interactable 일괄 설정')
+  } else {
+    log('warning', 'R1769-batch-button', 'BatchInspector cc.Button interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

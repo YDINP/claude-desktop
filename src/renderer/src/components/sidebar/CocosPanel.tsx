@@ -3874,6 +3874,31 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1769: 공통 cc.Button interactable 일괄 설정 */}
+      {commonCompTypes.includes('cc.Button') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>Button</span>
+          {(['on', 'off'] as const).map(v => (
+            <span key={v}
+              title={`interactable 모두 ${v === 'on' ? '활성화' : '비활성화'}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                const interact = v === 'on'
+                function patchInteract(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchInteract)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, interactable: interact } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchInteract(sceneFile.root))
+                setBatchMsg(`✓ Button ${v === 'on' ? '활성' : '비활성'} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: v === 'on' ? '#4ade80' : '#f87171', userSelect: 'none' }}
+            >{v === 'on' ? '✓ 활성' : '✕ 비활성'}</span>
+          ))}
+        </div>
+      )}
       {/* R1761: 공통 cc.AudioSource volume 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
