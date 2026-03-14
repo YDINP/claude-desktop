@@ -10581,6 +10581,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2113: 공통 cc.Sprite trim 일괄 설정 */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applySpriteTrim = async (trim: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpriteTrim(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpriteTrim)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, trim, _trim: trim } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpriteTrim(sceneFile.root) })
+          setBatchMsg(`✓ Sprite trim=${trim} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>SprTrim</span>
+            <span onClick={() => applySpriteTrim(true)} title="trim ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>trim✓</span>
+            <span onClick={() => applySpriteTrim(false)} title="trim OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>trim✗</span>
+          </div>
+        )
+      })()}
       {/* R2072: 공통 cc.Sprite fillType 일괄 설정 (Filled 타입) */}
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprFillType = async (fillType: number) => {

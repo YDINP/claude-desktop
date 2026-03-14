@@ -23282,6 +23282,18 @@ console.log('\n## 1003. R2112 BatchInspector cc.Layout affectedByScale 체크')
   }
 }
 
+// ── Section 1004: R2113 BatchInspector cc.Sprite trim ──────────
+console.log('\n## 1004. R2113 BatchInspector cc.Sprite trim 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1004 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1004.includes('R2113') && s1004.includes('patchSpriteTrim') && s1004.includes('applySpriteTrim')) {
+    log('pass', 'R2113-batch-sprite-trim', 'BatchInspector cc.Sprite trim 일괄 설정')
+  } else {
+    log('warning', 'R2113-batch-sprite-trim', 'BatchInspector cc.Sprite trim 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
