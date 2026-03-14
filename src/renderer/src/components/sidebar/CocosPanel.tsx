@@ -21222,7 +21222,7 @@ function CCFileNodeInspector({
                     {[0, 0.5, 0.75, 1].map(v => (
                       <span key={v} title={`brake = ${v}`}
                         onClick={() => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, brake: v, _N$brake: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, brake: v, _brake: v, _N$brake: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(brake - v) < 0.01 ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(brake - v) < 0.01 ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
@@ -21238,7 +21238,7 @@ function CCFileNodeInspector({
                         <input type="number" defaultValue={ed} key={`ed-${ed}`} min={0} max={2} step={0.05}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0.2)
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, elasticDuration: v, _N$elasticDuration: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, elasticDuration: v, _elasticDuration: v, _N$elasticDuration: v } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21246,7 +21246,7 @@ function CCFileNodeInspector({
                         {([0, 0.1, 0.2, 0.5, 1] as const).map(v => (
                           <span key={v} title={`elasticDuration = ${v}s`}
                             onClick={() => {
-                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, elasticDuration: v, _N$elasticDuration: v } } : c)
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, elasticDuration: v, _elasticDuration: v, _N$elasticDuration: v } } : c)
                               applyAndSave({ components: updated })
                             }}
                             style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${Math.abs(ed - v) < 0.01 ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(ed - v) < 0.01 ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
