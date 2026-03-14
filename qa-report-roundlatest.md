@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:06:34.395Z
+> 2026-03-14T05:07:50.571Z
 
 ## Critical
 _없음_
@@ -1783,3 +1783,4 @@ _없음_
 - BatchInspector cc.RigidBody fixedRotation 일괄 설정
 - BatchInspector cc.Mask inverted 일괄 설정
 - BatchInspector cc.ProgressBar reverse 일괄 설정
+- BatchInspector cc.Label bold/italic/underline 일괄 설정

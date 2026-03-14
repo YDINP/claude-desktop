@@ -20174,6 +20174,18 @@ console.log('\n## 744. R1853 BatchInspector cc.ProgressBar reverse 체크')
   }
 }
 
+// ── Section 745: R1854 BatchInspector cc.Label bold/italic 일괄 ──────────────
+console.log('\n## 745. R1854 BatchInspector cc.Label bold/italic 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s745 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s745.includes('R1854') && s745.includes('applyLabelStyle') && s745.includes("'isBold'") && s745.includes("'isItalic'")) {
+    log('pass', 'R1854-batch-label-style', 'BatchInspector cc.Label bold/italic/underline 일괄 설정')
+  } else {
+    log('warning', 'R1854-batch-label-style', 'BatchInspector cc.Label bold/italic 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

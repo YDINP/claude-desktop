@@ -3987,6 +3987,39 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1854: 공통 cc.Label bold/italic 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelStyle = async (key: 'isBold' | 'isItalic' | 'isUnderline', value: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelStyle(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelStyle)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchLabelStyle(sceneFile.root))
+          setBatchMsg(`✓ Label ${key}=${value} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label sty</span>
+            {(['isBold','isItalic','isUnderline'] as const).map(key => {
+              const short = key === 'isBold' ? 'B' : key === 'isItalic' ? 'I' : 'U'
+              return (
+                <React.Fragment key={key}>
+                  <span onClick={() => applyLabelStyle(key, true)} title={`${key} ON`}
+                    style={{ fontSize: 9, fontWeight: key==='isBold'?700:400, fontStyle: key==='isItalic'?'italic':'normal', textDecoration: key==='isUnderline'?'underline':'none', cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+                  >{short}✓</span>
+                  <span onClick={() => applyLabelStyle(key, false)} title={`${key} OFF`}
+                    style={{ fontSize: 9, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
+                  >{short}✗</span>
+                </React.Fragment>
+              )
+            })}
+          </div>
+        )
+      })()}
       {/* R1797: 공통 cc.Label overflow 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
