@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T06:02:27.104Z
+> 2026-03-14T06:03:22.080Z
 
 ## Critical
 _없음_
@@ -1837,3 +1837,4 @@ _없음_
 - cc.ParticleSystem radialAccel/tangentialAccel 편집
 - BatchInspector cc.ProgressBar progress 일괄 설정
 - cc.ParticleSystem startRadius/endRadius 편집
+- BatchInspector cc.EditBox inputMode 일괄 설정

@@ -4217,6 +4217,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1908: 공통 cc.EditBox inputMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEditBoxMode = async (inputMode: number) => {
+          if (!sceneFile.root) return
+          function patchEditBoxMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEditBoxMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputMode, _inputMode: inputMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEditBoxMode(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>EBmode</span>
+            {([['Any', 0], ['Num', 2], ['Email', 1], ['1Line', 6]] as [string,number][]).map(([l, v]) => (
+              <span key={v} title={`inputMode = ${l}`}
+                onClick={() => applyEditBoxMode(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1884: 공통 cc.Button transition 일괄 설정 */}
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnTransition = async (transition: number) => {

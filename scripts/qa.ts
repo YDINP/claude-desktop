@@ -20822,6 +20822,18 @@ console.log('\n## 798. R1907 cc.ParticleSystem startRadius/endRadius 체크')
   }
 }
 
+// ── Section 799: R1908 BatchInspector cc.EditBox inputMode ──────────
+console.log('\n## 799. R1908 BatchInspector cc.EditBox inputMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s799 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s799.includes('R1908') && s799.includes('applyEditBoxMode') && s799.includes('patchEditBoxMode')) {
+    log('pass', 'R1908-batch-editbox-inputmode', 'BatchInspector cc.EditBox inputMode 일괄 설정')
+  } else {
+    log('warning', 'R1908-batch-editbox-inputmode', 'BatchInspector cc.EditBox inputMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
