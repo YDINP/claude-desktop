@@ -20606,6 +20606,18 @@ console.log('\n## 780. R1889 cc.ParticleSystem speed/speedVar 체크')
   }
 }
 
+// ── Section 781: R1890 cc.Sprite flipX/flipY ──────────
+console.log('\n## 781. R1890 cc.Sprite flipX/flipY 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s781 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s781.includes('R1890') && s781.includes('flipX') && s781.includes('flipY')) {
+    log('pass', 'R1890-sprite-flip', 'cc.Sprite flipX/flipY 편집')
+  } else {
+    log('warning', 'R1890-sprite-flip', 'cc.Sprite flipX/flipY 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -8633,6 +8633,25 @@ function CCFileNodeInspector({
                       </label>
                     </div>
                   )}
+                  {/* R1890: flipX / flipY */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>flip</span>
+                    {(['X', 'Y'] as const).map(axis => {
+                      const key = `flip${axis}`
+                      const val = !!(p[key] ?? p[`_${key}`] ?? false)
+                      return (
+                        <label key={axis} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                          <input type="checkbox" checked={val}
+                            onChange={e => {
+                              const v = e.target.checked
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key]: v, [`_${key}`]: v } } : c)
+                              applyAndSave({ components: updated })
+                            }}
+                          />flip{axis}
+                        </label>
+                      )
+                    })}
+                  </div>
                 </div>
               )
             }
