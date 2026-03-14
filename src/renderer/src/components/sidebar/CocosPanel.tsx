@@ -10193,7 +10193,7 @@ function CCFileBatchInspector({
           function patchParticleMax(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleMax)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, _N$maxParticles: max, _N$totalParticles: max } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, maxParticles: max, _maxParticles: max, _N$maxParticles: max, totalParticles: max, _totalParticles: max, _N$totalParticles: max } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchParticleMax(sceneFile.root))
@@ -19533,7 +19533,7 @@ function CCFileNodeInspector({
                       <input type="number" defaultValue={duration} min={0} step={0.05}
                         onBlur={e => {
                           const v = parseFloat(e.target.value) ?? 0.1
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, duration: v, _N$duration: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, duration: v, _duration: v, _N$duration: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}

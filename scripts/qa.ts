@@ -24855,6 +24855,24 @@ if (s1274.includes('_horizontalAlign: i, _N$horizontalAlign: i') && s1274.includ
   log('warning', 'R2271-node-label-align-cc3x', '단일노드 cc.Label align CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1275: R2272 단일노드 cc.Button _duration (CC3.x) ──────────
+console.log('\n## 1275. R2272 단일노드 cc.Button _duration CC3.x 체크')
+const s1275 = s1274
+if (s1275.includes('_duration: v, _N$duration: v')) {
+  log('pass', 'R2272-node-button-duration-cc3x', '단일노드 cc.Button _duration (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2272-node-button-duration-cc3x', '단일노드 cc.Button _duration CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1276: R2272 BatchInspector cc.ParticleSystem maxParticles/_maxParticles (CC3.x) ──────────
+console.log('\n## 1276. R2272 BatchInspector cc.ParticleSystem _maxParticles CC3.x 체크')
+const s1276 = s1275
+if (s1276.includes('maxParticles: max, _maxParticles: max, _N$maxParticles') && s1276.includes('applyParticleMax')) {
+  log('pass', 'R2272-batch-particle-maxparticles-cc3x', 'BatchInspector cc.ParticleSystem maxParticles/_maxParticles (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2272-batch-particle-maxparticles-cc3x', 'BatchInspector cc.ParticleSystem _maxParticles CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
