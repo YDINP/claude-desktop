@@ -21170,6 +21170,18 @@ console.log('\n## 827. R1936 BatchInspector cc.PageView bounceEnabled 체크')
   }
 }
 
+// ── Section 828: R1937 cc.ParticleSystem startSpin/startSpinVar single-node ──────────
+console.log('\n## 828. R1937 cc.ParticleSystem startSpin/startSpinVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s828 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s828.includes('R1937') && s828.includes('startSpin') && s828.includes('startSpinVar')) {
+    log('pass', 'R1937-single-particle-startspin', 'cc.ParticleSystem startSpin/startSpinVar single-node 편집')
+  } else {
+    log('warning', 'R1937-single-particle-startspin', 'cc.ParticleSystem startSpin/startSpinVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
