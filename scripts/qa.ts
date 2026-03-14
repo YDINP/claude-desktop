@@ -22382,6 +22382,18 @@ console.log('\n## 928. R2037 BatchInspector sp.Skeleton timeScale 체크')
   }
 }
 
+// ── Section 929: R2038 BatchInspector cc.BoxCollider offset ──────────
+console.log('\n## 929. R2038 BatchInspector cc.BoxCollider offset 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s929 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s929.includes('R2038') && s929.includes('patchBoxOffset') && s929.includes('applyBoxOffset')) {
+    log('pass', 'R2038-batch-box-offset', 'BatchInspector cc.BoxCollider offset 일괄 설정')
+  } else {
+    log('warning', 'R2038-batch-box-offset', 'BatchInspector cc.BoxCollider offset 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

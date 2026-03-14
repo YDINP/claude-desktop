@@ -8454,6 +8454,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2038: 공통 cc.BoxCollider offset 일괄 설정 */}
+      {commonCompTypes.includes('cc.BoxCollider') && (() => {
+        const applyBoxOffset = async (ox: number, oy: number) => {
+          if (!sceneFile.root) return
+          function patchBoxOffset(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBoxOffset)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const offset = { x: ox, y: oy }
+            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchBoxOffset(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ BoxCollider offset=(${ox},${oy}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>BoxOff</span>
+            {([['0,0',0,0],['0,10',0,10],['0,-10',0,-10],['10,0',10,0],['reset',0,0]] as [string,number,number][]).slice(0,4).map(([label,ox,oy]) => (
+              <span key={label} onClick={() => applyBoxOffset(ox, oy)} title={`offset=(${ox},${oy})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1994: 공통 cc.BoxCollider size 일괄 설정 */}
       {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const boxType = commonCompTypes.includes('cc.BoxCollider') ? 'cc.BoxCollider' : 'cc.BoxCollider2D'
