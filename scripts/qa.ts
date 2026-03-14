@@ -22022,6 +22022,18 @@ console.log('\n## 898. R2007 BatchInspector cc.Sprite isTrimmedMode 체크')
   }
 }
 
+// ── Section 899: R2008 BatchInspector cc.ParticleSystem angleVar ──────────
+console.log('\n## 899. R2008 BatchInspector cc.ParticleSystem angleVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s899 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s899.includes('R2008') && s899.includes('patchPSAngleVar') && s899.includes('applyPSAngleVar')) {
+    log('pass', 'R2008-batch-ps-anglevar', 'BatchInspector cc.ParticleSystem angleVar 일괄 설정')
+  } else {
+    log('warning', 'R2008-batch-ps-anglevar', 'BatchInspector cc.ParticleSystem angleVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
