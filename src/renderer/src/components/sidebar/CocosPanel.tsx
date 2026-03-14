@@ -19651,7 +19651,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>isChecked</span>
                     <input type="checkbox" checked={checked}
                       onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: e.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: e.target.checked, _isChecked: e.target.checked, _N$isChecked: e.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }}
                     />
@@ -21666,7 +21666,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>armature</span>
                     <input type="text" defaultValue={armatureName}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, armatureName: e.target.value } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, armatureName: e.target.value, _armatureName: e.target.value, _N$armatureName: e.target.value } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21676,7 +21676,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>animation</span>
                     <input type="text" defaultValue={animationName}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, animationName: e.target.value } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, animationName: e.target.value, _animationName: e.target.value, _N$animationName: e.target.value } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21687,7 +21687,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>timeScale</span>
                     <input type="number" defaultValue={timeScale} step={0.1} min={0}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: parseFloat(e.target.value) || 1 } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: parseFloat(e.target.value) || 1, _timeScale: parseFloat(e.target.value) || 1, _N$timeScale: parseFloat(e.target.value) || 1 } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21695,7 +21695,7 @@ function CCFileNodeInspector({
                     {([0.5, 1, 1.5, 2] as const).map(v => (
                       <span key={v} title={`timeScale = ×${v}`}
                         onClick={() => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: v, _timeScale: v, _N$timeScale: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${timeScale === v ? '#f472b6' : 'var(--border)'}`, borderRadius: 2, color: timeScale === v ? '#f472b6' : 'var(--text-muted)', userSelect: 'none' }}
@@ -21706,7 +21706,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>playTimes</span>
                     <input type="number" defaultValue={playTimes} min={0}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playTimes: parseInt(e.target.value) || 0 } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playTimes: parseInt(e.target.value) || 0, _playTimes: parseInt(e.target.value) || 0, _N$playTimes: parseInt(e.target.value) || 0 } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21716,7 +21716,7 @@ function CCFileNodeInspector({
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
                     <input type="checkbox" checked={loop}
                       onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked, _N$loop: e.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ margin: 0, accentColor: '#4ade80' }}
@@ -21758,7 +21758,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>timeScale</span>
                     <input type="number" defaultValue={timeScale} step={0.1} min={0}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: parseFloat(e.target.value) || 1 } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: parseFloat(e.target.value) || 1, _timeScale: parseFloat(e.target.value) || 1, _N$timeScale: parseFloat(e.target.value) || 1 } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21767,7 +21767,7 @@ function CCFileNodeInspector({
                     {([0.5, 1, 1.5, 2] as const).map(v => (
                       <span key={v} title={`timeScale = ×${v}`}
                         onClick={() => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: v, _timeScale: v, _N$timeScale: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${timeScale === v ? '#f472b6' : 'var(--border)'}`, borderRadius: 2, color: timeScale === v ? '#f472b6' : 'var(--text-muted)', userSelect: 'none' }}
@@ -21778,7 +21778,7 @@ function CCFileNodeInspector({
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
                       <input type="checkbox" checked={loop}
                         onChange={e => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked, _N$loop: e.target.checked } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ margin: 0, accentColor: '#4ade80' }}
