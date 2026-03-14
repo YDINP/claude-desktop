@@ -25048,6 +25048,21 @@ if (
   log('warning', 'R2285-node-tiledlayer-rigidbody-type-mass-gravity-cc3x', '단일노드 TiledLayer/RigidBody CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1290: R2286 단일노드 cc.RigidBody linearDamping/angularDamping/fixedRotation _* (CC3.x) ──────────
+console.log('\n## 1290. R2286 단일노드 RigidBody linearDamping/angularDamping/fixedRotation CC3.x 체크')
+const s1290 = s1289
+if (
+  s1290.includes('_linearDamping: parseFloat(e.target.value) || 0, _N$linearDamping: parseFloat(e.target.value) || 0') &&
+  s1290.includes('_linearDamping: v, _N$linearDamping: v') &&
+  s1290.includes('_angularDamping: parseFloat(e.target.value) || 0, _N$angularDamping: parseFloat(e.target.value) || 0') &&
+  s1290.includes('_angularDamping: v, _N$angularDamping: v') &&
+  s1290.includes('_fixedRotation: e.target.checked, _N$fixedRotation: e.target.checked')
+) {
+  log('pass', 'R2286-node-rigidbody-damping-fixedrot-cc3x', '단일노드 cc.RigidBody linearDamping/angularDamping/fixedRotation _* (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2286-node-rigidbody-damping-fixedrot-cc3x', '단일노드 RigidBody damping/fixedRotation CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -21605,7 +21605,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>linearDamp</span>
                     <input type="number" defaultValue={linearDamping} min={0} step={0.1}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearDamping: parseFloat(e.target.value) || 0 } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearDamping: parseFloat(e.target.value) || 0, _linearDamping: parseFloat(e.target.value) || 0, _N$linearDamping: parseFloat(e.target.value) || 0 } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21614,7 +21614,7 @@ function CCFileNodeInspector({
                     {([0, 0.1, 0.5, 1, 5] as const).map(v => (
                       <span key={v} title={`linearDamping = ${v}`}
                         onClick={() => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearDamping: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearDamping: v, _linearDamping: v, _N$linearDamping: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${linearDamping === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: linearDamping === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
@@ -21626,7 +21626,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>angularDamp</span>
                     <input type="number" defaultValue={angularDamping} min={0} step={0.1}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularDamping: parseFloat(e.target.value) || 0 } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularDamping: parseFloat(e.target.value) || 0, _angularDamping: parseFloat(e.target.value) || 0, _N$angularDamping: parseFloat(e.target.value) || 0 } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21634,7 +21634,7 @@ function CCFileNodeInspector({
                     {([0, 0.1, 1, 5] as const).map(v => (
                       <span key={v} title={`angularDamping = ${v}`}
                         onClick={() => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularDamping: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularDamping: v, _angularDamping: v, _N$angularDamping: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${angularDamping === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: angularDamping === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
@@ -21644,7 +21644,7 @@ function CCFileNodeInspector({
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
                     <input type="checkbox" checked={fixedRotation}
                       onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fixedRotation: e.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fixedRotation: e.target.checked, _fixedRotation: e.target.checked, _N$fixedRotation: e.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ margin: 0, accentColor: '#58a6ff' }}
