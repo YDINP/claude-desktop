@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:28:27.469Z
+> 2026-03-14T05:29:47.524Z
 
 ## Critical
 _없음_
@@ -1804,3 +1804,4 @@ _없음_
 - BatchInspector cc.BoxCollider/CircleCollider sensor 일괄 설정
 - BatchInspector cc.ParticleSystem duration 일괄 설정
 - BatchInspector cc.ParticleSystem maxParticles 일괄 설정
+- BatchInspector cc.PageView slideDuration 일괄 설정

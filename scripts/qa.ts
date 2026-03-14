@@ -20426,6 +20426,18 @@ console.log('\n## 765. R1874 BatchInspector cc.ParticleSystem maxParticles 체�
   }
 }
 
+// ── Section 766: R1875 BatchInspector cc.PageView slideDuration ───────────
+console.log('\n## 766. R1875 BatchInspector cc.PageView slideDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s766 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s766.includes('R1875') && s766.includes('applyPVSlideDur') && s766.includes('patchPVSlideDur')) {
+    log('pass', 'R1875-batch-pv-slidedur', 'BatchInspector cc.PageView slideDuration 일괄 설정')
+  } else {
+    log('warning', 'R1875-batch-pv-slidedur', 'BatchInspector cc.PageView slideDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
