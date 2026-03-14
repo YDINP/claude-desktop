@@ -6401,6 +6401,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2221: 공통 cc.DirectionalLight/PointLight enabled (컴포넌트 레벨) 일괄 설정 (CC3.x) */}
+      {(commonCompTypes.includes('cc.DirectionalLight') || commonCompTypes.includes('cc.PointLight')) && (() => {
+        const applyLightEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchLightEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLightEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight')
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLightEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Light enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fde68a', width: 48, flexShrink: 0 }}>LightEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyLightEnabled(v)} title={`Light enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2142: 공통 cc.DirectionalLight/cc.PointLight intensity 일괄 설정 */}
       {(commonCompTypes.includes('cc.DirectionalLight') || commonCompTypes.includes('cc.PointLight')) && (() => {
         const lightType = commonCompTypes.includes('cc.DirectionalLight') ? 'cc.DirectionalLight' : 'cc.PointLight'
@@ -11661,6 +11687,32 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>loop✓</span>
             <span onClick={() => applySkeletalLoop(false)} title="loop OFF"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>loop✗</span>
+          </div>
+        )
+      })()}
+      {/* R2221: 공통 cc.SkeletalAnimation enabled (컴포넌트 레벨) 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
+        const applySkeletalAnimEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchSkeletalAnimEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSkeletalAnimEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSkeletalAnimEnabled(sceneFile.root) })
+          setBatchMsg(`✓ SkeletalAnimation enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fbbf24', width: 48, flexShrink: 0 }}>SkelEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applySkeletalAnimEnabled(v)} title={`SkeletalAnimation enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
+            ))}
           </div>
         )
       })()}

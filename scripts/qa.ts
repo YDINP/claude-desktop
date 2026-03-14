@@ -24125,6 +24125,24 @@ if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
   log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
 }
 
+// ── Section 1175: R2221 BatchInspector cc.DirectionalLight/PointLight enabled (CC3.x) ──────────
+console.log('\n## 1175. R2221 BatchInspector cc.DirectionalLight/PointLight enabled 체크')
+const s1175 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1175.includes('R2221') && s1175.includes('applyLightEnabled') && s1175.includes('LightEn')) {
+  log('pass', 'R2221-batch-light-enabled', 'BatchInspector cc.DirectionalLight/PointLight enabled 일괄 설정')
+} else {
+  log('warning', 'R2221-batch-light-enabled', 'BatchInspector cc.DirectionalLight/PointLight enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1176: R2221 BatchInspector cc.SkeletalAnimation enabled (CC3.x) ──────────
+console.log('\n## 1176. R2221 BatchInspector cc.SkeletalAnimation enabled 체크')
+const s1176 = s1175
+if (s1176.includes('R2221') && s1176.includes('applySkeletalAnimEnabled') && s1176.includes('SkelEn')) {
+  log('pass', 'R2221-batch-skeletalanimation-enabled', 'BatchInspector cc.SkeletalAnimation enabled 일괄 설정')
+} else {
+  log('warning', 'R2221-batch-skeletalanimation-enabled', 'BatchInspector cc.SkeletalAnimation enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1173: R2220 BatchInspector cc.PolygonCollider2D enabled ──────────
 console.log('\n## 1173. R2220 BatchInspector cc.PolygonCollider2D enabled 체크')
 const s1173 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
