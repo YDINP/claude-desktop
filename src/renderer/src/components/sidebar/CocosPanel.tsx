@@ -5094,6 +5094,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1980: 공통 cc.ScrollView speedAmplifier 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVSpeed = async (speedAmplifier: number) => {
+          if (!sceneFile.root) return
+          function patchSVSpeed(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVSpeed)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, speedAmplifier, _N$speedAmplifier: speedAmplifier } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSVSpeed(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ ScrollView speedAmplifier=${speedAmplifier} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SVspeed</span>
+            {([0.5, 1, 1.5, 2, 3] as const).map(v => (
+              <span key={v} onClick={() => applySVSpeed(v)} title={`speedAmplifier = ${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}x</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1936: 공통 cc.PageView bounceEnabled 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVBounce = async (v: boolean) => {

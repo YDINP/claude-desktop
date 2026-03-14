@@ -21686,6 +21686,18 @@ console.log('\n## 870. R1979 BatchInspector cc.ParticleSystem autoRemoveOnFinish
   }
 }
 
+// ── Section 871: R1980 BatchInspector cc.ScrollView speedAmplifier ──────────
+console.log('\n## 871. R1980 BatchInspector cc.ScrollView speedAmplifier 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s871 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s871.includes('R1980') && s871.includes('patchSVSpeed') && s871.includes('applySVSpeed')) {
+    log('pass', 'R1980-batch-sv-speed', 'BatchInspector cc.ScrollView speedAmplifier 일괄 설정')
+  } else {
+    log('warning', 'R1980-batch-sv-speed', 'BatchInspector cc.ScrollView speedAmplifier 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
