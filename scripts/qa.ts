@@ -24952,6 +24952,20 @@ if (
   log('warning', 'R2278-batch-audiosource-volume-loop-cc3x', 'BatchInspector cc.AudioSource CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1283: R2279 단일노드 cc.ProgressBar _progress + cc.AudioSource _volume/_loop/_playOnLoad (CC3.x) ──────────
+console.log('\n## 1283. R2279 단일노드 ProgressBar _progress + AudioSource _volume/_loop/_playOnLoad CC3.x 체크')
+const s1283 = s1282
+if (
+  s1283.includes('progress: v, _progress: v, _N$progress: v') &&
+  s1283.includes('volume: parseFloat(e.target.value), _volume: parseFloat') &&
+  s1283.includes('_loop: e.target.checked, _N$loop: e.target.checked') &&
+  s1283.includes('_playOnLoad: e.target.checked, _N$playOnLoad: e.target.checked')
+) {
+  log('pass', 'R2279-node-pb-progress-audio-props-cc3x', '단일노드 cc.ProgressBar _progress + cc.AudioSource _volume/_loop/_playOnLoad (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2279-node-pb-progress-audio-props-cc3x', '단일노드 ProgressBar/AudioSource CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
