@@ -9565,6 +9565,37 @@ function CCFileNodeInspector({
                         style={{ margin: 0, accentColor: '#f87171' }}
                       />paused
                     </label>
+                    {/* R1826: premultipliedAlpha */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.premultipliedAlpha ?? false)}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, premultipliedAlpha: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ margin: 0 }}
+                      />pma
+                    </label>
+                  </div>
+                  {/* R1826: debug 옵션 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.debugSlots ?? false)}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, debugSlots: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ margin: 0, accentColor: '#fbbf24' }}
+                      />debugSlots
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.debugBones ?? false)}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, debugBones: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ margin: 0, accentColor: '#fbbf24' }}
+                      />debugBones
+                    </label>
                   </div>
                 </div>
               )

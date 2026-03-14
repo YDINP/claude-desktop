@@ -19835,6 +19835,18 @@ console.log('\n## 716. R1825 BatchInspector 이름 정규화 체크')
   }
 }
 
+// ── Section 717: R1826 sp.Skeleton premultipliedAlpha/debugSlots/debugBones ──
+console.log('\n## 717. R1826 sp.Skeleton 확장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s717 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s717.includes('R1826') && s717.includes('premultipliedAlpha') && s717.includes('debugSlots') && s717.includes('debugBones')) {
+    log('pass', 'R1826-spine-extra', 'sp.Skeleton premultipliedAlpha/debugSlots/debugBones 추가')
+  } else {
+    log('warning', 'R1826-spine-extra', 'sp.Skeleton 확장 속성 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
