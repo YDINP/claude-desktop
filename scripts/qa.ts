@@ -24059,6 +24059,24 @@ if (s1073.includes('R2170') && s1073.includes('applySpriteFillCenter') && s1073.
   log('warning', 'R2170-batch-sprite-fillcenter', 'BatchInspector cc.Sprite fillCenter 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1074: R2171 BatchInspector cc.PolygonCollider threshold ──────────
+console.log('\n## 1074. R2171 BatchInspector cc.PolygonCollider threshold 체크')
+const s1074 = s1073
+if (s1074.includes('R2171') && s1074.includes('applyPolyThreshold') && s1074.includes('PolyThr')) {
+  log('pass', 'R2171-batch-poly-threshold', 'BatchInspector cc.PolygonCollider threshold 일괄 설정')
+} else {
+  log('warning', 'R2171-batch-poly-threshold', 'BatchInspector cc.PolygonCollider threshold 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1075: R2171 BatchInspector cc.Graphics lineJoin ──────────
+console.log('\n## 1075. R2171 BatchInspector cc.Graphics lineJoin 체크')
+const s1075 = s1074
+if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.includes('GfxJoin')) {
+  log('pass', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 일괄 설정')
+} else {
+  log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

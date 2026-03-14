@@ -4010,6 +4010,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2171: 공통 cc.PolygonCollider threshold 일괄 설정 */}
+      {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
+        const applyPolyThreshold = async (threshold: number) => {
+          if (!sceneFile.root) return
+          function patchPolyThreshold(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPolyThreshold)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, threshold, _threshold: threshold } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPolyThreshold(sceneFile.root) })
+          setBatchMsg(`✓ PolygonCollider threshold=${threshold} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>PolyThr</span>
+            {[1, 2, 5, 10, 20].map(v => (
+              <span key={v} onClick={() => applyPolyThreshold(v)} title={`threshold=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2160: 공통 cc.BoxCollider2D offset 일괄 설정 */}
       {commonCompTypes.includes('cc.BoxCollider2D') && (() => {
         const applyBoxOffset = async (ox: number, oy: number) => {
@@ -5648,6 +5671,29 @@ function CCFileBatchInspector({
               <span key={c} title={c} onClick={() => applyGraphicsStrokeColor(c)}
                 style={{ width: 14, height: 14, borderRadius: 2, background: c, border: '1px solid var(--border)', cursor: 'pointer', display: 'inline-block', flexShrink: 0 }}
               />
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2171: 공통 cc.Graphics lineJoin 일괄 설정 */}
+      {commonCompTypes.includes('cc.Graphics') && (() => {
+        const applyGraphicsLineJoin = async (lineJoin: number) => {
+          if (!sceneFile.root) return
+          function patchGraphicsLineJoin(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchGraphicsLineJoin)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, lineJoin, _lineJoin: lineJoin } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchGraphicsLineJoin(sceneFile.root) })
+          setBatchMsg(`✓ Graphics lineJoin=${['miter','round','bevel'][lineJoin] ?? lineJoin} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>GfxJoin</span>
+            {([['Miter', 0], ['Round', 1], ['Bevel', 2]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applyGraphicsLineJoin(v)} title={`lineJoin=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
