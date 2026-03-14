@@ -4595,6 +4595,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1935: 공통 cc.ScrollView elastic 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applyScrollElastic = async (elastic: boolean) => {
+          if (!sceneFile.root) return
+          function patchScrollElastic(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchScrollElastic)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, elastic, _N$elastic: elastic } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchScrollElastic(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView elastic=${elastic} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SVelast</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`elastic = ${v}`}
+                onClick={() => applyScrollElastic(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{v ? 'el✓' : 'el✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1928: 공통 cc.ScrollView elasticDuration 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyElasticDur = async (elasticDuration: number) => {

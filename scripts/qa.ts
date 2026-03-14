@@ -21146,6 +21146,18 @@ console.log('\n## 825. R1934 BatchInspector cc.Layout affectedByScale 체크')
   }
 }
 
+// ── Section 826: R1935 BatchInspector cc.ScrollView elastic ──────────
+console.log('\n## 826. R1935 BatchInspector cc.ScrollView elastic 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s826 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s826.includes('R1935') && s826.includes('patchScrollElastic') && s826.includes('applyScrollElastic')) {
+    log('pass', 'R1935-batch-scrollview-elastic', 'BatchInspector cc.ScrollView elastic 일괄 설정')
+  } else {
+    log('warning', 'R1935-batch-scrollview-elastic', 'BatchInspector cc.ScrollView elastic 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
