@@ -3936,6 +3936,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2088: 공통 cc.CircleCollider density 일괄 설정 */}
+      {commonCompTypes.includes('cc.CircleCollider') && (() => {
+        const applyCircleDensity = async (density: number) => {
+          if (!sceneFile.root) return
+          function patchCircleDensity(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCircleDensity)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, density } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCircleDensity(sceneFile.root) })
+          setBatchMsg(`✓ CircleCollider density=${density} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>CirDens</span>
+            {[0.1, 0.5, 1, 2, 5, 10].map(v => (
+              <span key={v} title={`density = ${v}`}
+                onClick={() => applyCircleDensity(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2083: 공통 cc.CircleCollider sensor 일괄 설정 */}
       {commonCompTypes.includes('cc.CircleCollider') && (() => {
         const applyCircleSensor = async (sensor: boolean) => {

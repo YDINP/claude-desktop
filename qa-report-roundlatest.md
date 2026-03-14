@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:27:49.351Z
+> 2026-03-14T08:28:17.288Z
 
 ## Critical
 _없음_
@@ -2017,3 +2017,4 @@ _없음_
 - BatchInspector cc.EditBox inputMode 일괄 설정
 - BatchInspector cc.EditBox inputFlag 일괄 설정
 - BatchInspector cc.BoxCollider density 일괄 설정
+- BatchInspector cc.CircleCollider density 일괄 설정

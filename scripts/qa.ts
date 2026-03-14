@@ -22982,6 +22982,18 @@ console.log('\n## 978. R2087 BatchInspector cc.BoxCollider density 체크')
   }
 }
 
+// ── Section 979: R2088 BatchInspector cc.CircleCollider density ──────────
+console.log('\n## 979. R2088 BatchInspector cc.CircleCollider density 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s979 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s979.includes('R2088') && s979.includes('patchCircleDensity') && s979.includes('applyCircleDensity')) {
+    log('pass', 'R2088-batch-circle-density', 'BatchInspector cc.CircleCollider density 일괄 설정')
+  } else {
+    log('warning', 'R2088-batch-circle-density', 'BatchInspector cc.CircleCollider density 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
