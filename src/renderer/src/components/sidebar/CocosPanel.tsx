@@ -5300,6 +5300,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1991: 공통 cc.PageView pageTurningEventTiming 일괄 설정 */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPVEventTiming = async (pageTurningEventTiming: number) => {
+          if (!sceneFile.root) return
+          function patchPVEventTiming(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPVEventTiming)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, pageTurningEventTiming, _N$pageTurningEventTiming: pageTurningEventTiming } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPVEventTiming(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PageView eventTiming=${pageTurningEventTiming} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>PVevTim</span>
+            {([0, 0.1, 0.2, 0.3, 0.5, 1].map(v => (
+              <span key={v} onClick={() => applyPVEventTiming(v)} title={`pageTurningEventTiming=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}</span>
+            )))}
+          </div>
+        )
+      })()}
       {/* R1875: 공통 cc.PageView slideDuration 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVSlideDur = async (dur: number) => {

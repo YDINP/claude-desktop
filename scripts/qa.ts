@@ -21818,6 +21818,18 @@ console.log('\n## 881. R1990 BatchInspector sp.Skeleton premultipliedAlpha 체�
   }
 }
 
+// ── Section 882: R1991 BatchInspector cc.PageView pageTurningEventTiming ──────────
+console.log('\n## 882. R1991 BatchInspector cc.PageView pageTurningEventTiming 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s882 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s882.includes('R1991') && s882.includes('patchPVEventTiming') && s882.includes('applyPVEventTiming')) {
+    log('pass', 'R1991-batch-pv-eventtiming', 'BatchInspector cc.PageView pageTurningEventTiming 일괄 설정')
+  } else {
+    log('warning', 'R1991-batch-pv-eventtiming', 'BatchInspector cc.PageView pageTurningEventTiming 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
