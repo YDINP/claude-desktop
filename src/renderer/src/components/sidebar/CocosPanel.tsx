@@ -4140,6 +4140,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1839: 공통 dragonBones.ArmatureDisplay timeScale 일괄 설정 */}
+      {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
+        const applyDBSpeed = async (timeScale: number) => {
+          if (!sceneFile.root) return
+          function patchDB(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchDB)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, timeScale } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchDB(sceneFile.root))
+          setBatchMsg(`✓ DragonBones ×${timeScale} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>DB</span>
+            {([0.5, 1, 1.5, 2] as const).map(v => (
+              <span key={v} title={`timeScale = ×${v}`}
+                onClick={() => applyDBSpeed(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}
+              >×{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1838: 공통 sp.Skeleton timeScale 일괄 설정 */}
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineSpeed = async (timeScale: number) => {
