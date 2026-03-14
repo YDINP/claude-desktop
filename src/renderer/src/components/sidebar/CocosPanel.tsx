@@ -8421,7 +8421,7 @@ function CCFileNodeInspector({
               const maxKey = comp.type === 'cc.ParticleSystem2D' ? '_N$totalParticles' : '_N$maxParticles'
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>duration</span>
                     <input type="number" defaultValue={duration} step={0.5}
                       onBlur={e => {
@@ -8429,9 +8429,16 @@ function CCFileNodeInspector({
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, duration: v, [durKey]: v } } : c)
                         applyAndSave({ components: updated })
                       }}
-                      style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{duration === -1 ? '(loop)' : 's'}</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{duration === -1 ? '(loop)' : 's'}</span>
+                    {/* R1793: duration 퀵 프리셋 */}
+                    {([-1, 0.5, 1, 2, 3] as const).map(v => (
+                      <span key={v} title={v === -1 ? 'loop' : `${v}s`}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, duration: v, [durKey]: v } } : c); applyAndSave({ components: updated }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${duration === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: duration === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v === -1 ? '∞' : v}</span>
+                    ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>maxParticles</span>

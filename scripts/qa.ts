@@ -19439,6 +19439,18 @@ console.log('\n## 683. R1792 BatchInspector cc.Label lineHeight 체크')
   }
 }
 
+// ── Section 684: R1793 cc.ParticleSystem duration 퀵 프리셋 ──────────────────
+console.log('\n## 684. R1793 cc.ParticleSystem duration 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s684 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s684.includes('R1793') && s684.includes('duration 퀵 프리셋') && s684.includes("'∞'")) {
+    log('pass', 'R1793-particle-duration-preset', 'cc.ParticleSystem duration 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1793-particle-duration-preset', 'cc.ParticleSystem duration 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
