@@ -18911,6 +18911,18 @@ console.log('\n## 639. R1748 cc.Layout 패딩 균등 버튼 체크')
   }
 }
 
+// ── Section 640: R1749 BatchInspector 공통 cc.Label fontSize 일괄 설정 ────────
+console.log('\n## 640. R1749 BatchInspector cc.Label fontSize 일괄 설정 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s640 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s640.includes('R1749') && s640.includes('공통 cc.Label fontSize 일괄 설정') && s640.includes('patchFs') && s640.includes('Label fontSize')) {
+    log('pass', 'R1749-batch-label-fs', 'BatchInspector cc.Label fontSize 일괄 설정')
+  } else {
+    log('warning', 'R1749-batch-label-fs', 'BatchInspector cc.Label fontSize 일괄 설정 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

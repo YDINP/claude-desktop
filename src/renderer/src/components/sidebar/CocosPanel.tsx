@@ -3823,6 +3823,30 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1749: 공통 cc.Label fontSize 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label fs</span>
+          <input type="number" min={1} max={200} placeholder="fontSize"
+            style={{ width: 56, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+            onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
+            onBlur={async e => {
+              const fs = parseInt(e.target.value)
+              if (isNaN(fs) || fs <= 0 || !sceneFile.root) return
+              function patchFs(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchFs)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontSize: fs, _fontSize: fs, _N$fontSize: fs } } : c)
+                return { ...n, components: updComps, children }
+              }
+              await saveScene(patchFs(sceneFile.root))
+              setBatchMsg(`✓ Label fontSize ${fs} (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+          />
+          <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
+        </div>
+      )}
       {/* Active 토글 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>Active</span>
