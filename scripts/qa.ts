@@ -20666,6 +20666,18 @@ console.log('\n## 785. R1894 BatchInspector cc.Layout resizeMode 체크')
   }
 }
 
+// ── Section 786: R1895 BatchInspector cc.UIOpacity opacity ──────────
+console.log('\n## 786. R1895 BatchInspector cc.UIOpacity opacity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s786 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s786.includes('R1895') && s786.includes('applyUIOpacity') && s786.includes('patchUIOpacity')) {
+    log('pass', 'R1895-batch-uiopacity', 'BatchInspector cc.UIOpacity opacity 일괄 설정')
+  } else {
+    log('warning', 'R1895-batch-uiopacity', 'BatchInspector cc.UIOpacity opacity 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

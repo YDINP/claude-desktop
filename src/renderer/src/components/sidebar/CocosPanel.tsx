@@ -4124,6 +4124,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
+      {commonCompTypes.includes('cc.UIOpacity') && (() => {
+        const applyUIOpacity = async (opacity: number) => {
+          if (!sceneFile.root) return
+          function patchUIOpacity(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchUIOpacity)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.UIOpacity' ? { ...c, props: { ...c.props, opacity } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchUIOpacity(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>UIOpacity</span>
+            {([0, 64, 128, 192, 255] as const).map(v => (
+              <span key={v} title={`opacity = ${v}`}
+                onClick={() => applyUIOpacity(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1764: 공통 cc.Toggle isChecked 일괄 설정 */}
       {commonCompTypes.includes('cc.Toggle') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

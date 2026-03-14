@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:49:03.320Z
+> 2026-03-14T05:49:57.710Z
 
 ## Critical
 _없음_
@@ -1824,3 +1824,4 @@ _없음_
 - cc.Camera backgroundColor/clearFlags/depth 편집
 - BatchInspector cc.ParticleSystem speed 일괄 설정
 - BatchInspector cc.Layout resizeMode 일괄 설정
+- BatchInspector cc.UIOpacity opacity 일괄 설정
