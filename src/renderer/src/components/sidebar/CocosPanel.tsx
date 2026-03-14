@@ -4957,6 +4957,8 @@ function CCFileNodeInspector({
               <span title="위치 리셋 (0,0)" onClick={() => applyAndSave({ position: { ...draft.position, x: 0, y: 0 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
               {/* R1592: 위치 정수 반올림 버튼 */}
               <span title="위치 정수 반올림 (Round to integer)" onClick={() => applyAndSave({ position: { ...draft.position, x: Math.round(draft.position.x), y: Math.round(draft.position.y) } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⌊⌉</span>
+              {/* R1682: 위치 복사 버튼 */}
+              <span title="위치 클립보드 복사 (x, y)" onClick={() => navigator.clipboard.writeText(`${Math.round(draft.position.x)}, ${Math.round(draft.position.y)}`).catch(() => {})} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⎘</span>
               {/* R1670: % 토글 */}
               {zOrderInfo?.parentSize && <span title="부모 크기 기준 % 표시 토글" onClick={() => setShowPct(v => !v)} style={{ cursor: 'pointer', color: showPct ? '#58a6ff' : '#555', fontSize: 8, padding: '0 2px', border: `1px solid ${showPct ? '#58a6ff44' : 'transparent'}`, borderRadius: 2 }}>%</span>}
             </div>
@@ -5022,6 +5024,8 @@ function CCFileNodeInspector({
               크기
               {/* R1592: 크기 정수 반올림 버튼 */}
               <span title="크기 정수 반올림 (Round to integer)" onClick={() => applyAndSave({ size: { x: Math.round(draft.size.x), y: Math.round(draft.size.y) } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⌊⌉</span>
+              {/* R1682: 크기 복사 버튼 */}
+              <span title="크기 클립보드 복사 (w × h)" onClick={() => navigator.clipboard.writeText(`${Math.round(draft.size.x)} × ${Math.round(draft.size.y)}`).catch(() => {})} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⎘</span>
               {/* R1652: 부모 크기에 맞추기 버튼 */}
               {zOrderInfo?.parentSize?.x && zOrderInfo?.parentSize?.y && (
                 <span title={`부모 크기에 맞추기 (${Math.round(zOrderInfo.parentSize.x)}×${Math.round(zOrderInfo.parentSize.y)})`} onClick={() => applyAndSave({ size: { x: zOrderInfo.parentSize!.x, y: zOrderInfo.parentSize!.y } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⊞↑</span>

@@ -18107,6 +18107,18 @@ console.log('\n## 572. R1681 SceneView 선택 테두리 색상 설정 체크')
   }
 }
 
+// ── Section 573: R1682 Inspector 위치/크기 빠른 복사 버튼 ─────────────────
+console.log('\n## 573. R1682 Inspector 위치/크기 복사 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s573 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s573.includes('R1682') && s573.includes('위치 클립보드 복사') && s573.includes('크기 클립보드 복사')) {
+    log('pass', 'R1682-pos-size-copy', 'Inspector 위치/크기 빠른 복사 버튼')
+  } else {
+    log('warning', 'R1682-pos-size-copy', 'Inspector 위치/크기 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
