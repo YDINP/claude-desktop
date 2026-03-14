@@ -4177,22 +4177,41 @@ function CCFileBatchInspector({
             style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
           />
         </div>
-        <button
-          onClick={async () => {
-            if (!sceneFile.root || (!batchNamePrefix && !batchNameSuffix)) return
-            function applyName(n: CCSceneNode): CCSceneNode {
-              const children = n.children.map(applyName)
-              if (!uuidSet.has(n.uuid)) return { ...n, children }
-              return { ...n, name: `${batchNamePrefix}${n.name}${batchNameSuffix}`, children }
-            }
-            const result = await saveScene(applyName(sceneFile.root))
-            setBatchMsg(result.success ? `✓ 이름 변경 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
-            setBatchNamePrefix('')
-            setBatchNameSuffix('')
-            setTimeout(() => setBatchMsg(null), 2000)
-          }}
-          style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(88,166,255,0.12)', border: '1px solid rgba(88,166,255,0.3)', borderRadius: 3, color: '#58a6ff', cursor: 'pointer' }}
-        >이름 적용 ({uuids.length}개)</button>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <button
+            onClick={async () => {
+              if (!sceneFile.root || (!batchNamePrefix && !batchNameSuffix)) return
+              function applyName(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(applyName)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                return { ...n, name: `${batchNamePrefix}${n.name}${batchNameSuffix}`, children }
+              }
+              const result = await saveScene(applyName(sceneFile.root))
+              setBatchMsg(result.success ? `✓ 이름 변경 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+              setBatchNamePrefix('')
+              setBatchNameSuffix('')
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(88,166,255,0.12)', border: '1px solid rgba(88,166,255,0.3)', borderRadius: 3, color: '#58a6ff', cursor: 'pointer' }}
+          >이름 적용 ({uuids.length}개)</button>
+          {/* R1754: 순서 번호 추가 */}
+          <button
+            title="선택 노드에 트리 순서대로 _1, _2... 번호 추가"
+            onClick={async () => {
+              if (!sceneFile.root) return
+              let counter = 1
+              function applySeq(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(applySeq)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                return { ...n, name: `${n.name}_${counter++}`, children }
+              }
+              const result = await saveScene(applySeq(sceneFile.root))
+              setBatchMsg(result.success ? `✓ 번호 추가 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 3, color: '#fbbf24', cursor: 'pointer' }}
+          >번호 추가 _1,_2... ({uuids.length}개)</button>
+        </div>
       </div>
       {/* R1737: 앵커 9-point 일괄 설정 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>

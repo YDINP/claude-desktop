@@ -18971,6 +18971,18 @@ console.log('\n## 644. R1753 cc.Widget 프리셋 버튼 체크')
   }
 }
 
+// ── Section 645: R1754 BatchInspector 순서 번호 추가 ─────────────────────────
+console.log('\n## 645. R1754 BatchInspector 순서 번호 추가 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s645 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s645.includes('R1754') && s645.includes('번호 추가') && s645.includes('applySeq') && s645.includes('counter++')) {
+    log('pass', 'R1754-batch-seq-num', 'BatchInspector 순서 번호 추가')
+  } else {
+    log('warning', 'R1754-batch-seq-num', 'BatchInspector 순서 번호 추가 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
