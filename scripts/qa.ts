@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1142: R2205 BatchInspector cc.Label enableOutline ──────────
+console.log('\n## 1142. R2205 BatchInspector cc.Label enableOutline (CC3.x) 체크')
+const s1142 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1142.includes('R2205') && s1142.includes('applyLabelEnableOutline') && s1142.includes('LblOtln')) {
+  log('pass', 'R2205-batch-label-enableoutline', 'BatchInspector cc.Label enableOutline 일괄 설정')
+} else {
+  log('warning', 'R2205-batch-label-enableoutline', 'BatchInspector cc.Label enableOutline 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1143: R2205 BatchInspector cc.Label enableShadow ──────────
+console.log('\n## 1143. R2205 BatchInspector cc.Label enableShadow (CC3.x) 체크')
+const s1143 = s1142
+if (s1143.includes('R2205') && s1143.includes('applyLabelEnableShadow') && s1143.includes('LblShdw')) {
+  log('pass', 'R2205-batch-label-enableshadow', 'BatchInspector cc.Label enableShadow 일괄 설정')
+} else {
+  log('warning', 'R2205-batch-label-enableshadow', 'BatchInspector cc.Label enableShadow 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1140: R2204 BatchInspector node posX 독립 ──────────
 console.log('\n## 1140. R2204 BatchInspector 노드 posX 독립 조절 체크')
 const s1140 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
