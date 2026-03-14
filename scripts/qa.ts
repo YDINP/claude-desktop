@@ -23618,6 +23618,18 @@ console.log('\n## 1031. R2140 BatchInspector cc.Layout autoWrap 체크')
   }
 }
 
+// ── Section 1032: R2141 BatchInspector cc.RichText overflow ──────────
+console.log('\n## 1032. R2141 BatchInspector cc.RichText overflow 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1032 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1032.includes('R2141') && s1032.includes('patchRichOverflow') && s1032.includes('applyRichOverflow')) {
+    log('pass', 'R2141-batch-richtext-overflow', 'BatchInspector cc.RichText overflow 일괄 설정')
+  } else {
+    log('warning', 'R2141-batch-richtext-overflow', 'BatchInspector cc.RichText overflow 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

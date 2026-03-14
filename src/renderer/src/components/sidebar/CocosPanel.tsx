@@ -5227,6 +5227,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2141: 공통 cc.RichText overflow 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichOverflow = async (overflow: number) => {
+          if (!sceneFile.root) return
+          function patchRichOverflow(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichOverflow)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRichOverflow(sceneFile.root) })
+          setBatchMsg(`✓ RichText overflow=${overflow} (${uuids.length}개)`)
+        }
+        const labels = ['None', 'Clamp', 'Shrink', 'Resize']
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>RichOvfl</span>
+            {[0, 1, 2, 3].map(v => (
+              <span key={v} onClick={() => applyRichOverflow(v)} title={`overflow=${labels[v]}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>{labels[v]}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2035: 공통 cc.RichText lineHeight 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichLineH = async (lineHeight: number) => {
