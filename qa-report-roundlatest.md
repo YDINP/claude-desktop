@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:13:13.624Z
+> 2026-03-14T08:13:40.608Z
 
 ## Critical
 _없음_
@@ -1999,3 +1999,4 @@ _없음_
 - BatchInspector cc.PageView direction 일괄 설정
 - BatchInspector cc.Layout cellSize 일괄 설정
 - BatchInspector cc.RigidBody linearDamping 일괄 설정
+- BatchInspector cc.RigidBody angularDamping 일괄 설정

@@ -22766,6 +22766,18 @@ console.log('\n## 960. R2069 BatchInspector cc.RigidBody linearDamping 체크')
   }
 }
 
+// ── Section 961: R2070 BatchInspector cc.RigidBody angularDamping ──────────
+console.log('\n## 961. R2070 BatchInspector cc.RigidBody angularDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s961 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s961.includes('R2070') && s961.includes('patchRBAngDamp') && s961.includes('applyRBAngDamp')) {
+    log('pass', 'R2070-batch-rb-angdamp', 'BatchInspector cc.RigidBody angularDamping 일괄 설정')
+  } else {
+    log('warning', 'R2070-batch-rb-angdamp', 'BatchInspector cc.RigidBody angularDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
