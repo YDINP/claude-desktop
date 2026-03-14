@@ -8034,6 +8034,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2117: 공통 cc.ParticleSystem gravity.y 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSGravY = async (gy: number) => {
+          if (!sceneFile.root) return
+          function patchPSGravY(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSGravY)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => {
+              if (c.type !== 'cc.ParticleSystem') return c
+              const grav = (c.props?.gravity as { x?: number; y?: number } | undefined) ?? {}
+              return { ...c, props: { ...c.props, gravity: { x: grav.x ?? 0, y: gy } } }
+            })
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPSGravY(sceneFile.root) })
+          setBatchMsg(`✓ PS gravity.y=${gy} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSgravY</span>
+            {[-300, -200, -100, 0, 100, 200].map(v => (
+              <span key={v} onClick={() => applyPSGravY(v)} title={`gravity.y=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2055: 공통 cc.ParticleSystem gravity.x 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSGravityX = async (gx: number) => {

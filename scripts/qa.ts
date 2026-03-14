@@ -23330,6 +23330,18 @@ console.log('\n## 1007. R2116 BatchInspector cc.ScrollView vertical 체크')
   }
 }
 
+// ── Section 1008: R2117 BatchInspector cc.ParticleSystem gravity.y ──────────
+console.log('\n## 1008. R2117 BatchInspector cc.ParticleSystem gravity.y 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1008 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1008.includes('R2117') && s1008.includes('patchPSGravY') && s1008.includes('applyPSGravY')) {
+    log('pass', 'R2117-batch-ps-gravy', 'BatchInspector cc.ParticleSystem gravity.y 일괄 설정')
+  } else {
+    log('warning', 'R2117-batch-ps-gravy', 'BatchInspector cc.ParticleSystem gravity.y 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
