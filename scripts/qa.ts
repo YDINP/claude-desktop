@@ -22778,6 +22778,18 @@ console.log('\n## 961. R2070 BatchInspector cc.RigidBody angularDamping 체크')
   }
 }
 
+// ── Section 962: R2071 BatchInspector cc.MotionStreak fade ──────────
+console.log('\n## 962. R2071 BatchInspector cc.MotionStreak fade 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s962 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s962.includes('R2071') && s962.includes('patchMSFade') && s962.includes('applyMSFade')) {
+    log('pass', 'R2071-batch-ms-fade', 'BatchInspector cc.MotionStreak fade 일괄 설정')
+  } else {
+    log('warning', 'R2071-batch-ms-fade', 'BatchInspector cc.MotionStreak fade 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
