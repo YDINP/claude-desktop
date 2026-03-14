@@ -21974,6 +21974,18 @@ console.log('\n## 894. R2003 BatchInspector node scale 체크')
   }
 }
 
+// ── Section 895: R2004 BatchInspector cc.ScrollView pagingEnabled ──────────
+console.log('\n## 895. R2004 BatchInspector cc.ScrollView pagingEnabled 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s895 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s895.includes('R2004') && s895.includes('patchSVPaging') && s895.includes('applySVPaging')) {
+    log('pass', 'R2004-batch-sv-paging', 'BatchInspector cc.ScrollView pagingEnabled 일괄 설정')
+  } else {
+    log('warning', 'R2004-batch-sv-paging', 'BatchInspector cc.ScrollView pagingEnabled 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

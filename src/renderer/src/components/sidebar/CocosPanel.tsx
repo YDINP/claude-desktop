@@ -5298,6 +5298,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2004: 공통 cc.ScrollView pagingEnabled 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVPaging = async (pagingEnabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchSVPaging(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVPaging)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, pagingEnabled, _N$pagingEnabled: pagingEnabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSVPaging(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ ScrollView paging=${pagingEnabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SVpaging</span>
+            <span onClick={() => applySVPaging(true)} title="pagingEnabled ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>pg✓</span>
+            <span onClick={() => applySVPaging(false)} title="pagingEnabled OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>pg✗</span>
+          </div>
+        )
+      })()}
       {/* R1980: 공통 cc.ScrollView speedAmplifier 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVSpeed = async (speedAmplifier: number) => {
