@@ -21074,6 +21074,18 @@ console.log('\n## 819. R1928 BatchInspector cc.ScrollView elasticDuration 체크
   }
 }
 
+// ── Section 820: R1929 BatchInspector cc.RichText horizontalAlign ──────────
+console.log('\n## 820. R1929 BatchInspector cc.RichText horizontalAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s820 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s820.includes('R1929') && s820.includes('patchRichAlign') && s820.includes('applyRichAlign')) {
+    log('pass', 'R1929-batch-richtext-horizontalalign', 'BatchInspector cc.RichText horizontalAlign 일괄 설정')
+  } else {
+    log('warning', 'R1929-batch-richtext-horizontalalign', 'BatchInspector cc.RichText horizontalAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

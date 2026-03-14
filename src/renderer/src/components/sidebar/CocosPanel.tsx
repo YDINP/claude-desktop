@@ -4201,6 +4201,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1929: 공통 cc.RichText horizontalAlign 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichAlign = async (horizontalAlign: number) => {
+          if (!sceneFile.root) return
+          function patchRichAlign(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichAlign)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchRichAlign(sceneFile.root))
+          const names = ['L', 'C', 'R']
+          setBatchMsg(`✓ RichText align=${names[horizontalAlign] ?? horizontalAlign} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>RichAlgn</span>
+            {([['L',0],['C',1],['R',2]] as [string,number][]).map(([l,v]) => (
+              <span key={v} title={`horizontalAlign = ${l}`}
+                onClick={() => applyRichAlign(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {
