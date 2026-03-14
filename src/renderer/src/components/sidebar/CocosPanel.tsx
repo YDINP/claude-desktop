@@ -9797,6 +9797,52 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2125: 공통 cc.Widget isAlignRight 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetIsAlignRight = async (isAlignRight: boolean) => {
+          if (!sceneFile.root) return
+          function patchWidgetIsAlignRight(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetIsAlignRight)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignRight, _isAlignRight: isAlignRight } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetIsAlignRight(sceneFile.root) })
+          setBatchMsg(`✓ Widget isAlignRight=${isAlignRight} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WARight</span>
+            <span onClick={() => applyWidgetIsAlignRight(true)} title="isAlignRight ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>R✓</span>
+            <span onClick={() => applyWidgetIsAlignRight(false)} title="isAlignRight OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>R✗</span>
+          </div>
+        )
+      })()}
+      {/* R2124: 공통 cc.Widget isAlignLeft 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetIsAlignLeft = async (isAlignLeft: boolean) => {
+          if (!sceneFile.root) return
+          function patchWidgetIsAlignLeft(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetIsAlignLeft)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignLeft, _isAlignLeft: isAlignLeft } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetIsAlignLeft(sceneFile.root) })
+          setBatchMsg(`✓ Widget isAlignLeft=${isAlignLeft} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WALeft</span>
+            <span onClick={() => applyWidgetIsAlignLeft(true)} title="isAlignLeft ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>L✓</span>
+            <span onClick={() => applyWidgetIsAlignLeft(false)} title="isAlignLeft OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>L✗</span>
+          </div>
+        )
+      })()}
       {/* R2123: 공통 cc.Widget isAlignBottom 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAlignBot = async (isAlignBottom: boolean) => {

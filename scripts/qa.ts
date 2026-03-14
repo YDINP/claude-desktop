@@ -23414,6 +23414,30 @@ console.log('\n## 1014. R2123 BatchInspector cc.Widget isAlignBottom 체크')
   }
 }
 
+// ── Section 1015: R2124 BatchInspector cc.Widget isAlignLeft ──────────
+console.log('\n## 1015. R2124 BatchInspector cc.Widget isAlignLeft 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1015 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1015.includes('R2124') && s1015.includes('patchWidgetIsAlignLeft') && s1015.includes('applyWidgetIsAlignLeft')) {
+    log('pass', 'R2124-batch-widget-isalignleft', 'BatchInspector cc.Widget isAlignLeft 일괄 설정')
+  } else {
+    log('warning', 'R2124-batch-widget-isalignleft', 'BatchInspector cc.Widget isAlignLeft 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1016: R2125 BatchInspector cc.Widget isAlignRight ──────────
+console.log('\n## 1016. R2125 BatchInspector cc.Widget isAlignRight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1016 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1016.includes('R2125') && s1016.includes('patchWidgetIsAlignRight') && s1016.includes('applyWidgetIsAlignRight')) {
+    log('pass', 'R2125-batch-widget-isalignright', 'BatchInspector cc.Widget isAlignRight 일괄 설정')
+  } else {
+    log('warning', 'R2125-batch-widget-isalignright', 'BatchInspector cc.Widget isAlignRight 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
