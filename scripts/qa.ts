@@ -19043,6 +19043,18 @@ console.log('\n## 650. R1759 cc.Label Trim 버튼 체크')
   }
 }
 
+// ── Section 651: R1760 BatchInspector cc.Sprite tint 일괄 ────────────────────
+console.log('\n## 651. R1760 BatchInspector cc.Sprite tint 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s651 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s651.includes('R1760') && s651.includes('cc.Sprite tint 일괄 설정') && s651.includes('patchSpriteColor') && s651.includes('Sprite tint')) {
+    log('pass', 'R1760-batch-sprite-tint', 'BatchInspector cc.Sprite tint 일괄 설정')
+  } else {
+    log('warning', 'R1760-batch-sprite-tint', 'BatchInspector cc.Sprite tint 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

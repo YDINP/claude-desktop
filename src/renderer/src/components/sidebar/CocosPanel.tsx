@@ -3849,6 +3849,31 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1760: 공통 cc.Sprite tint 일괄 설정 */}
+      {commonCompTypes.includes('cc.Sprite') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>Sprite 색</span>
+          <input type="color" defaultValue="#ffffff"
+            onChange={async e => {
+              const hex = e.target.value
+              if (!sceneFile.root) return
+              const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+              function patchSpriteColor(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchSpriteColor)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } } : c)
+                return { ...n, components: updComps, children }
+              }
+              await saveScene(patchSpriteColor(sceneFile.root))
+              setBatchMsg(`✓ Sprite tint (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+            title="cc.Sprite tint 색상 일괄 설정"
+          />
+          <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>tint</span>
+        </div>
+      )}
       {/* R1758: 공통 cc.Label 텍스트 색상 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
