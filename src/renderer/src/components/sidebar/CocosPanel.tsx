@@ -4146,6 +4146,32 @@ function CCFileBatchInspector({
           />
         </div>
       )}
+      {/* R1861: 공통 cc.LabelShadow blur 일괄 설정 */}
+      {commonCompTypes.includes('cc.LabelShadow') && (() => {
+        const applyShadowBlur = async (blur: number) => {
+          if (!sceneFile.root) return
+          function patchShadow(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchShadow)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, blur, _blur: blur } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchShadow(sceneFile.root))
+          setBatchMsg(`✓ LabelShadow blur=${blur} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>Shadow</span>
+            {([0, 1, 2, 3, 5, 8] as const).map(v => (
+              <span key={v} title={`shadow blur = ${v}`}
+                onClick={() => applyShadowBlur(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f59e0b', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1860: 공통 cc.LabelOutline width 일괄 설정 */}
       {commonCompTypes.includes('cc.LabelOutline') && (() => {
         const applyOutlineWidth = async (width: number) => {

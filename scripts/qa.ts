@@ -20258,6 +20258,18 @@ console.log('\n## 751. R1860 BatchInspector cc.LabelOutline width 체크')
   }
 }
 
+// ── Section 752: R1861 BatchInspector cc.LabelShadow blur 일괄 ───────────────
+console.log('\n## 752. R1861 BatchInspector cc.LabelShadow blur 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s752 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s752.includes('R1861') && s752.includes('applyShadowBlur') && s752.includes("'cc.LabelShadow'") && s752.includes('patchShadow')) {
+    log('pass', 'R1861-batch-labelshadow-blur', 'BatchInspector cc.LabelShadow blur 일괄 설정')
+  } else {
+    log('warning', 'R1861-batch-labelshadow-blur', 'BatchInspector cc.LabelShadow blur 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

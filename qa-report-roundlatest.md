@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:12:54.453Z
+> 2026-03-14T05:13:39.131Z
 
 ## Critical
 _없음_
@@ -1790,3 +1790,4 @@ _없음_
 - BatchInspector cc.PageView direction H/V 일괄 설정
 - BatchInspector cc.ScrollView H/V/inertia 일괄 설정
 - BatchInspector cc.LabelOutline width 일괄 설정
+- BatchInspector cc.LabelShadow blur 일괄 설정
