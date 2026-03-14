@@ -5583,6 +5583,25 @@ function CCFileNodeInspector({
             </div>
             {numInput('X', draft.position.x, v => applyAndSave({ position: { ...draft.position, x: v } }))}
             {numInput('Y', draft.position.y, v => applyAndSave({ position: { ...draft.position, y: v } }))}
+            {/* R1739: 위치 스텝 버튼 */}
+            <div style={{ display: 'flex', gap: 2, marginTop: 2, flexWrap: 'wrap' }}>
+              {([-10, -1, 1, 10] as const).map(d => (
+                <span key={`px${d}`} title={`X ${d > 0 ? '+' : ''}${d}`}
+                  onClick={() => applyAndSave({ position: { ...draft.position, x: draft.position.x + d } })}
+                  style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none', whiteSpace: 'nowrap' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                >X{d > 0 ? '+' : ''}{d}</span>
+              ))}
+              {([-10, -1, 1, 10] as const).map(d => (
+                <span key={`py${d}`} title={`Y ${d > 0 ? '+' : ''}${d}`}
+                  onClick={() => applyAndSave({ position: { ...draft.position, y: draft.position.y + d } })}
+                  style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none', whiteSpace: 'nowrap' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                >Y{d > 0 ? '+' : ''}{d}</span>
+              ))}
+            </div>
             {/* R1670: % 표시 */}
             {showPct && zOrderInfo?.parentSize && (() => {
               const pw = zOrderInfo.parentSize!.x, ph = zOrderInfo.parentSize!.y

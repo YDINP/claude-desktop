@@ -18791,6 +18791,18 @@ console.log('\n## 629. R1738 Inspector Z-index 직접 입력 체크')
   }
 }
 
+// ── Section 630: R1739 Inspector 위치 스텝 버튼 ──────────────────────────────
+console.log('\n## 630. R1739 Inspector 위치 스텝 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s630 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s630.includes('R1739') && s630.includes('위치 스텝 버튼') && s630.includes('draft.position.x + d') && s630.includes('draft.position.y + d')) {
+    log('pass', 'R1739-pos-step', 'Inspector 위치 스텝 버튼')
+  } else {
+    log('warning', 'R1739-pos-step', 'Inspector 위치 스텝 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
