@@ -19031,6 +19031,18 @@ console.log('\n## 649. R1758 BatchInspector cc.Label 텍스트 색상 체크')
   }
 }
 
+// ── Section 650: R1759 cc.Label 텍스트 Trim 버튼 ─────────────────────────────
+console.log('\n## 650. R1759 cc.Label Trim 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s650 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s650.includes('R1759') && s650.includes('앞뒤 공백 제거') && s650.includes('s.trim()')) {
+    log('pass', 'R1759-label-trim', 'cc.Label 텍스트 Trim 버튼')
+  } else {
+    log('warning', 'R1759-label-trim', 'cc.Label Trim 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

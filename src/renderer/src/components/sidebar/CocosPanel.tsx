@@ -7368,6 +7368,8 @@ function CCFileNodeInspector({
                         { label: 'ABC', title: '모두 대문자', fn: (s: string) => s.toUpperCase() },
                         { label: 'abc', title: '모두 소문자', fn: (s: string) => s.toLowerCase() },
                         { label: 'Abc', title: '단어 첫 글자 대문자', fn: (s: string) => s.replace(/\b\w/g, c => c.toUpperCase()) },
+                        /* R1759: trim */
+                        { label: 'trim', title: '앞뒤 공백 제거', fn: (s: string) => s.trim() },
                       ].map(({ label, title, fn }) => (
                         <span key={label} title={title}
                           onClick={() => {
