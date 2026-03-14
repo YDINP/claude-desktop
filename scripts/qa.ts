@@ -19199,6 +19199,18 @@ console.log('\n## 663. R1772 BatchInspector 선택 노드 정렬 체크')
   }
 }
 
+// ── Section 664: R1773 cc.Label 텍스트 길이 배지 ─────────────────────────────
+console.log('\n## 664. R1773 cc.Label 텍스트 길이 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s664 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s664.includes('R1773') && s664.includes('빈 문자열') && s664.includes('str.length')) {
+    log('pass', 'R1773-label-length', 'cc.Label 텍스트 길이 배지 + 빈 문자열 경고')
+  } else {
+    log('warning', 'R1773-label-length', 'cc.Label 텍스트 길이 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -7504,15 +7504,21 @@ function CCFileNodeInspector({
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0, marginTop: 2 }}>string</span>
-                    <textarea
-                      defaultValue={str}
-                      rows={2}
-                      onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value, _string: e.target.value, _N$string: e.target.value } } : c)
-                        applyAndSave({ components: updated })
-                      }}
-                      style={{ flex: 1, boxSizing: 'border-box', fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', resize: 'vertical' }}
-                    />
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <textarea
+                        defaultValue={str}
+                        rows={2}
+                        onBlur={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value, _string: e.target.value, _N$string: e.target.value } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ width: '100%', boxSizing: 'border-box', fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', resize: 'vertical' }}
+                      />
+                      {/* R1773: 텍스트 길이 배지 */}
+                      <span style={{ fontSize: 8, color: str.length === 0 ? '#f87171' : 'var(--text-muted)', alignSelf: 'flex-end' }}>
+                        {str.length === 0 ? '⚠ 빈 문자열' : `${str.length}자`}
+                      </span>
+                    </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>fontSize</span>
