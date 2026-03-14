@@ -4999,6 +4999,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2020: 공통 cc.Button interactable 일괄 설정 */}
+      {commonCompTypes.includes('cc.Button') && (() => {
+        const applyBtnInteract = async (interactable: boolean) => {
+          if (!sceneFile.root) return
+          function patchBtnInteract(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBtnInteract)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchBtnInteract(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Button interactable=${interactable} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>BtnIA</span>
+            {([['ia✓',true],['ia✗',false]] as [string,boolean][]).map(([label,v]) => (
+              <span key={label} onClick={() => applyBtnInteract(v)} title={`interactable=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1945: 공통 cc.Button normalColor 일괄 설정 */}
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnNormalColor = async (hex: string) => {

@@ -22166,6 +22166,18 @@ console.log('\n## 910. R2019 BatchInspector cc.Label horizontalAlign 체크')
   }
 }
 
+// ── Section 911: R2020 BatchInspector cc.Button interactable ──────────
+console.log('\n## 911. R2020 BatchInspector cc.Button interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s911 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s911.includes('R2020') && s911.includes('patchBtnInteract') && s911.includes('applyBtnInteract')) {
+    log('pass', 'R2020-batch-btn-interact', 'BatchInspector cc.Button interactable 일괄 설정')
+  } else {
+    log('warning', 'R2020-batch-btn-interact', 'BatchInspector cc.Button interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
