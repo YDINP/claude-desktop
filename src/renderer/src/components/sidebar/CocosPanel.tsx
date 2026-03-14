@@ -4416,6 +4416,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1982: 공통 cc.RichText maxWidth 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichMaxWidth = async (maxWidth: number) => {
+          if (!sceneFile.root) return
+          function patchRichMaxWidth(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichMaxWidth)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, maxWidth, _maxWidth: maxWidth, _N$maxWidth: maxWidth } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchRichMaxWidth(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ RichText maxWidth=${maxWidth} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>RTmaxW</span>
+            {[0, 200, 400, 600, 800].map(v => (
+              <span key={v} onClick={() => applyRichMaxWidth(v)} title={`maxWidth=${v} (0=无限)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{v || '∞'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {

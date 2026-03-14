@@ -21710,6 +21710,18 @@ console.log('\n## 872. R1981 BatchInspector cc.ParticleSystem emitterMode 체크
   }
 }
 
+// ── Section 873: R1982 BatchInspector cc.RichText maxWidth ──────────
+console.log('\n## 873. R1982 BatchInspector cc.RichText maxWidth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s873 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s873.includes('R1982') && s873.includes('patchRichMaxWidth') && s873.includes('applyRichMaxWidth')) {
+    log('pass', 'R1982-batch-rich-maxwidth', 'BatchInspector cc.RichText maxWidth 일괄 설정')
+  } else {
+    log('warning', 'R1982-batch-rich-maxwidth', 'BatchInspector cc.RichText maxWidth 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
