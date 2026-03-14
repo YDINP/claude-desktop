@@ -3595,6 +3595,12 @@ function CCFileSceneTree({
             className={lockedUuids?.has(node.uuid) ? 'lock-icon is-locked' : 'lock-icon'}
           >🔒</span>
         )}
+        {/* R1747: 자식 노드 수 배지 (collapsed 상태에서만 표시) */}
+        {collapsed && hasChildren && (
+          <span style={{ fontSize: 8, color: '#555', flexShrink: 0, padding: '0 2px', background: 'rgba(255,255,255,0.05)', borderRadius: 2 }} title={`자식 노드 ${node.children.length}개`}>
+            {node.children.length}
+          </span>
+        )}
         {node.components.length > 0 && (() => {
           const typeIconMap: Record<string, string> = {
             'cc.Sprite': '🖼', 'cc.Label': 'T', 'cc.RichText': 'T',

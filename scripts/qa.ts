@@ -18887,6 +18887,18 @@ console.log('\n## 637. R1746 cc.Label 텍스트 대소문자 변환 체크')
   }
 }
 
+// ── Section 638: R1747 Tree 자식 노드 수 배지 ────────────────────────────────
+console.log('\n## 638. R1747 Tree 자식 노드 수 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s638 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s638.includes('R1747') && s638.includes('자식 노드 수 배지') && s638.includes('node.children.length')) {
+    log('pass', 'R1747-child-count-badge', 'Tree 자식 노드 수 배지')
+  } else {
+    log('warning', 'R1747-child-count-badge', 'Tree 자식 노드 수 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
