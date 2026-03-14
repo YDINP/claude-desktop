@@ -4107,12 +4107,35 @@ function CCFileBatchInspector({
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
       </div>
       {/* R1553: Size 일괄 설정 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>사이즈</span>
         <input type="number" placeholder="W" value={batchSizeW} onChange={e => setBatchSizeW(e.target.value)} min={0}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
         <input type="number" placeholder="H" value={batchSizeH} onChange={e => setBatchSizeH(e.target.value)} min={0}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+      </div>
+      {/* R1780: 크기 배율 일괄 적용 (각 노드 비율 유지) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>크기배율</span>
+        {([0.5, 0.75, 1.25, 2] as const).map(m => (
+          <span key={m} title={`모든 선택 노드 크기 ×${m}`}
+            onClick={async () => {
+              if (!sceneFile.root) return
+              function patchSizeMult(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchSizeMult)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const sz = n.size as { x?: number; y?: number } | undefined
+                return { ...n, size: { x: (sz?.x ?? 0) * m, y: (sz?.y ?? 0) * m }, children }
+              }
+              await saveScene(patchSizeMult(sceneFile.root))
+              setBatchMsg(`✓ 크기 ×${m} (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
+          >×{m}</span>
+        ))}
       </div>
       {/* R1706: 회전 일괄 설정 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>

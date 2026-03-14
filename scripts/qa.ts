@@ -19283,6 +19283,18 @@ console.log('\n## 670. R1779 Inspector 정수화 버튼 체크')
   }
 }
 
+// ── Section 671: R1780 BatchInspector 크기 배율 일괄 적용 ────────────────────
+console.log('\n## 671. R1780 BatchInspector 크기 배율 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s671 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s671.includes('R1780') && s671.includes('patchSizeMult') && s671.includes('크기배율')) {
+    log('pass', 'R1780-batch-size-mult', 'BatchInspector 크기 배율 일괄 적용')
+  } else {
+    log('warning', 'R1780-batch-size-mult', 'BatchInspector 크기 배율 일괄 적용 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
