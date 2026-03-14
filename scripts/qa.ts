@@ -20198,6 +20198,18 @@ console.log('\n## 746. R1855 BatchInspector cc.Label lineHeight 체크')
   }
 }
 
+// ── Section 747: R1856 BatchInspector 이름 find/replace ───────────────────────
+console.log('\n## 747. R1856 BatchInspector 이름 find/replace 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s747 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s747.includes('R1856') && s747.includes('batchFindStr') && s747.includes('batchReplaceStr') && s747.includes('applyFR')) {
+    log('pass', 'R1856-batch-name-findreplace', 'BatchInspector 이름 find/replace 일괄 치환')
+  } else {
+    log('warning', 'R1856-batch-name-findreplace', 'BatchInspector 이름 find/replace 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

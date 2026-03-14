@@ -3727,6 +3727,9 @@ function CCFileBatchInspector({
   const [batchRegexErr, setBatchRegexErr] = useState<boolean>(false)
   // R1825: 이름 정규화 (base_001, base_002...)
   const [batchNormBase, setBatchNormBase] = useState<string>('')
+  // R1856: 이름 find/replace
+  const [batchFindStr, setBatchFindStr] = useState<string>('')
+  const [batchReplaceStr, setBatchReplaceStr] = useState<string>('')
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -5207,6 +5210,38 @@ function CCFileBatchInspector({
             }}
             style={{ fontSize: 9, padding: '2px 8px', background: batchNormBase ? 'rgba(52,211,153,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchNormBase ? '#34d399' : 'var(--text-muted)', cursor: batchNormBase ? 'pointer' : 'default', flexShrink: 0 }}
           >정규화 ({uuids.length}개)</button>
+        </div>
+        {/* R1856: 이름 find/replace */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+          <input
+            value={batchFindStr}
+            onChange={e => setBatchFindStr(e.target.value)}
+            placeholder="찾기"
+            style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+          />
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>→</span>
+          <input
+            value={batchReplaceStr}
+            onChange={e => setBatchReplaceStr(e.target.value)}
+            placeholder="바꾸기"
+            style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+          />
+          <button
+            title="선택 노드 이름에서 찾기→바꾸기 실행"
+            disabled={!batchFindStr}
+            onClick={async () => {
+              if (!sceneFile.root || !batchFindStr) return
+              function applyFR(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(applyFR)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                return { ...n, name: n.name.split(batchFindStr).join(batchReplaceStr), children }
+              }
+              const result = await saveScene(applyFR(sceneFile.root))
+              setBatchMsg(result.success ? `✓ 이름 치환 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 9, padding: '2px 6px', background: batchFindStr ? 'rgba(88,166,255,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchFindStr ? '#58a6ff' : 'var(--text-muted)', cursor: batchFindStr ? 'pointer' : 'default', flexShrink: 0 }}
+          >치환</button>
         </div>
         {/* R1768: X/Y 균등 배치 (3개 이상 선택 시) */}
         {/* R1772: 선택 노드 정렬 (align) */}

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:09:03.844Z
+> 2026-03-14T05:09:58.615Z
 
 ## Critical
 _없음_
@@ -1785,3 +1785,4 @@ _없음_
 - BatchInspector cc.ProgressBar reverse 일괄 설정
 - BatchInspector cc.Label bold/italic/underline 일괄 설정
 - BatchInspector cc.Label lineHeight 일괄 설정
+- BatchInspector 이름 find/replace 일괄 치환
