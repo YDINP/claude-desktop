@@ -23924,6 +23924,24 @@ if (s1058.includes('R2163') && s1058.includes('applyConstraintNum') && s1058.inc
   log('warning', 'R2163-batch-layout-constraintnum', 'BatchInspector cc.Layout constraintNum 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1059: R2164 BatchInspector cc.AudioSource endTime ──────────
+console.log('\n## 1059. R2164 BatchInspector cc.AudioSource endTime 체크')
+const s1059 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1059.includes('R2164') && s1059.includes('applyAudioEnd') && s1059.includes('ASend')) {
+  log('pass', 'R2164-batch-audio-endtime', 'BatchInspector cc.AudioSource endTime 일괄 설정')
+} else {
+  log('warning', 'R2164-batch-audio-endtime', 'BatchInspector cc.AudioSource endTime 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1060: R2164 BatchInspector cc.RichText handleTouchEvent ──────────
+console.log('\n## 1060. R2164 BatchInspector cc.RichText handleTouchEvent 체크')
+const s1060 = s1059
+if (s1060.includes('R2164') && s1060.includes('applyRichTouch') && s1060.includes('RTtouch')) {
+  log('pass', 'R2164-batch-richtext-touch', 'BatchInspector cc.RichText handleTouchEvent 일괄 설정')
+} else {
+  log('warning', 'R2164-batch-richtext-touch', 'BatchInspector cc.RichText handleTouchEvent 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -5394,6 +5394,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2164: 공통 cc.RichText handleTouchEvent 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichTouch = async (handleTouchEvent: boolean) => {
+          if (!sceneFile.root) return
+          function patchRichTouch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichTouch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, handleTouchEvent, _handleTouchEvent: handleTouchEvent } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRichTouch(sceneFile.root) })
+          setBatchMsg(`✓ RichText handleTouchEvent=${handleTouchEvent} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>RTtouch</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`handleTouchEvent = ${v}`}
+                onClick={() => applyRichTouch(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}
+              >{v ? 'touch✓' : 'touch✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1982: 공통 cc.RichText maxWidth 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichMaxWidth = async (maxWidth: number) => {
@@ -9679,6 +9704,32 @@ function CCFileBatchInspector({
                 onClick={() => applyAudioStart(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#facc15', userSelect: 'none' }}
               >{v}s</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2164: 공통 cc.AudioSource endTime 일괄 설정 */}
+      {commonCompTypes.includes('cc.AudioSource') && (() => {
+        const applyAudioEnd = async (endTime: number) => {
+          if (!sceneFile.root) return
+          function patchAudioEnd(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAudioEnd)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, endTime } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchAudioEnd(sceneFile.root) })
+          setBatchMsg(`✓ AudioSource endTime=${endTime < 0 ? '∞' : endTime + 's'} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#facc15', width: 48, flexShrink: 0 }}>ASend</span>
+            {([-1, 0, 1, 2, 5, 10] as const).map(v => (
+              <span key={v} title={`endTime = ${v < 0 ? '∞(no limit)' : v + 's'}`}
+                onClick={() => applyAudioEnd(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#facc15', userSelect: 'none' }}
+              >{v < 0 ? '∞' : v + 's'}</span>
             ))}
           </div>
         )
