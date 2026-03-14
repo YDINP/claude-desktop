@@ -22838,6 +22838,18 @@ console.log('\n## 966. R2075 BatchInspector cc.VideoPlayer volume 체크')
   }
 }
 
+// ── Section 967: R2076 BatchInspector cc.MotionStreak stroke ──────────
+console.log('\n## 967. R2076 BatchInspector cc.MotionStreak stroke 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s967 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s967.includes('R2076') && s967.includes('patchMSStroke') && s967.includes('applyMSStroke')) {
+    log('pass', 'R2076-batch-ms-stroke', 'BatchInspector cc.MotionStreak stroke 일괄 설정')
+  } else {
+    log('warning', 'R2076-batch-ms-stroke', 'BatchInspector cc.MotionStreak stroke 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
