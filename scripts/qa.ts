@@ -22994,6 +22994,18 @@ console.log('\n## 979. R2088 BatchInspector cc.CircleCollider density 체크')
   }
 }
 
+// ── Section 980: R2089 BatchInspector cc.BoxCollider friction ──────────
+console.log('\n## 980. R2089 BatchInspector cc.BoxCollider friction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s980 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s980.includes('R2089') && s980.includes('patchBoxFriction') && s980.includes('applyBoxFriction')) {
+    log('pass', 'R2089-batch-box-friction', 'BatchInspector cc.BoxCollider friction 일괄 설정')
+  } else {
+    log('warning', 'R2089-batch-box-friction', 'BatchInspector cc.BoxCollider friction 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
