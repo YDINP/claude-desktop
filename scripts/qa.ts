@@ -21050,6 +21050,18 @@ console.log('\n## 817. R1926 BatchInspector cc.MotionStreak minSeg 체크')
   }
 }
 
+// ── Section 818: R1927 BatchInspector cc.Label enableWrapText ──────────
+console.log('\n## 818. R1927 BatchInspector cc.Label enableWrapText 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s818 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s818.includes('R1927') && s818.includes('patchWrapText') && s818.includes('applyWrapText')) {
+    log('pass', 'R1927-batch-label-wraptext', 'BatchInspector cc.Label enableWrapText 일괄 설정')
+  } else {
+    log('warning', 'R1927-batch-label-wraptext', 'BatchInspector cc.Label enableWrapText 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

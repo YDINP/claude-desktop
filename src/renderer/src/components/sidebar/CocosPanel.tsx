@@ -4074,6 +4074,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1927: 공통 cc.Label enableWrapText 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyWrapText = async (enableWrapText: boolean) => {
+          if (!sceneFile.root) return
+          function patchWrapText(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWrapText)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, enableWrapText, _enableWrapText: enableWrapText, _N$enableWrapText: enableWrapText } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchWrapText(sceneFile.root))
+          setBatchMsg(`✓ Label wrap=${enableWrapText} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblWrap</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`enableWrapText = ${v}`}
+                onClick={() => applyWrapText(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{v ? 'wrap✓' : 'wrap✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1868: 공통 cc.Label spacingX 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelSpX = async (sx: number) => {
