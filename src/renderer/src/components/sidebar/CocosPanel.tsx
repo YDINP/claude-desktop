@@ -4020,7 +4020,7 @@ function CCFileBatchInspector({
           function patchPolyRest(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyRest)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, restitution } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyRest(sceneFile.root) })
@@ -4045,7 +4045,7 @@ function CCFileBatchInspector({
           function patchPolyFric(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyFric)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, friction } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyFric(sceneFile.root) })
@@ -4070,7 +4070,7 @@ function CCFileBatchInspector({
           function patchPolyDens(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyDens)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, density } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, density, _density: density, _N$density: density } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyDens(sceneFile.root) })
@@ -4174,7 +4174,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchPolyOffset)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyOffset(sceneFile.root) })
@@ -4197,7 +4197,7 @@ function CCFileBatchInspector({
           function patchPolyThreshold(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyThreshold)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, threshold, _threshold: threshold } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, threshold, _threshold: threshold, _N$threshold: threshold } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyThreshold(sceneFile.root) })
@@ -4221,7 +4221,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchBoxOffset)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider2D' ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.BoxCollider2D' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxOffset(sceneFile.root) })
@@ -4245,7 +4245,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchCircleOffset)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider2D' ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.CircleCollider2D' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleOffset(sceneFile.root) })
@@ -4269,7 +4269,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchBoxCollSize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const size = { width: w, height: h }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider2D' ? { ...c, props: { ...c.props, size, _size: size } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.BoxCollider2D' ? { ...c, props: { ...c.props, size, _size: size, _N$size: size } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxCollSize(sceneFile.root) })
@@ -4293,7 +4293,7 @@ function CCFileBatchInspector({
           function patchCircleCollRadius(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleCollRadius)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider2D' ? { ...c, props: { ...c.props, radius, _radius: radius } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.CircleCollider2D' ? { ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleCollRadius(sceneFile.root) })
@@ -4317,7 +4317,7 @@ function CCFileBatchInspector({
           function patchPolyColliderSensor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyColliderSensor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, sensor } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyColliderSensor(sceneFile.root) })
@@ -4342,7 +4342,7 @@ function CCFileBatchInspector({
           function patchCircleRestitution(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleRestitution)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, restitution } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleRestitution(sceneFile.root) })
@@ -4367,7 +4367,7 @@ function CCFileBatchInspector({
           function patchCircleFriction(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleFriction)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, friction } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleFriction(sceneFile.root) })
@@ -4392,7 +4392,7 @@ function CCFileBatchInspector({
           function patchCircleDensity(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleDensity)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, density } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, density, _density: density, _N$density: density } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleDensity(sceneFile.root) })
@@ -4417,7 +4417,7 @@ function CCFileBatchInspector({
           function patchCircleSensor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleSensor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, sensor } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleSensor(sceneFile.root) })
@@ -4442,7 +4442,7 @@ function CCFileBatchInspector({
           function patchBoxRestitution(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBoxRestitution)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, restitution } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxRestitution(sceneFile.root) })
@@ -4467,7 +4467,7 @@ function CCFileBatchInspector({
           function patchBoxFriction(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBoxFriction)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, friction } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxFriction(sceneFile.root) })
@@ -4492,7 +4492,7 @@ function CCFileBatchInspector({
           function patchBoxDensity(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBoxDensity)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, density } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, density, _density: density, _N$density: density } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxDensity(sceneFile.root) })
@@ -4517,7 +4517,7 @@ function CCFileBatchInspector({
           function patchBoxSensor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBoxSensor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, sensor } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxSensor(sceneFile.root) })
@@ -14298,7 +14298,7 @@ function CCFileBatchInspector({
           function patchColliderSensor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchColliderSensor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => colliderTypes.includes(c.type) ? { ...c, props: { ...c.props, sensor } } : c)
+            const updComps = n.components.map(c => colliderTypes.includes(c.type) ? { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchColliderSensor(sceneFile.root))
@@ -14321,7 +14321,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchCircleOffset)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchCircleOffset(sceneFile.root)
@@ -14346,7 +14346,7 @@ function CCFileBatchInspector({
           function patchCircleRadius(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCircleRadius)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, radius, _radius: radius } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchCircleRadius(sceneFile.root)
@@ -14372,7 +14372,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchBoxOffset)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchBoxOffset(sceneFile.root)

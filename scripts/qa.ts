@@ -25218,6 +25218,24 @@ if (
   log('warning', 'R2296-box-particle-sprite-shadow-streak-n-cc3x', 'BoxCollider/ParticleSystem/Sprite/LabelShadow/MotionStreak CC3.x _N$ 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1301: R2297 BatchInspector Collider restitution/friction/density/sensor/offset/threshold/size/radius _* (CC3.x) ──────────
+console.log('\n## 1301. R2297 BatchInspector Collider 물리속성 전체 CC3.x 체크')
+const s1301 = s1300
+if (
+  s1301.includes('restitution, _restitution: restitution, _N$restitution: restitution') &&
+  s1301.includes('friction, _friction: friction, _N$friction: friction') &&
+  s1301.includes('density, _density: density, _N$density: density') &&
+  s1301.includes('sensor, _sensor: sensor, _N$sensor: sensor') &&
+  s1301.includes('offset, _offset: offset, _N$offset: offset') &&
+  s1301.includes('threshold, _threshold: threshold, _N$threshold: threshold') &&
+  s1301.includes('size, _size: size, _N$size: size') &&
+  s1301.includes('radius, _radius: radius, _N$radius: radius')
+) {
+  log('pass', 'R2297-batch-collider-physics-cc3x', 'BatchInspector Collider restitution/friction/density/sensor/offset/threshold/size/radius _* (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2297-batch-collider-physics-cc3x', 'BatchInspector Collider 물리속성 CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
