@@ -23558,6 +23558,18 @@ console.log('\n## 1026. R2135 BatchInspector sp.Skeleton debugSlots 체크')
   }
 }
 
+// ── Section 1027: R2136 BatchInspector sp.Skeleton debugBones ──────────
+console.log('\n## 1027. R2136 BatchInspector sp.Skeleton debugBones 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1027 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1027.includes('R2136') && s1027.includes('patchSpineDebugBones') && s1027.includes('applySpineDebugBones')) {
+    log('pass', 'R2136-batch-spine-debugbones', 'BatchInspector sp.Skeleton debugBones 일괄 설정')
+  } else {
+    log('warning', 'R2136-batch-spine-debugbones', 'BatchInspector sp.Skeleton debugBones 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

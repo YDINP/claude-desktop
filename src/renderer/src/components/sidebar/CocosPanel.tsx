@@ -7251,6 +7251,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2136: 공통 sp.Skeleton debugBones 일괄 설정 */}
+      {commonCompTypes.includes('sp.Skeleton') && (() => {
+        const applySpineDebugBones = async (debugBones: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpineDebugBones(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpineDebugBones)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, debugBones } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpineDebugBones(sceneFile.root) })
+          setBatchMsg(`✓ Spine debugBones=${debugBones} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>SpDbgBn</span>
+            <span onClick={() => applySpineDebugBones(true)} title="debugBones ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>bn✓</span>
+            <span onClick={() => applySpineDebugBones(false)} title="debugBones OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>bn✗</span>
+          </div>
+        )
+      })()}
       {/* R2135: 공통 sp.Skeleton debugSlots 일괄 설정 */}
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineDebugSlots = async (debugSlots: boolean) => {
