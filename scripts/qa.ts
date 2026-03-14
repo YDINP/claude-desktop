@@ -24143,6 +24143,60 @@ if (s1184.includes('R2225') && s1184.includes('applySpriteTrimMode') && s1184.in
   log('warning', 'R2225-batch-sprite-isTrimmedMode', 'BatchInspector cc.Sprite _isTrimmedMode 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1197: R2232 BatchInspector cc.RigidBody _gravityScale (CC3.x) ──────────
+console.log('\n## 1197. R2232 BatchInspector cc.RigidBody _gravityScale 체크')
+const s1197 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1197.includes('R2232') && s1197.includes('applyRBGravScale3') && s1197.includes('RBGrv3')) {
+  log('pass', 'R2232-batch-rigidbody-gravityscale-cc3x', 'BatchInspector cc.RigidBody _gravityScale (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2232-batch-rigidbody-gravityscale-cc3x', 'BatchInspector cc.RigidBody _gravityScale (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1198: R2232 BatchInspector cc.Scrollbar _autoHideTime (CC3.x) ──────────
+console.log('\n## 1198. R2232 BatchInspector cc.Scrollbar _autoHideTime 체크')
+const s1198 = s1197
+if (s1198.includes('R2232') && s1198.includes('applySBAutoHideTime3') && s1198.includes('SBHideT3')) {
+  log('pass', 'R2232-batch-scrollbar-autohidetime-cc3x', 'BatchInspector cc.Scrollbar _autoHideTime (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2232-batch-scrollbar-autohidetime-cc3x', 'BatchInspector cc.Scrollbar _autoHideTime (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1199: R2233 BatchInspector cc.PageView _bounceEnabled (CC3.x) ──────────
+console.log('\n## 1199. R2233 BatchInspector cc.PageView _bounceEnabled 체크')
+const s1199 = s1198
+if (s1199.includes('R2233') && s1199.includes('applyPVBounce3') && s1199.includes('PVbnc3')) {
+  log('pass', 'R2233-batch-pageview-bounceenabled-cc3x', 'BatchInspector cc.PageView _bounceEnabled (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2233-batch-pageview-bounceenabled-cc3x', 'BatchInspector cc.PageView _bounceEnabled (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1200: R2233 BatchInspector cc.ToggleContainer _allowSwitchOff (CC3.x) ──────────
+console.log('\n## 1200. R2233 BatchInspector cc.ToggleContainer _allowSwitchOff 체크')
+const s1200 = s1199
+if (s1200.includes('R2233') && s1200.includes('applyTCAllowSwitch3') && s1200.includes('TCswitch3')) {
+  log('pass', 'R2233-batch-togglecontainer-allowswitchoff-cc3x', 'BatchInspector cc.ToggleContainer _allowSwitchOff (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2233-batch-togglecontainer-allowswitchoff-cc3x', 'BatchInspector cc.ToggleContainer _allowSwitchOff (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1201: R2234 BatchInspector cc.RichText _overflow (CC3.x) ──────────
+console.log('\n## 1201. R2234 BatchInspector cc.RichText _overflow 체크')
+const s1201 = s1200
+if (s1201.includes('R2234') && s1201.includes('applyRTOverflow3') && s1201.includes('RTOvfl3')) {
+  log('pass', 'R2234-batch-richtext-overflow-cc3x', 'BatchInspector cc.RichText _overflow (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2234-batch-richtext-overflow-cc3x', 'BatchInspector cc.RichText _overflow (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1202: R2234 BatchInspector cc.Canvas _fitWidth/_fitHeight (CC3.x) ──────────
+console.log('\n## 1202. R2234 BatchInspector cc.Canvas _fitWidth/_fitHeight 체크')
+const s1202 = s1201
+if (s1202.includes('R2234') && s1202.includes('applyCanvasFit3') && s1202.includes('CanFit3')) {
+  log('pass', 'R2234-batch-canvas-fitwidth-fitheight-cc3x', 'BatchInspector cc.Canvas _fitWidth/_fitHeight (CC3.x) 동시 설정')
+} else {
+  log('warning', 'R2234-batch-canvas-fitwidth-fitheight-cc3x', 'BatchInspector cc.Canvas _fitWidth/_fitHeight (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:35:22.114Z
+> 2026-03-14T16:08:49.093Z
 
 ## Critical
 _없음_
@@ -2031,3 +2031,213 @@ _없음_
 - BatchInspector cc.Widget right 일괄 설정
 - BatchInspector cc.Widget horizontalCenter 일괄 설정
 - BatchInspector cc.Widget verticalCenter 일괄 설정
+- BatchInspector cc.Label spacingY 일괄 설정
+- BatchInspector cc.VideoPlayer muted 일괄 설정
+- BatchInspector cc.ScrollView inertia 일괄 설정
+- BatchInspector cc.EditBox maxLength 일괄 설정
+- BatchInspector cc.Toggle isChecked 일괄 설정
+- BatchInspector cc.MotionStreak color 일괄 설정
+- BatchInspector cc.AudioSource loop 일괄 설정
+- BatchInspector cc.AudioSource playOnLoad 일괄 설정
+- BatchInspector cc.EditBox tabIndex 일괄 설정
+- BatchInspector cc.PageView autoPageTurningThreshold 일괄 설정
+- BatchInspector cc.Layout affectedByScale 일괄 설정
+- BatchInspector cc.Sprite trim 일괄 설정
+- BatchInspector cc.Camera targetDisplay 일괄 설정
+- BatchInspector cc.ScrollView horizontal 일괄 설정
+- BatchInspector cc.ScrollView vertical 일괄 설정
+- BatchInspector cc.ParticleSystem gravity.y 일괄 설정
+- BatchInspector cc.ParticleSystem startRotation 일괄 설정
+- BatchInspector cc.ParticleSystem endRotation 일괄 설정
+- BatchInspector cc.ParticleSystem startRotationVar 일괄 설정
+- BatchInspector cc.ParticleSystem endRotationVar 일괄 설정
+- BatchInspector cc.Widget isAlignTop 일괄 설정
+- BatchInspector cc.Widget isAlignBottom 일괄 설정
+- BatchInspector cc.Widget isAlignLeft 일괄 설정
+- BatchInspector cc.Widget isAlignRight 일괄 설정
+- BatchInspector cc.Widget isAlignHorizontalCenter 일괄 설정
+- BatchInspector cc.Widget isAlignVerticalCenter 일괄 설정
+- BatchInspector cc.RigidBody linearVelocityLimit 일괄 설정
+- BatchInspector cc.RigidBody angularVelocityLimit 일괄 설정
+- BatchInspector cc.Button hoverColor 일괄 설정
+- BatchInspector node color 일괄 설정
+- BatchInspector cc.ToggleContainer allowSwitchOff 일괄 설정
+- BatchInspector cc.SkeletalAnimation defaultCachingMode 일괄 설정
+- BatchInspector sp.Skeleton useTint 일괄 설정
+- BatchInspector sp.Skeleton debugSlots 일괄 설정
+- BatchInspector sp.Skeleton debugBones 일괄 설정
+- BatchInspector cc.MotionStreak fastMode 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay debugBones 일괄 설정
+- BatchInspector sp.Skeleton paused 일괄 설정
+- BatchInspector cc.Layout autoWrap 일괄 설정
+- BatchInspector cc.RichText overflow 일괄 설정
+- BatchInspector cc.DirectionalLight/PointLight intensity 일괄 설정
+- BatchInspector cc.DirectionalLight/PointLight color 일괄 설정
+- BatchInspector cc.Graphics lineWidth 일괄 설정
+- BatchInspector cc.Graphics fillColor 일괄 설정
+- BatchInspector cc.Graphics strokeColor 일괄 설정
+- BatchInspector cc.ParticleSystem endRadiusVar 일괄 설정
+- BatchInspector cc.ParticleSystem startColorVar 일괄 설정
+- BatchInspector cc.ParticleSystem endColorVar 일괄 설정
+- BatchInspector cc.TiledLayer opacity 일괄 설정
+- BatchInspector cc.TiledLayer visible 일괄 설정
+- BatchInspector cc.Canvas fitWidth 일괄 설정
+- BatchInspector cc.Canvas fitHeight 일괄 설정
+- BatchInspector cc.Canvas resolutionPolicy 일괄 설정
+- BatchInspector cc.Canvas designResolution 일괄 설정
+- BatchInspector cc.PolygonCollider offset 일괄 설정
+- BatchInspector cc.RigidBody2D 확장 (기존 배치에 포함)
+- BatchInspector cc.ParticleSystem2D + PolygonCollider2D 확장
+- BatchInspector cc.BoxCollider2D 확장 (sensor/density/friction/restitution)
+- BatchInspector cc.CircleCollider2D 확장 (sensor/density/friction/restitution)
+- BatchInspector cc.BoxCollider2D offset 일괄 설정
+- BatchInspector cc.CircleCollider2D offset 일괄 설정
+- BatchInspector 노드 _zIndex 일괄 설정
+- BatchInspector cc.RigidBody group 일괄 설정
+- BatchInspector cc.BoxCollider/CircleCollider/PolygonCollider tag 일괄 설정
+- BatchInspector 노드 _tag 일괄 설정
+- BatchInspector cc.Layout constraintNum 일괄 설정
+- BatchInspector cc.AudioSource endTime 일괄 설정
+- BatchInspector cc.RichText handleTouchEvent 일괄 설정
+- BatchInspector cc.VideoPlayer startTime 일괄 설정
+- BatchInspector cc.Button autoGray 일괄 설정
+- BatchInspector cc.Label isSystemFontUsed 일괄 설정
+- BatchInspector 노드 _skewX 일괄 설정
+- BatchInspector 노드 _skewY 일괄 설정
+- BatchInspector cc.Camera near 일괄 설정
+- BatchInspector cc.Camera far 일괄 설정
+- BatchInspector cc.ScrollView cancelInnerEvents 일괄 설정
+- BatchInspector cc.ParticleSystem simulationSpace 일괄 설정
+- BatchInspector cc.ScrollView scrollDuration 일괄 설정
+- BatchInspector cc.Widget isAbs* 일괄 설정
+- BatchInspector cc.RigidBody rotationOffset 일괄 설정
+- BatchInspector cc.Sprite fillCenter 일괄 설정
+- BatchInspector cc.PolygonCollider threshold 일괄 설정
+- BatchInspector cc.Graphics lineJoin 일괄 설정
+- BatchInspector cc.Canvas resizeWithBrowserSize 일괄 설정
+- BatchInspector cc.Camera clearDepth 일괄 설정
+- BatchInspector cc.BlockInputEvents enabled 일괄 설정
+- BatchInspector cc.Canvas enabled 일괄 설정
+- CCFileAssetBrowser folderTree useMemo early-return 전 배치 확인
+- BatchInspector cc.Label charSpacing 일괄 설정
+- BatchInspector cc.Sprite _isTrimmedMode 숫자 프리셋
+- BatchInspector cc.RigidBody _gravityScale (CC3.x) 일괄 설정
+- BatchInspector cc.Scrollbar _autoHideTime (CC3.x) 일괄 설정
+- BatchInspector cc.PageView _bounceEnabled (CC3.x) 일괄 설정
+- BatchInspector cc.ToggleContainer _allowSwitchOff (CC3.x) 일괄 설정
+- BatchInspector cc.RichText _overflow (CC3.x) 일괄 설정
+- BatchInspector cc.Canvas _fitWidth/_fitHeight (CC3.x) 동시 설정
+- BatchInspector cc.Slider _direction (CC3.x) 일괄 설정
+- BatchInspector cc.Slider _interactable (CC3.x) 일괄 설정
+- BatchInspector cc.EditBox _returnType (CC3.x) 일괄 설정
+- BatchInspector cc.Animation _playOnLoad (CC3.x) 일괄 설정
+- BatchInspector cc.TiledLayer _opacity (CC3.x) 일괄 설정
+- BatchInspector cc.RigidBody _type (CC3.x) 일괄 설정
+- BatchInspector cc.Toggle _interactable (CC3.x) 일괄 설정
+- BatchInspector cc.ProgressBar _reverse (CC3.x) 일괄 설정
+- BatchInspector cc.Button _zoomScale (CC3.x) 일괄 설정
+- BatchInspector cc.ScrollView _brake (CC3.x) 일괄 설정
+- BatchInspector cc.Sprite capInsets 균등 일괄 설정
+- BatchInspector cc.AudioSource _volume (CC3.x) 일괄 설정
+- BatchInspector cc.VideoPlayer keepAspectRatio 토글
+- BatchInspector cc.Layout padding 사방향 프리셋
+- BatchInspector cc.AudioSource _pitch 일괄 설정
+- BatchInspector cc.RichText lineHeight 일괄 설정
+- BatchInspector cc.TiledLayer enabled 일괄 설정
+- BatchInspector cc.UITransform _anchorPoint 프리셋 일괄 설정
+- BatchInspector cc.DirectionalLight/PointLight enabled 일괄 설정
+- BatchInspector cc.SkeletalAnimation enabled 일괄 설정
+- BatchInspector cc.PolygonCollider2D enabled 일괄 설정
+- BatchInspector cc.WebView enabled 일괄 설정
+- BatchInspector cc.LabelOutline enabled 일괄 설정
+- BatchInspector cc.LabelShadow enabled 일괄 설정
+- BatchInspector cc.BoxCollider2D enabled 일괄 설정
+- BatchInspector cc.CircleCollider2D enabled 일괄 설정
+- BatchInspector cc.UIOpacity enabled 일괄 설정
+- BatchInspector cc.RigidBody enabled 일괄 설정
+- BatchInspector cc.Sprite _useGrayscale 일괄 설정
+- BatchInspector cc.Label _spacingX 일괄 설정
+- BatchInspector cc.Label _underlineHeight 일괄 설정
+- BatchInspector cc.Sprite _color 일괄 설정
+- BatchInspector node _rotationX 일괄 설정
+- BatchInspector node _rotationY 일괄 설정
+- BatchInspector cc.Label colorTop 일괄 설정
+- BatchInspector cc.Label colorBottom 일괄 설정
+- BatchInspector cc.Label shadowOffset 일괄 설정
+- BatchInspector cc.EditBox placeholderFontColor 일괄 설정
+- BatchInspector cc.Label shadowColor 일괄 설정
+- BatchInspector cc.Label shadowBlur 일괄 설정
+- BatchInspector cc.Label outlineWidth 일괄 설정
+- BatchInspector cc.Label outlineColor 일괄 설정
+- BatchInspector cc.BoxCollider2D size 일괄 설정
+- BatchInspector cc.CircleCollider2D radius 일괄 설정
+- BatchInspector cc.EditBox placeholderFontSize 일괄 설정
+- BatchInspector cc.EditBox fontColor 일괄 설정
+- BatchInspector cc.Sprite blendMode 일괄 설정
+- BatchInspector cc.PageView autoPlay 일괄 설정
+- BatchInspector cc.Label enableOutline 일괄 설정
+- BatchInspector cc.Label enableShadow 일괄 설정
+- 노드 posX 독립 일괄 설정
+- 노드 posY 독립 일괄 설정
+- 노드 width 독립 일괄 설정
+- 노드 height 독립 일괄 설정
+- 노드 scaleX 비균등/플립 일괄 설정
+- 노드 scaleY 비균등/플립 일괄 설정
+- BatchInspector sp.Skeleton enabled 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay enabled 일괄 설정
+- BatchInspector cc.PageView enabled 일괄 설정
+- BatchInspector cc.MotionStreak enabled 일괄 설정
+- BatchInspector cc.Camera enabled 일괄 설정
+- BatchInspector cc.ToggleContainer enabled 일괄 설정
+- BatchInspector cc.EditBox enabled 일괄 설정
+- BatchInspector cc.Scrollbar enabled 일괄 설정
+- BatchInspector cc.Layout enabled 일괄 설정
+- BatchInspector cc.ProgressBar enabled 일괄 설정
+- BatchInspector cc.AudioSource enabled 일괄 설정
+- BatchInspector cc.VideoPlayer enabled 일괄 설정
+- BatchInspector cc.Slider enabled 일괄 설정
+- BatchInspector cc.Toggle enabled 일괄 설정
+- BatchInspector cc.ParticleSystem enabled 일괄 설정
+- BatchInspector cc.Graphics enabled 일괄 설정
+- BatchInspector cc.ScrollView enabled 일괄 설정
+- BatchInspector cc.Mask enabled 일괄 설정
+- BatchInspector cc.Button enabled 일괄 설정
+- BatchInspector cc.RichText enabled 일괄 설정
+- BatchInspector cc.Animation enabled 일괄 설정
+- BatchInspector cc.Label enabled 일괄 설정
+- BatchInspector cc.MotionStreak timeToLive 일괄 설정
+- BatchInspector cc.Sprite enabled (컴포넌트 레벨) 일괄 설정
+- BatchInspector cc.ParticleSystem sourcePos.x 일괄 설정
+- BatchInspector cc.ParticleSystem sourcePos.y 일괄 설정
+- BatchInspector sp.Skeleton enableBatch 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay blendMode 일괄 설정
+- BatchInspector cc.Scrollbar direction 일괄 설정
+- BatchInspector cc.Animation sample 일괄 설정
+- BatchInspector cc.Scrollbar enableAutoHide 일괄 설정
+- BatchInspector cc.Scrollbar autoHideTime 일괄 설정
+- BatchInspector 노드 cascadeColorEnabled 일괄 설정
+- BatchInspector cc.Label enableGradient 일괄 설정
+- BatchInspector cc.Sprite packable 일괄 설정
+- BatchInspector 노드 cascadeOpacityEnabled 일괄 설정
+- BatchInspector cc.ToggleContainer autoCheckToggle 일괄 설정
+- BatchInspector cc.RichText imageLineHeight 일괄 설정
+- BatchInspector cc.Label enableDashLine 일괄 설정
+- BatchInspector cc.ScrollView mouseWheelScrollSensitivity 일괄 설정
+- BatchInspector cc.PageView effectType 일괄 설정
+- BatchInspector cc.ScrollView hideScrollBar 일괄 설정
+- BatchInspector cc.Graphics fillOpacity 일괄 설정
+- BatchInspector cc.Graphics strokeOpacity 일괄 설정
+- BatchInspector cc.Camera orthoHeight 일괄 설정
+- BatchInspector cc.UITransform priority 일괄 설정
+- BatchInspector cc.EditBox lineCount 일괄 설정
+- BatchInspector cc.Sprite meshType 일괄 설정
+- BatchInspector Collider category 일괄 설정
+- BatchInspector Collider mask 일괄 설정
+- BatchInspector cc.Graphics miterLimit 일괄 설정
+- BatchInspector cc.MotionStreak speedThreshold 일괄 설정
+- BatchInspector 노드 _group 일괄 설정
+- BatchInspector cc.ScrollView bounceTime 일괄 설정
+- BatchInspector cc.Label platformFont 일괄 설정
+- BatchInspector cc.ProgressBar startWidth 일괄 설정
+- BatchInspector cc.Graphics lineCap 일괄 설정
+- BatchInspector cc.Widget enabled 일괄 설정

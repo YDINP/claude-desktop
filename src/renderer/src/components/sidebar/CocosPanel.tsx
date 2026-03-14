@@ -15122,6 +15122,169 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2232: 공통 cc.RigidBody _gravityScale 일괄 설정 (CC3.x) */}
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
+        const applyRBGravScale3 = async (gravityScale: number) => {
+          if (!sceneFile.root) return
+          function patchRBGravScale3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBGravScale3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D')
+              ? { ...c, props: { ...c.props, gravityScale, _gravityScale: gravityScale } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchRBGravScale3(sceneFile.root))
+          setBatchMsg(`✓ RigidBody _gravityScale=${gravityScale} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBGrv3</span>
+            {[0, 0.5, 1, 2, 5, 10].map(v => (
+              <span key={v} onClick={() => applyRBGravScale3(v)} title={`_gravityScale=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2232: 공통 cc.Scrollbar _autoHideTime 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Scrollbar') && (() => {
+        const applySBAutoHideTime3 = async (autoHideTime: number) => {
+          if (!sceneFile.root) return
+          function patchSBAutoHideTime3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSBAutoHideTime3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Scrollbar'
+              ? { ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchSBAutoHideTime3(sceneFile.root))
+          setBatchMsg(`✓ Scrollbar _autoHideTime=${autoHideTime} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>SBHideT3</span>
+            {[0, 0.5, 1, 2, 3].map(v => (
+              <span key={v} onClick={() => applySBAutoHideTime3(v)} title={`_autoHideTime=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2233: 공통 cc.PageView _bounceEnabled 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPVBounce3 = async (v: boolean) => {
+          if (!sceneFile.root) return
+          function patchPVBounce3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPVBounce3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView'
+              ? { ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchPVBounce3(sceneFile.root))
+          setBatchMsg(`✓ PageView _bounceEnabled=${v} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PVbnc3</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} onClick={() => applyPVBounce3(v)} title={`_bounceEnabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v ? '✓' : '✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2233: 공통 cc.ToggleContainer _allowSwitchOff 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.ToggleContainer') && (() => {
+        const applyTCAllowSwitch3 = async (allowSwitchOff: boolean) => {
+          if (!sceneFile.root) return
+          function patchTCAllowSwitch3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchTCAllowSwitch3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ToggleContainer'
+              ? { ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchTCAllowSwitch3(sceneFile.root))
+          setBatchMsg(`✓ ToggleContainer _allowSwitchOff=${allowSwitchOff} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>TCswitch3</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} onClick={() => applyTCAllowSwitch3(v)} title={`_allowSwitchOff=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{v ? '✓' : '✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2234: 공통 cc.RichText _overflow 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRTOverflow3 = async (overflow: number) => {
+          if (!sceneFile.root) return
+          function patchRTOverflow3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRTOverflow3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText'
+              ? { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchRTOverflow3(sceneFile.root))
+          setBatchMsg(`✓ RichText _overflow=${overflow} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>RTOvfl3</span>
+            {([['None', 0], ['Clamp', 1], ['Shrink', 2], ['Rsz', 3]] as [string, number][]).map(([l, v]) => (
+              <span key={v} onClick={() => applyRTOverflow3(v)} title={`_overflow=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2234: 공통 cc.Canvas _fitWidth/_fitHeight 동시 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Canvas') && (() => {
+        const applyCanvasFit3 = async (fitWidth: boolean, fitHeight: boolean) => {
+          if (!sceneFile.root) return
+          function patchCanvasFit3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCanvasFit3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Canvas'
+              ? { ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, fitHeight, _fitHeight: fitHeight } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchCanvasFit3(sceneFile.root))
+          setBatchMsg(`✓ Canvas _fitWidth=${fitWidth} _fitHeight=${fitHeight} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fde68a', width: 48, flexShrink: 0 }}>CanFit3</span>
+            <span onClick={() => applyCanvasFit3(true, false)} title="_fitWidth=true _fitHeight=false"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#fde68a', userSelect: 'none' }}>W✓H✗</span>
+            <span onClick={() => applyCanvasFit3(false, true)} title="_fitWidth=false _fitHeight=true"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#fde68a', userSelect: 'none' }}>W✗H✓</span>
+            <span onClick={() => applyCanvasFit3(true, true)} title="_fitWidth=true _fitHeight=true"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#fde68a', userSelect: 'none' }}>W✓H✓</span>
+            <span onClick={() => applyCanvasFit3(false, false)} title="_fitWidth=false _fitHeight=false"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>W✗H✗</span>
+          </div>
+        )
+      })()}
       {/* R2229: 공통 cc.Slider _direction 일괄 설정 (CC3.x) */}
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderDir3 = async (direction: number) => {
