@@ -6127,6 +6127,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1971: 공통 cc.AudioSource startTime 일괄 설정 */}
+      {commonCompTypes.includes('cc.AudioSource') && (() => {
+        const applyAudioStart = async (startTime: number) => {
+          if (!sceneFile.root) return
+          function patchAudioStart(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAudioStart)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, startTime } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchAudioStart(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ AudioSource startTime=${startTime}s (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#facc15', width: 48, flexShrink: 0 }}>ASstart</span>
+            {([0, 0.5, 1, 2, 5] as const).map(v => (
+              <span key={v} title={`startTime = ${v}s`}
+                onClick={() => applyAudioStart(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#facc15', userSelect: 'none' }}
+              >{v}s</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1912: 공통 cc.Camera depth 일괄 설정 */}
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamDepth = async (depth: number) => {

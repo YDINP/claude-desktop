@@ -21578,6 +21578,18 @@ console.log('\n## 861. R1970 BatchInspector cc.ParticleSystem endColor 체크')
   }
 }
 
+// ── Section 862: R1971 BatchInspector cc.AudioSource startTime ──────────
+console.log('\n## 862. R1971 BatchInspector cc.AudioSource startTime 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s862 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s862.includes('R1971') && s862.includes('patchAudioStart') && s862.includes('applyAudioStart')) {
+    log('pass', 'R1971-batch-audiosource-starttime', 'BatchInspector cc.AudioSource startTime 일괄 설정')
+  } else {
+    log('warning', 'R1971-batch-audiosource-starttime', 'BatchInspector cc.AudioSource startTime 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
