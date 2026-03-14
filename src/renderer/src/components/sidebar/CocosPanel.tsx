@@ -4661,6 +4661,7 @@ function CCFileNodeInspector({
   const [changeNotifications, setChangeNotifications] = useState<string[]>([])
   const [exportedTemplates, setExportedTemplates] = useState<string[]>([])
   const [previewCache, setPreviewCache] = useState<Record<string, string>>({})
+  const [showRichPreview, setShowRichPreview] = useState(true)
   const [loadProgress, setLoadProgress] = useState(0)
   const [sceneDeps, setSceneDeps] = useState<Record<string, string[]>>({})
   const [showSceneDeps, setShowSceneDeps] = useState(false)
@@ -5867,6 +5868,15 @@ function CCFileNodeInspector({
                 onMouseEnter={e => (e.currentTarget.style.color = '#79c0ff')}
                 onMouseLeave={e => (e.currentTarget.style.color = '#58a6ff')}
               >(0,0)</span>
+              {/* R1766: 스냅 그리드 */}
+              {([8, 16] as const).map(g => (
+                <span key={`snap${g}`} title={`위치 ×${g} 그리드 스냅`}
+                  onClick={() => applyAndSave({ position: { ...draft.position, x: Math.round(draft.position.x / g) * g, y: Math.round(draft.position.y / g) * g } })}
+                  style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none', whiteSpace: 'nowrap' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
+                >⊹{g}</span>
+              ))}
             </div>
             {/* R1670: % 표시 */}
             {showPct && zOrderInfo?.parentSize && (() => {
@@ -6886,9 +6896,29 @@ function CCFileNodeInspector({
             if (comp.type === 'cc.RichText') {
               const HALIGN = ['Left', 'Center', 'Right']
               const OVERFLOW = ['None', 'Clamp', 'Shrink', 'Resize']
+              // R1767: RichText 마크업 → HTML 변환 (미리보기용)
+              const richToHtml = (src: string) => src
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/&lt;color=(#[0-9a-fA-F]{3,8}|[a-z]+)&gt;(.*?)&lt;\/color&gt;/gs, '<span style="color:$1">$2</span>')
+                .replace(/&lt;size=(\d+)&gt;(.*?)&lt;\/size&gt;/gs, '<span style="font-size:$1px">$2</span>')
+                .replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gs, '<b>$1</b>')
+                .replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/gs, '<i>$1</i>')
+                .replace(/&lt;u&gt;(.*?)&lt;\/u&gt;/gs, '<u>$1</u>')
+                .replace(/\n/g, '<br/>')
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                    <span style={{ fontWeight: 'bold' }}>{comp.type}</span>
+                    {/* R1767: 미리보기 토글 */}
+                    <span title={showRichPreview ? '미리보기 숨기기' : '미리보기 표시'}
+                      onClick={() => setShowRichPreview(v => !v)}
+                      style={{ fontSize: 9, cursor: 'pointer', color: showRichPreview ? '#58a6ff' : '#556', padding: '0 3px', border: '1px solid var(--border)', borderRadius: 2 }}
+                    >{showRichPreview ? '👁 미리보기' : '👁'}</span>
+                  </div>
+                  {showRichPreview && (
+                    <div style={{ marginBottom: 4, padding: '4px 6px', background: '#111', border: '1px solid #333', borderRadius: 3, fontSize: 11, minHeight: 24, color: '#fff', lineHeight: 1.5, wordBreak: 'break-all' }}
+                      dangerouslySetInnerHTML={{ __html: richToHtml(String(p.string ?? '')) }} />
+                  )}
                   <div style={{ marginBottom: 4 }}>
                     <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>내용 (HTML 태그 지원)</label>
                     <textarea

@@ -19115,6 +19115,30 @@ console.log('\n## 656. R1765 cc.Slider progress 퀵 프리셋 체크')
   }
 }
 
+// ── Section 657: R1766 Inspector 스냅 그리드 ─────────────────────────────────
+console.log('\n## 657. R1766 Inspector 스냅 그리드 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s657 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s657.includes('R1766') && s657.includes('스냅 그리드') && s657.includes('Math.round(draft.position.x / g) * g')) {
+    log('pass', 'R1766-snap-grid', 'Inspector 스냅 그리드 버튼 (×8/×16)')
+  } else {
+    log('warning', 'R1766-snap-grid', 'Inspector 스냅 그리드 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 658: R1767 cc.RichText 텍스트 미리보기 ───────────────────────────
+console.log('\n## 658. R1767 cc.RichText 텍스트 미리보기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s658 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s658.includes('R1767') && s658.includes('richToHtml') && s658.includes('dangerouslySetInnerHTML')) {
+    log('pass', 'R1767-richtext-preview', 'cc.RichText 텍스트 미리보기')
+  } else {
+    log('warning', 'R1767-richtext-preview', 'cc.RichText 미리보기 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
