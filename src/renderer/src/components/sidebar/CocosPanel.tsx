@@ -3849,6 +3849,28 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1761: 공통 cc.AudioSource volume 일괄 설정 */}
+      {commonCompTypes.includes('cc.AudioSource') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#facc15', width: 48, flexShrink: 0 }}>Audio vol</span>
+          <input type="range" min={0} max={1} step={0.01} defaultValue={1}
+            onMouseUp={async e => {
+              const vol = parseFloat((e.target as HTMLInputElement).value)
+              if (!sceneFile.root) return
+              function patchVol(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchVol)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, volume: vol } } : c)
+                return { ...n, components: updComps, children }
+              }
+              await saveScene(patchVol(sceneFile.root))
+              setBatchMsg(`✓ volume ${Math.round(vol * 100)}% (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ flex: 1 }}
+          />
+        </div>
+      )}
       {/* R1760: 공통 cc.Sprite tint 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

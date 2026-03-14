@@ -19055,6 +19055,18 @@ console.log('\n## 651. R1760 BatchInspector cc.Sprite tint 일괄 체크')
   }
 }
 
+// ── Section 652: R1761 BatchInspector cc.AudioSource volume 일괄 ─────────────
+console.log('\n## 652. R1761 BatchInspector cc.AudioSource volume 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s652 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s652.includes('R1761') && s652.includes('cc.AudioSource volume 일괄 설정') && s652.includes('patchVol')) {
+    log('pass', 'R1761-batch-audio-vol', 'BatchInspector cc.AudioSource volume 일괄 설정')
+  } else {
+    log('warning', 'R1761-batch-audio-vol', 'BatchInspector cc.AudioSource volume 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
