@@ -18635,6 +18635,18 @@ console.log('\n## 616. R1725 cc.Button duration 편집 체크')
   }
 }
 
+// ── Section 617: R1726 Inspector 노드 JSON 복사 버튼 ─────────────────────────
+console.log('\n## 617. R1726 Inspector 노드 JSON 복사 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s617 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s617.includes('R1726') && s617.includes('노드 JSON 클립보드 복사') && s617.includes('JSON.stringify')) {
+    log('pass', 'R1726-node-json-copy', 'Inspector 노드 JSON 복사 버튼')
+  } else {
+    log('warning', 'R1726-node-json-copy', 'Inspector 노드 JSON 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

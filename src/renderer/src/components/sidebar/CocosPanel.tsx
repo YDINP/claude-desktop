@@ -4620,6 +4620,14 @@ function CCFileNodeInspector({
                 onMouseLeave={e => (e.currentTarget.style.color = '#445')}
               >✨</span>
             )}
+            {/* R1726: 노드 JSON 복사 버튼 */}
+            <span
+              title="노드 JSON 클립보드 복사 (R1726)"
+              onClick={() => navigator.clipboard.writeText(JSON.stringify(draft, null, 2)).catch(() => {})}
+              style={{ fontSize: 8, color: '#445', padding: '1px 3px', borderRadius: 2, cursor: 'pointer', lineHeight: 1 }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#fbbf24')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#445')}
+            >{'{}'}</span>
             {/* R1607: UUID 복사 버튼 */}
             <span
               title={`UUID 복사: ${node.uuid}`}
