@@ -11854,6 +11854,52 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2176: 공통 Collider category 일괄 설정 */}
+      {(commonCompTypes.some(t => ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D'].includes(t))) && (() => {
+        const COLLIDER_TYPES_176 = ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D']
+        const applyColliderCategory = async (category: number) => {
+          if (!sceneFile.root) return
+          function patchColliderCategory(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchColliderCategory)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => COLLIDER_TYPES_176.includes(c.type) ? { ...c, props: { ...c.props, category, _category: category } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchColliderCategory(sceneFile.root) })
+          setBatchMsg(`✓ Collider category=${category} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const applyColliderMask = async (mask: number) => {
+          if (!sceneFile.root) return
+          function patchColliderMask(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchColliderMask)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => COLLIDER_TYPES_176.includes(c.type) ? { ...c, props: { ...c.props, mask, _mask: mask } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchColliderMask(sceneFile.root) })
+          setBatchMsg(`✓ Collider mask=${mask} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+              <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>ColCat</span>
+              {[0, 1, 2, 4, 8, -1].map(v => (
+                <span key={v} onClick={() => applyColliderCategory(v)} title={`category=${v}`}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{v}</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+              <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>ColMask</span>
+              {[0, 1, 2, 4, 8, -1].map(v => (
+                <span key={v} onClick={() => applyColliderMask(v)} title={`mask=${v}`}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{v}</span>
+              ))}
+            </div>
+          </>
+        )
+      })()}
       {/* R2162: 공통 cc.BoxCollider/CircleCollider/PolygonCollider tag 일괄 설정 */}
       {(commonCompTypes.some(t => ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D'].includes(t))) && (() => {
         const COLLIDER_TYPES = ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D']

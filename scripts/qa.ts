@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1084: R2176 BatchInspector Collider category ──────────
+console.log('\n## 1084. R2176 BatchInspector Collider category 체크')
+const s1084 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1084.includes('R2176') && s1084.includes('applyColliderCategory') && s1084.includes('ColCat')) {
+  log('pass', 'R2176-batch-collider-category', 'BatchInspector Collider category 일괄 설정')
+} else {
+  log('warning', 'R2176-batch-collider-category', 'BatchInspector Collider category 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1085: R2176 BatchInspector Collider mask ──────────
+console.log('\n## 1085. R2176 BatchInspector Collider mask 체크')
+const s1085 = s1084
+if (s1085.includes('R2176') && s1085.includes('applyColliderMask') && s1085.includes('ColMask')) {
+  log('pass', 'R2176-batch-collider-mask', 'BatchInspector Collider mask 일괄 설정')
+} else {
+  log('warning', 'R2176-batch-collider-mask', 'BatchInspector Collider mask 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1082: R2175 BatchInspector cc.Graphics miterLimit ──────────
 console.log('\n## 1082. R2175 BatchInspector cc.Graphics miterLimit 체크')
 const s1082 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
