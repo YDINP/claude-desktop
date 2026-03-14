@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1138: R2203 BatchInspector node width 독립 ──────────
+console.log('\n## 1138. R2203 BatchInspector 노드 width 독립 조절 체크')
+const s1138 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1138.includes('R2203') && s1138.includes('applyNodeWidth') && s1138.includes('NodW')) {
+  log('pass', 'R2203-batch-node-width', '노드 width 독립 일괄 설정')
+} else {
+  log('warning', 'R2203-batch-node-width', '노드 width 독립 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1139: R2203 BatchInspector node height 독립 ──────────
+console.log('\n## 1139. R2203 BatchInspector 노드 height 독립 조절 체크')
+const s1139 = s1138
+if (s1139.includes('R2203') && s1139.includes('applyNodeHeight') && s1139.includes('NodH')) {
+  log('pass', 'R2203-batch-node-height', '노드 height 독립 일괄 설정')
+} else {
+  log('warning', 'R2203-batch-node-height', '노드 height 독립 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1136: R2202 BatchInspector node scaleX ──────────
 console.log('\n## 1136. R2202 BatchInspector 노드 scaleX 체크')
 const s1136 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

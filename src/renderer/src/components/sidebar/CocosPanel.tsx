@@ -3861,6 +3861,60 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2203: 노드 width 독립 일괄 설정 */}
+      {(() => {
+        const applyNodeWidth = async (w: number) => {
+          if (!sceneFile.root) return
+          function patchNodeWidth(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeWidth)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const curH = n.size?.height ?? 100
+            const newSize = { width: w, height: curH }
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize } } : c)
+            return { ...n, size: newSize, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeWidth(sceneFile.root) })
+          setBatchMsg(`✓ width=${w} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodW</span>
+            {[50, 100, 150, 200, 300, 400, 500].map(v => (
+              <span key={v} onClick={() => applyNodeWidth(v)} title={`width=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2203: 노드 height 독립 일괄 설정 */}
+      {(() => {
+        const applyNodeHeight = async (h: number) => {
+          if (!sceneFile.root) return
+          function patchNodeHeight(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeHeight)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const curW = n.size?.width ?? 100
+            const newSize = { width: curW, height: h }
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize } } : c)
+            return { ...n, size: newSize, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeHeight(sceneFile.root) })
+          setBatchMsg(`✓ height=${h} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodH</span>
+            {[50, 100, 150, 200, 300, 400, 500].map(v => (
+              <span key={v} onClick={() => applyNodeHeight(v)} title={`height=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2025: 노드 anchor preset 일괄 설정 */}
       {(() => {
         const applyNodeAnchor = async (ax: number, ay: number) => {
