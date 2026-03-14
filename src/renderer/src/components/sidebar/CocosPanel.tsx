@@ -3877,6 +3877,31 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1797: 공통 cc.Label overflow 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label ovf</span>
+          {([['None', 0], ['Clamp', 1], ['Shrink', 2], ['ResH', 3]] as const).map(([l, v]) => (
+            <span key={v} title={`overflow = ${l}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                function patchOverflow(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchOverflow)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, overflow: v, _overflow: v, _N$overflow: v } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchOverflow(sceneFile.root))
+                setBatchMsg(`✓ overflow ${l} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+            >{l}</span>
+          ))}
+        </div>
+      )}
       {/* R1764: 공통 cc.Toggle isChecked 일괄 설정 */}
       {commonCompTypes.includes('cc.Toggle') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

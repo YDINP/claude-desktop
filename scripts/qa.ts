@@ -19487,6 +19487,18 @@ console.log('\n## 687. R1796 cc.Layout paddingAll 퀵 프리셋 체크')
   }
 }
 
+// ── Section 688: R1797 BatchInspector cc.Label overflow ──────────────────────
+console.log('\n## 688. R1797 BatchInspector cc.Label overflow 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s688 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s688.includes('R1797') && s688.includes('patchOverflow') && s688.includes('_N$overflow: v')) {
+    log('pass', 'R1797-batch-label-overflow', 'BatchInspector cc.Label overflow 일괄 설정')
+  } else {
+    log('warning', 'R1797-batch-label-overflow', 'BatchInspector cc.Label overflow 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
