@@ -25202,6 +25202,22 @@ if (
   log('warning', 'R2295-uitransform-rb-mask-cc3x', 'UITransform/RigidBody/Mask CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1300: R2296 BoxCollider _N$size + ParticleSystem blendFactor/duration _N$ + Sprite _N$type + LabelShadow/MotionStreak _N$color (CC3.x) ──────────
+console.log('\n## 1300. R2296 BoxCollider/ParticleSystem/Sprite/LabelShadow/MotionStreak CC3.x _N$ 체크')
+const s1300 = s1299
+if (
+  s1300.includes('size: { width: w, height: h }, _size: { width: w, height: h }, _N$size: { width: w, height: h }') &&
+  s1300.includes('color: col, _color: col, _N$color: col') &&
+  s1300.includes('color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 }, _N$color: { r, g, b, a: 255 }') &&
+  s1300.includes('_srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst') &&
+  s1300.includes('duration: dur, _duration: dur, _N$duration: dur') &&
+  s1300.includes('type: v, _type: v, _N$type: v')
+) {
+  log('pass', 'R2296-box-particle-sprite-shadow-streak-n-cc3x', 'BoxCollider/ParticleSystem/Sprite/LabelShadow/MotionStreak _N$ (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2296-box-particle-sprite-shadow-streak-n-cc3x', 'BoxCollider/ParticleSystem/Sprite/LabelShadow/MotionStreak CC3.x _N$ 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

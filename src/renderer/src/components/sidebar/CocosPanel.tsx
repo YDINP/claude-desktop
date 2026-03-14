@@ -7873,7 +7873,7 @@ function CCFileBatchInspector({
               function patchShadowColor(n: CCSceneNode): CCSceneNode {
                 const children = n.children.map(patchShadowColor)
                 if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, color: col, _color: col } } : c)
+                const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c)
                 return { ...n, components: updComps, children }
               }
               await saveScene({ ...sceneFile, root: patchShadowColor(sceneFile.root) })
@@ -9222,7 +9222,7 @@ function CCFileBatchInspector({
           function patchMSColor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchMSColor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 } } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 }, _N$color: { r, g, b, a: 255 } } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchMSColor(sceneFile.root) })
@@ -10088,7 +10088,7 @@ function CCFileBatchInspector({
           function patchPSBlend(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSBlend)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSBlend(sceneFile.root)
@@ -10219,7 +10219,7 @@ function CCFileBatchInspector({
           function patchParticleDur(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleDur)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, duration: dur, _duration: dur } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchParticleDur(sceneFile.root))
@@ -14398,7 +14398,7 @@ function CCFileBatchInspector({
           function patchBoxSize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBoxSize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, size: { width: w, height: h }, _size: { width: w, height: h } } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, size: { width: w, height: h }, _size: { width: w, height: h }, _N$size: { width: w, height: h } } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchBoxSize(sceneFile.root)
@@ -14900,7 +14900,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchSpBlend)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-              ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst } } : c)
+              ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpBlend(sceneFile.root) })
@@ -15669,7 +15669,7 @@ function CCFileBatchInspector({
                 function patchSpriteType(n: CCSceneNode): CCSceneNode {
                   const children = n.children.map(patchSpriteType)
                   if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, type: v, _type: v } } : c)
+                  const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, type: v, _type: v, _N$type: v } } : c)
                   return { ...n, components: updComps, children }
                 }
                 await saveScene(patchSpriteType(sceneFile.root))
