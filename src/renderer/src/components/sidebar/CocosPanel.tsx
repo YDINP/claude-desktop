@@ -8371,7 +8371,7 @@ function CCFileNodeInspector({
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>playbackRate</span>
                     <input type="number" defaultValue={playbackRate} min={0} max={4} step={0.25}
                       onBlur={e => {
@@ -8379,8 +8379,15 @@ function CCFileNodeInspector({
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playbackRate: v } } : c)
                         applyAndSave({ components: updated })
                       }}
-                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
+                    {/* R1806: playbackRate 퀵 프리셋 */}
+                    {([0.5, 1, 1.5, 2] as const).map(v => (
+                      <span key={v} title={`×${v}`}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playbackRate: v } } : c); applyAndSave({ components: updated }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${playbackRate === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: playbackRate === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >×{v}</span>
+                    ))}
                   </div>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>

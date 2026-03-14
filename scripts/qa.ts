@@ -19595,6 +19595,18 @@ console.log('\n## 696. R1805 cc.Label string 클립보드 복사 버튼 체크')
   }
 }
 
+// ── Section 697: R1806 cc.VideoPlayer playbackRate 퀵 프리셋 ─────────────────
+console.log('\n## 697. R1806 cc.VideoPlayer playbackRate 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s697 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s697.includes('R1806') && s697.includes('playbackRate 퀵 프리셋') && s697.includes('playbackRate: v')) {
+    log('pass', 'R1806-video-playbackrate-preset', 'cc.VideoPlayer playbackRate 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1806-video-playbackrate-preset', 'cc.VideoPlayer playbackRate 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
