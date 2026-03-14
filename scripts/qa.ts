@@ -23294,6 +23294,18 @@ console.log('\n## 1004. R2113 BatchInspector cc.Sprite trim 체크')
   }
 }
 
+// ── Section 1005: R2114 BatchInspector cc.Camera targetDisplay ──────────
+console.log('\n## 1005. R2114 BatchInspector cc.Camera targetDisplay 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1005 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1005.includes('R2114') && s1005.includes('patchCamTargetDisplay') && s1005.includes('applyCamTargetDisplay')) {
+    log('pass', 'R2114-batch-cam-targetdisplay', 'BatchInspector cc.Camera targetDisplay 일괄 설정')
+  } else {
+    log('warning', 'R2114-batch-cam-targetdisplay', 'BatchInspector cc.Camera targetDisplay 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

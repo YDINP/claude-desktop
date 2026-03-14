@@ -8950,6 +8950,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2114: 공통 cc.Camera targetDisplay 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamTargetDisplay = async (targetDisplay: number) => {
+          if (!sceneFile.root) return
+          function patchCamTargetDisplay(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamTargetDisplay)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, targetDisplay, _targetDisplay: targetDisplay } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCamTargetDisplay(sceneFile.root) })
+          setBatchMsg(`✓ Camera targetDisplay=${targetDisplay} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>CamDisp</span>
+            {[0, 1, 2, 3].map(v => (
+              <span key={v} onClick={() => applyCamTargetDisplay(v)} title={`targetDisplay=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
