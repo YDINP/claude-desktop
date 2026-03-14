@@ -18059,6 +18059,18 @@ console.log('\n## 568. R1677 비활성 조상 경고 배너 체크')
   }
 }
 
+// ── Section 569: R1678 최근 선택 노드 히스토리 ────────────────────────────
+console.log('\n## 569. R1678 최근 선택 노드 히스토리 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s569 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s569.includes('R1678') && s569.includes('recentNodes') && s569.includes('최근 선택')) {
+    log('pass', 'R1678-recent-nodes', '최근 선택 노드 히스토리 칩')
+  } else {
+    log('warning', 'R1678-recent-nodes', '최근 선택 노드 히스토리 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

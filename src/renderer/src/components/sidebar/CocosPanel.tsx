@@ -589,6 +589,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [nodeBookmarks, setNodeBookmarks] = useState<Record<string, string>>({}) // key(1-9) → uuid
   // R1676: JSON 복사 토스트 피드백
   const [jsonCopiedName, setJsonCopiedName] = useState<string | null>(null)
+  // R1678: 최근 선택 노드 히스토리 (최대 8개)
+  const [recentNodes, setRecentNodes] = useState<{ uuid: string; name: string }[]>([])
+  useEffect(() => {
+    if (!selectedNode) return
+    setRecentNodes(prev => {
+      const filtered = prev.filter(r => r.uuid !== selectedNode.uuid)
+      return [{ uuid: selectedNode.uuid, name: selectedNode.name }, ...filtered].slice(0, 8)
+    })
+  }, [selectedNode?.uuid])
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -2522,6 +2531,26 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             <div style={{ padding: '2px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
               <TreeSearch root={sceneFile.root} onSelect={onSelectNode} onQueryChange={setTreeHighlightQuery} />
             </div>
+            {/* R1678: 최근 선택 노드 히스토리 칩 */}
+            {recentNodes.length > 1 && (
+              <div style={{ padding: '2px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+                <span style={{ fontSize: 8, color: '#444', flexShrink: 0 }}>◷</span>
+                {recentNodes.slice(1).map(r => {
+                  const n = nodeMap.get(r.uuid)
+                  if (!n) return null
+                  return (
+                    <span
+                      key={r.uuid}
+                      onClick={() => onSelectNode(n)}
+                      title={r.name}
+                      style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', color: 'var(--text-muted)', background: 'none', userSelect: 'none', maxWidth: 72, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--accent)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)' }}
+                    >{r.name || '(unnamed)'}</span>
+                  )
+                })}
+              </div>
+            )}
             {/* R1654: 컴포넌트 필터 패널 */}
             {showNodeFilters && (
               <div style={{ padding: '3px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
