@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:37:00.187Z
+> 2026-03-14T01:41:20.738Z
 
 ## Critical
 _없음_
@@ -1635,3 +1635,4 @@ _없음_
 - SceneView 형제 그룹 하이라이트
 - 전체 컴포넌트 enabled 토글
 - SceneView 선택 이력 탐색
+- 일괄 회전 편집

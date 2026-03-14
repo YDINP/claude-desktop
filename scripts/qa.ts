@@ -18395,6 +18395,18 @@ console.log('\n## 596. R1705 SceneView 선택 이력 탐색 체크')
   }
 }
 
+// ── Section 597: R1706 일괄 회전 편집 ───────────────────────────────────────
+console.log('\n## 597. R1706 일괄 회전 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s597 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s597.includes('R1706') && s597.includes('batchRot') && s597.includes('회전 °')) {
+    log('pass', 'R1706-batch-rotation', '일괄 회전 편집')
+  } else {
+    log('warning', 'R1706-batch-rotation', '일괄 회전 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -3454,6 +3454,8 @@ function CCFileBatchInspector({
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
   // R1575: 색상 일괄 편집
   const [batchColor, setBatchColor] = useState<string>('')
+  // R1706: 회전 일괄 편집
+  const [batchRot, setBatchRot] = useState<string>('')
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -3490,7 +3492,9 @@ function CCFileBatchInspector({
       const m = batchColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
       if (m) colorRgb = { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16), a: 255 }
     }
-    if (opacity == null && active == null && dx == null && dy == null && scaleX == null && scaleY == null && sizeW == null && sizeH == null && !colorRgb) { setBatchMsg('변경 항목 없음'); return }
+    // R1706: 회전
+    const rot = batchRot !== '' ? parseFloat(batchRot) : null
+    if (opacity == null && active == null && dx == null && dy == null && scaleX == null && scaleY == null && sizeW == null && sizeH == null && !colorRgb && rot == null) { setBatchMsg('변경 항목 없음'); return }
 
     function applyNode(n: CCSceneNode): CCSceneNode {
       if (uuidSet.has(n.uuid)) {
@@ -3510,6 +3514,12 @@ function CCFileBatchInspector({
           updated = { ...updated, size: { x: sizeW ?? sz?.x ?? 0, y: sizeH ?? sz?.y ?? 0 } }
         }
         if (colorRgb) updated = { ...updated, color: colorRgb }
+        // R1706: 회전 일괄 적용
+        if (rot != null) {
+          const prevRot = n.rotation
+          if (typeof prevRot === 'number') updated = { ...updated, rotation: rot }
+          else updated = { ...updated, rotation: { ...(prevRot as object), z: rot } }
+        }
         return { ...updated, children: n.children.map(applyNode) }
       }
       return { ...n, children: n.children.map(applyNode) }
@@ -3517,7 +3527,7 @@ function CCFileBatchInspector({
     const result = await saveScene(applyNode(sceneFile.root))
     setBatchMsg(result.success ? `✓ ${uuids.length}개 노드 적용` : `✗ ${result.error ?? '오류'}`)
     setTimeout(() => setBatchMsg(null), 2500)
-  }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, batchScaleX, batchScaleY, batchSizeW, batchSizeH, batchColor, uuids.length, saveScene])
+  }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, batchScaleX, batchScaleY, batchSizeW, batchSizeH, batchColor, batchRot, uuids.length, saveScene])
 
   // R1698: 공통 컴포넌트 타입 계산
   const commonCompTypes = useMemo(() => {
@@ -3604,6 +3614,20 @@ function CCFileBatchInspector({
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
         <input type="number" placeholder="H" value={batchSizeH} onChange={e => setBatchSizeH(e.target.value)} min={0}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+      </div>
+      {/* R1706: 회전 일괄 설정 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>회전 °</span>
+        <input type="number" placeholder="각도 (절대값)" value={batchRot} onChange={e => setBatchRot(e.target.value)} step={1}
+          style={{ width: 100, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+        {[0, 90, 180, 270].map(deg => (
+          <span key={deg} onClick={() => setBatchRot(String(deg))}
+            title={`${deg}°로 설정`}
+            style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 3, border: '1px solid var(--border)', color: batchRot === String(deg) ? '#58a6ff' : 'var(--text-muted)' }}>
+            {deg}°
+          </span>
+        ))}
+        {batchRot && <span onClick={() => setBatchRot('')} style={{ fontSize: 9, cursor: 'pointer', color: 'var(--text-muted)' }}>✕</span>}
       </div>
       {/* R1575: 색상 일괄 설정 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
