@@ -23474,6 +23474,18 @@ console.log('\n## 1019. R2128 BatchInspector cc.RigidBody linearVelocityLimit �
   }
 }
 
+// ── Section 1020: R2129 BatchInspector cc.RigidBody angularVelocityLimit ──────────
+console.log('\n## 1020. R2129 BatchInspector cc.RigidBody angularVelocityLimit 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1020 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1020.includes('R2129') && s1020.includes('patchRBAngVelLim') && s1020.includes('applyRBAngVelLim')) {
+    log('pass', 'R2129-batch-rb-angvellim', 'BatchInspector cc.RigidBody angularVelocityLimit 일괄 설정')
+  } else {
+    log('warning', 'R2129-batch-rb-angvellim', 'BatchInspector cc.RigidBody angularVelocityLimit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

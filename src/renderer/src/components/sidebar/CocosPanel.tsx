@@ -10427,6 +10427,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2129: 공통 cc.RigidBody angularVelocityLimit 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBAngVelLim = async (angularVelocityLimit: number) => {
+          if (!sceneFile.root) return
+          function patchRBAngVelLim(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBAngVelLim)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, angularVelocityLimit, _angularVelocityLimit: angularVelocityLimit } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRBAngVelLim(sceneFile.root) })
+          setBatchMsg(`✓ RigidBody angularVelocityLimit=${angularVelocityLimit} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBangV</span>
+            {[0, 1, 5, 10, 50, 100].map(v => (
+              <span key={v} onClick={() => applyRBAngVelLim(v)} title={`angularVelocityLimit=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2128: 공통 cc.RigidBody linearVelocityLimit 일괄 설정 */}
       {commonCompTypes.includes('cc.RigidBody') && (() => {
         const applyRBLinVelLim = async (linearVelocityLimit: number) => {
