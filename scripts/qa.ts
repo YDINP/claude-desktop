@@ -24359,6 +24359,60 @@ if (s1220.includes('_bounce: bounce') && s1220.includes('patchScrollBounce')) {
   log('warning', 'R2243-batch-scrollview-bounce-cc3x', 'BatchInspector cc.ScrollView _bounce CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1221: R2244 BatchInspector cc.ScrollView _pagingEnabled (CC3.x) ──────────
+console.log('\n## 1221. R2244 BatchInspector cc.ScrollView _pagingEnabled CC3.x 체크')
+const s1221 = s1220
+if (s1221.includes('_pagingEnabled: pagingEnabled') && s1221.includes('patchSVPaging')) {
+  log('pass', 'R2244-batch-scrollview-pagingenabled-cc3x', 'BatchInspector cc.ScrollView _pagingEnabled (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2244-batch-scrollview-pagingenabled-cc3x', 'BatchInspector cc.ScrollView _pagingEnabled CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1222: R2244 BatchInspector cc.ScrollView _speedAmplifier (CC3.x) ──────────
+console.log('\n## 1222. R2244 BatchInspector cc.ScrollView _speedAmplifier CC3.x 체크')
+const s1222 = s1221
+if (s1222.includes('_speedAmplifier: speedAmplifier') && s1222.includes('patchSVSpeed')) {
+  log('pass', 'R2244-batch-scrollview-speedamplifier-cc3x', 'BatchInspector cc.ScrollView _speedAmplifier (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2244-batch-scrollview-speedamplifier-cc3x', 'BatchInspector cc.ScrollView _speedAmplifier CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1223: R2245 BatchInspector cc.PageView _pageTurningSpeed (CC3.x) ──────────
+console.log('\n## 1223. R2245 BatchInspector cc.PageView _pageTurningSpeed CC3.x 체크')
+const s1223 = s1222
+if (s1223.includes('_pageTurningSpeed: pageTurningSpeed') && s1223.includes('patchPVTurnSpeed')) {
+  log('pass', 'R2245-batch-pageview-pageturningspeed-cc3x', 'BatchInspector cc.PageView _pageTurningSpeed (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2245-batch-pageview-pageturningspeed-cc3x', 'BatchInspector cc.PageView _pageTurningSpeed CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1224: R2245 BatchInspector cc.PageView _effectType (CC3.x) ──────────
+console.log('\n## 1224. R2245 BatchInspector cc.PageView _effectType CC3.x 체크')
+const s1224 = s1223
+if (s1224.includes('_effectType: effectType') && s1224.includes('patchPVEffectType')) {
+  log('pass', 'R2245-batch-pageview-effecttype-cc3x', 'BatchInspector cc.PageView _effectType (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2245-batch-pageview-effecttype-cc3x', 'BatchInspector cc.PageView _effectType CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1225: R2246 BatchInspector cc.PageView _direction (CC3.x) ──────────
+console.log('\n## 1225. R2246 BatchInspector cc.PageView _direction CC3.x 체크')
+const s1225 = s1224
+if (s1225.includes('_direction: direction') && s1225.includes('patchPageViewDir')) {
+  log('pass', 'R2246-batch-pageview-direction-cc3x', 'BatchInspector cc.PageView _direction (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2246-batch-pageview-direction-cc3x', 'BatchInspector cc.PageView _direction CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1226: R2246 BatchInspector cc.PageView _autoPageTurningThreshold (CC3.x) ──────────
+console.log('\n## 1226. R2246 BatchInspector cc.PageView _autoPageTurningThreshold CC3.x 체크')
+const s1226 = s1225
+if (s1226.includes('_autoPageTurningThreshold: threshold') && s1226.includes('patchPVAutoThresh')) {
+  log('pass', 'R2246-batch-pageview-autoturningthreshold-cc3x', 'BatchInspector cc.PageView _autoPageTurningThreshold (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2246-batch-pageview-autoturningthreshold-cc3x', 'BatchInspector cc.PageView _autoPageTurningThreshold CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -8409,12 +8409,12 @@ function CCFileBatchInspector({
           function patchSVPaging(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVPaging)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, pagingEnabled, _N$pagingEnabled: pagingEnabled } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, pagingEnabled, _pagingEnabled: pagingEnabled, _N$pagingEnabled: pagingEnabled } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchSVPaging(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ScrollView paging=${pagingEnabled} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView paging=${pagingEnabled} (${uuids.length}개)`) // R2244: _pagingEnabled CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8434,12 +8434,12 @@ function CCFileBatchInspector({
           function patchSVSpeed(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVSpeed)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, speedAmplifier, _N$speedAmplifier: speedAmplifier } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, speedAmplifier, _speedAmplifier: speedAmplifier, _N$speedAmplifier: speedAmplifier } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchSVSpeed(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ScrollView speedAmplifier=${speedAmplifier} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView speedAmplifier=${speedAmplifier} (${uuids.length}개)`) // R2244: _speedAmplifier CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8459,11 +8459,11 @@ function CCFileBatchInspector({
           function patchPVTurnSpeed(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPVTurnSpeed)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, pageTurningSpeed, _N$pageTurningSpeed: pageTurningSpeed } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, pageTurningSpeed, _pageTurningSpeed: pageTurningSpeed, _N$pageTurningSpeed: pageTurningSpeed } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPVTurnSpeed(sceneFile.root) })
-          setBatchMsg(`✓ PageView pageTurningSpeed=${pageTurningSpeed} (${uuids.length}개)`)
+          setBatchMsg(`✓ PageView pageTurningSpeed=${pageTurningSpeed} (${uuids.length}개)`) // R2245: _pageTurningSpeed CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8510,11 +8510,11 @@ function CCFileBatchInspector({
           function patchPVEffectType(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPVEffectType)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, effectType, _N$effectType: effectType } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, effectType, _effectType: effectType, _N$effectType: effectType } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPVEffectType(sceneFile.root) })
-          setBatchMsg(`✓ PageView effectType=${['NONE','SCROLL','FADE'][effectType] ?? effectType} (${uuids.length}개)`)
+          setBatchMsg(`✓ PageView effectType=${['NONE','SCROLL','FADE'][effectType] ?? effectType} (${uuids.length}개)`) // R2245: _effectType CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8534,11 +8534,11 @@ function CCFileBatchInspector({
           function patchPageViewDir(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPageViewDir)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, direction, _N$direction: direction } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPageViewDir(sceneFile.root) })
-          setBatchMsg(`✓ PageView direction=${direction} (${uuids.length}개)`)
+          setBatchMsg(`✓ PageView direction=${direction} (${uuids.length}개)`) // R2246: _direction CC3.x
         }
         // 0=Horizontal, 1=Vertical
         return (
@@ -8587,11 +8587,11 @@ function CCFileBatchInspector({
           function patchPVAutoThresh(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPVAutoThresh)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, autoPageTurningThreshold: threshold, _N$autoPageTurningThreshold: threshold } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, autoPageTurningThreshold: threshold, _autoPageTurningThreshold: threshold, _N$autoPageTurningThreshold: threshold } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPVAutoThresh(sceneFile.root) })
-          setBatchMsg(`✓ PageView autoPageTurningThreshold=${threshold} (${uuids.length}개)`)
+          setBatchMsg(`✓ PageView autoPageTurningThreshold=${threshold} (${uuids.length}개)`) // R2246: _autoPageTurningThreshold CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
