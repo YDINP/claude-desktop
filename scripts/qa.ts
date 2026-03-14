@@ -23594,6 +23594,18 @@ console.log('\n## 1029. R2138 BatchInspector dragonBones.ArmatureDisplay debugBo
   }
 }
 
+// ── Section 1030: R2139 BatchInspector sp.Skeleton paused ──────────
+console.log('\n## 1030. R2139 BatchInspector sp.Skeleton paused 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1030 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1030.includes('R2139') && s1030.includes('patchSpinePaused') && s1030.includes('applySpinePaused')) {
+    log('pass', 'R2139-batch-spine-paused', 'BatchInspector sp.Skeleton paused 일괄 설정')
+  } else {
+    log('warning', 'R2139-batch-spine-paused', 'BatchInspector sp.Skeleton paused 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

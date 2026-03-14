@@ -7297,6 +7297,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2139: 공통 sp.Skeleton paused 일괄 설정 */}
+      {commonCompTypes.includes('sp.Skeleton') && (() => {
+        const applySpinePaused = async (paused: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpinePaused(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpinePaused)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, paused } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpinePaused(sceneFile.root) })
+          setBatchMsg(`✓ Spine paused=${paused} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>SpPaused</span>
+            <span onClick={() => applySpinePaused(true)} title="paused ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>⏸✓</span>
+            <span onClick={() => applySpinePaused(false)} title="paused OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>▶✓</span>
+          </div>
+        )
+      })()}
       {/* R2136: 공통 sp.Skeleton debugBones 일괄 설정 */}
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineDebugBones = async (debugBones: boolean) => {
