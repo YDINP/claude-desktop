@@ -6142,8 +6142,25 @@ function CCFileNodeInspector({
               const volume = Number(p.volume ?? 1)
               const loop = !!(p.loop ?? false)
               const playOnLoad = !!(p.playOnLoad ?? false)
+              // R1701: 오디오 클립 uuid 추출
+              const clipRaw = p._clip ?? p.clip
+              const clipUuid = (clipRaw as Record<string,unknown> | null)?.__uuid__ as string | undefined
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R1701: 오디오 클립 uuid 표시 + 복사 */}
+                  {clipUuid && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>clip uuid</span>
+                      <span style={{ fontSize: 8, color: '#facc15', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={clipUuid}>{clipUuid}</span>
+                      <span
+                        title="클립 UUID 복사"
+                        onClick={() => navigator.clipboard.writeText(clipUuid).catch(() => {})}
+                        style={{ fontSize: 9, cursor: 'pointer', color: '#555', flexShrink: 0 }}
+                        onMouseEnter={e => (e.currentTarget.style.color = '#facc15')}
+                        onMouseLeave={e => (e.currentTarget.style.color = '#555')}
+                      >⎘</span>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>volume</span>
                     <input type="range" min={0} max={1} step={0.01} value={volume}
