@@ -5898,6 +5898,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2011: 공통 dragonBones.ArmatureDisplay loop 일괄 설정 */}
+      {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
+        const applyDBLoop = async (loop: boolean) => {
+          if (!sceneFile.root) return
+          function patchDBLoop(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchDBLoop)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, loop } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchDBLoop(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ DragonBones loop=${loop} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>DBloop</span>
+            <span onClick={() => applyDBLoop(true)} title="loop ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>loop✓</span>
+            <span onClick={() => applyDBLoop(false)} title="loop OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>loop✗</span>
+          </div>
+        )
+      })()}
       {/* R1838: 공통 sp.Skeleton timeScale 일괄 설정 */}
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineSpeed = async (timeScale: number) => {

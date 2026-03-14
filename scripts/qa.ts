@@ -22058,6 +22058,18 @@ console.log('\n## 901. R2010 BatchInspector cc.RichText verticalAlign 체크')
   }
 }
 
+// ── Section 902: R2011 BatchInspector dragonBones.ArmatureDisplay loop ──────────
+console.log('\n## 902. R2011 BatchInspector dragonBones.ArmatureDisplay loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s902 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s902.includes('R2011') && s902.includes('patchDBLoop') && s902.includes('applyDBLoop')) {
+    log('pass', 'R2011-batch-db-loop', 'BatchInspector dragonBones.ArmatureDisplay loop 일괄 설정')
+  } else {
+    log('warning', 'R2011-batch-db-loop', 'BatchInspector dragonBones.ArmatureDisplay loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
