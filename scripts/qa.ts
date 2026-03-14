@@ -21950,6 +21950,18 @@ console.log('\n## 892. R2001 BatchInspector cc.ParticleSystem lifeVar 체크')
   }
 }
 
+// ── Section 893: R2002 BatchInspector cc.ParticleSystem gravity ──────────
+console.log('\n## 893. R2002 BatchInspector cc.ParticleSystem gravity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s893 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s893.includes('R2002') && s893.includes('patchPSGravity') && s893.includes('applyPSGravity')) {
+    log('pass', 'R2002-batch-ps-gravity', 'BatchInspector cc.ParticleSystem gravity 일괄 설정')
+  } else {
+    log('warning', 'R2002-batch-ps-gravity', 'BatchInspector cc.ParticleSystem gravity 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
