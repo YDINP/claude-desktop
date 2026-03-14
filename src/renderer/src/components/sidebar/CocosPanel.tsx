@@ -5369,6 +5369,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2132: 공통 cc.ToggleContainer allowSwitchOff 일괄 설정 */}
+      {commonCompTypes.includes('cc.ToggleContainer') && (() => {
+        const applyTCAllowSwitchOff = async (allowSwitchOff: boolean) => {
+          if (!sceneFile.root) return
+          function patchTCAllowSwitchOff(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchTCAllowSwitchOff)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ToggleContainer' ? { ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchTCAllowSwitchOff(sceneFile.root) })
+          setBatchMsg(`✓ ToggleContainer allowSwitchOff=${allowSwitchOff} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>TCswOff</span>
+            <span onClick={() => applyTCAllowSwitchOff(true)} title="allowSwitchOff ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>sw✓</span>
+            <span onClick={() => applyTCAllowSwitchOff(false)} title="allowSwitchOff OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>sw✗</span>
+          </div>
+        )
+      })()}
       {/* R1908: 공통 cc.EditBox inputMode 일괄 설정 */}
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditBoxMode = async (inputMode: number) => {

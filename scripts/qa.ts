@@ -23510,6 +23510,18 @@ console.log('\n## 1022. R2131 BatchInspector node color 체크')
   }
 }
 
+// ── Section 1023: R2132 BatchInspector cc.ToggleContainer allowSwitchOff ──────────
+console.log('\n## 1023. R2132 BatchInspector cc.ToggleContainer allowSwitchOff 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1023 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1023.includes('R2132') && s1023.includes('patchTCAllowSwitchOff') && s1023.includes('applyTCAllowSwitchOff')) {
+    log('pass', 'R2132-batch-tc-allowswitchoff', 'BatchInspector cc.ToggleContainer allowSwitchOff 일괄 설정')
+  } else {
+    log('warning', 'R2132-batch-tc-allowswitchoff', 'BatchInspector cc.ToggleContainer allowSwitchOff 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
