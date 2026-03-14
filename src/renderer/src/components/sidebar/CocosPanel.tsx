@@ -5763,6 +5763,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1960: 공통 cc.Slider step 일괄 설정 */}
+      {commonCompTypes.includes('cc.Slider') && (() => {
+        const applySliderStep = async (step: number) => {
+          if (!sceneFile.root) return
+          function patchSliderStep(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSliderStep)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, step, _N$step: step } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSliderStep(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Slider step=${step} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SLstep</span>
+            {([0, 0.01, 0.05, 0.1, 0.5, 1] as const).map(v => (
+              <span key={v} title={`step = ${v}`}
+                onClick={() => applySliderStep(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1828: 공통 cc.AudioSource volume 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioVol = async (volume: number) => {
