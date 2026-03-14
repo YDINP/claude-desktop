@@ -6447,18 +6447,42 @@ function CCFileNodeInspector({
             }
             if (comp.type === 'cc.ProgressBar') {
               const progress = Number(p.progress ?? 0)
+              // R1727: reverse + totalLength
+              const reverse = !!(p.reverse ?? p._N$reverse ?? false)
+              const totalLength = Number(p.totalLength ?? p._N$totalLength ?? 100)
               return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0 4px 2px' }}>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>progress</span>
-                  <input type="range" min={0} max={1} step={0.01} value={progress}
-                    onChange={e => {
-                      const v = parseFloat(e.target.value)
-                      const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, progress: v } } : c)
-                      applyAndSave({ components: updated })
-                    }}
-                    style={{ flex: 1 }}
-                  />
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Math.round(progress * 100)}%</span>
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>progress</span>
+                    <input type="range" min={0} max={1} step={0.01} value={progress}
+                      onChange={e => {
+                        const v = parseFloat(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, progress: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Math.round(progress * 100)}%</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>totalLen</span>
+                    <input type="number" defaultValue={totalLength} min={0} step={1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 100
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, totalLength: v, _N$totalLength: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={reverse}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, reverse: e.target.checked, _N$reverse: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                      />reverse
+                    </label>
+                  </div>
                 </div>
               )
             }

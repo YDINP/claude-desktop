@@ -18647,6 +18647,18 @@ console.log('\n## 617. R1726 Inspector 노드 JSON 복사 버튼 체크')
   }
 }
 
+// ── Section 618: R1727 cc.ProgressBar reverse + totalLength ──────────────────
+console.log('\n## 618. R1727 cc.ProgressBar reverse + totalLength 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s618 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s618.includes('R1727') && s618.includes('totalLength') && s618.includes('reverse') && s618.includes('_N$totalLength')) {
+    log('pass', 'R1727-progressbar-extra', 'cc.ProgressBar reverse + totalLength Quick Edit')
+  } else {
+    log('warning', 'R1727-progressbar-extra', 'cc.ProgressBar reverse + totalLength 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
