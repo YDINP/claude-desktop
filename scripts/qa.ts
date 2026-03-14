@@ -22106,6 +22106,18 @@ console.log('\n## 905. R2014 BatchInspector node size 체크')
   }
 }
 
+// ── Section 906: R2015 BatchInspector cc.ParticleSystem rotatePerS ──────────
+console.log('\n## 906. R2015 BatchInspector cc.ParticleSystem rotatePerS 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s906 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s906.includes('R2015') && s906.includes('patchPSRotPerS') && s906.includes('applyPSRotPerS')) {
+    log('pass', 'R2015-batch-ps-rotpers', 'BatchInspector cc.ParticleSystem rotatePerS 일괄 설정')
+  } else {
+    log('warning', 'R2015-batch-ps-rotpers', 'BatchInspector cc.ParticleSystem rotatePerS 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
