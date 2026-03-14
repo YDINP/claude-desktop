@@ -6,7 +6,7 @@
 - [x] R2159: BatchInspector cc.BoxCollider2D + CircleCollider2D 확장 (sensor/density/friction/restitution)
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2082** ← R2159 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2086** ← R2161 현재
 - Branch: dev
 
 ## 완료 (R2079-R2119)
@@ -52,7 +52,7 @@
 - [x] R2118: BatchInspector cc.ParticleSystem startRotation 일괄
 - [x] R2119: BatchInspector cc.ParticleSystem endRotation 일괄
 
-## 다음 예정 (R2160+)
+## 다음 예정 (R2162+)
 - BatchInspector cc.BoxCollider2D offset 일괄 (새 섹션)
 - BatchInspector cc.CircleCollider2D radius 전용 일괄 (새 섹션 — isSensor 포함)
 - BatchInspector cc.Button pressedColor/disabledColor 일괄
