@@ -18047,6 +18047,18 @@ console.log('\n## 567. R1676 노드 JSON 클립보드 복사 체크')
   }
 }
 
+// ── Section 568: R1677 비활성 조상 경고 배너 ────────────────────────────
+console.log('\n## 568. R1677 비활성 조상 경고 배너 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s568 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s568.includes('R1677') && s568.includes('inactiveAncestors') && s568.includes('비활성 조상')) {
+    log('pass', 'R1677-inactive-ancestor', '비활성 조상 경고 배너')
+  } else {
+    log('warning', 'R1677-inactive-ancestor', '비활성 조상 경고 배너 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

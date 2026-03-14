@@ -4185,6 +4185,26 @@ function CCFileNodeInspector({
     return path
   }, [sceneFile.root, node.uuid])
 
+  // R1677: 비활성 조상 경고 (조상 중 active:false 노드 탐지)
+  const inactiveAncestors = useMemo(() => {
+    const inactive: string[] = []
+    function findFull(n: CCSceneNode, target: string): CCSceneNode[] | null {
+      if (n.uuid === target) return [n]
+      for (const c of n.children) {
+        const p = findFull(c, target)
+        if (p) return [n, ...p]
+      }
+      return null
+    }
+    const path = findFull(sceneFile.root, node.uuid)
+    if (path) {
+      for (let i = 0; i < path.length - 1; i++) {
+        if (path[i].active === false) inactive.push(path[i].name || path[i].uuid.slice(0, 8))
+      }
+    }
+    return inactive
+  }, [sceneFile.root, node.uuid])
+
   // Z-order 정보 (같은 부모 내 인덱스, 형제 수) + R1652: 부모 노드 크기
   const zOrderInfo = useMemo(() => {
     function findParent(n: CCSceneNode): CCSceneNode | null {
@@ -4311,6 +4331,15 @@ function CCFileNodeInspector({
               onMouseLeave={e => (e.currentTarget.style.color = '#445')}
             >#</span>
           </div>
+        </div>
+      )}
+      {/* R1677: 비활성 조상 경고 배너 */}
+      {inactiveAncestors.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4, padding: '2px 6px', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: 3 }}>
+          <span style={{ fontSize: 9, color: '#fbbf24' }}>⚠</span>
+          <span style={{ fontSize: 9, color: '#a8874a' }} title={`비활성 조상: ${inactiveAncestors.join(', ')}`}>
+            비활성 조상: {inactiveAncestors.join(', ')}
+          </span>
         </div>
       )}
       {/* R1637: 같은 이름 노드 자동 배지 (R1642: 클릭으로 순환 선택) */}
