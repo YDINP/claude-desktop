@@ -6274,6 +6274,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2111: 공통 cc.PageView autoPageTurningThreshold 일괄 설정 */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPVAutoThresh = async (threshold: number) => {
+          if (!sceneFile.root) return
+          function patchPVAutoThresh(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPVAutoThresh)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, autoPageTurningThreshold: threshold, _N$autoPageTurningThreshold: threshold } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPVAutoThresh(sceneFile.root) })
+          setBatchMsg(`✓ PageView autoPageTurningThreshold=${threshold} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>PVAutoT</span>
+            {[0.1, 0.2, 0.3, 0.5, 0.7, 1].map(v => (
+              <span key={v} onClick={() => applyPVAutoThresh(v)} title={`autoPageTurningThreshold=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1967: 공통 cc.PageView scrollThreshold 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVScrollThresh = async (threshold: number) => {

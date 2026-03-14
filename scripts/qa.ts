@@ -23258,6 +23258,18 @@ console.log('\n## 1001. R2110 BatchInspector cc.EditBox tabIndex 체크')
   }
 }
 
+// ── Section 1002: R2111 BatchInspector cc.PageView autoPageTurningThreshold ──────────
+console.log('\n## 1002. R2111 BatchInspector cc.PageView autoPageTurningThreshold 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1002 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1002.includes('R2111') && s1002.includes('patchPVAutoThresh') && s1002.includes('applyPVAutoThresh')) {
+    log('pass', 'R2111-batch-pv-autothresh', 'BatchInspector cc.PageView autoPageTurningThreshold 일괄 설정')
+  } else {
+    log('warning', 'R2111-batch-pv-autothresh', 'BatchInspector cc.PageView autoPageTurningThreshold 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
