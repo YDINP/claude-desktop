@@ -3849,6 +3849,31 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1764: 공통 cc.Toggle isChecked 일괄 설정 */}
+      {commonCompTypes.includes('cc.Toggle') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>Toggle</span>
+          {(['checked', 'unchecked'] as const).map(v => (
+            <span key={v}
+              title={`모두 ${v}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                const checked = v === 'checked'
+                function patchToggle(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchToggle)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, isChecked: checked } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchToggle(sceneFile.root))
+                setBatchMsg(`✓ Toggle ${v} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: v === 'checked' ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
+            >{v === 'checked' ? '✓ 체크' : '○ 해제'}</span>
+          ))}
+        </div>
+      )}
       {/* R1761: 공통 cc.AudioSource volume 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

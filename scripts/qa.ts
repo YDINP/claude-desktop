@@ -19091,6 +19091,18 @@ console.log('\n## 654. R1763 cc.Button Sprite 전환 UUID 표시 체크')
   }
 }
 
+// ── Section 655: R1764 BatchInspector cc.Toggle isChecked 일괄 ───────────────
+console.log('\n## 655. R1764 BatchInspector cc.Toggle isChecked 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s655 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s655.includes('R1764') && s655.includes('cc.Toggle isChecked 일괄 설정') && s655.includes('patchToggle') && s655.includes('isChecked: checked')) {
+    log('pass', 'R1764-batch-toggle', 'BatchInspector cc.Toggle isChecked 일괄 설정')
+  } else {
+    log('warning', 'R1764-batch-toggle', 'BatchInspector cc.Toggle isChecked 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
