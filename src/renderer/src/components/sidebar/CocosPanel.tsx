@@ -7501,6 +7501,16 @@ function CCFileNodeInspector({
               const inertia = !!(p.inertia ?? p._N$inertia ?? true)
               const elastic = !!(p.elastic ?? p._N$elastic ?? true)
               const brake = Number(p.brake ?? p._N$brake ?? 0.75)
+              // R1740: content 자식 노드 찾기 (이름 'content', 대소문자 무시)
+              function findContentNode(n: CCSceneNode): CCSceneNode | null {
+                for (const ch of n.children) {
+                  if (ch.name.toLowerCase() === 'content') return ch
+                  const found = findContentNode(ch)
+                  if (found) return found
+                }
+                return null
+              }
+              const contentNode = findContentNode(draft)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -7532,6 +7542,40 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{brake.toFixed(2)}</span>
                   </div>
+                  {/* R1740: content 자식 노드 크기 퀵 편집 */}
+                  {contentNode && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, borderTop: '1px solid var(--border)', paddingTop: 3 }}>
+                      <span style={{ fontSize: 9, color: '#34d399', flexShrink: 0 }}>content</span>
+                      <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>W</span>
+                      <input type="number" defaultValue={Math.round(contentNode.size.x)}
+                        key={`sv-cw-${contentNode.uuid}`}
+                        onBlur={e => {
+                          const v = parseFloat(e.target.value)
+                          if (isNaN(v) || !sceneFile?.root) return
+                          function patchContent(n: CCSceneNode): CCSceneNode {
+                            if (n.uuid === contentNode!.uuid) return { ...n, size: { ...n.size, x: v } }
+                            return { ...n, children: n.children.map(patchContent) }
+                          }
+                          saveScene(patchContent(sceneFile.root))
+                        }}
+                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                      />
+                      <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>H</span>
+                      <input type="number" defaultValue={Math.round(contentNode.size.y)}
+                        key={`sv-ch-${contentNode.uuid}`}
+                        onBlur={e => {
+                          const v = parseFloat(e.target.value)
+                          if (isNaN(v) || !sceneFile?.root) return
+                          function patchContent(n: CCSceneNode): CCSceneNode {
+                            if (n.uuid === contentNode!.uuid) return { ...n, size: { ...n.size, y: v } }
+                            return { ...n, children: n.children.map(patchContent) }
+                          }
+                          saveScene(patchContent(sceneFile.root))
+                        }}
+                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                      />
+                    </div>
+                  )}
                 </div>
               )
             }

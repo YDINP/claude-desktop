@@ -18803,6 +18803,18 @@ console.log('\n## 630. R1739 Inspector 위치 스텝 버튼 체크')
   }
 }
 
+// ── Section 631: R1740 cc.ScrollView content 크기 퀵 편집 ────────────────────
+console.log('\n## 631. R1740 cc.ScrollView content 크기 퀵 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s631 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s631.includes('R1740') && s631.includes('findContentNode') && s631.includes('content 자식 노드 크기 퀵 편집') && s631.includes('patchContent')) {
+    log('pass', 'R1740-scrollview-content', 'cc.ScrollView content 크기 퀵 편집')
+  } else {
+    log('warning', 'R1740-scrollview-content', 'cc.ScrollView content 크기 퀵 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
