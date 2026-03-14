@@ -18623,6 +18623,18 @@ console.log('\n## 615. R1724 트리 컨텍스트 메뉴 형제 순서 이동 체
   }
 }
 
+// ── Section 616: R1725 cc.Button duration 편집 ───────────────────────────────
+console.log('\n## 616. R1725 cc.Button duration 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s616 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s616.includes('R1725') && s616.includes('duration') && s616.includes('_N$duration')) {
+    log('pass', 'R1725-button-duration', 'cc.Button Color/Scale transition duration 편집')
+  } else {
+    log('warning', 'R1725-button-duration', 'cc.Button duration 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

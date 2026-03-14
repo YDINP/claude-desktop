@@ -6320,6 +6320,8 @@ function CCFileNodeInspector({
             if (comp.type === 'cc.Button') {
               const transition = Number(p.transition ?? 0)
               const interactable = !!(p.interactable ?? true)
+              // R1725: duration (Color/Scale transition 공통)
+              const duration = Number(p.duration ?? p._N$duration ?? 0.1)
               const toHex = (c: unknown) => {
                 const col = c as { r?: number; g?: number; b?: number } | undefined
                 if (!col) return '#ffffff'
@@ -6349,6 +6351,21 @@ function CCFileNodeInspector({
                       <option value={3}>Scale</option>
                     </select>
                   </div>
+                  {/* R1725: duration (Color/Scale) */}
+                  {(transition === 1 || transition === 3) && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>duration</span>
+                      <input type="number" defaultValue={duration} min={0} step={0.05}
+                        onBlur={e => {
+                          const v = parseFloat(e.target.value) ?? 0.1
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, duration: v, _N$duration: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      />
+                      <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>s</span>
+                    </div>
+                  )}
                   {transition === 1 && (
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
                       {stateColors.map(([label, val]) => (
