@@ -8610,12 +8610,12 @@ function CCFileBatchInspector({
           function patchPVScrollThresh(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPVScrollThresh)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, scrollThreshold: threshold, _N$scrollThreshold: threshold } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, scrollThreshold: threshold, _scrollThreshold: threshold, _N$scrollThreshold: threshold } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPVScrollThresh(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PageView scrollThresh=${threshold} (${uuids.length}개)`)
+          setBatchMsg(`✓ PageView scrollThresh=${threshold} (${uuids.length}개)`) // R2247: _scrollThreshold CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8663,12 +8663,12 @@ function CCFileBatchInspector({
           function patchPVAutoInterval(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPVAutoInterval)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, autoPageTurningInterval: interval, _N$autoPageTurningInterval: interval } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, autoPageTurningInterval: interval, _autoPageTurningInterval: interval, _N$autoPageTurningInterval: interval } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPVAutoInterval(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PageView autoInterval=${interval}s (${uuids.length}개)`)
+          setBatchMsg(`✓ PageView autoInterval=${interval}s (${uuids.length}개)`) // R2247: _autoPageTurningInterval CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8690,12 +8690,12 @@ function CCFileBatchInspector({
           function patchPVEventTiming(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPVEventTiming)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, pageTurningEventTiming, _N$pageTurningEventTiming: pageTurningEventTiming } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, pageTurningEventTiming, _pageTurningEventTiming: pageTurningEventTiming, _N$pageTurningEventTiming: pageTurningEventTiming } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPVEventTiming(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PageView eventTiming=${pageTurningEventTiming} (${uuids.length}개)`)
+          setBatchMsg(`✓ PageView eventTiming=${pageTurningEventTiming} (${uuids.length}개)`) // R2248: _pageTurningEventTiming CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8715,10 +8715,10 @@ function CCFileBatchInspector({
           function patchPVSlideDur(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPVSlideDur)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, slideDuration: dur, _N$slideDuration: dur } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, slideDuration: dur, _slideDuration: dur, _N$slideDuration: dur } } : c)
             return { ...n, components: updComps, children }
           }
-          await saveScene(patchPVSlideDur(sceneFile.root))
+          await saveScene({ ...sceneFile, root: patchPVSlideDur(sceneFile.root) }) // R2248: _slideDuration CC3.x + saveScene 버그 수정
           setBatchMsg(`✓ PageView slideDur ${dur}s (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -9172,11 +9172,11 @@ function CCFileBatchInspector({
           function patchVideoStart(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchVideoStart)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, startTime, _N$startTime: startTime } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchVideoStart(sceneFile.root) })
-          setBatchMsg(`✓ VideoPlayer startTime=${startTime}s (${uuids.length}개)`)
+          setBatchMsg(`✓ VideoPlayer startTime=${startTime}s (${uuids.length}개)`) // R2249: _startTime CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -11594,11 +11594,11 @@ function CCFileBatchInspector({
           function patchCanvasResize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCanvasResize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, resizeWithBrowserSize, _N$resizeWithBrowserSize: resizeWithBrowserSize } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, resizeWithBrowserSize, _resizeWithBrowserSize: resizeWithBrowserSize, _N$resizeWithBrowserSize: resizeWithBrowserSize } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCanvasResize(sceneFile.root) })
-          setBatchMsg(`✓ Canvas resizeWithBrowserSize=${resizeWithBrowserSize} (${uuids.length}개)`)
+          setBatchMsg(`✓ Canvas resizeWithBrowserSize=${resizeWithBrowserSize} (${uuids.length}개)`) // R2249: _resizeWithBrowserSize CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
