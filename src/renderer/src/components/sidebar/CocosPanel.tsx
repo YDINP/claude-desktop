@@ -5146,6 +5146,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2085: 공통 cc.EditBox inputMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEditInputMode = async (inputMode: number) => {
+          if (!sceneFile.root) return
+          function patchEditInputMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEditInputMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputMode, _N$inputMode: inputMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEditInputMode(sceneFile.root) })
+          setBatchMsg(`✓ EditBox inputMode=${inputMode} (${uuids.length}개)`)
+        }
+        // 0=Any, 1=EmailAddr, 2=Numeric, 3=PhoneNum, 4=URL, 5=Decimal, 6=SingleLine
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>EBinM</span>
+            {([0, 2, 5, 6] as const).map((v, i) => (
+              <span key={v} title={`inputMode = ${v} (${['Any','Num','Dec','1L'][i]})`}
+                onClick={() => applyEditInputMode(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{['Any','Num','Dec','1L'][i]}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1986: 공통 cc.EditBox returnType 일괄 설정 */}
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditReturnType = async (returnType: number) => {

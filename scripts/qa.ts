@@ -22946,6 +22946,18 @@ console.log('\n## 975. R2084 BatchInspector cc.PolygonCollider sensor 체크')
   }
 }
 
+// ── Section 976: R2085 BatchInspector cc.EditBox inputMode ──────────
+console.log('\n## 976. R2085 BatchInspector cc.EditBox inputMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s976 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s976.includes('R2085') && s976.includes('patchEditInputMode') && s976.includes('applyEditInputMode')) {
+    log('pass', 'R2085-batch-editbox-inputmode', 'BatchInspector cc.EditBox inputMode 일괄 설정')
+  } else {
+    log('warning', 'R2085-batch-editbox-inputmode', 'BatchInspector cc.EditBox inputMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
