@@ -1215,6 +1215,26 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         saveScene(moveNode(sceneFile.root))
         return
       }
+      // R1657: [ / ] 키 — 형제 노드 순환 선택
+      if ((e.key === '[' || e.key === ']') && selectedNode && sceneFile.root && !isInput) {
+        e.preventDefault()
+        function findSiblings(n: CCSceneNode): CCSceneNode[] | null {
+          const idx = n.children.findIndex(c => c.uuid === selectedNode!.uuid)
+          if (idx >= 0) return n.children
+          for (const child of n.children) {
+            const found = findSiblings(child)
+            if (found) return found
+          }
+          return null
+        }
+        const siblings = findSiblings(sceneFile.root)
+        if (siblings && siblings.length > 1) {
+          const idx = siblings.findIndex(c => c.uuid === selectedNode.uuid)
+          const next = e.key === ']' ? siblings[(idx + 1) % siblings.length] : siblings[(idx - 1 + siblings.length) % siblings.length]
+          onSelectNode(next)
+        }
+        return
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)

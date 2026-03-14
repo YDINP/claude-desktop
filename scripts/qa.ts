@@ -17805,6 +17805,18 @@ console.log('\n## 547. R1656 Inspector 부모 기준 정렬 체크')
   }
 }
 
+// ── Section 548: R1657 형제 노드 순환 선택 단축키 ──────────────────────
+console.log('\n## 548. R1657 [ ] 키 형제 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s548 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s548.includes('R1657') && s548.includes('findSiblings') && (s548.includes("e.key === '['") || s548.includes('e.key === \']\'')) ) {
+    log('pass', 'R1657-sibling-nav', '[ ] 키 형제 노드 순환 선택')
+  } else {
+    log('warning', 'R1657-sibling-nav', '[ ] 키 형제 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
