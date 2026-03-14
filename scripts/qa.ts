@@ -22226,6 +22226,18 @@ console.log('\n## 915. R2024 BatchInspector cc.Layout paddingRight 체크')
   }
 }
 
+// ── Section 916: R2025 BatchInspector node anchor preset ──────────
+console.log('\n## 916. R2025 BatchInspector node anchor preset 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s916 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s916.includes('R2025') && s916.includes('patchNodeAnchor') && s916.includes('applyNodeAnchor')) {
+    log('pass', 'R2025-batch-node-anchor', 'BatchInspector node anchor preset 일괄 설정')
+  } else {
+    log('warning', 'R2025-batch-node-anchor', 'BatchInspector node anchor preset 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -3861,6 +3861,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2025: 노드 anchor preset 일괄 설정 */}
+      {(() => {
+        const applyNodeAnchor = async (ax: number, ay: number) => {
+          if (!sceneFile.root) return
+          function patchNodeAnchor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeAnchor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, anchor: { x: ax, y: ay }, children }
+          }
+          const patchedRoot = patchNodeAnchor(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ anchor=(${ax},${ay}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>Anchor</span>
+            {([['TL',0,1],['TC',0.5,1],['TR',1,1],['ML',0,0.5],['MC',0.5,0.5],['MR',1,0.5],['BL',0,0],['BC',0.5,0],['BR',1,0]] as [string,number,number][]).map(([label,ax,ay]) => (
+              <span key={label} onClick={() => applyNodeAnchor(ax, ay)} title={`anchor=(${ax},${ay})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2013: 노드 position 일괄 설정 (reset/preset) */}
       {(() => {
         const applyNodePos = async (x: number, y: number) => {
