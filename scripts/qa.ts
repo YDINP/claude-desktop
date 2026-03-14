@@ -23861,6 +23861,24 @@ if (
   log('warning', 'R2159-batch-circlecollider2d', 'BatchInspector cc.CircleCollider2D 확장 미적용', 'CocosPanel.tsx')
 }
 
+// ── Section 1052: R2160 BatchInspector cc.BoxCollider2D offset ──────────
+console.log('\n## 1052. R2160 BatchInspector cc.BoxCollider2D offset 체크')
+const s1052 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1052.includes('R2160') && s1052.includes('applyBoxOffset') && s1052.includes('Box2Off')) {
+  log('pass', 'R2160-batch-boxcollider2d-offset', 'BatchInspector cc.BoxCollider2D offset 일괄 설정')
+} else {
+  log('warning', 'R2160-batch-boxcollider2d-offset', 'BatchInspector cc.BoxCollider2D offset 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1053: R2160 BatchInspector cc.CircleCollider2D offset ──────────
+console.log('\n## 1053. R2160 BatchInspector cc.CircleCollider2D offset 체크')
+const s1053 = s1052
+if (s1053.includes('R2160') && s1053.includes('applyCircleOffset') && s1053.includes('Cir2Off')) {
+  log('pass', 'R2160-batch-circlecollider2d-offset', 'BatchInspector cc.CircleCollider2D offset 일괄 설정')
+} else {
+  log('warning', 'R2160-batch-circlecollider2d-offset', 'BatchInspector cc.CircleCollider2D offset 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
