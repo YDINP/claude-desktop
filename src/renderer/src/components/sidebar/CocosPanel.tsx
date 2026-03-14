@@ -9425,6 +9425,7 @@ function CCFileNodeInspector({
               const rbType = Number(p.type ?? 0)
               const mass = Number(p.mass ?? 1)
               const linearDamping = Number(p.linearDamping ?? 0)
+              const angularDamping = Number(p.angularDamping ?? 0)
               const gravityScale = Number(p.gravityScale ?? 1)
               const fixedRotation = !!(p.fixedRotation ?? false)
               return (
@@ -9488,6 +9489,26 @@ function CCFileNodeInspector({
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${linearDamping === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: linearDamping === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
+                  {/* R1830: angularDamping 편집 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>angularDamp</span>
+                    <input type="number" defaultValue={angularDamping} min={0} step={0.1}
+                      onBlur={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularDamping: parseFloat(e.target.value) || 0 } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    {([0, 0.1, 1, 5] as const).map(v => (
+                      <span key={v} title={`angularDamping = ${v}`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularDamping: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${angularDamping === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: angularDamping === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}
                   </div>

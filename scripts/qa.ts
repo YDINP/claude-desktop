@@ -19883,6 +19883,18 @@ console.log('\n## 720. R1829 cc.RigidBody linearDamping 퀵 프리셋 체크')
   }
 }
 
+// ── Section 721: R1830 cc.RigidBody angularDamping 편집 ──────────────────────
+console.log('\n## 721. R1830 cc.RigidBody angularDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s721 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s721.includes('R1830') && s721.includes('angularDamping') && s721.includes('angularDamping === v')) {
+    log('pass', 'R1830-rb-angulardamping', 'cc.RigidBody angularDamping 편집 + 퀵 프리셋')
+  } else {
+    log('warning', 'R1830-rb-angulardamping', 'cc.RigidBody angularDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
