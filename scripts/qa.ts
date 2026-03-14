@@ -22334,6 +22334,18 @@ console.log('\n## 924. R2033 BatchInspector cc.ParticleSystem angle 체크')
   }
 }
 
+// ── Section 925: R2034 BatchInspector cc.Label verticalAlign ──────────
+console.log('\n## 925. R2034 BatchInspector cc.Label verticalAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s925 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s925.includes('R2034') && s925.includes('patchLabelVAlign') && s925.includes('applyLabelVAlign')) {
+    log('pass', 'R2034-batch-label-valign', 'BatchInspector cc.Label verticalAlign 일괄 설정')
+  } else {
+    log('warning', 'R2034-batch-label-valign', 'BatchInspector cc.Label verticalAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
