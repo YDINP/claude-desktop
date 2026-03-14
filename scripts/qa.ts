@@ -19931,6 +19931,18 @@ console.log('\n## 724. R1833 cc.ParticleSystem startSize/endSize 체크')
   }
 }
 
+// ── Section 725: R1834 cc.ParticleSystem startColor/endColor 색상 피커 ───────
+console.log('\n## 725. R1834 cc.ParticleSystem startColor/endColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s725 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s725.includes('R1834') && s725.includes('startColor') && s725.includes('_N$startColor') && s725.includes('endColor')) {
+    log('pass', 'R1834-particle-colors', 'cc.ParticleSystem startColor/endColor 색상 피커')
+  } else {
+    log('warning', 'R1834-particle-colors', 'cc.ParticleSystem 색상 피커 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -9203,6 +9203,39 @@ function CCFileNodeInspector({
                       >{v}</span>
                     ))}
                   </div>
+                  {/* R1834: startColor / endColor */}
+                  {(() => {
+                    const sc = p.startColor ?? p._N$startColor as { r?: number; g?: number; b?: number } | undefined
+                    const ec = p.endColor ?? p._N$endColor as { r?: number; g?: number; b?: number } | undefined
+                    const sr = (sc as Record<string,number>|undefined)?.r ?? 255, sg = (sc as Record<string,number>|undefined)?.g ?? 255, sb = (sc as Record<string,number>|undefined)?.b ?? 255
+                    const er = (ec as Record<string,number>|undefined)?.r ?? 255, eg = (ec as Record<string,number>|undefined)?.g ?? 0, eb = (ec as Record<string,number>|undefined)?.b ?? 0
+                    const startHex = `#${sr.toString(16).padStart(2,'0')}${sg.toString(16).padStart(2,'0')}${sb.toString(16).padStart(2,'0')}`
+                    const endHex = `#${er.toString(16).padStart(2,'0')}${eg.toString(16).padStart(2,'0')}${eb.toString(16).padStart(2,'0')}`
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>color S→E</span>
+                        <input type="color" value={startHex}
+                          onChange={e => {
+                            const h = e.target.value; const r2 = parseInt(h.slice(1,3),16), g2 = parseInt(h.slice(3,5),16), b2 = parseInt(h.slice(5,7),16)
+                            const col = { r: r2, g: g2, b: b2, a: 255 }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startColor: col, _N$startColor: col } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 24, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+                        <input type="color" value={endHex}
+                          onChange={e => {
+                            const h = e.target.value; const r2 = parseInt(h.slice(1,3),16), g2 = parseInt(h.slice(3,5),16), b2 = parseInt(h.slice(5,7),16)
+                            const col = { r: r2, g: g2, b: b2, a: 255 }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endColor: col, _N$endColor: col } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 24, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
+                        />
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }
