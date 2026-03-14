@@ -19247,6 +19247,18 @@ console.log('\n## 667. R1776 BatchInspector 회전 일괄 정규화 체크')
   }
 }
 
+// ── Section 668: R1777 BatchInspector 이름 Prefix/Suffix 제거 ────────────────
+console.log('\n## 668. R1777 BatchInspector 이름 prefix/suffix 제거 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s668 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s668.includes('R1777') && s668.includes('removePfxSfx') && s668.includes('prefix/suffix 제거')) {
+    log('pass', 'R1777-remove-pfx', 'BatchInspector 이름 prefix/suffix 제거')
+  } else {
+    log('warning', 'R1777-remove-pfx', 'BatchInspector 이름 prefix/suffix 제거 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

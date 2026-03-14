@@ -4390,6 +4390,27 @@ function CCFileBatchInspector({
             }}
             style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(88,166,255,0.12)', border: '1px solid rgba(88,166,255,0.3)', borderRadius: 3, color: '#58a6ff', cursor: 'pointer' }}
           >이름 적용 ({uuids.length}개)</button>
+          {/* R1777: 이름 Prefix/Suffix 제거 버튼 */}
+          {(batchNamePrefix || batchNameSuffix) && (
+            <button
+              title="이름에서 현재 입력한 prefix/suffix 제거"
+              onClick={async () => {
+                if (!sceneFile.root || (!batchNamePrefix && !batchNameSuffix)) return
+                function removePfxSfx(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(removePfxSfx)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  let name = n.name
+                  if (batchNamePrefix && name.startsWith(batchNamePrefix)) name = name.slice(batchNamePrefix.length)
+                  if (batchNameSuffix && name.endsWith(batchNameSuffix)) name = name.slice(0, -batchNameSuffix.length)
+                  return { ...n, name, children }
+                }
+                const result = await saveScene(removePfxSfx(sceneFile.root))
+                setBatchMsg(result.success ? `✓ prefix/suffix 제거 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 3, color: '#f87171', cursor: 'pointer' }}
+            >이름 제거 ({uuids.length}개)</button>
+          )}
           {/* R1754: 순서 번호 추가 */}
           <button
             title="선택 노드에 트리 순서대로 _1, _2... 번호 추가"
