@@ -3519,6 +3519,17 @@ function CCFileBatchInspector({
     setTimeout(() => setBatchMsg(null), 2500)
   }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, batchScaleX, batchScaleY, batchSizeW, batchSizeH, batchColor, uuids.length, saveScene])
 
+  // R1698: 공통 컴포넌트 타입 계산
+  const commonCompTypes = useMemo(() => {
+    if (!sceneFile.root) return []
+    const nodes: CCSceneNode[] = []
+    function collectC(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collectC) }
+    collectC(sceneFile.root)
+    if (nodes.length < 2) return []
+    const allTypes = nodes.map(n => new Set(n.components.map(c => c.type)))
+    return [...allTypes[0]].filter(t => allTypes.every(s => s.has(t)))
+  }, [sceneFile.root, uuidSet])
+
   return (
     <div style={{ padding: '8px 10px', fontSize: 11 }}>
       <div style={{ fontSize: 10, fontWeight: 700, color: '#a78bfa', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -3528,6 +3539,17 @@ function CCFileBatchInspector({
           {commonValues?.active != null ? ` ${commonValues.active ? '활성' : '비활성'}` : ''}
         </span>
       </div>
+      {/* R1698: 공통 컴포넌트 표시 */}
+      {commonCompTypes.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 6 }}>
+          <span style={{ fontSize: 8, color: 'var(--text-muted)', alignSelf: 'center' }}>공통:</span>
+          {commonCompTypes.map(t => (
+            <span key={t} style={{ fontSize: 8, padding: '0 4px', borderRadius: 3, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', color: '#a78bfa' }}>
+              {t.includes('.') ? t.split('.').pop() : t}
+            </span>
+          ))}
+        </div>
+      )}
       {/* Active 토글 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>Active</span>

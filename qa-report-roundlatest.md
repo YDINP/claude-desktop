@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:27:21.944Z
+> 2026-03-14T01:28:21.566Z
 
 ## Critical
 _없음_
@@ -1627,3 +1627,4 @@ _없음_
 - SceneView 드래그 노드 경계 스냅
 - cc.Sprite spriteFrame uuid 복사
 - SceneView 레이블 폰트 크기 조정
+- 다중 선택 공통 컴포넌트 표시

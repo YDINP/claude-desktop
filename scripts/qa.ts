@@ -18299,6 +18299,18 @@ console.log('\n## 588. R1697 SceneView 레이블 폰트 크기 조정 체크')
   }
 }
 
+// ── Section 589: R1698 다중 선택 공통 컴포넌트 표시 ────────────────────────
+console.log('\n## 589. R1698 다중 선택 공통 컴포넌트 표시 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s589 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s589.includes('R1698') && s589.includes('commonCompTypes') && s589.includes('공통:')) {
+    log('pass', 'R1698-common-comp-display', '다중 선택 공통 컴포넌트 표시')
+  } else {
+    log('warning', 'R1698-common-comp-display', '다중 선택 공통 컴포넌트 표시 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
