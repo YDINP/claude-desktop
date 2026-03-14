@@ -3725,6 +3725,8 @@ function CCFileBatchInspector({
   const [batchRegexPat, setBatchRegexPat] = useState<string>('')
   const [batchRegexRepl, setBatchRegexRepl] = useState<string>('')
   const [batchRegexErr, setBatchRegexErr] = useState<boolean>(false)
+  // R1825: 이름 정규화 (base_001, base_002...)
+  const [batchNormBase, setBatchNormBase] = useState<string>('')
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -4845,6 +4847,35 @@ function CCFileBatchInspector({
             }}
             style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 3, color: '#fbbf24', cursor: 'pointer' }}
           >번호 추가 _1,_2... ({uuids.length}개)</button>
+        </div>
+        {/* R1825: 이름 정규화 (base_001, base_002...) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+          <input
+            value={batchNormBase}
+            onChange={e => setBatchNormBase(e.target.value)}
+            placeholder="base 입력 → 정규화"
+            style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+          />
+          <button
+            title={`선택 노드를 {base}_001, _002... 형식으로 완전 재명명`}
+            disabled={!batchNormBase}
+            onClick={async () => {
+              if (!sceneFile.root || !batchNormBase) return
+              const pad = uuids.length >= 100 ? 3 : uuids.length >= 10 ? 2 : 1
+              let counter = 1
+              function applyNorm(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(applyNorm)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const idx = String(counter++).padStart(pad, '0')
+                return { ...n, name: `${batchNormBase}_${idx}`, children }
+              }
+              const result = await saveScene(applyNorm(sceneFile.root))
+              setBatchMsg(result.success ? `✓ 이름 정규화 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+              setBatchNormBase('')
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 9, padding: '2px 8px', background: batchNormBase ? 'rgba(52,211,153,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchNormBase ? '#34d399' : 'var(--text-muted)', cursor: batchNormBase ? 'pointer' : 'default', flexShrink: 0 }}
+          >정규화 ({uuids.length}개)</button>
         </div>
         {/* R1768: X/Y 균등 배치 (3개 이상 선택 시) */}
         {/* R1772: 선택 노드 정렬 (align) */}

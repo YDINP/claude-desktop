@@ -19823,6 +19823,18 @@ console.log('\n## 715. R1824 BatchInspector cc.RigidBody linearDamping 체크')
   }
 }
 
+// ── Section 716: R1825 BatchInspector 이름 정규화 ────────────────────────────
+console.log('\n## 716. R1825 BatchInspector 이름 정규화 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s716 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s716.includes('R1825') && s716.includes('batchNormBase') && s716.includes('applyNorm') && s716.includes('정규화')) {
+    log('pass', 'R1825-batch-name-normalize', 'BatchInspector 선택 노드 이름 정규화')
+  } else {
+    log('warning', 'R1825-batch-name-normalize', 'BatchInspector 이름 정규화 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
