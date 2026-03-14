@@ -18311,6 +18311,18 @@ console.log('\n## 589. R1698 다중 선택 공통 컴포넌트 표시 체크')
   }
 }
 
+// ── Section 590: R1699 SceneView 선택 노드 정보 오버레이 ──────────────────
+console.log('\n## 590. R1699 SceneView 선택 노드 정보 오버레이 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s590 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s590.includes('R1699') && s590.includes('선택 노드 세부 정보 오버레이') && s590.includes('우상단')) {
+    log('pass', 'R1699-node-info-overlay', 'SceneView 선택 노드 정보 오버레이')
+  } else {
+    log('warning', 'R1699-node-info-overlay', 'SceneView 선택 노드 정보 오버레이 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

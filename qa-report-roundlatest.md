@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:28:21.566Z
+> 2026-03-14T01:29:18.989Z
 
 ## Critical
 _없음_
@@ -1628,3 +1628,4 @@ _없음_
 - cc.Sprite spriteFrame uuid 복사
 - SceneView 레이블 폰트 크기 조정
 - 다중 선택 공통 컴포넌트 표시
+- SceneView 선택 노드 정보 오버레이

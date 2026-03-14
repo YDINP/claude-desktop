@@ -2517,6 +2517,33 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         )
       })()}
+      {/* R1699: 선택 노드 세부 정보 오버레이 (우상단) */}
+      {selectedUuid && (() => {
+        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+        if (!fn) return null
+        const { node } = fn
+        const px = dragOverride?.uuid === node.uuid ? Math.round(dragOverride.x) : Math.round((node.position as { x: number; y: number }).x)
+        const py = dragOverride?.uuid === node.uuid ? Math.round(dragOverride.y) : Math.round((node.position as { x: number; y: number }).y)
+        const w = resizeOverride?.uuid === node.uuid ? Math.round(resizeOverride.w) : Math.round(node.size?.x ?? 0)
+        const h = resizeOverride?.uuid === node.uuid ? Math.round(resizeOverride.h) : Math.round(node.size?.y ?? 0)
+        const rot = rotateOverride?.uuid === node.uuid ? Math.round(rotateOverride.angle) : Math.round(node.rotation ?? 0)
+        const ax = Math.round((node.anchor?.x ?? 0.5) * 100) / 100
+        const ay = Math.round((node.anchor?.y ?? 0.5) * 100) / 100
+        return (
+          <div style={{
+            position: 'absolute', top: 4, right: 4, zIndex: 10,
+            background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(88,166,255,0.2)',
+            borderRadius: 4, padding: '4px 7px', fontSize: 9,
+            color: '#778', pointerEvents: 'none', userSelect: 'none',
+            fontVariantNumeric: 'tabular-nums', lineHeight: 1.6,
+          }}>
+            <div><span style={{ color: '#556' }}>pos</span> <span style={{ color: '#aaa' }}>{px}, {py}</span></div>
+            {(w > 0 || h > 0) && <div><span style={{ color: '#556' }}>size</span> <span style={{ color: '#aaa' }}>{w} × {h}</span></div>}
+            {rot !== 0 && <div><span style={{ color: '#556' }}>rot</span> <span style={{ color: '#ff9944' }}>{rot}°</span></div>}
+            {(ax !== 0.5 || ay !== 0.5) && <div><span style={{ color: '#556' }}>anch</span> <span style={{ color: '#aaa' }}>{ax}, {ay}</span></div>}
+          </div>
+        )
+      })()}
       {/* R1598: 마우스 위치 좌표 오버레이 (R1649: 선택 노드 크기 추가) */}
       {mouseScenePos && (
         <div style={{ position: 'absolute', bottom: 4, right: 4, fontSize: 9, color: '#556', background: 'rgba(0,0,0,0.4)', padding: '1px 5px', borderRadius: 3, pointerEvents: 'none', userSelect: 'none', fontVariantNumeric: 'tabular-nums', display: 'flex', gap: 8 }}>
