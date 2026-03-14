@@ -22574,6 +22574,18 @@ console.log('\n## 944. R2053 BatchInspector node opacity 체크')
   }
 }
 
+// ── Section 945: R2054 BatchInspector cc.ParticleSystem posVar ──────────
+console.log('\n## 945. R2054 BatchInspector cc.ParticleSystem posVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s945 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s945.includes('R2054') && s945.includes('patchPSPosVar') && s945.includes('applyPSPosVar')) {
+    log('pass', 'R2054-batch-ps-posvar', 'BatchInspector cc.ParticleSystem posVar 일괄 설정')
+  } else {
+    log('warning', 'R2054-batch-ps-posvar', 'BatchInspector cc.ParticleSystem posVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
