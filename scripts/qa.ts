@@ -21422,6 +21422,18 @@ console.log('\n## 848. R1957 BatchInspector cc.ParticleSystem startSize 체크')
   }
 }
 
+// ── Section 849: R1958 BatchInspector cc.ParticleSystem life ──────────
+console.log('\n## 849. R1958 BatchInspector cc.ParticleSystem life 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s849 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s849.includes('R1958') && s849.includes('patchParticleLife') && s849.includes('applyParticleLife')) {
+    log('pass', 'R1958-batch-particle-life', 'BatchInspector cc.ParticleSystem life 일괄 설정')
+  } else {
+    log('warning', 'R1958-batch-particle-life', 'BatchInspector cc.ParticleSystem life 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
