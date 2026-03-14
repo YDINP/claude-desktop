@@ -23186,6 +23186,18 @@ console.log('\n## 995. R2104 BatchInspector cc.ScrollView inertia 체크')
   }
 }
 
+// ── Section 996: R2105 BatchInspector cc.EditBox maxLength ──────────
+console.log('\n## 996. R2105 BatchInspector cc.EditBox maxLength 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s996 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s996.includes('R2105') && s996.includes('patchEditMaxLen') && s996.includes('applyEditMaxLen')) {
+    log('pass', 'R2105-batch-edit-maxlen', 'BatchInspector cc.EditBox maxLength 일괄 설정')
+  } else {
+    log('warning', 'R2105-batch-edit-maxlen', 'BatchInspector cc.EditBox maxLength 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
