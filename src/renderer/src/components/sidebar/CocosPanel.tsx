@@ -7832,6 +7832,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2041: 공통 cc.Layout spacingY 일괄 설정 (individual) */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutSpacingY = async (spacingY: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutSpacingY(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutSpacingY)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLayoutSpacingY(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Layout spacingY=${spacingY} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LspY</span>
+            {[0, 2, 5, 10, 20, 30].map(v => (
+              <span key={v} onClick={() => applyLayoutSpacingY(v)} title={`spacingY=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2040: 공통 cc.Layout spacingX 일괄 설정 (individual) */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutSpacingX = async (spacingX: number) => {

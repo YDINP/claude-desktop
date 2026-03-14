@@ -22418,6 +22418,18 @@ console.log('\n## 931. R2040 BatchInspector cc.Layout spacingX 체크')
   }
 }
 
+// ── Section 932: R2041 BatchInspector cc.Layout spacingY individual ──────────
+console.log('\n## 932. R2041 BatchInspector cc.Layout spacingY 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s932 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s932.includes('R2041') && s932.includes('patchLayoutSpacingY') && s932.includes('applyLayoutSpacingY')) {
+    log('pass', 'R2041-batch-layout-spacingy', 'BatchInspector cc.Layout spacingY 일괄 설정')
+  } else {
+    log('warning', 'R2041-batch-layout-spacingy', 'BatchInspector cc.Layout spacingY 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
