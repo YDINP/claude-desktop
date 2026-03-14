@@ -3986,6 +3986,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2156: 공통 cc.PolygonCollider offset 일괄 설정 */}
+      {commonCompTypes.includes('cc.PolygonCollider') && (() => {
+        const applyPolyOffset = async (ox: number, oy: number) => {
+          if (!sceneFile.root) return
+          function patchPolyOffset(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPolyOffset)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const offset = { x: ox, y: oy }
+            const updComps = n.components.map(c => c.type === 'cc.PolygonCollider' ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPolyOffset(sceneFile.root) })
+          setBatchMsg(`✓ PolyCollider offset=(${ox},${oy}) (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>PolyOff</span>
+            {([['0,0',0,0],['0,10',0,10],['0,-10',0,-10],['10,0',10,0]] as [string,number,number][]).map(([label,ox,oy]) => (
+              <span key={label} onClick={() => applyPolyOffset(ox, oy)} title={`offset=(${ox},${oy})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2084: 공통 cc.PolygonCollider sensor 일괄 설정 */}
       {commonCompTypes.includes('cc.PolygonCollider') && (() => {
         const applyPolyColliderSensor = async (sensor: boolean) => {

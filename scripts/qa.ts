@@ -23798,6 +23798,18 @@ console.log('\n## 1046. R2155 BatchInspector cc.Canvas designResolution 체크')
   }
 }
 
+// ── Section 1047: R2156 BatchInspector cc.PolygonCollider offset ──────────
+console.log('\n## 1047. R2156 BatchInspector cc.PolygonCollider offset 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1047 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1047.includes('R2156') && s1047.includes('patchPolyOffset') && s1047.includes('applyPolyOffset')) {
+    log('pass', 'R2156-batch-polycollider-offset', 'BatchInspector cc.PolygonCollider offset 일괄 설정')
+  } else {
+    log('warning', 'R2156-batch-polycollider-offset', 'BatchInspector cc.PolygonCollider offset 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
