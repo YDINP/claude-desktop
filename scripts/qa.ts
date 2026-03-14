@@ -18443,6 +18443,18 @@ console.log('\n## 600. R1709 cc.Layout Grid cellSize 편집 체크')
   }
 }
 
+// ── Section 601: R1710 씬 트리 구조 텍스트 복사 ─────────────────────────────
+console.log('\n## 601. R1710 씬 트리 구조 텍스트 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s601 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s601.includes('R1710') && s601.includes('씬 트리 구조 텍스트 복사') && s601.includes('lines.push')) {
+    log('pass', 'R1710-tree-text-copy', '씬 트리 구조 텍스트 복사')
+  } else {
+    log('warning', 'R1710-tree-text-copy', '씬 트리 구조 텍스트 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -2571,6 +2571,23 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               )}
               <span onClick={expandAll} title="전체 펼치기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊞</span>
               <span onClick={collapseAll} title="전체 접기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊟</span>
+              {/* R1710: 씬 트리 구조 텍스트 복사 */}
+              <span
+                title="씬 트리 구조 텍스트 복사 (R1710)"
+                onClick={() => {
+                  if (!sceneFile?.root) return
+                  const lines: string[] = []
+                  function walk(n: CCSceneNode, depth: number) {
+                    const indent = '  '.repeat(depth)
+                    const comps = n.components.length > 0 ? ` (${n.components.map(c => c.type.includes('.') ? c.type.split('.').pop() : c.type).join(', ')})` : ''
+                    lines.push(`${indent}${n.active ? '' : '◌ '}${n.name || '(unnamed)'}${comps}`)
+                    n.children.forEach(c => walk(c, depth + 1))
+                  }
+                  walk(sceneFile.root, 0)
+                  navigator.clipboard.writeText(lines.join('\n')).catch(() => {})
+                }}
+                style={{ cursor: 'pointer', fontSize: 9, flexShrink: 0, color: '#666' }}
+              >⎘</span>
               {/* R1655: 깊이 N까지 펼치기 */}
               {([1, 2, 3] as const).map(d => (
                 <span key={d} onClick={() => collapseToDepth(d)} title={`깊이 ${d}까지 펼치기`} style={{ cursor: 'pointer', fontSize: 9, flexShrink: 0, color: '#666', fontWeight: 700 }}>D{d}</span>
