@@ -21986,6 +21986,18 @@ console.log('\n## 895. R2004 BatchInspector cc.ScrollView pagingEnabled 체크')
   }
 }
 
+// ── Section 896: R2005 BatchInspector cc.VideoPlayer fullScreenEnabled ──────────
+console.log('\n## 896. R2005 BatchInspector cc.VideoPlayer fullScreenEnabled 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s896 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s896.includes('R2005') && s896.includes('patchVideoFullscreen') && s896.includes('applyVideoFullscreen')) {
+    log('pass', 'R2005-batch-video-fullscreen', 'BatchInspector cc.VideoPlayer fullScreenEnabled 일괄 설정')
+  } else {
+    log('warning', 'R2005-batch-video-fullscreen', 'BatchInspector cc.VideoPlayer fullScreenEnabled 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

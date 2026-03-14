@@ -5634,6 +5634,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2005: 공통 cc.VideoPlayer fullScreenEnabled 일괄 설정 */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoFullscreen = async (fullScreenEnabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchVideoFullscreen(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideoFullscreen)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, fullScreenEnabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchVideoFullscreen(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ VideoPlayer fullscreen=${fullScreenEnabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>VideoFS</span>
+            <span onClick={() => applyVideoFullscreen(true)} title="fullScreenEnabled ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>fs✓</span>
+            <span onClick={() => applyVideoFullscreen(false)} title="fullScreenEnabled OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>fs✗</span>
+          </div>
+        )
+      })()}
       {/* R2000: 공통 cc.VideoPlayer keepAspectRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoKeepAspect = async (keepAspectRatio: boolean) => {
