@@ -22850,6 +22850,18 @@ console.log('\n## 967. R2076 BatchInspector cc.MotionStreak stroke 체크')
   }
 }
 
+// ── Section 968: R2077 BatchInspector cc.PageView pageTurningSpeed ──────────
+console.log('\n## 968. R2077 BatchInspector cc.PageView pageTurningSpeed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s968 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s968.includes('R2077') && s968.includes('patchPVTurnSpeed') && s968.includes('applyPVTurnSpeed')) {
+    log('pass', 'R2077-batch-pv-turningspeed', 'BatchInspector cc.PageView pageTurningSpeed 일괄 설정')
+  } else {
+    log('warning', 'R2077-batch-pv-turningspeed', 'BatchInspector cc.PageView pageTurningSpeed 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

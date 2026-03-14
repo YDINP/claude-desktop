@@ -5729,6 +5729,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2077: 공통 cc.PageView pageTurningSpeed 일괄 설정 */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPVTurnSpeed = async (pageTurningSpeed: number) => {
+          if (!sceneFile.root) return
+          function patchPVTurnSpeed(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPVTurnSpeed)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, pageTurningSpeed, _N$pageTurningSpeed: pageTurningSpeed } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPVTurnSpeed(sceneFile.root) })
+          setBatchMsg(`✓ PageView pageTurningSpeed=${pageTurningSpeed} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>PVspd</span>
+            {[0.1, 0.3, 0.5, 1, 1.5, 2].map(v => (
+              <span key={v} title={`pageTurningSpeed = ${v}`}
+                onClick={() => applyPVTurnSpeed(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2067: 공통 cc.PageView direction 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPageViewDir = async (direction: number) => {
