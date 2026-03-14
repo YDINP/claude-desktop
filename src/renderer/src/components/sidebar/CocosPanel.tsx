@@ -6673,6 +6673,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2168: 공통 cc.ScrollView cancelInnerEvents 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVCancelInner = async (cancelInnerEvents: boolean) => {
+          if (!sceneFile.root) return
+          function patchSVCancelInner(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVCancelInner)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, cancelInnerEvents, _N$cancelInnerEvents: cancelInnerEvents } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSVCancelInner(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView cancelInnerEvents=${cancelInnerEvents} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SVCancel</span>
+            <span onClick={() => applySVCancelInner(true)} title="cancelInnerEvents ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>cin✓</span>
+            <span onClick={() => applySVCancelInner(false)} title="cancelInnerEvents OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>cin✗</span>
+          </div>
+        )
+      })()}
       {/* R2004: 공통 cc.ScrollView pagingEnabled 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVPaging = async (pagingEnabled: boolean) => {
@@ -8500,6 +8523,29 @@ function CCFileBatchInspector({
               <span key={v} onClick={() => applyPSTotalPart(v)} title={`totalParticles=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
             ))}
+          </div>
+        )
+      })()}
+      {/* R2168: 공통 cc.ParticleSystem simulationSpace 일괄 설정 */}
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
+        const applyPSSimSpace = async (simulationSpace: number) => {
+          if (!sceneFile.root) return
+          function patchPSSimSpace(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSSimSpace)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, simulationSpace, _simulationSpace: simulationSpace, _N$simulationSpace: simulationSpace } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPSSimSpace(sceneFile.root) })
+          setBatchMsg(`✓ PS simulationSpace=${simulationSpace === 0 ? 'World' : 'Local'} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSsim</span>
+            <span onClick={() => applyPSSimSpace(0)} title="simulationSpace=World(0)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>World</span>
+            <span onClick={() => applyPSSimSpace(1)} title="simulationSpace=Local(1)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>Local</span>
           </div>
         )
       })()}

@@ -24005,6 +24005,24 @@ if (s1067.includes('R2167') && s1067.includes('applyCamFar') && s1067.includes('
   log('warning', 'R2167-batch-camera-far', 'BatchInspector cc.Camera far 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1068: R2168 BatchInspector cc.ScrollView cancelInnerEvents ──────────
+console.log('\n## 1068. R2168 BatchInspector cc.ScrollView cancelInnerEvents 체크')
+const s1068 = s1067
+if (s1068.includes('R2168') && s1068.includes('applySVCancelInner') && s1068.includes('SVCancel')) {
+  log('pass', 'R2168-batch-sv-cancelinner', 'BatchInspector cc.ScrollView cancelInnerEvents 일괄 설정')
+} else {
+  log('warning', 'R2168-batch-sv-cancelinner', 'BatchInspector cc.ScrollView cancelInnerEvents 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1069: R2168 BatchInspector cc.ParticleSystem simulationSpace ──────────
+console.log('\n## 1069. R2168 BatchInspector cc.ParticleSystem simulationSpace 체크')
+const s1069 = s1068
+if (s1069.includes('R2168') && s1069.includes('applyPSSimSpace') && s1069.includes('PSsim')) {
+  log('pass', 'R2168-batch-ps-simspace', 'BatchInspector cc.ParticleSystem simulationSpace 일괄 설정')
+} else {
+  log('warning', 'R2168-batch-ps-simspace', 'BatchInspector cc.ParticleSystem simulationSpace 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
