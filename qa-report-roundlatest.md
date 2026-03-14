@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:14:44.784Z
+> 2026-03-14T05:17:13.183Z
 
 ## Critical
 _없음_
@@ -1792,3 +1792,4 @@ _없음_
 - BatchInspector cc.LabelOutline width 일괄 설정
 - BatchInspector cc.LabelShadow blur 일괄 설정
 - BatchInspector cc.Sprite type (Simple/Sliced/Tiled/Filled) 일괄
+- BatchInspector cc.Mask type (Rect/Ellipse/Image) 일괄 설정

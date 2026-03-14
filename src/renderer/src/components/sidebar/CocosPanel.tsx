@@ -4639,6 +4639,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1863: 공통 cc.Mask type 일괄 설정 */}
+      {commonCompTypes.includes('cc.Mask') && (() => {
+        const applyMaskType = async (type: number) => {
+          if (!sceneFile.root) return
+          function patchMaskType(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMaskType)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, _type: type, type } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchMaskType(sceneFile.root))
+          const names = ['Rect','Ellipse','Image']
+          setBatchMsg(`✓ Mask type=${names[type] ?? type} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>MaskType</span>
+            {(['Rect','Ellipse','Image'] as const).map((l, v) => (
+              <span key={v} title={`Mask type = ${l}`}
+                onClick={() => applyMaskType(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1852: 공통 cc.Mask inverted 일괄 설정 */}
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskInvert = async (inverted: boolean) => {

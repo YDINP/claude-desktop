@@ -20282,6 +20282,18 @@ console.log('\n## 753. R1862 BatchInspector cc.Sprite type 체크')
   }
 }
 
+// ── Section 754: R1863 BatchInspector cc.Mask type 일괄 ──────────────────────
+console.log('\n## 754. R1863 BatchInspector cc.Mask type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s754 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s754.includes('R1863') && s754.includes('applyMaskType') && s754.includes("'cc.Mask'") && s754.includes('patchMaskType')) {
+    log('pass', 'R1863-batch-mask-type', 'BatchInspector cc.Mask type (Rect/Ellipse/Image) 일괄 설정')
+  } else {
+    log('warning', 'R1863-batch-mask-type', 'BatchInspector cc.Mask type 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
