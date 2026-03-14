@@ -5840,6 +5840,31 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2052: 공통 cc.Animation speed 일괄 설정 */}
+      {commonCompTypes.includes('cc.Animation') && (() => {
+        const applyAnimSpeed = async (speed: number) => {
+          if (!sceneFile.root) return
+          function patchAnimSpeed(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAnimSpeed)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchAnimSpeed(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Animation speed=${speed}x (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>AnimSpd</span>
+            {[0.25, 0.5, 0.75, 1, 1.5, 2].map(v => (
+              <span key={v} onClick={() => applyAnimSpeed(v)} title={`speed=${v}x`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>{v}x</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1984: 공통 cc.Animation wrapMode 일괄 설정 */}
       {commonCompTypes.includes('cc.Animation') && (() => {
         const applyAnimWrapMode = async (wrapMode: number) => {

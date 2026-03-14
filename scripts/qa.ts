@@ -22550,6 +22550,18 @@ console.log('\n## 942. R2051 BatchInspector cc.ParticleSystem tangentialAccelVar
   }
 }
 
+// ── Section 943: R2052 BatchInspector cc.Animation speed ──────────
+console.log('\n## 943. R2052 BatchInspector cc.Animation speed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s943 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s943.includes('R2052') && s943.includes('patchAnimSpeed') && s943.includes('applyAnimSpeed')) {
+    log('pass', 'R2052-batch-anim-speed', 'BatchInspector cc.Animation speed 일괄 설정')
+  } else {
+    log('warning', 'R2052-batch-anim-speed', 'BatchInspector cc.Animation speed 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
