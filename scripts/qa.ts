@@ -18359,6 +18359,18 @@ console.log('\n## 593. R1702 Inspector 노드 UUID 복사 체크')
   }
 }
 
+// ── Section 594: R1703 SceneView 형제 그룹 하이라이트 ──────────────────────
+console.log('\n## 594. R1703 SceneView 형제 그룹 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s594 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s594.includes('R1703') && s594.includes('showSiblingGroup') && s594.includes('형제 그룹')) {
+    log('pass', 'R1703-sibling-group-highlight', 'SceneView 형제 그룹 하이라이트')
+  } else {
+    log('warning', 'R1703-sibling-group-highlight', 'SceneView 형제 그룹 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

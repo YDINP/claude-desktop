@@ -102,6 +102,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const hoverClientPosRef = useRef<{ x: number; y: number } | null>(null)
   // R1697: 노드 레이블 폰트 크기 (기본 11px)
   const [labelFontSize, setLabelFontSize] = useState(11)
+  // R1703: 형제 그룹 하이라이트
+  const [showSiblingGroup, setShowSiblingGroup] = useState(false)
   // R1623: 와이어프레임 모드 (선만 표시)
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
@@ -704,6 +706,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           return
         }
       }
+      // R1703: G — 형제 그룹 하이라이트 토글
+      if (e.code === 'KeyG' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        e.preventDefault()
+        setShowSiblingGroup(s => !s)
+        return
+      }
       // R1565: H — 선택 노드 active 토글 (숨기기/보이기)
       if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && !e.shiftKey && selectedUuid) {
         e.preventDefault()
@@ -942,6 +950,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         >
           T
         </button>
+        {/* R1703: 형제 그룹 하이라이트 버튼 */}
+        <button
+          onClick={() => setShowSiblingGroup(s => !s)}
+          title="선택 노드 형제 그룹 하이라이트 (G) (R1703)"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSiblingGroup ? '#fbbf24' : 'var(--border)'}`, background: showSiblingGroup ? 'rgba(251,191,36,0.12)' : 'none', color: showSiblingGroup ? '#fbbf24' : 'var(--text-muted)' }}
+        >G</button>
         {/* R1697: 레이블 폰트 크기 조정 */}
         {showNodeNames && (
           <>
@@ -1831,6 +1845,33 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })}
+          {/* R1703: 형제 그룹 하이라이트 */}
+          {showSiblingGroup && selectedUuid && (() => {
+            const selFn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!selFn?.parentUuid) return null
+            const siblings = flatNodes.filter(f => f.parentUuid === selFn.parentUuid && f.node.uuid !== selectedUuid)
+            return (
+              <>
+                {siblings.map(fn => {
+                  if (!fn.node.size?.x || !fn.node.size?.y) return null
+                  const sp = ccToSvg(fn.worldX, fn.worldY)
+                  const w = fn.node.size.x, h = fn.node.size.y
+                  const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+                  return (
+                    <rect key={fn.node.uuid}
+                      x={sp.x - w * ax} y={sp.y - h * (1 - ay)}
+                      width={w} height={h}
+                      fill="rgba(251,191,36,0.06)"
+                      stroke="rgba(251,191,36,0.35)"
+                      strokeWidth={1 / view.zoom}
+                      strokeDasharray={`${4 / view.zoom} ${3 / view.zoom}`}
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  )
+                })}
+              </>
+            )
+          })()}
           {/* R1693: 좌표 핀 마커 */}
           {pinMarkers.map(pm => {
             const sp = ccToSvg(pm.ccX, pm.ccY)
