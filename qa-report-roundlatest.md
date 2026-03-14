@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:52:40.459Z
+> 2026-03-14T01:53:36.054Z
 
 ## Critical
 _없음_
@@ -1642,3 +1642,4 @@ _없음_
 - 씬 트리 구조 텍스트 복사
 - cc.Sprite Filled 모드 fillType/fillStart/fillRange 편집
 - 씬 트리 컨텍스트 메뉴 확장
+- cc.Label fontSize 빠른 조절 버튼

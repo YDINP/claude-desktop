@@ -18479,6 +18479,18 @@ console.log('\n## 603. R1712 씬 트리 컨텍스트 메뉴 확장 체크')
   }
 }
 
+// ── Section 604: R1713 cc.Label fontSize 빠른 조절 버튼 ─────────────────────
+console.log('\n## 604. R1713 cc.Label fontSize 빠른 조절 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s604 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s604.includes('R1713') && s604.includes('fontSize 빠른 조절') && s604.includes('newFs')) {
+    log('pass', 'R1713-label-fontsize-btn', 'cc.Label fontSize 빠른 조절 버튼')
+  } else {
+    log('warning', 'R1713-label-fontsize-btn', 'cc.Label fontSize 빠른 조절 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

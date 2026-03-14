@@ -6352,7 +6352,7 @@ function CCFileNodeInspector({
                       style={{ flex: 1, boxSizing: 'border-box', fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', resize: 'vertical' }}
                     />
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>fontSize</span>
                     <input type="number" defaultValue={fs} min={1} max={200}
                       onBlur={e => {
@@ -6360,8 +6360,20 @@ function CCFileNodeInspector({
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c)
                         applyAndSave({ components: updated })
                       }}
-                      style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
+                    {/* R1713: fontSize 빠른 조절 버튼 */}
+                    {[-10, -1, +1, +10].map(d => (
+                      <span key={d}
+                        title={`fontSize ${d > 0 ? '+' : ''}${d}`}
+                        onClick={() => {
+                          const newFs = Math.max(1, fs + d)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: newFs, _fontSize: newFs, _N$fontSize: newFs } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, cursor: 'pointer', padding: '1px 3px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', flexShrink: 0 }}
+                      >{d > 0 ? `+${d}` : d}</span>
+                    ))}
                   </div>
                   {/* R1691: 멀티라인 텍스트 미리보기 */}
                   {(str.includes('\n') || str.includes('\\n')) && (() => {
