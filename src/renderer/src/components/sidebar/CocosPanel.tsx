@@ -20582,7 +20582,7 @@ function CCFileNodeInspector({
                         onChange={e => {
                           const v = parseFloat(e.target.value)
                           const k = label === 'scrollThreshold' ? 'scrollThreshold' : 'autoPageTurningThreshold'
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [k]: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [k]: v, [`_${k}`]: v, [`_N$${k}`]: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ flex: 1 }}
@@ -20743,7 +20743,7 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>fastMode</span>
                     <input type="checkbox" checked={fastMode}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fastMode: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fastMode: e.target.checked, _fastMode: e.target.checked, _N$fastMode: e.target.checked } } : c); applyAndSave({ components: u }) }}
                     />
                   </div>
                 </div>

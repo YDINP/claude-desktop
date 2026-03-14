@@ -25019,6 +25019,18 @@ if (
   log('warning', 'R2283-node-camera-bg-sv-brake-cc3x', '단일노드 Camera/ScrollView CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1288: R2284 단일노드 cc.ParticleSystem _fastMode + cc.PageView threshold _* (CC3.x) ──────────
+console.log('\n## 1288. R2284 단일노드 ParticleSystem _fastMode + PageView threshold CC3.x 체크')
+const s1288 = s1287
+if (
+  s1288.includes('_fastMode: e.target.checked, _N$fastMode') &&
+  s1288.includes('[`_${k}`]: v, [`_N$${k}`]: v')
+) {
+  log('pass', 'R2284-node-particle-fastmode-pageview-threshold-cc3x', '단일노드 cc.ParticleSystem _fastMode + cc.PageView threshold _* (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2284-node-particle-fastmode-pageview-threshold-cc3x', '단일노드 ParticleSystem/PageView CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
