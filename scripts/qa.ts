@@ -20762,6 +20762,18 @@ console.log('\n## 793. R1902 cc.Slider interactable 체크')
   }
 }
 
+// ── Section 794: R1903 BatchInspector cc.RichText fontSize ──────────
+console.log('\n## 794. R1903 BatchInspector cc.RichText fontSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s794 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s794.includes('R1903') && s794.includes('applyRichFS') && s794.includes('patchRichFS')) {
+    log('pass', 'R1903-batch-richtext-fontsize', 'BatchInspector cc.RichText fontSize 일괄 설정')
+  } else {
+    log('warning', 'R1903-batch-richtext-fontsize', 'BatchInspector cc.RichText fontSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

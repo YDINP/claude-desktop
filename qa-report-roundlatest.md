@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:57:15.426Z
+> 2026-03-14T05:58:12.049Z
 
 ## Critical
 _없음_
@@ -1832,3 +1832,4 @@ _없음_
 - BatchInspector cc.Toggle interactable 일괄 설정
 - cc.PageView autoPageTurningInterval 편집
 - cc.Slider interactable 편집
+- BatchInspector cc.RichText fontSize 일괄 설정

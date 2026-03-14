@@ -4124,6 +4124,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1903: 공통 cc.RichText fontSize 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichFS = async (fontSize: number) => {
+          if (!sceneFile.root) return
+          function patchRichFS(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichFS)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, fontSize, _N$fontSize: fontSize } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRichFS(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Rich fs</span>
+            {([16, 20, 24, 28, 32, 40] as const).map(v => (
+              <span key={v} title={`fontSize = ${v}`}
+                onClick={() => applyRichFS(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {
