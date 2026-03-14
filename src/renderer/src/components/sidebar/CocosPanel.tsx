@@ -9039,6 +9039,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2224: 공통 cc.VideoPlayer keepAspectRatio 토글 (CC3.x) */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoKeepAspect = async (keepAspectRatio: boolean) => {
+          if (!sceneFile.root) return
+          function patchVideoKeepAspect(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideoKeepAspect)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer'
+              ? { ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchVideoKeepAspect(sceneFile.root) })
+          setBatchMsg(`✓ VideoPlayer keepAspectRatio=${keepAspectRatio} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>VPAsp</span>
+            {([['비율✓', true], ['비율✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyVideoKeepAspect(v)} title={`keepAspectRatio=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2103: 공통 cc.VideoPlayer muted 일괄 설정 */}
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoMuted = async (muted: boolean) => {
@@ -12828,6 +12854,32 @@ function CCFileBatchInspector({
                 onClick={() => applyLayoutResizeMode(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
               >{['None','Cont','Chld'][i]}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2224: 공통 cc.Layout padding 사방향 프리셋 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutPad = async (pt: number, pb: number, pl: number, pr: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutPad(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutPad)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout'
+              ? { ...c, props: { ...c.props, paddingTop: pt, paddingBottom: pb, paddingLeft: pl, paddingRight: pr } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLayoutPad(sceneFile.root) })
+          setBatchMsg(`✓ Layout padding=${pt}/${pb}/${pl}/${pr} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#86efac', width: 48, flexShrink: 0 }}>LayoutPad</span>
+            {([['0', 0,0,0,0], ['4', 4,4,4,4], ['8', 8,8,8,8], ['12', 12,12,12,12], ['16', 16,16,16,16], ['20', 20,20,20,20]] as const).map(([l, pt, pb, pl, pr]) => (
+              <span key={String(l)} onClick={() => applyLayoutPad(pt, pb, pl, pr)} title={`padding=${l}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#86efac', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )

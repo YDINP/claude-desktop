@@ -24125,6 +24125,24 @@ if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
   log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
 }
 
+// ── Section 1181: R2224 BatchInspector cc.VideoPlayer keepAspectRatio (CC3.x) ──────────
+console.log('\n## 1181. R2224 BatchInspector cc.VideoPlayer keepAspectRatio 체크')
+const s1181 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1181.includes('R2224') && s1181.includes('applyVideoKeepAspect') && s1181.includes('VPAsp')) {
+  log('pass', 'R2224-batch-videoplayer-keepaspectratio', 'BatchInspector cc.VideoPlayer keepAspectRatio 토글')
+} else {
+  log('warning', 'R2224-batch-videoplayer-keepaspectratio', 'BatchInspector cc.VideoPlayer keepAspectRatio 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1182: R2224 BatchInspector cc.Layout padding 프리셋 ──────────
+console.log('\n## 1182. R2224 BatchInspector cc.Layout padding 프리셋 체크')
+const s1182 = s1181
+if (s1182.includes('R2224') && s1182.includes('applyLayoutPad') && s1182.includes('LayoutPad')) {
+  log('pass', 'R2224-batch-layout-padding', 'BatchInspector cc.Layout padding 사방향 프리셋')
+} else {
+  log('warning', 'R2224-batch-layout-padding', 'BatchInspector cc.Layout padding 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1179: R2223 BatchInspector cc.AudioSource _pitch (CC3.x) ──────────
 console.log('\n## 1179. R2223 BatchInspector cc.AudioSource _pitch 체크')
 const s1179 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
