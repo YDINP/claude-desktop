@@ -9082,6 +9082,44 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2155: 공통 cc.Canvas designResolution 일괄 설정 */}
+      {commonCompTypes.includes('cc.Canvas') && (() => {
+        const [drW, setDrW] = React.useState(960)
+        const [drH, setDrH] = React.useState(640)
+        const applyCanvasDesignRes = async (w: number, h: number) => {
+          if (!sceneFile.root) return
+          function patchCanvasDesignRes(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCanvasDesignRes)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const dr = { width: w, height: h }
+            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, _N$designResolution: dr, _designResolution: dr } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCanvasDesignRes(sceneFile.root) })
+          setBatchMsg(`✓ Canvas designRes=${w}×${h} (${uuids.length}개)`)
+        }
+        const presets: [string, number, number][] = [['960×640', 960, 640], ['1280×720', 1280, 720], ['1920×1080', 1920, 1080], ['375×667', 375, 667]]
+        return (
+          <div style={{ marginBottom: 5 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+              <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>CVRes</span>
+              <input type="number" value={drW} min={1} onChange={e => setDrW(parseInt(e.target.value) || 960)}
+                style={{ width: 50, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }} />
+              <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>×</span>
+              <input type="number" value={drH} min={1} onChange={e => setDrH(parseInt(e.target.value) || 640)}
+                style={{ width: 50, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }} />
+              <span onClick={() => applyCanvasDesignRes(drW, drH)} title={`designResolution=${drW}×${drH}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid #60a5fa', color: '#60a5fa', userSelect: 'none' }}>✓</span>
+            </div>
+            <div style={{ display: 'flex', gap: 3, paddingLeft: 52 }}>
+              {presets.map(([l, w, h]) => (
+                <span key={l} onClick={() => { setDrW(w); setDrH(h); applyCanvasDesignRes(w, h) }} title={`${w}×${h}`}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{l}</span>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
       {/* R1836: 공통 cc.SkeletalAnimation speedRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {

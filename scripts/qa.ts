@@ -23786,6 +23786,18 @@ console.log('\n## 1045. R2154 BatchInspector cc.Canvas resolutionPolicy 체크')
   }
 }
 
+// ── Section 1046: R2155 BatchInspector cc.Canvas designResolution ──────────
+console.log('\n## 1046. R2155 BatchInspector cc.Canvas designResolution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1046 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1046.includes('R2155') && s1046.includes('patchCanvasDesignRes') && s1046.includes('applyCanvasDesignRes')) {
+    log('pass', 'R2155-batch-canvas-designres', 'BatchInspector cc.Canvas designResolution 일괄 설정')
+  } else {
+    log('warning', 'R2155-batch-canvas-designres', 'BatchInspector cc.Canvas designResolution 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
