@@ -21998,6 +21998,18 @@ console.log('\n## 896. R2005 BatchInspector cc.VideoPlayer fullScreenEnabled 체
   }
 }
 
+// ── Section 897: R2006 BatchInspector node rotation ──────────
+console.log('\n## 897. R2006 BatchInspector node rotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s897 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s897.includes('R2006') && s897.includes('patchNodeRotation') && s897.includes('applyNodeRotation')) {
+    log('pass', 'R2006-batch-node-rotation', 'BatchInspector node rotation 일괄 설정')
+  } else {
+    log('warning', 'R2006-batch-node-rotation', 'BatchInspector node rotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

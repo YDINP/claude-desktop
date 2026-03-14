@@ -3834,6 +3834,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2006: 노드 rotation 일괄 설정 */}
+      {(() => {
+        const applyNodeRotation = async (deg: number) => {
+          if (!sceneFile.root) return
+          function patchNodeRotation(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeRotation)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            // CC2.x: rotation is a number (z-euler); CC3.x: {x,y,z} euler
+            const rotation = typeof n.rotation === 'number' ? deg : { x: 0, y: 0, z: deg }
+            return { ...n, rotation, children }
+          }
+          const patchedRoot = patchNodeRotation(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ rotation=${deg}° (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Rot</span>
+            {[0, 45, 90, 180, -90, -45].map(v => (
+              <span key={v} onClick={() => applyNodeRotation(v)} title={`rotation=${v}°`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}°</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2003: 노드 scale 일괄 설정 */}
       {(() => {
         const applyNodeScale = async (s: number) => {
