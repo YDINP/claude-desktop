@@ -5596,6 +5596,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1981: 공통 cc.ParticleSystem emitterMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSEmitterMode = async (emitterMode: number) => {
+          if (!sceneFile.root) return
+          function patchPSEmitterMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSEmitterMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, emitterMode, _emitterMode: emitterMode, _N$emitterMode: emitterMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSEmitterMode(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names = ['Gravity', 'Radius']
+          setBatchMsg(`✓ PS emitterMode=${names[emitterMode] ?? emitterMode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSemit</span>
+            <span onClick={() => applyPSEmitterMode(0)} title="emitterMode=GRAVITY"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>Grav</span>
+            <span onClick={() => applyPSEmitterMode(1)} title="emitterMode=RADIUS"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>Rad</span>
+          </div>
+        )
+      })()}
       {/* R1979: 공통 cc.ParticleSystem autoRemoveOnFinish 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSAutoRemove = async (autoRemoveOnFinish: boolean) => {

@@ -21698,6 +21698,18 @@ console.log('\n## 871. R1980 BatchInspector cc.ScrollView speedAmplifier 체크'
   }
 }
 
+// ── Section 872: R1981 BatchInspector cc.ParticleSystem emitterMode ──────────
+console.log('\n## 872. R1981 BatchInspector cc.ParticleSystem emitterMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s872 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s872.includes('R1981') && s872.includes('patchPSEmitterMode') && s872.includes('applyPSEmitterMode')) {
+    log('pass', 'R1981-batch-ps-emittermode', 'BatchInspector cc.ParticleSystem emitterMode 일괄 설정')
+  } else {
+    log('warning', 'R1981-batch-ps-emittermode', 'BatchInspector cc.ParticleSystem emitterMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
