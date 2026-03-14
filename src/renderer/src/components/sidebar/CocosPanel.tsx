@@ -6323,6 +6323,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2198: 공통 cc.EditBox enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEditBoxEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchEditBoxEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEditBoxEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEditBoxEnabled(sceneFile.root) })
+          setBatchMsg(`✓ EditBox enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>EBComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyEditBoxEnabled(v)} title={`EditBox enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2086: 공통 cc.EditBox inputFlag 일괄 설정 */}
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditInputFlag = async (inputFlag: number) => {
@@ -7274,6 +7300,32 @@ function CCFileBatchInspector({
               ))}
             </div>
           </>
+        )
+      })()}
+      {/* R2198: 공통 cc.Scrollbar enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Scrollbar') && (() => {
+        const applyScrollbarEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchScrollbarEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchScrollbarEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Scrollbar'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchScrollbarEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Scrollbar enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SBComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyScrollbarEnabled(v)} title={`Scrollbar enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
         )
       })()}
       {/* R2186: 공통 cc.Scrollbar direction 일괄 설정 */}

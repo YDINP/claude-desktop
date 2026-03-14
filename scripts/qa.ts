@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1128: R2198 BatchInspector cc.EditBox enabled ──────────
+console.log('\n## 1128. R2198 BatchInspector cc.EditBox enabled (컴포넌트 레벨) 체크')
+const s1128 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1128.includes('R2198') && s1128.includes('applyEditBoxEnabled') && s1128.includes('EBComp')) {
+  log('pass', 'R2198-batch-editbox-enabled', 'BatchInspector cc.EditBox enabled 일괄 설정')
+} else {
+  log('warning', 'R2198-batch-editbox-enabled', 'BatchInspector cc.EditBox enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1129: R2198 BatchInspector cc.Scrollbar enabled ──────────
+console.log('\n## 1129. R2198 BatchInspector cc.Scrollbar enabled (컴포넌트 레벨) 체크')
+const s1129 = s1128
+if (s1129.includes('R2198') && s1129.includes('applyScrollbarEnabled') && s1129.includes('SBComp')) {
+  log('pass', 'R2198-batch-scrollbar-enabled', 'BatchInspector cc.Scrollbar enabled 일괄 설정')
+} else {
+  log('warning', 'R2198-batch-scrollbar-enabled', 'BatchInspector cc.Scrollbar enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1126: R2197 BatchInspector cc.Layout enabled ──────────
 console.log('\n## 1126. R2197 BatchInspector cc.Layout enabled (컴포넌트 레벨) 체크')
 const s1126 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
