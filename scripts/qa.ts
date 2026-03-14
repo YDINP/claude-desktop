@@ -18011,6 +18011,18 @@ console.log('\n## 564. R1673 컴포넌트 prop diff 표시 체크')
   }
 }
 
+// ── Section 565: R1674 SceneView snap 간격 custom 입력 ──────────────────────
+console.log('\n## 565. R1674 SceneView snap 간격 custom 입력 체크')
+{
+  const svpFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s565 = existsSync(svpFile) ? readFileSync(svpFile, 'utf8') : ''
+  if (s565.includes('R1674') && s565.includes('snap-size-list') && s565.includes('datalist')) {
+    log('pass', 'R1674-snap-custom', 'SceneView snap 간격 custom 입력 (datalist)')
+  } else {
+    log('warning', 'R1674-snap-custom', 'SceneView snap 간격 custom 입력 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

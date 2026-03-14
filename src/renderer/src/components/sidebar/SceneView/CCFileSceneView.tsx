@@ -831,14 +831,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onDoubleClick={() => setBgColorOverride(null)}
           style={{ width: 18, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
         />
-        <select
-          value={snapSize}
-          onChange={e => setSnapSize(Number(e.target.value))}
-          title="Ctrl+드래그 스냅 크기"
-          style={{ fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 2px', cursor: 'pointer' }}
-        >
-          {[1, 5, 10, 25, 50].map(s => <option key={s} value={s}>{s}px</option>)}
-        </select>
+        {/* R1674: snap size 사용자 설정 (custom 입력 + datalist 프리셋) */}
+        <>
+          <datalist id="snap-size-list">
+            {[1, 5, 10, 25, 50, 100].map(s => <option key={s} value={s} />)}
+          </datalist>
+          <input
+            type="number" min={1} max={500} value={snapSize} list="snap-size-list"
+            onChange={e => { const v = parseInt(e.target.value); if (v > 0) setSnapSize(v) }}
+            title={`Ctrl+드래그 스냅 크기: ${snapSize}px`}
+            style={{ width: 36, fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 3px', textAlign: 'center' }}
+          />
+        </>
         <button
           onClick={() => setGridStyle(s => s === 'none' ? 'line' : s === 'line' ? 'dot' : 'none')}
           title={`그리드: ${gridStyle === 'none' ? '없음' : gridStyle === 'line' ? '선' : '점'} (클릭으로 전환)`}
