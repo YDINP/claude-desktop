@@ -23690,6 +23690,42 @@ console.log('\n## 1037. R2146 BatchInspector cc.Graphics strokeColor 체크')
   }
 }
 
+// ── Section 1038: R2147 BatchInspector cc.ParticleSystem endRadiusVar ──────────
+console.log('\n## 1038. R2147 BatchInspector cc.ParticleSystem endRadiusVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1038 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1038.includes('R2147') && s1038.includes('patchPSEndRadiusVar') && s1038.includes('applyPSEndRadiusVar')) {
+    log('pass', 'R2147-batch-ps-endradiusvar', 'BatchInspector cc.ParticleSystem endRadiusVar 일괄 설정')
+  } else {
+    log('warning', 'R2147-batch-ps-endradiusvar', 'BatchInspector cc.ParticleSystem endRadiusVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1039: R2148 BatchInspector cc.ParticleSystem startColorVar ──────────
+console.log('\n## 1039. R2148 BatchInspector cc.ParticleSystem startColorVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1039 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1039.includes('R2148') && s1039.includes('patchPSStartColorVar') && s1039.includes('applyPSStartColorVar')) {
+    log('pass', 'R2148-batch-ps-startcolorvar', 'BatchInspector cc.ParticleSystem startColorVar 일괄 설정')
+  } else {
+    log('warning', 'R2148-batch-ps-startcolorvar', 'BatchInspector cc.ParticleSystem startColorVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1040: R2149 BatchInspector cc.ParticleSystem endColorVar ──────────
+console.log('\n## 1040. R2149 BatchInspector cc.ParticleSystem endColorVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1040 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1040.includes('R2149') && s1040.includes('patchPSEndColorVar') && s1040.includes('applyPSEndColorVar')) {
+    log('pass', 'R2149-batch-ps-endcolorvar', 'BatchInspector cc.ParticleSystem endColorVar 일괄 설정')
+  } else {
+    log('warning', 'R2149-batch-ps-endcolorvar', 'BatchInspector cc.ParticleSystem endColorVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
