@@ -22586,6 +22586,18 @@ console.log('\n## 945. R2054 BatchInspector cc.ParticleSystem posVar 체크')
   }
 }
 
+// ── Section 946: R2055 BatchInspector cc.ParticleSystem gravity.x ──────────
+console.log('\n## 946. R2055 BatchInspector cc.ParticleSystem gravity.x 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s946 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s946.includes('R2055') && s946.includes('patchPSGravityX') && s946.includes('applyPSGravityX')) {
+    log('pass', 'R2055-batch-ps-gravityx', 'BatchInspector cc.ParticleSystem gravity.x 일괄 설정')
+  } else {
+    log('warning', 'R2055-batch-ps-gravityx', 'BatchInspector cc.ParticleSystem gravity.x 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
