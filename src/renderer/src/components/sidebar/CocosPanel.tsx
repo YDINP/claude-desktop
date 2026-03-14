@@ -7069,6 +7069,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2062: 공통 cc.ParticleSystem rotationIsDir 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSRotIsDir = async (rotationIsDir: boolean) => {
+          if (!sceneFile.root) return
+          function patchPSRotIsDir(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSRotIsDir)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, rotationIsDir, _rotationIsDir: rotationIsDir, _N$rotationIsDir: rotationIsDir } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSRotIsDir(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS rotationIsDir=${rotationIsDir} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSrotDir</span>
+            {([['dir✓',true],['dir✗',false]] as [string,boolean][]).map(([label,v]) => (
+              <span key={label} onClick={() => applyPSRotIsDir(v)} title={`rotationIsDir=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2061: 공통 cc.ParticleSystem startRadiusVar 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSStartRadiusVar = async (startRadiusVar: number) => {
