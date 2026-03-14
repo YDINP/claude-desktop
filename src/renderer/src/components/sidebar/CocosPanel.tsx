@@ -5067,6 +5067,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1911: 공통 cc.AudioSource preload 일괄 설정 */}
+      {commonCompTypes.includes('cc.AudioSource') && (() => {
+        const applyAudioPreload = async (preload: boolean) => {
+          if (!sceneFile.root) return
+          function patchAudioPreload(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAudioPreload)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, preload } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchAudioPreload(sceneFile.root))
+          setBatchMsg(`✓ AudioSource preload ${preload} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#facc15', width: 48, flexShrink: 0 }}>AUpre</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`preload = ${v}`}
+                onClick={() => applyAudioPreload(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#facc15', userSelect: 'none' }}
+              >{v ? 'pre✓' : 'pre✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

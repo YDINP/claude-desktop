@@ -20858,6 +20858,18 @@ console.log('\n## 801. R1910 BatchInspector cc.LabelShadow color 체크')
   }
 }
 
+// ── Section 802: R1911 BatchInspector cc.AudioSource preload ──────────
+console.log('\n## 802. R1911 BatchInspector cc.AudioSource preload 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s802 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s802.includes('R1911') && s802.includes('patchAudioPreload') && s802.includes('applyAudioPreload')) {
+    log('pass', 'R1911-batch-audiosource-preload', 'BatchInspector cc.AudioSource preload 일괄 설정')
+  } else {
+    log('warning', 'R1911-batch-audiosource-preload', 'BatchInspector cc.AudioSource preload 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
