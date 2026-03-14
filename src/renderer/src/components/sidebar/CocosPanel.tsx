@@ -9802,6 +9802,23 @@ function CCFileNodeInspector({
                       }} />
                     sensor
                   </label>
+                  {/* R1849: friction / restitution */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginTop: 2 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>friction</label>
+                      <input type="number" defaultValue={Number(p.friction ?? 0.2)} min={0} step={0.1}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, friction: v } } : c); applyAndSave({ components: u }) }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11 }}>restitution</label>
+                      <input type="number" defaultValue={Number(p.restitution ?? 0)} min={0} step={0.1}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, restitution: v } } : c); applyAndSave({ components: u }) }}
+                      />
+                    </div>
+                  </div>
                 </div>
               )
             }

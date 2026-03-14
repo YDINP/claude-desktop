@@ -20111,6 +20111,18 @@ console.log('\n## 739. R1848 cc.MotionStreak 편집 체크')
   }
 }
 
+// ── Section 740: R1849 cc.BoxCollider friction/restitution ───────────────────
+console.log('\n## 740. R1849 cc.BoxCollider friction/restitution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s740 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s740.includes('R1849') && s740.includes('friction') && s740.includes('restitution')) {
+    log('pass', 'R1849-collider-friction', 'cc.BoxCollider friction/restitution 편집')
+  } else {
+    log('warning', 'R1849-collider-friction', 'cc.BoxCollider friction/restitution 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
