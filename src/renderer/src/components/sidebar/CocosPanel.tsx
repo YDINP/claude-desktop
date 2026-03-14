@@ -6489,6 +6489,8 @@ function CCFileNodeInspector({
               const overflow = Number(p.overflow ?? p._overflow ?? p._N$overflow ?? 0)
               const hAlign = Number(p.horizontalAlign ?? p._N$horizontalAlign ?? 0)
               const vAlign = Number(p.verticalAlign ?? p._N$verticalAlign ?? 1)
+              // R1723: lineHeight
+              const lineHeight = Number(p.lineHeight ?? p._lineHeight ?? p._N$lineHeight ?? 0)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
@@ -6539,6 +6541,20 @@ function CCFileNodeInspector({
                       style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{lcR},{lcG},{lcB}</span>
+                  </div>
+                  {/* R1723: lineHeight */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>lineH</span>
+                    <input type="number" defaultValue={lineHeight} min={0} step={1}
+                      onBlur={e => {
+                        const v = parseInt(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineHeight: v, _lineHeight: v, _N$lineHeight: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      placeholder="0=자동"
+                    />
+                    <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
                   </div>
                   {/* R1720: overflow + hAlign + vAlign */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

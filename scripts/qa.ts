@@ -18599,6 +18599,18 @@ console.log('\n## 613. R1722 BatchInspector 균등 분배 버튼 체크')
   }
 }
 
+// ── Section 614: R1723 cc.Label lineHeight Quick Edit ────────────────────────
+console.log('\n## 614. R1723 cc.Label lineHeight Quick Edit 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s614 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s614.includes('R1723') && s614.includes('lineHeight') && s614.includes('_N$lineHeight')) {
+    log('pass', 'R1723-label-lineheight', 'cc.Label lineHeight Quick Edit')
+  } else {
+    log('warning', 'R1723-label-lineheight', 'cc.Label lineHeight Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
