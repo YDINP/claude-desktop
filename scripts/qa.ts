@@ -19427,6 +19427,18 @@ console.log('\n## 682. R1791 cc.EditBox inputFlag 버튼 체크')
   }
 }
 
+// ── Section 683: R1792 BatchInspector cc.Label lineHeight ────────────────────
+console.log('\n## 683. R1792 BatchInspector cc.Label lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s683 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s683.includes('R1792') && s683.includes('patchLH') && s683.includes('_N$lineHeight: lh')) {
+    log('pass', 'R1792-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R1792-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

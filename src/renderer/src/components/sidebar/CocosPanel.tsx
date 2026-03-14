@@ -3853,6 +3853,30 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1792: 공통 cc.Label lineHeight 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label lh</span>
+          <input type="number" min={0} placeholder="lineHeight (0=auto)"
+            style={{ width: 56, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+            onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
+            onBlur={async e => {
+              const lh = parseInt(e.target.value)
+              if (isNaN(lh) || !sceneFile.root) return
+              function patchLH(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchLH)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } } : c)
+                return { ...n, components: updComps, children }
+              }
+              await saveScene(patchLH(sceneFile.root))
+              setBatchMsg(`✓ Label lineHeight ${lh} (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+          />
+          <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
+        </div>
+      )}
       {/* R1764: 공통 cc.Toggle isChecked 일괄 설정 */}
       {commonCompTypes.includes('cc.Toggle') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

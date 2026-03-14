@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T03:58:16.666Z
+> 2026-03-14T03:59:01.176Z
 
 ## Critical
 _없음_
@@ -1721,3 +1721,4 @@ _없음_
 - cc.Label enableWrapText 토글 + spacingX 입력
 - cc.Camera clearFlags + backgroundColor 편집
 - cc.EditBox inputFlag 버튼
+- BatchInspector cc.Label lineHeight 일괄 설정
