@@ -18959,6 +18959,18 @@ console.log('\n## 643. R1752 Inspector 위치 원점 리셋 버튼 체크')
   }
 }
 
+// ── Section 644: R1753 cc.Widget 스트레치/센터 프리셋 ─────────────────────────
+console.log('\n## 644. R1753 cc.Widget 프리셋 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s644 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s644.includes('R1753') && s644.includes('Widget 프리셋 버튼') && s644.includes('Stretch') && s644.includes('isAlignTop: true')) {
+    log('pass', 'R1753-widget-presets', 'cc.Widget 스트레치/센터 프리셋 버튼')
+  } else {
+    log('warning', 'R1753-widget-presets', 'cc.Widget 프리셋 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

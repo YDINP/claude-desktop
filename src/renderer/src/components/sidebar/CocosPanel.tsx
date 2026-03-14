@@ -6868,6 +6868,24 @@ function CCFileNodeInspector({
                       <option value={2}>Editor</option>
                     </select>
                   </div>
+                  {/* R1753: Widget 프리셋 버튼 (Stretch / Center / None) */}
+                  <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
+                    {[
+                      { label: '⊞ Stretch', title: '4방향 모두 0 stretch', patch: { isAlignTop: true, isAlignBottom: true, isAlignLeft: true, isAlignRight: true, isAlignHorizontalCenter: false, isAlignVerticalCenter: false, top: 0, bottom: 0, left: 0, right: 0 } },
+                      { label: '⊕ Center', title: '가로/세로 중앙 정렬', patch: { isAlignTop: false, isAlignBottom: false, isAlignLeft: false, isAlignRight: false, isAlignHorizontalCenter: true, isAlignVerticalCenter: true } },
+                      { label: '✕ None', title: '정렬 해제', patch: { isAlignTop: false, isAlignBottom: false, isAlignLeft: false, isAlignRight: false, isAlignHorizontalCenter: false, isAlignVerticalCenter: false } },
+                    ].map(({ label, title, patch }) => (
+                      <span key={label} title={title}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, ...patch } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
+                        onMouseEnter={e => (e.currentTarget.style.color = '#a78bfa')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                      >{label}</span>
+                    ))}
+                  </div>
                 </div>
               )
             }
