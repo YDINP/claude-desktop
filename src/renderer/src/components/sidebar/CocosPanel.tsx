@@ -7210,6 +7210,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1988: 공통 cc.Mask alphaThreshold 일괄 설정 */}
+      {commonCompTypes.includes('cc.Mask') && (() => {
+        const applyMaskAlpha = async (alphaThreshold: number) => {
+          if (!sceneFile.root) return
+          function patchMaskAlpha(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMaskAlpha)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, _alphaThreshold: alphaThreshold, alphaThreshold } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchMaskAlpha(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Mask alphaThreshold=${alphaThreshold} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>MaskAlph</span>
+            {[0, 0.1, 0.3, 0.5, 1].map(v => (
+              <span key={v} onClick={() => applyMaskAlpha(v)} title={`alphaThreshold=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1872: 공통 cc.BoxCollider/CircleCollider sensor 일괄 설정 */}
       {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D') || commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const hasBox = commonCompTypes.some(t => t === 'cc.BoxCollider' || t === 'cc.BoxCollider2D')

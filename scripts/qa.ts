@@ -21782,6 +21782,18 @@ console.log('\n## 878. R1987 BatchInspector cc.ProgressBar mode 체크')
   }
 }
 
+// ── Section 879: R1988 BatchInspector cc.Mask alphaThreshold ──────────
+console.log('\n## 879. R1988 BatchInspector cc.Mask alphaThreshold 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s879 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s879.includes('R1988') && s879.includes('patchMaskAlpha') && s879.includes('applyMaskAlpha')) {
+    log('pass', 'R1988-batch-mask-alpha', 'BatchInspector cc.Mask alphaThreshold 일괄 설정')
+  } else {
+    log('warning', 'R1988-batch-mask-alpha', 'BatchInspector cc.Mask alphaThreshold 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
