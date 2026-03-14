@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:12:28.719Z
+> 2026-03-14T04:14:32.216Z
 
 ## Critical
 _없음_
@@ -1737,3 +1737,4 @@ _없음_
 - cc.Label string 클립보드 복사 버튼
 - cc.VideoPlayer playbackRate 퀵 프리셋 버튼
 - cc.Button normalColor 퀵 프리셋 버튼
+- cc.RichText applyAndSave + fontSize 프리셋

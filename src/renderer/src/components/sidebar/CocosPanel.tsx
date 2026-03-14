@@ -7459,39 +7459,68 @@ function CCFileNodeInspector({
                     <div style={{ marginBottom: 4, padding: '4px 6px', background: '#111', border: '1px solid #333', borderRadius: 3, fontSize: 11, minHeight: 24, color: '#fff', lineHeight: 1.5, wordBreak: 'break-all' }}
                       dangerouslySetInnerHTML={{ __html: richToHtml(String(p.string ?? '')) }} />
                   )}
+                  {/* R1808: string applyAndSave */}
                   <div style={{ marginBottom: 4 }}>
                     <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>내용 (HTML 태그 지원)</label>
                     <textarea
-                      value={String(p.string ?? '')}
+                      defaultValue={String(p.string ?? '')}
                       rows={3}
                       style={{ width: '100%', fontSize: 11, resize: 'vertical', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px', boxSizing: 'border-box' }}
-                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'string', ev.target.value)}
+                      onBlur={ev => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: ev.target.value, _N$string: ev.target.value } } : c)
+                        applyAndSave({ components: updated })
+                      }}
                     />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>fontSize</label>
-                      <input type="number" value={Number(p.fontSize ?? 40)}
+                      <input type="number" defaultValue={Number(p.fontSize ?? 40)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'fontSize', Number(ev.target.value))} />
+                        onBlur={ev => {
+                          const v = Number(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _N$fontSize: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
+                      {/* R1808: fontSize 프리셋 */}
+                      <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', marginTop: 2 }}>
+                        {[12, 16, 20, 24, 32, 48].map(v => (
+                          <span key={v} onClick={() => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _N$fontSize: v } } : c)
+                            applyAndSave({ components: updated })
+                          }} style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Number(p.fontSize ?? 40) === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: Number(p.fontSize ?? 40) === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}>{v}</span>
+                        ))}
+                      </div>
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>lineHeight</label>
-                      <input type="number" value={Number(p.lineHeight ?? 40)}
+                      <input type="number" defaultValue={Number(p.lineHeight ?? 40)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'lineHeight', Number(ev.target.value))} />
+                        onBlur={ev => {
+                          const v = Number(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineHeight: v, _N$lineHeight: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>maxWidth (0=무제한)</label>
-                      <input type="number" value={Number(p.maxWidth ?? 0)}
+                      <input type="number" defaultValue={Number(p.maxWidth ?? 0)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'maxWidth', Number(ev.target.value))} />
+                        onBlur={ev => {
+                          const v = Number(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxWidth: v, _N$maxWidth: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>horizontalAlign</label>
                       <select value={Number(p.horizontalAlign ?? 0)}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'horizontalAlign', Number(ev.target.value))}>
+                        onChange={ev => {
+                          const v = parseInt(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalAlign: v, _N$horizontalAlign: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}>
                         {HALIGN.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
                       </select>
                     </div>
@@ -7500,7 +7529,11 @@ function CCFileNodeInspector({
                     <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>overflow</label>
                     <select value={Number(p.overflow ?? 0)}
                       style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onChange={ev => onPropChange?.(node.uuid, comp.type, 'overflow', Number(ev.target.value))}>
+                      onChange={ev => {
+                        const v = parseInt(ev.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, overflow: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}>
                       {OVERFLOW.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
                     </select>
                   </div>
@@ -8208,11 +8241,12 @@ function CCFileNodeInspector({
               const str = String(p.string ?? p.String ?? '')
               return (
                 <div style={{ padding: '2px 0 4px 2px' }}>
+                  {/* R1808: _N$string 포함 */}
                   <textarea
                     defaultValue={str}
                     rows={2}
                     onBlur={e => {
-                      const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value } } : c)
+                      const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value, _N$string: e.target.value } } : c)
                       applyAndSave({ components: updated })
                     }}
                     style={{ width: '100%', boxSizing: 'border-box', fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', resize: 'vertical' }}

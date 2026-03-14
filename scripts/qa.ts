@@ -19619,6 +19619,18 @@ console.log('\n## 698. R1807 cc.Button normalColor 퀵 프리셋 체크')
   }
 }
 
+// ── Section 699: R1808 cc.RichText applyAndSave 업그레이드 ──────────────────────
+console.log('\n## 699. R1808 cc.RichText applyAndSave 업그레이드 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s699 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s699.includes('R1808') && s699.includes('_N$string: e.target.value') && s699.includes('_N$fontSize: v')) {
+    log('pass', 'R1808-richtext-applyandsave', 'cc.RichText applyAndSave + fontSize 프리셋')
+  } else {
+    log('warning', 'R1808-richtext-applyandsave', 'cc.RichText applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
