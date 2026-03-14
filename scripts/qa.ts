@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1116: R2192 BatchInspector cc.Button enabled ──────────
+console.log('\n## 1116. R2192 BatchInspector cc.Button enabled (컴포넌트 레벨) 체크')
+const s1116 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1116.includes('R2192') && s1116.includes('applyButtonEnabled') && s1116.includes('BtnComp')) {
+  log('pass', 'R2192-batch-button-enabled', 'BatchInspector cc.Button enabled 일괄 설정')
+} else {
+  log('warning', 'R2192-batch-button-enabled', 'BatchInspector cc.Button enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1117: R2192 BatchInspector cc.RichText enabled ──────────
+console.log('\n## 1117. R2192 BatchInspector cc.RichText enabled (컴포넌트 레벨) 체크')
+const s1117 = s1116
+if (s1117.includes('R2192') && s1117.includes('applyRichTextEnabled') && s1117.includes('RTComp')) {
+  log('pass', 'R2192-batch-richtext-enabled', 'BatchInspector cc.RichText enabled 일괄 설정')
+} else {
+  log('warning', 'R2192-batch-richtext-enabled', 'BatchInspector cc.RichText enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1114: R2191 BatchInspector cc.Animation enabled ──────────
 console.log('\n## 1114. R2191 BatchInspector cc.Animation enabled (컴포넌트 레벨) 체크')
 const s1114 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

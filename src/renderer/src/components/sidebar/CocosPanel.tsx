@@ -5528,6 +5528,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2192: 공통 cc.RichText enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichTextEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchRichTextEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichTextEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRichTextEnabled(sceneFile.root) })
+          setBatchMsg(`✓ RichText enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>RTComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyRichTextEnabled(v)} title={`RichText enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#f59e0b', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2182: 공통 cc.RichText imageLineHeight 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichImgLineH = async (imageLineHeight: number) => {
@@ -6465,6 +6491,32 @@ function CCFileBatchInspector({
             {([['ia✓',true],['ia✗',false]] as [string,boolean][]).map(([label,v]) => (
               <span key={label} onClick={() => applyBtnInteract(v)} title={`interactable=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2192: 공통 cc.Button enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Button') && (() => {
+        const applyButtonEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchButtonEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchButtonEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Button'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchButtonEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Button enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#e879f9', width: 48, flexShrink: 0 }}>BtnComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyButtonEnabled(v)} title={`Button enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#e879f9', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
