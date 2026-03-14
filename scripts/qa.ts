@@ -25080,6 +25080,22 @@ if (
   log('warning', 'R2287-toggle-ischecked-dragon-skeleton-cc3x', 'Toggle/DragonBones/Skeleton CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1292: R2288 sp.Skeleton defaultSkin/defaultAnimation/paused/pma/debug _* (CC3.x) ──────────
+console.log('\n## 1292. R2288 sp.Skeleton 나머지 CC3.x 체크')
+const s1292 = s1291
+if (
+  s1292.includes('_defaultSkin: e.target.value, _N$defaultSkin: e.target.value') &&
+  s1292.includes('_defaultAnimation: e.target.value, _N$defaultAnimation: e.target.value') &&
+  s1292.includes('_paused: e.target.checked, _N$paused: e.target.checked') &&
+  s1292.includes('_premultipliedAlpha: e.target.checked, _N$premultipliedAlpha: e.target.checked') &&
+  s1292.includes('_debugSlots: e.target.checked, _N$debugSlots: e.target.checked') &&
+  s1292.includes('_debugBones: e.target.checked, _N$debugBones: e.target.checked')
+) {
+  log('pass', 'R2288-skeleton-skin-anim-paused-debug-cc3x', 'sp.Skeleton defaultSkin/defaultAnimation/paused/pma/debug _* (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2288-skeleton-skin-anim-paused-debug-cc3x', 'sp.Skeleton CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
