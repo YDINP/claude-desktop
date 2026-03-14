@@ -6034,6 +6034,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2177: 공통 cc.EditBox lineCount 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEditLineCount = async (lineCount: number) => {
+          if (!sceneFile.root) return
+          function patchEditLineCount(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEditLineCount)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, lineCount, _lineCount: lineCount, _N$lineCount: lineCount } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEditLineCount(sceneFile.root) })
+          setBatchMsg(`✓ EditBox lineCount=${lineCount} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>EBlines</span>
+            {[1, 2, 3, 5, 10, 0].map(v => (
+              <span key={v} onClick={() => applyEditLineCount(v)} title={`lineCount=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2105: 공통 cc.EditBox maxLength 일괄 설정 */}
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditMaxLen = async (maxLength: number) => {
@@ -12425,6 +12449,30 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprGray</span>
             <span onClick={() => applySprGray(true)} title="grayscale ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>gray✓</span>
             <span onClick={() => applySprGray(false)} title="grayscale OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>gray✗</span>
+          </div>
+        )
+      })()}
+      {/* R2177: 공통 cc.Sprite meshType 일괄 설정 */}
+      {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
+        const applySpriteMeshType = async (meshType: number) => {
+          if (!sceneFile.root) return
+          function patchSpriteMeshType(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpriteMeshType)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, meshType, _meshType: meshType } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpriteMeshType(sceneFile.root) })
+          setBatchMsg(`✓ Sprite meshType=${['NORMAL','POLYGON'][meshType] ?? meshType} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SpMesh</span>
+            {([['NORMAL', 0], ['POLY', 1]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applySpriteMeshType(v)} title={`meshType=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{l}</span>
+            ))}
           </div>
         )
       })()}

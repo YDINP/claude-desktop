@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1086: R2177 BatchInspector cc.EditBox lineCount ──────────
+console.log('\n## 1086. R2177 BatchInspector cc.EditBox lineCount 체크')
+const s1086 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1086.includes('R2177') && s1086.includes('applyEditLineCount') && s1086.includes('EBlines')) {
+  log('pass', 'R2177-batch-editbox-linecount', 'BatchInspector cc.EditBox lineCount 일괄 설정')
+} else {
+  log('warning', 'R2177-batch-editbox-linecount', 'BatchInspector cc.EditBox lineCount 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1087: R2177 BatchInspector cc.Sprite meshType ──────────
+console.log('\n## 1087. R2177 BatchInspector cc.Sprite meshType 체크')
+const s1087 = s1086
+if (s1087.includes('R2177') && s1087.includes('applySpriteMeshType') && s1087.includes('SpMesh')) {
+  log('pass', 'R2177-batch-sprite-meshtype', 'BatchInspector cc.Sprite meshType 일괄 설정')
+} else {
+  log('warning', 'R2177-batch-sprite-meshtype', 'BatchInspector cc.Sprite meshType 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1084: R2176 BatchInspector Collider category ──────────
 console.log('\n## 1084. R2176 BatchInspector Collider category 체크')
 const s1084 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
