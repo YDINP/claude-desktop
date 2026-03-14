@@ -6744,6 +6744,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2049: 공통 cc.ParticleSystem endSizeVar 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSEndSizeVar = async (endSizeVar: number) => {
+          if (!sceneFile.root) return
+          function patchPSEndSizeVar(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSEndSizeVar)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endSizeVar, _endSizeVar: endSizeVar, _N$endSizeVar: endSizeVar } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSEndSizeVar(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS endSizeVar=${endSizeVar} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSendSzV</span>
+            {[0, 2, 5, 10, 20, 50].map(v => (
+              <span key={v} onClick={() => applyPSEndSizeVar(v)} title={`endSizeVar=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2048: 공통 cc.ParticleSystem endSpinVar 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSEndSpinVar = async (endSpinVar: number) => {

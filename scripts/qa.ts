@@ -22514,6 +22514,18 @@ console.log('\n## 939. R2048 BatchInspector cc.ParticleSystem endSpinVar 체크'
   }
 }
 
+// ── Section 940: R2049 BatchInspector cc.ParticleSystem endSizeVar ──────────
+console.log('\n## 940. R2049 BatchInspector cc.ParticleSystem endSizeVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s940 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s940.includes('R2049') && s940.includes('patchPSEndSizeVar') && s940.includes('applyPSEndSizeVar')) {
+    log('pass', 'R2049-batch-ps-endsizevar', 'BatchInspector cc.ParticleSystem endSizeVar 일괄 설정')
+  } else {
+    log('warning', 'R2049-batch-ps-endsizevar', 'BatchInspector cc.ParticleSystem endSizeVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
