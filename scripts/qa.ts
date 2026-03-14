@@ -22970,6 +22970,18 @@ console.log('\n## 977. R2086 BatchInspector cc.EditBox inputFlag 체크')
   }
 }
 
+// ── Section 978: R2087 BatchInspector cc.BoxCollider density ──────────
+console.log('\n## 978. R2087 BatchInspector cc.BoxCollider density 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s978 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s978.includes('R2087') && s978.includes('patchBoxDensity') && s978.includes('applyBoxDensity')) {
+    log('pass', 'R2087-batch-box-density', 'BatchInspector cc.BoxCollider density 일괄 설정')
+  } else {
+    log('warning', 'R2087-batch-box-density', 'BatchInspector cc.BoxCollider density 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

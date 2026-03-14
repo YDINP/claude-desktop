@@ -3961,6 +3961,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2087: 공통 cc.BoxCollider density 일괄 설정 */}
+      {commonCompTypes.includes('cc.BoxCollider') && (() => {
+        const applyBoxDensity = async (density: number) => {
+          if (!sceneFile.root) return
+          function patchBoxDensity(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBoxDensity)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, density } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchBoxDensity(sceneFile.root) })
+          setBatchMsg(`✓ BoxCollider density=${density} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>BoxDens</span>
+            {[0.1, 0.5, 1, 2, 5, 10].map(v => (
+              <span key={v} title={`density = ${v}`}
+                onClick={() => applyBoxDensity(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2082: 공통 cc.BoxCollider sensor 일괄 설정 */}
       {commonCompTypes.includes('cc.BoxCollider') && (() => {
         const applyBoxSensor = async (sensor: boolean) => {
