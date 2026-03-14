@@ -23162,6 +23162,18 @@ console.log('\n## 993. R2102 BatchInspector cc.Label spacingY 체크')
   }
 }
 
+// ── Section 994: R2103 BatchInspector cc.VideoPlayer muted ──────────
+console.log('\n## 994. R2103 BatchInspector cc.VideoPlayer muted 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s994 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s994.includes('R2103') && s994.includes('patchVideoMuted') && s994.includes('applyVideoMuted')) {
+    log('pass', 'R2103-batch-video-muted', 'BatchInspector cc.VideoPlayer muted 일괄 설정')
+  } else {
+    log('warning', 'R2103-batch-video-muted', 'BatchInspector cc.VideoPlayer muted 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

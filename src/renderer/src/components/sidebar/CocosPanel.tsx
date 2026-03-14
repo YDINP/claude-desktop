@@ -6516,6 +6516,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2103: 공통 cc.VideoPlayer muted 일괄 설정 */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoMuted = async (muted: boolean) => {
+          if (!sceneFile.root) return
+          function patchVideoMuted(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideoMuted)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, muted, _muted: muted } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchVideoMuted(sceneFile.root) })
+          setBatchMsg(`✓ VideoPlayer muted=${muted} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>VidMute</span>
+            <span onClick={() => applyVideoMuted(true)} title="muted ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>mute✓</span>
+            <span onClick={() => applyVideoMuted(false)} title="muted OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>mute✗</span>
+          </div>
+        )
+      })()}
       {/* R2046: 공통 cc.VideoPlayer resourceType 일괄 설정 */}
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoResType = async (resourceType: number) => {
