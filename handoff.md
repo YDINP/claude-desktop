@@ -1,69 +1,42 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-14
 
-## 완료 (R1500-2168)
-- [x] R1500~R2158: (이전 세션 완료 — 상세 이력 생략) ← QA Pass 2041 마일스톤
-- [x] R2159: BatchInspector cc.BoxCollider2D + CircleCollider2D 확장 (sensor/density/friction/restitution)
-- [x] R2160: BatchInspector cc.BoxCollider2D offset + cc.CircleCollider2D offset 일괄
-- [x] R2161: BatchInspector 노드 _zIndex + cc.RigidBody group 일괄
-- [x] R2162: BatchInspector 공통 Collider tag (6종) 일괄
-- [x] R2163: BatchInspector 노드 _tag + cc.Layout constraintNum 일괄
-- [x] R2164: BatchInspector cc.AudioSource endTime + cc.RichText handleTouchEvent 일괄
-- [x] R2165: BatchInspector cc.VideoPlayer startTime + cc.Button autoGray + cc.Label isSystemFontUsed 일괄
-- [x] R2166: BatchInspector 노드 _skewX + _skewY 일괄
-- [x] R2167: BatchInspector cc.Camera near + far 일괄
-- [x] R2168: BatchInspector cc.ScrollView cancelInnerEvents + cc.ParticleSystem simulationSpace 일괄 ← QA Pass 2100 마일스톤!
+## 완료 (R1500-2220)
+- [x] R1500~R2199: (이전 세션 완료) ← QA Pass 2162 마일스톤
+- [x] fix: 빌드 에러 2건 수정 (transformClipboard + JSX 주석) — dev/main 모두 적용
+- [x] R2200-R2207: 컴포넌트 enabled 시리즈 + 신규 배치 속성
+- [x] R2208: cc.EditBox placeholderFontSize 프리셋 + fontColor 컬러 스와치
+- [x] R2209: cc.BoxCollider2D size 프리셋 + cc.CircleCollider2D radius 프리셋 (CC3.x)
+- [x] R2210: cc.Label outlineWidth 프리셋 + outlineColor 컬러 스와치 (CC3.x)
+- [x] R2211: cc.Label shadowColor 컬러 스와치 + shadowBlur 프리셋 (CC3.x)
+- [x] R2212: cc.Label shadowOffset 프리셋 + cc.EditBox placeholderFontColor 컬러 스와치
+- [x] R2213: cc.Label colorTop/colorBottom 그라디언트 컬러 스와치 (CC3.x)
+- [x] R2214: 노드 _rotationX/_rotationY 일괄 설정 (CC2.x 3D 회전)
+- [x] R2215: cc.Label _underlineHeight + cc.Sprite _color (CC3.x)
+- [x] ISSUE-05 fix: CCFileAssetBrowser folderTree useMemo를 early return 이전으로 이동 — React Hooks 위반 크래시 수정
+- [x] R2216: cc.Sprite _useGrayscale 토글 + cc.Label _spacingX 프리셋 (CC3.x)
+- [x] ISSUE-06 (부분 fix): 씬/프리팹 드롭다운 버그 수정 + CC Editor 탭 자동 로드
+- [x] R2217: cc.UIOpacity enabled + cc.RigidBody enabled (컴포넌트 레벨)
+- [x] R2218: cc.BoxCollider2D enabled + cc.CircleCollider2D enabled (컴포넌트 레벨)
+- [x] R2219: cc.LabelOutline enabled + cc.LabelShadow enabled (CC2.x 컴포넌트 레벨)
+- [x] R2220: cc.PolygonCollider2D enabled + cc.WebView enabled (컴포넌트 레벨)
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2100** ← R2168 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2205** ← R2220 현재
 - Branch: dev
 
-## 완료 (R2079-R2119)
-- [x] R2079: BatchInspector cc.Layout constraint 일괄
-- [x] R2080: BatchInspector cc.Layout resizeMode 일괄
-- [x] R2081: BatchInspector cc.ParticleSystem life 일괄
-- [x] R2082: BatchInspector cc.BoxCollider sensor 일괄
-- [x] R2083: BatchInspector cc.CircleCollider sensor 일괄
-- [x] R2084: BatchInspector cc.PolygonCollider sensor 일괄
-- [x] R2085: BatchInspector cc.EditBox inputMode 일괄
-- [x] R2086: BatchInspector cc.EditBox inputFlag 일괄
-- [x] R2087: BatchInspector cc.BoxCollider density 일괄
-- [x] R2088: BatchInspector cc.CircleCollider density 일괄
-- [x] R2089: BatchInspector cc.BoxCollider friction 일괄
-- [x] R2090: BatchInspector cc.CircleCollider friction 일괄
-- [x] R2091: BatchInspector cc.BoxCollider restitution 일괄
-- [x] R2092: BatchInspector cc.CircleCollider restitution 일괄
-- [x] R2093: BatchInspector cc.PolygonCollider density 일괄
-- [x] R2094: BatchInspector cc.PolygonCollider friction 일괄
-- [x] R2095: BatchInspector cc.PolygonCollider restitution 일괄
-- [x] R2096: BatchInspector cc.Widget top 일괄
-- [x] R2097: BatchInspector cc.Widget bottom 일괄
-- [x] R2098: BatchInspector cc.Widget left 일괄
-- [x] R2099: BatchInspector cc.Widget right 일괄
-- [x] R2100: BatchInspector cc.Widget horizontalCenter 일괄 ← R2100 마일스톤!
-- [x] R2101: BatchInspector cc.Widget verticalCenter 일괄
-- [x] R2102: BatchInspector cc.Label spacingY 일괄
-- [x] R2103: BatchInspector cc.VideoPlayer muted 일괄
-- [x] R2104: BatchInspector cc.ScrollView inertia 일괄
-- [x] R2105: BatchInspector cc.EditBox maxLength 일괄
-- [x] R2106: BatchInspector cc.Toggle isChecked 일괄
-- [x] R2107: BatchInspector cc.MotionStreak color 일괄
-- [x] R2108: BatchInspector cc.AudioSource loop 일괄
-- [x] R2109: BatchInspector cc.AudioSource playOnLoad 일괄
-- [x] R2110: BatchInspector cc.EditBox tabIndex 일괄
-- [x] R2111: BatchInspector cc.PageView autoPageTurningThreshold 일괄
-- [x] R2112: BatchInspector cc.Layout affectedByScale 일괄
-- [x] R2113: BatchInspector cc.Sprite trim 일괄
-- [x] R2114: BatchInspector cc.Camera targetDisplay 일괄
-- [x] R2115: BatchInspector cc.ScrollView horizontal 일괄
-- [x] R2116: BatchInspector cc.ScrollView vertical 일괄
-- [x] R2117: BatchInspector cc.ParticleSystem gravity.y 일괄
-- [x] R2118: BatchInspector cc.ParticleSystem startRotation 일괄
-- [x] R2119: BatchInspector cc.ParticleSystem endRotation 일괄
+## 다음 예정 (R2221+)
+- 자율 탐색: 미구현 prop 계속 발굴
+  - cc.Sprite CC3.x 고유 속성 탐색 (atlas, spriteFrame 제외한 단순 props)
+  - cc.Camera CC3.x 추가 속성
+  - cc.ParticleSystem 미커버 속성
+  - 컴포넌트 enabled 미커버: Mask, Layout, Collider etc. → 대부분 완료됨
+  - ISSUE-06 items 3~6 (대규모 CC Editor 재설계): 별도 기획 필요
 
-## 다음 예정 (R2169+)
-- BatchInspector cc.Label platformFont 일괄 (플랫폼 폰트 토글)
-- BatchInspector cc.ScrollView scrollDuration 일괄
-- BatchInspector cc.ProgressBar startWidth 일괄
-- BatchInspector 노드 _group (레이어/렌더 그룹) 일괄
-- BatchInspector cc.ParticleSystem3D 속성 확장
+## ISSUE-06 상태
+- item 1: ✓ 자동 프로젝트 로드 (localStorage cc-last-project-path)
+- item 2: ✓ 씬/프리팹 드롭다운 버그 (별도 스캔 후 병합)
+- item 3: ✗ 씬/프리팹 우측 넓은 뷰 (대규모 UI 재설계)
+- item 4: ✗ 좌측 노드 리스트 (대규모 UI 재설계)
+- item 5: ✗ CC에디터 동일시 (장기 목표)
+- item 6: ✗ QA 시 런타임 에러 체크 (QA 스크립트 추가 필요)
