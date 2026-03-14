@@ -4146,6 +4146,32 @@ function CCFileBatchInspector({
           />
         </div>
       )}
+      {/* R1860: 공통 cc.LabelOutline width 일괄 설정 */}
+      {commonCompTypes.includes('cc.LabelOutline') && (() => {
+        const applyOutlineWidth = async (width: number) => {
+          if (!sceneFile.root) return
+          function patchOL(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchOL)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.LabelOutline' ? { ...c, props: { ...c.props, width, _N$width: width } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchOL(sceneFile.root))
+          setBatchMsg(`✓ LabelOutline w=${width} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>Outline</span>
+            {([0, 1, 2, 3, 4, 5] as const).map(v => (
+              <span key={v} title={`outline width = ${v}`}
+                onClick={() => applyOutlineWidth(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f59e0b', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1859: 공통 cc.ScrollView horizontal/vertical/inertia 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollToggle = async (key: 'horizontal' | 'vertical' | 'inertia', value: boolean) => {

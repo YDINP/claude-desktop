@@ -20246,6 +20246,18 @@ console.log('\n## 750. R1859 BatchInspector cc.ScrollView H/V/inertia 체크')
   }
 }
 
+// ── Section 751: R1860 BatchInspector cc.LabelOutline width 일괄 ─────────────
+console.log('\n## 751. R1860 BatchInspector cc.LabelOutline width 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s751 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s751.includes('R1860') && s751.includes('applyOutlineWidth') && s751.includes("'cc.LabelOutline'") && s751.includes('patchOL')) {
+    log('pass', 'R1860-batch-labeloutline-width', 'BatchInspector cc.LabelOutline width 일괄 설정')
+  } else {
+    log('warning', 'R1860-batch-labeloutline-width', 'BatchInspector cc.LabelOutline width 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
