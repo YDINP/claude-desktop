@@ -6921,7 +6921,7 @@ function CCFileBatchInspector({
                 function patchToggle(n: CCSceneNode): CCSceneNode {
                   const children = n.children.map(patchToggle)
                   if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, isChecked: checked } } : c)
+                  const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, isChecked: checked, _isChecked: checked, _N$isChecked: checked } } : c)
                   return { ...n, components: updComps, children }
                 }
                 await saveScene(patchToggle(sceneFile.root))
@@ -7388,7 +7388,7 @@ function CCFileBatchInspector({
           function patchBtnZoom(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBtnZoom)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, zoomScale: zoom } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom, _N$zoomScale: zoom } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBtnZoom(sceneFile.root) })
@@ -7646,7 +7646,7 @@ function CCFileBatchInspector({
                 function patchInteract(n: CCSceneNode): CCSceneNode {
                   const children = n.children.map(patchInteract)
                   if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, interactable: interact } } : c)
+                  const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, interactable: interact, _interactable: interact, _N$interactable: interact } } : c)
                   return { ...n, components: updComps, children }
                 }
                 await saveScene(patchInteract(sceneFile.root))
@@ -8996,7 +8996,7 @@ function CCFileBatchInspector({
           function patchVideoPB(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchVideoPB)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, playbackRate: rate } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, playbackRate: rate, _playbackRate: rate, _N$playbackRate: rate } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchVideoPB(sceneFile.root))
@@ -13641,7 +13641,7 @@ function CCFileBatchInspector({
           function patchRBGS(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBGS)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, gravityScale: gs } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, gravityScale: gs, _gravityScale: gs, _N$gravityScale: gs } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBGS(sceneFile.root))
@@ -14479,7 +14479,7 @@ function CCFileBatchInspector({
               function patchProgress(n: CCSceneNode): CCSceneNode {
                 const children = n.children.map(patchProgress)
                 if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, progress: prog } } : c)
+                const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, progress: prog, _progress: prog, _N$progress: prog } } : c)
                 return { ...n, components: updComps, children }
               }
               await saveScene(patchProgress(sceneFile.root))

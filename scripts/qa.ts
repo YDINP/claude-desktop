@@ -25122,6 +25122,22 @@ if (
   log('warning', 'R2290-skelanim-speedratio-slider-inverted-n-cc3x', 'SkeletalAnimation/Slider CC3.x _N$ 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1295: R2291 BatchInspector Toggle/Button/VideoPlayer/RigidBody/ProgressBar _* (CC3.x) ──────────
+console.log('\n## 1295. R2291 BatchInspector Toggle/Button/VideoPlayer/RigidBody/ProgressBar CC3.x 체크')
+const s1295 = s1294
+if (
+  s1295.includes('isChecked: checked, _isChecked: checked, _N$isChecked: checked') &&
+  s1295.includes('zoomScale: zoom, _zoomScale: zoom, _N$zoomScale: zoom') &&
+  s1295.includes('interactable: interact, _interactable: interact, _N$interactable: interact') &&
+  s1295.includes('playbackRate: rate, _playbackRate: rate, _N$playbackRate: rate') &&
+  s1295.includes('gravityScale: gs, _gravityScale: gs, _N$gravityScale: gs') &&
+  s1295.includes('progress: prog, _progress: prog, _N$progress: prog')
+) {
+  log('pass', 'R2291-batch-toggle-btn-video-rb-pb-cc3x', 'BatchInspector Toggle/Button/VideoPlayer/RigidBody/ProgressBar _* (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2291-batch-toggle-btn-video-rb-pb-cc3x', 'BatchInspector Toggle/Button/VideoPlayer/RigidBody/ProgressBar CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
