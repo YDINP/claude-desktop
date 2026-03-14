@@ -23498,6 +23498,18 @@ console.log('\n## 1021. R2130 BatchInspector cc.Button hoverColor 체크')
   }
 }
 
+// ── Section 1022: R2131 BatchInspector node color ──────────
+console.log('\n## 1022. R2131 BatchInspector node color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1022 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1022.includes('R2131') && s1022.includes('patchNodeColor') && s1022.includes('applyNodeColor')) {
+    log('pass', 'R2131-batch-node-color', 'BatchInspector node color 일괄 설정')
+  } else {
+    log('warning', 'R2131-batch-node-color', 'BatchInspector node color 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

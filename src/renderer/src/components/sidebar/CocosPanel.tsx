@@ -4340,6 +4340,35 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2131: 노드 color preset 일괄 설정 */}
+      {(() => {
+        const applyNodeColor = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const color = { r, g, b, a: 255 }
+          function patchNodeColor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeColor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, color, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeColor(sceneFile.root) })
+          setBatchMsg(`✓ node color=${hex} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>NodeClr</span>
+            <input type="color" defaultValue="#ffffff"
+              onChange={e => applyNodeColor(e.target.value)}
+              style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer' }}
+            />
+            {(['#ffffff','#000000','#ff0000','#00ff00','#0000ff','#ffff00'] as const).map(c => (
+              <span key={c} title={c} onClick={() => applyNodeColor(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, border: '1px solid var(--border)', cursor: 'pointer', display: 'inline-block', flexShrink: 0 }}
+              />
+            ))}
+          </div>
+        )
+      })()}
       {/* R1983: 노드 active/inactive 일괄 설정 */}
       {(() => {
         const applyNodeActive = async (active: boolean) => {
