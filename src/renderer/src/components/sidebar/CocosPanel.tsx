@@ -7155,6 +7155,33 @@ function CCFileNodeInspector({
                       >{v}</span>
                     ))}
                   </div>
+                  {/* R1820: direction 버튼 (Horizontal/Vertical/Grid 공통) */}
+                  {layoutType !== 0 && (() => {
+                    const hDir = Number(p.horizontalDirection ?? p._N$horizontalDirection ?? 0)
+                    const vDir = Number(p.verticalDirection ?? p._N$verticalDirection ?? 1)
+                    return (
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                          <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>H:</span>
+                          {([['L→R', 0], ['R→L', 1]] as const).map(([l, v]) => (
+                            <span key={v} title={l}
+                              onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalDirection: v, _N$horizontalDirection: v } } : c); applyAndSave({ components: updated }) }}
+                              style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${hDir === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: hDir === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                            >{l}</span>
+                          ))}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                          <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>V:</span>
+                          {([['B→T', 0], ['T→B', 1]] as const).map(([l, v]) => (
+                            <span key={v} title={l}
+                              onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, verticalDirection: v, _N$verticalDirection: v } } : c); applyAndSave({ components: updated }) }}
+                              style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${vDir === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: vDir === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                            >{l}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })()}
                   {layoutType === 3 && (() => {
                     // R1709: Grid cellSize 편집
                     const cellSizeRaw = p.cellSize as { width?: number; height?: number } | undefined

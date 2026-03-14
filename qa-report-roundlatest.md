@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:27:14.694Z
+> 2026-03-14T04:28:13.721Z
 
 ## Critical
 _없음_
@@ -1749,3 +1749,4 @@ _없음_
 - cc.RigidBody gravityScale 퀵 프리셋
 - sp.Skeleton timeScale 퀵 프리셋
 - dragonBones.ArmatureDisplay timeScale 퀵 프리셋
+- cc.Layout verticalDirection/horizontalDirection 버튼

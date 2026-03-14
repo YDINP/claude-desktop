@@ -19763,6 +19763,18 @@ console.log('\n## 710. R1819 dragonBones.ArmatureDisplay timeScale 퀵 프리셋
   }
 }
 
+// ── Section 711: R1820 cc.Layout verticalDirection/horizontalDirection 버튼 ──
+console.log('\n## 711. R1820 cc.Layout direction 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s711 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s711.includes('R1820') && s711.includes('horizontalDirection: v') && s711.includes('verticalDirection: v')) {
+    log('pass', 'R1820-layout-direction-btn', 'cc.Layout verticalDirection/horizontalDirection 버튼')
+  } else {
+    log('warning', 'R1820-layout-direction-btn', 'cc.Layout direction 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
