@@ -7773,6 +7773,10 @@ function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSe
   const [activeIdx, setActiveIdx] = useState(-1)
   // R1679: 더 보기 (페이지 크기 증가)
   const [pageSize, setPageSize] = useState(12)
+  // R1694: 최근 검색어 히스토리
+  const [searchHistory, setSearchHistory] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('tree-search-history') ?? '[]') } catch { return [] }
+  })
 
   const search = useCallback((q: string, ps?: number) => {
     setQuery(q)
@@ -7795,11 +7799,21 @@ function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSe
     setOpen(true)
   }, [root, pageSize])
 
+  const addToHistory = (q: string) => {
+    if (!q.trim()) return
+    setSearchHistory(prev => {
+      const next = [q, ...prev.filter(h => h !== q)].slice(0, 8)
+      localStorage.setItem('tree-search-history', JSON.stringify(next))
+      return next
+    })
+  }
+
   return (
     <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
       <input
         value={query}
         onChange={e => search(e.target.value)}
+        onFocus={() => { if (!query.trim() && searchHistory.length > 0) setOpen(true) }}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder="노드/컴포넌트 검색..."
         onKeyDown={e => {
@@ -7810,7 +7824,7 @@ function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSe
           else if (e.key === 'Enter') {
             e.preventDefault()
             const idx = activeIdx >= 0 ? activeIdx : 0
-            if (results[idx]) { onSelect(results[idx]); setQuery(''); setOpen(false) }
+            if (results[idx]) { addToHistory(query); onSelect(results[idx]); setQuery(''); setOpen(false) }
           }
           else if (e.key === 'Escape') { setOpen(false); setQuery('') }
         }}
@@ -7819,6 +7833,28 @@ function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSe
           color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px', fontSize: 10, boxSizing: 'border-box',
         }}
       />
+      {/* R1694: 빈 검색 + 포커스 → 최근 검색어 드롭다운 */}
+      {open && !query.trim() && searchHistory.length > 0 && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
+          background: 'var(--bg-secondary, #0d0d1a)', border: '1px solid var(--border)',
+          borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+        }}>
+          <div style={{ padding: '2px 8px', fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>최근 검색</div>
+          {searchHistory.map((h, i) => (
+            <div
+              key={i}
+              onMouseDown={() => { search(h); addToHistory(h) }}
+              style={{ padding: '4px 8px', fontSize: 10, cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.08)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              <span>🕐 {h}</span>
+              <span onMouseDown={e => { e.stopPropagation(); setSearchHistory(prev => { const next = prev.filter((_, j) => j !== i); localStorage.setItem('tree-search-history', JSON.stringify(next)); return next }) }} style={{ color: '#555', fontSize: 9 }}>×</span>
+            </div>
+          ))}
+        </div>
+      )}
       {open && results.length > 0 && (
         <div style={{
           position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
@@ -7828,7 +7864,7 @@ function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSe
           {results.map((n, i) => (
             <div
               key={n.uuid}
-              onMouseDown={() => { onSelect(n); setQuery(''); setOpen(false) }}
+              onMouseDown={() => { addToHistory(query); onSelect(n); setQuery(''); setOpen(false) }}
               onMouseEnter={() => setActiveIdx(i)}
               style={{
                 padding: '4px 8px', fontSize: 10, cursor: 'pointer',

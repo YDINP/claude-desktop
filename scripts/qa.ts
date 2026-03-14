@@ -18251,6 +18251,18 @@ console.log('\n## 584. R1693 SceneView 좌표 핀 마커 체크')
   }
 }
 
+// ── Section 585: R1694 씬 트리 검색 히스토리 ──────────────────────────────
+console.log('\n## 585. R1694 씬 트리 검색 히스토리 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s585 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s585.includes('R1694') && s585.includes('searchHistory') && s585.includes('tree-search-history')) {
+    log('pass', 'R1694-tree-search-history', '씬 트리 검색 히스토리')
+  } else {
+    log('warning', 'R1694-tree-search-history', '씬 트리 검색 히스토리 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

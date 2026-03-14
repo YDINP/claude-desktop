@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:21:40.004Z
+> 2026-03-14T01:23:50.087Z
 
 ## Critical
 _없음_
@@ -1623,3 +1623,4 @@ _없음_
 - cc.Label 멀티라인 미리보기
 - SceneView 시각적 숨기기 토글
 - SceneView 좌표 핀 마커
+- 씬 트리 검색 히스토리
