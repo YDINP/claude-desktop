@@ -20342,6 +20342,18 @@ console.log('\n## 758. R1867 BatchInspector cc.Sprite blendFactor 체크')
   }
 }
 
+// ── Section 759: R1868 BatchInspector cc.Label spacingX ───────────────────
+console.log('\n## 759. R1868 BatchInspector cc.Label spacingX 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s759 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s759.includes('R1868') && s759.includes('applyLabelSpX') && s759.includes('patchSpX')) {
+    log('pass', 'R1868-batch-label-spacingx', 'BatchInspector cc.Label spacingX 일괄 설정')
+  } else {
+    log('warning', 'R1868-batch-label-spacingx', 'BatchInspector cc.Label spacingX 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

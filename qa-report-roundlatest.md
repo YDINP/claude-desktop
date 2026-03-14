@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:21:02.113Z
+> 2026-03-14T05:22:06.822Z
 
 ## Critical
 _없음_
@@ -1797,3 +1797,4 @@ _없음_
 - cc.Sprite srcBlendFactor/dstBlendFactor 퀵 버튼 (Normal/Add/Mul)
 - BatchInspector cc.AudioSource pitch 일괄 설정
 - BatchInspector cc.Sprite blendFactor 일괄 설정 (Normal/Add/Mul)
+- BatchInspector cc.Label spacingX 일괄 설정

@@ -4074,6 +4074,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1868: 공통 cc.Label spacingX 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelSpX = async (sx: number) => {
+          if (!sceneFile.root) return
+          function patchSpX(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpX)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, spacingX: sx, _spacingX: sx, _N$spacingX: sx } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchSpX(sceneFile.root))
+          setBatchMsg(`✓ Label spacingX ${sx} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label spX</span>
+            {([-2, -1, 0, 1, 2, 4, 8] as const).map(v => (
+              <span key={v} title={`spacingX=${v}`}
+                onClick={() => applyLabelSpX(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1764: 공통 cc.Toggle isChecked 일괄 설정 */}
       {commonCompTypes.includes('cc.Toggle') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
