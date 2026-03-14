@@ -4200,6 +4200,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1897: 공통 cc.Button zoomScale 일괄 설정 */}
+      {commonCompTypes.includes('cc.Button') && (() => {
+        const applyBtnZoom = async (zoom: number) => {
+          if (!sceneFile.root) return
+          function patchBtnZoom(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBtnZoom)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, zoomScale: zoom } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchBtnZoom(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>BtnZoom</span>
+            {([0.9, 1.0, 1.1, 1.2, 1.3, 1.5] as const).map(v => (
+              <span key={v} title={`zoomScale = ${v}`}
+                onClick={() => applyBtnZoom(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1769: 공통 cc.Button interactable 일괄 설정 */}
       {commonCompTypes.includes('cc.Button') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

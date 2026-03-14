@@ -20690,6 +20690,18 @@ console.log('\n## 787. R1896 BatchInspector cc.ParticleSystem angle 체크')
   }
 }
 
+// ── Section 788: R1897 BatchInspector cc.Button zoomScale ──────────
+console.log('\n## 788. R1897 BatchInspector cc.Button zoomScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s788 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s788.includes('R1897') && s788.includes('applyBtnZoom') && s788.includes('patchBtnZoom')) {
+    log('pass', 'R1897-batch-button-zoom', 'BatchInspector cc.Button zoomScale 일괄 설정')
+  } else {
+    log('warning', 'R1897-batch-button-zoom', 'BatchInspector cc.Button zoomScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
