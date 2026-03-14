@@ -4375,6 +4375,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2183: 노드 cascadeOpacityEnabled 일괄 설정 (CC2.x) */}
+      {(() => {
+        const applyNodeCascadeOpacity = async (cascadeOpacityEnabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchNodeCascadeOpacity(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeCascadeOpacity)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, cascadeOpacityEnabled, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeCascadeOpacity(sceneFile.root) })
+          setBatchMsg(`✓ cascadeOpacity=${cascadeOpacityEnabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>CscOp</span>
+            {([['cas✓', true], ['cas✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyNodeCascadeOpacity(v)} title={`cascadeOpacityEnabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2166: 노드 _skewX 일괄 설정 (CC2.x) */}
       {(() => {
         const applySkewX = async (skewX: number) => {
@@ -12686,6 +12709,30 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprGray</span>
             <span onClick={() => applySprGray(true)} title="grayscale ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>gray✓</span>
             <span onClick={() => applySprGray(false)} title="grayscale OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>gray✗</span>
+          </div>
+        )
+      })()}
+      {/* R2183: 공통 cc.Sprite packable 일괄 설정 */}
+      {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
+        const applySpritePackable = async (packable: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpritePackable(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpritePackable)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, packable, _packable: packable } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpritePackable(sceneFile.root) })
+          setBatchMsg(`✓ Sprite packable=${packable} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SpPack</span>
+            {([['pack✓', true], ['pack✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applySpritePackable(v)} title={`packable=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{l}</span>
+            ))}
           </div>
         )
       })()}

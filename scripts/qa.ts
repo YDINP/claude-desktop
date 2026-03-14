@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1098: R2183 BatchInspector cc.Sprite packable ──────────
+console.log('\n## 1098. R2183 BatchInspector cc.Sprite packable 체크')
+const s1098 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1098.includes('R2183') && s1098.includes('applySpritePackable') && s1098.includes('SpPack')) {
+  log('pass', 'R2183-batch-sprite-packable', 'BatchInspector cc.Sprite packable 일괄 설정')
+} else {
+  log('warning', 'R2183-batch-sprite-packable', 'BatchInspector cc.Sprite packable 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1099: R2183 BatchInspector 노드 cascadeOpacityEnabled ──────────
+console.log('\n## 1099. R2183 BatchInspector 노드 cascadeOpacityEnabled 체크')
+const s1099 = s1098
+if (s1099.includes('R2183') && s1099.includes('applyNodeCascadeOpacity') && s1099.includes('CscOp')) {
+  log('pass', 'R2183-batch-node-cascadeopacity', 'BatchInspector 노드 cascadeOpacityEnabled 일괄 설정')
+} else {
+  log('warning', 'R2183-batch-node-cascadeopacity', 'BatchInspector 노드 cascadeOpacityEnabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1096: R2182 BatchInspector cc.ToggleContainer autoCheckToggle ──────────
 console.log('\n## 1096. R2182 BatchInspector cc.ToggleContainer autoCheckToggle 체크')
 const s1096 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
