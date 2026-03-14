@@ -5768,6 +5768,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2175: 공통 cc.Graphics miterLimit 일괄 설정 */}
+      {commonCompTypes.includes('cc.Graphics') && (() => {
+        const applyGraphicsMiterLimit = async (miterLimit: number) => {
+          if (!sceneFile.root) return
+          function patchGraphicsMiterLimit(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchGraphicsMiterLimit)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, miterLimit, _miterLimit: miterLimit } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchGraphicsMiterLimit(sceneFile.root) })
+          setBatchMsg(`✓ Graphics miterLimit=${miterLimit} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>GfxMitr</span>
+            {[1, 2, 5, 10, 20, 50].map(v => (
+              <span key={v} onClick={() => applyGraphicsMiterLimit(v)} title={`miterLimit=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2172: 공통 cc.Widget enabled 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetEnabled = async (enabled: boolean) => {
@@ -7590,6 +7614,30 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>MSminSeg</span>
             {[1, 2, 5, 10, 20, 50].map(v => (
               <span key={v} onClick={() => applyMSMinSeg(v)} title={`minSeg=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2175: 공통 cc.MotionStreak speedThreshold 일괄 설정 */}
+      {commonCompTypes.includes('cc.MotionStreak') && (() => {
+        const applyMSSpeedThresh = async (speedThreshold: number) => {
+          if (!sceneFile.root) return
+          function patchMSSpeedThresh(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMSSpeedThresh)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, speedThreshold, _speedThreshold: speedThreshold, _N$speedThreshold: speedThreshold } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchMSSpeedThresh(sceneFile.root) })
+          setBatchMsg(`✓ MotionStreak speedThreshold=${speedThreshold} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>MSspThr</span>
+            {[1, 5, 10, 20, 50, 100].map(v => (
+              <span key={v} onClick={() => applyMSSpeedThresh(v)} title={`speedThreshold=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>{v}</span>
             ))}
           </div>

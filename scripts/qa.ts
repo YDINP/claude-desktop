@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1082: R2175 BatchInspector cc.Graphics miterLimit ──────────
+console.log('\n## 1082. R2175 BatchInspector cc.Graphics miterLimit 체크')
+const s1082 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1082.includes('R2175') && s1082.includes('applyGraphicsMiterLimit') && s1082.includes('GfxMitr')) {
+  log('pass', 'R2175-batch-graphics-miterlimit', 'BatchInspector cc.Graphics miterLimit 일괄 설정')
+} else {
+  log('warning', 'R2175-batch-graphics-miterlimit', 'BatchInspector cc.Graphics miterLimit 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1083: R2175 BatchInspector cc.MotionStreak speedThreshold ──────────
+console.log('\n## 1083. R2175 BatchInspector cc.MotionStreak speedThreshold 체크')
+const s1083 = s1082
+if (s1083.includes('R2175') && s1083.includes('applyMSSpeedThresh') && s1083.includes('MSspThr')) {
+  log('pass', 'R2175-batch-ms-speedthreshold', 'BatchInspector cc.MotionStreak speedThreshold 일괄 설정')
+} else {
+  log('warning', 'R2175-batch-ms-speedthreshold', 'BatchInspector cc.MotionStreak speedThreshold 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1080: R2174 BatchInspector 노드 _group ──────────
 console.log('\n## 1080. R2174 BatchInspector 노드 _group 체크')
 const s1080 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
