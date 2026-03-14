@@ -18023,6 +18023,30 @@ console.log('\n## 565. R1674 SceneView snap 간격 custom 입력 체크')
   }
 }
 
+// ── Section 566: R1675 Widget 정렬 시각 다이어그램 ──────────────────────
+console.log('\n## 566. R1675 Widget 정렬 시각 다이어그램 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s566 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s566.includes('R1675') && s566.includes('Widget 정렬 시각 다이어그램') && s566.includes('isHCenter') && s566.includes('isVCenter')) {
+    log('pass', 'R1675-widget-diagram', 'cc.Widget 정렬 시각 다이어그램')
+  } else {
+    log('warning', 'R1675-widget-diagram', 'cc.Widget 정렬 시각 다이어그램 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 567: R1676 노드 JSON 클립보드 복사 ────────────────────────────
+console.log('\n## 567. R1676 노드 JSON 클립보드 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s567 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s567.includes('R1676') && s567.includes('jsonCopiedName') && s567.includes('navigator.clipboard.writeText') && s567.includes('e.shiftKey')) {
+    log('pass', 'R1676-json-copy', 'Ctrl+Shift+C 노드 JSON 클립보드 복사')
+  } else {
+    log('warning', 'R1676-json-copy', 'Ctrl+Shift+C 노드 JSON 클립보드 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

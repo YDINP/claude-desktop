@@ -587,6 +587,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [pulseUuid, setPulseUuid] = useState<string | null>(null)
   // R1672: 노드 북마크 (1-9키 → uuid 매핑)
   const [nodeBookmarks, setNodeBookmarks] = useState<Record<string, string>>({}) // key(1-9) → uuid
+  // R1676: JSON 복사 토스트 피드백
+  const [jsonCopiedName, setJsonCopiedName] = useState<string | null>(null)
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -1103,6 +1105,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (ctrl && e.key === 'c' && selectedNode) {
         e.preventDefault()
         clipboardRef.current = selectedNode
+        // R1676: Ctrl+Shift+C → JSON 시스템 클립보드 복사
+        if (e.shiftKey) {
+          const json = JSON.stringify(selectedNode, null, 2)
+          navigator.clipboard.writeText(json).catch(() => {})
+          setJsonCopiedName(selectedNode.name || selectedNode.uuid.slice(0, 8))
+          setTimeout(() => setJsonCopiedName(null), 2000)
+        }
         return
       }
       // Ctrl+V: 클립보드 노드 붙여넣기 (선택 노드의 자식으로 / 없으면 루트 자식으로)
@@ -5771,6 +5780,8 @@ function CCFileNodeInspector({
               const isBottom = !!(p.isAlignBottom ?? false)
               const isLeft = !!(p.isAlignLeft ?? false)
               const isRight = !!(p.isAlignRight ?? false)
+              const isHCenter = !!(p.isAlignHorizontalCenter ?? false)
+              const isVCenter = !!(p.isAlignVerticalCenter ?? false)
               const alignMode = Number(p.alignMode ?? 1)
               const edges = [
                 ['top', isTop, 'isAlignTop', 'top'],
@@ -5780,6 +5791,31 @@ function CCFileNodeInspector({
               ] as const
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R1675: Widget 정렬 시각 다이어그램 */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
+                    <svg width={56} height={56} style={{ overflow: 'visible' }}>
+                      {/* 외부 경계 (부모) */}
+                      <rect x={0} y={0} width={56} height={56} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
+                      {/* 내부 노드 */}
+                      <rect x={12} y={12} width={32} height={32} fill="rgba(88,166,255,0.08)" stroke="rgba(88,166,255,0.3)" strokeWidth={1} />
+                      {/* 상단 연결선 */}
+                      {isTop && <line x1={28} y1={0} x2={28} y2={12} stroke="#58a6ff" strokeWidth={2} />}
+                      {isTop && <rect x={22} y={0} width={12} height={4} fill="#58a6ff" rx={1} />}
+                      {/* 하단 연결선 */}
+                      {isBottom && <line x1={28} y1={44} x2={28} y2={56} stroke="#58a6ff" strokeWidth={2} />}
+                      {isBottom && <rect x={22} y={52} width={12} height={4} fill="#58a6ff" rx={1} />}
+                      {/* 좌측 연결선 */}
+                      {isLeft && <line x1={0} y1={28} x2={12} y2={28} stroke="#58a6ff" strokeWidth={2} />}
+                      {isLeft && <rect x={0} y={22} width={4} height={12} fill="#58a6ff" rx={1} />}
+                      {/* 우측 연결선 */}
+                      {isRight && <line x1={44} y1={28} x2={56} y2={28} stroke="#58a6ff" strokeWidth={2} />}
+                      {isRight && <rect x={52} y={22} width={4} height={12} fill="#58a6ff" rx={1} />}
+                      {/* 가로 중앙선 */}
+                      {isHCenter && <line x1={0} y1={28} x2={56} y2={28} stroke="#fbbf24" strokeWidth={1} strokeDasharray="3 2" />}
+                      {/* 세로 중앙선 */}
+                      {isVCenter && <line x1={28} y1={0} x2={28} y2={56} stroke="#fbbf24" strokeWidth={1} strokeDasharray="3 2" />}
+                    </svg>
+                  </div>
                   {edges.map(([label, isActive, flag, offsetKey]) => (
                     <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', width: 50, flexShrink: 0 }}>
@@ -8376,6 +8412,12 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
               )}
             </div>
           </div>
+        </div>
+      )}
+      {/* R1676: JSON 복사 토스트 */}
+      {jsonCopiedName && (
+        <div style={{ position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', background: '#1a1a2e', border: '1px solid #4caf50', borderRadius: 6, padding: '6px 14px', fontSize: 11, color: '#4caf50', pointerEvents: 'none', zIndex: 9999, whiteSpace: 'nowrap' }}>
+          📋 JSON 복사됨: {jsonCopiedName}
         </div>
       )}
     </div>
