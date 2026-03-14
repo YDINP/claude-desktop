@@ -7380,6 +7380,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2022: 공통 cc.Layout paddingBottom 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutPadBot = async (paddingBottom: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutPadBot(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutPadBot)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, paddingBottom, _paddingBottom: paddingBottom, _N$paddingBottom: paddingBottom } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLayoutPadBot(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Layout paddingBottom=${paddingBottom} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LpadB</span>
+            {[0, 5, 10, 20, 30, 50].map(v => (
+              <span key={v} onClick={() => applyLayoutPadBot(v)} title={`paddingBottom=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2021: 공통 cc.Layout paddingTop 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPadTop = async (paddingTop: number) => {

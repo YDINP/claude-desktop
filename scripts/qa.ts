@@ -22190,6 +22190,18 @@ console.log('\n## 912. R2021 BatchInspector cc.Layout paddingTop 체크')
   }
 }
 
+// ── Section 913: R2022 BatchInspector cc.Layout paddingBottom ──────────
+console.log('\n## 913. R2022 BatchInspector cc.Layout paddingBottom 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s913 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s913.includes('R2022') && s913.includes('patchLayoutPadBot') && s913.includes('applyLayoutPadBot')) {
+    log('pass', 'R2022-batch-layout-padbot', 'BatchInspector cc.Layout paddingBottom 일괄 설정')
+  } else {
+    log('warning', 'R2022-batch-layout-padbot', 'BatchInspector cc.Layout paddingBottom 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
