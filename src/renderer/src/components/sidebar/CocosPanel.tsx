@@ -7085,6 +7085,32 @@ function CCFileNodeInspector({
                       ))}
                     </div>
                   </div>
+                  {/* R1743: bold / italic / underline 토글 */}
+                  {(() => {
+                    const bold = !!(p.isBold ?? p._isBold ?? p._N$isBold ?? false)
+                    const italic = !!(p.isItalic ?? p._isItalic ?? p._N$isItalic ?? false)
+                    const underline = !!(p.isUnderline ?? p._isUnderline ?? p._N$isUnderline ?? false)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>style</span>
+                        {[
+                          { label: 'B', title: 'Bold', key: 'isBold', val: bold },
+                          { label: 'I', title: 'Italic', key: 'isItalic', val: italic },
+                          { label: 'U', title: 'Underline', key: 'isUnderline', val: underline },
+                        ].map(({ label, title, key, val }) => (
+                          <span key={key}
+                            title={title}
+                            onClick={() => {
+                              const nv = !val
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key]: nv, [`_${key}`]: nv, [`_N$${key}`]: nv } } : c)
+                              applyAndSave({ components: updated })
+                            }}
+                            style={{ fontSize: 10, fontWeight: label === 'B' ? 700 : 400, fontStyle: label === 'I' ? 'italic' : 'normal', textDecoration: label === 'U' ? 'underline' : 'none', cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: `1px solid ${val ? '#58a6ff' : 'var(--border)'}`, color: val ? '#58a6ff' : 'var(--text-muted)', background: val ? 'rgba(88,166,255,0.1)' : 'transparent', userSelect: 'none' }}
+                          >{label}</span>
+                        ))}
+                      </div>
+                    )
+                  })()}
                   {/* R1691: 멀티라인 텍스트 미리보기 */}
                   {(str.includes('\n') || str.includes('\\n')) && (() => {
                     const lines = str.replace(/\\n/g, '\n').split('\n')

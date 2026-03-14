@@ -18839,6 +18839,18 @@ console.log('\n## 633. R1742 비활성 조상 일괄 활성화 버튼 체크')
   }
 }
 
+// ── Section 634: R1743 cc.Label Bold/Italic/Underline 토글 ───────────────────
+console.log('\n## 634. R1743 cc.Label Bold/Italic/Underline 토글 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s634 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s634.includes('R1743') && s634.includes('bold / italic / underline 토글') && s634.includes('isBold') && s634.includes('isItalic') && s634.includes('isUnderline')) {
+    log('pass', 'R1743-label-style', 'cc.Label Bold/Italic/Underline 토글')
+  } else {
+    log('warning', 'R1743-label-style', 'cc.Label Bold/Italic/Underline 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
