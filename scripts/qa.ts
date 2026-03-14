@@ -22262,6 +22262,18 @@ console.log('\n## 918. R2027 BatchInspector cc.ParticleSystem duration 체크')
   }
 }
 
+// ── Section 919: R2028 BatchInspector cc.ParticleSystem speed ──────────
+console.log('\n## 919. R2028 BatchInspector cc.ParticleSystem speed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s919 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s919.includes('R2028') && s919.includes('patchPSSpeed') && s919.includes('applyPSSpeed')) {
+    log('pass', 'R2028-batch-ps-speed', 'BatchInspector cc.ParticleSystem speed 일괄 설정')
+  } else {
+    log('warning', 'R2028-batch-ps-speed', 'BatchInspector cc.ParticleSystem speed 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
