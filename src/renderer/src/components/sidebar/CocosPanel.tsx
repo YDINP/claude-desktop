@@ -7791,10 +7791,10 @@ function CCFileBatchInspector({
           function patchOL(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchOL)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.LabelOutline' ? { ...c, props: { ...c.props, width, _N$width: width } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.LabelOutline' ? { ...c, props: { ...c.props, width, _width: width, _N$width: width } } : c)
             return { ...n, components: updComps, children }
           }
-          await saveScene(patchOL(sceneFile.root))
+          await saveScene({ ...sceneFile, root: patchOL(sceneFile.root) }) // R2259: _width CC3.x + saveScene 버그 수정
           setBatchMsg(`✓ LabelOutline w=${width} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -8560,12 +8560,12 @@ function CCFileBatchInspector({
           function patchPVBounce(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPVBounce)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, bounceEnabled: v, _N$bounceEnabled: v } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPVBounce(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PageView bounce=${v} (${uuids.length}개)`)
+          setBatchMsg(`✓ PageView bounce=${v} (${uuids.length}개)`) // R2259: _bounceEnabled CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -11971,12 +11971,12 @@ function CCFileBatchInspector({
           function patchSliderVal(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSliderVal)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, progress, _N$progress: progress } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchSliderVal(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Slider value=${progress} (${uuids.length}개)`)
+          setBatchMsg(`✓ Slider value=${progress} (${uuids.length}개)`) // R2260: _progress CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -12963,11 +12963,11 @@ function CCFileBatchInspector({
           function patchLayoutConstraint(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchLayoutConstraint)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, constraint, _N$constraint: constraint } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, constraint, _constraint: constraint, _N$constraint: constraint } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLayoutConstraint(sceneFile.root) })
-          setBatchMsg(`✓ Layout constraint=${constraint} (${uuids.length}개)`)
+          setBatchMsg(`✓ Layout constraint=${constraint} (${uuids.length}개)`) // R2260: _constraint CC3.x
         }
         // 0=NONE, 1=FIXED_ROW, 2=FIXED_COL
         return (
@@ -12989,11 +12989,11 @@ function CCFileBatchInspector({
           function patchConstraintNum(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchConstraintNum)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, constraintNum, _N$constraintNum: constraintNum } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, constraintNum, _constraintNum: constraintNum, _N$constraintNum: constraintNum } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchConstraintNum(sceneFile.root) })
-          setBatchMsg(`✓ Layout constraintNum=${constraintNum} (${uuids.length}개)`)
+          setBatchMsg(`✓ Layout constraintNum=${constraintNum} (${uuids.length}개)`) // R2261: _constraintNum CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13012,11 +13012,11 @@ function CCFileBatchInspector({
           function patchLayoutStartAxis(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchLayoutStartAxis)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, startAxis, _N$startAxis: startAxis } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, startAxis, _startAxis: startAxis, _N$startAxis: startAxis } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLayoutStartAxis(sceneFile.root) })
-          setBatchMsg(`✓ Layout startAxis=${startAxis} (${uuids.length}개)`)
+          setBatchMsg(`✓ Layout startAxis=${startAxis} (${uuids.length}개)`) // R2261: _startAxis CC3.x
         }
         // 0=HORIZONTAL, 1=VERTICAL
         return (

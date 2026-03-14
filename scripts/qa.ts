@@ -24629,6 +24629,60 @@ if (s1250.includes('_resizeMode: resizeMode') && s1250.includes('patchLayoutResi
   log('warning', 'R2258-batch-layout-resizemode-cc3x', 'BatchInspector cc.Layout _resizeMode CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1251: R2259 BatchInspector cc.LabelOutline _width (CC3.x, old section) ──────────
+console.log('\n## 1251. R2259 BatchInspector cc.LabelOutline _width CC3.x old section 체크')
+const s1251 = s1250
+if (s1251.includes('_width: width') && s1251.includes('patchOL')) {
+  log('pass', 'R2259-batch-labeloutline-width-cc3x-old', 'BatchInspector cc.LabelOutline _width (CC3.x) old section 갭 수정')
+} else {
+  log('warning', 'R2259-batch-labeloutline-width-cc3x-old', 'BatchInspector cc.LabelOutline _width CC3.x old section 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1252: R2259 BatchInspector cc.PageView _bounceEnabled (CC3.x, old section) ──────────
+console.log('\n## 1252. R2259 BatchInspector cc.PageView _bounceEnabled CC3.x old section 체크')
+const s1252 = s1251
+if (s1252.includes('_bounceEnabled: v') && s1252.includes('patchPVBounce')) {
+  log('pass', 'R2259-batch-pageview-bounceenabled-cc3x-old', 'BatchInspector cc.PageView _bounceEnabled (CC3.x) old section 갭 수정')
+} else {
+  log('warning', 'R2259-batch-pageview-bounceenabled-cc3x-old', 'BatchInspector cc.PageView _bounceEnabled CC3.x old section 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1253: R2260 BatchInspector cc.Slider _progress (CC3.x, patchSliderVal) ──────────
+console.log('\n## 1253. R2260 BatchInspector cc.Slider _progress CC3.x patchSliderVal 체크')
+const s1253 = s1252
+if (s1253.includes('_progress: progress') && s1253.includes('patchSliderVal')) {
+  log('pass', 'R2260-batch-slider-progress-cc3x-sliderval', 'BatchInspector cc.Slider _progress (CC3.x) patchSliderVal 갭 수정')
+} else {
+  log('warning', 'R2260-batch-slider-progress-cc3x-sliderval', 'BatchInspector cc.Slider _progress CC3.x patchSliderVal 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1254: R2260 BatchInspector cc.Layout _constraint (CC3.x) ──────────
+console.log('\n## 1254. R2260 BatchInspector cc.Layout _constraint CC3.x 체크')
+const s1254 = s1253
+if (s1254.includes('_constraint: constraint') && s1254.includes('patchLayoutConstraint')) {
+  log('pass', 'R2260-batch-layout-constraint-cc3x', 'BatchInspector cc.Layout _constraint (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2260-batch-layout-constraint-cc3x', 'BatchInspector cc.Layout _constraint CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1255: R2261 BatchInspector cc.Layout _constraintNum (CC3.x) ──────────
+console.log('\n## 1255. R2261 BatchInspector cc.Layout _constraintNum CC3.x 체크')
+const s1255 = s1254
+if (s1255.includes('_constraintNum: constraintNum') && s1255.includes('patchConstraintNum')) {
+  log('pass', 'R2261-batch-layout-constraintnum-cc3x', 'BatchInspector cc.Layout _constraintNum (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2261-batch-layout-constraintnum-cc3x', 'BatchInspector cc.Layout _constraintNum CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1256: R2261 BatchInspector cc.Layout _startAxis (CC3.x) ──────────
+console.log('\n## 1256. R2261 BatchInspector cc.Layout _startAxis CC3.x 체크')
+const s1256 = s1255
+if (s1256.includes('_startAxis: startAxis') && s1256.includes('patchLayoutStartAxis')) {
+  log('pass', 'R2261-batch-layout-startaxis-cc3x', 'BatchInspector cc.Layout _startAxis (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2261-batch-layout-startaxis-cc3x', 'BatchInspector cc.Layout _startAxis CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
