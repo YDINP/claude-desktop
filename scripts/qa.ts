@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1106: R2187 BatchInspector cc.Canvas resizeWithBrowserSize ──────────
+console.log('\n## 1106. R2187 BatchInspector cc.Canvas resizeWithBrowserSize 체크')
+const s1106 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1106.includes('R2187') && s1106.includes('applyCanvasResizeWithBrowser') && s1106.includes('CanvRes')) {
+  log('pass', 'R2187-batch-canvas-resizewithbrowser', 'BatchInspector cc.Canvas resizeWithBrowserSize 일괄 설정')
+} else {
+  log('warning', 'R2187-batch-canvas-resizewithbrowser', 'BatchInspector cc.Canvas resizeWithBrowserSize 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1107: R2187 BatchInspector cc.Camera clearDepth ──────────
+console.log('\n## 1107. R2187 BatchInspector cc.Camera clearDepth 체크')
+const s1107 = s1106
+if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.includes('CamDepth')) {
+  log('pass', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 일괄 설정')
+} else {
+  log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1104: R2186 BatchInspector cc.Scrollbar direction ──────────
 console.log('\n## 1104. R2186 BatchInspector cc.Scrollbar direction 체크')
 const s1104 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

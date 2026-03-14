@@ -9980,6 +9980,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2187: 공통 cc.Canvas resizeWithBrowserSize 일괄 설정 */}
+      {commonCompTypes.includes('cc.Canvas') && (() => {
+        const applyCanvasResizeWithBrowser = async (resizeWithBrowserSize: boolean) => {
+          if (!sceneFile.root) return
+          function patchCanvasResize(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCanvasResize)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, resizeWithBrowserSize, _N$resizeWithBrowserSize: resizeWithBrowserSize } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCanvasResize(sceneFile.root) })
+          setBatchMsg(`✓ Canvas resizeWithBrowserSize=${resizeWithBrowserSize} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>CanvRes</span>
+            {([['rsz✓', true], ['rsz✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyCanvasResizeWithBrowser(v)} title={`resizeWithBrowserSize=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2153: 공통 cc.Canvas fitHeight 일괄 설정 */}
       {commonCompTypes.includes('cc.Canvas') && (() => {
         const applyCanvasFitHeight = async (fitHeight: boolean) => {
@@ -10671,6 +10695,30 @@ function CCFileBatchInspector({
                 onClick={() => applyCamFov(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#818cf8', userSelect: 'none' }}
               >{v}°</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2187: 공통 cc.Camera clearDepth 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamClearDepth = async (clearDepth: number) => {
+          if (!sceneFile.root) return
+          function patchCamClearDepth(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamClearDepth)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, clearDepth, _clearDepth: clearDepth } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCamClearDepth(sceneFile.root) })
+          setBatchMsg(`✓ Camera clearDepth=${clearDepth} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>CamDepth</span>
+            {[0, 0.5, 1].map(v => (
+              <span key={v} onClick={() => applyCamClearDepth(v)} title={`clearDepth=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{v}</span>
             ))}
           </div>
         )
