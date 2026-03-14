@@ -19355,6 +19355,18 @@ console.log('\n## 676. R1785 cc.AudioSource volume 퀵 프리셋 체크')
   }
 }
 
+// ── Section 677: R1786 cc.Label fontSize 표준 크기 프리셋 ───────────────────────
+console.log('\n## 677. R1786 cc.Label fontSize 표준 크기 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s677 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s677.includes('R1786') && s677.includes('fontSize 표준 크기 프리셋') && s677.includes('_N$fontSize: v')) {
+    log('pass', 'R1786-label-fontsize-preset', 'cc.Label fontSize 표준 크기 프리셋 버튼')
+  } else {
+    log('warning', 'R1786-label-fontsize-preset', 'cc.Label fontSize 표준 크기 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

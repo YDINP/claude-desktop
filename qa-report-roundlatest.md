@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:58:28.366Z
+> 2026-03-14T03:50:36.023Z
 
 ## Critical
 _없음_
@@ -1647,3 +1647,72 @@ _없음_
 - 씬 트리 색상 태그 필터
 - cc.Toggle Quick Edit interactable 추가
 - SceneView 컨텍스트 메뉴 확장
+- Stats 패널 비활성 노드 카운트 배지
+- Global Search 모두 선택 버튼
+- cc.Label overflow + align Quick Edit
+- Inspector 형제 노드 탐색 버튼 ◀ ▶
+- BatchInspector 균등 분배 버튼 (가로/세로)
+- cc.Label lineHeight Quick Edit
+- 트리 컨텍스트 메뉴 형제 순서 이동
+- cc.Button Color/Scale transition duration 편집
+- Inspector 노드 JSON 복사 버튼
+- cc.ProgressBar reverse + totalLength Quick Edit
+- 트리 Ctrl+클릭 다중 선택
+- cc.Label Find & Replace
+- BatchInspector 이름 Prefix/Suffix 일괄 추가
+- Stats 컴포넌트 배지 클릭으로 노드 선택
+- 회전 스텝 버튼 ±15°/±90°
+- 스케일 스텝 버튼 ×0.5/×2
+- Global Search 컴포넌트 타입 필터
+- BatchInspector 기준 노드 크기 맞추기 W≡/H≡
+- 자식 알파벳순 정렬
+- BatchInspector 앵커 9-point 일괄 설정
+- Inspector Z-index 직접 입력
+- Inspector 위치 스텝 버튼
+- cc.ScrollView content 크기 퀵 편집
+- Inspector 크기 스텝 버튼
+- 비활성 조상 일괄 활성화 버튼
+- cc.Label Bold/Italic/Underline 토글
+- Inspector 크기 배율 버튼 ×0.5/×2
+- BatchInspector 불투명도 퀵 프리셋
+- cc.Label 텍스트 대소문자 변환 버튼
+- Tree 자식 노드 수 배지
+- cc.Layout 패딩 균등 버튼
+- BatchInspector cc.Label fontSize 일괄 설정
+- BatchInspector 레이어 일괄 설정 (CC3.x)
+- BatchInspector 색상 퀵 프리셋
+- Inspector 위치 원점 (0,0) 리셋 버튼
+- cc.Widget 스트레치/센터 프리셋 버튼
+- BatchInspector 순서 번호 추가
+- cc.Canvas 해상도/fitWidth/fitHeight 퀵 편집
+- BatchInspector 전체 필드 초기화 버튼
+- cc.Label fontFamily 입력 필드
+- BatchInspector cc.Label 텍스트 색상 일괄 설정
+- cc.Label 텍스트 Trim 버튼
+- BatchInspector cc.Sprite tint 일괄 설정
+- BatchInspector cc.AudioSource volume 일괄 설정
+- BatchInspector cc.Label fontFamily 일괄 설정
+- cc.Button Sprite 전환 모드 UUID 표시
+- BatchInspector cc.Toggle isChecked 일괄 설정
+- cc.Slider progress 퀵 프리셋 버튼
+- Inspector 스냅 그리드 버튼 (×8/×16)
+- cc.RichText 텍스트 미리보기
+- BatchInspector X/Y 균등 배치
+- BatchInspector cc.Button interactable 일괄 설정
+- cc.ProgressBar progress 퀵 프리셋 버튼
+- BatchInspector cc.ProgressBar progress 일괄 설정
+- BatchInspector 선택 노드 정렬 (align X/Y)
+- cc.Label 텍스트 길이 배지 + 빈 문자열 경고
+- Inspector CC3.x 레이어 이름 배지
+- Inspector 회전 정규화 버튼 (-180~180)
+- BatchInspector 회전 일괄 정규화
+- BatchInspector 이름 prefix/suffix 제거
+- BatchInspector 이름 Regex 교체
+- Inspector 위치/크기 정수화 버튼
+- BatchInspector 크기 배율 일괄 적용
+- BatchInspector 선택 노드 위치/크기 일괄 정수화
+- Inspector 스케일 정수화 버튼
+- cc.Layout spacing 퀵 프리셋 버튼
+- cc.ScrollView brake 퀵 프리셋 버튼
+- cc.AudioSource volume 퀵 프리셋 버튼
+- cc.Label fontSize 표준 크기 프리셋 버튼

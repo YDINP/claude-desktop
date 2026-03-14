@@ -7719,6 +7719,18 @@ function CCFileNodeInspector({
                       >{d > 0 ? `+${d}` : d}</span>
                     ))}
                   </div>
+                  {/* R1786: fontSize 표준 크기 프리셋 */}
+                  <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', paddingLeft: 54, marginTop: 1 }}>
+                    {[12, 16, 20, 24, 32, 48, 72].map(v => (
+                      <span key={v} title={`fontSize = ${v}`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${fs === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: fs === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
                   {/* R1714: 텍스트 색상 피커 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>color</span>
