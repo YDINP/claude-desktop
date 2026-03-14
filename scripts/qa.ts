@@ -24113,6 +24113,24 @@ if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.inc
   log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1152: R2210 BatchInspector cc.Label outlineWidth (CC3.x) ──────────
+console.log('\n## 1152. R2210 BatchInspector cc.Label outlineWidth 체크')
+const s1152 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1152.includes('R2210') && s1152.includes('applyLabelOW') && s1152.includes('LblOW')) {
+  log('pass', 'R2210-batch-label-outlinewidth', 'BatchInspector cc.Label outlineWidth 일괄 설정')
+} else {
+  log('warning', 'R2210-batch-label-outlinewidth', 'BatchInspector cc.Label outlineWidth 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1153: R2210 BatchInspector cc.Label outlineColor (CC3.x) ──────────
+console.log('\n## 1153. R2210 BatchInspector cc.Label outlineColor 체크')
+const s1153 = s1152
+if (s1153.includes('R2210') && s1153.includes('applyLabelOutlineClr') && s1153.includes('LblOC')) {
+  log('pass', 'R2210-batch-label-outlinecolor', 'BatchInspector cc.Label outlineColor 일괄 설정')
+} else {
+  log('warning', 'R2210-batch-label-outlinecolor', 'BatchInspector cc.Label outlineColor 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1150: R2209 BatchInspector cc.BoxCollider2D size ──────────
 console.log('\n## 1150. R2209 BatchInspector cc.BoxCollider2D size 체크')
 const s1150 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
