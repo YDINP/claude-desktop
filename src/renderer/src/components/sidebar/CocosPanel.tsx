@@ -7635,6 +7635,18 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Math.round(volume * 100)}%</span>
                   </div>
+                  {/* R1785: volume 퀵 프리셋 */}
+                  <div style={{ display: 'flex', gap: 3, paddingLeft: 60 }}>
+                    {[0, 0.25, 0.5, 0.75, 1].map(v => (
+                      <span key={v} title={`volume = ${Math.round(v * 100)}%`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, volume: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(volume - v) < 0.01 ? '#facc15' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(volume - v) < 0.01 ? '#facc15' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{Math.round(v * 100)}%</span>
+                    ))}
+                  </div>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={loop}

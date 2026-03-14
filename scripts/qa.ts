@@ -19343,6 +19343,18 @@ console.log('\n## 675. R1784 cc.ScrollView brake 퀵 프리셋 체크')
   }
 }
 
+// ── Section 676: R1785 cc.AudioSource volume 퀵 프리셋 ───────────────────────
+console.log('\n## 676. R1785 cc.AudioSource volume 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s676 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s676.includes('R1785') && s676.includes('volume 퀵 프리셋')) {
+    log('pass', 'R1785-audio-vol-preset', 'cc.AudioSource volume 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1785-audio-vol-preset', 'cc.AudioSource volume 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
