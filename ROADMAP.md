@@ -885,3 +885,5 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | Round 1478 | cc-file-parser 대형 씬 청크 스트리밍 파싱 (parseCCSceneChunked, isLargeScene) | ✅ |
 | Round 1479 | Inspector Layer 필드 편집 고도화 (CC2.x/3.x layerOptions, 직접입력, parser fix) | ✅ |
 | Round 1480 | QA Section 405-406 추가 (R1476-R1479 기능 체크, Pass 1371) | ✅ |
+| Round 2159 | BatchInspector cc.BoxCollider2D + CircleCollider2D 확장 (sensor/density/friction/restitution 배치에 포함, QA Pass 2082) | ✅ |
+| Round 2160 | BatchInspector cc.BoxCollider2D offset + CircleCollider2D offset 신규 배치 섹션 (QA Pass 2084) | ✅ |
