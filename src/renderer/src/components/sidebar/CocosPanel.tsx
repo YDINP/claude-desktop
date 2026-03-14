@@ -5629,6 +5629,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2065: 공통 cc.ScrollView bounce 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applyScrollBounce = async (bounce: boolean) => {
+          if (!sceneFile.root) return
+          function patchScrollBounce(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchScrollBounce)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounce, _N$bounce: bounce } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchScrollBounce(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView bounce=${bounce} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SVbnce</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`bounce = ${v}`}
+                onClick={() => applyScrollBounce(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}
+              >{v ? 'bnc✓' : 'bnc✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2004: 공통 cc.ScrollView pagingEnabled 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVPaging = async (pagingEnabled: boolean) => {

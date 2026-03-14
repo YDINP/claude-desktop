@@ -22706,6 +22706,18 @@ console.log('\n## 955. R2064 BatchInspector cc.Label fontFamily 체크')
   }
 }
 
+// ── Section 956: R2065 BatchInspector cc.ScrollView bounce ──────────
+console.log('\n## 956. R2065 BatchInspector cc.ScrollView bounce 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s956 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s956.includes('R2065') && s956.includes('patchScrollBounce') && s956.includes('applyScrollBounce')) {
+    log('pass', 'R2065-batch-sv-bounce', 'BatchInspector cc.ScrollView bounce 일괄 설정')
+  } else {
+    log('warning', 'R2065-batch-sv-bounce', 'BatchInspector cc.ScrollView bounce 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:09:18.572Z
+> 2026-03-14T08:09:59.182Z
 
 ## Critical
 _없음_
@@ -1994,3 +1994,4 @@ _없음_
 - BatchInspector cc.ParticleSystem rotationIsDir 일괄 설정
 - BatchInspector cc.ProgressBar totalLength 일괄 설정
 - BatchInspector cc.Label fontFamily 일괄 설정
+- BatchInspector cc.ScrollView bounce 일괄 설정
