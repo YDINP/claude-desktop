@@ -94,6 +94,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [viewLock, setViewLock] = useState(false)
   // R1610: 비활성 노드 완전 숨기기
   const [hideInactiveNodes, setHideInactiveNodes] = useState(false)
+  // R1692: 시각적 숨기기 (에디터 전용, active 불변)
+  const [hiddenUuids, setHiddenUuids] = useState<Set<string>>(new Set())
   // R1623: 와이어프레임 모드 (선만 표시)
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
@@ -655,9 +657,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         }
       }
       // R1565: H — 선택 노드 active 토글 (숨기기/보이기)
-      if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && selectedUuid) {
+      if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && !e.shiftKey && selectedUuid) {
         e.preventDefault()
         onToggleActive?.(selectedUuid)
+        return
+      }
+      // R1692: Shift+H — 선택 노드 시각적 숨기기 토글 (active 불변)
+      if (e.code === 'KeyH' && e.shiftKey && !e.ctrlKey && !e.metaKey && selectedUuid) {
+        e.preventDefault()
+        setHiddenUuids(prev => {
+          const next = new Set(prev)
+          if (next.has(selectedUuid)) next.delete(selectedUuid)
+          else next.add(selectedUuid)
+          return next
+        })
         return
       }
       // R1622: O — 선택 노드 캔버스 중앙(0,0) 이동
@@ -953,6 +966,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={hideInactiveNodes ? '비활성 노드 표시' : '비활성 노드 숨기기 (R1610)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${hideInactiveNodes ? '#fbbf24' : 'var(--border)'}`, background: hideInactiveNodes ? 'rgba(251,191,36,0.12)' : 'none', color: hideInactiveNodes ? '#fbbf24' : 'var(--text-muted)' }}
         >👁</button>
+        {/* R1692: 시각적 숨김 노드 카운트 + 초기화 */}
+        {hiddenUuids.size > 0 && (
+          <button
+            onClick={() => setHiddenUuids(new Set())}
+            title={`시각적으로 숨긴 노드 ${hiddenUuids.size}개 — 클릭하여 모두 표시 (R1692)`}
+            style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.5)', background: 'rgba(251,146,60,0.12)', color: '#fb923c' }}
+          >👁‍🗨 {hiddenUuids.size}</button>
+        )}
         {/* R1623: 와이어프레임 모드 */}
         <button
           onClick={() => setWireframeMode(w => !w)}
@@ -1235,6 +1256,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const h = isResized ? resizeOverride!.h : (node.size?.y || 0)
             if (w === 0 && h === 0) return null  // 크기 없는 노드는 점으로 표시
             if (hideInactiveNodes && node.active === false) return null  // R1610
+            if (hiddenUuids.has(node.uuid)) return null  // R1692: 시각적 숨기기
 
             // 캔버스 범위 밖 노드 감지
             const isOutOfCanvas = effX + w / 2 < -designW / 2 || effX - w / 2 > designW / 2 || effY + h / 2 < -designH / 2 || effY - h / 2 > designH / 2

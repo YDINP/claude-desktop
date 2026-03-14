@@ -18227,6 +18227,18 @@ console.log('\n## 582. R1691 cc.Label 멀티라인 미리보기 체크')
   }
 }
 
+// ── Section 583: R1692 SceneView 시각적 숨기기 토글 ──────────────────────────
+console.log('\n## 583. R1692 SceneView 시각적 숨기기 토글 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s583 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s583.includes('R1692') && s583.includes('hiddenUuids') && s583.includes('Shift+H')) {
+    log('pass', 'R1692-visual-hide-toggle', 'SceneView 시각적 숨기기 토글')
+  } else {
+    log('warning', 'R1692-visual-hide-toggle', 'SceneView 시각적 숨기기 토글 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
