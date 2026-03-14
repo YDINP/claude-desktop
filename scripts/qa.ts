@@ -19211,6 +19211,18 @@ console.log('\n## 664. R1773 cc.Label 텍스트 길이 배지 체크')
   }
 }
 
+// ── Section 665: R1774 Inspector 레이어 이름 배지 ────────────────────────────
+console.log('\n## 665. R1774 Inspector 레이어 이름 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s665 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s665.includes('R1774') && s665.includes('레이어 이름 배지') && s665.includes('layerNames') && s665.includes('UI_2D')) {
+    log('pass', 'R1774-layer-name', 'Inspector CC3.x 레이어 이름 배지')
+  } else {
+    log('warning', 'R1774-layer-name', 'Inspector 레이어 이름 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

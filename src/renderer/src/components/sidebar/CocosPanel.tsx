@@ -6394,6 +6394,12 @@ function CCFileNodeInspector({
                 onChange={e => applyAndSave({ layer: parseInt(e.target.value) || 0 })}
                 style={{ width: 66, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
               />
+              {/* R1774: 레이어 이름 배지 */}
+              {(() => {
+                const layerNames: Record<number, string> = { 1: 'DEFAULT', 2: 'IGNORE_RAYCAST', 4: 'TERRAIN', 8: 'ENVIRONMENT', 16: 'UI_3D', 512: 'SCENE_GIZMO', 1024: 'EDITOR', 524288: 'UI_2D', 1073741824: 'ALL' }
+                const name = layerNames[draft.layer!]
+                return name ? <span style={{ fontSize: 8, color: '#a78bfa', padding: '1px 3px', border: '1px solid rgba(167,139,250,0.3)', borderRadius: 2 }}>{name}</span> : null
+              })()}
             </>
           )}
         </div>
