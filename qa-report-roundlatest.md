@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:23:48.873Z
+> 2026-03-14T04:24:49.376Z
 
 ## Critical
 _없음_
@@ -1745,3 +1745,4 @@ _없음_
 - cc.Graphics + Collider applyAndSave
 - cc.SkeletalAnimation speedRatio 퀵 프리셋
 - cc.ParticleSystem emitRate 퀵 프리셋
+- BatchInspector cc.Animation playOnLoad 일괄 설정

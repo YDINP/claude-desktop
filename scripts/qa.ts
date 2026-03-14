@@ -19715,6 +19715,18 @@ console.log('\n## 706. R1815 cc.ParticleSystem emitRate 퀵 프리셋 체크')
   }
 }
 
+// ── Section 707: R1816 BatchInspector cc.Animation playOnLoad ────────────────
+console.log('\n## 707. R1816 BatchInspector cc.Animation playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s707 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s707.includes('R1816') && s707.includes('patchAnim') && s707.includes("c.type === 'cc.Animation'")) {
+    log('pass', 'R1816-batch-animation-playonload', 'BatchInspector cc.Animation playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R1816-batch-animation-playonload', 'BatchInspector cc.Animation playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

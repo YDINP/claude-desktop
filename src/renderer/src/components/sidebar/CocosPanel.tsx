@@ -4111,6 +4111,33 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1816: 공통 cc.Animation playOnLoad 일괄 설정 */}
+      {commonCompTypes.includes('cc.Animation') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#fbbf24', width: 48, flexShrink: 0 }}>Anim</span>
+          {([
+            { label: '▶ auto', key: 'playOnLoad', val: true },
+            { label: '○ auto', key: 'playOnLoad', val: false },
+          ] as const).map(({ label, key, val }) => (
+            <span key={`${key}${val}`}
+              title={`${key} = ${val}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                function patchAnim(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchAnim)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, [key]: val } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchAnim(sceneFile.root))
+                setBatchMsg(`✓ Animation ${key} ${val} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: val ? '#fbbf24' : 'var(--text-muted)', userSelect: 'none' }}
+            >{label}</span>
+          ))}
+        </div>
+      )}
       {/* R1771: 공통 cc.ProgressBar progress 일괄 설정 */}
       {commonCompTypes.includes('cc.ProgressBar') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
