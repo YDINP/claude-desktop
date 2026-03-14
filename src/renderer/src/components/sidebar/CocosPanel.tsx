@@ -5301,6 +5301,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2181: 공통 cc.Label enableDashLine 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelDashLine = async (enableDashLine: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelDashLine(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelDashLine)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, enableDashLine, _enableDashLine: enableDashLine } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelDashLine(sceneFile.root) })
+          setBatchMsg(`✓ Label enableDashLine=${enableDashLine} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblDash</span>
+            {([['dash✓', true], ['dash✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyLabelDashLine(v)} title={`enableDashLine=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1888: 공통 cc.RichText maxWidth 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichMaxW = async (w: number) => {
@@ -6855,6 +6879,30 @@ function CCFileBatchInspector({
             {[0, 0.1, 0.3, 0.5, 1].map(v => (
               <span key={v} onClick={() => applySVScrollDur(v)} title={`scrollDuration=${v}s`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}s</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2181: 공통 cc.ScrollView mouseWheelScrollSensitivity 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVMouseWheelSens = async (mouseWheelScrollSensitivity: number) => {
+          if (!sceneFile.root) return
+          function patchSVMouseWheelSens(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVMouseWheelSens)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, mouseWheelScrollSensitivity, _N$mouseWheelScrollSensitivity: mouseWheelScrollSensitivity } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSVMouseWheelSens(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView mouseWheelSens=${mouseWheelScrollSensitivity} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SVwhl</span>
+            {[0.5, 1, 2, 3, 5, 10].map(v => (
+              <span key={v} onClick={() => applySVMouseWheelSens(v)} title={`mouseWheelScrollSensitivity=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{v}</span>
             ))}
           </div>
         )

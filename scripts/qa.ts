@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1094: R2181 BatchInspector cc.Label enableDashLine ──────────
+console.log('\n## 1094. R2181 BatchInspector cc.Label enableDashLine 체크')
+const s1094 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1094.includes('R2181') && s1094.includes('applyLabelDashLine') && s1094.includes('LblDash')) {
+  log('pass', 'R2181-batch-label-enabledashline', 'BatchInspector cc.Label enableDashLine 일괄 설정')
+} else {
+  log('warning', 'R2181-batch-label-enabledashline', 'BatchInspector cc.Label enableDashLine 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1095: R2181 BatchInspector cc.ScrollView mouseWheelScrollSensitivity ──────────
+console.log('\n## 1095. R2181 BatchInspector cc.ScrollView mouseWheelScrollSensitivity 체크')
+const s1095 = s1094
+if (s1095.includes('R2181') && s1095.includes('applySVMouseWheelSens') && s1095.includes('SVwhl')) {
+  log('pass', 'R2181-batch-sv-mousewheelsens', 'BatchInspector cc.ScrollView mouseWheelScrollSensitivity 일괄 설정')
+} else {
+  log('warning', 'R2181-batch-sv-mousewheelsens', 'BatchInspector cc.ScrollView mouseWheelScrollSensitivity 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1092: R2180 BatchInspector cc.PageView effectType ──────────
 console.log('\n## 1092. R2180 BatchInspector cc.PageView effectType 체크')
 const s1092 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
