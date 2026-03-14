@@ -5355,6 +5355,89 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2144: 공통 cc.Graphics lineWidth 일괄 설정 */}
+      {commonCompTypes.includes('cc.Graphics') && (() => {
+        const applyGraphicsLineWidth = async (lineWidth: number) => {
+          if (!sceneFile.root) return
+          function patchGraphicsLineWidth(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchGraphicsLineWidth)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, lineWidth, _lineWidth: lineWidth } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchGraphicsLineWidth(sceneFile.root) })
+          setBatchMsg(`✓ Graphics lineWidth=${lineWidth} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>GfxLnW</span>
+            {[1, 2, 3, 5, 8, 10].map(v => (
+              <span key={v} onClick={() => applyGraphicsLineWidth(v)} title={`lineWidth=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2145: 공통 cc.Graphics fillColor 일괄 설정 */}
+      {commonCompTypes.includes('cc.Graphics') && (() => {
+        const applyGraphicsFillColor = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const fillColor = { r, g, b, a: 255 }
+          function patchGraphicsFillColor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchGraphicsFillColor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, fillColor, _fillColor: fillColor } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchGraphicsFillColor(sceneFile.root) })
+          setBatchMsg(`✓ Graphics fillColor=${hex} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>GfxFill</span>
+            <input type="color" defaultValue="#ffffff"
+              onChange={e => applyGraphicsFillColor(e.target.value)}
+              style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer' }}
+            />
+            {(['#ffffff','#000000','#ff0000','#00ff00','#0000ff'] as const).map(c => (
+              <span key={c} title={c} onClick={() => applyGraphicsFillColor(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, border: '1px solid var(--border)', cursor: 'pointer', display: 'inline-block', flexShrink: 0 }}
+              />
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2146: 공통 cc.Graphics strokeColor 일괄 설정 */}
+      {commonCompTypes.includes('cc.Graphics') && (() => {
+        const applyGraphicsStrokeColor = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const strokeColor = { r, g, b, a: 255 }
+          function patchGraphicsStrokeColor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchGraphicsStrokeColor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, strokeColor, _strokeColor: strokeColor } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchGraphicsStrokeColor(sceneFile.root) })
+          setBatchMsg(`✓ Graphics strokeColor=${hex} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>GfxStrk</span>
+            <input type="color" defaultValue="#000000"
+              onChange={e => applyGraphicsStrokeColor(e.target.value)}
+              style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer' }}
+            />
+            {(['#000000','#ffffff','#ff0000','#00ff00','#0000ff'] as const).map(c => (
+              <span key={c} title={c} onClick={() => applyGraphicsStrokeColor(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, border: '1px solid var(--border)', cursor: 'pointer', display: 'inline-block', flexShrink: 0 }}
+              />
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {

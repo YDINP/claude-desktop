@@ -23654,6 +23654,42 @@ console.log('\n## 1034. R2143 BatchInspector cc.DirectionalLight/PointLight colo
   }
 }
 
+// ── Section 1035: R2144 BatchInspector cc.Graphics lineWidth ──────────
+console.log('\n## 1035. R2144 BatchInspector cc.Graphics lineWidth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1035 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1035.includes('R2144') && s1035.includes('patchGraphicsLineWidth') && s1035.includes('applyGraphicsLineWidth')) {
+    log('pass', 'R2144-batch-graphics-linewidth', 'BatchInspector cc.Graphics lineWidth 일괄 설정')
+  } else {
+    log('warning', 'R2144-batch-graphics-linewidth', 'BatchInspector cc.Graphics lineWidth 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1036: R2145 BatchInspector cc.Graphics fillColor ──────────
+console.log('\n## 1036. R2145 BatchInspector cc.Graphics fillColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1036 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1036.includes('R2145') && s1036.includes('patchGraphicsFillColor') && s1036.includes('applyGraphicsFillColor')) {
+    log('pass', 'R2145-batch-graphics-fillcolor', 'BatchInspector cc.Graphics fillColor 일괄 설정')
+  } else {
+    log('warning', 'R2145-batch-graphics-fillcolor', 'BatchInspector cc.Graphics fillColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1037: R2146 BatchInspector cc.Graphics strokeColor ──────────
+console.log('\n## 1037. R2146 BatchInspector cc.Graphics strokeColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1037 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1037.includes('R2146') && s1037.includes('patchGraphicsStrokeColor') && s1037.includes('applyGraphicsStrokeColor')) {
+    log('pass', 'R2146-batch-graphics-strokecolor', 'BatchInspector cc.Graphics strokeColor 일괄 설정')
+  } else {
+    log('warning', 'R2146-batch-graphics-strokecolor', 'BatchInspector cc.Graphics strokeColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
