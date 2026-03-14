@@ -20333,7 +20333,7 @@ function CCFileNodeInspector({
                         const h = e.target.value
                         const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16)
                         const col = { r, g, b, a: bg?.a ?? 255 }
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, backgroundColor: col } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, backgroundColor: col, _backgroundColor: col, _N$backgroundColor: col } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
@@ -21210,7 +21210,7 @@ function CCFileNodeInspector({
                     <input type="range" min={0} max={1} step={0.05} value={brake}
                       onChange={e => {
                         const v = parseFloat(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, brake: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, brake: v, _brake: v, _N$brake: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1 }}

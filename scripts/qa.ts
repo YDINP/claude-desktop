@@ -25007,6 +25007,18 @@ if (
   log('warning', 'R2282-node-slider-vp-direction-playbackrate-muted-cc3x', '단일노드 Slider/VideoPlayer CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1287: R2283 단일노드 cc.Camera _backgroundColor + cc.ScrollView _brake range (CC3.x) ──────────
+console.log('\n## 1287. R2283 단일노드 cc.Camera _backgroundColor + cc.ScrollView _brake range CC3.x 체크')
+const s1287 = s1286
+if (
+  s1287.includes('_backgroundColor: col, _N$backgroundColor: col') &&
+  s1287.includes('brake: v, _brake: v, _N$brake: v')
+) {
+  log('pass', 'R2283-node-camera-bg-sv-brake-cc3x', '단일노드 cc.Camera _backgroundColor + cc.ScrollView _brake range (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2283-node-camera-bg-sv-brake-cc3x', '단일노드 Camera/ScrollView CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
