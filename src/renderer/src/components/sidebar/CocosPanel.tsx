@@ -5477,6 +5477,22 @@ function CCFileNodeInspector({
               const r = typeof draft.rotation === 'number' ? v : { ...(draft.rotation as object), z: v } as CCSceneNode['rotation']
               applyAndSave({ rotation: r })
             })}
+            {/* R1732: 회전 스텝 버튼 ±15°/±90° */}
+            <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
+              {([-90, -15, 15, 90] as const).map(delta => (
+                <span
+                  key={delta}
+                  title={`회전 ${delta > 0 ? '+' : ''}${delta}°`}
+                  onClick={() => {
+                    const r = typeof draft.rotation === 'number' ? (rotation + delta) : { ...(draft.rotation as object), z: rotation + delta } as CCSceneNode['rotation']
+                    applyAndSave({ rotation: r })
+                  }}
+                  style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none', whiteSpace: 'nowrap' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                >{delta > 0 ? '+' : ''}{delta}°</span>
+              ))}
+            </div>
           </div>
           <div>
             <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 4 }}>

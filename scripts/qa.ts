@@ -18707,6 +18707,18 @@ console.log('\n## 622. R1731 Stats 컴포넌트 배지 클릭 선택 체크')
   }
 }
 
+// ── Section 623: R1732 회전 스텝 버튼 ──────────────────────────────────────────
+console.log('\n## 623. R1732 회전 스텝 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s623 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s623.includes('R1732') && s623.includes('회전 스텝') && s623.includes('-90') && s623.includes('15, 90')) {
+    log('pass', 'R1732-rotation-step', '회전 스텝 버튼 ±15°/±90°')
+  } else {
+    log('warning', 'R1732-rotation-step', '회전 스텝 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
