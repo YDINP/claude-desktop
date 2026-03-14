@@ -4140,6 +4140,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2220: 공통 cc.PolygonCollider2D enabled (컴포넌트 레벨) 일괄 설정 */}
+      {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
+        const applyPolyColliderEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchPolyColliderEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPolyColliderEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D')
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPolyColliderEnabled(sceneFile.root) })
+          setBatchMsg(`✓ PolygonCollider2D enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>PolyCEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyPolyColliderEnabled(v)} title={`PolygonCollider2D enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2156: 공통 cc.PolygonCollider offset 일괄 설정 */}
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyOffset = async (ox: number, oy: number) => {
@@ -8778,6 +8804,32 @@ function CCFileBatchInspector({
             {([['Dflt', 0], ['Norm', 1], ['Loop', 2], ['Ping', 3]] as const).map(([l, v]) => (
               <span key={v} onClick={() => applyAnimWrapMode(v)} title={`wrapMode=${l}(${v})`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#fbbf24', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2220: 공통 cc.WebView enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.WebView') && (() => {
+        const applyWebViewEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchWebViewEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWebViewEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.WebView'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWebViewEnabled(sceneFile.root) })
+          setBatchMsg(`✓ WebView enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>WVEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyWebViewEnabled(v)} title={`WebView enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )

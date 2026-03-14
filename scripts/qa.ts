@@ -24125,6 +24125,24 @@ if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
   log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
 }
 
+// ── Section 1173: R2220 BatchInspector cc.PolygonCollider2D enabled ──────────
+console.log('\n## 1173. R2220 BatchInspector cc.PolygonCollider2D enabled 체크')
+const s1173 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1173.includes('R2220') && s1173.includes('applyPolyColliderEnabled') && s1173.includes('PolyCEn')) {
+  log('pass', 'R2220-batch-polycollider-enabled', 'BatchInspector cc.PolygonCollider2D enabled 일괄 설정')
+} else {
+  log('warning', 'R2220-batch-polycollider-enabled', 'BatchInspector cc.PolygonCollider2D enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1174: R2220 BatchInspector cc.WebView enabled ──────────
+console.log('\n## 1174. R2220 BatchInspector cc.WebView enabled 체크')
+const s1174 = s1173
+if (s1174.includes('R2220') && s1174.includes('applyWebViewEnabled') && s1174.includes('WVEn')) {
+  log('pass', 'R2220-batch-webview-enabled', 'BatchInspector cc.WebView enabled 일괄 설정')
+} else {
+  log('warning', 'R2220-batch-webview-enabled', 'BatchInspector cc.WebView enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1171: R2219 BatchInspector cc.LabelOutline enabled (CC2.x) ──────────
 console.log('\n## 1171. R2219 BatchInspector cc.LabelOutline enabled 체크')
 const s1171 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
