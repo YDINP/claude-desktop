@@ -22108,23 +22108,7 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
     })
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, textAlign: 'center' }}>
-        에셋 스캔 중...
-      </div>
-    )
-  }
-
-  if (!assets || Object.keys(assets).length === 0) {
-    return (
-      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, textAlign: 'center' }}>
-        에셋을 찾을 수 없습니다
-      </div>
-    )
-  }
-
-  // R1382: 폴더 트리 데이터
+  // R1382: 폴더 트리 데이터 — 반드시 early return 전에 호출 (Rules of Hooks)
   const folderTree = useMemo(() => {
     if (!assets) return null
     const entries = Object.values(assets)
@@ -22141,6 +22125,22 @@ function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode }: {
       return next
     })
   }, [])
+
+  if (loading) {
+    return (
+      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, textAlign: 'center' }}>
+        에셋 스캔 중...
+      </div>
+    )
+  }
+
+  if (!assets || Object.keys(assets).length === 0) {
+    return (
+      <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, textAlign: 'center' }}>
+        에셋을 찾을 수 없습니다
+      </div>
+    )
+  }
 
   // R1382: 재귀 폴더 노드 렌더링
   const renderFolderNode = (node: FolderNode, depth: number): React.ReactNode => {

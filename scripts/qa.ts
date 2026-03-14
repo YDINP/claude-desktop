@@ -24113,6 +24113,18 @@ if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.inc
   log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1164: fix CCFileAssetBrowser hooks 순서 위반 ──────────
+console.log('\n## 1164. CCFileAssetBrowser folderTree/toggleTreeFolder hook 순서 체크')
+const s1164 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+// folderTree useMemo는 반드시 early return 전에 선언되어야 함
+const earlyReturnIdx = s1164.indexOf('에셋 스캔 중...')
+const folderTreeIdx = s1164.indexOf('folderTree = useMemo')
+if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
+  log('pass', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo early-return 전 배치 확인')
+} else {
+  log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
+}
+
 // ── Section 1162: R2215 BatchInspector cc.Label _underlineHeight (CC3.x) ──────────
 console.log('\n## 1162. R2215 BatchInspector cc.Label _underlineHeight 체크')
 const s1162 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
