@@ -23066,6 +23066,18 @@ console.log('\n## 985. R2094 BatchInspector cc.PolygonCollider friction 체크')
   }
 }
 
+// ── Section 986: R2095 BatchInspector cc.PolygonCollider restitution ──────────
+console.log('\n## 986. R2095 BatchInspector cc.PolygonCollider restitution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s986 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s986.includes('R2095') && s986.includes('patchPolyRest') && s986.includes('applyPolyRest')) {
+    log('pass', 'R2095-batch-poly-restitution', 'BatchInspector cc.PolygonCollider restitution 일괄 설정')
+  } else {
+    log('warning', 'R2095-batch-poly-restitution', 'BatchInspector cc.PolygonCollider restitution 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

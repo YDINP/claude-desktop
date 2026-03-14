@@ -3911,6 +3911,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2095: 공통 cc.PolygonCollider restitution 일괄 설정 */}
+      {commonCompTypes.includes('cc.PolygonCollider') && (() => {
+        const applyPolyRest = async (restitution: number) => {
+          if (!sceneFile.root) return
+          function patchPolyRest(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPolyRest)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PolygonCollider' ? { ...c, props: { ...c.props, restitution } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPolyRest(sceneFile.root) })
+          setBatchMsg(`✓ PolygonCollider restitution=${restitution} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>PolyRst</span>
+            {[0, 0.1, 0.3, 0.5, 0.7, 1].map(v => (
+              <span key={v} title={`restitution = ${v}`}
+                onClick={() => applyPolyRest(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2094: 공통 cc.PolygonCollider friction 일괄 설정 */}
       {commonCompTypes.includes('cc.PolygonCollider') && (() => {
         const applyPolyFric = async (friction: number) => {
