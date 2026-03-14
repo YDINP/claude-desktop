@@ -5846,6 +5846,41 @@ function CCFileNodeInspector({
                       grayscale
                     </label>
                   </div>
+                  {/* R1711: Filled 타입 — fillType/fillStart/fillRange 편집 */}
+                  {Number(p.type ?? 0) === 3 && (
+                    <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>fillType</span>
+                        <select value={Number(p.fillType ?? 0)}
+                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillType', Number(ev.target.value))}
+                          style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                        >
+                          <option value={0}>Horizontal</option>
+                          <option value={1}>Vertical</option>
+                          <option value={2}>Radial</option>
+                        </select>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>fillStart</span>
+                        <input type="range" min={0} max={1} step={0.01} value={Number(p.fillStart ?? 0)}
+                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillStart', parseFloat(ev.target.value))}
+                          style={{ flex: 1 }} />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Number(p.fillStart ?? 0).toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>fillRange</span>
+                        <input type="range" min={0} max={1} step={0.01} value={Number(p.fillRange ?? 1)}
+                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillRange', parseFloat(ev.target.value))}
+                          style={{ flex: 1 }} />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Number(p.fillRange ?? 1).toFixed(2)}</span>
+                      </div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                        <input type="checkbox" checked={!!(p.fillCenter ?? false)}
+                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillCenter', ev.target.checked)} />
+                        fillCenter
+                      </label>
+                    </div>
+                  )}
                 </div>
               )
             }

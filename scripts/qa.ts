@@ -18455,6 +18455,18 @@ console.log('\n## 601. R1710 씬 트리 구조 텍스트 복사 체크')
   }
 }
 
+// ── Section 602: R1711 cc.Sprite Filled 모드 편집 ─────────────────────────────
+console.log('\n## 602. R1711 cc.Sprite Filled 모드 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s602 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s602.includes('R1711') && s602.includes('fillType') && s602.includes('fillRange') && s602.includes('fillStart')) {
+    log('pass', 'R1711-sprite-filled', 'cc.Sprite Filled 모드 fillType/fillStart/fillRange 편집')
+  } else {
+    log('warning', 'R1711-sprite-filled', 'cc.Sprite Filled 모드 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

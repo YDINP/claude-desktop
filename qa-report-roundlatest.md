@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:49:29.157Z
+> 2026-03-14T01:51:07.681Z
 
 ## Critical
 _없음_
@@ -1640,3 +1640,4 @@ _없음_
 - 씬뷰 PNG 로컬 다운로드
 - cc.Layout Grid cellSize 편집
 - 씬 트리 구조 텍스트 복사
+- cc.Sprite Filled 모드 fillType/fillStart/fillRange 편집
