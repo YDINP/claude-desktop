@@ -4096,7 +4096,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchBoxColliderEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => (c.type === 'cc.BoxCollider2D' || c.type === 'cc.BoxCollider')
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBoxColliderEnabled(sceneFile.root) })
@@ -4122,7 +4122,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchCircleColliderEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => (c.type === 'cc.CircleCollider2D' || c.type === 'cc.CircleCollider')
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCircleColliderEnabled(sceneFile.root) })
@@ -4148,7 +4148,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchPolyColliderEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D')
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyColliderEnabled(sceneFile.root) })
@@ -5756,7 +5756,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchLabelEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLabelEnabled(sceneFile.root) })
@@ -6234,7 +6234,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchRichTextEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.RichText'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRichTextEnabled(sceneFile.root) })
@@ -6461,7 +6461,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchLightEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight')
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLightEnabled(sceneFile.root) })
@@ -6694,7 +6694,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchGraphicsEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Graphics'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchGraphicsEnabled(sceneFile.root) })
@@ -6764,7 +6764,7 @@ function CCFileBatchInspector({
           function patchWidgetEnabled(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchWidgetEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, enabled } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchWidgetEnabled(sceneFile.root) })
@@ -6839,7 +6839,7 @@ function CCFileBatchInspector({
           function patchUIOpacity(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchUIOpacity)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.UIOpacity' ? { ...c, props: { ...c.props, opacity } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.UIOpacity' ? { ...c, props: { ...c.props, opacity, _opacity: opacity } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchUIOpacity(sceneFile.root) })
@@ -6864,7 +6864,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchUIOpacityEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.UIOpacity'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchUIOpacityEnabled(sceneFile.root) })
@@ -6890,7 +6890,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchToggleEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Toggle'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchToggleEnabled(sceneFile.root) })
@@ -6963,7 +6963,7 @@ function CCFileBatchInspector({
           function patchToggleInteract(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchToggleInteract)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, interactable } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchToggleInteract(sceneFile.root) })
@@ -6984,7 +6984,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchTCEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.ToggleContainer'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchTCEnabled(sceneFile.root) })
@@ -7134,7 +7134,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchEditBoxEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.EditBox'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchEditBoxEnabled(sceneFile.root) })
@@ -7438,7 +7438,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchButtonEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Button'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchButtonEnabled(sceneFile.root) })
@@ -7666,7 +7666,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchAudioEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.AudioSource'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchAudioEnabled(sceneFile.root) })
@@ -7714,7 +7714,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchLabelOutlineEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.LabelOutline'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLabelOutlineEnabled(sceneFile.root) })
@@ -7740,7 +7740,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchLabelShadowEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.LabelShadow'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLabelShadowEnabled(sceneFile.root) })
@@ -8124,7 +8124,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchSVEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.ScrollView'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSVEnabled(sceneFile.root) })
@@ -8219,7 +8219,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchScrollbarEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Scrollbar'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchScrollbarEnabled(sceneFile.root) })
@@ -8485,7 +8485,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchPVEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.PageView'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPVEnabled(sceneFile.root) })
@@ -8741,7 +8741,7 @@ function CCFileBatchInspector({
           function patchPVDir(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPVDir)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, direction } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchPVDir(sceneFile.root))
@@ -8820,7 +8820,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchAnimEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Animation'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchAnimEnabled(sceneFile.root) })
@@ -8921,7 +8921,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchWebViewEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.WebView'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchWebViewEnabled(sceneFile.root) })
@@ -8947,7 +8947,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchVideoEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.VideoPlayer'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchVideoEnabled(sceneFile.root) })
@@ -9147,7 +9147,7 @@ function CCFileBatchInspector({
           function patchVideoKeepAspect(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchVideoKeepAspect)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, keepAspectRatio } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio, _N$keepAspectRatio: keepAspectRatio } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchVideoKeepAspect(sceneFile.root)
@@ -9250,7 +9250,7 @@ function CCFileBatchInspector({
           function patchMSStroke(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchMSStroke)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, stroke } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchMSStroke(sceneFile.root) })
@@ -9275,7 +9275,7 @@ function CCFileBatchInspector({
           function patchMSFade(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchMSFade)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, fade } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchMSFade(sceneFile.root) })
@@ -9326,7 +9326,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchMotionEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.MotionStreak'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchMotionEnabled(sceneFile.root) })
@@ -9638,7 +9638,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchDBEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchDBEnabled(sceneFile.root) })
@@ -9882,7 +9882,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchParticleEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D')
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchParticleEnabled(sceneFile.root) })
@@ -9908,7 +9908,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchSpineEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'sp.Skeleton'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpineEnabled(sceneFile.root) })
@@ -11448,7 +11448,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchTiledLayerEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.TiledLayer'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchTiledLayerEnabled(sceneFile.root) })
@@ -11473,7 +11473,7 @@ function CCFileBatchInspector({
           function patchTiledLayerOpacity(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchTiledLayerOpacity)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.TiledLayer' ? { ...c, props: { ...c.props, opacity } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.TiledLayer' ? { ...c, props: { ...c.props, opacity, _opacity: opacity, _N$opacity: opacity } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchTiledLayerOpacity(sceneFile.root) })
@@ -11520,7 +11520,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchBIEEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.BlockInputEvents'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchBIEEnabled(sceneFile.root) })
@@ -11546,7 +11546,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchCanvasEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Canvas'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCanvasEnabled(sceneFile.root) })
@@ -11829,7 +11829,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchSkeletalAnimEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSkeletalAnimEnabled(sceneFile.root) })
@@ -11878,7 +11878,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchSliderEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Slider'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSliderEnabled(sceneFile.root) })
@@ -12254,7 +12254,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchCameraEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Camera'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCameraEnabled(sceneFile.root) })
@@ -12689,7 +12689,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchLayoutEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Layout'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLayoutEnabled(sceneFile.root) })
@@ -13930,7 +13930,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchRBEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D')
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBEnabled(sceneFile.root) })
@@ -14193,7 +14193,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchMaskEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Mask'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchMaskEnabled(sceneFile.root) })
@@ -14450,7 +14450,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchPBEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.ProgressBar'
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPBEnabled(sceneFile.root) })
@@ -14777,7 +14777,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchSpriteEnabled)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-              ? { ...c, props: { ...c.props, enabled } } : c)
+              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpriteEnabled(sceneFile.root) })

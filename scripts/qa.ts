@@ -25236,6 +25236,47 @@ if (
   log('warning', 'R2297-batch-collider-physics-cc3x', 'BatchInspector Collider 물리속성 CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1302: R2298 BatchInspector enabled → _enabled (CC3.x) 전체 ──────────
+console.log('\n## 1302. R2298 BatchInspector enabled _enabled CC3.x 체크')
+const s1302 = s1301
+if (
+  s1302.includes('enabled, _enabled: enabled } } : c)') &&
+  s1302.includes("c.type === 'cc.Label'") &&
+  s1302.includes("c.type === 'cc.Widget'") &&
+  s1302.includes("c.type === 'cc.UIOpacity'")
+) {
+  log('pass', 'R2298-batch-enabled-cc3x', 'BatchInspector enabled → _enabled (CC3.x) 전체 갭 수정')
+} else {
+  log('warning', 'R2298-batch-enabled-cc3x', 'BatchInspector enabled _enabled CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1303: R2299 BatchInspector opacity/interactable _* (CC3.x) ──────────
+console.log('\n## 1303. R2299 BatchInspector opacity/interactable CC3.x 체크')
+const s1303 = s1302
+if (
+  s1303.includes('opacity, _opacity: opacity } } : c)') &&
+  s1303.includes('opacity, _opacity: opacity, _N$opacity: opacity } } : c)') &&
+  s1303.includes('interactable, _interactable: interactable, _N$interactable: interactable } } : c)')
+) {
+  log('pass', 'R2299-batch-opacity-interactable-cc3x', 'BatchInspector UIOpacity opacity + TiledLayer opacity + Toggle interactable _* 갭 수정')
+} else {
+  log('warning', 'R2299-batch-opacity-interactable-cc3x', 'BatchInspector opacity/interactable CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1304: R2300 BatchInspector direction/keepAspectRatio/stroke/fade _* (CC3.x) ──────────
+console.log('\n## 1304. R2300 BatchInspector direction/keepAspectRatio/stroke/fade CC3.x 체크')
+const s1304 = s1303
+if (
+  s1304.includes('direction, _direction: direction, _N$direction: direction } } : c)') &&
+  s1304.includes('keepAspectRatio, _keepAspectRatio: keepAspectRatio, _N$keepAspectRatio: keepAspectRatio } } : c)') &&
+  s1304.includes('stroke, _stroke: stroke, _N$stroke: stroke } } : c)') &&
+  s1304.includes('fade, _fade: fade, _N$fade: fade } } : c)')
+) {
+  log('pass', 'R2300-batch-direction-misc-cc3x', 'BatchInspector PageView direction + VideoPlayer keepAspectRatio + MotionStreak stroke/fade _* 갭 수정')
+} else {
+  log('warning', 'R2300-batch-direction-misc-cc3x', 'BatchInspector direction/keepAspectRatio/stroke/fade CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
