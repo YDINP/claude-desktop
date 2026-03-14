@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:53:36.054Z
+> 2026-03-14T01:54:42.149Z
 
 ## Critical
 _없음_
@@ -1643,3 +1643,4 @@ _없음_
 - cc.Sprite Filled 모드 fillType/fillStart/fillRange 편집
 - 씬 트리 컨텍스트 메뉴 확장
 - cc.Label fontSize 빠른 조절 버튼
+- cc.Label 텍스트 색상 편집

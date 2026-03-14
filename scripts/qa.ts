@@ -18491,6 +18491,18 @@ console.log('\n## 604. R1713 cc.Label fontSize 빠른 조절 버튼 체크')
   }
 }
 
+// ── Section 605: R1714 cc.Label 텍스트 색상 편집 ─────────────────────────────
+console.log('\n## 605. R1714 cc.Label 텍스트 색상 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s605 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s605.includes('R1714') && s605.includes('labelColorRaw') && s605.includes('lcHex')) {
+    log('pass', 'R1714-label-color', 'cc.Label 텍스트 색상 편집')
+  } else {
+    log('warning', 'R1714-label-color', 'cc.Label 텍스트 색상 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

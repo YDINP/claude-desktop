@@ -6338,6 +6338,10 @@ function CCFileNodeInspector({
             if (comp.type === 'cc.Label') {
               const str = String(p.string ?? p.String ?? p._string ?? '')
               const fs = Number(p.fontSize ?? p._fontSize ?? p._N$fontSize ?? 24)
+              // R1714: 텍스트 색상
+              const labelColorRaw = p.color as { r?: number; g?: number; b?: number } | undefined
+              const lcR = labelColorRaw?.r ?? 255, lcG = labelColorRaw?.g ?? 255, lcB = labelColorRaw?.b ?? 255
+              const lcHex = `#${lcR.toString(16).padStart(2,'0')}${lcG.toString(16).padStart(2,'0')}${lcB.toString(16).padStart(2,'0')}`
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
@@ -6374,6 +6378,20 @@ function CCFileNodeInspector({
                         style={{ fontSize: 8, cursor: 'pointer', padding: '1px 3px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', flexShrink: 0 }}
                       >{d > 0 ? `+${d}` : d}</span>
                     ))}
+                  </div>
+                  {/* R1714: 텍스트 색상 피커 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>color</span>
+                    <input type="color" value={lcHex}
+                      onChange={e => {
+                        const h = e.target.value
+                        const nr = parseInt(h.slice(1,3),16), ng = parseInt(h.slice(3,5),16), nb = parseInt(h.slice(5,7),16)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: { r: nr, g: ng, b: nb, a: 255 }, _color: { r: nr, g: ng, b: nb, a: 255 } } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{lcR},{lcG},{lcB}</span>
                   </div>
                   {/* R1691: 멀티라인 텍스트 미리보기 */}
                   {(str.includes('\n') || str.includes('\\n')) && (() => {
