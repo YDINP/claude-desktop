@@ -23906,6 +23906,24 @@ if (s1056.includes('R2162') && s1056.includes('applyColliderTag') && s1056.inclu
   log('warning', 'R2162-batch-collider-tag', 'BatchInspector Collider tag 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1057: R2163 BatchInspector 노드 _tag ──────────
+console.log('\n## 1057. R2163 BatchInspector 노드 _tag 체크')
+const s1057 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1057.includes('R2163') && s1057.includes('applyNodeTag') && s1057.includes('_tag')) {
+  log('pass', 'R2163-batch-node-tag', 'BatchInspector 노드 _tag 일괄 설정')
+} else {
+  log('warning', 'R2163-batch-node-tag', 'BatchInspector 노드 _tag 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1058: R2163 BatchInspector cc.Layout constraintNum ──────────
+console.log('\n## 1058. R2163 BatchInspector cc.Layout constraintNum 체크')
+const s1058 = s1057
+if (s1058.includes('R2163') && s1058.includes('applyConstraintNum') && s1058.includes('LconN')) {
+  log('pass', 'R2163-batch-layout-constraintnum', 'BatchInspector cc.Layout constraintNum 일괄 설정')
+} else {
+  log('warning', 'R2163-batch-layout-constraintnum', 'BatchInspector cc.Layout constraintNum 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

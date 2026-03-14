@@ -4283,6 +4283,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2163: 노드 _tag 일괄 설정 (CC2.x 노드 태그) */}
+      {(() => {
+        const applyNodeTag = async (tag: number) => {
+          if (!sceneFile.root) return
+          function patchNodeTag(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeTag)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, _tag: tag, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeTag(sceneFile.root) })
+          setBatchMsg(`✓ _tag=${tag} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Tag</span>
+            {[0, 1, 2, 3, 10, 100].map(v => (
+              <span key={v} onClick={() => applyNodeTag(v)} title={`_tag=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2161: 노드 _zIndex 일괄 설정 (CC2.x z-order) */}
       {(() => {
         const applyZIndex = async (zIndex: number) => {
@@ -10220,6 +10243,29 @@ function CCFileBatchInspector({
                 onClick={() => applyLayoutConstraint(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
               >{['None','FRow','FCol'][i]}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2163: 공통 cc.Layout constraintNum 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyConstraintNum = async (constraintNum: number) => {
+          if (!sceneFile.root) return
+          function patchConstraintNum(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchConstraintNum)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, constraintNum, _N$constraintNum: constraintNum } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchConstraintNum(sceneFile.root) })
+          setBatchMsg(`✓ Layout constraintNum=${constraintNum} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LconN</span>
+            {[1, 2, 3, 4, 5, 6].map(v => (
+              <span key={v} onClick={() => applyConstraintNum(v)} title={`constraintNum=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
             ))}
           </div>
         )
