@@ -5448,6 +5448,26 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1899: 공통 cc.Sprite grayscale 일괄 설정 */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applySprGray = async (grayscale: boolean) => {
+          if (!sceneFile.root) return
+          function patchSprGray(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSprGray)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, grayscale } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSprGray(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprGray</span>
+            <span onClick={() => applySprGray(true)} title="grayscale ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>gray✓</span>
+            <span onClick={() => applySprGray(false)} title="grayscale OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>gray✗</span>
+          </div>
+        )
+      })()}
       {/* R1867: 공통 cc.Sprite blendFactor 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprBlend = async (src: number, dst: number) => {

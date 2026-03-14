@@ -20714,6 +20714,18 @@ console.log('\n## 789. R1898 BatchInspector cc.RigidBody angularDamping 체크')
   }
 }
 
+// ── Section 790: R1899 BatchInspector cc.Sprite grayscale ──────────
+console.log('\n## 790. R1899 BatchInspector cc.Sprite grayscale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s790 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s790.includes('R1899') && s790.includes('applySprGray') && s790.includes('patchSprGray')) {
+    log('pass', 'R1899-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 일괄 설정')
+  } else {
+    log('warning', 'R1899-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
