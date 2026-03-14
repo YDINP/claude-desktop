@@ -20075,6 +20075,18 @@ console.log('\n## 736. R1845 cc.ParticleSystem gravity x/y 체크')
   }
 }
 
+// ── Section 737: R1846 BatchInspector cc.ParticleSystem startSize 일괄 ────────
+console.log('\n## 737. R1846 BatchInspector cc.ParticleSystem startSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s737 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s737.includes('R1846') && s737.includes('applyParticleSize') && s737.includes('patchPSize') && s737.includes('_N$startSize')) {
+    log('pass', 'R1846-batch-particle-size', 'BatchInspector cc.ParticleSystem startSize 일괄 설정')
+  } else {
+    log('warning', 'R1846-batch-particle-size', 'BatchInspector cc.ParticleSystem startSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
