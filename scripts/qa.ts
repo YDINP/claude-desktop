@@ -22286,6 +22286,18 @@ console.log('\n## 920. R2029 BatchInspector cc.ParticleSystem radialAccel 체크
   }
 }
 
+// ── Section 921: R2030 BatchInspector cc.ParticleSystem tangentialAccel ──────────
+console.log('\n## 921. R2030 BatchInspector cc.ParticleSystem tangentialAccel 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s921 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s921.includes('R2030') && s921.includes('patchPSTangAccel') && s921.includes('applyPSTangAccel')) {
+    log('pass', 'R2030-batch-ps-tangaccel', 'BatchInspector cc.ParticleSystem tangentialAccel 일괄 설정')
+  } else {
+    log('warning', 'R2030-batch-ps-tangaccel', 'BatchInspector cc.ParticleSystem tangentialAccel 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
