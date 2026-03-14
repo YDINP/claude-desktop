@@ -21410,6 +21410,18 @@ console.log('\n## 847. R1956 BatchInspector cc.RichText fontColor 체크')
   }
 }
 
+// ── Section 848: R1957 BatchInspector cc.ParticleSystem startSize ──────────
+console.log('\n## 848. R1957 BatchInspector cc.ParticleSystem startSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s848 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s848.includes('R1957') && s848.includes('patchParticleStartSize') && s848.includes('applyParticleStartSize')) {
+    log('pass', 'R1957-batch-particle-startsize', 'BatchInspector cc.ParticleSystem startSize 일괄 설정')
+  } else {
+    log('warning', 'R1957-batch-particle-startsize', 'BatchInspector cc.ParticleSystem startSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

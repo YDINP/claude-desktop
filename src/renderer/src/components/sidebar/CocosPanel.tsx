@@ -5566,6 +5566,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1957: 공통 cc.ParticleSystem startSize 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyParticleStartSize = async (startSize: number) => {
+          if (!sceneFile.root) return
+          function patchParticleStartSize(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchParticleStartSize)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchParticleStartSize(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ ParticleSystem startSize=${startSize} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>PSsize</span>
+            {([5, 10, 20, 30, 50] as const).map(v => (
+              <span key={v} title={`startSize = ${v}`}
+                onClick={() => applyParticleStartSize(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1836: 공통 cc.SkeletalAnimation speedRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {
