@@ -19499,6 +19499,18 @@ console.log('\n## 688. R1797 BatchInspector cc.Label overflow 체크')
   }
 }
 
+// ── Section 689: R1798 cc.Label fontFamily 퀵 프리셋 ─────────────────────────
+console.log('\n## 689. R1798 cc.Label fontFamily 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s689 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s689.includes('R1798') && s689.includes('fontFamily 퀵 프리셋') && s689.includes('Arial')) {
+    log('pass', 'R1798-label-fontfamily-preset', 'cc.Label fontFamily 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1798-label-fontfamily-preset', 'cc.Label fontFamily 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:03:02.532Z
+> 2026-03-14T04:03:46.203Z
 
 ## Critical
 _없음_
@@ -1727,3 +1727,4 @@ _없음_
 - BatchInspector cc.AudioSource loop/playOnLoad 일괄 설정
 - cc.Layout paddingAll 퀵 프리셋 버튼
 - BatchInspector cc.Label overflow 일괄 설정
+- cc.Label fontFamily 퀵 프리셋 버튼

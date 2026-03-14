@@ -7872,6 +7872,21 @@ function CCFileNodeInspector({
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                   </div>
+                  {/* R1798: fontFamily 퀵 프리셋 */}
+                  <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', paddingLeft: 52 }}>
+                    {(['', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New'] as const).map(ff => {
+                      const curFf = String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')
+                      return (
+                        <span key={ff} title={ff || '기본 (빈칸)'}
+                          onClick={() => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontFamily: ff, _fontFamily: ff, _N$fontFamily: ff } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${curFf === ff ? '#f59e0b' : 'var(--border)'}`, borderRadius: 2, color: curFf === ff ? '#f59e0b' : 'var(--text-muted)', userSelect: 'none', fontFamily: ff || 'inherit' }}
+                        >{ff || 'default'}</span>
+                      )
+                    })}
+                  </div>
                   {/* R1720: overflow + hAlign + vAlign */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>overflow</span>
