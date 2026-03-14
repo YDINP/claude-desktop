@@ -7475,6 +7475,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2074: 공통 cc.ParticleSystem endSize 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSEndSize = async (endSize: number) => {
+          if (!sceneFile.root) return
+          function patchPSEndSize(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSEndSize)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPSEndSize(sceneFile.root) })
+          setBatchMsg(`✓ PS endSize=${endSize} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSendSz</span>
+            {[0, 10, 20, 30, 50, 80].map(v => (
+              <span key={v} title={`endSize = ${v}`}
+                onClick={() => applyPSEndSize(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2073: 공통 cc.ParticleSystem startSize 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSStartSize = async (startSize: number) => {

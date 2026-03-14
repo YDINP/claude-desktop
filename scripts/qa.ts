@@ -22814,6 +22814,18 @@ console.log('\n## 964. R2073 BatchInspector cc.ParticleSystem startSize 체크')
   }
 }
 
+// ── Section 965: R2074 BatchInspector cc.ParticleSystem endSize ──────────
+console.log('\n## 965. R2074 BatchInspector cc.ParticleSystem endSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s965 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s965.includes('R2074') && s965.includes('patchPSEndSize') && s965.includes('applyPSEndSize')) {
+    log('pass', 'R2074-batch-ps-endsize', 'BatchInspector cc.ParticleSystem endSize 일괄 설정')
+  } else {
+    log('warning', 'R2074-batch-ps-endsize', 'BatchInspector cc.ParticleSystem endSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
