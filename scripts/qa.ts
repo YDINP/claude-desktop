@@ -22934,6 +22934,18 @@ console.log('\n## 974. R2083 BatchInspector cc.CircleCollider sensor 체크')
   }
 }
 
+// ── Section 975: R2084 BatchInspector cc.PolygonCollider sensor ──────────
+console.log('\n## 975. R2084 BatchInspector cc.PolygonCollider sensor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s975 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s975.includes('R2084') && s975.includes('patchPolyColliderSensor') && s975.includes('applyPolyColliderSensor')) {
+    log('pass', 'R2084-batch-poly-sensor', 'BatchInspector cc.PolygonCollider sensor 일괄 설정')
+  } else {
+    log('warning', 'R2084-batch-poly-sensor', 'BatchInspector cc.PolygonCollider sensor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

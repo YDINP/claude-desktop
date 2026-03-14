@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:24:08.370Z
+> 2026-03-14T08:25:25.391Z
 
 ## Critical
 _없음_
@@ -2013,3 +2013,4 @@ _없음_
 - BatchInspector cc.ParticleSystem life 일괄 설정
 - BatchInspector cc.BoxCollider sensor 일괄 설정
 - BatchInspector cc.CircleCollider sensor 일괄 설정
+- BatchInspector cc.PolygonCollider sensor 일괄 설정
