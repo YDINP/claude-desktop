@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T03:55:05.792Z
+> 2026-03-14T03:56:19.117Z
 
 ## Critical
 _없음_
@@ -1718,3 +1718,4 @@ _없음_
 - cc.Label fontSize 표준 크기 프리셋 버튼
 - cc.Label lineHeight 퀵 프리셋 버튼
 - cc.Sprite type/sizeMode 버튼
+- cc.Label enableWrapText 토글 + spacingX 입력

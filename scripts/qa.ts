@@ -19391,6 +19391,18 @@ console.log('\n## 679. R1788 cc.Sprite type/sizeMode 버튼 체크')
   }
 }
 
+// ── Section 680: R1789 cc.Label enableWrapText + spacingX ────────────────────
+console.log('\n## 680. R1789 cc.Label enableWrapText/spacingX 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s680 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s680.includes('R1789') && s680.includes('enableWrapText') && s680.includes('spacingX')) {
+    log('pass', 'R1789-label-wrap-spacing', 'cc.Label enableWrapText 토글 + spacingX 입력')
+  } else {
+    log('warning', 'R1789-label-wrap-spacing', 'cc.Label enableWrapText/spacingX 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

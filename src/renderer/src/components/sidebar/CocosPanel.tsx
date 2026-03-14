@@ -7828,6 +7828,32 @@ function CCFileNodeInspector({
                       ))}
                     </div>
                   </div>
+                  {/* R1789: enableWrapText 토글 + spacingX */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>wrap</span>
+                    {(() => {
+                      const wrapVal = !!(p.enableWrapText ?? p._enableWrapText ?? p._N$enableWrapText ?? true)
+                      return (
+                        <span title={wrapVal ? '줄바꿈 활성 (클릭시 해제)' : '줄바꿈 비활성 (클릭시 활성)'}
+                          onClick={() => {
+                            const nv = !wrapVal
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableWrapText: nv, _enableWrapText: nv, _N$enableWrapText: nv } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ fontSize: 8, padding: '1px 6px', cursor: 'pointer', border: `1px solid ${wrapVal ? '#4ade80' : 'var(--border)'}`, borderRadius: 2, color: wrapVal ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{wrapVal ? '✓ wrap' : '✕ wrap'}</span>
+                      )
+                    })()}
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 8, flexShrink: 0 }}>spcX</span>
+                    <input type="number" defaultValue={Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)} step={1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingX: v, _spacingX: v, _N$spacingX: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
                   {/* R1743: bold / italic / underline 토글 */}
                   {(() => {
                     const bold = !!(p.isBold ?? p._isBold ?? p._N$isBold ?? false)
