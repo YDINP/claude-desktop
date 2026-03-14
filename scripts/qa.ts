@@ -23270,6 +23270,18 @@ console.log('\n## 1002. R2111 BatchInspector cc.PageView autoPageTurningThreshol
   }
 }
 
+// ── Section 1003: R2112 BatchInspector cc.Layout affectedByScale ──────────
+console.log('\n## 1003. R2112 BatchInspector cc.Layout affectedByScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1003 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1003.includes('R2112') && s1003.includes('patchLayoutAffected') && s1003.includes('applyLayoutAffected')) {
+    log('pass', 'R2112-batch-layout-affected', 'BatchInspector cc.Layout affectedByScale 일괄 설정')
+  } else {
+    log('warning', 'R2112-batch-layout-affected', 'BatchInspector cc.Layout affectedByScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
