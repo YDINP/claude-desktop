@@ -20906,6 +20906,18 @@ console.log('\n## 805. R1914 BatchInspector cc.ParticleSystem maxParticles 체�
   }
 }
 
+// ── Section 806: R1915 BatchInspector cc.EditBox maxLength ──────────
+console.log('\n## 806. R1915 BatchInspector cc.EditBox maxLength 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s806 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s806.includes('R1915') && s806.includes('patchEditBoxMax') && s806.includes('applyEditBoxMax')) {
+    log('pass', 'R1915-batch-editbox-maxlength', 'BatchInspector cc.EditBox maxLength 일괄 설정')
+  } else {
+    log('warning', 'R1915-batch-editbox-maxlength', 'BatchInspector cc.EditBox maxLength 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

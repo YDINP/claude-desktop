@@ -4241,6 +4241,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1915: 공통 cc.EditBox maxLength 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEditBoxMax = async (maxLength: number) => {
+          if (!sceneFile.root) return
+          function patchEditBoxMax(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEditBoxMax)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, maxLength, _maxLength: maxLength } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEditBoxMax(sceneFile.root) })
+          setBatchMsg(`✓ EditBox maxLength ${maxLength} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>EBmax</span>
+            {([0, 8, 16, 32, 64, 128] as const).map(v => (
+              <span key={v} title={`maxLength = ${v === 0 ? '∞' : v}`}
+                onClick={() => applyEditBoxMax(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}
+              >{v === 0 ? '∞' : v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1884: 공통 cc.Button transition 일괄 설정 */}
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnTransition = async (transition: number) => {
