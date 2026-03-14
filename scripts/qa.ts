@@ -22034,6 +22034,18 @@ console.log('\n## 899. R2008 BatchInspector cc.ParticleSystem angleVar 체크')
   }
 }
 
+// ── Section 900: R2009 BatchInspector cc.RigidBody enabledContactListener ──────────
+console.log('\n## 900. R2009 BatchInspector cc.RigidBody enabledContactListener 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s900 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s900.includes('R2009') && s900.includes('patchRBContactListener') && s900.includes('applyRBContactListener')) {
+    log('pass', 'R2009-batch-rb-contactlistener', 'BatchInspector cc.RigidBody enabledContactListener 일괄 설정')
+  } else {
+    log('warning', 'R2009-batch-rb-contactlistener', 'BatchInspector cc.RigidBody enabledContactListener 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

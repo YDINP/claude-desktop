@@ -7545,6 +7545,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2009: 공통 cc.RigidBody enabledContactListener 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBContactListener = async (enabledContactListener: boolean) => {
+          if (!sceneFile.root) return
+          function patchRBContactListener(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBContactListener)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, enabledContactListener } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchRBContactListener(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ RigidBody contactListener=${enabledContactListener} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBcont</span>
+            <span onClick={() => applyRBContactListener(true)} title="enabledContactListener ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>cb✓</span>
+            <span onClick={() => applyRBContactListener(false)} title="enabledContactListener OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>cb✗</span>
+          </div>
+        )
+      })()}
       {/* R1975: 공통 cc.RigidBody awake 일괄 설정 */}
       {commonCompTypes.includes('cc.RigidBody') && (() => {
         const applyRBAwake = async (awake: boolean) => {
