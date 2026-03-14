@@ -18563,6 +18563,18 @@ console.log('\n## 610. R1719 Global Search 모두 선택 버튼 체크')
   }
 }
 
+// ── Section 611: R1720 cc.Label overflow + align Quick Edit ───────────────────
+console.log('\n## 611. R1720 cc.Label overflow + align 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s611 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s611.includes('R1720') && s611.includes('overflow') && s611.includes('horizontalAlign') && s611.includes('verticalAlign')) {
+    log('pass', 'R1720-label-overflow-align', 'cc.Label overflow + align Quick Edit')
+  } else {
+    log('warning', 'R1720-label-overflow-align', 'cc.Label overflow + align 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

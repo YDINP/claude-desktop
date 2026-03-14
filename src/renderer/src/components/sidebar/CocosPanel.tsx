@@ -6396,6 +6396,10 @@ function CCFileNodeInspector({
               const labelColorRaw = p.color as { r?: number; g?: number; b?: number } | undefined
               const lcR = labelColorRaw?.r ?? 255, lcG = labelColorRaw?.g ?? 255, lcB = labelColorRaw?.b ?? 255
               const lcHex = `#${lcR.toString(16).padStart(2,'0')}${lcG.toString(16).padStart(2,'0')}${lcB.toString(16).padStart(2,'0')}`
+              // R1720: overflow + align
+              const overflow = Number(p.overflow ?? p._overflow ?? p._N$overflow ?? 0)
+              const hAlign = Number(p.horizontalAlign ?? p._N$horizontalAlign ?? 0)
+              const vAlign = Number(p.verticalAlign ?? p._N$verticalAlign ?? 1)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
@@ -6446,6 +6450,47 @@ function CCFileNodeInspector({
                       style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{lcR},{lcG},{lcB}</span>
+                  </div>
+                  {/* R1720: overflow + hAlign + vAlign */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>overflow</span>
+                    <select value={overflow}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, overflow: v, _overflow: v, _N$overflow: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    >
+                      <option value={0}>None</option>
+                      <option value={1}>Clamp</option>
+                      <option value={2}>Shrink</option>
+                      <option value={3}>ResizeH</option>
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>align</span>
+                    <div style={{ display: 'flex', gap: 2, flex: 1 }}>
+                      {(['L', 'C', 'R'] as const).map((lbl, i) => (
+                        <span key={lbl}
+                          onClick={() => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalAlign: i, _N$horizontalAlign: i } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ fontSize: 9, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: `1px solid ${hAlign === i ? '#58a6ff' : 'var(--border)'}`, color: hAlign === i ? '#58a6ff' : 'var(--text-muted)', background: hAlign === i ? 'rgba(88,166,255,0.1)' : 'transparent' }}
+                        >{lbl}</span>
+                      ))}
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', margin: '0 4px' }}>|</span>
+                      {(['T', 'M', 'B'] as const).map((lbl, i) => (
+                        <span key={lbl}
+                          onClick={() => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, verticalAlign: i, _N$verticalAlign: i } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ fontSize: 9, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: `1px solid ${vAlign === i ? '#58a6ff' : 'var(--border)'}`, color: vAlign === i ? '#58a6ff' : 'var(--text-muted)', background: vAlign === i ? 'rgba(88,166,255,0.1)' : 'transparent' }}
+                        >{lbl}</span>
+                      ))}
+                    </div>
                   </div>
                   {/* R1691: 멀티라인 텍스트 미리보기 */}
                   {(str.includes('\n') || str.includes('\\n')) && (() => {
