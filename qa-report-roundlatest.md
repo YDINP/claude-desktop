@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:58:51.930Z
+> 2026-03-14T05:59:38.878Z
 
 ## Critical
 _없음_
@@ -1834,3 +1834,4 @@ _없음_
 - cc.Slider interactable 편집
 - BatchInspector cc.RichText fontSize 일괄 설정
 - BatchInspector cc.Slider interactable 일괄 설정
+- cc.ParticleSystem radialAccel/tangentialAccel 편집
