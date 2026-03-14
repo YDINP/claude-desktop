@@ -23546,6 +23546,18 @@ console.log('\n## 1025. R2134 BatchInspector sp.Skeleton useTint 체크')
   }
 }
 
+// ── Section 1026: R2135 BatchInspector sp.Skeleton debugSlots ──────────
+console.log('\n## 1026. R2135 BatchInspector sp.Skeleton debugSlots 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1026 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1026.includes('R2135') && s1026.includes('patchSpineDebugSlots') && s1026.includes('applySpineDebugSlots')) {
+    log('pass', 'R2135-batch-spine-debugslots', 'BatchInspector sp.Skeleton debugSlots 일괄 설정')
+  } else {
+    log('warning', 'R2135-batch-spine-debugslots', 'BatchInspector sp.Skeleton debugSlots 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

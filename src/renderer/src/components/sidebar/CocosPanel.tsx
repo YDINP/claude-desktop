@@ -7251,6 +7251,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2135: 공통 sp.Skeleton debugSlots 일괄 설정 */}
+      {commonCompTypes.includes('sp.Skeleton') && (() => {
+        const applySpineDebugSlots = async (debugSlots: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpineDebugSlots(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpineDebugSlots)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, debugSlots } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpineDebugSlots(sceneFile.root) })
+          setBatchMsg(`✓ Spine debugSlots=${debugSlots} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>SpDbgSl</span>
+            <span onClick={() => applySpineDebugSlots(true)} title="debugSlots ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>dbg✓</span>
+            <span onClick={() => applySpineDebugSlots(false)} title="debugSlots OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>dbg✗</span>
+          </div>
+        )
+      })()}
       {/* R2134: 공통 sp.Skeleton useTint 일괄 설정 */}
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineUseTint = async (useTint: boolean) => {
