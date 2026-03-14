@@ -4788,6 +4788,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1872: 공통 cc.BoxCollider/CircleCollider sensor 일괄 설정 */}
+      {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D') || commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
+        const hasBox = commonCompTypes.some(t => t === 'cc.BoxCollider' || t === 'cc.BoxCollider2D')
+        const hasCircle = commonCompTypes.some(t => t === 'cc.CircleCollider' || t === 'cc.CircleCollider2D')
+        const colliderTypes = [
+          ...(hasBox ? ['cc.BoxCollider', 'cc.BoxCollider2D'] : []),
+          ...(hasCircle ? ['cc.CircleCollider', 'cc.CircleCollider2D'] : []),
+        ]
+        const applyColliderSensor = async (sensor: boolean) => {
+          if (!sceneFile.root) return
+          function patchColliderSensor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchColliderSensor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => colliderTypes.includes(c.type) ? { ...c, props: { ...c.props, sensor } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchColliderSensor(sceneFile.root))
+          setBatchMsg(`✓ Collider sensor=${sensor} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>Sensor</span>
+            <span onClick={() => applyColliderSensor(true)} title="sensor ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>ON✓</span>
+            <span onClick={() => applyColliderSensor(false)} title="sensor OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>OFF✗</span>
+          </div>
+        )
+      })()}
       {/* R1771: 공통 cc.ProgressBar progress 일괄 설정 */}
       {commonCompTypes.includes('cc.ProgressBar') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

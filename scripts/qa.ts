@@ -20390,6 +20390,18 @@ console.log('\n## 762. R1871 BatchInspector cc.RigidBody mass 체크')
   }
 }
 
+// ── Section 763: R1872 BatchInspector collider sensor ─────────────────────
+console.log('\n## 763. R1872 BatchInspector cc.BoxCollider/CircleCollider sensor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s763 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s763.includes('R1872') && s763.includes('applyColliderSensor') && s763.includes('patchColliderSensor')) {
+    log('pass', 'R1872-batch-collider-sensor', 'BatchInspector cc.BoxCollider/CircleCollider sensor 일괄 설정')
+  } else {
+    log('warning', 'R1872-batch-collider-sensor', 'BatchInspector collider sensor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
