@@ -4618,6 +4618,52 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2214: 노드 _rotationX 일괄 설정 (CC2.x 3D 회전) */}
+      {(() => {
+        const applyNodeRotX = async (rotationX: number) => {
+          if (!sceneFile.root) return
+          function patchNodeRotX(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeRotX)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, _rotationX: rotationX, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeRotX(sceneFile.root) })
+          setBatchMsg(`✓ _rotationX=${rotationX} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodRX</span>
+            {[0, 30, 45, 60, 90, 180, -90].map(v => (
+              <span key={v} onClick={() => applyNodeRotX(v)} title={`_rotationX=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2214: 노드 _rotationY 일괄 설정 (CC2.x 3D 회전) */}
+      {(() => {
+        const applyNodeRotY = async (rotationY: number) => {
+          if (!sceneFile.root) return
+          function patchNodeRotY(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeRotY)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, _rotationY: rotationY, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeRotY(sceneFile.root) })
+          setBatchMsg(`✓ _rotationY=${rotationY} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodRY</span>
+            {[0, 30, 45, 60, 90, 180, -90].map(v => (
+              <span key={v} onClick={() => applyNodeRotY(v)} title={`_rotationY=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2006: 노드 rotation 일괄 설정 */}
       {(() => {
         const applyNodeRotation = async (deg: number) => {

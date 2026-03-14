@@ -24113,6 +24113,24 @@ if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.inc
   log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1160: R2214 BatchInspector node _rotationX (CC2.x) ──────────
+console.log('\n## 1160. R2214 BatchInspector node _rotationX 체크')
+const s1160 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1160.includes('R2214') && s1160.includes('applyNodeRotX') && s1160.includes('NodRX')) {
+  log('pass', 'R2214-batch-node-rotationx', 'BatchInspector node _rotationX 일괄 설정')
+} else {
+  log('warning', 'R2214-batch-node-rotationx', 'BatchInspector node _rotationX 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1161: R2214 BatchInspector node _rotationY (CC2.x) ──────────
+console.log('\n## 1161. R2214 BatchInspector node _rotationY 체크')
+const s1161 = s1160
+if (s1161.includes('R2214') && s1161.includes('applyNodeRotY') && s1161.includes('NodRY')) {
+  log('pass', 'R2214-batch-node-rotationy', 'BatchInspector node _rotationY 일괄 설정')
+} else {
+  log('warning', 'R2214-batch-node-rotationy', 'BatchInspector node _rotationY 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1158: R2213 BatchInspector cc.Label colorTop (CC3.x gradient) ──────────
 console.log('\n## 1158. R2213 BatchInspector cc.Label colorTop 체크')
 const s1158 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
