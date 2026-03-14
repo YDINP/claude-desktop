@@ -4183,6 +4183,55 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2209: 공통 cc.BoxCollider2D size 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.BoxCollider2D') && (() => {
+        const applyBoxCollSize = async (w: number, h: number) => {
+          if (!sceneFile.root) return
+          function patchBoxCollSize(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBoxCollSize)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const size = { width: w, height: h }
+            const updComps = n.components.map(c => c.type === 'cc.BoxCollider2D' ? { ...c, props: { ...c.props, size, _size: size } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchBoxCollSize(sceneFile.root) })
+          setBatchMsg(`✓ BoxCollider2D size=(${w},${h}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>Box2Sz</span>
+            {([[50,50],[100,100],[150,150],[200,200],[100,50],[200,100]] as [number,number][]).map(([w,h]) => (
+              <span key={`${w}x${h}`} onClick={() => applyBoxCollSize(w, h)} title={`BoxCollider2D size=(${w},${h})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{w}×{h}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2209: 공통 cc.CircleCollider2D radius 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.CircleCollider2D') && (() => {
+        const applyCircleCollRadius = async (radius: number) => {
+          if (!sceneFile.root) return
+          function patchCircleCollRadius(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCircleCollRadius)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.CircleCollider2D' ? { ...c, props: { ...c.props, radius, _radius: radius } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCircleCollRadius(sceneFile.root) })
+          setBatchMsg(`✓ CircleCollider2D radius=${radius} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>Cir2R</span>
+            {[25, 50, 75, 100, 150, 200].map(v => (
+              <span key={v} onClick={() => applyCircleCollRadius(v)} title={`CircleCollider2D radius=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2084: 공통 cc.PolygonCollider sensor 일괄 설정 */}
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyColliderSensor = async (sensor: boolean) => {

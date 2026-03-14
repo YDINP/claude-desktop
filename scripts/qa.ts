@@ -24113,6 +24113,24 @@ if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.inc
   log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1150: R2209 BatchInspector cc.BoxCollider2D size ──────────
+console.log('\n## 1150. R2209 BatchInspector cc.BoxCollider2D size 체크')
+const s1150 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1150.includes('R2209') && s1150.includes('applyBoxCollSize') && s1150.includes('Box2Sz')) {
+  log('pass', 'R2209-batch-boxcoll2d-size', 'BatchInspector cc.BoxCollider2D size 일괄 설정')
+} else {
+  log('warning', 'R2209-batch-boxcoll2d-size', 'BatchInspector cc.BoxCollider2D size 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1151: R2209 BatchInspector cc.CircleCollider2D radius ──────────
+console.log('\n## 1151. R2209 BatchInspector cc.CircleCollider2D radius 체크')
+const s1151 = s1150
+if (s1151.includes('R2209') && s1151.includes('applyCircleCollRadius') && s1151.includes('Cir2R')) {
+  log('pass', 'R2209-batch-circlecoll2d-radius', 'BatchInspector cc.CircleCollider2D radius 일괄 설정')
+} else {
+  log('warning', 'R2209-batch-circlecoll2d-radius', 'BatchInspector cc.CircleCollider2D radius 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1148: R2208 BatchInspector cc.EditBox placeholderFontSize ──────────
 console.log('\n## 1148. R2208 BatchInspector cc.EditBox placeholderFontSize 체크')
 const s1148 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
