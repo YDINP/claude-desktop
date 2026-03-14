@@ -3849,6 +3849,30 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1758: 공통 cc.Label 텍스트 색상 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label 색</span>
+          <input type="color" defaultValue="#ffffff"
+            onChange={async e => {
+              const hex = e.target.value
+              if (!sceneFile.root) return
+              const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+              function patchColor(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchColor)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } } : c)
+                return { ...n, components: updComps, children }
+              }
+              await saveScene(patchColor(sceneFile.root))
+              setBatchMsg(`✓ Label 색상 (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+            title="cc.Label 텍스트 색상 일괄 설정"
+          />
+        </div>
+      )}
       {/* R1750: 레이어 일괄 설정 (CC3.x) */}
       {sceneFile.projectInfo?.version === '3x' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

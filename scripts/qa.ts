@@ -19019,6 +19019,18 @@ console.log('\n## 648. R1757 cc.Label fontFamily 입력 체크')
   }
 }
 
+// ── Section 649: R1758 BatchInspector cc.Label 텍스트 색상 일괄 설정 ──────────
+console.log('\n## 649. R1758 BatchInspector cc.Label 텍스트 색상 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s649 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s649.includes('R1758') && s649.includes('cc.Label 텍스트 색상 일괄 설정') && s649.includes('patchColor') && s649.includes('Label 색상')) {
+    log('pass', 'R1758-batch-label-color', 'BatchInspector cc.Label 텍스트 색상 일괄 설정')
+  } else {
+    log('warning', 'R1758-batch-label-color', 'BatchInspector cc.Label 텍스트 색상 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
