@@ -8707,6 +8707,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2133: 공통 cc.SkeletalAnimation defaultCachingMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
+        const applySkeletalCaching = async (defaultCachingMode: number) => {
+          if (!sceneFile.root) return
+          function patchSkeletalCaching(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSkeletalCaching)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, defaultCachingMode, _defaultCachingMode: defaultCachingMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSkeletalCaching(sceneFile.root) })
+          setBatchMsg(`✓ SkeletalAnimation cachingMode=${defaultCachingMode} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>SkelCach</span>
+            {([['Rltime',0],['Shared',1],['Private',2]] as [string,number][]).map(([l,v]) => (
+              <span key={v} onClick={() => applySkeletalCaching(v)} title={`defaultCachingMode=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1835: 공통 cc.Slider progress 일괄 설정 */}
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderProg = async (progress: number) => {

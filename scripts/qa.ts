@@ -23522,6 +23522,18 @@ console.log('\n## 1023. R2132 BatchInspector cc.ToggleContainer allowSwitchOff �
   }
 }
 
+// ── Section 1024: R2133 BatchInspector cc.SkeletalAnimation defaultCachingMode ──────────
+console.log('\n## 1024. R2133 BatchInspector cc.SkeletalAnimation defaultCachingMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1024 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1024.includes('R2133') && s1024.includes('patchSkeletalCaching') && s1024.includes('applySkeletalCaching')) {
+    log('pass', 'R2133-batch-skel-caching', 'BatchInspector cc.SkeletalAnimation defaultCachingMode 일괄 설정')
+  } else {
+    log('warning', 'R2133-batch-skel-caching', 'BatchInspector cc.SkeletalAnimation defaultCachingMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
