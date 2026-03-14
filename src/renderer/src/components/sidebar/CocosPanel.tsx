@@ -8813,6 +8813,8 @@ function CCFileNodeInspector({
               const volume = Number(p.volume ?? 1)
               const loop = !!(p.loop ?? false)
               const playOnLoad = !!(p.playOnLoad ?? false)
+              // R1864: pitch (CC3.x)
+              const pitch = Number(p.pitch ?? p._pitch ?? 1)
               // R1701: 오디오 클립 uuid 추출
               const clipRaw = p._clip ?? p.clip
               const clipUuid = (clipRaw as Record<string,unknown> | null)?.__uuid__ as string | undefined
@@ -8853,6 +8855,30 @@ function CCFileNodeInspector({
                         }}
                         style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(volume - v) < 0.01 ? '#facc15' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(volume - v) < 0.01 ? '#facc15' : 'var(--text-muted)', userSelect: 'none' }}
                       >{Math.round(v * 100)}%</span>
+                    ))}
+                  </div>
+                  {/* R1864: pitch 슬라이더 (CC3.x) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>pitch</span>
+                    <input type="range" min={0.5} max={2} step={0.05} value={pitch}
+                      onChange={e => {
+                        const v = parseFloat(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pitch: v, _pitch: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{pitch.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 3, paddingLeft: 60 }}>
+                    {[0.5, 0.75, 1, 1.25, 1.5, 2].map(v => (
+                      <span key={v} title={`pitch = ${v}`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pitch: v, _pitch: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(pitch - v) < 0.01 ? '#facc15' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(pitch - v) < 0.01 ? '#facc15' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
                     ))}
                   </div>
                   <div style={{ display: 'flex', gap: 10 }}>

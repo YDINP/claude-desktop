@@ -20294,6 +20294,18 @@ console.log('\n## 754. R1863 BatchInspector cc.Mask type 체크')
   }
 }
 
+// ── Section 755: R1864 cc.AudioSource pitch ────────────────────────────────
+console.log('\n## 755. R1864 cc.AudioSource pitch 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s755 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s755.includes('R1864') && s755.includes('pitch') && s755.includes('_pitch')) {
+    log('pass', 'R1864-audio-pitch', 'cc.AudioSource pitch 편집 (CC3.x)')
+  } else {
+    log('warning', 'R1864-audio-pitch', 'cc.AudioSource pitch 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
