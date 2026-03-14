@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:00:27.607Z
+> 2026-03-14T04:01:26.833Z
 
 ## Critical
 _없음_
@@ -1724,3 +1724,4 @@ _없음_
 - BatchInspector cc.Label lineHeight 일괄 설정
 - cc.ParticleSystem duration 퀵 프리셋 버튼
 - cc.UIOpacity 퀵 프리셋 버튼
+- BatchInspector cc.AudioSource loop/playOnLoad 일괄 설정

@@ -19463,6 +19463,18 @@ console.log('\n## 685. R1794 cc.UIOpacity 퀵 프리셋 체크')
   }
 }
 
+// ── Section 686: R1795 BatchInspector cc.AudioSource loop/playOnLoad ─────────
+console.log('\n## 686. R1795 BatchInspector cc.AudioSource loop/playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s686 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s686.includes('R1795') && s686.includes('patchAudio') && s686.includes('playOnLoad')) {
+    log('pass', 'R1795-batch-audio-loop', 'BatchInspector cc.AudioSource loop/playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R1795-batch-audio-loop', 'BatchInspector cc.AudioSource loop/playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
