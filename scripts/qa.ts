@@ -17927,6 +17927,18 @@ console.log('\n## 557. R1666 Inspector pulse 미리보기 체크')
   }
 }
 
+// ── Section 558: R1667 컴포넌트 필터 custom type 입력 ──────────────────────
+console.log('\n## 558. R1667 컴포넌트 필터 custom type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s558 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s558.includes('R1667') && s558.includes('custom type') && s558.includes('MyScript')) {
+    log('pass', 'R1667-custom-filter', '컴포넌트 필터 custom type 입력')
+  } else {
+    log('warning', 'R1667-custom-filter', '컴포넌트 필터 custom type 입력 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

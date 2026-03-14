@@ -619,7 +619,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (!sceneFile?.root) return null
     if (nodeFilters.length === 0) return sceneFile.root
     function keep(n: CCSceneNode): CCSceneNode | null {
-      const match = n.components.some(c => nodeFilters.includes(c.type))
+      // R1667: 정확 일치 OR custom 타입 부분 문자열 매칭
+      const match = n.components.some(c => nodeFilters.some(f => c.type === f || c.type.toLowerCase().includes(f.toLowerCase())))
       const filteredChildren = n.children.map(keep).filter(Boolean) as CCSceneNode[]
       if (!match && filteredChildren.length === 0) return null
       return { ...n, children: filteredChildren }
@@ -2520,6 +2521,26 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                     <span onClick={() => setNodeFilters([])} title="필터 초기화" style={{ fontSize: 9, cursor: 'pointer', color: '#f85149', userSelect: 'none' }}>✕</span>
                   )}
                 </div>
+                {/* R1667: custom type 입력 */}
+                <div style={{ display: 'flex', gap: 3, marginTop: 3 }}>
+                  <input
+                    placeholder="custom type (예: MyScript)"
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        const val = (e.currentTarget.value ?? '').trim()
+                        if (val && !nodeFilters.includes(val)) setNodeFilters(prev => [...prev, val])
+                        e.currentTarget.value = ''
+                      }
+                    }}
+                    style={{ flex: 1, fontSize: 8, padding: '1px 4px', background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                  />
+                </div>
+                {nodeFilters.filter(f => !['cc.Label','cc.Sprite','cc.Button','cc.Toggle','cc.Slider','cc.Widget','cc.Layout','cc.Animation','cc.AudioSource','cc.ScrollView'].includes(f)).map(ct => (
+                  <span key={ct} style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 8, marginTop: 2, padding: '1px 4px', border: '1px solid #a78bfa', borderRadius: 2, color: '#a78bfa', background: 'rgba(167,139,250,0.1)' }}>
+                    {ct}
+                    <span onClick={() => setNodeFilters(prev => prev.filter(f => f !== ct))} style={{ cursor: 'pointer', color: '#f85149' }}>✕</span>
+                  </span>
+                ))}
               </div>
             )}
             {/* R1559: 씬 파일명 + 통계 */}
