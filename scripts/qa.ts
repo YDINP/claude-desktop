@@ -21554,6 +21554,18 @@ console.log('\n## 859. R1968 BatchInspector cc.RigidBody fixedRotation 체크')
   }
 }
 
+// ── Section 860: R1969 BatchInspector cc.ParticleSystem startColor ──────────
+console.log('\n## 860. R1969 BatchInspector cc.ParticleSystem startColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s860 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s860.includes('R1969') && s860.includes('patchParticleStartColor') && s860.includes('applyParticleStartColor')) {
+    log('pass', 'R1969-batch-particle-startcolor', 'BatchInspector cc.ParticleSystem startColor 일괄 설정')
+  } else {
+    log('warning', 'R1969-batch-particle-startcolor', 'BatchInspector cc.ParticleSystem startColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
