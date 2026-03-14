@@ -23570,6 +23570,18 @@ console.log('\n## 1027. R2136 BatchInspector sp.Skeleton debugBones 체크')
   }
 }
 
+// ── Section 1028: R2137 BatchInspector cc.MotionStreak fastMode ──────────
+console.log('\n## 1028. R2137 BatchInspector cc.MotionStreak fastMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1028 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1028.includes('R2137') && s1028.includes('patchMSFastMode') && s1028.includes('applyMSFastMode')) {
+    log('pass', 'R2137-batch-ms-fastmode', 'BatchInspector cc.MotionStreak fastMode 일괄 설정')
+  } else {
+    log('warning', 'R2137-batch-ms-fastmode', 'BatchInspector cc.MotionStreak fastMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

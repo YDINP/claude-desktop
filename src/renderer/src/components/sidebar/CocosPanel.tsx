@@ -6832,6 +6832,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2137: 공통 cc.MotionStreak fastMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.MotionStreak') && (() => {
+        const applyMSFastMode = async (fastMode: boolean) => {
+          if (!sceneFile.root) return
+          function patchMSFastMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMSFastMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, fastMode, _fastMode: fastMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchMSFastMode(sceneFile.root) })
+          setBatchMsg(`✓ MotionStreak fastMode=${fastMode} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>MSFast</span>
+            <span onClick={() => applyMSFastMode(true)} title="fastMode ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>fast✓</span>
+            <span onClick={() => applyMSFastMode(false)} title="fastMode OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>fast✗</span>
+          </div>
+        )
+      })()}
       {/* R2107: 공통 cc.MotionStreak color 일괄 설정 */}
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMSColor = async (hex: string) => {
