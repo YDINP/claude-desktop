@@ -4508,6 +4508,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1866: 공통 cc.AudioSource pitch 일괄 설정 */}
+      {commonCompTypes.includes('cc.AudioSource') && (() => {
+        const applyAudioPitch = async (pitch: number) => {
+          if (!sceneFile.root) return
+          function patchAudioPitch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAudioPitch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, pitch, _pitch: pitch } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchAudioPitch(sceneFile.root))
+          setBatchMsg(`✓ AudioSource pitch ${pitch} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#facc15', width: 48, flexShrink: 0 }}>Pitch</span>
+            {([0.5, 0.75, 1, 1.25, 1.5, 2] as const).map(v => (
+              <span key={v} title={`pitch = ${v}`}
+                onClick={() => applyAudioPitch(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#facc15', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

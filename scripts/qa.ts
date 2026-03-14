@@ -20318,6 +20318,18 @@ console.log('\n## 756. R1865 cc.Sprite blendFactor 체크')
   }
 }
 
+// ── Section 757: R1866 BatchInspector cc.AudioSource pitch ────────────────
+console.log('\n## 757. R1866 BatchInspector cc.AudioSource pitch 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s757 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s757.includes('R1866') && s757.includes('applyAudioPitch') && s757.includes('patchAudioPitch')) {
+    log('pass', 'R1866-batch-audio-pitch', 'BatchInspector cc.AudioSource pitch 일괄 설정')
+  } else {
+    log('warning', 'R1866-batch-audio-pitch', 'BatchInspector cc.AudioSource pitch 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:19:30.593Z
+> 2026-03-14T05:20:03.537Z
 
 ## Critical
 _없음_
@@ -1795,3 +1795,4 @@ _없음_
 - BatchInspector cc.Mask type (Rect/Ellipse/Image) 일괄 설정
 - cc.AudioSource pitch 편집 (CC3.x)
 - cc.Sprite srcBlendFactor/dstBlendFactor 퀵 버튼 (Normal/Add/Mul)
+- BatchInspector cc.AudioSource pitch 일괄 설정
