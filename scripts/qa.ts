@@ -24113,6 +24113,24 @@ if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.inc
   log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1148: R2208 BatchInspector cc.EditBox placeholderFontSize ──────────
+console.log('\n## 1148. R2208 BatchInspector cc.EditBox placeholderFontSize 체크')
+const s1148 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1148.includes('R2208') && s1148.includes('applyEBPlaceholderFS') && s1148.includes('EBphFS')) {
+  log('pass', 'R2208-batch-editbox-placeholderfs', 'BatchInspector cc.EditBox placeholderFontSize 일괄 설정')
+} else {
+  log('warning', 'R2208-batch-editbox-placeholderfs', 'BatchInspector cc.EditBox placeholderFontSize 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1149: R2208 BatchInspector cc.EditBox fontColor ──────────
+console.log('\n## 1149. R2208 BatchInspector cc.EditBox fontColor 체크')
+const s1149 = s1148
+if (s1149.includes('R2208') && s1149.includes('applyEBFontColor') && s1149.includes('EBfColor')) {
+  log('pass', 'R2208-batch-editbox-fontcolor', 'BatchInspector cc.EditBox fontColor 일괄 설정')
+} else {
+  log('warning', 'R2208-batch-editbox-fontcolor', 'BatchInspector cc.EditBox fontColor 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1144: R2206 BatchInspector cc.Sprite blendMode ──────────
 console.log('\n## 1144. R2206 BatchInspector cc.Sprite blendMode(srcBlendFactor/dstBlendFactor) 체크')
 const s1144 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

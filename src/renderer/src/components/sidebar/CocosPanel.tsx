@@ -6603,6 +6603,60 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2208: 공통 cc.EditBox placeholderFontSize 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEBPlaceholderFS = async (placeholderFontSize: number) => {
+          if (!sceneFile.root) return
+          function patchEBPlaceholderFS(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEBPlaceholderFS)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox'
+              ? { ...c, props: { ...c.props, placeholderFontSize, _placeholderFontSize: placeholderFontSize, _N$placeholderFontSize: placeholderFontSize } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEBPlaceholderFS(sceneFile.root) })
+          setBatchMsg(`✓ EditBox placeholderFontSize=${placeholderFontSize} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>EBphFS</span>
+            {[12, 14, 16, 18, 20, 24, 28].map(v => (
+              <span key={v} onClick={() => applyEBPlaceholderFS(v)} title={`placeholderFontSize=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2208: 공통 cc.EditBox fontColor 일괄 설정 */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEBFontColor = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const colorObj = { r, g, b, a: 255 }
+          function patchEBFontColor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEBFontColor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox'
+              ? { ...c, props: { ...c.props, fontColor: colorObj, _fontColor: colorObj, _N$fontColor: colorObj } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEBFontColor(sceneFile.root) })
+          setBatchMsg(`✓ EditBox fontColor=${hex} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>EBfColor</span>
+            {(['#ffffff', '#000000', '#cccccc', '#888888', '#ff0000', '#00ff00', '#0000ff'] as const).map(c => (
+              <span key={c} title={c} onClick={() => applyEBFontColor(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, cursor: 'pointer',
+                  border: '1px solid var(--border)', display: 'inline-block', flexShrink: 0 }} />
+            ))}
+          </div>
+        )
+      })()}
       {/* R2177: 공통 cc.EditBox lineCount 일괄 설정 */}
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditLineCount = async (lineCount: number) => {
