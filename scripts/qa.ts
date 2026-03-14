@@ -19084,7 +19084,7 @@ console.log('\n## 654. R1763 cc.Button Sprite 전환 UUID 표시 체크')
 {
   const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
   const s654 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
-  if (s654.includes('R1763') && s654.includes('Sprite 전환 모드') && s654.includes('normalSprite') && s654.includes('pressedSprite')) {
+  if (s654.includes('R1763') && s654.includes('Sprite 전환 모드') && s654.includes('`${state}Sprite`') && s654.includes("'normal', 'hover', 'pressed', 'disabled'")) {
     log('pass', 'R1763-button-sprite-uuid', 'cc.Button Sprite 전환 모드 UUID 표시')
   } else {
     log('warning', 'R1763-button-sprite-uuid', 'cc.Button Sprite 전환 UUID 미구현', 'CocosPanel.tsx')
