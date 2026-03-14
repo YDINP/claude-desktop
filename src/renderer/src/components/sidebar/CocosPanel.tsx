@@ -9592,6 +9592,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2072: 공통 cc.Sprite fillType 일괄 설정 (Filled 타입) */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applySprFillType = async (fillType: number) => {
+          if (!sceneFile.root) return
+          function patchSprFillType(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSprFillType)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, fillType, _fillType: fillType } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSprFillType(sceneFile.root) })
+          setBatchMsg(`✓ Sprite fillType=${fillType} (${uuids.length}개)`)
+        }
+        // 0=Horizontal, 1=Vertical, 2=Radial
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>SprFT</span>
+            {([0, 1, 2] as const).map((v, i) => (
+              <span key={v} title={`fillType = ${v} (${['H','V','Rad'][i]})`}
+                onClick={() => applySprFillType(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}
+              >{['H','V','Rad'][i]}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1923: 공통 cc.Sprite fillRange 일괄 설정 (Filled 타입) */}
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applyFillRange = async (fillRange: number) => {

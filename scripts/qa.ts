@@ -22790,6 +22790,18 @@ console.log('\n## 962. R2071 BatchInspector cc.MotionStreak fade 체크')
   }
 }
 
+// ── Section 963: R2072 BatchInspector cc.Sprite fillType ──────────
+console.log('\n## 963. R2072 BatchInspector cc.Sprite fillType 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s963 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s963.includes('R2072') && s963.includes('patchSprFillType') && s963.includes('applySprFillType')) {
+    log('pass', 'R2072-batch-spr-filltype', 'BatchInspector cc.Sprite fillType 일괄 설정')
+  } else {
+    log('warning', 'R2072-batch-spr-filltype', 'BatchInspector cc.Sprite fillType 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
