@@ -17781,6 +17781,18 @@ console.log('\n## 545. R1654 씬 트리 컴포넌트 필터 체크')
   }
 }
 
+// ── Section 546: R1655 씬 트리 깊이 접기 버튼 ──────────────────────
+console.log('\n## 546. R1655 씬 트리 깊이 접기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s546 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s546.includes('R1655') && s546.includes('collapseToDepth') && s546.includes('maxDepth')) {
+    log('pass', 'R1655-collapse-depth', 'CocosPanel 씬 트리 깊이 N까지 접기')
+  } else {
+    log('warning', 'R1655-collapse-depth', 'CocosPanel 씬 트리 깊이 접기 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

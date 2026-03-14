@@ -318,6 +318,17 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [hideInactive, setHideInactive] = useState(false)
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(() => new Set())
   const expandAll = useCallback(() => setCollapsedUuids(new Set()), [])
+  // R1655: 깊이 N까지 펼치기
+  const collapseToDepth = useCallback((maxDepth: number) => {
+    if (!sceneFile?.root) return
+    const uuids = new Set<string>()
+    function walk(n: CCSceneNode, depth: number) {
+      if (depth >= maxDepth && n.children.length > 0) { uuids.add(n.uuid) }
+      else { n.children.forEach(c => walk(c, depth + 1)) }
+    }
+    walk(sceneFile.root, 0)
+    setCollapsedUuids(uuids)
+  }, [sceneFile?.root])
   const collapseAll = useCallback(() => {
     if (!sceneFile?.root) return
     const uuids = new Set<string>()
@@ -2421,6 +2432,10 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               )}
               <span onClick={expandAll} title="전체 펼치기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊞</span>
               <span onClick={collapseAll} title="전체 접기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊟</span>
+              {/* R1655: 깊이 N까지 펼치기 */}
+              {([1, 2, 3] as const).map(d => (
+                <span key={d} onClick={() => collapseToDepth(d)} title={`깊이 ${d}까지 펼치기`} style={{ cursor: 'pointer', fontSize: 9, flexShrink: 0, color: '#666', fontWeight: 700 }}>D{d}</span>
+              ))}
               <span
                 onClick={() => setHideInactive(h => !h)}
                 title={hideInactive ? '비활성 노드 표시' : '비활성 노드 숨기기'}
