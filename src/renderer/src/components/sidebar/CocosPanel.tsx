@@ -8229,17 +8229,28 @@ function CCFileNodeInspector({
             if (comp.type === 'cc.UIOpacity') {
               const uiOpacity = Number(p.opacity ?? 255)
               return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0 4px 2px' }}>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>opacity</span>
-                  <input type="range" min={0} max={255} step={1} value={uiOpacity}
-                    onChange={e => {
-                      const v = parseInt(e.target.value)
-                      const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: v, _opacity: v } } : c)
-                      applyAndSave({ components: updated })
-                    }}
-                    style={{ flex: 1 }}
-                  />
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{uiOpacity}</span>
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>opacity</span>
+                    <input type="range" min={0} max={255} step={1} value={uiOpacity}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: v, _opacity: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{uiOpacity}</span>
+                  </div>
+                  {/* R1794: UIOpacity 퀵 프리셋 */}
+                  <div style={{ display: 'flex', gap: 3, paddingLeft: 62 }}>
+                    {([0, 64, 128, 192, 255] as const).map(v => (
+                      <span key={v} title={`opacity = ${v} (${Math.round(v/255*100)}%)`}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: v, _opacity: v } } : c); applyAndSave({ components: updated }) }}
+                        style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${uiOpacity === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: uiOpacity === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{Math.round(v/255*100)}%</span>
+                    ))}
+                  </div>
                 </div>
               )
             }

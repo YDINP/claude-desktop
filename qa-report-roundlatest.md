@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T03:59:46.198Z
+> 2026-03-14T04:00:27.607Z
 
 ## Critical
 _없음_
@@ -1723,3 +1723,4 @@ _없음_
 - cc.EditBox inputFlag 버튼
 - BatchInspector cc.Label lineHeight 일괄 설정
 - cc.ParticleSystem duration 퀵 프리셋 버튼
+- cc.UIOpacity 퀵 프리셋 버튼

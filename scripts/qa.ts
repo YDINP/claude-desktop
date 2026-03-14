@@ -19451,6 +19451,18 @@ console.log('\n## 684. R1793 cc.ParticleSystem duration 퀵 프리셋 체크')
   }
 }
 
+// ── Section 685: R1794 cc.UIOpacity 퀵 프리셋 ───────────────────────────────
+console.log('\n## 685. R1794 cc.UIOpacity 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s685 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s685.includes('R1794') && s685.includes('UIOpacity 퀵 프리셋') && s685.includes('_opacity: v')) {
+    log('pass', 'R1794-uiopacity-preset', 'cc.UIOpacity 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1794-uiopacity-preset', 'cc.UIOpacity 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
