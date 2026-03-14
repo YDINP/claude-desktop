@@ -24773,6 +24773,24 @@ if (s1266.includes('_mode: mode, _N$mode') && s1266.includes('applyPBMode')) {
   log('warning', 'R2266-batch-pb-mode-cc3x', 'BatchInspector cc.ProgressBar _mode CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1267: R2267 BatchInspector cc.ProgressBar _startWidth (CC3.x) ──────────
+console.log('\n## 1267. R2267 BatchInspector cc.ProgressBar _startWidth CC3.x 체크')
+const s1267 = s1266
+if (s1267.includes('_startWidth: startWidth, _N$startWidth') && s1267.includes('applyPBStartWidth')) {
+  log('pass', 'R2267-batch-pb-startwidth-cc3x', 'BatchInspector cc.ProgressBar _startWidth (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2267-batch-pb-startwidth-cc3x', 'BatchInspector cc.ProgressBar _startWidth CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1268: R2267 단일노드 cc.Layout _horizontalDirection/_verticalDirection (CC3.x) ──────────
+console.log('\n## 1268. R2267 단일노드 cc.Layout _horizontalDirection/_verticalDirection CC3.x 체크')
+const s1268 = s1267
+if (s1268.includes('_horizontalDirection: v, _N$horizontalDirection') && s1268.includes('_verticalDirection: v, _N$verticalDirection')) {
+  log('pass', 'R2267-node-layout-direction-cc3x', '단일노드 cc.Layout _horizontalDirection/_verticalDirection (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2267-node-layout-direction-cc3x', '단일노드 cc.Layout direction CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

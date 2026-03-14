@@ -14545,7 +14545,7 @@ function CCFileBatchInspector({
           function patchPBStartWidth(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPBStartWidth)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, startWidth, _N$startWidth: startWidth } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, startWidth, _startWidth: startWidth, _N$startWidth: startWidth } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPBStartWidth(sceneFile.root) })
@@ -18674,7 +18674,7 @@ function CCFileNodeInspector({
                           <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>H:</span>
                           {([['L→R', 0], ['R→L', 1]] as const).map(([l, v]) => (
                             <span key={v} title={l}
-                              onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalDirection: v, _N$horizontalDirection: v } } : c); applyAndSave({ components: updated }) }}
+                              onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalDirection: v, _horizontalDirection: v, _N$horizontalDirection: v } } : c); applyAndSave({ components: updated }) }}
                               style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${hDir === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: hDir === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
                             >{l}</span>
                           ))}
@@ -18683,7 +18683,7 @@ function CCFileNodeInspector({
                           <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>V:</span>
                           {([['B→T', 0], ['T→B', 1]] as const).map(([l, v]) => (
                             <span key={v} title={l}
-                              onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, verticalDirection: v, _N$verticalDirection: v } } : c); applyAndSave({ components: updated }) }}
+                              onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, verticalDirection: v, _verticalDirection: v, _N$verticalDirection: v } } : c); applyAndSave({ components: updated }) }}
                               style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${vDir === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: vDir === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
                             >{l}</span>
                           ))}
