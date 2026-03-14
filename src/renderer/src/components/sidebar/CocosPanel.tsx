@@ -1153,6 +1153,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         handleTreeDelete(selectedNode.uuid)
         return
       }
+      // R1688: Ctrl+A — 씬 전체 노드 다중 선택
+      if (ctrl && e.key === 'a' && !e.shiftKey && sceneFile.root) {
+        e.preventDefault()
+        const all: string[] = []
+        function collectAll(n: CCSceneNode) { all.push(n.uuid); n.children.forEach(collectAll) }
+        sceneFile.root.children.forEach(collectAll)
+        setMultiSelectedUuids(all)
+        return
+      }
       // Ctrl+D: 선택 노드 복제
       if (ctrl && e.key === 'd' && selectedNode) {
         e.preventDefault()

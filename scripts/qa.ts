@@ -18179,6 +18179,18 @@ console.log('\n## 578. R1687 SceneView z-order 배지 체크')
   }
 }
 
+// ── Section 579: R1688 Ctrl+A 씬 전체 선택 ──────────────────────────────
+console.log('\n## 579. R1688 Ctrl+A 씬 전체 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s579 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s579.includes('R1688') && s579.includes('Ctrl+A') && s579.includes('전체 노드 다중 선택') && s579.includes('collectAll')) {
+    log('pass', 'R1688-ctrl-a', 'Ctrl+A 씬 전체 노드 다중 선택')
+  } else {
+    log('warning', 'R1688-ctrl-a', 'Ctrl+A 전체 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
