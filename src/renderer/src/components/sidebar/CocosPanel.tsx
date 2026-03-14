@@ -7758,6 +7758,19 @@ function CCFileNodeInspector({
                       placeholder="0=자동"
                     />
                     <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
+                    {/* R1787: lineHeight 퀵 프리셋 */}
+                    {([0, fs, Math.round(fs * 1.2), Math.round(fs * 1.5), Math.round(fs * 2)] as const).map((v, i) => {
+                      const labels = ['0', '×1', '×1.2', '×1.5', '×2']
+                      return (
+                        <span key={i} title={`lineHeight = ${v}`}
+                          onClick={() => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineHeight: v, _lineHeight: v, _N$lineHeight: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${lineHeight === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: lineHeight === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none', flexShrink: 0 }}
+                        >{labels[i]}</span>
+                      )
+                    })}
                   </div>
                   {/* R1757: fontFamily 입력 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

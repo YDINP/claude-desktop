@@ -19367,6 +19367,18 @@ console.log('\n## 677. R1786 cc.Label fontSize 표준 크기 프리셋 체크')
   }
 }
 
+// ── Section 678: R1787 cc.Label lineHeight 퀵 프리셋 ─────────────────────────
+console.log('\n## 678. R1787 cc.Label lineHeight 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s678 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s678.includes('R1787') && s678.includes('lineHeight 퀵 프리셋') && s678.includes('_N$lineHeight: v')) {
+    log('pass', 'R1787-label-lineheight-preset', 'cc.Label lineHeight 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1787-label-lineheight-preset', 'cc.Label lineHeight 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
