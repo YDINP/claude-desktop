@@ -18191,6 +18191,18 @@ console.log('\n## 579. R1688 Ctrl+A 씬 전체 선택 체크')
   }
 }
 
+// ── Section 580: R1689 컴포넌트 일괄 접기/펴기 버튼 ──────────────────────
+console.log('\n## 580. R1689 컴포넌트 일괄 접기/펴기 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s580 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s580.includes('R1689') && s580.includes('모두 접기') && s580.includes('모두 펴기')) {
+    log('pass', 'R1689-comp-collapse-all', '컴포넌트 일괄 접기/펴기 버튼')
+  } else {
+    log('warning', 'R1689-comp-collapse-all', '컴포넌트 일괄 접기/펴기 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
