@@ -4062,6 +4062,14 @@ function CCFileNodeInspector({
     return { idx, total: parent.children.length, parentSize: parent.size }
   }, [sceneFile.root, node.uuid])
 
+  // R1660: 씬 전체 컴포넌트 타입별 노드 수
+  const compTypeCountMap = useMemo(() => {
+    const map: Record<string, number> = {}
+    function walk(n: CCSceneNode) { n.components.forEach(c => { map[c.type] = (map[c.type] ?? 0) + 1 }); n.children.forEach(walk) }
+    walk(sceneFile.root)
+    return map
+  }, [sceneFile.root])
+
   // Z-order (같은 부모 내 순서 이동)
   const handleZOrder = useCallback(async (dir: 1 | -1) => {
     if (!sceneFile.root) return
@@ -5115,6 +5123,10 @@ function CCFileNodeInspector({
             <span style={{ flex: 1, opacity: comp.props.enabled === false ? 0.5 : 1 }}>
               {isCustomScript(comp.type) ? '📝 ' : ''}{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
             </span>
+            {/* R1660: 씬 내 동일 타입 노드 수 배지 */}
+            {(compTypeCountMap[comp.type] ?? 0) > 1 && (
+              <span title={`씬 내 ${comp.type} 컴포넌트 보유 노드: ${compTypeCountMap[comp.type]}개`} style={{ fontSize: 7, padding: '1px 3px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', color: '#666', marginRight: 3, flexShrink: 0 }}>×{compTypeCountMap[comp.type]}</span>
+            )}
             {showComps.length > 1 && (
               <span style={{ fontSize: 9, color: 'var(--text-muted)', marginRight: 4 }}>#{ci + 1}</span>
             )}

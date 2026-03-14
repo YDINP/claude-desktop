@@ -17841,6 +17841,18 @@ console.log('\n## 550. R1659 SceneView 솔로 모드 체크')
   }
 }
 
+// ── Section 551: R1660 Inspector 컴포넌트 씬 내 수 배지 ──────────────────────
+console.log('\n## 551. R1660 Inspector 컴포넌트 씬 내 수 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s551 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s551.includes('R1660') && s551.includes('compTypeCountMap') && s551.includes('씬 내 동일 타입')) {
+    log('pass', 'R1660-comp-count', 'Inspector 컴포넌트 씬 내 수 배지')
+  } else {
+    log('warning', 'R1660-comp-count', 'Inspector 컴포넌트 씬 내 수 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
