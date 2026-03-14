@@ -6656,6 +6656,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2012: 공통 cc.SkeletalAnimation loop 일괄 설정 */}
+      {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
+        const applySkeletalLoop = async (loop: boolean) => {
+          if (!sceneFile.root) return
+          function patchSkeletalLoop(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSkeletalLoop)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, loop } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSkeletalLoop(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ SkeletalAnim loop=${loop} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>SkelLoop</span>
+            <span onClick={() => applySkeletalLoop(true)} title="loop ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>loop✓</span>
+            <span onClick={() => applySkeletalLoop(false)} title="loop OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>loop✗</span>
+          </div>
+        )
+      })()}
       {/* R1835: 공통 cc.Slider progress 일괄 설정 */}
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderProg = async (progress: number) => {

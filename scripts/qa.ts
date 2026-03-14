@@ -22070,6 +22070,18 @@ console.log('\n## 902. R2011 BatchInspector dragonBones.ArmatureDisplay loop 체
   }
 }
 
+// ── Section 903: R2012 BatchInspector cc.SkeletalAnimation loop ──────────
+console.log('\n## 903. R2012 BatchInspector cc.SkeletalAnimation loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s903 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s903.includes('R2012') && s903.includes('patchSkeletalLoop') && s903.includes('applySkeletalLoop')) {
+    log('pass', 'R2012-batch-skeletal-loop', 'BatchInspector cc.SkeletalAnimation loop 일괄 설정')
+  } else {
+    log('warning', 'R2012-batch-skeletal-loop', 'BatchInspector cc.SkeletalAnimation loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
