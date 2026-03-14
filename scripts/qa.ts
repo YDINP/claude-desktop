@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1136: R2202 BatchInspector node scaleX ──────────
+console.log('\n## 1136. R2202 BatchInspector 노드 scaleX 체크')
+const s1136 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1136.includes('R2202') && s1136.includes('applyNodeScaleX') && s1136.includes('NodSX')) {
+  log('pass', 'R2202-batch-node-scaleX', '노드 scaleX 비균등/플립 일괄 설정')
+} else {
+  log('warning', 'R2202-batch-node-scaleX', '노드 scaleX 비균등/플립 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1137: R2202 BatchInspector node scaleY ──────────
+console.log('\n## 1137. R2202 BatchInspector 노드 scaleY 체크')
+const s1137 = s1136
+if (s1137.includes('R2202') && s1137.includes('applyNodeScaleY') && s1137.includes('NodSY')) {
+  log('pass', 'R2202-batch-node-scaleY', '노드 scaleY 비균등/플립 일괄 설정')
+} else {
+  log('warning', 'R2202-batch-node-scaleY', '노드 scaleY 비균등/플립 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1134: R2201 BatchInspector sp.Skeleton enabled ──────────
 console.log('\n## 1134. R2201 BatchInspector sp.Skeleton enabled (컴포넌트 레벨) 체크')
 const s1134 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

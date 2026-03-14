@@ -4517,6 +4517,54 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2202: 노드 scaleX 일괄 설정 (플립/비균등 스케일) */}
+      {(() => {
+        const applyNodeScaleX = async (sx: number) => {
+          if (!sceneFile.root) return
+          function patchNodeScaleX(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeScaleX)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, scale: { ...(n.scale || { x: 1, y: 1, z: 1 }), x: sx }, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeScaleX(sceneFile.root) })
+          setBatchMsg(`✓ scaleX=${sx} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodSX</span>
+            {[-1, 0.5, 0.75, 1, 1.25, 1.5, 2].map(v => (
+              <span key={v} onClick={() => applyNodeScaleX(v)} title={`scaleX=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2202: 노드 scaleY 일괄 설정 (플립/비균등 스케일) */}
+      {(() => {
+        const applyNodeScaleY = async (sy: number) => {
+          if (!sceneFile.root) return
+          function patchNodeScaleY(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeScaleY)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, scale: { ...(n.scale || { x: 1, y: 1, z: 1 }), y: sy }, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeScaleY(sceneFile.root) })
+          setBatchMsg(`✓ scaleY=${sy} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodSY</span>
+            {[-1, 0.5, 0.75, 1, 1.25, 1.5, 2].map(v => (
+              <span key={v} onClick={() => applyNodeScaleY(v)} title={`scaleY=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1996: 노드 color(tint) 일괄 설정 */}
       {(() => {
         const applyNodeTint = async (hex: string) => {
