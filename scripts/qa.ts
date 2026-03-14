@@ -22082,6 +22082,18 @@ console.log('\n## 903. R2012 BatchInspector cc.SkeletalAnimation loop 체크')
   }
 }
 
+// ── Section 904: R2013 BatchInspector node position ──────────
+console.log('\n## 904. R2013 BatchInspector node position 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s904 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s904.includes('R2013') && s904.includes('patchNodePos') && s904.includes('applyNodePos')) {
+    log('pass', 'R2013-batch-node-pos', 'BatchInspector node position 일괄 설정')
+  } else {
+    log('warning', 'R2013-batch-node-pos', 'BatchInspector node position 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

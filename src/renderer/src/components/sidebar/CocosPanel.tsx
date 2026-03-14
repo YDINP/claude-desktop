@@ -3834,6 +3834,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2013: 노드 position 일괄 설정 (reset/preset) */}
+      {(() => {
+        const applyNodePos = async (x: number, y: number) => {
+          if (!sceneFile.root) return
+          function patchNodePos(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodePos)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, position: { x, y, z: n.position?.z ?? 0 }, children }
+          }
+          const patchedRoot = patchNodePos(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ pos=(${x},${y}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Pos</span>
+            <span onClick={() => applyNodePos(0, 0)} title="position=(0,0)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>0,0</span>
+            <span onClick={() => applyNodePos(0, 100)} title="position=(0,100)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>0,100</span>
+            <span onClick={() => applyNodePos(0, -100)} title="position=(0,-100)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>0,-100</span>
+          </div>
+        )
+      })()}
       {/* R2006: 노드 rotation 일괄 설정 */}
       {(() => {
         const applyNodeRotation = async (deg: number) => {
