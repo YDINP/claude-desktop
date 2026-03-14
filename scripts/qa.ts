@@ -22730,6 +22730,18 @@ console.log('\n## 957. R2066 BatchInspector cc.RichText fontSize 체크')
   }
 }
 
+// ── Section 958: R2067 BatchInspector cc.PageView direction ──────────
+console.log('\n## 958. R2067 BatchInspector cc.PageView direction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s958 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s958.includes('R2067') && s958.includes('patchPageViewDir') && s958.includes('applyPageViewDir')) {
+    log('pass', 'R2067-batch-pv-direction', 'BatchInspector cc.PageView direction 일괄 설정')
+  } else {
+    log('warning', 'R2067-batch-pv-direction', 'BatchInspector cc.PageView direction 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

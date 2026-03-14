@@ -5729,6 +5729,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2067: 공통 cc.PageView direction 일괄 설정 */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPageViewDir = async (direction: number) => {
+          if (!sceneFile.root) return
+          function patchPageViewDir(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPageViewDir)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, direction, _N$direction: direction } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPageViewDir(sceneFile.root) })
+          setBatchMsg(`✓ PageView direction=${direction} (${uuids.length}개)`)
+        }
+        // 0=Horizontal, 1=Vertical
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>PVdir</span>
+            {([0, 1] as const).map((v, i) => (
+              <span key={v} title={`direction = ${v} (${['Horizontal','Vertical'][i]})`}
+                onClick={() => applyPageViewDir(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}
+              >{['H','V'][i]}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1936: 공통 cc.PageView bounceEnabled 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVBounce = async (v: boolean) => {
