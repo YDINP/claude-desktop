@@ -19871,6 +19871,18 @@ console.log('\n## 719. R1828 BatchInspector cc.AudioSource volume 체크')
   }
 }
 
+// ── Section 720: R1829 cc.RigidBody linearDamping 퀵 프리셋 ──────────────────
+console.log('\n## 720. R1829 cc.RigidBody linearDamping 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s720 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s720.includes('R1829') && s720.includes('linearDamping 퀵 프리셋') && s720.includes('linearDamping === v')) {
+    log('pass', 'R1829-rb-lineardamping-preset', 'cc.RigidBody linearDamping 퀵 프리셋')
+  } else {
+    log('warning', 'R1829-rb-lineardamping-preset', 'cc.RigidBody linearDamping 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

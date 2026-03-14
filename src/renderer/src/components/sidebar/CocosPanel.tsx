@@ -9471,15 +9471,25 @@ function CCFileNodeInspector({
                       >{v}</span>
                     ))}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>linearDamp</span>
                     <input type="number" defaultValue={linearDamping} min={0} step={0.1}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearDamping: parseFloat(e.target.value) || 0 } } : c)
                         applyAndSave({ components: updated })
                       }}
-                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
+                    {/* R1829: linearDamping 퀵 프리셋 */}
+                    {([0, 0.1, 0.5, 1, 5] as const).map(v => (
+                      <span key={v} title={`linearDamping = ${v}`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearDamping: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${linearDamping === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: linearDamping === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
                   </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
                     <input type="checkbox" checked={fixedRotation}
