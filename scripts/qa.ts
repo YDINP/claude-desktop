@@ -22526,6 +22526,18 @@ console.log('\n## 940. R2049 BatchInspector cc.ParticleSystem endSizeVar 체크'
   }
 }
 
+// ── Section 941: R2050 BatchInspector cc.ParticleSystem radialAccelVar ──────────
+console.log('\n## 941. R2050 BatchInspector cc.ParticleSystem radialAccelVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s941 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s941.includes('R2050') && s941.includes('patchPSRadialAccelVar') && s941.includes('applyPSRadialAccelVar')) {
+    log('pass', 'R2050-batch-ps-radialaccelvar', 'BatchInspector cc.ParticleSystem radialAccelVar 일괄 설정')
+  } else {
+    log('warning', 'R2050-batch-ps-radialaccelvar', 'BatchInspector cc.ParticleSystem radialAccelVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -6869,6 +6869,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2050: 공통 cc.ParticleSystem radialAccelVar 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSRadialAccelVar = async (radialAccelVar: number) => {
+          if (!sceneFile.root) return
+          function patchPSRadialAccelVar(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSRadialAccelVar)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, radialAccelVar, _radialAccelVar: radialAccelVar, _N$radialAccelVar: radialAccelVar } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSRadialAccelVar(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS radialAccelVar=${radialAccelVar} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSrAccV</span>
+            {[0, 10, 25, 50, 100].map(v => (
+              <span key={v} onClick={() => applyPSRadialAccelVar(v)} title={`radialAccelVar=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2029: 공통 cc.ParticleSystem radialAccel 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSRadialAccel = async (radialAccel: number) => {
