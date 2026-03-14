@@ -24143,6 +24143,60 @@ if (s1184.includes('R2225') && s1184.includes('applySpriteTrimMode') && s1184.in
   log('warning', 'R2225-batch-sprite-isTrimmedMode', 'BatchInspector cc.Sprite _isTrimmedMode 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1189: R2228 BatchInspector cc.Toggle _interactable (CC3.x) ──────────
+console.log('\n## 1189. R2228 BatchInspector cc.Toggle _interactable 체크')
+const s1189 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1189.includes('R2228') && s1189.includes('applyToggleInteract3') && s1189.includes('TogInt3')) {
+  log('pass', 'R2228-batch-toggle-interactable-cc3x', 'BatchInspector cc.Toggle _interactable (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2228-batch-toggle-interactable-cc3x', 'BatchInspector cc.Toggle _interactable (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1190: R2228 BatchInspector cc.ProgressBar _reverse (CC3.x) ──────────
+console.log('\n## 1190. R2228 BatchInspector cc.ProgressBar _reverse 체크')
+const s1190 = s1189
+if (s1190.includes('R2228') && s1190.includes('applyPBReverse3') && s1190.includes('PBRev3')) {
+  log('pass', 'R2228-batch-progressbar-reverse-cc3x', 'BatchInspector cc.ProgressBar _reverse (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2228-batch-progressbar-reverse-cc3x', 'BatchInspector cc.ProgressBar _reverse (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1187: R2227 BatchInspector cc.Button _zoomScale (CC3.x) ──────────
+console.log('\n## 1187. R2227 BatchInspector cc.Button _zoomScale 체크')
+const s1187 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1187.includes('R2227') && s1187.includes('applyBtnZoom3') && s1187.includes('BtnZm3')) {
+  log('pass', 'R2227-batch-button-zoomscale-cc3x', 'BatchInspector cc.Button _zoomScale (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2227-batch-button-zoomscale-cc3x', 'BatchInspector cc.Button _zoomScale (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1188: R2227 BatchInspector cc.ScrollView _brake (CC3.x) ──────────
+console.log('\n## 1188. R2227 BatchInspector cc.ScrollView _brake 체크')
+const s1188 = s1187
+if (s1188.includes('R2227') && s1188.includes('applySVBrake3') && s1188.includes('SVBrk3')) {
+  log('pass', 'R2227-batch-scrollview-brake-cc3x', 'BatchInspector cc.ScrollView _brake (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2227-batch-scrollview-brake-cc3x', 'BatchInspector cc.ScrollView _brake (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1185: R2226 BatchInspector cc.Sprite capInsets 균등 ──────────
+console.log('\n## 1185. R2226 BatchInspector cc.Sprite capInsets 균등 체크')
+const s1185 = s1184
+if (s1185.includes('R2226') && s1185.includes('applySpriteCap') && s1185.includes('SprInst')) {
+  log('pass', 'R2226-batch-sprite-capinsets', 'BatchInspector cc.Sprite capInsets 균등 일괄 설정')
+} else {
+  log('warning', 'R2226-batch-sprite-capinsets', 'BatchInspector cc.Sprite capInsets 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1186: R2226 BatchInspector cc.AudioSource _volume (CC3.x) ──────────
+console.log('\n## 1186. R2226 BatchInspector cc.AudioSource _volume 체크')
+const s1186 = s1185
+if (s1186.includes('R2226') && s1186.includes('applyAudioVol3') && s1186.includes('ASVol3')) {
+  log('pass', 'R2226-batch-audiosource-volume-cc3x', 'BatchInspector cc.AudioSource _volume (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2226-batch-audiosource-volume-cc3x', 'BatchInspector cc.AudioSource _volume (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1181: R2224 BatchInspector cc.VideoPlayer keepAspectRatio (CC3.x) ──────────
 console.log('\n## 1181. R2224 BatchInspector cc.VideoPlayer keepAspectRatio 체크')
 const s1181 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

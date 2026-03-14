@@ -15096,6 +15096,167 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2226: 공통 cc.Sprite capInsets 균등 9-slice 일괄 설정 (CC2.x/CC3.x) */}
+      {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
+        const applySpriteCap = async (inset: number) => {
+          if (!sceneFile.root) return
+          function patchSpriteCap(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpriteCap)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
+              ? { ...c, props: { ...c.props, insetTop: inset, insetBottom: inset, insetLeft: inset, insetRight: inset } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpriteCap(sceneFile.root) })
+          setBatchMsg(`✓ Sprite capInset=${inset} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprInst</span>
+            {[0, 1, 2, 4, 8, 16].map(v => (
+              <span key={v} onClick={() => applySpriteCap(v)} title={`capInset=${v} (all 4 insets)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2228: 공통 cc.Toggle _interactable 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Toggle') && (() => {
+        const applyToggleInteract3 = async (interactable: boolean) => {
+          if (!sceneFile.root) return
+          function patchToggleInteract3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchToggleInteract3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Toggle'
+              ? { ...c, props: { ...c.props, interactable, _interactable: interactable } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchToggleInteract3(sceneFile.root) })
+          setBatchMsg(`✓ Toggle _interactable=${interactable} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>TogInt3</span>
+            <span onClick={() => applyToggleInteract3(true)} title="Toggle _interactable ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>int✓</span>
+            <span onClick={() => applyToggleInteract3(false)} title="Toggle _interactable OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#f85149', userSelect: 'none' }}>int✗</span>
+          </div>
+        )
+      })()}
+      {/* R2228: 공통 cc.ProgressBar _reverse 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.ProgressBar') && (() => {
+        const applyPBReverse3 = async (reverse: boolean) => {
+          if (!sceneFile.root) return
+          function patchPBReverse3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPBReverse3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar'
+              ? { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchPBReverse3(sceneFile.root))
+          setBatchMsg(`✓ ProgressBar _reverse=${reverse} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PBRev3</span>
+            <span onClick={() => applyPBReverse3(true)} title="ProgressBar _reverse ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>rev✓</span>
+            <span onClick={() => applyPBReverse3(false)} title="ProgressBar _reverse OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>rev✗</span>
+          </div>
+        )
+      })()}
+      {/* R2227: 공통 cc.Button _zoomScale 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Button') && (() => {
+        const applyBtnZoom3 = async (zoom: number) => {
+          if (!sceneFile.root) return
+          function patchBtnZoom3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBtnZoom3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Button'
+              ? { ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchBtnZoom3(sceneFile.root) })
+          setBatchMsg(`✓ Button _zoomScale=${zoom} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>BtnZm3</span>
+            {([0.9, 1.0, 1.1, 1.2, 1.3, 1.5] as const).map(v => (
+              <span key={v} title={`_zoomScale=${v}`}
+                onClick={() => applyBtnZoom3(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2227: 공통 cc.ScrollView _brake 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVBrake3 = async (brake: number) => {
+          if (!sceneFile.root) return
+          function patchSVBrake3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVBrake3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView'
+              ? { ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchSVBrake3(sceneFile.root))
+          setBatchMsg(`✓ ScrollView _brake=${brake} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SVBrk3</span>
+            {([0, 0.5, 0.75, 1] as const).map(v => (
+              <span key={v} title={`_brake=${v}`}
+                onClick={() => applySVBrake3(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2226: 공통 cc.AudioSource _volume 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.AudioSource') && (() => {
+        const applyAudioVol3 = async (volume: number) => {
+          if (!sceneFile.root) return
+          function patchAudioVol3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAudioVol3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource'
+              ? { ...c, props: { ...c.props, volume, _volume: volume } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchAudioVol3(sceneFile.root))
+          setBatchMsg(`✓ AudioSource _volume=${Math.round(volume * 100)}% (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#facc15', width: 48, flexShrink: 0 }}>ASVol3</span>
+            {([0, 0.25, 0.5, 0.75, 1] as const).map(v => (
+              <span key={v} title={`_volume=${Math.round(v * 100)}%`}
+                onClick={() => applyAudioVol3(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#facc15', userSelect: 'none' }}>{Math.round(v * 100)}%</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1867: 공통 cc.Sprite blendFactor 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprBlend = async (src: number, dst: number) => {
