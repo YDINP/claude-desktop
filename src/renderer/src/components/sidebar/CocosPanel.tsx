@@ -2795,13 +2795,21 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             {/* R1559: 씬 파일명 + 통계 */}
             {(() => {
               const statsMap: Record<string, number> = {}
+              // R1731: 컴포넌트별 노드 uuid 맵
+              const compNodeUuids: Record<string, string[]> = {}
               let nodeCount = 0
               // R1718: 비활성 노드 카운트
               let inactiveCount = 0
+              const inactiveUuids: string[] = []
               const walkStats = (n: CCSceneNode) => {
                 nodeCount++
-                if (!n.active) inactiveCount++
-                n.components.forEach(c => { statsMap[c.type] = (statsMap[c.type] ?? 0) + 1 })
+                if (!n.active) { inactiveCount++; inactiveUuids.push(n.uuid) }
+                n.components.forEach(c => {
+                  statsMap[c.type] = (statsMap[c.type] ?? 0) + 1
+                  // R1731: uuid 수집
+                  if (!compNodeUuids[c.type]) compNodeUuids[c.type] = []
+                  compNodeUuids[c.type].push(n.uuid)
+                })
                 n.children.forEach(walkStats)
               }
               walkStats(sceneFile.root)
@@ -2815,10 +2823,29 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                     <span style={{ color: '#58a6ff' }}>{nodeCount}nodes</span>
                     {/* R1718: 비활성 노드 배지 */}
                     {inactiveCount > 0 && (
-                      <span style={{ color: '#888' }} title={`비활성 노드 ${inactiveCount}개`}>{inactiveCount}◌</span>
+                      <span
+                        // R1731: 클릭으로 비활성 노드 모두 선택
+                        onClick={() => {
+                          const first = nodeMap.get(inactiveUuids[0])
+                          if (first) { onSelectNode(first); setMultiSelectedUuids(inactiveUuids) }
+                        }}
+                        style={{ color: '#888', cursor: 'pointer' }} title={`비활성 노드 ${inactiveCount}개 — 클릭으로 모두 선택`}
+                      >{inactiveCount}◌</span>
                     )}
                     {topComps.map(([type, cnt]) => (
-                      <span key={type} style={{ color: '#666' }}>{type.split('.').pop()}×{cnt}</span>
+                      // R1731: 클릭으로 해당 컴포넌트 노드 모두 선택
+                      <span
+                        key={type}
+                        onClick={() => {
+                          const uuids = compNodeUuids[type] ?? []
+                          const first = uuids.length > 0 ? nodeMap.get(uuids[0]) : null
+                          if (first) { onSelectNode(first); setMultiSelectedUuids(uuids) }
+                        }}
+                        title={`${type} 보유 노드 ${cnt}개 — 클릭으로 모두 선택 (R1731)`}
+                        style={{ color: '#666', cursor: 'pointer' }}
+                        onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+                        onMouseLeave={e => (e.currentTarget.style.color = '#666')}
+                      >{type.split('.').pop()}×{cnt}</span>
                     ))}
                   </div>
                 </div>

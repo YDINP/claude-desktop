@@ -18695,6 +18695,18 @@ console.log('\n## 621. R1730 BatchInspector 이름 Prefix/Suffix 체크')
   }
 }
 
+// ── Section 622: R1731 Stats 컴포넌트 배지 클릭 선택 ──────────────────────────
+console.log('\n## 622. R1731 Stats 컴포넌트 배지 클릭 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s622 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s622.includes('R1731') && s622.includes('compNodeUuids') && s622.includes('inactiveUuids') && s622.includes('클릭으로 모두 선택')) {
+    log('pass', 'R1731-stats-click-select', 'Stats 컴포넌트 배지 클릭으로 노드 선택')
+  } else {
+    log('warning', 'R1731-stats-click-select', 'Stats 컴포넌트 배지 클릭 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
