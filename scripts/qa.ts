@@ -23897,6 +23897,15 @@ if (s1055.includes('R2161') && s1055.includes('applyRBGroup') && s1055.includes(
   log('warning', 'R2161-batch-rigidbody-group', 'BatchInspector cc.RigidBody group 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1056: R2162 BatchInspector Collider tag ──────────
+console.log('\n## 1056. R2162 BatchInspector Collider tag 체크')
+const s1056 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1056.includes('R2162') && s1056.includes('applyColliderTag') && s1056.includes('ColTag')) {
+  log('pass', 'R2162-batch-collider-tag', 'BatchInspector cc.BoxCollider/CircleCollider/PolygonCollider tag 일괄 설정')
+} else {
+  log('warning', 'R2162-batch-collider-tag', 'BatchInspector Collider tag 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

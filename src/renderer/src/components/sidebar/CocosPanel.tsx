@@ -11255,6 +11255,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2162: 공통 cc.BoxCollider/CircleCollider/PolygonCollider tag 일괄 설정 */}
+      {(commonCompTypes.some(t => ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D'].includes(t))) && (() => {
+        const COLLIDER_TYPES = ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D']
+        const applyColliderTag = async (tag: number) => {
+          if (!sceneFile.root) return
+          function patchColliderTag(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchColliderTag)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => COLLIDER_TYPES.includes(c.type) ? { ...c, props: { ...c.props, tag, _tag: tag } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchColliderTag(sceneFile.root) })
+          setBatchMsg(`✓ Collider tag=${tag} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>ColTag</span>
+            {[0, 1, 2, 3, 4, 5].map(v => (
+              <span key={v} onClick={() => applyColliderTag(v)} title={`collider tag=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1863: 공통 cc.Mask type 일괄 설정 */}
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskType = async (type: number) => {
