@@ -22478,6 +22478,18 @@ console.log('\n## 936. R2045 BatchInspector cc.SkeletalAnimation wrapMode 체크
   }
 }
 
+// ── Section 937: R2046 BatchInspector cc.VideoPlayer resourceType ──────────
+console.log('\n## 937. R2046 BatchInspector cc.VideoPlayer resourceType 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s937 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s937.includes('R2046') && s937.includes('patchVideoResType') && s937.includes('applyVideoResType')) {
+    log('pass', 'R2046-batch-video-restype', 'BatchInspector cc.VideoPlayer resourceType 일괄 설정')
+  } else {
+    log('warning', 'R2046-batch-video-restype', 'BatchInspector cc.VideoPlayer resourceType 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

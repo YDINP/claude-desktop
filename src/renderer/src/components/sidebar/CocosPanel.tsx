@@ -5941,6 +5941,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2046: 공통 cc.VideoPlayer resourceType 일괄 설정 */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoResType = async (resourceType: number) => {
+          if (!sceneFile.root) return
+          function patchVideoResType(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideoResType)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, resourceType, _resourceType: resourceType, _N$resourceType: resourceType } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchVideoResType(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names = ['Local','Remote']
+          setBatchMsg(`✓ VideoPlayer resourceType=${names[resourceType]??resourceType} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>VidResT</span>
+            {([['Local',0],['Remote',1]] as [string,number][]).map(([label,v]) => (
+              <span key={v} onClick={() => applyVideoResType(v)} title={`resourceType=${label}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2000: 공통 cc.VideoPlayer keepAspectRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoKeepAspect = async (keepAspectRatio: boolean) => {
