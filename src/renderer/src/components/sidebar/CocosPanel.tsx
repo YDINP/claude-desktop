@@ -5122,6 +5122,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1882: 공통 cc.Sprite sizeMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applySpriteSizeMode = async (sizeMode: number) => {
+          if (!sceneFile.root) return
+          function patchSpriteSizeMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpriteSizeMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, sizeMode, _sizeMode: sizeMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchSpriteSizeMode(sceneFile.root))
+          const names = ['Custom', 'Trimmed', 'Raw']
+          setBatchMsg(`✓ Sprite sizeMode=${names[sizeMode] ?? sizeMode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprSize</span>
+            {(['Custom', 'Trimmed', 'Raw'] as const).map((l, v) => (
+              <span key={v} title={`sizeMode = ${l}`}
+                onClick={() => applySpriteSizeMode(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1867: 공통 cc.Sprite blendFactor 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprBlend = async (src: number, dst: number) => {

@@ -20510,6 +20510,18 @@ console.log('\n## 772. R1881 BatchInspector cc.RigidBody type 체크')
   }
 }
 
+// ── Section 773: R1882 BatchInspector cc.Sprite sizeMode ──────────────────
+console.log('\n## 773. R1882 BatchInspector cc.Sprite sizeMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s773 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s773.includes('R1882') && s773.includes('applySpriteSizeMode') && s773.includes('patchSpriteSizeMode')) {
+    log('pass', 'R1882-batch-sprite-sizemode', 'BatchInspector cc.Sprite sizeMode 일괄 설정 (Custom/Trimmed/Raw)')
+  } else {
+    log('warning', 'R1882-batch-sprite-sizemode', 'BatchInspector cc.Sprite sizeMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
