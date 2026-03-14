@@ -21770,6 +21770,18 @@ console.log('\n## 877. R1986 BatchInspector cc.EditBox returnType 체크')
   }
 }
 
+// ── Section 878: R1987 BatchInspector cc.ProgressBar mode ──────────
+console.log('\n## 878. R1987 BatchInspector cc.ProgressBar mode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s878 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s878.includes('R1987') && s878.includes('patchPBMode') && s878.includes('applyPBMode')) {
+    log('pass', 'R1987-batch-pb-mode', 'BatchInspector cc.ProgressBar mode 일괄 설정')
+  } else {
+    log('warning', 'R1987-batch-pb-mode', 'BatchInspector cc.ProgressBar mode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

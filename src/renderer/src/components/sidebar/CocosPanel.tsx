@@ -7308,6 +7308,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1987: 공통 cc.ProgressBar mode 일괄 설정 */}
+      {commonCompTypes.includes('cc.ProgressBar') && (() => {
+        const applyPBMode = async (mode: number) => {
+          if (!sceneFile.root) return
+          function patchPBMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPBMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, mode, _N$mode: mode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPBMode(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names = ['Horiz', 'Vert', 'Filled']
+          setBatchMsg(`✓ ProgressBar mode=${names[mode] ?? mode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PBmode</span>
+            {([['H', 0], ['V', 1], ['Fill', 2]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applyPBMode(v)} title={`mode=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1906: 공통 cc.ProgressBar progress 일괄 설정 */}
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBProgress = async (progress: number) => {
