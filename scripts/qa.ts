@@ -21518,6 +21518,18 @@ console.log('\n## 856. R1965 BatchInspector cc.LabelShadow offset 체크')
   }
 }
 
+// ── Section 857: R1966 BatchInspector cc.PageView autoPageTurningInterval ──────────
+console.log('\n## 857. R1966 BatchInspector cc.PageView autoPageTurningInterval 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s857 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s857.includes('R1966') && s857.includes('patchPVAutoInterval') && s857.includes('applyPVAutoInterval')) {
+    log('pass', 'R1966-batch-pageview-autointv', 'BatchInspector cc.PageView autoPageTurningInterval 일괄 설정')
+  } else {
+    log('warning', 'R1966-batch-pageview-autointv', 'BatchInspector cc.PageView autoPageTurningInterval 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
