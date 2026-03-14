@@ -432,6 +432,32 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           }
         }
         setAlignGuides(guides)
+        // R1695: 가이드에 실제 스냅 적용 (Ctrl/Shift 없을 때)
+        if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+          for (const g of guides) {
+            const cxn = cx + nx, cyn = cy - ny
+            if (g.type === 'V') {
+              const cands: [number, number][] = [
+                [cxn - dw * dax, dw * dax],
+                [cxn, 0],
+                [cxn + dw * (1 - dax), -dw * (1 - dax)],
+              ]
+              for (const [dragPos, offset] of cands) {
+                if (Math.abs(dragPos - g.pos) < ALIGN_SNAP_THRESHOLD) { nx = g.pos + offset - cx; break }
+              }
+            } else {
+              const cands: [number, number][] = [
+                [cyn - dh * (1 - day), dh * (1 - day)],
+                [cyn, 0],
+                [cyn + dh * day, -dh * day],
+              ]
+              for (const [dragPos, offset] of cands) {
+                if (Math.abs(dragPos - g.pos) < ALIGN_SNAP_THRESHOLD) { ny = cy - (g.pos + offset); break }
+              }
+            }
+          }
+          setDragOverride({ uuid: dragRef.current!.uuid, x: nx, y: ny })
+        }
       }
       return
     }

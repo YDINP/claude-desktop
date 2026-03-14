@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:23:50.087Z
+> 2026-03-14T01:25:12.779Z
 
 ## Critical
 _없음_
@@ -1624,3 +1624,4 @@ _없음_
 - SceneView 시각적 숨기기 토글
 - SceneView 좌표 핀 마커
 - 씬 트리 검색 히스토리
+- SceneView 드래그 노드 경계 스냅

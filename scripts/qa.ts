@@ -18263,6 +18263,18 @@ console.log('\n## 585. R1694 씬 트리 검색 히스토리 체크')
   }
 }
 
+// ── Section 586: R1695 SceneView 드래그 노드 경계 스냅 ──────────────────────
+console.log('\n## 586. R1695 SceneView 드래그 경계 스냅 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s586 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s586.includes('R1695') && s586.includes('ALIGN_SNAP_THRESHOLD') && s586.includes('스냅 적용')) {
+    log('pass', 'R1695-drag-snap', 'SceneView 드래그 노드 경계 스냅')
+  } else {
+    log('warning', 'R1695-drag-snap', 'SceneView 드래그 경계 스냅 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
