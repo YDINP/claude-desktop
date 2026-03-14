@@ -21458,6 +21458,18 @@ console.log('\n## 851. R1960 BatchInspector cc.Slider step 체크')
   }
 }
 
+// ── Section 852: R1961 BatchInspector cc.ParticleSystem endSize ──────────
+console.log('\n## 852. R1961 BatchInspector cc.ParticleSystem endSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s852 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s852.includes('R1961') && s852.includes('patchParticleEndSize') && s852.includes('applyParticleEndSize')) {
+    log('pass', 'R1961-batch-particle-endsize', 'BatchInspector cc.ParticleSystem endSize 일괄 설정')
+  } else {
+    log('warning', 'R1961-batch-particle-endsize', 'BatchInspector cc.ParticleSystem endSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
