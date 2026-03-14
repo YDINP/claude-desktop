@@ -19271,6 +19271,18 @@ console.log('\n## 669. R1778 BatchInspector 이름 Regex 교체 체크')
   }
 }
 
+// ── Section 670: R1779 Inspector 위치/크기 정수화 버튼 ───────────────────────
+console.log('\n## 670. R1779 Inspector 정수화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s670 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s670.includes('R1779') && s670.includes('정수화') && s670.includes('⊹int')) {
+    log('pass', 'R1779-int-snap', 'Inspector 위치/크기 정수화 버튼')
+  } else {
+    log('warning', 'R1779-int-snap', 'Inspector 정수화 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -6074,14 +6074,14 @@ function CCFileNodeInspector({
                 onMouseEnter={e => (e.currentTarget.style.color = '#79c0ff')}
                 onMouseLeave={e => (e.currentTarget.style.color = '#58a6ff')}
               >(0,0)</span>
-              {/* R1766: 스냅 그리드 */}
-              {([8, 16] as const).map(g => (
-                <span key={`snap${g}`} title={`위치 ×${g} 그리드 스냅`}
+              {/* R1766: 스냅 그리드 / R1779: ×1 정수화 포함 */}
+              {([1, 8, 16] as const).map(g => (
+                <span key={`snap${g}`} title={g === 1 ? '위치 정수화 (소수점 제거)' : `위치 ×${g} 그리드 스냅`}
                   onClick={() => applyAndSave({ position: { ...draft.position, x: Math.round(draft.position.x / g) * g, y: Math.round(draft.position.y / g) * g } })}
                   style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none', whiteSpace: 'nowrap' }}
                   onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')}
                   onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
-                >⊹{g}</span>
+                >{g === 1 ? '⊹int' : `⊹${g}`}</span>
               ))}
             </div>
             {/* R1670: % 표시 */}
@@ -6223,7 +6223,7 @@ function CCFileNodeInspector({
                 >H{d > 0 ? '+' : ''}{d}</span>
               ))}
             </div>
-            {/* R1744: 크기 배율 버튼 ×0.5/×2 */}
+            {/* R1744: 크기 배율 버튼 ×0.5/×2 / R1779: int 정수화 */}
             <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
               {([0.5, 2] as const).map(mult => (
                 <span key={mult} title={`크기 ×${mult}`}
@@ -6233,6 +6233,12 @@ function CCFileNodeInspector({
                   onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                 >×{mult}</span>
               ))}
+              <span title="크기 정수화 (소수점 제거)"
+                onClick={() => applyAndSave({ size: { x: Math.round(draft.size.x), y: Math.round(draft.size.y) } })}
+                style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
+              >int</span>
             </div>
             {/* R1670: 크기 % 표시 */}
             {showPct && zOrderInfo?.parentSize && (() => {
