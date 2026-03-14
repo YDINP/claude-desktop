@@ -20618,6 +20618,18 @@ console.log('\n## 781. R1890 cc.Sprite flipX/flipY 체크')
   }
 }
 
+// ── Section 782: R1891 BatchInspector cc.Sprite flipX/flipY ──────────
+console.log('\n## 782. R1891 BatchInspector cc.Sprite flipX/flipY 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s782 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s782.includes('R1891') && s782.includes('applySprFlip') && s782.includes('patchSprFlip')) {
+    log('pass', 'R1891-batch-sprite-flip', 'BatchInspector cc.Sprite flipX/flipY 일괄 설정')
+  } else {
+    log('warning', 'R1891-batch-sprite-flip', 'BatchInspector cc.Sprite flipX/flipY 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

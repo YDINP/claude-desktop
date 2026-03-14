@@ -5274,6 +5274,36 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1891: 공통 cc.Sprite flipX/flipY 일괄 설정 */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applySprFlip = async (axis: 'X' | 'Y', value: boolean) => {
+          if (!sceneFile.root) return
+          const key = `flip${axis}`
+          function patchSprFlip(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSprFlip)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSprFlip(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprFlip</span>
+            {(['X', 'Y'] as const).map(axis => (
+              <React.Fragment key={axis}>
+                <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>flip{axis}:</span>
+                {([true, false] as const).map(v => (
+                  <span key={String(v)} title={`flip${axis}=${v}`}
+                    onClick={() => applySprFlip(axis, v)}
+                    style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}
+                  >{v ? '✓' : '✗'}</span>
+                ))}
+              </React.Fragment>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1867: 공통 cc.Sprite blendFactor 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprBlend = async (src: number, dst: number) => {

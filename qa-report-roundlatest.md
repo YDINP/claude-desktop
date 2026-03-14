@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:44:49.112Z
+> 2026-03-14T05:45:56.860Z
 
 ## Critical
 _없음_
@@ -1820,3 +1820,4 @@ _없음_
 - BatchInspector cc.RichText maxWidth 일괄 설정
 - cc.ParticleSystem speed/speedVar 편집
 - cc.Sprite flipX/flipY 편집
+- BatchInspector cc.Sprite flipX/flipY 일괄 설정
