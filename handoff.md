@@ -1,36 +1,33 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-13
 
-## 완료 (R1500-1654)
-- [x] R1500~R1637: (이전 세션 완료 — 상세 이력 생략)
-- [x] R1638: SceneView Shift+SE 리사이즈 비율 고정
-- [x] R1639: Inspector 컴포넌트 칩 클릭 → 첫 번째 해당 타입 노드 선택
-- [x] R1640: SceneView 선택 노드 월드 좌표 가이드라인
-- [x] R1641: SceneView depth 색조 시각화 (⧫ 버튼 토글)
-- [x] R1642: Inspector 중복 이름 배지 클릭으로 순환 선택 (bugfix: onSelectNode→onUpdate)
-- [x] R1643: SceneView 선택 노드↔부모 연결선 (계층 시각화, 분홍 점선)
-- [x] R1644: CocosPanel 씬 트리 선택 노드 자동 스크롤
-- [x] R1645: Inspector 스케일 X/Y 반전 버튼 (↔↕)
-- [x] R1646: Inspector 색상/불투명도 섹션 변경 인디케이터
-- [x] R1647: Inspector opacity 빠른 프리셋 버튼 (0/25/50/75/100%)
-- [x] R1648: Inspector breadcrumb 클릭으로 부모 노드 선택
-- [x] R1649: SceneView 상태바에 선택 노드 크기 표시
-- [x] R1650: CocosPanel 붙여넣기 위치 오프셋 (+20, -20)
-- [x] R1651: Inspector 노드 이름 자동완성 datalist
-- [x] R1652: Inspector 부모 크기에 맞추기 버튼 (⊞↑)
-- [x] R1653: Inspector 회전 부호 반전 버튼 (±)
-- [x] R1654: CocosPanel 씬 트리 컴포넌트 필터 (⊳ 버튼 + 10종 타입 필터)
-- [x] QA Section 541~545 (Pass 1576, Warning 0)
+## 완료 (R1500-1684)
+- [x] R1500~R1670: (이전 세션 완료 — 상세 이력 생략)
+- [x] R1671: Inspector 앵커 프리셋 9-point grid (↖↑↗ ←⊕→ ↙↓↘)
+- [x] R1672: 씬 트리 북마크 (Ctrl+1-9 설정, 1-9 이동)
+- [x] R1673: Inspector 컴포넌트 prop diff 표시 (황색 dot)
+- [x] R1674: SceneView snap 간격 custom 입력 (datalist)
+- [x] R1675: cc.Widget 정렬 시각 다이어그램
+- [x] R1676: Ctrl+Shift+C 노드 JSON 클립보드 복사 + 토스트
+- [x] R1677: Inspector 비활성 조상 노드 경고 배너
+- [x] R1678: 씬 트리 최근 선택 노드 히스토리 칩
+- [x] R1679: TreeSearch 전체 결과 수 표시 + 더 보기
+- [x] R1680: Inspector 컴포넌트 타입별 색상 구분
+- [x] R1681: SceneView 선택 테두리 색상 사용자 설정 (색상 피커)
+- [x] R1682: Inspector 위치/크기 빠른 복사 버튼 (⎘)
+- [x] R1683: SceneView 드래그 ghost (원래 위치 반투명 점선)
+- [x] R1684: 씬 컴포넌트 통계 패널 (📊 씬 통계)
+- [x] QA Section 555~575 (Pass 1606, Warning 0)
 
 ## 빌드/QA
 - Build: ✅ 성공
-- Critical: 0, Warning: 0, Pass: 1576
+- Critical: 0, Warning: 0, Pass: 1606
 - Branch: dev
 
-## 다음 예정 (R1655+)
+## 다음 예정 (R1685+)
 - 새 기능 아이디어:
-  - Inspector — 컴포넌트 타입 비교 (선택 노드 vs 씬 내 유사 노드)
-  - SceneView — 드래그 시 부모 영역 내 snap (자동 정렬)
-  - SceneView — 다중 선택 노드 정렬 (align left/right/top/bottom/center)
-  - Inspector — 노드 transform 애니메이션 미리보기 (rotation/scale pulse)
-  - CocosPanel — 씬 트리 컴포넌트 필터 확장 (custom type 입력)
+  - Inspector — 노드 컬러(cc.Node color) 프리셋 팔레트
+  - SceneView — 여러 노드 동시 리사이즈 (다중 선택 리사이즈)
+  - CocosPanel — 씬 파일 변경 실시간 자동 저장 옵션 (Auto-save interval)
+  - Inspector — cc.Label 텍스트 멀티라인 미리보기
+  - SceneView — 노드 숨기기 토글 (비활성 vs 시각적 숨기기)
