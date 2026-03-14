@@ -8050,6 +8050,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2007: 공통 cc.Sprite isTrimmedMode 일괄 설정 */}
+      {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
+        const applySprTrimmed = async (isTrimmedMode: boolean) => {
+          if (!sceneFile.root) return
+          function patchSprTrimmed(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSprTrimmed)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, isTrimmedMode, _isTrimmedMode: isTrimmedMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSprTrimmed(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Sprite isTrimmed=${isTrimmedMode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprTrim</span>
+            <span onClick={() => applySprTrimmed(true)} title="isTrimmedMode ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>trm✓</span>
+            <span onClick={() => applySprTrimmed(false)} title="isTrimmedMode OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>trm✗</span>
+          </div>
+        )
+      })()}
       {/* R1867: 공통 cc.Sprite blendFactor 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprBlend = async (src: number, dst: number) => {

@@ -22010,6 +22010,18 @@ console.log('\n## 897. R2006 BatchInspector node rotation 체크')
   }
 }
 
+// ── Section 898: R2007 BatchInspector cc.Sprite isTrimmedMode ──────────
+console.log('\n## 898. R2007 BatchInspector cc.Sprite isTrimmedMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s898 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s898.includes('R2007') && s898.includes('patchSprTrimmed') && s898.includes('applySprTrimmed')) {
+    log('pass', 'R2007-batch-sprite-trimmed', 'BatchInspector cc.Sprite isTrimmedMode 일괄 설정')
+  } else {
+    log('warning', 'R2007-batch-sprite-trimmed', 'BatchInspector cc.Sprite isTrimmedMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
