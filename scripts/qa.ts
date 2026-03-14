@@ -19187,6 +19187,18 @@ console.log('\n## 662. R1771 BatchInspector cc.ProgressBar progress 일괄 체�
   }
 }
 
+// ── Section 663: R1772 BatchInspector 선택 노드 정렬 ─────────────────────────
+console.log('\n## 663. R1772 BatchInspector 선택 노드 정렬 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s663 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s663.includes('R1772') && s663.includes('patchAlign') && s663.includes('선택 노드 정렬')) {
+    log('pass', 'R1772-align', 'BatchInspector 선택 노드 정렬 (align X/Y)')
+  } else {
+    log('warning', 'R1772-align', 'BatchInspector 선택 노드 정렬 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -4389,6 +4389,45 @@ function CCFileBatchInspector({
           >번호 추가 _1,_2... ({uuids.length}개)</button>
         </div>
         {/* R1768: X/Y 균등 배치 (3개 이상 선택 시) */}
+        {/* R1772: 선택 노드 정렬 (align) */}
+        {uuids.length >= 2 && (
+          <div style={{ display: 'flex', gap: 3, marginTop: 4, flexWrap: 'wrap' }}>
+            {([
+              { label: '⊢X', title: 'X 최솟값 정렬', axis: 'x' as const, fn: (xs: number[]) => Math.min(...xs) },
+              { label: '⊕X', title: 'X 중앙 정렬', axis: 'x' as const, fn: (xs: number[]) => xs.reduce((a,b) => a+b, 0) / xs.length },
+              { label: 'X⊣', title: 'X 최댓값 정렬', axis: 'x' as const, fn: (xs: number[]) => Math.max(...xs) },
+              { label: '⊤Y', title: 'Y 최댓값 정렬', axis: 'y' as const, fn: (ys: number[]) => Math.max(...ys) },
+              { label: '⊕Y', title: 'Y 중앙 정렬', axis: 'y' as const, fn: (ys: number[]) => ys.reduce((a,b) => a+b, 0) / ys.length },
+              { label: '⊥Y', title: 'Y 최솟값 정렬', axis: 'y' as const, fn: (ys: number[]) => Math.min(...ys) },
+            ]).map(({ label, title, axis, fn }) => (
+              <span key={label} title={title}
+                onClick={async () => {
+                  if (!sceneFile.root) return
+                  const vals: number[] = []
+                  function collectVals(nd: CCSceneNode) {
+                    if (uuidSet.has(nd.uuid)) vals.push(axis === 'x' ? nd.position.x : nd.position.y)
+                    nd.children.forEach(collectVals)
+                  }
+                  collectVals(sceneFile.root)
+                  if (vals.length === 0) return
+                  const target = Math.round(fn(vals))
+                  function patchAlign(nd: CCSceneNode): CCSceneNode {
+                    const children = nd.children.map(patchAlign)
+                    if (!uuidSet.has(nd.uuid)) return { ...nd, children }
+                    const newPos = axis === 'x' ? { ...nd.position, x: target } : { ...nd.position, y: target }
+                    return { ...nd, position: newPos, children }
+                  }
+                  await saveScene(patchAlign(sceneFile.root))
+                  setBatchMsg(`✓ ${title} (${uuids.length}개)`)
+                  setTimeout(() => setBatchMsg(null), 2000)
+                }}
+                style={{ fontSize: 9, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
+              >{label}</span>
+            ))}
+          </div>
+        )}
         {uuids.length >= 3 && (
           <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
             {(['X', 'Y'] as const).map(axis => (
