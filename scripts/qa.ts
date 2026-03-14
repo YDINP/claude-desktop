@@ -20990,6 +20990,18 @@ console.log('\n## 812. R1921 BatchInspector cc.Camera clearFlags 체크')
   }
 }
 
+// ── Section 813: R1922 BatchInspector cc.RigidBody allowSleep ──────────
+console.log('\n## 813. R1922 BatchInspector cc.RigidBody allowSleep 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s813 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s813.includes('R1922') && s813.includes('patchRBSleep') && s813.includes('applyRBSleep')) {
+    log('pass', 'R1922-batch-rigidbody-allowsleep', 'BatchInspector cc.RigidBody allowSleep 일괄 설정')
+  } else {
+    log('warning', 'R1922-batch-rigidbody-allowsleep', 'BatchInspector cc.RigidBody allowSleep 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
