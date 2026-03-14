@@ -18875,6 +18875,18 @@ console.log('\n## 636. R1745 BatchInspector 불투명도 퀵 프리셋 체크')
   }
 }
 
+// ── Section 637: R1746 cc.Label 텍스트 대소문자 변환 ─────────────────────────
+console.log('\n## 637. R1746 cc.Label 텍스트 대소문자 변환 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s637 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s637.includes('R1746') && s637.includes('텍스트 대소문자 변환 버튼') && s637.includes('toUpperCase') && s637.includes('toLowerCase')) {
+    log('pass', 'R1746-label-case', 'cc.Label 텍스트 대소문자 변환 버튼')
+  } else {
+    log('warning', 'R1746-label-case', 'cc.Label 텍스트 대소문자 변환 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

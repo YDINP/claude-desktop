@@ -7132,6 +7132,28 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R1746: 텍스트 대소문자 변환 버튼 */}
+                  {str && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>변환</span>
+                      {[
+                        { label: 'ABC', title: '모두 대문자', fn: (s: string) => s.toUpperCase() },
+                        { label: 'abc', title: '모두 소문자', fn: (s: string) => s.toLowerCase() },
+                        { label: 'Abc', title: '단어 첫 글자 대문자', fn: (s: string) => s.replace(/\b\w/g, c => c.toUpperCase()) },
+                      ].map(({ label, title, fn }) => (
+                        <span key={label} title={title}
+                          onClick={() => {
+                            const newStr = fn(str)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: newStr, _string: newStr, _N$string: newStr } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ fontSize: 9, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
+                          onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                          onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                        >{label}</span>
+                      ))}
+                    </div>
+                  )}
                   {/* R1691: 멀티라인 텍스트 미리보기 */}
                   {(str.includes('\n') || str.includes('\\n')) && (() => {
                     const lines = str.replace(/\\n/g, '\n').split('\n')
