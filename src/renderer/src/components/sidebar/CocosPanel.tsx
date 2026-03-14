@@ -21312,7 +21312,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>layerName</span>
                     <input type="text" defaultValue={layerName}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, layerName: e.target.value } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, layerName: e.target.value, _layerName: e.target.value, _N$layerName: e.target.value } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21331,7 +21331,7 @@ function CCFileNodeInspector({
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
                     <input type="checkbox" checked={visible}
                       onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, visible: e.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, visible: e.target.checked, _visible: e.target.checked, _N$visible: e.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ margin: 0, accentColor: '#4ade80' }}
@@ -21554,7 +21554,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>type</span>
                     <select defaultValue={rbType}
                       onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: parseInt(e.target.value) } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: parseInt(e.target.value), _type: parseInt(e.target.value), _N$type: parseInt(e.target.value) } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
@@ -21566,7 +21566,7 @@ function CCFileNodeInspector({
                   <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}></span>
                     {rbTypes.map((t, v) => (
-                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: v } } : c); applyAndSave({ components: u }) }}
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: v, _type: v, _N$type: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: `1px solid ${rbType === v ? '#34d399' : 'var(--border)'}`, color: rbType === v ? '#34d399' : 'var(--text-muted)', background: 'var(--bg-primary)' }}
                       >{t[0]}{t.slice(1,3).toLowerCase()}</span>
                     ))}
@@ -21575,7 +21575,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>mass</span>
                     <input type="number" defaultValue={mass} min={0} step={0.1}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mass: parseFloat(e.target.value) || 1 } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mass: parseFloat(e.target.value) || 1, _mass: parseFloat(e.target.value) || 1, _N$mass: parseFloat(e.target.value) || 1 } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21585,7 +21585,7 @@ function CCFileNodeInspector({
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>gravityScale</span>
                     <input type="number" defaultValue={gravityScale} step={0.1}
                       onBlur={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, gravityScale: parseFloat(e.target.value) || 1 } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, gravityScale: parseFloat(e.target.value) || 1, _gravityScale: parseFloat(e.target.value) || 1, _N$gravityScale: parseFloat(e.target.value) || 1 } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -21594,7 +21594,7 @@ function CCFileNodeInspector({
                     {([0, 0.5, 1, 2] as const).map(v => (
                       <span key={v} title={`gravityScale = ${v}`}
                         onClick={() => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, gravityScale: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, gravityScale: v, _gravityScale: v, _N$gravityScale: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${gravityScale === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: gravityScale === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
