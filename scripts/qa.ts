@@ -24575,6 +24575,60 @@ if (s1244.includes('_resolutionPolicy: resolutionPolicy') && s1244.includes('pat
   log('warning', 'R2255-batch-canvas-resolutionpolicy-cc3x', 'BatchInspector cc.Canvas _resolutionPolicy CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1245: R2256 BatchInspector cc.Slider _progress (CC3.x) ──────────
+console.log('\n## 1245. R2256 BatchInspector cc.Slider _progress CC3.x 체크')
+const s1245 = s1244
+if (s1245.includes('_progress: progress') && s1245.includes('patchSlider')) {
+  log('pass', 'R2256-batch-slider-progress-cc3x', 'BatchInspector cc.Slider _progress (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2256-batch-slider-progress-cc3x', 'BatchInspector cc.Slider _progress CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1246: R2256 BatchInspector cc.Slider _direction (CC3.x, old section) ──────────
+console.log('\n## 1246. R2256 BatchInspector cc.Slider _direction CC3.x old section 체크')
+const s1246 = s1245
+if (s1246.includes('_direction: direction') && s1246.includes('patchSliderDir')) {
+  log('pass', 'R2256-batch-slider-direction-oldsection-cc3x', 'BatchInspector cc.Slider _direction (CC3.x) old section 갭 수정')
+} else {
+  log('warning', 'R2256-batch-slider-direction-oldsection-cc3x', 'BatchInspector cc.Slider _direction CC3.x old section 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1247: R2257 BatchInspector cc.Slider _interactable (CC3.x, old section) ──────────
+console.log('\n## 1247. R2257 BatchInspector cc.Slider _interactable CC3.x old section 체크')
+const s1247 = s1246
+if (s1247.includes('_interactable: interactable') && s1247.includes('patchSliderInteract')) {
+  log('pass', 'R2257-batch-slider-interactable-oldsection-cc3x', 'BatchInspector cc.Slider _interactable (CC3.x) old section 갭 수정')
+} else {
+  log('warning', 'R2257-batch-slider-interactable-oldsection-cc3x', 'BatchInspector cc.Slider _interactable CC3.x old section 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1248: R2257 BatchInspector cc.Slider _step (CC3.x) ──────────
+console.log('\n## 1248. R2257 BatchInspector cc.Slider _step CC3.x 체크')
+const s1248 = s1247
+if (s1248.includes('_step: step') && s1248.includes('patchSliderStep')) {
+  log('pass', 'R2257-batch-slider-step-cc3x', 'BatchInspector cc.Slider _step (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2257-batch-slider-step-cc3x', 'BatchInspector cc.Slider _step CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1249: R2258 BatchInspector cc.Slider _minValue/_maxValue (CC3.x) ──────────
+console.log('\n## 1249. R2258 BatchInspector cc.Slider _minValue/_maxValue CC3.x 체크')
+const s1249 = s1248
+if (s1249.includes('_minValue: min') && s1249.includes('_maxValue: max') && s1249.includes('patchSliderRange')) {
+  log('pass', 'R2258-batch-slider-minmaxvalue-cc3x', 'BatchInspector cc.Slider _minValue/_maxValue (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2258-batch-slider-minmaxvalue-cc3x', 'BatchInspector cc.Slider _minValue/_maxValue CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1250: R2258 BatchInspector cc.Layout _resizeMode (CC3.x) ──────────
+console.log('\n## 1250. R2258 BatchInspector cc.Layout _resizeMode CC3.x 체크')
+const s1250 = s1249
+if (s1250.includes('_resizeMode: resizeMode') && s1250.includes('patchLayoutResizeMode')) {
+  log('pass', 'R2258-batch-layout-resizemode-cc3x', 'BatchInspector cc.Layout _resizeMode (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2258-batch-layout-resizemode-cc3x', 'BatchInspector cc.Layout _resizeMode CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

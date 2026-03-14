@@ -11903,10 +11903,10 @@ function CCFileBatchInspector({
           function patchSlider(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSlider)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, progress, _N$progress: progress } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } } : c)
             return { ...n, components: updComps, children }
           }
-          await saveScene(patchSlider(sceneFile.root))
+          await saveScene({ ...sceneFile, root: patchSlider(sceneFile.root) }) // R2256: _progress CC3.x + saveScene 버그 수정
           setBatchMsg(`✓ Slider progress ${Math.round(progress * 100)}% (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -11929,10 +11929,10 @@ function CCFileBatchInspector({
           function patchSliderDir(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSliderDir)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, direction, _N$direction: direction } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
             return { ...n, components: updComps, children }
           }
-          await saveScene(patchSliderDir(sceneFile.root))
+          await saveScene({ ...sceneFile, root: patchSliderDir(sceneFile.root) }) // R2256: _direction CC3.x + saveScene 버그 수정
           setBatchMsg(`✓ Slider direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -11951,10 +11951,10 @@ function CCFileBatchInspector({
           function patchSliderInteract(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSliderInteract)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, interactable, _N$interactable: interactable } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } } : c)
             return { ...n, components: updComps, children }
           }
-          await saveScene({ ...sceneFile, root: patchSliderInteract(sceneFile.root) })
+          await saveScene({ ...sceneFile, root: patchSliderInteract(sceneFile.root) }) // R2257: _interactable CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -11996,12 +11996,12 @@ function CCFileBatchInspector({
           function patchSliderRange(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSliderRange)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, minValue: min, maxValue: max, _N$minValue: min, _N$maxValue: max } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, minValue: min, maxValue: max, _minValue: min, _maxValue: max, _N$minValue: min, _N$maxValue: max } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchSliderRange(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Slider [${min}~${max}] (${uuids.length}개)`)
+          setBatchMsg(`✓ Slider [${min}~${max}] (${uuids.length}개)`) // R2258: _minValue/_maxValue CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -12023,12 +12023,12 @@ function CCFileBatchInspector({
           function patchSliderStep(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSliderStep)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, step, _N$step: step } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, step, _step: step, _N$step: step } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchSliderStep(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Slider step=${step} (${uuids.length}개)`)
+          setBatchMsg(`✓ Slider step=${step} (${uuids.length}개)`) // R2257: _step CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -12865,11 +12865,11 @@ function CCFileBatchInspector({
           function patchLayoutResizeMode(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchLayoutResizeMode)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, resizeMode, _N$resizeMode: resizeMode } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLayoutResizeMode(sceneFile.root) })
-          setBatchMsg(`✓ Layout resizeMode=${resizeMode} (${uuids.length}개)`)
+          setBatchMsg(`✓ Layout resizeMode=${resizeMode} (${uuids.length}개)`) // R2258: _resizeMode CC3.x
         }
         // 0=NONE, 1=CONTAINER, 2=CHILDREN
         return (
