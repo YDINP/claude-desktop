@@ -5203,6 +5203,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1921: 공통 cc.Camera clearFlags 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamFlags = async (clearFlags: number) => {
+          if (!sceneFile.root) return
+          function patchCamFlags(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamFlags)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, clearFlags, _clearFlags: clearFlags } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCamFlags(sceneFile.root) })
+          setBatchMsg(`✓ Camera clearFlags ${clearFlags} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>CamFlag</span>
+            {([['None',0],['Depth',2],['C+D',7],['All',15]] as [string,number][]).map(([l,v]) => (
+              <span key={v} title={`clearFlags = ${v}`}
+                onClick={() => applyCamFlags(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

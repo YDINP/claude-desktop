@@ -20978,6 +20978,18 @@ console.log('\n## 811. R1920 BatchInspector cc.Camera backgroundColor 체크')
   }
 }
 
+// ── Section 812: R1921 BatchInspector cc.Camera clearFlags ──────────
+console.log('\n## 812. R1921 BatchInspector cc.Camera clearFlags 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s812 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s812.includes('R1921') && s812.includes('patchCamFlags') && s812.includes('applyCamFlags')) {
+    log('pass', 'R1921-batch-camera-clearflags', 'BatchInspector cc.Camera clearFlags 일괄 설정')
+  } else {
+    log('warning', 'R1921-batch-camera-clearflags', 'BatchInspector cc.Camera clearFlags 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
