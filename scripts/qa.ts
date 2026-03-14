@@ -18719,6 +18719,18 @@ console.log('\n## 623. R1732 회전 스텝 버튼 체크')
   }
 }
 
+// ── Section 624: R1733 스케일 스텝 버튼 ────────────────────────────────────────
+console.log('\n## 624. R1733 스케일 스텝 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s624 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s624.includes('R1733') && s624.includes('스케일 스텝') && s624.includes('×0.5') && s624.includes('×2')) {
+    log('pass', 'R1733-scale-step', '스케일 스텝 버튼 ×0.5/×2')
+  } else {
+    log('warning', 'R1733-scale-step', '스케일 스텝 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

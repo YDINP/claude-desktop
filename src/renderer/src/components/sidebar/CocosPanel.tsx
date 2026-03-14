@@ -5558,6 +5558,19 @@ function CCFileNodeInspector({
               const ratio = draft.scale.y !== 0 ? v / draft.scale.y : 1
               applyAndSave({ scale: lockScale ? { x: draft.scale.x * ratio, y: v, z: draft.scale.z ?? 1 } : { ...draft.scale, y: v } })
             }, 0.01)}
+            {/* R1733: 스케일 스텝 버튼 ×0.5/×2 */}
+            <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
+              {([0.5, 2] as const).map(mult => (
+                <span
+                  key={mult}
+                  title={`스케일 ×${mult}`}
+                  onClick={() => applyAndSave({ scale: { x: draft.scale.x * mult, y: draft.scale.y * mult, z: draft.scale.z ?? 1 } })}
+                  style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                >×{mult}</span>
+              ))}
+            </div>
           </div>
         </div>
         </>
