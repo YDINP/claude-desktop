@@ -5834,6 +5834,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1952: 공통 cc.Camera fov 일괄 설정 */}
+      {commonCompTypes.includes('cc.Camera') && (() => {
+        const applyCamFov = async (fov: number) => {
+          if (!sceneFile.root) return
+          function patchCamFov(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCamFov)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, fov, _fov: fov } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchCamFov(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Camera fov=${fov}° (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#818cf8', width: 48, flexShrink: 0 }}>CamFov</span>
+            {([45, 60, 75, 90, 120] as const).map(v => (
+              <span key={v} title={`fov = ${v}°`}
+                onClick={() => applyCamFov(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#818cf8', userSelect: 'none' }}
+              >{v}°</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1821: 공통 cc.Layout type 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

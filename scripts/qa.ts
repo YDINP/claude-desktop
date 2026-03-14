@@ -21350,6 +21350,18 @@ console.log('\n## 842. R1951 BatchInspector cc.Label fontSize 체크')
   }
 }
 
+// ── Section 843: R1952 BatchInspector cc.Camera fov ──────────
+console.log('\n## 843. R1952 BatchInspector cc.Camera fov 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s843 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s843.includes('R1952') && s843.includes('patchCamFov') && s843.includes('applyCamFov')) {
+    log('pass', 'R1952-batch-camera-fov', 'BatchInspector cc.Camera fov 일괄 설정')
+  } else {
+    log('warning', 'R1952-batch-camera-fov', 'BatchInspector cc.Camera fov 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
