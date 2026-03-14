@@ -23462,6 +23462,18 @@ console.log('\n## 1018. R2127 BatchInspector cc.Widget isAlignVerticalCenter 체
   }
 }
 
+// ── Section 1019: R2128 BatchInspector cc.RigidBody linearVelocityLimit ──────────
+console.log('\n## 1019. R2128 BatchInspector cc.RigidBody linearVelocityLimit 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1019 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1019.includes('R2128') && s1019.includes('patchRBLinVelLim') && s1019.includes('applyRBLinVelLim')) {
+    log('pass', 'R2128-batch-rb-linvellim', 'BatchInspector cc.RigidBody linearVelocityLimit 일괄 설정')
+  } else {
+    log('warning', 'R2128-batch-rb-linvellim', 'BatchInspector cc.RigidBody linearVelocityLimit 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
