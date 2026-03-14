@@ -4062,6 +4062,14 @@ function CCFileNodeInspector({
     return { idx, total: parent.children.length, parentSize: parent.size }
   }, [sceneFile.root, node.uuid])
 
+  // R1661: 전체 하위 노드 수 (descendants)
+  const totalDescendants = useMemo(() => {
+    let count = 0
+    function walk(n: CCSceneNode) { n.children.forEach(c => { count++; walk(c) }) }
+    walk(node)
+    return count
+  }, [node])
+
   // R1660: 씬 전체 컴포넌트 타입별 노드 수
   const compTypeCountMap = useMemo(() => {
     const map: Record<string, number> = {}
@@ -4122,6 +4130,8 @@ function CCFileNodeInspector({
           <div style={{ display: 'flex', gap: 3, flexShrink: 0, alignItems: 'center' }}>
             {nodePath.length > 1 && <span style={{ fontSize: 8, color: '#556', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title="깊이 (루트=0)">d{nodePath.length - 1}</span>}
             {draft.children.length > 0 && <span style={{ fontSize: 8, color: '#565', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`자식 노드 ${draft.children.length}개`}>▸{draft.children.length}</span>}
+            {/* R1661: 전체 하위 노드 수 */}
+            {totalDescendants > draft.children.length && <span style={{ fontSize: 8, color: '#454', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`전체 하위 노드 ${totalDescendants}개`}>⊲{totalDescendants}</span>}
             {draft.components.length > 0 && <span style={{ fontSize: 8, color: '#556a', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`컴포넌트 ${draft.components.length}개`}>⊕{draft.components.length}</span>}
             {/* R1492: 경로 복사 버튼 */}
             <span

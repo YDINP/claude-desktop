@@ -17853,6 +17853,18 @@ console.log('\n## 551. R1660 Inspector 컴포넌트 씬 내 수 배지 체크')
   }
 }
 
+// ── Section 552: R1661 Inspector 전체 하위 노드 수 배지 ──────────────────────
+console.log('\n## 552. R1661 Inspector 하위 노드 수 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s552 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s552.includes('R1661') && s552.includes('totalDescendants') && s552.includes('전체 하위 노드')) {
+    log('pass', 'R1661-descendants', 'Inspector 전체 하위 노드 수 배지 (⊲N)')
+  } else {
+    log('warning', 'R1661-descendants', 'Inspector 전체 하위 노드 수 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
