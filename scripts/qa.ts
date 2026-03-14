@@ -18827,6 +18827,18 @@ console.log('\n## 632. R1741 Inspector 크기 스텝 버튼 체크')
   }
 }
 
+// ── Section 633: R1742 비활성 조상 일괄 활성화 버튼 ──────────────────────────
+console.log('\n## 633. R1742 비활성 조상 일괄 활성화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s633 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s633.includes('R1742') && s633.includes('비활성 조상 일괄 활성화') && s633.includes('activatePath') && s633.includes('모두 활성화')) {
+    log('pass', 'R1742-activate-ancestors', '비활성 조상 일괄 활성화 버튼')
+  } else {
+    log('warning', 'R1742-activate-ancestors', '비활성 조상 일괄 활성화 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

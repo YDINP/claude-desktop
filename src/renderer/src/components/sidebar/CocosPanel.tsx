@@ -4943,13 +4943,37 @@ function CCFileNodeInspector({
           </div>
         </div>
       )}
-      {/* R1677: 비활성 조상 경고 배너 */}
+      {/* R1677: 비활성 조상 경고 배너 + R1742: 일괄 활성화 버튼 */}
       {inactiveAncestors.length > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4, padding: '2px 6px', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: 3 }}>
           <span style={{ fontSize: 9, color: '#fbbf24' }}>⚠</span>
-          <span style={{ fontSize: 9, color: '#a8874a' }} title={`비활성 조상: ${inactiveAncestors.join(', ')}`}>
+          <span style={{ fontSize: 9, color: '#a8874a', flex: 1 }} title={`비활성 조상: ${inactiveAncestors.join(', ')}`}>
             비활성 조상: {inactiveAncestors.join(', ')}
           </span>
+          {/* R1742: 비활성 조상 일괄 활성화 */}
+          <span
+            title="비활성 조상 모두 활성화"
+            onClick={async () => {
+              if (!sceneFile?.root) return
+              function activatePath(n: CCSceneNode, targetUuid: string): { node: CCSceneNode; found: boolean } {
+                if (n.uuid === targetUuid) return { node: n, found: true }
+                for (let i = 0; i < n.children.length; i++) {
+                  const r = activatePath(n.children[i], targetUuid)
+                  if (r.found) {
+                    const newChildren = [...n.children]
+                    newChildren[i] = r.node
+                    return { node: { ...n, active: true, children: newChildren }, found: true }
+                  }
+                }
+                return { node: n, found: false }
+              }
+              const result = activatePath(sceneFile.root, node.uuid)
+              if (result.found) await saveScene(result.node)
+            }}
+            style={{ fontSize: 8, cursor: 'pointer', color: '#fbbf24', padding: '0 4px', border: '1px solid rgba(251,191,36,0.4)', borderRadius: 2, flexShrink: 0, userSelect: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(251,191,36,0.15)')}
+            onMouseLeave={e => (e.currentTarget.style.background = '')}
+          >모두 활성화</span>
         </div>
       )}
       {/* R1637: 같은 이름 노드 자동 배지 (R1642: 클릭으로 순환 선택) */}
