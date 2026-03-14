@@ -11390,6 +11390,39 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R1924: startColor / startColorVar */}
+                  {(() => {
+                    const scRaw = p.startColor as { r?: number; g?: number; b?: number } | undefined
+                    const scHex = `#${((scRaw?.r ?? 255)).toString(16).padStart(2,'0')}${((scRaw?.g ?? 255)).toString(16).padStart(2,'0')}${((scRaw?.b ?? 255)).toString(16).padStart(2,'0')}`
+                    const ecRaw = p.endColor as { r?: number; g?: number; b?: number } | undefined
+                    const ecHex = `#${((ecRaw?.r ?? 255)).toString(16).padStart(2,'0')}${((ecRaw?.g ?? 255)).toString(16).padStart(2,'0')}${((ecRaw?.b ?? 255)).toString(16).padStart(2,'0')}`
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startColor</span>
+                        <input type="color" value={scHex} key={`sc-${scHex}`}
+                          onChange={e => {
+                            const h = e.target.value
+                            const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16)
+                            const col = { r, g, b, a: scRaw?.a ?? 255 }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startColor: col, _startColor: col, _N$startColor: col } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>end</span>
+                        <input type="color" value={ecHex} key={`ec-${ecHex}`}
+                          onChange={e => {
+                            const h = e.target.value
+                            const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16)
+                            const col = { r, g, b, a: ecRaw?.a ?? 255 }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endColor: col, _endColor: col, _N$endColor: col } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
+                        />
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }

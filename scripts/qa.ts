@@ -21014,6 +21014,18 @@ console.log('\n## 814. R1923 BatchInspector cc.Sprite fillRange 체크')
   }
 }
 
+// ── Section 815: R1924 cc.ParticleSystem startColor/endColor ──────────
+console.log('\n## 815. R1924 cc.ParticleSystem startColor/endColor 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s815 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s815.includes('R1924') && s815.includes('startColor') && s815.includes('_N$startColor')) {
+    log('pass', 'R1924-particle-startcolor', 'cc.ParticleSystem startColor/endColor 편집')
+  } else {
+    log('warning', 'R1924-particle-startcolor', 'cc.ParticleSystem startColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
