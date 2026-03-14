@@ -24125,6 +24125,24 @@ if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
   log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
 }
 
+// ── Section 1165: R2216 BatchInspector cc.Sprite _useGrayscale (CC3.x) ──────────
+console.log('\n## 1165. R2216 BatchInspector cc.Sprite _useGrayscale 체크')
+const s1165 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1165.includes('R2216') && s1165.includes('applySpUseGray') && s1165.includes('SpUseGy')) {
+  log('pass', 'R2216-batch-sprite-usegrayscale', 'BatchInspector cc.Sprite _useGrayscale 일괄 설정')
+} else {
+  log('warning', 'R2216-batch-sprite-usegrayscale', 'BatchInspector cc.Sprite _useGrayscale 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1166: R2216 BatchInspector cc.Label _spacingX (CC3.x) ──────────
+console.log('\n## 1166. R2216 BatchInspector cc.Label _spacingX 체크')
+const s1166 = s1165
+if (s1166.includes('R2216') && s1166.includes('applyLabelSpacingX') && s1166.includes('LblSpX')) {
+  log('pass', 'R2216-batch-label-spacingx', 'BatchInspector cc.Label _spacingX 일괄 설정')
+} else {
+  log('warning', 'R2216-batch-label-spacingx', 'BatchInspector cc.Label _spacingX 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1162: R2215 BatchInspector cc.Label _underlineHeight (CC3.x) ──────────
 console.log('\n## 1162. R2215 BatchInspector cc.Label _underlineHeight 체크')
 const s1162 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

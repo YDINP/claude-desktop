@@ -5304,6 +5304,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2216: 공통 cc.Label _spacingX 일괄 설정 (CC3.x 문자 간격) */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelSpacingX = async (spacingX: number) => {
+          if (!sceneFile.root) return
+          function patchLabelSpacingX(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelSpacingX)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label'
+              ? { ...c, props: { ...c.props, spacingX, _spacingX: spacingX } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelSpacingX(sceneFile.root) })
+          setBatchMsg(`✓ Label spacingX=${spacingX} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblSpX</span>
+            {[0, 1, 2, 3, 4, 5, 8, 10].map(v => (
+              <span key={v} onClick={() => applyLabelSpacingX(v)} title={`_spacingX=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1955: 공통 cc.Label color 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelColor = async (hex: string) => {
@@ -14322,6 +14348,32 @@ function CCFileBatchInspector({
               <span key={String(v)} onClick={() => applySpriteEnabled(v)} title={`Sprite enabled=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
                   border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2216: 공통 cc.Sprite _useGrayscale 일괄 설정 (CC3.x) */}
+      {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
+        const applySpUseGray = async (useGrayscale: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpUseGray(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpUseGray)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
+              ? { ...c, props: { ...c.props, _useGrayscale: useGrayscale } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpUseGray(sceneFile.root) })
+          setBatchMsg(`✓ Sprite _useGrayscale=${useGrayscale} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SpUseGy</span>
+            {([['ugray✓', true], ['ugray✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applySpUseGray(v)} title={`_useGrayscale=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
