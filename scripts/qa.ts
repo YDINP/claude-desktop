@@ -23006,6 +23006,18 @@ console.log('\n## 980. R2089 BatchInspector cc.BoxCollider friction 체크')
   }
 }
 
+// ── Section 981: R2090 BatchInspector cc.CircleCollider friction ──────────
+console.log('\n## 981. R2090 BatchInspector cc.CircleCollider friction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s981 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s981.includes('R2090') && s981.includes('patchCircleFriction') && s981.includes('applyCircleFriction')) {
+    log('pass', 'R2090-batch-circle-friction', 'BatchInspector cc.CircleCollider friction 일괄 설정')
+  } else {
+    log('warning', 'R2090-batch-circle-friction', 'BatchInspector cc.CircleCollider friction 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

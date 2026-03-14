@@ -3936,6 +3936,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2090: 공통 cc.CircleCollider friction 일괄 설정 */}
+      {commonCompTypes.includes('cc.CircleCollider') && (() => {
+        const applyCircleFriction = async (friction: number) => {
+          if (!sceneFile.root) return
+          function patchCircleFriction(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCircleFriction)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, friction } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCircleFriction(sceneFile.root) })
+          setBatchMsg(`✓ CircleCollider friction=${friction} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>CirFric</span>
+            {[0, 0.1, 0.3, 0.5, 0.7, 1].map(v => (
+              <span key={v} title={`friction = ${v}`}
+                onClick={() => applyCircleFriction(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2088: 공통 cc.CircleCollider density 일괄 설정 */}
       {commonCompTypes.includes('cc.CircleCollider') && (() => {
         const applyCircleDensity = async (density: number) => {
