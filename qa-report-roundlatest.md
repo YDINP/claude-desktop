@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:34:04.876Z
+> 2026-03-14T05:34:55.921Z
 
 ## Critical
 _없음_
@@ -1810,3 +1810,4 @@ _없음_
 - BatchInspector cc.Layout padding 일괄 설정 (uniform)
 - BatchInspector cc.Layout spacingX/Y 일괄 설정
 - BatchInspector cc.MotionStreak fade 일괄 설정
+- BatchInspector cc.RigidBody type 일괄 설정 (Dyn/Sta/Kin)

@@ -20498,6 +20498,18 @@ console.log('\n## 771. R1880 BatchInspector cc.MotionStreak fade 체크')
   }
 }
 
+// ── Section 772: R1881 BatchInspector cc.RigidBody type ───────────────────
+console.log('\n## 772. R1881 BatchInspector cc.RigidBody type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s772 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s772.includes('R1881') && s772.includes('applyRBType') && s772.includes('patchRBType')) {
+    log('pass', 'R1881-batch-rb-type', 'BatchInspector cc.RigidBody type 일괄 설정 (Dyn/Sta/Kin)')
+  } else {
+    log('warning', 'R1881-batch-rb-type', 'BatchInspector cc.RigidBody type 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

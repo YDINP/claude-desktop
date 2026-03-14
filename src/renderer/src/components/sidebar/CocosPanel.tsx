@@ -4841,6 +4841,33 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1881: 공통 cc.RigidBody type 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBType = async (type: number) => {
+          if (!sceneFile.root) return
+          function patchRBType(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBType)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, type } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchRBType(sceneFile.root))
+          const names = ['Dynamic', 'Static', 'Kinematic']
+          setBatchMsg(`✓ RigidBody type=${names[type] ?? type} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBtype</span>
+            {(['Dyn', 'Sta', 'Kin'] as const).map((l, v) => (
+              <span key={v} title={`RigidBody type = ${['Dynamic','Static','Kinematic'][v]}`}
+                onClick={() => applyRBType(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1871: 공통 cc.RigidBody mass 일괄 설정 */}
       {commonCompTypes.includes('cc.RigidBody') && (() => {
         const applyRBMass = async (mass: number) => {
