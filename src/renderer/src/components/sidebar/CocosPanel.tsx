@@ -5712,6 +5712,13 @@ function CCFileNodeInspector({
                   onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                 >Y{d > 0 ? '+' : ''}{d}</span>
               ))}
+              {/* R1752: 위치 원점 리셋 */}
+              <span title="위치 원점 (0, 0) 리셋"
+                onClick={() => applyAndSave({ position: { ...draft.position, x: 0, y: 0 } })}
+                style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#58a6ff', userSelect: 'none', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#79c0ff')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#58a6ff')}
+              >(0,0)</span>
             </div>
             {/* R1670: % 표시 */}
             {showPct && zOrderInfo?.parentSize && (() => {

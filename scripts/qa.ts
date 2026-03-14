@@ -18947,6 +18947,18 @@ console.log('\n## 642. R1751 BatchInspector 색상 퀵 프리셋 체크')
   }
 }
 
+// ── Section 643: R1752 Inspector 위치 원점 리셋 버튼 ─────────────────────────
+console.log('\n## 643. R1752 Inspector 위치 원점 리셋 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s643 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s643.includes('R1752') && s643.includes('위치 원점 리셋') && s643.includes('x: 0, y: 0')) {
+    log('pass', 'R1752-pos-reset', 'Inspector 위치 원점 (0,0) 리셋 버튼')
+  } else {
+    log('warning', 'R1752-pos-reset', 'Inspector 위치 원점 리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
