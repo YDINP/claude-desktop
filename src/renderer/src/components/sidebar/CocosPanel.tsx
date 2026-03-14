@@ -4329,6 +4329,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2174: 노드 _group 일괄 설정 (CC2.x 레이어/물리 그룹) */}
+      {(() => {
+        const applyNodeGroup = async (group: string) => {
+          if (!sceneFile.root) return
+          function patchNodeGroup(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeGroup)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, _group: group, children }
+          }
+          await saveScene({ ...sceneFile, root: patchNodeGroup(sceneFile.root) })
+          setBatchMsg(`✓ _group="${group}" (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodeGrp</span>
+            {(['default', 'wall', 'ground', 'player', 'enemy', 'trigger'].map(g => (
+              <span key={g} onClick={() => applyNodeGroup(g)} title={`_group="${g}"`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{g}</span>
+            )))}
+          </div>
+        )
+      })()}
       {/* R2161: 노드 _zIndex 일괄 설정 (CC2.x z-order) */}
       {(() => {
         const applyZIndex = async (zIndex: number) => {
@@ -6715,6 +6738,30 @@ function CCFileBatchInspector({
             {[0, 0.1, 0.3, 0.5, 1].map(v => (
               <span key={v} onClick={() => applySVScrollDur(v)} title={`scrollDuration=${v}s`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}s</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2174: 공통 cc.ScrollView bounceTime 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVBounceTime = async (bounceTime: number) => {
+          if (!sceneFile.root) return
+          function patchSVBounceTime(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVBounceTime)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounceTime, _N$bounceTime: bounceTime } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSVBounceTime(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView bounceTime=${bounceTime} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SVbncT</span>
+            {[0, 0.1, 0.2, 0.5, 1].map(v => (
+              <span key={v} onClick={() => applySVBounceTime(v)} title={`bounceTime=${v}s`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{v}</span>
             ))}
           </div>
         )

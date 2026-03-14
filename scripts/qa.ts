@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1080: R2174 BatchInspector 노드 _group ──────────
+console.log('\n## 1080. R2174 BatchInspector 노드 _group 체크')
+const s1080 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1080.includes('R2174') && s1080.includes('applyNodeGroup') && s1080.includes('NodeGrp')) {
+  log('pass', 'R2174-batch-node-group', 'BatchInspector 노드 _group 일괄 설정')
+} else {
+  log('warning', 'R2174-batch-node-group', 'BatchInspector 노드 _group 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1081: R2174 BatchInspector cc.ScrollView bounceTime ──────────
+console.log('\n## 1081. R2174 BatchInspector cc.ScrollView bounceTime 체크')
+const s1081 = s1080
+if (s1081.includes('R2174') && s1081.includes('applySVBounceTime') && s1081.includes('SVbncT')) {
+  log('pass', 'R2174-batch-sv-bouncetime', 'BatchInspector cc.ScrollView bounceTime 일괄 설정')
+} else {
+  log('warning', 'R2174-batch-sv-bouncetime', 'BatchInspector cc.ScrollView bounceTime 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1078: R2173 BatchInspector cc.Label platformFont ──────────
 console.log('\n## 1078. R2173 BatchInspector cc.Label platformFont 체크')
 const s1078 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
