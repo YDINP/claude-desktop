@@ -13039,11 +13039,11 @@ function CCFileBatchInspector({
             const children = n.children.map(patchLayoutCell)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const cellSize = { width: size, height: size }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, cellSize, _N$cellSize: cellSize } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, cellSize, _cellSize: cellSize, _N$cellSize: cellSize } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLayoutCell(sceneFile.root) })
-          setBatchMsg(`✓ Layout cellSize=${size}x${size} (${uuids.length}개)`)
+          setBatchMsg(`✓ Layout cellSize=${size}x${size} (${uuids.length}개)`) // R2262: _cellSize CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13220,17 +13220,17 @@ function CCFileBatchInspector({
             const children = n.children.map(patchWidgetIsAbs)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props,
-              isAbsTop: isAbs, _N$isAbsTop: isAbs,
-              isAbsBottom: isAbs, _N$isAbsBottom: isAbs,
-              isAbsLeft: isAbs, _N$isAbsLeft: isAbs,
-              isAbsRight: isAbs, _N$isAbsRight: isAbs,
-              isAbsHorizontalCenter: isAbs, _N$isAbsHorizontalCenter: isAbs,
-              isAbsVerticalCenter: isAbs, _N$isAbsVerticalCenter: isAbs,
+              isAbsTop: isAbs, _isAbsTop: isAbs, _N$isAbsTop: isAbs,
+              isAbsBottom: isAbs, _isAbsBottom: isAbs, _N$isAbsBottom: isAbs,
+              isAbsLeft: isAbs, _isAbsLeft: isAbs, _N$isAbsLeft: isAbs,
+              isAbsRight: isAbs, _isAbsRight: isAbs, _N$isAbsRight: isAbs,
+              isAbsHorizontalCenter: isAbs, _isAbsHorizontalCenter: isAbs, _N$isAbsHorizontalCenter: isAbs,
+              isAbsVerticalCenter: isAbs, _isAbsVerticalCenter: isAbs, _N$isAbsVerticalCenter: isAbs,
             } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchWidgetIsAbs(sceneFile.root) })
-          setBatchMsg(`✓ Widget isAbs*=${isAbs} (${uuids.length}개)`)
+          setBatchMsg(`✓ Widget isAbs*=${isAbs} (${uuids.length}개)`) // R2262: _isAbs* CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

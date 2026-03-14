@@ -24683,6 +24683,24 @@ if (s1256.includes('_startAxis: startAxis') && s1256.includes('patchLayoutStartA
   log('warning', 'R2261-batch-layout-startaxis-cc3x', 'BatchInspector cc.Layout _startAxis CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1257: R2262 BatchInspector cc.Layout _cellSize (CC3.x) ──────────
+console.log('\n## 1257. R2262 BatchInspector cc.Layout _cellSize CC3.x 체크')
+const s1257 = s1256
+if (s1257.includes('_cellSize: cellSize') && s1257.includes('patchLayoutCell')) {
+  log('pass', 'R2262-batch-layout-cellsize-cc3x', 'BatchInspector cc.Layout _cellSize (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2262-batch-layout-cellsize-cc3x', 'BatchInspector cc.Layout _cellSize CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1258: R2262 BatchInspector cc.Widget _isAbs* (CC3.x) ──────────
+console.log('\n## 1258. R2262 BatchInspector cc.Widget _isAbs* CC3.x 체크')
+const s1258 = s1257
+if (s1258.includes('_isAbsTop: isAbs') && s1258.includes('patchWidgetIsAbs')) {
+  log('pass', 'R2262-batch-widget-isabsflags-cc3x', 'BatchInspector cc.Widget _isAbs* 6종 (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2262-batch-widget-isabsflags-cc3x', 'BatchInspector cc.Widget _isAbs* CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
