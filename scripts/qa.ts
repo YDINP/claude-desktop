@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1118: R2193 BatchInspector cc.ScrollView enabled ──────────
+console.log('\n## 1118. R2193 BatchInspector cc.ScrollView enabled (컴포넌트 레벨) 체크')
+const s1118 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1118.includes('R2193') && s1118.includes('applySVEnabled') && s1118.includes('SVComp')) {
+  log('pass', 'R2193-batch-scrollview-enabled', 'BatchInspector cc.ScrollView enabled 일괄 설정')
+} else {
+  log('warning', 'R2193-batch-scrollview-enabled', 'BatchInspector cc.ScrollView enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1119: R2193 BatchInspector cc.Mask enabled ──────────
+console.log('\n## 1119. R2193 BatchInspector cc.Mask enabled (컴포넌트 레벨) 체크')
+const s1119 = s1118
+if (s1119.includes('R2193') && s1119.includes('applyMaskEnabled') && s1119.includes('MskComp')) {
+  log('pass', 'R2193-batch-mask-enabled', 'BatchInspector cc.Mask enabled 일괄 설정')
+} else {
+  log('warning', 'R2193-batch-mask-enabled', 'BatchInspector cc.Mask enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1116: R2192 BatchInspector cc.Button enabled ──────────
 console.log('\n## 1116. R2192 BatchInspector cc.Button enabled (컴포넌트 레벨) 체크')
 const s1116 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

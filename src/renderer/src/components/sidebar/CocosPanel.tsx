@@ -7103,6 +7103,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2193: 공통 cc.ScrollView enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchSVEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSVEnabled(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SVComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applySVEnabled(v)} title={`ScrollView enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2180: 공통 cc.ScrollView hideScrollBar 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVHideScrollBar = async (hideScrollBar: boolean) => {
@@ -12622,6 +12648,32 @@ function CCFileBatchInspector({
             {[0, 1, 2, 3, 4, 5].map(v => (
               <span key={v} onClick={() => applyColliderTag(v)} title={`collider tag=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2193: 공통 cc.Mask enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Mask') && (() => {
+        const applyMaskEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchMaskEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMaskEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Mask'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchMaskEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Mask enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>MskComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyMaskEnabled(v)} title={`Mask enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
