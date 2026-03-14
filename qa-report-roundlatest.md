@@ -1,15 +1,11 @@
 # QA Report — Round latest
-> 2026-03-13T22:02:29.197Z
+> 2026-03-14T00:06:30.158Z
 
 ## Critical
 _없음_
 
 ## Warning
-- [SceneView/SceneInspector.tsx] SceneInspector Position 리셋 미구현
-- [SceneView/SceneInspector.tsx] SceneInspector Rotation 리셋 미구현
-- [SceneView/SceneInspector.tsx] SceneInspector Scale 리셋 미구현
-- [SceneView/SceneViewPanel.tsx] SceneViewPanel PNG 내보내기 미구현
-- [src/renderer/src/components/sidebar/CocosPanel.tsx] handleSave finally 없음 — throw 시 saving 고착 위험
+_없음_
 
 ## Pass
 - tsc --noEmit 오류 없음
@@ -184,6 +180,9 @@ _없음_
 - SceneToolbar: 배경색 토글 prop 존재
 - SceneViewPanel: 배경색 state 존재
 - SceneViewPanel: Alt+Up/Down 계층 탐색 존재
+- SceneInspector: Position 리셋 버튼 존재
+- SceneInspector: Rotation ⊙ 리셋 버튼 존재
+- SceneInspector: Scale ⊙ 리셋 버튼 존재
 - SceneInspector: Anchor ⊙ 리셋 버튼 존재
 - SceneInspector: 조상 Breadcrumb 경로 표시 존재
 - SceneView: 미니맵 오버레이 존재
@@ -386,6 +385,7 @@ _없음_
 - SceneViewPanel: 노드 크기 맞추기 (W/H/both) 구현 존재
 - SceneToolbar: 크기 맞추기 버튼 3종 존재
 - SceneViewPanel: 씬 변경 감지 + Dirty 표시 구현 존재
+- SceneViewPanel: PNG 내보내기 (SVG→Canvas→PNG) 구현 존재
 - SceneToolbar: PNG 내보내기 버튼 존재
 - SceneViewPanel: 카메라 뷰 히스토리 + Alt+←/→ 네비게이션 존재
 - SceneViewPanel: 즐겨찾기 상태 + 목록 팝업 + Ctrl+B 단축키 존재
@@ -454,6 +454,7 @@ _없음_
 - fs:delete 경로 가드 존재
 - watchDir sender.isDestroyed() 체크 존재
 - cc-file-parser 재귀 깊이 제한 존재
+- handleSave try/finally 존재 (saving 상태 고착 방지)
 - local:// path traversal 강화됨 (decodeURIComponent + allowedBases)
 - 씬뷰 Delete 키 핸들러 존재
 - Inspector 섹션 상태 localStorage 저장
@@ -1529,3 +1530,57 @@ _없음_
 - SceneView 마우스 위치 씬 좌표 오버레이
 - 두 노드 선택 시 거리 표시 (↔ Npx)
 - Inspector 같은 이름 노드 찾기 버튼 (🔍)
+- SceneView 줌 퀵점프 버튼 (½/1×/2×)
+- SceneView 눈금자 오버레이 (尺 토글)
+- Inspector 이벤트 핸들러 표시 (📎)
+- SceneView 선택 노드 부모 하이라이트 (연보라 점선)
+- SceneView 편집 잠금 (🔒/🔓)
+- cc.Camera/cc.ParticleSystem 중복 제거 완료 (각 1개)
+- Inspector UUID 복사 버튼 (#)
+- Inspector 컴포넌트 퀵점프 칩 바
+- Inspector 노드 색상 tint 피커
+- SceneView 비활성 노드 숨기기 (👁)
+- SceneView 드래그 delta 표시 (Δx,y)
+- Inspector 자식 노드 빠른 탐색 칩
+- SceneView 형제 노드 하이라이트
+- SceneView 화면 밖 노드 방향 화살표
+- SceneView cc.Label 텍스트 미리보기
+- SceneView HUD 자식/컴포넌트 수 표시
+- Inspector 트랜스폼 복사/붙여넣기
+- SceneView HUD depth 레벨 표시
+- SceneView S/E 단방향 리사이즈 핸들
+- Inspector cc.Label Quick Edit
+- SceneView 같은 컴포넌트 타입 모두 선택
+- SceneView O키 중앙 이동
+- SceneView 와이어프레임 모드
+- SceneView 다중선택 BBox 크기 레이블
+- Inspector 씬 컴포넌트 분포 요약 칩
+- SceneView 검색 비매칭 노드 dim
+- Inspector 씬 성능 경고 칩
+- SceneView 드래그 중 좌표 변화 레이블
+- SceneView 리사이즈 중 크기 레이블
+- SceneView 회전 중 각도 레이블
+- Inspector tint 색상 프리셋 칩
+- SceneView Shift+클릭 같은 이름 노드 검색
+- Inspector 트랜스폼 변경 인디케이터
+- SceneView 캔버스 경계 정렬 가이드
+- Inspector 트랜스폼 원복 버튼
+- SceneView 선택 노드 자식 하이라이트
+- Inspector 중복 이름 배지
+- SceneView Shift+리사이즈 종횡비 유지
+- Inspector 컴포넌트 칩 클릭 노드 선택
+- SceneView 선택 노드 월드 좌표 가이드라인
+- SceneView depth 색조 시각화
+- Inspector 중복 이름 배지 순환 선택
+- SceneView 선택 노드↔부모 연결선
+- 씬 트리 선택 노드 자동 스크롤
+- Inspector 스케일 X/Y 반전 버튼
+- Inspector 색상 섹션 변경 인디케이터
+- Inspector opacity 빠른 프리셋 버튼
+- R1642 bugfix + Inspector breadcrumb 클릭 부모 선택
+- SceneView 상태바 선택 노드 크기 표시
+- 붙여넣기 시 위치 오프셋 적용
+- Inspector 노드 이름 자동완성 datalist
+- Inspector 부모 크기에 맞추기 버튼
+- Inspector 회전 부호 반전 버튼
+- CocosPanel 씬 트리 컴포넌트 필터
