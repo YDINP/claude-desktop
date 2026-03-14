@@ -6105,6 +6105,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2195: 공통 cc.Toggle enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Toggle') && (() => {
+        const applyToggleEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchToggleEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchToggleEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Toggle'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchToggleEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Toggle enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>TGLComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyToggleEnabled(v)} title={`Toggle enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1764: 공통 cc.Toggle isChecked 일괄 설정 */}
       {commonCompTypes.includes('cc.Toggle') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -10541,6 +10567,32 @@ function CCFileBatchInspector({
             {([['Rltime',0],['Shared',1],['Private',2]] as [string,number][]).map(([l,v]) => (
               <span key={v} onClick={() => applySkeletalCaching(v)} title={`defaultCachingMode=${l}(${v})`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2195: 공통 cc.Slider enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Slider') && (() => {
+        const applySliderEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchSliderEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSliderEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Slider'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSliderEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Slider enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>SLDComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applySliderEnabled(v)} title={`Slider enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )

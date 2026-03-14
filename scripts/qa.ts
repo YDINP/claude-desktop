@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1122: R2195 BatchInspector cc.Slider enabled ──────────
+console.log('\n## 1122. R2195 BatchInspector cc.Slider enabled (컴포넌트 레벨) 체크')
+const s1122 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1122.includes('R2195') && s1122.includes('applySliderEnabled') && s1122.includes('SLDComp')) {
+  log('pass', 'R2195-batch-slider-enabled', 'BatchInspector cc.Slider enabled 일괄 설정')
+} else {
+  log('warning', 'R2195-batch-slider-enabled', 'BatchInspector cc.Slider enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1123: R2195 BatchInspector cc.Toggle enabled ──────────
+console.log('\n## 1123. R2195 BatchInspector cc.Toggle enabled (컴포넌트 레벨) 체크')
+const s1123 = s1122
+if (s1123.includes('R2195') && s1123.includes('applyToggleEnabled') && s1123.includes('TGLComp')) {
+  log('pass', 'R2195-batch-toggle-enabled', 'BatchInspector cc.Toggle enabled 일괄 설정')
+} else {
+  log('warning', 'R2195-batch-toggle-enabled', 'BatchInspector cc.Toggle enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1120: R2194 BatchInspector cc.ParticleSystem enabled ──────────
 console.log('\n## 1120. R2194 BatchInspector cc.ParticleSystem enabled (컴포넌트 레벨) 체크')
 const s1120 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
