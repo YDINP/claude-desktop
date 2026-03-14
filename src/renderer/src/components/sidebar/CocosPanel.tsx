@@ -4125,6 +4125,33 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1884: 공통 cc.Button transition 일괄 설정 */}
+      {commonCompTypes.includes('cc.Button') && (() => {
+        const applyBtnTransition = async (transition: number) => {
+          if (!sceneFile.root) return
+          function patchBtnTransition(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBtnTransition)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, transition, _transition: transition } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchBtnTransition(sceneFile.root))
+          const names = ['None', 'Color', 'Sprite', 'Scale']
+          setBatchMsg(`✓ Button transition=${names[transition] ?? transition} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>BtnTrans</span>
+            {(['None', 'Color', 'Sprite', 'Scale'] as const).map((l, v) => (
+              <span key={v} title={`transition = ${l}`}
+                onClick={() => applyBtnTransition(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1769: 공통 cc.Button interactable 일괄 설정 */}
       {commonCompTypes.includes('cc.Button') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:36:20.414Z
+> 2026-03-14T05:37:06.923Z
 
 ## Critical
 _없음_
@@ -1813,3 +1813,4 @@ _없음_
 - BatchInspector cc.RigidBody type 일괄 설정 (Dyn/Sta/Kin)
 - BatchInspector cc.Sprite sizeMode 일괄 설정 (Custom/Trimmed/Raw)
 - BatchInspector cc.MotionStreak stroke 일괄 설정
+- BatchInspector cc.Button transition 일괄 설정 (None/Color/Sprite/Scale)

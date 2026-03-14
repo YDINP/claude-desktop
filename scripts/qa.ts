@@ -20534,6 +20534,18 @@ console.log('\n## 774. R1883 BatchInspector cc.MotionStreak stroke 체크')
   }
 }
 
+// ── Section 775: R1884 BatchInspector cc.Button transition ────────────────
+console.log('\n## 775. R1884 BatchInspector cc.Button transition 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s775 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s775.includes('R1884') && s775.includes('applyBtnTransition') && s775.includes('patchBtnTransition')) {
+    log('pass', 'R1884-batch-button-transition', 'BatchInspector cc.Button transition 일괄 설정 (None/Color/Sprite/Scale)')
+  } else {
+    log('warning', 'R1884-batch-button-transition', 'BatchInspector cc.Button transition 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
