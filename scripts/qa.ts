@@ -21566,6 +21566,18 @@ console.log('\n## 860. R1969 BatchInspector cc.ParticleSystem startColor 체크'
   }
 }
 
+// ── Section 861: R1970 BatchInspector cc.ParticleSystem endColor ──────────
+console.log('\n## 861. R1970 BatchInspector cc.ParticleSystem endColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s861 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s861.includes('R1970') && s861.includes('patchParticleEndColor') && s861.includes('applyParticleEndColor')) {
+    log('pass', 'R1970-batch-particle-endcolor', 'BatchInspector cc.ParticleSystem endColor 일괄 설정')
+  } else {
+    log('warning', 'R1970-batch-particle-endcolor', 'BatchInspector cc.ParticleSystem endColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
