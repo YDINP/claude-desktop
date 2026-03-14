@@ -10442,6 +10442,29 @@ function CCFileNodeInspector({
                       <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{(val as number).toFixed(2)}</span>
                     </div>
                   ))}
+                  {/* R1901: autoPageTurningInterval (0=비활성) */}
+                  {(() => {
+                    const interval = Number(p.autoPageTurningInterval ?? p._N$autoPageTurningInterval ?? 0)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>autoPT sec</span>
+                        <input type="number" defaultValue={interval} key={`apt-${interval}`} min={0} step={0.5}
+                          onBlur={e => {
+                            const v = Math.max(0, parseFloat(e.target.value) || 0)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoPageTurningInterval: v, _N$autoPageTurningInterval: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>s (0=off)</span>
+                        {([0, 1, 2, 3, 5] as const).map(v => (
+                          <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoPageTurningInterval: v, _N$autoPageTurningInterval: v } } : c); applyAndSave({ components: u }) }}
+                            style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${interval === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: interval === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                          >{v === 0 ? 'off' : v}</span>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }

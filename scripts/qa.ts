@@ -20738,6 +20738,18 @@ console.log('\n## 791. R1900 BatchInspector cc.Toggle interactable 체크')
   }
 }
 
+// ── Section 792: R1901 cc.PageView autoPageTurningInterval ──────────
+console.log('\n## 792. R1901 cc.PageView autoPageTurningInterval 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s792 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s792.includes('R1901') && s792.includes('autoPageTurningInterval') && s792.includes('_N$autoPageTurningInterval')) {
+    log('pass', 'R1901-pagview-auto-interval', 'cc.PageView autoPageTurningInterval 편집')
+  } else {
+    log('warning', 'R1901-pagview-auto-interval', 'cc.PageView autoPageTurningInterval 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
