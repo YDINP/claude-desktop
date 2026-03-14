@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:48:05.302Z
+> 2026-03-14T05:49:03.320Z
 
 ## Critical
 _없음_
@@ -1823,3 +1823,4 @@ _없음_
 - BatchInspector cc.Sprite flipX/flipY 일괄 설정
 - cc.Camera backgroundColor/clearFlags/depth 편집
 - BatchInspector cc.ParticleSystem speed 일괄 설정
+- BatchInspector cc.Layout resizeMode 일괄 설정

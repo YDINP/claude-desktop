@@ -4936,6 +4936,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1894: 공통 cc.Layout resizeMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutResize = async (resizeMode: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutResize(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutResize)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, resizeMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLayoutResize(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Lresize</span>
+            {(['None', 'Container', 'Children'] as const).map((l, v) => (
+              <span key={v} title={`resizeMode = ${l}`}
+                onClick={() => applyLayoutResize(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1822: 공통 cc.Widget alignment 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>

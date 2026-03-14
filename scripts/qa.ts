@@ -20654,6 +20654,18 @@ console.log('\n## 784. R1893 BatchInspector cc.ParticleSystem speed 체크')
   }
 }
 
+// ── Section 785: R1894 BatchInspector cc.Layout resizeMode ──────────
+console.log('\n## 785. R1894 BatchInspector cc.Layout resizeMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s785 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s785.includes('R1894') && s785.includes('applyLayoutResize') && s785.includes('patchLayoutResize')) {
+    log('pass', 'R1894-batch-layout-resize', 'BatchInspector cc.Layout resizeMode 일괄 설정')
+  } else {
+    log('warning', 'R1894-batch-layout-resize', 'BatchInspector cc.Layout resizeMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
