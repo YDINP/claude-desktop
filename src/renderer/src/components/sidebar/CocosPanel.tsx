@@ -3911,6 +3911,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2082: 공통 cc.BoxCollider sensor 일괄 설정 */}
+      {commonCompTypes.includes('cc.BoxCollider') && (() => {
+        const applyBoxSensor = async (sensor: boolean) => {
+          if (!sceneFile.root) return
+          function patchBoxSensor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBoxSensor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, sensor } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchBoxSensor(sceneFile.root) })
+          setBatchMsg(`✓ BoxCollider sensor=${sensor} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>BoxSens</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`sensor = ${v}`}
+                onClick={() => applyBoxSensor(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v ? 'sns✓' : 'sns✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2006: 노드 rotation 일괄 설정 */}
       {(() => {
         const applyNodeRotation = async (deg: number) => {

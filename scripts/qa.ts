@@ -22910,6 +22910,18 @@ console.log('\n## 972. R2081 BatchInspector cc.ParticleSystem life 체크')
   }
 }
 
+// ── Section 973: R2082 BatchInspector cc.BoxCollider sensor ──────────
+console.log('\n## 973. R2082 BatchInspector cc.BoxCollider sensor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s973 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s973.includes('R2082') && s973.includes('patchBoxSensor') && s973.includes('applyBoxSensor')) {
+    log('pass', 'R2082-batch-box-sensor', 'BatchInspector cc.BoxCollider sensor 일괄 설정')
+  } else {
+    log('warning', 'R2082-batch-box-sensor', 'BatchInspector cc.BoxCollider sensor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

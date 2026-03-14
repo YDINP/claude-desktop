@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:21:47.257Z
+> 2026-03-14T08:23:44.096Z
 
 ## Critical
 _없음_
@@ -2011,3 +2011,4 @@ _없음_
 - BatchInspector cc.Layout constraint 일괄 설정
 - BatchInspector cc.Layout resizeMode 일괄 설정
 - BatchInspector cc.ParticleSystem life 일괄 설정
+- BatchInspector cc.BoxCollider sensor 일괄 설정
