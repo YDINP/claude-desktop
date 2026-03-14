@@ -23234,6 +23234,18 @@ console.log('\n## 999. R2108 BatchInspector cc.AudioSource loop 체크')
   }
 }
 
+// ── Section 1000: R2109 BatchInspector cc.AudioSource playOnLoad ──────────
+console.log('\n## 1000. R2109 BatchInspector cc.AudioSource playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1000 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1000.includes('R2109') && s1000.includes('patchAudioPlayOnLoad') && s1000.includes('applyAudioPlayOnLoad')) {
+    log('pass', 'R2109-batch-audio-playonload', 'BatchInspector cc.AudioSource playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R2109-batch-audio-playonload', 'BatchInspector cc.AudioSource playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -8585,6 +8585,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2109: 공통 cc.AudioSource playOnLoad 일괄 설정 */}
+      {commonCompTypes.includes('cc.AudioSource') && (() => {
+        const applyAudioPlayOnLoad = async (playOnLoad: boolean) => {
+          if (!sceneFile.root) return
+          function patchAudioPlayOnLoad(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAudioPlayOnLoad)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchAudioPlayOnLoad(sceneFile.root) })
+          setBatchMsg(`✓ AudioSource playOnLoad=${playOnLoad} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>AudPOL</span>
+            <span onClick={() => applyAudioPlayOnLoad(true)} title="playOnLoad ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>pol✓</span>
+            <span onClick={() => applyAudioPlayOnLoad(false)} title="playOnLoad OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>pol✗</span>
+          </div>
+        )
+      })()}
       {/* R1828: 공통 cc.AudioSource volume 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioVol = async (volume: number) => {
