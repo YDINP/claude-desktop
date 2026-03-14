@@ -4785,6 +4785,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1867: 공통 cc.Sprite blendFactor 일괄 설정 */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applySprBlend = async (src: number, dst: number) => {
+          if (!sceneFile.root) return
+          function patchSprBlend(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSprBlend)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchSprBlend(sceneFile.root))
+          const names: Record<string, string> = {'770/771': 'Normal', '770/1': 'Add', '774/771': 'Mul'}
+          setBatchMsg(`✓ Sprite blend=${names[`${src}/${dst}`] ?? `${src}/${dst}`} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprBlend</span>
+            {([['Normal', 770, 771], ['Add', 770, 1], ['Mul', 774, 771]] as [string, number, number][]).map(([l, src, dst]) => (
+              <span key={l} title={`srcBlend=${src} dstBlend=${dst}`}
+                onClick={() => applySprBlend(src, dst)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1760: 공통 cc.Sprite tint 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
