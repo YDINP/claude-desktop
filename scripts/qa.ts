@@ -19319,6 +19319,18 @@ console.log('\n## 673. R1782 Inspector 스케일 정수화 버튼 체크')
   }
 }
 
+// ── Section 674: R1783 cc.Layout spacing 퀵 프리셋 ───────────────────────────
+console.log('\n## 674. R1783 cc.Layout spacing 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s674 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s674.includes('R1783') && s674.includes('spacing 퀵 프리셋') && s674.includes('spacingX: v')) {
+    log('pass', 'R1783-layout-spacing', 'cc.Layout spacing 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1783-layout-spacing', 'cc.Layout spacing 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
