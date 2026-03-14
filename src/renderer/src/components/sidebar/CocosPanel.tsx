@@ -19370,7 +19370,7 @@ function CCFileNodeInspector({
                         {opts.map(([l, v]) => (
                           <span key={v} title={`resolutionPolicy = ${l} (${v})`}
                             onClick={() => {
-                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, resolutionPolicy: v, _N$resolutionPolicy: v } } : c)
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, resolutionPolicy: v, _resolutionPolicy: v, _N$resolutionPolicy: v } } : c)
                               applyAndSave({ components: updated })
                             }}
                             style={{ fontSize: 7, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${rp === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: rp === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
@@ -19550,7 +19550,7 @@ function CCFileNodeInspector({
                               const hex = e.target.value
                               const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16)
                               const colorKey = `${label as string}Color`
-                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [colorKey]: { r, g, b, a: 255 }, [`_N$${colorKey}`]: { r, g, b, a: 255 } } } : c)
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [colorKey]: { r, g, b, a: 255 }, [`_${colorKey}`]: { r, g, b, a: 255 }, [`_N$${colorKey}`]: { r, g, b, a: 255 } } } : c)
                               applyAndSave({ components: updated })
                             }}
                             style={{ width: 22, height: 18, border: '1px solid #333', borderRadius: 2, padding: 0, cursor: 'pointer' }}

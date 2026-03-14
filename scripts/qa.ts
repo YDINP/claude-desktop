@@ -24805,6 +24805,24 @@ if (
   log('warning', 'R2268-node-richtext-props-cc3x', '단일노드 cc.RichText CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1270: R2269 단일노드 cc.Canvas _resolutionPolicy (CC3.x) ──────────
+console.log('\n## 1270. R2269 단일노드 cc.Canvas _resolutionPolicy CC3.x 체크')
+const s1270 = s1269
+if (s1270.includes('_resolutionPolicy: v, _N$resolutionPolicy')) {
+  log('pass', 'R2269-node-canvas-respolicy-cc3x', '단일노드 cc.Canvas _resolutionPolicy (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2269-node-canvas-respolicy-cc3x', '단일노드 cc.Canvas _resolutionPolicy CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1271: R2269 단일노드 stateColors colorKey 템플릿 리터럴 _${colorKey} (CC3.x) ──────────
+console.log('\n## 1271. R2269 단일노드 stateColors _colorKey CC3.x 체크')
+const s1271 = s1270
+if (s1271.includes('[`_${colorKey}`]: { r, g, b, a: 255 }')) {
+  log('pass', 'R2269-node-statecolors-cc3x', '단일노드 stateColors [`_${colorKey}`] (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2269-node-statecolors-cc3x', '단일노드 stateColors CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
