@@ -4002,6 +4002,43 @@ function CCFileBatchInspector({
           >{label}</button>
         ))}
       </div>
+      {/* R1735: 기준 노드 크기 맞추기 (W≡/H≡) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>크기맞춤</span>
+        {[
+          { label: 'W≡', title: '첫 번째 선택 노드 너비에 맞추기', axis: 'w' as const },
+          { label: 'H≡', title: '첫 번째 선택 노드 높이에 맞추기', axis: 'h' as const },
+          { label: 'WH≡', title: '첫 번째 선택 노드 너비/높이에 모두 맞추기', axis: 'wh' as const },
+        ].map(({ label, title, axis }) => (
+          <button
+            key={axis}
+            title={title}
+            onClick={async () => {
+              if (!sceneFile.root) return
+              const nodes: CCSceneNode[] = []
+              function collectSize(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collectSize) }
+              collectSize(sceneFile.root)
+              if (nodes.length < 2) return
+              const ref = nodes[0]
+              const refSz = ref.size as { x?: number; y?: number } | undefined
+              const refW = refSz?.x ?? 0, refH = refSz?.y ?? 0
+              function applyMatchSize(n: CCSceneNode): CCSceneNode {
+                if (uuidSet.has(n.uuid) && n.uuid !== ref.uuid) {
+                  const sz = n.size as { x?: number; y?: number } | undefined
+                  const newW = (axis === 'w' || axis === 'wh') ? refW : (sz?.x ?? 0)
+                  const newH = (axis === 'h' || axis === 'wh') ? refH : (sz?.y ?? 0)
+                  return { ...n, size: { x: newW, y: newH }, children: n.children.map(applyMatchSize) }
+                }
+                return { ...n, children: n.children.map(applyMatchSize) }
+              }
+              const result = await saveScene(applyMatchSize(sceneFile.root))
+              setBatchMsg(result.success ? `✓ ${title}` : `✗ 오류`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 11, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+          >{label}</button>
+        ))}
+      </div>
       {/* 적용 버튼 */}
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
         <button

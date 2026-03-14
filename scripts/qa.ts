@@ -18743,6 +18743,18 @@ console.log('\n## 625. R1734 Global Search 컴포넌트 필터 체크')
   }
 }
 
+// ── Section 626: R1735 BatchInspector 크기 맞추기 ─────────────────────────────
+console.log('\n## 626. R1735 BatchInspector 크기 맞추기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s626 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s626.includes('R1735') && s626.includes('applyMatchSize') && s626.includes('W≡') && s626.includes('H≡')) {
+    log('pass', 'R1735-batch-match-size', 'BatchInspector 기준 노드 크기 맞추기 W≡/H≡')
+  } else {
+    log('warning', 'R1735-batch-match-size', 'BatchInspector 크기 맞추기 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
