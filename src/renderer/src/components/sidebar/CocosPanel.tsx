@@ -8339,6 +8339,41 @@ function CCFileNodeInspector({
                       <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
                     </div>
                   )}
+                  {/* R1790: clearFlags + backgroundColor */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>clear</span>
+                    {([['Color', 1], ['Depth', 2], ['None', 4]] as const).map(([l, v]) => {
+                      const clearFlags = Number(p.clearFlags ?? p._clearFlags ?? 1)
+                      return (
+                        <span key={l} title={`clearFlags = ${l}`}
+                          onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearFlags: v, _clearFlags: v } } : c); applyAndSave({ components: updated }) }}
+                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${clearFlags === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: clearFlags === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
+                  {(() => {
+                    const bgRaw = p.backgroundColor ?? p._backgroundColor as { r?: number; g?: number; b?: number } | undefined
+                    const bgR = (bgRaw as Record<string,number> | undefined)?.r ?? 0
+                    const bgG = (bgRaw as Record<string,number> | undefined)?.g ?? 0
+                    const bgB = (bgRaw as Record<string,number> | undefined)?.b ?? 0
+                    const bgHex = `#${bgR.toString(16).padStart(2,'0')}${bgG.toString(16).padStart(2,'0')}${bgB.toString(16).padStart(2,'0')}`
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>bg color</span>
+                        <input type="color" value={bgHex}
+                          onChange={e => {
+                            const h = e.target.value
+                            const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, backgroundColor: { r, g, b, a: 255 }, _backgroundColor: { r, g, b, a: 255 } } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{bgR},{bgG},{bgB}</span>
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }

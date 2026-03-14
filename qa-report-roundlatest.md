@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T03:56:19.117Z
+> 2026-03-14T03:57:20.937Z
 
 ## Critical
 _없음_
@@ -1719,3 +1719,4 @@ _없음_
 - cc.Label lineHeight 퀵 프리셋 버튼
 - cc.Sprite type/sizeMode 버튼
 - cc.Label enableWrapText 토글 + spacingX 입력
+- cc.Camera clearFlags + backgroundColor 편집

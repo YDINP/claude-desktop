@@ -19403,6 +19403,18 @@ console.log('\n## 680. R1789 cc.Label enableWrapText/spacingX 체크')
   }
 }
 
+// ── Section 681: R1790 cc.Camera clearFlags + backgroundColor ────────────────
+console.log('\n## 681. R1790 cc.Camera clearFlags + backgroundColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s681 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s681.includes('R1790') && s681.includes('clearFlags') && s681.includes('backgroundColor')) {
+    log('pass', 'R1790-camera-clearflags', 'cc.Camera clearFlags + backgroundColor 편집')
+  } else {
+    log('warning', 'R1790-camera-clearflags', 'cc.Camera clearFlags/backgroundColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
