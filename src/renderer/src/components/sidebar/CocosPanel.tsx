@@ -5792,6 +5792,51 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2179: 공통 cc.Graphics fillOpacity + strokeOpacity 일괄 설정 */}
+      {commonCompTypes.includes('cc.Graphics') && (() => {
+        const applyGfxFillOpacity = async (fillOpacity: number) => {
+          if (!sceneFile.root) return
+          function patchGfxFillOpacity(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchGfxFillOpacity)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, fillOpacity, _fillOpacity: fillOpacity } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchGfxFillOpacity(sceneFile.root) })
+          setBatchMsg(`✓ Graphics fillOpacity=${fillOpacity} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const applyGfxStrokeOpacity = async (strokeOpacity: number) => {
+          if (!sceneFile.root) return
+          function patchGfxStrokeOpacity(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchGfxStrokeOpacity)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, strokeOpacity, _strokeOpacity: strokeOpacity } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchGfxStrokeOpacity(sceneFile.root) })
+          setBatchMsg(`✓ Graphics strokeOpacity=${strokeOpacity} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+              <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>GfxFill%</span>
+              {[0, 64, 128, 192, 255].map(v => (
+                <span key={v} onClick={() => applyGfxFillOpacity(v)} title={`fillOpacity=${v}`}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}>{v}</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+              <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>GfxStrk%</span>
+              {[0, 64, 128, 192, 255].map(v => (
+                <span key={v} onClick={() => applyGfxStrokeOpacity(v)} title={`strokeOpacity=${v}`}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#67e8f9', userSelect: 'none' }}>{v}</span>
+              ))}
+            </div>
+          </>
+        )
+      })()}
       {/* R2172: 공통 cc.Widget enabled 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetEnabled = async (enabled: boolean) => {

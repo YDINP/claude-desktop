@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1090: R2179 BatchInspector cc.Graphics fillOpacity ──────────
+console.log('\n## 1090. R2179 BatchInspector cc.Graphics fillOpacity 체크')
+const s1090 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1090.includes('R2179') && s1090.includes('applyGfxFillOpacity') && s1090.includes('GfxFill%')) {
+  log('pass', 'R2179-batch-graphics-fillopacity', 'BatchInspector cc.Graphics fillOpacity 일괄 설정')
+} else {
+  log('warning', 'R2179-batch-graphics-fillopacity', 'BatchInspector cc.Graphics fillOpacity 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1091: R2179 BatchInspector cc.Graphics strokeOpacity ──────────
+console.log('\n## 1091. R2179 BatchInspector cc.Graphics strokeOpacity 체크')
+const s1091 = s1090
+if (s1091.includes('R2179') && s1091.includes('applyGfxStrokeOpacity') && s1091.includes('GfxStrk%')) {
+  log('pass', 'R2179-batch-graphics-strokeopacity', 'BatchInspector cc.Graphics strokeOpacity 일괄 설정')
+} else {
+  log('warning', 'R2179-batch-graphics-strokeopacity', 'BatchInspector cc.Graphics strokeOpacity 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1088: R2178 BatchInspector cc.Camera orthoHeight ──────────
 console.log('\n## 1088. R2178 BatchInspector cc.Camera orthoHeight 체크')
 const s1088 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
