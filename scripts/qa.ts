@@ -19727,6 +19727,18 @@ console.log('\n## 707. R1816 BatchInspector cc.Animation playOnLoad 체크')
   }
 }
 
+// ── Section 708: R1817 cc.RigidBody gravityScale 퀵 프리셋 ──────────────────
+console.log('\n## 708. R1817 cc.RigidBody gravityScale 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s708 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s708.includes('R1817') && s708.includes('gravityScale 퀵 프리셋') && s708.includes('gravityScale: v')) {
+    log('pass', 'R1817-rigidbody-gravityscale-preset', 'cc.RigidBody gravityScale 퀵 프리셋')
+  } else {
+    log('warning', 'R1817-rigidbody-gravityscale-preset', 'cc.RigidBody gravityScale 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
