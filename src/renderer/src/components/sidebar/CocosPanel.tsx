@@ -5448,6 +5448,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1950: 공통 cc.ParticleSystem emissionRate 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyParticleEmission = async (emissionRate: number) => {
+          if (!sceneFile.root) return
+          function patchParticleEmission(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchParticleEmission)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, emissionRate, _emissionRate: emissionRate, _N$emissionRate: emissionRate } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchParticleEmission(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ ParticleSystem emissionRate=${emissionRate} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>PSemit</span>
+            {([5, 10, 20, 30, 50] as const).map(v => (
+              <span key={v} title={`emissionRate = ${v}`}
+                onClick={() => applyParticleEmission(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1836: 공통 cc.SkeletalAnimation speedRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {

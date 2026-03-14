@@ -21326,6 +21326,18 @@ console.log('\n## 840. R1949 BatchInspector cc.ScrollView bounceDuration 체크'
   }
 }
 
+// ── Section 841: R1950 BatchInspector cc.ParticleSystem emissionRate ──────────
+console.log('\n## 841. R1950 BatchInspector cc.ParticleSystem emissionRate 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s841 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s841.includes('R1950') && s841.includes('patchParticleEmission') && s841.includes('applyParticleEmission')) {
+    log('pass', 'R1950-batch-particle-emissionrate', 'BatchInspector cc.ParticleSystem emissionRate 일괄 설정')
+  } else {
+    log('warning', 'R1950-batch-particle-emissionrate', 'BatchInspector cc.ParticleSystem emissionRate 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
