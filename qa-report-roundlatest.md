@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:46:40.173Z
+> 2026-03-14T01:47:34.603Z
 
 ## Critical
 _없음_
@@ -1638,3 +1638,4 @@ _없음_
 - 일괄 회전 편집
 - 씬 트리 collapsed 상태 세션 간 저장
 - 씬뷰 PNG 로컬 다운로드
+- cc.Layout Grid cellSize 편집

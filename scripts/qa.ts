@@ -18431,6 +18431,18 @@ console.log('\n## 599. R1708 씬뷰 PNG 로컬 다운로드 체크')
   }
 }
 
+// ── Section 600: R1709 cc.Layout Grid cellSize 편집 ─────────────────────────
+console.log('\n## 600. R1709 cc.Layout Grid cellSize 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s600 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s600.includes('R1709') && s600.includes('cellSize') && s600.includes('cellW')) {
+    log('pass', 'R1709-layout-cellsize', 'cc.Layout Grid cellSize 편집')
+  } else {
+    log('warning', 'R1709-layout-cellsize', 'cc.Layout Grid cellSize 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

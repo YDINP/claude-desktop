@@ -5702,16 +5702,39 @@ function CCFileNodeInspector({
                       />
                     ))}
                   </div>
-                  {layoutType === 3 && (
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
-                      <input type="checkbox" checked={autoWrap}
-                        onChange={e => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoWrap: e.target.checked } } : c)
-                          applyAndSave({ components: updated })
-                        }}
-                      />autoWrap
-                    </label>
-                  )}
+                  {layoutType === 3 && (() => {
+                    // R1709: Grid cellSize 편집
+                    const cellSizeRaw = p.cellSize as { width?: number; height?: number } | undefined
+                    const cellW = Number(cellSizeRaw?.width ?? 0)
+                    const cellH = Number(cellSizeRaw?.height ?? 0)
+                    return (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>cell</span>
+                          {([['W', cellW, 'width'], ['H', cellH, 'height']] as const).map(([label, val, key]) => (
+                            <input key={key} type="number" defaultValue={val} step={1} min={0}
+                              onBlur={e => {
+                                const v = parseFloat(e.target.value) || 0
+                                const newCell = { width: key === 'width' ? v : cellW, height: key === 'height' ? v : cellH }
+                                const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cellSize: newCell } } : c)
+                                applyAndSave({ components: updated })
+                              }}
+                              placeholder={label}
+                              style={{ width: 40, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                            />
+                          ))}
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                          <input type="checkbox" checked={autoWrap}
+                            onChange={e => {
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoWrap: e.target.checked } } : c)
+                              applyAndSave({ components: updated })
+                            }}
+                          />autoWrap
+                        </label>
+                      </>
+                    )
+                  })()}
                 </div>
               )
             }
