@@ -813,8 +813,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [selectedUuid])
 
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
-  const handleScreenshotAI = useCallback(() => {
+  // R1708: Shift+클릭 → PNG 로컬 다운로드
+  const handleScreenshotAI = useCallback((e?: React.MouseEvent) => {
     if (!svgRef.current || screenshotSending) return
+    const saveLocal = e?.shiftKey ?? false
     setScreenshotSending(true)
     const svgEl = svgRef.current
     const svgStr = new XMLSerializer().serializeToString(svgEl)
@@ -828,13 +830,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const ctx = canvas.getContext('2d')!
       ctx.drawImage(img, 0, 0)
       URL.revokeObjectURL(svgUrl)
-      const b64 = canvas.toDataURL('image/png')
-      window.dispatchEvent(new CustomEvent('cc-chat-prefill', {
-        detail: {
-          text: '이 Cocos Creator 씬 스크린샷을 분석해 주세요. UI 구조, 레이아웃, 개선 가능한 부분을 설명해 주세요.',
-          imageBase64: b64,
-        }
-      }))
+      if (saveLocal) {
+        // R1708: PNG 파일로 다운로드
+        const link = document.createElement('a')
+        link.download = `scene-${Date.now()}.png`
+        link.href = canvas.toDataURL('image/png')
+        link.click()
+      } else {
+        const b64 = canvas.toDataURL('image/png')
+        window.dispatchEvent(new CustomEvent('cc-chat-prefill', {
+          detail: {
+            text: '이 Cocos Creator 씬 스크린샷을 분석해 주세요. UI 구조, 레이아웃, 개선 가능한 부분을 설명해 주세요.',
+            imageBase64: b64,
+          }
+        }))
+      }
       setScreenshotSending(false)
     }
     img.onerror = () => { URL.revokeObjectURL(svgUrl); setScreenshotSending(false) }
@@ -1115,8 +1125,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         >⧫</button>
         {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
         <button
-          onClick={handleScreenshotAI}
-          title="씬 스크린샷 → Claude 비전 분석"
+          onClick={e => handleScreenshotAI(e)}
+          title="씬 스크린샷 → Claude 비전 분석 / Shift+클릭: PNG 저장 (R1708)"
           disabled={screenshotSending}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: screenshotSending ? 'wait' : 'pointer', border: '1px solid var(--border)', background: screenshotSending ? 'rgba(255,200,50,0.12)' : 'none', color: screenshotSending ? '#fbbf24' : 'var(--text-muted)', opacity: screenshotSending ? 0.6 : 1 }}
         >{screenshotSending ? '⟳' : '📷'}</button>

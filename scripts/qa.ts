@@ -18419,6 +18419,18 @@ console.log('\n## 598. R1707 씬 트리 collapsed 상태 localStorage 저장 체
   }
 }
 
+// ── Section 599: R1708 씬뷰 PNG 로컬 다운로드 ───────────────────────────────
+console.log('\n## 599. R1708 씬뷰 PNG 로컬 다운로드 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s599 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s599.includes('R1708') && s599.includes('saveLocal') && s599.includes('scene-') && s599.includes('.png')) {
+    log('pass', 'R1708-screenshot-download', '씬뷰 PNG 로컬 다운로드')
+  } else {
+    log('warning', 'R1708-screenshot-download', '씬뷰 PNG 로컬 다운로드 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
