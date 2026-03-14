@@ -19079,6 +19079,18 @@ console.log('\n## 653. R1762 BatchInspector cc.Label fontFamily 일괄 체크')
   }
 }
 
+// ── Section 654: R1763 cc.Button Sprite 전환 모드 UUID 표시 ──────────────────
+console.log('\n## 654. R1763 cc.Button Sprite 전환 UUID 표시 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s654 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s654.includes('R1763') && s654.includes('Sprite 전환 모드') && s654.includes('normalSprite') && s654.includes('pressedSprite')) {
+    log('pass', 'R1763-button-sprite-uuid', 'cc.Button Sprite 전환 모드 UUID 표시')
+  } else {
+    log('warning', 'R1763-button-sprite-uuid', 'cc.Button Sprite 전환 UUID 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

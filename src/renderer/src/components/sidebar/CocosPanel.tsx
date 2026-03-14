@@ -7143,6 +7143,23 @@ function CCFileNodeInspector({
                       />
                     </div>
                   )}
+                  {/* R1763: Sprite 전환 모드 — 상태별 UUID 표시 */}
+                  {transition === 2 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {(['normal', 'hover', 'pressed', 'disabled'] as const).map(state => {
+                        const key = `${state}Sprite`
+                        const sf = (p[key] ?? p[`_N$${key}`]) as Record<string,unknown> | null
+                        const uuid = sf?.__uuid__ as string | undefined
+                        return uuid ? (
+                          <div key={state} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 8, color: 'var(--text-muted)', width: 44, flexShrink: 0 }}>{state}</span>
+                            <span style={{ fontSize: 8, color: '#fb923c', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={uuid}>{uuid.slice(0, 12)}…</span>
+                            <span title="UUID 복사" onClick={() => navigator.clipboard.writeText(uuid).catch(() => {})} style={{ fontSize: 8, cursor: 'pointer', color: '#555', flexShrink: 0 }} onMouseEnter={e => (e.currentTarget.style.color = '#fb923c')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⎘</span>
+                          </div>
+                        ) : null
+                      })}
+                    </div>
+                  )}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={interactable}
                       onChange={e => {
