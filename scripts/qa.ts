@@ -21002,6 +21002,18 @@ console.log('\n## 813. R1922 BatchInspector cc.RigidBody allowSleep 체크')
   }
 }
 
+// ── Section 814: R1923 BatchInspector cc.Sprite fillRange ──────────
+console.log('\n## 814. R1923 BatchInspector cc.Sprite fillRange 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s814 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s814.includes('R1923') && s814.includes('patchFillRange') && s814.includes('applyFillRange')) {
+    log('pass', 'R1923-batch-sprite-fillrange', 'BatchInspector cc.Sprite fillRange 일괄 설정')
+  } else {
+    log('warning', 'R1923-batch-sprite-fillrange', 'BatchInspector cc.Sprite fillRange 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
