@@ -10518,11 +10518,13 @@ function CCFileNodeInspector({
               )
             }
             // R1892: cc.Camera — backgroundColor / clearFlags / depth
+            // R1919: + fov
             if (comp.type === 'cc.Camera') {
               const bg = p.backgroundColor as { r?: number; g?: number; b?: number; a?: number } | undefined
               const bgHex = `#${((bg?.r ?? 0)).toString(16).padStart(2,'0')}${((bg?.g ?? 0)).toString(16).padStart(2,'0')}${((bg?.b ?? 0)).toString(16).padStart(2,'0')}`
               const depth = Number(p.depth ?? p._depth ?? 0)
               const clearFlags = Number(p.clearFlags ?? p._clearFlags ?? 7)
+              const fov = Number(p.fov ?? p._fov ?? 60)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -10557,6 +10559,19 @@ function CCFileNodeInspector({
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
+                  </div>
+                  {/* R1919: fov */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>fov</span>
+                    <input type="number" defaultValue={fov} min={1} max={179} step={5} key={`cfov-${fov}`}
+                      onBlur={e => {
+                        const v = Math.min(179, Math.max(1, parseFloat(e.target.value) || 60))
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fov: v, _fov: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
                   </div>
                 </div>
               )

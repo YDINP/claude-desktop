@@ -20954,6 +20954,18 @@ console.log('\n## 809. R1918 cc.Sprite capInsets 편집 체크')
   }
 }
 
+// ── Section 810: R1919 cc.Camera fov ──────────
+console.log('\n## 810. R1919 cc.Camera fov 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s810 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s810.includes('R1919') && s810.includes('fov') && s810.includes('_fov')) {
+    log('pass', 'R1919-camera-fov', 'cc.Camera fov 단일노드 편집')
+  } else {
+    log('warning', 'R1919-camera-fov', 'cc.Camera fov 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
