@@ -7319,6 +7319,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1997: 공통 cc.RigidBody sleepThreshold 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBSleepThresh = async (sleepThreshold: number) => {
+          if (!sceneFile.root) return
+          function patchRBSleepThresh(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBSleepThresh)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, sleepThreshold } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchRBSleepThresh(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ RigidBody sleepThreshold=${sleepThreshold} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBsleep</span>
+            {[0.005, 0.01, 0.05, 0.1, 0.5].map(v => (
+              <span key={v} onClick={() => applyRBSleepThresh(v)} title={`sleepThreshold=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1863: 공통 cc.Mask type 일괄 설정 */}
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskType = async (type: number) => {

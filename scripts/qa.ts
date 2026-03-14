@@ -21890,6 +21890,18 @@ console.log('\n## 887. R1996 BatchInspector node color tint 체크')
   }
 }
 
+// ── Section 888: R1997 BatchInspector cc.RigidBody sleepThreshold ──────────
+console.log('\n## 888. R1997 BatchInspector cc.RigidBody sleepThreshold 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s888 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s888.includes('R1997') && s888.includes('patchRBSleepThresh') && s888.includes('applyRBSleepThresh')) {
+    log('pass', 'R1997-batch-rb-sleepthreshold', 'BatchInspector cc.RigidBody sleepThreshold 일괄 설정')
+  } else {
+    log('warning', 'R1997-batch-rb-sleepthreshold', 'BatchInspector cc.RigidBody sleepThreshold 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
