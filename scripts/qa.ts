@@ -21266,6 +21266,18 @@ console.log('\n## 835. R1944 BatchInspector cc.Slider min/max 체크')
   }
 }
 
+// ── Section 836: R1945 BatchInspector cc.Button normalColor ──────────
+console.log('\n## 836. R1945 BatchInspector cc.Button normalColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s836 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s836.includes('R1945') && s836.includes('patchBtnNormalColor') && s836.includes('applyBtnNormalColor')) {
+    log('pass', 'R1945-batch-button-normalcolor', 'BatchInspector cc.Button normalColor 일괄 설정')
+  } else {
+    log('warning', 'R1945-batch-button-normalcolor', 'BatchInspector cc.Button normalColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
