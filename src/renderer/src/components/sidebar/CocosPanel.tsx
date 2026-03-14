@@ -7213,6 +7213,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2045: 공통 cc.SkeletalAnimation wrapMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
+        const applySkelWrapMode = async (wrapMode: number) => {
+          if (!sceneFile.root) return
+          function patchSkelWrapMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSkelWrapMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSkelWrapMode(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names: Record<number,string> = {1:'Dflt',2:'Norm',3:'Loop',4:'PingPong',8:'Rev'}
+          setBatchMsg(`✓ Skel wrapMode=${names[wrapMode]??wrapMode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>SkelWM</span>
+            {([['Dflt',1],['Norm',2],['Loop',3],['Ping',4],['Rev',8]] as [string,number][]).map(([label,v]) => (
+              <span key={v} onClick={() => applySkelWrapMode(v)} title={`wrapMode=${label}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2012: 공통 cc.SkeletalAnimation loop 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalLoop = async (loop: boolean) => {

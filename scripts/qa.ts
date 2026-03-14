@@ -22466,6 +22466,18 @@ console.log('\n## 935. R2044 BatchInspector dragonBones.ArmatureDisplay playTime
   }
 }
 
+// ── Section 936: R2045 BatchInspector cc.SkeletalAnimation wrapMode ──────────
+console.log('\n## 936. R2045 BatchInspector cc.SkeletalAnimation wrapMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s936 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s936.includes('R2045') && s936.includes('patchSkelWrapMode') && s936.includes('applySkelWrapMode')) {
+    log('pass', 'R2045-batch-skel-wrapmode', 'BatchInspector cc.SkeletalAnimation wrapMode 일괄 설정')
+  } else {
+    log('warning', 'R2045-batch-skel-wrapmode', 'BatchInspector cc.SkeletalAnimation wrapMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
