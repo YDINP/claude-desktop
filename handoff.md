@@ -1,33 +1,33 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-15
 
-## 완료 (R1500-2225)
-- [x] R1500~R2214: (이전 세션 완료)
-- [x] R2215: cc.Label _underlineHeight + cc.Sprite _color (CC3.x)
-- [x] ISSUE-05 fix: CCFileAssetBrowser folderTree useMemo early-return 이전 이동 (React Hooks 위반 수정)
-- [x] R2216: cc.Sprite _useGrayscale + cc.Label _spacingX (CC3.x)
-- [x] ISSUE-06 (부분 fix): 씬/프리팹 드롭다운 버그 + CC Editor 자동 로드
-- [x] R2217: cc.UIOpacity enabled + cc.RigidBody enabled
-- [x] R2218: cc.BoxCollider2D enabled + cc.CircleCollider2D enabled
-- [x] R2219: cc.LabelOutline enabled + cc.LabelShadow enabled (CC2.x)
-- [x] R2220: cc.PolygonCollider2D enabled + cc.WebView enabled
-- [x] R2221: cc.DirectionalLight/PointLight enabled + cc.SkeletalAnimation enabled
-- [x] R2222: cc.TiledLayer enabled + cc.UITransform _anchorPoint 프리셋
-- [x] R2223: cc.AudioSource _pitch + cc.RichText lineHeight
-- [x] R2224: cc.VideoPlayer keepAspectRatio + cc.Layout padding 4방향 프리셋
-- [x] R2225: cc.Label charSpacing + cc.Sprite _isTrimmedMode
+## 완료 (R1500-2275)
+- [x] R1500~R2225: (이전 세션 완료)
+- [x] R2226~R2261: CC3.x 갭 수정 (Label/EditBox/ScrollView/Scrollbar/PageView/VideoPlayer/Canvas/Button/RichText/Slider/Layout/Widget 등)
+- [x] R2262: cc.Layout _cellSize + cc.Widget _isAbs* 6종
+- [x] R2263: BatchInspector cc.ScrollView _toggle 3종 + 단일노드 ParticleSystem _startColor/_endColor
+- [x] R2264: 단일노드 cc.ScrollView _brake + _elasticDuration
+- [x] R2265: BatchInspector cc.Widget 4방향 _top/_bottom/_left/_right + cc.ProgressBar _totalLength
+- [x] R2266: BatchInspector cc.ProgressBar _reverse + _mode
+- [x] R2267: BatchInspector cc.ProgressBar _startWidth + 단일노드 cc.Layout _horizontalDirection/_verticalDirection
+- [x] R2268: 단일노드 cc.RichText _string/_fontSize/_lineHeight/_maxWidth/_horizontalAlign
+- [x] R2269: 단일노드 cc.Canvas _resolutionPolicy + stateColors _colorKey
+- [x] R2270: 단일노드 cc.Button normalColor + reset 4색
+- [x] R2271: 단일노드 cc.ProgressBar _totalLength/_reverse + cc.Label _horizontalAlign/_verticalAlign
+- [x] R2272: 단일노드 cc.Button _duration + BatchInspector cc.ParticleSystem _maxParticles/_totalParticles
+- [x] R2273: cc.Canvas _fitWidth/_fitHeight (BatchInspector + 단일노드 동시)
+- [x] R2274: 단일노드 cc.Label _string + cc.Slider _progress + cc.Button _interactable
+- [x] R2275: 단일노드 cc.VideoPlayer _remoteURL + cc.PageView _slideDuration/_autoPageTurningInterval
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2215** ← R2225 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2310** ← R2275 현재
 - Branch: dev
-- 체크포인트 QA: CONDITIONAL_PASS (기존 누적 이슈 10건 Warning, 신규 Critical 없음)
+- 체크포인트 QA: CONDITIONAL_PASS (기존 누적 이슈 유지, 신규 Critical 없음)
 
-## 다음 예정 (R2226+)
-- 자율 탐색 계속: 미구현 prop 발굴
-  - cc.Scrollbar autoHideTime (R2185에 이미 있는지 확인 필요)
-  - cc.AudioSource 미구현 속성 탐색
-  - cc.RichText 미구현 속성 탐색
-  - ISSUE-06 items 3~6 (CC Editor 재설계): 별도 기획 필요
+## 다음 예정 (R2276+)
+- 단일노드 ParticleSystem color (line 20741): `color: col, _N$color: col` → `_color: col` 추가 필요
+- 추가 갭 스캔: `_N$` 패턴에서 `_*` 누락 항목 계속 탐색
+- ISSUE-06 items 3~6 (CC Editor 재설계): 별도 기획 필요
 
 ## ISSUE-06 상태
 - item 1: ✓ 자동 프로젝트 로드
@@ -37,3 +37,4 @@
 ## 누적 이슈 (QA 체크포인트에서 발견된 기존 이슈)
 - ISSUE-001: shell:true 입력검증 없음 (Critical — 기존 누적)
 - ISSUE-002~010: 중간 심각도 기존 이슈들
+- ISSUE-007: npm audit 18 취약점 (기존 누적)

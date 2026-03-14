@@ -20570,7 +20570,7 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>s</span>
                     {([0.1, 0.2, 0.3, 0.5] as const).map(v => (
-                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, slideDuration: v, _N$slideDuration: v } } : c); applyAndSave({ components: u }) }}
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, slideDuration: v, _slideDuration: v, _N$slideDuration: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${slideDuration === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: slideDuration === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}
@@ -20738,7 +20738,7 @@ function CCFileNodeInspector({
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>color</span>
                     <input type="color" value={mHex}
-                      onChange={e => { const h = e.target.value; const r2 = parseInt(h.slice(1,3),16), g2 = parseInt(h.slice(3,5),16), b2 = parseInt(h.slice(5,7),16); const col = { r: r2, g: g2, b: b2, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _N$color: col } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const h = e.target.value; const r2 = parseInt(h.slice(1,3),16), g2 = parseInt(h.slice(3,5),16), b2 = parseInt(h.slice(5,7),16); const col = { r: r2, g: g2, b: b2, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 24, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer' }}
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>fastMode</span>

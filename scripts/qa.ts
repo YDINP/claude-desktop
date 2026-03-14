@@ -24913,6 +24913,18 @@ if (
   log('warning', 'R2275-node-videoplayer-pageview-cc3x', '단일노드 VideoPlayer/PageView CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1280: R2276 단일노드 cc.ParticleSystem _color + cc.PageView slideDuration 프리셋 (CC3.x) ──────────
+console.log('\n## 1280. R2276 단일노드 ParticleSystem _color + PageView slideDuration 프리셋 CC3.x 체크')
+const s1280 = s1279
+if (
+  s1280.includes('color: col, _color: col, _N$color: col') &&
+  s1280.includes('slideDuration: v, _slideDuration: v, _N$slideDuration: v')
+) {
+  log('pass', 'R2276-node-particle-color-pageview-slide-cc3x', '단일노드 cc.ParticleSystem _color + cc.PageView _slideDuration 프리셋 (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2276-node-particle-color-pageview-slide-cc3x', '단일노드 ParticleSystem _color / PageView slideDuration CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
