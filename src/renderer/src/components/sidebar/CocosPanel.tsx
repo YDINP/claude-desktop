@@ -7257,6 +7257,18 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
                   </div>
+                  {/* R1757: fontFamily 입력 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>fontFam</span>
+                    <input type="text" defaultValue={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} placeholder="폰트 이름 (빈칸=기본)"
+                      onBlur={e => {
+                        const v = e.target.value.trim()
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontFamily: v, _fontFamily: v, _N$fontFamily: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
                   {/* R1720: overflow + hAlign + vAlign */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>overflow</span>
