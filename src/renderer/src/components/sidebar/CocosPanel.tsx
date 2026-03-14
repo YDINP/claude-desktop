@@ -3784,6 +3784,64 @@ function CCFileBatchInspector({
           >{label}</button>
         ))}
       </div>
+      {/* R1722: 균등 분배 (Distribute) 버튼 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>분배</span>
+        {[
+          { label: '⇔', title: '가로 균등 분배', axis: 'h' },
+          { label: '⇕', title: '세로 균등 분배', axis: 'v' },
+        ].map(({ label, title, axis }) => (
+          <button
+            key={axis}
+            title={title}
+            onClick={async () => {
+              if (!sceneFile.root) return
+              const nodes: CCSceneNode[] = []
+              function collectD(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collectD) }
+              collectD(sceneFile.root)
+              if (nodes.length < 3) { setBatchMsg('3개 이상 선택 필요'); setTimeout(() => setBatchMsg(null), 2000); return }
+              const info = nodes.map(n => {
+                const pos = n.position as { x: number; y: number; z?: number }
+                return { uuid: n.uuid, px: pos.x, py: pos.y }
+              })
+              // 축 기준 정렬 후 균등 간격
+              if (axis === 'h') {
+                info.sort((a, b) => a.px - b.px)
+                const minX = info[0].px, maxX = info[info.length - 1].px
+                const step = (maxX - minX) / (info.length - 1)
+                const newPos: Record<string, number> = {}
+                info.forEach((n, i) => { newPos[n.uuid] = minX + step * i })
+                function applyDistH(n: CCSceneNode): CCSceneNode {
+                  if (newPos[n.uuid] !== undefined) {
+                    const pos = n.position as { x: number; y: number; z?: number }
+                    return { ...n, position: { ...pos, x: newPos[n.uuid] }, children: n.children.map(applyDistH) }
+                  }
+                  return { ...n, children: n.children.map(applyDistH) }
+                }
+                const result = await saveScene(applyDistH(sceneFile.root))
+                setBatchMsg(result.success ? `✓ ${title}` : `✗ 오류`)
+              } else {
+                info.sort((a, b) => a.py - b.py)
+                const minY = info[0].py, maxY = info[info.length - 1].py
+                const step = (maxY - minY) / (info.length - 1)
+                const newPos: Record<string, number> = {}
+                info.forEach((n, i) => { newPos[n.uuid] = minY + step * i })
+                function applyDistV(n: CCSceneNode): CCSceneNode {
+                  if (newPos[n.uuid] !== undefined) {
+                    const pos = n.position as { x: number; y: number; z?: number }
+                    return { ...n, position: { ...pos, y: newPos[n.uuid] }, children: n.children.map(applyDistV) }
+                  }
+                  return { ...n, children: n.children.map(applyDistV) }
+                }
+                const result = await saveScene(applyDistV(sceneFile.root))
+                setBatchMsg(result.success ? `✓ ${title}` : `✗ 오류`)
+              }
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 11, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+          >{label}</button>
+        ))}
+      </div>
       {/* 적용 버튼 */}
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
         <button

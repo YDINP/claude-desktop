@@ -18587,6 +18587,18 @@ console.log('\n## 612. R1721 Inspector 형제 노드 탐색 버튼 체크')
   }
 }
 
+// ── Section 613: R1722 BatchInspector 균등 분배 버튼 ─────────────────────────
+console.log('\n## 613. R1722 BatchInspector 균등 분배 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s613 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s613.includes('R1722') && s613.includes('균등 분배') && s613.includes('applyDistH') && s613.includes('applyDistV')) {
+    log('pass', 'R1722-batch-distribute', 'BatchInspector 균등 분배 버튼 (가로/세로)')
+  } else {
+    log('warning', 'R1722-batch-distribute', 'BatchInspector 균등 분배 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
