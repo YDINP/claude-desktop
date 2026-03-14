@@ -4016,6 +4016,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2053: 노드 opacity preset 일괄 설정 */}
+      {(() => {
+        const applyNodeOpacity = async (opacity: number) => {
+          if (!sceneFile.root) return
+          function patchNodeOpacity(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeOpacity)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, opacity, children }
+          }
+          const patchedRoot = patchNodeOpacity(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ opacity=${opacity} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>NodeOpa</span>
+            {[0, 64, 128, 192, 255].map(v => (
+              <span key={v} onClick={() => applyNodeOpacity(v)} title={`opacity=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1983: 노드 active/inactive 일괄 설정 */}
       {(() => {
         const applyNodeActive = async (active: boolean) => {

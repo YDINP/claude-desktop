@@ -22562,6 +22562,18 @@ console.log('\n## 943. R2052 BatchInspector cc.Animation speed 체크')
   }
 }
 
+// ── Section 944: R2053 BatchInspector node opacity preset ──────────
+console.log('\n## 944. R2053 BatchInspector node opacity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s944 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s944.includes('R2053') && s944.includes('patchNodeOpacity') && s944.includes('applyNodeOpacity')) {
+    log('pass', 'R2053-batch-node-opacity', 'BatchInspector node opacity 일괄 설정')
+  } else {
+    log('warning', 'R2053-batch-node-opacity', 'BatchInspector node opacity 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
