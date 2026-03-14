@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:56:33.844Z
+> 2026-03-14T04:57:26.852Z
 
 ## Critical
 _없음_
@@ -1773,3 +1773,4 @@ _없음_
 - cc.ParticleSystem speed/speedVar 편집
 - BatchInspector cc.VideoPlayer loop/muted 일괄 설정
 - cc.RigidBody type 퀵 버튼 (DYN/STA/KIN)
+- cc.ParticleSystem lifespan/lifespanVar 편집

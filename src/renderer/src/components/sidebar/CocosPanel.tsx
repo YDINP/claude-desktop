@@ -9293,6 +9293,9 @@ function CCFileNodeInspector({
               // R1841: speed / speedVar
               const speed = Number(p.speed ?? p._speed ?? p._N$speed ?? 180)
               const speedVar = Number(p.speedVar ?? p._speedVar ?? p._N$speedVar ?? 50)
+              // R1844: lifespan / lifespanVar
+              const lifespan = Number(p.life ?? p._life ?? p._N$life ?? 1)
+              const lifespanVar = Number(p.lifeVar ?? p._lifeVar ?? p._N$lifeVar ?? 0)
               const durKey = comp.type === 'cc.ParticleSystem2D' ? '_N$duration' : '_duration'
               const maxKey = comp.type === 'cc.ParticleSystem2D' ? '_N$totalParticles' : '_N$maxParticles'
               return (
@@ -9389,6 +9392,28 @@ function CCFileNodeInspector({
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
+                  </div>
+                  {/* R1844: lifespan / lifespanVar */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>lifespan</span>
+                    <input type="number" defaultValue={lifespan} key={`lf-${lifespan}`} min={0} step={0.5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, life: v, _life: v, _N$life: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>var</span>
+                    <input type="number" defaultValue={lifespanVar} key={`lfv-${lifespanVar}`} min={0} step={0.5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lifeVar: v, _lifeVar: v, _N$lifeVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>s</span>
                   </div>
                   {/* R1834: startColor / endColor */}
                   {(() => {

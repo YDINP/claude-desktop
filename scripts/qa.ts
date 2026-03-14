@@ -20051,6 +20051,18 @@ console.log('\n## 734. R1843 cc.RigidBody type 퀵 버튼 체크')
   }
 }
 
+// ── Section 735: R1844 cc.ParticleSystem lifespan/lifespanVar ────────────────
+console.log('\n## 735. R1844 cc.ParticleSystem lifespan/lifespanVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s735 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s735.includes('R1844') && s735.includes('_N$life') && s735.includes('lifeVar') && s735.includes('_N$lifeVar')) {
+    log('pass', 'R1844-particle-lifespan', 'cc.ParticleSystem lifespan/lifespanVar 편집')
+  } else {
+    log('warning', 'R1844-particle-lifespan', 'cc.ParticleSystem lifespan/lifespanVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
