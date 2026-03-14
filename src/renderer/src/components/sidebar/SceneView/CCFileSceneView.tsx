@@ -2496,6 +2496,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 if (matched.length > 0) onSelect(matched[0])
               }}
             })(),
+            // R1717: 활성/비활성 토글 + 새 노드 추가
+            ctxMenu.uuid && (() => {
+              const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
+              if (!fn) return false
+              return { label: fn.node.active ? '◌ 비활성화 (H키)' : '● 활성화 (H키)', action: () => { onToggleActive?.(fn.node.uuid); setCtxMenu(null) } }
+            })(),
+            { label: '＋ 새 노드 추가 (Ctrl+N)', action: () => { onAddNode?.(ctxMenu.uuid ?? selectedUuid, undefined); setCtxMenu(null) } },
           ].filter(Boolean).map((item, i) => (
             item ? (
               <div

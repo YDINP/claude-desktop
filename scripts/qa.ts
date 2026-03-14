@@ -18527,6 +18527,18 @@ console.log('\n## 607. R1716 cc.Toggle Quick Edit interactable 체크')
   }
 }
 
+// ── Section 608: R1717 SceneView 컨텍스트 메뉴 확장 ─────────────────────────
+console.log('\n## 608. R1717 SceneView 컨텍스트 메뉴 확장 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s608 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s608.includes('R1717') && s608.includes('새 노드 추가') && s608.includes('비활성화')) {
+    log('pass', 'R1717-ctx-menu-extend', 'SceneView 컨텍스트 메뉴 확장')
+  } else {
+    log('warning', 'R1717-ctx-menu-extend', 'SceneView 컨텍스트 메뉴 확장 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
