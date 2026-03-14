@@ -20462,6 +20462,18 @@ console.log('\n## 768. R1877 BatchInspector cc.VideoPlayer playbackRate 체크')
   }
 }
 
+// ── Section 769: R1878 BatchInspector cc.Layout padding ───────────────────
+console.log('\n## 769. R1878 BatchInspector cc.Layout padding 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s769 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s769.includes('R1878') && s769.includes('applyLayoutPad') && s769.includes('patchLayoutPad')) {
+    log('pass', 'R1878-batch-layout-pad', 'BatchInspector cc.Layout padding 일괄 설정 (uniform)')
+  } else {
+    log('warning', 'R1878-batch-layout-pad', 'BatchInspector cc.Layout padding 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

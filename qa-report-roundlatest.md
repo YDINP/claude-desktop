@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:31:19.002Z
+> 2026-03-14T05:32:14.257Z
 
 ## Critical
 _없음_
@@ -1807,3 +1807,4 @@ _없음_
 - BatchInspector cc.PageView slideDuration 일괄 설정
 - BatchInspector cc.ScrollView brake 일괄 설정
 - BatchInspector cc.VideoPlayer playbackRate 일괄 설정
+- BatchInspector cc.Layout padding 일괄 설정 (uniform)
