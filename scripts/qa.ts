@@ -18863,6 +18863,18 @@ console.log('\n## 635. R1744 Inspector 크기 배율 버튼 체크')
   }
 }
 
+// ── Section 636: R1745 BatchInspector 불투명도 퀵 프리셋 ─────────────────────
+console.log('\n## 636. R1745 BatchInspector 불투명도 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s636 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s636.includes('R1745') && s636.includes('불투명도 퀵 프리셋') && s636.includes('setBatchOpacity(String(v))')) {
+    log('pass', 'R1745-batch-opacity-preset', 'BatchInspector 불투명도 퀵 프리셋')
+  } else {
+    log('warning', 'R1745-batch-opacity-preset', 'BatchInspector 불투명도 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

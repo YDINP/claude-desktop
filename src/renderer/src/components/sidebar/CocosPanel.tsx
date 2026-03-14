@@ -3848,6 +3848,16 @@ function CCFileBatchInspector({
           style={{ flex: 1 }}
         />
       </div>
+      {/* R1745: 불투명도 퀵 프리셋 */}
+      <div style={{ display: 'flex', gap: 3, marginBottom: 4, paddingLeft: 52 }}>
+        {([0, 64, 128, 191, 255] as const).map(v => (
+          <span key={v}
+            onClick={() => setBatchOpacity(String(v))}
+            title={`opacity ${Math.round(v / 255 * 100)}%`}
+            style={{ fontSize: 8, padding: '0 3px', borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', color: batchOpacity === String(v) ? '#58a6ff' : 'var(--text-muted)', background: batchOpacity === String(v) ? 'rgba(88,166,255,0.12)' : 'none', userSelect: 'none' }}
+          >{Math.round(v / 255 * 100)}%</span>
+        ))}
+      </div>
       {/* Position delta */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>위치 ±</span>
