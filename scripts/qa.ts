@@ -22862,6 +22862,18 @@ console.log('\n## 968. R2077 BatchInspector cc.PageView pageTurningSpeed 체크'
   }
 }
 
+// ── Section 969: R2078 BatchInspector cc.Layout startAxis ──────────
+console.log('\n## 969. R2078 BatchInspector cc.Layout startAxis 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s969 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s969.includes('R2078') && s969.includes('patchLayoutStartAxis') && s969.includes('applyLayoutStartAxis')) {
+    log('pass', 'R2078-batch-layout-startaxis', 'BatchInspector cc.Layout startAxis 일괄 설정')
+  } else {
+    log('warning', 'R2078-batch-layout-startaxis', 'BatchInspector cc.Layout startAxis 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

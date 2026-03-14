@@ -8589,6 +8589,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2078: 공통 cc.Layout startAxis 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutStartAxis = async (startAxis: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutStartAxis(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutStartAxis)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, startAxis, _N$startAxis: startAxis } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLayoutStartAxis(sceneFile.root) })
+          setBatchMsg(`✓ Layout startAxis=${startAxis} (${uuids.length}개)`)
+        }
+        // 0=HORIZONTAL, 1=VERTICAL
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LaxisX</span>
+            {([0, 1] as const).map((v, i) => (
+              <span key={v} title={`startAxis = ${v} (${['H','V'][i]})`}
+                onClick={() => applyLayoutStartAxis(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{['H','V'][i]}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2068: 공통 cc.Layout cellSize 일괄 설정 */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutCell = async (size: number) => {
