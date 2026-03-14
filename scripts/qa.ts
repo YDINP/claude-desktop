@@ -25154,6 +25154,23 @@ if (
   log('warning', 'R2292-node-layout-graphics-widget-btn-cc3x', '단일노드 Layout/Graphics/Widget/Button CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1297: R2293 단일노드 VideoPlayer playbackRate + Collider offset/size/sensor/friction/restitution/radius _* (CC3.x) ──────────
+console.log('\n## 1297. R2293 VideoPlayer playbackRate preset + Collider 물리속성 CC3.x 체크')
+const s1297 = s1296
+if (
+  s1297.includes('playbackRate: v, _playbackRate: v, _N$playbackRate: v } } : c); applyAndSave') &&
+  s1297.includes('offset: newOff, _offset: newOff, _N$offset: newOff') &&
+  s1297.includes('size: newSz, _size: newSz, _N$size: newSz') &&
+  s1297.includes('sensor: ev.target.checked, _sensor: ev.target.checked, _N$sensor: ev.target.checked') &&
+  s1297.includes('friction: v, _friction: v, _N$friction: v') &&
+  s1297.includes('restitution: v, _restitution: v, _N$restitution: v') &&
+  s1297.includes('radius: v, _radius: v, _N$radius: v')
+) {
+  log('pass', 'R2293-node-videoplayer-collider-cc3x', '단일노드 VideoPlayer playbackRate + Collider offset/size/sensor/friction/restitution/radius _* (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2293-node-videoplayer-collider-cc3x', 'VideoPlayer/Collider CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

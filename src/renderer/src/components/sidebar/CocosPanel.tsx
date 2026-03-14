@@ -19040,7 +19040,7 @@ function CCFileNodeInspector({
                             const x = Number(ev.target.value)
                             const curOff = offObj ?? {}
                             const newOff = { ...curOff, x }
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff, _N$offset: newOff } } : c)
                             applyAndSave({ components: updated })
                           }} />
                       </div>
@@ -19052,7 +19052,7 @@ function CCFileNodeInspector({
                             const y = Number(ev.target.value)
                             const curOff = offObj ?? {}
                             const newOff = { ...curOff, y }
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff, _N$offset: newOff } } : c)
                             applyAndSave({ components: updated })
                           }} />
                       </div>
@@ -20296,7 +20296,7 @@ function CCFileNodeInspector({
                     {/* R1806: playbackRate 퀵 프리셋 */}
                     {([0.5, 1, 1.5, 2] as const).map(v => (
                       <span key={v} title={`×${v}`}
-                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playbackRate: v } } : c); applyAndSave({ components: updated }) }}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playbackRate: v, _playbackRate: v, _N$playbackRate: v } } : c); applyAndSave({ components: updated }) }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${playbackRate === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: playbackRate === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
                       >×{v}</span>
                     ))}
@@ -21354,7 +21354,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const newOff = { ...(off ?? {}), x: Number(ev.target.value) }
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff, _N$offset: newOff } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -21364,7 +21364,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const newOff = { ...(off ?? {}), y: Number(ev.target.value) }
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff, _N$offset: newOff } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -21374,7 +21374,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const newSz = { ...(sz ?? {}), width: Number(ev.target.value) }
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, size: newSz } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, size: newSz, _size: newSz, _N$size: newSz } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -21384,7 +21384,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const newSz = { ...(sz ?? {}), height: Number(ev.target.value) }
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, size: newSz } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, size: newSz, _size: newSz, _N$size: newSz } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -21392,7 +21392,7 @@ function CCFileNodeInspector({
                   <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                     <input type="checkbox" checked={!!(p.sensor ?? false)}
                       onChange={ev => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sensor: ev.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sensor: ev.target.checked, _sensor: ev.target.checked, _N$sensor: ev.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }} />
                     sensor
@@ -21403,14 +21403,14 @@ function CCFileNodeInspector({
                       <label style={{ display: 'block', fontSize: 11 }}>friction</label>
                       <input type="number" defaultValue={Number(p.friction ?? 0.2)} min={0} step={0.1}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, friction: v } } : c); applyAndSave({ components: u }) }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, friction: v, _friction: v, _N$friction: v } } : c); applyAndSave({ components: u }) }}
                       />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>restitution</label>
                       <input type="number" defaultValue={Number(p.restitution ?? 0)} min={0} step={0.1}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, restitution: v } } : c); applyAndSave({ components: u }) }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, restitution: v, _restitution: v, _N$restitution: v } } : c); applyAndSave({ components: u }) }}
                       />
                     </div>
                   </div>
@@ -21429,7 +21429,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const newOff = { ...(off ?? {}), x: Number(ev.target.value) }
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff, _N$offset: newOff } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -21439,7 +21439,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const newOff = { ...(off ?? {}), y: Number(ev.target.value) }
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff, _N$offset: newOff } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -21449,7 +21449,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const v = Number(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, radius: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, radius: v, _radius: v, _N$radius: v } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -21457,7 +21457,7 @@ function CCFileNodeInspector({
                       <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                         <input type="checkbox" checked={!!(p.sensor ?? false)}
                           onChange={ev => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sensor: ev.target.checked } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sensor: ev.target.checked, _sensor: ev.target.checked, _N$sensor: ev.target.checked } } : c)
                             applyAndSave({ components: updated })
                           }} />
                         sensor
@@ -21470,14 +21470,14 @@ function CCFileNodeInspector({
                       <label style={{ display: 'block', fontSize: 11 }}>friction</label>
                       <input type="number" defaultValue={Number(p.friction ?? 0.2)} min={0} step={0.1}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, friction: v } } : c); applyAndSave({ components: u }) }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, friction: v, _friction: v, _N$friction: v } } : c); applyAndSave({ components: u }) }}
                       />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>restitution</label>
                       <input type="number" defaultValue={Number(p.restitution ?? 0)} min={0} step={0.1}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, restitution: v } } : c); applyAndSave({ components: u }) }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, restitution: v, _restitution: v, _N$restitution: v } } : c); applyAndSave({ components: u }) }}
                       />
                     </div>
                   </div>
@@ -21497,7 +21497,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const newOff = { ...(off ?? {}), x: Number(ev.target.value) }
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff, _N$offset: newOff } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -21507,7 +21507,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const newOff = { ...(off ?? {}), y: Number(ev.target.value) }
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff, _N$offset: newOff } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -21515,7 +21515,7 @@ function CCFileNodeInspector({
                   <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, marginBottom: 4 }}>
                     <input type="checkbox" checked={!!(p.sensor ?? false)}
                       onChange={ev => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sensor: ev.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sensor: ev.target.checked, _sensor: ev.target.checked, _N$sensor: ev.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }} />
                     sensor
@@ -21525,14 +21525,14 @@ function CCFileNodeInspector({
                       <label style={{ display: 'block', fontSize: 11 }}>friction</label>
                       <input type="number" defaultValue={Number(p.friction ?? 0.2)} min={0} step={0.1}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, friction: v } } : c); applyAndSave({ components: u }) }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, friction: v, _friction: v, _N$friction: v } } : c); applyAndSave({ components: u }) }}
                       />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>restitution</label>
                       <input type="number" defaultValue={Number(p.restitution ?? 0)} min={0} step={0.1}
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, restitution: v } } : c); applyAndSave({ components: u }) }}
+                        onBlur={ev => { const v = parseFloat(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, restitution: v, _restitution: v, _N$restitution: v } } : c); applyAndSave({ components: u }) }}
                       />
                     </div>
                   </div>
