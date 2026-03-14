@@ -104,6 +104,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [labelFontSize, setLabelFontSize] = useState(11)
   // R1703: 형제 그룹 하이라이트
   const [showSiblingGroup, setShowSiblingGroup] = useState(false)
+  // R1705: 선택 이력 (Alt+← / Alt+→)
+  const selHistoryRef = useRef<string[]>([])
+  const selHistoryIdxRef = useRef(-1)
   // R1623: 와이어프레임 모드 (선만 표시)
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
@@ -712,6 +715,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         setShowSiblingGroup(s => !s)
         return
       }
+      // R1705: Alt+← / Alt+→ — 선택 이력 앞/뒤 탐색
+      if (e.altKey && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) {
+        e.preventDefault()
+        const hist = selHistoryRef.current
+        const idx = selHistoryIdxRef.current
+        if (e.code === 'ArrowLeft' && idx < hist.length - 1) {
+          const newIdx = idx + 1
+          selHistoryIdxRef.current = newIdx
+          navSkipRef.current = true
+          onSelect(hist[newIdx])
+        } else if (e.code === 'ArrowRight' && idx > 0) {
+          const newIdx = idx - 1
+          selHistoryIdxRef.current = newIdx
+          navSkipRef.current = true
+          onSelect(hist[newIdx])
+        }
+        return
+      }
       // R1565: H — 선택 노드 active 토글 (숨기기/보이기)
       if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && !e.shiftKey && selectedUuid) {
         e.preventDefault()
@@ -776,6 +797,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate, onToggleActive, onReorder])
+
+  // R1705: selectedUuid 변경 시 이력 기록
+  const navSkipRef = useRef(false)
+  useEffect(() => {
+    if (!selectedUuid) return
+    if (navSkipRef.current) { navSkipRef.current = false; return }
+    const hist = selHistoryRef.current
+    const idx = selHistoryIdxRef.current
+    // 현재 위치 이후의 이력 제거 (새 선택 시)
+    const newHist = hist.slice(idx < 0 ? 0 : idx)
+    if (newHist[0] === selectedUuid) return  // 중복 방지
+    selHistoryRef.current = [selectedUuid, ...newHist].slice(0, 30)
+    selHistoryIdxRef.current = 0
+  }, [selectedUuid])
 
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
   const handleScreenshotAI = useCallback(() => {

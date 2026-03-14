@@ -18383,6 +18383,18 @@ console.log('\n## 595. R1704 전체 컴포넌트 enabled 토글 체크')
   }
 }
 
+// ── Section 596: R1705 SceneView 선택 이력 탐색 ─────────────────────────────
+console.log('\n## 596. R1705 SceneView 선택 이력 탐색 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s596 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s596.includes('R1705') && s596.includes('selHistoryRef') && s596.includes('Alt+←')) {
+    log('pass', 'R1705-selection-history', 'SceneView 선택 이력 탐색')
+  } else {
+    log('warning', 'R1705-selection-history', 'SceneView 선택 이력 탐색 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
