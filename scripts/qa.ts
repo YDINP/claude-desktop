@@ -19979,6 +19979,18 @@ console.log('\n## 728. R1837 BatchInspector cc.ParticleSystem emitRate 체크')
   }
 }
 
+// ── Section 729: R1838 BatchInspector sp.Skeleton timeScale 일괄 설정 ─────────
+console.log('\n## 729. R1838 BatchInspector sp.Skeleton timeScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s729 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s729.includes('R1838') && s729.includes('patchSpine') && s729.includes("c.type === 'sp.Skeleton'") && s729.includes('applySpineSpeed')) {
+    log('pass', 'R1838-batch-spine-timescale', 'BatchInspector sp.Skeleton timeScale 일괄 설정')
+  } else {
+    log('warning', 'R1838-batch-spine-timescale', 'BatchInspector sp.Skeleton timeScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
