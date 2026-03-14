@@ -24041,6 +24041,24 @@ if (s1071.includes('R2169') && s1071.includes('applyWidgetIsAbs') && s1071.inclu
   log('warning', 'R2169-batch-widget-isabs', 'BatchInspector cc.Widget isAbs* 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1072: R2170 BatchInspector cc.RigidBody rotationOffset ──────────
+console.log('\n## 1072. R2170 BatchInspector cc.RigidBody rotationOffset 체크')
+const s1072 = s1071
+if (s1072.includes('R2170') && s1072.includes('applyRBRotOffset') && s1072.includes('RBrotOff')) {
+  log('pass', 'R2170-batch-rb-rotoffset', 'BatchInspector cc.RigidBody rotationOffset 일괄 설정')
+} else {
+  log('warning', 'R2170-batch-rb-rotoffset', 'BatchInspector cc.RigidBody rotationOffset 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1073: R2170 BatchInspector cc.Sprite fillCenter ──────────
+console.log('\n## 1073. R2170 BatchInspector cc.Sprite fillCenter 체크')
+const s1073 = s1072
+if (s1073.includes('R2170') && s1073.includes('applySpriteFillCenter') && s1073.includes('FillCtr')) {
+  log('pass', 'R2170-batch-sprite-fillcenter', 'BatchInspector cc.Sprite fillCenter 일괄 설정')
+} else {
+  log('warning', 'R2170-batch-sprite-fillcenter', 'BatchInspector cc.Sprite fillCenter 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

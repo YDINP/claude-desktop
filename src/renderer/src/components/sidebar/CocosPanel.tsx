@@ -11619,6 +11619,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2170: 공통 cc.RigidBody rotationOffset 일괄 설정 */}
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
+        const applyRBRotOffset = async (rotationOffset: number) => {
+          if (!sceneFile.root) return
+          function patchRBRotOffset(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBRotOffset)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, rotationOffset, _rotationOffset: rotationOffset } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRBRotOffset(sceneFile.root) })
+          setBatchMsg(`✓ RigidBody rotationOffset=${rotationOffset} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBrotOff</span>
+            {[0, 30, 45, 90, 180, -90].map(v => (
+              <span key={v} onClick={() => applyRBRotOffset(v)} title={`rotationOffset=${v}°`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{v}°</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2162: 공통 cc.BoxCollider/CircleCollider/PolygonCollider tag 일괄 설정 */}
       {(commonCompTypes.some(t => ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D'].includes(t))) && (() => {
         const COLLIDER_TYPES = ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D']
@@ -12220,6 +12243,30 @@ function CCFileBatchInspector({
                 onClick={() => applyFillStart(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}
               >{Math.round(v * 100)}%</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2170: 공통 cc.Sprite fillCenter 일괄 설정 (Filled 타입) */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applySpriteFillCenter = async (x: number, y: number) => {
+          if (!sceneFile.root) return
+          const fillCenter = { x, y }
+          function patchFillCenter(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchFillCenter)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, fillCenter, _fillCenter: fillCenter } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchFillCenter(sceneFile.root) })
+          setBatchMsg(`✓ Sprite fillCenter=(${x},${y}) (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>FillCtr</span>
+            {([[0.5,0.5,'C'],[0,0,'BL'],[1,0,'BR'],[0,1,'TL'],[1,1,'TR']] as const).map(([x,y,l]) => (
+              <span key={l} onClick={() => applySpriteFillCenter(x, y)} title={`fillCenter=(${x},${y})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )
