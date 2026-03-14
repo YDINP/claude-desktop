@@ -23378,6 +23378,18 @@ console.log('\n## 1011. R2120 BatchInspector cc.ParticleSystem startRotationVar 
   }
 }
 
+// ── Section 1012: R2121 BatchInspector cc.ParticleSystem endRotationVar ──────────
+console.log('\n## 1012. R2121 BatchInspector cc.ParticleSystem endRotationVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1012 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1012.includes('R2121') && s1012.includes('patchPSEndRotVar') && s1012.includes('applyPSEndRotVar')) {
+    log('pass', 'R2121-batch-ps-endrotvar', 'BatchInspector cc.ParticleSystem endRotationVar 일괄 설정')
+  } else {
+    log('warning', 'R2121-batch-ps-endrotvar', 'BatchInspector cc.ParticleSystem endRotationVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
