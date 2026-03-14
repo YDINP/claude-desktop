@@ -19967,6 +19967,18 @@ console.log('\n## 727. R1836 BatchInspector cc.SkeletalAnimation speedRatio 체�
   }
 }
 
+// ── Section 728: R1837 BatchInspector cc.ParticleSystem emitRate 일괄 ────────
+console.log('\n## 728. R1837 BatchInspector cc.ParticleSystem emitRate 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s728 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s728.includes('R1837') && s728.includes('patchParticle') && s728.includes("c.type === 'cc.ParticleSystem'") && s728.includes('_N$emissionRate: rate')) {
+    log('pass', 'R1837-batch-particle-emitrate', 'BatchInspector cc.ParticleSystem emitRate 일괄 설정')
+  } else {
+    log('warning', 'R1837-batch-particle-emitrate', 'BatchInspector cc.ParticleSystem emitRate 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
