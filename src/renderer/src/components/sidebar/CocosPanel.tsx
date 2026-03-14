@@ -3869,6 +3869,8 @@ function CCFileNodeInspector({
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
   // R1662: 같은 컴포넌트 타입 노드 목록 팝업
   const [sameCompPopup, setSameCompPopup] = useState<string | null>(null) // 팝업을 열 comp type
+  // R1670: 위치/크기 % 토글
+  const [showPct, setShowPct] = useState(false)
 
   const rotation = typeof draft.rotation === 'number' ? draft.rotation : (draft.rotation as { z: number }).z ?? 0
 
@@ -4864,9 +4866,21 @@ function CCFileNodeInspector({
               <span title="위치 리셋 (0,0)" onClick={() => applyAndSave({ position: { ...draft.position, x: 0, y: 0 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
               {/* R1592: 위치 정수 반올림 버튼 */}
               <span title="위치 정수 반올림 (Round to integer)" onClick={() => applyAndSave({ position: { ...draft.position, x: Math.round(draft.position.x), y: Math.round(draft.position.y) } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⌊⌉</span>
+              {/* R1670: % 토글 */}
+              {zOrderInfo?.parentSize && <span title="부모 크기 기준 % 표시 토글" onClick={() => setShowPct(v => !v)} style={{ cursor: 'pointer', color: showPct ? '#58a6ff' : '#555', fontSize: 8, padding: '0 2px', border: `1px solid ${showPct ? '#58a6ff44' : 'transparent'}`, borderRadius: 2 }}>%</span>}
             </div>
             {numInput('X', draft.position.x, v => applyAndSave({ position: { ...draft.position, x: v } }))}
             {numInput('Y', draft.position.y, v => applyAndSave({ position: { ...draft.position, y: v } }))}
+            {/* R1670: % 표시 */}
+            {showPct && zOrderInfo?.parentSize && (() => {
+              const pw = zOrderInfo.parentSize!.x, ph = zOrderInfo.parentSize!.y
+              if (!pw || !ph) return null
+              return (
+                <div style={{ fontSize: 8, color: '#58a6ff', lineHeight: 1.5, marginTop: 1 }}>
+                  x:{((draft.position.x / pw) * 100).toFixed(1)}% y:{((draft.position.y / ph) * 100).toFixed(1)}%
+                </div>
+              )
+            })()}
             {/* R1656: 부모 기준 정렬 버튼 */}
             {zOrderInfo?.parentSize?.x && zOrderInfo?.parentSize?.y && (() => {
               const pw = zOrderInfo.parentSize!.x, ph = zOrderInfo.parentSize!.y
@@ -4938,6 +4952,16 @@ function CCFileNodeInspector({
               const ratio = draft.size.y !== 0 ? v / draft.size.y : 1
               applyAndSave({ size: lockSize ? { x: draft.size.x * ratio, y: v } : { ...draft.size, y: v } })
             })}
+            {/* R1670: 크기 % 표시 */}
+            {showPct && zOrderInfo?.parentSize && (() => {
+              const pw = zOrderInfo.parentSize!.x, ph = zOrderInfo.parentSize!.y
+              if (!pw || !ph) return null
+              return (
+                <div style={{ fontSize: 8, color: '#58a6ff', lineHeight: 1.5, marginTop: 1 }}>
+                  w:{((draft.size.x / pw) * 100).toFixed(1)}% h:{((draft.size.y / ph) * 100).toFixed(1)}%
+                </div>
+              )
+            })()}
             <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', display: 'flex', alignItems: 'center', gap: 4 }}>
               스케일
               <span title="스케일 리셋 (1,1)" onClick={() => applyAndSave({ scale: { x: 1, y: 1, z: draft.scale.z ?? 1 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>

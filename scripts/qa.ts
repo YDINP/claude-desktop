@@ -17963,6 +17963,18 @@ console.log('\n## 560. R1669 부모 경계 정렬 가이드 체크')
   }
 }
 
+// ── Section 561: R1670 Inspector 위치/크기 % 토글 ──────────────────────
+console.log('\n## 561. R1670 Inspector 위치/크기 % 토글 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s561 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s561.includes('R1670') && s561.includes('showPct') && s561.includes('% 토글')) {
+    log('pass', 'R1670-pct-toggle', 'Inspector 위치/크기 % 토글')
+  } else {
+    log('warning', 'R1670-pct-toggle', 'Inspector 위치/크기 % 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
