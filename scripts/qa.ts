@@ -20798,6 +20798,18 @@ console.log('\n## 796. R1905 cc.ParticleSystem radialAccel/tangentialAccel 체�
   }
 }
 
+// ── Section 797: R1906 BatchInspector cc.ProgressBar progress ──────────
+console.log('\n## 797. R1906 BatchInspector cc.ProgressBar progress 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s797 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s797.includes('R1906') && s797.includes('applyPBProgress') && s797.includes('patchPBProgress')) {
+    log('pass', 'R1906-batch-pb-progress', 'BatchInspector cc.ProgressBar progress 일괄 설정')
+  } else {
+    log('warning', 'R1906-batch-pb-progress', 'BatchInspector cc.ProgressBar progress 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
