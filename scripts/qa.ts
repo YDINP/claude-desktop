@@ -18935,6 +18935,18 @@ console.log('\n## 641. R1750 BatchInspector 레이어 일괄 설정 체크')
   }
 }
 
+// ── Section 642: R1751 BatchInspector 색상 퀵 프리셋 ─────────────────────────
+console.log('\n## 642. R1751 BatchInspector 색상 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s642 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s642.includes('R1751') && s642.includes('색상 퀵 프리셋') && s642.includes('setBatchColor(hex)')) {
+    log('pass', 'R1751-batch-color-presets', 'BatchInspector 색상 퀵 프리셋')
+  } else {
+    log('warning', 'R1751-batch-color-presets', 'BatchInspector 색상 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

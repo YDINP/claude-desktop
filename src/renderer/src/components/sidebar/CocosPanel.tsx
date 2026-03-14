@@ -3974,6 +3974,21 @@ function CCFileBatchInspector({
         />
         {batchColor && <button onClick={() => setBatchColor('')} style={{ fontSize: 9, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)' }}>✕</button>}
       </div>
+      {/* R1751: 색상 퀵 프리셋 */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 6, paddingLeft: 52, flexWrap: 'wrap' }}>
+        {([['#ffffff', '⬜ 흰'], ['#000000', '⬛ 검'], ['#ff0000', '🔴 빨'], ['#00ff00', '🟢 초'], ['#0000ff', '🔵 파'], ['#ffff00', '🟡 노']] as [string, string][]).map(([hex, label]) => (
+          <span key={hex}
+            onClick={() => setBatchColor(hex)}
+            title={hex}
+            style={{
+              fontSize: 8, cursor: 'pointer', padding: '1px 4px',
+              background: batchColor === hex ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${batchColor === hex ? '#888' : '#333'}`,
+              borderRadius: 2, color: '#aaa', userSelect: 'none',
+            }}
+          >{label}</span>
+        ))}
+      </div>
       {/* R1665: 정렬 버튼 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>정렬</span>
