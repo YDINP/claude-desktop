@@ -24113,6 +24113,24 @@ if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.inc
   log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1154: R2211 BatchInspector cc.Label shadowColor (CC3.x) ──────────
+console.log('\n## 1154. R2211 BatchInspector cc.Label shadowColor 체크')
+const s1154 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1154.includes('R2211') && s1154.includes('applyLabelShadowClr') && s1154.includes('LblShdC')) {
+  log('pass', 'R2211-batch-label-shadowcolor', 'BatchInspector cc.Label shadowColor 일괄 설정')
+} else {
+  log('warning', 'R2211-batch-label-shadowcolor', 'BatchInspector cc.Label shadowColor 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1155: R2211 BatchInspector cc.Label shadowBlur (CC3.x) ──────────
+console.log('\n## 1155. R2211 BatchInspector cc.Label shadowBlur 체크')
+const s1155 = s1154
+if (s1155.includes('R2211') && s1155.includes('applyLabelShadowBlu') && s1155.includes('LblShdB')) {
+  log('pass', 'R2211-batch-label-shadowblur', 'BatchInspector cc.Label shadowBlur 일괄 설정')
+} else {
+  log('warning', 'R2211-batch-label-shadowblur', 'BatchInspector cc.Label shadowBlur 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1152: R2210 BatchInspector cc.Label outlineWidth (CC3.x) ──────────
 console.log('\n## 1152. R2210 BatchInspector cc.Label outlineWidth 체크')
 const s1152 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

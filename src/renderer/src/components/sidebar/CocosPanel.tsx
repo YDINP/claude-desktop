@@ -5678,6 +5678,60 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2211: 공통 cc.Label shadowColor 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelShadowClr = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const shadowColor = { r, g, b, a: 255 }
+          function patchLabelShadowClr(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelShadowClr)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label'
+              ? { ...c, props: { ...c.props, shadowColor, _shadowColor: shadowColor } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelShadowClr(sceneFile.root) })
+          setBatchMsg(`✓ Label shadowColor=${hex} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblShdC</span>
+            {(['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff', '#0000ff'] as const).map(c => (
+              <span key={c} title={c} onClick={() => applyLabelShadowClr(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, cursor: 'pointer',
+                  border: '1px solid var(--border)', display: 'inline-block' }} />
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2211: 공통 cc.Label shadowBlur 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelShadowBlu = async (shadowBlur: number) => {
+          if (!sceneFile.root) return
+          function patchLabelShadowBlu(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelShadowBlu)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label'
+              ? { ...c, props: { ...c.props, shadowBlur, _shadowBlur: shadowBlur } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelShadowBlu(sceneFile.root) })
+          setBatchMsg(`✓ Label shadowBlur=${shadowBlur} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblShdB</span>
+            {[0, 1, 2, 3, 5, 8, 12].map(v => (
+              <span key={v} onClick={() => applyLabelShadowBlu(v)} title={`Label shadowBlur=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2184: 공통 cc.Label enableGradient 일괄 설정 (CC3.x) */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelGradient = async (enableGradient: boolean) => {
