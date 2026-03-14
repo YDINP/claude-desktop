@@ -23438,6 +23438,30 @@ console.log('\n## 1016. R2125 BatchInspector cc.Widget isAlignRight 체크')
   }
 }
 
+// ── Section 1017: R2126 BatchInspector cc.Widget isAlignHorizontalCenter ──────────
+console.log('\n## 1017. R2126 BatchInspector cc.Widget isAlignHorizontalCenter 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1017 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1017.includes('R2126') && s1017.includes('patchWidgetIsAlignHCenter') && s1017.includes('applyWidgetIsAlignHCenter')) {
+    log('pass', 'R2126-batch-widget-isalignh', 'BatchInspector cc.Widget isAlignHorizontalCenter 일괄 설정')
+  } else {
+    log('warning', 'R2126-batch-widget-isalignh', 'BatchInspector cc.Widget isAlignHorizontalCenter 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1018: R2127 BatchInspector cc.Widget isAlignVerticalCenter ──────────
+console.log('\n## 1018. R2127 BatchInspector cc.Widget isAlignVerticalCenter 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1018 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1018.includes('R2127') && s1018.includes('patchWidgetIsAlignVCenter') && s1018.includes('applyWidgetIsAlignVCenter')) {
+    log('pass', 'R2127-batch-widget-isalignv', 'BatchInspector cc.Widget isAlignVerticalCenter 일괄 설정')
+  } else {
+    log('warning', 'R2127-batch-widget-isalignv', 'BatchInspector cc.Widget isAlignVerticalCenter 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

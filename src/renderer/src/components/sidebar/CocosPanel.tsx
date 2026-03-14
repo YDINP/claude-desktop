@@ -9820,6 +9820,52 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2127: 공통 cc.Widget isAlignVerticalCenter 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetIsAlignVCenter = async (isAlignVerticalCenter: boolean) => {
+          if (!sceneFile.root) return
+          function patchWidgetIsAlignVCenter(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetIsAlignVCenter)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignVerticalCenter } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetIsAlignVCenter(sceneFile.root) })
+          setBatchMsg(`✓ Widget isAlignVerticalCenter=${isAlignVerticalCenter} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WAVCtr</span>
+            <span onClick={() => applyWidgetIsAlignVCenter(true)} title="isAlignVerticalCenter ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>VC✓</span>
+            <span onClick={() => applyWidgetIsAlignVCenter(false)} title="isAlignVerticalCenter OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>VC✗</span>
+          </div>
+        )
+      })()}
+      {/* R2126: 공통 cc.Widget isAlignHorizontalCenter 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetIsAlignHCenter = async (isAlignHorizontalCenter: boolean) => {
+          if (!sceneFile.root) return
+          function patchWidgetIsAlignHCenter(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetIsAlignHCenter)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignHorizontalCenter } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetIsAlignHCenter(sceneFile.root) })
+          setBatchMsg(`✓ Widget isAlignHorizontalCenter=${isAlignHorizontalCenter} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WAHCtr</span>
+            <span onClick={() => applyWidgetIsAlignHCenter(true)} title="isAlignHorizontalCenter ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>HC✓</span>
+            <span onClick={() => applyWidgetIsAlignHCenter(false)} title="isAlignHorizontalCenter OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>HC✗</span>
+          </div>
+        )
+      })()}
       {/* R2124: 공통 cc.Widget isAlignLeft 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAlignLeft = async (isAlignLeft: boolean) => {
