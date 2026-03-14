@@ -21842,6 +21842,18 @@ console.log('\n## 883. R1992 BatchInspector cc.Label strikethrough 체크')
   }
 }
 
+// ── Section 884: R1993 BatchInspector node layer ──────────
+console.log('\n## 884. R1993 BatchInspector node layer 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s884 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s884.includes('R1993') && s884.includes('patchNodeLayer') && s884.includes('applyNodeLayer')) {
+    log('pass', 'R1993-batch-node-layer', 'BatchInspector node layer 일괄 설정')
+  } else {
+    log('warning', 'R1993-batch-node-layer', 'BatchInspector node layer 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

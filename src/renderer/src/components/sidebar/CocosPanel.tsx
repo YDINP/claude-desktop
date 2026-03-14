@@ -3834,6 +3834,33 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1993: 노드 layer 일괄 설정 (CC3.x) */}
+      {(() => {
+        const applyNodeLayer = async (layer: number) => {
+          if (!sceneFile.root) return
+          function patchNodeLayer(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeLayer)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, layer, children }
+          }
+          const patchedRoot = patchNodeLayer(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names: Record<number, string> = { 2: 'Dflt', 32: 'UI', 33554432: 'UI2D' }
+          setBatchMsg(`✓ layer=${names[layer] ?? layer} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>NodeLay</span>
+            <span onClick={() => applyNodeLayer(2)} title="DEFAULT(1<<1=2)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>Dflt</span>
+            <span onClick={() => applyNodeLayer(32)} title="UI(1<<5=32)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>UI</span>
+            <span onClick={() => applyNodeLayer(33554432)} title="UI_2D(1<<25=33554432)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>UI2D</span>
+          </div>
+        )
+      })()}
       {/* R1983: 노드 active/inactive 일괄 설정 */}
       {(() => {
         const applyNodeActive = async (active: boolean) => {
