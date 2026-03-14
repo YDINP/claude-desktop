@@ -22826,6 +22826,18 @@ console.log('\n## 965. R2074 BatchInspector cc.ParticleSystem endSize 체크')
   }
 }
 
+// ── Section 966: R2075 BatchInspector cc.VideoPlayer volume ──────────
+console.log('\n## 966. R2075 BatchInspector cc.VideoPlayer volume 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s966 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s966.includes('R2075') && s966.includes('patchVideoVol') && s966.includes('applyVideoVol')) {
+    log('pass', 'R2075-batch-vp-volume', 'BatchInspector cc.VideoPlayer volume 일괄 설정')
+  } else {
+    log('warning', 'R2075-batch-vp-volume', 'BatchInspector cc.VideoPlayer volume 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

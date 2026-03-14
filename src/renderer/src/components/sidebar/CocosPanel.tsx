@@ -6091,6 +6091,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2075: 공통 cc.VideoPlayer volume 일괄 설정 */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoVol = async (volume: number) => {
+          if (!sceneFile.root) return
+          function patchVideoVol(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideoVol)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, volume, _N$volume: volume } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchVideoVol(sceneFile.root) })
+          setBatchMsg(`✓ VideoPlayer volume=${volume} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>VPvol</span>
+            {[0, 0.25, 0.5, 0.75, 1].map(v => (
+              <span key={v} title={`volume = ${v}`}
+                onClick={() => applyVideoVol(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{Math.round(v * 100)}%</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2046: 공통 cc.VideoPlayer resourceType 일괄 설정 */}
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoResType = async (resourceType: number) => {
