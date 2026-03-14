@@ -23210,6 +23210,18 @@ console.log('\n## 997. R2106 BatchInspector cc.Toggle isChecked 체크')
   }
 }
 
+// ── Section 998: R2107 BatchInspector cc.MotionStreak color ──────────
+console.log('\n## 998. R2107 BatchInspector cc.MotionStreak color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s998 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s998.includes('R2107') && s998.includes('patchMSColor') && s998.includes('applyMSColor')) {
+    log('pass', 'R2107-batch-ms-color', 'BatchInspector cc.MotionStreak color 일괄 설정')
+  } else {
+    log('warning', 'R2107-batch-ms-color', 'BatchInspector cc.MotionStreak color 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
