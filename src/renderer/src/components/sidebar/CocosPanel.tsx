@@ -3719,6 +3719,8 @@ function CCFileBatchInspector({
   const [batchNameSuffix, setBatchNameSuffix] = useState<string>('')
   // R1737: 앵커 일괄 설정 (null = 변경 안 함)
   const [batchAnchor, setBatchAnchor] = useState<{ x: number; y: number } | null>(null)
+  // R1750: 레이어 일괄 설정
+  const [batchLayer, setBatchLayer] = useState<string>('')
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -3845,6 +3847,36 @@ function CCFileBatchInspector({
             }}
           />
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
+        </div>
+      )}
+      {/* R1750: 레이어 일괄 설정 (CC3.x) */}
+      {sceneFile.projectInfo?.version === '3x' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>Layer</span>
+          <select
+            value={batchLayer}
+            onChange={async e => {
+              const val = e.target.value
+              setBatchLayer(val)
+              if (!val || !sceneFile.root) return
+              const layer = parseInt(val)
+              function patchLayer(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patchLayer)
+                if (!uuidSet.has(n.uuid)) return { ...n, children }
+                return { ...n, layer, children }
+              }
+              await saveScene(patchLayer(sceneFile.root))
+              setBatchMsg(`✓ Layer ${layer} (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+              setBatchLayer('')
+            }}
+            style={{ flex: 1, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px' }}
+          >
+            <option value="">(변경 안 함)</option>
+            {([[1, 'DEFAULT'], [2, 'IGNORE_RAYCAST'], [16, 'UI_3D'], [524288, 'UI_2D'], [1073741824, 'ALL']] as [number, string][]).map(([v, n]) => (
+              <option key={v} value={v}>{n} ({v})</option>
+            ))}
+          </select>
         </div>
       )}
       {/* Active 토글 */}

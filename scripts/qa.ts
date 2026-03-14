@@ -18923,6 +18923,18 @@ console.log('\n## 640. R1749 BatchInspector cc.Label fontSize 일괄 설정 체�
   }
 }
 
+// ── Section 641: R1750 BatchInspector 레이어 일괄 설정 (CC3.x) ────────────────
+console.log('\n## 641. R1750 BatchInspector 레이어 일괄 설정 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s641 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s641.includes('R1750') && s641.includes('레이어 일괄 설정') && s641.includes('batchLayer') && s641.includes('patchLayer')) {
+    log('pass', 'R1750-batch-layer', 'BatchInspector 레이어 일괄 설정 (CC3.x)')
+  } else {
+    log('warning', 'R1750-batch-layer', 'BatchInspector 레이어 일괄 설정 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
