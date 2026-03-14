@@ -22370,6 +22370,18 @@ console.log('\n## 927. R2036 BatchInspector cc.MotionStreak minSeg 체크')
   }
 }
 
+// ── Section 928: R2037 BatchInspector sp.Skeleton timeScale ──────────
+console.log('\n## 928. R2037 BatchInspector sp.Skeleton timeScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s928 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s928.includes('R2037') && s928.includes('patchSpineTimeScale') && s928.includes('applySpineTimeScale')) {
+    log('pass', 'R2037-batch-spine-timescale', 'BatchInspector sp.Skeleton timeScale 일괄 설정')
+  } else {
+    log('warning', 'R2037-batch-spine-timescale', 'BatchInspector sp.Skeleton timeScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

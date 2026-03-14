@@ -6230,6 +6230,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2037: 공통 sp.Skeleton timeScale 일괄 설정 */}
+      {commonCompTypes.includes('sp.Skeleton') && (() => {
+        const applySpineTimeScale = async (timeScale: number) => {
+          if (!sceneFile.root) return
+          function patchSpineTimeScale(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpineTimeScale)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSpineTimeScale(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Skeleton timeScale=${timeScale}x (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>SpineTS</span>
+            {[0.25, 0.5, 0.75, 1, 1.5, 2].map(v => (
+              <span key={v} onClick={() => applySpineTimeScale(v)} title={`timeScale=${v}x`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{v}x</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1990: 공통 sp.Skeleton premultipliedAlpha 일괄 설정 */}
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpinePremult = async (premultipliedAlpha: boolean) => {
