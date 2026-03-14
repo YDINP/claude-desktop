@@ -18215,6 +18215,18 @@ console.log('\n## 581. R1690 회전 핸들 각도 표시 체크')
   }
 }
 
+// ── Section 582: R1691 cc.Label 멀티라인 미리보기 ──────────────────────────
+console.log('\n## 582. R1691 cc.Label 멀티라인 미리보기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s582 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s582.includes('R1691') && s582.includes('미리보기') && s582.includes('\\\\n')) {
+    log('pass', 'R1691-label-multiline-preview', 'cc.Label 멀티라인 미리보기')
+  } else {
+    log('warning', 'R1691-label-multiline-preview', 'cc.Label 멀티라인 미리보기 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

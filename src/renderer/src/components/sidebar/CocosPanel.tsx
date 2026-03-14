@@ -6160,6 +6160,18 @@ function CCFileNodeInspector({
                       style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                   </div>
+                  {/* R1691: 멀티라인 텍스트 미리보기 */}
+                  {(str.includes('\n') || str.includes('\\n')) && (() => {
+                    const lines = str.replace(/\\n/g, '\n').split('\n')
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0, marginTop: 2 }}>미리보기</span>
+                        <div style={{ flex: 1, background: 'rgba(88,166,255,0.06)', border: '1px solid rgba(88,166,255,0.2)', borderRadius: 3, padding: '3px 5px', fontSize: 9, color: 'var(--text-primary)', lineHeight: 1.5, whiteSpace: 'pre', overflowX: 'auto', maxHeight: 60, overflowY: 'auto' }}>
+                          {lines.map((line, i) => <div key={i}>{line || <span style={{ color: 'var(--text-muted)' }}>↵</span>}</div>)}
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }
