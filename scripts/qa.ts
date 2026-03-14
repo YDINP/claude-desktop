@@ -18083,6 +18083,18 @@ console.log('\n## 570. R1679 TreeSearch 전체 결과 수 + 더 보기 체크')
   }
 }
 
+// ── Section 571: R1680 컴포넌트 타입별 색상 구분 ──────────────────────────
+console.log('\n## 571. R1680 컴포넌트 타입별 색상 구분 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s571 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s571.includes('R1680') && s571.includes('typeColorMap') && s571.includes('cc.Label') && s571.includes('cc.Sprite')) {
+    log('pass', 'R1680-comp-type-color', '컴포넌트 타입별 색상 구분')
+  } else {
+    log('warning', 'R1680-comp-type-color', '컴포넌트 타입별 색상 구분 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

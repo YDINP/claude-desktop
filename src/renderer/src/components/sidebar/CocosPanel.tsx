@@ -5379,7 +5379,21 @@ function CCFileNodeInspector({
               style={{ margin: 0, marginRight: 3, flexShrink: 0, cursor: 'pointer', accentColor: '#4ade80' }}
             />
             <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(comp.type) ? '▸' : '▾'}</span>
-            <span style={{ flex: 1, opacity: comp.props.enabled === false ? 0.5 : 1 }}>
+            <span style={{ flex: 1, opacity: comp.props.enabled === false ? 0.5 : 1, color: (() => {
+              // R1680: 컴포넌트 타입별 색상 구분
+              const typeColorMap: Record<string, string> = {
+                'cc.Label': '#58a6ff', 'cc.RichText': '#58a6ff',
+                'cc.Sprite': '#4ade80', 'cc.TiledMap': '#4ade80', 'cc.VideoPlayer': '#4ade80',
+                'cc.Button': '#fb923c', 'cc.Toggle': '#fb923c', 'cc.Slider': '#fb923c',
+                'cc.Widget': '#a78bfa', 'cc.Layout': '#a78bfa', 'cc.SafeArea': '#a78bfa',
+                'cc.Animation': '#f472b6', 'sp.Skeleton': '#f472b6', 'dragonBones.ArmatureDisplay': '#f472b6',
+                'cc.AudioSource': '#facc15',
+                'cc.ScrollView': '#34d399', 'cc.PageView': '#34d399',
+                'cc.RigidBody': '#f87171', 'cc.BoxCollider': '#f87171', 'cc.CircleCollider': '#f87171',
+                'cc.BlockInputEvents': '#94a3b8', 'cc.ProgressBar': '#94a3b8',
+              }
+              return typeColorMap[comp.type] ?? (isCustomScript(comp.type) ? '#c084fc' : 'var(--text-primary)')
+            })() }}>
               {isCustomScript(comp.type) ? '📝 ' : ''}{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
             </span>
             {/* R1660/R1662: 씬 내 동일 타입 노드 수 배지 + 팝업 */}
