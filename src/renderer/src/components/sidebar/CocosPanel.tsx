@@ -6002,6 +6002,34 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1959: 공통 cc.Layout childAlignment 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutChildAlign = async (childAlignment: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutChildAlign(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutChildAlign)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, childAlignment, _childAlignment: childAlignment } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLayoutChildAlign(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names: Record<number,string> = { 0:'None', 1:'LT', 2:'CT', 3:'RT', 4:'LC', 5:'C', 6:'RC', 7:'LB', 8:'CB', 9:'RB' }
+          setBatchMsg(`✓ Layout align=${names[childAlignment]??childAlignment} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LyAlign</span>
+            {([[1,'LT'],[5,'C'],[9,'RB'],[4,'LC'],[6,'RC']] as const).map(([v,l]) => (
+              <span key={v} title={`childAlignment = ${l}`}
+                onClick={() => applyLayoutChildAlign(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1878: 공통 cc.Layout padding 일괄 설정 (uniform) */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPad = async (pad: number) => {

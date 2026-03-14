@@ -21434,6 +21434,18 @@ console.log('\n## 849. R1958 BatchInspector cc.ParticleSystem life 체크')
   }
 }
 
+// ── Section 850: R1959 BatchInspector cc.Layout childAlignment ──────────
+console.log('\n## 850. R1959 BatchInspector cc.Layout childAlignment 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s850 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s850.includes('R1959') && s850.includes('patchLayoutChildAlign') && s850.includes('applyLayoutChildAlign')) {
+    log('pass', 'R1959-batch-layout-childalignment', 'BatchInspector cc.Layout childAlignment 일괄 설정')
+  } else {
+    log('warning', 'R1959-batch-layout-childalignment', 'BatchInspector cc.Layout childAlignment 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
