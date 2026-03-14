@@ -4161,6 +4161,34 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1822: 공통 cc.Widget alignment 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Widget</span>
+          {([
+            { label: '⊞ Stretch', patch: { isAlignTop: true, isAlignBottom: true, isAlignLeft: true, isAlignRight: true, isAlignHorizontalCenter: false, isAlignVerticalCenter: false, top: 0, bottom: 0, left: 0, right: 0 } },
+            { label: '⊕ Center', patch: { isAlignTop: false, isAlignBottom: false, isAlignLeft: false, isAlignRight: false, isAlignHorizontalCenter: true, isAlignVerticalCenter: true } },
+            { label: '✕ None', patch: { isAlignTop: false, isAlignBottom: false, isAlignLeft: false, isAlignRight: false, isAlignHorizontalCenter: false, isAlignVerticalCenter: false } },
+          ]).map(({ label, patch }) => (
+            <span key={label}
+              title={`Widget ${label}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                function patchWidget(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchWidget)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, ...patch } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchWidget(sceneFile.root))
+                setBatchMsg(`✓ Widget ${label} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+            >{label}</span>
+          ))}
+        </div>
+      )}
       {/* R1771: 공통 cc.ProgressBar progress 일괄 설정 */}
       {commonCompTypes.includes('cc.ProgressBar') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:29:09.336Z
+> 2026-03-14T04:30:01.248Z
 
 ## Critical
 _없음_
@@ -1751,3 +1751,4 @@ _없음_
 - dragonBones.ArmatureDisplay timeScale 퀵 프리셋
 - cc.Layout verticalDirection/horizontalDirection 버튼
 - BatchInspector cc.Layout type 일괄 설정
+- BatchInspector cc.Widget alignment 일괄 설정

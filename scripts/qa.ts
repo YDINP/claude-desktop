@@ -19787,6 +19787,18 @@ console.log('\n## 712. R1821 BatchInspector cc.Layout type 체크')
   }
 }
 
+// ── Section 713: R1822 BatchInspector cc.Widget alignment 일괄 설정 ──────────
+console.log('\n## 713. R1822 BatchInspector cc.Widget alignment 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s713 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s713.includes('R1822') && s713.includes('patchWidget') && s713.includes("c.type === 'cc.Widget'")) {
+    log('pass', 'R1822-batch-widget-alignment', 'BatchInspector cc.Widget alignment 일괄 설정')
+  } else {
+    log('warning', 'R1822-batch-widget-alignment', 'BatchInspector cc.Widget alignment 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
