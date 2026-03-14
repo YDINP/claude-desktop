@@ -17793,6 +17793,18 @@ console.log('\n## 546. R1655 씬 트리 깊이 접기 체크')
   }
 }
 
+// ── Section 547: R1656 Inspector 부모 기준 정렬 버튼 ──────────────────────
+console.log('\n## 547. R1656 Inspector 부모 기준 정렬 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s547 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s547.includes('R1656') && s547.includes('부모 기준 정렬') && s547.includes('parentSize') && s547.includes('pw / 2')) {
+    log('pass', 'R1656-align-parent', 'Inspector 부모 기준 정렬 버튼')
+  } else {
+    log('warning', 'R1656-align-parent', 'Inspector 부모 기준 정렬 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

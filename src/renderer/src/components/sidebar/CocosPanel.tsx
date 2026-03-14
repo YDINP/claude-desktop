@@ -4684,6 +4684,33 @@ function CCFileNodeInspector({
             </div>
             {numInput('X', draft.position.x, v => applyAndSave({ position: { ...draft.position, x: v } }))}
             {numInput('Y', draft.position.y, v => applyAndSave({ position: { ...draft.position, y: v } }))}
+            {/* R1656: 부모 기준 정렬 버튼 */}
+            {zOrderInfo?.parentSize?.x && zOrderInfo?.parentSize?.y && (() => {
+              const pw = zOrderInfo.parentSize!.x, ph = zOrderInfo.parentSize!.y
+              const nw = draft.size?.x ?? 0, nh = draft.size?.y ?? 0
+              const ax = draft.anchor?.x ?? 0.5, ay = draft.anchor?.y ?? 0.5
+              const btns: { label: string; title: string; x?: number; y?: number }[] = [
+                { label: '←', title: '부모 좌측 정렬', x: -pw / 2 + nw * ax },
+                { label: '⊕', title: '부모 중앙 정렬', x: nw * (ax - 0.5), y: nh * (ay - 0.5) },
+                { label: '→', title: '부모 우측 정렬', x: pw / 2 - nw * (1 - ax) },
+                { label: '↑', title: '부모 상단 정렬', y: ph / 2 - nh * (1 - ay) },
+                { label: '↓', title: '부모 하단 정렬', y: -ph / 2 + nh * ay },
+              ]
+              return (
+                <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
+                  {btns.map(b => (
+                    <span key={b.label} title={b.title} onClick={() => {
+                      const upd: Partial<CCSceneNode> = {}
+                      if (b.x !== undefined) upd.position = { ...draft.position, x: Math.round(b.x * 10) / 10 }
+                      if (b.y !== undefined) upd.position = { ...(upd.position ?? draft.position), y: Math.round(b.y * 10) / 10 }
+                      applyAndSave(upd)
+                    }} style={{ fontSize: 9, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                    >{b.label}</span>
+                  ))}
+                </div>
+              )
+            })()}
             {/* R1484: World Transform 표시 */}
             {worldPos && (
               <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.4 }} title="씬 내 절대 좌표 (부모 누산)">
