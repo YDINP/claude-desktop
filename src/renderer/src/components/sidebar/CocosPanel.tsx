@@ -4879,6 +4879,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1930: 공통 dragonBones.ArmatureDisplay playOnLoad 일괄 설정 */}
+      {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
+        const applyDBPlayOnLoad = async (playOnLoad: boolean) => {
+          if (!sceneFile.root) return
+          function patchDBPlayOnLoad(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchDBPlayOnLoad)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, playOnLoad } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchDBPlayOnLoad(sceneFile.root) })
+          setBatchMsg(`✓ DragonBones playOnLoad=${playOnLoad} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>DBpol</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`playOnLoad = ${v}`}
+                onClick={() => applyDBPlayOnLoad(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}
+              >{v ? 'pol✓' : 'pol✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1838: 공통 sp.Skeleton timeScale 일괄 설정 */}
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineSpeed = async (timeScale: number) => {

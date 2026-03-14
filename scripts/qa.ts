@@ -21086,6 +21086,18 @@ console.log('\n## 820. R1929 BatchInspector cc.RichText horizontalAlign 체크')
   }
 }
 
+// ── Section 821: R1930 BatchInspector dragonBones.ArmatureDisplay playOnLoad ──────────
+console.log('\n## 821. R1930 BatchInspector dragonBones.ArmatureDisplay playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s821 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s821.includes('R1930') && s821.includes('patchDBPlayOnLoad') && s821.includes('applyDBPlayOnLoad')) {
+    log('pass', 'R1930-batch-dragonbones-playonload', 'BatchInspector dragonBones.ArmatureDisplay playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R1930-batch-dragonbones-playonload', 'BatchInspector dragonBones.ArmatureDisplay playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
