@@ -22118,6 +22118,18 @@ console.log('\n## 906. R2015 BatchInspector cc.ParticleSystem rotatePerS 체크'
   }
 }
 
+// ── Section 907: R2016 BatchInspector cc.ParticleSystem rotatePerSVar ──────────
+console.log('\n## 907. R2016 BatchInspector cc.ParticleSystem rotatePerSVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s907 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s907.includes('R2016') && s907.includes('patchPSRotPerSVar') && s907.includes('applyPSRotPerSVar')) {
+    log('pass', 'R2016-batch-ps-rotpersvar', 'BatchInspector cc.ParticleSystem rotatePerSVar 일괄 설정')
+  } else {
+    log('warning', 'R2016-batch-ps-rotpersvar', 'BatchInspector cc.ParticleSystem rotatePerSVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
