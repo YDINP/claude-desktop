@@ -22130,6 +22130,18 @@ console.log('\n## 907. R2016 BatchInspector cc.ParticleSystem rotatePerSVar 체�
   }
 }
 
+// ── Section 908: R2017 BatchInspector cc.Label lineHeight ──────────
+console.log('\n## 908. R2017 BatchInspector cc.Label lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s908 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s908.includes('R2017') && s908.includes('patchLabelLineHeight') && s908.includes('applyLabelLineHeight')) {
+    log('pass', 'R2017-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R2017-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

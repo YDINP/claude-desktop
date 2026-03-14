@@ -4432,6 +4432,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2017: 공통 cc.Label lineHeight 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelLineHeight = async (lineHeight: number) => {
+          if (!sceneFile.root) return
+          function patchLabelLineHeight(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelLineHeight)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelLineHeight(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Label lineHeight=${lineHeight} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>LblLH</span>
+            {[0, 20, 30, 40, 60, 80].map(v => (
+              <span key={v} onClick={() => applyLabelLineHeight(v)} title={`lineHeight=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1951: 공통 cc.Label fontSize 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelFontSize = async (fontSize: number) => {
