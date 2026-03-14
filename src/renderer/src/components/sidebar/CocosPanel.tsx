@@ -3912,13 +3912,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2095: 공통 cc.PolygonCollider restitution 일괄 설정 */}
-      {commonCompTypes.includes('cc.PolygonCollider') && (() => {
+      {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyRest = async (restitution: number) => {
           if (!sceneFile.root) return
           function patchPolyRest(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyRest)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PolygonCollider' ? { ...c, props: { ...c.props, restitution } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, restitution } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyRest(sceneFile.root) })
@@ -3937,13 +3937,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2094: 공통 cc.PolygonCollider friction 일괄 설정 */}
-      {commonCompTypes.includes('cc.PolygonCollider') && (() => {
+      {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyFric = async (friction: number) => {
           if (!sceneFile.root) return
           function patchPolyFric(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyFric)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PolygonCollider' ? { ...c, props: { ...c.props, friction } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, friction } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyFric(sceneFile.root) })
@@ -3962,13 +3962,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2093: 공통 cc.PolygonCollider density 일괄 설정 */}
-      {commonCompTypes.includes('cc.PolygonCollider') && (() => {
+      {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyDens = async (density: number) => {
           if (!sceneFile.root) return
           function patchPolyDens(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyDens)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PolygonCollider' ? { ...c, props: { ...c.props, density } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, density } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyDens(sceneFile.root) })
@@ -3987,14 +3987,14 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2156: 공통 cc.PolygonCollider offset 일괄 설정 */}
-      {commonCompTypes.includes('cc.PolygonCollider') && (() => {
+      {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyOffset = async (ox: number, oy: number) => {
           if (!sceneFile.root) return
           function patchPolyOffset(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyOffset)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => c.type === 'cc.PolygonCollider' ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, offset, _offset: offset } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyOffset(sceneFile.root) })
@@ -4011,13 +4011,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2084: 공통 cc.PolygonCollider sensor 일괄 설정 */}
-      {commonCompTypes.includes('cc.PolygonCollider') && (() => {
+      {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyColliderSensor = async (sensor: boolean) => {
           if (!sceneFile.root) return
           function patchPolyColliderSensor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPolyColliderSensor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PolygonCollider' ? { ...c, props: { ...c.props, sensor } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, sensor } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPolyColliderSensor(sceneFile.root) })
@@ -7575,7 +7575,7 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1932: 공통 cc.ParticleSystem loop 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleLoop = async (loop: boolean) => {
           if (!sceneFile.root) return
           function patchParticleLoop(n: CCSceneNode): CCSceneNode {
@@ -7583,7 +7583,7 @@ function CCFileBatchInspector({
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             // loop is achieved by setting duration = -1 or duration = positive
             const dur = loop ? -1 : 1
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchParticleLoop(sceneFile.root) })
@@ -7603,13 +7603,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1981: 공통 cc.ParticleSystem emitterMode 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEmitterMode = async (emitterMode: number) => {
           if (!sceneFile.root) return
           function patchPSEmitterMode(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEmitterMode)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, emitterMode, _emitterMode: emitterMode, _N$emitterMode: emitterMode } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, emitterMode, _emitterMode: emitterMode, _N$emitterMode: emitterMode } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSEmitterMode(sceneFile.root)
@@ -7629,13 +7629,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1979: 공통 cc.ParticleSystem autoRemoveOnFinish 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSAutoRemove = async (autoRemoveOnFinish: boolean) => {
           if (!sceneFile.root) return
           function patchPSAutoRemove(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSAutoRemove)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, autoRemoveOnFinish, _autoRemoveOnFinish: autoRemoveOnFinish } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, autoRemoveOnFinish, _autoRemoveOnFinish: autoRemoveOnFinish } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSAutoRemove(sceneFile.root)
@@ -7654,13 +7654,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1977: 공통 cc.ParticleSystem srcBlendFactor/dstBlendFactor 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSBlend = async (src: number, dst: number, label: string) => {
           if (!sceneFile.root) return
           function patchPSBlend(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSBlend)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSBlend(sceneFile.root)
@@ -7681,13 +7681,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1976: 공통 cc.ParticleSystem positionType 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSPosType = async (positionType: number) => {
           if (!sceneFile.root) return
           function patchPSPosType(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSPosType)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, positionType, _positionType: positionType, _N$positionType: positionType } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, positionType, _positionType: positionType, _N$positionType: positionType } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSPosType(sceneFile.root)
@@ -7707,13 +7707,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1846: 공통 cc.ParticleSystem startSize 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleSize = async (startSize: number) => {
           if (!sceneFile.root) return
           function patchPSize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchPSize(sceneFile.root))
@@ -7733,13 +7733,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1837: 공통 cc.ParticleSystem emitRate 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleRate = async (rate: number) => {
           if (!sceneFile.root) return
           function patchParticle(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticle)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, emissionRate: rate, _emissionRate: rate, _N$emissionRate: rate } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, emissionRate: rate, _emissionRate: rate, _N$emissionRate: rate } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchParticle(sceneFile.root))
@@ -7759,13 +7759,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1874: 공통 cc.ParticleSystem maxParticles 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleMax = async (max: number) => {
           if (!sceneFile.root) return
           function patchParticleMax(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleMax)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, _N$maxParticles: max, _N$totalParticles: max } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, _N$maxParticles: max, _N$totalParticles: max } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchParticleMax(sceneFile.root))
@@ -7785,13 +7785,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1873: 공통 cc.ParticleSystem duration 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleDur = async (dur: number) => {
           if (!sceneFile.root) return
           function patchParticleDur(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleDur)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, duration: dur, _duration: dur } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, duration: dur, _duration: dur } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchParticleDur(sceneFile.root))
@@ -7811,13 +7811,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1893: 공통 cc.ParticleSystem speed 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleSpeed = async (speed: number) => {
           if (!sceneFile.root) return
           function patchParticleSpeed(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleSpeed)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchParticleSpeed(sceneFile.root) })
@@ -7835,13 +7835,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2008: 공통 cc.ParticleSystem angleVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSAngleVar = async (angleVar: number) => {
           if (!sceneFile.root) return
           function patchPSAngleVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSAngleVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, angleVar, _angleVar: angleVar, _N$angleVar: angleVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, angleVar, _angleVar: angleVar, _N$angleVar: angleVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSAngleVar(sceneFile.root)
@@ -7860,13 +7860,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1896: 공통 cc.ParticleSystem angle 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleAngle = async (angle: number) => {
           if (!sceneFile.root) return
           function patchParticleAngle(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleAngle)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchParticleAngle(sceneFile.root) })
@@ -7884,13 +7884,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1914: 공통 cc.ParticleSystem maxParticles 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyMaxParticles = async (maxParticles: number) => {
           if (!sceneFile.root) return
           function patchMaxParticles(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchMaxParticles)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, maxParticles, _maxParticles: maxParticles, _N$maxParticles: maxParticles } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, maxParticles, _maxParticles: maxParticles, _N$maxParticles: maxParticles } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchMaxParticles(sceneFile.root) })
@@ -7910,13 +7910,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1950: 공통 cc.ParticleSystem emissionRate 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleEmission = async (emissionRate: number) => {
           if (!sceneFile.root) return
           function patchParticleEmission(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleEmission)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, emissionRate, _emissionRate: emissionRate, _N$emissionRate: emissionRate } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, emissionRate, _emissionRate: emissionRate, _N$emissionRate: emissionRate } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchParticleEmission(sceneFile.root)
@@ -7937,13 +7937,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2033: 공통 cc.ParticleSystem angle 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSAngle = async (angle: number) => {
           if (!sceneFile.root) return
           function patchPSAngle(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSAngle)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSAngle(sceneFile.root)
@@ -7962,13 +7962,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2032: 공통 cc.ParticleSystem endSpin 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndSpin = async (endSpin: number) => {
           if (!sceneFile.root) return
           function patchPSEndSpin(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEndSpin)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endSpin, _endSpin: endSpin, _N$endSpin: endSpin } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSpin, _endSpin: endSpin, _N$endSpin: endSpin } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSEndSpin(sceneFile.root)
@@ -7987,13 +7987,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2049: 공통 cc.ParticleSystem endSizeVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndSizeVar = async (endSizeVar: number) => {
           if (!sceneFile.root) return
           function patchPSEndSizeVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEndSizeVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endSizeVar, _endSizeVar: endSizeVar, _N$endSizeVar: endSizeVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSizeVar, _endSizeVar: endSizeVar, _N$endSizeVar: endSizeVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSEndSizeVar(sceneFile.root)
@@ -8012,13 +8012,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2048: 공통 cc.ParticleSystem endSpinVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndSpinVar = async (endSpinVar: number) => {
           if (!sceneFile.root) return
           function patchPSEndSpinVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEndSpinVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endSpinVar, _endSpinVar: endSpinVar, _N$endSpinVar: endSpinVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSpinVar, _endSpinVar: endSpinVar, _N$endSpinVar: endSpinVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSEndSpinVar(sceneFile.root)
@@ -8037,13 +8037,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2047: 공통 cc.ParticleSystem startSpinVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartSpinVar = async (startSpinVar: number) => {
           if (!sceneFile.root) return
           function patchPSStartSpinVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSStartSpinVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startSpinVar, _startSpinVar: startSpinVar, _N$startSpinVar: startSpinVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSpinVar, _startSpinVar: startSpinVar, _N$startSpinVar: startSpinVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSStartSpinVar(sceneFile.root)
@@ -8062,13 +8062,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2031: 공통 cc.ParticleSystem startSpin 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartSpin = async (startSpin: number) => {
           if (!sceneFile.root) return
           function patchPSStartSpin(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSStartSpin)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startSpin, _startSpin: startSpin, _N$startSpin: startSpin } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSpin, _startSpin: startSpin, _N$startSpin: startSpin } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSStartSpin(sceneFile.root)
@@ -8087,13 +8087,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2051: 공통 cc.ParticleSystem tangentialAccelVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSTangAccelVar = async (tangentialAccelVar: number) => {
           if (!sceneFile.root) return
           function patchPSTangAccelVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSTangAccelVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, tangentialAccelVar, _tangentialAccelVar: tangentialAccelVar, _N$tangentialAccelVar: tangentialAccelVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, tangentialAccelVar, _tangentialAccelVar: tangentialAccelVar, _N$tangentialAccelVar: tangentialAccelVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSTangAccelVar(sceneFile.root)
@@ -8112,13 +8112,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2030: 공통 cc.ParticleSystem tangentialAccel 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSTangAccel = async (tangentialAccel: number) => {
           if (!sceneFile.root) return
           function patchPSTangAccel(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSTangAccel)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, tangentialAccel, _tangentialAccel: tangentialAccel, _N$tangentialAccel: tangentialAccel } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, tangentialAccel, _tangentialAccel: tangentialAccel, _N$tangentialAccel: tangentialAccel } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSTangAccel(sceneFile.root)
@@ -8137,13 +8137,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2050: 공통 cc.ParticleSystem radialAccelVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRadialAccelVar = async (radialAccelVar: number) => {
           if (!sceneFile.root) return
           function patchPSRadialAccelVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSRadialAccelVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, radialAccelVar, _radialAccelVar: radialAccelVar, _N$radialAccelVar: radialAccelVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, radialAccelVar, _radialAccelVar: radialAccelVar, _N$radialAccelVar: radialAccelVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSRadialAccelVar(sceneFile.root)
@@ -8162,13 +8162,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2029: 공통 cc.ParticleSystem radialAccel 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRadialAccel = async (radialAccel: number) => {
           if (!sceneFile.root) return
           function patchPSRadialAccel(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSRadialAccel)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, radialAccel, _radialAccel: radialAccel, _N$radialAccel: radialAccel } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, radialAccel, _radialAccel: radialAccel, _N$radialAccel: radialAccel } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSRadialAccel(sceneFile.root)
@@ -8187,13 +8187,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2028: 공통 cc.ParticleSystem speed 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSSpeed = async (speed: number) => {
           if (!sceneFile.root) return
           function patchPSSpeed(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSSpeed)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSSpeed(sceneFile.root)
@@ -8212,13 +8212,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2027: 공통 cc.ParticleSystem duration 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSDuration = async (duration: number) => {
           if (!sceneFile.root) return
           function patchPSDuration(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSDuration)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, duration, _duration: duration, _N$duration: duration } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, duration, _duration: duration, _N$duration: duration } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSDuration(sceneFile.root)
@@ -8238,13 +8238,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2026: 공통 cc.ParticleSystem totalParticles 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSTotalPart = async (totalParticles: number) => {
           if (!sceneFile.root) return
           function patchPSTotalPart(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSTotalPart)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, totalParticles, _totalParticles: totalParticles, _N$totalParticles: totalParticles } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, totalParticles, _totalParticles: totalParticles, _N$totalParticles: totalParticles } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSTotalPart(sceneFile.root)
@@ -8263,13 +8263,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2062: 공통 cc.ParticleSystem rotationIsDir 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRotIsDir = async (rotationIsDir: boolean) => {
           if (!sceneFile.root) return
           function patchPSRotIsDir(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSRotIsDir)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, rotationIsDir, _rotationIsDir: rotationIsDir, _N$rotationIsDir: rotationIsDir } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, rotationIsDir, _rotationIsDir: rotationIsDir, _N$rotationIsDir: rotationIsDir } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSRotIsDir(sceneFile.root)
@@ -8288,13 +8288,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2147: 공통 cc.ParticleSystem endRadiusVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndRadiusVar = async (endRadiusVar: number) => {
           if (!sceneFile.root) return
           function patchPSEndRadiusVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEndRadiusVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endRadiusVar, _endRadiusVar: endRadiusVar, _N$endRadiusVar: endRadiusVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endRadiusVar, _endRadiusVar: endRadiusVar, _N$endRadiusVar: endRadiusVar } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSEndRadiusVar(sceneFile.root) })
@@ -8311,13 +8311,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2061: 공통 cc.ParticleSystem startRadiusVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartRadiusVar = async (startRadiusVar: number) => {
           if (!sceneFile.root) return
           function patchPSStartRadiusVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSStartRadiusVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startRadiusVar, _startRadiusVar: startRadiusVar, _N$startRadiusVar: startRadiusVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startRadiusVar, _startRadiusVar: startRadiusVar, _N$startRadiusVar: startRadiusVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSStartRadiusVar(sceneFile.root)
@@ -8336,13 +8336,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2060: 공통 cc.ParticleSystem endRadius 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndRadius = async (endRadius: number) => {
           if (!sceneFile.root) return
           function patchPSEndRadius(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEndRadius)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endRadius, _endRadius: endRadius, _N$endRadius: endRadius } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endRadius, _endRadius: endRadius, _N$endRadius: endRadius } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSEndRadius(sceneFile.root)
@@ -8361,13 +8361,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2059: 공통 cc.ParticleSystem startRadius 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartRadius = async (startRadius: number) => {
           if (!sceneFile.root) return
           function patchPSStartRadius(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSStartRadius)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startRadius, _startRadius: startRadius, _N$startRadius: startRadius } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startRadius, _startRadius: startRadius, _N$startRadius: startRadius } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSStartRadius(sceneFile.root)
@@ -8386,13 +8386,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2016: 공통 cc.ParticleSystem rotatePerSVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRotPerSVar = async (rotatePerSVar: number) => {
           if (!sceneFile.root) return
           function patchPSRotPerSVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSRotPerSVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, rotatePerSVar, _rotatePerSVar: rotatePerSVar, _N$rotatePerSVar: rotatePerSVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, rotatePerSVar, _rotatePerSVar: rotatePerSVar, _N$rotatePerSVar: rotatePerSVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSRotPerSVar(sceneFile.root)
@@ -8411,13 +8411,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2015: 공통 cc.ParticleSystem rotatePerS 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRotPerS = async (rotatePerS: number) => {
           if (!sceneFile.root) return
           function patchPSRotPerS(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSRotPerS)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, rotatePerS, _rotatePerS: rotatePerS, _N$rotatePerS: rotatePerS } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, rotatePerS, _rotatePerS: rotatePerS, _N$rotatePerS: rotatePerS } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSRotPerS(sceneFile.root)
@@ -8436,13 +8436,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2121: 공통 cc.ParticleSystem endRotationVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndRotVar = async (endRotationVar: number) => {
           if (!sceneFile.root) return
           function patchPSEndRotVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEndRotVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endRotationVar, _endRotationVar: endRotationVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endRotationVar, _endRotationVar: endRotationVar } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSEndRotVar(sceneFile.root) })
@@ -8459,13 +8459,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2120: 공통 cc.ParticleSystem startRotationVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartRotVar = async (startRotationVar: number) => {
           if (!sceneFile.root) return
           function patchPSStartRotVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSStartRotVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startRotationVar, _startRotationVar: startRotationVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startRotationVar, _startRotationVar: startRotationVar } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSStartRotVar(sceneFile.root) })
@@ -8482,13 +8482,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2119: 공통 cc.ParticleSystem endRotation 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndRot = async (endRotation: number) => {
           if (!sceneFile.root) return
           function patchPSEndRot(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEndRot)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endRotation, _endRotation: endRotation } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endRotation, _endRotation: endRotation } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSEndRot(sceneFile.root) })
@@ -8505,13 +8505,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2118: 공통 cc.ParticleSystem startRotation 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartRot = async (startRotation: number) => {
           if (!sceneFile.root) return
           function patchPSStartRot(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSStartRot)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startRotation, _startRotation: startRotation } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startRotation, _startRotation: startRotation } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSStartRot(sceneFile.root) })
@@ -8528,14 +8528,14 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2054: 공통 cc.ParticleSystem posVar (spread) 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSPosVar = async (v: number) => {
           if (!sceneFile.root) return
           const posVar = { x: v, y: v }
           function patchPSPosVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSPosVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, posVar, _posVar: posVar, _N$posVar: posVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, posVar, _posVar: posVar, _N$posVar: posVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSPosVar(sceneFile.root)
@@ -8554,7 +8554,7 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2117: 공통 cc.ParticleSystem gravity.y 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSGravY = async (gy: number) => {
           if (!sceneFile.root) return
           function patchPSGravY(n: CCSceneNode): CCSceneNode {
@@ -8581,7 +8581,7 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2055: 공통 cc.ParticleSystem gravity.x 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSGravityX = async (gx: number) => {
           if (!sceneFile.root) return
           function patchPSGravityX(n: CCSceneNode): CCSceneNode {
@@ -8590,7 +8590,7 @@ function CCFileBatchInspector({
             const comp = n.components.find(c => c.type === 'cc.ParticleSystem')
             const prevGy = (comp?.props?.gravity as {x:number,y:number}|undefined)?.y ?? 0
             const grav = { x: gx, y: prevGy }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, gravity: grav, _gravity: grav, _N$gravity: grav } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, gravity: grav, _gravity: grav, _N$gravity: grav } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSGravityX(sceneFile.root)
@@ -8609,14 +8609,14 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2002: 공통 cc.ParticleSystem gravity 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSGravity = async (gy: number) => {
           if (!sceneFile.root) return
           function patchPSGravity(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSGravity)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const grav = { x: 0, y: gy }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, gravity: grav, _gravity: grav, _N$gravity: grav } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, gravity: grav, _gravity: grav, _N$gravity: grav } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSGravity(sceneFile.root)
@@ -8635,13 +8635,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2081: 공통 cc.ParticleSystem life 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSLife = async (life: number) => {
           if (!sceneFile.root) return
           function patchPSLife(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSLife)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, life, _life: life, _N$life: life } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, life, _life: life, _N$life: life } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSLife(sceneFile.root) })
@@ -8660,13 +8660,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2001: 공통 cc.ParticleSystem lifeVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSLifeVar = async (lifeVar: number) => {
           if (!sceneFile.root) return
           function patchPSLifeVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSLifeVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, lifeVar, _lifeVar: lifeVar, _N$lifeVar: lifeVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, lifeVar, _lifeVar: lifeVar, _N$lifeVar: lifeVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSLifeVar(sceneFile.root)
@@ -8685,13 +8685,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1999: 공통 cc.ParticleSystem speedVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSSpeedVar = async (speedVar: number) => {
           if (!sceneFile.root) return
           function patchPSSpeedVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSSpeedVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, speedVar, _speedVar: speedVar, _N$speedVar: speedVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, speedVar, _speedVar: speedVar, _N$speedVar: speedVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSSpeedVar(sceneFile.root)
@@ -8710,13 +8710,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2074: 공통 cc.ParticleSystem endSize 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndSize = async (endSize: number) => {
           if (!sceneFile.root) return
           function patchPSEndSize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEndSize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSEndSize(sceneFile.root) })
@@ -8735,13 +8735,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2073: 공통 cc.ParticleSystem startSize 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartSize = async (startSize: number) => {
           if (!sceneFile.root) return
           function patchPSStartSize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSStartSize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSStartSize(sceneFile.root) })
@@ -8760,13 +8760,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1998: 공통 cc.ParticleSystem startSizeVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartSizeVar = async (startSizeVar: number) => {
           if (!sceneFile.root) return
           function patchPSStartSizeVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSStartSizeVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startSizeVar, _startSizeVar: startSizeVar, _N$startSizeVar: startSizeVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSizeVar, _startSizeVar: startSizeVar, _N$startSizeVar: startSizeVar } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchPSStartSizeVar(sceneFile.root)
@@ -8785,13 +8785,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1957: 공통 cc.ParticleSystem startSize 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleStartSize = async (startSize: number) => {
           if (!sceneFile.root) return
           function patchParticleStartSize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleStartSize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchParticleStartSize(sceneFile.root)
@@ -8812,13 +8812,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1958: 공통 cc.ParticleSystem life 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleLife = async (life: number) => {
           if (!sceneFile.root) return
           function patchParticleLife(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleLife)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, life, _life: life, _N$life: life } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, life, _life: life, _N$life: life } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchParticleLife(sceneFile.root)
@@ -8839,13 +8839,13 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1961: 공통 cc.ParticleSystem endSize 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleEndSize = async (endSize: number) => {
           if (!sceneFile.root) return
           function patchParticleEndSize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleEndSize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchParticleEndSize(sceneFile.root)
@@ -8866,7 +8866,7 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1969: 공통 cc.ParticleSystem startColor 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleStartColor = async (hex: string) => {
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
@@ -8874,7 +8874,7 @@ function CCFileBatchInspector({
           function patchParticleStartColor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleStartColor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startColor: col, _startColor: col, _N$startColor: col } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startColor: col, _startColor: col, _N$startColor: col } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchParticleStartColor(sceneFile.root)
@@ -8898,7 +8898,7 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R1970: 공통 cc.ParticleSystem endColor 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleEndColor = async (hex: string) => {
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
@@ -8906,7 +8906,7 @@ function CCFileBatchInspector({
           function patchParticleEndColor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchParticleEndColor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endColor: col, _endColor: col, _N$endColor: col } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endColor: col, _endColor: col, _N$endColor: col } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchParticleEndColor(sceneFile.root)
@@ -8930,7 +8930,7 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2148: 공통 cc.ParticleSystem startColorVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartColorVar = async (hex: string) => {
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
@@ -8938,7 +8938,7 @@ function CCFileBatchInspector({
           function patchPSStartColorVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSStartColorVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, startColorVar, _startColorVar: startColorVar, _N$startColorVar: startColorVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startColorVar, _startColorVar: startColorVar, _N$startColorVar: startColorVar } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSStartColorVar(sceneFile.root) })
@@ -8960,7 +8960,7 @@ function CCFileBatchInspector({
         )
       })()}
       {/* R2149: 공통 cc.ParticleSystem endColorVar 일괄 설정 */}
-      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+      {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndColorVar = async (hex: string) => {
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
@@ -8968,7 +8968,7 @@ function CCFileBatchInspector({
           function patchPSEndColorVar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPSEndColorVar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, endColorVar, _endColorVar: endColorVar, _N$endColorVar: endColorVar } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endColorVar, _endColorVar: endColorVar, _N$endColorVar: endColorVar } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPSEndColorVar(sceneFile.root) })

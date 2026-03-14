@@ -23822,6 +23822,19 @@ console.log('\n## 1048. R2157 BatchInspector cc.RigidBody2D 확장 체크')
   }
 }
 
+// ── Section 1049: R2158 BatchInspector cc.ParticleSystem2D + PolygonCollider2D 확장 ──────────
+console.log('\n## 1049. R2158 BatchInspector cc.ParticleSystem2D/PolygonCollider2D 확장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1049 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1049.includes("commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')") &&
+      s1049.includes("commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')")) {
+    log('pass', 'R2158-batch-ps2d-poly2d', 'BatchInspector cc.ParticleSystem2D + PolygonCollider2D 확장')
+  } else {
+    log('warning', 'R2158-batch-ps2d-poly2d', 'BatchInspector cc.ParticleSystem2D/PolygonCollider2D 확장 미적용', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
