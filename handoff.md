@@ -1,77 +1,70 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-13
 
-## 완료 (R1500-1943)
-- [x] R1500~R1943: (이전 세션 완료 — 상세 이력 생략)
+## 완료 (R1500-2000)
+- [x] R1500~R2000: (이전 세션 완료 — 상세 이력 생략) ← R2000 마일스톤!
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 1922**
+- **QA: Critical: 0, Warning: 0, Pass: 1972**
 - Branch: dev
 
-## 완료 (R1944-R2000)
-- [x] R1944: BatchInspector cc.Slider minValue/maxValue range 일괄
-- [x] R1945: BatchInspector cc.Button normalColor 일괄
-- [x] R1946: BatchInspector cc.Button pressedColor 일괄
-- [x] R1947: BatchInspector cc.Button disabledColor 일괄
-- [x] R1948: BatchInspector cc.Button duration 일괄
-- [x] R1949: BatchInspector cc.ScrollView bounceDuration 일괄
-- [x] R1950: BatchInspector cc.ParticleSystem emissionRate 일괄
-- [x] R1951: BatchInspector cc.Label fontSize 일괄 (추가)
-- [x] R1952: BatchInspector cc.Camera fov 일괄
-- [x] R1953: BatchInspector cc.RigidBody angularVelocity 일괄
-- [x] R1954: BatchInspector cc.Sprite grayscale 일괄
-- [x] R1955: BatchInspector cc.Label color 일괄
-- [x] R1956: BatchInspector cc.RichText fontColor 일괄
-- [x] R1957: BatchInspector cc.ParticleSystem startSize 일괄
-- [x] R1958: BatchInspector cc.ParticleSystem life 일괄
-- [x] R1959: BatchInspector cc.Layout childAlign 일괄
-- [x] R1960: BatchInspector cc.Slider step 일괄
-- [x] R1961: BatchInspector cc.ParticleSystem endSize 일괄
-- [x] R1962: BatchInspector cc.MotionStreak color 일괄
-- [x] R1963: BatchInspector cc.LabelOutline width 일괄
-- [x] R1964: BatchInspector cc.LabelShadow blur 일괄
-- [x] R1965: BatchInspector cc.LabelShadow offset 일괄
-- [x] R1966: BatchInspector cc.PageView autoPageTurningInterval 일괄
-- [x] R1967: BatchInspector cc.PageView scrollThreshold 일괄
-- [x] R1968: BatchInspector cc.RigidBody fixedRotation 일괄
-- [x] R1969: BatchInspector cc.ParticleSystem startColor 일괄
-- [x] R1970: BatchInspector cc.ParticleSystem endColor 일괄
-- [x] R1971: BatchInspector cc.AudioSource startTime 일괄
-- [x] R1972: BatchInspector cc.Layout horizontalDirection 일괄
-- [x] R1973: BatchInspector cc.Layout verticalDirection 일괄
-- [x] R1974: BatchInspector cc.Widget margin 일괄
-- [x] R1975: BatchInspector cc.RigidBody awake 일괄
-- [x] R1976: BatchInspector cc.ParticleSystem positionType 일괄
-- [x] R1977: BatchInspector cc.ParticleSystem blendFactor 일괄
-- [x] R1978: BatchInspector cc.Label bold/italic 일괄
-- [x] R1979: BatchInspector cc.ParticleSystem autoRemoveOnFinish 일괄
-- [x] R1980: BatchInspector cc.ScrollView speedAmplifier 일괄
-- [x] R1981: BatchInspector cc.ParticleSystem emitterMode 일괄
-- [x] R1982: BatchInspector cc.RichText maxWidth 일괄
-- [x] R1983: BatchInspector node active/inactive 일괄
-- [x] R1984: BatchInspector cc.Animation wrapMode 일괄
-- [x] R1985: BatchInspector cc.Label underline 일괄
-- [x] R1986: BatchInspector cc.EditBox returnType 일괄
-- [x] R1987: BatchInspector cc.ProgressBar mode 일괄
-- [x] R1988: BatchInspector cc.Mask alphaThreshold 일괄
-- [x] R1989: BatchInspector cc.Camera cullingMask 일괄
-- [x] R1990: BatchInspector sp.Skeleton premultipliedAlpha 일괄
-- [x] R1991: BatchInspector cc.PageView pageTurningEventTiming 일괄
-- [x] R1992: BatchInspector cc.Label strikethrough 일괄
-- [x] R1993: BatchInspector node layer 일괄
-- [x] R1994: BatchInspector cc.BoxCollider size 일괄
-- [x] R1995: BatchInspector cc.CircleCollider radius 일괄
-- [x] R1996: BatchInspector node color (tint) 일괄
-- [x] R1997: BatchInspector cc.RigidBody sleepThreshold 일괄
-- [x] R1998: BatchInspector cc.ParticleSystem startSizeVar 일괄
-- [x] R1999: BatchInspector cc.ParticleSystem speedVar 일괄
-- [x] R2000: BatchInspector cc.VideoPlayer keepAspectRatio 일괄 ← R2000 마일스톤!
+## 완료 (R2001-R2050)
+- [x] R2001: BatchInspector cc.ParticleSystem lifeVar 일괄
+- [x] R2002: BatchInspector cc.ParticleSystem gravity.y 일괄
+- [x] R2003: BatchInspector node scale uniform 일괄
+- [x] R2004: BatchInspector cc.ScrollView pagingEnabled 일괄
+- [x] R2005: BatchInspector cc.VideoPlayer fullScreenEnabled 일괄
+- [x] R2006: BatchInspector node rotation 일괄
+- [x] R2007: BatchInspector cc.Sprite isTrimmedMode 일괄
+- [x] R2008: BatchInspector cc.ParticleSystem angleVar 일괄
+- [x] R2009: BatchInspector cc.RigidBody enabledContactListener 일괄
+- [x] R2010: BatchInspector cc.RichText verticalAlign 일괄
+- [x] R2011: BatchInspector dragonBones.ArmatureDisplay loop 일괄
+- [x] R2012: BatchInspector cc.SkeletalAnimation loop 일괄
+- [x] R2013: BatchInspector node position preset 일괄
+- [x] R2014: BatchInspector node size (UITransform contentSize) 일괄
+- [x] R2015: BatchInspector cc.ParticleSystem rotatePerS 일괄
+- [x] R2016: BatchInspector cc.ParticleSystem rotatePerSVar 일괄
+- [x] R2017: BatchInspector cc.Label lineHeight 일괄
+- [x] R2018: BatchInspector cc.Label overflow 일괄
+- [x] R2019: BatchInspector cc.Label horizontalAlign 일괄
+- [x] R2020: BatchInspector cc.Button interactable 일괄
+- [x] R2021: BatchInspector cc.Layout paddingTop 일괄
+- [x] R2022: BatchInspector cc.Layout paddingBottom 일괄
+- [x] R2023: BatchInspector cc.Layout paddingLeft 일괄
+- [x] R2024: BatchInspector cc.Layout paddingRight 일괄
+- [x] R2025: BatchInspector node anchor preset 일괄
+- [x] R2026: BatchInspector cc.ParticleSystem totalParticles 일괄
+- [x] R2027: BatchInspector cc.ParticleSystem duration 일괄
+- [x] R2028: BatchInspector cc.ParticleSystem speed 일괄
+- [x] R2029: BatchInspector cc.ParticleSystem radialAccel 일괄
+- [x] R2030: BatchInspector cc.ParticleSystem tangentialAccel 일괄
+- [x] R2031: BatchInspector cc.ParticleSystem startSpin 일괄
+- [x] R2032: BatchInspector cc.ParticleSystem endSpin 일괄
+- [x] R2033: BatchInspector cc.ParticleSystem angle 일괄
+- [x] R2034: BatchInspector cc.Label verticalAlign 일괄
+- [x] R2035: BatchInspector cc.RichText lineHeight 일괄
+- [x] R2036: BatchInspector cc.MotionStreak minSeg 일괄
+- [x] R2037: BatchInspector sp.Skeleton timeScale 일괄
+- [x] R2038: BatchInspector cc.BoxCollider offset 일괄
+- [x] R2039: BatchInspector cc.CircleCollider offset 일괄
+- [x] R2040: BatchInspector cc.Layout spacingX individual 일괄
+- [x] R2041: BatchInspector cc.Layout spacingY individual 일괄
+- [x] R2042: BatchInspector cc.Slider value 일괄
+- [x] R2043: BatchInspector cc.Widget alignMode 일괄
+- [x] R2044: BatchInspector dragonBones.ArmatureDisplay playTimes 일괄
+- [x] R2045: BatchInspector cc.SkeletalAnimation wrapMode 일괄
+- [x] R2046: BatchInspector cc.VideoPlayer resourceType 일괄
+- [x] R2047: BatchInspector cc.ParticleSystem startSpinVar 일괄
+- [x] R2048: BatchInspector cc.ParticleSystem endSpinVar 일괄
+- [x] R2049: BatchInspector cc.ParticleSystem endSizeVar 일괄
+- [x] R2050: BatchInspector cc.ParticleSystem radialAccelVar 일괄 ← R2050 마일스톤!
 
-## 다음 예정 (R2001+)
-- BatchInspector cc.ParticleSystem lifeVar 일괄
-- BatchInspector cc.ParticleSystem gravity x/y 일괄
-- BatchInspector cc.ScrollView pagingEnabled 일괄
-- BatchInspector cc.VideoPlayer fullScreenEnabled 일괄
-- BatchInspector cc.Label enabledUnderline / enabledStrike 추가 preset
-- BatchInspector cc.Sprite trimmedAlpha 일괄
-- BatchInspector node scale 일괄 (uniform preset)
+## 다음 예정 (R2051+)
+- BatchInspector cc.ParticleSystem tangentialAccelVar 일괄
+- BatchInspector cc.ParticleSystem gravityX 일괄
+- BatchInspector cc.ParticleSystem posVar 일괄
+- BatchInspector cc.Animation speed 일괄
+- BatchInspector cc.Label fontFamily preset 일괄
+- BatchInspector cc.ScrollView bounce 일괄
+- BatchInspector node opacity 일괄 (preset values)

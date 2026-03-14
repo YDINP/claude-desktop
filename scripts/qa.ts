@@ -22538,6 +22538,18 @@ console.log('\n## 941. R2050 BatchInspector cc.ParticleSystem radialAccelVar 체
   }
 }
 
+// ── Section 942: R2051 BatchInspector cc.ParticleSystem tangentialAccelVar ──────────
+console.log('\n## 942. R2051 BatchInspector cc.ParticleSystem tangentialAccelVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s942 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s942.includes('R2051') && s942.includes('patchPSTangAccelVar') && s942.includes('applyPSTangAccelVar')) {
+    log('pass', 'R2051-batch-ps-tangaccelvar', 'BatchInspector cc.ParticleSystem tangentialAccelVar 일괄 설정')
+  } else {
+    log('warning', 'R2051-batch-ps-tangaccelvar', 'BatchInspector cc.ParticleSystem tangentialAccelVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
