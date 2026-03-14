@@ -4404,6 +4404,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1877: 공통 cc.VideoPlayer playbackRate 일괄 설정 */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoPBRate = async (rate: number) => {
+          if (!sceneFile.root) return
+          function patchVideoPB(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideoPB)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, playbackRate: rate } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchVideoPB(sceneFile.root))
+          setBatchMsg(`✓ VideoPlayer ×${rate} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>VideoPB</span>
+            {([0.5, 1, 1.5, 2] as const).map(v => (
+              <span key={v} title={`playbackRate = ${v}`}
+                onClick={() => applyVideoPBRate(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >×{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1839: 공통 dragonBones.ArmatureDisplay timeScale 일괄 설정 */}
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBSpeed = async (timeScale: number) => {

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:30:31.030Z
+> 2026-03-14T05:31:19.002Z
 
 ## Critical
 _없음_
@@ -1806,3 +1806,4 @@ _없음_
 - BatchInspector cc.ParticleSystem maxParticles 일괄 설정
 - BatchInspector cc.PageView slideDuration 일괄 설정
 - BatchInspector cc.ScrollView brake 일괄 설정
+- BatchInspector cc.VideoPlayer playbackRate 일괄 설정

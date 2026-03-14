@@ -20450,6 +20450,18 @@ console.log('\n## 767. R1876 BatchInspector cc.ScrollView brake 체크')
   }
 }
 
+// ── Section 768: R1877 BatchInspector cc.VideoPlayer playbackRate ──────────
+console.log('\n## 768. R1877 BatchInspector cc.VideoPlayer playbackRate 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s768 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s768.includes('R1877') && s768.includes('applyVideoPBRate') && s768.includes('patchVideoPB')) {
+    log('pass', 'R1877-batch-video-pb', 'BatchInspector cc.VideoPlayer playbackRate 일괄 설정')
+  } else {
+    log('warning', 'R1877-batch-video-pb', 'BatchInspector cc.VideoPlayer playbackRate 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
