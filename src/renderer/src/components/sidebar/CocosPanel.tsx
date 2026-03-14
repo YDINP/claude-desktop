@@ -9011,6 +9011,77 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2152: 공통 cc.Canvas fitWidth 일괄 설정 */}
+      {commonCompTypes.includes('cc.Canvas') && (() => {
+        const applyCanvasFitWidth = async (fitWidth: boolean) => {
+          if (!sceneFile.root) return
+          function patchCanvasFitWidth(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCanvasFitWidth)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, fitWidth, _N$fitWidth: fitWidth } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCanvasFitWidth(sceneFile.root) })
+          setBatchMsg(`✓ Canvas fitWidth=${fitWidth} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>CVFitW</span>
+            <span onClick={() => applyCanvasFitWidth(true)} title="fitWidth ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>fitW✓</span>
+            <span onClick={() => applyCanvasFitWidth(false)} title="fitWidth OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>fitW✗</span>
+          </div>
+        )
+      })()}
+      {/* R2153: 공통 cc.Canvas fitHeight 일괄 설정 */}
+      {commonCompTypes.includes('cc.Canvas') && (() => {
+        const applyCanvasFitHeight = async (fitHeight: boolean) => {
+          if (!sceneFile.root) return
+          function patchCanvasFitHeight(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCanvasFitHeight)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, fitHeight, _N$fitHeight: fitHeight } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCanvasFitHeight(sceneFile.root) })
+          setBatchMsg(`✓ Canvas fitHeight=${fitHeight} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>CVFitH</span>
+            <span onClick={() => applyCanvasFitHeight(true)} title="fitHeight ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>fitH✓</span>
+            <span onClick={() => applyCanvasFitHeight(false)} title="fitHeight OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>fitH✗</span>
+          </div>
+        )
+      })()}
+      {/* R2154: 공통 cc.Canvas resolutionPolicy 일괄 설정 */}
+      {commonCompTypes.includes('cc.Canvas') && (() => {
+        const applyCanvasResPolicy = async (resolutionPolicy: number) => {
+          if (!sceneFile.root) return
+          function patchCanvasResPolicy(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCanvasResPolicy)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, resolutionPolicy, _N$resolutionPolicy: resolutionPolicy } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCanvasResPolicy(sceneFile.root) })
+          const labels = ['SHOW_ALL', 'NO_BORDER', 'EXACT_FIT', 'FIX_H', 'FIX_W']
+          setBatchMsg(`✓ Canvas policy=${labels[resolutionPolicy] ?? resolutionPolicy} (${uuids.length}개)`)
+        }
+        const opts: [string, number][] = [['SHOW_ALL', 0], ['NO_BORDER', 1], ['EXACT_FIT', 2], ['FIX_H', 3], ['FIX_W', 4]]
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>CVPolicy</span>
+            {opts.map(([l, v]) => (
+              <span key={v} onClick={() => applyCanvasResPolicy(v)} title={`resolutionPolicy=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{l.replace('_', '')}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1836: 공통 cc.SkeletalAnimation speedRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {

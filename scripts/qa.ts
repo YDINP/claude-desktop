@@ -23750,6 +23750,42 @@ console.log('\n## 1042. R2151 BatchInspector cc.TiledLayer visible 체크')
   }
 }
 
+// ── Section 1043: R2152 BatchInspector cc.Canvas fitWidth ──────────
+console.log('\n## 1043. R2152 BatchInspector cc.Canvas fitWidth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1043 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1043.includes('R2152') && s1043.includes('patchCanvasFitWidth') && s1043.includes('applyCanvasFitWidth')) {
+    log('pass', 'R2152-batch-canvas-fitwidth', 'BatchInspector cc.Canvas fitWidth 일괄 설정')
+  } else {
+    log('warning', 'R2152-batch-canvas-fitwidth', 'BatchInspector cc.Canvas fitWidth 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1044: R2153 BatchInspector cc.Canvas fitHeight ──────────
+console.log('\n## 1044. R2153 BatchInspector cc.Canvas fitHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1044 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1044.includes('R2153') && s1044.includes('patchCanvasFitHeight') && s1044.includes('applyCanvasFitHeight')) {
+    log('pass', 'R2153-batch-canvas-fitheight', 'BatchInspector cc.Canvas fitHeight 일괄 설정')
+  } else {
+    log('warning', 'R2153-batch-canvas-fitheight', 'BatchInspector cc.Canvas fitHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1045: R2154 BatchInspector cc.Canvas resolutionPolicy ──────────
+console.log('\n## 1045. R2154 BatchInspector cc.Canvas resolutionPolicy 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1045 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1045.includes('R2154') && s1045.includes('patchCanvasResPolicy') && s1045.includes('applyCanvasResPolicy')) {
+    log('pass', 'R2154-batch-canvas-respolicy', 'BatchInspector cc.Canvas resolutionPolicy 일괄 설정')
+  } else {
+    log('warning', 'R2154-batch-canvas-respolicy', 'BatchInspector cc.Canvas resolutionPolicy 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
