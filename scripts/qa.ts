@@ -18551,6 +18551,18 @@ console.log('\n## 609. R1718 Stats 패널 비활성 노드 카운트 체크')
   }
 }
 
+// ── Section 610: R1719 Global Search 모두 선택 버튼 ──────────────────────────
+console.log('\n## 610. R1719 Global Search 모두 선택 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s610 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s610.includes('R1719') && s610.includes('모두 선택') && s610.includes('setMultiSelectedUuids')) {
+    log('pass', 'R1719-search-select-all', 'Global Search 모두 선택 버튼')
+  } else {
+    log('warning', 'R1719-search-select-all', 'Global Search 모두 선택 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

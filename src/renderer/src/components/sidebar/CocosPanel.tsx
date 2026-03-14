@@ -1745,8 +1745,26 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             >x</span>
           </div>
           {globalSearchResults.length > 0 && (
+            <div style={{ marginTop: 4 }}>
+              {/* R1719: 검색 결과 "모두 선택" 버튼 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{globalSearchResults.length}개 결과</span>
+                <span
+                  title="검색 결과 노드 모두 선택 (다중 선택)"
+                  onClick={() => {
+                    const uuids = globalSearchResults.map(r => r.node.uuid)
+                    if (uuids.length > 0) {
+                      onSelectNode(globalSearchResults[0].node)
+                      setMultiSelectedUuids(uuids)
+                    }
+                  }}
+                  style={{ fontSize: 9, cursor: 'pointer', color: '#58a6ff', padding: '1px 5px', border: '1px solid rgba(88,166,255,0.4)', borderRadius: 3 }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >모두 선택</span>
+              </div>
             <div style={{
-              marginTop: 4, maxHeight: 200, overflowY: 'auto',
+              maxHeight: 200, overflowY: 'auto',
               borderRadius: 4, border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)',
             }}>
               {globalSearchResults.map(({ node: n, path }) => (
@@ -1781,6 +1799,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   )}
                 </div>
               ))}
+            </div>
             </div>
           )}
           {globalSearchQuery && globalSearchResults.length === 0 && (
