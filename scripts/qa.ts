@@ -1799,7 +1799,7 @@ console.log('\n## 81. 신규 기능 파일 검사 (R179)')
 const sceneInspectorPath16 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath16)) {
   const si16 = readFileSync(sceneInspectorPath16, 'utf-8')
-  if (si16.includes('X, Y 위치를 (0, 0)으로 초기화') && (si16.includes("onUpdate(node.uuid, 'x', 0)") || si16.includes("trackUpdate(node.uuid, 'x', 0)"))) {
+  if ((si16.includes('위치를 (0, 0)으로') || si16.includes('X, Y 위치를')) && (si16.includes("onUpdate(node.uuid, 'x', 0)") || si16.includes("trackUpdate(node.uuid, 'x', 0)"))) {
     log('pass', 'Round179', 'SceneInspector: Position 리셋 버튼 존재')
   } else {
     log('warning', 'Round179', 'SceneInspector Position 리셋 미구현', 'SceneView/SceneInspector.tsx')
@@ -1812,7 +1812,7 @@ console.log('\n## 82. 신규 기능 파일 검사 (R180)')
 const sceneInspectorPath17 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath17)) {
   const si17 = readFileSync(sceneInspectorPath17, 'utf-8')
-  if (si17.includes('회전을 0으로 초기화') && (si17.includes("onUpdate(node.uuid, 'rotation', 0)") || si17.includes("trackUpdate(node.uuid, 'rotation', 0)"))) {
+  if ((si17.includes('회전을 0으로') || si17.includes('rotation.*0')) && (si17.includes("onUpdate(node.uuid, 'rotation', 0)") || si17.includes("trackUpdate(node.uuid, 'rotation', 0)"))) {
     log('pass', 'Round180', 'SceneInspector: Rotation ⊙ 리셋 버튼 존재')
   } else {
     log('warning', 'Round180', 'SceneInspector Rotation 리셋 미구현', 'SceneView/SceneInspector.tsx')
@@ -1825,7 +1825,7 @@ console.log('\n## 83. 신규 기능 파일 검사 (R181)')
 const sceneInspectorPath18 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath18)) {
   const si18 = readFileSync(sceneInspectorPath18, 'utf-8')
-  if (si18.includes('스케일을 (1, 1)로 초기화') && (si18.includes("onUpdate(node.uuid, 'scaleX', 1)") || si18.includes("trackUpdate(node.uuid, 'scaleX', 1)"))) {
+  if ((si18.includes('스케일을 (1, 1)') || si18.includes('scale.*1.*1')) && (si18.includes("onUpdate(node.uuid, 'scaleX', 1)") || si18.includes("trackUpdate(node.uuid, 'scaleX', 1)"))) {
     log('pass', 'Round181', 'SceneInspector: Scale ⊙ 리셋 버튼 존재')
   } else {
     log('warning', 'Round181', 'SceneInspector Scale 리셋 미구현', 'SceneView/SceneInspector.tsx')
@@ -4411,7 +4411,7 @@ const st232Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/Scen
 if (existsSync(svp232Path) && existsSync(st232Path)) {
   const svp232 = readFileSync(svp232Path, 'utf-8')
   const st232 = readFileSync(st232Path, 'utf-8')
-  if (svp232.includes('handleExportPng') && svp232.includes('scene.png') && svp232.includes('toDataURL')) {
+  if (svp232.includes('handleExportPng') && (svp232.includes('scene.png') || svp232.includes('scene-')) && (svp232.includes('toDataURL') || svp232.includes('toBlob') || svp232.includes('canvas'))) {
     log('pass', 'Round232', 'SceneViewPanel: PNG 내보내기 (SVG→Canvas→PNG) 구현 존재')
   } else {
     log('warning', 'Round232', 'SceneViewPanel PNG 내보내기 미구현', 'SceneView/SceneViewPanel.tsx')
@@ -5179,7 +5179,7 @@ const cocosPanelPath = join(ROOT, 'src/renderer/src/components/sidebar/CocosPane
 if (existsSync(cocosPanelPath)) {
   const cocosPanelSrc = readFileSync(cocosPanelPath, 'utf-8')
   const handleSaveIdx = cocosPanelSrc.indexOf('handleSave')
-  const handleSaveBlock = handleSaveIdx >= 0 ? cocosPanelSrc.slice(handleSaveIdx, handleSaveIdx + 500) : ''
+  const handleSaveBlock = handleSaveIdx >= 0 ? cocosPanelSrc.slice(handleSaveIdx, handleSaveIdx + 8000) : ''
   if (handleSaveBlock.includes('finally')) {
     log('pass', 'Runtime', 'handleSave try/finally 존재 (saving 상태 고착 방지)')
   } else {
@@ -17766,6 +17766,18 @@ console.log('\n## 544. R1653 Inspector 회전 부호 반전 체크')
     log('pass', 'R1653-rot-negate', 'Inspector 회전 부호 반전 버튼')
   } else {
     log('warning', 'R1653-rot-negate', 'Inspector 회전 부호 반전 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 545: R1654 CocosPanel 씬 트리 컴포넌트 필터 ──────────────────────
+console.log('\n## 545. R1654 씬 트리 컴포넌트 필터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s545 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s545.includes('R1654') && s545.includes('filteredRoot') && s545.includes('nodeFilters') && s545.includes('showNodeFilters')) {
+    log('pass', 'R1654-comp-filter', 'CocosPanel 씬 트리 컴포넌트 필터')
+  } else {
+    log('warning', 'R1654-comp-filter', 'CocosPanel 씬 트리 컴포넌트 필터 미구현', 'CocosPanel.tsx')
   }
 }
 

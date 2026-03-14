@@ -587,6 +587,20 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     return map
   }, [sceneFile?.root])
 
+  // R1654: 컴포넌트 필터 적용 트리
+  const filteredRoot = useMemo(() => {
+    if (!sceneFile?.root) return null
+    if (nodeFilters.length === 0) return sceneFile.root
+    function keep(n: CCSceneNode): CCSceneNode | null {
+      const match = n.components.some(c => nodeFilters.includes(c.type))
+      const filteredChildren = n.children.map(keep).filter(Boolean) as CCSceneNode[]
+      if (!match && filteredChildren.length === 0) return null
+      return { ...n, children: filteredChildren }
+    }
+    const result = keep(sceneFile.root)
+    return result ?? { ...sceneFile.root, children: [] }
+  }, [sceneFile?.root, nodeFilters])
+
   // R1448: 씬 의존성 분석
   type DepEntry = { uuid: string; path: string; type: string; missing: boolean }
   const [showDepsAnalysis, setShowDepsAnalysis] = useState(false)
@@ -2412,11 +2426,42 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 title={hideInactive ? '비활성 노드 표시' : '비활성 노드 숨기기'}
                 style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: hideInactive ? '#58a6ff' : '#666' }}
               >{hideInactive ? '◑' : '●'}</span>
+              {/* R1654: 컴포넌트 필터 토글 버튼 */}
+              <span
+                onClick={() => setShowNodeFilters(v => !v)}
+                title={nodeFilters.length > 0 ? `컴포넌트 필터 활성 (${nodeFilters.length})` : '컴포넌트 타입 필터'}
+                style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: nodeFilters.length > 0 ? '#58a6ff' : showNodeFilters ? '#aaa' : '#666' }}
+              >⊳</span>
             </div>
             {/* 검색 */}
             <div style={{ padding: '2px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
               <TreeSearch root={sceneFile.root} onSelect={onSelectNode} />
             </div>
+            {/* R1654: 컴포넌트 필터 패널 */}
+            {showNodeFilters && (
+              <div style={{ padding: '3px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'center' }}>
+                  {(['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.Widget', 'cc.Layout', 'cc.Animation', 'cc.AudioSource', 'cc.ScrollView'] as const).map(ct => {
+                    const active = nodeFilters.includes(ct)
+                    return (
+                      <span
+                        key={ct}
+                        onClick={() => setNodeFilters(prev => active ? prev.filter(f => f !== ct) : [...prev, ct])}
+                        style={{
+                          fontSize: 8, padding: '1px 4px', borderRadius: 2, cursor: 'pointer',
+                          border: `1px solid ${active ? '#58a6ff' : 'var(--border)'}`,
+                          color: active ? '#58a6ff' : 'var(--text-muted)',
+                          background: active ? 'rgba(88,166,255,0.1)' : 'none', userSelect: 'none',
+                        }}
+                      >{ct.split('.').pop()}</span>
+                    )
+                  })}
+                  {nodeFilters.length > 0 && (
+                    <span onClick={() => setNodeFilters([])} title="필터 초기화" style={{ fontSize: 9, cursor: 'pointer', color: '#f85149', userSelect: 'none' }}>✕</span>
+                  )}
+                </div>
+              </div>
+            )}
             {/* R1559: 씬 파일명 + 통계 */}
             {(() => {
               const statsMap: Record<string, number> = {}
@@ -2461,7 +2506,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             {/* 씬 트리 */}
             <div style={{ flex: 1, overflow: 'auto' }}>
               <CCFileSceneTree
-                node={sceneFile.root}
+                node={filteredRoot ?? sceneFile.root}
                 depth={0}
                 selected={selectedNode}
                 onSelect={onSelectNode}
