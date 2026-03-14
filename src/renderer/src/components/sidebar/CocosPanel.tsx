@@ -4893,6 +4893,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1965: 공통 cc.LabelShadow offset 일괄 설정 */}
+      {commonCompTypes.includes('cc.LabelShadow') && (() => {
+        const applyLabelShadowOffset = async (x: number, y: number) => {
+          if (!sceneFile.root) return
+          const offset = { x, y }
+          function patchLabelShadowOffset(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelShadowOffset)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelShadowOffset(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ LabelShadow offset=(${x},${y}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>Shdofs</span>
+            {([[1,1],[2,2],[3,3],[0,1],[1,0]] as const).map(([x,y]) => (
+              <span key={`${x}-${y}`} title={`offset=(${x},${y})`}
+                onClick={() => applyLabelShadowOffset(x, y)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f59e0b', userSelect: 'none' }}
+              >{x},{y}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1859: 공통 cc.ScrollView horizontal/vertical/inertia 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollToggle = async (key: 'horizontal' | 'vertical' | 'inertia', value: boolean) => {
