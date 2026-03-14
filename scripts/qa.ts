@@ -23054,6 +23054,18 @@ console.log('\n## 984. R2093 BatchInspector cc.PolygonCollider density 체크')
   }
 }
 
+// ── Section 985: R2094 BatchInspector cc.PolygonCollider friction ──────────
+console.log('\n## 985. R2094 BatchInspector cc.PolygonCollider friction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s985 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s985.includes('R2094') && s985.includes('patchPolyFric') && s985.includes('applyPolyFric')) {
+    log('pass', 'R2094-batch-poly-friction', 'BatchInspector cc.PolygonCollider friction 일괄 설정')
+  } else {
+    log('warning', 'R2094-batch-poly-friction', 'BatchInspector cc.PolygonCollider friction 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
