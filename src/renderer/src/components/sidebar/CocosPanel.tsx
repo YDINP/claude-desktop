@@ -20243,7 +20243,7 @@ function CCFileNodeInspector({
                     <select value={direction}
                       onChange={e => {
                         const v = parseInt(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v, _direction: v, _N$direction: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
@@ -20288,7 +20288,7 @@ function CCFileNodeInspector({
                     <input type="number" defaultValue={playbackRate} min={0} max={4} step={0.25}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 1
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playbackRate: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playbackRate: v, _playbackRate: v, _N$playbackRate: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -20309,7 +20309,7 @@ function CCFileNodeInspector({
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={muted}
-                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, muted: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, muted: e.target.checked, _muted: e.target.checked, _N$muted: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       /> muted
                     </label>
                   </div>
@@ -20548,7 +20548,7 @@ function CCFileNodeInspector({
                     <select value={direction}
                       onChange={e => {
                         const v = parseInt(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v, _direction: v, _N$direction: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
