@@ -1,36 +1,42 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-13
 
-## 완료 (R1500-1854)
-- [x] R1500~R1838: (이전 세션 완료 — 상세 이력 생략)
-- [x] R1839: BatchInspector dragonBones.ArmatureDisplay timeScale 일괄 설정
-- [x] R1840: cc.Button transition 퀵 버튼 (None/Color/Sprite/Scale)
-- [x] R1841: cc.ParticleSystem speed/speedVar 편집
-- [x] R1842: BatchInspector cc.VideoPlayer loop/muted 일괄 설정
-- [x] R1843: cc.RigidBody type 퀵 버튼 (Dyn/Sta/Kin)
-- [x] R1844: cc.ParticleSystem lifespan/lifespanVar 편집
-- [x] R1845: cc.ParticleSystem gravity x/y 편집
-- [x] R1846: BatchInspector cc.ParticleSystem startSize 일괄 설정
-- [x] R1847: cc.PageView slideDuration 편집 + 프리셋
-- [x] R1848: cc.MotionStreak fade/minSeg/stroke/color/fastMode 편집
-- [x] R1849: cc.BoxCollider friction/restitution 편집
-- [x] R1850: cc.CircleCollider friction/restitution 편집
-- [x] R1851: BatchInspector cc.RigidBody fixedRotation 일괄 설정
-- [x] R1852: BatchInspector cc.Mask inverted 일괄 설정
-- [x] R1853: BatchInspector cc.ProgressBar reverse 일괄 설정
-- [x] R1854: BatchInspector cc.Label bold/italic/underline 일괄 설정
+## 완료 (R1500-1878)
+- [x] R1500~R1854: (이전 세션 완료 — 상세 이력 생략)
+- [x] R1855: BatchInspector cc.Label lineHeight 일괄
+- [x] R1856: BatchInspector 이름 find/replace
+- [x] R1857: BatchInspector cc.RigidBody gravityScale 일괄
+- [x] R1858: BatchInspector cc.PageView direction 일괄
+- [x] R1859: BatchInspector cc.ScrollView H/V/inertia 일괄
+- [x] R1860: BatchInspector cc.LabelOutline width 일괄
+- [x] R1861: BatchInspector cc.LabelShadow blur 일괄
+- [x] R1862: BatchInspector cc.Sprite type 일괄
+- [x] R1863: BatchInspector cc.Mask type (Rect/Ellipse/Image) 일괄
+- [x] R1864: cc.AudioSource pitch 편집 (CC3.x)
+- [x] R1865: cc.Sprite blendFactor 퀵 버튼 (Normal/Add/Mul)
+- [x] R1866: BatchInspector cc.AudioSource pitch 일괄
+- [x] R1867: BatchInspector cc.Sprite blendFactor 일괄 (Normal/Add/Mul)
+- [x] R1868: BatchInspector cc.Label spacingX 일괄
+- [x] R1869: BatchInspector cc.Slider direction 일괄 (H/V)
+- [x] R1870: cc.PolygonCollider sensor/friction/restitution 편집
+- [x] R1871: BatchInspector cc.RigidBody mass 일괄
+- [x] R1872: BatchInspector cc.BoxCollider/CircleCollider sensor 일괄
+- [x] R1873: BatchInspector cc.ParticleSystem duration 일괄
+- [x] R1874: BatchInspector cc.ParticleSystem maxParticles 일괄
+- [x] R1875: BatchInspector cc.PageView slideDuration 일괄
+- [x] R1876: BatchInspector cc.ScrollView brake 일괄
+- [x] R1877: BatchInspector cc.VideoPlayer playbackRate 일괄
+- [x] R1878: BatchInspector cc.Layout padding 일괄 (uniform)
 
 ## 빌드/QA
-- QA: Critical: 0, Warning: 0, Pass: 1776
+- **QA: Critical: 0, Warning: 0, Pass: 1800** ← 마일스톤!
 - Branch: dev
-- **R1813 마일스톤**: onPropChange?.() 완전 제거 — Inspector 전체 applyAndSave 통합
 
-## 다음 예정 (R1855+)
-- 새 기능 아이디어:
-  - BatchInspector — 선택 노드 복제+오프셋 (N개 복제 + 각 오프셋 적용) — complex
-  - cc.Label spacing/letterSpacing 편집
-  - BatchInspector cc.Label lineHeight 일괄
-  - cc.Sprite blendFactor editing
-  - BatchInspector cc.PageView direction 일괄
-  - cc.ScrollView brake coefficient 편집
-  - cc.AudioSource pitch 편집 (CC3.x)
+## 다음 예정 (R1879+)
+- BatchInspector cc.MotionStreak fade 일괄
+- BatchInspector cc.Layout spacingX/Y 일괄
+- BatchInspector cc.Animation playOnLoad 일괄 (이미 done? 확인 필요)
+- cc.Button normalColor/pressedColor 편집 추가
+- BatchInspector cc.SkeletalAnimation 관련 추가
+- cc.RichText maxWidth batch
+

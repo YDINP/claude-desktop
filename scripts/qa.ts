@@ -20474,6 +20474,18 @@ console.log('\n## 769. R1878 BatchInspector cc.Layout padding 체크')
   }
 }
 
+// ── Section 770: R1879 BatchInspector cc.Layout spacingX/Y ────────────────
+console.log('\n## 770. R1879 BatchInspector cc.Layout spacingX/Y 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s770 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s770.includes('R1879') && s770.includes('applyLayoutSpacing') && s770.includes('patchLayoutSpacing')) {
+    log('pass', 'R1879-batch-layout-spacing', 'BatchInspector cc.Layout spacingX/Y 일괄 설정')
+  } else {
+    log('warning', 'R1879-batch-layout-spacing', 'BatchInspector cc.Layout spacingX/Y 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
