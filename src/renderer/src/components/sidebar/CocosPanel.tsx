@@ -5325,6 +5325,36 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2143: 공통 cc.DirectionalLight/cc.PointLight color 일괄 설정 */}
+      {(commonCompTypes.includes('cc.DirectionalLight') || commonCompTypes.includes('cc.PointLight')) && (() => {
+        const applyLightColor = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const color = { r, g, b, a: 255 }
+          function patchLightColor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLightColor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight') ? { ...c, props: { ...c.props, color, _color: color } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLightColor(sceneFile.root) })
+          setBatchMsg(`✓ Light color=${hex} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fbbf24', width: 48, flexShrink: 0 }}>LightCol</span>
+            <input type="color" defaultValue="#ffffff"
+              onChange={e => applyLightColor(e.target.value)}
+              style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer' }}
+            />
+            {(['#ffffff','#ffe4b5','#ffd700','#add8e6','#ffb6c1'] as const).map(c => (
+              <span key={c} title={c} onClick={() => applyLightColor(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, border: '1px solid var(--border)', cursor: 'pointer', display: 'inline-block', flexShrink: 0 }}
+              />
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {

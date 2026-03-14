@@ -23642,6 +23642,18 @@ console.log('\n## 1033. R2142 BatchInspector cc.DirectionalLight/PointLight inte
   }
 }
 
+// ── Section 1034: R2143 BatchInspector cc.DirectionalLight/PointLight color ──────────
+console.log('\n## 1034. R2143 BatchInspector cc.DirectionalLight/PointLight color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1034 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1034.includes('R2143') && s1034.includes('patchLightColor') && s1034.includes('applyLightColor')) {
+    log('pass', 'R2143-batch-light-color', 'BatchInspector cc.DirectionalLight/PointLight color 일괄 설정')
+  } else {
+    log('warning', 'R2143-batch-light-color', 'BatchInspector cc.DirectionalLight/PointLight color 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
