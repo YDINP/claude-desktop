@@ -5089,10 +5089,10 @@ function CCFileBatchInspector({
                 function patchVAlign(n: CCSceneNode): CCSceneNode {
                   const children = n.children.map(patchVAlign)
                   if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, verticalAlign: v, _N$verticalAlign: v } } : c)
+                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, verticalAlign: v, _verticalAlign: v, _N$verticalAlign: v } } : c)
                   return { ...n, components: updComps, children }
                 }
-                await saveScene(patchVAlign(sceneFile.root))
+                await saveScene({ ...sceneFile, root: patchVAlign(sceneFile.root) }) // R2253: _verticalAlign CC3.x
                 setBatchMsg(`✓ vAlign ${l} (${uuids.length}개)`)
                 setTimeout(() => setBatchMsg(null), 2000)
               }}
@@ -5114,10 +5114,10 @@ function CCFileBatchInspector({
                 function patchHAlign(n: CCSceneNode): CCSceneNode {
                   const children = n.children.map(patchHAlign)
                   if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, horizontalAlign: v, _N$horizontalAlign: v } } : c)
+                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, horizontalAlign: v, _horizontalAlign: v, _N$horizontalAlign: v } } : c)
                   return { ...n, components: updComps, children }
                 }
-                await saveScene(patchHAlign(sceneFile.root))
+                await saveScene({ ...sceneFile, root: patchHAlign(sceneFile.root) }) // R2253: _horizontalAlign CC3.x
                 setBatchMsg(`✓ hAlign ${l} (${uuids.length}개)`)
                 setTimeout(() => setBatchMsg(null), 2000)
               }}
@@ -7971,10 +7971,10 @@ function CCFileBatchInspector({
           function patchScrollBrake(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchScrollBrake)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, brake, _N$brake: brake } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } } : c)
             return { ...n, components: updComps, children }
           }
-          await saveScene(patchScrollBrake(sceneFile.root))
+          await saveScene({ ...sceneFile, root: patchScrollBrake(sceneFile.root) }) // R2254: _brake CC3.x
           setBatchMsg(`✓ ScrollView brake=${brake} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -8099,11 +8099,11 @@ function CCFileBatchInspector({
           function patchSVMouseWheelSens(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVMouseWheelSens)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, mouseWheelScrollSensitivity, _N$mouseWheelScrollSensitivity: mouseWheelScrollSensitivity } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, mouseWheelScrollSensitivity, _mouseWheelScrollSensitivity: mouseWheelScrollSensitivity, _N$mouseWheelScrollSensitivity: mouseWheelScrollSensitivity } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSVMouseWheelSens(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView mouseWheelSens=${mouseWheelScrollSensitivity} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView mouseWheelSens=${mouseWheelScrollSensitivity} (${uuids.length}개)`) // R2254: _mouseWheelScrollSensitivity CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8149,11 +8149,11 @@ function CCFileBatchInspector({
           function patchSVHideScrollBar(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVHideScrollBar)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, hideScrollBar, _N$hideScrollBar: hideScrollBar } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, hideScrollBar, _hideScrollBar: hideScrollBar, _N$hideScrollBar: hideScrollBar } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSVHideScrollBar(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView hideScrollBar=${hideScrollBar} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView hideScrollBar=${hideScrollBar} (${uuids.length}개)`) // R2255: _hideScrollBar CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -11641,12 +11641,12 @@ function CCFileBatchInspector({
           function patchCanvasResPolicy(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchCanvasResPolicy)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, resolutionPolicy, _N$resolutionPolicy: resolutionPolicy } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, resolutionPolicy, _resolutionPolicy: resolutionPolicy, _N$resolutionPolicy: resolutionPolicy } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchCanvasResPolicy(sceneFile.root) })
           const labels = ['SHOW_ALL', 'NO_BORDER', 'EXACT_FIT', 'FIX_H', 'FIX_W']
-          setBatchMsg(`✓ Canvas policy=${labels[resolutionPolicy] ?? resolutionPolicy} (${uuids.length}개)`)
+          setBatchMsg(`✓ Canvas policy=${labels[resolutionPolicy] ?? resolutionPolicy} (${uuids.length}개)`) // R2255: _resolutionPolicy CC3.x
         }
         const opts: [string, number][] = [['SHOW_ALL', 0], ['NO_BORDER', 1], ['EXACT_FIT', 2], ['FIX_H', 3], ['FIX_W', 4]]
         return (

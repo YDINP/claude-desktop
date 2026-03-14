@@ -24521,6 +24521,60 @@ if (s1238.includes('_fontSize: fontSize') && s1238.includes('patchRichFontSize')
   log('warning', 'R2252-batch-richtext-fontsize-cc3x', 'BatchInspector cc.RichText _fontSize CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1239: R2253 BatchInspector cc.Label _verticalAlign (CC3.x) ──────────
+console.log('\n## 1239. R2253 BatchInspector cc.Label _verticalAlign CC3.x 체크')
+const s1239 = s1238
+if (s1239.includes('_verticalAlign: v') && s1239.includes('patchVAlign')) {
+  log('pass', 'R2253-batch-label-verticalalign-cc3x', 'BatchInspector cc.Label _verticalAlign (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2253-batch-label-verticalalign-cc3x', 'BatchInspector cc.Label _verticalAlign CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1240: R2253 BatchInspector cc.Label _horizontalAlign (CC3.x) ──────────
+console.log('\n## 1240. R2253 BatchInspector cc.Label _horizontalAlign CC3.x 체크')
+const s1240 = s1239
+if (s1240.includes('_horizontalAlign: v') && s1240.includes('patchHAlign')) {
+  log('pass', 'R2253-batch-label-horizontalalign-cc3x', 'BatchInspector cc.Label _horizontalAlign (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2253-batch-label-horizontalalign-cc3x', 'BatchInspector cc.Label _horizontalAlign CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1241: R2254 BatchInspector cc.ScrollView _brake (CC3.x) ──────────
+console.log('\n## 1241. R2254 BatchInspector cc.ScrollView _brake CC3.x 체크')
+const s1241 = s1240
+if (s1241.includes('_brake: brake') && s1241.includes('patchScrollBrake')) {
+  log('pass', 'R2254-batch-scrollview-brake-cc3x', 'BatchInspector cc.ScrollView _brake (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2254-batch-scrollview-brake-cc3x', 'BatchInspector cc.ScrollView _brake CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1242: R2254 BatchInspector cc.ScrollView _mouseWheelScrollSensitivity (CC3.x) ──────────
+console.log('\n## 1242. R2254 BatchInspector cc.ScrollView _mouseWheelScrollSensitivity CC3.x 체크')
+const s1242 = s1241
+if (s1242.includes('_mouseWheelScrollSensitivity: mouseWheelScrollSensitivity') && s1242.includes('patchSVMouseWheelSens')) {
+  log('pass', 'R2254-batch-scrollview-mousewheelsens-cc3x', 'BatchInspector cc.ScrollView _mouseWheelScrollSensitivity (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2254-batch-scrollview-mousewheelsens-cc3x', 'BatchInspector cc.ScrollView _mouseWheelScrollSensitivity CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1243: R2255 BatchInspector cc.ScrollView _hideScrollBar (CC3.x) ──────────
+console.log('\n## 1243. R2255 BatchInspector cc.ScrollView _hideScrollBar CC3.x 체크')
+const s1243 = s1242
+if (s1243.includes('_hideScrollBar: hideScrollBar') && s1243.includes('patchSVHideScrollBar')) {
+  log('pass', 'R2255-batch-scrollview-hidescrollbar-cc3x', 'BatchInspector cc.ScrollView _hideScrollBar (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2255-batch-scrollview-hidescrollbar-cc3x', 'BatchInspector cc.ScrollView _hideScrollBar CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1244: R2255 BatchInspector cc.Canvas _resolutionPolicy (CC3.x) ──────────
+console.log('\n## 1244. R2255 BatchInspector cc.Canvas _resolutionPolicy CC3.x 체크')
+const s1244 = s1243
+if (s1244.includes('_resolutionPolicy: resolutionPolicy') && s1244.includes('patchCanvasResPolicy')) {
+  log('pass', 'R2255-batch-canvas-resolutionpolicy-cc3x', 'BatchInspector cc.Canvas _resolutionPolicy (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2255-batch-canvas-resolutionpolicy-cc3x', 'BatchInspector cc.Canvas _resolutionPolicy CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
