@@ -4192,6 +4192,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1992: 공통 cc.Label strikethrough 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelStrike = async (isStrike: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelStrike(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelStrike)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, isStrike, _isStrike: isStrike, _N$isStrike: isStrike } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelStrike(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Label strike=${isStrike} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>LbStrike</span>
+            <span onClick={() => applyLabelStrike(true)} title="strikethrough ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none', textDecoration: 'line-through' }}>S✓</span>
+            <span onClick={() => applyLabelStrike(false)} title="strikethrough OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>S✗</span>
+          </div>
+        )
+      })()}
       {/* R1985: 공통 cc.Label underline 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelUnderline = async (isUnderline: boolean) => {

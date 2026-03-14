@@ -21830,6 +21830,18 @@ console.log('\n## 882. R1991 BatchInspector cc.PageView pageTurningEventTiming �
   }
 }
 
+// ── Section 883: R1992 BatchInspector cc.Label strikethrough ──────────
+console.log('\n## 883. R1992 BatchInspector cc.Label strikethrough 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s883 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s883.includes('R1992') && s883.includes('patchLabelStrike') && s883.includes('applyLabelStrike')) {
+    log('pass', 'R1992-batch-label-strike', 'BatchInspector cc.Label strikethrough 일괄 설정')
+  } else {
+    log('warning', 'R1992-batch-label-strike', 'BatchInspector cc.Label strikethrough 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
