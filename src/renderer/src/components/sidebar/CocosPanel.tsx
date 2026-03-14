@@ -7094,6 +7094,30 @@ function CCFileBatchInspector({
           </>
         )
       })()}
+      {/* R2186: 공통 cc.Scrollbar direction 일괄 설정 */}
+      {commonCompTypes.includes('cc.Scrollbar') && (() => {
+        const applySBDir = async (direction: number) => {
+          if (!sceneFile.root) return
+          function patchSBDir(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSBDir)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, direction, _N$direction: direction } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSBDir(sceneFile.root) })
+          setBatchMsg(`✓ Scrollbar direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SBdir</span>
+            <span onClick={() => applySBDir(0)} title="direction=Horizontal"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>H→</span>
+            <span onClick={() => applySBDir(1)} title="direction=Vertical"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>V↓</span>
+          </div>
+        )
+      })()}
       {/* R2174: 공통 cc.ScrollView bounceTime 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVBounceTime = async (bounceTime: number) => {
@@ -7593,6 +7617,30 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2186: 공통 cc.Animation sample 일괄 설정 */}
+      {commonCompTypes.includes('cc.Animation') && (() => {
+        const applyAnimSample = async (sample: number) => {
+          if (!sceneFile.root) return
+          function patchAnimSample(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAnimSample)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, sample, _sample: sample, _N$sample: sample } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchAnimSample(sceneFile.root) })
+          setBatchMsg(`✓ Animation sample=${sample} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>AnimSmp</span>
+            {[24, 30, 48, 60, 120].map(v => (
+              <span key={v} onClick={() => applyAnimSample(v)} title={`sample=${v}fps`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f59e0b', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2052: 공통 cc.Animation speed 일괄 설정 */}
       {commonCompTypes.includes('cc.Animation') && (() => {
         const applyAnimSpeed = async (speed: number) => {

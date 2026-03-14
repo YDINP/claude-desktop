@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1104: R2186 BatchInspector cc.Scrollbar direction ──────────
+console.log('\n## 1104. R2186 BatchInspector cc.Scrollbar direction 체크')
+const s1104 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1104.includes('R2186') && s1104.includes('applySBDir') && s1104.includes('SBdir')) {
+  log('pass', 'R2186-batch-scrollbar-direction', 'BatchInspector cc.Scrollbar direction 일괄 설정')
+} else {
+  log('warning', 'R2186-batch-scrollbar-direction', 'BatchInspector cc.Scrollbar direction 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1105: R2186 BatchInspector cc.Animation sample ──────────
+console.log('\n## 1105. R2186 BatchInspector cc.Animation sample 체크')
+const s1105 = s1104
+if (s1105.includes('R2186') && s1105.includes('applyAnimSample') && s1105.includes('AnimSmp')) {
+  log('pass', 'R2186-batch-animation-sample', 'BatchInspector cc.Animation sample 일괄 설정')
+} else {
+  log('warning', 'R2186-batch-animation-sample', 'BatchInspector cc.Animation sample 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1102: R2185 BatchInspector cc.Scrollbar enableAutoHide ──────────
 console.log('\n## 1102. R2185 BatchInspector cc.Scrollbar enableAutoHide 체크')
 const s1102 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
