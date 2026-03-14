@@ -18779,6 +18779,18 @@ console.log('\n## 628. R1737 BatchInspector 앵커 일괄 설정 체크')
   }
 }
 
+// ── Section 629: R1738 Inspector Z-index 직접 입력 ────────────────────────────
+console.log('\n## 629. R1738 Inspector Z-index 직접 입력 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s629 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s629.includes('R1738') && s629.includes('zOrderEditing') && s629.includes('handleZOrderTo') && s629.includes('Z-index 직접 입력')) {
+    log('pass', 'R1738-zorder-input', 'Inspector Z-index 직접 입력')
+  } else {
+    log('warning', 'R1738-zorder-input', 'Inspector Z-index 직접 입력 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

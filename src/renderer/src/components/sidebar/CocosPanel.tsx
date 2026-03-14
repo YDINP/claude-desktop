@@ -4834,6 +4834,26 @@ function CCFileNodeInspector({
     setSaving(false)
   }, [node.uuid, sceneFile, saveScene])
 
+  // R1738: Z-index 직접 입력
+  const [zOrderEditing, setZOrderEditing] = useState(false)
+  const [zOrderInputVal, setZOrderInputVal] = useState('')
+  const handleZOrderTo = useCallback(async (targetOneBased: number) => {
+    if (!sceneFile.root || !zOrderInfo) return
+    const targetIdx = Math.max(0, Math.min(zOrderInfo.total - 1, targetOneBased - 1))
+    if (targetIdx === zOrderInfo.idx) return
+    function move(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === node.uuid)
+      if (idx < 0) return { ...n, children: n.children.map(move) }
+      const ch = [...n.children]
+      const [item] = ch.splice(idx, 1)
+      ch.splice(targetIdx, 0, item)
+      return { ...n, children: ch }
+    }
+    setSaving(true)
+    await saveScene(move(sceneFile.root))
+    setSaving(false)
+  }, [node.uuid, sceneFile, saveScene, zOrderInfo])
+
   return (
     <div style={{
       flexShrink: 0, borderTop: '1px solid var(--border)',
@@ -5326,9 +5346,36 @@ function CCFileNodeInspector({
           {sceneFile.root?.uuid !== node.uuid && (
             <>
               {zOrderInfo && (
-                <span style={{ fontSize: 9, color: '#888', whiteSpace: 'nowrap', userSelect: 'none' }}>
-                  Z: {zOrderInfo.idx + 1} / {zOrderInfo.total}
-                </span>
+                /* R1738: Z-index 직접 입력 */
+                zOrderEditing ? (
+                  <input
+                    autoFocus
+                    type="number"
+                    min={1}
+                    max={zOrderInfo.total}
+                    value={zOrderInputVal}
+                    onChange={e => setZOrderInputVal(e.target.value)}
+                    onBlur={() => { setZOrderEditing(false) }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        const v = parseInt(zOrderInputVal, 10)
+                        if (!isNaN(v)) handleZOrderTo(v)
+                        setZOrderEditing(false)
+                      } else if (e.key === 'Escape') {
+                        setZOrderEditing(false)
+                      }
+                    }}
+                    style={{ width: 36, fontSize: 9, padding: '0 2px', background: 'var(--bg-primary, #0a0a14)', color: '#ccc', border: '1px solid #4a9eff', borderRadius: 2, textAlign: 'center' }}
+                  />
+                ) : (
+                  <span
+                    title="클릭하여 Z 위치 직접 입력"
+                    onClick={() => { setZOrderInputVal(String(zOrderInfo.idx + 1)); setZOrderEditing(true) }}
+                    style={{ fontSize: 9, color: '#888', whiteSpace: 'nowrap', cursor: 'text', userSelect: 'none' }}
+                  >
+                    Z: {zOrderInfo.idx + 1} / {zOrderInfo.total}
+                  </span>
+                )
               )}
               <button onClick={() => handleZOrderEdge('first')} disabled={!zOrderInfo || zOrderInfo.idx === 0} title="맨 앞으로" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: zOrderInfo?.idx === 0 ? 'default' : 'pointer', background: 'transparent', color: zOrderInfo?.idx === 0 ? '#444' : '#888', border: `1px solid ${zOrderInfo?.idx === 0 ? '#333' : '#555'}`, lineHeight: 1.4 }}>⤒</button>
               <button onClick={() => handleZOrder(-1)} disabled={!zOrderInfo || zOrderInfo.idx === 0} title="앞으로 이동" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: zOrderInfo?.idx === 0 ? 'default' : 'pointer', background: 'transparent', color: zOrderInfo?.idx === 0 ? '#444' : '#888', border: `1px solid ${zOrderInfo?.idx === 0 ? '#333' : '#555'}`, lineHeight: 1.4 }}>↑</button>
