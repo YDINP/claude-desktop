@@ -2692,8 +2692,11 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             {(() => {
               const statsMap: Record<string, number> = {}
               let nodeCount = 0
+              // R1718: 비활성 노드 카운트
+              let inactiveCount = 0
               const walkStats = (n: CCSceneNode) => {
                 nodeCount++
+                if (!n.active) inactiveCount++
                 n.components.forEach(c => { statsMap[c.type] = (statsMap[c.type] ?? 0) + 1 })
                 n.children.forEach(walkStats)
               }
@@ -2706,6 +2709,10 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   </div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 1 }}>
                     <span style={{ color: '#58a6ff' }}>{nodeCount}nodes</span>
+                    {/* R1718: 비활성 노드 배지 */}
+                    {inactiveCount > 0 && (
+                      <span style={{ color: '#888' }} title={`비활성 노드 ${inactiveCount}개`}>{inactiveCount}◌</span>
+                    )}
                     {topComps.map(([type, cnt]) => (
                       <span key={type} style={{ color: '#666' }}>{type.split('.').pop()}×{cnt}</span>
                     ))}

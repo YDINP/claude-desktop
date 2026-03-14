@@ -18539,6 +18539,18 @@ console.log('\n## 608. R1717 SceneView 컨텍스트 메뉴 확장 체크')
   }
 }
 
+// ── Section 609: R1718 Stats 패널 비활성 노드 카운트 ──────────────────────────
+console.log('\n## 609. R1718 Stats 패널 비활성 노드 카운트 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s609 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s609.includes('R1718') && s609.includes('inactiveCount') && s609.includes('◌')) {
+    log('pass', 'R1718-inactive-count', 'Stats 패널 비활성 노드 카운트 배지')
+  } else {
+    log('warning', 'R1718-inactive-count', 'Stats 패널 비활성 노드 카운트 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
