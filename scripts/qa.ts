@@ -23198,6 +23198,18 @@ console.log('\n## 996. R2105 BatchInspector cc.EditBox maxLength 체크')
   }
 }
 
+// ── Section 997: R2106 BatchInspector cc.Toggle isChecked ──────────
+console.log('\n## 997. R2106 BatchInspector cc.Toggle isChecked 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s997 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s997.includes('R2106') && s997.includes('patchToggleCheck') && s997.includes('applyToggleCheck')) {
+    log('pass', 'R2106-batch-toggle-check', 'BatchInspector cc.Toggle isChecked 일괄 설정')
+  } else {
+    log('warning', 'R2106-batch-toggle-check', 'BatchInspector cc.Toggle isChecked 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

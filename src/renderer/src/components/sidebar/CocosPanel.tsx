@@ -5297,6 +5297,29 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2106: 공통 cc.Toggle isChecked 일괄 설정 */}
+      {commonCompTypes.includes('cc.Toggle') && (() => {
+        const applyToggleCheck = async (isChecked: boolean) => {
+          if (!sceneFile.root) return
+          function patchToggleCheck(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchToggleCheck)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, isChecked, _isChecked: isChecked } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchToggleCheck(sceneFile.root) })
+          setBatchMsg(`✓ Toggle isChecked=${isChecked} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>TogChk</span>
+            <span onClick={() => applyToggleCheck(true)} title="isChecked ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>chk✓</span>
+            <span onClick={() => applyToggleCheck(false)} title="isChecked OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f85149', userSelect: 'none' }}>chk✗</span>
+          </div>
+        )
+      })()}
       {/* R1900: 공통 cc.Toggle interactable 일괄 설정 */}
       {commonCompTypes.includes('cc.Toggle') && (() => {
         const applyToggleInteract = async (interactable: boolean) => {
