@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1112: R2190 BatchInspector cc.MotionStreak timeToLive ──────────
+console.log('\n## 1112. R2190 BatchInspector cc.MotionStreak timeToLive 체크')
+const s1112 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1112.includes('R2190') && s1112.includes('applyMSTtl') && s1112.includes('MStlive')) {
+  log('pass', 'R2190-batch-motionstreak-ttl', 'BatchInspector cc.MotionStreak timeToLive 일괄 설정')
+} else {
+  log('warning', 'R2190-batch-motionstreak-ttl', 'BatchInspector cc.MotionStreak timeToLive 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1113: R2190 BatchInspector cc.Sprite enabled ──────────
+console.log('\n## 1113. R2190 BatchInspector cc.Sprite enabled (컴포넌트 레벨) 체크')
+const s1113 = s1112
+if (s1113.includes('R2190') && s1113.includes('applySpriteEnabled') && s1113.includes('SpComp')) {
+  log('pass', 'R2190-batch-sprite-enabled', 'BatchInspector cc.Sprite enabled (컴포넌트 레벨) 일괄 설정')
+} else {
+  log('warning', 'R2190-batch-sprite-enabled', 'BatchInspector cc.Sprite enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1110: R2189 BatchInspector cc.ParticleSystem sourcePos.x ──────────
 console.log('\n## 1110. R2189 BatchInspector cc.ParticleSystem sourcePos.x 체크')
 const s1110 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
