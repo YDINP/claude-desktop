@@ -5301,6 +5301,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2142: 공통 cc.DirectionalLight/cc.PointLight intensity 일괄 설정 */}
+      {(commonCompTypes.includes('cc.DirectionalLight') || commonCompTypes.includes('cc.PointLight')) && (() => {
+        const lightType = commonCompTypes.includes('cc.DirectionalLight') ? 'cc.DirectionalLight' : 'cc.PointLight'
+        const applyLightIntensity = async (intensity: number) => {
+          if (!sceneFile.root) return
+          function patchLightIntensity(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLightIntensity)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight') ? { ...c, props: { ...c.props, intensity, _intensity: intensity } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLightIntensity(sceneFile.root) })
+          setBatchMsg(`✓ ${lightType} intensity=${intensity} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fbbf24', width: 48, flexShrink: 0 }}>LightInt</span>
+            {[0, 0.5, 1, 2, 3, 5].map(v => (
+              <span key={v} onClick={() => applyLightIntensity(v)} title={`intensity=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fbbf24', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1895: 공통 cc.UIOpacity opacity 일괄 설정 */}
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {
