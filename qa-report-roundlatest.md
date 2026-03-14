@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-13T14:41:03.776Z
+> 2026-03-14T08:35:22.114Z
 
 ## Critical
 _없음_
@@ -9,7 +9,7 @@ _없음_
 
 ## Pass
 - tsc --noEmit 오류 없음
-- 108개 소스 파일 검사 완료
+- 109개 소스 파일 검사 완료
 - 자동 재연결 로직 존재
 - CocosPanel App 메인 레이아웃에 통합됨 (탭/나란히/창분리)
 - registerCCHandlers 정상 등록
@@ -442,7 +442,7 @@ _없음_
 - SceneView: Ctrl+]/[ z-order 변경 존재
 - SceneView: Tab/Shift+Tab 형제 노드 순환 선택 존재
 - package.json 파싱 성공 (name: claude-desktop)
-- preload expose 메서드 333개 확인
+- preload expose 메서드 337개 확인
 - ipcMain.handle 등록: 13개 이상
 - 의존성 설치됨: electron
 - 의존성 설치됨: react
@@ -1248,3 +1248,786 @@ _없음_
 - SceneViewPanel 목업 이미지 오버레이 존재
 - TerminalPanel 폰트 크기 단축키 존재
 - CocosPanel 최근 씬 파일 목록 존재
+- Widget Inspector 섹션 존재
+- Color fill 렌더링 존재
+- 씬 히스토리 존재
+- 컴포넌트 뱃지 존재
+- 컴포넌트 추가 드롭다운 존재
+- Sprite 에셋 피커 UI 존재
+- cc.Layout 속성 편집 존재
+- CC 파일 씬 컨텍스트 훅 존재
+- CocosPanel 컨텍스트 주입 토글 존재
+- NodeHierarchyList 컴포넌트 타입 필터 존재
+- SceneView 북마크 localStorage per scene 존재
+- cc-file-parser RichText/ScrollView/Mask/PageView 컴포넌트 지원
+- SceneView 씬 diff 뷰어 (savedSnapshot + 주황 테두리)
+- CocosPanel 에셋 브라우저 폴더 트리 뷰
+- SceneView 씬 파일 탭 바 존재
+- Inspector cc.Animation 클립 목록 뷰어
+- SceneView 노드 복사/붙여넣기/복제 (deep clone with UUID)
+- Ctrl+C/V/D 단축키 바인딩 존재
+- Inspector cc.AudioSource 속성 편집 (volume/loop/playOnLoad/preload)
+- NodeRenderer Sprite SLICED/TILED 렌더링 힌트 (점선 격자/x 패턴)
+- cc-file-watcher 부분 업데이트 IPC + debounce 300ms
+- cc-file-handlers 부분 업데이트 IPC 이벤트 전송
+- CocosPanel 외부 변경 배너 5초 자동 숨김
+- CocosPanel CC 프로젝트 설정 뷰어 (버전/해상도/물리엔진/빌드타겟)
+- SceneView 정렬 가이드라인 SVG 렌더링 (#4af, 4 2 dash)
+- Inspector 로컬/월드 좌표 토글 (L/W 버튼, 월드 읽기 전용)
+- CocosPanel 씬 템플릿 생성 (빈씬/Canvas, writeTextFile, 자동 열기)
+- SceneView 레이어 패널 고도화 (가시성/잠금 영구저장, 색상 라벨)
+- cc-file-parser 2x _trs 파싱 강화 (base64 디코딩, 개별 필드 폴백, 기본값 보장)
+- CocosPanel 프리팹 인스턴스화 UI (readFile → JSON parse → 씬 추가)
+- SceneView 노드 그룹화 Ctrl+G / 해제 Ctrl+Shift+G
+- CocosPanel Ctrl+G/Ctrl+Shift+G 그룹화/해제 (씬 파일 패치)
+- cc-file-parser 파티클/카메라/조명 컴포넌트 추출
+- NodeRenderer Camera/ParticleSystem 시각 힌트 (테두리 + 라벨 접두사)
+- SceneView 씬 통계 오버레이 (I키, 노드수/컴포넌트 분포, localStorage)
+- Inspector 노드 참조 필드 표시 (__id__/__uuid__ 감지, 링크 아이콘)
+- SceneView PNG 내보내기 (배경색/해상도 1x/2x/4x, 타임스탬프 파일명)
+- Inspector 컴포넌트 순서 변경 (↑↓ 버튼, 첫/마지막 비활성화)
+- CocosPanel CC 빌드 트리거 UI (플랫폼 드롭다운, CLI 미리보기)
+- SceneView 노드 색상 태그 (7색 팔레트, localStorage per scene, 컨텍스트메뉴)
+- NodeHierarchyList 색상 태그 dot 표시
+- cc-file-parser analyzeScene 복잡도 분석 (노드수/깊이/컴포넌트/draw call/경고)
+- ChatPanel: React import 정상
+- InputBar: React import 정상
+- TerminalPanel: React import 정상
+- CocosPanel: React import 정상
+- SceneViewPanel: React import 정상
+- SessionList: React import 정상
+- SceneInspector: React import 정상
+- NodeHierarchyList: React import 정상
+- NodeRenderer: React import 정상
+- ChatPanel: showOnlyBookmarks TDZ 없음
+- CCFileNodeInspector: saving state 정상 선언
+- cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs)
+- preload API 노출: ccGetAssetInfo, ccGetAllTextureUUIDs
+- SceneInspector 속성 검색 필터 (propFilter, Esc 초기화, 컴포넌트명/props 필터)
+- SceneView 채팅 연동 노드 하이라이트 (cc-highlight-node 이벤트, 3초 깜빡임)
+- ChatPanel cc-highlight-node dispatch (AI 응답에서 노드명 추출)
+- Inspector 다중 노드 일괄 편집 (active 토글, position 오프셋, 일괄 적용 버튼)
+- CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5개/더보기, 복원 TODO)
+- SceneView 노드 잠금 완성 (resize/rotate 차단, lockedUuids 체크)
+- cc-file-parser Label 폰트 필드 강화 파싱 (2x/3x, fontFamily, spacingX/Y, overflow)
+- SceneInspector Label 폰트 속성 표시 (fontFamily, spacingX/Y, overflow)
+- CocosPanel 씬 유효성 검사 (UUID중복, 빈이름, Canvas, 깊이 경고, 비활성부모)
+- SceneView 뷰포트 프리셋 저장/불러오기 (localStorage, 기본 1:1/2:1, 사용자 max 5)
+- Inspector cc.Button 속성 편집 (interactable, autoGray, transition, duration, 색상 읽기전용)
+- SceneView 그리드 커스터마이즈 (크기/색상/불투명도, localStorage grid-settings, 팝업 UI)
+- SceneToolbar 그리드 설정 버튼 (우클릭 + 톱니바퀴 아이콘)
+- CocosPanel 백업 관리 UI (목록/복원/전체삭제, BackupManager 컴포넌트)
+- SceneView 다중 씬 비교 뷰 (좌우 분할, 비교 씬 선택, 읽기 전용)
+- Inspector cc.ProgressBar/Slider 속성 편집 (progress, totalLength, reverse)
+- cc-file-parser ProgressBar/Slider 컴포넌트 추출기 추가
+- cc-file-parser buildNodePathIndex (UUID -> 전체 경로 인덱스)
+- Inspector 선택 노드 전체 경로 표시 (Canvas > Panel > Button)
+- NodeHierarchyList 검색 시 경로 매칭 지원
+- SceneView 히트 테스트 정밀화 (최소 8px, z-order 역순, Tab 순환, 비활성 차단)
+- Inspector cc.Animation 타임라인 바 시각화 + cc.Tween 읽기전용 표시
+- CocosPanel 전역 노드 검색 (Ctrl+F, 이름/컴포넌트, Esc 닫기, 경로 표시)
+- SceneView Before/After 슬라이더 비교 (SVG clipPath, 드래그 슬라이더)
+- cc-file-parser buildReferenceGraph (UUID 참조 그래프) + detectCycles (순환 참조 탐지)
+- CocosPanel 에셋 썸네일 호버 미리보기 (128x128, 파일명+크기, 커서 우측)
+- SceneView 씬 JSON 뷰어 패널 ({ } 버튼, syntax highlight, 선택/전체 토글)
+- Inspector 컴포넌트 복사/붙여넣기 (클립보드 JSON, 중복 경고)
+- cc-file-saver mtime 기반 충돌 감지 + forceOverwrite
+- CocosPanel conflict dialog (덮어쓰기/다시 로드)
+- 씬 로컬 HTTP 공유 (7332포트, 60초 자동 종료, scene.json)
+- SceneView 씬 공유 버튼 (URL 클립보드 복사)
+- SceneView 씬 JSON 임포트 모달 (붙여넣기, UUID 재생성)
+- cc-file-parser suggestOptimizations (draw call/노드수/깊이/비활성 비율)
+- CocosPanel 최적화 제안 표시 (씬 검사 연동)
+- SceneView 정렬 가이드라인 고도화 (레이블/중앙선/스냅임계값)
+- Inspector 북마크 패널 (★ 토글 + 목록 + 색상 태그)
+- CocosPanel 스크립트 편집기 연동 (편집 버튼 + 사용중 강조 green/gray dot)
+- App.tsx cc:open-file 이벤트 리스너
+- SceneView 편집 이력 패널 (editHistory + addEditHistory + 이력 패널 UI)
+- SceneToolbar 편집 이력 버튼
+- cc-file-parser findCanvasNode + getDesignResolution (2x/3x)
+- CocosPanel 씬 의존성 분석 (타입별 그룹 + 누락 표시)
+- Inspector Transform 개별/전체 리셋 버튼 (↺ 위치/회전/스케일/전체)
+- SceneView 레이어 순서 드래그 재배치 (드래그 핸들 + 드롭 인디케이터)
+- SceneView 노드 템플릿 라이브러리 (📌, max 10, 기본 2개, 드롭다운)
+- SceneView 우클릭 메뉴 템플릿 저장
+- cc-file-parser Button/Toggle/Slider 이벤트 핸들러 파싱
+- CCSceneNode eventHandlers 필드 추가
+- SceneInspector 이벤트 핸들러 읽기전용 표시 (🔔 이벤트 섹션)
+- CocosPanel 씬 일괄 처리 (폰트통일/비활성삭제/이름정규화 + 토스트)
+- SceneView 카메라 뷰 북마크 (Ctrl+1~5 저장/이동, 200ms lerp, 숫자 뱃지)
+- Inspector cc.UIOpacity/cc.UITransform 직접 편집 섹션 (슬라이더 + contentSize + anchorPoint)
+- SceneNode types.ts eventHandlers 필드
+- SceneView 자동 레이아웃 (수평/수직 균등배분 + 원형 배치 + 드롭다운)
+- SceneToolbar 자동정렬 드롭다운 (수평/수직/격자/원형)
+- cc-file-parser extractSceneMeta (스크립트/텍스처/오디오/물리/트윈/애니메이션 감지)
+- CocosPanel 씬 메타데이터 표시 (Physics/Animation/Tween 뱃지)
+- SceneView 노드 클릭 히트맵 (빈도 색상 시각화 + 리셋)
+- NodeRenderer heatmapIntensity 히트맵 오버레이 렌더링
+- SceneToolbar 클릭 히트맵 토글 + 리셋 버튼
+- CocosPanel CC 프로젝트 생성 마법사 (3단계: 이름+위치 → CC버전 → 템플릿)
+- NodeRenderer cc.Shadow SVG feDropShadow 렌더링 (enabled/color/blur/offset)
+- SceneView 씬 노드 애니메이션 프리뷰 (CSS animation, ▶/■ 토글)
+- cc-file-parser diffScenes (added/removed/modified + changedFields)
+- CocosPanel 씬 저장 시 자동 썸네일 생성 (80x60 canvas → base64 localStorage)
+- Inspector 프리팹 인스턴스 뱃지 (UUID 짧게 + cc-open-file 이벤트 + override placeholder)
+- SceneView 선택 노드 AI 분석 요청 (채팅 프리필 이벤트)
+- Inspector AI 분석 버튼 (채팅 프리필)
+- CocosPanel Cocos 에디터 레이아웃 재설계 (좌우 분할)
+- CocosPanel 프리팹 편집 모드 (씬/프리팹 분리 드롭다운)
+- Inspector 커스텀 스크립트 변수 편집 지원
+- NodeRenderer 물리 컴포넌트 시각화 (RigidBody/BoxCollider/CircleCollider)
+- CCFileSceneView 스크린샷 → Claude AI 분석 연동
+- ChatPanel cc-chat-prefill 이벤트 수신 → 입력창 프리필
+- 노드 복사 UUID 자동 재생성 (딥복사 + crypto.randomUUID)
+- 씬 변경 → Claude 컨텍스트 자동 diff 주입
+- Inspector Layer 편집 (CC2.x/3.x 레이어 옵션 + 직접 입력)
+- cc-file-parser 청크 스트리밍 파싱 (parseCCSceneChunked/isLargeScene)
+- cc-file-parser CC3.x layer 필드 파싱 수정
+- useCCFileContext lastSaveDiff 필드 + 컨텍스트 문자열 포함
+- cc-focus-node 이벤트 dispatch + SceneView 수신 구현
+- CCFileSceneView onMultiDelete prop + handleMultiDelete 콜백 구현
+- Inspector World Transform (worldPos useMemo + findChain) 구현
+- SceneView 다중 선택 정렬 툴바 구현 (6종 + 균등 배분)
+- Inspector COCOS_ENUM_MAP cc.Button/Layout/Mask/ScrollView enum 확장
+- Inspector breadcrumb 노드 통계 뱃지 (깊이/자식/컴포넌트) 구현
+- SceneView 미니맵 오버레이 (뷰포트 사각형 + 노드 점 렌더링) 구현
+- SceneView Label 텍스트 인라인 편집 (더블클릭 foreignObject) 구현
+- Inspector 노드 경로 복사 버튼 (⎘) 구현
+- UITransform _contentSize/contentSize fallback 강화 구현
+- SceneView 우클릭 컨텍스트 메뉴 (복사/붙여넣기/삭제/AI 분석) 구현
+- Inspector Raw JSON 뷰 + 복사 버튼 구현
+- SceneView 미니맵 클릭 → 씬 좌표 pan 구현
+- SceneView Ctrl+드래그 스냅 포인트 시각적 피드백 구현
+- SceneView 저장 diff 알림 배너 (5초 자동 소멸) 구현
+- cc-file-saver validateCCScene + ValidationResult 인터페이스 구현
+- DFS 순환 참조 감지 로직 구현
+- 중복 UUID 감지 로직 구현
+- saveCCScene 저장 전 유효성 검사 guard 적용
+- SceneView "+" 버튼 + onAddNode prop 구현
+- Ctrl+N 단축키로 새 노드 추가 구현
+- CocosPanel handleAddNode 콜백 구현
+- cc-file-saver normalizeTree + buildNewRawNode2x/3x 구현
+- SVG 빈 공간 더블클릭 → 노드 추가 (Shift=fit) 구현
+- SceneView anchorRef + anchorOverride 상태 구현
+- SceneView 앵커 다이아몬드 핸들 + onAnchorMove 연결
+- CocosPanel handleAnchorMove 콜백 + 0~1 클램핑 구현
+- Inspector Quick Edit CLI 입력 상태 + runCmd 함수 구현
+- pos/size/rot/scale/alpha/color/name/active 명령 파서 구현
+- CLI 입력 UI (monosapce placeholder + 피드백) 구현
+- Quick Edit CLI useState 컴포넌트 최상위 선언 (Rules of Hooks 준수)
+- SceneView cc.Widget alignFlags 제약 화살표 시각화 구현
+- TOP/BOT/LEFT/RIGHT 4방향 제약 화살표 모두 구현
+- alignGuides 상태 + ALIGN_SNAP_THRESHOLD 선언
+- 드래그 중 V/H 가이드라인 계산 로직 구현 (vPairs/hPairs)
+- SVG 정렬 가이드라인 렌더링 (빨간 점선) 구현
+- mouseUp 시 alignGuides 클리어 구현
+- handleInsertPrefab — IPC 로드 + deepCopy + 씬 삽입 구현
+- 프리팹 선택 드롭다운 UI 구현
+- .prefab 파일 필터링 + 로딩 상태 표시
+- CCFileSceneView onMultiSelectChange prop + useEffect 구현
+- CCFileBatchInspector 컴포넌트 + multiSelectedUuids 상태 구현
+- applyBatch — opacity/active/position delta 적용 구현
+- CocosPanel ↔ SceneView multiSelectChange 연결
+- CocosPanel reorderInParent Ctrl+Up/Down 핸들러 구현
+- Ctrl+ArrowUp/Down 키 감지 로직 구현
+- SceneView 단축키 legend에 Ctrl+↑↓ 추가
+- cc.Toggle extractor (isChecked) 파싱 추가
+- cc.AudioSource extractor (volume/loop/playOnLoad/pitch) 파싱 추가
+- cc.VideoPlayer extractor (remoteURL/loop/mute) 파싱 추가
+- Inspector Quick Edit (Toggle/ProgressBar/AudioSource/RichText) 전용 UI 구현
+- hoverClientPos 상태 + onMouseEnter/Move/Leave 이벤트 구현
+- 호버 툴팁 패널 렌더링 (컴포넌트 아이콘 + props 미리보기) 구현
+- 주요 컴포넌트 타입별 hint (progress%/toggle✓/volume%) 표시 구현
+- cc-file-parser resolveAnimationClipNames 구현 확인
+- _resolvedClips + _defaultClipName 주입 확인 (2x/3x)
+- CocosPanel cc.Animation 클립 드롭다운 UI 구현 확인
+- BBox min/max 계산 (선택 노드 좌표 누산) 구현
+- BBox 주황 점선 rect 렌더링 구현
+- 컴포넌트 ▲▼ 순서 변경 버튼 UI 구현
+- 컴포넌트 배열 splice 이동 로직 구현
+- refImgSrc/refImgOpacity/refImgInputRef 상태+ref 선언
+- 📐 버튼 + hidden file input 구현
+- SVG <image> 레퍼런스 overlay 렌더링 구현
+- CCSceneNode tag?: number 필드 추가
+- parseNode2x _tag 파싱 구현
+- patch2x _tag + patch3x layer 쓰기 구현
+- Inspector Tag/Layer 편집 UI 구현
+- Ctrl+D 복제 +20 position offset 구현
+- PropSearch propKeyLabel 하이라이트 헬퍼 구현 (노란 mark)
+- propKeyLabel(k)를 모든 prop 키 레이블에 적용
+- cc.EditBox extractor (string/placeholder/maxLength/inputMode) 추가
+- CocosPanel cc.EditBox Quick Edit UI (string/placeholder/maxLength) 구현
+- cc.Camera + cc.ParticleSystem extractor 추가
+- 컴포넌트 enabled 체크박스 토글 구현
+- lockedUuids Set + toggleLock + localStorage 연동 구현
+- 잠긴 노드 드래그 차단 + not-allowed 커서 + 🔒 아이콘
+- 컨텍스트 메뉴 잠금/해제 항목 구현
+- editingZoom 상태 컴포넌트 레벨 선언 (hooks 규칙 준수)
+- 줌 % span → input 인라인 전환 UI 구현
+- sp.Skeleton extractor 구현 (skin/animation/timeScale/loop/paused)
+- Inspector sp.Skeleton Quick Edit UI (skin/animation/timeScale/loop/paused)
+- 즐겨찾기 클릭 → onUpdate(favNode) 탐색 구현 (console.log 제거)
+- 즐겨찾기 컴포넌트 타입 배지 + 없는 노드 희미하게 표시
+- resOverride + effectiveW/H 상태 구현
+- 해상도 preset picker UI (960×640, 1920×1080 등 포함)
+- dragonBones.ArmatureDisplay extractor 구현 (armature/animation/timeScale/loop/playTimes)
+- Inspector dragonBones Quick Edit UI (armature/animation/timeScale/playTimes/loop)
+- svSearch + svSearchMatches useMemo 구현
+- 검색 매칭 노드 마젠타 하이라이트 (stroke + fill)
+- 툴바 검색 input + 매칭 수 표시
+- cc.RigidBody/2D + BoxCollider/CircleCollider extractor 구현
+- Inspector RigidBody Quick Edit (type/mass/gravityScale/linearDamp/fixedRotation)
+- BoxCollider 녹색 점선 rect + CircleCollider 원 SVG 오버레이
+- BatchInspector 스케일(X/Y) + 사이즈(W/H) 일괄 편집 추가
+- 미니맵 effectiveW/H 기준 (resOverride 반영)
+- 노드 사이즈 rect + 검색 매칭 미니맵 하이라이트
+- CC3.x layer 번호 tspan 표시 (기본 레이어 1048576 제외)
+- cc.TiledMap + cc.TiledLayer extractor 구현
+- Inspector TiledMap/TiledLayer Quick Edit UI
+- cc.SafeArea + cc.BlockInputEvents + cc.UIStaticBatch extractor 추가
+- 새 컴포넌트 호버 툴팁 아이콘 추가 (SafeArea/Spine/DragonBones/Collider)
+- TreeSearch ↑↓ 키보드 탐색 + Enter 선택 + Escape 닫기
+- 컴포넌트 타입 검색 (이름 + 타입 모두 검색)
+- 씬 통계 패널 (nodeCount + 상위 4개 컴포넌트 타입 분포)
+- Quick Edit CLI 확장: layer/tag/z/flip x|y/reset/help
+- 정렬 버튼이 effectiveW/H 기반으로 동작
+- cc.Slider + cc.VideoPlayer Inspector Quick Edit 구현
+- Ctrl+D 노드 복제: SceneView 단축키 + CocosPanel handler
+- cc.ScrollView Inspector Quick Edit: horizontal/vertical/inertia/elastic/brake
+- H 키 active 토글: SceneView + CocosPanel handler
+- cc.ParticleSystem Quick Edit: duration + maxParticles
+- Ctrl+↑↓ 형제 순서 변경: SceneView + CocosPanel handler
+- cc.Camera Inspector Quick Edit: depth/zoomRatio/fov
+- cc.PageView Quick Edit: direction/scrollThreshold/autoTurning
+- P키 부모 노드 포커스 + FlatNode parentUuid 추적
+- Enter키 첫 번째 자식 선택
+- cc.Mask Quick Edit: type/inverted/alphaThreshold
+- cc.UIOpacity extractor + Inspector Quick Edit
+- cc.PolygonCollider extractor + SceneView SVG path 시각화
+- BatchInspector 색상 일괄 편집 추가
+- cc.DirectionalLight/PointLight Inspector Quick Edit: intensity/color
+- Inspector 노드 전체 JSON 복사 버튼 추가
+- SceneView 노드 색상 tint 표시 (비흰색일 때 ■ swatch)
+- cc.SkeletalAnimation extractor + Inspector Quick Edit
+- Tab/Shift+Tab 형제 노드 탐색
+- cc.Button extractor + Inspector: transition/state colors/interactable
+- cc.Widget extractor + Inspector: align flags/offsets/mode
+- Ctrl+A 전체 노드 다중 선택
+- cc.Layout extractor + Inspector: type/resizeMode/padding/spacing/autoWrap
+- cc.RichText extractor + Inspector: string/fontSize/lineHeight/maxWidth/horizontalAlign/overflow
+- cc.EditBox extractor + Inspector: string/placeholder/maxLength/inputMode/inputFlag/returnType
+- cc.Toggle/ToggleContainer extractor + Inspector: isChecked/interactable/allowSwitchOff
+- cc.LabelOutline/LabelShadow extractor + Inspector Quick Edit
+- cc.Sprite extractor + Inspector: type/sizeMode/trim/grayscale
+- cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor
+- cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Inspector Quick Edit
+- 위치/크기 정수 반올림 버튼 (⌊⌉)
+- 크기 W/H 비율 잠금 버튼 (🔒)
+- SceneView 검색: 컴포넌트 타입도 매칭 대상 포함
+- 최근 선택 노드 히스토리 (최대 8개)
+- SceneView 활성 노드 수 표시 (비활성 노드 있을 때)
+- 노드 커스텀 메모 (localStorage, 메모 있을 때 노란 테두리)
+- SceneView 마우스 위치 씬 좌표 오버레이
+- 두 노드 선택 시 거리 표시 (↔ Npx)
+- Inspector 같은 이름 노드 찾기 버튼 (🔍)
+- SceneView 줌 퀵점프 버튼 (½/1×/2×)
+- SceneView 눈금자 오버레이 (尺 토글)
+- Inspector 이벤트 핸들러 표시 (📎)
+- SceneView 선택 노드 부모 하이라이트 (연보라 점선)
+- SceneView 편집 잠금 (🔒/🔓)
+- cc.Camera/cc.ParticleSystem 중복 제거 완료 (각 1개)
+- Inspector UUID 복사 버튼 (#)
+- Inspector 컴포넌트 퀵점프 칩 바
+- Inspector 노드 색상 tint 피커
+- SceneView 비활성 노드 숨기기 (👁)
+- SceneView 드래그 delta 표시 (Δx,y)
+- Inspector 자식 노드 빠른 탐색 칩
+- SceneView 형제 노드 하이라이트
+- SceneView 화면 밖 노드 방향 화살표
+- SceneView cc.Label 텍스트 미리보기
+- SceneView HUD 자식/컴포넌트 수 표시
+- Inspector 트랜스폼 복사/붙여넣기
+- SceneView HUD depth 레벨 표시
+- SceneView S/E 단방향 리사이즈 핸들
+- Inspector cc.Label Quick Edit
+- SceneView 같은 컴포넌트 타입 모두 선택
+- SceneView O키 중앙 이동
+- SceneView 와이어프레임 모드
+- SceneView 다중선택 BBox 크기 레이블
+- Inspector 씬 컴포넌트 분포 요약 칩
+- SceneView 검색 비매칭 노드 dim
+- Inspector 씬 성능 경고 칩
+- SceneView 드래그 중 좌표 변화 레이블
+- SceneView 리사이즈 중 크기 레이블
+- SceneView 회전 중 각도 레이블
+- Inspector tint 색상 프리셋 칩
+- SceneView Shift+클릭 같은 이름 노드 검색
+- Inspector 트랜스폼 변경 인디케이터
+- SceneView 캔버스 경계 정렬 가이드
+- Inspector 트랜스폼 원복 버튼
+- SceneView 선택 노드 자식 하이라이트
+- Inspector 중복 이름 배지
+- SceneView Shift+리사이즈 종횡비 유지
+- Inspector 컴포넌트 칩 클릭 노드 선택
+- SceneView 선택 노드 월드 좌표 가이드라인
+- SceneView depth 색조 시각화
+- Inspector 중복 이름 배지 순환 선택
+- SceneView 선택 노드↔부모 연결선
+- 씬 트리 선택 노드 자동 스크롤
+- Inspector 스케일 X/Y 반전 버튼
+- Inspector 색상 섹션 변경 인디케이터
+- Inspector opacity 빠른 프리셋 버튼
+- R1642 bugfix + Inspector breadcrumb 클릭 부모 선택
+- SceneView 상태바 선택 노드 크기 표시
+- 붙여넣기 시 위치 오프셋 적용
+- Inspector 노드 이름 자동완성 datalist
+- Inspector 부모 크기에 맞추기 버튼
+- Inspector 회전 부호 반전 버튼
+- CocosPanel 씬 트리 컴포넌트 필터
+- CocosPanel 씬 트리 깊이 N까지 접기
+- Inspector 부모 기준 정렬 버튼
+- [ ] 키 형제 노드 순환 선택
+- Escape 키 부모 노드 선택
+- SceneView 솔로 모드 (선택 노드 외 흐리게)
+- Inspector 컴포넌트 씬 내 수 배지
+- Inspector 전체 하위 노드 수 배지 (⊲N)
+- Inspector 컴포넌트 배지 클릭 → 같은 타입 노드 목록 팝업
+- Inspector 잠금 토글 버튼
+- 씬 트리 검색어 하이라이트
+- 다중 선택 정렬 버튼 (align left/right/top/bottom/center)
+- Inspector pulse 미리보기 (SceneView 노드 강조)
+- 컴포넌트 필터 custom type 입력
+- 유사 노드 섹션 (공통 컴포넌트 타입 기반)
+- SceneView 드래그 부모 경계 정렬 가이드
+- Inspector 위치/크기 % 토글
+- 앵커 9-point 프리셋 그리드
+- 노드 북마크 (Ctrl+1-9 설정, 1-9 이동)
+- 컴포넌트 prop diff 표시 (변경된 prop 황색 dot)
+- SceneView snap 간격 custom 입력 (datalist)
+- cc.Widget 정렬 시각 다이어그램
+- Ctrl+Shift+C 노드 JSON 클립보드 복사
+- 비활성 조상 경고 배너
+- 최근 선택 노드 히스토리 칩
+- TreeSearch 전체 결과 수 및 더 보기
+- 컴포넌트 타입별 색상 구분
+- SceneView 선택 테두리 색상 사용자 설정
+- Inspector 위치/크기 빠른 복사 버튼
+- SceneView 드래그 ghost 원래 위치 표시
+- 씬 컴포넌트 통계 패널
+- SceneView Shift+드래그 축 제한
+- Inspector 균등 스케일 버튼 (⊟)
+- SceneView z-order 배지 (형제 순서 인덱스)
+- Ctrl+A 씬 전체 노드 다중 선택
+- 컴포넌트 일괄 접기/펴기 버튼
+- 회전 핸들 각도 표시
+- cc.Label 멀티라인 미리보기
+- SceneView 시각적 숨기기 토글
+- SceneView 좌표 핀 마커
+- 씬 트리 검색 히스토리
+- SceneView 드래그 노드 경계 스냅
+- cc.Sprite spriteFrame uuid 복사
+- SceneView 레이블 폰트 크기 조정
+- 다중 선택 공통 컴포넌트 표시
+- SceneView 선택 노드 정보 오버레이
+- cc.Animation 클립 이름 복사
+- cc.AudioSource 클립 uuid 복사
+- Inspector 노드 UUID 표시 + 복사
+- SceneView 형제 그룹 하이라이트
+- 전체 컴포넌트 enabled 토글
+- SceneView 선택 이력 탐색
+- 일괄 회전 편집
+- 씬 트리 collapsed 상태 세션 간 저장
+- 씬뷰 PNG 로컬 다운로드
+- cc.Layout Grid cellSize 편집
+- 씬 트리 구조 텍스트 복사
+- cc.Sprite Filled 모드 fillType/fillStart/fillRange 편집
+- 씬 트리 컨텍스트 메뉴 확장
+- cc.Label fontSize 빠른 조절 버튼
+- cc.Label 텍스트 색상 편집
+- 씬 트리 색상 태그 필터
+- cc.Toggle Quick Edit interactable 추가
+- SceneView 컨텍스트 메뉴 확장
+- Stats 패널 비활성 노드 카운트 배지
+- Global Search 모두 선택 버튼
+- cc.Label overflow + align Quick Edit
+- Inspector 형제 노드 탐색 버튼 ◀ ▶
+- BatchInspector 균등 분배 버튼 (가로/세로)
+- cc.Label lineHeight Quick Edit
+- 트리 컨텍스트 메뉴 형제 순서 이동
+- cc.Button Color/Scale transition duration 편집
+- Inspector 노드 JSON 복사 버튼
+- cc.ProgressBar reverse + totalLength Quick Edit
+- 트리 Ctrl+클릭 다중 선택
+- cc.Label Find & Replace
+- BatchInspector 이름 Prefix/Suffix 일괄 추가
+- Stats 컴포넌트 배지 클릭으로 노드 선택
+- 회전 스텝 버튼 ±15°/±90°
+- 스케일 스텝 버튼 ×0.5/×2
+- Global Search 컴포넌트 타입 필터
+- BatchInspector 기준 노드 크기 맞추기 W≡/H≡
+- 자식 알파벳순 정렬
+- BatchInspector 앵커 9-point 일괄 설정
+- Inspector Z-index 직접 입력
+- Inspector 위치 스텝 버튼
+- cc.ScrollView content 크기 퀵 편집
+- Inspector 크기 스텝 버튼
+- 비활성 조상 일괄 활성화 버튼
+- cc.Label Bold/Italic/Underline 토글
+- Inspector 크기 배율 버튼 ×0.5/×2
+- BatchInspector 불투명도 퀵 프리셋
+- cc.Label 텍스트 대소문자 변환 버튼
+- Tree 자식 노드 수 배지
+- cc.Layout 패딩 균등 버튼
+- BatchInspector cc.Label fontSize 일괄 설정
+- BatchInspector 레이어 일괄 설정 (CC3.x)
+- BatchInspector 색상 퀵 프리셋
+- Inspector 위치 원점 (0,0) 리셋 버튼
+- cc.Widget 스트레치/센터 프리셋 버튼
+- BatchInspector 순서 번호 추가
+- cc.Canvas 해상도/fitWidth/fitHeight 퀵 편집
+- BatchInspector 전체 필드 초기화 버튼
+- cc.Label fontFamily 입력 필드
+- BatchInspector cc.Label 텍스트 색상 일괄 설정
+- cc.Label 텍스트 Trim 버튼
+- BatchInspector cc.Sprite tint 일괄 설정
+- BatchInspector cc.AudioSource volume 일괄 설정
+- BatchInspector cc.Label fontFamily 일괄 설정
+- cc.Button Sprite 전환 모드 UUID 표시
+- BatchInspector cc.Toggle isChecked 일괄 설정
+- cc.Slider progress 퀵 프리셋 버튼
+- Inspector 스냅 그리드 버튼 (×8/×16)
+- cc.RichText 텍스트 미리보기
+- BatchInspector X/Y 균등 배치
+- BatchInspector cc.Button interactable 일괄 설정
+- cc.ProgressBar progress 퀵 프리셋 버튼
+- BatchInspector cc.ProgressBar progress 일괄 설정
+- BatchInspector 선택 노드 정렬 (align X/Y)
+- cc.Label 텍스트 길이 배지 + 빈 문자열 경고
+- Inspector CC3.x 레이어 이름 배지
+- Inspector 회전 정규화 버튼 (-180~180)
+- BatchInspector 회전 일괄 정규화
+- BatchInspector 이름 prefix/suffix 제거
+- BatchInspector 이름 Regex 교체
+- Inspector 위치/크기 정수화 버튼
+- BatchInspector 크기 배율 일괄 적용
+- BatchInspector 선택 노드 위치/크기 일괄 정수화
+- Inspector 스케일 정수화 버튼
+- cc.Layout spacing 퀵 프리셋 버튼
+- cc.ScrollView brake 퀵 프리셋 버튼
+- cc.AudioSource volume 퀵 프리셋 버튼
+- cc.Label fontSize 표준 크기 프리셋 버튼
+- cc.Label lineHeight 퀵 프리셋 버튼
+- cc.Sprite type/sizeMode 버튼
+- cc.Label enableWrapText 토글 + spacingX 입력
+- cc.Camera clearFlags + backgroundColor 편집
+- cc.EditBox inputFlag 버튼
+- BatchInspector cc.Label lineHeight 일괄 설정
+- cc.ParticleSystem duration 퀵 프리셋 버튼
+- cc.UIOpacity 퀵 프리셋 버튼
+- BatchInspector cc.AudioSource loop/playOnLoad 일괄 설정
+- cc.Layout paddingAll 퀵 프리셋 버튼
+- BatchInspector cc.Label overflow 일괄 설정
+- cc.Label fontFamily 퀵 프리셋 버튼
+- BatchInspector cc.Label hAlign 일괄 설정
+- BatchInspector cc.Label vAlign 일괄 설정
+- BatchInspector cc.Sprite type 일괄 설정
+- BatchInspector cc.Label bold/italic/underline 일괄 설정
+- BatchInspector cc.Sprite grayscale 일괄 설정
+- BatchInspector cc.Label wrapText 일괄 설정
+- cc.Label string 클립보드 복사 버튼
+- cc.VideoPlayer playbackRate 퀵 프리셋 버튼
+- cc.Button normalColor 퀵 프리셋 버튼
+- cc.RichText applyAndSave + fontSize 프리셋
+- BatchInspector 크기배율 커스텀 입력
+- cc.Sprite Filled fillType/fillRange applyAndSave
+- cc.LabelOutline/LabelShadow applyAndSave
+- cc.Toggle/EditBox(legacy) applyAndSave
+- cc.Graphics + Collider applyAndSave
+- cc.SkeletalAnimation speedRatio 퀵 프리셋
+- cc.ParticleSystem emitRate 퀵 프리셋
+- BatchInspector cc.Animation playOnLoad 일괄 설정
+- cc.RigidBody gravityScale 퀵 프리셋
+- sp.Skeleton timeScale 퀵 프리셋
+- dragonBones.ArmatureDisplay timeScale 퀵 프리셋
+- cc.Layout verticalDirection/horizontalDirection 버튼
+- BatchInspector cc.Layout type 일괄 설정
+- BatchInspector cc.Widget alignment 일괄 설정
+- cc.Button 상태색 CC 기본값 리셋 버튼
+- BatchInspector cc.RigidBody linearDamping 일괄 설정
+- BatchInspector 선택 노드 이름 정규화
+- sp.Skeleton premultipliedAlpha/debugSlots/debugBones 추가
+- cc.Sprite 색조(hue) 슬라이더
+- BatchInspector cc.AudioSource volume 일괄 설정
+- cc.RigidBody linearDamping 퀵 프리셋
+- cc.RigidBody angularDamping 편집 + 퀵 프리셋
+- cc.ScrollView elasticDuration 편집 + 프리셋
+- cc.Canvas resolutionPolicy 퀵 선택
+- cc.ParticleSystem startSize/endSize 편집
+- cc.ParticleSystem startColor/endColor 색상 피커
+- BatchInspector cc.Slider progress 일괄 설정
+- BatchInspector cc.SkeletalAnimation speedRatio 일괄 설정
+- BatchInspector cc.ParticleSystem emitRate 일괄 설정
+- BatchInspector sp.Skeleton timeScale 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay timeScale 일괄 설정
+- cc.Button transition 퀵 버튼 (None/Color/Sprite/Scale)
+- cc.ParticleSystem speed/speedVar 편집
+- BatchInspector cc.VideoPlayer loop/muted 일괄 설정
+- cc.RigidBody type 퀵 버튼 (DYN/STA/KIN)
+- cc.ParticleSystem lifespan/lifespanVar 편집
+- cc.ParticleSystem gravity x/y 편집
+- BatchInspector cc.ParticleSystem startSize 일괄 설정
+- cc.PageView slideDuration 편집 + 프리셋
+- cc.MotionStreak fade/minSeg/stroke/color/fastMode 편집
+- cc.BoxCollider friction/restitution 편집
+- cc.CircleCollider friction/restitution 편집
+- BatchInspector cc.RigidBody fixedRotation 일괄 설정
+- BatchInspector cc.Mask inverted 일괄 설정
+- BatchInspector cc.ProgressBar reverse 일괄 설정
+- BatchInspector cc.Label bold/italic/underline 일괄 설정
+- BatchInspector cc.Label lineHeight 일괄 설정
+- BatchInspector 이름 find/replace 일괄 치환
+- BatchInspector cc.RigidBody gravityScale 일괄 설정
+- BatchInspector cc.PageView direction H/V 일괄 설정
+- BatchInspector cc.ScrollView H/V/inertia 일괄 설정
+- BatchInspector cc.LabelOutline width 일괄 설정
+- BatchInspector cc.LabelShadow blur 일괄 설정
+- BatchInspector cc.Sprite type (Simple/Sliced/Tiled/Filled) 일괄
+- BatchInspector cc.Mask type (Rect/Ellipse/Image) 일괄 설정
+- cc.AudioSource pitch 편집 (CC3.x)
+- cc.Sprite srcBlendFactor/dstBlendFactor 퀵 버튼 (Normal/Add/Mul)
+- BatchInspector cc.AudioSource pitch 일괄 설정
+- BatchInspector cc.Sprite blendFactor 일괄 설정 (Normal/Add/Mul)
+- BatchInspector cc.Label spacingX 일괄 설정
+- BatchInspector cc.Slider direction 일괄 설정 (H/V)
+- cc.PolygonCollider sensor/friction/restitution 편집
+- BatchInspector cc.RigidBody mass 일괄 설정
+- BatchInspector cc.BoxCollider/CircleCollider sensor 일괄 설정
+- BatchInspector cc.ParticleSystem duration 일괄 설정
+- BatchInspector cc.ParticleSystem maxParticles 일괄 설정
+- BatchInspector cc.PageView slideDuration 일괄 설정
+- BatchInspector cc.ScrollView brake 일괄 설정
+- BatchInspector cc.VideoPlayer playbackRate 일괄 설정
+- BatchInspector cc.Layout padding 일괄 설정 (uniform)
+- BatchInspector cc.Layout spacingX/Y 일괄 설정
+- BatchInspector cc.MotionStreak fade 일괄 설정
+- BatchInspector cc.RigidBody type 일괄 설정 (Dyn/Sta/Kin)
+- BatchInspector cc.Sprite sizeMode 일괄 설정 (Custom/Trimmed/Raw)
+- BatchInspector cc.MotionStreak stroke 일괄 설정
+- BatchInspector cc.Button transition 일괄 설정 (None/Color/Sprite/Scale)
+- BatchInspector cc.SkeletalAnimation playOnLoad 일괄 설정
+- BatchInspector cc.ProgressBar totalLength 일괄 설정
+- cc.ParticleSystem angle/angleVar 편집
+- BatchInspector cc.RichText maxWidth 일괄 설정
+- cc.ParticleSystem speed/speedVar 편집
+- cc.Sprite flipX/flipY 편집
+- BatchInspector cc.Sprite flipX/flipY 일괄 설정
+- cc.Camera backgroundColor/clearFlags/depth 편집
+- BatchInspector cc.ParticleSystem speed 일괄 설정
+- BatchInspector cc.Layout resizeMode 일괄 설정
+- BatchInspector cc.UIOpacity opacity 일괄 설정
+- BatchInspector cc.ParticleSystem angle 일괄 설정
+- BatchInspector cc.Button zoomScale 일괄 설정
+- BatchInspector cc.RigidBody angularDamping 일괄 설정
+- BatchInspector cc.Sprite grayscale 일괄 설정
+- BatchInspector cc.Toggle interactable 일괄 설정
+- cc.PageView autoPageTurningInterval 편집
+- cc.Slider interactable 편집
+- BatchInspector cc.RichText fontSize 일괄 설정
+- BatchInspector cc.Slider interactable 일괄 설정
+- cc.ParticleSystem radialAccel/tangentialAccel 편집
+- BatchInspector cc.ProgressBar progress 일괄 설정
+- cc.ParticleSystem startRadius/endRadius 편집
+- BatchInspector cc.EditBox inputMode 일괄 설정
+- BatchInspector cc.LabelOutline color 일괄 설정
+- BatchInspector cc.LabelShadow color 일괄 설정
+- BatchInspector cc.AudioSource preload 일괄 설정
+- BatchInspector cc.Camera depth 일괄 설정
+- cc.ParticleSystem posVar x/y 편집
+- BatchInspector cc.ParticleSystem maxParticles 일괄 설정
+- BatchInspector cc.EditBox maxLength 일괄 설정
+- BatchInspector cc.ProgressBar reverse 일괄 설정
+- BatchInspector cc.RigidBody bullet 일괄 설정
+- cc.Sprite capInsets Sliced 전용 편집
+- cc.Camera fov 단일노드 편집
+- BatchInspector cc.Camera backgroundColor 일괄 설정
+- BatchInspector cc.Camera clearFlags 일괄 설정
+- BatchInspector cc.RigidBody allowSleep 일괄 설정
+- BatchInspector cc.Sprite fillRange 일괄 설정
+- cc.ParticleSystem startColor/endColor 편집
+- BatchInspector cc.Label cacheMode 일괄 설정
+- BatchInspector cc.MotionStreak minSeg 일괄 설정
+- BatchInspector cc.Label enableWrapText 일괄 설정
+- BatchInspector cc.ScrollView elasticDuration 일괄 설정
+- BatchInspector cc.RichText horizontalAlign 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay playOnLoad 일괄 설정
+- BatchInspector sp.Skeleton loop 일괄 설정
+- BatchInspector cc.ParticleSystem loop 일괄 설정
+- BatchInspector cc.Sprite fillStart 일괄 설정
+- BatchInspector cc.Layout affectedByScale 일괄 설정
+- BatchInspector cc.ScrollView elastic 일괄 설정
+- BatchInspector cc.PageView bounceEnabled 일괄 설정
+- cc.ParticleSystem startSpin/startSpinVar single-node 편집
+- cc.ParticleSystem endSpin/endSpinVar single-node 편집
+- BatchInspector cc.RigidBody linearVelocity 일괄 설정
+- BatchInspector cc.Label overflow 일괄 설정
+- BatchInspector cc.Camera zoomRatio 일괄 설정
+- BatchInspector cc.RichText lineHeight 일괄 설정
+- BatchInspector cc.EditBox fontSize 일괄 설정
+- BatchInspector cc.Slider min/max 일괄 설정
+- BatchInspector cc.Button normalColor 일괄 설정
+- BatchInspector cc.Button pressedColor 일괄 설정
+- BatchInspector cc.Button disabledColor 일괄 설정
+- BatchInspector cc.Button duration 일괄 설정
+- BatchInspector cc.ScrollView bounceDuration 일괄 설정
+- BatchInspector cc.ParticleSystem emissionRate 일괄 설정
+- BatchInspector cc.Label fontSize 일괄 설정
+- BatchInspector cc.Camera fov 일괄 설정
+- BatchInspector cc.RigidBody angularVelocity 일괄 설정
+- BatchInspector cc.Sprite grayscale 일괄 설정
+- BatchInspector cc.Label color 일괄 설정
+- BatchInspector cc.RichText fontColor 일괄 설정
+- BatchInspector cc.ParticleSystem startSize 일괄 설정
+- BatchInspector cc.ParticleSystem life 일괄 설정
+- BatchInspector cc.Layout childAlignment 일괄 설정
+- BatchInspector cc.Slider step 일괄 설정
+- BatchInspector cc.ParticleSystem endSize 일괄 설정
+- BatchInspector cc.MotionStreak color 일괄 설정
+- BatchInspector cc.LabelOutline width 일괄 설정
+- BatchInspector cc.LabelShadow blur 일괄 설정
+- BatchInspector cc.LabelShadow offset 일괄 설정
+- BatchInspector cc.PageView autoPageTurningInterval 일괄 설정
+- BatchInspector cc.PageView scrollThreshold 일괄 설정
+- BatchInspector cc.RigidBody fixedRotation 일괄 설정
+- BatchInspector cc.ParticleSystem startColor 일괄 설정
+- BatchInspector cc.ParticleSystem endColor 일괄 설정
+- BatchInspector cc.AudioSource startTime 일괄 설정
+- BatchInspector cc.Layout horizontalDirection 일괄 설정
+- BatchInspector cc.Layout verticalDirection 일괄 설정
+- BatchInspector cc.Widget margin 일괄 설정
+- BatchInspector cc.RigidBody awake 일괄 설정
+- BatchInspector cc.ParticleSystem positionType 일괄 설정
+- BatchInspector cc.ParticleSystem blendFactor 일괄 설정
+- BatchInspector cc.Label bold/italic 일괄 설정
+- BatchInspector cc.ParticleSystem autoRemoveOnFinish 일괄 설정
+- BatchInspector cc.ScrollView speedAmplifier 일괄 설정
+- BatchInspector cc.ParticleSystem emitterMode 일괄 설정
+- BatchInspector cc.RichText maxWidth 일괄 설정
+- BatchInspector node active 일괄 설정
+- BatchInspector cc.Animation wrapMode 일괄 설정
+- BatchInspector cc.Label underline 일괄 설정
+- BatchInspector cc.EditBox returnType 일괄 설정
+- BatchInspector cc.ProgressBar mode 일괄 설정
+- BatchInspector cc.Mask alphaThreshold 일괄 설정
+- BatchInspector cc.Camera cullingMask 일괄 설정
+- BatchInspector sp.Skeleton premultipliedAlpha 일괄 설정
+- BatchInspector cc.PageView pageTurningEventTiming 일괄 설정
+- BatchInspector cc.Label strikethrough 일괄 설정
+- BatchInspector node layer 일괄 설정
+- BatchInspector cc.BoxCollider size 일괄 설정
+- BatchInspector cc.CircleCollider radius 일괄 설정
+- BatchInspector node color tint 일괄 설정
+- BatchInspector cc.RigidBody sleepThreshold 일괄 설정
+- BatchInspector cc.ParticleSystem startSizeVar 일괄 설정
+- BatchInspector cc.ParticleSystem speedVar 일괄 설정
+- BatchInspector cc.VideoPlayer keepAspectRatio 일괄 설정 (R2000 마일스톤!)
+- BatchInspector cc.ParticleSystem lifeVar 일괄 설정
+- BatchInspector cc.ParticleSystem gravity 일괄 설정
+- BatchInspector node scale 일괄 설정
+- BatchInspector cc.ScrollView pagingEnabled 일괄 설정
+- BatchInspector cc.VideoPlayer fullScreenEnabled 일괄 설정
+- BatchInspector node rotation 일괄 설정
+- BatchInspector cc.Sprite isTrimmedMode 일괄 설정
+- BatchInspector cc.ParticleSystem angleVar 일괄 설정
+- BatchInspector cc.RigidBody enabledContactListener 일괄 설정
+- BatchInspector cc.RichText verticalAlign 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay loop 일괄 설정
+- BatchInspector cc.SkeletalAnimation loop 일괄 설정
+- BatchInspector node position 일괄 설정
+- BatchInspector node size 일괄 설정
+- BatchInspector cc.ParticleSystem rotatePerS 일괄 설정
+- BatchInspector cc.ParticleSystem rotatePerSVar 일괄 설정
+- BatchInspector cc.Label lineHeight 일괄 설정
+- BatchInspector cc.Label overflow 일괄 설정
+- BatchInspector cc.Label horizontalAlign 일괄 설정
+- BatchInspector cc.Button interactable 일괄 설정
+- BatchInspector cc.Layout paddingTop 일괄 설정
+- BatchInspector cc.Layout paddingBottom 일괄 설정
+- BatchInspector cc.Layout paddingLeft 일괄 설정
+- BatchInspector cc.Layout paddingRight 일괄 설정
+- BatchInspector node anchor preset 일괄 설정
+- BatchInspector cc.ParticleSystem totalParticles 일괄 설정
+- BatchInspector cc.ParticleSystem duration 일괄 설정
+- BatchInspector cc.ParticleSystem speed 일괄 설정
+- BatchInspector cc.ParticleSystem radialAccel 일괄 설정
+- BatchInspector cc.ParticleSystem tangentialAccel 일괄 설정
+- BatchInspector cc.ParticleSystem startSpin 일괄 설정
+- BatchInspector cc.ParticleSystem endSpin 일괄 설정
+- BatchInspector cc.ParticleSystem angle 일괄 설정
+- BatchInspector cc.Label verticalAlign 일괄 설정
+- BatchInspector cc.RichText lineHeight 일괄 설정
+- BatchInspector cc.MotionStreak minSeg 일괄 설정
+- BatchInspector sp.Skeleton timeScale 일괄 설정
+- BatchInspector cc.BoxCollider offset 일괄 설정
+- BatchInspector cc.CircleCollider offset 일괄 설정
+- BatchInspector cc.Layout spacingX 일괄 설정
+- BatchInspector cc.Layout spacingY 일괄 설정
+- BatchInspector cc.Slider value 일괄 설정
+- BatchInspector cc.Widget alignMode 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay playTimes 일괄 설정
+- BatchInspector cc.SkeletalAnimation wrapMode 일괄 설정
+- BatchInspector cc.VideoPlayer resourceType 일괄 설정
+- BatchInspector cc.ParticleSystem startSpinVar 일괄 설정
+- BatchInspector cc.ParticleSystem endSpinVar 일괄 설정
+- BatchInspector cc.ParticleSystem endSizeVar 일괄 설정
+- BatchInspector cc.ParticleSystem radialAccelVar 일괄 설정
+- BatchInspector cc.ParticleSystem tangentialAccelVar 일괄 설정
+- BatchInspector cc.Animation speed 일괄 설정
+- BatchInspector node opacity 일괄 설정
+- BatchInspector cc.ParticleSystem posVar 일괄 설정
+- BatchInspector cc.ParticleSystem gravity.x 일괄 설정
+- BatchInspector cc.SkeletalAnimation speed 일괄 설정
+- BatchInspector cc.Layout wrapMode 일괄 설정
+- BatchInspector cc.Camera orthographic 일괄 설정
+- BatchInspector cc.ParticleSystem startRadius 일괄 설정
+- BatchInspector cc.ParticleSystem endRadius 일괄 설정
+- BatchInspector cc.ParticleSystem startRadiusVar 일괄 설정
+- BatchInspector cc.ParticleSystem rotationIsDir 일괄 설정
+- BatchInspector cc.ProgressBar totalLength 일괄 설정
+- BatchInspector cc.Label fontFamily 일괄 설정
+- BatchInspector cc.ScrollView bounce 일괄 설정
+- BatchInspector cc.RichText fontSize 일괄 설정
+- BatchInspector cc.PageView direction 일괄 설정
+- BatchInspector cc.Layout cellSize 일괄 설정
+- BatchInspector cc.RigidBody linearDamping 일괄 설정
+- BatchInspector cc.RigidBody angularDamping 일괄 설정
+- BatchInspector cc.MotionStreak fade 일괄 설정
+- BatchInspector cc.Sprite fillType 일괄 설정
+- BatchInspector cc.ParticleSystem startSize 일괄 설정
+- BatchInspector cc.ParticleSystem endSize 일괄 설정
+- BatchInspector cc.VideoPlayer volume 일괄 설정
+- BatchInspector cc.MotionStreak stroke 일괄 설정
+- BatchInspector cc.PageView pageTurningSpeed 일괄 설정
+- BatchInspector cc.Layout startAxis 일괄 설정
+- BatchInspector cc.Layout constraint 일괄 설정
+- BatchInspector cc.Layout resizeMode 일괄 설정
+- BatchInspector cc.ParticleSystem life 일괄 설정
+- BatchInspector cc.BoxCollider sensor 일괄 설정
+- BatchInspector cc.CircleCollider sensor 일괄 설정
+- BatchInspector cc.PolygonCollider sensor 일괄 설정
+- BatchInspector cc.EditBox inputMode 일괄 설정
+- BatchInspector cc.EditBox inputFlag 일괄 설정
+- BatchInspector cc.BoxCollider density 일괄 설정
+- BatchInspector cc.CircleCollider density 일괄 설정
+- BatchInspector cc.BoxCollider friction 일괄 설정
+- BatchInspector cc.CircleCollider friction 일괄 설정
+- BatchInspector cc.BoxCollider restitution 일괄 설정
+- BatchInspector cc.CircleCollider restitution 일괄 설정
+- BatchInspector cc.PolygonCollider density 일괄 설정
+- BatchInspector cc.PolygonCollider friction 일괄 설정
+- BatchInspector cc.PolygonCollider restitution 일괄 설정
+- BatchInspector cc.Widget top 일괄 설정
+- BatchInspector cc.Widget bottom 일괄 설정
+- BatchInspector cc.Widget left 일괄 설정
+- BatchInspector cc.Widget right 일괄 설정
+- BatchInspector cc.Widget horizontalCenter 일괄 설정
+- BatchInspector cc.Widget verticalCenter 일괄 설정

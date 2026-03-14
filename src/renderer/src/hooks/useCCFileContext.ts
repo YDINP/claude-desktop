@@ -14,6 +14,8 @@ export interface CCFileContextData {
   selectedNodeName?: string
   selectedNodeUuid?: string
   components?: string[]
+  /** R1477: 마지막 저장 시 씬 변경 diff 요약 */
+  lastSaveDiff?: string
 }
 
 export function useCCFileContext() {
@@ -37,6 +39,10 @@ export function useCCFileContext() {
       }
       if (data.components && data.components.length > 0) {
         lines.push(`컴포넌트: ${data.components.join(', ')}`)
+      }
+      // R1477: 마지막 씬 변경 diff
+      if (data.lastSaveDiff) {
+        lines.push(`마지막 변경: ${data.lastSaveDiff}`)
       }
       setContextString(lines.join('\n'))
     } catch {

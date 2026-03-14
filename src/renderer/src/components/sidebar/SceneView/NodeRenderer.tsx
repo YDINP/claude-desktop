@@ -21,6 +21,8 @@ interface NodeRendererProps {
   designWidth?: number
   designHeight?: number
   flashing?: boolean
+  /** R1460: 히트맵 강도 (0~1, undefined면 미적용) */
+  heatmapIntensity?: number
   onMouseDown: (e: React.MouseEvent, uuid: string) => void
   onMouseEnter: (uuid: string) => void
   onMouseLeave: () => void
@@ -57,6 +59,7 @@ export const NodeRenderer = memo(function NodeRenderer({
   nodeColor,
   designWidth = 960,
   designHeight = 640,
+  heatmapIntensity,
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
@@ -126,6 +129,12 @@ export const NodeRenderer = memo(function NodeRenderer({
   const MAX_BADGES = 3
   const icons = node.components.slice(0, MAX_BADGES).map(c => getComponentIcon([c]))
 
+  // R1462: cc.Shadow 컴포넌트 감지
+  const shadowComp = node.components.find(c => c.type === 'cc.Shadow')
+  const shadowEnabled = shadowComp?.props?.enabled !== false && !!shadowComp
+  const shadowProps = shadowComp?.props as { color?: { r: number; g: number; b: number; a: number }; blur?: number; offset?: { x: number; y: number } } | undefined
+  const shadowFilterId = shadowEnabled ? `shadow-${node.uuid.replace(/[^a-zA-Z0-9]/g, '')}` : null
+
   return (
     <g
       opacity={opacity}
@@ -136,6 +145,19 @@ export const NodeRenderer = memo(function NodeRenderer({
       onMouseLeave={onMouseLeave}
       style={{ cursor: 'move' }}
     >
+      {/* R1462: cc.Shadow SVG filter defs */}
+      {shadowFilterId && shadowEnabled && (
+        <defs>
+          <filter id={shadowFilterId} x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow
+              dx={(shadowProps?.offset?.x ?? 2) / 4}
+              dy={-(shadowProps?.offset?.y ?? -2) / 4}
+              stdDeviation={(shadowProps?.blur ?? 4) / 3}
+              floodColor={shadowProps?.color ? `rgba(${shadowProps.color.r},${shadowProps.color.g},${shadowProps.color.b},${(shadowProps.color.a ?? 255) / 255})` : 'rgba(0,0,0,0.5)'}
+            />
+          </filter>
+        </defs>
+      )}
       {/* 노드 바디 */}
       <rect
         x={rx}
@@ -147,6 +169,7 @@ export const NodeRenderer = memo(function NodeRenderer({
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDash}
         rx={2}
+        filter={shadowFilterId ? `url(#${shadowFilterId})` : undefined}
       >
         {selected && node.components.length > 0 && (
           <title>{node.components.map(c => c.type).join(', ')}</title>
@@ -195,6 +218,19 @@ export const NodeRenderer = memo(function NodeRenderer({
           stroke="#60a5fa"
           strokeWidth={2}
           rx={3}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+
+      {/* R1460: 히트맵 오버레이 (클릭 빈도 색상) */}
+      {heatmapIntensity != null && heatmapIntensity > 0 && (
+        <rect
+          x={rx}
+          y={ry}
+          width={pw}
+          height={ph}
+          fill={`rgba(${Math.round(255)},${Math.round(140 * (1 - heatmapIntensity))},${Math.round(0)},${0.15 + heatmapIntensity * 0.45})`}
+          rx={2}
           style={{ pointerEvents: 'none' }}
         />
       )}
@@ -289,6 +325,70 @@ export const NodeRenderer = memo(function NodeRenderer({
           style={{ pointerEvents: 'none' }}
         />
       )}
+
+      {/* R1471: 물리 컴포넌트 시각화 — RigidBody/BoxCollider/CircleCollider/PolygonCollider */}
+      {lod === 0 && (() => {
+        const rigidBody = node.components.find(c =>
+          c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D' ||
+          c.type === 'cc.physics.RigidBody')
+        const boxCollider = node.components.find(c =>
+          c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D' ||
+          c.type === 'cc.physics2d.PhysicsBoxCollider')
+        const circleCollider = node.components.find(c =>
+          c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D' ||
+          c.type === 'cc.physics2d.PhysicsCircleCollider')
+        const polyCollider = node.components.find(c =>
+          c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D' ||
+          c.type === 'cc.physics2d.PhysicsPolygonCollider')
+        if (!rigidBody && !boxCollider && !circleCollider && !polyCollider) return null
+        // 콜라이더 오프셋 (props에서 읽기)
+        const cOff = boxCollider?.props?.offset as { x?: number; y?: number } | undefined
+        const cSize = boxCollider?.props?.size as { width?: number; height?: number } | undefined
+        const cOffX = (cOff?.x ?? 0) * view.scale
+        const cOffY = (cOff?.y ?? 0) * view.scale
+        const cW = pw + ((cSize?.width ?? 0) * view.scale)
+        const cH = ph + ((cSize?.height ?? 0) * view.scale)
+        return (
+          <g style={{ pointerEvents: 'none' }}>
+            {/* BoxCollider — 녹색 점선 */}
+            {boxCollider && (
+              <rect
+                x={rx + cOffX - (cW - pw) / 2} y={ry - cOffY - (cH - ph) / 2}
+                width={Math.max(cW, 8)} height={Math.max(cH, 8)}
+                fill="rgba(80,255,100,0.06)" stroke="rgba(80,255,100,0.7)"
+                strokeWidth={1} strokeDasharray="4 2" rx={1}
+              />
+            )}
+            {/* CircleCollider — 녹색 점선 원 */}
+            {circleCollider && (() => {
+              const r = (circleCollider.props?.radius as number | undefined ?? Math.min(pw, ph) / 2)
+              const cOffC = circleCollider.props?.offset as { x?: number; y?: number } | undefined
+              const cx2 = rx + pw / 2 + (cOffC?.x ?? 0) * view.scale
+              const cy2 = ry + ph / 2 - (cOffC?.y ?? 0) * view.scale
+              return (
+                <circle
+                  cx={cx2} cy={cy2} r={Math.max(r * view.scale, 4)}
+                  fill="rgba(80,255,100,0.06)" stroke="rgba(80,255,100,0.7)"
+                  strokeWidth={1} strokeDasharray="4 2"
+                />
+              )
+            })()}
+            {/* PolygonCollider — 녹색 다각형 */}
+            {polyCollider && pw > 4 && ph > 4 && (
+              <rect
+                x={rx - 2} y={ry - 2} width={pw + 4} height={ph + 4}
+                fill="rgba(80,255,100,0.06)" stroke="rgba(80,255,100,0.7)"
+                strokeWidth={1} strokeDasharray="2 2"
+              />
+            )}
+            {/* RigidBody 배지 — 우하단 'RB' */}
+            {rigidBody && pw > 16 && ph > 12 && (
+              <text x={rx + pw - 1} y={ry + ph - 1} fontSize={6} fill="rgba(80,255,100,0.9)"
+                fontFamily="var(--font-mono)" textAnchor="end" style={{ userSelect: 'none' }}>RB</text>
+            )}
+          </g>
+        )
+      })()}
 
       {/* R1388: Sprite SLICED/TILED 렌더링 힌트 */}
       {lod === 0 && pw > 20 && ph > 20 && (() => {

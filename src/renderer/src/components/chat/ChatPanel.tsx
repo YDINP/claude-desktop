@@ -552,6 +552,17 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
   // ── 프롬프트 변수 템플릿 ─────────────────────────────────────────────────────
   const [inputText, setInputText] = useState('')
   const [varModal, setVarModal] = useState<{ text: string; vars: string[] } | null>(null)
+
+  // R1474: cc-chat-prefill 이벤트 → 입력창 프리필 (씬 AI 분석)
+  useEffect(() => {
+    const onPrefill = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { text?: string; message?: string; imageBase64?: string }
+      const msg = detail.text ?? detail.message ?? ''
+      if (msg) setInputText(prev => prev ? prev + '\n\n' + msg : msg)
+    }
+    window.addEventListener('cc-chat-prefill', onPrefill)
+    return () => window.removeEventListener('cc-chat-prefill', onPrefill)
+  }, [])
   const [varValues, setVarValues] = useState<Record<string, string>>({})
   const varInputRefs = useRef<(HTMLInputElement | null)[]>([])
 
@@ -801,6 +812,24 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
           const actions = parseCCActions(lastMsg.text)
           if (actions.length > 0) {
             executeCCActions(actions, ccCtx.port).catch(() => {})
+          }
+        }
+      }
+      // R1412: AI 응답에서 노드 이름 추출 → SceneView 하이라이트 이벤트 발생
+      {
+        const lastMsg = chat.messages[messageCount - 1]
+        if (lastMsg?.role === 'assistant' && lastMsg.text) {
+          const nodeNames = new Set<string>()
+          // 큰따옴표 또는 백틱 안 텍스트 추출 (2~40자)
+          const patterns = [/[`"]([A-Za-z_][\w\- ]{1,39})[`"]/g]
+          for (const pat of patterns) {
+            let m: RegExpExecArray | null
+            while ((m = pat.exec(lastMsg.text)) !== null) {
+              nodeNames.add(m[1])
+            }
+          }
+          for (const nodeName of nodeNames) {
+            window.dispatchEvent(new CustomEvent('cc-highlight-node', { detail: { nodeName } }))
           }
         }
       }

@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1409 완료 — Phase DD14 진행 중, QA Pass 1281)
+> 마지막 업데이트: 2026-03-14 (Round 1469 완료 — Phase DD19 진행 중, QA Pass 1359)
 
 ## 개발 루프 실행 방식
 
@@ -785,6 +785,66 @@
 | Round 1401 | SceneView 씬 통계 오버레이 (I키, 노드수/컴포넌트 분포, localStorage, ℹ 버튼) | ✅ |
 | Round 1402 | Inspector 노드 참조 필드 🔗 표시 (__id__/__uuid__ 감지) | ✅ |
 | Round 1403 | QA Section 377-378 추가 (R1398-R1402 기능 체크, Pass 1276) | ✅ |
+| Round 1410 | cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs) + preload API | ✅ |
+| Round 1411 | SceneView Inspector 속성 검색 필터 (propFilter, Esc 초기화, 컴포넌트명/props 필터) | ✅ |
+| Round 1412 | SceneView 채팅 연동 노드 하이라이트 (cc-highlight-node 이벤트, ChatPanel dispatch, 3초 깜빡임) | ✅ |
+| Round 1413 | Inspector 다중 노드 일괄 편집 (active 일괄 토글, position 오프셋, 일괄 적용 버튼) | ✅ |
+| Round 1414 | CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5/20개, 복원 TODO UI) | ✅ |
+| Round 1415 | QA Section 383-384 추가 (R1410-R1414 기능 체크, 런타임 체크 확장, Pass 1297) | ✅ |
+| Round 1416 | SceneView 노드 잠금 완성 (resize/rotate 차단, lockedUuids 체크) | ✅ |
+| Round 1417 | cc-file-parser 2x/3x Label 폰트 필드 강화 파싱 (fontFamily, spacingX/Y, overflow) + Inspector 표시 | ✅ |
+| Round 1418 | CocosPanel 씬 유효성 검사 Lint (UUID중복, 빈이름, Canvas없음, 비활성부모, 깊이경고) | ✅ |
+| Round 1419 | SceneView 뷰포트 프리셋 저장/불러오기 (localStorage, 1:1/2:1 기본, 사용자 max 5) | ✅ |
+| Round 1420 | Inspector cc.Button 속성 편집 (interactable, autoGray, transition, duration, 색상 읽기전용) | ✅ |
+| Round 1421 | QA Section 385-386 추가 (R1416-R1420 기능 체크, Pass 1304) | ✅ |
+| Round 1422 | SceneView 그리드 크기/색상/불투명도 커스터마이즈 (localStorage grid-settings, 팝업 UI) | ✅ |
+| Round 1423 | CocosPanel .bak 백업 파일 관리 UI (목록/복원/전체삭제, BackupManager 컴포넌트) | ✅ |
+| Round 1424 | SceneView 다중 씬 비교 뷰 (좌우 분할, 비교 씬 선택 드롭다운, 읽기 전용) | ✅ |
+| Round 1425 | Inspector cc.ProgressBar/Slider 속성 편집 (progress, totalLength, reverse) | ✅ |
+| Round 1426 | cc-file-parser buildNodePathIndex + Inspector 노드 경로 표시 + 검색 경로 매칭 | ✅ |
+| Round 1427 | QA Section 387-388 추가 (R1422-R1426 기능 체크, Pass 1313) | ✅ |
+| Round 1428 | SceneView 히트 테스트 정밀화 (최소 8px, z-order 역순, Tab 순환, 비활성 클릭 차단) | ✅ |
+| Round 1429 | Inspector cc.Animation 타임라인 바 시각화 + cc.Tween 읽기전용 표시 | ✅ |
+| Round 1430 | CocosPanel 전역 노드 검색 (Ctrl+F, 이름/컴포넌트, Esc 닫기, 경로 표시) | ✅ |
+| Round 1431 | SceneView Before/After 슬라이더 비교 (SVG clipPath, 드래그, BEFORE/AFTER 라벨) | ✅ |
+| Round 1432 | cc-file-parser buildReferenceGraph (UUID 참조 그래프) + detectCycles (순환 참조 탐지) | ✅ |
+| Round 1433 | QA Section 389-390 추가 (R1428-R1432 기능 체크, Pass 1318) | ✅ |
+| Round 1434 | CocosPanel 에셋 썸네일 호버 미리보기 (128x128, base64, 파일명+크기) | ✅ |
+| Round 1435 | SceneView 씬 JSON 뷰어 패널 ({ } 버튼, syntax highlight, 선택/전체 토글) | ✅ |
+| Round 1436 | Inspector 컴포넌트 복사/붙여넣기 (클립보드 JSON, 중복 경고) | ✅ |
+| Round 1437 | cc-file-saver mtime 기반 충돌 감지 + CocosPanel conflict dialog | ✅ |
+| Round 1438 | 씬 로컬 HTTP 공유 (7332포트, 60초 자동 종료, URL 클립보드 복사) | ✅ |
+| Round 1439 | QA Section 391-392 추가 (R1434-R1438 기능 체크, Pass 1325) | ✅ |
+| Round 1440 | SceneView 씬 JSON 임포트 (붙여넣기 모달, UUID 자동 재생성) | ✅ |
+| Round 1441 | cc-file-parser suggestOptimizations (draw call/노드수/깊이/비활성 비율) | ✅ |
+| Round 1442 | SceneView 정렬 가이드라인 고도화 (레이블/중앙선/스냅임계값) | ✅ |
+| Round 1443 | Inspector 북마크 패널 (★ 토글 + 목록 + 색상 태그) | ✅ |
+| Round 1444 | CocosPanel 스크립트 편집기 연동 (✏️ 버튼, 사용중 강조) | ✅ |
+| Round 1445 | QA Section 393-394 추가 (R1440-R1444 기능 체크, Pass 1332) | ✅ |
+| Round 1446 | SceneView 편집 이력 패널 (⏱ 버튼, max 100 항목, 드래그/리사이즈/이름변경 기록) | ✅ |
+| Round 1447 | cc-file-parser findCanvasNode + getDesignResolution (2x/3x Canvas 자동 감지) | ✅ |
+| Round 1448 | CocosPanel 씬 의존성 분석 (📦 버튼, UUID 참조 추출, 타입별 그룹/누락 표시) | ✅ |
+| Round 1449 | Inspector Transform 개별/전체 리셋 버튼 (↺ 위치/회전/스케일/전체) | ✅ |
+| Round 1450 | SceneView 레이어 순서 드래그 재배치 (⋮⋮ 핸들, 파란 드롭 인디케이터) | ✅ |
+| Round 1451 | QA Section 395-396 추가 (R1446-R1450 기능 체크, Pass 1335) | ✅ |
+| Round 1452 | SceneView 씬 노드 템플릿 라이브러리 (📌, max 10, 기본 2개) | ✅ |
+| Round 1453 | cc-file-parser Button/Toggle/Slider 이벤트 핸들러 파싱 | ✅ |
+| Round 1454 | CocosPanel 씬 일괄 처리 (폰트통일/비활성삭제/이름정규화) | ✅ |
+| Round 1455 | SceneView 카메라 뷰 북마크 Ctrl+1~5 저장/이동 (200ms lerp) | ✅ |
+| Round 1456 | Inspector cc.UIOpacity/UITransform 직접 편집 섹션 | ✅ |
+| Round 1457 | QA Section 397-398 추가 (R1452-R1456 기능 체크, Pass 1344) | ✅ |
+| Round 1458 | SceneView 자동 레이아웃 (수평/수직 균등배분 + 격자 + 원형 배치) | ✅ |
+| Round 1459 | cc-file-parser extractSceneMeta (스크립트/텍스처/물리/트윈/애니메이션 감지) | ✅ |
+| Round 1460 | SceneView 노드 클릭 히트맵 (선택 빈도 색상 시각화 + 리셋) | ✅ |
+| Round 1461 | CocosPanel CC 프로젝트 생성 마법사 (3단계: 이름/위치 → CC버전 → 템플릿) | ✅ |
+| Round 1462 | NodeRenderer cc.Shadow SVG feDropShadow 렌더링 | ✅ |
+| Round 1463 | QA Section 399-400 추가 (R1458-R1462 기능 체크, Section 400 달성!) | ✅ |
+| Round 1464 | SceneView Tween/Animation 노드 CSS 애니메이션 프리뷰 (▶/■ 토글) | ✅ |
+| Round 1465 | cc-file-parser diffScenes (added/removed/modified + changedFields) | ✅ |
+| Round 1466 | CocosPanel 씬 저장 시 자동 썸네일 생성 (80x60 canvas → base64 localStorage) | ✅ |
+| Round 1467 | Inspector 프리팹 인스턴스 뱃지 + cc-open-file 소스 표시 | ✅ |
+| Round 1468 | SceneView/Inspector 선택 노드 AI 분석 요청 (cc-chat-prefill) | ✅ |
+| Round 1469 | QA Section 401-402 추가 (R1464-R1468 기능 체크, Pass 1359) | ✅ |
 
 ## QA 프로세스
 
@@ -814,3 +874,16 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | **Cursor 2.0** — Inline Editing UX | 선택 텍스트 위에 플로팅 툴바 즉시 출현, 편집 제안을 인라인 diff로 시각화(수락/거절 원클릭), 파일 저장 없이 프리뷰 가능한 가상 편집 레이어 | Round 84 메시지 편집, Round 88 PromptChain 인라인 수정 |
 | **GitHub Copilot Chat** — Regeneration + Stop | 각 응답 버블 하단에 ↺ 재생성 버튼 노출, 스트리밍 중 ■ Stop 버튼이 입력창 내부에 인라인 배치되어 UX 흐름 최소화, 재생성 시 이전 응답은 히스토리로 보존 | Round 84 재생성/중단 구현 |
 | **Windsurf** — 세션 컨텍스트 시각화 | 대화 사이드바에 "Context Window" 진행 바 상시 표시, 세션 내 참조 파일·심볼 목록을 인라인 칩으로 시각화, 컨텍스트 초과 임박 시 자동 경고 토스트 | Round 86 StatusBar 토큰 카운터, Round 85 세션 태그 시스템 |
+| Round 1470 | CocosPanel Cocos 에디터 레이아웃 재설계 (계층|SceneView+Inspector 좌우 분할, ISSUE-004) | ✅ |
+| Round 1471 | NodeRenderer 물리 컴포넌트 시각화 (RigidBody/BoxCollider/CircleCollider 점선+RB 뱃지) | ✅ |
+| Round 1472 | CocosPanel 프리팹 편집 모드 (씬/프리팹 optgroup 분리, 🧩 배지) | ✅ |
+| Round 1473 | Inspector 커스텀 스크립트 변수 편집 (isCustomScript 감지, 📝 아이콘, 청록 헤더) | ✅ |
+| Round 1474 | CCFileSceneView 스크린샷 → Claude AI 비전 분석 (📷 버튼, cc-chat-prefill, ChatPanel 수신) | ✅ |
+| Round 1475 | QA Section 403-404 추가 (R1470-R1474 기능 체크, Pass 1365) | ✅ |
+| Round 1476 | 노드 복사 UUID 자동 재생성 (deepCopyNodeWithNewUuids, crypto.randomUUID, 딥복사) | ✅ |
+| Round 1477 | 씬 저장 시 변경 diff → Claude 컨텍스트 자동 주입 (prevSceneRootRef, lastSaveDiff) | ✅ |
+| Round 1478 | cc-file-parser 대형 씬 청크 스트리밍 파싱 (parseCCSceneChunked, isLargeScene) | ✅ |
+| Round 1479 | Inspector Layer 필드 편집 고도화 (CC2.x/3.x layerOptions, 직접입력, parser fix) | ✅ |
+| Round 1480 | QA Section 405-406 추가 (R1476-R1479 기능 체크, Pass 1371) | ✅ |
+| Round 2159 | BatchInspector cc.BoxCollider2D + CircleCollider2D 확장 (sensor/density/friction/restitution 배치에 포함, QA Pass 2082) | ✅ |
+| Round 2160 | BatchInspector cc.BoxCollider2D offset + CircleCollider2D offset 신규 배치 섹션 (QA Pass 2084) | ✅ |

@@ -8,6 +8,26 @@ export interface SaveResult {
   success: boolean
   backupPath?: string
   error?: string
+  conflict?: boolean   // R1437: 외부 변경 감지 시 true
+  currentMtime?: number // R1437: 저장 후 mtime 반환
+}
+
+// R1437: 로드 시 mtime 기록 맵 (scenePath → mtimeMs)
+const loadedMtimeMap = new Map<string, number>()
+
+/** R1437: 씬 로드 시 mtime 기록 */
+export function recordSceneMtime(scenePath: string): void {
+  try {
+    const stat = fs.statSync(scenePath)
+    loadedMtimeMap.set(scenePath, stat.mtimeMs)
+  } catch { /* ignore */ }
+}
+
+/** R1437: 강제 덮어쓰기 — mtime 무시하고 저장 */
+export function forceOverwriteScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): SaveResult {
+  // mtime 기록 초기화 후 저장
+  loadedMtimeMap.delete(sceneFile.scenePath)
+  return saveCCScene(sceneFile, modifiedRoot)
 }
 
 /**
@@ -35,6 +55,30 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
         if (nodeRef?.__id__ != null) uiTransformByNodeIdx.set(nodeRef.__id__, i)
       }
     })
+  }
+
+  // R1504: 새 노드(_rawIndex==null) → raw 배열에 항목 추가 (정규화)
+  function normalizeTree(node: CCSceneNode, parentRawIdx: number | null): CCSceneNode {
+    let cur = node
+    if (cur._rawIndex == null) {
+      const newIdx = raw.length
+      raw.push(version === '2x'
+        ? buildNewRawNode2x(cur, parentRawIdx)
+        : buildNewRawNode3x(cur, parentRawIdx))
+      cur = { ...cur, _rawIndex: newIdx }
+    }
+    const children = cur.children.map(c => normalizeTree(c, cur._rawIndex!))
+    return { ...cur, children }
+  }
+  const normalizedRoot = normalizeTree(modifiedRoot, null)
+
+  // R1502: 저장 전 유효성 검사
+  const validation = validateCCScene(normalizedRoot)
+  if (!validation.valid) {
+    return { success: false, error: `유효성 오류: ${validation.errors.join('; ')}` }
+  }
+  if (validation.warnings.length > 0) {
+    console.warn('[cc-file-saver] 저장 경고:', validation.warnings.join(', '))
   }
 
   // CCSceneNode 트리 → raw 배열 패치
@@ -84,7 +128,18 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
     for (const child of node.children) patchNode(child)
   }
 
-  patchNode(modifiedRoot)
+  patchNode(normalizedRoot)
+
+  // ── R1437: 충돌 감지 (mtime 비교) ──────────────────────────────────────────
+  const recordedMtime = loadedMtimeMap.get(scenePath)
+  if (recordedMtime != null) {
+    try {
+      const currentStat = fs.statSync(scenePath)
+      if (Math.abs(currentStat.mtimeMs - recordedMtime) > 100) {
+        return { success: false, conflict: true, error: '파일이 외부에서 변경되었습니다.', currentMtime: currentStat.mtimeMs }
+      }
+    } catch { /* file may be deleted — proceed with save */ }
+  }
 
   // ── 파일 저장 ────────────────────────────────────────────────────────────────
   try {
@@ -98,9 +153,69 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
     fs.writeFileSync(tmpPath, content, 'utf-8')
     fs.renameSync(tmpPath, scenePath)
 
+    // R1437: 저장 후 mtime 갱신
+    try {
+      const newStat = fs.statSync(scenePath)
+      loadedMtimeMap.set(scenePath, newStat.mtimeMs)
+    } catch { /* ignore */ }
+
     return { success: true, backupPath }
   } catch (e) {
     return { success: false, error: String(e) }
+  }
+}
+
+// ── R1504: 새 노드 raw entry 빌드 ─────────────────────────────────────────────
+
+function buildNewRawNode2x(node: CCSceneNode, parentIdx: number | null): RawEntry {
+  const pos = node.position ?? { x: 0, y: 0, z: 0 }
+  const sc = node.scale ?? { x: 1, y: 1, z: 1 }
+  return {
+    __type__: 'cc.Node',
+    _name: node.name,
+    _objFlags: 0,
+    _parent: parentIdx != null ? { __id__: parentIdx } : null,
+    _children: [],
+    _active: node.active ?? true,
+    _components: [],
+    _prefab: null,
+    _trs: {
+      __type__: 'TypedArray',
+      ctor: 'Float64Array',
+      array: [pos.x ?? 0, pos.y ?? 0, pos.z ?? 0, 0, 0, 0, 1, sc.x ?? 1, sc.y ?? 1, sc.z ?? 1],
+    },
+    _contentSize: { width: node.size?.x ?? 100, height: node.size?.y ?? 100 },
+    _anchorPoint: { x: node.anchor?.x ?? 0.5, y: node.anchor?.y ?? 0.5 },
+    _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 },
+    _opacity: node.opacity ?? 255,
+    _skewX: 0,
+    _skewY: 0,
+    _zIndex: 0,
+    groupIndex: 0,
+    id: node.uuid,
+  }
+}
+
+function buildNewRawNode3x(node: CCSceneNode, parentIdx: number | null): RawEntry {
+  const pos = node.position ?? { x: 0, y: 0, z: 0 }
+  const sc = node.scale ?? { x: 1, y: 1, z: 1 }
+  return {
+    __type__: 'cc.Node',
+    _name: node.name,
+    _objFlags: 0,
+    '__editorExtras__': {},
+    _parent: parentIdx != null ? { __id__: parentIdx } : null,
+    _children: [],
+    _active: node.active ?? true,
+    _components: [],
+    _prefab: null,
+    _lpos: { x: pos.x ?? 0, y: pos.y ?? 0, z: pos.z ?? 0 },
+    _lrot: { x: 0, y: 0, z: 0, w: 1 },
+    _lscale: { x: sc.x ?? 1, y: sc.y ?? 1, z: sc.z ?? 1 },
+    _euler: { x: 0, y: 0, z: 0 },
+    _uiProps: { _localOpacity: (node.opacity ?? 255) / 255 },
+    _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 },
+    layer: 33554432,
   }
 }
 
@@ -142,6 +257,9 @@ function patch2x(e: RawEntry, node: CCSceneNode) {
 
   // _color
   e._color = { r: node.color.r, g: node.color.g, b: node.color.b, a: node.color.a }
+
+  // R1532: _tag 패치
+  if (node.tag != null) e._tag = node.tag
 }
 
 // ── CC 3.x 패치 ───────────────────────────────────────────────────────────────
@@ -184,6 +302,96 @@ function patch3x(
       ui._anchorPoint = { x: node.anchor.x, y: node.anchor.y }
     }
   }
+
+  // R1532: layer 패치
+  if (node.layer != null) e.layer = node.layer
+}
+
+// ── R1502: 저장 전 유효성 검사 ────────────────────────────────────────────────
+
+export interface ValidationResult {
+  valid: boolean
+  warnings: string[]
+  errors: string[]
+}
+
+/** 순환 참조 + 중복 UUID + rawIndex null 감지 */
+export function validateCCScene(root: CCSceneNode): ValidationResult {
+  const warnings: string[] = []
+  const errors: string[] = []
+  const allUuids = new Set<string>()
+  const pathStack = new Set<string>()
+
+  function traverse(node: CCSceneNode) {
+    // 순환 참조 감지 (조상 체인에 동일 uuid 존재)
+    if (pathStack.has(node.uuid)) {
+      errors.push(`순환 참조: uuid=${node.uuid} name="${node.name}"`)
+      return
+    }
+    // 중복 UUID 감지
+    if (allUuids.has(node.uuid)) {
+      errors.push(`중복 UUID: uuid=${node.uuid} name="${node.name}"`)
+    } else {
+      allUuids.add(node.uuid)
+    }
+    // _rawIndex null 경고
+    if (node._rawIndex == null) {
+      warnings.push(`_rawIndex 없음: "${node.name}" — 저장 시 무시됩니다`)
+    }
+
+    pathStack.add(node.uuid)
+    for (const child of node.children) traverse(child)
+    pathStack.delete(node.uuid)
+  }
+
+  traverse(root)
+  return { valid: errors.length === 0, warnings, errors }
+}
+
+// R1423: 씬 디렉토리의 .bak 파일 목록 반환
+export interface BakFileInfo {
+  name: string
+  path: string
+  size: number
+  mtime: number
+}
+
+export function listBakFiles(scenePath: string): BakFileInfo[] {
+  const dir = path.dirname(scenePath)
+  const baseName = path.basename(scenePath)
+  try {
+    const entries = fs.readdirSync(dir)
+    return entries
+      .filter(e => e.startsWith(baseName) && e.endsWith('.bak'))
+      .map(name => {
+        const fullPath = path.join(dir, name)
+        try {
+          const stat = fs.statSync(fullPath)
+          return { name, path: fullPath, size: stat.size, mtime: stat.mtimeMs }
+        } catch { return null }
+      })
+      .filter((v): v is BakFileInfo => v !== null)
+      .sort((a, b) => b.mtime - a.mtime)
+  } catch { return [] }
+}
+
+// R1423: .bak 파일 전체 삭제
+export function deleteAllBakFiles(scenePath: string): { deleted: number; error?: string } {
+  const baks = listBakFiles(scenePath)
+  let deleted = 0
+  for (const bak of baks) {
+    try { fs.unlinkSync(bak.path); deleted++ } catch { /* ignore */ }
+  }
+  return { deleted }
+}
+
+// R1423: 특정 .bak 파일에서 복원
+export function restoreFromBakFile(bakPath: string, scenePath: string): { success: boolean; error?: string } {
+  if (!fs.existsSync(bakPath)) return { success: false, error: '백업 파일이 존재하지 않습니다.' }
+  try {
+    fs.copyFileSync(bakPath, scenePath)
+    return { success: true }
+  } catch (e) { return { success: false, error: String(e) } }
 }
 
 /**

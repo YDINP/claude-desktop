@@ -28,6 +28,10 @@ interface SceneToolbarProps {
   onMatchHeight?: () => void
   onMatchBoth?: () => void
   onGridLayout?: () => void
+  // R1458: 자동 정렬
+  onDistributeHEqual?: () => void
+  onDistributeVEqual?: () => void
+  onCircularLayout?: () => void
   onLayoutPreset?: (cols: number) => void
   selectedUuid?: string | null
   onCreateNode?: () => void
@@ -108,6 +112,10 @@ interface SceneToolbarProps {
   onToggleLayerPanel?: () => void
   showHeatmap?: boolean
   onHeatmapToggle?: () => void
+  // R1460: 클릭 히트맵
+  showClickHeatmap?: boolean
+  onClickHeatmapToggle?: () => void
+  onClickHeatmapReset?: () => void
   showQuickActions?: boolean
   onQuickActionsToggle?: () => void
   onZoomTo?: (zoom: number) => void
@@ -122,6 +130,15 @@ interface SceneToolbarProps {
   // R1401: 씬 통계 오버레이
   showStatsOverlay?: boolean
   onStatsOverlayToggle?: () => void
+  // R1422: 그리드 설정 팝업
+  onGridSettings?: () => void
+  // R1424: 씬 비교 뷰
+  compareMode?: boolean
+  onCompareToggle?: () => void
+  // R1446: 편집 이력
+  showEditHistory?: boolean
+  onToggleEditHistory?: () => void
+  editHistoryCount?: number
 }
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
@@ -150,6 +167,9 @@ export function SceneToolbar({
   onMatchHeight,
   onMatchBoth,
   onGridLayout,
+  onDistributeHEqual,
+  onDistributeVEqual,
+  onCircularLayout,
   selectedUuid,
   onCreateNode,
   onDeleteNode,
@@ -229,6 +249,9 @@ export function SceneToolbar({
   onToggleLayerPanel,
   showHeatmap,
   onHeatmapToggle,
+  showClickHeatmap,
+  onClickHeatmapToggle,
+  onClickHeatmapReset,
   showQuickActions,
   onQuickActionsToggle,
   onZoomTo,
@@ -242,12 +265,22 @@ export function SceneToolbar({
   onClearOverlayImage,
   showStatsOverlay,
   onStatsOverlayToggle,
+  onGridSettings,
+  compareMode,
+  onCompareToggle,
+  showEditHistory,
+  onToggleEditHistory,
+  editHistoryCount,
 }: SceneToolbarProps) {
   const [zoomEditing, setZoomEditing] = useState(false)
   const [zoomDraft, setZoomDraft] = useState('')
   const [zoomPresetOpen, setZoomPresetOpen] = useState(false)
   const [bgPaletteOpen, setBgPaletteOpen] = useState(false)
   const [layoutPresetOpen, setLayoutPresetOpen] = useState(false)
+  // R1458: 자동정렬 드롭다운 상태
+  const [autoLayoutOpen, setAutoLayoutOpen] = useState(false)
+  const autoLayoutRef = useRef<HTMLDivElement>(null)
+  const autoLayoutBtnRef = useRef<HTMLButtonElement>(null)
   const layoutPresetRef = useRef<HTMLDivElement>(null)
   const layoutPresetBtnRef = useRef<HTMLButtonElement>(null)
   const zoomPresetRef = useRef<HTMLDivElement>(null)
@@ -299,6 +332,21 @@ export function SceneToolbar({
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [layoutPresetOpen])
+
+  // R1458: 자동정렬 외부 클릭 닫기
+  useEffect(() => {
+    if (!autoLayoutOpen) return
+    const handleClick = (e: MouseEvent) => {
+      if (
+        autoLayoutRef.current && !autoLayoutRef.current.contains(e.target as Node) &&
+        autoLayoutBtnRef.current && !autoLayoutBtnRef.current.contains(e.target as Node)
+      ) {
+        setAutoLayoutOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [autoLayoutOpen])
 
   const zoomIn = () => {
     const next = ZOOM_STEPS.find(z => z > zoom) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]
@@ -474,6 +522,17 @@ export function SceneToolbar({
         ⊡ Fit
       </button>
 
+      {/* R1424: 씬 비교 모드 */}
+      {onCompareToggle && (
+        <button
+          style={compareMode ? btnActive : btnBase}
+          onClick={onCompareToggle}
+          title="다중 씬 비교 뷰 — 좌우 분할"
+        >
+          ⊞ Compare
+        </button>
+      )}
+
       <div style={divider} />
 
       {/* 레이어 패널 */}
@@ -502,10 +561,20 @@ export function SceneToolbar({
       <button
         style={gridVisible ? btnActive : btnBase}
         onClick={onGridToggle}
-        title="그리드 표시"
+        onContextMenu={e => { e.preventDefault(); onGridSettings?.() }}
+        title="그리드 표시 (우클릭: 설정)"
       >
         ⊞ Grid
       </button>
+      {onGridSettings && (
+        <button
+          style={btnBase}
+          onClick={onGridSettings}
+          title="그리드 크기/색상/불투명도 설정"
+        >
+          ⚙
+        </button>
+      )}
 
       {/* 레이아웃 프리셋 */}
       {onLayoutPreset && (
@@ -633,6 +702,22 @@ export function SceneToolbar({
           onClick={onHeatmapToggle}
           title="노드 분포 히트맵 오버레이"
         >🌡</button>
+      )}
+
+      {/* R1460: 클릭 히트맵 */}
+      {onClickHeatmapToggle && (
+        <button
+          style={showClickHeatmap ? btnActive : btnBase}
+          onClick={onClickHeatmapToggle}
+          title="노드 선택 빈도 히트맵 (클릭 횟수 시각화)"
+        >{'🌡\uFE0F'} 히트맵</button>
+      )}
+      {showClickHeatmap && onClickHeatmapReset && (
+        <button
+          style={btnBase}
+          onClick={onClickHeatmapReset}
+          title="히트맵 카운트 초기화"
+        >↺</button>
       )}
 
       {/* 퀵 액션 패널 토글 */}
@@ -902,6 +987,55 @@ export function SceneToolbar({
           {onMatchHeight && <button onClick={onMatchHeight} title="같은 높이로 맞추기" style={btnBase}>↕H</button>}
           {onMatchBoth && <button onClick={onMatchBoth} title="같은 크기로 맞추기" style={btnBase}>⊞</button>}
           {onGridLayout && <button onClick={onGridLayout} title="그리드 자동 배치 (N×M)" style={btnBase}>⊟</button>}
+          {/* R1458: 자동정렬 드롭다운 */}
+          {(onDistributeHEqual || onCircularLayout) && (
+            <div style={{ position: 'relative' }}>
+              <button
+                ref={autoLayoutBtnRef}
+                style={autoLayoutOpen ? btnActive : btnBase}
+                onClick={() => setAutoLayoutOpen(v => !v)}
+                title="자동정렬 메뉴"
+              >
+                {'⊞'} 자동정렬
+              </button>
+              {autoLayoutOpen && (
+                <div
+                  ref={autoLayoutRef}
+                  style={{
+                    position: 'absolute', top: '100%', left: 0, marginTop: 2,
+                    background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                    borderRadius: 4, zIndex: 9999, display: 'flex', flexDirection: 'column',
+                    minWidth: 120, boxShadow: '0 4px 12px rgba(0,0,0,0.4)', overflow: 'hidden',
+                  }}
+                >
+                  {onDistributeHEqual && (
+                    <button
+                      onClick={() => { onDistributeHEqual(); setAutoLayoutOpen(false) }}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 10, padding: '5px 10px', cursor: 'pointer', textAlign: 'left' }}
+                    >수평 균등 배분</button>
+                  )}
+                  {onDistributeVEqual && (
+                    <button
+                      onClick={() => { onDistributeVEqual(); setAutoLayoutOpen(false) }}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 10, padding: '5px 10px', cursor: 'pointer', textAlign: 'left' }}
+                    >수직 균등 배분</button>
+                  )}
+                  {onGridLayout && (
+                    <button
+                      onClick={() => { onGridLayout(); setAutoLayoutOpen(false) }}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 10, padding: '5px 10px', cursor: 'pointer', textAlign: 'left' }}
+                    >격자 배치</button>
+                  )}
+                  {onCircularLayout && (
+                    <button
+                      onClick={() => { onCircularLayout(); setAutoLayoutOpen(false) }}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 10, padding: '5px 10px', cursor: 'pointer', textAlign: 'left' }}
+                    >원형 배치</button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
 
@@ -1117,6 +1251,15 @@ export function SceneToolbar({
           onClick={onClearOverlayImage}
           title="목업 이미지 오버레이 (드래그&드롭으로 이미지 추가, 클릭 시 제거)"
         >🖼</button>
+      )}
+
+      {/* R1446: 편집 이력 */}
+      {onToggleEditHistory && (
+        <button
+          style={showEditHistory ? { ...btnBase, color: 'var(--accent)', borderColor: 'var(--accent)' } : btnBase}
+          onClick={onToggleEditHistory}
+          title={`편집 이력 (${editHistoryCount ?? 0}건)`}
+        >{'⏱'}{editHistoryCount ? <span style={{ fontSize: 8, marginLeft: 1 }}>{editHistoryCount}</span> : null}</button>
       )}
 
       {/* 새로고침 */}

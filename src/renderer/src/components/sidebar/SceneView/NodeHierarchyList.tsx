@@ -261,9 +261,20 @@ export function NodeHierarchyList({ rootUuid, nodeMap, selectedUuids, onSelect, 
               (n.tags ?? []).some(t => t.toLowerCase().includes(tag))
             )
           } else {
-            nodes = nodes.filter(n =>
-              n.name.toLowerCase().includes(q.toLowerCase())
-            )
+            // R1426: 이름 + 경로 매칭
+            const qLower = q.toLowerCase()
+            nodes = nodes.filter(n => {
+              if (n.name.toLowerCase().includes(qLower)) return true
+              // 경로 매칭: 부모 체인 이름도 검색
+              let cur: typeof n | undefined = n
+              const parts: string[] = []
+              while (cur) {
+                parts.unshift(cur.name)
+                const parent = Array.from(nodeMap.values()).find(p => p.childUuids.includes(cur!.uuid))
+                cur = parent
+              }
+              return parts.join('/').toLowerCase().includes(qLower)
+            })
           }
         }
         return nodes

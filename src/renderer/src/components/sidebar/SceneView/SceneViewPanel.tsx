@@ -78,6 +78,30 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const DESIGN_W = canvasSize.w
   const DESIGN_H = canvasSize.h
   const [gridVisible, setGridVisible] = useState(true)
+  // R1422: 그리드 커스터마이즈 (크기/색상/불투명도) — localStorage grid-settings
+  const [gridSettings, setGridSettings] = useState<{ size: number; theme: 'light' | 'dark'; opacity: number }>(() => {
+    try {
+      const raw = localStorage.getItem('grid-settings')
+      if (raw) return JSON.parse(raw)
+    } catch { /* ignore */ }
+    return { size: 50, theme: 'dark', opacity: 0.04 }
+  })
+  const [showGridSettings, setShowGridSettings] = useState(false)
+  const gridSettingsRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    try { localStorage.setItem('grid-settings', JSON.stringify(gridSettings)) } catch { /* ignore */ }
+  }, [gridSettings])
+  // R1422: 그리드 설정 팝업 외부 클릭 닫기
+  useEffect(() => {
+    if (!showGridSettings) return
+    const handleClick = (e: MouseEvent) => {
+      if (gridSettingsRef.current && !gridSettingsRef.current.contains(e.target as Node)) {
+        setShowGridSettings(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showGridSettings])
   const [snapEnabled, setSnapEnabled] = useState(false)
   const [snapGrid, setSnapGrid] = useState(4)
   const [showHierarchy, setShowHierarchy] = useState(false)
@@ -200,6 +224,78 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
 
+  // ── R1419: 뷰포트 프리셋 ─────────────────────────────────────
+  type ViewportPreset = { name: string; zoom: number; panX: number; panY: number }
+  const VP_KEY = 'viewport-presets'
+  const DEFAULT_PRESETS: ViewportPreset[] = [
+    { name: '1:1', zoom: 1, panX: 0, panY: 0 },
+    { name: '2:1', zoom: 2, panX: 0, panY: 0 },
+  ]
+  const [viewportPresets, setViewportPresets] = useState<ViewportPreset[]>(() => {
+    try { return JSON.parse(localStorage.getItem(VP_KEY) ?? '[]') } catch { return [] }
+  })
+  const [showViewportPresets, setShowViewportPresets] = useState(false)
+
+  // ── R1435: 씬 JSON 뷰어 ─────────────────────────────────────
+  const [showJsonViewer, setShowJsonViewer] = useState(false)
+  const [jsonViewScope, setJsonViewScope] = useState<'selected' | 'full'>('selected')
+
+  // ── R1438: 씬 공유 로컬 서버 ────────────────────────────────
+  const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const [shareLoading, setShareLoading] = useState(false)
+
+  // ── R1440: 씬 JSON 임포트 모달 ────────────────────────────
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [importJson, setImportJson] = useState('')
+  const [importError, setImportError] = useState<string | null>(null)
+
+  // ── R1446: 씬 편집 이력 (리플레이용) ──────────────────────
+  type EditHistoryEntry = { timestamp: number; action: string; nodeUuid: string; nodeName: string; before: Record<string, unknown>; after: Record<string, unknown> }
+  const [editHistory, setEditHistory] = useState<EditHistoryEntry[]>([])
+  const [showEditHistory, setShowEditHistory] = useState(false)
+  const addEditHistory = useCallback((action: string, nodeUuid: string, nodeName: string, before: Record<string, unknown>, after: Record<string, unknown>) => {
+    setEditHistory(prev => [{ timestamp: Date.now(), action, nodeUuid, nodeName, before, after }, ...prev].slice(0, 100))
+  }, [])
+
+  // ── R1450: 레이어 드래그 재배치 상태 ──────────────────────
+  const [layerDragIdx, setLayerDragIdx] = useState<number | null>(null)
+  const [layerDropIdx, setLayerDropIdx] = useState<number | null>(null)
+
+  // ── R1452: 씬 노드 템플릿 라이브러리 ──────────────────────
+  type NodeTemplate = { name: string; node: Record<string, unknown> }
+  const NT_KEY = 'node-templates'
+  const DEFAULT_TEMPLATES: NodeTemplate[] = [
+    { name: '빈 노드', node: { uuid: '', name: 'EmptyNode', active: true, position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, size: { x: 0, y: 0 }, anchor: { x: 0.5, y: 0.5 }, opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 }, components: [], children: [] } },
+    { name: 'UI 버튼', node: { uuid: '', name: 'Button', active: true, position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, size: { x: 200, y: 60 }, anchor: { x: 0.5, y: 0.5 }, opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 }, components: [{ type: 'cc.Button', props: { transition: 1 } }, { type: 'cc.Sprite', props: {} }], children: [] } },
+  ]
+  const [nodeTemplates, setNodeTemplates] = useState<NodeTemplate[]>(() => {
+    try { const raw = localStorage.getItem(NT_KEY); return raw ? JSON.parse(raw) : [] } catch { return [] }
+  })
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false)
+
+  // ── R1455: 씬 뷰 북마크 (카메라 포지션) ──────────────────
+  type CameraBookmark = { zoom: number; offsetX: number; offsetY: number } | null
+  const VB_KEY = 'view-bookmarks'
+  const [viewBookmarks, setViewBookmarks] = useState<(CameraBookmark)[]>(() => {
+    try { const raw = localStorage.getItem(VB_KEY); return raw ? JSON.parse(raw) : [null, null, null, null, null] } catch { return [null, null, null, null, null] }
+  })
+  const [viewBookmarkToast, setViewBookmarkToast] = useState<string | null>(null)
+  const viewBookmarkToastRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // ── R1442: 정렬 가이드라인 고도화 ─────────────────────────
+  const [showCenterGuide, setShowCenterGuide] = useState(false)
+  const [snapThreshold, setSnapThreshold] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem('align-snap-threshold') ?? '8') } catch { return 8 }
+  })
+  useEffect(() => {
+    try { localStorage.setItem('align-snap-threshold', String(snapThreshold)) } catch { /* ignore */ }
+  }, [snapThreshold])
+
+  // ── R1424: 다중 씬 비교 뷰 ─────────────────────────────────
+  const [compareMode, setCompareMode] = useState(false)
+  const [compareScenePath, setCompareScenePath] = useState<string | null>(null)
+  const [compareView, setCompareView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 1 })
+
   // ── 스냅샷 / diff 상태 ─────────────────────────────────────
   const [snapshot, setSnapshot] = useState<Map<string, SnapshotEntry> | null>(null)
   const [showDiff, setShowDiff] = useState(false)
@@ -233,6 +329,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return changed
   }, [diffModeR1381, savedSnapshot, nodeMap])
 
+  // R1431: Before/After 슬라이더 비교 모드
+  const [beforeAfterMode, setBeforeAfterMode] = useState(false)
+  const [sliderX, setSliderX] = useState(0.5) // 0~1 비율
+  const beforeAfterDragRef = useRef(false)
+
   // ── 스냅샷 기록 상태 ────────────────────────────────────────
   const [snapshots, setSnapshots] = useState<Array<{ label: string; timestamp: number; nodes: unknown[] }>>([])
   const [snapshotOpen, setSnapshotOpen] = useState(false)
@@ -241,6 +342,54 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showHeatmap, setShowHeatmap] = useState(false)
   // ── 노드 접근 빈도 히트맵 (R702) ───────────────────────────
   const [nodeAccessCount, setNodeAccessCount] = useState<Record<string, number>>({})
+  // ── R1460: 노드 클릭 횟수 히트맵 ────────────────────────────
+  const [nodeClickCount, setNodeClickCount] = useState<Map<string, number>>(new Map())
+  const [showClickHeatmap, setShowClickHeatmap] = useState(false)
+  const maxClickCount = useMemo(() => {
+    if (nodeClickCount.size === 0) return 1
+    return Math.max(...nodeClickCount.values(), 1)
+  }, [nodeClickCount])
+  // ── R1464: 씬 노드 애니메이션 프리뷰 ─────────────────────────
+  const [animPlayingUuid, setAnimPlayingUuid] = useState<string | null>(null)
+  const animCssRef = useRef<HTMLStyleElement | null>(null)
+  const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const handleAnimPreviewStart = useCallback((uuid: string, durationMs: number) => {
+    // 이전 애니메이션 정리
+    if (animCssRef.current) { animCssRef.current.remove(); animCssRef.current = null }
+    if (animTimerRef.current) { clearTimeout(animTimerRef.current); animTimerRef.current = null }
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes cc-anim-preview-${uuid.replace(/[^a-zA-Z0-9]/g, '_')} {
+        0% { opacity: 1; transform: translate(0, 0); }
+        25% { opacity: 0.3; transform: translate(2px, -2px); }
+        50% { opacity: 1; transform: translate(0, 0); }
+        75% { opacity: 0.3; transform: translate(-2px, 2px); }
+        100% { opacity: 1; transform: translate(0, 0); }
+      }
+      [data-uuid="${uuid}"] {
+        animation: cc-anim-preview-${uuid.replace(/[^a-zA-Z0-9]/g, '_')} ${durationMs}ms infinite ease-in-out !important;
+      }
+    `
+    document.head.appendChild(style)
+    animCssRef.current = style
+    setAnimPlayingUuid(uuid)
+  }, [])
+  const handleAnimPreviewStop = useCallback(() => {
+    if (animCssRef.current) { animCssRef.current.remove(); animCssRef.current = null }
+    if (animTimerRef.current) { clearTimeout(animTimerRef.current); animTimerRef.current = null }
+    setAnimPlayingUuid(null)
+  }, [])
+
+  // ── R1468: AI 분석 요청 ─────────────────────────────────────
+  const handleAiAnalyze = useCallback((uuid: string) => {
+    const n = nodeMap.get(uuid)
+    if (!n) return
+    const comps = n.components.map(c => c.type).join(', ')
+    const msg = `이 Cocos Creator 노드를 분석해줘:\n노드: ${n.name}\n컴포넌트: ${comps}\n주요 속성: position=(${n.x},${n.y}), size=(${n.width},${n.height}), active=${n.active}, opacity=${n.opacity}`
+    // 채팅창에 프리필 (cc-chat-prefill 이벤트)
+    window.dispatchEvent(new CustomEvent('cc-chat-prefill', { detail: { message: msg } }))
+  }, [nodeMap])
+
   // ── 노드 그룹 색상 (R709) ──────────────────────────────────
   const [nodeGroupColors, setNodeGroupColors] = useState<Record<string, string>>({})
   const [colorPickerNode, setColorPickerNode] = useState<string | null>(null)
@@ -410,6 +559,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showCameraControls, setShowCameraControls] = useState(false)
   const [gizmoSize, setGizmoSize] = useState(1.0)
   const [showGizmoSettings, setShowGizmoSettings] = useState(false)
+  // R1428: 히트 테스트 정밀화 상태
+  const [blockInactiveClick, setBlockInactiveClick] = useState(false)
+  const tabCycleRef = useRef<{ lastClickPos: { x: number; y: number }; candidates: string[]; index: number } | null>(null)
   const marqueeRef = useRef<{ startX: number; startY: number; shiftKey: boolean } | null>(null)
 
   // ── 드래그 상태 ────────────────────────────────────────────
@@ -840,6 +992,78 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
   }, [spaceDown])
 
+  // ── R1455: Ctrl+1~5 카메라 뷰 북마크 저장/이동 ──────────
+  useEffect(() => {
+    const handleViewBookmark = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return
+      const key = parseInt(e.key)
+      if (isNaN(key) || key < 1 || key > 5) return
+      const idx = key - 1
+      if (e.ctrlKey || e.metaKey) {
+        // 저장
+        e.preventDefault()
+        const bm = { zoom: viewRef.current.zoom, offsetX: viewRef.current.offsetX, offsetY: viewRef.current.offsetY }
+        setViewBookmarks(prev => {
+          const next = [...prev]
+          while (next.length < 5) next.push(null)
+          next[idx] = bm
+          localStorage.setItem(VB_KEY, JSON.stringify(next))
+          return next
+        })
+        if (viewBookmarkToastRef.current) clearTimeout(viewBookmarkToastRef.current)
+        setViewBookmarkToast(`뷰 ${key} 저장됨`)
+        viewBookmarkToastRef.current = setTimeout(() => setViewBookmarkToast(null), 1500)
+      } else if (!e.shiftKey && !e.altKey) {
+        // 이동 (숫자키만)
+        const bm = viewBookmarks[idx]
+        if (!bm) return
+        e.preventDefault()
+        // 부드러운 애니메이션 200ms lerp
+        const start = { ...viewRef.current }
+        const startTime = Date.now()
+        const DURATION = 200
+        const animate = () => {
+          const elapsed = Date.now() - startTime
+          const t = Math.min(elapsed / DURATION, 1)
+          const eased = t * (2 - t) // ease-out
+          setView({
+            zoom: start.zoom + (bm.zoom - start.zoom) * eased,
+            offsetX: start.offsetX + (bm.offsetX - start.offsetX) * eased,
+            offsetY: start.offsetY + (bm.offsetY - start.offsetY) * eased,
+          })
+          if (t < 1) requestAnimationFrame(animate)
+        }
+        requestAnimationFrame(animate)
+      }
+    }
+    window.addEventListener('keydown', handleViewBookmark)
+    return () => window.removeEventListener('keydown', handleViewBookmark)
+  }, [viewBookmarks])
+
+  // R1412: 채팅 연동 노드 하이라이트 (cc-highlight-node 커스텀 이벤트)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { nodeName?: string; uuid?: string } | undefined
+      if (!detail) return
+      let targetUuid: string | null = null
+      if (detail.uuid && nodeMap.has(detail.uuid)) {
+        targetUuid = detail.uuid
+      } else if (detail.nodeName) {
+        const lower = detail.nodeName.toLowerCase()
+        for (const [uuid, n] of nodeMap.entries()) {
+          if (n.name.toLowerCase() === lower) { targetUuid = uuid; break }
+        }
+      }
+      if (targetUuid) {
+        if (flashTimerRef.current) clearTimeout(flashTimerRef.current)
+        setFlashUuid(targetUuid)
+        flashTimerRef.current = setTimeout(() => setFlashUuid(null), 3000)
+      }
+    }
+    window.addEventListener('cc-highlight-node', handler)
+    return () => window.removeEventListener('cc-highlight-node', handler)
+  }, [nodeMap])
+
   // ── Ctrl+A 전체 선택 / Ctrl+Shift+A 선택 반전 ─────────────
   useEffect(() => {
     const handleSelectAll = (e: KeyboardEvent) => {
@@ -1103,6 +1327,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     if (lockedUuids.has(uuid)) return
     // 핀된 노드는 드래그/선택 불가
     if (pinnedUuids.has(uuid)) return
+    // R1428: 비활성 노드 클릭 방지 옵션
+    const clickedNode = nodeMap.get(uuid)
+    if (blockInactiveClick && clickedNode && !clickedNode.active) return
 
     if (e.altKey) {
       // Alt 클릭: 자식 그룹 접기/펼치기
@@ -1143,11 +1370,20 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
     // 접근 횟수 누적 (R702)
     setNodeAccessCount(prev => ({ ...prev, [uuid]: (prev[uuid] ?? 0) + 1 }))
+    // R1460: 클릭 히트맵 카운트 증가
+    setNodeClickCount(prev => { const next = new Map(prev); next.set(uuid, (next.get(uuid) ?? 0) + 1); return next })
 
     const node = nodeMap.get(uuid)
     if (!node) return
 
     const svgCoords = getSvgCoords(e)
+    // R1428: 클릭 위치의 겹치는 노드 후보 기록 (Tab 순환용)
+    const candidates = hitTestAtPoint(svgCoords.x, svgCoords.y)
+    if (candidates.length > 1) {
+      tabCycleRef.current = { lastClickPos: { x: svgCoords.x, y: svgCoords.y }, candidates, index: candidates.indexOf(uuid) }
+    } else {
+      tabCycleRef.current = null
+    }
     const groupOffsets: Record<string, { startX: number; startY: number }> | undefined = isGroupDrag
       ? Object.fromEntries(
           [...selectedUuids].map(uid => {
@@ -1166,12 +1402,53 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       groupOffsets,
     }
     setIsDragging(true)
-  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids, lockedUuids])
+  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids, lockedUuids, blockInactiveClick])
 
+  // R1428: 히트 테스트 — 최소 8px 클릭 영역 확장 + z-order 역순 + Tab 키 순환
+  const hitTestAtPoint = useCallback((svgX: number, svgY: number): string[] => {
+    const minHitPx = 8 / view.zoom
+    const allNodes = [...nodeMap.values()]
+    // z-order: 배열 역순 (최상단 우선)
+    const hits: string[] = []
+    for (let i = allNodes.length - 1; i >= 0; i--) {
+      const n = allNodes[i]
+      if (!n.active && blockInactiveClick) continue
+      if (n.locked || lockedUuids.has(n.uuid)) continue
+      const { sx, sy } = cocosToSvg(n.worldX ?? n.x, n.worldY ?? n.y, DESIGN_W, DESIGN_H)
+      const w = Math.max(n.width, minHitPx)
+      const h = Math.max(n.height, minHitPx)
+      const rx = sx - w * (n.anchorX ?? 0.5)
+      const ry = sy - h * (1 - (n.anchorY ?? 0.5))
+      if (svgX >= rx && svgX <= rx + w && svgY >= ry && svgY <= ry + h) {
+        hits.push(n.uuid)
+      }
+    }
+    return hits
+  }, [nodeMap, view.zoom, DESIGN_W, DESIGN_H, blockInactiveClick, lockedUuids])
+
+  // R1428: Tab 키로 겹치는 노드 순환
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !tabCycleRef.current) return
+      e.preventDefault()
+      const { candidates, index } = tabCycleRef.current
+      if (candidates.length <= 1) return
+      const nextIdx = (index + 1) % candidates.length
+      tabCycleRef.current.index = nextIdx
+      setSelectedUuid(candidates[nextIdx])
+      setSelectedUuids(new Set())
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
+  // R1416: handleResizeMouseDown — 잠긴 노드 리사이즈 차단
   const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w') => {
     e.stopPropagation()
     e.preventDefault()
     if (e.button !== 0) return
+    if (nodeMap.get(uuid)?.locked) return
+    if (lockedUuids.has(uuid)) return
     const node = nodeMap.get(uuid)
     if (!node) return
     const svgCoords = getSvgCoords(e)
@@ -1186,12 +1463,15 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       startNodeY: node.y,
     }
     setIsResizing(true)
-  }, [nodeMap, getSvgCoords, canvasSize])
+  }, [nodeMap, getSvgCoords, canvasSize, lockedUuids])
 
+  // R1416: handleRotateMouseDown — 잠긴 노드 회전 차단
   const handleRotateMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
     e.stopPropagation()
     e.preventDefault()
     if (e.button !== 0) return
+    if (nodeMap.get(uuid)?.locked) return
+    if (lockedUuids.has(uuid)) return
     const node = nodeMap.get(uuid)
     if (!node) return
     const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
@@ -1200,7 +1480,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     const anchorSy = sy * view.zoom + view.offsetY
     rotateRef.current = { uuid, anchorSx, anchorSy, startRotation: node.rotation }
     setIsRotating(true)
-  }, [nodeMap, view])
+  }, [nodeMap, view, lockedUuids])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // 커서 씬 좌표 업데이트
@@ -1480,6 +1760,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           const entry = { uuid: drag.uuid, name: draggedNode.name, x: Math.round(draggedNode.x), y: Math.round(draggedNode.y), ts: Date.now() }
           return [entry, ...prev.filter(e => e.uuid !== drag.uuid)].slice(0, 20)
         })
+        // R1446: 편집 이력 기록 (드래그 이동)
+        if (draggedNode.x !== drag.startNodeX || draggedNode.y !== drag.startNodeY) {
+          addEditHistory('move', drag.uuid, draggedNode.name, { x: drag.startNodeX, y: drag.startNodeY }, { x: draggedNode.x, y: draggedNode.y })
+        }
       }
       // dragRef.current already nulled at start of handler (race condition fix)
       setIsDragging(false)
@@ -1491,6 +1775,10 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       const rs = resizeRef.current
       const node = nodeMap.get(rs.uuid)
       if (node) {
+        // R1446: 편집 이력 기록 (리사이즈)
+        if (node.width !== rs.startWidth || node.height !== rs.startHeight) {
+          addEditHistory('resize', rs.uuid, node.name, { width: rs.startWidth, height: rs.startHeight }, { width: node.width, height: node.height })
+        }
         try {
           await window.api.ccSetProperty?.(port, rs.uuid, 'width', node.width)
           await window.api.ccSetProperty?.(port, rs.uuid, 'height', node.height)
@@ -1931,13 +2219,18 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [updateNode, port])
 
   const handleRename = useCallback(async (uuid: string, name: string) => {
+    const prevNode = nodeMap.get(uuid)
+    // R1446: 편집 이력 기록 (이름 변경)
+    if (prevNode && prevNode.name !== name) {
+      addEditHistory('rename', uuid, name, { name: prevNode.name }, { name })
+    }
     updateNode(uuid, { name })
     try {
       await window.api.ccSetProperty?.(port, uuid, 'name', name)
     } catch (e) {
       console.error('[SceneView] rename failed:', e)
     }
-  }, [updateNode, port])
+  }, [updateNode, port, nodeMap, addEditHistory])
 
   // ── 렌더 순서 ────────────────────────────────────────────
   const renderOrder = useMemo(() => {
@@ -2304,6 +2597,78 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     }
   }, [selectedUuids, nodeMap, port, updateNode])
 
+  // ── R1458: 수평 균등 배분 ────────────────────────────────────
+  const handleDistributeHEqual = useCallback(async () => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 2) return
+    const sorted = [...nodes].sort((a, b) => a.x - b.x)
+    const minX = sorted[0].x
+    const maxX = sorted[sorted.length - 1].x
+    const step = nodes.length > 1 ? (maxX - minX) / (nodes.length - 1) : 0
+    for (let i = 0; i < sorted.length; i++) {
+      const n = sorted[i]
+      const newX = minX + step * i
+      updateNode(n.uuid, { x: newX })
+      try { await window.api.ccSetProperty?.(port, n.uuid, 'x', newX) } catch (_) {}
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
+
+  // ── R1458: 수직 균등 배분 ────────────────────────────────────
+  const handleDistributeVEqual = useCallback(async () => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 2) return
+    const sorted = [...nodes].sort((a, b) => a.y - b.y)
+    const minY = sorted[0].y
+    const maxY = sorted[sorted.length - 1].y
+    const step = nodes.length > 1 ? (maxY - minY) / (nodes.length - 1) : 0
+    for (let i = 0; i < sorted.length; i++) {
+      const n = sorted[i]
+      const newY = minY + step * i
+      updateNode(n.uuid, { y: newY })
+      try { await window.api.ccSetProperty?.(port, n.uuid, 'y', newY) } catch (_) {}
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
+
+  // ── R1458: 원형 배치 ──────────────────────────────────────────
+  const handleCircularLayout = useCallback(async () => {
+    if (selectedUuids.size < 2) return
+    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
+    if (nodes.length < 2) return
+    // 중심점: 선택 노드들의 평균 좌표
+    const cx = nodes.reduce((s, n) => s + n.x, 0) / nodes.length
+    const cy = nodes.reduce((s, n) => s + n.y, 0) / nodes.length
+    // 반지름: 노드 수에 비례
+    const radius = Math.max(80, nodes.length * 30)
+    const angleStep = (2 * Math.PI) / nodes.length
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i]
+      const angle = angleStep * i - Math.PI / 2 // 12시 방향 시작
+      const newX = cx + radius * Math.cos(angle)
+      const newY = cy + radius * Math.sin(angle)
+      updateNode(n.uuid, { x: newX, y: newY })
+      try {
+        await window.api.ccSetProperty?.(port, n.uuid, 'x', newX)
+        await window.api.ccSetProperty?.(port, n.uuid, 'y', newY)
+      } catch (_) {}
+    }
+  }, [selectedUuids, nodeMap, port, updateNode])
+
+  // ── R1458: 자동정렬 드롭다운 상태 ──────────────────────────
+  const [showAutoLayoutMenu, setShowAutoLayoutMenu] = useState(false)
+  const autoLayoutMenuRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!showAutoLayoutMenu) return
+    const handleClick = (e: MouseEvent) => {
+      if (autoLayoutMenuRef.current && !autoLayoutMenuRef.current.contains(e.target as Node)) {
+        setShowAutoLayoutMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showAutoLayoutMenu])
+
   // ── 멀티셀렉트 그룹 bbox 계산 ──────────────────────────────
   const groupBbox = useMemo(() => {
     if (selectedUuids.size < 2) return null
@@ -2330,7 +2695,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const sceneTransform = `translate(${view.offsetX} ${view.offsetY}) scale(${view.zoom})`
 
   // ── 그리드 패턴 크기 (줌에 따라 조정) ─────────────────────
-  const gridStep = 50  // 씬 좌표 50px 간격
+  // R1422: 그리드 크기를 사용자 설정에서 가져옴
+  const gridStep = gridSettings.size
 
   if (!connected) {
     return (
@@ -2385,6 +2751,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           }
         }}
         onGridToggle={() => setGridVisible(v => !v)}
+        onGridSettings={() => setShowGridSettings(v => !v)}
+        compareMode={compareMode}
+        onCompareToggle={() => setCompareMode(v => !v)}
         onSnapToggle={() => setSnapEnabled(v => !v)}
         snapGrid={snapGrid}
         onSnapGridChange={setSnapGrid}
@@ -2435,6 +2804,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onMatchHeight={() => handleMatchSize('H')}
         onMatchBoth={() => handleMatchSize('both')}
         onGridLayout={() => handleGridLayout()}
+        onDistributeHEqual={handleDistributeHEqual}
+        onDistributeVEqual={handleDistributeVEqual}
+        onCircularLayout={handleCircularLayout}
         onUndo={() => {
           setUndoStack(prev => {
             if (prev.length === 0) return prev
@@ -2495,12 +2867,219 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onToggleLayerPanel={() => setShowLayerPanel(v => !v)}
         showHeatmap={showHeatmap}
         onHeatmapToggle={() => setShowHeatmap(v => !v)}
+        showClickHeatmap={showClickHeatmap}
+        onClickHeatmapToggle={() => setShowClickHeatmap(v => !v)}
+        onClickHeatmapReset={() => setNodeClickCount(new Map())}
         showQuickActions={showQuickActions}
         onQuickActionsToggle={() => setShowQuickActions(v => !v)}
         onZoomTo={handleZoomTo}
         hasOverlayImage={!!overlayImageSrc}
         onClearOverlayImage={() => setOverlayImageSrc(null)}
+        showEditHistory={showEditHistory}
+        onToggleEditHistory={() => setShowEditHistory(v => !v)}
+        editHistoryCount={editHistory.length}
       />
+
+      {/* R1422: 그리드 설정 팝업 — Grid 버튼 우클릭으로 열기 */}
+      {showGridSettings && (
+        <div
+          ref={gridSettingsRef}
+          style={{
+            position: 'absolute', top: 30, left: 120, zIndex: 9999,
+            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+            borderRadius: 6, padding: 10, minWidth: 180,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+          }}
+        >
+          <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Grid Settings</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0 }}>Size</span>
+            <select
+              value={gridSettings.size}
+              onChange={e => setGridSettings(prev => ({ ...prev, size: Number(e.target.value) }))}
+              style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '2px 4px' }}
+            >
+              {[8, 16, 32, 50, 64, 128].map(v => (
+                <option key={v} value={v}>{v}px</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0 }}>Color</span>
+            <button
+              onClick={() => setGridSettings(prev => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }))}
+              style={{
+                flex: 1, fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer',
+                background: gridSettings.theme === 'light' ? '#e0e0e0' : '#333',
+                color: gridSettings.theme === 'light' ? '#333' : '#e0e0e0',
+                border: '1px solid var(--border)',
+              }}
+            >{gridSettings.theme === 'light' ? 'Light' : 'Dark'}</button>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0 }}>Alpha</span>
+            <input
+              type="range" min={0.02} max={0.5} step={0.01}
+              value={gridSettings.opacity}
+              onChange={e => setGridSettings(prev => ({ ...prev, opacity: parseFloat(e.target.value) }))}
+              style={{ flex: 1 }}
+            />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{gridSettings.opacity.toFixed(2)}</span>
+          </div>
+        </div>
+      )}
+
+      {/* R1452: 노드 템플릿 + R1455: 뷰 북마크 + R1419: 뷰포트 프리셋 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '1px 4px', background: 'rgba(0,0,0,0.15)', flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        {/* R1452: 템플릿 드롭다운 */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setShowTemplateDropdown(v => !v)}
+            title="R1452: 노드 템플릿 라이브러리"
+            style={{ fontSize: 9, padding: '1px 4px', background: showTemplateDropdown ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: showTemplateDropdown ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
+          >{'\uD83D\uDCCC'}</button>
+          {showTemplateDropdown && (
+            <div style={{
+              position: 'absolute', top: '100%', left: 0, zIndex: 9999,
+              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+              borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              minWidth: 160, maxHeight: 220, overflowY: 'auto',
+            }}>
+              <div style={{ padding: '4px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', fontWeight: 600 }}>
+                {'\uD83D\uDCCC'} 노드 템플릿
+              </div>
+              {DEFAULT_TEMPLATES.concat(nodeTemplates).map((tmpl, i) => (
+                <button
+                  key={`${tmpl.name}-${i}`}
+                  onClick={() => {
+                    const newUuid = `tmpl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+                    const n = tmpl.node as Record<string, unknown>
+                    const newNode: SceneNode = {
+                      uuid: newUuid, name: (n.name as string) ?? 'Template',
+                      active: (n.active as boolean) ?? true,
+                      x: 0, y: 0, width: ((n.size as { x?: number })?.x) ?? 0,
+                      height: ((n.size as { y?: number })?.y) ?? 0,
+                      anchorX: ((n.anchor as { x?: number })?.x) ?? 0.5,
+                      anchorY: ((n.anchor as { y?: number })?.y) ?? 0.5,
+                      scaleX: ((n.scale as { x?: number })?.x) ?? 1,
+                      scaleY: ((n.scale as { y?: number })?.y) ?? 1,
+                      rotation: (n.rotation as number) ?? 0,
+                      opacity: (n.opacity as number) ?? 255,
+                      color: (n.color as { r: number; g: number; b: number; a: number }) ?? { r: 255, g: 255, b: 255, a: 255 },
+                      parentUuid: rootUuid, childUuids: [],
+                      components: (n.components as SceneNode['components']) ?? [],
+                    }
+                    updateNode(newUuid, newNode)
+                    if (rootUuid) {
+                      const root = nodeMap.get(rootUuid)
+                      if (root) updateNode(rootUuid, { childUuids: [...root.childUuids, newUuid] })
+                    }
+                    setSelectedUuid(newUuid)
+                    setSelectedUuids(new Set([newUuid]))
+                    setShowTemplateDropdown(false)
+                  }}
+                  style={{
+                    display: 'block', width: '100%', textAlign: 'left',
+                    padding: '4px 8px', background: 'none', border: 'none',
+                    color: i < DEFAULT_TEMPLATES.length ? 'var(--text-muted)' : '#60a5fa',
+                    cursor: 'pointer', fontSize: 10,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(96,165,250,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >
+                  {i < DEFAULT_TEMPLATES.length ? `[기본] ${tmpl.name}` : tmpl.name}
+                </button>
+              ))}
+              {nodeTemplates.length > 0 && (
+                <div style={{ borderTop: '1px solid var(--border)', padding: '2px 8px' }}>
+                  <button
+                    onClick={() => { setNodeTemplates([]); localStorage.removeItem(NT_KEY); setShowTemplateDropdown(false) }}
+                    style={{ fontSize: 8, color: '#f85149', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0' }}
+                  >모든 사용자 템플릿 삭제</button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {/* R1455: 뷰 북마크 숫자 뱃지 */}
+        {viewBookmarks.map((bm, i) => (
+          <button
+            key={`vb-${i}`}
+            onClick={() => {
+              if (!bm) return
+              const start = { ...viewRef.current }
+              const startTime = Date.now()
+              const DURATION = 200
+              const animate = () => {
+                const elapsed = Date.now() - startTime
+                const t = Math.min(elapsed / DURATION, 1)
+                const eased = t * (2 - t)
+                setView({
+                  zoom: start.zoom + (bm.zoom - start.zoom) * eased,
+                  offsetX: start.offsetX + (bm.offsetX - start.offsetX) * eased,
+                  offsetY: start.offsetY + (bm.offsetY - start.offsetY) * eased,
+                })
+                if (t < 1) requestAnimationFrame(animate)
+              }
+              requestAnimationFrame(animate)
+            }}
+            title={bm ? `뷰 ${i + 1} (zoom:${bm.zoom.toFixed(1)}) — 클릭으로 이동, Ctrl+${i + 1}로 저장` : `뷰 ${i + 1} 비어있음 (Ctrl+${i + 1}로 저장)`}
+            style={{
+              fontSize: 8, width: 16, height: 16, padding: 0, lineHeight: '16px', textAlign: 'center',
+              background: bm ? 'rgba(96,165,250,0.2)' : 'none',
+              border: '1px solid ' + (bm ? 'rgba(96,165,250,0.4)' : 'var(--border)'),
+              borderRadius: 2, color: bm ? '#93c5fd' : 'var(--text-muted)',
+              cursor: bm ? 'pointer' : 'default', fontWeight: bm ? 700 : 400,
+            }}
+          >{i + 1}</button>
+        ))}
+        <div style={{ width: 1, height: 12, background: 'var(--border)', margin: '0 2px' }} />
+        <button
+          onClick={() => {
+            const name = `뷰 ${viewportPresets.length + 1}`
+            const preset: ViewportPreset = { name, zoom: view.zoom, panX: view.offsetX, panY: view.offsetY }
+            setViewportPresets(prev => {
+              const next = [...prev, preset].slice(-5)
+              localStorage.setItem(VP_KEY, JSON.stringify(next))
+              return next
+            })
+          }}
+          title="현재 뷰를 프리셋으로 저장 (최대 5개)"
+          style={{ fontSize: 9, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
+        >{'\uD83D\uDCD0'}+</button>
+        {/* 기본 프리셋 */}
+        <button
+          onClick={() => { setView({ offsetX: 0, offsetY: 0, zoom: 1 }) }}
+          title="1:1 뷰"
+          style={{ fontSize: 8, padding: '1px 4px', background: view.zoom === 1 ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: view.zoom === 1 ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
+        >1:1</button>
+        <button
+          onClick={() => { setView({ offsetX: 0, offsetY: 0, zoom: 2 }) }}
+          title="2:1 뷰"
+          style={{ fontSize: 8, padding: '1px 4px', background: view.zoom === 2 ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: view.zoom === 2 ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
+        >2:1</button>
+        {/* 사용자 프리셋 */}
+        {viewportPresets.map((p, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+            <button
+              onClick={() => setView({ offsetX: p.panX, offsetY: p.panY, zoom: p.zoom })}
+              title={`${p.name} (zoom:${p.zoom.toFixed(1)} pan:${Math.round(p.panX)},${Math.round(p.panY)})`}
+              style={{ fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: '2px 0 0 2px', color: '#60a5fa', cursor: 'pointer' }}
+            >{p.name}</button>
+            <button
+              onClick={() => {
+                setViewportPresets(prev => {
+                  const next = prev.filter((_, j) => j !== i)
+                  localStorage.setItem(VP_KEY, JSON.stringify(next))
+                  return next
+                })
+              }}
+              title="프리셋 삭제"
+              style={{ fontSize: 8, padding: '1px 2px', background: 'none', border: '1px solid var(--border)', borderLeft: 'none', borderRadius: '0 2px 2px 0', color: '#f85149', cursor: 'pointer', lineHeight: 1 }}
+            >x</button>
+          </div>
+        ))}
+      </div>
 
       {/* R1383: 씬 파일 탭 바 */}
       {sceneTabFiles.length > 1 && (
@@ -2559,6 +3138,114 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           }}
         >
           diff {changedUuids.size > 0 ? `(${changedUuids.size})` : ''}
+        </button>
+        {/* R1431: Before/After 슬라이더 비교 토글 */}
+        <button
+          onClick={() => { setBeforeAfterMode(v => !v); if (!beforeAfterMode) setSliderX(0.5) }}
+          title={beforeAfterMode ? 'Before/After 비교 끄기' : 'Before/After 슬라이더 비교'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: beforeAfterMode ? 'rgba(168,85,247,0.25)' : 'rgba(255,255,255,0.06)',
+            border: beforeAfterMode ? '1px solid rgba(168,85,247,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: beforeAfterMode ? '#c084fc' : '#cbd5e1',
+          }}
+        >
+          B/A
+        </button>
+        {/* R1435: 씬 JSON 뷰어 토글 */}
+        <button
+          onClick={() => setShowJsonViewer(v => !v)}
+          title={showJsonViewer ? '씬 JSON 뷰어 닫기' : '씬 JSON 뷰어 열기'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: showJsonViewer ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)',
+            border: showJsonViewer ? '1px solid rgba(96,165,250,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: showJsonViewer ? '#60a5fa' : '#cbd5e1', fontFamily: 'monospace',
+          }}
+        >
+          {'{ }'}
+        </button>
+        {/* R1438: 씬 공유 링크 */}
+        <button
+          onClick={async () => {
+            setShareLoading(true)
+            try {
+              const data = Array.from(nodeMap.values()).map(n => ({ name: n.name, uuid: n.uuid, x: Math.round(n.x), y: Math.round(n.y), width: Math.round(n.width), height: Math.round(n.height), rotation: n.rotation, active: n.active, components: n.components }))
+              const sceneJson = JSON.stringify({ nodeCount: nodeMap.size, rootUuid, nodes: data }, null, 2)
+              const result = await window.api.ccFileServeScene?.(sceneJson)
+              if (result?.success && result.url) {
+                await navigator.clipboard.writeText(result.url)
+                setShareUrl(result.url)
+                setTimeout(() => setShareUrl(null), 5000)
+              }
+            } catch { /* ignore */ }
+            setShareLoading(false)
+          }}
+          disabled={shareLoading || nodeMap.size === 0}
+          title={shareUrl ? `공유 URL: ${shareUrl}` : '씬 로컬 HTTP 공유 (60초, 클립보드 복사)'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: shareUrl ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)',
+            border: shareUrl ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: shareUrl ? '#4ade80' : '#cbd5e1',
+            opacity: shareLoading || nodeMap.size === 0 ? 0.5 : 1,
+          }}
+        >
+          {shareLoading ? '...' : shareUrl ? '✓ 복사됨' : '\u{1F517}'}
+        </button>
+        {/* R1440: 씬 JSON 임포트 버튼 */}
+        <button
+          onClick={() => { setShowImportModal(true); setImportJson(''); setImportError(null) }}
+          title="외부 씬 JSON 붙여넣기로 노드 임포트"
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: showImportModal ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)',
+            border: showImportModal ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: showImportModal ? '#4ade80' : '#cbd5e1',
+          }}
+        >
+          {'\uD83D\uDCE5'} 임포트
+        </button>
+        {/* R1442: Center Guide 토글 */}
+        <button
+          onClick={() => setShowCenterGuide(v => !v)}
+          title={showCenterGuide ? '씬 중앙선 숨기기' : '씬 중앙선 표시 (0,0 기준)'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: showCenterGuide ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)',
+            border: showCenterGuide ? '1px solid rgba(96,165,250,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            color: showCenterGuide ? '#60a5fa' : '#cbd5e1',
+          }}
+        >
+          {'\u271A'}
+        </button>
+        {/* R1442: 스냅 거리 임계값 설정 */}
+        <select
+          value={snapThreshold}
+          onChange={e => setSnapThreshold(Number(e.target.value))}
+          title={`정렬 스냅 거리: ${snapThreshold}px`}
+          style={{
+            fontSize: 9, padding: '2px 4px', borderRadius: 3, cursor: 'pointer',
+            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
+            color: '#cbd5e1',
+          }}
+        >
+          {[4, 8, 12, 16].map(v => (
+            <option key={v} value={v}>{v}px</option>
+          ))}
+        </select>
+        {/* R1428: 비활성 노드 클릭 방지 토글 */}
+        <button
+          onClick={() => setBlockInactiveClick(v => !v)}
+          title={blockInactiveClick ? '비활성 노드 클릭 허용' : '비활성 노드 클릭 방지'}
+          style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: blockInactiveClick ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.06)',
+            border: blockInactiveClick ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(255,255,255,0.15)',
+            color: blockInactiveClick ? '#fca5a5' : '#cbd5e1',
+          }}
+        >
+          {blockInactiveClick ? '비활성 차단' : '비활성 허용'}
         </button>
         {/* 접근 횟수 초기화 버튼 (R702) */}
         {Object.keys(nodeAccessCount).length > 0 && (
@@ -2758,7 +3445,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 <path
                   d={`M ${gridStep * view.zoom} 0 L 0 0 0 ${gridStep * view.zoom}`}
                   fill="none"
-                  stroke="rgba(255,255,255,0.04)"
+                  stroke={gridSettings.theme === 'light' ? `rgba(0,0,0,${gridSettings.opacity})` : `rgba(255,255,255,${gridSettings.opacity})`}
                   strokeWidth={1}
                 />
               </pattern>
@@ -2782,18 +3469,33 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             )
           })()}
 
-          {/* R1392: 정렬 가이드라인 (스마트 가이드) — X=수직선, Y=수평선, #4af 스타일 */}
-          {alignGuides.length > 0 && (() => {
+          {/* R1392+R1442: 정렬 가이드라인 (스마트 가이드) — 거리 레이블 + 중앙선 */}
+          {(() => {
             const ox = DESIGN_W / 2 * view.zoom + view.offsetX
             const oy = DESIGN_H / 2 * view.zoom + view.offsetY
             return <g style={{ pointerEvents: 'none' }}>
+              {/* R1442: 씬 중앙선 (0,0 기준) 항상 표시 옵션 */}
+              {showCenterGuide && (
+                <>
+                  <line x1={ox} y1={0} x2={ox} y2="100%" stroke="rgba(251,191,36,0.35)" strokeWidth={1} strokeDasharray="6 3" />
+                  <line x1={0} y1={oy} x2="100%" y2={oy} stroke="rgba(251,191,36,0.35)" strokeWidth={1} strokeDasharray="6 3" />
+                  <text x={ox + 4} y={oy - 4} fill="rgba(251,191,36,0.6)" fontSize={8} fontFamily="monospace">0,0</text>
+                </>
+              )}
+              {/* 정렬 가이드 + R1442 거리 레이블 */}
               {alignGuides.map((g, i) => {
                 if (g.x !== undefined) {
                   const px = g.x * view.zoom + ox
-                  return <line key={i} x1={px} y1={0} x2={px} y2="100%" stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
+                  return <g key={i}>
+                    <line x1={px} y1={0} x2={px} y2="100%" stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
+                    <text x={px + 3} y={12} fill="#4af" fontSize={8} fontFamily="monospace" opacity={0.8}>{Math.round(g.x)}px</text>
+                  </g>
                 } else if (g.y !== undefined) {
                   const py = -g.y * view.zoom + oy
-                  return <line key={i} x1={0} y1={py} x2="100%" y2={py} stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
+                  return <g key={i}>
+                    <line x1={0} y1={py} x2="100%" y2={py} stroke="#4af" strokeWidth={1} strokeDasharray="4 2" />
+                    <text x={4} y={py - 3} fill="#4af" fontSize={8} fontFamily="monospace" opacity={0.8}>{Math.round(g.y)}px</text>
+                  </g>
                 }
                 return null
               })}
@@ -2926,6 +3628,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                     : nodeColors[uuid]}
                   designWidth={DESIGN_W}
                   designHeight={DESIGN_H}
+                  heatmapIntensity={showClickHeatmap ? ((nodeClickCount.get(uuid) ?? 0) / maxClickCount) : undefined}
                   onMouseDown={handleNodeMouseDown}
                   onMouseEnter={(uuid) => {
                     setHoveredUuid(uuid)
@@ -3339,6 +4042,165 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             />
           )}
         </svg>
+
+        {/* R1431: Before/After 슬라이더 비교 오버레이 */}
+        {beforeAfterMode && savedSnapshot.size > 0 && (() => {
+          const svgRect = svgRef.current?.getBoundingClientRect()
+          const svgW = svgRect?.width ?? 400
+          const svgH = svgRect?.height ?? 300
+          const pixelX = sliderX * svgW
+          return (
+            <div
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 20 }}
+            >
+              {/* Before 영역 라벨 */}
+              <div style={{ position: 'absolute', top: 4, left: 6, fontSize: 9, color: 'rgba(239,68,68,0.8)', pointerEvents: 'none', zIndex: 2 }}>BEFORE</div>
+              {/* After 영역 라벨 */}
+              <div style={{ position: 'absolute', top: 4, right: 6, fontSize: 9, color: 'rgba(96,165,250,0.8)', pointerEvents: 'none', zIndex: 2 }}>AFTER</div>
+              {/* Before 사이드 오버레이 — savedSnapshot 기준 변경된 노드 표시 */}
+              <svg width={svgW} height={svgH} style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
+                <defs>
+                  <clipPath id="r1431-before-clip"><rect x={0} y={0} width={pixelX} height={svgH} /></clipPath>
+                </defs>
+                <g clipPath="url(#r1431-before-clip)">
+                  {[...savedSnapshot.entries()].map(([uuid, snap]) => {
+                    const current = nodeMap.get(uuid)
+                    if (!current) return null
+                    if (snap.x === current.x && snap.y === current.y && snap.w === current.width && snap.h === current.height) return null
+                    const { sx, sy } = cocosToSvg(snap.x, snap.y, DESIGN_W, DESIGN_H)
+                    const rx = sx - snap.w * 0.5
+                    const ry = sy - snap.h * 0.5
+                    return (
+                      <rect key={uuid} x={rx} y={ry} width={snap.w} height={snap.h}
+                        fill="rgba(239,68,68,0.1)" stroke="rgba(239,68,68,0.6)"
+                        strokeWidth={1.5 / view.zoom} rx={2 / view.zoom}
+                        strokeDasharray={`${3 / view.zoom} ${2 / view.zoom}`}
+                      />
+                    )
+                  })}
+                </g>
+              </svg>
+              {/* 슬라이더 바 (드래그 가능) */}
+              <div
+                style={{
+                  position: 'absolute', top: 0, left: pixelX - 1, width: 3, height: '100%',
+                  background: 'rgba(255,255,255,0.8)', cursor: 'ew-resize', pointerEvents: 'auto', zIndex: 3,
+                  boxShadow: '0 0 4px rgba(0,0,0,0.5)',
+                }}
+                onMouseDown={e => {
+                  e.preventDefault()
+                  beforeAfterDragRef.current = true
+                  const handleMove = (ev: MouseEvent) => {
+                    if (!beforeAfterDragRef.current || !svgRef.current) return
+                    const r = svgRef.current.getBoundingClientRect()
+                    const x = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width))
+                    setSliderX(x)
+                  }
+                  const handleUp = () => {
+                    beforeAfterDragRef.current = false
+                    window.removeEventListener('mousemove', handleMove)
+                    window.removeEventListener('mouseup', handleUp)
+                  }
+                  window.addEventListener('mousemove', handleMove)
+                  window.addEventListener('mouseup', handleUp)
+                }}
+              >
+                {/* 드래그 핸들 */}
+                <div style={{
+                  position: 'absolute', top: '50%', left: -8, width: 19, height: 24, marginTop: -12,
+                  background: 'rgba(255,255,255,0.9)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 10, color: '#333', fontWeight: 700, boxShadow: '0 1px 4px rgba(0,0,0,0.4)',
+                }}>⟺</div>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* R1424: 씬 비교 뷰 — 오른쪽 절반에 비교 패널 오버레이 */}
+        {compareMode && (
+          <div style={{
+            position: 'absolute', top: 0, right: 0, width: '50%', height: '100%',
+            background: 'var(--bg-primary)', borderLeft: '2px solid var(--accent)',
+            display: 'flex', flexDirection: 'column', zIndex: 50,
+          }}>
+            <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>COMPARE</span>
+              {sceneTabFiles.length > 0 && (
+                <select
+                  value={compareScenePath ?? ''}
+                  onChange={e => setCompareScenePath(e.target.value || null)}
+                  style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '2px 4px' }}
+                >
+                  <option value="">씬 선택...</option>
+                  {sceneTabFiles.map(p => (
+                    <option key={p} value={p}>{p.split(/[\\/]/).pop()}</option>
+                  ))}
+                </select>
+              )}
+              <button
+                onClick={() => { setCompareMode(false); setCompareScenePath(null) }}
+                style={{ fontSize: 9, padding: '1px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
+              >X</button>
+            </div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 10 }}>
+              {!compareScenePath ? (
+                <span>비교할 씬을 선택하세요</span>
+              ) : (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 9, marginBottom: 4 }}>비교 씬: {compareScenePath.split(/[\\/]/).pop()}</div>
+                  <div style={{ fontSize: 8, color: 'var(--text-muted)' }}>읽기 전용 비교 뷰</div>
+                  <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 4 }}>독립 pan/zoom 지원</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* R1435: 씬 JSON 뷰어 패널 */}
+        {showJsonViewer && (() => {
+          const selNode = selectedUuid ? nodeMap.get(selectedUuid) : null
+          const jsonSource = jsonViewScope === 'selected' && selNode
+            ? { name: selNode.name, uuid: selNode.uuid, x: selNode.x, y: selNode.y, width: selNode.width, height: selNode.height, rotation: selNode.rotation, anchorX: selNode.anchorX, anchorY: selNode.anchorY, opacity: selNode.opacity, active: selNode.active, components: selNode.components, childCount: selNode.children?.length ?? 0 }
+            : { nodeCount: nodeMap.size, rootUuid, nodes: Array.from(nodeMap.values()).slice(0, 50).map(n => ({ name: n.name, uuid: n.uuid, x: Math.round(n.x), y: Math.round(n.y) })) }
+          const jsonStr = JSON.stringify(jsonSource, null, 2)
+          // R1435: 간단한 syntax highlight
+          const highlighted = jsonStr.replace(
+            /("(?:\\.|[^"\\])*")\s*:/g, '<span style="color:var(--accent,#60a5fa)">$1</span>:'
+          ).replace(
+            /:\s*("(?:\\.|[^"\\])*")/g, ': <span style="color:var(--success,#34d399)">$1</span>'
+          ).replace(
+            /:\s*(-?\d+\.?\d*)/g, ': <span style="color:var(--warning,#fbbf24)">$1</span>'
+          )
+          return (
+            <div style={{
+              position: 'absolute', top: 0, right: 0, width: 240, height: '100%',
+              background: 'var(--bg-primary)', borderLeft: '2px solid var(--accent)',
+              display: 'flex', flexDirection: 'column', zIndex: 55,
+            }}>
+              <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600, fontFamily: 'monospace' }}>JSON</span>
+                <button
+                  onClick={() => setJsonViewScope(v => v === 'selected' ? 'full' : 'selected')}
+                  style={{ fontSize: 8, padding: '1px 4px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-primary)', cursor: 'pointer' }}
+                >{jsonViewScope === 'selected' ? '선택 노드' : '전체 씬'}</button>
+                <span style={{ flex: 1 }} />
+                <button
+                  onClick={() => { navigator.clipboard.writeText(jsonStr) }}
+                  style={{ fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
+                  title="JSON 복사"
+                >복사</button>
+                <button
+                  onClick={() => setShowJsonViewer(false)}
+                  style={{ fontSize: 9, padding: '1px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
+                >X</button>
+              </div>
+              <pre
+                style={{ flex: 1, overflow: 'auto', margin: 0, padding: 8, fontSize: 9, lineHeight: 1.5, color: 'var(--text-primary)', fontFamily: 'var(--font-mono, monospace)', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
+                dangerouslySetInnerHTML={{ __html: highlighted }}
+              />
+            </div>
+          )
+        })()}
 
         {/* 측정 도구 결과 오버레이 (클릭 복사 지원) */}
         {measureMode && measureLine && (() => {
@@ -4071,14 +4933,47 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 {showAllToggle ? '👁' : '🙈'}
               </button>
             </div>
-            {/* R1395: 레이어 목록 (가시성/잠금/색상 라벨) */}
-            {topLevelNodes.map(layer => {
+            {/* R1395+R1450: 레이어 목록 (가시성/잠금/색상 라벨 + 드래그 재배치) */}
+            {topLevelNodes.map((layer, layerIdx) => {
               const isHidden = hiddenLayers.has(layer.uuid)
               const isLocked = lockedLayers.has(layer.uuid)
               const childCount = collectDescendants(layer.uuid).length - 1
               const lc = layerColors[layer.uuid]
               return (
-                <div key={layer.uuid} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div
+                  key={layer.uuid}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    borderTop: layerDropIdx === layerIdx && layerDragIdx !== null && layerDragIdx !== layerIdx ? '2px solid #60a5fa' : 'none',
+                    opacity: layerDragIdx === layerIdx ? 0.4 : 1,
+                  }}
+                  onDragOver={e => { e.preventDefault(); setLayerDropIdx(layerIdx) }}
+                  onDragLeave={() => { if (layerDropIdx === layerIdx) setLayerDropIdx(null) }}
+                  onDrop={e => {
+                    e.preventDefault()
+                    if (layerDragIdx !== null && layerDragIdx !== layerIdx && rootUuid) {
+                      // R1450: 레이어 순서 변경 — rootUuid의 childUuids 재배치
+                      const root = nodeMap.get(rootUuid)
+                      if (root) {
+                        const uuids = [...root.childUuids]
+                        const [moved] = uuids.splice(layerDragIdx, 1)
+                        uuids.splice(layerIdx, 0, moved)
+                        updateNode(rootUuid, { childUuids: uuids })
+                      }
+                    }
+                    setLayerDragIdx(null)
+                    setLayerDropIdx(null)
+                  }}
+                >
+                  {/* R1450: 드래그 핸들 */}
+                  <span
+                    draggable
+                    onDragStart={() => setLayerDragIdx(layerIdx)}
+                    onDragEnd={() => { setLayerDragIdx(null); setLayerDropIdx(null) }}
+                    style={{ cursor: 'grab', color: 'rgba(255,255,255,0.3)', fontSize: 10, flexShrink: 0, userSelect: 'none' }}
+                    title="R1450: 드래그하여 레이어 순서 변경"
+                  >{'⋮⋮'}</span>
                   <button
                     onClick={() => setHiddenLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
                     title={isHidden ? '표시' : '숨김'}
@@ -4127,6 +5022,50 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 </div>
               )
             })}
+          </div>
+        )}
+
+        {/* R1446: 편집 이력 패널 (우측 상단) */}
+        {showEditHistory && editHistory.length > 0 && (
+          <div style={{
+            position: 'absolute', top: 4, right: 4, zIndex: 20,
+            width: 200, maxHeight: 240, overflowY: 'auto',
+            background: 'rgba(0,0,0,0.75)', borderRadius: 4,
+            padding: '6px 8px', fontSize: 10,
+            border: '1px solid rgba(255,255,255,0.12)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+              <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Edit History ({editHistory.length})</span>
+              <button
+                onClick={() => setShowEditHistory(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, lineHeight: 1, padding: 0 }}
+              >x</button>
+            </div>
+            {editHistory.map((entry, i) => (
+              <div
+                key={`${entry.timestamp}-${i}`}
+                onClick={() => {
+                  setSelectedUuid(entry.nodeUuid)
+                  setSelectedUuids(new Set([entry.nodeUuid]))
+                }}
+                style={{
+                  display: 'flex', flexDirection: 'column', gap: 1, padding: '3px 0',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer',
+                }}
+              >
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                    {new Date(entry.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </span>
+                  <span style={{ color: entry.action === 'move' ? '#60a5fa' : entry.action === 'resize' ? '#34d399' : '#fbbf24', fontSize: 9, fontWeight: 600, flexShrink: 0 }}>
+                    {entry.action}
+                  </span>
+                </div>
+                <span style={{ color: '#e0e0e0', fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {entry.nodeName}
+                </span>
+              </div>
+            ))}
           </div>
         )}
 
@@ -4529,6 +5468,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onUpdate={handleInspectorUpdate}
         onClose={() => { setSelectedUuid(null); setSelectedUuids(new Set()) }}
         selectionCount={selectionCount}
+        multiSelectedUuids={selectedUuids}
+        onBatchUpdate={(uuids, updates) => { for (const u of uuids) { for (const up of updates) { updateNode(u, { [up.prop]: up.value }) } } }}
         onRename={handleRename}
         onMemo={(uuid, memo) => updateNode(uuid, { memo })}
         onTagsUpdate={(uuid, tags) => updateNode(uuid, { tags })}
@@ -4553,6 +5494,16 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             console.error('[ApplyToCocos]', e)
           }
         }}
+        bookmarkedUuids={bookmarkedUuids}
+        onToggleBookmark={(uuid) => {
+          setBookmarkedUuids(prev => {
+            const next = new Set(prev)
+            if (next.has(uuid)) next.delete(uuid); else next.add(uuid)
+            return next
+          })
+        }}
+        nodeColorTags={nodeColorTags}
+        onSelectNode={(uuid) => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
       />
 
       {/* SVG 우클릭 컨텍스트 메뉴 */}
@@ -4644,6 +5595,55 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                   setNodeTagInput(ctxUuid!)
                   close()
                 }}>🏷 태그 편집</button>
+              )}
+              {/* R1464: 애니메이션 프리뷰 */}
+              {ctxNode && (() => {
+                const hasAnim = ctxNode.components.some(c =>
+                  c.type === 'cc.Tween' || c.type === 'cc.TweenSystem' ||
+                  c.type === 'cc.Animation' || c.type === 'cc.AnimationComponent' ||
+                  c.type === 'cc.SkeletalAnimation'
+                )
+                if (!hasAnim) return null
+                const isPlaying = animPlayingUuid === ctxUuid
+                return isPlaying ? (
+                  <button style={menuStyle} onClick={() => { handleAnimPreviewStop(); close() }}>{'■'} 애니 정지</button>
+                ) : (
+                  <button style={menuStyle} onClick={() => {
+                    const comp = ctxNode.components.find(c =>
+                      c.type === 'cc.Animation' || c.type === 'cc.AnimationComponent' ||
+                      c.type === 'cc.Tween' || c.type === 'cc.TweenSystem'
+                    )
+                    const dur = (comp?.props as Record<string, unknown> | undefined)?.duration as number | undefined
+                    handleAnimPreviewStart(ctxUuid!, dur ? dur * 1000 : 1000)
+                    close()
+                  }}>{'▶'} 애니 프리뷰</button>
+                )
+              })()}
+              {/* R1468: AI 분석 요청 */}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => { handleAiAnalyze(ctxUuid!); close() }}>{'\uD83E\uDD16'} AI 분석</button>
+              )}
+              {/* R1452: 템플릿으로 저장 */}
+              {ctxNode && (
+                <button style={menuStyle} onClick={() => {
+                  const name = prompt('템플릿 이름:')
+                  if (!name?.trim()) { close(); return }
+                  const n = nodeMap.get(ctxUuid!)
+                  if (!n) { close(); return }
+                  const tmplNode = {
+                    uuid: '', name: n.name, active: n.active,
+                    position: { x: n.x, y: n.y, z: 0 }, rotation: n.rotation,
+                    scale: { x: n.scaleX, y: n.scaleY, z: 1 }, size: { x: n.width, y: n.height },
+                    anchor: { x: n.anchorX, y: n.anchorY }, opacity: n.opacity, color: n.color,
+                    components: n.components, children: [],
+                  }
+                  setNodeTemplates(prev => {
+                    const next = [{ name: name.trim(), node: tmplNode }, ...prev].slice(0, 10)
+                    localStorage.setItem(NT_KEY, JSON.stringify(next))
+                    return next
+                  })
+                  close()
+                }}>{'\uD83D\uDCCC'} 템플릿으로 저장</button>
               )}
               {/* R1407: 색상 태그 */}
               {ctxNode && (
@@ -4772,6 +5772,118 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           </>
         )
       })()}
+
+      {/* R1440: 씬 JSON 임포트 모달 */}
+      {showImportModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 10000,
+          background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }} onClick={() => setShowImportModal(false)}>
+          <div
+            style={{
+              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+              borderRadius: 8, padding: 16, width: 400, maxHeight: '70vh',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
+              {'\uD83D\uDCE5'} 씬 JSON 임포트
+            </div>
+            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 6 }}>
+              CCSceneNode JSON을 붙여넣으세요. UUID 충돌 시 자동 재생성됩니다.
+            </div>
+            <textarea
+              value={importJson}
+              onChange={e => { setImportJson(e.target.value); setImportError(null) }}
+              placeholder='{"uuid":"...","name":"Node","active":true,...}'
+              style={{
+                width: '100%', height: 160, fontSize: 10, fontFamily: 'monospace',
+                background: 'var(--bg-input)', color: 'var(--text-primary)',
+                border: importError ? '1px solid var(--error, #f85149)' : '1px solid var(--border)',
+                borderRadius: 4, padding: 8, resize: 'vertical', boxSizing: 'border-box',
+              }}
+            />
+            {importError && (
+              <div style={{ fontSize: 9, color: 'var(--error, #f85149)', marginTop: 4 }}>{importError}</div>
+            )}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10 }}>
+              <button
+                onClick={() => setShowImportModal(false)}
+                style={{
+                  fontSize: 10, padding: '4px 12px', borderRadius: 4, cursor: 'pointer',
+                  background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)',
+                }}
+              >취소</button>
+              <button
+                onClick={() => {
+                  try {
+                    const parsed = JSON.parse(importJson)
+                    // validate minimal CCSceneNode shape
+                    if (!parsed || typeof parsed !== 'object') throw new Error('JSON 객체가 아닙니다')
+                    const node = parsed as Record<string, unknown>
+                    if (typeof node.name !== 'string' && typeof node.uuid !== 'string') {
+                      throw new Error('유효한 CCSceneNode가 아닙니다 (name/uuid 필수)')
+                    }
+                    // UUID 충돌 검사 → 자동 재생성
+                    const existingUuids = new Set<string>()
+                    nodeMap.forEach((_, uuid) => existingUuids.add(uuid))
+                    function regenerateUuids(obj: Record<string, unknown>): void {
+                      if (typeof obj.uuid === 'string' && existingUuids.has(obj.uuid)) {
+                        obj.uuid = `import-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+                      }
+                      if (Array.isArray(obj.children)) {
+                        for (const child of obj.children) {
+                          if (child && typeof child === 'object') regenerateUuids(child as Record<string, unknown>)
+                        }
+                      }
+                    }
+                    regenerateUuids(node)
+                    // 노드를 현재 씬에 삽입 — 선택 상태로 설정
+                    const uuid = (node.uuid as string) ?? `import-${Date.now()}`
+                    const name = (node.name as string) ?? 'Imported'
+                    const pos = (node.position as { x?: number; y?: number }) ?? {}
+                    const size = (node.size as { x?: number; y?: number; width?: number; height?: number }) ?? {}
+                    const w = size.width ?? size.x ?? 100
+                    const h = size.height ?? size.y ?? 100
+                    updateNode(uuid, {
+                      name,
+                      x: pos.x ?? 0,
+                      y: pos.y ?? 0,
+                      width: typeof w === 'number' ? w : 100,
+                      height: typeof h === 'number' ? h : 100,
+                      active: (node.active as boolean) ?? true,
+                    })
+                    setSelectedUuid(uuid)
+                    setSelectedUuids(new Set([uuid]))
+                    setShowImportModal(false)
+                    setImportJson('')
+                  } catch (err: unknown) {
+                    setImportError((err as Error).message ?? 'JSON 파싱 실패')
+                  }
+                }}
+                disabled={!importJson.trim()}
+                style={{
+                  fontSize: 10, padding: '4px 12px', borderRadius: 4, cursor: 'pointer',
+                  background: 'var(--accent)', border: 'none', color: '#fff',
+                  opacity: importJson.trim() ? 1 : 0.5,
+                }}
+              >임포트</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* R1455: 뷰 북마크 저장 토스트 */}
+      {viewBookmarkToast && (
+        <div style={{
+          position: 'absolute', top: 40, left: '50%', transform: 'translateX(-50%)',
+          zIndex: 9999, padding: '4px 14px', borderRadius: 4,
+          background: 'rgba(96,165,250,0.9)', color: '#fff', fontSize: 11,
+          fontWeight: 600, pointerEvents: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+        }}>
+          {viewBookmarkToast}
+        </div>
+      )}
     </div>
   )
 }

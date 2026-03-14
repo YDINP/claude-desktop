@@ -108,26 +108,59 @@ export function useCCFileProject() {
     [projectInfo]
   )
 
+  // R1437: 충돌 상태
+  const [conflictInfo, setConflictInfo] = useState<{ root: CCSceneNode } | null>(null)
+
   /** 내부 저장 + 재로드 (히스토리 스택 없이) */
-  const _saveRaw = useCallback(async (root: CCSceneNode): Promise<{ success: boolean; error?: string }> => {
+  const _saveRaw = useCallback(async (root: CCSceneNode): Promise<{ success: boolean; error?: string; conflict?: boolean }> => {
     const sf = sceneFileRef.current
     const pi = projectInfoRef.current
     if (!sf) return { success: false, error: '씬 파일이 로드되지 않았습니다.' }
     try {
       suppressWatchRef.current = true
       const result = await window.api.ccFileSaveScene?.(sf, root)
+      // R1437: 충돌 감지
+      if (result?.conflict) {
+        suppressWatchRef.current = false
+        setConflictInfo({ root })
+        return { success: false, conflict: true, error: result.error ?? '파일이 외부에서 변경되었습니다.' }
+      }
       if (result?.success && pi) {
         const fresh = await window.api.ccFileReadScene?.(sf.scenePath, pi)
         if (fresh && !('error' in fresh)) setSceneFile(fresh)
       } else {
         suppressWatchRef.current = false
       }
+      setConflictInfo(null)
       return result ?? { success: false, error: 'API 없음' }
     } catch (e) {
       suppressWatchRef.current = false
       return { success: false, error: String(e) }
     }
   }, [])
+
+  /** R1437: 충돌 시 강제 덮어쓰기 */
+  const forceOverwrite = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+    const sf = sceneFileRef.current
+    const pi = projectInfoRef.current
+    const ci = conflictInfo
+    if (!sf || !ci) return { success: false, error: '충돌 정보가 없습니다.' }
+    try {
+      suppressWatchRef.current = true
+      const result = await window.api.ccFileForceOverwrite?.(sf, ci.root)
+      if (result?.success && pi) {
+        const fresh = await window.api.ccFileReadScene?.(sf.scenePath, pi)
+        if (fresh && !('error' in fresh)) setSceneFile(fresh)
+      } else {
+        suppressWatchRef.current = false
+      }
+      setConflictInfo(null)
+      return result ?? { success: false, error: 'API 없음' }
+    } catch (e) {
+      suppressWatchRef.current = false
+      return { success: false, error: String(e) }
+    }
+  }, [conflictInfo])
 
   /** 수정된 씬 트리를 파일에 저장 (undo 스냅샷 + 재로드) */
   const saveScene = useCallback(
@@ -190,6 +223,7 @@ export function useCCFileProject() {
     externalChange,
     canUndo,
     canRedo,
+    conflictInfo,   // R1437
     openProject,
     detectProject,
     loadScene,
@@ -197,6 +231,7 @@ export function useCCFileProject() {
     undo,
     redo,
     restoreBackup,
+    forceOverwrite,  // R1437
     clearProject,
   }
 }

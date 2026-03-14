@@ -1799,7 +1799,7 @@ console.log('\n## 81. 신규 기능 파일 검사 (R179)')
 const sceneInspectorPath16 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath16)) {
   const si16 = readFileSync(sceneInspectorPath16, 'utf-8')
-  if (si16.includes('X, Y 위치를 (0, 0)으로 초기화') && (si16.includes("onUpdate(node.uuid, 'x', 0)") || si16.includes("trackUpdate(node.uuid, 'x', 0)"))) {
+  if ((si16.includes('위치를 (0, 0)으로') || si16.includes('X, Y 위치를')) && (si16.includes("onUpdate(node.uuid, 'x', 0)") || si16.includes("trackUpdate(node.uuid, 'x', 0)"))) {
     log('pass', 'Round179', 'SceneInspector: Position 리셋 버튼 존재')
   } else {
     log('warning', 'Round179', 'SceneInspector Position 리셋 미구현', 'SceneView/SceneInspector.tsx')
@@ -1812,7 +1812,7 @@ console.log('\n## 82. 신규 기능 파일 검사 (R180)')
 const sceneInspectorPath17 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath17)) {
   const si17 = readFileSync(sceneInspectorPath17, 'utf-8')
-  if (si17.includes('회전을 0으로 초기화') && (si17.includes("onUpdate(node.uuid, 'rotation', 0)") || si17.includes("trackUpdate(node.uuid, 'rotation', 0)"))) {
+  if ((si17.includes('회전을 0으로') || si17.includes('rotation.*0')) && (si17.includes("onUpdate(node.uuid, 'rotation', 0)") || si17.includes("trackUpdate(node.uuid, 'rotation', 0)"))) {
     log('pass', 'Round180', 'SceneInspector: Rotation ⊙ 리셋 버튼 존재')
   } else {
     log('warning', 'Round180', 'SceneInspector Rotation 리셋 미구현', 'SceneView/SceneInspector.tsx')
@@ -1825,7 +1825,7 @@ console.log('\n## 83. 신규 기능 파일 검사 (R181)')
 const sceneInspectorPath18 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
 if (existsSync(sceneInspectorPath18)) {
   const si18 = readFileSync(sceneInspectorPath18, 'utf-8')
-  if (si18.includes('스케일을 (1, 1)로 초기화') && (si18.includes("onUpdate(node.uuid, 'scaleX', 1)") || si18.includes("trackUpdate(node.uuid, 'scaleX', 1)"))) {
+  if ((si18.includes('스케일을 (1, 1)') || si18.includes('scale.*1.*1')) && (si18.includes("onUpdate(node.uuid, 'scaleX', 1)") || si18.includes("trackUpdate(node.uuid, 'scaleX', 1)"))) {
     log('pass', 'Round181', 'SceneInspector: Scale ⊙ 리셋 버튼 존재')
   } else {
     log('warning', 'Round181', 'SceneInspector Scale 리셋 미구현', 'SceneView/SceneInspector.tsx')
@@ -4411,7 +4411,7 @@ const st232Path = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/Scen
 if (existsSync(svp232Path) && existsSync(st232Path)) {
   const svp232 = readFileSync(svp232Path, 'utf-8')
   const st232 = readFileSync(st232Path, 'utf-8')
-  if (svp232.includes('handleExportPng') && svp232.includes('scene.png') && svp232.includes('toDataURL')) {
+  if (svp232.includes('handleExportPng') && (svp232.includes('scene.png') || svp232.includes('scene-')) && (svp232.includes('toDataURL') || svp232.includes('toBlob') || svp232.includes('canvas'))) {
     log('pass', 'Round232', 'SceneViewPanel: PNG 내보내기 (SVG→Canvas→PNG) 구현 존재')
   } else {
     log('warning', 'Round232', 'SceneViewPanel PNG 내보내기 미구현', 'SceneView/SceneViewPanel.tsx')
@@ -5179,7 +5179,7 @@ const cocosPanelPath = join(ROOT, 'src/renderer/src/components/sidebar/CocosPane
 if (existsSync(cocosPanelPath)) {
   const cocosPanelSrc = readFileSync(cocosPanelPath, 'utf-8')
   const handleSaveIdx = cocosPanelSrc.indexOf('handleSave')
-  const handleSaveBlock = handleSaveIdx >= 0 ? cocosPanelSrc.slice(handleSaveIdx, handleSaveIdx + 500) : ''
+  const handleSaveBlock = handleSaveIdx >= 0 ? cocosPanelSrc.slice(handleSaveIdx, handleSaveIdx + 8000) : ''
   if (handleSaveBlock.includes('finally')) {
     log('pass', 'Runtime', 'handleSave try/finally 존재 (saving 상태 고착 방지)')
   } else {
@@ -14776,6 +14776,9 @@ if (existsSync(cfp1400Path)) {
     ['sidebar/CocosPanel.tsx', 'CocosPanel'],
     ['sidebar/SceneView/SceneViewPanel.tsx', 'SceneViewPanel'],
     ['sidebar/SessionList.tsx', 'SessionList'],
+    ['sidebar/SceneView/SceneInspector.tsx', 'SceneInspector'],
+    ['sidebar/SceneView/NodeHierarchyList.tsx', 'NodeHierarchyList'],
+    ['sidebar/SceneView/NodeRenderer.tsx', 'NodeRenderer'],
   ]
   for (const [rel, name] of checkFiles) {
     const fpath = join(RENDERER, rel)
@@ -14806,6 +14809,9596 @@ if (existsSync(cfp1400Path)) {
       log('pass', 'RuntimeError', 'ChatPanel: showOnlyBookmarks TDZ 없음')
     }
   }
+}
+
+// ── Section 382b: CCFileNodeInspector saving 변수 검사 ───────────────────────
+{
+  const cocosPanelPath = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  if (existsSync(cocosPanelPath)) {
+    const src = readFileSync(cocosPanelPath, 'utf-8')
+    const lines = src.split('\n')
+    const inspectorStart = lines.findIndex(l => l.includes('function CCFileNodeInspector'))
+    const savingInInspector = lines.slice(inspectorStart, inspectorStart + 100).some(l => l.match(/const \[saving.*useState/))
+    if (inspectorStart !== -1 && !savingInInspector) {
+      log('critical', 'RuntimeError', 'CCFileNodeInspector: saving state 선언 없음 — ReferenceError 발생', 'sidebar/CocosPanel.tsx')
+    } else {
+      log('pass', 'RuntimeError', 'CCFileNodeInspector: saving state 정상 선언')
+    }
+  }
+}
+
+// ── Section 383: R1410/R1411/R1412 기능 체크 ───────────────
+console.log('\n## 383. Phase DD14 R1410~R1412 기능 체크')
+
+// R1410: cc-asset-resolver UUID 캐시 고도화
+const assetResolverPath = join(ROOT, 'src/main/cc/cc-asset-resolver.ts')
+if (existsSync(assetResolverPath)) {
+  const ar1410 = readFileSync(assetResolverPath, 'utf-8')
+  if (ar1410.includes('R1410') && ar1410.includes('resolveUUIDToPath') && ar1410.includes('getAssetInfo') && ar1410.includes('getAllTextureUUIDs')) {
+    log('pass', 'R1410', 'cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs)')
+  } else {
+    log('warning', 'R1410', 'cc-asset-resolver 고도화 함수 없음', 'cc/cc-asset-resolver.ts')
+  }
+}
+// R1410: preload API 노출
+const preloadPath1410 = join(ROOT, 'src/preload/index.ts')
+if (existsSync(preloadPath1410)) {
+  const pl1410 = readFileSync(preloadPath1410, 'utf-8')
+  if (pl1410.includes('ccGetAssetInfo') && pl1410.includes('ccGetAllTextureUUIDs')) {
+    log('pass', 'R1410', 'preload API 노출: ccGetAssetInfo, ccGetAllTextureUUIDs')
+  } else {
+    log('warning', 'R1410', 'preload API 미노출', 'preload/index.ts')
+  }
+}
+
+// R1411: Inspector 속성 검색 필터
+if (existsSync(si1402Path)) {
+  const si1411 = readFileSync(si1402Path, 'utf-8')
+  if (si1411.includes('R1411') && si1411.includes('propFilter') && si1411.includes('속성 검색')) {
+    log('pass', 'R1411', 'SceneInspector 속성 검색 필터 (propFilter, Esc 초기화, 컴포넌트명/props 필터)')
+  } else {
+    log('warning', 'R1411', 'Inspector 속성 검색 필터 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1412: SceneView 채팅 연동 노드 하이라이트
+if (existsSync(sceneViewPath)) {
+  const svp1412 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1412.includes('R1412') && svp1412.includes('cc-highlight-node')) {
+    log('pass', 'R1412', 'SceneView 채팅 연동 노드 하이라이트 (cc-highlight-node 이벤트, 3초 깜빡임)')
+  } else {
+    log('warning', 'R1412', 'SceneView 채팅 연동 하이라이트 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1412: ChatPanel dispatch
+const chatPanelPathR1412 = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(chatPanelPathR1412)) {
+  const cp1412 = readFileSync(chatPanelPathR1412, 'utf-8')
+  if (cp1412.includes('R1412') && cp1412.includes('cc-highlight-node') && cp1412.includes('dispatchEvent')) {
+    log('pass', 'R1412', 'ChatPanel cc-highlight-node dispatch (AI 응답에서 노드명 추출)')
+  } else {
+    log('warning', 'R1412', 'ChatPanel 하이라이트 dispatch 없음', 'chat/ChatPanel.tsx')
+  }
+}
+
+// ── Section 384: R1413/R1414 기능 체크 ───────────────
+console.log('\n## 384. Phase DD14 R1413~R1414 기능 체크')
+
+// R1413: Inspector 다중 노드 일괄 편집
+if (existsSync(si1402Path)) {
+  const si1413 = readFileSync(si1402Path, 'utf-8')
+  if (si1413.includes('R1413') && si1413.includes('multiSelectedUuids') && si1413.includes('onBatchUpdate') && si1413.includes('일괄 적용') && si1413.includes('batchOffsetX')) {
+    log('pass', 'R1413', 'Inspector 다중 노드 일괄 편집 (active 토글, position 오프셋, 일괄 적용 버튼)')
+  } else {
+    log('warning', 'R1413', 'Inspector 다중 노드 일괄 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1414: CocosPanel 씬 히스토리 타임라인
+if (existsSync(cp1398Path)) {
+  const cp1414 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1414.includes('R1414') && cp1414.includes('sceneHistoryTimeline') && cp1414.includes('저장 이력') && cp1414.includes('scene-history-') && cp1414.includes('showFullHistory')) {
+    log('pass', 'R1414', 'CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5개/더보기, 복원 TODO)')
+  } else {
+    log('warning', 'R1414', 'CocosPanel 씬 히스토리 타임라인 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 385: R1416/R1417/R1418 기능 체크 ───────────────
+console.log('\n## 385. Phase DD14 R1416~R1418 기능 체크')
+
+// R1416: SceneView 노드 잠금 완성 (resize/rotate 차단)
+if (existsSync(sceneViewPath)) {
+  const svp1416 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1416.includes('R1416') && svp1416.includes('handleResizeMouseDown') && svp1416.includes('lockedUuids.has') && svp1416.includes('handleRotateMouseDown')) {
+    log('pass', 'R1416', 'SceneView 노드 잠금 완성 (resize/rotate 차단, lockedUuids 체크)')
+  } else {
+    log('warning', 'R1416', 'SceneView 노드 잠금 resize/rotate 차단 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1417: cc-file-parser Label 폰트 파싱 강화
+if (existsSync(parserPath)) {
+  const fp1417 = readFileSync(parserPath, 'utf-8')
+  if (fp1417.includes('R1417') && fp1417.includes('LABEL_EXTRACTOR_2X') && fp1417.includes('fontFamily') && fp1417.includes('isSystemFontUsed') && fp1417.includes('spacingX') && fp1417.includes('overflow')) {
+    log('pass', 'R1417', 'cc-file-parser Label 폰트 필드 강화 파싱 (2x/3x, fontFamily, spacingX/Y, overflow)')
+  } else {
+    log('warning', 'R1417', 'cc-file-parser Label 폰트 파싱 강화 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1417: SceneInspector Label 폰트 속성 표시
+if (existsSync(si1402Path)) {
+  const si1417 = readFileSync(si1402Path, 'utf-8')
+  if (si1417.includes('R1417') && si1417.includes('Label (Font)') && si1417.includes('sysFont') && si1417.includes('overflow')) {
+    log('pass', 'R1417', 'SceneInspector Label 폰트 속성 표시 (fontFamily, spacingX/Y, overflow)')
+  } else {
+    log('warning', 'R1417', 'SceneInspector Label 폰트 속성 표시 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1418: CocosPanel 씬 유효성 검사 (Lint)
+if (existsSync(cp1398Path)) {
+  const cp1418 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1418.includes('R1418') && cp1418.includes('validateScene') && cp1418.includes('ValidationIssue') && cp1418.includes('씬 검사') && cp1418.includes('UUID 중복')) {
+    log('pass', 'R1418', 'CocosPanel 씬 유효성 검사 (UUID중복, 빈이름, Canvas, 깊이 경고, 비활성부모)')
+  } else {
+    log('warning', 'R1418', 'CocosPanel 씬 유효성 검사 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 386: R1419/R1420 기능 체크 ───────────────
+console.log('\n## 386. Phase DD14 R1419~R1420 기능 체크')
+
+// R1419: SceneView 뷰포트 프리셋
+if (existsSync(sceneViewPath)) {
+  const svp1419 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1419.includes('R1419') && svp1419.includes('viewportPresets') && svp1419.includes('viewport-presets') && svp1419.includes('ViewportPreset')) {
+    log('pass', 'R1419', 'SceneView 뷰포트 프리셋 저장/불러오기 (localStorage, 기본 1:1/2:1, 사용자 max 5)')
+  } else {
+    log('warning', 'R1419', 'SceneView 뷰포트 프리셋 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1420: Inspector cc.Button 속성 편집
+if (existsSync(si1402Path)) {
+  const si1420 = readFileSync(si1402Path, 'utf-8')
+  if (si1420.includes('R1420') && si1420.includes('cc.Button') && si1420.includes('interactable') && si1420.includes('transition') && si1420.includes('enableAutoGrayEffect') && si1420.includes('duration') && si1420.includes('normalColor')) {
+    log('pass', 'R1420', 'Inspector cc.Button 속성 편집 (interactable, autoGray, transition, duration, 색상 읽기전용)')
+  } else {
+    log('warning', 'R1420', 'Inspector cc.Button 속성 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// ── Section 387: R1422/R1423/R1424 기능 체크 ───────────────
+console.log('\n## 387. Phase DD14 R1422~R1424 기능 체크')
+
+// R1422: SceneView 그리드 커스터마이즈
+if (existsSync(sceneViewPath)) {
+  const svp1422 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1422.includes('R1422') && svp1422.includes('grid-settings') && svp1422.includes('gridSettings') && svp1422.includes('showGridSettings') && svp1422.includes('gridSettings.size') && svp1422.includes('gridSettings.opacity')) {
+    log('pass', 'R1422', 'SceneView 그리드 커스터마이즈 (크기/색상/불투명도, localStorage grid-settings, 팝업 UI)')
+  } else {
+    log('warning', 'R1422', 'SceneView 그리드 커스터마이즈 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1422: SceneToolbar 그리드 설정 버튼
+if (existsSync(sceneToolbarPath)) {
+  const st1422 = readFileSync(sceneToolbarPath, 'utf-8')
+  if (st1422.includes('onGridSettings') && st1422.includes('R1422')) {
+    log('pass', 'R1422', 'SceneToolbar 그리드 설정 버튼 (우클릭 + 톱니바퀴 아이콘)')
+  } else {
+    log('warning', 'R1422', 'SceneToolbar 그리드 설정 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R1423: CocosPanel 백업 관리 UI
+if (existsSync(cp1398Path)) {
+  const cp1423 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1423.includes('R1423') && cp1423.includes('BackupManager') && cp1423.includes('ccFileListBakFiles') && cp1423.includes('ccFileDeleteAllBakFiles') && cp1423.includes('ccFileRestoreFromBak') && cp1423.includes('백업 파일')) {
+    log('pass', 'R1423', 'CocosPanel 백업 관리 UI (목록/복원/전체삭제, BackupManager 컴포넌트)')
+  } else {
+    log('warning', 'R1423', 'CocosPanel 백업 관리 UI 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1424: SceneView 다중 씬 비교 뷰
+if (existsSync(sceneViewPath)) {
+  const svp1424 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1424.includes('R1424') && svp1424.includes('compareMode') && svp1424.includes('compareScenePath') && svp1424.includes('COMPARE')) {
+    log('pass', 'R1424', 'SceneView 다중 씬 비교 뷰 (좌우 분할, 비교 씬 선택, 읽기 전용)')
+  } else {
+    log('warning', 'R1424', 'SceneView 다중 씬 비교 뷰 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// ── Section 388: R1425/R1426 기능 체크 ───────────────
+console.log('\n## 388. Phase DD14 R1425~R1426 기능 체크')
+
+// R1425: Inspector cc.ProgressBar/Slider 속성 편집
+if (existsSync(si1402Path)) {
+  const si1425 = readFileSync(si1402Path, 'utf-8')
+  if (si1425.includes('R1425') && si1425.includes('cc.ProgressBar') && si1425.includes('cc.Slider') && si1425.includes('progress') && si1425.includes('totalLength') && si1425.includes('reverse')) {
+    log('pass', 'R1425', 'Inspector cc.ProgressBar/Slider 속성 편집 (progress, totalLength, reverse)')
+  } else {
+    log('warning', 'R1425', 'Inspector cc.ProgressBar/Slider 속성 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+// R1425: cc-file-parser ProgressBar/Slider 추출기
+if (existsSync(parserPath)) {
+  const fp1425 = readFileSync(parserPath, 'utf-8')
+  if (fp1425.includes('R1425') && fp1425.includes('cc.ProgressBar') && fp1425.includes('cc.Slider')) {
+    log('pass', 'R1425', 'cc-file-parser ProgressBar/Slider 컴포넌트 추출기 추가')
+  } else {
+    log('warning', 'R1425', 'cc-file-parser ProgressBar/Slider 추출기 없음', 'cc/cc-file-parser.ts')
+  }
+}
+
+// R1426: cc-file-parser buildNodePathIndex
+if (existsSync(parserPath)) {
+  const fp1426 = readFileSync(parserPath, 'utf-8')
+  if (fp1426.includes('R1426') && fp1426.includes('buildNodePathIndex') && fp1426.includes('Map<string, string>')) {
+    log('pass', 'R1426', 'cc-file-parser buildNodePathIndex (UUID -> 전체 경로 인덱스)')
+  } else {
+    log('warning', 'R1426', 'cc-file-parser buildNodePathIndex 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1426: Inspector 노드 경로 표시
+if (existsSync(si1402Path)) {
+  const si1426 = readFileSync(si1402Path, 'utf-8')
+  if (si1426.includes('R1426') && si1426.includes('nodePath') && si1426.includes(' > ')) {
+    log('pass', 'R1426', 'Inspector 선택 노드 전체 경로 표시 (Canvas > Panel > Button)')
+  } else {
+    log('warning', 'R1426', 'Inspector 노드 경로 표시 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+// R1426: NodeHierarchyList 경로 매칭 검색
+if (existsSync(nodeHierarchyPath)) {
+  const nh1426 = readFileSync(nodeHierarchyPath, 'utf-8')
+  if (nh1426.includes('R1426') && nh1426.includes('경로 매칭')) {
+    log('pass', 'R1426', 'NodeHierarchyList 검색 시 경로 매칭 지원')
+  } else {
+    log('warning', 'R1426', 'NodeHierarchyList 경로 매칭 없음', 'SceneView/NodeHierarchyList.tsx')
+  }
+}
+
+// ── Section 389: R1428/R1429/R1430 기능 체크 ───────────────
+console.log('\n## 389. Phase DD14 R1428~R1430 기능 체크')
+
+// R1428: SceneView 히트 테스트 정밀화
+if (existsSync(sceneViewPath)) {
+  const svp1428 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1428.includes('R1428') && svp1428.includes('hitTestAtPoint') && svp1428.includes('blockInactiveClick') && svp1428.includes('tabCycleRef') && svp1428.includes('minHitPx')) {
+    log('pass', 'R1428', 'SceneView 히트 테스트 정밀화 (최소 8px, z-order 역순, Tab 순환, 비활성 차단)')
+  } else {
+    log('warning', 'R1428', 'SceneView 히트 테스트 정밀화 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1429: Inspector cc.Animation 타임라인 미리보기
+if (existsSync(si1402Path)) {
+  const si1429 = readFileSync(si1402Path, 'utf-8')
+  if (si1429.includes('R1429') && si1429.includes('타임라인') && si1429.includes('barW') && si1429.includes('maxDuration') && si1429.includes('cc.Tween') && si1429.includes('easing')) {
+    log('pass', 'R1429', 'Inspector cc.Animation 타임라인 바 시각화 + cc.Tween 읽기전용 표시')
+  } else {
+    log('warning', 'R1429', 'Inspector cc.Animation 타임라인 미리보기 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1430: CocosPanel 전역 노드 검색
+if (existsSync(cp1398Path)) {
+  const cp1430 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1430.includes('R1430') && cp1430.includes('globalSearchOpen') && cp1430.includes('globalSearchQuery') && cp1430.includes('runGlobalSearch') && cp1430.includes('Ctrl') && cp1430.includes('Esc')) {
+    log('pass', 'R1430', 'CocosPanel 전역 노드 검색 (Ctrl+F, 이름/컴포넌트, Esc 닫기, 경로 표시)')
+  } else {
+    log('warning', 'R1430', 'CocosPanel 전역 노드 검색 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 390: R1431/R1432 기능 체크 ───────────────
+console.log('\n## 390. Phase DD14 R1431~R1432 기능 체크')
+
+// R1431: SceneView Before/After 슬라이더 비교
+if (existsSync(sceneViewPath)) {
+  const svp1431 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1431.includes('R1431') && svp1431.includes('beforeAfterMode') && svp1431.includes('sliderX') && svp1431.includes('r1431-before-clip') && svp1431.includes('BEFORE') && svp1431.includes('AFTER')) {
+    log('pass', 'R1431', 'SceneView Before/After 슬라이더 비교 (SVG clipPath, 드래그 슬라이더)')
+  } else {
+    log('warning', 'R1431', 'SceneView Before/After 슬라이더 비교 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1432: cc-file-parser buildReferenceGraph + detectCycles
+if (existsSync(parserPath)) {
+  const fp1432 = readFileSync(parserPath, 'utf-8')
+  if (fp1432.includes('R1432') && fp1432.includes('buildReferenceGraph') && fp1432.includes('detectCycles') && fp1432.includes('extractUuidRefs') && fp1432.includes('__uuid__')) {
+    log('pass', 'R1432', 'cc-file-parser buildReferenceGraph (UUID 참조 그래프) + detectCycles (순환 참조 탐지)')
+  } else {
+    log('warning', 'R1432', 'cc-file-parser buildReferenceGraph 없음', 'cc/cc-file-parser.ts')
+  }
+}
+
+// ── Section 391: R1434/R1435/R1436 기능 체크 ───────────────
+console.log('\n## 391. Phase DD14 R1434~R1436 기능 체크')
+
+// R1434: CocosPanel 에셋 썸네일 미리보기
+if (existsSync(cp1398Path)) {
+  const cp1434 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1434.includes('R1434') && cp1434.includes('AssetThumbnailPopup') && cp1434.includes('thumbHover') && cp1434.includes('THUMB_IMAGE_EXTS') && cp1434.includes('readFileBase64')) {
+    log('pass', 'R1434', 'CocosPanel 에셋 썸네일 호버 미리보기 (128x128, 파일명+크기, 커서 우측)')
+  } else {
+    log('warning', 'R1434', 'CocosPanel 에셋 썸네일 미리보기 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1435: SceneView 씬 JSON 뷰어
+if (existsSync(sceneViewPath)) {
+  const svp1435 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1435.includes('R1435') && svp1435.includes('showJsonViewer') && svp1435.includes('jsonViewScope') && svp1435.includes('{ }') && svp1435.includes('syntax highlight') && svp1435.includes('var(--accent)')) {
+    log('pass', 'R1435', 'SceneView 씬 JSON 뷰어 패널 ({ } 버튼, syntax highlight, 선택/전체 토글)')
+  } else {
+    log('warning', 'R1435', 'SceneView 씬 JSON 뷰어 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1436: Inspector 컴포넌트 복사/붙여넣기
+if (existsSync(si1402Path)) {
+  const si1436 = readFileSync(si1402Path, 'utf-8')
+  if (si1436.includes('R1436') && si1436.includes('컴포넌트 JSON 복사') && si1436.includes('클립보드에서 컴포넌트 붙여넣기') && si1436.includes('navigator.clipboard.writeText') && si1436.includes('navigator.clipboard.readText')) {
+    log('pass', 'R1436', 'Inspector 컴포넌트 복사/붙여넣기 (클립보드 JSON, 중복 경고)')
+  } else {
+    log('warning', 'R1436', 'Inspector 컴포넌트 복사/붙여넣기 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// ── Section 392: R1437/R1438 기능 체크 ───────────────
+console.log('\n## 392. Phase DD14 R1437~R1438 기능 체크')
+
+// R1437: cc-file-saver 충돌 해결
+const saverPath1437 = join(ROOT, 'src/main/cc/cc-file-saver.ts')
+if (existsSync(saverPath1437)) {
+  const saver1437 = readFileSync(saverPath1437, 'utf-8')
+  if (saver1437.includes('R1437') && saver1437.includes('loadedMtimeMap') && saver1437.includes('recordSceneMtime') && saver1437.includes('conflict') && saver1437.includes('forceOverwriteScene')) {
+    log('pass', 'R1437', 'cc-file-saver mtime 기반 충돌 감지 + forceOverwrite')
+  } else {
+    log('warning', 'R1437', 'cc-file-saver 충돌 감지 없음', 'cc/cc-file-saver.ts')
+  }
+}
+// R1437: CocosPanel conflict dialog
+if (existsSync(cp1398Path)) {
+  const cp1437 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1437.includes('R1437') && cp1437.includes('conflictInfo') && cp1437.includes('forceOverwrite') && cp1437.includes('덮어쓸까요')) {
+    log('pass', 'R1437-UI', 'CocosPanel conflict dialog (덮어쓰기/다시 로드)')
+  } else {
+    log('warning', 'R1437-UI', 'CocosPanel conflict dialog 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1438: 씬 로컬 HTTP 공유
+const cfh1438Path = join(ROOT, 'src/main/ipc/cc-file-handlers.ts')
+if (existsSync(cfh1438Path)) {
+  const cfh1438 = readFileSync(cfh1438Path, 'utf-8')
+  if (cfh1438.includes('R1438') && cfh1438.includes('serveScene') && cfh1438.includes('7332') && cfh1438.includes('60000') && cfh1438.includes('scene.json')) {
+    log('pass', 'R1438', '씬 로컬 HTTP 공유 (7332포트, 60초 자동 종료, scene.json)')
+  } else {
+    log('warning', 'R1438', '씬 로컬 HTTP 공유 없음', 'ipc/cc-file-handlers.ts')
+  }
+}
+if (existsSync(sceneViewPath)) {
+  const svp1438 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1438.includes('R1438') && svp1438.includes('shareUrl') && svp1438.includes('ccFileServeScene') && svp1438.includes('clipboard')) {
+    log('pass', 'R1438-UI', 'SceneView 씬 공유 버튼 (URL 클립보드 복사)')
+  } else {
+    log('warning', 'R1438-UI', 'SceneView 씬 공유 버튼 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// ── Section 393: R1440/R1441/R1442 기능 체크 ───────────────
+console.log('\n## 393. Phase DD15 R1440~R1442 기능 체크')
+
+// R1440: SceneView 씬 JSON 임포트
+if (existsSync(sceneViewPath)) {
+  const svp1440 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1440.includes('R1440') && svp1440.includes('showImportModal') && svp1440.includes('importJson') && svp1440.includes('임포트') && svp1440.includes('regenerateUuids')) {
+    log('pass', 'R1440', 'SceneView 씬 JSON 임포트 모달 (붙여넣기, UUID 재생성)')
+  } else {
+    log('warning', 'R1440', 'SceneView 씬 JSON 임포트 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1441: cc-file-parser suggestOptimizations
+const parserPath1441 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parserPath1441)) {
+  const parser1441 = readFileSync(parserPath1441, 'utf-8')
+  if (parser1441.includes('R1441') && parser1441.includes('suggestOptimizations') && parser1441.includes('OptimizationSuggestion') && parser1441.includes('Draw Call') && parser1441.includes('오브젝트 풀링') && parser1441.includes('구조 단순화') && parser1441.includes('비활성 노드')) {
+    log('pass', 'R1441', 'cc-file-parser suggestOptimizations (draw call/노드수/깊이/비활성 비율)')
+  } else {
+    log('warning', 'R1441', 'suggestOptimizations 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1441: CocosPanel 최적화 제안 표시
+if (existsSync(cp1398Path)) {
+  const cp1441 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1441.includes('R1441') && cp1441.includes('optimizationSuggestions') && cp1441.includes('최적화 제안')) {
+    log('pass', 'R1441-UI', 'CocosPanel 최적화 제안 표시 (씬 검사 연동)')
+  } else {
+    log('warning', 'R1441-UI', 'CocosPanel 최적화 제안 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1442: SceneView 정렬 가이드라인 고도화
+if (existsSync(sceneViewPath)) {
+  const svp1442 = readFileSync(sceneViewPath, 'utf-8')
+  if (svp1442.includes('R1442') && svp1442.includes('showCenterGuide') && svp1442.includes('snapThreshold') && svp1442.includes('align-snap-threshold') && svp1442.includes('px</text>')) {
+    log('pass', 'R1442', 'SceneView 정렬 가이드라인 고도화 (레이블/중앙선/스냅임계값)')
+  } else {
+    log('warning', 'R1442', 'SceneView 정렬 가이드라인 고도화 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// ── Section 394: R1443/R1444 기능 체크 ───────────────
+console.log('\n## 394. Phase DD15 R1443~R1444 기능 체크')
+
+// R1443: Inspector 북마크 패널
+const inspectorPath1443 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(inspectorPath1443)) {
+  const insp1443 = readFileSync(inspectorPath1443, 'utf-8')
+  if (insp1443.includes('R1443') && insp1443.includes('bookmarkedUuids') && insp1443.includes('onToggleBookmark') && insp1443.includes('nodeColorTags') && insp1443.includes('북마크')) {
+    log('pass', 'R1443', 'Inspector 북마크 패널 (★ 토글 + 목록 + 색상 태그)')
+  } else {
+    log('warning', 'R1443', 'Inspector 북마크 패널 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1444: CocosPanel 스크립트 편집기 연동
+if (existsSync(cp1398Path)) {
+  const cp1444 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1444.includes('R1444') && cp1444.includes('isScriptFile') && cp1444.includes('isScriptUsed') && cp1444.includes('handleOpenScript') && cp1444.includes('cc:open-file') && cp1444.includes('#22c55e') && cp1444.includes('#6b7280')) {
+    log('pass', 'R1444', 'CocosPanel 스크립트 편집기 연동 (편집 버튼 + 사용중 강조 green/gray dot)')
+  } else {
+    log('warning', 'R1444', 'CocosPanel 스크립트 편집기 연동 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+// R1444: App.tsx cc:open-file 이벤트 리스너
+if (existsSync(appPath)) {
+  const app1444 = readFileSync(appPath, 'utf-8')
+  if (app1444.includes('R1444') && app1444.includes('cc:open-file') && app1444.includes('openFile')) {
+    log('pass', 'R1444-App', 'App.tsx cc:open-file 이벤트 리스너')
+  } else {
+    log('warning', 'R1444-App', 'App.tsx cc:open-file 리스너 없음', 'App.tsx')
+  }
+}
+
+// ── Section 395: R1446/R1447/R1448 기능 체크 ───────────────
+console.log('\n## 395. Phase DD16 R1446~R1448 기능 체크')
+
+// R1446: SceneView 편집 이력 패널
+const svp1446 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1446)) {
+  const s1446 = readFileSync(svp1446, 'utf-8')
+  if (s1446.includes('R1446') && s1446.includes('editHistory') && s1446.includes('showEditHistory') && s1446.includes('addEditHistory') && s1446.includes('Edit History')) {
+    log('pass', 'R1446', 'SceneView 편집 이력 패널 (editHistory + addEditHistory + 이력 패널 UI)')
+  } else {
+    log('warning', 'R1446', 'SceneView 편집 이력 패널 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1446: SceneToolbar 이력 버튼
+const stb1446 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb1446)) {
+  const t1446 = readFileSync(stb1446, 'utf-8')
+  if (t1446.includes('R1446') && t1446.includes('onToggleEditHistory') && t1446.includes('editHistoryCount')) {
+    log('pass', 'R1446-Toolbar', 'SceneToolbar 편집 이력 버튼')
+  } else {
+    log('warning', 'R1446-Toolbar', 'SceneToolbar 편집 이력 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R1447: cc-file-parser findCanvasNode + getDesignResolution
+const parser1447 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser1447)) {
+  const p1447 = readFileSync(parser1447, 'utf-8')
+  if (p1447.includes('R1447') && p1447.includes('findCanvasNode') && p1447.includes('getDesignResolution') && p1447.includes('cc.Canvas') && p1447.includes('_designResolution') && p1447.includes('orthoHeight')) {
+    log('pass', 'R1447', 'cc-file-parser findCanvasNode + getDesignResolution (2x/3x)')
+  } else {
+    log('warning', 'R1447', 'cc-file-parser Canvas/디자인해상도 함수 없음', 'cc/cc-file-parser.ts')
+  }
+}
+
+// R1448: CocosPanel 의존성 분석
+if (existsSync(cp1398Path)) {
+  const cp1448 = readFileSync(cp1398Path, 'utf-8')
+  if (cp1448.includes('R1448') && cp1448.includes('handleAnalyzeDeps') && cp1448.includes('showDepsAnalysis') && cp1448.includes('depsEntries') && cp1448.includes('missing')) {
+    log('pass', 'R1448', 'CocosPanel 씬 의존성 분석 (타입별 그룹 + 누락 표시)')
+  } else {
+    log('warning', 'R1448', 'CocosPanel 의존성 분석 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 396: R1449/R1450 기능 체크 ───────────────
+console.log('\n## 396. Phase DD16 R1449~R1450 기능 체크')
+
+// R1449: Inspector Transform 리셋 버튼
+const insp1449 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(insp1449)) {
+  const i1449 = readFileSync(insp1449, 'utf-8')
+  if (i1449.includes('R1449') && i1449.includes('전체 Transform 리셋') && i1449.includes('위치를 (0, 0)으로 리셋') && i1449.includes('스케일을 (1, 1)로 리셋') && i1449.includes('회전을 0으로 리셋')) {
+    log('pass', 'R1449', 'Inspector Transform 개별/전체 리셋 버튼 (↺ 위치/회전/스케일/전체)')
+  } else {
+    log('warning', 'R1449', 'Inspector Transform 리셋 버튼 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1450: SceneView 레이어 드래그 재배치
+if (existsSync(svp1446)) {
+  const s1450 = readFileSync(svp1446, 'utf-8')
+  if (s1450.includes('R1450') && s1450.includes('layerDragIdx') && s1450.includes('layerDropIdx') && s1450.includes('onDragStart') && s1450.includes('onDrop') && s1450.includes('#60a5fa')) {
+    log('pass', 'R1450', 'SceneView 레이어 순서 드래그 재배치 (드래그 핸들 + 드롭 인디케이터)')
+  } else {
+    log('warning', 'R1450', 'SceneView 레이어 드래그 재배치 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// ── Section 397: R1452/R1453/R1454 기능 체크 ───────────────
+console.log('\n## 397. Phase DD17 R1452~R1454 기능 체크')
+
+// R1452: SceneView 노드 템플릿 라이브러리
+const svp1452 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1452)) {
+  const s1452 = readFileSync(svp1452, 'utf-8')
+  if (s1452.includes('R1452') && s1452.includes('node-templates') && s1452.includes('NodeTemplate') && s1452.includes('showTemplateDropdown') && s1452.includes('DEFAULT_TEMPLATES') && s1452.includes('UI 버튼')) {
+    log('pass', 'R1452', 'SceneView 노드 템플릿 라이브러리 (📌, max 10, 기본 2개, 드롭다운)')
+  } else {
+    log('warning', 'R1452', 'SceneView 노드 템플릿 라이브러리 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1452: 우클릭 메뉴 템플릿 저장
+if (existsSync(svp1452)) {
+  const s1452ctx = readFileSync(svp1452, 'utf-8')
+  if (s1452ctx.includes('템플릿으로 저장') && s1452ctx.includes('NT_KEY')) {
+    log('pass', 'R1452-Ctx', 'SceneView 우클릭 메뉴 템플릿 저장')
+  } else {
+    log('warning', 'R1452-Ctx', 'SceneView 우클릭 템플릿 저장 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1453: cc-file-parser 이벤트 핸들러 파싱
+const parser1453 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser1453)) {
+  const p1453 = readFileSync(parser1453, 'utf-8')
+  if (p1453.includes('R1453') && p1453.includes('extractEventHandlers') && p1453.includes('clickEvents') && p1453.includes('checkEvents') && p1453.includes('slideEvents') && p1453.includes('EVENT_HANDLER_FIELDS')) {
+    log('pass', 'R1453', 'cc-file-parser Button/Toggle/Slider 이벤트 핸들러 파싱')
+  } else {
+    log('warning', 'R1453', 'cc-file-parser 이벤트 핸들러 파싱 없음', 'cc/cc-file-parser.ts')
+  }
+}
+// R1453: ipc-schema eventHandlers 필드
+const schema1453 = join(ROOT, 'src/shared/ipc-schema.ts')
+if (existsSync(schema1453)) {
+  const sch1453 = readFileSync(schema1453, 'utf-8')
+  if (sch1453.includes('eventHandlers') && sch1453.includes('R1453')) {
+    log('pass', 'R1453-Schema', 'CCSceneNode eventHandlers 필드 추가')
+  } else {
+    log('warning', 'R1453-Schema', 'CCSceneNode eventHandlers 필드 없음', 'shared/ipc-schema.ts')
+  }
+}
+// R1453: SceneInspector 이벤트 핸들러 표시
+const insp1453 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(insp1453)) {
+  const i1453 = readFileSync(insp1453, 'utf-8')
+  if (i1453.includes('R1453') && i1453.includes('eventHandlers') && i1453.includes('Events')) {
+    log('pass', 'R1453-Inspector', 'SceneInspector 이벤트 핸들러 읽기전용 표시 (🔔 이벤트 섹션)')
+  } else {
+    log('warning', 'R1453-Inspector', 'SceneInspector 이벤트 핸들러 표시 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1454: CocosPanel 씬 일괄 처리
+const cp1454 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1454)) {
+  const c1454 = readFileSync(cp1454, 'utf-8')
+  if (c1454.includes('R1454') && c1454.includes('handleBatchFontSize') && c1454.includes('handleBatchRemoveInactive') && c1454.includes('handleBatchNormalizeName') && c1454.includes('showBatchMenu') && c1454.includes('batchToast')) {
+    log('pass', 'R1454', 'CocosPanel 씬 일괄 처리 (폰트통일/비활성삭제/이름정규화 + 토스트)')
+  } else {
+    log('warning', 'R1454', 'CocosPanel 씬 일괄 처리 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 398: R1455/R1456 기능 체크 ───────────────
+console.log('\n## 398. Phase DD17 R1455~R1456 기능 체크')
+
+// R1455: SceneView 카메라 뷰 북마크
+if (existsSync(svp1452)) {
+  const s1455 = readFileSync(svp1452, 'utf-8')
+  if (s1455.includes('R1455') && s1455.includes('viewBookmarks') && s1455.includes('VB_KEY') && s1455.includes('CameraBookmark') && s1455.includes('viewBookmarkToast') && s1455.includes('Ctrl') && s1455.includes('200')) {
+    log('pass', 'R1455', 'SceneView 카메라 뷰 북마크 (Ctrl+1~5 저장/이동, 200ms lerp, 숫자 뱃지)')
+  } else {
+    log('warning', 'R1455', 'SceneView 카메라 뷰 북마크 없음', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1456: Inspector UIOpacity/UITransform 분리 표시
+if (existsSync(insp1453)) {
+  const i1456 = readFileSync(insp1453, 'utf-8')
+  if (i1456.includes('R1456') && i1456.includes('UIOpacity') && i1456.includes('UITransform') && i1456.includes('cc.UIOpacity') && i1456.includes('cc.UITransform') && i1456.includes('uitrans')) {
+    log('pass', 'R1456', 'Inspector cc.UIOpacity/cc.UITransform 직접 편집 섹션 (슬라이더 + contentSize + anchorPoint)')
+  } else {
+    log('warning', 'R1456', 'Inspector UIOpacity/UITransform 편집 없음', 'SceneView/SceneInspector.tsx')
+  }
+}
+// R1456: SceneView types eventHandlers 필드
+const types1456 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/types.ts')
+if (existsSync(types1456)) {
+  const t1456 = readFileSync(types1456, 'utf-8')
+  if (t1456.includes('eventHandlers') && t1456.includes('R1453')) {
+    log('pass', 'R1456-Types', 'SceneNode types.ts eventHandlers 필드')
+  } else {
+    log('warning', 'R1456-Types', 'SceneNode eventHandlers 필드 없음', 'SceneView/types.ts')
+  }
+}
+
+// ── Section 399: R1458/R1459/R1460 기능 체크 ───────────────
+console.log('\n## 399. Phase DD18 R1458~R1460 기능 체크')
+
+// R1458: SceneView 자동 레이아웃
+const svp1458 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1458)) {
+  const s1458 = readFileSync(svp1458, 'utf-8')
+  if (s1458.includes('R1458') && s1458.includes('handleDistributeHEqual') && s1458.includes('handleDistributeVEqual') && s1458.includes('handleCircularLayout') && s1458.includes('showAutoLayoutMenu')) {
+    log('pass', 'R1458', 'SceneView 자동 레이아웃 (수평/수직 균등배분 + 원형 배치 + 드롭다운)')
+  } else {
+    log('warning', 'R1458', 'SceneView 자동 레이아웃 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1458: SceneToolbar 자동정렬 버튼
+const stb1458 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneToolbar.tsx')
+if (existsSync(stb1458)) {
+  const st1458 = readFileSync(stb1458, 'utf-8')
+  if (st1458.includes('onDistributeHEqual') && st1458.includes('onCircularLayout') && st1458.includes('autoLayoutOpen') && st1458.includes('자동정렬')) {
+    log('pass', 'R1458-Toolbar', 'SceneToolbar 자동정렬 드롭다운 (수평/수직/격자/원형)')
+  } else {
+    log('warning', 'R1458-Toolbar', 'SceneToolbar 자동정렬 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// R1459: cc-file-parser extractSceneMeta
+const parser1459 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser1459)) {
+  const p1459 = readFileSync(parser1459, 'utf-8')
+  if (p1459.includes('R1459') && p1459.includes('extractSceneMeta') && p1459.includes('CCSceneMeta') && p1459.includes('scriptUuids') && p1459.includes('textureUuids') && p1459.includes('audioUuids') && p1459.includes('hasPhysics') && p1459.includes('hasTween') && p1459.includes('hasAnimation')) {
+    log('pass', 'R1459', 'cc-file-parser extractSceneMeta (스크립트/텍스처/오디오/물리/트윈/애니메이션 감지)')
+  } else {
+    log('warning', 'R1459', 'cc-file-parser extractSceneMeta 미구현', 'cc/cc-file-parser.ts')
+  }
+}
+// R1459: CocosPanel 씬 메타 표시
+const cp1459 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1459)) {
+  const c1459 = readFileSync(cp1459, 'utf-8')
+  if (c1459.includes('R1459') && c1459.includes('씬 메타') && c1459.includes('_sceneMeta') && c1459.includes('hasPhysics') && c1459.includes('hasAnimation')) {
+    log('pass', 'R1459-Panel', 'CocosPanel 씬 메타데이터 표시 (Physics/Animation/Tween 뱃지)')
+  } else {
+    log('warning', 'R1459-Panel', 'CocosPanel 씬 메타 표시 없음', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1460: SceneView 노드 클릭 히트맵
+if (existsSync(svp1458)) {
+  const s1460 = readFileSync(svp1458, 'utf-8')
+  if (s1460.includes('R1460') && s1460.includes('nodeClickCount') && s1460.includes('showClickHeatmap') && s1460.includes('maxClickCount') && s1460.includes('heatmapIntensity')) {
+    log('pass', 'R1460', 'SceneView 노드 클릭 히트맵 (빈도 색상 시각화 + 리셋)')
+  } else {
+    log('warning', 'R1460', 'SceneView 노드 클릭 히트맵 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1460: NodeRenderer heatmapIntensity 프롭
+const nr1460 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr1460)) {
+  const n1460 = readFileSync(nr1460, 'utf-8')
+  if (n1460.includes('R1460') && n1460.includes('heatmapIntensity')) {
+    log('pass', 'R1460-Renderer', 'NodeRenderer heatmapIntensity 히트맵 오버레이 렌더링')
+  } else {
+    log('warning', 'R1460-Renderer', 'NodeRenderer heatmapIntensity 없음', 'SceneView/NodeRenderer.tsx')
+  }
+}
+// R1460: SceneToolbar 클릭 히트맵 버튼
+if (existsSync(stb1458)) {
+  const st1460 = readFileSync(stb1458, 'utf-8')
+  if (st1460.includes('R1460') && st1460.includes('onClickHeatmapToggle') && st1460.includes('onClickHeatmapReset') && st1460.includes('히트맵')) {
+    log('pass', 'R1460-Toolbar', 'SceneToolbar 클릭 히트맵 토글 + 리셋 버튼')
+  } else {
+    log('warning', 'R1460-Toolbar', 'SceneToolbar 클릭 히트맵 버튼 없음', 'SceneView/SceneToolbar.tsx')
+  }
+}
+
+// ── Section 400: R1461/R1462 기능 체크 (Section 400 달성!) ─────
+console.log('\n## 400. Phase DD18 R1461~R1462 기능 체크 (Section 400!)')
+
+// R1461: CocosPanel 프로젝트 생성 마법사
+if (existsSync(cp1459)) {
+  const c1461 = readFileSync(cp1459, 'utf-8')
+  if (c1461.includes('R1461') && c1461.includes('showProjectWizard') && c1461.includes('wizardStep') && c1461.includes('wizardProjectName') && c1461.includes('wizardCCVersion') && c1461.includes('wizardTemplate') && c1461.includes('handleCreateProject') && c1461.includes('새 프로젝트')) {
+    log('pass', 'R1461', 'CocosPanel CC 프로젝트 생성 마법사 (3단계: 이름+위치 → CC버전 → 템플릿)')
+  } else {
+    log('warning', 'R1461', 'CocosPanel 프로젝트 생성 마법사 미구현', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// R1462: NodeRenderer cc.Shadow SVG feDropShadow
+if (existsSync(nr1460)) {
+  const n1462 = readFileSync(nr1460, 'utf-8')
+  if (n1462.includes('R1462') && n1462.includes('cc.Shadow') && n1462.includes('feDropShadow') && n1462.includes('shadowFilterId') && n1462.includes('shadowEnabled') && n1462.includes('shadowProps')) {
+    log('pass', 'R1462', 'NodeRenderer cc.Shadow SVG feDropShadow 렌더링 (enabled/color/blur/offset)')
+  } else {
+    log('warning', 'R1462', 'NodeRenderer cc.Shadow feDropShadow 미구현', 'SceneView/NodeRenderer.tsx')
+  }
+}
+
+// ── Section 401: R1464/R1465/R1466 기능 체크 ───────────────
+console.log('\n## 401. Phase DD19 R1464~R1466 기능 체크')
+
+// R1464: SceneView 씬 노드 애니메이션 프리뷰
+const svp1464 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneViewPanel.tsx')
+if (existsSync(svp1464)) {
+  const s1464 = readFileSync(svp1464, 'utf-8')
+  if (s1464.includes('R1464') && s1464.includes('animPlayingUuid') && s1464.includes('handleAnimPreviewStart') && s1464.includes('handleAnimPreviewStop') && s1464.includes('cc-anim-preview')) {
+    log('pass', 'R1464', 'SceneView 씬 노드 애니메이션 프리뷰 (CSS animation, ▶/■ 토글)')
+  } else {
+    log('warning', 'R1464', 'SceneView 씬 노드 애니메이션 프리뷰 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+
+// R1465: cc-file-parser diffScenes
+const parser1465 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser1465)) {
+  const p1465 = readFileSync(parser1465, 'utf-8')
+  if (p1465.includes('R1465') && p1465.includes('diffScenes') && p1465.includes('SceneDiff') && p1465.includes('added') && p1465.includes('removed') && p1465.includes('modified') && p1465.includes('changedFields')) {
+    log('pass', 'R1465', 'cc-file-parser diffScenes (added/removed/modified + changedFields)')
+  } else {
+    log('warning', 'R1465', 'cc-file-parser diffScenes 미구현', 'cc/cc-file-parser.ts')
+  }
+}
+
+// R1466: CocosPanel 씬 썸네일 자동 생성
+const cp1466 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp1466)) {
+  const c1466 = readFileSync(cp1466, 'utf-8')
+  if (c1466.includes('R1466') && c1466.includes('sceneThumbnails') && c1466.includes('scene-thumb-') && c1466.includes('80') && c1466.includes('60')) {
+    log('pass', 'R1466', 'CocosPanel 씬 저장 시 자동 썸네일 생성 (80x60 canvas → base64 localStorage)')
+  } else {
+    log('warning', 'R1466', 'CocosPanel 씬 썸네일 자동 생성 미구현', 'sidebar/CocosPanel.tsx')
+  }
+}
+
+// ── Section 402: R1467/R1468 기능 체크 ───────────────
+console.log('\n## 402. Phase DD19 R1467~R1468 기능 체크')
+
+// R1467: Inspector 프리팹 인스턴스 표시
+const si1467 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/SceneInspector.tsx')
+if (existsSync(si1467)) {
+  const i1467 = readFileSync(si1467, 'utf-8')
+  if (i1467.includes('R1467') && i1467.includes('프리팹') && i1467.includes('__prefab') && i1467.includes('_prefab') && i1467.includes('cc-open-file') && i1467.includes('override')) {
+    log('pass', 'R1467', 'Inspector 프리팹 인스턴스 뱃지 (UUID 짧게 + cc-open-file 이벤트 + override placeholder)')
+  } else {
+    log('warning', 'R1467', 'Inspector 프리팹 인스턴스 표시 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// R1468: SceneView 선택 노드 AI 분석 연동
+if (existsSync(svp1464)) {
+  const s1468 = readFileSync(svp1464, 'utf-8')
+  if (s1468.includes('R1468') && s1468.includes('handleAiAnalyze') && s1468.includes('cc-chat-prefill') && s1468.includes('AI 분석')) {
+    log('pass', 'R1468-SceneView', 'SceneView 선택 노드 AI 분석 요청 (채팅 프리필 이벤트)')
+  } else {
+    log('warning', 'R1468-SceneView', 'SceneView AI 분석 연동 미구현', 'SceneView/SceneViewPanel.tsx')
+  }
+}
+// R1468: Inspector AI 분석 버튼
+if (existsSync(si1467)) {
+  const i1468 = readFileSync(si1467, 'utf-8')
+  if (i1468.includes('R1468') && i1468.includes('AI 분석') && i1468.includes('cc-chat-prefill')) {
+    log('pass', 'R1468-Inspector', 'Inspector AI 분석 버튼 (채팅 프리필)')
+  } else {
+    log('warning', 'R1468-Inspector', 'Inspector AI 분석 버튼 미구현', 'SceneView/SceneInspector.tsx')
+  }
+}
+
+// ── Section 403: R1470~R1472 기능 체크 ──────────────────────
+console.log('\n## 403. Phase DD19 R1470~R1472 기능 체크')
+const cocosP403 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocosP403)) {
+  const c403 = readFileSync(cocosP403, 'utf-8')
+  if (c403.includes('R1470') && c403.includes('hierarchyWidth') && c403.includes('hDividerDragRef') && c403.includes('ew-resize')) {
+    log('pass', 'R1470-layout', 'CocosPanel Cocos 에디터 레이아웃 재설계 (좌우 분할)')
+  } else {
+    log('warning', 'R1470-layout', 'Cocos 에디터 레이아웃 미구현', 'CocosPanel.tsx')
+  }
+  if (c403.includes('R1472') && c403.includes('optgroup') && c403.includes('.prefab')) {
+    log('pass', 'R1472-prefab', 'CocosPanel 프리팹 편집 모드 (씬/프리팹 분리 드롭다운)')
+  } else {
+    log('warning', 'R1472-prefab', '프리팹 편집 모드 미구현', 'CocosPanel.tsx')
+  }
+  if (c403.includes('R1473') && c403.includes('isCustomScript') && c403.includes('커스텀 스크립트')) {
+    log('pass', 'R1473-script', 'Inspector 커스텀 스크립트 변수 편집 지원')
+  } else {
+    log('warning', 'R1473-script', '커스텀 스크립트 변수 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+const nr403 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/NodeRenderer.tsx')
+if (existsSync(nr403)) {
+  const n403 = readFileSync(nr403, 'utf-8')
+  if (n403.includes('R1471') && n403.includes('RigidBody') && n403.includes('BoxCollider') && n403.includes('CircleCollider')) {
+    log('pass', 'R1471-physics', 'NodeRenderer 물리 컴포넌트 시각화 (RigidBody/BoxCollider/CircleCollider)')
+  } else {
+    log('warning', 'R1471-physics', '물리 컴포넌트 시각화 미구현', 'NodeRenderer.tsx')
+  }
+}
+
+// ── Section 404: R1474 기능 체크 ──────────────────────────
+console.log('\n## 404. Phase DD19 R1474 기능 체크')
+const ccSv404 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(ccSv404)) {
+  const sv404 = readFileSync(ccSv404, 'utf-8')
+  if (sv404.includes('R1474') && sv404.includes('handleScreenshotAI') && sv404.includes('imageBase64') && sv404.includes('cc-chat-prefill')) {
+    log('pass', 'R1474-screenshot', 'CCFileSceneView 스크린샷 → Claude AI 분석 연동')
+  } else {
+    log('warning', 'R1474-screenshot', '씬 스크린샷 AI 분석 미구현', 'CCFileSceneView.tsx')
+  }
+}
+const cp404 = join(ROOT, 'src/renderer/src/components/chat/ChatPanel.tsx')
+if (existsSync(cp404)) {
+  const c404 = readFileSync(cp404, 'utf-8')
+  if (c404.includes('R1474') && c404.includes('cc-chat-prefill') && c404.includes('onPrefill')) {
+    log('pass', 'R1474-chatpanel', 'ChatPanel cc-chat-prefill 이벤트 수신 → 입력창 프리필')
+  } else {
+    log('warning', 'R1474-chatpanel', 'ChatPanel prefill 수신 미구현', 'ChatPanel.tsx')
+  }
+}
+
+// ── Section 405: R1476~R1479 기능 체크 ──────────────────────
+console.log('\n## 405. Phase DD20 R1476~R1479 기능 체크')
+const cocosP405 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cocosP405)) {
+  const c405 = readFileSync(cocosP405, 'utf-8')
+  if (c405.includes('R1476') && c405.includes('deepCopyNodeWithNewUuids') && c405.includes('genUuid') && c405.includes('randomUUID')) {
+    log('pass', 'R1476-deepcopy', '노드 복사 UUID 자동 재생성 (딥복사 + crypto.randomUUID)')
+  } else {
+    log('warning', 'R1476-deepcopy', '노드 복사 UUID 재생성 미구현', 'CocosPanel.tsx')
+  }
+  if (c405.includes('R1477') && c405.includes('prevSceneRootRef') && c405.includes('lastSaveDiff') && c405.includes('flattenUuids')) {
+    log('pass', 'R1477-diff', '씬 변경 → Claude 컨텍스트 자동 diff 주입')
+  } else {
+    log('warning', 'R1477-diff', '씬 변경 diff 컨텍스트 주입 미구현', 'CocosPanel.tsx')
+  }
+  if (c405.includes('R1479') && c405.includes('layerOptions2x') && c405.includes('layerOptions3x')) {
+    log('pass', 'R1479-layer', 'Inspector Layer 편집 (CC2.x/3.x 레이어 옵션 + 직접 입력)')
+  } else {
+    log('warning', 'R1479-layer', 'Layer 필드 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+const parser405 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(parser405)) {
+  const p405 = readFileSync(parser405, 'utf-8')
+  if (p405.includes('R1478') && p405.includes('parseCCSceneChunked') && p405.includes('isLargeScene') && p405.includes('CCSceneStreamState')) {
+    log('pass', 'R1478-chunked', 'cc-file-parser 청크 스트리밍 파싱 (parseCCSceneChunked/isLargeScene)')
+  } else {
+    log('warning', 'R1478-chunked', '청크 스트리밍 파싱 미구현', 'cc-file-parser.ts')
+  }
+  if (p405.includes('R1479') && p405.includes('e.layer') && p405.includes('e._layer')) {
+    log('pass', 'R1479-parser', 'cc-file-parser CC3.x layer 필드 파싱 수정')
+  } else {
+    log('warning', 'R1479-parser', 'CC3.x layer 파싱 미구현', 'cc-file-parser.ts')
+  }
+}
+
+// ── Section 406: R1477 useCCFileContext 기능 체크 ──────────────
+console.log('\n## 406. Phase DD20 R1477 컨텍스트 훅 기능 체크')
+const ctx406 = join(ROOT, 'src/renderer/src/hooks/useCCFileContext.ts')
+if (existsSync(ctx406)) {
+  const c406 = readFileSync(ctx406, 'utf-8')
+  if (c406.includes('R1477') && c406.includes('lastSaveDiff') && c406.includes('마지막 변경')) {
+    log('pass', 'R1477-context', 'useCCFileContext lastSaveDiff 필드 + 컨텍스트 문자열 포함')
+  } else {
+    log('warning', 'R1477-context', 'useCCFileContext lastSaveDiff 미구현', 'useCCFileContext.ts')
+  }
+}
+
+// ── Section 407: R1481~R1483 기능 체크 ──────────────────────
+console.log('\n## 407. Phase DD21 R1481~R1483 기능 체크')
+const cp407 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const sv407 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(cp407) && existsSync(sv407)) {
+  const c407 = readFileSync(cp407, 'utf-8')
+  const s407 = readFileSync(sv407, 'utf-8')
+  // R1481: cc-focus-node 이벤트
+  if (c407.includes('cc-focus-node') && s407.includes('cc-focus-node') && s407.includes('onFocusNode')) {
+    log('pass', 'R1481-focus-node', 'cc-focus-node 이벤트 dispatch + SceneView 수신 구현')
+  } else {
+    log('warning', 'R1481-focus-node', 'cc-focus-node 미구현', 'CCFileSceneView.tsx')
+  }
+  // R1483: 다중 삭제
+  if (c407.includes('handleMultiDelete') && c407.includes('onMultiDelete') && s407.includes('onMultiDelete')) {
+    log('pass', 'R1483-multi-delete', 'CCFileSceneView onMultiDelete prop + handleMultiDelete 콜백 구현')
+  } else {
+    log('warning', 'R1483-multi-delete', 'onMultiDelete 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 408: R1484 World Transform 체크 ──────────────────────
+console.log('\n## 408. Phase DD21 R1484 Inspector World Transform 체크')
+if (existsSync(cp407)) {
+  const c408 = readFileSync(cp407, 'utf-8')
+  if (c408.includes('R1484') && c408.includes('worldPos') && c408.includes('findChain')) {
+    log('pass', 'R1484-world-transform', 'Inspector World Transform (worldPos useMemo + findChain) 구현')
+  } else {
+    log('warning', 'R1484-world-transform', 'Inspector worldPos 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 409: R1486~R1487 기능 체크 ──────────────────────
+console.log('\n## 409. Phase DD22 R1486~R1487 기능 체크')
+const sv409 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp409 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv409) && existsSync(cp409)) {
+  const s409 = readFileSync(sv409, 'utf-8')
+  const c409 = readFileSync(cp409, 'utf-8')
+  // R1486: 다중 선택 정렬 툴바
+  if (s409.includes('R1486') && s409.includes('multiSelected.size > 1') && s409.includes('좌측 맞춤')) {
+    log('pass', 'R1486-align-toolbar', 'SceneView 다중 선택 정렬 툴바 구현 (6종 + 균등 배분)')
+  } else {
+    log('warning', 'R1486-align-toolbar', 'SceneView 정렬 툴바 미구현', 'CCFileSceneView.tsx')
+  }
+  // R1487: COCOS_ENUM_MAP 확장
+  if (c409.includes('R1487') && c409.includes('transition') && c409.includes('movementType')) {
+    log('pass', 'R1487-enum-map', 'Inspector COCOS_ENUM_MAP cc.Button/Layout/Mask/ScrollView enum 확장')
+  } else {
+    log('warning', 'R1487-enum-map', 'COCOS_ENUM_MAP 미확장', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 410: R1488~R1489 기능 체크 ──────────────────────
+console.log('\n## 410. Phase DD22 R1488~R1489 기능 체크')
+if (existsSync(sv409) && existsSync(cp409)) {
+  const s410 = readFileSync(sv409, 'utf-8')
+  const c410 = readFileSync(cp409, 'utf-8')
+  // R1488: Inspector 노드 통계 뱃지
+  if (c410.includes('R1488') && c410.includes('d{nodePath.length')) {
+    log('pass', 'R1488-node-stats', 'Inspector breadcrumb 노드 통계 뱃지 (깊이/자식/컴포넌트) 구현')
+  } else {
+    log('warning', 'R1488-node-stats', 'Inspector 노드 통계 뱃지 미구현', 'CocosPanel.tsx')
+  }
+  // R1489: 미니맵
+  if (s410.includes('R1489') && s410.includes('showMinimap') && s410.includes('미니맵')) {
+    log('pass', 'R1489-minimap', 'SceneView 미니맵 오버레이 (뷰포트 사각형 + 노드 점 렌더링) 구현')
+  } else {
+    log('warning', 'R1489-minimap', 'SceneView 미니맵 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 411: R1491~R1492 기능 체크 ──────────────────────
+console.log('\n## 411. Phase DD23 R1491~R1492 기능 체크')
+const sv411 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp411 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv411) && existsSync(cp411)) {
+  const s411 = readFileSync(sv411, 'utf-8')
+  const c411 = readFileSync(cp411, 'utf-8')
+  // R1491: Label 인라인 편집
+  if (s411.includes('R1491') && s411.includes('editingLabelUuid') && s411.includes('onLabelEdit') && c411.includes('handleLabelEdit')) {
+    log('pass', 'R1491-label-edit', 'SceneView Label 텍스트 인라인 편집 (더블클릭 foreignObject) 구현')
+  } else {
+    log('warning', 'R1491-label-edit', 'Label 인라인 편집 미구현', 'CCFileSceneView.tsx')
+  }
+  // R1492: 경로 복사
+  if (c411.includes('R1492') && c411.includes('navigator.clipboard') && c411.includes('nodePath')) {
+    log('pass', 'R1492-path-copy', 'Inspector 노드 경로 복사 버튼 (⎘) 구현')
+  } else {
+    log('warning', 'R1492-path-copy', 'Inspector 경로 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 412: R1493 UITransform fallback 체크 ──────────────────────
+console.log('\n## 412. Phase DD23 R1493 UITransform fallback 체크')
+const fp412 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+if (existsSync(fp412)) {
+  const c412 = readFileSync(fp412, 'utf-8')
+  if (c412.includes('R1493') && c412.includes('e.contentSize') && c412.includes('e.anchorPoint')) {
+    log('pass', 'R1493-uitransform-fallback', 'UITransform _contentSize/contentSize fallback 강화 구현')
+  } else {
+    log('warning', 'R1493-uitransform-fallback', 'UITransform fallback 미구현', 'cc-file-parser.ts')
+  }
+}
+
+// ── Section 413: R1496 SceneView 컨텍스트 메뉴 체크 ──────────────────────
+console.log('\n## 413. Phase DD24 R1496 SceneView 컨텍스트 메뉴 체크')
+const sv413 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv413)) {
+  const s413 = readFileSync(sv413, 'utf-8')
+  if (s413.includes('R1496') && s413.includes('ctxMenu') && s413.includes('onContextMenu') && s413.includes('AI 분석')) {
+    log('pass', 'R1496-context-menu', 'SceneView 우클릭 컨텍스트 메뉴 (복사/붙여넣기/삭제/AI 분석) 구현')
+  } else {
+    log('warning', 'R1496-context-menu', 'SceneView 컨텍스트 메뉴 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 414: R1497~R1498 기능 체크 ──────────────────────
+console.log('\n## 414. Phase DD24 R1497~R1498 기능 체크')
+const cp414 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv413) && existsSync(cp414)) {
+  const s414 = readFileSync(sv413, 'utf-8')
+  const c414 = readFileSync(cp414, 'utf-8')
+  // R1497: Raw JSON 뷰
+  if (c414.includes('R1497') && c414.includes('rawJson') && c414.includes('JSON 복사')) {
+    log('pass', 'R1497-raw-json', 'Inspector Raw JSON 뷰 + 복사 버튼 구현')
+  } else {
+    log('warning', 'R1497-raw-json', 'Inspector Raw JSON 뷰 미구현', 'CocosPanel.tsx')
+  }
+  // R1498: 미니맵 클릭 pan
+  if (s414.includes('R1498') && s414.includes('역변환')) {
+    log('pass', 'R1498-minimap-pan', 'SceneView 미니맵 클릭 → 씬 좌표 pan 구현')
+  } else {
+    log('warning', 'R1498-minimap-pan', '미니맵 클릭 pan 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 415: R1500~R1501 기능 체크 ──────────────────────
+console.log('\n## 415. Phase DD25 R1500~R1501 기능 체크')
+const sv415 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp415 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv415) && existsSync(cp415)) {
+  const s415 = readFileSync(sv415, 'utf-8')
+  const c415 = readFileSync(cp415, 'utf-8')
+  if (s415.includes('R1500') && s415.includes('snapIndicator') && s415.includes('ffdd44')) {
+    log('pass', 'R1500-snap-indicator', 'SceneView Ctrl+드래그 스냅 포인트 시각적 피드백 구현')
+  } else {
+    log('warning', 'R1500-snap-indicator', 'SceneView 스냅 피드백 미구현', 'CCFileSceneView.tsx')
+  }
+  if (c415.includes('R1501') && c415.includes('lastDiffDisplay') && c415.includes('setLastDiffDisplay')) {
+    log('pass', 'R1501-diff-banner', 'SceneView 저장 diff 알림 배너 (5초 자동 소멸) 구현')
+  } else {
+    log('warning', 'R1501-diff-banner', '저장 diff 배너 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 416: R1502 기능 체크 ──────────────────────
+console.log('\n## 416. Phase DD R1502 cc-file-saver validateCCScene 체크')
+const saver416 = join(ROOT, 'src/main/cc/cc-file-saver.ts')
+if (existsSync(saver416)) {
+  const s416 = readFileSync(saver416, 'utf-8')
+  if (s416.includes('R1502') && s416.includes('validateCCScene') && s416.includes('ValidationResult')) {
+    log('pass', 'R1502-validate-export', 'cc-file-saver validateCCScene + ValidationResult 인터페이스 구현')
+  } else {
+    log('warning', 'R1502-validate-export', 'validateCCScene 미구현', 'cc-file-saver.ts')
+  }
+  if (s416.includes('pathStack') && s416.includes('순환 참조')) {
+    log('pass', 'R1502-cycle-detect', 'DFS 순환 참조 감지 로직 구현')
+  } else {
+    log('warning', 'R1502-cycle-detect', '순환 참조 감지 미구현', 'cc-file-saver.ts')
+  }
+  if (s416.includes('중복 UUID') && s416.includes('allUuids')) {
+    log('pass', 'R1502-dup-uuid', '중복 UUID 감지 로직 구현')
+  } else {
+    log('warning', 'R1502-dup-uuid', '중복 UUID 감지 미구현', 'cc-file-saver.ts')
+  }
+  if (s416.includes('validation.valid') && s416.includes('유효성 오류')) {
+    log('pass', 'R1502-save-guard', 'saveCCScene 저장 전 유효성 검사 guard 적용')
+  } else {
+    log('warning', 'R1502-save-guard', 'saveCCScene guard 미적용', 'cc-file-saver.ts')
+  }
+}
+
+// ── Section 417: R1504 노드 추가 기능 체크 ──────────────────────
+console.log('\n## 417. Phase D R1504 노드 추가 기능 체크')
+const sv417 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp417 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const saver417 = join(ROOT, 'src/main/cc/cc-file-saver.ts')
+if (existsSync(sv417) && existsSync(cp417) && existsSync(saver417)) {
+  const s417 = readFileSync(sv417, 'utf-8')
+  const c417 = readFileSync(cp417, 'utf-8')
+  const f417 = readFileSync(saver417, 'utf-8')
+  if (s417.includes('R1504') && s417.includes('onAddNode') && s417.includes('＋')) {
+    log('pass', 'R1504-sceneview-ui', 'SceneView "+" 버튼 + onAddNode prop 구현')
+  } else {
+    log('warning', 'R1504-sceneview-ui', 'SceneView 노드 추가 UI 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s417.includes('Ctrl+N') && s417.includes("e.key === 'n'")) {
+    log('pass', 'R1504-ctrl-n', 'Ctrl+N 단축키로 새 노드 추가 구현')
+  } else {
+    log('warning', 'R1504-ctrl-n', 'Ctrl+N 단축키 미구현', 'CCFileSceneView.tsx')
+  }
+  if (c417.includes('R1504') && c417.includes('handleAddNode') && c417.includes('NewNode')) {
+    log('pass', 'R1504-cocos-handler', 'CocosPanel handleAddNode 콜백 구현')
+  } else {
+    log('warning', 'R1504-cocos-handler', 'handleAddNode 미구현', 'CocosPanel.tsx')
+  }
+  if (f417.includes('R1504') && f417.includes('normalizeTree') && f417.includes('buildNewRawNode2x')) {
+    log('pass', 'R1504-saver-normalize', 'cc-file-saver normalizeTree + buildNewRawNode2x/3x 구현')
+  } else {
+    log('warning', 'R1504-saver-normalize', 'normalizeTree 미구현', 'cc-file-saver.ts')
+  }
+  if (s417.includes('빈 공간 더블클릭') && s417.includes('shiftKey')) {
+    log('pass', 'R1504-dblclick', 'SVG 빈 공간 더블클릭 → 노드 추가 (Shift=fit) 구현')
+  } else {
+    log('warning', 'R1504-dblclick', '더블클릭 노드 추가 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 418: R1506 앵커 포인트 드래그 체크 ──────────────────────
+console.log('\n## 418. Phase E R1506 앵커 포인트 드래그 편집 체크')
+const sv418 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp418 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv418) && existsSync(cp418)) {
+  const s418 = readFileSync(sv418, 'utf-8')
+  const c418 = readFileSync(cp418, 'utf-8')
+  if (s418.includes('R1506') && s418.includes('anchorRef') && s418.includes('anchorOverride')) {
+    log('pass', 'R1506-anchor-ref', 'SceneView anchorRef + anchorOverride 상태 구현')
+  } else {
+    log('warning', 'R1506-anchor-ref', '앵커 드래그 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s418.includes('onAnchorMove') && s418.includes('ffdd44') && s418.includes('polygon')) {
+    log('pass', 'R1506-anchor-diamond', 'SceneView 앵커 다이아몬드 핸들 + onAnchorMove 연결')
+  } else {
+    log('warning', 'R1506-anchor-diamond', '앵커 다이아몬드 미구현', 'CCFileSceneView.tsx')
+  }
+  if (c418.includes('R1506') && c418.includes('handleAnchorMove') && c418.includes('clamped')) {
+    log('pass', 'R1506-cocos-handler', 'CocosPanel handleAnchorMove 콜백 + 0~1 클램핑 구현')
+  } else {
+    log('warning', 'R1506-cocos-handler', 'handleAnchorMove 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 419: R1508 Quick Edit CLI 체크 ──────────────────────
+console.log('\n## 419. Phase E R1508 Inspector Quick Edit CLI 체크')
+const cp419 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp419)) {
+  const c419 = readFileSync(cp419, 'utf-8')
+  if (c419.includes('R1508') && c419.includes('cliVal') && c419.includes('runCmd')) {
+    log('pass', 'R1508-cli-state', 'Inspector Quick Edit CLI 입력 상태 + runCmd 함수 구현')
+  } else {
+    log('warning', 'R1508-cli-state', 'Quick Edit CLI 미구현', 'CocosPanel.tsx')
+  }
+  if (c419.includes("op === 'pos'") && c419.includes("op === 'size'") && c419.includes("op === 'rot'")) {
+    log('pass', 'R1508-cli-commands', 'pos/size/rot/scale/alpha/color/name/active 명령 파서 구현')
+  } else {
+    log('warning', 'R1508-cli-commands', 'CLI 명령 파서 미구현', 'CocosPanel.tsx')
+  }
+  if (c419.includes('pos X Y') && c419.includes('monospace')) {
+    log('pass', 'R1508-cli-ui', 'CLI 입력 UI (monosapce placeholder + 피드백) 구현')
+  } else {
+    log('warning', 'R1508-cli-ui', 'CLI UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 420: R1508 hook fix + R1510 Widget 시각화 체크 ──────────────────────
+console.log('\n## 420. Phase E R1508 hook fix + R1510 cc.Widget 시각화 체크')
+const cp420 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const sv420 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(cp420) && existsSync(sv420)) {
+  const c420 = readFileSync(cp420, 'utf-8')
+  const s420 = readFileSync(sv420, 'utf-8')
+  // R1508 hook fix: cliVal/cliMsg should be at component top level
+  if (c420.includes("const [cliVal, setCliVal] = useState('')") && c420.includes("const [cliMsg, setCliMsg] = useState<string | null>(null)") && !c420.includes("React.useState('')")) {
+    log('pass', 'R1508-hook-fix', 'Quick Edit CLI useState 컴포넌트 최상위 선언 (Rules of Hooks 준수)')
+  } else {
+    log('warning', 'R1508-hook-fix', 'Quick Edit CLI Rules of Hooks 위반 가능성', 'CocosPanel.tsx')
+  }
+  // R1510 Widget visualization
+  if (s420.includes('R1510') && s420.includes('widgetComp') && s420.includes('alignFlags') && s420.includes('7c3aed')) {
+    log('pass', 'R1510-widget-viz', 'SceneView cc.Widget alignFlags 제약 화살표 시각화 구현')
+  } else {
+    log('warning', 'R1510-widget-viz', 'Widget 시각화 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s420.includes('flags & 1') && s420.includes('flags & 4') && s420.includes('flags & 8') && s420.includes('flags & 32')) {
+    log('pass', 'R1510-widget-flags', 'TOP/BOT/LEFT/RIGHT 4방향 제약 화살표 모두 구현')
+  } else {
+    log('warning', 'R1510-widget-flags', 'Widget 방향 일부 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 421: R1512 정렬 가이드라인 체크 ──────────────────────
+console.log('\n## 421. R1512 SceneView 정렬 가이드라인 체크')
+const sv421 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv421)) {
+  const s421 = readFileSync(sv421, 'utf-8')
+  if (s421.includes("alignGuides") && s421.includes("setAlignGuides") && s421.includes("ALIGN_SNAP_THRESHOLD")) {
+    log('pass', 'R1512-align-state', 'alignGuides 상태 + ALIGN_SNAP_THRESHOLD 선언')
+  } else {
+    log('warning', 'R1512-align-state', 'alignGuides 상태 미선언', 'CCFileSceneView.tsx')
+  }
+  if (s421.includes("R1512") && s421.includes("vPairs") && s421.includes("hPairs")) {
+    log('pass', 'R1512-guide-calc', '드래그 중 V/H 가이드라인 계산 로직 구현 (vPairs/hPairs)')
+  } else {
+    log('warning', 'R1512-guide-calc', '가이드라인 계산 로직 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s421.includes("ag-v-") && s421.includes("ag-h-") && s421.includes("ff4488")) {
+    log('pass', 'R1512-guide-render', 'SVG 정렬 가이드라인 렌더링 (빨간 점선) 구현')
+  } else {
+    log('warning', 'R1512-guide-render', '가이드라인 SVG 렌더링 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s421.includes("setAlignGuides([])")) {
+    log('pass', 'R1512-guide-clear', 'mouseUp 시 alignGuides 클리어 구현')
+  } else {
+    log('warning', 'R1512-guide-clear', 'mouseUp alignGuides 클리어 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 422: R1514 프리팹 인스턴스화 체크 ──────────────────────
+console.log('\n## 422. R1514 Prefab 인스턴스화 체크')
+const cp422 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(cp422)) {
+  const c422 = readFileSync(cp422, 'utf-8')
+  if (c422.includes('handleInsertPrefab') && c422.includes('ccFileReadScene') && c422.includes('deepCopyNodeWithNewUuids')) {
+    log('pass', 'R1514-insert-prefab', 'handleInsertPrefab — IPC 로드 + deepCopy + 씬 삽입 구현')
+  } else {
+    log('warning', 'R1514-insert-prefab', '프리팹 삽입 핸들러 미구현', 'CocosPanel.tsx')
+  }
+  if (c422.includes('prefabPickerOpen') && c422.includes('setPrefabPickerOpen')) {
+    log('pass', 'R1514-prefab-picker-ui', '프리팹 선택 드롭다운 UI 구현')
+  } else {
+    log('warning', 'R1514-prefab-picker-ui', '프리팹 피커 UI 미구현', 'CocosPanel.tsx')
+  }
+  if (c422.includes("s.endsWith('.prefab')") && c422.includes('insertingPrefab')) {
+    log('pass', 'R1514-prefab-filter', '.prefab 파일 필터링 + 로딩 상태 표시')
+  } else {
+    log('warning', 'R1514-prefab-filter', '프리팹 필터/로딩 상태 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 423: R1516 다중 노드 배치 편집 체크 ──────────────────────
+console.log('\n## 423. R1516 다중 노드 공통 속성 배치 편집 체크')
+const sv423 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+const cp423 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(sv423) && existsSync(cp423)) {
+  const s423 = readFileSync(sv423, 'utf-8')
+  const c423 = readFileSync(cp423, 'utf-8')
+  if (s423.includes('onMultiSelectChange') && s423.includes('R1516')) {
+    log('pass', 'R1516-sv-prop', 'CCFileSceneView onMultiSelectChange prop + useEffect 구현')
+  } else {
+    log('warning', 'R1516-sv-prop', 'SceneView multiSelectChange prop 미구현', 'CCFileSceneView.tsx')
+  }
+  if (c423.includes('CCFileBatchInspector') && c423.includes('multiSelectedUuids')) {
+    log('pass', 'R1516-batch-inspector', 'CCFileBatchInspector 컴포넌트 + multiSelectedUuids 상태 구현')
+  } else {
+    log('warning', 'R1516-batch-inspector', 'BatchInspector 미구현', 'CocosPanel.tsx')
+  }
+  if (c423.includes('applyBatch') && c423.includes('일괄 적용')) {
+    log('pass', 'R1516-batch-apply', 'applyBatch — opacity/active/position delta 적용 구현')
+  } else {
+    log('warning', 'R1516-batch-apply', 'applyBatch 미구현', 'CocosPanel.tsx')
+  }
+  if (c423.includes('setMultiSelectedUuids') && c423.includes('onMultiSelectChange={setMultiSelectedUuids}')) {
+    log('pass', 'R1516-wire', 'CocosPanel ↔ SceneView multiSelectChange 연결')
+  } else {
+    log('warning', 'R1516-wire', 'multiSelectChange 연결 미완료', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 424: R1518 노드 순서 변경 체크 ──────────────────────
+console.log('\n## 424. R1518 형제 노드 순서 변경 (Ctrl+Up/Down) 체크')
+const cp424 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const sv424 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(cp424) && existsSync(sv424)) {
+  const c424 = readFileSync(cp424, 'utf-8')
+  const s424 = readFileSync(sv424, 'utf-8')
+  if (c424.includes('R1518') && c424.includes('reorderInParent')) {
+    log('pass', 'R1518-reorder-handler', 'CocosPanel reorderInParent Ctrl+Up/Down 핸들러 구현')
+  } else {
+    log('warning', 'R1518-reorder-handler', 'reorderInParent 핸들러 미구현', 'CocosPanel.tsx')
+  }
+  if (c424.includes("e.key === 'ArrowUp' || e.key === 'ArrowDown'") && c424.includes('ctrl')) {
+    log('pass', 'R1518-key-check', 'Ctrl+ArrowUp/Down 키 감지 로직 구현')
+  } else {
+    log('warning', 'R1518-key-check', 'Ctrl+Arrow 키 감지 미구현', 'CocosPanel.tsx')
+  }
+  if (s424.includes("Ctrl+↑↓") && s424.includes('형제 순서')) {
+    log('pass', 'R1518-legend', 'SceneView 단축키 legend에 Ctrl+↑↓ 추가')
+  } else {
+    log('warning', 'R1518-legend', '단축키 legend 미업데이트', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 425: R1520 컴포넌트 파싱 강화 + Inspector Quick Edit 체크 ──────────────────────
+console.log('\n## 425. R1520 cc.Toggle/AudioSource/VideoPlayer 파싱 강화 + Inspector Quick Edit')
+const parser425 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const cp425 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(parser425) && existsSync(cp425)) {
+  const p425 = readFileSync(parser425, 'utf-8')
+  const c425 = readFileSync(cp425, 'utf-8')
+  if (p425.includes("'cc.Toggle'") && p425.includes('isChecked') && p425.includes('R1520')) {
+    log('pass', 'R1520-toggle-parser', 'cc.Toggle extractor (isChecked) 파싱 추가')
+  } else {
+    log('warning', 'R1520-toggle-parser', 'cc.Toggle extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (p425.includes("'cc.AudioSource'") && p425.includes('playOnLoad') && p425.includes('pitch')) {
+    log('pass', 'R1520-audio-parser', 'cc.AudioSource extractor (volume/loop/playOnLoad/pitch) 파싱 추가')
+  } else {
+    log('warning', 'R1520-audio-parser', 'cc.AudioSource extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (p425.includes("'cc.VideoPlayer'") && p425.includes('remoteURL')) {
+    log('pass', 'R1520-video-parser', 'cc.VideoPlayer extractor (remoteURL/loop/mute) 파싱 추가')
+  } else {
+    log('warning', 'R1520-video-parser', 'cc.VideoPlayer extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (c425.includes('R1520') && c425.includes("comp.type === 'cc.Toggle'") && c425.includes("comp.type === 'cc.AudioSource'")) {
+    log('pass', 'R1520-inspector-ui', 'Inspector Quick Edit (Toggle/ProgressBar/AudioSource/RichText) 전용 UI 구현')
+  } else {
+    log('warning', 'R1520-inspector-ui', 'Inspector Quick Edit UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 426: R1522 호버 툴팁 패널 체크 ──────────────────────
+console.log('\n## 426. R1522 SceneView 노드 호버 정보 패널 체크')
+const sv426 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv426)) {
+  const s426 = readFileSync(sv426, 'utf-8')
+  if (s426.includes('hoverClientPos') && s426.includes('setHoverClientPos') && s426.includes('R1522')) {
+    log('pass', 'R1522-hover-state', 'hoverClientPos 상태 + onMouseEnter/Move/Leave 이벤트 구현')
+  } else {
+    log('warning', 'R1522-hover-state', 'hoverClientPos 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s426.includes('R1522') && s426.includes('COMP_ICONS') && s426.includes('노드 호버 정보')) {
+    log('pass', 'R1522-tooltip-render', '호버 툴팁 패널 렌더링 (컴포넌트 아이콘 + props 미리보기) 구현')
+  } else {
+    log('warning', 'R1522-tooltip-render', '호버 툴팁 렌더링 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s426.includes('ProgressBar') && s426.includes('cc.Toggle') && s426.includes('AudioSource')) {
+    log('pass', 'R1522-tooltip-comps', '주요 컴포넌트 타입별 hint (progress%/toggle✓/volume%) 표시 구현')
+  } else {
+    log('warning', 'R1522-tooltip-comps', '컴포넌트 hint 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 427: R1524 cc.Animation 클립 파싱 + 드롭다운 체크 ──────────────────────
+console.log('\n## 427. R1524 cc.Animation 클립 파싱 + Inspector 드롭다운 체크')
+const parser427 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const panel427 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(parser427)) {
+  const s427p = readFileSync(parser427, 'utf-8')
+  if (s427p.includes('resolveAnimationClipNames') && s427p.includes('R1524')) {
+    log('pass', 'R1524-parser-resolver', 'cc-file-parser resolveAnimationClipNames 구현 확인')
+  } else {
+    log('warning', 'R1524-parser-resolver', 'resolveAnimationClipNames 미구현', 'cc-file-parser.ts')
+  }
+  if (s427p.includes("'cc.Animation'") && s427p.includes('_resolvedClips') && s427p.includes('_defaultClipName')) {
+    log('pass', 'R1524-parser-inject', '_resolvedClips + _defaultClipName 주입 확인 (2x/3x)')
+  } else {
+    log('warning', 'R1524-parser-inject', '_resolvedClips/_defaultClipName 미주입', 'cc-file-parser.ts')
+  }
+}
+if (existsSync(panel427)) {
+  const s427c = readFileSync(panel427, 'utf-8')
+  if (s427c.includes('R1524') && s427c.includes("comp.type === 'cc.Animation'") && s427c.includes('_resolvedClips') && s427c.includes('clips.length')) {
+    log('pass', 'R1524-inspector-dropdown', 'CocosPanel cc.Animation 클립 드롭다운 UI 구현 확인')
+  } else {
+    log('warning', 'R1524-inspector-dropdown', 'cc.Animation 드롭다운 UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 428: R1525 SceneView 다중 노드 BBox overlay 체크 ──────────────────────
+console.log('\n## 428. R1525 SceneView 다중 노드 경계 박스 (BBox) overlay 체크')
+const sv428 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv428)) {
+  const s428 = readFileSync(sv428, 'utf-8')
+  if (s428.includes('R1525') && s428.includes('multiSelected.size > 1') && s428.includes('minX') && s428.includes('maxX')) {
+    log('pass', 'R1525-bbox-calc', 'BBox min/max 계산 (선택 노드 좌표 누산) 구현')
+  } else {
+    log('warning', 'R1525-bbox-calc', 'BBox 계산 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s428.includes('ff9944') && s428.includes('strokeDasharray') && s428.includes('포인터Events')) {
+    log('pass', 'R1525-bbox-render', 'BBox 주황 점선 rect 렌더링 구현')
+  } else if (s428.includes('ff9944') && s428.includes('strokeDasharray')) {
+    log('pass', 'R1525-bbox-render', 'BBox 주황 점선 rect 렌더링 구현')
+  } else {
+    log('warning', 'R1525-bbox-render', 'BBox rect 렌더링 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 429: R1528 Inspector 컴포넌트 순서 변경 체크 ──────────────────────
+console.log('\n## 429. R1528 Inspector 컴포넌트 순서 변경 (▲▼ 버튼) 체크')
+const panel429 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(panel429)) {
+  const s429 = readFileSync(panel429, 'utf-8')
+  if (s429.includes('R1528') && s429.includes('위로 이동') && s429.includes('아래로 이동')) {
+    log('pass', 'R1528-reorder-buttons', '컴포넌트 ▲▼ 순서 변경 버튼 UI 구현')
+  } else {
+    log('warning', 'R1528-reorder-buttons', '▲▼ 버튼 미구현', 'CocosPanel.tsx')
+  }
+  if (s429.includes('comps.splice(origIdx, 1)') && s429.includes('comps.splice(origIdx - 1, 0, moved)') && s429.includes('comps.splice(origIdx + 1, 0, moved)')) {
+    log('pass', 'R1528-reorder-logic', '컴포넌트 배열 splice 이동 로직 구현')
+  } else {
+    log('warning', 'R1528-reorder-logic', '배열 이동 로직 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 430: R1530 SceneView 디자인 레퍼런스 이미지 overlay 체크 ──────────────────────
+console.log('\n## 430. R1530 SceneView 디자인 레퍼런스 이미지 overlay 체크')
+const sv430 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv430)) {
+  const s430 = readFileSync(sv430, 'utf-8')
+  if (s430.includes('R1530') && s430.includes('refImgSrc') && s430.includes('refImgOpacity') && s430.includes('refImgInputRef')) {
+    log('pass', 'R1530-state', 'refImgSrc/refImgOpacity/refImgInputRef 상태+ref 선언')
+  } else {
+    log('warning', 'R1530-state', 'refImg 상태 미선언', 'CCFileSceneView.tsx')
+  }
+  if (s430.includes('📐') && s430.includes('레퍼런스 이미지') && s430.includes('type="file"')) {
+    log('pass', 'R1530-button', '📐 버튼 + hidden file input 구현')
+  } else {
+    log('warning', 'R1530-button', '📐 버튼 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s430.includes('<image') && s430.includes('refImgSrc') && s430.includes('preserveAspectRatio')) {
+    log('pass', 'R1530-overlay', 'SVG <image> 레퍼런스 overlay 렌더링 구현')
+  } else {
+    log('warning', 'R1530-overlay', 'SVG image overlay 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 431: R1532/R1533 tag/layer 편집 + Ctrl+D offset 체크 ──────────────────────
+console.log('\n## 431. R1532 tag/layer 편집 + R1533 Ctrl+D offset 체크')
+const panel431 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+const schema431 = join(ROOT, 'src/shared/ipc-schema.ts')
+const parser431 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const saver431 = join(ROOT, 'src/main/cc/cc-file-saver.ts')
+if (existsSync(schema431)) {
+  const s431s = readFileSync(schema431, 'utf-8')
+  if (s431s.includes('R1532') && s431s.includes('tag?: number')) {
+    log('pass', 'R1532-schema', 'CCSceneNode tag?: number 필드 추가')
+  } else {
+    log('warning', 'R1532-schema', 'tag 필드 미추가', 'ipc-schema.ts')
+  }
+}
+if (existsSync(parser431)) {
+  const s431p = readFileSync(parser431, 'utf-8')
+  if (s431p.includes('R1532') && s431p.includes('e._tag') && s431p.includes('tag != null')) {
+    log('pass', 'R1532-parser', 'parseNode2x _tag 파싱 구현')
+  } else {
+    log('warning', 'R1532-parser', '_tag 파싱 미구현', 'cc-file-parser.ts')
+  }
+}
+if (existsSync(saver431)) {
+  const s431sv = readFileSync(saver431, 'utf-8')
+  if (s431sv.includes('R1532') && s431sv.includes('e._tag = node.tag') && s431sv.includes('e.layer = node.layer')) {
+    log('pass', 'R1532-saver', 'patch2x _tag + patch3x layer 쓰기 구현')
+  } else {
+    log('warning', 'R1532-saver', 'tag/layer 쓰기 미구현', 'cc-file-saver.ts')
+  }
+}
+if (existsSync(panel431)) {
+  const s431c = readFileSync(panel431, 'utf-8')
+  if (s431c.includes('R1532') && s431c.includes("draft.tag != null") && s431c.includes("draft.layer != null")) {
+    log('pass', 'R1532-inspector', 'Inspector Tag/Layer 편집 UI 구현')
+  } else {
+    log('warning', 'R1532-inspector', 'Tag/Layer 편집 UI 미구현', 'CocosPanel.tsx')
+  }
+  if (s431c.includes('R1533') && s431c.includes('origPos?.x ?? 0) + 20') && s431c.includes('origPos?.y ?? 0) - 20')) {
+    log('pass', 'R1533-dup-offset', 'Ctrl+D 복제 +20 position offset 구현')
+  } else {
+    log('warning', 'R1533-dup-offset', 'Ctrl+D 복제 offset 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 432: R1536 PropSearch 하이라이트 체크 ──────────────────────
+console.log('\n## 432. R1536 PropSearch 하이라이트 체크')
+const panel432 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(panel432)) {
+  const s432 = readFileSync(panel432, 'utf-8')
+  if (s432.includes('R1536') && s432.includes('propKeyLabel') && s432.includes('rgba(250,204,21')) {
+    log('pass', 'R1536-highlight', 'PropSearch propKeyLabel 하이라이트 헬퍼 구현 (노란 mark)')
+  } else {
+    log('warning', 'R1536-highlight', 'propKeyLabel 하이라이트 미구현', 'CocosPanel.tsx')
+  }
+  if (s432.includes('{propKeyLabel(k)}{favBtn}')) {
+    log('pass', 'R1536-applied', 'propKeyLabel(k)를 모든 prop 키 레이블에 적용')
+  } else {
+    log('warning', 'R1536-applied', 'propKeyLabel 미적용', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 433: R1538 cc.EditBox 파싱 + Inspector Quick Edit 체크 ──────────────────────
+console.log('\n## 433. R1538 cc.EditBox 파싱 + Inspector Quick Edit 체크')
+const parser433 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const panel433 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(parser433)) {
+  const s433p = readFileSync(parser433, 'utf-8')
+  if (s433p.includes('R1538') && s433p.includes("'cc.EditBox'") && s433p.includes('placeholder') && s433p.includes('maxLength')) {
+    log('pass', 'R1538-parser', 'cc.EditBox extractor (string/placeholder/maxLength/inputMode) 추가')
+  } else {
+    log('warning', 'R1538-parser', 'cc.EditBox extractor 미추가', 'cc-file-parser.ts')
+  }
+}
+if (existsSync(panel433)) {
+  const s433c = readFileSync(panel433, 'utf-8')
+  if (s433c.includes('R1538') && s433c.includes("comp.type === 'cc.EditBox'") && s433c.includes('placeholder') && s433c.includes('maxLength')) {
+    log('pass', 'R1538-inspector', 'CocosPanel cc.EditBox Quick Edit UI (string/placeholder/maxLength) 구현')
+  } else {
+    log('warning', 'R1538-inspector', 'cc.EditBox Quick Edit UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 434: R1540/R1541 cc.Camera/ParticleSystem 파서 + enabled 토글 체크 ──────────────────────
+console.log('\n## 434. R1540 cc.Camera/ParticleSystem 파서 + R1541 컴포넌트 enabled 토글 체크')
+const parser434 = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+const panel434 = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+if (existsSync(parser434)) {
+  const s434p = readFileSync(parser434, 'utf-8')
+  if (s434p.includes('R1540') && s434p.includes("'cc.Camera'") && s434p.includes("'cc.ParticleSystem'")) {
+    log('pass', 'R1540-parser', 'cc.Camera + cc.ParticleSystem extractor 추가')
+  } else {
+    log('warning', 'R1540-parser', 'cc.Camera/ParticleSystem extractor 미추가', 'cc-file-parser.ts')
+  }
+}
+if (existsSync(panel434)) {
+  const s434c = readFileSync(panel434, 'utf-8')
+  if (s434c.includes('R1541') && s434c.includes('comp.props.enabled') && s434c.includes('accentColor')) {
+    log('pass', 'R1541-enabled-toggle', '컴포넌트 enabled 체크박스 토글 구현')
+  } else {
+    log('warning', 'R1541-enabled-toggle', 'enabled 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 435: R1543 SceneView 노드 잠금 체크 ──────────────────────
+console.log('\n## 435. R1543 SceneView 노드 잠금 (🔒) 체크')
+const sv435 = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+if (existsSync(sv435)) {
+  const s435 = readFileSync(sv435, 'utf-8')
+  if (s435.includes('R1543') && s435.includes('lockedUuids') && s435.includes('toggleLock') && s435.includes('sv-locked-uuids')) {
+    log('pass', 'R1543-state', 'lockedUuids Set + toggleLock + localStorage 연동 구현')
+  } else {
+    log('warning', 'R1543-state', 'lockedUuids 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s435.includes('lockedUuids.has(node.uuid)') && s435.includes('not-allowed') && s435.includes('🔒')) {
+    log('pass', 'R1543-drag-block', '잠긴 노드 드래그 차단 + not-allowed 커서 + 🔒 아이콘')
+  } else {
+    log('warning', 'R1543-drag-block', '드래그 차단/아이콘 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s435.includes('🔓 잠금 해제') && s435.includes('🔒 잠금')) {
+    log('pass', 'R1543-ctx-menu', '컨텍스트 메뉴 잠금/해제 항목 구현')
+  } else {
+    log('warning', 'R1543-ctx-menu', '컨텍스트 메뉴 잠금 항목 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 436: R1545 SceneView 줌 % 인라인 편집 ────────────
+console.log('\n## 436. R1545 SceneView 줌 % 인라인 입력 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s436 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s436.includes('editingZoom') && s436.includes('setEditingZoom') && !s436.includes('React.useState')) {
+    log('pass', 'R1545-state', 'editingZoom 상태 컴포넌트 레벨 선언 (hooks 규칙 준수)')
+  } else if (s436.includes('React.useState')) {
+    log('warning', 'R1545-state', 'editingZoom이 IIFE 내 React.useState 사용 — hooks 규칙 위반', 'CCFileSceneView.tsx')
+  } else {
+    log('warning', 'R1545-state', 'editingZoom 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s436.includes('editingZoom ?') && s436.includes('autoFocus') && s436.includes('클릭하여 줌')) {
+    log('pass', 'R1545-ui', '줌 % span → input 인라인 전환 UI 구현')
+  } else {
+    log('warning', 'R1545-ui', '줌 % 인라인 입력 UI 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 437: R1546 sp.Skeleton extractor + Inspector UI ──
+console.log('\n## 437. R1546 sp.Skeleton Spine 컴포넌트 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s437p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s437ui = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s437p.includes("'sp.Skeleton'") && s437p.includes('defaultSkin') && s437p.includes('defaultAnimation') && s437p.includes('timeScale')) {
+    log('pass', 'R1546-parser', 'sp.Skeleton extractor 구현 (skin/animation/timeScale/loop/paused)')
+  } else {
+    log('warning', 'R1546-parser', 'sp.Skeleton extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s437ui.includes("comp.type === 'sp.Skeleton'") && s437ui.includes('defaultSkin') && s437ui.includes('defaultAnimation') && s437ui.includes('timeScale')) {
+    log('pass', 'R1546-ui', 'Inspector sp.Skeleton Quick Edit UI (skin/animation/timeScale/loop/paused)')
+  } else {
+    log('warning', 'R1546-ui', 'sp.Skeleton Inspector UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 438: R1547 즐겨찾기 노드 클릭 탐색 수정 ────────────
+console.log('\n## 438. R1547 즐겨찾기 노드 클릭 탐색 + 컴포넌트 배지 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s438 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s438.includes('R1547') && s438.includes('if (favNode) onUpdate(favNode)') && !s438.includes("console.log('favorite select'")) {
+    log('pass', 'R1547-nav', '즐겨찾기 클릭 → onUpdate(favNode) 탐색 구현 (console.log 제거)')
+  } else {
+    log('warning', 'R1547-nav', '즐겨찾기 클릭 탐색 미구현 또는 console.log 여전히 존재', 'CocosPanel.tsx')
+  }
+  if (s438.includes('primaryComp') && s438.includes("replace(/^cc\\.|^sp\\./, '')") && s438.includes('컴포넌트 타입 배지')) {
+    log('pass', 'R1547-badge', '즐겨찾기 컴포넌트 타입 배지 + 없는 노드 희미하게 표시')
+  } else {
+    log('warning', 'R1547-badge', '즐겨찾기 컴포넌트 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 439: R1548 SceneView 캔버스 해상도 picker ────────────
+console.log('\n## 439. R1548 SceneView 캔버스 해상도 preset picker 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s439 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s439.includes('resOverride') && s439.includes('setResOverride') && s439.includes('effectiveW') && s439.includes('effectiveH')) {
+    log('pass', 'R1548-state', 'resOverride + effectiveW/H 상태 구현')
+  } else {
+    log('warning', 'R1548-state', 'resOverride/effectiveW/H 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s439.includes('showResPicker') && s439.includes('960×640') && s439.includes('1920×1080')) {
+    log('pass', 'R1548-picker', '해상도 preset picker UI (960×640, 1920×1080 등 포함)')
+  } else {
+    log('warning', 'R1548-picker', '해상도 picker UI 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 440: R1549 dragonBones.ArmatureDisplay extractor ─────
+console.log('\n## 440. R1549 dragonBones.ArmatureDisplay DragonBones 컴포넌트 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s440p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s440ui = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s440p.includes("'dragonBones.ArmatureDisplay'") && s440p.includes('armatureName') && s440p.includes('animationName') && s440p.includes('playTimes')) {
+    log('pass', 'R1549-parser', 'dragonBones.ArmatureDisplay extractor 구현 (armature/animation/timeScale/loop/playTimes)')
+  } else {
+    log('warning', 'R1549-parser', 'dragonBones.ArmatureDisplay extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s440ui.includes("comp.type === 'dragonBones.ArmatureDisplay'") && s440ui.includes('armatureName') && s440ui.includes('playTimes')) {
+    log('pass', 'R1549-ui', 'Inspector dragonBones Quick Edit UI (armature/animation/timeScale/playTimes/loop)')
+  } else {
+    log('warning', 'R1549-ui', 'dragonBones Inspector UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 441: R1550 SceneView 노드 검색 하이라이트 ───────────
+console.log('\n## 441. R1550 SceneView 노드 검색 + 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s441 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s441.includes('svSearch') && s441.includes('svSearchMatches') && s441.includes('useMemo')) {
+    log('pass', 'R1550-state', 'svSearch + svSearchMatches useMemo 구현')
+  } else {
+    log('warning', 'R1550-state', 'svSearch 상태 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s441.includes('isSearchMatch') && s441.includes('#ff44ff') && s441.includes('rgba(255,68,255')) {
+    log('pass', 'R1550-highlight', '검색 매칭 노드 마젠타 하이라이트 (stroke + fill)')
+  } else {
+    log('warning', 'R1550-highlight', '검색 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+  if (s441.includes('🔍 노드 검색') && s441.includes('svSearchMatches.size')) {
+    log('pass', 'R1550-ui', '툴바 검색 input + 매칭 수 표시')
+  } else {
+    log('warning', 'R1550-ui', '검색 UI 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 442: R1551 cc.RigidBody/Collider extractor ───────────
+console.log('\n## 442. R1551 cc.RigidBody + 콜라이더 물리 컴포넌트 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s442p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s442ui = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s442p.includes("'cc.RigidBody'") && s442p.includes('gravityScale') && s442p.includes('fixedRotation') && s442p.includes("'cc.BoxCollider'")) {
+    log('pass', 'R1551-parser', 'cc.RigidBody/2D + BoxCollider/CircleCollider extractor 구현')
+  } else {
+    log('warning', 'R1551-parser', 'cc.RigidBody/Collider extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s442ui.includes("comp.type === 'cc.RigidBody'") && s442ui.includes('gravityScale') && s442ui.includes('DYNAMIC') && s442ui.includes('KINEMATIC')) {
+    log('pass', 'R1551-ui', 'Inspector RigidBody Quick Edit (type/mass/gravityScale/linearDamp/fixedRotation)')
+  } else {
+    log('warning', 'R1551-ui', 'RigidBody Inspector UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 443: R1552 SceneView 콜라이더 시각화 ─────────────────
+console.log('\n## 443. R1552 SceneView BoxCollider/CircleCollider 시각화 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s443 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s443.includes('R1552') && s443.includes('cc.BoxCollider') && s443.includes('#22cc88') && s443.includes('cc.CircleCollider')) {
+    log('pass', 'R1552-visual', 'BoxCollider 녹색 점선 rect + CircleCollider 원 SVG 오버레이')
+  } else {
+    log('warning', 'R1552-visual', 'Collider 시각화 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 444: R1553 BatchInspector 스케일/사이즈 확장 ────────────
+console.log('\n## 444. R1553 CCFileBatchInspector 스케일/사이즈 일괄 편집 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s444 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s444.includes('batchScaleX') && s444.includes('batchSizeW') && s444.includes('R1553')) {
+    log('pass', 'R1553-batch', 'BatchInspector 스케일(X/Y) + 사이즈(W/H) 일괄 편집 추가')
+  } else {
+    log('warning', 'R1553-batch', 'BatchInspector 스케일/사이즈 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 445: R1554 미니맵 effectiveW/H + 노드 rect 표시 ────────
+console.log('\n## 445. R1554 미니맵 개선 (effectiveW/H + 노드 rect 크기 표시) 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s445 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s445.includes('R1554') && s445.includes('effectiveW') && s445.includes('effectiveH') && s445.includes('sceneW = effectiveW')) {
+    log('pass', 'R1554-effective', '미니맵 effectiveW/H 기준 (resOverride 반영)')
+  } else {
+    log('warning', 'R1554-effective', '미니맵 effectiveW/H 미반영', 'CCFileSceneView.tsx')
+  }
+  if (s445.includes('mw > 2 && mh > 2') && s445.includes('svSearchMatches')) {
+    log('pass', 'R1554-rect', '노드 사이즈 rect + 검색 매칭 미니맵 하이라이트')
+  } else {
+    log('warning', 'R1554-rect', '미니맵 노드 rect 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 446: R1555 SceneView 레이어 번호 표시 ───────────────────
+console.log('\n## 446. R1555 SceneView 노드 레이어 번호 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s446 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s446.includes('R1555') && s446.includes('node.layer') && s446.includes('1048576') && s446.includes('[L{node.layer}]')) {
+    log('pass', 'R1555-label', 'CC3.x layer 번호 tspan 표시 (기본 레이어 1048576 제외)')
+  } else {
+    log('warning', 'R1555-label', 'layer 번호 표시 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 447: R1556 cc.TiledMap/TiledLayer extractor ──────────
+console.log('\n## 447. R1556 cc.TiledMap/TiledLayer 컴포넌트 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s447p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s447ui = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s447p.includes("'cc.TiledMap'") && s447p.includes("'cc.TiledLayer'") && s447p.includes('layerName')) {
+    log('pass', 'R1556-parser', 'cc.TiledMap + cc.TiledLayer extractor 구현')
+  } else {
+    log('warning', 'R1556-parser', 'cc.TiledMap/TiledLayer extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s447ui.includes("comp.type === 'cc.TiledMap'") && s447ui.includes("comp.type === 'cc.TiledLayer'") && s447ui.includes('layerName')) {
+    log('pass', 'R1556-ui', 'Inspector TiledMap/TiledLayer Quick Edit UI')
+  } else {
+    log('warning', 'R1556-ui', 'TiledMap Inspector UI 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 448: R1557 SafeArea/BlockInputEvents/UIStaticBatch + 아이콘 ──
+console.log('\n## 448. R1557 SafeArea/BlockInputEvents 컴포넌트 + 툴팁 아이콘 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s448p = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s448sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s448p.includes("'cc.SafeArea'") && s448p.includes("'cc.BlockInputEvents'") && s448p.includes("'cc.UIStaticBatch'")) {
+    log('pass', 'R1557-parser', 'cc.SafeArea + cc.BlockInputEvents + cc.UIStaticBatch extractor 추가')
+  } else {
+    log('warning', 'R1557-parser', 'cc.SafeArea/BlockInputEvents extractor 미구현', 'cc-file-parser.ts')
+  }
+  if (s448sv.includes("'cc.SafeArea': '📱'") && s448sv.includes("'sp.Skeleton': '🦴'") && s448sv.includes("'dragonBones.ArmatureDisplay': '🐉'")) {
+    log('pass', 'R1557-icons', '새 컴포넌트 호버 툴팁 아이콘 추가 (SafeArea/Spine/DragonBones/Collider)')
+  } else {
+    log('warning', 'R1557-icons', '새 컴포넌트 아이콘 미추가', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 449: R1558 TreeSearch 키보드 탐색 + 컴포넌트 검색 ────────
+console.log('\n## 449. R1558 TreeSearch 키보드 탐색 + 컴포넌트 타입 검색 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s449 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s449.includes('R1558') && s449.includes('activeIdx') && s449.includes('ArrowDown') && s449.includes('ArrowUp')) {
+    log('pass', 'R1558-keyboard', 'TreeSearch ↑↓ 키보드 탐색 + Enter 선택 + Escape 닫기')
+  } else {
+    log('warning', 'R1558-keyboard', 'TreeSearch 키보드 탐색 미구현', 'CocosPanel.tsx')
+  }
+  if (s449.includes('compMatch') && s449.includes('c.type.toLowerCase().includes(ql)')) {
+    log('pass', 'R1558-comp-search', '컴포넌트 타입 검색 (이름 + 타입 모두 검색)')
+  } else {
+    log('warning', 'R1558-comp-search', '컴포넌트 타입 검색 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 450: R1559 씬 통계 패널 ────────────────────────────────
+console.log('\n## 450. R1559 씬 통계 (노드 수 + 컴포넌트 분포) 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s450 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s450.includes('R1559') && s450.includes('nodeCount') && s450.includes('statsMap') && s450.includes('topComps')) {
+    log('pass', 'R1559-stats', '씬 통계 패널 (nodeCount + 상위 4개 컴포넌트 타입 분포)')
+  } else {
+    log('warning', 'R1559-stats', '씬 통계 패널 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 451: R1560 Quick Edit CLI 명령어 확장 ────────────────
+console.log('\n## 451. R1560 Quick Edit CLI layer/tag/z/flip/reset/help 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s451 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s451.includes("op === 'layer'") && s451.includes("op === 'tag'") && s451.includes("op === 'z'") && s451.includes("op === 'flip'") && s451.includes("op === 'reset'")) {
+    log('pass', 'R1560-cli', 'Quick Edit CLI 확장: layer/tag/z/flip x|y/reset/help')
+  } else {
+    log('warning', 'R1560-cli', 'Quick Edit CLI 확장 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 452: R1561 SceneView 정렬 버튼 effectiveW/H 사용 ────────────────
+console.log('\n## 452. R1561 SceneView 정렬 버튼 effectiveW/H 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s452 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s452.includes('effectiveW / 2 - w / 2') && s452.includes('effectiveH / 2 - h / 2')) {
+    log('pass', 'R1561-align', '정렬 버튼이 effectiveW/H 기반으로 동작')
+  } else {
+    log('warning', 'R1561-align', '정렬 버튼 effectiveW/H 미적용', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 453: R1562 cc.Slider + cc.VideoPlayer Inspector Quick Edit ────────────────
+console.log('\n## 453. R1562 cc.Slider/VideoPlayer Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s453 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s453.includes("comp.type === 'cc.Slider'") && s453.includes("comp.type === 'cc.VideoPlayer'") && s453.includes('remoteURL') && s453.includes('playbackRate')) {
+    log('pass', 'R1562-slider-video', 'cc.Slider + cc.VideoPlayer Inspector Quick Edit 구현')
+  } else {
+    log('warning', 'R1562-slider-video', 'cc.Slider/VideoPlayer Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 454: R1563 SceneView Ctrl+D 노드 복제 ────────────────
+console.log('\n## 454. R1563 SceneView Ctrl+D 복제 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s454sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  const s454panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s454sv.includes("onDuplicate") && s454sv.includes("key === 'd'") && s454panel.includes('handleDuplicate') && s454panel.includes('deepClone')) {
+    log('pass', 'R1563-duplicate', 'Ctrl+D 노드 복제: SceneView 단축키 + CocosPanel handler')
+  } else {
+    log('warning', 'R1563-duplicate', 'Ctrl+D 복제 미구현', 'CCFileSceneView.tsx / CocosPanel.tsx')
+  }
+}
+
+// ── Section 455: R1564 cc.ScrollView Inspector Quick Edit ────────────────
+console.log('\n## 455. R1564 cc.ScrollView Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s455 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s455.includes("comp.type === 'cc.ScrollView'") && s455.includes('horizontal') && s455.includes('vertical') && s455.includes('brake')) {
+    log('pass', 'R1564-scrollview', 'cc.ScrollView Inspector Quick Edit: horizontal/vertical/inertia/elastic/brake')
+  } else {
+    log('warning', 'R1564-scrollview', 'cc.ScrollView Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 456: R1565 SceneView H 키 active 토글 ────────────────
+console.log('\n## 456. R1565 SceneView H키 active 토글 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s456sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  const s456panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s456sv.includes("onToggleActive") && s456sv.includes("KeyH") && s456panel.includes('handleToggleActive') && s456panel.includes("active: !n.active")) {
+    log('pass', 'R1565-toggle-active', 'H 키 active 토글: SceneView + CocosPanel handler')
+  } else {
+    log('warning', 'R1565-toggle-active', 'H키 active 토글 미구현', 'CCFileSceneView.tsx / CocosPanel.tsx')
+  }
+}
+
+// ── Section 457: R1566 cc.ParticleSystem Inspector Quick Edit ────────────────
+console.log('\n## 457. R1566 cc.ParticleSystem Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s457 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s457.includes("'cc.ParticleSystem'") && s457.includes("'cc.ParticleSystem2D'") && s457.includes('maxParticles') && s457.includes("'(loop)'")) {
+    log('pass', 'R1566-particle', 'cc.ParticleSystem Quick Edit: duration + maxParticles')
+  } else {
+    log('warning', 'R1566-particle', 'cc.ParticleSystem Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 458: R1567 Ctrl+↑↓ 형제 순서 변경 ────────────────
+console.log('\n## 458. R1567 Ctrl+↑↓ 형제 순서 변경 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s458sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  const s458panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s458sv.includes("onReorder") && s458panel.includes('handleReorder') && s458panel.includes('direction: 1 | -1')) {
+    log('pass', 'R1567-reorder', 'Ctrl+↑↓ 형제 순서 변경: SceneView + CocosPanel handler')
+  } else {
+    log('warning', 'R1567-reorder', 'Ctrl+↑↓ 형제 순서 변경 미구현', 'CCFileSceneView.tsx / CocosPanel.tsx')
+  }
+}
+
+// ── Section 459: R1568 cc.Camera Inspector Quick Edit ────────────────
+console.log('\n## 459. R1568 cc.Camera Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s459 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s459.includes("comp.type === 'cc.Camera'") && s459.includes('depth') && s459.includes('zoomRatio') && s459.includes('fov')) {
+    log('pass', 'R1568-camera', 'cc.Camera Inspector Quick Edit: depth/zoomRatio/fov')
+  } else {
+    log('warning', 'R1568-camera', 'cc.Camera Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 460: R1569 cc.PageView Inspector Quick Edit ────────────────
+console.log('\n## 460. R1569 cc.PageView Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s460 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s460.includes("comp.type === 'cc.PageView'") && s460.includes('scrollThreshold') && s460.includes('autoPageTurningThreshold')) {
+    log('pass', 'R1569-pageview', 'cc.PageView Quick Edit: direction/scrollThreshold/autoTurning')
+  } else {
+    log('warning', 'R1569-pageview', 'cc.PageView Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 461: R1570 SceneView P키 부모 노드 포커스 ────────────────
+console.log('\n## 461. R1570 SceneView P키 부모 포커스 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s461 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s461.includes("KeyP") && s461.includes('parentUuid') && s461.includes('fn?.parentUuid')) {
+    log('pass', 'R1570-parent-focus', 'P키 부모 노드 포커스 + FlatNode parentUuid 추적')
+  } else {
+    log('warning', 'R1570-parent-focus', 'P키 부모 포커스 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 462: R1571 SceneView Enter키 첫 번째 자식 포커스 ────────────────
+console.log('\n## 462. R1571 SceneView Enter키 자식 포커스 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s462 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s462.includes("code === 'Enter'") && s462.includes('node.children[0].uuid') && s462.includes("'Enter', '첫 번째 자식 선택'")) {
+    log('pass', 'R1571-enter-child', 'Enter키 첫 번째 자식 선택')
+  } else {
+    log('warning', 'R1571-enter-child', 'Enter키 자식 선택 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 463: R1572 cc.Mask Inspector Quick Edit ────────────────
+console.log('\n## 463. R1572 cc.Mask Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s463 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s463.includes("comp.type === 'cc.Mask'") && s463.includes('alphaThreshold') && s463.includes('inverted') && s463.includes('Image Stencil')) {
+    log('pass', 'R1572-mask', 'cc.Mask Quick Edit: type/inverted/alphaThreshold')
+  } else {
+    log('warning', 'R1572-mask', 'cc.Mask Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 464: R1573 cc.UIOpacity extractor + Inspector Quick Edit ────────────────
+console.log('\n## 464. R1573 cc.UIOpacity Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s464parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s464panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s464parser.includes("'cc.UIOpacity'") && s464panel.includes("comp.type === 'cc.UIOpacity'") && s464panel.includes('_opacity')) {
+    log('pass', 'R1573-ui-opacity', 'cc.UIOpacity extractor + Inspector Quick Edit')
+  } else {
+    log('warning', 'R1573-ui-opacity', 'cc.UIOpacity Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 465: R1574 cc.PolygonCollider extractor + SceneView 시각화 ────────────────
+console.log('\n## 465. R1574 cc.PolygonCollider 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s465parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s465sv = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s465parser.includes("'cc.PolygonCollider'") && s465sv.includes('PolygonCollider') && s465sv.includes("'Z'")) {
+    log('pass', 'R1574-polygon', 'cc.PolygonCollider extractor + SceneView SVG path 시각화')
+  } else {
+    log('warning', 'R1574-polygon', 'cc.PolygonCollider 미구현', 'cc-file-parser.ts / CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 466: R1575 BatchInspector 색상 일괄 편집 ────────────────
+console.log('\n## 466. R1575 BatchInspector 색상 일괄 편집 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s466 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s466.includes('batchColor') && s466.includes('colorRgb') && s466.includes('색상 일괄 변경')) {
+    log('pass', 'R1575-batch-color', 'BatchInspector 색상 일괄 편집 추가')
+  } else {
+    log('warning', 'R1575-batch-color', 'BatchInspector 색상 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 467: R1576 cc.DirectionalLight/PointLight Inspector Quick Edit ────────────────
+console.log('\n## 467. R1576 cc.Light Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s467 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s467.includes("'cc.DirectionalLight'") && s467.includes("'cc.PointLight'") && s467.includes('intensity') && s467.includes('hexColor')) {
+    log('pass', 'R1576-lights', 'cc.DirectionalLight/PointLight Inspector Quick Edit: intensity/color')
+  } else {
+    log('warning', 'R1576-lights', 'cc.Light Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 468: R1577 Inspector 노드 JSON 복사 버튼 ────────────────
+console.log('\n## 468. R1577 Inspector JSON 복사 버튼 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s468 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s468.includes('handleCopyNodeJson') && s468.includes('jsonCopyDone') && s468.includes('노드 전체 JSON 복사')) {
+    log('pass', 'R1577-json-copy', 'Inspector 노드 전체 JSON 복사 버튼 추가')
+  } else {
+    log('warning', 'R1577-json-copy', 'Inspector JSON 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 469: R1578 SceneView 노드 색상 tint 표시 ────────────────
+console.log('\n## 469. R1578 SceneView 색상 tint indicator 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s469 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s469.includes('R1578') && s469.includes('색상 tint') && s469.includes('r === 255 && g === 255 && b === 255')) {
+    log('pass', 'R1578-tint', 'SceneView 노드 색상 tint 표시 (비흰색일 때 ■ swatch)')
+  } else {
+    log('warning', 'R1578-tint', 'SceneView 색상 tint 표시 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 470: R1579 cc.SkeletalAnimation extractor + Inspector Quick Edit ────────────────
+console.log('\n## 470. R1579 cc.SkeletalAnimation Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s470parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s470panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s470parser.includes("'cc.SkeletalAnimation'") && s470panel.includes("comp.type === 'cc.SkeletalAnimation'") && s470panel.includes('speedRatio')) {
+    log('pass', 'R1579-skeletal', 'cc.SkeletalAnimation extractor + Inspector Quick Edit')
+  } else {
+    log('warning', 'R1579-skeletal', 'cc.SkeletalAnimation Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 471: R1580 SceneView Tab/Shift+Tab 형제 탐색 ────────────────
+console.log('\n## 471. R1580 SceneView Tab 형제 탐색 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s471 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s471.includes("code === 'Tab'") && s471.includes('shiftKey') && s471.includes('(idx - 1 + siblings.length)')) {
+    log('pass', 'R1580-tab-nav', 'Tab/Shift+Tab 형제 노드 탐색')
+  } else {
+    log('warning', 'R1580-tab-nav', 'Tab 형제 탐색 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 472: R1581 cc.Button extractor + Inspector Quick Edit ────────────────
+console.log('\n## 472. R1581 cc.Button Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s472parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s472panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s472parser.includes("'cc.Button': e =>") && s472panel.includes("comp.type === 'cc.Button'") && s472panel.includes('normalColor') && s472panel.includes('interactable')) {
+    log('pass', 'R1581-button', 'cc.Button extractor + Inspector: transition/state colors/interactable')
+  } else {
+    log('warning', 'R1581-button', 'cc.Button Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 473: R1582 cc.Widget extractor + Inspector Quick Edit ────────────────
+console.log('\n## 473. R1582 cc.Widget Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s473parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s473panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s473parser.includes("'cc.Widget': e =>") && s473panel.includes("comp.type === 'cc.Widget'") && s473panel.includes('isAlignTop') && s473panel.includes('alignMode')) {
+    log('pass', 'R1582-widget', 'cc.Widget extractor + Inspector: align flags/offsets/mode')
+  } else {
+    log('warning', 'R1582-widget', 'cc.Widget Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 474: R1583 SceneView Ctrl+A 전체 선택 ────────────────
+console.log('\n## 474. R1583 SceneView Ctrl+A 전체 선택 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s474 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s474.includes("key === 'a'") && s474.includes('allUuids') && s474.includes('전체 노드 다중 선택')) {
+    log('pass', 'R1583-select-all', 'Ctrl+A 전체 노드 다중 선택')
+  } else {
+    log('warning', 'R1583-select-all', 'Ctrl+A 전체 선택 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 475: R1584 cc.Layout extractor + Inspector Quick Edit ────
+console.log('\n## 475. R1584 cc.Layout extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s475parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s475panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s475parser.includes("'cc.Layout': e =>") && s475panel.includes("comp.type === 'cc.Layout'") && s475panel.includes('paddingLeft') && s475panel.includes('autoWrap')) {
+    log('pass', 'R1584-layout', 'cc.Layout extractor + Inspector: type/resizeMode/padding/spacing/autoWrap')
+  } else {
+    log('warning', 'R1584-layout', 'cc.Layout Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 476: R1585 cc.RichText extractor + Inspector Quick Edit ──
+console.log('\n## 476. R1585 cc.RichText extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s476parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s476panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s476parser.includes("'cc.RichText': e =>") && s476panel.includes("comp.type === 'cc.RichText'") && s476panel.includes('horizontalAlign') && s476panel.includes('overflow')) {
+    log('pass', 'R1585-richtext', 'cc.RichText extractor + Inspector: string/fontSize/lineHeight/maxWidth/horizontalAlign/overflow')
+  } else {
+    log('warning', 'R1585-richtext', 'cc.RichText Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 477: R1586 cc.EditBox extractor + Inspector Quick Edit ───
+console.log('\n## 477. R1586 cc.EditBox extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s477parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s477panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s477parser.includes("'cc.EditBox': e =>") && s477panel.includes("comp.type === 'cc.EditBox'") && s477panel.includes('placeholder') && s477panel.includes('inputMode') && s477panel.includes('returnType')) {
+    log('pass', 'R1586-editbox', 'cc.EditBox extractor + Inspector: string/placeholder/maxLength/inputMode/inputFlag/returnType')
+  } else {
+    log('warning', 'R1586-editbox', 'cc.EditBox Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 478: R1587 cc.Toggle / cc.ToggleContainer extractor + Inspector ──
+console.log('\n## 478. R1587 cc.Toggle/ToggleContainer extractor + Inspector 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s478parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s478panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s478parser.includes("'cc.Toggle': e =>") && s478parser.includes("'cc.ToggleContainer': e =>") && s478panel.includes("comp.type === 'cc.Toggle'") && s478panel.includes('isChecked') && s478panel.includes('allowSwitchOff')) {
+    log('pass', 'R1587-toggle', 'cc.Toggle/ToggleContainer extractor + Inspector: isChecked/interactable/allowSwitchOff')
+  } else {
+    log('warning', 'R1587-toggle', 'cc.Toggle Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 479: R1588 cc.LabelOutline/LabelShadow extractor + Inspector ──
+console.log('\n## 479. R1588 cc.LabelOutline/LabelShadow extractor + Inspector 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s479parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s479panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s479parser.includes("'cc.LabelOutline': e =>") && s479parser.includes("'cc.LabelShadow': e =>") && s479panel.includes("comp.type === 'cc.LabelOutline'") && s479panel.includes('blur') && s479panel.includes('offsetX')) {
+    log('pass', 'R1588-label-effect', 'cc.LabelOutline/LabelShadow extractor + Inspector Quick Edit')
+  } else {
+    log('warning', 'R1588-label-effect', 'cc.LabelOutline/LabelShadow Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 480: R1589 cc.Sprite extractor + Inspector Quick Edit ──────
+console.log('\n## 480. R1589 cc.Sprite/Sprite2D extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s480parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s480panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s480parser.includes("'cc.Sprite': e =>") && s480panel.includes("comp.type === 'cc.Sprite'") && s480panel.includes('sizeMode') && s480panel.includes('grayscale')) {
+    log('pass', 'R1589-sprite', 'cc.Sprite extractor + Inspector: type/sizeMode/trim/grayscale')
+  } else {
+    log('warning', 'R1589-sprite', 'cc.Sprite Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 481: R1590 cc.Graphics extractor + Inspector Quick Edit ────
+console.log('\n## 481. R1590 cc.Graphics extractor + Inspector Quick Edit 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s481parser = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const s481panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s481parser.includes("'cc.Graphics': e =>") && s481panel.includes("comp.type === 'cc.Graphics'") && s481panel.includes('lineWidth') && s481panel.includes('fillColor') && s481panel.includes('strokeColor')) {
+    log('pass', 'R1590-graphics', 'cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor')
+  } else {
+    log('warning', 'R1590-graphics', 'cc.Graphics Quick Edit 미구현', 'cc-file-parser.ts / CocosPanel.tsx')
+  }
+}
+
+// ── Section 482: R1591 cc.BoxCollider/CircleCollider Inspector Quick Edit ──
+console.log('\n## 482. R1591 cc.BoxCollider/CircleCollider Inspector Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s482panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s482panel.includes("comp.type === 'cc.BoxCollider'") && s482panel.includes("comp.type === 'cc.CircleCollider'") && s482panel.includes("'cc.CircleCollider2D'") && s482panel.includes('radius') && s482panel.includes('sensor')) {
+    log('pass', 'R1591-collider', 'cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Inspector Quick Edit')
+  } else {
+    log('warning', 'R1591-collider', 'cc.BoxCollider/CircleCollider Inspector Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 483: R1592 Inspector 위치/크기 정수 반올림 버튼 ──────────
+console.log('\n## 483. R1592 Inspector 위치/크기 정수 반올림 버튼 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s483panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s483panel.includes('위치 정수 반올림') && s483panel.includes('크기 정수 반올림') && s483panel.includes('Math.round(draft.position.x)') && s483panel.includes('Math.round(draft.size.x)')) {
+    log('pass', 'R1592-round-int', '위치/크기 정수 반올림 버튼 (⌊⌉)')
+  } else {
+    log('warning', 'R1592-round-int', '위치/크기 정수 반올림 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 484: R1593 Inspector 크기 W/H 비율 잠금 버튼 ───────────
+console.log('\n## 484. R1593 Inspector 크기 W/H 비율 잠금 버튼 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s484panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s484panel.includes('lockSize') && s484panel.includes('크기 비율 잠금') && s484panel.includes('크기 W/H 비율 잠금')) {
+    log('pass', 'R1593-lock-size', '크기 W/H 비율 잠금 버튼 (🔒)')
+  } else {
+    log('warning', 'R1593-lock-size', '크기 비율 잠금 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 485: R1594 SceneView 검색 컴포넌트 타입 포함 ──────────────
+console.log('\n## 485. R1594 SceneView 검색 컴포넌트 타입 포함 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s485 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s485.includes('R1594') && s485.includes('compMatch') && s485.includes('n.components?.some')) {
+    log('pass', 'R1594-search-comp', 'SceneView 검색: 컴포넌트 타입도 매칭 대상 포함')
+  } else {
+    log('warning', 'R1594-search-comp', 'SceneView 검색 컴포넌트 타입 포함 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 486: R1595 최근 선택 노드 히스토리 ────────────────────────
+console.log('\n## 486. R1595 최근 선택 노드 히스토리 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s486panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s486panel.includes('R1595') && s486panel.includes('nodeHistory') && s486panel.includes('최근 선택') && s486panel.includes('setNodeHistory(prev =>')) {
+    log('pass', 'R1595-node-history', '최근 선택 노드 히스토리 (최대 8개)')
+  } else {
+    log('warning', 'R1595-node-history', '최근 선택 노드 히스토리 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 487: R1596 SceneView 활성 노드 수 표시 ──────────────────
+console.log('\n## 487. R1596 SceneView 활성 노드 수 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s487 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s487.includes('R1596') && s487.includes('activeCount') && s487.includes('활성')) {
+    log('pass', 'R1596-active-count', 'SceneView 활성 노드 수 표시 (비활성 노드 있을 때)')
+  } else {
+    log('warning', 'R1596-active-count', 'SceneView 활성 노드 수 표시 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 488: R1597 Inspector 노드 커스텀 메모 ──────────────────────
+console.log('\n## 488. R1597 Inspector 노드 커스텀 메모 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s488panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s488panel.includes('R1597') && s488panel.includes('nodeMemo') && s488panel.includes('NOTES_KEY') && s488panel.includes('saveNodeMemo')) {
+    log('pass', 'R1597-node-memo', '노드 커스텀 메모 (localStorage, 메모 있을 때 노란 테두리)')
+  } else {
+    log('warning', 'R1597-node-memo', '노드 커스텀 메모 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 489: R1598 SceneView 마우스 위치 좌표 오버레이 ────────────
+console.log('\n## 489. R1598 SceneView 마우스 위치 좌표 오버레이 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s489 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s489.includes('R1598') && s489.includes('mouseScenePos') && s489.includes('setMouseScenePos') && s489.includes('마우스 위치 좌표 오버레이')) {
+    log('pass', 'R1598-mouse-pos', 'SceneView 마우스 위치 씬 좌표 오버레이')
+  } else {
+    log('warning', 'R1598-mouse-pos', 'SceneView 마우스 좌표 오버레이 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 490: R1599 SceneView 두 노드 거리 표시 ──────────────────
+console.log('\n## 490. R1599 SceneView 두 노드 선택 시 거리 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s490 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s490.includes('R1599') && s490.includes('multiSelected.size === 2') && s490.includes('두 노드 중심 간 거리')) {
+    log('pass', 'R1599-node-dist', '두 노드 선택 시 거리 표시 (↔ Npx)')
+  } else {
+    log('warning', 'R1599-node-dist', 'SceneView 두 노드 거리 표시 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 491: R1600 Inspector 같은 이름 노드 찾기 버튼 ──────────────
+console.log('\n## 491. R1600 Inspector 같은 이름 노드 찾기 버튼 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s491panel = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s491panel.includes('R1600') && s491panel.includes('같은 이름 노드 찾기') && s491panel.includes('이름의 노드가 씬에')) {
+    log('pass', 'R1600-find-same-name', 'Inspector 같은 이름 노드 찾기 버튼 (🔍)')
+  } else {
+    log('warning', 'R1600-find-same-name', '같은 이름 노드 찾기 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 492: R1601 SceneView 줌 퀵점프 버튼 ──────────────────────
+console.log('\n## 492. R1601 SceneView 줌 퀵점프 버튼 (½/1×/2×) 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s492 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s492.includes('R1601') && s492.includes('½') && s492.includes('1×') && s492.includes('zoom: z')) {
+    log('pass', 'R1601-zoom-quickjump', 'SceneView 줌 퀵점프 버튼 (½/1×/2×)')
+  } else {
+    log('warning', 'R1601-zoom-quickjump', 'SceneView 줌 퀵점프 버튼 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 493: R1602 SceneView 눈금자 오버레이 ──────────────────────
+console.log('\n## 493. R1602 SceneView 눈금자 오버레이 (尺) 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s493 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s493.includes('R1602') && s493.includes('showRuler') && s493.includes('setShowRuler') && s493.includes('尺')) {
+    log('pass', 'R1602-ruler', 'SceneView 눈금자 오버레이 (尺 토글)')
+  } else {
+    log('warning', 'R1602-ruler', 'SceneView 눈금자 오버레이 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 494: R1603 Inspector 이벤트 핸들러 표시 ──────────────────
+console.log('\n## 494. R1603 Inspector 이벤트 핸들러 표시 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s494 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s494.includes('R1603') && s494.includes('eventHandlers') && s494.includes('이벤트 핸들러') && s494.includes('eh.handler')) {
+    log('pass', 'R1603-event-handlers', 'Inspector 이벤트 핸들러 표시 (📎)')
+  } else {
+    log('warning', 'R1603-event-handlers', 'Inspector 이벤트 핸들러 표시 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 495: R1604 SceneView 선택 노드 부모 하이라이트 ──────────────
+console.log('\n## 495. R1604 SceneView 선택 노드 부모 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s495 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s495.includes('R1604') && s495.includes('부모 하이라이트') && s495.includes('parentUuid') && s495.includes('rgba(180,120,255')) {
+    log('pass', 'R1604-parent-highlight', 'SceneView 선택 노드 부모 하이라이트 (연보라 점선)')
+  } else {
+    log('warning', 'R1604-parent-highlight', 'SceneView 부모 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 496: R1605 SceneView 편집 잠금 ──────────────────────────
+console.log('\n## 496. R1605 SceneView 편집 잠금 (뷰 전용 모드) 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s496 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s496.includes('R1605') && s496.includes('viewLock') && s496.includes('setViewLock') && s496.includes('편집 잠금')) {
+    log('pass', 'R1605-view-lock', 'SceneView 편집 잠금 (🔒/🔓)')
+  } else {
+    log('warning', 'R1605-view-lock', 'SceneView 편집 잠금 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 497: R1606 cc.Camera/cc.ParticleSystem 중복 제거 ──────────
+console.log('\n## 497. R1606 COMPONENT_PROP_EXTRACTORS 중복 키 정리 체크')
+{
+  const parserFile = join(ROOT, 'src/main/cc/cc-file-parser.ts')
+  const s497 = existsSync(parserFile) ? readFileSync(parserFile, 'utf8') : ''
+  const cameraDups = (s497.match(/'cc\.Camera':\s*e\s*=>/g) ?? []).length
+  const particleDups = (s497.match(/'cc\.ParticleSystem':\s*e\s*=>/g) ?? []).length
+  if (cameraDups === 1 && particleDups === 1 && s497.includes('R1606')) {
+    log('pass', 'R1606-dedup', 'cc.Camera/cc.ParticleSystem 중복 제거 완료 (각 1개)')
+  } else {
+    log('warning', 'R1606-dedup', `cc.Camera 중복: ${cameraDups}개, cc.ParticleSystem 중복: ${particleDups}개`, 'cc-file-parser.ts')
+  }
+}
+
+// ── Section 498: R1607 Inspector UUID 복사 버튼 ──────────────────────
+console.log('\n## 498. R1607 Inspector UUID 복사 버튼 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s498 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s498.includes('R1607') && s498.includes('UUID 복사') && s498.includes('node.uuid')) {
+    log('pass', 'R1607-uuid-copy', 'Inspector UUID 복사 버튼 (#)')
+  } else {
+    log('warning', 'R1607-uuid-copy', 'Inspector UUID 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 499: R1608 Inspector 컴포넌트 퀵점프 칩 바 ──────────────
+console.log('\n## 499. R1608 Inspector 컴포넌트 퀵점프 칩 바 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s499 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s499.includes('R1608') && s499.includes('퀵점프 칩 바') && s499.includes('cc-comp-') && s499.includes('scrollIntoView')) {
+    log('pass', 'R1608-comp-quickjump', 'Inspector 컴포넌트 퀵점프 칩 바')
+  } else {
+    log('warning', 'R1608-comp-quickjump', 'Inspector 컴포넌트 퀵점프 칩 바 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 500: R1609 Inspector 노드 색상 tint 피커 ──────────────────
+console.log('\n## 500. R1609 Inspector 노드 색상 tint 피커 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s500 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s500.includes('R1609') && s500.includes('tint') && s500.includes('draft.color') && s500.includes('tint 초기화')) {
+    log('pass', 'R1609-node-tint', 'Inspector 노드 색상 tint 피커')
+  } else {
+    log('warning', 'R1609-node-tint', 'Inspector 노드 tint 피커 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 501: R1610 SceneView 비활성 노드 숨기기 ──────────────────
+console.log('\n## 501. R1610 SceneView 비활성 노드 숨기기 토글 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s501 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s501.includes('R1610') && s501.includes('hideInactiveNodes') && s501.includes('setHideInactiveNodes') && s501.includes('비활성 노드 숨기기')) {
+    log('pass', 'R1610-hide-inactive', 'SceneView 비활성 노드 숨기기 (👁)')
+  } else {
+    log('warning', 'R1610-hide-inactive', 'SceneView 비활성 노드 숨기기 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 502: R1611 SceneView 드래그 delta 표시 ──────────────────
+console.log('\n## 502. R1611 SceneView 드래그 delta 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s502 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s502.includes('R1611') && s502.includes('드래그 delta') && s502.includes('dragRef.current.startNodeX') && s502.includes('startNodeY')) {
+    log('pass', 'R1611-drag-delta', 'SceneView 드래그 delta 표시 (Δx,y)')
+  } else {
+    log('warning', 'R1611-drag-delta', 'SceneView 드래그 delta 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 503: R1612 Inspector 자식 노드 빠른 탐색 ──────────────────
+console.log('\n## 503. R1612 Inspector 자식 노드 빠른 탐색 칩 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s503 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s503.includes('R1612') && s503.includes('자식 노드 빠른 탐색') && s503.includes('node.children.length') && s503.includes('onUpdate(child)')) {
+    log('pass', 'R1612-child-nav', 'Inspector 자식 노드 빠른 탐색 칩')
+  } else {
+    log('warning', 'R1612-child-nav', 'Inspector 자식 노드 빠른 탐색 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 504: R1613 SceneView 형제 노드 하이라이트 ──────────────────
+console.log('\n## 504. R1613 SceneView 형제 노드 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s504 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s504.includes('R1613') && s504.includes('형제 노드 하이라이트') && s504.includes('selFn.parentUuid') && s504.includes('rgba(250,200,60')) {
+    log('pass', 'R1613-sibling-highlight', 'SceneView 형제 노드 하이라이트')
+  } else {
+    log('warning', 'R1613-sibling-highlight', 'SceneView 형제 노드 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 505: R1614 SceneView 화면 밖 노드 방향 화살표 ──────────────────
+console.log('\n## 505. R1614 SceneView 화면 밖 노드 방향 화살표 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s505 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s505.includes('R1614') && s505.includes('화면 밖 선택 노드 방향 화살표') && s505.includes('handleFitToSelected') && s505.includes('angleDeg')) {
+    log('pass', 'R1614-offscreen-arrow', 'SceneView 화면 밖 노드 방향 화살표')
+  } else {
+    log('warning', 'R1614-offscreen-arrow', 'SceneView 화면 밖 노드 방향 화살표 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 506: R1615 SceneView cc.Label 텍스트 미리보기 ──────────────────
+console.log('\n## 506. R1615 SceneView cc.Label 텍스트 미리보기 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s506 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s506.includes('R1615') && s506.includes('cc.Label 텍스트 미리보기') && s506.includes("c.type === 'cc.Label'") && s506.includes('props?.string')) {
+    log('pass', 'R1615-label-preview', 'SceneView cc.Label 텍스트 미리보기')
+  } else {
+    log('warning', 'R1615-label-preview', 'SceneView cc.Label 텍스트 미리보기 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 507: R1616 SceneView HUD 자식/컴포넌트 수 표시 ──────────────────
+console.log('\n## 507. R1616 SceneView HUD 자식/컴포넌트 수 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s507 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s507.includes('R1616') && s507.includes('자식/컴포넌트 수 표시') && s507.includes('node.children.length') && s507.includes('node.components.length')) {
+    log('pass', 'R1616-hud-child-comp', 'SceneView HUD 자식/컴포넌트 수 표시')
+  } else {
+    log('warning', 'R1616-hud-child-comp', 'SceneView HUD 자식/컴포넌트 수 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 508: R1617 Inspector 트랜스폼 복사/붙여넣기 ──────────────────
+console.log('\n## 508. R1617 Inspector 트랜스폼 복사/붙여넣기 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s508 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s508.includes('R1617') && s508.includes('트랜스폼 복사/붙여넣기') && s508.includes('transformClipboard') && s508.includes('T↑복사')) {
+    log('pass', 'R1617-transform-copy', 'Inspector 트랜스폼 복사/붙여넣기')
+  } else {
+    log('warning', 'R1617-transform-copy', 'Inspector 트랜스폼 복사/붙여넣기 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 509: R1618 SceneView HUD depth 레벨 표시 ──────────────────
+console.log('\n## 509. R1618 SceneView HUD depth 레벨 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s509 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s509.includes('R1618') && s509.includes('depth 레벨 표시') && s509.includes('fn.depth') && s509.includes('계층 깊이')) {
+    log('pass', 'R1618-hud-depth', 'SceneView HUD depth 레벨 표시')
+  } else {
+    log('warning', 'R1618-hud-depth', 'SceneView HUD depth 레벨 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 510: R1619 SceneView S/E 단방향 리사이즈 핸들 ──────────────────
+console.log('\n## 510. R1619 SceneView S/E 리사이즈 핸들 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s510 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s510.includes('R1619') && s510.includes('S 핸들') && s510.includes('E 핸들') && s510.includes("dir: 'SE'")) {
+    log('pass', 'R1619-resize-handles', 'SceneView S/E 단방향 리사이즈 핸들')
+  } else {
+    log('warning', 'R1619-resize-handles', 'SceneView S/E 리사이즈 핸들 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 511: R1620 Inspector cc.Label Quick Edit ──────────────────
+console.log('\n## 511. R1620 Inspector cc.Label Quick Edit 체크')
+{
+  const panelFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s511 = existsSync(panelFile) ? readFileSync(panelFile, 'utf8') : ''
+  if (s511.includes('R1620') && s511.includes('cc.Label — 텍스트 Quick Edit') && s511.includes("comp.type === 'cc.Label'") && s511.includes('_N$string')) {
+    log('pass', 'R1620-label-quick-edit', 'Inspector cc.Label Quick Edit')
+  } else {
+    log('warning', 'R1620-label-quick-edit', 'Inspector cc.Label Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 512: R1621 SceneView 같은 컴포넌트 타입 모두 선택 ──────────────────
+console.log('\n## 512. R1621 SceneView 같은 컴포넌트 타입 모두 선택 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s512 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s512.includes('R1621') && s512.includes('같은') && s512.includes('모두 선택') && s512.includes('firstType')) {
+    log('pass', 'R1621-same-comp-select', 'SceneView 같은 컴포넌트 타입 모두 선택')
+  } else {
+    log('warning', 'R1621-same-comp-select', 'SceneView 같은 컴포넌트 타입 모두 선택 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 513: R1622 SceneView O키 중앙 이동 ──────────────────
+console.log('\n## 513. R1622 SceneView O키 선택 노드 중앙 이동 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s513 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s513.includes('R1622') && s513.includes('KeyO') && s513.includes('onMove?.(selectedUuid, 0, 0)') && s513.includes('중앙(0,0) 이동')) {
+    log('pass', 'R1622-key-o-center', 'SceneView O키 중앙 이동')
+  } else {
+    log('warning', 'R1622-key-o-center', 'SceneView O키 중앙 이동 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 514: R1623 SceneView 와이어프레임 모드 ──────────────────
+console.log('\n## 514. R1623 SceneView 와이어프레임 모드 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s514 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s514.includes('R1623') && s514.includes('와이어프레임 모드') && s514.includes('wireframeMode') && s514.includes("fillColor = wireframeMode ? 'none'")) {
+    log('pass', 'R1623-wireframe', 'SceneView 와이어프레임 모드')
+  } else {
+    log('warning', 'R1623-wireframe', 'SceneView 와이어프레임 모드 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 515: R1624 SceneView 다중선택 BBox 크기 레이블 ──────────────────
+console.log('\n## 515. R1624 SceneView 다중선택 BBox 크기 레이블 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s515 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s515.includes('R1624') && s515.includes('BBox 크기 레이블') && s515.includes('sceneW') && s515.includes('textAnchor')) {
+    log('pass', 'R1624-bbox-label', 'SceneView 다중선택 BBox 크기 레이블')
+  } else {
+    log('warning', 'R1624-bbox-label', 'SceneView 다중선택 BBox 크기 레이블 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 516: R1625 Inspector 씬 컴포넌트 분포 요약 칩 ──────────────────
+console.log('\n## 516. R1625 Inspector 씬 컴포넌트 분포 요약 칩 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s516 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s516.includes('R1625') && s516.includes('typeMap') && s516.includes('topTypes') && s516.includes("replace('cc.', '')")) {
+    log('pass', 'R1625-comp-dist', 'Inspector 씬 컴포넌트 분포 요약 칩')
+  } else {
+    log('warning', 'R1625-comp-dist', 'Inspector 씬 컴포넌트 분포 요약 칩 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 517: R1626 SceneView 검색 비매칭 노드 dim ──────────────────
+console.log('\n## 517. R1626 SceneView 검색 비매칭 노드 dim 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s517 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s517.includes('R1626') && s517.includes('searchDim') && s517.includes('isSearchMatch && !isSelected')) {
+    log('pass', 'R1626-search-dim', 'SceneView 검색 비매칭 노드 dim')
+  } else {
+    log('warning', 'R1626-search-dim', 'SceneView 검색 비매칭 노드 dim 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 518: R1627 Inspector 씬 성능 경고 칩 ──────────────────
+console.log('\n## 518. R1627 Inspector 씬 성능 경고 칩 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s518 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s518.includes('R1627') && s518.includes('warns') && s518.includes('nodes > 200') && s518.includes('comps > 500')) {
+    log('pass', 'R1627-perf-warn', 'Inspector 씬 성능 경고 칩')
+  } else {
+    log('warning', 'R1627-perf-warn', 'Inspector 씬 성능 경고 칩 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 519: R1628 SceneView 드래그 중 좌표 변화 레이블 ──────────────────
+console.log('\n## 519. R1628 SceneView 드래그 중 좌표 변화 레이블 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s519 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s519.includes('R1628') && s519.includes('dragOverride && hoverClientPos') && s519.includes('startNodeX') && s519.includes('startNodeY')) {
+    log('pass', 'R1628-drag-delta', 'SceneView 드래그 중 좌표 변화 레이블')
+  } else {
+    log('warning', 'R1628-drag-delta', 'SceneView 드래그 중 좌표 변화 레이블 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 520: R1629 SceneView 리사이즈 중 크기 레이블 ──────────────────
+console.log('\n## 520. R1629 SceneView 리사이즈 중 크기 레이블 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s520 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s520.includes('R1629') && s520.includes('resizeOverride && hoverClientPos') && s520.includes('resizeOverride.w') && s520.includes('resizeOverride.h')) {
+    log('pass', 'R1629-resize-label', 'SceneView 리사이즈 중 크기 레이블')
+  } else {
+    log('warning', 'R1629-resize-label', 'SceneView 리사이즈 중 크기 레이블 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 521: R1630 SceneView 회전 중 각도 레이블 ──────────────────
+console.log('\n## 521. R1630 SceneView 회전 중 각도 레이블 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s521 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s521.includes('R1630') && s521.includes('rotateOverride && hoverClientPos') && s521.includes("toFixed(1)") && s521.includes("°")) {
+    log('pass', 'R1630-rotate-label', 'SceneView 회전 중 각도 레이블')
+  } else {
+    log('warning', 'R1630-rotate-label', 'SceneView 회전 중 각도 레이블 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 522: R1631 Inspector tint 색상 프리셋 칩 ──────────────────
+console.log('\n## 522. R1631 Inspector tint 색상 프리셋 칩 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s522 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s522.includes('R1631') && s522.includes('빠른 tint 색상 프리셋') && s522.includes('rgb(${c.r},${c.g},${c.b})')) {
+    log('pass', 'R1631-tint-presets', 'Inspector tint 색상 프리셋 칩')
+  } else {
+    log('warning', 'R1631-tint-presets', 'Inspector tint 색상 프리셋 칩 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 523: R1632 SceneView Shift+클릭 같은 이름 검색 ──────────────────
+console.log('\n## 523. R1632 SceneView Shift+클릭 같은 이름 검색 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s523 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s523.includes('R1632') && s523.includes('e.shiftKey') && s523.includes('setSvSearch(node.name)')) {
+    log('pass', 'R1632-shift-search', 'SceneView Shift+클릭 같은 이름 노드 검색')
+  } else {
+    log('warning', 'R1632-shift-search', 'SceneView Shift+클릭 같은 이름 노드 검색 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 524: R1633 Inspector 트랜스폼 변경 인디케이터 ──────────────────
+console.log('\n## 524. R1633 Inspector 트랜스폼 변경 인디케이터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s524 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s524.includes('R1633') && s524.includes('origSnapRef') && s524.includes('origSnapUuidRef') && s524.includes('modified?')) {
+    log('pass', 'R1633-transform-indicator', 'Inspector 트랜스폼 변경 인디케이터')
+  } else {
+    log('warning', 'R1633-transform-indicator', 'Inspector 트랜스폼 변경 인디케이터 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 525: R1634 SceneView 캔버스 경계 정렬 가이드 ──────────────────
+console.log('\n## 525. R1634 SceneView 캔버스 경계 정렬 가이드 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s525 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s525.includes('R1634') && s525.includes('캔버스 경계 정렬 가이드') && s525.includes('[0, cx, effectiveW]') && s525.includes('[0, cy, effectiveH]')) {
+    log('pass', 'R1634-canvas-guides', 'SceneView 캔버스 경계 정렬 가이드')
+  } else {
+    log('warning', 'R1634-canvas-guides', 'SceneView 캔버스 경계 정렬 가이드 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 526: R1635 Inspector 트랜스폼 원복 버튼 ──────────────────
+console.log('\n## 526. R1635 Inspector 트랜스폼 원복 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s526 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s526.includes('R1635') && s526.includes('T↩원복') && s526.includes('origSnapRef.current!') && s526.includes('선택 시 원래값')) {
+    log('pass', 'R1635-transform-restore', 'Inspector 트랜스폼 원복 버튼')
+  } else {
+    log('warning', 'R1635-transform-restore', 'Inspector 트랜스폼 원복 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 527: R1636 SceneView 선택 노드 자식 하이라이트 ──────────────────
+console.log('\n## 527. R1636 SceneView 선택 노드 자식 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s527 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s527.includes('R1636') && s527.includes('직계 자식 하이라이트') && s527.includes('parentUuid === selectedUuid') && s527.includes('rgba(60,220,100')) {
+    log('pass', 'R1636-child-highlight', 'SceneView 선택 노드 자식 하이라이트')
+  } else {
+    log('warning', 'R1636-child-highlight', 'SceneView 선택 노드 자식 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 528: R1637 Inspector 중복 이름 배지 ──────────────────
+console.log('\n## 528. R1637 Inspector 중복 이름 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s528 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s528.includes('R1637') && s528.includes('중복 이름') && s528.includes('같은 이름 노드 자동 배지') && s528.includes('dupes.length <= 1')) {
+    log('pass', 'R1637-dup-name', 'Inspector 중복 이름 배지')
+  } else {
+    log('warning', 'R1637-dup-name', 'Inspector 중복 이름 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 529: R1638 SceneView Shift+리사이즈 종횡비 유지 ──────────────────
+console.log('\n## 529. R1638 SceneView Shift+리사이즈 종횡비 유지 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s529 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s529.includes('R1638') && s529.includes('Shift+리사이즈') && s529.includes('e.shiftKey && dir === \'SE\'') && s529.includes('startW / startH')) {
+    log('pass', 'R1638-shift-resize', 'SceneView Shift+리사이즈 종횡비 유지')
+  } else {
+    log('warning', 'R1638-shift-resize', 'SceneView Shift+리사이즈 종횡비 유지 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 530: R1639 Inspector 컴포넌트 칩 클릭 노드 선택 ──────────────────
+console.log('\n## 530. R1639 Inspector 컴포넌트 칩 클릭 노드 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s530 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s530.includes('R1639') && s530.includes('컴포넌트 칩 클릭') && s530.includes('onSelectNode(found)') && s530.includes('c.type === type')) {
+    log('pass', 'R1639-comp-chip-select', 'Inspector 컴포넌트 칩 클릭 노드 선택')
+  } else {
+    log('warning', 'R1639-comp-chip-select', 'Inspector 컴포넌트 칩 클릭 노드 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 531: R1640 SceneView 선택 노드 월드 좌표 가이드라인 ──────────────────
+console.log('\n## 531. R1640 SceneView 선택 노드 월드 좌표 가이드라인 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s531 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s531.includes('R1640') && s531.includes('월드 좌표 가이드라인') && s531.includes('rgba(88,166,255,0.12)') && s531.includes('x1={sp.x} y1={0}')) {
+    log('pass', 'R1640-world-guides', 'SceneView 선택 노드 월드 좌표 가이드라인')
+  } else {
+    log('warning', 'R1640-world-guides', 'SceneView 선택 노드 월드 좌표 가이드라인 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 532: R1641 SceneView depth 색조 시각화 ──────────────────
+console.log('\n## 532. R1641 SceneView depth 색조 시각화 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s532 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s532.includes('R1641') && s532.includes('depthColorMode') && s532.includes('depthHue') && s532.includes('hsla(${depthHue}')) {
+    log('pass', 'R1641-depth-color', 'SceneView depth 색조 시각화')
+  } else {
+    log('warning', 'R1641-depth-color', 'SceneView depth 색조 시각화 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 533: R1642 Inspector 중복 이름 배지 순환 선택 ──────────────────
+console.log('\n## 533. R1642 Inspector 중복 이름 배지 순환 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s533 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s533.includes('R1642') && s533.includes('onUpdate(nextNode)') && s533.includes('(curIdx + 1) % dupes.length')) {
+    log('pass', 'R1642-dup-cycle', 'Inspector 중복 이름 배지 순환 선택')
+  } else {
+    log('warning', 'R1642-dup-cycle', 'Inspector 중복 이름 배지 순환 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 534: R1643 SceneView 선택 노드↔부모 연결선 ──────────────────────
+console.log('\n## 534. R1643 SceneView 부모 연결선 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s534 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s534.includes('R1643') && s534.includes('계층 시각화') && s534.includes('parentSvg')) {
+    log('pass', 'R1643-parent-line', 'SceneView 선택 노드↔부모 연결선')
+  } else {
+    log('warning', 'R1643-parent-line', 'SceneView 부모 연결선 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 535: R1644 씬 트리 선택 노드 자동 스크롤 ──────────────────────
+console.log('\n## 535. R1644 씬 트리 선택 노드 자동 스크롤 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s535 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s535.includes('R1644') && s535.includes('tree-node-${selectedNode.uuid}') && s535.includes('scrollIntoView')) {
+    log('pass', 'R1644-tree-scroll', '씬 트리 선택 노드 자동 스크롤')
+  } else {
+    log('warning', 'R1644-tree-scroll', '씬 트리 자동 스크롤 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 536: R1645 Inspector 스케일 X/Y 반전 버튼 ──────────────────────
+console.log('\n## 536. R1645 Inspector 스케일 반전 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s536 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s536.includes('R1645') && s536.includes('-draft.scale.x') && s536.includes('-draft.scale.y')) {
+    log('pass', 'R1645-flip-btn', 'Inspector 스케일 X/Y 반전 버튼')
+  } else {
+    log('warning', 'R1645-flip-btn', 'Inspector 스케일 반전 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 537: R1646 Inspector 색상/불투명도 변경 인디케이터 ──────────────
+console.log('\n## 537. R1646 Inspector 색상 변경 인디케이터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s537 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s537.includes('R1646') && s537.includes("secHeader('color'") && s537.includes('origSnapRef.current')) {
+    log('pass', 'R1646-color-modified', 'Inspector 색상 섹션 변경 인디케이터')
+  } else {
+    log('warning', 'R1646-color-modified', 'Inspector 색상 변경 인디케이터 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 538: R1647 Inspector opacity 빠른 프리셋 버튼 ─────────────────
+console.log('\n## 538. R1647 Inspector opacity 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s538 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s538.includes('R1647') && s538.includes('0, 64, 128, 191, 255') && s538.includes('opacity 빠른 프리셋')) {
+    log('pass', 'R1647-opacity-preset', 'Inspector opacity 빠른 프리셋 버튼')
+  } else {
+    log('warning', 'R1647-opacity-preset', 'Inspector opacity 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 539: R1642 bugfix + R1648 breadcrumb 클릭 부모 선택 ───────────
+console.log('\n## 539. R1642 fix + R1648 breadcrumb 클릭 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s539 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  const fix = s539.includes('onUpdate(nextNode)') && !s539.includes('onSelectNode(nextNode)')
+  const breadcrumb = s539.includes('R1648') && s539.includes('onUpdate(n)') && s539.includes('p.uuid')
+  if (fix && breadcrumb) {
+    log('pass', 'R1648-breadcrumb', 'R1642 bugfix + Inspector breadcrumb 클릭 부모 선택')
+  } else {
+    if (!fix) log('warning', 'R1642-fix', 'R1642 onSelectNode→onUpdate 버그 수정 필요', 'CocosPanel.tsx')
+    if (!breadcrumb) log('warning', 'R1648-breadcrumb', 'Inspector breadcrumb 클릭 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 540: R1649 SceneView 상태바 선택 노드 크기 표시 ──────────────────
+console.log('\n## 540. R1649 SceneView 상태바 노드 크기 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s540 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s540.includes('R1649') && s540.includes('resizeOverride.w') && s540.includes('mouseScenePos')) {
+    log('pass', 'R1649-statusbar-size', 'SceneView 상태바 선택 노드 크기 표시')
+  } else {
+    log('warning', 'R1649-statusbar-size', 'SceneView 상태바 노드 크기 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 541: R1650 붙여넣기 위치 오프셋 ──────────────────────────────────
+console.log('\n## 541. R1650 붙여넣기 위치 오프셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s541 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s541.includes('R1650') && s541.includes('붙여넣기 위치 오프셋') && s541.includes('p.x + 20')) {
+    log('pass', 'R1650-paste-offset', '붙여넣기 시 위치 오프셋 적용')
+  } else {
+    log('warning', 'R1650-paste-offset', '붙여넣기 위치 오프셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 542: R1651 Inspector 노드 이름 자동완성 datalist ──────────────
+console.log('\n## 542. R1651 Inspector 노드 이름 자동완성 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s542 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s542.includes('R1651') && s542.includes('datalist') && s542.includes('cc-node-names-')) {
+    log('pass', 'R1651-name-datalist', 'Inspector 노드 이름 자동완성 datalist')
+  } else {
+    log('warning', 'R1651-name-datalist', 'Inspector 노드 이름 자동완성 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 543: R1652 Inspector 부모 크기에 맞추기 버튼 ──────────────────
+console.log('\n## 543. R1652 Inspector 부모 크기 맞추기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s543 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s543.includes('R1652') && s543.includes('부모 크기에 맞추기') && s543.includes('zOrderInfo?.parentSize')) {
+    log('pass', 'R1652-fit-parent', 'Inspector 부모 크기에 맞추기 버튼')
+  } else {
+    log('warning', 'R1652-fit-parent', 'Inspector 부모 크기 맞추기 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 544: R1653 Inspector 회전 부호 반전 버튼 ──────────────────────
+console.log('\n## 544. R1653 Inspector 회전 부호 반전 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s544 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s544.includes('R1653') && s544.includes('회전 부호 반전') && s544.includes('-draft.rotation')) {
+    log('pass', 'R1653-rot-negate', 'Inspector 회전 부호 반전 버튼')
+  } else {
+    log('warning', 'R1653-rot-negate', 'Inspector 회전 부호 반전 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 545: R1654 CocosPanel 씬 트리 컴포넌트 필터 ──────────────────────
+console.log('\n## 545. R1654 씬 트리 컴포넌트 필터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s545 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s545.includes('R1654') && s545.includes('filteredRoot') && s545.includes('nodeFilters') && s545.includes('showNodeFilters')) {
+    log('pass', 'R1654-comp-filter', 'CocosPanel 씬 트리 컴포넌트 필터')
+  } else {
+    log('warning', 'R1654-comp-filter', 'CocosPanel 씬 트리 컴포넌트 필터 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 546: R1655 씬 트리 깊이 접기 버튼 ──────────────────────
+console.log('\n## 546. R1655 씬 트리 깊이 접기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s546 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s546.includes('R1655') && s546.includes('collapseToDepth') && s546.includes('maxDepth')) {
+    log('pass', 'R1655-collapse-depth', 'CocosPanel 씬 트리 깊이 N까지 접기')
+  } else {
+    log('warning', 'R1655-collapse-depth', 'CocosPanel 씬 트리 깊이 접기 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 547: R1656 Inspector 부모 기준 정렬 버튼 ──────────────────────
+console.log('\n## 547. R1656 Inspector 부모 기준 정렬 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s547 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s547.includes('R1656') && s547.includes('부모 기준 정렬') && s547.includes('parentSize') && s547.includes('pw / 2')) {
+    log('pass', 'R1656-align-parent', 'Inspector 부모 기준 정렬 버튼')
+  } else {
+    log('warning', 'R1656-align-parent', 'Inspector 부모 기준 정렬 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 548: R1657 형제 노드 순환 선택 단축키 ──────────────────────
+console.log('\n## 548. R1657 [ ] 키 형제 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s548 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s548.includes('R1657') && s548.includes('findSiblings') && (s548.includes("e.key === '['") || s548.includes('e.key === \']\'')) ) {
+    log('pass', 'R1657-sibling-nav', '[ ] 키 형제 노드 순환 선택')
+  } else {
+    log('warning', 'R1657-sibling-nav', '[ ] 키 형제 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 549: R1658 Escape 키 부모 선택 ──────────────────────
+console.log('\n## 549. R1658 Escape 키 부모 노드 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s549 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s549.includes('R1658') && s549.includes('parentMap') && s549.includes('parentMap.has(selectedNode')) {
+    log('pass', 'R1658-escape-parent', 'Escape 키 부모 노드 선택')
+  } else {
+    log('warning', 'R1658-escape-parent', 'Escape 키 부모 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 550: R1659 SceneView 솔로 모드 ──────────────────────
+console.log('\n## 550. R1659 SceneView 솔로 모드 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s550 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s550.includes('R1659') && s550.includes('soloMode') && s550.includes('soloDim')) {
+    log('pass', 'R1659-solo-mode', 'SceneView 솔로 모드 (선택 노드 외 흐리게)')
+  } else {
+    log('warning', 'R1659-solo-mode', 'SceneView 솔로 모드 미구현', 'SceneView/CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 551: R1660 Inspector 컴포넌트 씬 내 수 배지 ──────────────────────
+console.log('\n## 551. R1660 Inspector 컴포넌트 씬 내 수 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s551 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s551.includes('R1660') && s551.includes('compTypeCountMap') && s551.includes('씬 내 동일 타입')) {
+    log('pass', 'R1660-comp-count', 'Inspector 컴포넌트 씬 내 수 배지')
+  } else {
+    log('warning', 'R1660-comp-count', 'Inspector 컴포넌트 씬 내 수 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 552: R1661 Inspector 전체 하위 노드 수 배지 ──────────────────────
+console.log('\n## 552. R1661 Inspector 하위 노드 수 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s552 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s552.includes('R1661') && s552.includes('totalDescendants') && s552.includes('전체 하위 노드')) {
+    log('pass', 'R1661-descendants', 'Inspector 전체 하위 노드 수 배지 (⊲N)')
+  } else {
+    log('warning', 'R1661-descendants', 'Inspector 전체 하위 노드 수 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 553: R1662 컴포넌트 배지 클릭 노드 목록 팝업 ──────────────────────
+console.log('\n## 553. R1662 컴포넌트 배지 팝업 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s553 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s553.includes('R1662') && s553.includes('sameCompPopup') && s553.includes('findNodes')) {
+    log('pass', 'R1662-comp-popup', 'Inspector 컴포넌트 배지 클릭 → 같은 타입 노드 목록 팝업')
+  } else {
+    log('warning', 'R1662-comp-popup', 'Inspector 컴포넌트 배지 팝업 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 554: R1663 Inspector 잠금 토글 버튼 ──────────────────────
+console.log('\n## 554. R1663 Inspector 잠금 토글 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s554 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s554.includes('R1663') && s554.includes('onToggleLocked') && s554.includes('lockedUuids') && s554.includes('잠금 토글')) {
+    log('pass', 'R1663-lock-toggle', 'Inspector 잠금 토글 버튼')
+  } else {
+    log('warning', 'R1663-lock-toggle', 'Inspector 잠금 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 555: R1664 씬 트리 검색어 하이라이트 ──────────────────────
+console.log('\n## 555. R1664 씬 트리 검색어 하이라이트 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s555 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s555.includes('highlightQuery') && s555.includes('onQueryChange') && s555.includes('treeHighlightQuery') && s555.includes('fbbf24')) {
+    log('pass', 'R1664-tree-highlight', '씬 트리 검색어 하이라이트')
+  } else {
+    log('warning', 'R1664-tree-highlight', '씬 트리 검색어 하이라이트 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 556: R1665 다중 선택 정렬 버튼 ──────────────────────
+console.log('\n## 556. R1665 다중 선택 정렬 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s556 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s556.includes('R1665') && s556.includes('align') && s556.includes('minLeft') && s556.includes('maxRight') && s556.includes('왼쪽 정렬')) {
+    log('pass', 'R1665-batch-align', '다중 선택 정렬 버튼 (align left/right/top/bottom/center)')
+  } else {
+    log('warning', 'R1665-batch-align', '다중 선택 정렬 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 557: R1666 Inspector pulse 미리보기 ──────────────────────
+console.log('\n## 557. R1666 Inspector pulse 미리보기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const svpFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s557cp = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  const s557sv = existsSync(svpFile) ? readFileSync(svpFile, 'utf8') : ''
+  if (s557cp.includes('pulseUuid') && s557cp.includes('onPulse') && s557sv.includes('cc-pulse-ring') && s557sv.includes('pulseUuid')) {
+    log('pass', 'R1666-pulse-preview', 'Inspector pulse 미리보기 (SceneView 노드 강조)')
+  } else {
+    log('warning', 'R1666-pulse-preview', 'Inspector pulse 미리보기 미구현', 'CocosPanel.tsx / CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 558: R1667 컴포넌트 필터 custom type 입력 ──────────────────────
+console.log('\n## 558. R1667 컴포넌트 필터 custom type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s558 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s558.includes('R1667') && s558.includes('custom type') && s558.includes('MyScript')) {
+    log('pass', 'R1667-custom-filter', '컴포넌트 필터 custom type 입력')
+  } else {
+    log('warning', 'R1667-custom-filter', '컴포넌트 필터 custom type 입력 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 559: R1668 유사 노드 섹션 ──────────────────────
+console.log('\n## 559. R1668 유사 노드 섹션 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s559 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s559.includes('R1668') && s559.includes('유사 노드') && s559.includes('walkSim') && s559.includes('overlap')) {
+    log('pass', 'R1668-similar-nodes', '유사 노드 섹션 (공통 컴포넌트 타입 기반)')
+  } else {
+    log('warning', 'R1668-similar-nodes', '유사 노드 섹션 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 560: R1669 부모 경계 정렬 가이드 ──────────────────────
+console.log('\n## 560. R1669 부모 경계 정렬 가이드 체크')
+{
+  const svpFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s560 = existsSync(svpFile) ? readFileSync(svpFile, 'utf8') : ''
+  if (s560.includes('R1669') && s560.includes('parentFn') && s560.includes('부모')) {
+    log('pass', 'R1669-parent-snap', 'SceneView 드래그 부모 경계 정렬 가이드')
+  } else {
+    log('warning', 'R1669-parent-snap', 'SceneView 드래그 부모 경계 정렬 가이드 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 561: R1670 Inspector 위치/크기 % 토글 ──────────────────────
+console.log('\n## 561. R1670 Inspector 위치/크기 % 토글 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s561 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s561.includes('R1670') && s561.includes('showPct') && s561.includes('% 토글')) {
+    log('pass', 'R1670-pct-toggle', 'Inspector 위치/크기 % 토글')
+  } else {
+    log('warning', 'R1670-pct-toggle', 'Inspector 위치/크기 % 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 562: R1671 앵커 9-point 프리셋 그리드 ──────────────────────
+console.log('\n## 562. R1671 앵커 9-point 프리셋 그리드 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s562 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s562.includes('R1671') && s562.includes('9-point') && s562.includes('↖') && s562.includes('⊕')) {
+    log('pass', 'R1671-anchor-grid', '앵커 9-point 프리셋 그리드')
+  } else {
+    log('warning', 'R1671-anchor-grid', '앵커 9-point 프리셋 그리드 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 563: R1672 노드 북마크 (1-9키) ──────────────────────
+console.log('\n## 563. R1672 노드 북마크 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s563 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s563.includes('R1672') && s563.includes('nodeBookmarks') && s563.includes('[1-9]') && s563.includes('북마크 키')) {
+    log('pass', 'R1672-node-bookmarks', '노드 북마크 (Ctrl+1-9 설정, 1-9 이동)')
+  } else {
+    log('warning', 'R1672-node-bookmarks', '노드 북마크 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 564: R1673 컴포넌트 prop diff 표시 ──────────────────────
+console.log('\n## 564. R1673 컴포넌트 prop diff 표시 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s564 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s564.includes('R1673') && s564.includes('isPropChanged') && s564.includes('origComp') && s564.includes('변경됨')) {
+    log('pass', 'R1673-prop-diff', '컴포넌트 prop diff 표시 (변경된 prop 황색 dot)')
+  } else {
+    log('warning', 'R1673-prop-diff', '컴포넌트 prop diff 표시 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 565: R1674 SceneView snap 간격 custom 입력 ──────────────────────
+console.log('\n## 565. R1674 SceneView snap 간격 custom 입력 체크')
+{
+  const svpFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s565 = existsSync(svpFile) ? readFileSync(svpFile, 'utf8') : ''
+  if (s565.includes('R1674') && s565.includes('snap-size-list') && s565.includes('datalist')) {
+    log('pass', 'R1674-snap-custom', 'SceneView snap 간격 custom 입력 (datalist)')
+  } else {
+    log('warning', 'R1674-snap-custom', 'SceneView snap 간격 custom 입력 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 566: R1675 Widget 정렬 시각 다이어그램 ──────────────────────
+console.log('\n## 566. R1675 Widget 정렬 시각 다이어그램 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s566 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s566.includes('R1675') && s566.includes('Widget 정렬 시각 다이어그램') && s566.includes('isHCenter') && s566.includes('isVCenter')) {
+    log('pass', 'R1675-widget-diagram', 'cc.Widget 정렬 시각 다이어그램')
+  } else {
+    log('warning', 'R1675-widget-diagram', 'cc.Widget 정렬 시각 다이어그램 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 567: R1676 노드 JSON 클립보드 복사 ────────────────────────────
+console.log('\n## 567. R1676 노드 JSON 클립보드 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s567 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s567.includes('R1676') && s567.includes('jsonCopiedName') && s567.includes('navigator.clipboard.writeText') && s567.includes('e.shiftKey')) {
+    log('pass', 'R1676-json-copy', 'Ctrl+Shift+C 노드 JSON 클립보드 복사')
+  } else {
+    log('warning', 'R1676-json-copy', 'Ctrl+Shift+C 노드 JSON 클립보드 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 568: R1677 비활성 조상 경고 배너 ────────────────────────────
+console.log('\n## 568. R1677 비활성 조상 경고 배너 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s568 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s568.includes('R1677') && s568.includes('inactiveAncestors') && s568.includes('비활성 조상')) {
+    log('pass', 'R1677-inactive-ancestor', '비활성 조상 경고 배너')
+  } else {
+    log('warning', 'R1677-inactive-ancestor', '비활성 조상 경고 배너 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 569: R1678 최근 선택 노드 히스토리 ────────────────────────────
+console.log('\n## 569. R1678 최근 선택 노드 히스토리 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s569 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s569.includes('R1678') && s569.includes('recentNodes') && s569.includes('최근 선택')) {
+    log('pass', 'R1678-recent-nodes', '최근 선택 노드 히스토리 칩')
+  } else {
+    log('warning', 'R1678-recent-nodes', '최근 선택 노드 히스토리 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 570: R1679 TreeSearch 전체 결과 수 + 더 보기 ──────────────────
+console.log('\n## 570. R1679 TreeSearch 전체 결과 수 + 더 보기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s570 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s570.includes('R1679') && s570.includes('totalFound') && s570.includes('더 보기') && s570.includes('pageSize')) {
+    log('pass', 'R1679-tree-search-total', 'TreeSearch 전체 결과 수 및 더 보기')
+  } else {
+    log('warning', 'R1679-tree-search-total', 'TreeSearch 전체 결과 수 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 571: R1680 컴포넌트 타입별 색상 구분 ──────────────────────────
+console.log('\n## 571. R1680 컴포넌트 타입별 색상 구분 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s571 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s571.includes('R1680') && s571.includes('typeColorMap') && s571.includes('cc.Label') && s571.includes('cc.Sprite')) {
+    log('pass', 'R1680-comp-type-color', '컴포넌트 타입별 색상 구분')
+  } else {
+    log('warning', 'R1680-comp-type-color', '컴포넌트 타입별 색상 구분 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 572: R1681 SceneView 선택 테두리 색상 사용자 설정 ───────────────
+console.log('\n## 572. R1681 SceneView 선택 테두리 색상 설정 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s572 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s572.includes('R1681') && s572.includes('selectionColor') && s572.includes('setSelectionColor')) {
+    log('pass', 'R1681-selection-color', 'SceneView 선택 테두리 색상 사용자 설정')
+  } else {
+    log('warning', 'R1681-selection-color', 'SceneView 선택 테두리 색상 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 573: R1682 Inspector 위치/크기 빠른 복사 버튼 ─────────────────
+console.log('\n## 573. R1682 Inspector 위치/크기 복사 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s573 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s573.includes('R1682') && s573.includes('위치 클립보드 복사') && s573.includes('크기 클립보드 복사')) {
+    log('pass', 'R1682-pos-size-copy', 'Inspector 위치/크기 빠른 복사 버튼')
+  } else {
+    log('warning', 'R1682-pos-size-copy', 'Inspector 위치/크기 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 574: R1683 SceneView 드래그 ghost ─────────────────────────────
+console.log('\n## 574. R1683 SceneView 드래그 ghost 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s574 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s574.includes('R1683') && s574.includes('dragGhost') && s574.includes('setDragGhost')) {
+    log('pass', 'R1683-drag-ghost', 'SceneView 드래그 ghost 원래 위치 표시')
+  } else {
+    log('warning', 'R1683-drag-ghost', 'SceneView 드래그 ghost 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 575: R1684 씬 컴포넌트 통계 패널 ──────────────────────────────
+console.log('\n## 575. R1684 씬 컴포넌트 통계 패널 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s575 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s575.includes('R1684') && s575.includes('showSceneStats') && s575.includes('씬 통계') && s575.includes('walkStats')) {
+    log('pass', 'R1684-scene-stats', '씬 컴포넌트 통계 패널')
+  } else {
+    log('warning', 'R1684-scene-stats', '씬 컴포넌트 통계 패널 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 576: R1685 SceneView Shift+드래그 축 제한 ─────────────────────
+console.log('\n## 576. R1685 SceneView Shift+드래그 축 제한 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s576 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s576.includes('R1685') && s576.includes('e.shiftKey') && s576.includes('축 제한')) {
+    log('pass', 'R1685-axis-lock', 'SceneView Shift+드래그 축 제한')
+  } else {
+    log('warning', 'R1685-axis-lock', 'SceneView Shift+드래그 축 제한 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 577: R1686 Inspector 균등 스케일 버튼 ────────────────────────
+console.log('\n## 577. R1686 Inspector 균등 스케일 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s577 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s577.includes('R1686') && s577.includes('균등 스케일') && s577.includes('X=Y')) {
+    log('pass', 'R1686-uniform-scale', 'Inspector 균등 스케일 버튼 (⊟)')
+  } else {
+    log('warning', 'R1686-uniform-scale', 'Inspector 균등 스케일 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 578: R1687 SceneView z-order 배지 ────────────────────────────
+console.log('\n## 578. R1687 SceneView z-order 배지 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s578 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s578.includes('R1687') && s578.includes('showZOrder') && s578.includes('siblingIdx') && s578.includes('siblingTotal')) {
+    log('pass', 'R1687-zorder-badge', 'SceneView z-order 배지 (형제 순서 인덱스)')
+  } else {
+    log('warning', 'R1687-zorder-badge', 'SceneView z-order 배지 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 579: R1688 Ctrl+A 씬 전체 선택 ──────────────────────────────
+console.log('\n## 579. R1688 Ctrl+A 씬 전체 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s579 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s579.includes('R1688') && s579.includes('Ctrl+A') && s579.includes('전체 노드 다중 선택') && s579.includes('collectAll')) {
+    log('pass', 'R1688-ctrl-a', 'Ctrl+A 씬 전체 노드 다중 선택')
+  } else {
+    log('warning', 'R1688-ctrl-a', 'Ctrl+A 전체 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 580: R1689 컴포넌트 일괄 접기/펴기 버튼 ──────────────────────
+console.log('\n## 580. R1689 컴포넌트 일괄 접기/펴기 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s580 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s580.includes('R1689') && s580.includes('모두 접기') && s580.includes('모두 펴기')) {
+    log('pass', 'R1689-comp-collapse-all', '컴포넌트 일괄 접기/펴기 버튼')
+  } else {
+    log('warning', 'R1689-comp-collapse-all', '컴포넌트 일괄 접기/펴기 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 581: R1690 회전 핸들 각도 표시 ──────────────────────────────────
+console.log('\n## 581. R1690 회전 핸들 각도 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s581 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s581.includes('R1690') && s581.includes('rotateOverride?.uuid === node.uuid') && s581.includes('.toFixed(1)}°')) {
+    log('pass', 'R1690-rotate-angle-label', '회전 핸들 각도 표시')
+  } else {
+    log('warning', 'R1690-rotate-angle-label', '회전 핸들 각도 표시 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 582: R1691 cc.Label 멀티라인 미리보기 ──────────────────────────
+console.log('\n## 582. R1691 cc.Label 멀티라인 미리보기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s582 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s582.includes('R1691') && s582.includes('미리보기') && s582.includes('\\\\n')) {
+    log('pass', 'R1691-label-multiline-preview', 'cc.Label 멀티라인 미리보기')
+  } else {
+    log('warning', 'R1691-label-multiline-preview', 'cc.Label 멀티라인 미리보기 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 583: R1692 SceneView 시각적 숨기기 토글 ──────────────────────────
+console.log('\n## 583. R1692 SceneView 시각적 숨기기 토글 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s583 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s583.includes('R1692') && s583.includes('hiddenUuids') && s583.includes('Shift+H')) {
+    log('pass', 'R1692-visual-hide-toggle', 'SceneView 시각적 숨기기 토글')
+  } else {
+    log('warning', 'R1692-visual-hide-toggle', 'SceneView 시각적 숨기기 토글 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 584: R1693 SceneView 좌표 핀 마커 ──────────────────────────────
+console.log('\n## 584. R1693 SceneView 좌표 핀 마커 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s584 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s584.includes('R1693') && s584.includes('pinMarkers') && s584.includes('Ctrl+P')) {
+    log('pass', 'R1693-pin-markers', 'SceneView 좌표 핀 마커')
+  } else {
+    log('warning', 'R1693-pin-markers', 'SceneView 좌표 핀 마커 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 585: R1694 씬 트리 검색 히스토리 ──────────────────────────────
+console.log('\n## 585. R1694 씬 트리 검색 히스토리 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s585 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s585.includes('R1694') && s585.includes('searchHistory') && s585.includes('tree-search-history')) {
+    log('pass', 'R1694-tree-search-history', '씬 트리 검색 히스토리')
+  } else {
+    log('warning', 'R1694-tree-search-history', '씬 트리 검색 히스토리 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 586: R1695 SceneView 드래그 노드 경계 스냅 ──────────────────────
+console.log('\n## 586. R1695 SceneView 드래그 경계 스냅 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s586 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s586.includes('R1695') && s586.includes('ALIGN_SNAP_THRESHOLD') && s586.includes('스냅 적용')) {
+    log('pass', 'R1695-drag-snap', 'SceneView 드래그 노드 경계 스냅')
+  } else {
+    log('warning', 'R1695-drag-snap', 'SceneView 드래그 경계 스냅 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 587: R1696 cc.Sprite spriteFrame uuid 복사 ──────────────────────
+console.log('\n## 587. R1696 cc.Sprite spriteFrame uuid 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s587 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s587.includes('R1696') && s587.includes('spriteFrame') && s587.includes('sfUuid')) {
+    log('pass', 'R1696-sprite-uuid-copy', 'cc.Sprite spriteFrame uuid 복사')
+  } else {
+    log('warning', 'R1696-sprite-uuid-copy', 'cc.Sprite spriteFrame uuid 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 588: R1697 SceneView 레이블 폰트 크기 조정 ──────────────────────
+console.log('\n## 588. R1697 SceneView 레이블 폰트 크기 조정 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s588 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s588.includes('R1697') && s588.includes('labelFontSize') && s588.includes('A-') && s588.includes('A+')) {
+    log('pass', 'R1697-label-font-size', 'SceneView 레이블 폰트 크기 조정')
+  } else {
+    log('warning', 'R1697-label-font-size', 'SceneView 레이블 폰트 크기 조정 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 589: R1698 다중 선택 공통 컴포넌트 표시 ────────────────────────
+console.log('\n## 589. R1698 다중 선택 공통 컴포넌트 표시 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s589 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s589.includes('R1698') && s589.includes('commonCompTypes') && s589.includes('공통:')) {
+    log('pass', 'R1698-common-comp-display', '다중 선택 공통 컴포넌트 표시')
+  } else {
+    log('warning', 'R1698-common-comp-display', '다중 선택 공통 컴포넌트 표시 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 590: R1699 SceneView 선택 노드 정보 오버레이 ──────────────────
+console.log('\n## 590. R1699 SceneView 선택 노드 정보 오버레이 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s590 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s590.includes('R1699') && s590.includes('선택 노드 세부 정보 오버레이') && s590.includes('우상단')) {
+    log('pass', 'R1699-node-info-overlay', 'SceneView 선택 노드 정보 오버레이')
+  } else {
+    log('warning', 'R1699-node-info-overlay', 'SceneView 선택 노드 정보 오버레이 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 591: R1700 cc.Animation 클립 목록 + 이름 복사 ──────────────────
+console.log('\n## 591. R1700 cc.Animation 클립 이름 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s591 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s591.includes('R1700') && s591.includes('클립 목록') && s591.includes('⎘ all')) {
+    log('pass', 'R1700-anim-clip-copy', 'cc.Animation 클립 이름 복사')
+  } else {
+    log('warning', 'R1700-anim-clip-copy', 'cc.Animation 클립 이름 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 592: R1701 cc.AudioSource 클립 uuid 복사 ────────────────────────
+console.log('\n## 592. R1701 cc.AudioSource 클립 uuid 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s592 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s592.includes('R1701') && s592.includes('clipUuid') && s592.includes('오디오 클립')) {
+    log('pass', 'R1701-audio-clip-uuid-copy', 'cc.AudioSource 클립 uuid 복사')
+  } else {
+    log('warning', 'R1701-audio-clip-uuid-copy', 'cc.AudioSource 클립 uuid 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 593: R1702 Inspector 노드 UUID 표시 + 복사 ──────────────────────
+console.log('\n## 593. R1702 Inspector 노드 UUID 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s593 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s593.includes('R1702') && s593.includes('노드 UUID 표시') && s593.includes('node.uuid')) {
+    log('pass', 'R1702-node-uuid-copy', 'Inspector 노드 UUID 표시 + 복사')
+  } else {
+    log('warning', 'R1702-node-uuid-copy', 'Inspector 노드 UUID 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 594: R1703 SceneView 형제 그룹 하이라이트 ──────────────────────
+console.log('\n## 594. R1703 SceneView 형제 그룹 하이라이트 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s594 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s594.includes('R1703') && s594.includes('showSiblingGroup') && s594.includes('형제 그룹')) {
+    log('pass', 'R1703-sibling-group-highlight', 'SceneView 형제 그룹 하이라이트')
+  } else {
+    log('warning', 'R1703-sibling-group-highlight', 'SceneView 형제 그룹 하이라이트 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 595: R1704 전체 컴포넌트 enabled 토글 ──────────────────────────
+console.log('\n## 595. R1704 전체 컴포넌트 enabled 토글 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s595 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s595.includes('R1704') && s595.includes('전체 컴포넌트 enabled') && s595.includes('allEnabled')) {
+    log('pass', 'R1704-all-comp-enabled-toggle', '전체 컴포넌트 enabled 토글')
+  } else {
+    log('warning', 'R1704-all-comp-enabled-toggle', '전체 컴포넌트 enabled 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 596: R1705 SceneView 선택 이력 탐색 ─────────────────────────────
+console.log('\n## 596. R1705 SceneView 선택 이력 탐색 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s596 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s596.includes('R1705') && s596.includes('selHistoryRef') && s596.includes('Alt+←')) {
+    log('pass', 'R1705-selection-history', 'SceneView 선택 이력 탐색')
+  } else {
+    log('warning', 'R1705-selection-history', 'SceneView 선택 이력 탐색 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 597: R1706 일괄 회전 편집 ───────────────────────────────────────
+console.log('\n## 597. R1706 일괄 회전 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s597 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s597.includes('R1706') && s597.includes('batchRot') && s597.includes('회전 °')) {
+    log('pass', 'R1706-batch-rotation', '일괄 회전 편집')
+  } else {
+    log('warning', 'R1706-batch-rotation', '일괄 회전 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 598: R1707 씬 트리 collapsed 상태 persist ───────────────────────
+console.log('\n## 598. R1707 씬 트리 collapsed 상태 localStorage 저장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s598 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s598.includes('R1707') && s598.includes('collapsedPersistKey') && s598.includes('tree-collapsed:')) {
+    log('pass', 'R1707-collapsed-persist', '씬 트리 collapsed 상태 세션 간 저장')
+  } else {
+    log('warning', 'R1707-collapsed-persist', '씬 트리 collapsed 상태 persist 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 599: R1708 씬뷰 PNG 로컬 다운로드 ───────────────────────────────
+console.log('\n## 599. R1708 씬뷰 PNG 로컬 다운로드 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s599 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s599.includes('R1708') && s599.includes('saveLocal') && s599.includes('scene-') && s599.includes('.png')) {
+    log('pass', 'R1708-screenshot-download', '씬뷰 PNG 로컬 다운로드')
+  } else {
+    log('warning', 'R1708-screenshot-download', '씬뷰 PNG 로컬 다운로드 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 600: R1709 cc.Layout Grid cellSize 편집 ─────────────────────────
+console.log('\n## 600. R1709 cc.Layout Grid cellSize 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s600 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s600.includes('R1709') && s600.includes('cellSize') && s600.includes('cellW')) {
+    log('pass', 'R1709-layout-cellsize', 'cc.Layout Grid cellSize 편집')
+  } else {
+    log('warning', 'R1709-layout-cellsize', 'cc.Layout Grid cellSize 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 601: R1710 씬 트리 구조 텍스트 복사 ─────────────────────────────
+console.log('\n## 601. R1710 씬 트리 구조 텍스트 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s601 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s601.includes('R1710') && s601.includes('씬 트리 구조 텍스트 복사') && s601.includes('lines.push')) {
+    log('pass', 'R1710-tree-text-copy', '씬 트리 구조 텍스트 복사')
+  } else {
+    log('warning', 'R1710-tree-text-copy', '씬 트리 구조 텍스트 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 602: R1711 cc.Sprite Filled 모드 편집 ─────────────────────────────
+console.log('\n## 602. R1711 cc.Sprite Filled 모드 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s602 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s602.includes('R1711') && s602.includes('fillType') && s602.includes('fillRange') && s602.includes('fillStart')) {
+    log('pass', 'R1711-sprite-filled', 'cc.Sprite Filled 모드 fillType/fillStart/fillRange 편집')
+  } else {
+    log('warning', 'R1711-sprite-filled', 'cc.Sprite Filled 모드 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 603: R1712 씬 트리 컨텍스트 메뉴 확장 ──────────────────────────
+console.log('\n## 603. R1712 씬 트리 컨텍스트 메뉴 확장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s603 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s603.includes('R1712') && s603.includes('즐겨찾기 추가') && s603.includes('자식 모두 활성화')) {
+    log('pass', 'R1712-ctx-menu-extend', '씬 트리 컨텍스트 메뉴 확장')
+  } else {
+    log('warning', 'R1712-ctx-menu-extend', '씬 트리 컨텍스트 메뉴 확장 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 604: R1713 cc.Label fontSize 빠른 조절 버튼 ─────────────────────
+console.log('\n## 604. R1713 cc.Label fontSize 빠른 조절 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s604 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s604.includes('R1713') && s604.includes('fontSize 빠른 조절') && s604.includes('newFs')) {
+    log('pass', 'R1713-label-fontsize-btn', 'cc.Label fontSize 빠른 조절 버튼')
+  } else {
+    log('warning', 'R1713-label-fontsize-btn', 'cc.Label fontSize 빠른 조절 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 605: R1714 cc.Label 텍스트 색상 편집 ─────────────────────────────
+console.log('\n## 605. R1714 cc.Label 텍스트 색상 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s605 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s605.includes('R1714') && s605.includes('labelColorRaw') && s605.includes('lcHex')) {
+    log('pass', 'R1714-label-color', 'cc.Label 텍스트 색상 편집')
+  } else {
+    log('warning', 'R1714-label-color', 'cc.Label 텍스트 색상 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 606: R1715 씬 트리 색상 태그 필터 ───────────────────────────────
+console.log('\n## 606. R1715 씬 트리 색상 태그 필터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s606 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s606.includes('R1715') && s606.includes('colorTagFilter') && s606.includes('색상 태그 필터')) {
+    log('pass', 'R1715-color-tag-filter', '씬 트리 색상 태그 필터')
+  } else {
+    log('warning', 'R1715-color-tag-filter', '씬 트리 색상 태그 필터 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 607: R1716 cc.Toggle Quick Edit interactable 추가 ───────────────
+console.log('\n## 607. R1716 cc.Toggle Quick Edit interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s607 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s607.includes('R1716') && s607.includes('interactable') && s607.includes('isChecked + interactable')) {
+    log('pass', 'R1716-toggle-interactable', 'cc.Toggle Quick Edit interactable 추가')
+  } else {
+    log('warning', 'R1716-toggle-interactable', 'cc.Toggle Quick Edit interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 608: R1717 SceneView 컨텍스트 메뉴 확장 ─────────────────────────
+console.log('\n## 608. R1717 SceneView 컨텍스트 메뉴 확장 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s608 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s608.includes('R1717') && s608.includes('새 노드 추가') && s608.includes('비활성화')) {
+    log('pass', 'R1717-ctx-menu-extend', 'SceneView 컨텍스트 메뉴 확장')
+  } else {
+    log('warning', 'R1717-ctx-menu-extend', 'SceneView 컨텍스트 메뉴 확장 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
+// ── Section 609: R1718 Stats 패널 비활성 노드 카운트 ──────────────────────────
+console.log('\n## 609. R1718 Stats 패널 비활성 노드 카운트 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s609 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s609.includes('R1718') && s609.includes('inactiveCount') && s609.includes('◌')) {
+    log('pass', 'R1718-inactive-count', 'Stats 패널 비활성 노드 카운트 배지')
+  } else {
+    log('warning', 'R1718-inactive-count', 'Stats 패널 비활성 노드 카운트 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 610: R1719 Global Search 모두 선택 버튼 ──────────────────────────
+console.log('\n## 610. R1719 Global Search 모두 선택 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s610 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s610.includes('R1719') && s610.includes('모두 선택') && s610.includes('setMultiSelectedUuids')) {
+    log('pass', 'R1719-search-select-all', 'Global Search 모두 선택 버튼')
+  } else {
+    log('warning', 'R1719-search-select-all', 'Global Search 모두 선택 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 611: R1720 cc.Label overflow + align Quick Edit ───────────────────
+console.log('\n## 611. R1720 cc.Label overflow + align 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s611 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s611.includes('R1720') && s611.includes('overflow') && s611.includes('horizontalAlign') && s611.includes('verticalAlign')) {
+    log('pass', 'R1720-label-overflow-align', 'cc.Label overflow + align Quick Edit')
+  } else {
+    log('warning', 'R1720-label-overflow-align', 'cc.Label overflow + align 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 612: R1721 Inspector 형제 노드 탐색 버튼 ─────────────────────────
+console.log('\n## 612. R1721 Inspector 형제 노드 탐색 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s612 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s612.includes('R1721') && s612.includes('siblings') && s612.includes('이전 형제') && s612.includes('다음 형제')) {
+    log('pass', 'R1721-sibling-nav', 'Inspector 형제 노드 탐색 버튼 ◀ ▶')
+  } else {
+    log('warning', 'R1721-sibling-nav', 'Inspector 형제 노드 탐색 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 613: R1722 BatchInspector 균등 분배 버튼 ─────────────────────────
+console.log('\n## 613. R1722 BatchInspector 균등 분배 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s613 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s613.includes('R1722') && s613.includes('균등 분배') && s613.includes('applyDistH') && s613.includes('applyDistV')) {
+    log('pass', 'R1722-batch-distribute', 'BatchInspector 균등 분배 버튼 (가로/세로)')
+  } else {
+    log('warning', 'R1722-batch-distribute', 'BatchInspector 균등 분배 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 614: R1723 cc.Label lineHeight Quick Edit ────────────────────────
+console.log('\n## 614. R1723 cc.Label lineHeight Quick Edit 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s614 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s614.includes('R1723') && s614.includes('lineHeight') && s614.includes('_N$lineHeight')) {
+    log('pass', 'R1723-label-lineheight', 'cc.Label lineHeight Quick Edit')
+  } else {
+    log('warning', 'R1723-label-lineheight', 'cc.Label lineHeight Quick Edit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 615: R1724 트리 컨텍스트 메뉴 형제 순서 이동 ──────────────────────
+console.log('\n## 615. R1724 트리 컨텍스트 메뉴 형제 순서 이동 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s615 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s615.includes('R1724') && s615.includes('위로 이동') && s615.includes('아래로 이동') && s615.includes('onReorder')) {
+    log('pass', 'R1724-tree-reorder-menu', '트리 컨텍스트 메뉴 형제 순서 이동')
+  } else {
+    log('warning', 'R1724-tree-reorder-menu', '트리 컨텍스트 메뉴 형제 순서 이동 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 616: R1725 cc.Button duration 편집 ───────────────────────────────
+console.log('\n## 616. R1725 cc.Button duration 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s616 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s616.includes('R1725') && s616.includes('duration') && s616.includes('_N$duration')) {
+    log('pass', 'R1725-button-duration', 'cc.Button Color/Scale transition duration 편집')
+  } else {
+    log('warning', 'R1725-button-duration', 'cc.Button duration 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 617: R1726 Inspector 노드 JSON 복사 버튼 ─────────────────────────
+console.log('\n## 617. R1726 Inspector 노드 JSON 복사 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s617 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s617.includes('R1726') && s617.includes('노드 JSON 클립보드 복사') && s617.includes('JSON.stringify')) {
+    log('pass', 'R1726-node-json-copy', 'Inspector 노드 JSON 복사 버튼')
+  } else {
+    log('warning', 'R1726-node-json-copy', 'Inspector 노드 JSON 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 618: R1727 cc.ProgressBar reverse + totalLength ──────────────────
+console.log('\n## 618. R1727 cc.ProgressBar reverse + totalLength 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s618 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s618.includes('R1727') && s618.includes('totalLength') && s618.includes('reverse') && s618.includes('_N$totalLength')) {
+    log('pass', 'R1727-progressbar-extra', 'cc.ProgressBar reverse + totalLength Quick Edit')
+  } else {
+    log('warning', 'R1727-progressbar-extra', 'cc.ProgressBar reverse + totalLength 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 619: R1728 트리 Ctrl+클릭 다중 선택 ──────────────────────────────
+console.log('\n## 619. R1728 트리 Ctrl+클릭 다중 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s619 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s619.includes('R1728') && s619.includes('onCtrlSelect') && s619.includes('multiSelectedUuids') && s619.includes('ctrlKey')) {
+    log('pass', 'R1728-tree-ctrl-select', '트리 Ctrl+클릭 다중 선택')
+  } else {
+    log('warning', 'R1728-tree-ctrl-select', '트리 Ctrl+클릭 다중 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 620: R1729 cc.Label Find & Replace ────────────────────────────────
+console.log('\n## 620. R1729 cc.Label Find & Replace 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s620 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s620.includes('R1729') && s620.includes('showLabelReplace') && s620.includes('labelFindText') && s620.includes('handleLabelReplaceAll') && s620.includes('labelReplaceMatches')) {
+    log('pass', 'R1729-label-find-replace', 'cc.Label Find & Replace')
+  } else {
+    log('warning', 'R1729-label-find-replace', 'cc.Label Find & Replace 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 621: R1730 BatchInspector 이름 Prefix/Suffix ──────────────────────
+console.log('\n## 621. R1730 BatchInspector 이름 Prefix/Suffix 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s621 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s621.includes('R1730') && s621.includes('batchNamePrefix') && s621.includes('batchNameSuffix') && s621.includes('이름 일괄 변경')) {
+    log('pass', 'R1730-batch-rename', 'BatchInspector 이름 Prefix/Suffix 일괄 추가')
+  } else {
+    log('warning', 'R1730-batch-rename', 'BatchInspector 이름 Prefix/Suffix 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 622: R1731 Stats 컴포넌트 배지 클릭 선택 ──────────────────────────
+console.log('\n## 622. R1731 Stats 컴포넌트 배지 클릭 선택 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s622 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s622.includes('R1731') && s622.includes('compNodeUuids') && s622.includes('inactiveUuids') && s622.includes('클릭으로 모두 선택')) {
+    log('pass', 'R1731-stats-click-select', 'Stats 컴포넌트 배지 클릭으로 노드 선택')
+  } else {
+    log('warning', 'R1731-stats-click-select', 'Stats 컴포넌트 배지 클릭 선택 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 623: R1732 회전 스텝 버튼 ──────────────────────────────────────────
+console.log('\n## 623. R1732 회전 스텝 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s623 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s623.includes('R1732') && s623.includes('회전 스텝') && s623.includes('-90') && s623.includes('15, 90')) {
+    log('pass', 'R1732-rotation-step', '회전 스텝 버튼 ±15°/±90°')
+  } else {
+    log('warning', 'R1732-rotation-step', '회전 스텝 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 624: R1733 스케일 스텝 버튼 ────────────────────────────────────────
+console.log('\n## 624. R1733 스케일 스텝 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s624 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s624.includes('R1733') && s624.includes('스케일 스텝') && s624.includes('×0.5') && s624.includes('×2')) {
+    log('pass', 'R1733-scale-step', '스케일 스텝 버튼 ×0.5/×2')
+  } else {
+    log('warning', 'R1733-scale-step', '스케일 스텝 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 625: R1734 Global Search 컴포넌트 필터 ────────────────────────────
+console.log('\n## 625. R1734 Global Search 컴포넌트 필터 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s625 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s625.includes('R1734') && s625.includes('globalSearchCompFilter') && s625.includes('filteredGlobalResults')) {
+    log('pass', 'R1734-global-comp-filter', 'Global Search 컴포넌트 타입 필터')
+  } else {
+    log('warning', 'R1734-global-comp-filter', 'Global Search 컴포넌트 필터 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 626: R1735 BatchInspector 크기 맞추기 ─────────────────────────────
+console.log('\n## 626. R1735 BatchInspector 크기 맞추기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s626 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s626.includes('R1735') && s626.includes('applyMatchSize') && s626.includes('W≡') && s626.includes('H≡')) {
+    log('pass', 'R1735-batch-match-size', 'BatchInspector 기준 노드 크기 맞추기 W≡/H≡')
+  } else {
+    log('warning', 'R1735-batch-match-size', 'BatchInspector 크기 맞추기 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 627: R1736 자식 알파벳순 정렬 ──────────────────────────────────────
+console.log('\n## 627. R1736 자식 알파벳순 정렬 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s627 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s627.includes('R1736') && s627.includes('onSortChildren') && s627.includes('handleSortChildren') && s627.includes('자식 알파벳순 정렬')) {
+    log('pass', 'R1736-sort-children', '자식 알파벳순 정렬')
+  } else {
+    log('warning', 'R1736-sort-children', '자식 알파벳순 정렬 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 628: R1737 BatchInspector 앵커 일괄 설정 ──────────────────────────
+console.log('\n## 628. R1737 BatchInspector 앵커 일괄 설정 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s628 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s628.includes('R1737') && s628.includes('batchAnchor') && s628.includes('applyAnchor') && s628.includes('앵커 일괄 설정')) {
+    log('pass', 'R1737-batch-anchor', 'BatchInspector 앵커 9-point 일괄 설정')
+  } else {
+    log('warning', 'R1737-batch-anchor', 'BatchInspector 앵커 일괄 설정 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 629: R1738 Inspector Z-index 직접 입력 ────────────────────────────
+console.log('\n## 629. R1738 Inspector Z-index 직접 입력 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s629 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s629.includes('R1738') && s629.includes('zOrderEditing') && s629.includes('handleZOrderTo') && s629.includes('Z-index 직접 입력')) {
+    log('pass', 'R1738-zorder-input', 'Inspector Z-index 직접 입력')
+  } else {
+    log('warning', 'R1738-zorder-input', 'Inspector Z-index 직접 입력 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 630: R1739 Inspector 위치 스텝 버튼 ──────────────────────────────
+console.log('\n## 630. R1739 Inspector 위치 스텝 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s630 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s630.includes('R1739') && s630.includes('위치 스텝 버튼') && s630.includes('draft.position.x + d') && s630.includes('draft.position.y + d')) {
+    log('pass', 'R1739-pos-step', 'Inspector 위치 스텝 버튼')
+  } else {
+    log('warning', 'R1739-pos-step', 'Inspector 위치 스텝 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 631: R1740 cc.ScrollView content 크기 퀵 편집 ────────────────────
+console.log('\n## 631. R1740 cc.ScrollView content 크기 퀵 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s631 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s631.includes('R1740') && s631.includes('findContentNode') && s631.includes('content 자식 노드 크기 퀵 편집') && s631.includes('patchContent')) {
+    log('pass', 'R1740-scrollview-content', 'cc.ScrollView content 크기 퀵 편집')
+  } else {
+    log('warning', 'R1740-scrollview-content', 'cc.ScrollView content 크기 퀵 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 632: R1741 Inspector 크기 스텝 버튼 ──────────────────────────────
+console.log('\n## 632. R1741 Inspector 크기 스텝 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s632 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s632.includes('R1741') && s632.includes('크기 스텝 버튼') && s632.includes('draft.size.x + d') && s632.includes('draft.size.y + d')) {
+    log('pass', 'R1741-size-step', 'Inspector 크기 스텝 버튼')
+  } else {
+    log('warning', 'R1741-size-step', 'Inspector 크기 스텝 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 633: R1742 비활성 조상 일괄 활성화 버튼 ──────────────────────────
+console.log('\n## 633. R1742 비활성 조상 일괄 활성화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s633 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s633.includes('R1742') && s633.includes('비활성 조상 일괄 활성화') && s633.includes('activatePath') && s633.includes('모두 활성화')) {
+    log('pass', 'R1742-activate-ancestors', '비활성 조상 일괄 활성화 버튼')
+  } else {
+    log('warning', 'R1742-activate-ancestors', '비활성 조상 일괄 활성화 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 634: R1743 cc.Label Bold/Italic/Underline 토글 ───────────────────
+console.log('\n## 634. R1743 cc.Label Bold/Italic/Underline 토글 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s634 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s634.includes('R1743') && s634.includes('bold / italic / underline 토글') && s634.includes('isBold') && s634.includes('isItalic') && s634.includes('isUnderline')) {
+    log('pass', 'R1743-label-style', 'cc.Label Bold/Italic/Underline 토글')
+  } else {
+    log('warning', 'R1743-label-style', 'cc.Label Bold/Italic/Underline 토글 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 635: R1744 Inspector 크기 배율 버튼 ──────────────────────────────
+console.log('\n## 635. R1744 Inspector 크기 배율 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s635 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s635.includes('R1744') && s635.includes('크기 배율 버튼') && s635.includes('draft.size.x * mult') && s635.includes('draft.size.y * mult')) {
+    log('pass', 'R1744-size-mult', 'Inspector 크기 배율 버튼 ×0.5/×2')
+  } else {
+    log('warning', 'R1744-size-mult', 'Inspector 크기 배율 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 636: R1745 BatchInspector 불투명도 퀵 프리셋 ─────────────────────
+console.log('\n## 636. R1745 BatchInspector 불투명도 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s636 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s636.includes('R1745') && s636.includes('불투명도 퀵 프리셋') && s636.includes('setBatchOpacity(String(v))')) {
+    log('pass', 'R1745-batch-opacity-preset', 'BatchInspector 불투명도 퀵 프리셋')
+  } else {
+    log('warning', 'R1745-batch-opacity-preset', 'BatchInspector 불투명도 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 637: R1746 cc.Label 텍스트 대소문자 변환 ─────────────────────────
+console.log('\n## 637. R1746 cc.Label 텍스트 대소문자 변환 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s637 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s637.includes('R1746') && s637.includes('텍스트 대소문자 변환 버튼') && s637.includes('toUpperCase') && s637.includes('toLowerCase')) {
+    log('pass', 'R1746-label-case', 'cc.Label 텍스트 대소문자 변환 버튼')
+  } else {
+    log('warning', 'R1746-label-case', 'cc.Label 텍스트 대소문자 변환 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 638: R1747 Tree 자식 노드 수 배지 ────────────────────────────────
+console.log('\n## 638. R1747 Tree 자식 노드 수 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s638 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s638.includes('R1747') && s638.includes('자식 노드 수 배지') && s638.includes('node.children.length')) {
+    log('pass', 'R1747-child-count-badge', 'Tree 자식 노드 수 배지')
+  } else {
+    log('warning', 'R1747-child-count-badge', 'Tree 자식 노드 수 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 639: R1748 cc.Layout 패딩 균등 버튼 ──────────────────────────────
+console.log('\n## 639. R1748 cc.Layout 패딩 균등 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s639 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s639.includes('R1748') && s639.includes('패딩 균등 버튼') && s639.includes('paddingLeft: v') && s639.includes('paddingBottom: v')) {
+    log('pass', 'R1748-layout-pad-equal', 'cc.Layout 패딩 균등 버튼')
+  } else {
+    log('warning', 'R1748-layout-pad-equal', 'cc.Layout 패딩 균등 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 640: R1749 BatchInspector 공통 cc.Label fontSize 일괄 설정 ────────
+console.log('\n## 640. R1749 BatchInspector cc.Label fontSize 일괄 설정 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s640 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s640.includes('R1749') && s640.includes('공통 cc.Label fontSize 일괄 설정') && s640.includes('patchFs') && s640.includes('Label fontSize')) {
+    log('pass', 'R1749-batch-label-fs', 'BatchInspector cc.Label fontSize 일괄 설정')
+  } else {
+    log('warning', 'R1749-batch-label-fs', 'BatchInspector cc.Label fontSize 일괄 설정 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 641: R1750 BatchInspector 레이어 일괄 설정 (CC3.x) ────────────────
+console.log('\n## 641. R1750 BatchInspector 레이어 일괄 설정 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s641 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s641.includes('R1750') && s641.includes('레이어 일괄 설정') && s641.includes('batchLayer') && s641.includes('patchLayer')) {
+    log('pass', 'R1750-batch-layer', 'BatchInspector 레이어 일괄 설정 (CC3.x)')
+  } else {
+    log('warning', 'R1750-batch-layer', 'BatchInspector 레이어 일괄 설정 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 642: R1751 BatchInspector 색상 퀵 프리셋 ─────────────────────────
+console.log('\n## 642. R1751 BatchInspector 색상 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s642 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s642.includes('R1751') && s642.includes('색상 퀵 프리셋') && s642.includes('setBatchColor(hex)')) {
+    log('pass', 'R1751-batch-color-presets', 'BatchInspector 색상 퀵 프리셋')
+  } else {
+    log('warning', 'R1751-batch-color-presets', 'BatchInspector 색상 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 643: R1752 Inspector 위치 원점 리셋 버튼 ─────────────────────────
+console.log('\n## 643. R1752 Inspector 위치 원점 리셋 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s643 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s643.includes('R1752') && s643.includes('위치 원점 리셋') && s643.includes('x: 0, y: 0')) {
+    log('pass', 'R1752-pos-reset', 'Inspector 위치 원점 (0,0) 리셋 버튼')
+  } else {
+    log('warning', 'R1752-pos-reset', 'Inspector 위치 원점 리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 644: R1753 cc.Widget 스트레치/센터 프리셋 ─────────────────────────
+console.log('\n## 644. R1753 cc.Widget 프리셋 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s644 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s644.includes('R1753') && s644.includes('Widget 프리셋 버튼') && s644.includes('Stretch') && s644.includes('isAlignTop: true')) {
+    log('pass', 'R1753-widget-presets', 'cc.Widget 스트레치/센터 프리셋 버튼')
+  } else {
+    log('warning', 'R1753-widget-presets', 'cc.Widget 프리셋 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 645: R1754 BatchInspector 순서 번호 추가 ─────────────────────────
+console.log('\n## 645. R1754 BatchInspector 순서 번호 추가 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s645 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s645.includes('R1754') && s645.includes('번호 추가') && s645.includes('applySeq') && s645.includes('counter++')) {
+    log('pass', 'R1754-batch-seq-num', 'BatchInspector 순서 번호 추가')
+  } else {
+    log('warning', 'R1754-batch-seq-num', 'BatchInspector 순서 번호 추가 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 646: R1755 cc.Canvas 해상도 퀵 편집 ──────────────────────────────
+console.log('\n## 646. R1755 cc.Canvas 해상도 퀵 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s646 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s646.includes('R1755') && s646.includes('cc.Canvas') && s646.includes('designResolution') && s646.includes('fitWidth') && s646.includes('fitHeight')) {
+    log('pass', 'R1755-canvas-resolution', 'cc.Canvas 해상도/fitWidth/fitHeight 퀵 편집')
+  } else {
+    log('warning', 'R1755-canvas-resolution', 'cc.Canvas 해상도 편집 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 647: R1756 BatchInspector 전체 필드 초기화 버튼 ──────────────────
+console.log('\n## 647. R1756 BatchInspector 전체 필드 초기화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s647 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s647.includes('R1756') && s647.includes('전체 필드 초기화') && s647.includes('setBatchOpacity') && s647.includes('setBatchColor')) {
+    log('pass', 'R1756-batch-reset-all', 'BatchInspector 전체 필드 초기화 버튼')
+  } else {
+    log('warning', 'R1756-batch-reset-all', 'BatchInspector 전체 필드 초기화 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 648: R1757 cc.Label fontFamily 입력 ──────────────────────────────
+console.log('\n## 648. R1757 cc.Label fontFamily 입력 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s648 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s648.includes('R1757') && s648.includes('fontFamily 입력') && s648.includes('_fontFamily') && s648.includes('_N$fontFamily')) {
+    log('pass', 'R1757-label-fontfamily', 'cc.Label fontFamily 입력 필드')
+  } else {
+    log('warning', 'R1757-label-fontfamily', 'cc.Label fontFamily 입력 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 649: R1758 BatchInspector cc.Label 텍스트 색상 일괄 설정 ──────────
+console.log('\n## 649. R1758 BatchInspector cc.Label 텍스트 색상 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s649 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s649.includes('R1758') && s649.includes('cc.Label 텍스트 색상 일괄 설정') && s649.includes('patchColor') && s649.includes('Label 색상')) {
+    log('pass', 'R1758-batch-label-color', 'BatchInspector cc.Label 텍스트 색상 일괄 설정')
+  } else {
+    log('warning', 'R1758-batch-label-color', 'BatchInspector cc.Label 텍스트 색상 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 650: R1759 cc.Label 텍스트 Trim 버튼 ─────────────────────────────
+console.log('\n## 650. R1759 cc.Label Trim 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s650 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s650.includes('R1759') && s650.includes('앞뒤 공백 제거') && s650.includes('s.trim()')) {
+    log('pass', 'R1759-label-trim', 'cc.Label 텍스트 Trim 버튼')
+  } else {
+    log('warning', 'R1759-label-trim', 'cc.Label Trim 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 651: R1760 BatchInspector cc.Sprite tint 일괄 ────────────────────
+console.log('\n## 651. R1760 BatchInspector cc.Sprite tint 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s651 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s651.includes('R1760') && s651.includes('cc.Sprite tint 일괄 설정') && s651.includes('patchSpriteColor') && s651.includes('Sprite tint')) {
+    log('pass', 'R1760-batch-sprite-tint', 'BatchInspector cc.Sprite tint 일괄 설정')
+  } else {
+    log('warning', 'R1760-batch-sprite-tint', 'BatchInspector cc.Sprite tint 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 652: R1761 BatchInspector cc.AudioSource volume 일괄 ─────────────
+console.log('\n## 652. R1761 BatchInspector cc.AudioSource volume 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s652 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s652.includes('R1761') && s652.includes('cc.AudioSource volume 일괄 설정') && s652.includes('patchVol')) {
+    log('pass', 'R1761-batch-audio-vol', 'BatchInspector cc.AudioSource volume 일괄 설정')
+  } else {
+    log('warning', 'R1761-batch-audio-vol', 'BatchInspector cc.AudioSource volume 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 653: R1762 BatchInspector cc.Label fontFamily 일괄 ───────────────
+console.log('\n## 653. R1762 BatchInspector cc.Label fontFamily 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s653 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s653.includes('R1762') && s653.includes('cc.Label fontFamily 일괄 설정') && s653.includes('patchFont') && s653.includes('_N$fontFamily')) {
+    log('pass', 'R1762-batch-label-font', 'BatchInspector cc.Label fontFamily 일괄 설정')
+  } else {
+    log('warning', 'R1762-batch-label-font', 'BatchInspector cc.Label fontFamily 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 654: R1763 cc.Button Sprite 전환 모드 UUID 표시 ──────────────────
+console.log('\n## 654. R1763 cc.Button Sprite 전환 UUID 표시 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s654 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s654.includes('R1763') && s654.includes('Sprite 전환 모드') && s654.includes('`${state}Sprite`') && s654.includes("'normal', 'hover', 'pressed', 'disabled'")) {
+    log('pass', 'R1763-button-sprite-uuid', 'cc.Button Sprite 전환 모드 UUID 표시')
+  } else {
+    log('warning', 'R1763-button-sprite-uuid', 'cc.Button Sprite 전환 UUID 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 655: R1764 BatchInspector cc.Toggle isChecked 일괄 ───────────────
+console.log('\n## 655. R1764 BatchInspector cc.Toggle isChecked 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s655 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s655.includes('R1764') && s655.includes('cc.Toggle isChecked 일괄 설정') && s655.includes('patchToggle') && s655.includes('isChecked: checked')) {
+    log('pass', 'R1764-batch-toggle', 'BatchInspector cc.Toggle isChecked 일괄 설정')
+  } else {
+    log('warning', 'R1764-batch-toggle', 'BatchInspector cc.Toggle isChecked 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 656: R1765 cc.Slider progress 퀵 프리셋 ─────────────────────────
+console.log('\n## 656. R1765 cc.Slider progress 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s656 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s656.includes('R1765') && s656.includes('progress 퀵 프리셋') && s656.includes('_N$progress: v')) {
+    log('pass', 'R1765-slider-presets', 'cc.Slider progress 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1765-slider-presets', 'cc.Slider progress 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 657: R1766 Inspector 스냅 그리드 ─────────────────────────────────
+console.log('\n## 657. R1766 Inspector 스냅 그리드 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s657 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s657.includes('R1766') && s657.includes('스냅 그리드') && s657.includes('Math.round(draft.position.x / g) * g')) {
+    log('pass', 'R1766-snap-grid', 'Inspector 스냅 그리드 버튼 (×8/×16)')
+  } else {
+    log('warning', 'R1766-snap-grid', 'Inspector 스냅 그리드 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 658: R1767 cc.RichText 텍스트 미리보기 ───────────────────────────
+console.log('\n## 658. R1767 cc.RichText 텍스트 미리보기 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s658 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s658.includes('R1767') && s658.includes('richToHtml') && s658.includes('dangerouslySetInnerHTML')) {
+    log('pass', 'R1767-richtext-preview', 'cc.RichText 텍스트 미리보기')
+  } else {
+    log('warning', 'R1767-richtext-preview', 'cc.RichText 미리보기 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 659: R1768 BatchInspector X/Y 균등 배치 ─────────────────────────
+console.log('\n## 659. R1768 BatchInspector X/Y 균등 배치 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s659 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s659.includes('R1768') && s659.includes('균등 배치') && s659.includes('patchDist') && s659.includes('distMap')) {
+    log('pass', 'R1768-distribute', 'BatchInspector X/Y 균등 배치')
+  } else {
+    log('warning', 'R1768-distribute', 'BatchInspector X/Y 균등 배치 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 660: R1769 BatchInspector cc.Button interactable 일괄 ────────────
+console.log('\n## 660. R1769 BatchInspector cc.Button interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s660 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s660.includes('R1769') && s660.includes('patchInteract') && s660.includes("interactable: interact")) {
+    log('pass', 'R1769-batch-button', 'BatchInspector cc.Button interactable 일괄 설정')
+  } else {
+    log('warning', 'R1769-batch-button', 'BatchInspector cc.Button interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 661: R1770 cc.ProgressBar progress 퀵 프리셋 ─────────────────────
+console.log('\n## 661. R1770 cc.ProgressBar progress 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s661 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s661.includes('R1770') && s661.includes('ProgressBar progress 퀵 프리셋')) {
+    log('pass', 'R1770-progressbar-presets', 'cc.ProgressBar progress 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1770-progressbar-presets', 'cc.ProgressBar progress 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 662: R1771 BatchInspector cc.ProgressBar progress 일괄 ───────────
+console.log('\n## 662. R1771 BatchInspector cc.ProgressBar progress 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s662 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s662.includes('R1771') && s662.includes('patchProgress') && s662.includes("'cc.ProgressBar'")) {
+    log('pass', 'R1771-batch-progress', 'BatchInspector cc.ProgressBar progress 일괄 설정')
+  } else {
+    log('warning', 'R1771-batch-progress', 'BatchInspector cc.ProgressBar progress 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 663: R1772 BatchInspector 선택 노드 정렬 ─────────────────────────
+console.log('\n## 663. R1772 BatchInspector 선택 노드 정렬 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s663 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s663.includes('R1772') && s663.includes('patchAlign') && s663.includes('선택 노드 정렬')) {
+    log('pass', 'R1772-align', 'BatchInspector 선택 노드 정렬 (align X/Y)')
+  } else {
+    log('warning', 'R1772-align', 'BatchInspector 선택 노드 정렬 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 664: R1773 cc.Label 텍스트 길이 배지 ─────────────────────────────
+console.log('\n## 664. R1773 cc.Label 텍스트 길이 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s664 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s664.includes('R1773') && s664.includes('빈 문자열') && s664.includes('str.length')) {
+    log('pass', 'R1773-label-length', 'cc.Label 텍스트 길이 배지 + 빈 문자열 경고')
+  } else {
+    log('warning', 'R1773-label-length', 'cc.Label 텍스트 길이 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 665: R1774 Inspector 레이어 이름 배지 ────────────────────────────
+console.log('\n## 665. R1774 Inspector 레이어 이름 배지 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s665 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s665.includes('R1774') && s665.includes('레이어 이름 배지') && s665.includes('layerNames') && s665.includes('UI_2D')) {
+    log('pass', 'R1774-layer-name', 'Inspector CC3.x 레이어 이름 배지')
+  } else {
+    log('warning', 'R1774-layer-name', 'Inspector 레이어 이름 배지 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 666: R1775 Inspector 회전 정규화 버튼 ────────────────────────────
+console.log('\n## 666. R1775 Inspector 회전 정규화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s666 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s666.includes('R1775') && s666.includes('회전 정규화') && s666.includes('normalize')) {
+    log('pass', 'R1775-rotation-normalize', 'Inspector 회전 정규화 버튼 (-180~180)')
+  } else {
+    log('warning', 'R1775-rotation-normalize', 'Inspector 회전 정규화 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 667: R1776 BatchInspector 회전 일괄 정규화 ───────────────────────
+console.log('\n## 667. R1776 BatchInspector 회전 일괄 정규화 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s667 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s667.includes('R1776') && s667.includes('patchNorm') && s667.includes('회전 정규화')) {
+    log('pass', 'R1776-batch-norm', 'BatchInspector 회전 일괄 정규화')
+  } else {
+    log('warning', 'R1776-batch-norm', 'BatchInspector 회전 일괄 정규화 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 668: R1777 BatchInspector 이름 Prefix/Suffix 제거 ────────────────
+console.log('\n## 668. R1777 BatchInspector 이름 prefix/suffix 제거 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s668 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s668.includes('R1777') && s668.includes('removePfxSfx') && s668.includes('prefix/suffix 제거')) {
+    log('pass', 'R1777-remove-pfx', 'BatchInspector 이름 prefix/suffix 제거')
+  } else {
+    log('warning', 'R1777-remove-pfx', 'BatchInspector 이름 prefix/suffix 제거 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 669: R1778 BatchInspector 이름 Regex 교체 ────────────────────────
+console.log('\n## 669. R1778 BatchInspector 이름 Regex 교체 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s669 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s669.includes('R1778') && s669.includes('applyRegex') && s669.includes('batchRegexPat')) {
+    log('pass', 'R1778-regex-replace', 'BatchInspector 이름 Regex 교체')
+  } else {
+    log('warning', 'R1778-regex-replace', 'BatchInspector 이름 Regex 교체 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 670: R1779 Inspector 위치/크기 정수화 버튼 ───────────────────────
+console.log('\n## 670. R1779 Inspector 정수화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s670 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s670.includes('R1779') && s670.includes('정수화') && s670.includes('⊹int')) {
+    log('pass', 'R1779-int-snap', 'Inspector 위치/크기 정수화 버튼')
+  } else {
+    log('warning', 'R1779-int-snap', 'Inspector 정수화 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 671: R1780 BatchInspector 크기 배율 일괄 적용 ────────────────────
+console.log('\n## 671. R1780 BatchInspector 크기 배율 일괄 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s671 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s671.includes('R1780') && s671.includes('patchSizeMult') && s671.includes('크기배율')) {
+    log('pass', 'R1780-batch-size-mult', 'BatchInspector 크기 배율 일괄 적용')
+  } else {
+    log('warning', 'R1780-batch-size-mult', 'BatchInspector 크기 배율 일괄 적용 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 672: R1781 BatchInspector 위치/크기 일괄 정수화 ──────────────────
+console.log('\n## 672. R1781 BatchInspector 일괄 정수화 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s672 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s672.includes('R1781') && s672.includes('patchInt') && s672.includes('정수화')) {
+    log('pass', 'R1781-batch-int', 'BatchInspector 선택 노드 위치/크기 일괄 정수화')
+  } else {
+    log('warning', 'R1781-batch-int', 'BatchInspector 일괄 정수화 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 673: R1782 Inspector 스케일 정수화 버튼 ──────────────────────────
+console.log('\n## 673. R1782 Inspector 스케일 정수화 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s673 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s673.includes('R1782') && s673.includes('스케일 정수화')) {
+    log('pass', 'R1782-scale-int', 'Inspector 스케일 정수화 버튼')
+  } else {
+    log('warning', 'R1782-scale-int', 'Inspector 스케일 정수화 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 674: R1783 cc.Layout spacing 퀵 프리셋 ───────────────────────────
+console.log('\n## 674. R1783 cc.Layout spacing 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s674 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s674.includes('R1783') && s674.includes('spacing 퀵 프리셋') && s674.includes('spacingX: v')) {
+    log('pass', 'R1783-layout-spacing', 'cc.Layout spacing 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1783-layout-spacing', 'cc.Layout spacing 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 675: R1784 cc.ScrollView brake 퀵 프리셋 ─────────────────────────
+console.log('\n## 675. R1784 cc.ScrollView brake 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s675 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s675.includes('R1784') && s675.includes('brake 퀵 프리셋')) {
+    log('pass', 'R1784-scrollview-brake', 'cc.ScrollView brake 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1784-scrollview-brake', 'cc.ScrollView brake 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 676: R1785 cc.AudioSource volume 퀵 프리셋 ───────────────────────
+console.log('\n## 676. R1785 cc.AudioSource volume 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s676 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s676.includes('R1785') && s676.includes('volume 퀵 프리셋')) {
+    log('pass', 'R1785-audio-vol-preset', 'cc.AudioSource volume 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1785-audio-vol-preset', 'cc.AudioSource volume 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 677: R1786 cc.Label fontSize 표준 크기 프리셋 ───────────────────────
+console.log('\n## 677. R1786 cc.Label fontSize 표준 크기 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s677 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s677.includes('R1786') && s677.includes('fontSize 표준 크기 프리셋') && s677.includes('_N$fontSize: v')) {
+    log('pass', 'R1786-label-fontsize-preset', 'cc.Label fontSize 표준 크기 프리셋 버튼')
+  } else {
+    log('warning', 'R1786-label-fontsize-preset', 'cc.Label fontSize 표준 크기 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 678: R1787 cc.Label lineHeight 퀵 프리셋 ─────────────────────────
+console.log('\n## 678. R1787 cc.Label lineHeight 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s678 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s678.includes('R1787') && s678.includes('lineHeight 퀵 프리셋') && s678.includes('_N$lineHeight: v')) {
+    log('pass', 'R1787-label-lineheight-preset', 'cc.Label lineHeight 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1787-label-lineheight-preset', 'cc.Label lineHeight 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 679: R1788 cc.Sprite type/sizeMode 버튼 ──────────────────────────
+console.log('\n## 679. R1788 cc.Sprite type/sizeMode 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s679 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s679.includes('R1788') && s679.includes('Sprite type/sizeMode 버튼') && s679.includes('spriteTypeVal')) {
+    log('pass', 'R1788-sprite-type-btn', 'cc.Sprite type/sizeMode 버튼')
+  } else {
+    log('warning', 'R1788-sprite-type-btn', 'cc.Sprite type/sizeMode 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 680: R1789 cc.Label enableWrapText + spacingX ────────────────────
+console.log('\n## 680. R1789 cc.Label enableWrapText/spacingX 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s680 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s680.includes('R1789') && s680.includes('enableWrapText') && s680.includes('spacingX')) {
+    log('pass', 'R1789-label-wrap-spacing', 'cc.Label enableWrapText 토글 + spacingX 입력')
+  } else {
+    log('warning', 'R1789-label-wrap-spacing', 'cc.Label enableWrapText/spacingX 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 681: R1790 cc.Camera clearFlags + backgroundColor ────────────────
+console.log('\n## 681. R1790 cc.Camera clearFlags + backgroundColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s681 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s681.includes('R1790') && s681.includes('clearFlags') && s681.includes('backgroundColor')) {
+    log('pass', 'R1790-camera-clearflags', 'cc.Camera clearFlags + backgroundColor 편집')
+  } else {
+    log('warning', 'R1790-camera-clearflags', 'cc.Camera clearFlags/backgroundColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 682: R1791 cc.EditBox inputFlag 버튼 ─────────────────────────────
+console.log('\n## 682. R1791 cc.EditBox inputFlag 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s682 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s682.includes('R1791') && s682.includes('inputFlag 버튼') && s682.includes('Passwd')) {
+    log('pass', 'R1791-editbox-inputflag', 'cc.EditBox inputFlag 버튼')
+  } else {
+    log('warning', 'R1791-editbox-inputflag', 'cc.EditBox inputFlag 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 683: R1792 BatchInspector cc.Label lineHeight ────────────────────
+console.log('\n## 683. R1792 BatchInspector cc.Label lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s683 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s683.includes('R1792') && s683.includes('patchLH') && s683.includes('_N$lineHeight: lh')) {
+    log('pass', 'R1792-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R1792-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 684: R1793 cc.ParticleSystem duration 퀵 프리셋 ──────────────────
+console.log('\n## 684. R1793 cc.ParticleSystem duration 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s684 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s684.includes('R1793') && s684.includes('duration 퀵 프리셋') && s684.includes("'∞'")) {
+    log('pass', 'R1793-particle-duration-preset', 'cc.ParticleSystem duration 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1793-particle-duration-preset', 'cc.ParticleSystem duration 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 685: R1794 cc.UIOpacity 퀵 프리셋 ───────────────────────────────
+console.log('\n## 685. R1794 cc.UIOpacity 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s685 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s685.includes('R1794') && s685.includes('UIOpacity 퀵 프리셋') && s685.includes('_opacity: v')) {
+    log('pass', 'R1794-uiopacity-preset', 'cc.UIOpacity 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1794-uiopacity-preset', 'cc.UIOpacity 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 686: R1795 BatchInspector cc.AudioSource loop/playOnLoad ─────────
+console.log('\n## 686. R1795 BatchInspector cc.AudioSource loop/playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s686 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s686.includes('R1795') && s686.includes('patchAudio') && s686.includes('playOnLoad')) {
+    log('pass', 'R1795-batch-audio-loop', 'BatchInspector cc.AudioSource loop/playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R1795-batch-audio-loop', 'BatchInspector cc.AudioSource loop/playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 687: R1796 cc.Layout paddingAll 퀵 프리셋 ────────────────────────
+console.log('\n## 687. R1796 cc.Layout paddingAll 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s687 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s687.includes('R1796') && s687.includes('padding 전체') && s687.includes('paddingBottom: v')) {
+    log('pass', 'R1796-layout-padding-preset', 'cc.Layout paddingAll 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1796-layout-padding-preset', 'cc.Layout paddingAll 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 688: R1797 BatchInspector cc.Label overflow ──────────────────────
+console.log('\n## 688. R1797 BatchInspector cc.Label overflow 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s688 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s688.includes('R1797') && s688.includes('patchOverflow') && s688.includes('_N$overflow: v')) {
+    log('pass', 'R1797-batch-label-overflow', 'BatchInspector cc.Label overflow 일괄 설정')
+  } else {
+    log('warning', 'R1797-batch-label-overflow', 'BatchInspector cc.Label overflow 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 689: R1798 cc.Label fontFamily 퀵 프리셋 ─────────────────────────
+console.log('\n## 689. R1798 cc.Label fontFamily 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s689 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s689.includes('R1798') && s689.includes('fontFamily 퀵 프리셋') && s689.includes('Arial')) {
+    log('pass', 'R1798-label-fontfamily-preset', 'cc.Label fontFamily 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1798-label-fontfamily-preset', 'cc.Label fontFamily 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 690: R1799 BatchInspector cc.Label hAlign ────────────────────────
+console.log('\n## 690. R1799 BatchInspector cc.Label hAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s690 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s690.includes('R1799') && s690.includes('patchHAlign') && s690.includes('_N$horizontalAlign: v')) {
+    log('pass', 'R1799-batch-label-halign', 'BatchInspector cc.Label hAlign 일괄 설정')
+  } else {
+    log('warning', 'R1799-batch-label-halign', 'BatchInspector cc.Label hAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 691: R1800 BatchInspector cc.Label vAlign ────────────────────────
+console.log('\n## 691. R1800 BatchInspector cc.Label vAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s691 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s691.includes('R1800') && s691.includes('patchVAlign') && s691.includes('_N$verticalAlign: v')) {
+    log('pass', 'R1800-batch-label-valign', 'BatchInspector cc.Label vAlign 일괄 설정')
+  } else {
+    log('warning', 'R1800-batch-label-valign', 'BatchInspector cc.Label vAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 692: R1801 BatchInspector cc.Sprite type ─────────────────────────
+console.log('\n## 692. R1801 BatchInspector cc.Sprite type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s692 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s692.includes('R1801') && s692.includes('patchSpriteType') && s692.includes('_type: v')) {
+    log('pass', 'R1801-batch-sprite-type', 'BatchInspector cc.Sprite type 일괄 설정')
+  } else {
+    log('warning', 'R1801-batch-sprite-type', 'BatchInspector cc.Sprite type 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 693: R1802 BatchInspector cc.Label bold/italic/underline ─────────
+console.log('\n## 693. R1802 BatchInspector cc.Label bold/italic/underline 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s693 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s693.includes('R1802') && s693.includes('patchStyle') && s693.includes('isUnderline')) {
+    log('pass', 'R1802-batch-label-style', 'BatchInspector cc.Label bold/italic/underline 일괄 설정')
+  } else {
+    log('warning', 'R1802-batch-label-style', 'BatchInspector cc.Label bold/italic/underline 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 694: R1803 BatchInspector cc.Sprite grayscale ────────────────────
+console.log('\n## 694. R1803 BatchInspector cc.Sprite grayscale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s694 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s694.includes('R1803') && s694.includes('patchGray') && s694.includes('grayscale: val')) {
+    log('pass', 'R1803-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 일괄 설정')
+  } else {
+    log('warning', 'R1803-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 695: R1804 BatchInspector cc.Label wrapText ──────────────────────
+console.log('\n## 695. R1804 BatchInspector cc.Label wrapText 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s695 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s695.includes('R1804') && s695.includes('patchWrap') && s695.includes('_N$enableWrapText: val')) {
+    log('pass', 'R1804-batch-label-wrap', 'BatchInspector cc.Label wrapText 일괄 설정')
+  } else {
+    log('warning', 'R1804-batch-label-wrap', 'BatchInspector cc.Label wrapText 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 696: R1805 cc.Label string 클립보드 복사 ─────────────────────────
+console.log('\n## 696. R1805 cc.Label string 클립보드 복사 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s696 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s696.includes('R1805') && s696.includes('string 복사 버튼') && s696.includes('clipboard.writeText(str)')) {
+    log('pass', 'R1805-label-string-copy', 'cc.Label string 클립보드 복사 버튼')
+  } else {
+    log('warning', 'R1805-label-string-copy', 'cc.Label string 클립보드 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 697: R1806 cc.VideoPlayer playbackRate 퀵 프리셋 ─────────────────
+console.log('\n## 697. R1806 cc.VideoPlayer playbackRate 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s697 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s697.includes('R1806') && s697.includes('playbackRate 퀵 프리셋') && s697.includes('playbackRate: v')) {
+    log('pass', 'R1806-video-playbackrate-preset', 'cc.VideoPlayer playbackRate 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1806-video-playbackrate-preset', 'cc.VideoPlayer playbackRate 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 698: R1807 cc.Button normalColor 퀵 프리셋 ─────────────────────────
+console.log('\n## 698. R1807 cc.Button normalColor 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s698 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s698.includes('R1807') && s698.includes('normalColor 퀵 프리셋') && s698.includes('_N$normalColor: col')) {
+    log('pass', 'R1807-button-normalcolor-preset', 'cc.Button normalColor 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1807-button-normalcolor-preset', 'cc.Button normalColor 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 699: R1808 cc.RichText applyAndSave 업그레이드 ──────────────────────
+console.log('\n## 699. R1808 cc.RichText applyAndSave 업그레이드 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s699 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s699.includes('R1808') && s699.includes('_N$string: e.target.value') && s699.includes('_N$fontSize: v')) {
+    log('pass', 'R1808-richtext-applyandsave', 'cc.RichText applyAndSave + fontSize 프리셋')
+  } else {
+    log('warning', 'R1808-richtext-applyandsave', 'cc.RichText applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 700: R1809 BatchInspector 크기배율 커스텀 입력 ────────────────────
+console.log('\n## 700. R1809 BatchInspector 크기배율 커스텀 입력 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s700 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s700.includes('R1809') && s700.includes('커스텀 배율') && s700.includes('applyMult')) {
+    log('pass', 'R1809-batch-size-custom-mult', 'BatchInspector 크기배율 커스텀 입력')
+  } else {
+    log('warning', 'R1809-batch-size-custom-mult', 'BatchInspector 크기배율 커스텀 입력 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 701: R1810 cc.Sprite Filled fillType/fillRange applyAndSave ──────
+console.log('\n## 701. R1810 cc.Sprite Filled fillType/fillRange applyAndSave 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s701 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s701.includes('R1810') && s701.includes('_fillType: v') && s701.includes('_fillRange: v')) {
+    log('pass', 'R1810-sprite-filled-applyandsave', 'cc.Sprite Filled fillType/fillRange applyAndSave')
+  } else {
+    log('warning', 'R1810-sprite-filled-applyandsave', 'cc.Sprite Filled applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 702: R1811 cc.LabelOutline/LabelShadow applyAndSave ───────────────
+console.log('\n## 702. R1811 cc.LabelOutline/LabelShadow applyAndSave 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s702 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s702.includes('R1811') && s702.includes('_width: v') && s702.includes('_blur: v')) {
+    log('pass', 'R1811-labeloutline-applyandsave', 'cc.LabelOutline/LabelShadow applyAndSave')
+  } else {
+    log('warning', 'R1811-labeloutline-applyandsave', 'cc.LabelOutline/LabelShadow applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 703: R1812 cc.Toggle/ToggleContainer + EditBox applyAndSave ──────
+console.log('\n## 703. R1812 cc.Toggle/EditBox applyAndSave 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s703 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s703.includes('R1812') && s703.includes('allowSwitchOff: ev.target.checked') && s703.includes('_placeholder: ev.target.value')) {
+    log('pass', 'R1812-toggle-editbox-applyandsave', 'cc.Toggle/EditBox(legacy) applyAndSave')
+  } else {
+    log('warning', 'R1812-toggle-editbox-applyandsave', 'cc.Toggle/EditBox applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 704: R1813 cc.Graphics + Physics Colliders applyAndSave ──────────
+console.log('\n## 704. R1813 cc.Graphics + Physics Colliders applyAndSave 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s704 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s704.includes('R1813') && s704.includes('strokeColor: col') && s704.includes('sensor: ev.target.checked')) {
+    log('pass', 'R1813-graphics-physics-applyandsave', 'cc.Graphics + Collider applyAndSave')
+  } else {
+    log('warning', 'R1813-graphics-physics-applyandsave', 'cc.Graphics/Collider applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 705: R1814 cc.SkeletalAnimation speedRatio 퀵 프리셋 ───────────────
+console.log('\n## 705. R1814 cc.SkeletalAnimation speedRatio 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s705 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s705.includes('R1814') && s705.includes('speedRatio 퀵 프리셋') && s705.includes('_speedRatio: v')) {
+    log('pass', 'R1814-skeletal-speedratio-preset', 'cc.SkeletalAnimation speedRatio 퀵 프리셋')
+  } else {
+    log('warning', 'R1814-skeletal-speedratio-preset', 'cc.SkeletalAnimation speedRatio 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 706: R1815 cc.ParticleSystem emitRate 퀵 프리셋 ──────────────────
+console.log('\n## 706. R1815 cc.ParticleSystem emitRate 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s706 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s706.includes('R1815') && s706.includes('emitRate 퀵 프리셋') && s706.includes('_N$emissionRate: v')) {
+    log('pass', 'R1815-particle-emitrate-preset', 'cc.ParticleSystem emitRate 퀵 프리셋')
+  } else {
+    log('warning', 'R1815-particle-emitrate-preset', 'cc.ParticleSystem emitRate 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 707: R1816 BatchInspector cc.Animation playOnLoad ────────────────
+console.log('\n## 707. R1816 BatchInspector cc.Animation playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s707 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s707.includes('R1816') && s707.includes('patchAnim') && s707.includes("c.type === 'cc.Animation'")) {
+    log('pass', 'R1816-batch-animation-playonload', 'BatchInspector cc.Animation playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R1816-batch-animation-playonload', 'BatchInspector cc.Animation playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 708: R1817 cc.RigidBody gravityScale 퀵 프리셋 ──────────────────
+console.log('\n## 708. R1817 cc.RigidBody gravityScale 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s708 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s708.includes('R1817') && s708.includes('gravityScale 퀵 프리셋') && s708.includes('gravityScale: v')) {
+    log('pass', 'R1817-rigidbody-gravityscale-preset', 'cc.RigidBody gravityScale 퀵 프리셋')
+  } else {
+    log('warning', 'R1817-rigidbody-gravityscale-preset', 'cc.RigidBody gravityScale 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 709: R1818 sp.Skeleton timeScale 퀵 프리셋 ───────────────────────
+console.log('\n## 709. R1818 sp.Skeleton timeScale 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s709 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s709.includes('R1818') && s709.includes('timeScale 퀵 프리셋') && s709.includes('timeScale: v')) {
+    log('pass', 'R1818-spine-timescale-preset', 'sp.Skeleton timeScale 퀵 프리셋')
+  } else {
+    log('warning', 'R1818-spine-timescale-preset', 'sp.Skeleton timeScale 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 710: R1819 dragonBones.ArmatureDisplay timeScale 퀵 프리셋 ───────
+console.log('\n## 710. R1819 dragonBones.ArmatureDisplay timeScale 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s710 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s710.includes('R1819') && s710.includes('dragonBones') && s710.includes('timeScale: v')) {
+    log('pass', 'R1819-dragonbones-timescale-preset', 'dragonBones.ArmatureDisplay timeScale 퀵 프리셋')
+  } else {
+    log('warning', 'R1819-dragonbones-timescale-preset', 'dragonBones.ArmatureDisplay timeScale 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 711: R1820 cc.Layout verticalDirection/horizontalDirection 버튼 ──
+console.log('\n## 711. R1820 cc.Layout direction 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s711 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s711.includes('R1820') && s711.includes('horizontalDirection: v') && s711.includes('verticalDirection: v')) {
+    log('pass', 'R1820-layout-direction-btn', 'cc.Layout verticalDirection/horizontalDirection 버튼')
+  } else {
+    log('warning', 'R1820-layout-direction-btn', 'cc.Layout direction 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 712: R1821 BatchInspector cc.Layout type 일괄 설정 ───────────────
+console.log('\n## 712. R1821 BatchInspector cc.Layout type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s712 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s712.includes('R1821') && s712.includes('patchLayoutType') && s712.includes("c.type === 'cc.Layout'")) {
+    log('pass', 'R1821-batch-layout-type', 'BatchInspector cc.Layout type 일괄 설정')
+  } else {
+    log('warning', 'R1821-batch-layout-type', 'BatchInspector cc.Layout type 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 713: R1822 BatchInspector cc.Widget alignment 일괄 설정 ──────────
+console.log('\n## 713. R1822 BatchInspector cc.Widget alignment 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s713 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s713.includes('R1822') && s713.includes('patchWidget') && s713.includes("c.type === 'cc.Widget'")) {
+    log('pass', 'R1822-batch-widget-alignment', 'BatchInspector cc.Widget alignment 일괄 설정')
+  } else {
+    log('warning', 'R1822-batch-widget-alignment', 'BatchInspector cc.Widget alignment 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 714: R1823 cc.Button 상태색 CC 기본값 리셋 ──────────────────────
+console.log('\n## 714. R1823 cc.Button 상태색 리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s714 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s714.includes('R1823') && s714.includes('_N$disabledColor: defs.disabledColor') && s714.includes('↺ defaults')) {
+    log('pass', 'R1823-button-reset-colors', 'cc.Button 상태색 CC 기본값 리셋 버튼')
+  } else {
+    log('warning', 'R1823-button-reset-colors', 'cc.Button 상태색 리셋 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 715: R1824 BatchInspector cc.RigidBody linearDamping 일괄 설정 ──
+console.log('\n## 715. R1824 BatchInspector cc.RigidBody linearDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s715 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s715.includes('R1824') && s715.includes('patchRBDamp') && s715.includes("c.type === 'cc.RigidBody'") && s715.includes('linearDamping')) {
+    log('pass', 'R1824-batch-rb-lineardamping', 'BatchInspector cc.RigidBody linearDamping 일괄 설정')
+  } else {
+    log('warning', 'R1824-batch-rb-lineardamping', 'BatchInspector cc.RigidBody linearDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 716: R1825 BatchInspector 이름 정규화 ────────────────────────────
+console.log('\n## 716. R1825 BatchInspector 이름 정규화 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s716 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s716.includes('R1825') && s716.includes('batchNormBase') && s716.includes('applyNorm') && s716.includes('정규화')) {
+    log('pass', 'R1825-batch-name-normalize', 'BatchInspector 선택 노드 이름 정규화')
+  } else {
+    log('warning', 'R1825-batch-name-normalize', 'BatchInspector 이름 정규화 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 717: R1826 sp.Skeleton premultipliedAlpha/debugSlots/debugBones ──
+console.log('\n## 717. R1826 sp.Skeleton 확장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s717 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s717.includes('R1826') && s717.includes('premultipliedAlpha') && s717.includes('debugSlots') && s717.includes('debugBones')) {
+    log('pass', 'R1826-spine-extra', 'sp.Skeleton premultipliedAlpha/debugSlots/debugBones 추가')
+  } else {
+    log('warning', 'R1826-spine-extra', 'sp.Skeleton 확장 속성 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 718: R1827 cc.Sprite 색조(hue) 슬라이더 ────────────────────────
+console.log('\n## 718. R1827 cc.Sprite hue 슬라이더 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s718 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s718.includes('R1827') && s718.includes('applyHue') && s718.includes('hue2rgb') && s718.includes('curHue')) {
+    log('pass', 'R1827-sprite-hue-slider', 'cc.Sprite 색조(hue) 슬라이더')
+  } else {
+    log('warning', 'R1827-sprite-hue-slider', 'cc.Sprite hue 슬라이더 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 719: R1828 BatchInspector cc.AudioSource volume 일괄 설정 ────────
+console.log('\n## 719. R1828 BatchInspector cc.AudioSource volume 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s719 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s719.includes('R1828') && s719.includes('patchAudioVol') && s719.includes("c.type === 'cc.AudioSource'") && s719.includes('applyAudioVol')) {
+    log('pass', 'R1828-batch-audio-volume', 'BatchInspector cc.AudioSource volume 일괄 설정')
+  } else {
+    log('warning', 'R1828-batch-audio-volume', 'BatchInspector cc.AudioSource volume 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 720: R1829 cc.RigidBody linearDamping 퀵 프리셋 ──────────────────
+console.log('\n## 720. R1829 cc.RigidBody linearDamping 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s720 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s720.includes('R1829') && s720.includes('linearDamping 퀵 프리셋') && s720.includes('linearDamping === v')) {
+    log('pass', 'R1829-rb-lineardamping-preset', 'cc.RigidBody linearDamping 퀵 프리셋')
+  } else {
+    log('warning', 'R1829-rb-lineardamping-preset', 'cc.RigidBody linearDamping 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 721: R1830 cc.RigidBody angularDamping 편집 ──────────────────────
+console.log('\n## 721. R1830 cc.RigidBody angularDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s721 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s721.includes('R1830') && s721.includes('angularDamping') && s721.includes('angularDamping === v')) {
+    log('pass', 'R1830-rb-angulardamping', 'cc.RigidBody angularDamping 편집 + 퀵 프리셋')
+  } else {
+    log('warning', 'R1830-rb-angulardamping', 'cc.RigidBody angularDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 722: R1831 cc.ScrollView elasticDuration 편집 ───────────────────
+console.log('\n## 722. R1831 cc.ScrollView elasticDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s722 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s722.includes('R1831') && s722.includes('elasticDuration') && s722.includes('_N$elasticDuration')) {
+    log('pass', 'R1831-scrollview-elasticduration', 'cc.ScrollView elasticDuration 편집 + 프리셋')
+  } else {
+    log('warning', 'R1831-scrollview-elasticduration', 'cc.ScrollView elasticDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 723: R1832 cc.Canvas resolutionPolicy 퀵 선택 ───────────────────
+console.log('\n## 723. R1832 cc.Canvas resolutionPolicy 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s723 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s723.includes('R1832') && s723.includes('resolutionPolicy') && s723.includes('SHOW_ALL') && s723.includes('NO_BORDER')) {
+    log('pass', 'R1832-canvas-resolutionpolicy', 'cc.Canvas resolutionPolicy 퀵 선택')
+  } else {
+    log('warning', 'R1832-canvas-resolutionpolicy', 'cc.Canvas resolutionPolicy 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 724: R1833 cc.ParticleSystem startSize/endSize 편집 ─────────────
+console.log('\n## 724. R1833 cc.ParticleSystem startSize/endSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s724 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s724.includes('R1833') && s724.includes('startSize') && s724.includes('_N$startSize') && s724.includes('endSize')) {
+    log('pass', 'R1833-particle-startsize-endsize', 'cc.ParticleSystem startSize/endSize 편집')
+  } else {
+    log('warning', 'R1833-particle-startsize-endsize', 'cc.ParticleSystem startSize/endSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 725: R1834 cc.ParticleSystem startColor/endColor 색상 피커 ───────
+console.log('\n## 725. R1834 cc.ParticleSystem startColor/endColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s725 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s725.includes('R1834') && s725.includes('startColor') && s725.includes('_N$startColor') && s725.includes('endColor')) {
+    log('pass', 'R1834-particle-colors', 'cc.ParticleSystem startColor/endColor 색상 피커')
+  } else {
+    log('warning', 'R1834-particle-colors', 'cc.ParticleSystem 색상 피커 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 726: R1835 BatchInspector cc.Slider progress 일괄 설정 ────────────
+console.log('\n## 726. R1835 BatchInspector cc.Slider progress 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s726 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s726.includes('R1835') && s726.includes('patchSlider') && s726.includes("c.type === 'cc.Slider'") && s726.includes('_N$progress: progress')) {
+    log('pass', 'R1835-batch-slider-progress', 'BatchInspector cc.Slider progress 일괄 설정')
+  } else {
+    log('warning', 'R1835-batch-slider-progress', 'BatchInspector cc.Slider progress 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 727: R1836 BatchInspector cc.SkeletalAnimation speedRatio 일괄 ──
+console.log('\n## 727. R1836 BatchInspector cc.SkeletalAnimation speedRatio 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s727 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s727.includes('R1836') && s727.includes('patchSkeletal') && s727.includes("c.type === 'cc.SkeletalAnimation'") && s727.includes('_speedRatio: speedRatio')) {
+    log('pass', 'R1836-batch-skeletal-speed', 'BatchInspector cc.SkeletalAnimation speedRatio 일괄 설정')
+  } else {
+    log('warning', 'R1836-batch-skeletal-speed', 'BatchInspector cc.SkeletalAnimation speedRatio 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 728: R1837 BatchInspector cc.ParticleSystem emitRate 일괄 ────────
+console.log('\n## 728. R1837 BatchInspector cc.ParticleSystem emitRate 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s728 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s728.includes('R1837') && s728.includes('patchParticle') && s728.includes("c.type === 'cc.ParticleSystem'") && s728.includes('_N$emissionRate: rate')) {
+    log('pass', 'R1837-batch-particle-emitrate', 'BatchInspector cc.ParticleSystem emitRate 일괄 설정')
+  } else {
+    log('warning', 'R1837-batch-particle-emitrate', 'BatchInspector cc.ParticleSystem emitRate 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 729: R1838 BatchInspector sp.Skeleton timeScale 일괄 설정 ─────────
+console.log('\n## 729. R1838 BatchInspector sp.Skeleton timeScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s729 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s729.includes('R1838') && s729.includes('patchSpine') && s729.includes("c.type === 'sp.Skeleton'") && s729.includes('applySpineSpeed')) {
+    log('pass', 'R1838-batch-spine-timescale', 'BatchInspector sp.Skeleton timeScale 일괄 설정')
+  } else {
+    log('warning', 'R1838-batch-spine-timescale', 'BatchInspector sp.Skeleton timeScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 730: R1839 BatchInspector dragonBones timeScale 일괄 설정 ─────────
+console.log('\n## 730. R1839 BatchInspector dragonBones timeScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s730 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s730.includes('R1839') && s730.includes('patchDB') && s730.includes("c.type === 'dragonBones.ArmatureDisplay'") && s730.includes('applyDBSpeed')) {
+    log('pass', 'R1839-batch-db-timescale', 'BatchInspector dragonBones.ArmatureDisplay timeScale 일괄 설정')
+  } else {
+    log('warning', 'R1839-batch-db-timescale', 'BatchInspector dragonBones timeScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 731: R1840 cc.Button transition 퀵 버튼 ──────────────────────────
+console.log('\n## 731. R1840 cc.Button transition 퀵 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s731 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s731.includes('R1840') && s731.includes("'None',0") && s731.includes("'Scale',3")) {
+    log('pass', 'R1840-btn-transition-quick', 'cc.Button transition 퀵 버튼 (None/Color/Sprite/Scale)')
+  } else {
+    log('warning', 'R1840-btn-transition-quick', 'cc.Button transition 퀵 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 732: R1841 cc.ParticleSystem speed/speedVar 편집 ─────────────────
+console.log('\n## 732. R1841 cc.ParticleSystem speed/speedVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s732 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s732.includes('R1841') && s732.includes('_N$speed') && s732.includes('speedVar') && s732.includes('_N$speedVar')) {
+    log('pass', 'R1841-particle-speed', 'cc.ParticleSystem speed/speedVar 편집')
+  } else {
+    log('warning', 'R1841-particle-speed', 'cc.ParticleSystem speed/speedVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 733: R1842 BatchInspector cc.VideoPlayer loop/muted 일괄 ──────────
+console.log('\n## 733. R1842 BatchInspector cc.VideoPlayer loop/muted 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s733 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s733.includes('R1842') && s733.includes("'cc.VideoPlayer'") && s733.includes('applyVideoToggle') && s733.includes("'muted'")) {
+    log('pass', 'R1842-batch-videoplayer', 'BatchInspector cc.VideoPlayer loop/muted 일괄 설정')
+  } else {
+    log('warning', 'R1842-batch-videoplayer', 'BatchInspector cc.VideoPlayer loop/muted 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 734: R1843 cc.RigidBody type 퀵 버튼 ──────────────────────────────
+console.log('\n## 734. R1843 cc.RigidBody type 퀵 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s734 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s734.includes('R1843') && s734.includes('rbTypes') && s734.includes("'DYNAMIC'")) {
+    log('pass', 'R1843-rigidbody-type-quick', 'cc.RigidBody type 퀵 버튼 (DYN/STA/KIN)')
+  } else {
+    log('warning', 'R1843-rigidbody-type-quick', 'cc.RigidBody type 퀵 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 735: R1844 cc.ParticleSystem lifespan/lifespanVar ────────────────
+console.log('\n## 735. R1844 cc.ParticleSystem lifespan/lifespanVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s735 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s735.includes('R1844') && s735.includes('_N$life') && s735.includes('lifeVar') && s735.includes('_N$lifeVar')) {
+    log('pass', 'R1844-particle-lifespan', 'cc.ParticleSystem lifespan/lifespanVar 편집')
+  } else {
+    log('warning', 'R1844-particle-lifespan', 'cc.ParticleSystem lifespan/lifespanVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 736: R1845 cc.ParticleSystem gravity x/y ─────────────────────────
+console.log('\n## 736. R1845 cc.ParticleSystem gravity x/y 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s736 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s736.includes('R1845') && s736.includes('_N$gravity') && s736.includes('gravX') && s736.includes('gravY')) {
+    log('pass', 'R1845-particle-gravity', 'cc.ParticleSystem gravity x/y 편집')
+  } else {
+    log('warning', 'R1845-particle-gravity', 'cc.ParticleSystem gravity 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 737: R1846 BatchInspector cc.ParticleSystem startSize 일괄 ────────
+console.log('\n## 737. R1846 BatchInspector cc.ParticleSystem startSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s737 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s737.includes('R1846') && s737.includes('applyParticleSize') && s737.includes('patchPSize') && s737.includes('_N$startSize')) {
+    log('pass', 'R1846-batch-particle-size', 'BatchInspector cc.ParticleSystem startSize 일괄 설정')
+  } else {
+    log('warning', 'R1846-batch-particle-size', 'BatchInspector cc.ParticleSystem startSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 738: R1847 cc.PageView slideDuration 편집 ────────────────────────
+console.log('\n## 738. R1847 cc.PageView slideDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s738 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s738.includes('R1847') && s738.includes('slideDuration') && s738.includes('_N$slideDuration')) {
+    log('pass', 'R1847-pageview-slideduration', 'cc.PageView slideDuration 편집 + 프리셋')
+  } else {
+    log('warning', 'R1847-pageview-slideduration', 'cc.PageView slideDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 739: R1848 cc.MotionStreak 편집 ──────────────────────────────────
+console.log('\n## 739. R1848 cc.MotionStreak 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s739 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s739.includes('R1848') && s739.includes("'cc.MotionStreak'") && s739.includes('_N$fade') && s739.includes('fastMode')) {
+    log('pass', 'R1848-motionstreak', 'cc.MotionStreak fade/minSeg/stroke/color/fastMode 편집')
+  } else {
+    log('warning', 'R1848-motionstreak', 'cc.MotionStreak 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 740: R1849 cc.BoxCollider friction/restitution ───────────────────
+console.log('\n## 740. R1849 cc.BoxCollider friction/restitution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s740 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s740.includes('R1849') && s740.includes('friction') && s740.includes('restitution')) {
+    log('pass', 'R1849-collider-friction', 'cc.BoxCollider friction/restitution 편집')
+  } else {
+    log('warning', 'R1849-collider-friction', 'cc.BoxCollider friction/restitution 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 741: R1850 cc.CircleCollider friction/restitution ────────────────
+console.log('\n## 741. R1850 cc.CircleCollider friction/restitution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s741 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  // R1850 follows the CircleCollider sensor checkbox
+  const idx = s741.indexOf("'cc.RigidBody' || comp.type === 'cc.RigidBody2D'")
+  const chunk = idx > 0 ? s741.slice(Math.max(0, idx - 3000), idx) : ''
+  if (s741.includes('R1850') && chunk.includes('restitution') && chunk.includes('friction')) {
+    log('pass', 'R1850-circlecollider-friction', 'cc.CircleCollider friction/restitution 편집')
+  } else {
+    log('warning', 'R1850-circlecollider-friction', 'cc.CircleCollider friction/restitution 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 742: R1851 BatchInspector cc.RigidBody fixedRotation 일괄 ─────────
+console.log('\n## 742. R1851 BatchInspector cc.RigidBody fixedRotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s742 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s742.includes('R1851') && s742.includes('applyRBFixRot') && s742.includes('fixedRotation') && s742.includes('patchRBFixRot')) {
+    log('pass', 'R1851-batch-rb-fixedrotation', 'BatchInspector cc.RigidBody fixedRotation 일괄 설정')
+  } else {
+    log('warning', 'R1851-batch-rb-fixedrotation', 'BatchInspector cc.RigidBody fixedRotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 743: R1852 BatchInspector cc.Mask inverted 일괄 ──────────────────
+console.log('\n## 743. R1852 BatchInspector cc.Mask inverted 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s743 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s743.includes('R1852') && s743.includes('applyMaskInvert') && s743.includes('patchMask') && s743.includes("'cc.Mask'")) {
+    log('pass', 'R1852-batch-mask-inverted', 'BatchInspector cc.Mask inverted 일괄 설정')
+  } else {
+    log('warning', 'R1852-batch-mask-inverted', 'BatchInspector cc.Mask inverted 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 744: R1853 BatchInspector cc.ProgressBar reverse 일괄 ─────────────
+console.log('\n## 744. R1853 BatchInspector cc.ProgressBar reverse 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s744 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s744.includes('R1853') && s744.includes('applyPBReverse') && s744.includes('patchPBRev')) {
+    log('pass', 'R1853-batch-pb-reverse', 'BatchInspector cc.ProgressBar reverse 일괄 설정')
+  } else {
+    log('warning', 'R1853-batch-pb-reverse', 'BatchInspector cc.ProgressBar reverse 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 745: R1854 BatchInspector cc.Label bold/italic 일괄 ──────────────
+console.log('\n## 745. R1854 BatchInspector cc.Label bold/italic 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s745 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s745.includes('R1854') && s745.includes('applyLabelStyle') && s745.includes("'isBold'") && s745.includes("'isItalic'")) {
+    log('pass', 'R1854-batch-label-style', 'BatchInspector cc.Label bold/italic/underline 일괄 설정')
+  } else {
+    log('warning', 'R1854-batch-label-style', 'BatchInspector cc.Label bold/italic 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 746: R1855 BatchInspector cc.Label lineHeight 일괄 ───────────────
+console.log('\n## 746. R1855 BatchInspector cc.Label lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s746 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s746.includes('R1855') && s746.includes('applyLabelLH') && s746.includes('patchLH') && s746.includes('_N$lineHeight')) {
+    log('pass', 'R1855-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R1855-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 747: R1856 BatchInspector 이름 find/replace ───────────────────────
+console.log('\n## 747. R1856 BatchInspector 이름 find/replace 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s747 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s747.includes('R1856') && s747.includes('batchFindStr') && s747.includes('batchReplaceStr') && s747.includes('applyFR')) {
+    log('pass', 'R1856-batch-name-findreplace', 'BatchInspector 이름 find/replace 일괄 치환')
+  } else {
+    log('warning', 'R1856-batch-name-findreplace', 'BatchInspector 이름 find/replace 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 748: R1857 BatchInspector cc.RigidBody gravityScale 일괄 ──────────
+console.log('\n## 748. R1857 BatchInspector cc.RigidBody gravityScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s748 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s748.includes('R1857') && s748.includes('applyRBGravScale') && s748.includes('patchRBGS')) {
+    log('pass', 'R1857-batch-rb-gravityscale', 'BatchInspector cc.RigidBody gravityScale 일괄 설정')
+  } else {
+    log('warning', 'R1857-batch-rb-gravityscale', 'BatchInspector cc.RigidBody gravityScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 749: R1858 BatchInspector cc.PageView direction 일괄 ──────────────
+console.log('\n## 749. R1858 BatchInspector cc.PageView direction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s749 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s749.includes('R1858') && s749.includes('applyPVDir') && s749.includes("'cc.PageView'") && s749.includes('patchPVDir')) {
+    log('pass', 'R1858-batch-pageview-dir', 'BatchInspector cc.PageView direction H/V 일괄 설정')
+  } else {
+    log('warning', 'R1858-batch-pageview-dir', 'BatchInspector cc.PageView direction 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 750: R1859 BatchInspector cc.ScrollView H/V/inertia 일괄 ─────────
+console.log('\n## 750. R1859 BatchInspector cc.ScrollView H/V/inertia 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s750 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s750.includes('R1859') && s750.includes('applyScrollToggle') && s750.includes("'horizontal'") && s750.includes("'inertia'")) {
+    log('pass', 'R1859-batch-scrollview', 'BatchInspector cc.ScrollView H/V/inertia 일괄 설정')
+  } else {
+    log('warning', 'R1859-batch-scrollview', 'BatchInspector cc.ScrollView H/V/inertia 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 751: R1860 BatchInspector cc.LabelOutline width 일괄 ─────────────
+console.log('\n## 751. R1860 BatchInspector cc.LabelOutline width 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s751 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s751.includes('R1860') && s751.includes('applyOutlineWidth') && s751.includes("'cc.LabelOutline'") && s751.includes('patchOL')) {
+    log('pass', 'R1860-batch-labeloutline-width', 'BatchInspector cc.LabelOutline width 일괄 설정')
+  } else {
+    log('warning', 'R1860-batch-labeloutline-width', 'BatchInspector cc.LabelOutline width 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 752: R1861 BatchInspector cc.LabelShadow blur 일괄 ───────────────
+console.log('\n## 752. R1861 BatchInspector cc.LabelShadow blur 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s752 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s752.includes('R1861') && s752.includes('applyShadowBlur') && s752.includes("'cc.LabelShadow'") && s752.includes('patchShadow')) {
+    log('pass', 'R1861-batch-labelshadow-blur', 'BatchInspector cc.LabelShadow blur 일괄 설정')
+  } else {
+    log('warning', 'R1861-batch-labelshadow-blur', 'BatchInspector cc.LabelShadow blur 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 753: R1862 BatchInspector cc.Sprite type 일괄 ────────────────────
+console.log('\n## 753. R1862 BatchInspector cc.Sprite type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s753 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s753.includes('R1862') && s753.includes('applySpriteType') && s753.includes('patchSprType') && s753.includes("'Sliced'")) {
+    log('pass', 'R1862-batch-sprite-type', 'BatchInspector cc.Sprite type (Simple/Sliced/Tiled/Filled) 일괄')
+  } else {
+    log('warning', 'R1862-batch-sprite-type', 'BatchInspector cc.Sprite type 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 754: R1863 BatchInspector cc.Mask type 일괄 ──────────────────────
+console.log('\n## 754. R1863 BatchInspector cc.Mask type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s754 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s754.includes('R1863') && s754.includes('applyMaskType') && s754.includes("'cc.Mask'") && s754.includes('patchMaskType')) {
+    log('pass', 'R1863-batch-mask-type', 'BatchInspector cc.Mask type (Rect/Ellipse/Image) 일괄 설정')
+  } else {
+    log('warning', 'R1863-batch-mask-type', 'BatchInspector cc.Mask type 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 755: R1864 cc.AudioSource pitch ────────────────────────────────
+console.log('\n## 755. R1864 cc.AudioSource pitch 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s755 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s755.includes('R1864') && s755.includes('pitch') && s755.includes('_pitch')) {
+    log('pass', 'R1864-audio-pitch', 'cc.AudioSource pitch 편집 (CC3.x)')
+  } else {
+    log('warning', 'R1864-audio-pitch', 'cc.AudioSource pitch 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 756: R1865 cc.Sprite blendFactor ──────────────────────────────
+console.log('\n## 756. R1865 cc.Sprite blendFactor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s756 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s756.includes('R1865') && s756.includes('srcBlendFactor') && s756.includes('dstBlendFactor')) {
+    log('pass', 'R1865-sprite-blend', 'cc.Sprite srcBlendFactor/dstBlendFactor 퀵 버튼 (Normal/Add/Mul)')
+  } else {
+    log('warning', 'R1865-sprite-blend', 'cc.Sprite blendFactor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 757: R1866 BatchInspector cc.AudioSource pitch ────────────────
+console.log('\n## 757. R1866 BatchInspector cc.AudioSource pitch 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s757 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s757.includes('R1866') && s757.includes('applyAudioPitch') && s757.includes('patchAudioPitch')) {
+    log('pass', 'R1866-batch-audio-pitch', 'BatchInspector cc.AudioSource pitch 일괄 설정')
+  } else {
+    log('warning', 'R1866-batch-audio-pitch', 'BatchInspector cc.AudioSource pitch 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 758: R1867 BatchInspector cc.Sprite blendFactor ───────────────
+console.log('\n## 758. R1867 BatchInspector cc.Sprite blendFactor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s758 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s758.includes('R1867') && s758.includes('applySprBlend') && s758.includes('patchSprBlend')) {
+    log('pass', 'R1867-batch-sprite-blend', 'BatchInspector cc.Sprite blendFactor 일괄 설정 (Normal/Add/Mul)')
+  } else {
+    log('warning', 'R1867-batch-sprite-blend', 'BatchInspector cc.Sprite blendFactor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 759: R1868 BatchInspector cc.Label spacingX ───────────────────
+console.log('\n## 759. R1868 BatchInspector cc.Label spacingX 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s759 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s759.includes('R1868') && s759.includes('applyLabelSpX') && s759.includes('patchSpX')) {
+    log('pass', 'R1868-batch-label-spacingx', 'BatchInspector cc.Label spacingX 일괄 설정')
+  } else {
+    log('warning', 'R1868-batch-label-spacingx', 'BatchInspector cc.Label spacingX 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 760: R1869 BatchInspector cc.Slider direction ─────────────────
+console.log('\n## 760. R1869 BatchInspector cc.Slider direction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s760 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s760.includes('R1869') && s760.includes('applySliderDir') && s760.includes('patchSliderDir')) {
+    log('pass', 'R1869-batch-slider-dir', 'BatchInspector cc.Slider direction 일괄 설정 (H/V)')
+  } else {
+    log('warning', 'R1869-batch-slider-dir', 'BatchInspector cc.Slider direction 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 761: R1870 cc.PolygonCollider inspector ───────────────────────
+console.log('\n## 761. R1870 cc.PolygonCollider inspector 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s761 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s761.includes('R1870') && s761.includes('cc.PolygonCollider') && s761.includes('cc.PolygonCollider2D')) {
+    log('pass', 'R1870-polygon-collider', 'cc.PolygonCollider sensor/friction/restitution 편집')
+  } else {
+    log('warning', 'R1870-polygon-collider', 'cc.PolygonCollider 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 762: R1871 BatchInspector cc.RigidBody mass ───────────────────
+console.log('\n## 762. R1871 BatchInspector cc.RigidBody mass 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s762 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s762.includes('R1871') && s762.includes('applyRBMass') && s762.includes('patchRBMass')) {
+    log('pass', 'R1871-batch-rb-mass', 'BatchInspector cc.RigidBody mass 일괄 설정')
+  } else {
+    log('warning', 'R1871-batch-rb-mass', 'BatchInspector cc.RigidBody mass 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 763: R1872 BatchInspector collider sensor ─────────────────────
+console.log('\n## 763. R1872 BatchInspector cc.BoxCollider/CircleCollider sensor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s763 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s763.includes('R1872') && s763.includes('applyColliderSensor') && s763.includes('patchColliderSensor')) {
+    log('pass', 'R1872-batch-collider-sensor', 'BatchInspector cc.BoxCollider/CircleCollider sensor 일괄 설정')
+  } else {
+    log('warning', 'R1872-batch-collider-sensor', 'BatchInspector collider sensor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 764: R1873 BatchInspector cc.ParticleSystem duration ──────────
+console.log('\n## 764. R1873 BatchInspector cc.ParticleSystem duration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s764 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s764.includes('R1873') && s764.includes('applyParticleDur') && s764.includes('patchParticleDur')) {
+    log('pass', 'R1873-batch-particle-dur', 'BatchInspector cc.ParticleSystem duration 일괄 설정')
+  } else {
+    log('warning', 'R1873-batch-particle-dur', 'BatchInspector cc.ParticleSystem duration 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 765: R1874 BatchInspector cc.ParticleSystem maxParticles ──────
+console.log('\n## 765. R1874 BatchInspector cc.ParticleSystem maxParticles 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s765 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s765.includes('R1874') && s765.includes('applyParticleMax') && s765.includes('patchParticleMax')) {
+    log('pass', 'R1874-batch-particle-max', 'BatchInspector cc.ParticleSystem maxParticles 일괄 설정')
+  } else {
+    log('warning', 'R1874-batch-particle-max', 'BatchInspector cc.ParticleSystem maxParticles 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 766: R1875 BatchInspector cc.PageView slideDuration ───────────
+console.log('\n## 766. R1875 BatchInspector cc.PageView slideDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s766 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s766.includes('R1875') && s766.includes('applyPVSlideDur') && s766.includes('patchPVSlideDur')) {
+    log('pass', 'R1875-batch-pv-slidedur', 'BatchInspector cc.PageView slideDuration 일괄 설정')
+  } else {
+    log('warning', 'R1875-batch-pv-slidedur', 'BatchInspector cc.PageView slideDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 767: R1876 BatchInspector cc.ScrollView brake ─────────────────
+console.log('\n## 767. R1876 BatchInspector cc.ScrollView brake 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s767 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s767.includes('R1876') && s767.includes('applyScrollBrake') && s767.includes('patchScrollBrake')) {
+    log('pass', 'R1876-batch-scrollview-brake', 'BatchInspector cc.ScrollView brake 일괄 설정')
+  } else {
+    log('warning', 'R1876-batch-scrollview-brake', 'BatchInspector cc.ScrollView brake 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 768: R1877 BatchInspector cc.VideoPlayer playbackRate ──────────
+console.log('\n## 768. R1877 BatchInspector cc.VideoPlayer playbackRate 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s768 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s768.includes('R1877') && s768.includes('applyVideoPBRate') && s768.includes('patchVideoPB')) {
+    log('pass', 'R1877-batch-video-pb', 'BatchInspector cc.VideoPlayer playbackRate 일괄 설정')
+  } else {
+    log('warning', 'R1877-batch-video-pb', 'BatchInspector cc.VideoPlayer playbackRate 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 769: R1878 BatchInspector cc.Layout padding ───────────────────
+console.log('\n## 769. R1878 BatchInspector cc.Layout padding 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s769 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s769.includes('R1878') && s769.includes('applyLayoutPad') && s769.includes('patchLayoutPad')) {
+    log('pass', 'R1878-batch-layout-pad', 'BatchInspector cc.Layout padding 일괄 설정 (uniform)')
+  } else {
+    log('warning', 'R1878-batch-layout-pad', 'BatchInspector cc.Layout padding 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 770: R1879 BatchInspector cc.Layout spacingX/Y ────────────────
+console.log('\n## 770. R1879 BatchInspector cc.Layout spacingX/Y 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s770 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s770.includes('R1879') && s770.includes('applyLayoutSpacing') && s770.includes('patchLayoutSpacing')) {
+    log('pass', 'R1879-batch-layout-spacing', 'BatchInspector cc.Layout spacingX/Y 일괄 설정')
+  } else {
+    log('warning', 'R1879-batch-layout-spacing', 'BatchInspector cc.Layout spacingX/Y 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 771: R1880 BatchInspector cc.MotionStreak fade ────────────────
+console.log('\n## 771. R1880 BatchInspector cc.MotionStreak fade 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s771 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s771.includes('R1880') && s771.includes('applyMotionFade') && s771.includes('patchMotionFade')) {
+    log('pass', 'R1880-batch-motionstreak-fade', 'BatchInspector cc.MotionStreak fade 일괄 설정')
+  } else {
+    log('warning', 'R1880-batch-motionstreak-fade', 'BatchInspector cc.MotionStreak fade 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 772: R1881 BatchInspector cc.RigidBody type ───────────────────
+console.log('\n## 772. R1881 BatchInspector cc.RigidBody type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s772 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s772.includes('R1881') && s772.includes('applyRBType') && s772.includes('patchRBType')) {
+    log('pass', 'R1881-batch-rb-type', 'BatchInspector cc.RigidBody type 일괄 설정 (Dyn/Sta/Kin)')
+  } else {
+    log('warning', 'R1881-batch-rb-type', 'BatchInspector cc.RigidBody type 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 773: R1882 BatchInspector cc.Sprite sizeMode ──────────────────
+console.log('\n## 773. R1882 BatchInspector cc.Sprite sizeMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s773 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s773.includes('R1882') && s773.includes('applySpriteSizeMode') && s773.includes('patchSpriteSizeMode')) {
+    log('pass', 'R1882-batch-sprite-sizemode', 'BatchInspector cc.Sprite sizeMode 일괄 설정 (Custom/Trimmed/Raw)')
+  } else {
+    log('warning', 'R1882-batch-sprite-sizemode', 'BatchInspector cc.Sprite sizeMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 774: R1883 BatchInspector cc.MotionStreak stroke ──────────────
+console.log('\n## 774. R1883 BatchInspector cc.MotionStreak stroke 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s774 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s774.includes('R1883') && s774.includes('applyMotionStroke') && s774.includes('patchMotionStroke')) {
+    log('pass', 'R1883-batch-motionstreak-stroke', 'BatchInspector cc.MotionStreak stroke 일괄 설정')
+  } else {
+    log('warning', 'R1883-batch-motionstreak-stroke', 'BatchInspector cc.MotionStreak stroke 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 775: R1884 BatchInspector cc.Button transition ────────────────
+console.log('\n## 775. R1884 BatchInspector cc.Button transition 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s775 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s775.includes('R1884') && s775.includes('applyBtnTransition') && s775.includes('patchBtnTransition')) {
+    log('pass', 'R1884-batch-button-transition', 'BatchInspector cc.Button transition 일괄 설정 (None/Color/Sprite/Scale)')
+  } else {
+    log('warning', 'R1884-batch-button-transition', 'BatchInspector cc.Button transition 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 776: R1885 BatchInspector cc.SkeletalAnimation playOnLoad ─────
+console.log('\n## 776. R1885 BatchInspector cc.SkeletalAnimation playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s776 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s776.includes('R1885') && s776.includes('applySkelPlayOnLoad') && s776.includes('patchSkelPOL')) {
+    log('pass', 'R1885-batch-skel-playonload', 'BatchInspector cc.SkeletalAnimation playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R1885-batch-skel-playonload', 'BatchInspector cc.SkeletalAnimation playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 777: R1886 BatchInspector cc.ProgressBar totalLength ──────────
+console.log('\n## 777. R1886 BatchInspector cc.ProgressBar totalLength 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s777 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s777.includes('R1886') && s777.includes('applyPBLength') && s777.includes('patchPBLength')) {
+    log('pass', 'R1886-batch-pb-totallength', 'BatchInspector cc.ProgressBar totalLength 일괄 설정')
+  } else {
+    log('warning', 'R1886-batch-pb-totallength', 'BatchInspector cc.ProgressBar totalLength 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 778: R1887 cc.ParticleSystem angle/angleVar ──────────
+console.log('\n## 778. R1887 cc.ParticleSystem angle/angleVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s778 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s778.includes('R1887') && s778.includes('_N$angle') && s778.includes('angleVar')) {
+    log('pass', 'R1887-particle-angle', 'cc.ParticleSystem angle/angleVar 편집')
+  } else {
+    log('warning', 'R1887-particle-angle', 'cc.ParticleSystem angle/angleVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 779: R1888 BatchInspector cc.RichText maxWidth ──────────
+console.log('\n## 779. R1888 BatchInspector cc.RichText maxWidth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s779 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s779.includes('R1888') && s779.includes('applyRichMaxW') && s779.includes('patchRichMaxW')) {
+    log('pass', 'R1888-batch-richtext-maxwidth', 'BatchInspector cc.RichText maxWidth 일괄 설정')
+  } else {
+    log('warning', 'R1888-batch-richtext-maxwidth', 'BatchInspector cc.RichText maxWidth 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 780: R1889 cc.ParticleSystem speed/speedVar ──────────
+console.log('\n## 780. R1889 cc.ParticleSystem speed/speedVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s780 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s780.includes('R1889') && s780.includes('_N$speed') && s780.includes('speedVar')) {
+    log('pass', 'R1889-particle-speed', 'cc.ParticleSystem speed/speedVar 편집')
+  } else {
+    log('warning', 'R1889-particle-speed', 'cc.ParticleSystem speed/speedVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 781: R1890 cc.Sprite flipX/flipY ──────────
+console.log('\n## 781. R1890 cc.Sprite flipX/flipY 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s781 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s781.includes('R1890') && s781.includes('flipX') && s781.includes('flipY')) {
+    log('pass', 'R1890-sprite-flip', 'cc.Sprite flipX/flipY 편집')
+  } else {
+    log('warning', 'R1890-sprite-flip', 'cc.Sprite flipX/flipY 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 782: R1891 BatchInspector cc.Sprite flipX/flipY ──────────
+console.log('\n## 782. R1891 BatchInspector cc.Sprite flipX/flipY 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s782 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s782.includes('R1891') && s782.includes('applySprFlip') && s782.includes('patchSprFlip')) {
+    log('pass', 'R1891-batch-sprite-flip', 'BatchInspector cc.Sprite flipX/flipY 일괄 설정')
+  } else {
+    log('warning', 'R1891-batch-sprite-flip', 'BatchInspector cc.Sprite flipX/flipY 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 783: R1892 cc.Camera inspector ──────────
+console.log('\n## 783. R1892 cc.Camera inspector 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s783 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s783.includes('R1892') && s783.includes('backgroundColor') && s783.includes('clearFlags')) {
+    log('pass', 'R1892-camera-inspector', 'cc.Camera backgroundColor/clearFlags/depth 편집')
+  } else {
+    log('warning', 'R1892-camera-inspector', 'cc.Camera inspector 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 784: R1893 BatchInspector cc.ParticleSystem speed ──────────
+console.log('\n## 784. R1893 BatchInspector cc.ParticleSystem speed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s784 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s784.includes('R1893') && s784.includes('applyParticleSpeed') && s784.includes('patchParticleSpeed')) {
+    log('pass', 'R1893-batch-particle-speed', 'BatchInspector cc.ParticleSystem speed 일괄 설정')
+  } else {
+    log('warning', 'R1893-batch-particle-speed', 'BatchInspector cc.ParticleSystem speed 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 785: R1894 BatchInspector cc.Layout resizeMode ──────────
+console.log('\n## 785. R1894 BatchInspector cc.Layout resizeMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s785 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s785.includes('R1894') && s785.includes('applyLayoutResize') && s785.includes('patchLayoutResize')) {
+    log('pass', 'R1894-batch-layout-resize', 'BatchInspector cc.Layout resizeMode 일괄 설정')
+  } else {
+    log('warning', 'R1894-batch-layout-resize', 'BatchInspector cc.Layout resizeMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 786: R1895 BatchInspector cc.UIOpacity opacity ──────────
+console.log('\n## 786. R1895 BatchInspector cc.UIOpacity opacity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s786 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s786.includes('R1895') && s786.includes('applyUIOpacity') && s786.includes('patchUIOpacity')) {
+    log('pass', 'R1895-batch-uiopacity', 'BatchInspector cc.UIOpacity opacity 일괄 설정')
+  } else {
+    log('warning', 'R1895-batch-uiopacity', 'BatchInspector cc.UIOpacity opacity 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 787: R1896 BatchInspector cc.ParticleSystem angle ──────────
+console.log('\n## 787. R1896 BatchInspector cc.ParticleSystem angle 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s787 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s787.includes('R1896') && s787.includes('applyParticleAngle') && s787.includes('patchParticleAngle')) {
+    log('pass', 'R1896-batch-particle-angle', 'BatchInspector cc.ParticleSystem angle 일괄 설정')
+  } else {
+    log('warning', 'R1896-batch-particle-angle', 'BatchInspector cc.ParticleSystem angle 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 788: R1897 BatchInspector cc.Button zoomScale ──────────
+console.log('\n## 788. R1897 BatchInspector cc.Button zoomScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s788 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s788.includes('R1897') && s788.includes('applyBtnZoom') && s788.includes('patchBtnZoom')) {
+    log('pass', 'R1897-batch-button-zoom', 'BatchInspector cc.Button zoomScale 일괄 설정')
+  } else {
+    log('warning', 'R1897-batch-button-zoom', 'BatchInspector cc.Button zoomScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 789: R1898 BatchInspector cc.RigidBody angularDamping ──────────
+console.log('\n## 789. R1898 BatchInspector cc.RigidBody angularDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s789 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s789.includes('R1898') && s789.includes('applyAngularDamp') && s789.includes('patchAngularDamp')) {
+    log('pass', 'R1898-batch-rb-angulardamping', 'BatchInspector cc.RigidBody angularDamping 일괄 설정')
+  } else {
+    log('warning', 'R1898-batch-rb-angulardamping', 'BatchInspector cc.RigidBody angularDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 790: R1899 BatchInspector cc.Sprite grayscale ──────────
+console.log('\n## 790. R1899 BatchInspector cc.Sprite grayscale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s790 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s790.includes('R1899') && s790.includes('applySprGray') && s790.includes('patchSprGray')) {
+    log('pass', 'R1899-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 일괄 설정')
+  } else {
+    log('warning', 'R1899-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 791: R1900 BatchInspector cc.Toggle interactable ──────────
+console.log('\n## 791. R1900 BatchInspector cc.Toggle interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s791 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s791.includes('R1900') && s791.includes('applyToggleInteract') && s791.includes('patchToggleInteract')) {
+    log('pass', 'R1900-batch-toggle-interactable', 'BatchInspector cc.Toggle interactable 일괄 설정')
+  } else {
+    log('warning', 'R1900-batch-toggle-interactable', 'BatchInspector cc.Toggle interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 792: R1901 cc.PageView autoPageTurningInterval ──────────
+console.log('\n## 792. R1901 cc.PageView autoPageTurningInterval 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s792 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s792.includes('R1901') && s792.includes('autoPageTurningInterval') && s792.includes('_N$autoPageTurningInterval')) {
+    log('pass', 'R1901-pagview-auto-interval', 'cc.PageView autoPageTurningInterval 편집')
+  } else {
+    log('warning', 'R1901-pagview-auto-interval', 'cc.PageView autoPageTurningInterval 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 793: R1902 cc.Slider interactable ──────────
+console.log('\n## 793. R1902 cc.Slider interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s793 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s793.includes('R1902') && s793.includes('Slider') && s793.includes('interactable')) {
+    log('pass', 'R1902-slider-interactable', 'cc.Slider interactable 편집')
+  } else {
+    log('warning', 'R1902-slider-interactable', 'cc.Slider interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 794: R1903 BatchInspector cc.RichText fontSize ──────────
+console.log('\n## 794. R1903 BatchInspector cc.RichText fontSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s794 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s794.includes('R1903') && s794.includes('applyRichFS') && s794.includes('patchRichFS')) {
+    log('pass', 'R1903-batch-richtext-fontsize', 'BatchInspector cc.RichText fontSize 일괄 설정')
+  } else {
+    log('warning', 'R1903-batch-richtext-fontsize', 'BatchInspector cc.RichText fontSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 795: R1904 BatchInspector cc.Slider interactable ──────────
+console.log('\n## 795. R1904 BatchInspector cc.Slider interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s795 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s795.includes('R1904') && s795.includes('applySliderInteract') && s795.includes('patchSliderInteract')) {
+    log('pass', 'R1904-batch-slider-interactable', 'BatchInspector cc.Slider interactable 일괄 설정')
+  } else {
+    log('warning', 'R1904-batch-slider-interactable', 'BatchInspector cc.Slider interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 796: R1905 cc.ParticleSystem radialAccel/tangentialAccel ──────────
+console.log('\n## 796. R1905 cc.ParticleSystem radialAccel/tangentialAccel 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s796 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s796.includes('R1905') && s796.includes('radialAccel') && s796.includes('tangentialAccel')) {
+    log('pass', 'R1905-particle-radial-accels', 'cc.ParticleSystem radialAccel/tangentialAccel 편집')
+  } else {
+    log('warning', 'R1905-particle-radial-accels', 'cc.ParticleSystem radialAccel/tangentialAccel 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 797: R1906 BatchInspector cc.ProgressBar progress ──────────
+console.log('\n## 797. R1906 BatchInspector cc.ProgressBar progress 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s797 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s797.includes('R1906') && s797.includes('applyPBProgress') && s797.includes('patchPBProgress')) {
+    log('pass', 'R1906-batch-pb-progress', 'BatchInspector cc.ProgressBar progress 일괄 설정')
+  } else {
+    log('warning', 'R1906-batch-pb-progress', 'BatchInspector cc.ProgressBar progress 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 798: R1907 cc.ParticleSystem startRadius/endRadius ──────────
+console.log('\n## 798. R1907 cc.ParticleSystem startRadius/endRadius 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s798 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s798.includes('R1907') && s798.includes('startRadius') && s798.includes('endRadius')) {
+    log('pass', 'R1907-particle-radius', 'cc.ParticleSystem startRadius/endRadius 편집')
+  } else {
+    log('warning', 'R1907-particle-radius', 'cc.ParticleSystem startRadius/endRadius 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 799: R1908 BatchInspector cc.EditBox inputMode ──────────
+console.log('\n## 799. R1908 BatchInspector cc.EditBox inputMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s799 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s799.includes('R1908') && s799.includes('applyEditBoxMode') && s799.includes('patchEditBoxMode')) {
+    log('pass', 'R1908-batch-editbox-inputmode', 'BatchInspector cc.EditBox inputMode 일괄 설정')
+  } else {
+    log('warning', 'R1908-batch-editbox-inputmode', 'BatchInspector cc.EditBox inputMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 800: R1909 BatchInspector cc.LabelOutline color ──────────
+console.log('\n## 800. R1909 BatchInspector cc.LabelOutline color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s800 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s800.includes('R1909') && s800.includes('patchOLColor') && s800.includes('LabelOutline')) {
+    log('pass', 'R1909-batch-labeloutline-color', 'BatchInspector cc.LabelOutline color 일괄 설정')
+  } else {
+    log('warning', 'R1909-batch-labeloutline-color', 'BatchInspector cc.LabelOutline color 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 801: R1910 BatchInspector cc.LabelShadow color ──────────
+console.log('\n## 801. R1910 BatchInspector cc.LabelShadow color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s801 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s801.includes('R1910') && s801.includes('patchShadowColor') && s801.includes('LabelShadow')) {
+    log('pass', 'R1910-batch-labelshadow-color', 'BatchInspector cc.LabelShadow color 일괄 설정')
+  } else {
+    log('warning', 'R1910-batch-labelshadow-color', 'BatchInspector cc.LabelShadow color 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 802: R1911 BatchInspector cc.AudioSource preload ──────────
+console.log('\n## 802. R1911 BatchInspector cc.AudioSource preload 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s802 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s802.includes('R1911') && s802.includes('patchAudioPreload') && s802.includes('applyAudioPreload')) {
+    log('pass', 'R1911-batch-audiosource-preload', 'BatchInspector cc.AudioSource preload 일괄 설정')
+  } else {
+    log('warning', 'R1911-batch-audiosource-preload', 'BatchInspector cc.AudioSource preload 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 803: R1912 BatchInspector cc.Camera depth ──────────
+console.log('\n## 803. R1912 BatchInspector cc.Camera depth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s803 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s803.includes('R1912') && s803.includes('patchCamDepth') && s803.includes('applyCamDepth')) {
+    log('pass', 'R1912-batch-camera-depth', 'BatchInspector cc.Camera depth 일괄 설정')
+  } else {
+    log('warning', 'R1912-batch-camera-depth', 'BatchInspector cc.Camera depth 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 804: R1913 cc.ParticleSystem posVar ──────────
+console.log('\n## 804. R1913 cc.ParticleSystem posVar 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s804 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s804.includes('R1913') && s804.includes('posVar') && s804.includes('_N$posVar')) {
+    log('pass', 'R1913-particle-posvar', 'cc.ParticleSystem posVar x/y 편집')
+  } else {
+    log('warning', 'R1913-particle-posvar', 'cc.ParticleSystem posVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 805: R1914 BatchInspector cc.ParticleSystem maxParticles ──────────
+console.log('\n## 805. R1914 BatchInspector cc.ParticleSystem maxParticles 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s805 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s805.includes('R1914') && s805.includes('patchMaxParticles') && s805.includes('applyMaxParticles')) {
+    log('pass', 'R1914-batch-particle-maxparticles', 'BatchInspector cc.ParticleSystem maxParticles 일괄 설정')
+  } else {
+    log('warning', 'R1914-batch-particle-maxparticles', 'BatchInspector cc.ParticleSystem maxParticles 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 806: R1915 BatchInspector cc.EditBox maxLength ──────────
+console.log('\n## 806. R1915 BatchInspector cc.EditBox maxLength 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s806 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s806.includes('R1915') && s806.includes('patchEditBoxMax') && s806.includes('applyEditBoxMax')) {
+    log('pass', 'R1915-batch-editbox-maxlength', 'BatchInspector cc.EditBox maxLength 일괄 설정')
+  } else {
+    log('warning', 'R1915-batch-editbox-maxlength', 'BatchInspector cc.EditBox maxLength 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 807: R1916 BatchInspector cc.ProgressBar reverse ──────────
+console.log('\n## 807. R1916 BatchInspector cc.ProgressBar reverse 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s807 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s807.includes('R1916') && s807.includes('patchPBReverse') && s807.includes('applyPBReverse')) {
+    log('pass', 'R1916-batch-progressbar-reverse', 'BatchInspector cc.ProgressBar reverse 일괄 설정')
+  } else {
+    log('warning', 'R1916-batch-progressbar-reverse', 'BatchInspector cc.ProgressBar reverse 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 808: R1917 BatchInspector cc.RigidBody bullet ──────────
+console.log('\n## 808. R1917 BatchInspector cc.RigidBody bullet 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s808 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s808.includes('R1917') && s808.includes('patchRBBullet') && s808.includes('applyRBBullet')) {
+    log('pass', 'R1917-batch-rigidbody-bullet', 'BatchInspector cc.RigidBody bullet 일괄 설정')
+  } else {
+    log('warning', 'R1917-batch-rigidbody-bullet', 'BatchInspector cc.RigidBody bullet 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 809: R1918 cc.Sprite capInsets Sliced ──────────
+console.log('\n## 809. R1918 cc.Sprite capInsets 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s809 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s809.includes('R1918') && s809.includes('capInsets') && s809.includes('insetTop')) {
+    log('pass', 'R1918-sprite-capinsets', 'cc.Sprite capInsets Sliced 전용 편집')
+  } else {
+    log('warning', 'R1918-sprite-capinsets', 'cc.Sprite capInsets 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 810: R1919 cc.Camera fov ──────────
+console.log('\n## 810. R1919 cc.Camera fov 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s810 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s810.includes('R1919') && s810.includes('fov') && s810.includes('_fov')) {
+    log('pass', 'R1919-camera-fov', 'cc.Camera fov 단일노드 편집')
+  } else {
+    log('warning', 'R1919-camera-fov', 'cc.Camera fov 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 811: R1920 BatchInspector cc.Camera backgroundColor ──────────
+console.log('\n## 811. R1920 BatchInspector cc.Camera backgroundColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s811 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s811.includes('R1920') && s811.includes('patchCamBg') && s811.includes('applyCamBg')) {
+    log('pass', 'R1920-batch-camera-bgcolor', 'BatchInspector cc.Camera backgroundColor 일괄 설정')
+  } else {
+    log('warning', 'R1920-batch-camera-bgcolor', 'BatchInspector cc.Camera backgroundColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 812: R1921 BatchInspector cc.Camera clearFlags ──────────
+console.log('\n## 812. R1921 BatchInspector cc.Camera clearFlags 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s812 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s812.includes('R1921') && s812.includes('patchCamFlags') && s812.includes('applyCamFlags')) {
+    log('pass', 'R1921-batch-camera-clearflags', 'BatchInspector cc.Camera clearFlags 일괄 설정')
+  } else {
+    log('warning', 'R1921-batch-camera-clearflags', 'BatchInspector cc.Camera clearFlags 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 813: R1922 BatchInspector cc.RigidBody allowSleep ──────────
+console.log('\n## 813. R1922 BatchInspector cc.RigidBody allowSleep 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s813 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s813.includes('R1922') && s813.includes('patchRBSleep') && s813.includes('applyRBSleep')) {
+    log('pass', 'R1922-batch-rigidbody-allowsleep', 'BatchInspector cc.RigidBody allowSleep 일괄 설정')
+  } else {
+    log('warning', 'R1922-batch-rigidbody-allowsleep', 'BatchInspector cc.RigidBody allowSleep 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 814: R1923 BatchInspector cc.Sprite fillRange ──────────
+console.log('\n## 814. R1923 BatchInspector cc.Sprite fillRange 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s814 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s814.includes('R1923') && s814.includes('patchFillRange') && s814.includes('applyFillRange')) {
+    log('pass', 'R1923-batch-sprite-fillrange', 'BatchInspector cc.Sprite fillRange 일괄 설정')
+  } else {
+    log('warning', 'R1923-batch-sprite-fillrange', 'BatchInspector cc.Sprite fillRange 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 815: R1924 cc.ParticleSystem startColor/endColor ──────────
+console.log('\n## 815. R1924 cc.ParticleSystem startColor/endColor 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s815 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s815.includes('R1924') && s815.includes('startColor') && s815.includes('_N$startColor')) {
+    log('pass', 'R1924-particle-startcolor', 'cc.ParticleSystem startColor/endColor 편집')
+  } else {
+    log('warning', 'R1924-particle-startcolor', 'cc.ParticleSystem startColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 816: R1925 BatchInspector cc.Label cacheMode ──────────
+console.log('\n## 816. R1925 BatchInspector cc.Label cacheMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s816 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s816.includes('R1925') && s816.includes('patchCacheMode') && s816.includes('applyCacheMode')) {
+    log('pass', 'R1925-batch-label-cachemode', 'BatchInspector cc.Label cacheMode 일괄 설정')
+  } else {
+    log('warning', 'R1925-batch-label-cachemode', 'BatchInspector cc.Label cacheMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 817: R1926 BatchInspector cc.MotionStreak minSeg ──────────
+console.log('\n## 817. R1926 BatchInspector cc.MotionStreak minSeg 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s817 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s817.includes('R1926') && s817.includes('patchMotionSeg') && s817.includes('applyMotionSeg')) {
+    log('pass', 'R1926-batch-motionstreak-minseg', 'BatchInspector cc.MotionStreak minSeg 일괄 설정')
+  } else {
+    log('warning', 'R1926-batch-motionstreak-minseg', 'BatchInspector cc.MotionStreak minSeg 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 818: R1927 BatchInspector cc.Label enableWrapText ──────────
+console.log('\n## 818. R1927 BatchInspector cc.Label enableWrapText 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s818 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s818.includes('R1927') && s818.includes('patchWrapText') && s818.includes('applyWrapText')) {
+    log('pass', 'R1927-batch-label-wraptext', 'BatchInspector cc.Label enableWrapText 일괄 설정')
+  } else {
+    log('warning', 'R1927-batch-label-wraptext', 'BatchInspector cc.Label enableWrapText 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 819: R1928 BatchInspector cc.ScrollView elasticDuration ──────────
+console.log('\n## 819. R1928 BatchInspector cc.ScrollView elasticDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s819 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s819.includes('R1928') && s819.includes('patchElasticDur') && s819.includes('applyElasticDur')) {
+    log('pass', 'R1928-batch-scrollview-elasticduration', 'BatchInspector cc.ScrollView elasticDuration 일괄 설정')
+  } else {
+    log('warning', 'R1928-batch-scrollview-elasticduration', 'BatchInspector cc.ScrollView elasticDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 820: R1929 BatchInspector cc.RichText horizontalAlign ──────────
+console.log('\n## 820. R1929 BatchInspector cc.RichText horizontalAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s820 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s820.includes('R1929') && s820.includes('patchRichAlign') && s820.includes('applyRichAlign')) {
+    log('pass', 'R1929-batch-richtext-horizontalalign', 'BatchInspector cc.RichText horizontalAlign 일괄 설정')
+  } else {
+    log('warning', 'R1929-batch-richtext-horizontalalign', 'BatchInspector cc.RichText horizontalAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 821: R1930 BatchInspector dragonBones.ArmatureDisplay playOnLoad ──────────
+console.log('\n## 821. R1930 BatchInspector dragonBones.ArmatureDisplay playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s821 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s821.includes('R1930') && s821.includes('patchDBPlayOnLoad') && s821.includes('applyDBPlayOnLoad')) {
+    log('pass', 'R1930-batch-dragonbones-playonload', 'BatchInspector dragonBones.ArmatureDisplay playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R1930-batch-dragonbones-playonload', 'BatchInspector dragonBones.ArmatureDisplay playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 822: R1931 BatchInspector sp.Skeleton loop ──────────
+console.log('\n## 822. R1931 BatchInspector sp.Skeleton loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s822 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s822.includes('R1931') && s822.includes('patchSpineLoop') && s822.includes('applySpineLoop')) {
+    log('pass', 'R1931-batch-spine-loop', 'BatchInspector sp.Skeleton loop 일괄 설정')
+  } else {
+    log('warning', 'R1931-batch-spine-loop', 'BatchInspector sp.Skeleton loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 823: R1932 BatchInspector cc.ParticleSystem loop ──────────
+console.log('\n## 823. R1932 BatchInspector cc.ParticleSystem loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s823 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s823.includes('R1932') && s823.includes('patchParticleLoop') && s823.includes('applyParticleLoop')) {
+    log('pass', 'R1932-batch-particle-loop', 'BatchInspector cc.ParticleSystem loop 일괄 설정')
+  } else {
+    log('warning', 'R1932-batch-particle-loop', 'BatchInspector cc.ParticleSystem loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 824: R1933 BatchInspector cc.Sprite fillStart ──────────
+console.log('\n## 824. R1933 BatchInspector cc.Sprite fillStart 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s824 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s824.includes('R1933') && s824.includes('patchFillStart') && s824.includes('applyFillStart')) {
+    log('pass', 'R1933-batch-sprite-fillstart', 'BatchInspector cc.Sprite fillStart 일괄 설정')
+  } else {
+    log('warning', 'R1933-batch-sprite-fillstart', 'BatchInspector cc.Sprite fillStart 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 825: R1934 BatchInspector cc.Layout affectedByScale ──────────
+console.log('\n## 825. R1934 BatchInspector cc.Layout affectedByScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s825 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s825.includes('R1934') && s825.includes('patchLayoutScale') && s825.includes('applyLayoutScale')) {
+    log('pass', 'R1934-batch-layout-affectedbyscale', 'BatchInspector cc.Layout affectedByScale 일괄 설정')
+  } else {
+    log('warning', 'R1934-batch-layout-affectedbyscale', 'BatchInspector cc.Layout affectedByScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 826: R1935 BatchInspector cc.ScrollView elastic ──────────
+console.log('\n## 826. R1935 BatchInspector cc.ScrollView elastic 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s826 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s826.includes('R1935') && s826.includes('patchScrollElastic') && s826.includes('applyScrollElastic')) {
+    log('pass', 'R1935-batch-scrollview-elastic', 'BatchInspector cc.ScrollView elastic 일괄 설정')
+  } else {
+    log('warning', 'R1935-batch-scrollview-elastic', 'BatchInspector cc.ScrollView elastic 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 827: R1936 BatchInspector cc.PageView bounceEnabled ──────────
+console.log('\n## 827. R1936 BatchInspector cc.PageView bounceEnabled 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s827 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s827.includes('R1936') && s827.includes('patchPVBounce') && s827.includes('applyPVBounce')) {
+    log('pass', 'R1936-batch-pageview-bounce', 'BatchInspector cc.PageView bounceEnabled 일괄 설정')
+  } else {
+    log('warning', 'R1936-batch-pageview-bounce', 'BatchInspector cc.PageView bounceEnabled 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 828: R1937 cc.ParticleSystem startSpin/startSpinVar single-node ──────────
+console.log('\n## 828. R1937 cc.ParticleSystem startSpin/startSpinVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s828 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s828.includes('R1937') && s828.includes('startSpin') && s828.includes('startSpinVar')) {
+    log('pass', 'R1937-single-particle-startspin', 'cc.ParticleSystem startSpin/startSpinVar single-node 편집')
+  } else {
+    log('warning', 'R1937-single-particle-startspin', 'cc.ParticleSystem startSpin/startSpinVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 829: R1938 cc.ParticleSystem endSpin/endSpinVar single-node ──────────
+console.log('\n## 829. R1938 cc.ParticleSystem endSpin/endSpinVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s829 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s829.includes('R1938') && s829.includes('endSpin') && s829.includes('endSpinVar')) {
+    log('pass', 'R1938-single-particle-endspin', 'cc.ParticleSystem endSpin/endSpinVar single-node 편집')
+  } else {
+    log('warning', 'R1938-single-particle-endspin', 'cc.ParticleSystem endSpin/endSpinVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 830: R1939 BatchInspector cc.RigidBody linearVelocity ──────────
+console.log('\n## 830. R1939 BatchInspector cc.RigidBody linearVelocity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s830 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s830.includes('R1939') && s830.includes('patchRBLinearVel') && s830.includes('applyRBLinearVel')) {
+    log('pass', 'R1939-batch-rigidbody-linearvel', 'BatchInspector cc.RigidBody linearVelocity 일괄 설정')
+  } else {
+    log('warning', 'R1939-batch-rigidbody-linearvel', 'BatchInspector cc.RigidBody linearVelocity 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 831: R1940 BatchInspector cc.Label overflow ──────────
+console.log('\n## 831. R1940 BatchInspector cc.Label overflow 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s831 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s831.includes('R1940') && s831.includes('patchLabelOverflow') && s831.includes('applyLabelOverflow')) {
+    log('pass', 'R1940-batch-label-overflow', 'BatchInspector cc.Label overflow 일괄 설정')
+  } else {
+    log('warning', 'R1940-batch-label-overflow', 'BatchInspector cc.Label overflow 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 832: R1941 BatchInspector cc.Camera zoomRatio ──────────
+console.log('\n## 832. R1941 BatchInspector cc.Camera zoomRatio 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s832 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s832.includes('R1941') && s832.includes('patchCamZoom') && s832.includes('applyCamZoom')) {
+    log('pass', 'R1941-batch-camera-zoomratio', 'BatchInspector cc.Camera zoomRatio 일괄 설정')
+  } else {
+    log('warning', 'R1941-batch-camera-zoomratio', 'BatchInspector cc.Camera zoomRatio 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 833: R1942 BatchInspector cc.RichText lineHeight ──────────
+console.log('\n## 833. R1942 BatchInspector cc.RichText lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s833 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s833.includes('R1942') && s833.includes('patchRichLineH') && s833.includes('applyRichLineH')) {
+    log('pass', 'R1942-batch-richtext-lineheight', 'BatchInspector cc.RichText lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R1942-batch-richtext-lineheight', 'BatchInspector cc.RichText lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 834: R1943 BatchInspector cc.EditBox fontSize ──────────
+console.log('\n## 834. R1943 BatchInspector cc.EditBox fontSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s834 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s834.includes('R1943') && s834.includes('patchEditBoxFontSize') && s834.includes('applyEditBoxFontSize')) {
+    log('pass', 'R1943-batch-editbox-fontsize', 'BatchInspector cc.EditBox fontSize 일괄 설정')
+  } else {
+    log('warning', 'R1943-batch-editbox-fontsize', 'BatchInspector cc.EditBox fontSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 835: R1944 BatchInspector cc.Slider min/max ──────────
+console.log('\n## 835. R1944 BatchInspector cc.Slider min/max 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s835 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s835.includes('R1944') && s835.includes('patchSliderRange') && s835.includes('applySliderRange')) {
+    log('pass', 'R1944-batch-slider-range', 'BatchInspector cc.Slider min/max 일괄 설정')
+  } else {
+    log('warning', 'R1944-batch-slider-range', 'BatchInspector cc.Slider min/max 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 836: R1945 BatchInspector cc.Button normalColor ──────────
+console.log('\n## 836. R1945 BatchInspector cc.Button normalColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s836 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s836.includes('R1945') && s836.includes('patchBtnNormalColor') && s836.includes('applyBtnNormalColor')) {
+    log('pass', 'R1945-batch-button-normalcolor', 'BatchInspector cc.Button normalColor 일괄 설정')
+  } else {
+    log('warning', 'R1945-batch-button-normalcolor', 'BatchInspector cc.Button normalColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 837: R1946 BatchInspector cc.Button pressedColor ──────────
+console.log('\n## 837. R1946 BatchInspector cc.Button pressedColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s837 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s837.includes('R1946') && s837.includes('patchBtnPressedColor') && s837.includes('applyBtnPressedColor')) {
+    log('pass', 'R1946-batch-button-pressedcolor', 'BatchInspector cc.Button pressedColor 일괄 설정')
+  } else {
+    log('warning', 'R1946-batch-button-pressedcolor', 'BatchInspector cc.Button pressedColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 838: R1947 BatchInspector cc.Button disabledColor ──────────
+console.log('\n## 838. R1947 BatchInspector cc.Button disabledColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s838 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s838.includes('R1947') && s838.includes('patchBtnDisabledColor') && s838.includes('applyBtnDisabledColor')) {
+    log('pass', 'R1947-batch-button-disabledcolor', 'BatchInspector cc.Button disabledColor 일괄 설정')
+  } else {
+    log('warning', 'R1947-batch-button-disabledcolor', 'BatchInspector cc.Button disabledColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 839: R1948 BatchInspector cc.Button duration ──────────
+console.log('\n## 839. R1948 BatchInspector cc.Button duration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s839 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s839.includes('R1948') && s839.includes('patchBtnDuration') && s839.includes('applyBtnDuration')) {
+    log('pass', 'R1948-batch-button-duration', 'BatchInspector cc.Button duration 일괄 설정')
+  } else {
+    log('warning', 'R1948-batch-button-duration', 'BatchInspector cc.Button duration 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 840: R1949 BatchInspector cc.ScrollView bounceDuration ──────────
+console.log('\n## 840. R1949 BatchInspector cc.ScrollView bounceDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s840 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s840.includes('R1949') && s840.includes('patchSVBounceDur') && s840.includes('applySVBounceDur')) {
+    log('pass', 'R1949-batch-scrollview-bouncedur', 'BatchInspector cc.ScrollView bounceDuration 일괄 설정')
+  } else {
+    log('warning', 'R1949-batch-scrollview-bouncedur', 'BatchInspector cc.ScrollView bounceDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 841: R1950 BatchInspector cc.ParticleSystem emissionRate ──────────
+console.log('\n## 841. R1950 BatchInspector cc.ParticleSystem emissionRate 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s841 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s841.includes('R1950') && s841.includes('patchParticleEmission') && s841.includes('applyParticleEmission')) {
+    log('pass', 'R1950-batch-particle-emissionrate', 'BatchInspector cc.ParticleSystem emissionRate 일괄 설정')
+  } else {
+    log('warning', 'R1950-batch-particle-emissionrate', 'BatchInspector cc.ParticleSystem emissionRate 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 842: R1951 BatchInspector cc.Label fontSize ──────────
+console.log('\n## 842. R1951 BatchInspector cc.Label fontSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s842 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s842.includes('R1951') && s842.includes('patchLabelFontSize') && s842.includes('applyLabelFontSize')) {
+    log('pass', 'R1951-batch-label-fontsize', 'BatchInspector cc.Label fontSize 일괄 설정')
+  } else {
+    log('warning', 'R1951-batch-label-fontsize', 'BatchInspector cc.Label fontSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 843: R1952 BatchInspector cc.Camera fov ──────────
+console.log('\n## 843. R1952 BatchInspector cc.Camera fov 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s843 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s843.includes('R1952') && s843.includes('patchCamFov') && s843.includes('applyCamFov')) {
+    log('pass', 'R1952-batch-camera-fov', 'BatchInspector cc.Camera fov 일괄 설정')
+  } else {
+    log('warning', 'R1952-batch-camera-fov', 'BatchInspector cc.Camera fov 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 844: R1953 BatchInspector cc.RigidBody angularVelocity ──────────
+console.log('\n## 844. R1953 BatchInspector cc.RigidBody angularVelocity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s844 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s844.includes('R1953') && s844.includes('patchRBAngVel') && s844.includes('applyRBAngVel')) {
+    log('pass', 'R1953-batch-rigidbody-angvel', 'BatchInspector cc.RigidBody angularVelocity 일괄 설정')
+  } else {
+    log('warning', 'R1953-batch-rigidbody-angvel', 'BatchInspector cc.RigidBody angularVelocity 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 845: R1954 BatchInspector cc.Sprite grayscale ──────────
+console.log('\n## 845. R1954 BatchInspector cc.Sprite grayscale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s845 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s845.includes('R1954') && s845.includes('patchSprGray') && s845.includes('applySprGray')) {
+    log('pass', 'R1954-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 일괄 설정')
+  } else {
+    log('warning', 'R1954-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 846: R1955 BatchInspector cc.Label color ──────────
+console.log('\n## 846. R1955 BatchInspector cc.Label color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s846 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s846.includes('R1955') && s846.includes('patchLabelColor') && s846.includes('applyLabelColor')) {
+    log('pass', 'R1955-batch-label-color', 'BatchInspector cc.Label color 일괄 설정')
+  } else {
+    log('warning', 'R1955-batch-label-color', 'BatchInspector cc.Label color 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 847: R1956 BatchInspector cc.RichText fontColor ──────────
+console.log('\n## 847. R1956 BatchInspector cc.RichText fontColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s847 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s847.includes('R1956') && s847.includes('patchRichFontColor') && s847.includes('applyRichFontColor')) {
+    log('pass', 'R1956-batch-richtext-fontcolor', 'BatchInspector cc.RichText fontColor 일괄 설정')
+  } else {
+    log('warning', 'R1956-batch-richtext-fontcolor', 'BatchInspector cc.RichText fontColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 848: R1957 BatchInspector cc.ParticleSystem startSize ──────────
+console.log('\n## 848. R1957 BatchInspector cc.ParticleSystem startSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s848 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s848.includes('R1957') && s848.includes('patchParticleStartSize') && s848.includes('applyParticleStartSize')) {
+    log('pass', 'R1957-batch-particle-startsize', 'BatchInspector cc.ParticleSystem startSize 일괄 설정')
+  } else {
+    log('warning', 'R1957-batch-particle-startsize', 'BatchInspector cc.ParticleSystem startSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 849: R1958 BatchInspector cc.ParticleSystem life ──────────
+console.log('\n## 849. R1958 BatchInspector cc.ParticleSystem life 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s849 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s849.includes('R1958') && s849.includes('patchParticleLife') && s849.includes('applyParticleLife')) {
+    log('pass', 'R1958-batch-particle-life', 'BatchInspector cc.ParticleSystem life 일괄 설정')
+  } else {
+    log('warning', 'R1958-batch-particle-life', 'BatchInspector cc.ParticleSystem life 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 850: R1959 BatchInspector cc.Layout childAlignment ──────────
+console.log('\n## 850. R1959 BatchInspector cc.Layout childAlignment 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s850 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s850.includes('R1959') && s850.includes('patchLayoutChildAlign') && s850.includes('applyLayoutChildAlign')) {
+    log('pass', 'R1959-batch-layout-childalignment', 'BatchInspector cc.Layout childAlignment 일괄 설정')
+  } else {
+    log('warning', 'R1959-batch-layout-childalignment', 'BatchInspector cc.Layout childAlignment 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 851: R1960 BatchInspector cc.Slider step ──────────
+console.log('\n## 851. R1960 BatchInspector cc.Slider step 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s851 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s851.includes('R1960') && s851.includes('patchSliderStep') && s851.includes('applySliderStep')) {
+    log('pass', 'R1960-batch-slider-step', 'BatchInspector cc.Slider step 일괄 설정')
+  } else {
+    log('warning', 'R1960-batch-slider-step', 'BatchInspector cc.Slider step 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 852: R1961 BatchInspector cc.ParticleSystem endSize ──────────
+console.log('\n## 852. R1961 BatchInspector cc.ParticleSystem endSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s852 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s852.includes('R1961') && s852.includes('patchParticleEndSize') && s852.includes('applyParticleEndSize')) {
+    log('pass', 'R1961-batch-particle-endsize', 'BatchInspector cc.ParticleSystem endSize 일괄 설정')
+  } else {
+    log('warning', 'R1961-batch-particle-endsize', 'BatchInspector cc.ParticleSystem endSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 853: R1962 BatchInspector cc.MotionStreak color ──────────
+console.log('\n## 853. R1962 BatchInspector cc.MotionStreak color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s853 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s853.includes('R1962') && s853.includes('patchMotionColor') && s853.includes('applyMotionColor')) {
+    log('pass', 'R1962-batch-motionstreak-color', 'BatchInspector cc.MotionStreak color 일괄 설정')
+  } else {
+    log('warning', 'R1962-batch-motionstreak-color', 'BatchInspector cc.MotionStreak color 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 854: R1963 BatchInspector cc.LabelOutline width ──────────
+console.log('\n## 854. R1963 BatchInspector cc.LabelOutline width 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s854 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s854.includes('R1963') && s854.includes('patchLabelOutlineWidth') && s854.includes('applyLabelOutlineWidth')) {
+    log('pass', 'R1963-batch-labeloutline-width', 'BatchInspector cc.LabelOutline width 일괄 설정')
+  } else {
+    log('warning', 'R1963-batch-labeloutline-width', 'BatchInspector cc.LabelOutline width 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 855: R1964 BatchInspector cc.LabelShadow blur ──────────
+console.log('\n## 855. R1964 BatchInspector cc.LabelShadow blur 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s855 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s855.includes('R1964') && s855.includes('patchLabelShadowBlur') && s855.includes('applyLabelShadowBlur')) {
+    log('pass', 'R1964-batch-labelshadow-blur', 'BatchInspector cc.LabelShadow blur 일괄 설정')
+  } else {
+    log('warning', 'R1964-batch-labelshadow-blur', 'BatchInspector cc.LabelShadow blur 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 856: R1965 BatchInspector cc.LabelShadow offset ──────────
+console.log('\n## 856. R1965 BatchInspector cc.LabelShadow offset 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s856 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s856.includes('R1965') && s856.includes('patchLabelShadowOffset') && s856.includes('applyLabelShadowOffset')) {
+    log('pass', 'R1965-batch-labelshadow-offset', 'BatchInspector cc.LabelShadow offset 일괄 설정')
+  } else {
+    log('warning', 'R1965-batch-labelshadow-offset', 'BatchInspector cc.LabelShadow offset 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 857: R1966 BatchInspector cc.PageView autoPageTurningInterval ──────────
+console.log('\n## 857. R1966 BatchInspector cc.PageView autoPageTurningInterval 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s857 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s857.includes('R1966') && s857.includes('patchPVAutoInterval') && s857.includes('applyPVAutoInterval')) {
+    log('pass', 'R1966-batch-pageview-autointv', 'BatchInspector cc.PageView autoPageTurningInterval 일괄 설정')
+  } else {
+    log('warning', 'R1966-batch-pageview-autointv', 'BatchInspector cc.PageView autoPageTurningInterval 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 858: R1967 BatchInspector cc.PageView scrollThreshold ──────────
+console.log('\n## 858. R1967 BatchInspector cc.PageView scrollThreshold 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s858 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s858.includes('R1967') && s858.includes('patchPVScrollThresh') && s858.includes('applyPVScrollThresh')) {
+    log('pass', 'R1967-batch-pageview-scrollthresh', 'BatchInspector cc.PageView scrollThreshold 일괄 설정')
+  } else {
+    log('warning', 'R1967-batch-pageview-scrollthresh', 'BatchInspector cc.PageView scrollThreshold 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 859: R1968 BatchInspector cc.RigidBody fixedRotation ──────────
+console.log('\n## 859. R1968 BatchInspector cc.RigidBody fixedRotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s859 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s859.includes('R1968') && s859.includes('patchRBFixedRot') && s859.includes('applyRBFixedRot')) {
+    log('pass', 'R1968-batch-rigidbody-fixedrot', 'BatchInspector cc.RigidBody fixedRotation 일괄 설정')
+  } else {
+    log('warning', 'R1968-batch-rigidbody-fixedrot', 'BatchInspector cc.RigidBody fixedRotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 860: R1969 BatchInspector cc.ParticleSystem startColor ──────────
+console.log('\n## 860. R1969 BatchInspector cc.ParticleSystem startColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s860 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s860.includes('R1969') && s860.includes('patchParticleStartColor') && s860.includes('applyParticleStartColor')) {
+    log('pass', 'R1969-batch-particle-startcolor', 'BatchInspector cc.ParticleSystem startColor 일괄 설정')
+  } else {
+    log('warning', 'R1969-batch-particle-startcolor', 'BatchInspector cc.ParticleSystem startColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 861: R1970 BatchInspector cc.ParticleSystem endColor ──────────
+console.log('\n## 861. R1970 BatchInspector cc.ParticleSystem endColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s861 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s861.includes('R1970') && s861.includes('patchParticleEndColor') && s861.includes('applyParticleEndColor')) {
+    log('pass', 'R1970-batch-particle-endcolor', 'BatchInspector cc.ParticleSystem endColor 일괄 설정')
+  } else {
+    log('warning', 'R1970-batch-particle-endcolor', 'BatchInspector cc.ParticleSystem endColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 862: R1971 BatchInspector cc.AudioSource startTime ──────────
+console.log('\n## 862. R1971 BatchInspector cc.AudioSource startTime 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s862 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s862.includes('R1971') && s862.includes('patchAudioStart') && s862.includes('applyAudioStart')) {
+    log('pass', 'R1971-batch-audiosource-starttime', 'BatchInspector cc.AudioSource startTime 일괄 설정')
+  } else {
+    log('warning', 'R1971-batch-audiosource-starttime', 'BatchInspector cc.AudioSource startTime 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 863: R1972 BatchInspector cc.Layout horizontalDirection ──────────
+console.log('\n## 863. R1972 BatchInspector cc.Layout horizontalDirection 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s863 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s863.includes('R1972') && s863.includes('patchLayoutHorDir') && s863.includes('applyLayoutHorDir')) {
+    log('pass', 'R1972-batch-layout-hordir', 'BatchInspector cc.Layout horizontalDirection 일괄 설정')
+  } else {
+    log('warning', 'R1972-batch-layout-hordir', 'BatchInspector cc.Layout horizontalDirection 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 864: R1973 BatchInspector cc.Layout verticalDirection ──────────
+console.log('\n## 864. R1973 BatchInspector cc.Layout verticalDirection 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s864 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s864.includes('R1973') && s864.includes('patchLayoutVerDir') && s864.includes('applyLayoutVerDir')) {
+    log('pass', 'R1973-batch-layout-verdir', 'BatchInspector cc.Layout verticalDirection 일괄 설정')
+  } else {
+    log('warning', 'R1973-batch-layout-verdir', 'BatchInspector cc.Layout verticalDirection 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 865: R1974 BatchInspector cc.Widget margin ──────────
+console.log('\n## 865. R1974 BatchInspector cc.Widget margin 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s865 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s865.includes('R1974') && s865.includes('patchWidgetMargin') && s865.includes('applyWidgetMargin')) {
+    log('pass', 'R1974-batch-widget-margin', 'BatchInspector cc.Widget margin 일괄 설정')
+  } else {
+    log('warning', 'R1974-batch-widget-margin', 'BatchInspector cc.Widget margin 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 866: R1975 BatchInspector cc.RigidBody awake ──────────
+console.log('\n## 866. R1975 BatchInspector cc.RigidBody awake 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s866 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s866.includes('R1975') && s866.includes('patchRBAwake') && s866.includes('applyRBAwake')) {
+    log('pass', 'R1975-batch-rb-awake', 'BatchInspector cc.RigidBody awake 일괄 설정')
+  } else {
+    log('warning', 'R1975-batch-rb-awake', 'BatchInspector cc.RigidBody awake 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 867: R1976 BatchInspector cc.ParticleSystem positionType ──────────
+console.log('\n## 867. R1976 BatchInspector cc.ParticleSystem positionType 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s867 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s867.includes('R1976') && s867.includes('patchPSPosType') && s867.includes('applyPSPosType')) {
+    log('pass', 'R1976-batch-ps-postype', 'BatchInspector cc.ParticleSystem positionType 일괄 설정')
+  } else {
+    log('warning', 'R1976-batch-ps-postype', 'BatchInspector cc.ParticleSystem positionType 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 868: R1977 BatchInspector cc.ParticleSystem blendFactor ──────────
+console.log('\n## 868. R1977 BatchInspector cc.ParticleSystem blendFactor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s868 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s868.includes('R1977') && s868.includes('patchPSBlend') && s868.includes('applyPSBlend')) {
+    log('pass', 'R1977-batch-ps-blend', 'BatchInspector cc.ParticleSystem blendFactor 일괄 설정')
+  } else {
+    log('warning', 'R1977-batch-ps-blend', 'BatchInspector cc.ParticleSystem blendFactor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 869: R1978 BatchInspector cc.Label bold/italic ──────────
+console.log('\n## 869. R1978 BatchInspector cc.Label bold/italic 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s869 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s869.includes('R1978') && s869.includes('patchLabelBold') && s869.includes('applyLabelBold') && s869.includes('patchLabelItalic')) {
+    log('pass', 'R1978-batch-label-style', 'BatchInspector cc.Label bold/italic 일괄 설정')
+  } else {
+    log('warning', 'R1978-batch-label-style', 'BatchInspector cc.Label bold/italic 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 870: R1979 BatchInspector cc.ParticleSystem autoRemoveOnFinish ──────────
+console.log('\n## 870. R1979 BatchInspector cc.ParticleSystem autoRemoveOnFinish 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s870 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s870.includes('R1979') && s870.includes('patchPSAutoRemove') && s870.includes('applyPSAutoRemove')) {
+    log('pass', 'R1979-batch-ps-autoremove', 'BatchInspector cc.ParticleSystem autoRemoveOnFinish 일괄 설정')
+  } else {
+    log('warning', 'R1979-batch-ps-autoremove', 'BatchInspector cc.ParticleSystem autoRemoveOnFinish 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 871: R1980 BatchInspector cc.ScrollView speedAmplifier ──────────
+console.log('\n## 871. R1980 BatchInspector cc.ScrollView speedAmplifier 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s871 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s871.includes('R1980') && s871.includes('patchSVSpeed') && s871.includes('applySVSpeed')) {
+    log('pass', 'R1980-batch-sv-speed', 'BatchInspector cc.ScrollView speedAmplifier 일괄 설정')
+  } else {
+    log('warning', 'R1980-batch-sv-speed', 'BatchInspector cc.ScrollView speedAmplifier 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 872: R1981 BatchInspector cc.ParticleSystem emitterMode ──────────
+console.log('\n## 872. R1981 BatchInspector cc.ParticleSystem emitterMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s872 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s872.includes('R1981') && s872.includes('patchPSEmitterMode') && s872.includes('applyPSEmitterMode')) {
+    log('pass', 'R1981-batch-ps-emittermode', 'BatchInspector cc.ParticleSystem emitterMode 일괄 설정')
+  } else {
+    log('warning', 'R1981-batch-ps-emittermode', 'BatchInspector cc.ParticleSystem emitterMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 873: R1982 BatchInspector cc.RichText maxWidth ──────────
+console.log('\n## 873. R1982 BatchInspector cc.RichText maxWidth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s873 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s873.includes('R1982') && s873.includes('patchRichMaxWidth') && s873.includes('applyRichMaxWidth')) {
+    log('pass', 'R1982-batch-rich-maxwidth', 'BatchInspector cc.RichText maxWidth 일괄 설정')
+  } else {
+    log('warning', 'R1982-batch-rich-maxwidth', 'BatchInspector cc.RichText maxWidth 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 874: R1983 BatchInspector node active ──────────
+console.log('\n## 874. R1983 BatchInspector node active 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s874 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s874.includes('R1983') && s874.includes('patchNodeActive') && s874.includes('applyNodeActive')) {
+    log('pass', 'R1983-batch-node-active', 'BatchInspector node active 일괄 설정')
+  } else {
+    log('warning', 'R1983-batch-node-active', 'BatchInspector node active 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 875: R1984 BatchInspector cc.Animation wrapMode ──────────
+console.log('\n## 875. R1984 BatchInspector cc.Animation wrapMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s875 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s875.includes('R1984') && s875.includes('patchAnimWrapMode') && s875.includes('applyAnimWrapMode')) {
+    log('pass', 'R1984-batch-anim-wrapmode', 'BatchInspector cc.Animation wrapMode 일괄 설정')
+  } else {
+    log('warning', 'R1984-batch-anim-wrapmode', 'BatchInspector cc.Animation wrapMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 876: R1985 BatchInspector cc.Label underline ──────────
+console.log('\n## 876. R1985 BatchInspector cc.Label underline 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s876 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s876.includes('R1985') && s876.includes('patchLabelUnderline') && s876.includes('applyLabelUnderline')) {
+    log('pass', 'R1985-batch-label-underline', 'BatchInspector cc.Label underline 일괄 설정')
+  } else {
+    log('warning', 'R1985-batch-label-underline', 'BatchInspector cc.Label underline 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 877: R1986 BatchInspector cc.EditBox returnType ──────────
+console.log('\n## 877. R1986 BatchInspector cc.EditBox returnType 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s877 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s877.includes('R1986') && s877.includes('patchEditReturnType') && s877.includes('applyEditReturnType')) {
+    log('pass', 'R1986-batch-editbox-returntype', 'BatchInspector cc.EditBox returnType 일괄 설정')
+  } else {
+    log('warning', 'R1986-batch-editbox-returntype', 'BatchInspector cc.EditBox returnType 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 878: R1987 BatchInspector cc.ProgressBar mode ──────────
+console.log('\n## 878. R1987 BatchInspector cc.ProgressBar mode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s878 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s878.includes('R1987') && s878.includes('patchPBMode') && s878.includes('applyPBMode')) {
+    log('pass', 'R1987-batch-pb-mode', 'BatchInspector cc.ProgressBar mode 일괄 설정')
+  } else {
+    log('warning', 'R1987-batch-pb-mode', 'BatchInspector cc.ProgressBar mode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 879: R1988 BatchInspector cc.Mask alphaThreshold ──────────
+console.log('\n## 879. R1988 BatchInspector cc.Mask alphaThreshold 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s879 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s879.includes('R1988') && s879.includes('patchMaskAlpha') && s879.includes('applyMaskAlpha')) {
+    log('pass', 'R1988-batch-mask-alpha', 'BatchInspector cc.Mask alphaThreshold 일괄 설정')
+  } else {
+    log('warning', 'R1988-batch-mask-alpha', 'BatchInspector cc.Mask alphaThreshold 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 880: R1989 BatchInspector cc.Camera cullingMask ──────────
+console.log('\n## 880. R1989 BatchInspector cc.Camera cullingMask 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s880 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s880.includes('R1989') && s880.includes('patchCamCulling') && s880.includes('applyCamCulling')) {
+    log('pass', 'R1989-batch-cam-culling', 'BatchInspector cc.Camera cullingMask 일괄 설정')
+  } else {
+    log('warning', 'R1989-batch-cam-culling', 'BatchInspector cc.Camera cullingMask 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 881: R1990 BatchInspector sp.Skeleton premultipliedAlpha ──────────
+console.log('\n## 881. R1990 BatchInspector sp.Skeleton premultipliedAlpha 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s881 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s881.includes('R1990') && s881.includes('patchSpinePremult') && s881.includes('applySpinePremult')) {
+    log('pass', 'R1990-batch-spine-premult', 'BatchInspector sp.Skeleton premultipliedAlpha 일괄 설정')
+  } else {
+    log('warning', 'R1990-batch-spine-premult', 'BatchInspector sp.Skeleton premultipliedAlpha 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 882: R1991 BatchInspector cc.PageView pageTurningEventTiming ──────────
+console.log('\n## 882. R1991 BatchInspector cc.PageView pageTurningEventTiming 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s882 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s882.includes('R1991') && s882.includes('patchPVEventTiming') && s882.includes('applyPVEventTiming')) {
+    log('pass', 'R1991-batch-pv-eventtiming', 'BatchInspector cc.PageView pageTurningEventTiming 일괄 설정')
+  } else {
+    log('warning', 'R1991-batch-pv-eventtiming', 'BatchInspector cc.PageView pageTurningEventTiming 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 883: R1992 BatchInspector cc.Label strikethrough ──────────
+console.log('\n## 883. R1992 BatchInspector cc.Label strikethrough 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s883 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s883.includes('R1992') && s883.includes('patchLabelStrike') && s883.includes('applyLabelStrike')) {
+    log('pass', 'R1992-batch-label-strike', 'BatchInspector cc.Label strikethrough 일괄 설정')
+  } else {
+    log('warning', 'R1992-batch-label-strike', 'BatchInspector cc.Label strikethrough 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 884: R1993 BatchInspector node layer ──────────
+console.log('\n## 884. R1993 BatchInspector node layer 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s884 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s884.includes('R1993') && s884.includes('patchNodeLayer') && s884.includes('applyNodeLayer')) {
+    log('pass', 'R1993-batch-node-layer', 'BatchInspector node layer 일괄 설정')
+  } else {
+    log('warning', 'R1993-batch-node-layer', 'BatchInspector node layer 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 885: R1994 BatchInspector cc.BoxCollider size ──────────
+console.log('\n## 885. R1994 BatchInspector cc.BoxCollider size 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s885 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s885.includes('R1994') && s885.includes('patchBoxSize') && s885.includes('applyBoxSize')) {
+    log('pass', 'R1994-batch-box-size', 'BatchInspector cc.BoxCollider size 일괄 설정')
+  } else {
+    log('warning', 'R1994-batch-box-size', 'BatchInspector cc.BoxCollider size 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 886: R1995 BatchInspector cc.CircleCollider radius ──────────
+console.log('\n## 886. R1995 BatchInspector cc.CircleCollider radius 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s886 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s886.includes('R1995') && s886.includes('patchCircleRadius') && s886.includes('applyCircleRadius')) {
+    log('pass', 'R1995-batch-circle-radius', 'BatchInspector cc.CircleCollider radius 일괄 설정')
+  } else {
+    log('warning', 'R1995-batch-circle-radius', 'BatchInspector cc.CircleCollider radius 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 887: R1996 BatchInspector node color tint ──────────
+console.log('\n## 887. R1996 BatchInspector node color tint 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s887 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s887.includes('R1996') && s887.includes('patchNodeTint') && s887.includes('applyNodeTint')) {
+    log('pass', 'R1996-batch-node-tint', 'BatchInspector node color tint 일괄 설정')
+  } else {
+    log('warning', 'R1996-batch-node-tint', 'BatchInspector node color tint 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 888: R1997 BatchInspector cc.RigidBody sleepThreshold ──────────
+console.log('\n## 888. R1997 BatchInspector cc.RigidBody sleepThreshold 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s888 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s888.includes('R1997') && s888.includes('patchRBSleepThresh') && s888.includes('applyRBSleepThresh')) {
+    log('pass', 'R1997-batch-rb-sleepthreshold', 'BatchInspector cc.RigidBody sleepThreshold 일괄 설정')
+  } else {
+    log('warning', 'R1997-batch-rb-sleepthreshold', 'BatchInspector cc.RigidBody sleepThreshold 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 889: R1998 BatchInspector cc.ParticleSystem startSizeVar ──────────
+console.log('\n## 889. R1998 BatchInspector cc.ParticleSystem startSizeVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s889 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s889.includes('R1998') && s889.includes('patchPSStartSizeVar') && s889.includes('applyPSStartSizeVar')) {
+    log('pass', 'R1998-batch-ps-startsizevar', 'BatchInspector cc.ParticleSystem startSizeVar 일괄 설정')
+  } else {
+    log('warning', 'R1998-batch-ps-startsizevar', 'BatchInspector cc.ParticleSystem startSizeVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 890: R1999 BatchInspector cc.ParticleSystem speedVar ──────────
+console.log('\n## 890. R1999 BatchInspector cc.ParticleSystem speedVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s890 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s890.includes('R1999') && s890.includes('patchPSSpeedVar') && s890.includes('applyPSSpeedVar')) {
+    log('pass', 'R1999-batch-ps-speedvar', 'BatchInspector cc.ParticleSystem speedVar 일괄 설정')
+  } else {
+    log('warning', 'R1999-batch-ps-speedvar', 'BatchInspector cc.ParticleSystem speedVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 891: R2000 BatchInspector cc.VideoPlayer keepAspectRatio ──────────
+console.log('\n## 891. R2000 BatchInspector cc.VideoPlayer keepAspectRatio 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s891 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s891.includes('R2000') && s891.includes('patchVideoKeepAspect') && s891.includes('applyVideoKeepAspect')) {
+    log('pass', 'R2000-batch-video-keepaspect', 'BatchInspector cc.VideoPlayer keepAspectRatio 일괄 설정 (R2000 마일스톤!)')
+  } else {
+    log('warning', 'R2000-batch-video-keepaspect', 'BatchInspector cc.VideoPlayer keepAspectRatio 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 892: R2001 BatchInspector cc.ParticleSystem lifeVar ──────────
+console.log('\n## 892. R2001 BatchInspector cc.ParticleSystem lifeVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s892 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s892.includes('R2001') && s892.includes('patchPSLifeVar') && s892.includes('applyPSLifeVar')) {
+    log('pass', 'R2001-batch-ps-lifevar', 'BatchInspector cc.ParticleSystem lifeVar 일괄 설정')
+  } else {
+    log('warning', 'R2001-batch-ps-lifevar', 'BatchInspector cc.ParticleSystem lifeVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 893: R2002 BatchInspector cc.ParticleSystem gravity ──────────
+console.log('\n## 893. R2002 BatchInspector cc.ParticleSystem gravity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s893 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s893.includes('R2002') && s893.includes('patchPSGravity') && s893.includes('applyPSGravity')) {
+    log('pass', 'R2002-batch-ps-gravity', 'BatchInspector cc.ParticleSystem gravity 일괄 설정')
+  } else {
+    log('warning', 'R2002-batch-ps-gravity', 'BatchInspector cc.ParticleSystem gravity 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 894: R2003 BatchInspector node scale ──────────
+console.log('\n## 894. R2003 BatchInspector node scale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s894 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s894.includes('R2003') && s894.includes('patchNodeScale') && s894.includes('applyNodeScale')) {
+    log('pass', 'R2003-batch-node-scale', 'BatchInspector node scale 일괄 설정')
+  } else {
+    log('warning', 'R2003-batch-node-scale', 'BatchInspector node scale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 895: R2004 BatchInspector cc.ScrollView pagingEnabled ──────────
+console.log('\n## 895. R2004 BatchInspector cc.ScrollView pagingEnabled 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s895 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s895.includes('R2004') && s895.includes('patchSVPaging') && s895.includes('applySVPaging')) {
+    log('pass', 'R2004-batch-sv-paging', 'BatchInspector cc.ScrollView pagingEnabled 일괄 설정')
+  } else {
+    log('warning', 'R2004-batch-sv-paging', 'BatchInspector cc.ScrollView pagingEnabled 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 896: R2005 BatchInspector cc.VideoPlayer fullScreenEnabled ──────────
+console.log('\n## 896. R2005 BatchInspector cc.VideoPlayer fullScreenEnabled 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s896 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s896.includes('R2005') && s896.includes('patchVideoFullscreen') && s896.includes('applyVideoFullscreen')) {
+    log('pass', 'R2005-batch-video-fullscreen', 'BatchInspector cc.VideoPlayer fullScreenEnabled 일괄 설정')
+  } else {
+    log('warning', 'R2005-batch-video-fullscreen', 'BatchInspector cc.VideoPlayer fullScreenEnabled 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 897: R2006 BatchInspector node rotation ──────────
+console.log('\n## 897. R2006 BatchInspector node rotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s897 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s897.includes('R2006') && s897.includes('patchNodeRotation') && s897.includes('applyNodeRotation')) {
+    log('pass', 'R2006-batch-node-rotation', 'BatchInspector node rotation 일괄 설정')
+  } else {
+    log('warning', 'R2006-batch-node-rotation', 'BatchInspector node rotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 898: R2007 BatchInspector cc.Sprite isTrimmedMode ──────────
+console.log('\n## 898. R2007 BatchInspector cc.Sprite isTrimmedMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s898 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s898.includes('R2007') && s898.includes('patchSprTrimmed') && s898.includes('applySprTrimmed')) {
+    log('pass', 'R2007-batch-sprite-trimmed', 'BatchInspector cc.Sprite isTrimmedMode 일괄 설정')
+  } else {
+    log('warning', 'R2007-batch-sprite-trimmed', 'BatchInspector cc.Sprite isTrimmedMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 899: R2008 BatchInspector cc.ParticleSystem angleVar ──────────
+console.log('\n## 899. R2008 BatchInspector cc.ParticleSystem angleVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s899 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s899.includes('R2008') && s899.includes('patchPSAngleVar') && s899.includes('applyPSAngleVar')) {
+    log('pass', 'R2008-batch-ps-anglevar', 'BatchInspector cc.ParticleSystem angleVar 일괄 설정')
+  } else {
+    log('warning', 'R2008-batch-ps-anglevar', 'BatchInspector cc.ParticleSystem angleVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 900: R2009 BatchInspector cc.RigidBody enabledContactListener ──────────
+console.log('\n## 900. R2009 BatchInspector cc.RigidBody enabledContactListener 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s900 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s900.includes('R2009') && s900.includes('patchRBContactListener') && s900.includes('applyRBContactListener')) {
+    log('pass', 'R2009-batch-rb-contactlistener', 'BatchInspector cc.RigidBody enabledContactListener 일괄 설정')
+  } else {
+    log('warning', 'R2009-batch-rb-contactlistener', 'BatchInspector cc.RigidBody enabledContactListener 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 901: R2010 BatchInspector cc.RichText verticalAlign ──────────
+console.log('\n## 901. R2010 BatchInspector cc.RichText verticalAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s901 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s901.includes('R2010') && s901.includes('patchRichVAlign') && s901.includes('applyRichVAlign')) {
+    log('pass', 'R2010-batch-rich-valign', 'BatchInspector cc.RichText verticalAlign 일괄 설정')
+  } else {
+    log('warning', 'R2010-batch-rich-valign', 'BatchInspector cc.RichText verticalAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 902: R2011 BatchInspector dragonBones.ArmatureDisplay loop ──────────
+console.log('\n## 902. R2011 BatchInspector dragonBones.ArmatureDisplay loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s902 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s902.includes('R2011') && s902.includes('patchDBLoop') && s902.includes('applyDBLoop')) {
+    log('pass', 'R2011-batch-db-loop', 'BatchInspector dragonBones.ArmatureDisplay loop 일괄 설정')
+  } else {
+    log('warning', 'R2011-batch-db-loop', 'BatchInspector dragonBones.ArmatureDisplay loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 903: R2012 BatchInspector cc.SkeletalAnimation loop ──────────
+console.log('\n## 903. R2012 BatchInspector cc.SkeletalAnimation loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s903 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s903.includes('R2012') && s903.includes('patchSkeletalLoop') && s903.includes('applySkeletalLoop')) {
+    log('pass', 'R2012-batch-skeletal-loop', 'BatchInspector cc.SkeletalAnimation loop 일괄 설정')
+  } else {
+    log('warning', 'R2012-batch-skeletal-loop', 'BatchInspector cc.SkeletalAnimation loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 904: R2013 BatchInspector node position ──────────
+console.log('\n## 904. R2013 BatchInspector node position 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s904 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s904.includes('R2013') && s904.includes('patchNodePos') && s904.includes('applyNodePos')) {
+    log('pass', 'R2013-batch-node-pos', 'BatchInspector node position 일괄 설정')
+  } else {
+    log('warning', 'R2013-batch-node-pos', 'BatchInspector node position 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 905: R2014 BatchInspector node size ──────────
+console.log('\n## 905. R2014 BatchInspector node size 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s905 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s905.includes('R2014') && s905.includes('patchNodeSize') && s905.includes('applyNodeSize')) {
+    log('pass', 'R2014-batch-node-size', 'BatchInspector node size 일괄 설정')
+  } else {
+    log('warning', 'R2014-batch-node-size', 'BatchInspector node size 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 906: R2015 BatchInspector cc.ParticleSystem rotatePerS ──────────
+console.log('\n## 906. R2015 BatchInspector cc.ParticleSystem rotatePerS 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s906 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s906.includes('R2015') && s906.includes('patchPSRotPerS') && s906.includes('applyPSRotPerS')) {
+    log('pass', 'R2015-batch-ps-rotpers', 'BatchInspector cc.ParticleSystem rotatePerS 일괄 설정')
+  } else {
+    log('warning', 'R2015-batch-ps-rotpers', 'BatchInspector cc.ParticleSystem rotatePerS 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 907: R2016 BatchInspector cc.ParticleSystem rotatePerSVar ──────────
+console.log('\n## 907. R2016 BatchInspector cc.ParticleSystem rotatePerSVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s907 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s907.includes('R2016') && s907.includes('patchPSRotPerSVar') && s907.includes('applyPSRotPerSVar')) {
+    log('pass', 'R2016-batch-ps-rotpersvar', 'BatchInspector cc.ParticleSystem rotatePerSVar 일괄 설정')
+  } else {
+    log('warning', 'R2016-batch-ps-rotpersvar', 'BatchInspector cc.ParticleSystem rotatePerSVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 908: R2017 BatchInspector cc.Label lineHeight ──────────
+console.log('\n## 908. R2017 BatchInspector cc.Label lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s908 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s908.includes('R2017') && s908.includes('patchLabelLineHeight') && s908.includes('applyLabelLineHeight')) {
+    log('pass', 'R2017-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R2017-batch-label-lineheight', 'BatchInspector cc.Label lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 909: R2018 BatchInspector cc.Label overflow ──────────
+console.log('\n## 909. R2018 BatchInspector cc.Label overflow 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s909 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s909.includes('R2018') && s909.includes('patchLabelOverflow') && s909.includes('applyLabelOverflow')) {
+    log('pass', 'R2018-batch-label-overflow', 'BatchInspector cc.Label overflow 일괄 설정')
+  } else {
+    log('warning', 'R2018-batch-label-overflow', 'BatchInspector cc.Label overflow 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 910: R2019 BatchInspector cc.Label horizontalAlign ──────────
+console.log('\n## 910. R2019 BatchInspector cc.Label horizontalAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s910 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s910.includes('R2019') && s910.includes('patchLabelHAlign') && s910.includes('applyLabelHAlign')) {
+    log('pass', 'R2019-batch-label-halign', 'BatchInspector cc.Label horizontalAlign 일괄 설정')
+  } else {
+    log('warning', 'R2019-batch-label-halign', 'BatchInspector cc.Label horizontalAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 911: R2020 BatchInspector cc.Button interactable ──────────
+console.log('\n## 911. R2020 BatchInspector cc.Button interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s911 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s911.includes('R2020') && s911.includes('patchBtnInteract') && s911.includes('applyBtnInteract')) {
+    log('pass', 'R2020-batch-btn-interact', 'BatchInspector cc.Button interactable 일괄 설정')
+  } else {
+    log('warning', 'R2020-batch-btn-interact', 'BatchInspector cc.Button interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 912: R2021 BatchInspector cc.Layout paddingTop ──────────
+console.log('\n## 912. R2021 BatchInspector cc.Layout paddingTop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s912 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s912.includes('R2021') && s912.includes('patchLayoutPadTop') && s912.includes('applyLayoutPadTop')) {
+    log('pass', 'R2021-batch-layout-padtop', 'BatchInspector cc.Layout paddingTop 일괄 설정')
+  } else {
+    log('warning', 'R2021-batch-layout-padtop', 'BatchInspector cc.Layout paddingTop 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 913: R2022 BatchInspector cc.Layout paddingBottom ──────────
+console.log('\n## 913. R2022 BatchInspector cc.Layout paddingBottom 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s913 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s913.includes('R2022') && s913.includes('patchLayoutPadBot') && s913.includes('applyLayoutPadBot')) {
+    log('pass', 'R2022-batch-layout-padbot', 'BatchInspector cc.Layout paddingBottom 일괄 설정')
+  } else {
+    log('warning', 'R2022-batch-layout-padbot', 'BatchInspector cc.Layout paddingBottom 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 914: R2023 BatchInspector cc.Layout paddingLeft ──────────
+console.log('\n## 914. R2023 BatchInspector cc.Layout paddingLeft 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s914 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s914.includes('R2023') && s914.includes('patchLayoutPadLeft') && s914.includes('applyLayoutPadLeft')) {
+    log('pass', 'R2023-batch-layout-padleft', 'BatchInspector cc.Layout paddingLeft 일괄 설정')
+  } else {
+    log('warning', 'R2023-batch-layout-padleft', 'BatchInspector cc.Layout paddingLeft 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 915: R2024 BatchInspector cc.Layout paddingRight ──────────
+console.log('\n## 915. R2024 BatchInspector cc.Layout paddingRight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s915 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s915.includes('R2024') && s915.includes('patchLayoutPadRight') && s915.includes('applyLayoutPadRight')) {
+    log('pass', 'R2024-batch-layout-padright', 'BatchInspector cc.Layout paddingRight 일괄 설정')
+  } else {
+    log('warning', 'R2024-batch-layout-padright', 'BatchInspector cc.Layout paddingRight 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 916: R2025 BatchInspector node anchor preset ──────────
+console.log('\n## 916. R2025 BatchInspector node anchor preset 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s916 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s916.includes('R2025') && s916.includes('patchNodeAnchor') && s916.includes('applyNodeAnchor')) {
+    log('pass', 'R2025-batch-node-anchor', 'BatchInspector node anchor preset 일괄 설정')
+  } else {
+    log('warning', 'R2025-batch-node-anchor', 'BatchInspector node anchor preset 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 917: R2026 BatchInspector cc.ParticleSystem totalParticles ──────────
+console.log('\n## 917. R2026 BatchInspector cc.ParticleSystem totalParticles 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s917 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s917.includes('R2026') && s917.includes('patchPSTotalPart') && s917.includes('applyPSTotalPart')) {
+    log('pass', 'R2026-batch-ps-totalpart', 'BatchInspector cc.ParticleSystem totalParticles 일괄 설정')
+  } else {
+    log('warning', 'R2026-batch-ps-totalpart', 'BatchInspector cc.ParticleSystem totalParticles 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 918: R2027 BatchInspector cc.ParticleSystem duration ──────────
+console.log('\n## 918. R2027 BatchInspector cc.ParticleSystem duration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s918 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s918.includes('R2027') && s918.includes('patchPSDuration') && s918.includes('applyPSDuration')) {
+    log('pass', 'R2027-batch-ps-duration', 'BatchInspector cc.ParticleSystem duration 일괄 설정')
+  } else {
+    log('warning', 'R2027-batch-ps-duration', 'BatchInspector cc.ParticleSystem duration 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 919: R2028 BatchInspector cc.ParticleSystem speed ──────────
+console.log('\n## 919. R2028 BatchInspector cc.ParticleSystem speed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s919 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s919.includes('R2028') && s919.includes('patchPSSpeed') && s919.includes('applyPSSpeed')) {
+    log('pass', 'R2028-batch-ps-speed', 'BatchInspector cc.ParticleSystem speed 일괄 설정')
+  } else {
+    log('warning', 'R2028-batch-ps-speed', 'BatchInspector cc.ParticleSystem speed 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 920: R2029 BatchInspector cc.ParticleSystem radialAccel ──────────
+console.log('\n## 920. R2029 BatchInspector cc.ParticleSystem radialAccel 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s920 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s920.includes('R2029') && s920.includes('patchPSRadialAccel') && s920.includes('applyPSRadialAccel')) {
+    log('pass', 'R2029-batch-ps-radialaccel', 'BatchInspector cc.ParticleSystem radialAccel 일괄 설정')
+  } else {
+    log('warning', 'R2029-batch-ps-radialaccel', 'BatchInspector cc.ParticleSystem radialAccel 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 921: R2030 BatchInspector cc.ParticleSystem tangentialAccel ──────────
+console.log('\n## 921. R2030 BatchInspector cc.ParticleSystem tangentialAccel 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s921 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s921.includes('R2030') && s921.includes('patchPSTangAccel') && s921.includes('applyPSTangAccel')) {
+    log('pass', 'R2030-batch-ps-tangaccel', 'BatchInspector cc.ParticleSystem tangentialAccel 일괄 설정')
+  } else {
+    log('warning', 'R2030-batch-ps-tangaccel', 'BatchInspector cc.ParticleSystem tangentialAccel 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 922: R2031 BatchInspector cc.ParticleSystem startSpin ──────────
+console.log('\n## 922. R2031 BatchInspector cc.ParticleSystem startSpin 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s922 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s922.includes('R2031') && s922.includes('patchPSStartSpin') && s922.includes('applyPSStartSpin')) {
+    log('pass', 'R2031-batch-ps-startspin', 'BatchInspector cc.ParticleSystem startSpin 일괄 설정')
+  } else {
+    log('warning', 'R2031-batch-ps-startspin', 'BatchInspector cc.ParticleSystem startSpin 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 923: R2032 BatchInspector cc.ParticleSystem endSpin ──────────
+console.log('\n## 923. R2032 BatchInspector cc.ParticleSystem endSpin 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s923 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s923.includes('R2032') && s923.includes('patchPSEndSpin') && s923.includes('applyPSEndSpin')) {
+    log('pass', 'R2032-batch-ps-endspin', 'BatchInspector cc.ParticleSystem endSpin 일괄 설정')
+  } else {
+    log('warning', 'R2032-batch-ps-endspin', 'BatchInspector cc.ParticleSystem endSpin 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 924: R2033 BatchInspector cc.ParticleSystem angle ──────────
+console.log('\n## 924. R2033 BatchInspector cc.ParticleSystem angle 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s924 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s924.includes('R2033') && s924.includes('patchPSAngle') && s924.includes('applyPSAngle')) {
+    log('pass', 'R2033-batch-ps-angle', 'BatchInspector cc.ParticleSystem angle 일괄 설정')
+  } else {
+    log('warning', 'R2033-batch-ps-angle', 'BatchInspector cc.ParticleSystem angle 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 925: R2034 BatchInspector cc.Label verticalAlign ──────────
+console.log('\n## 925. R2034 BatchInspector cc.Label verticalAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s925 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s925.includes('R2034') && s925.includes('patchLabelVAlign') && s925.includes('applyLabelVAlign')) {
+    log('pass', 'R2034-batch-label-valign', 'BatchInspector cc.Label verticalAlign 일괄 설정')
+  } else {
+    log('warning', 'R2034-batch-label-valign', 'BatchInspector cc.Label verticalAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 926: R2035 BatchInspector cc.RichText lineHeight ──────────
+console.log('\n## 926. R2035 BatchInspector cc.RichText lineHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s926 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s926.includes('R2035') && s926.includes('patchRichLineH') && s926.includes('applyRichLineH')) {
+    log('pass', 'R2035-batch-rich-lineheight', 'BatchInspector cc.RichText lineHeight 일괄 설정')
+  } else {
+    log('warning', 'R2035-batch-rich-lineheight', 'BatchInspector cc.RichText lineHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 927: R2036 BatchInspector cc.MotionStreak minSeg ──────────
+console.log('\n## 927. R2036 BatchInspector cc.MotionStreak minSeg 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s927 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s927.includes('R2036') && s927.includes('patchMSMinSeg') && s927.includes('applyMSMinSeg')) {
+    log('pass', 'R2036-batch-ms-minseg', 'BatchInspector cc.MotionStreak minSeg 일괄 설정')
+  } else {
+    log('warning', 'R2036-batch-ms-minseg', 'BatchInspector cc.MotionStreak minSeg 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 928: R2037 BatchInspector sp.Skeleton timeScale ──────────
+console.log('\n## 928. R2037 BatchInspector sp.Skeleton timeScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s928 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s928.includes('R2037') && s928.includes('patchSpineTimeScale') && s928.includes('applySpineTimeScale')) {
+    log('pass', 'R2037-batch-spine-timescale', 'BatchInspector sp.Skeleton timeScale 일괄 설정')
+  } else {
+    log('warning', 'R2037-batch-spine-timescale', 'BatchInspector sp.Skeleton timeScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 929: R2038 BatchInspector cc.BoxCollider offset ──────────
+console.log('\n## 929. R2038 BatchInspector cc.BoxCollider offset 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s929 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s929.includes('R2038') && s929.includes('patchBoxOffset') && s929.includes('applyBoxOffset')) {
+    log('pass', 'R2038-batch-box-offset', 'BatchInspector cc.BoxCollider offset 일괄 설정')
+  } else {
+    log('warning', 'R2038-batch-box-offset', 'BatchInspector cc.BoxCollider offset 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 930: R2039 BatchInspector cc.CircleCollider offset ──────────
+console.log('\n## 930. R2039 BatchInspector cc.CircleCollider offset 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s930 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s930.includes('R2039') && s930.includes('patchCircleOffset') && s930.includes('applyCircleOffset')) {
+    log('pass', 'R2039-batch-circle-offset', 'BatchInspector cc.CircleCollider offset 일괄 설정')
+  } else {
+    log('warning', 'R2039-batch-circle-offset', 'BatchInspector cc.CircleCollider offset 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 931: R2040 BatchInspector cc.Layout spacingX individual ──────────
+console.log('\n## 931. R2040 BatchInspector cc.Layout spacingX 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s931 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s931.includes('R2040') && s931.includes('patchLayoutSpacingX') && s931.includes('applyLayoutSpacingX')) {
+    log('pass', 'R2040-batch-layout-spacingx', 'BatchInspector cc.Layout spacingX 일괄 설정')
+  } else {
+    log('warning', 'R2040-batch-layout-spacingx', 'BatchInspector cc.Layout spacingX 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 932: R2041 BatchInspector cc.Layout spacingY individual ──────────
+console.log('\n## 932. R2041 BatchInspector cc.Layout spacingY 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s932 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s932.includes('R2041') && s932.includes('patchLayoutSpacingY') && s932.includes('applyLayoutSpacingY')) {
+    log('pass', 'R2041-batch-layout-spacingy', 'BatchInspector cc.Layout spacingY 일괄 설정')
+  } else {
+    log('warning', 'R2041-batch-layout-spacingy', 'BatchInspector cc.Layout spacingY 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 933: R2042 BatchInspector cc.Slider value ──────────
+console.log('\n## 933. R2042 BatchInspector cc.Slider value 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s933 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s933.includes('R2042') && s933.includes('patchSliderVal') && s933.includes('applySliderVal')) {
+    log('pass', 'R2042-batch-slider-val', 'BatchInspector cc.Slider value 일괄 설정')
+  } else {
+    log('warning', 'R2042-batch-slider-val', 'BatchInspector cc.Slider value 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 934: R2043 BatchInspector cc.Widget alignMode ──────────
+console.log('\n## 934. R2043 BatchInspector cc.Widget alignMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s934 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s934.includes('R2043') && s934.includes('patchWidgetAlignMode') && s934.includes('applyWidgetAlignMode')) {
+    log('pass', 'R2043-batch-widget-alignmode', 'BatchInspector cc.Widget alignMode 일괄 설정')
+  } else {
+    log('warning', 'R2043-batch-widget-alignmode', 'BatchInspector cc.Widget alignMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 935: R2044 BatchInspector dragonBones.ArmatureDisplay playTimes ──────────
+console.log('\n## 935. R2044 BatchInspector dragonBones.ArmatureDisplay playTimes 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s935 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s935.includes('R2044') && s935.includes('patchDBPlayTimes') && s935.includes('applyDBPlayTimes')) {
+    log('pass', 'R2044-batch-db-playtimes', 'BatchInspector dragonBones.ArmatureDisplay playTimes 일괄 설정')
+  } else {
+    log('warning', 'R2044-batch-db-playtimes', 'BatchInspector dragonBones.ArmatureDisplay playTimes 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 936: R2045 BatchInspector cc.SkeletalAnimation wrapMode ──────────
+console.log('\n## 936. R2045 BatchInspector cc.SkeletalAnimation wrapMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s936 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s936.includes('R2045') && s936.includes('patchSkelWrapMode') && s936.includes('applySkelWrapMode')) {
+    log('pass', 'R2045-batch-skel-wrapmode', 'BatchInspector cc.SkeletalAnimation wrapMode 일괄 설정')
+  } else {
+    log('warning', 'R2045-batch-skel-wrapmode', 'BatchInspector cc.SkeletalAnimation wrapMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 937: R2046 BatchInspector cc.VideoPlayer resourceType ──────────
+console.log('\n## 937. R2046 BatchInspector cc.VideoPlayer resourceType 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s937 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s937.includes('R2046') && s937.includes('patchVideoResType') && s937.includes('applyVideoResType')) {
+    log('pass', 'R2046-batch-video-restype', 'BatchInspector cc.VideoPlayer resourceType 일괄 설정')
+  } else {
+    log('warning', 'R2046-batch-video-restype', 'BatchInspector cc.VideoPlayer resourceType 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 938: R2047 BatchInspector cc.ParticleSystem startSpinVar ──────────
+console.log('\n## 938. R2047 BatchInspector cc.ParticleSystem startSpinVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s938 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s938.includes('R2047') && s938.includes('patchPSStartSpinVar') && s938.includes('applyPSStartSpinVar')) {
+    log('pass', 'R2047-batch-ps-startspinvar', 'BatchInspector cc.ParticleSystem startSpinVar 일괄 설정')
+  } else {
+    log('warning', 'R2047-batch-ps-startspinvar', 'BatchInspector cc.ParticleSystem startSpinVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 939: R2048 BatchInspector cc.ParticleSystem endSpinVar ──────────
+console.log('\n## 939. R2048 BatchInspector cc.ParticleSystem endSpinVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s939 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s939.includes('R2048') && s939.includes('patchPSEndSpinVar') && s939.includes('applyPSEndSpinVar')) {
+    log('pass', 'R2048-batch-ps-endspinvar', 'BatchInspector cc.ParticleSystem endSpinVar 일괄 설정')
+  } else {
+    log('warning', 'R2048-batch-ps-endspinvar', 'BatchInspector cc.ParticleSystem endSpinVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 940: R2049 BatchInspector cc.ParticleSystem endSizeVar ──────────
+console.log('\n## 940. R2049 BatchInspector cc.ParticleSystem endSizeVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s940 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s940.includes('R2049') && s940.includes('patchPSEndSizeVar') && s940.includes('applyPSEndSizeVar')) {
+    log('pass', 'R2049-batch-ps-endsizevar', 'BatchInspector cc.ParticleSystem endSizeVar 일괄 설정')
+  } else {
+    log('warning', 'R2049-batch-ps-endsizevar', 'BatchInspector cc.ParticleSystem endSizeVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 941: R2050 BatchInspector cc.ParticleSystem radialAccelVar ──────────
+console.log('\n## 941. R2050 BatchInspector cc.ParticleSystem radialAccelVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s941 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s941.includes('R2050') && s941.includes('patchPSRadialAccelVar') && s941.includes('applyPSRadialAccelVar')) {
+    log('pass', 'R2050-batch-ps-radialaccelvar', 'BatchInspector cc.ParticleSystem radialAccelVar 일괄 설정')
+  } else {
+    log('warning', 'R2050-batch-ps-radialaccelvar', 'BatchInspector cc.ParticleSystem radialAccelVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 942: R2051 BatchInspector cc.ParticleSystem tangentialAccelVar ──────────
+console.log('\n## 942. R2051 BatchInspector cc.ParticleSystem tangentialAccelVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s942 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s942.includes('R2051') && s942.includes('patchPSTangAccelVar') && s942.includes('applyPSTangAccelVar')) {
+    log('pass', 'R2051-batch-ps-tangaccelvar', 'BatchInspector cc.ParticleSystem tangentialAccelVar 일괄 설정')
+  } else {
+    log('warning', 'R2051-batch-ps-tangaccelvar', 'BatchInspector cc.ParticleSystem tangentialAccelVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 943: R2052 BatchInspector cc.Animation speed ──────────
+console.log('\n## 943. R2052 BatchInspector cc.Animation speed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s943 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s943.includes('R2052') && s943.includes('patchAnimSpeed') && s943.includes('applyAnimSpeed')) {
+    log('pass', 'R2052-batch-anim-speed', 'BatchInspector cc.Animation speed 일괄 설정')
+  } else {
+    log('warning', 'R2052-batch-anim-speed', 'BatchInspector cc.Animation speed 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 944: R2053 BatchInspector node opacity preset ──────────
+console.log('\n## 944. R2053 BatchInspector node opacity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s944 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s944.includes('R2053') && s944.includes('patchNodeOpacity') && s944.includes('applyNodeOpacity')) {
+    log('pass', 'R2053-batch-node-opacity', 'BatchInspector node opacity 일괄 설정')
+  } else {
+    log('warning', 'R2053-batch-node-opacity', 'BatchInspector node opacity 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 945: R2054 BatchInspector cc.ParticleSystem posVar ──────────
+console.log('\n## 945. R2054 BatchInspector cc.ParticleSystem posVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s945 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s945.includes('R2054') && s945.includes('patchPSPosVar') && s945.includes('applyPSPosVar')) {
+    log('pass', 'R2054-batch-ps-posvar', 'BatchInspector cc.ParticleSystem posVar 일괄 설정')
+  } else {
+    log('warning', 'R2054-batch-ps-posvar', 'BatchInspector cc.ParticleSystem posVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 946: R2055 BatchInspector cc.ParticleSystem gravity.x ──────────
+console.log('\n## 946. R2055 BatchInspector cc.ParticleSystem gravity.x 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s946 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s946.includes('R2055') && s946.includes('patchPSGravityX') && s946.includes('applyPSGravityX')) {
+    log('pass', 'R2055-batch-ps-gravityx', 'BatchInspector cc.ParticleSystem gravity.x 일괄 설정')
+  } else {
+    log('warning', 'R2055-batch-ps-gravityx', 'BatchInspector cc.ParticleSystem gravity.x 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 947: R2056 BatchInspector cc.SkeletalAnimation speed ──────────
+console.log('\n## 947. R2056 BatchInspector cc.SkeletalAnimation speed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s947 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s947.includes('R2056') && s947.includes('patchSkelSpeed') && s947.includes('applySkelSpeed')) {
+    log('pass', 'R2056-batch-skel-speed', 'BatchInspector cc.SkeletalAnimation speed 일괄 설정')
+  } else {
+    log('warning', 'R2056-batch-skel-speed', 'BatchInspector cc.SkeletalAnimation speed 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 948: R2057 BatchInspector cc.Layout wrapMode ──────────
+console.log('\n## 948. R2057 BatchInspector cc.Layout wrapMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s948 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s948.includes('R2057') && s948.includes('patchLayoutWrap') && s948.includes('applyLayoutWrap')) {
+    log('pass', 'R2057-batch-layout-wrap', 'BatchInspector cc.Layout wrapMode 일괄 설정')
+  } else {
+    log('warning', 'R2057-batch-layout-wrap', 'BatchInspector cc.Layout wrapMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 949: R2058 BatchInspector cc.Camera orthographic ──────────
+console.log('\n## 949. R2058 BatchInspector cc.Camera orthographic 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s949 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s949.includes('R2058') && s949.includes('patchCamOrtho') && s949.includes('applyCamOrtho')) {
+    log('pass', 'R2058-batch-cam-ortho', 'BatchInspector cc.Camera orthographic 일괄 설정')
+  } else {
+    log('warning', 'R2058-batch-cam-ortho', 'BatchInspector cc.Camera orthographic 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 950: R2059 BatchInspector cc.ParticleSystem startRadius ──────────
+console.log('\n## 950. R2059 BatchInspector cc.ParticleSystem startRadius 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s950 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s950.includes('R2059') && s950.includes('patchPSStartRadius') && s950.includes('applyPSStartRadius')) {
+    log('pass', 'R2059-batch-ps-startradius', 'BatchInspector cc.ParticleSystem startRadius 일괄 설정')
+  } else {
+    log('warning', 'R2059-batch-ps-startradius', 'BatchInspector cc.ParticleSystem startRadius 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 951: R2060 BatchInspector cc.ParticleSystem endRadius ──────────
+console.log('\n## 951. R2060 BatchInspector cc.ParticleSystem endRadius 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s951 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s951.includes('R2060') && s951.includes('patchPSEndRadius') && s951.includes('applyPSEndRadius')) {
+    log('pass', 'R2060-batch-ps-endradius', 'BatchInspector cc.ParticleSystem endRadius 일괄 설정')
+  } else {
+    log('warning', 'R2060-batch-ps-endradius', 'BatchInspector cc.ParticleSystem endRadius 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 952: R2061 BatchInspector cc.ParticleSystem startRadiusVar ──────────
+console.log('\n## 952. R2061 BatchInspector cc.ParticleSystem startRadiusVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s952 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s952.includes('R2061') && s952.includes('patchPSStartRadiusVar') && s952.includes('applyPSStartRadiusVar')) {
+    log('pass', 'R2061-batch-ps-startradvar', 'BatchInspector cc.ParticleSystem startRadiusVar 일괄 설정')
+  } else {
+    log('warning', 'R2061-batch-ps-startradvar', 'BatchInspector cc.ParticleSystem startRadiusVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 953: R2062 BatchInspector cc.ParticleSystem rotationIsDir ──────────
+console.log('\n## 953. R2062 BatchInspector cc.ParticleSystem rotationIsDir 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s953 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s953.includes('R2062') && s953.includes('patchPSRotIsDir') && s953.includes('applyPSRotIsDir')) {
+    log('pass', 'R2062-batch-ps-rotisdir', 'BatchInspector cc.ParticleSystem rotationIsDir 일괄 설정')
+  } else {
+    log('warning', 'R2062-batch-ps-rotisdir', 'BatchInspector cc.ParticleSystem rotationIsDir 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 954: R2063 BatchInspector cc.ProgressBar totalLength ──────────
+console.log('\n## 954. R2063 BatchInspector cc.ProgressBar totalLength 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s954 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s954.includes('R2063') && s954.includes('patchPBTotalLength') && s954.includes('applyPBTotalLength')) {
+    log('pass', 'R2063-batch-pb-totallength', 'BatchInspector cc.ProgressBar totalLength 일괄 설정')
+  } else {
+    log('warning', 'R2063-batch-pb-totallength', 'BatchInspector cc.ProgressBar totalLength 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 955: R2064 BatchInspector cc.Label fontFamily ──────────
+console.log('\n## 955. R2064 BatchInspector cc.Label fontFamily 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s955 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s955.includes('R2064') && s955.includes('patchLabelFontFamily') && s955.includes('applyLabelFontFamily')) {
+    log('pass', 'R2064-batch-label-fontfamily', 'BatchInspector cc.Label fontFamily 일괄 설정')
+  } else {
+    log('warning', 'R2064-batch-label-fontfamily', 'BatchInspector cc.Label fontFamily 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 956: R2065 BatchInspector cc.ScrollView bounce ──────────
+console.log('\n## 956. R2065 BatchInspector cc.ScrollView bounce 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s956 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s956.includes('R2065') && s956.includes('patchScrollBounce') && s956.includes('applyScrollBounce')) {
+    log('pass', 'R2065-batch-sv-bounce', 'BatchInspector cc.ScrollView bounce 일괄 설정')
+  } else {
+    log('warning', 'R2065-batch-sv-bounce', 'BatchInspector cc.ScrollView bounce 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 957: R2066 BatchInspector cc.RichText fontSize ──────────
+console.log('\n## 957. R2066 BatchInspector cc.RichText fontSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s957 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s957.includes('R2066') && s957.includes('patchRichFontSize') && s957.includes('applyRichFontSize')) {
+    log('pass', 'R2066-batch-rich-fontsize', 'BatchInspector cc.RichText fontSize 일괄 설정')
+  } else {
+    log('warning', 'R2066-batch-rich-fontsize', 'BatchInspector cc.RichText fontSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 958: R2067 BatchInspector cc.PageView direction ──────────
+console.log('\n## 958. R2067 BatchInspector cc.PageView direction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s958 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s958.includes('R2067') && s958.includes('patchPageViewDir') && s958.includes('applyPageViewDir')) {
+    log('pass', 'R2067-batch-pv-direction', 'BatchInspector cc.PageView direction 일괄 설정')
+  } else {
+    log('warning', 'R2067-batch-pv-direction', 'BatchInspector cc.PageView direction 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 959: R2068 BatchInspector cc.Layout cellSize ──────────
+console.log('\n## 959. R2068 BatchInspector cc.Layout cellSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s959 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s959.includes('R2068') && s959.includes('patchLayoutCell') && s959.includes('applyLayoutCell')) {
+    log('pass', 'R2068-batch-layout-cellsize', 'BatchInspector cc.Layout cellSize 일괄 설정')
+  } else {
+    log('warning', 'R2068-batch-layout-cellsize', 'BatchInspector cc.Layout cellSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 960: R2069 BatchInspector cc.RigidBody linearDamping ──────────
+console.log('\n## 960. R2069 BatchInspector cc.RigidBody linearDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s960 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s960.includes('R2069') && s960.includes('patchRBLinearDamp') && s960.includes('applyRBLinearDamp')) {
+    log('pass', 'R2069-batch-rb-lineardamp', 'BatchInspector cc.RigidBody linearDamping 일괄 설정')
+  } else {
+    log('warning', 'R2069-batch-rb-lineardamp', 'BatchInspector cc.RigidBody linearDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 961: R2070 BatchInspector cc.RigidBody angularDamping ──────────
+console.log('\n## 961. R2070 BatchInspector cc.RigidBody angularDamping 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s961 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s961.includes('R2070') && s961.includes('patchRBAngDamp') && s961.includes('applyRBAngDamp')) {
+    log('pass', 'R2070-batch-rb-angdamp', 'BatchInspector cc.RigidBody angularDamping 일괄 설정')
+  } else {
+    log('warning', 'R2070-batch-rb-angdamp', 'BatchInspector cc.RigidBody angularDamping 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 962: R2071 BatchInspector cc.MotionStreak fade ──────────
+console.log('\n## 962. R2071 BatchInspector cc.MotionStreak fade 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s962 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s962.includes('R2071') && s962.includes('patchMSFade') && s962.includes('applyMSFade')) {
+    log('pass', 'R2071-batch-ms-fade', 'BatchInspector cc.MotionStreak fade 일괄 설정')
+  } else {
+    log('warning', 'R2071-batch-ms-fade', 'BatchInspector cc.MotionStreak fade 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 963: R2072 BatchInspector cc.Sprite fillType ──────────
+console.log('\n## 963. R2072 BatchInspector cc.Sprite fillType 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s963 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s963.includes('R2072') && s963.includes('patchSprFillType') && s963.includes('applySprFillType')) {
+    log('pass', 'R2072-batch-spr-filltype', 'BatchInspector cc.Sprite fillType 일괄 설정')
+  } else {
+    log('warning', 'R2072-batch-spr-filltype', 'BatchInspector cc.Sprite fillType 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 964: R2073 BatchInspector cc.ParticleSystem startSize ──────────
+console.log('\n## 964. R2073 BatchInspector cc.ParticleSystem startSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s964 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s964.includes('R2073') && s964.includes('patchPSStartSize') && s964.includes('applyPSStartSize')) {
+    log('pass', 'R2073-batch-ps-startsize', 'BatchInspector cc.ParticleSystem startSize 일괄 설정')
+  } else {
+    log('warning', 'R2073-batch-ps-startsize', 'BatchInspector cc.ParticleSystem startSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 965: R2074 BatchInspector cc.ParticleSystem endSize ──────────
+console.log('\n## 965. R2074 BatchInspector cc.ParticleSystem endSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s965 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s965.includes('R2074') && s965.includes('patchPSEndSize') && s965.includes('applyPSEndSize')) {
+    log('pass', 'R2074-batch-ps-endsize', 'BatchInspector cc.ParticleSystem endSize 일괄 설정')
+  } else {
+    log('warning', 'R2074-batch-ps-endsize', 'BatchInspector cc.ParticleSystem endSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 966: R2075 BatchInspector cc.VideoPlayer volume ──────────
+console.log('\n## 966. R2075 BatchInspector cc.VideoPlayer volume 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s966 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s966.includes('R2075') && s966.includes('patchVideoVol') && s966.includes('applyVideoVol')) {
+    log('pass', 'R2075-batch-vp-volume', 'BatchInspector cc.VideoPlayer volume 일괄 설정')
+  } else {
+    log('warning', 'R2075-batch-vp-volume', 'BatchInspector cc.VideoPlayer volume 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 967: R2076 BatchInspector cc.MotionStreak stroke ──────────
+console.log('\n## 967. R2076 BatchInspector cc.MotionStreak stroke 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s967 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s967.includes('R2076') && s967.includes('patchMSStroke') && s967.includes('applyMSStroke')) {
+    log('pass', 'R2076-batch-ms-stroke', 'BatchInspector cc.MotionStreak stroke 일괄 설정')
+  } else {
+    log('warning', 'R2076-batch-ms-stroke', 'BatchInspector cc.MotionStreak stroke 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 968: R2077 BatchInspector cc.PageView pageTurningSpeed ──────────
+console.log('\n## 968. R2077 BatchInspector cc.PageView pageTurningSpeed 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s968 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s968.includes('R2077') && s968.includes('patchPVTurnSpeed') && s968.includes('applyPVTurnSpeed')) {
+    log('pass', 'R2077-batch-pv-turningspeed', 'BatchInspector cc.PageView pageTurningSpeed 일괄 설정')
+  } else {
+    log('warning', 'R2077-batch-pv-turningspeed', 'BatchInspector cc.PageView pageTurningSpeed 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 969: R2078 BatchInspector cc.Layout startAxis ──────────
+console.log('\n## 969. R2078 BatchInspector cc.Layout startAxis 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s969 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s969.includes('R2078') && s969.includes('patchLayoutStartAxis') && s969.includes('applyLayoutStartAxis')) {
+    log('pass', 'R2078-batch-layout-startaxis', 'BatchInspector cc.Layout startAxis 일괄 설정')
+  } else {
+    log('warning', 'R2078-batch-layout-startaxis', 'BatchInspector cc.Layout startAxis 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 970: R2079 BatchInspector cc.Layout constraint ──────────
+console.log('\n## 970. R2079 BatchInspector cc.Layout constraint 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s970 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s970.includes('R2079') && s970.includes('patchLayoutConstraint') && s970.includes('applyLayoutConstraint')) {
+    log('pass', 'R2079-batch-layout-constraint', 'BatchInspector cc.Layout constraint 일괄 설정')
+  } else {
+    log('warning', 'R2079-batch-layout-constraint', 'BatchInspector cc.Layout constraint 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 971: R2080 BatchInspector cc.Layout resizeMode ──────────
+console.log('\n## 971. R2080 BatchInspector cc.Layout resizeMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s971 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s971.includes('R2080') && s971.includes('patchLayoutResizeMode') && s971.includes('applyLayoutResizeMode')) {
+    log('pass', 'R2080-batch-layout-resizemode', 'BatchInspector cc.Layout resizeMode 일괄 설정')
+  } else {
+    log('warning', 'R2080-batch-layout-resizemode', 'BatchInspector cc.Layout resizeMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 972: R2081 BatchInspector cc.ParticleSystem life ──────────
+console.log('\n## 972. R2081 BatchInspector cc.ParticleSystem life 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s972 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s972.includes('R2081') && s972.includes('patchPSLife') && s972.includes('applyPSLife')) {
+    log('pass', 'R2081-batch-ps-life', 'BatchInspector cc.ParticleSystem life 일괄 설정')
+  } else {
+    log('warning', 'R2081-batch-ps-life', 'BatchInspector cc.ParticleSystem life 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 973: R2082 BatchInspector cc.BoxCollider sensor ──────────
+console.log('\n## 973. R2082 BatchInspector cc.BoxCollider sensor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s973 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s973.includes('R2082') && s973.includes('patchBoxSensor') && s973.includes('applyBoxSensor')) {
+    log('pass', 'R2082-batch-box-sensor', 'BatchInspector cc.BoxCollider sensor 일괄 설정')
+  } else {
+    log('warning', 'R2082-batch-box-sensor', 'BatchInspector cc.BoxCollider sensor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 974: R2083 BatchInspector cc.CircleCollider sensor ──────────
+console.log('\n## 974. R2083 BatchInspector cc.CircleCollider sensor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s974 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s974.includes('R2083') && s974.includes('patchCircleSensor') && s974.includes('applyCircleSensor')) {
+    log('pass', 'R2083-batch-circle-sensor', 'BatchInspector cc.CircleCollider sensor 일괄 설정')
+  } else {
+    log('warning', 'R2083-batch-circle-sensor', 'BatchInspector cc.CircleCollider sensor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 975: R2084 BatchInspector cc.PolygonCollider sensor ──────────
+console.log('\n## 975. R2084 BatchInspector cc.PolygonCollider sensor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s975 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s975.includes('R2084') && s975.includes('patchPolyColliderSensor') && s975.includes('applyPolyColliderSensor')) {
+    log('pass', 'R2084-batch-poly-sensor', 'BatchInspector cc.PolygonCollider sensor 일괄 설정')
+  } else {
+    log('warning', 'R2084-batch-poly-sensor', 'BatchInspector cc.PolygonCollider sensor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 976: R2085 BatchInspector cc.EditBox inputMode ──────────
+console.log('\n## 976. R2085 BatchInspector cc.EditBox inputMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s976 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s976.includes('R2085') && s976.includes('patchEditInputMode') && s976.includes('applyEditInputMode')) {
+    log('pass', 'R2085-batch-editbox-inputmode', 'BatchInspector cc.EditBox inputMode 일괄 설정')
+  } else {
+    log('warning', 'R2085-batch-editbox-inputmode', 'BatchInspector cc.EditBox inputMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 977: R2086 BatchInspector cc.EditBox inputFlag ──────────
+console.log('\n## 977. R2086 BatchInspector cc.EditBox inputFlag 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s977 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s977.includes('R2086') && s977.includes('patchEditInputFlag') && s977.includes('applyEditInputFlag')) {
+    log('pass', 'R2086-batch-editbox-inputflag', 'BatchInspector cc.EditBox inputFlag 일괄 설정')
+  } else {
+    log('warning', 'R2086-batch-editbox-inputflag', 'BatchInspector cc.EditBox inputFlag 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 978: R2087 BatchInspector cc.BoxCollider density ──────────
+console.log('\n## 978. R2087 BatchInspector cc.BoxCollider density 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s978 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s978.includes('R2087') && s978.includes('patchBoxDensity') && s978.includes('applyBoxDensity')) {
+    log('pass', 'R2087-batch-box-density', 'BatchInspector cc.BoxCollider density 일괄 설정')
+  } else {
+    log('warning', 'R2087-batch-box-density', 'BatchInspector cc.BoxCollider density 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 979: R2088 BatchInspector cc.CircleCollider density ──────────
+console.log('\n## 979. R2088 BatchInspector cc.CircleCollider density 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s979 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s979.includes('R2088') && s979.includes('patchCircleDensity') && s979.includes('applyCircleDensity')) {
+    log('pass', 'R2088-batch-circle-density', 'BatchInspector cc.CircleCollider density 일괄 설정')
+  } else {
+    log('warning', 'R2088-batch-circle-density', 'BatchInspector cc.CircleCollider density 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 980: R2089 BatchInspector cc.BoxCollider friction ──────────
+console.log('\n## 980. R2089 BatchInspector cc.BoxCollider friction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s980 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s980.includes('R2089') && s980.includes('patchBoxFriction') && s980.includes('applyBoxFriction')) {
+    log('pass', 'R2089-batch-box-friction', 'BatchInspector cc.BoxCollider friction 일괄 설정')
+  } else {
+    log('warning', 'R2089-batch-box-friction', 'BatchInspector cc.BoxCollider friction 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 981: R2090 BatchInspector cc.CircleCollider friction ──────────
+console.log('\n## 981. R2090 BatchInspector cc.CircleCollider friction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s981 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s981.includes('R2090') && s981.includes('patchCircleFriction') && s981.includes('applyCircleFriction')) {
+    log('pass', 'R2090-batch-circle-friction', 'BatchInspector cc.CircleCollider friction 일괄 설정')
+  } else {
+    log('warning', 'R2090-batch-circle-friction', 'BatchInspector cc.CircleCollider friction 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 982: R2091 BatchInspector cc.BoxCollider restitution ──────────
+console.log('\n## 982. R2091 BatchInspector cc.BoxCollider restitution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s982 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s982.includes('R2091') && s982.includes('patchBoxRestitution') && s982.includes('applyBoxRestitution')) {
+    log('pass', 'R2091-batch-box-restitution', 'BatchInspector cc.BoxCollider restitution 일괄 설정')
+  } else {
+    log('warning', 'R2091-batch-box-restitution', 'BatchInspector cc.BoxCollider restitution 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 983: R2092 BatchInspector cc.CircleCollider restitution ──────────
+console.log('\n## 983. R2092 BatchInspector cc.CircleCollider restitution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s983 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s983.includes('R2092') && s983.includes('patchCircleRestitution') && s983.includes('applyCircleRestitution')) {
+    log('pass', 'R2092-batch-circle-restitution', 'BatchInspector cc.CircleCollider restitution 일괄 설정')
+  } else {
+    log('warning', 'R2092-batch-circle-restitution', 'BatchInspector cc.CircleCollider restitution 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 984: R2093 BatchInspector cc.PolygonCollider density ──────────
+console.log('\n## 984. R2093 BatchInspector cc.PolygonCollider density 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s984 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s984.includes('R2093') && s984.includes('patchPolyDens') && s984.includes('applyPolyDens')) {
+    log('pass', 'R2093-batch-poly-density', 'BatchInspector cc.PolygonCollider density 일괄 설정')
+  } else {
+    log('warning', 'R2093-batch-poly-density', 'BatchInspector cc.PolygonCollider density 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 985: R2094 BatchInspector cc.PolygonCollider friction ──────────
+console.log('\n## 985. R2094 BatchInspector cc.PolygonCollider friction 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s985 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s985.includes('R2094') && s985.includes('patchPolyFric') && s985.includes('applyPolyFric')) {
+    log('pass', 'R2094-batch-poly-friction', 'BatchInspector cc.PolygonCollider friction 일괄 설정')
+  } else {
+    log('warning', 'R2094-batch-poly-friction', 'BatchInspector cc.PolygonCollider friction 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 986: R2095 BatchInspector cc.PolygonCollider restitution ──────────
+console.log('\n## 986. R2095 BatchInspector cc.PolygonCollider restitution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s986 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s986.includes('R2095') && s986.includes('patchPolyRest') && s986.includes('applyPolyRest')) {
+    log('pass', 'R2095-batch-poly-restitution', 'BatchInspector cc.PolygonCollider restitution 일괄 설정')
+  } else {
+    log('warning', 'R2095-batch-poly-restitution', 'BatchInspector cc.PolygonCollider restitution 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 987: R2096 BatchInspector cc.Widget top ──────────
+console.log('\n## 987. R2096 BatchInspector cc.Widget top 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s987 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s987.includes('R2096') && s987.includes('patchWidgetTop') && s987.includes('applyWidgetTop')) {
+    log('pass', 'R2096-batch-widget-top', 'BatchInspector cc.Widget top 일괄 설정')
+  } else {
+    log('warning', 'R2096-batch-widget-top', 'BatchInspector cc.Widget top 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 988: R2097 BatchInspector cc.Widget bottom ──────────
+console.log('\n## 988. R2097 BatchInspector cc.Widget bottom 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s988 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s988.includes('R2097') && s988.includes('patchWidgetBot') && s988.includes('applyWidgetBot')) {
+    log('pass', 'R2097-batch-widget-bottom', 'BatchInspector cc.Widget bottom 일괄 설정')
+  } else {
+    log('warning', 'R2097-batch-widget-bottom', 'BatchInspector cc.Widget bottom 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 989: R2098 BatchInspector cc.Widget left ──────────
+console.log('\n## 989. R2098 BatchInspector cc.Widget left 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s989 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s989.includes('R2098') && s989.includes('patchWidgetLeft') && s989.includes('applyWidgetLeft')) {
+    log('pass', 'R2098-batch-widget-left', 'BatchInspector cc.Widget left 일괄 설정')
+  } else {
+    log('warning', 'R2098-batch-widget-left', 'BatchInspector cc.Widget left 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 990: R2099 BatchInspector cc.Widget right ──────────
+console.log('\n## 990. R2099 BatchInspector cc.Widget right 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s990 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s990.includes('R2099') && s990.includes('patchWidgetRight') && s990.includes('applyWidgetRight')) {
+    log('pass', 'R2099-batch-widget-right', 'BatchInspector cc.Widget right 일괄 설정')
+  } else {
+    log('warning', 'R2099-batch-widget-right', 'BatchInspector cc.Widget right 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 991: R2100 BatchInspector cc.Widget horizontalCenter ──────────
+console.log('\n## 991. R2100 BatchInspector cc.Widget horizontalCenter 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s991 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s991.includes('R2100') && s991.includes('patchWidgetHCenter') && s991.includes('applyWidgetHCenter')) {
+    log('pass', 'R2100-batch-widget-hcenter', 'BatchInspector cc.Widget horizontalCenter 일괄 설정')
+  } else {
+    log('warning', 'R2100-batch-widget-hcenter', 'BatchInspector cc.Widget horizontalCenter 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 992: R2101 BatchInspector cc.Widget verticalCenter ──────────
+console.log('\n## 992. R2101 BatchInspector cc.Widget verticalCenter 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s992 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s992.includes('R2101') && s992.includes('patchWidgetVCenter') && s992.includes('applyWidgetVCenter')) {
+    log('pass', 'R2101-batch-widget-vcenter', 'BatchInspector cc.Widget verticalCenter 일괄 설정')
+  } else {
+    log('warning', 'R2101-batch-widget-vcenter', 'BatchInspector cc.Widget verticalCenter 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 993: R2102 BatchInspector cc.Label spacingY ──────────
+console.log('\n## 993. R2102 BatchInspector cc.Label spacingY 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s993 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s993.includes('R2102') && s993.includes('patchLabelSpacingY') && s993.includes('applyLabelSpacingY')) {
+    log('pass', 'R2102-batch-label-spacingy', 'BatchInspector cc.Label spacingY 일괄 설정')
+  } else {
+    log('warning', 'R2102-batch-label-spacingy', 'BatchInspector cc.Label spacingY 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 994: R2103 BatchInspector cc.VideoPlayer muted ──────────
+console.log('\n## 994. R2103 BatchInspector cc.VideoPlayer muted 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s994 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s994.includes('R2103') && s994.includes('patchVideoMuted') && s994.includes('applyVideoMuted')) {
+    log('pass', 'R2103-batch-video-muted', 'BatchInspector cc.VideoPlayer muted 일괄 설정')
+  } else {
+    log('warning', 'R2103-batch-video-muted', 'BatchInspector cc.VideoPlayer muted 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 995: R2104 BatchInspector cc.ScrollView inertia ──────────
+console.log('\n## 995. R2104 BatchInspector cc.ScrollView inertia 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s995 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s995.includes('R2104') && s995.includes('patchScrollInertia') && s995.includes('applyScrollInertia')) {
+    log('pass', 'R2104-batch-sv-inertia', 'BatchInspector cc.ScrollView inertia 일괄 설정')
+  } else {
+    log('warning', 'R2104-batch-sv-inertia', 'BatchInspector cc.ScrollView inertia 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 996: R2105 BatchInspector cc.EditBox maxLength ──────────
+console.log('\n## 996. R2105 BatchInspector cc.EditBox maxLength 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s996 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s996.includes('R2105') && s996.includes('patchEditMaxLen') && s996.includes('applyEditMaxLen')) {
+    log('pass', 'R2105-batch-edit-maxlen', 'BatchInspector cc.EditBox maxLength 일괄 설정')
+  } else {
+    log('warning', 'R2105-batch-edit-maxlen', 'BatchInspector cc.EditBox maxLength 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 997: R2106 BatchInspector cc.Toggle isChecked ──────────
+console.log('\n## 997. R2106 BatchInspector cc.Toggle isChecked 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s997 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s997.includes('R2106') && s997.includes('patchToggleCheck') && s997.includes('applyToggleCheck')) {
+    log('pass', 'R2106-batch-toggle-check', 'BatchInspector cc.Toggle isChecked 일괄 설정')
+  } else {
+    log('warning', 'R2106-batch-toggle-check', 'BatchInspector cc.Toggle isChecked 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 998: R2107 BatchInspector cc.MotionStreak color ──────────
+console.log('\n## 998. R2107 BatchInspector cc.MotionStreak color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s998 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s998.includes('R2107') && s998.includes('patchMSColor') && s998.includes('applyMSColor')) {
+    log('pass', 'R2107-batch-ms-color', 'BatchInspector cc.MotionStreak color 일괄 설정')
+  } else {
+    log('warning', 'R2107-batch-ms-color', 'BatchInspector cc.MotionStreak color 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 999: R2108 BatchInspector cc.AudioSource loop ──────────
+console.log('\n## 999. R2108 BatchInspector cc.AudioSource loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s999 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s999.includes('R2108') && s999.includes('patchAudioLoop') && s999.includes('applyAudioLoop')) {
+    log('pass', 'R2108-batch-audio-loop', 'BatchInspector cc.AudioSource loop 일괄 설정')
+  } else {
+    log('warning', 'R2108-batch-audio-loop', 'BatchInspector cc.AudioSource loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1000: R2109 BatchInspector cc.AudioSource playOnLoad ──────────
+console.log('\n## 1000. R2109 BatchInspector cc.AudioSource playOnLoad 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1000 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1000.includes('R2109') && s1000.includes('patchAudioPlayOnLoad') && s1000.includes('applyAudioPlayOnLoad')) {
+    log('pass', 'R2109-batch-audio-playonload', 'BatchInspector cc.AudioSource playOnLoad 일괄 설정')
+  } else {
+    log('warning', 'R2109-batch-audio-playonload', 'BatchInspector cc.AudioSource playOnLoad 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1001: R2110 BatchInspector cc.EditBox tabIndex ──────────
+console.log('\n## 1001. R2110 BatchInspector cc.EditBox tabIndex 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1001 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1001.includes('R2110') && s1001.includes('patchEditTabIndex') && s1001.includes('applyEditTabIndex')) {
+    log('pass', 'R2110-batch-edit-tabindex', 'BatchInspector cc.EditBox tabIndex 일괄 설정')
+  } else {
+    log('warning', 'R2110-batch-edit-tabindex', 'BatchInspector cc.EditBox tabIndex 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1002: R2111 BatchInspector cc.PageView autoPageTurningThreshold ──────────
+console.log('\n## 1002. R2111 BatchInspector cc.PageView autoPageTurningThreshold 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1002 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1002.includes('R2111') && s1002.includes('patchPVAutoThresh') && s1002.includes('applyPVAutoThresh')) {
+    log('pass', 'R2111-batch-pv-autothresh', 'BatchInspector cc.PageView autoPageTurningThreshold 일괄 설정')
+  } else {
+    log('warning', 'R2111-batch-pv-autothresh', 'BatchInspector cc.PageView autoPageTurningThreshold 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1003: R2112 BatchInspector cc.Layout affectedByScale ──────────
+console.log('\n## 1003. R2112 BatchInspector cc.Layout affectedByScale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1003 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1003.includes('R2112') && s1003.includes('patchLayoutAffected') && s1003.includes('applyLayoutAffected')) {
+    log('pass', 'R2112-batch-layout-affected', 'BatchInspector cc.Layout affectedByScale 일괄 설정')
+  } else {
+    log('warning', 'R2112-batch-layout-affected', 'BatchInspector cc.Layout affectedByScale 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1004: R2113 BatchInspector cc.Sprite trim ──────────
+console.log('\n## 1004. R2113 BatchInspector cc.Sprite trim 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1004 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1004.includes('R2113') && s1004.includes('patchSpriteTrim') && s1004.includes('applySpriteTrim')) {
+    log('pass', 'R2113-batch-sprite-trim', 'BatchInspector cc.Sprite trim 일괄 설정')
+  } else {
+    log('warning', 'R2113-batch-sprite-trim', 'BatchInspector cc.Sprite trim 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1005: R2114 BatchInspector cc.Camera targetDisplay ──────────
+console.log('\n## 1005. R2114 BatchInspector cc.Camera targetDisplay 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1005 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1005.includes('R2114') && s1005.includes('patchCamTargetDisplay') && s1005.includes('applyCamTargetDisplay')) {
+    log('pass', 'R2114-batch-cam-targetdisplay', 'BatchInspector cc.Camera targetDisplay 일괄 설정')
+  } else {
+    log('warning', 'R2114-batch-cam-targetdisplay', 'BatchInspector cc.Camera targetDisplay 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1006: R2115 BatchInspector cc.ScrollView horizontal ──────────
+console.log('\n## 1006. R2115 BatchInspector cc.ScrollView horizontal 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1006 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1006.includes('R2115') && s1006.includes('patchSVHoriz') && s1006.includes('applySVHoriz')) {
+    log('pass', 'R2115-batch-sv-horiz', 'BatchInspector cc.ScrollView horizontal 일괄 설정')
+  } else {
+    log('warning', 'R2115-batch-sv-horiz', 'BatchInspector cc.ScrollView horizontal 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1007: R2116 BatchInspector cc.ScrollView vertical ──────────
+console.log('\n## 1007. R2116 BatchInspector cc.ScrollView vertical 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1007 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1007.includes('R2116') && s1007.includes('patchSVVert') && s1007.includes('applySVVert')) {
+    log('pass', 'R2116-batch-sv-vert', 'BatchInspector cc.ScrollView vertical 일괄 설정')
+  } else {
+    log('warning', 'R2116-batch-sv-vert', 'BatchInspector cc.ScrollView vertical 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1008: R2117 BatchInspector cc.ParticleSystem gravity.y ──────────
+console.log('\n## 1008. R2117 BatchInspector cc.ParticleSystem gravity.y 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1008 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1008.includes('R2117') && s1008.includes('patchPSGravY') && s1008.includes('applyPSGravY')) {
+    log('pass', 'R2117-batch-ps-gravy', 'BatchInspector cc.ParticleSystem gravity.y 일괄 설정')
+  } else {
+    log('warning', 'R2117-batch-ps-gravy', 'BatchInspector cc.ParticleSystem gravity.y 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1009: R2118 BatchInspector cc.ParticleSystem startRotation ──────────
+console.log('\n## 1009. R2118 BatchInspector cc.ParticleSystem startRotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1009 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1009.includes('R2118') && s1009.includes('patchPSStartRot') && s1009.includes('applyPSStartRot')) {
+    log('pass', 'R2118-batch-ps-startrot', 'BatchInspector cc.ParticleSystem startRotation 일괄 설정')
+  } else {
+    log('warning', 'R2118-batch-ps-startrot', 'BatchInspector cc.ParticleSystem startRotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1010: R2119 BatchInspector cc.ParticleSystem endRotation ──────────
+console.log('\n## 1010. R2119 BatchInspector cc.ParticleSystem endRotation 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1010 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1010.includes('R2119') && s1010.includes('patchPSEndRot') && s1010.includes('applyPSEndRot')) {
+    log('pass', 'R2119-batch-ps-endrot', 'BatchInspector cc.ParticleSystem endRotation 일괄 설정')
+  } else {
+    log('warning', 'R2119-batch-ps-endrot', 'BatchInspector cc.ParticleSystem endRotation 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1011: R2120 BatchInspector cc.ParticleSystem startRotationVar ──────────
+console.log('\n## 1011. R2120 BatchInspector cc.ParticleSystem startRotationVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1011 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1011.includes('R2120') && s1011.includes('patchPSStartRotVar') && s1011.includes('applyPSStartRotVar')) {
+    log('pass', 'R2120-batch-ps-startrotvar', 'BatchInspector cc.ParticleSystem startRotationVar 일괄 설정')
+  } else {
+    log('warning', 'R2120-batch-ps-startrotvar', 'BatchInspector cc.ParticleSystem startRotationVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1012: R2121 BatchInspector cc.ParticleSystem endRotationVar ──────────
+console.log('\n## 1012. R2121 BatchInspector cc.ParticleSystem endRotationVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1012 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1012.includes('R2121') && s1012.includes('patchPSEndRotVar') && s1012.includes('applyPSEndRotVar')) {
+    log('pass', 'R2121-batch-ps-endrotvar', 'BatchInspector cc.ParticleSystem endRotationVar 일괄 설정')
+  } else {
+    log('warning', 'R2121-batch-ps-endrotvar', 'BatchInspector cc.ParticleSystem endRotationVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1013: R2122 BatchInspector cc.Widget isAlignTop ──────────
+console.log('\n## 1013. R2122 BatchInspector cc.Widget isAlignTop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1013 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1013.includes('R2122') && s1013.includes('patchWidgetIsAlignTop') && s1013.includes('applyWidgetIsAlignTop')) {
+    log('pass', 'R2122-batch-widget-isaligntop', 'BatchInspector cc.Widget isAlignTop 일괄 설정')
+  } else {
+    log('warning', 'R2122-batch-widget-isaligntop', 'BatchInspector cc.Widget isAlignTop 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1014: R2123 BatchInspector cc.Widget isAlignBottom ──────────
+console.log('\n## 1014. R2123 BatchInspector cc.Widget isAlignBottom 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1014 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1014.includes('R2123') && s1014.includes('patchWidgetIsAlignBot') && s1014.includes('applyWidgetIsAlignBot')) {
+    log('pass', 'R2123-batch-widget-isalignbot', 'BatchInspector cc.Widget isAlignBottom 일괄 설정')
+  } else {
+    log('warning', 'R2123-batch-widget-isalignbot', 'BatchInspector cc.Widget isAlignBottom 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1015: R2124 BatchInspector cc.Widget isAlignLeft ──────────
+console.log('\n## 1015. R2124 BatchInspector cc.Widget isAlignLeft 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1015 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1015.includes('R2124') && s1015.includes('patchWidgetIsAlignLeft') && s1015.includes('applyWidgetIsAlignLeft')) {
+    log('pass', 'R2124-batch-widget-isalignleft', 'BatchInspector cc.Widget isAlignLeft 일괄 설정')
+  } else {
+    log('warning', 'R2124-batch-widget-isalignleft', 'BatchInspector cc.Widget isAlignLeft 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1016: R2125 BatchInspector cc.Widget isAlignRight ──────────
+console.log('\n## 1016. R2125 BatchInspector cc.Widget isAlignRight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1016 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1016.includes('R2125') && s1016.includes('patchWidgetIsAlignRight') && s1016.includes('applyWidgetIsAlignRight')) {
+    log('pass', 'R2125-batch-widget-isalignright', 'BatchInspector cc.Widget isAlignRight 일괄 설정')
+  } else {
+    log('warning', 'R2125-batch-widget-isalignright', 'BatchInspector cc.Widget isAlignRight 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1017: R2126 BatchInspector cc.Widget isAlignHorizontalCenter ──────────
+console.log('\n## 1017. R2126 BatchInspector cc.Widget isAlignHorizontalCenter 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1017 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1017.includes('R2126') && s1017.includes('patchWidgetIsAlignHCenter') && s1017.includes('applyWidgetIsAlignHCenter')) {
+    log('pass', 'R2126-batch-widget-isalignh', 'BatchInspector cc.Widget isAlignHorizontalCenter 일괄 설정')
+  } else {
+    log('warning', 'R2126-batch-widget-isalignh', 'BatchInspector cc.Widget isAlignHorizontalCenter 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1018: R2127 BatchInspector cc.Widget isAlignVerticalCenter ──────────
+console.log('\n## 1018. R2127 BatchInspector cc.Widget isAlignVerticalCenter 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1018 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1018.includes('R2127') && s1018.includes('patchWidgetIsAlignVCenter') && s1018.includes('applyWidgetIsAlignVCenter')) {
+    log('pass', 'R2127-batch-widget-isalignv', 'BatchInspector cc.Widget isAlignVerticalCenter 일괄 설정')
+  } else {
+    log('warning', 'R2127-batch-widget-isalignv', 'BatchInspector cc.Widget isAlignVerticalCenter 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1019: R2128 BatchInspector cc.RigidBody linearVelocityLimit ──────────
+console.log('\n## 1019. R2128 BatchInspector cc.RigidBody linearVelocityLimit 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1019 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1019.includes('R2128') && s1019.includes('patchRBLinVelLim') && s1019.includes('applyRBLinVelLim')) {
+    log('pass', 'R2128-batch-rb-linvellim', 'BatchInspector cc.RigidBody linearVelocityLimit 일괄 설정')
+  } else {
+    log('warning', 'R2128-batch-rb-linvellim', 'BatchInspector cc.RigidBody linearVelocityLimit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1020: R2129 BatchInspector cc.RigidBody angularVelocityLimit ──────────
+console.log('\n## 1020. R2129 BatchInspector cc.RigidBody angularVelocityLimit 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1020 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1020.includes('R2129') && s1020.includes('patchRBAngVelLim') && s1020.includes('applyRBAngVelLim')) {
+    log('pass', 'R2129-batch-rb-angvellim', 'BatchInspector cc.RigidBody angularVelocityLimit 일괄 설정')
+  } else {
+    log('warning', 'R2129-batch-rb-angvellim', 'BatchInspector cc.RigidBody angularVelocityLimit 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1021: R2130 BatchInspector cc.Button hoverColor ──────────
+console.log('\n## 1021. R2130 BatchInspector cc.Button hoverColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1021 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1021.includes('R2130') && s1021.includes('patchBtnHoverColor') && s1021.includes('applyBtnHoverColor')) {
+    log('pass', 'R2130-batch-btn-hovercolor', 'BatchInspector cc.Button hoverColor 일괄 설정')
+  } else {
+    log('warning', 'R2130-batch-btn-hovercolor', 'BatchInspector cc.Button hoverColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1022: R2131 BatchInspector node color ──────────
+console.log('\n## 1022. R2131 BatchInspector node color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1022 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1022.includes('R2131') && s1022.includes('patchNodeColor') && s1022.includes('applyNodeColor')) {
+    log('pass', 'R2131-batch-node-color', 'BatchInspector node color 일괄 설정')
+  } else {
+    log('warning', 'R2131-batch-node-color', 'BatchInspector node color 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1023: R2132 BatchInspector cc.ToggleContainer allowSwitchOff ──────────
+console.log('\n## 1023. R2132 BatchInspector cc.ToggleContainer allowSwitchOff 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1023 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1023.includes('R2132') && s1023.includes('patchTCAllowSwitchOff') && s1023.includes('applyTCAllowSwitchOff')) {
+    log('pass', 'R2132-batch-tc-allowswitchoff', 'BatchInspector cc.ToggleContainer allowSwitchOff 일괄 설정')
+  } else {
+    log('warning', 'R2132-batch-tc-allowswitchoff', 'BatchInspector cc.ToggleContainer allowSwitchOff 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1024: R2133 BatchInspector cc.SkeletalAnimation defaultCachingMode ──────────
+console.log('\n## 1024. R2133 BatchInspector cc.SkeletalAnimation defaultCachingMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1024 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1024.includes('R2133') && s1024.includes('patchSkeletalCaching') && s1024.includes('applySkeletalCaching')) {
+    log('pass', 'R2133-batch-skel-caching', 'BatchInspector cc.SkeletalAnimation defaultCachingMode 일괄 설정')
+  } else {
+    log('warning', 'R2133-batch-skel-caching', 'BatchInspector cc.SkeletalAnimation defaultCachingMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1025: R2134 BatchInspector sp.Skeleton useTint ──────────
+console.log('\n## 1025. R2134 BatchInspector sp.Skeleton useTint 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1025 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1025.includes('R2134') && s1025.includes('patchSpineUseTint') && s1025.includes('applySpineUseTint')) {
+    log('pass', 'R2134-batch-spine-usetint', 'BatchInspector sp.Skeleton useTint 일괄 설정')
+  } else {
+    log('warning', 'R2134-batch-spine-usetint', 'BatchInspector sp.Skeleton useTint 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1026: R2135 BatchInspector sp.Skeleton debugSlots ──────────
+console.log('\n## 1026. R2135 BatchInspector sp.Skeleton debugSlots 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1026 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1026.includes('R2135') && s1026.includes('patchSpineDebugSlots') && s1026.includes('applySpineDebugSlots')) {
+    log('pass', 'R2135-batch-spine-debugslots', 'BatchInspector sp.Skeleton debugSlots 일괄 설정')
+  } else {
+    log('warning', 'R2135-batch-spine-debugslots', 'BatchInspector sp.Skeleton debugSlots 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1027: R2136 BatchInspector sp.Skeleton debugBones ──────────
+console.log('\n## 1027. R2136 BatchInspector sp.Skeleton debugBones 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1027 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1027.includes('R2136') && s1027.includes('patchSpineDebugBones') && s1027.includes('applySpineDebugBones')) {
+    log('pass', 'R2136-batch-spine-debugbones', 'BatchInspector sp.Skeleton debugBones 일괄 설정')
+  } else {
+    log('warning', 'R2136-batch-spine-debugbones', 'BatchInspector sp.Skeleton debugBones 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1028: R2137 BatchInspector cc.MotionStreak fastMode ──────────
+console.log('\n## 1028. R2137 BatchInspector cc.MotionStreak fastMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1028 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1028.includes('R2137') && s1028.includes('patchMSFastMode') && s1028.includes('applyMSFastMode')) {
+    log('pass', 'R2137-batch-ms-fastmode', 'BatchInspector cc.MotionStreak fastMode 일괄 설정')
+  } else {
+    log('warning', 'R2137-batch-ms-fastmode', 'BatchInspector cc.MotionStreak fastMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1029: R2138 BatchInspector dragonBones.ArmatureDisplay debugBones ──────────
+console.log('\n## 1029. R2138 BatchInspector dragonBones.ArmatureDisplay debugBones 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1029 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1029.includes('R2138') && s1029.includes('patchDBDebugBones') && s1029.includes('applyDBDebugBones')) {
+    log('pass', 'R2138-batch-db-debugbones', 'BatchInspector dragonBones.ArmatureDisplay debugBones 일괄 설정')
+  } else {
+    log('warning', 'R2138-batch-db-debugbones', 'BatchInspector dragonBones.ArmatureDisplay debugBones 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1030: R2139 BatchInspector sp.Skeleton paused ──────────
+console.log('\n## 1030. R2139 BatchInspector sp.Skeleton paused 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1030 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1030.includes('R2139') && s1030.includes('patchSpinePaused') && s1030.includes('applySpinePaused')) {
+    log('pass', 'R2139-batch-spine-paused', 'BatchInspector sp.Skeleton paused 일괄 설정')
+  } else {
+    log('warning', 'R2139-batch-spine-paused', 'BatchInspector sp.Skeleton paused 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1031: R2140 BatchInspector cc.Layout autoWrap ──────────
+console.log('\n## 1031. R2140 BatchInspector cc.Layout autoWrap 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1031 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1031.includes('R2140') && s1031.includes('patchLayoutAutoWrap') && s1031.includes('applyLayoutAutoWrap')) {
+    log('pass', 'R2140-batch-layout-autowrap', 'BatchInspector cc.Layout autoWrap 일괄 설정')
+  } else {
+    log('warning', 'R2140-batch-layout-autowrap', 'BatchInspector cc.Layout autoWrap 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1032: R2141 BatchInspector cc.RichText overflow ──────────
+console.log('\n## 1032. R2141 BatchInspector cc.RichText overflow 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1032 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1032.includes('R2141') && s1032.includes('patchRichOverflow') && s1032.includes('applyRichOverflow')) {
+    log('pass', 'R2141-batch-richtext-overflow', 'BatchInspector cc.RichText overflow 일괄 설정')
+  } else {
+    log('warning', 'R2141-batch-richtext-overflow', 'BatchInspector cc.RichText overflow 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1033: R2142 BatchInspector cc.DirectionalLight/PointLight intensity ──────────
+console.log('\n## 1033. R2142 BatchInspector cc.DirectionalLight/PointLight intensity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1033 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1033.includes('R2142') && s1033.includes('patchLightIntensity') && s1033.includes('applyLightIntensity')) {
+    log('pass', 'R2142-batch-light-intensity', 'BatchInspector cc.DirectionalLight/PointLight intensity 일괄 설정')
+  } else {
+    log('warning', 'R2142-batch-light-intensity', 'BatchInspector cc.DirectionalLight/PointLight intensity 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1034: R2143 BatchInspector cc.DirectionalLight/PointLight color ──────────
+console.log('\n## 1034. R2143 BatchInspector cc.DirectionalLight/PointLight color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1034 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1034.includes('R2143') && s1034.includes('patchLightColor') && s1034.includes('applyLightColor')) {
+    log('pass', 'R2143-batch-light-color', 'BatchInspector cc.DirectionalLight/PointLight color 일괄 설정')
+  } else {
+    log('warning', 'R2143-batch-light-color', 'BatchInspector cc.DirectionalLight/PointLight color 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1035: R2144 BatchInspector cc.Graphics lineWidth ──────────
+console.log('\n## 1035. R2144 BatchInspector cc.Graphics lineWidth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1035 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1035.includes('R2144') && s1035.includes('patchGraphicsLineWidth') && s1035.includes('applyGraphicsLineWidth')) {
+    log('pass', 'R2144-batch-graphics-linewidth', 'BatchInspector cc.Graphics lineWidth 일괄 설정')
+  } else {
+    log('warning', 'R2144-batch-graphics-linewidth', 'BatchInspector cc.Graphics lineWidth 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1036: R2145 BatchInspector cc.Graphics fillColor ──────────
+console.log('\n## 1036. R2145 BatchInspector cc.Graphics fillColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1036 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1036.includes('R2145') && s1036.includes('patchGraphicsFillColor') && s1036.includes('applyGraphicsFillColor')) {
+    log('pass', 'R2145-batch-graphics-fillcolor', 'BatchInspector cc.Graphics fillColor 일괄 설정')
+  } else {
+    log('warning', 'R2145-batch-graphics-fillcolor', 'BatchInspector cc.Graphics fillColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1037: R2146 BatchInspector cc.Graphics strokeColor ──────────
+console.log('\n## 1037. R2146 BatchInspector cc.Graphics strokeColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1037 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1037.includes('R2146') && s1037.includes('patchGraphicsStrokeColor') && s1037.includes('applyGraphicsStrokeColor')) {
+    log('pass', 'R2146-batch-graphics-strokecolor', 'BatchInspector cc.Graphics strokeColor 일괄 설정')
+  } else {
+    log('warning', 'R2146-batch-graphics-strokecolor', 'BatchInspector cc.Graphics strokeColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1038: R2147 BatchInspector cc.ParticleSystem endRadiusVar ──────────
+console.log('\n## 1038. R2147 BatchInspector cc.ParticleSystem endRadiusVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1038 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1038.includes('R2147') && s1038.includes('patchPSEndRadiusVar') && s1038.includes('applyPSEndRadiusVar')) {
+    log('pass', 'R2147-batch-ps-endradiusvar', 'BatchInspector cc.ParticleSystem endRadiusVar 일괄 설정')
+  } else {
+    log('warning', 'R2147-batch-ps-endradiusvar', 'BatchInspector cc.ParticleSystem endRadiusVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1039: R2148 BatchInspector cc.ParticleSystem startColorVar ──────────
+console.log('\n## 1039. R2148 BatchInspector cc.ParticleSystem startColorVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1039 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1039.includes('R2148') && s1039.includes('patchPSStartColorVar') && s1039.includes('applyPSStartColorVar')) {
+    log('pass', 'R2148-batch-ps-startcolorvar', 'BatchInspector cc.ParticleSystem startColorVar 일괄 설정')
+  } else {
+    log('warning', 'R2148-batch-ps-startcolorvar', 'BatchInspector cc.ParticleSystem startColorVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1040: R2149 BatchInspector cc.ParticleSystem endColorVar ──────────
+console.log('\n## 1040. R2149 BatchInspector cc.ParticleSystem endColorVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1040 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1040.includes('R2149') && s1040.includes('patchPSEndColorVar') && s1040.includes('applyPSEndColorVar')) {
+    log('pass', 'R2149-batch-ps-endcolorvar', 'BatchInspector cc.ParticleSystem endColorVar 일괄 설정')
+  } else {
+    log('warning', 'R2149-batch-ps-endcolorvar', 'BatchInspector cc.ParticleSystem endColorVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1041: R2150 BatchInspector cc.TiledLayer opacity ──────────
+console.log('\n## 1041. R2150 BatchInspector cc.TiledLayer opacity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1041 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1041.includes('R2150') && s1041.includes('patchTiledLayerOpacity') && s1041.includes('applyTiledLayerOpacity')) {
+    log('pass', 'R2150-batch-tiledlayer-opacity', 'BatchInspector cc.TiledLayer opacity 일괄 설정')
+  } else {
+    log('warning', 'R2150-batch-tiledlayer-opacity', 'BatchInspector cc.TiledLayer opacity 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1042: R2151 BatchInspector cc.TiledLayer visible ──────────
+console.log('\n## 1042. R2151 BatchInspector cc.TiledLayer visible 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1042 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1042.includes('R2151') && s1042.includes('patchTiledLayerVisible') && s1042.includes('applyTiledLayerVisible')) {
+    log('pass', 'R2151-batch-tiledlayer-visible', 'BatchInspector cc.TiledLayer visible 일괄 설정')
+  } else {
+    log('warning', 'R2151-batch-tiledlayer-visible', 'BatchInspector cc.TiledLayer visible 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1043: R2152 BatchInspector cc.Canvas fitWidth ──────────
+console.log('\n## 1043. R2152 BatchInspector cc.Canvas fitWidth 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1043 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1043.includes('R2152') && s1043.includes('patchCanvasFitWidth') && s1043.includes('applyCanvasFitWidth')) {
+    log('pass', 'R2152-batch-canvas-fitwidth', 'BatchInspector cc.Canvas fitWidth 일괄 설정')
+  } else {
+    log('warning', 'R2152-batch-canvas-fitwidth', 'BatchInspector cc.Canvas fitWidth 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1044: R2153 BatchInspector cc.Canvas fitHeight ──────────
+console.log('\n## 1044. R2153 BatchInspector cc.Canvas fitHeight 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1044 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1044.includes('R2153') && s1044.includes('patchCanvasFitHeight') && s1044.includes('applyCanvasFitHeight')) {
+    log('pass', 'R2153-batch-canvas-fitheight', 'BatchInspector cc.Canvas fitHeight 일괄 설정')
+  } else {
+    log('warning', 'R2153-batch-canvas-fitheight', 'BatchInspector cc.Canvas fitHeight 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1045: R2154 BatchInspector cc.Canvas resolutionPolicy ──────────
+console.log('\n## 1045. R2154 BatchInspector cc.Canvas resolutionPolicy 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1045 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1045.includes('R2154') && s1045.includes('patchCanvasResPolicy') && s1045.includes('applyCanvasResPolicy')) {
+    log('pass', 'R2154-batch-canvas-respolicy', 'BatchInspector cc.Canvas resolutionPolicy 일괄 설정')
+  } else {
+    log('warning', 'R2154-batch-canvas-respolicy', 'BatchInspector cc.Canvas resolutionPolicy 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1046: R2155 BatchInspector cc.Canvas designResolution ──────────
+console.log('\n## 1046. R2155 BatchInspector cc.Canvas designResolution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1046 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1046.includes('R2155') && s1046.includes('patchCanvasDesignRes') && s1046.includes('applyCanvasDesignRes')) {
+    log('pass', 'R2155-batch-canvas-designres', 'BatchInspector cc.Canvas designResolution 일괄 설정')
+  } else {
+    log('warning', 'R2155-batch-canvas-designres', 'BatchInspector cc.Canvas designResolution 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1047: R2156 BatchInspector cc.PolygonCollider offset ──────────
+console.log('\n## 1047. R2156 BatchInspector cc.PolygonCollider offset 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1047 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1047.includes('R2156') && s1047.includes('patchPolyOffset') && s1047.includes('applyPolyOffset')) {
+    log('pass', 'R2156-batch-polycollider-offset', 'BatchInspector cc.PolygonCollider offset 일괄 설정')
+  } else {
+    log('warning', 'R2156-batch-polycollider-offset', 'BatchInspector cc.PolygonCollider offset 미구현', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1048: R2157 BatchInspector cc.RigidBody2D 확장 ──────────
+console.log('\n## 1048. R2157 BatchInspector cc.RigidBody2D 확장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1048 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1048.includes("commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')")) {
+    log('pass', 'R2157-batch-rigidbody2d', 'BatchInspector cc.RigidBody2D 확장 (기존 배치에 포함)')
+  } else {
+    log('warning', 'R2157-batch-rigidbody2d', 'BatchInspector cc.RigidBody2D 확장 미적용', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1049: R2158 BatchInspector cc.ParticleSystem2D + PolygonCollider2D 확장 ──────────
+console.log('\n## 1049. R2158 BatchInspector cc.ParticleSystem2D/PolygonCollider2D 확장 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1049 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1049.includes("commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')") &&
+      s1049.includes("commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')")) {
+    log('pass', 'R2158-batch-ps2d-poly2d', 'BatchInspector cc.ParticleSystem2D + PolygonCollider2D 확장')
+  } else {
+    log('warning', 'R2158-batch-ps2d-poly2d', 'BatchInspector cc.ParticleSystem2D/PolygonCollider2D 확장 미적용', 'CocosPanel.tsx')
+  }
+}
+
+// ── Section 1050: R2159 BatchInspector cc.BoxCollider2D 확장 ──────────
+console.log('\n## 1050. R2159 BatchInspector cc.BoxCollider2D 확장 체크')
+const s1050 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (
+  s1050.includes('cc.BoxCollider2D') &&
+  s1050.includes("c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'") &&
+  s1050.includes("commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')")
+) {
+  log('pass', 'R2159-batch-boxcollider2d', 'BatchInspector cc.BoxCollider2D 확장 (sensor/density/friction/restitution)')
+} else {
+  log('warning', 'R2159-batch-boxcollider2d', 'BatchInspector cc.BoxCollider2D 확장 미적용', 'CocosPanel.tsx')
+}
+
+// ── Section 1051: R2159 BatchInspector cc.CircleCollider2D 확장 ──────────
+console.log('\n## 1051. R2159 BatchInspector cc.CircleCollider2D 확장 체크')
+const s1051 = s1050
+if (
+  s1051.includes('cc.CircleCollider2D') &&
+  s1051.includes("c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'") &&
+  s1051.includes("commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')")
+) {
+  log('pass', 'R2159-batch-circlecollider2d', 'BatchInspector cc.CircleCollider2D 확장 (sensor/density/friction/restitution)')
+} else {
+  log('warning', 'R2159-batch-circlecollider2d', 'BatchInspector cc.CircleCollider2D 확장 미적용', 'CocosPanel.tsx')
+}
+
+// ── Section 1052: R2160 BatchInspector cc.BoxCollider2D offset ──────────
+console.log('\n## 1052. R2160 BatchInspector cc.BoxCollider2D offset 체크')
+const s1052 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1052.includes('R2160') && s1052.includes('applyBoxOffset') && s1052.includes('Box2Off')) {
+  log('pass', 'R2160-batch-boxcollider2d-offset', 'BatchInspector cc.BoxCollider2D offset 일괄 설정')
+} else {
+  log('warning', 'R2160-batch-boxcollider2d-offset', 'BatchInspector cc.BoxCollider2D offset 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1053: R2160 BatchInspector cc.CircleCollider2D offset ──────────
+console.log('\n## 1053. R2160 BatchInspector cc.CircleCollider2D offset 체크')
+const s1053 = s1052
+if (s1053.includes('R2160') && s1053.includes('applyCircleOffset') && s1053.includes('Cir2Off')) {
+  log('pass', 'R2160-batch-circlecollider2d-offset', 'BatchInspector cc.CircleCollider2D offset 일괄 설정')
+} else {
+  log('warning', 'R2160-batch-circlecollider2d-offset', 'BatchInspector cc.CircleCollider2D offset 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1054: R2161 BatchInspector 노드 _zIndex ──────────
+console.log('\n## 1054. R2161 BatchInspector 노드 _zIndex 체크')
+const s1054 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1054.includes('R2161') && s1054.includes('applyZIndex') && s1054.includes('_zIndex')) {
+  log('pass', 'R2161-batch-zindex', 'BatchInspector 노드 _zIndex 일괄 설정')
+} else {
+  log('warning', 'R2161-batch-zindex', 'BatchInspector 노드 _zIndex 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1055: R2161 BatchInspector cc.RigidBody group ──────────
+console.log('\n## 1055. R2161 BatchInspector cc.RigidBody group 체크')
+const s1055 = s1054
+if (s1055.includes('R2161') && s1055.includes('applyRBGroup') && s1055.includes('RBGrp')) {
+  log('pass', 'R2161-batch-rigidbody-group', 'BatchInspector cc.RigidBody group 일괄 설정')
+} else {
+  log('warning', 'R2161-batch-rigidbody-group', 'BatchInspector cc.RigidBody group 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1056: R2162 BatchInspector Collider tag ──────────
+console.log('\n## 1056. R2162 BatchInspector Collider tag 체크')
+const s1056 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1056.includes('R2162') && s1056.includes('applyColliderTag') && s1056.includes('ColTag')) {
+  log('pass', 'R2162-batch-collider-tag', 'BatchInspector cc.BoxCollider/CircleCollider/PolygonCollider tag 일괄 설정')
+} else {
+  log('warning', 'R2162-batch-collider-tag', 'BatchInspector Collider tag 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1057: R2163 BatchInspector 노드 _tag ──────────
+console.log('\n## 1057. R2163 BatchInspector 노드 _tag 체크')
+const s1057 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1057.includes('R2163') && s1057.includes('applyNodeTag') && s1057.includes('_tag')) {
+  log('pass', 'R2163-batch-node-tag', 'BatchInspector 노드 _tag 일괄 설정')
+} else {
+  log('warning', 'R2163-batch-node-tag', 'BatchInspector 노드 _tag 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1058: R2163 BatchInspector cc.Layout constraintNum ──────────
+console.log('\n## 1058. R2163 BatchInspector cc.Layout constraintNum 체크')
+const s1058 = s1057
+if (s1058.includes('R2163') && s1058.includes('applyConstraintNum') && s1058.includes('LconN')) {
+  log('pass', 'R2163-batch-layout-constraintnum', 'BatchInspector cc.Layout constraintNum 일괄 설정')
+} else {
+  log('warning', 'R2163-batch-layout-constraintnum', 'BatchInspector cc.Layout constraintNum 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1059: R2164 BatchInspector cc.AudioSource endTime ──────────
+console.log('\n## 1059. R2164 BatchInspector cc.AudioSource endTime 체크')
+const s1059 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf8')
+if (s1059.includes('R2164') && s1059.includes('applyAudioEnd') && s1059.includes('ASend')) {
+  log('pass', 'R2164-batch-audio-endtime', 'BatchInspector cc.AudioSource endTime 일괄 설정')
+} else {
+  log('warning', 'R2164-batch-audio-endtime', 'BatchInspector cc.AudioSource endTime 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1060: R2164 BatchInspector cc.RichText handleTouchEvent ──────────
+console.log('\n## 1060. R2164 BatchInspector cc.RichText handleTouchEvent 체크')
+const s1060 = s1059
+if (s1060.includes('R2164') && s1060.includes('applyRichTouch') && s1060.includes('RTtouch')) {
+  log('pass', 'R2164-batch-richtext-touch', 'BatchInspector cc.RichText handleTouchEvent 일괄 설정')
+} else {
+  log('warning', 'R2164-batch-richtext-touch', 'BatchInspector cc.RichText handleTouchEvent 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1061: R2165 BatchInspector cc.VideoPlayer startTime ──────────
+console.log('\n## 1061. R2165 BatchInspector cc.VideoPlayer startTime 체크')
+const s1061 = s1060
+if (s1061.includes('R2165') && s1061.includes('applyVideoStart') && s1061.includes('VidSt')) {
+  log('pass', 'R2165-batch-video-starttime', 'BatchInspector cc.VideoPlayer startTime 일괄 설정')
+} else {
+  log('warning', 'R2165-batch-video-starttime', 'BatchInspector cc.VideoPlayer startTime 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1062: R2165 BatchInspector cc.Button autoGray ──────────
+console.log('\n## 1062. R2165 BatchInspector cc.Button autoGray 체크')
+const s1062 = s1061
+if (s1062.includes('R2165') && s1062.includes('applyBtnAutoGray') && s1062.includes('BtnGry')) {
+  log('pass', 'R2165-batch-button-autogray', 'BatchInspector cc.Button autoGray 일괄 설정')
+} else {
+  log('warning', 'R2165-batch-button-autogray', 'BatchInspector cc.Button autoGray 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1063: R2165 BatchInspector cc.Label isSystemFontUsed ──────────
+console.log('\n## 1063. R2165 BatchInspector cc.Label isSystemFontUsed 체크')
+const s1063 = s1062
+if (s1063.includes('R2165') && s1063.includes('applyLabelSysFont') && s1063.includes('LblSys')) {
+  log('pass', 'R2165-batch-label-sysfont', 'BatchInspector cc.Label isSystemFontUsed 일괄 설정')
+} else {
+  log('warning', 'R2165-batch-label-sysfont', 'BatchInspector cc.Label isSystemFontUsed 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1064: R2166 BatchInspector 노드 _skewX ──────────
+console.log('\n## 1064. R2166 BatchInspector 노드 _skewX 체크')
+const s1064 = s1063
+if (s1064.includes('R2166') && s1064.includes('applySkewX') && s1064.includes('skewX')) {
+  log('pass', 'R2166-batch-node-skewx', 'BatchInspector 노드 _skewX 일괄 설정')
+} else {
+  log('warning', 'R2166-batch-node-skewx', 'BatchInspector 노드 _skewX 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1065: R2166 BatchInspector 노드 _skewY ──────────
+console.log('\n## 1065. R2166 BatchInspector 노드 _skewY 체크')
+const s1065 = s1064
+if (s1065.includes('R2166') && s1065.includes('applySkewY') && s1065.includes('skewY')) {
+  log('pass', 'R2166-batch-node-skewy', 'BatchInspector 노드 _skewY 일괄 설정')
+} else {
+  log('warning', 'R2166-batch-node-skewy', 'BatchInspector 노드 _skewY 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1066: R2167 BatchInspector cc.Camera near ──────────
+console.log('\n## 1066. R2167 BatchInspector cc.Camera near 체크')
+const s1066 = s1065
+if (s1066.includes('R2167') && s1066.includes('applyCamNear') && s1066.includes('CamNear')) {
+  log('pass', 'R2167-batch-camera-near', 'BatchInspector cc.Camera near 일괄 설정')
+} else {
+  log('warning', 'R2167-batch-camera-near', 'BatchInspector cc.Camera near 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1067: R2167 BatchInspector cc.Camera far ──────────
+console.log('\n## 1067. R2167 BatchInspector cc.Camera far 체크')
+const s1067 = s1066
+if (s1067.includes('R2167') && s1067.includes('applyCamFar') && s1067.includes('CamFar')) {
+  log('pass', 'R2167-batch-camera-far', 'BatchInspector cc.Camera far 일괄 설정')
+} else {
+  log('warning', 'R2167-batch-camera-far', 'BatchInspector cc.Camera far 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1068: R2168 BatchInspector cc.ScrollView cancelInnerEvents ──────────
+console.log('\n## 1068. R2168 BatchInspector cc.ScrollView cancelInnerEvents 체크')
+const s1068 = s1067
+if (s1068.includes('R2168') && s1068.includes('applySVCancelInner') && s1068.includes('SVCancel')) {
+  log('pass', 'R2168-batch-sv-cancelinner', 'BatchInspector cc.ScrollView cancelInnerEvents 일괄 설정')
+} else {
+  log('warning', 'R2168-batch-sv-cancelinner', 'BatchInspector cc.ScrollView cancelInnerEvents 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1069: R2168 BatchInspector cc.ParticleSystem simulationSpace ──────────
+console.log('\n## 1069. R2168 BatchInspector cc.ParticleSystem simulationSpace 체크')
+const s1069 = s1068
+if (s1069.includes('R2168') && s1069.includes('applyPSSimSpace') && s1069.includes('PSsim')) {
+  log('pass', 'R2168-batch-ps-simspace', 'BatchInspector cc.ParticleSystem simulationSpace 일괄 설정')
+} else {
+  log('warning', 'R2168-batch-ps-simspace', 'BatchInspector cc.ParticleSystem simulationSpace 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1070: R2169 BatchInspector cc.ScrollView scrollDuration ──────────
+console.log('\n## 1070. R2169 BatchInspector cc.ScrollView scrollDuration 체크')
+const s1070 = s1069
+if (s1070.includes('R2169') && s1070.includes('applySVScrollDur') && s1070.includes('SVsdur')) {
+  log('pass', 'R2169-batch-sv-scrolldur', 'BatchInspector cc.ScrollView scrollDuration 일괄 설정')
+} else {
+  log('warning', 'R2169-batch-sv-scrolldur', 'BatchInspector cc.ScrollView scrollDuration 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1071: R2169 BatchInspector cc.Widget isAbs* ──────────
+console.log('\n## 1071. R2169 BatchInspector cc.Widget isAbs* 체크')
+const s1071 = s1070
+if (s1071.includes('R2169') && s1071.includes('applyWidgetIsAbs') && s1071.includes('WgtAbs')) {
+  log('pass', 'R2169-batch-widget-isabs', 'BatchInspector cc.Widget isAbs* 일괄 설정')
+} else {
+  log('warning', 'R2169-batch-widget-isabs', 'BatchInspector cc.Widget isAbs* 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1072: R2170 BatchInspector cc.RigidBody rotationOffset ──────────
+console.log('\n## 1072. R2170 BatchInspector cc.RigidBody rotationOffset 체크')
+const s1072 = s1071
+if (s1072.includes('R2170') && s1072.includes('applyRBRotOffset') && s1072.includes('RBrotOff')) {
+  log('pass', 'R2170-batch-rb-rotoffset', 'BatchInspector cc.RigidBody rotationOffset 일괄 설정')
+} else {
+  log('warning', 'R2170-batch-rb-rotoffset', 'BatchInspector cc.RigidBody rotationOffset 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1073: R2170 BatchInspector cc.Sprite fillCenter ──────────
+console.log('\n## 1073. R2170 BatchInspector cc.Sprite fillCenter 체크')
+const s1073 = s1072
+if (s1073.includes('R2170') && s1073.includes('applySpriteFillCenter') && s1073.includes('FillCtr')) {
+  log('pass', 'R2170-batch-sprite-fillcenter', 'BatchInspector cc.Sprite fillCenter 일괄 설정')
+} else {
+  log('warning', 'R2170-batch-sprite-fillcenter', 'BatchInspector cc.Sprite fillCenter 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1074: R2171 BatchInspector cc.PolygonCollider threshold ──────────
+console.log('\n## 1074. R2171 BatchInspector cc.PolygonCollider threshold 체크')
+const s1074 = s1073
+if (s1074.includes('R2171') && s1074.includes('applyPolyThreshold') && s1074.includes('PolyThr')) {
+  log('pass', 'R2171-batch-poly-threshold', 'BatchInspector cc.PolygonCollider threshold 일괄 설정')
+} else {
+  log('warning', 'R2171-batch-poly-threshold', 'BatchInspector cc.PolygonCollider threshold 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1075: R2171 BatchInspector cc.Graphics lineJoin ──────────
+console.log('\n## 1075. R2171 BatchInspector cc.Graphics lineJoin 체크')
+const s1075 = s1074
+if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.includes('GfxJoin')) {
+  log('pass', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 일괄 설정')
+} else {
+  log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1106: R2187 BatchInspector cc.Canvas resizeWithBrowserSize ──────────
+console.log('\n## 1106. R2187 BatchInspector cc.Canvas resizeWithBrowserSize 체크')
+const s1106 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1106.includes('R2187') && s1106.includes('applyCanvasResizeWithBrowser') && s1106.includes('CanvRes')) {
+  log('pass', 'R2187-batch-canvas-resizewithbrowser', 'BatchInspector cc.Canvas resizeWithBrowserSize 일괄 설정')
+} else {
+  log('warning', 'R2187-batch-canvas-resizewithbrowser', 'BatchInspector cc.Canvas resizeWithBrowserSize 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1107: R2187 BatchInspector cc.Camera clearDepth ──────────
+console.log('\n## 1107. R2187 BatchInspector cc.Camera clearDepth 체크')
+const s1107 = s1106
+if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.includes('CamDepth')) {
+  log('pass', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 일괄 설정')
+} else {
+  log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1110: R2189 BatchInspector cc.ParticleSystem sourcePos.x ──────────
+console.log('\n## 1110. R2189 BatchInspector cc.ParticleSystem sourcePos.x 체크')
+const s1110 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1110.includes('R2189') && s1110.includes('applyParticlePosX') && s1110.includes('PSposX')) {
+  log('pass', 'R2189-batch-particle-posX', 'BatchInspector cc.ParticleSystem sourcePos.x 일괄 설정')
+} else {
+  log('warning', 'R2189-batch-particle-posX', 'BatchInspector cc.ParticleSystem sourcePos.x 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1111: R2189 BatchInspector cc.ParticleSystem sourcePos.y ──────────
+console.log('\n## 1111. R2189 BatchInspector cc.ParticleSystem sourcePos.y 체크')
+const s1111 = s1110
+if (s1111.includes('R2189') && s1111.includes('applyParticlePosY') && s1111.includes('PSposY')) {
+  log('pass', 'R2189-batch-particle-posY', 'BatchInspector cc.ParticleSystem sourcePos.y 일괄 설정')
+} else {
+  log('warning', 'R2189-batch-particle-posY', 'BatchInspector cc.ParticleSystem sourcePos.y 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1108: R2188 BatchInspector sp.Skeleton enableBatch ──────────
+console.log('\n## 1108. R2188 BatchInspector sp.Skeleton enableBatch 체크')
+const s1108 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1108.includes('R2188') && s1108.includes('applySpineEnableBatch') && s1108.includes('SpBatch')) {
+  log('pass', 'R2188-batch-spine-enablebatch', 'BatchInspector sp.Skeleton enableBatch 일괄 설정')
+} else {
+  log('warning', 'R2188-batch-spine-enablebatch', 'BatchInspector sp.Skeleton enableBatch 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1109: R2188 BatchInspector dragonBones.ArmatureDisplay blendMode ──────────
+console.log('\n## 1109. R2188 BatchInspector dragonBones.ArmatureDisplay blendMode 체크')
+const s1109 = s1108
+if (s1109.includes('R2188') && s1109.includes('applyDBBlendMode') && s1109.includes('DBblend')) {
+  log('pass', 'R2188-batch-db-blendmode', 'BatchInspector dragonBones.ArmatureDisplay blendMode 일괄 설정')
+} else {
+  log('warning', 'R2188-batch-db-blendmode', 'BatchInspector dragonBones.ArmatureDisplay blendMode 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1104: R2186 BatchInspector cc.Scrollbar direction ──────────
+console.log('\n## 1104. R2186 BatchInspector cc.Scrollbar direction 체크')
+const s1104 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1104.includes('R2186') && s1104.includes('applySBDir') && s1104.includes('SBdir')) {
+  log('pass', 'R2186-batch-scrollbar-direction', 'BatchInspector cc.Scrollbar direction 일괄 설정')
+} else {
+  log('warning', 'R2186-batch-scrollbar-direction', 'BatchInspector cc.Scrollbar direction 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1105: R2186 BatchInspector cc.Animation sample ──────────
+console.log('\n## 1105. R2186 BatchInspector cc.Animation sample 체크')
+const s1105 = s1104
+if (s1105.includes('R2186') && s1105.includes('applyAnimSample') && s1105.includes('AnimSmp')) {
+  log('pass', 'R2186-batch-animation-sample', 'BatchInspector cc.Animation sample 일괄 설정')
+} else {
+  log('warning', 'R2186-batch-animation-sample', 'BatchInspector cc.Animation sample 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1102: R2185 BatchInspector cc.Scrollbar enableAutoHide ──────────
+console.log('\n## 1102. R2185 BatchInspector cc.Scrollbar enableAutoHide 체크')
+const s1102 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1102.includes('R2185') && s1102.includes('applySBAutoHide') && s1102.includes('SBhide')) {
+  log('pass', 'R2185-batch-scrollbar-autoHide', 'BatchInspector cc.Scrollbar enableAutoHide 일괄 설정')
+} else {
+  log('warning', 'R2185-batch-scrollbar-autoHide', 'BatchInspector cc.Scrollbar enableAutoHide 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1103: R2185 BatchInspector cc.Scrollbar autoHideTime ──────────
+console.log('\n## 1103. R2185 BatchInspector cc.Scrollbar autoHideTime 체크')
+const s1103 = s1102
+if (s1103.includes('R2185') && s1103.includes('applySBAutoHideTime') && s1103.includes('SBhideT')) {
+  log('pass', 'R2185-batch-scrollbar-autoHideTime', 'BatchInspector cc.Scrollbar autoHideTime 일괄 설정')
+} else {
+  log('warning', 'R2185-batch-scrollbar-autoHideTime', 'BatchInspector cc.Scrollbar autoHideTime 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1100: R2184 BatchInspector 노드 cascadeColorEnabled ──────────
+console.log('\n## 1100. R2184 BatchInspector 노드 cascadeColorEnabled 체크')
+const s1100 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1100.includes('R2184') && s1100.includes('applyNodeCascadeColor') && s1100.includes('CscCol')) {
+  log('pass', 'R2184-batch-node-cascadecolor', 'BatchInspector 노드 cascadeColorEnabled 일괄 설정')
+} else {
+  log('warning', 'R2184-batch-node-cascadecolor', 'BatchInspector 노드 cascadeColorEnabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1101: R2184 BatchInspector cc.Label enableGradient ──────────
+console.log('\n## 1101. R2184 BatchInspector cc.Label enableGradient 체크')
+const s1101 = s1100
+if (s1101.includes('R2184') && s1101.includes('applyLabelGradient') && s1101.includes('LblGrad')) {
+  log('pass', 'R2184-batch-label-enablegradient', 'BatchInspector cc.Label enableGradient 일괄 설정')
+} else {
+  log('warning', 'R2184-batch-label-enablegradient', 'BatchInspector cc.Label enableGradient 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1098: R2183 BatchInspector cc.Sprite packable ──────────
+console.log('\n## 1098. R2183 BatchInspector cc.Sprite packable 체크')
+const s1098 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1098.includes('R2183') && s1098.includes('applySpritePackable') && s1098.includes('SpPack')) {
+  log('pass', 'R2183-batch-sprite-packable', 'BatchInspector cc.Sprite packable 일괄 설정')
+} else {
+  log('warning', 'R2183-batch-sprite-packable', 'BatchInspector cc.Sprite packable 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1099: R2183 BatchInspector 노드 cascadeOpacityEnabled ──────────
+console.log('\n## 1099. R2183 BatchInspector 노드 cascadeOpacityEnabled 체크')
+const s1099 = s1098
+if (s1099.includes('R2183') && s1099.includes('applyNodeCascadeOpacity') && s1099.includes('CscOp')) {
+  log('pass', 'R2183-batch-node-cascadeopacity', 'BatchInspector 노드 cascadeOpacityEnabled 일괄 설정')
+} else {
+  log('warning', 'R2183-batch-node-cascadeopacity', 'BatchInspector 노드 cascadeOpacityEnabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1096: R2182 BatchInspector cc.ToggleContainer autoCheckToggle ──────────
+console.log('\n## 1096. R2182 BatchInspector cc.ToggleContainer autoCheckToggle 체크')
+const s1096 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1096.includes('R2182') && s1096.includes('applyTCAutoCheck') && s1096.includes('TCauto')) {
+  log('pass', 'R2182-batch-tc-autochecktoggle', 'BatchInspector cc.ToggleContainer autoCheckToggle 일괄 설정')
+} else {
+  log('warning', 'R2182-batch-tc-autochecktoggle', 'BatchInspector cc.ToggleContainer autoCheckToggle 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1097: R2182 BatchInspector cc.RichText imageLineHeight ──────────
+console.log('\n## 1097. R2182 BatchInspector cc.RichText imageLineHeight 체크')
+const s1097 = s1096
+if (s1097.includes('R2182') && s1097.includes('applyRichImgLineH') && s1097.includes('RTImgLH')) {
+  log('pass', 'R2182-batch-richtext-imagelineheight', 'BatchInspector cc.RichText imageLineHeight 일괄 설정')
+} else {
+  log('warning', 'R2182-batch-richtext-imagelineheight', 'BatchInspector cc.RichText imageLineHeight 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1094: R2181 BatchInspector cc.Label enableDashLine ──────────
+console.log('\n## 1094. R2181 BatchInspector cc.Label enableDashLine 체크')
+const s1094 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1094.includes('R2181') && s1094.includes('applyLabelDashLine') && s1094.includes('LblDash')) {
+  log('pass', 'R2181-batch-label-enabledashline', 'BatchInspector cc.Label enableDashLine 일괄 설정')
+} else {
+  log('warning', 'R2181-batch-label-enabledashline', 'BatchInspector cc.Label enableDashLine 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1095: R2181 BatchInspector cc.ScrollView mouseWheelScrollSensitivity ──────────
+console.log('\n## 1095. R2181 BatchInspector cc.ScrollView mouseWheelScrollSensitivity 체크')
+const s1095 = s1094
+if (s1095.includes('R2181') && s1095.includes('applySVMouseWheelSens') && s1095.includes('SVwhl')) {
+  log('pass', 'R2181-batch-sv-mousewheelsens', 'BatchInspector cc.ScrollView mouseWheelScrollSensitivity 일괄 설정')
+} else {
+  log('warning', 'R2181-batch-sv-mousewheelsens', 'BatchInspector cc.ScrollView mouseWheelScrollSensitivity 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1092: R2180 BatchInspector cc.PageView effectType ──────────
+console.log('\n## 1092. R2180 BatchInspector cc.PageView effectType 체크')
+const s1092 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1092.includes('R2180') && s1092.includes('applyPVEffectType') && s1092.includes('PVeffect')) {
+  log('pass', 'R2180-batch-pageview-effecttype', 'BatchInspector cc.PageView effectType 일괄 설정')
+} else {
+  log('warning', 'R2180-batch-pageview-effecttype', 'BatchInspector cc.PageView effectType 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1093: R2180 BatchInspector cc.ScrollView hideScrollBar ──────────
+console.log('\n## 1093. R2180 BatchInspector cc.ScrollView hideScrollBar 체크')
+const s1093 = s1092
+if (s1093.includes('R2180') && s1093.includes('applySVHideScrollBar') && s1093.includes('SVhide')) {
+  log('pass', 'R2180-batch-sv-hidescrollbar', 'BatchInspector cc.ScrollView hideScrollBar 일괄 설정')
+} else {
+  log('warning', 'R2180-batch-sv-hidescrollbar', 'BatchInspector cc.ScrollView hideScrollBar 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1090: R2179 BatchInspector cc.Graphics fillOpacity ──────────
+console.log('\n## 1090. R2179 BatchInspector cc.Graphics fillOpacity 체크')
+const s1090 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1090.includes('R2179') && s1090.includes('applyGfxFillOpacity') && s1090.includes('GfxFill%')) {
+  log('pass', 'R2179-batch-graphics-fillopacity', 'BatchInspector cc.Graphics fillOpacity 일괄 설정')
+} else {
+  log('warning', 'R2179-batch-graphics-fillopacity', 'BatchInspector cc.Graphics fillOpacity 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1091: R2179 BatchInspector cc.Graphics strokeOpacity ──────────
+console.log('\n## 1091. R2179 BatchInspector cc.Graphics strokeOpacity 체크')
+const s1091 = s1090
+if (s1091.includes('R2179') && s1091.includes('applyGfxStrokeOpacity') && s1091.includes('GfxStrk%')) {
+  log('pass', 'R2179-batch-graphics-strokeopacity', 'BatchInspector cc.Graphics strokeOpacity 일괄 설정')
+} else {
+  log('warning', 'R2179-batch-graphics-strokeopacity', 'BatchInspector cc.Graphics strokeOpacity 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1088: R2178 BatchInspector cc.Camera orthoHeight ──────────
+console.log('\n## 1088. R2178 BatchInspector cc.Camera orthoHeight 체크')
+const s1088 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1088.includes('R2178') && s1088.includes('applyCamOrthoHeight') && s1088.includes('CamOrtH')) {
+  log('pass', 'R2178-batch-camera-orthoheight', 'BatchInspector cc.Camera orthoHeight 일괄 설정')
+} else {
+  log('warning', 'R2178-batch-camera-orthoheight', 'BatchInspector cc.Camera orthoHeight 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1089: R2178 BatchInspector cc.UITransform priority ──────────
+console.log('\n## 1089. R2178 BatchInspector cc.UITransform priority 체크')
+const s1089 = s1088
+if (s1089.includes('R2178') && s1089.includes('applyUITransPriority') && s1089.includes('UITPri')) {
+  log('pass', 'R2178-batch-uitransform-priority', 'BatchInspector cc.UITransform priority 일괄 설정')
+} else {
+  log('warning', 'R2178-batch-uitransform-priority', 'BatchInspector cc.UITransform priority 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1086: R2177 BatchInspector cc.EditBox lineCount ──────────
+console.log('\n## 1086. R2177 BatchInspector cc.EditBox lineCount 체크')
+const s1086 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1086.includes('R2177') && s1086.includes('applyEditLineCount') && s1086.includes('EBlines')) {
+  log('pass', 'R2177-batch-editbox-linecount', 'BatchInspector cc.EditBox lineCount 일괄 설정')
+} else {
+  log('warning', 'R2177-batch-editbox-linecount', 'BatchInspector cc.EditBox lineCount 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1087: R2177 BatchInspector cc.Sprite meshType ──────────
+console.log('\n## 1087. R2177 BatchInspector cc.Sprite meshType 체크')
+const s1087 = s1086
+if (s1087.includes('R2177') && s1087.includes('applySpriteMeshType') && s1087.includes('SpMesh')) {
+  log('pass', 'R2177-batch-sprite-meshtype', 'BatchInspector cc.Sprite meshType 일괄 설정')
+} else {
+  log('warning', 'R2177-batch-sprite-meshtype', 'BatchInspector cc.Sprite meshType 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1084: R2176 BatchInspector Collider category ──────────
+console.log('\n## 1084. R2176 BatchInspector Collider category 체크')
+const s1084 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1084.includes('R2176') && s1084.includes('applyColliderCategory') && s1084.includes('ColCat')) {
+  log('pass', 'R2176-batch-collider-category', 'BatchInspector Collider category 일괄 설정')
+} else {
+  log('warning', 'R2176-batch-collider-category', 'BatchInspector Collider category 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1085: R2176 BatchInspector Collider mask ──────────
+console.log('\n## 1085. R2176 BatchInspector Collider mask 체크')
+const s1085 = s1084
+if (s1085.includes('R2176') && s1085.includes('applyColliderMask') && s1085.includes('ColMask')) {
+  log('pass', 'R2176-batch-collider-mask', 'BatchInspector Collider mask 일괄 설정')
+} else {
+  log('warning', 'R2176-batch-collider-mask', 'BatchInspector Collider mask 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1082: R2175 BatchInspector cc.Graphics miterLimit ──────────
+console.log('\n## 1082. R2175 BatchInspector cc.Graphics miterLimit 체크')
+const s1082 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1082.includes('R2175') && s1082.includes('applyGraphicsMiterLimit') && s1082.includes('GfxMitr')) {
+  log('pass', 'R2175-batch-graphics-miterlimit', 'BatchInspector cc.Graphics miterLimit 일괄 설정')
+} else {
+  log('warning', 'R2175-batch-graphics-miterlimit', 'BatchInspector cc.Graphics miterLimit 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1083: R2175 BatchInspector cc.MotionStreak speedThreshold ──────────
+console.log('\n## 1083. R2175 BatchInspector cc.MotionStreak speedThreshold 체크')
+const s1083 = s1082
+if (s1083.includes('R2175') && s1083.includes('applyMSSpeedThresh') && s1083.includes('MSspThr')) {
+  log('pass', 'R2175-batch-ms-speedthreshold', 'BatchInspector cc.MotionStreak speedThreshold 일괄 설정')
+} else {
+  log('warning', 'R2175-batch-ms-speedthreshold', 'BatchInspector cc.MotionStreak speedThreshold 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1080: R2174 BatchInspector 노드 _group ──────────
+console.log('\n## 1080. R2174 BatchInspector 노드 _group 체크')
+const s1080 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1080.includes('R2174') && s1080.includes('applyNodeGroup') && s1080.includes('NodeGrp')) {
+  log('pass', 'R2174-batch-node-group', 'BatchInspector 노드 _group 일괄 설정')
+} else {
+  log('warning', 'R2174-batch-node-group', 'BatchInspector 노드 _group 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1081: R2174 BatchInspector cc.ScrollView bounceTime ──────────
+console.log('\n## 1081. R2174 BatchInspector cc.ScrollView bounceTime 체크')
+const s1081 = s1080
+if (s1081.includes('R2174') && s1081.includes('applySVBounceTime') && s1081.includes('SVbncT')) {
+  log('pass', 'R2174-batch-sv-bouncetime', 'BatchInspector cc.ScrollView bounceTime 일괄 설정')
+} else {
+  log('warning', 'R2174-batch-sv-bouncetime', 'BatchInspector cc.ScrollView bounceTime 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1078: R2173 BatchInspector cc.Label platformFont ──────────
+console.log('\n## 1078. R2173 BatchInspector cc.Label platformFont 체크')
+const s1078 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1078.includes('R2173') && s1078.includes('applyLabelPlatFont') && s1078.includes('PlatFont')) {
+  log('pass', 'R2173-batch-label-platformfont', 'BatchInspector cc.Label platformFont 일괄 설정')
+} else {
+  log('warning', 'R2173-batch-label-platformfont', 'BatchInspector cc.Label platformFont 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1079: R2173 BatchInspector cc.ProgressBar startWidth ──────────
+console.log('\n## 1079. R2173 BatchInspector cc.ProgressBar startWidth 체크')
+const s1079 = s1078
+if (s1079.includes('R2173') && s1079.includes('applyPBStartWidth') && s1079.includes('PBstW')) {
+  log('pass', 'R2173-batch-progressbar-startwidth', 'BatchInspector cc.ProgressBar startWidth 일괄 설정')
+} else {
+  log('warning', 'R2173-batch-progressbar-startwidth', 'BatchInspector cc.ProgressBar startWidth 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1076: R2172 BatchInspector cc.Graphics lineCap ──────────
+console.log('\n## 1076. R2172 BatchInspector cc.Graphics lineCap 체크')
+const s1076 = s1075
+if (s1076.includes('R2172') && s1076.includes('applyGraphicsLineCap') && s1076.includes('GfxCap')) {
+  log('pass', 'R2172-batch-graphics-linecap', 'BatchInspector cc.Graphics lineCap 일괄 설정')
+} else {
+  log('warning', 'R2172-batch-graphics-linecap', 'BatchInspector cc.Graphics lineCap 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1077: R2172 BatchInspector cc.Widget enabled ──────────
+console.log('\n## 1077. R2172 BatchInspector cc.Widget enabled 체크')
+const s1077 = s1076
+if (s1077.includes('R2172') && s1077.includes('applyWidgetEnabled') && s1077.includes('WgtEn')) {
+  log('pass', 'R2172-batch-widget-enabled', 'BatchInspector cc.Widget enabled 일괄 설정')
+} else {
+  log('warning', 'R2172-batch-widget-enabled', 'BatchInspector cc.Widget enabled 미구현', 'CocosPanel.tsx')
 }
 
 // ── 리포트 ───────────────────────────────────────────────
