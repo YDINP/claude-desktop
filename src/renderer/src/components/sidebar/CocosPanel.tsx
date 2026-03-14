@@ -4816,6 +4816,33 @@ function CCFileBatchInspector({
           />
         </div>
       )}
+      {/* R1963: 공통 cc.LabelOutline width 일괄 설정 */}
+      {commonCompTypes.includes('cc.LabelOutline') && (() => {
+        const applyLabelOutlineWidth = async (width: number) => {
+          if (!sceneFile.root) return
+          function patchLabelOutlineWidth(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelOutlineWidth)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.LabelOutline' ? { ...c, props: { ...c.props, width, _width: width, _N$width: width } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelOutlineWidth(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ LabelOutline width=${width} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>OLwidth</span>
+            {([1, 2, 3, 4, 5] as const).map(v => (
+              <span key={v} title={`LabelOutline width = ${v}`}
+                onClick={() => applyLabelOutlineWidth(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f59e0b', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1910: 공통 cc.LabelShadow color 일괄 설정 */}
       {commonCompTypes.includes('cc.LabelShadow') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

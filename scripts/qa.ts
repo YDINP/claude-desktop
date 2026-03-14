@@ -21482,6 +21482,18 @@ console.log('\n## 853. R1962 BatchInspector cc.MotionStreak color 체크')
   }
 }
 
+// ── Section 854: R1963 BatchInspector cc.LabelOutline width ──────────
+console.log('\n## 854. R1963 BatchInspector cc.LabelOutline width 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s854 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s854.includes('R1963') && s854.includes('patchLabelOutlineWidth') && s854.includes('applyLabelOutlineWidth')) {
+    log('pass', 'R1963-batch-labeloutline-width', 'BatchInspector cc.LabelOutline width 일괄 설정')
+  } else {
+    log('warning', 'R1963-batch-labeloutline-width', 'BatchInspector cc.LabelOutline width 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
