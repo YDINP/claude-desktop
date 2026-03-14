@@ -22094,6 +22094,18 @@ console.log('\n## 904. R2013 BatchInspector node position 체크')
   }
 }
 
+// ── Section 905: R2014 BatchInspector node size ──────────
+console.log('\n## 905. R2014 BatchInspector node size 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s905 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s905.includes('R2014') && s905.includes('patchNodeSize') && s905.includes('applyNodeSize')) {
+    log('pass', 'R2014-batch-node-size', 'BatchInspector node size 일괄 설정')
+  } else {
+    log('warning', 'R2014-batch-node-size', 'BatchInspector node size 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

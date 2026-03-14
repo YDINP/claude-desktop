@@ -3834,6 +3834,33 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2014: 노드 size 일괄 설정 */}
+      {(() => {
+        const applyNodeSize = async (w: number, h: number) => {
+          if (!sceneFile.root) return
+          function patchNodeSize(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchNodeSize)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            // CC2.x uses size field; CC3.x uses UITransform component
+            const newSize = { width: w, height: h }
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize } } : c)
+            return { ...n, size: newSize, components: updComps, children }
+          }
+          const patchedRoot = patchNodeSize(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ size=${w}×${h} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Size</span>
+            {([[100,100],[200,100],[100,200],[200,200],[300,100]] as const).map(([w, h]) => (
+              <span key={`${w}x${h}`} onClick={() => applyNodeSize(w, h)} title={`size=${w}×${h}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{w}×{h}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2013: 노드 position 일괄 설정 (reset/preset) */}
       {(() => {
         const applyNodePos = async (x: number, y: number) => {
