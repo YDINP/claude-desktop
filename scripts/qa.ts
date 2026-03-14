@@ -21098,6 +21098,18 @@ console.log('\n## 821. R1930 BatchInspector dragonBones.ArmatureDisplay playOnLo
   }
 }
 
+// ── Section 822: R1931 BatchInspector sp.Skeleton loop ──────────
+console.log('\n## 822. R1931 BatchInspector sp.Skeleton loop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s822 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s822.includes('R1931') && s822.includes('patchSpineLoop') && s822.includes('applySpineLoop')) {
+    log('pass', 'R1931-batch-spine-loop', 'BatchInspector sp.Skeleton loop 일괄 설정')
+  } else {
+    log('warning', 'R1931-batch-spine-loop', 'BatchInspector sp.Skeleton loop 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

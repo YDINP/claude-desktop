@@ -4931,6 +4931,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1931: 공통 sp.Skeleton loop 일괄 설정 */}
+      {commonCompTypes.includes('sp.Skeleton') && (() => {
+        const applySpineLoop = async (loop: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpineLoop(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpineLoop)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, loop } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpineLoop(sceneFile.root) })
+          setBatchMsg(`✓ Spine loop=${loop} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>Spine lp</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`loop = ${v}`}
+                onClick={() => applySpineLoop(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}
+              >{v ? 'loop✓' : 'loop✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1846: 공통 cc.ParticleSystem startSize 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyParticleSize = async (startSize: number) => {
