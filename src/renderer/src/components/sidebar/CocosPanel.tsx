@@ -8011,6 +8011,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2043: 공통 cc.Widget alignMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetAlignMode = async (alignMode: number) => {
+          if (!sceneFile.root) return
+          function patchWidgetAlignMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetAlignMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, alignMode, _alignMode: alignMode, _N$alignMode: alignMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchWidgetAlignMode(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names = ['Once','OnResize','Always']
+          setBatchMsg(`✓ Widget alignMode=${names[alignMode]??alignMode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WidgAM</span>
+            {([['Once',0],['Resize',1],['Always',2]] as [string,number][]).map(([label,v]) => (
+              <span key={v} onClick={() => applyWidgetAlignMode(v)} title={`alignMode=${label}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1974: 공통 cc.Widget margin(top/bottom/left/right) 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetMargin = async (v: number) => {

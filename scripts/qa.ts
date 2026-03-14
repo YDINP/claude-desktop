@@ -22442,6 +22442,18 @@ console.log('\n## 933. R2042 BatchInspector cc.Slider value 체크')
   }
 }
 
+// ── Section 934: R2043 BatchInspector cc.Widget alignMode ──────────
+console.log('\n## 934. R2043 BatchInspector cc.Widget alignMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s934 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s934.includes('R2043') && s934.includes('patchWidgetAlignMode') && s934.includes('applyWidgetAlignMode')) {
+    log('pass', 'R2043-batch-widget-alignmode', 'BatchInspector cc.Widget alignMode 일괄 설정')
+  } else {
+    log('warning', 'R2043-batch-widget-alignmode', 'BatchInspector cc.Widget alignMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
