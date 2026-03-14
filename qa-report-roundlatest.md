@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:15:23.721Z
+> 2026-03-14T04:17:58.866Z
 
 ## Critical
 _없음_
@@ -1739,3 +1739,4 @@ _없음_
 - cc.Button normalColor 퀵 프리셋 버튼
 - cc.RichText applyAndSave + fontSize 프리셋
 - BatchInspector 크기배율 커스텀 입력
+- cc.Sprite Filled fillType/fillRange applyAndSave

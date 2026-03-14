@@ -7258,13 +7258,17 @@ function CCFileNodeInspector({
                       grayscale
                     </label>
                   </div>
-                  {/* R1711: Filled 타입 — fillType/fillStart/fillRange 편집 */}
+                  {/* R1711/R1810: Filled 타입 — fillType/fillStart/fillRange applyAndSave 교체 */}
                   {Number(p.type ?? 0) === 3 && (
                     <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>fillType</span>
                         <select value={Number(p.fillType ?? 0)}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillType', Number(ev.target.value))}
+                          onChange={ev => {
+                            const v = parseInt(ev.target.value)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillType: v, _fillType: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
                           style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
                         >
                           <option value={0}>Horizontal</option>
@@ -7275,20 +7279,31 @@ function CCFileNodeInspector({
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>fillStart</span>
                         <input type="range" min={0} max={1} step={0.01} value={Number(p.fillStart ?? 0)}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillStart', parseFloat(ev.target.value))}
+                          onChange={ev => {
+                            const v = parseFloat(ev.target.value)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillStart: v, _fillStart: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
                           style={{ flex: 1 }} />
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Number(p.fillStart ?? 0).toFixed(2)}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>fillRange</span>
                         <input type="range" min={0} max={1} step={0.01} value={Number(p.fillRange ?? 1)}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillRange', parseFloat(ev.target.value))}
+                          onChange={ev => {
+                            const v = parseFloat(ev.target.value)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillRange: v, _fillRange: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
                           style={{ flex: 1 }} />
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{Number(p.fillRange ?? 1).toFixed(2)}</span>
                       </div>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                         <input type="checkbox" checked={!!(p.fillCenter ?? false)}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'fillCenter', ev.target.checked)} />
+                          onChange={ev => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillCenter: ev.target.checked } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
                         fillCenter
                       </label>
                     </div>

@@ -19643,6 +19643,18 @@ console.log('\n## 700. R1809 BatchInspector 크기배율 커스텀 입력 체크
   }
 }
 
+// ── Section 701: R1810 cc.Sprite Filled fillType/fillRange applyAndSave ──────
+console.log('\n## 701. R1810 cc.Sprite Filled fillType/fillRange applyAndSave 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s701 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s701.includes('R1810') && s701.includes('_fillType: v') && s701.includes('_fillRange: v')) {
+    log('pass', 'R1810-sprite-filled-applyandsave', 'cc.Sprite Filled fillType/fillRange applyAndSave')
+  } else {
+    log('warning', 'R1810-sprite-filled-applyandsave', 'cc.Sprite Filled applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
