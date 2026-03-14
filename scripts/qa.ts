@@ -22802,6 +22802,18 @@ console.log('\n## 963. R2072 BatchInspector cc.Sprite fillType 체크')
   }
 }
 
+// ── Section 964: R2073 BatchInspector cc.ParticleSystem startSize ──────────
+console.log('\n## 964. R2073 BatchInspector cc.ParticleSystem startSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s964 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s964.includes('R2073') && s964.includes('patchPSStartSize') && s964.includes('applyPSStartSize')) {
+    log('pass', 'R2073-batch-ps-startsize', 'BatchInspector cc.ParticleSystem startSize 일괄 설정')
+  } else {
+    log('warning', 'R2073-batch-ps-startsize', 'BatchInspector cc.ParticleSystem startSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

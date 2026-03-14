@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:15:30.693Z
+> 2026-03-14T08:16:31.849Z
 
 ## Critical
 _없음_
@@ -2002,3 +2002,4 @@ _없음_
 - BatchInspector cc.RigidBody angularDamping 일괄 설정
 - BatchInspector cc.MotionStreak fade 일괄 설정
 - BatchInspector cc.Sprite fillType 일괄 설정
+- BatchInspector cc.ParticleSystem startSize 일괄 설정
