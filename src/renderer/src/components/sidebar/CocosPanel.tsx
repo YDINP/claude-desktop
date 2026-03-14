@@ -7984,6 +7984,21 @@ function CCFileNodeInspector({
                       grayscale
                     </label>
                   </div>
+                  {/* R1865: srcBlendFactor / dstBlendFactor 퀵 버튼 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>blend</span>
+                    {([['Normal', 770, 771], ['Add', 770, 1], ['Mul', 774, 771]] as [string, number, number][]).map(([l, src, dst]) => {
+                      const curSrc = Number(p.srcBlendFactor ?? p._srcBlendFactor ?? 770)
+                      const curDst = Number(p.dstBlendFactor ?? p._dstBlendFactor ?? 771)
+                      const active = curSrc === src && curDst === dst
+                      return (
+                        <span key={l} title={`srcBlend=${src} dstBlend=${dst}`}
+                          onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } } : c); applyAndSave({ components: updated }) }}
+                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${active ? '#4ade80' : 'var(--border)'}`, borderRadius: 2, color: active ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                   {/* R1827: 색조(hue) 슬라이더 — 노드 tint 색상 H 조정 */}
                   {(() => {
                     const c = draft.color ?? { r: 255, g: 255, b: 255, a: 255 }

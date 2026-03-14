@@ -20306,6 +20306,18 @@ console.log('\n## 755. R1864 cc.AudioSource pitch 체크')
   }
 }
 
+// ── Section 756: R1865 cc.Sprite blendFactor ──────────────────────────────
+console.log('\n## 756. R1865 cc.Sprite blendFactor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s756 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s756.includes('R1865') && s756.includes('srcBlendFactor') && s756.includes('dstBlendFactor')) {
+    log('pass', 'R1865-sprite-blend', 'cc.Sprite srcBlendFactor/dstBlendFactor 퀵 버튼 (Normal/Add/Mul)')
+  } else {
+    log('warning', 'R1865-sprite-blend', 'cc.Sprite blendFactor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
