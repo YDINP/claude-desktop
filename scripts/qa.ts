@@ -23174,6 +23174,18 @@ console.log('\n## 994. R2103 BatchInspector cc.VideoPlayer muted 체크')
   }
 }
 
+// ── Section 995: R2104 BatchInspector cc.ScrollView inertia ──────────
+console.log('\n## 995. R2104 BatchInspector cc.ScrollView inertia 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s995 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s995.includes('R2104') && s995.includes('patchScrollInertia') && s995.includes('applyScrollInertia')) {
+    log('pass', 'R2104-batch-sv-inertia', 'BatchInspector cc.ScrollView inertia 일괄 설정')
+  } else {
+    log('warning', 'R2104-batch-sv-inertia', 'BatchInspector cc.ScrollView inertia 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

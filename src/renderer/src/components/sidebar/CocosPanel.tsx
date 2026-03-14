@@ -6054,6 +6054,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2104: 공통 cc.ScrollView inertia 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applyScrollInertia = async (inertia: boolean) => {
+          if (!sceneFile.root) return
+          function patchScrollInertia(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchScrollInertia)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, inertia, _inertia: inertia } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchScrollInertia(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView inertia=${inertia} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SVInert</span>
+            <span onClick={() => applyScrollInertia(true)} title="inertia ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>ine✓</span>
+            <span onClick={() => applyScrollInertia(false)} title="inertia OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>ine✗</span>
+          </div>
+        )
+      })()}
       {/* R2004: 공통 cc.ScrollView pagingEnabled 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVPaging = async (pagingEnabled: boolean) => {
