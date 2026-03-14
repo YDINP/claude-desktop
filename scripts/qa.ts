@@ -18767,6 +18767,18 @@ console.log('\n## 627. R1736 자식 알파벳순 정렬 체크')
   }
 }
 
+// ── Section 628: R1737 BatchInspector 앵커 일괄 설정 ──────────────────────────
+console.log('\n## 628. R1737 BatchInspector 앵커 일괄 설정 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s628 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s628.includes('R1737') && s628.includes('batchAnchor') && s628.includes('applyAnchor') && s628.includes('앵커 일괄 설정')) {
+    log('pass', 'R1737-batch-anchor', 'BatchInspector 앵커 9-point 일괄 설정')
+  } else {
+    log('warning', 'R1737-batch-anchor', 'BatchInspector 앵커 일괄 설정 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

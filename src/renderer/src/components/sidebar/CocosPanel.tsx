@@ -3711,6 +3711,8 @@ function CCFileBatchInspector({
   // R1730: 이름 일괄 변경 (Prefix/Suffix)
   const [batchNamePrefix, setBatchNamePrefix] = useState<string>('')
   const [batchNameSuffix, setBatchNameSuffix] = useState<string>('')
+  // R1737: 앵커 일괄 설정 (null = 변경 안 함)
+  const [batchAnchor, setBatchAnchor] = useState<{ x: number; y: number } | null>(null)
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -4104,6 +4106,46 @@ function CCFileBatchInspector({
           }}
           style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(88,166,255,0.12)', border: '1px solid rgba(88,166,255,0.3)', borderRadius: 3, color: '#58a6ff', cursor: 'pointer' }}
         >이름 적용 ({uuids.length}개)</button>
+      </div>
+      {/* R1737: 앵커 9-point 일괄 설정 */}
+      <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>앵커 일괄 설정</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 20px)', gap: 2, marginBottom: 4 }}>
+          {([
+            [0, 1, '↖'], [0.5, 1, '↑'], [1, 1, '↗'],
+            [0, 0.5, '←'], [0.5, 0.5, '⊕'], [1, 0.5, '→'],
+            [0, 0, '↙'], [0.5, 0, '↓'], [1, 0, '↘'],
+          ] as [number, number, string][]).map(([ax, ay, label]) => {
+            const isActive = batchAnchor?.x === ax && batchAnchor?.y === ay
+            return (
+              <span
+                key={`${ax},${ay}`}
+                title={`앵커 (${ax}, ${ay})`}
+                onClick={async () => {
+                  if (!sceneFile.root) return
+                  function applyAnchor(n: CCSceneNode): CCSceneNode {
+                    const children = n.children.map(applyAnchor)
+                    if (!uuidSet.has(n.uuid)) return { ...n, children }
+                    return { ...n, anchor: { x: ax, y: ay }, children }
+                  }
+                  const result = await saveScene(applyAnchor(sceneFile.root))
+                  setBatchAnchor({ x: ax, y: ay })
+                  setBatchMsg(result.success ? `✓ 앵커 (${ax},${ay}) 적용` : `✗ 오류`)
+                  setTimeout(() => setBatchMsg(null), 2000)
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 9, width: 20, height: 20, cursor: 'pointer', borderRadius: 2, userSelect: 'none',
+                  border: `1px solid ${isActive ? '#58a6ff' : 'var(--border)'}`,
+                  background: isActive ? 'rgba(88,166,255,0.15)' : 'transparent',
+                  color: isActive ? '#58a6ff' : 'var(--text-muted)',
+                }}
+                onMouseEnter={e => !isActive && (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                onMouseLeave={e => !isActive && (e.currentTarget.style.background = 'transparent')}
+              >{label}</span>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
