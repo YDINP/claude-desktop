@@ -9191,6 +9191,8 @@ function CCFileNodeInspector({
               const direction = Number(p.direction ?? p._N$direction ?? 0)
               const scrollThreshold = Number(p.scrollThreshold ?? p._N$scrollThreshold ?? 0.5)
               const autoThreshold = Number(p.autoPageTurningThreshold ?? p._N$autoPageTurningThreshold ?? 0.3)
+              // R1847: slideDuration
+              const slideDuration = Number(p.slideDuration ?? p._N$slideDuration ?? 0.3)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -9206,6 +9208,24 @@ function CCFileNodeInspector({
                       <option value={0}>Horizontal</option>
                       <option value={1}>Vertical</option>
                     </select>
+                  </div>
+                  {/* R1847: slideDuration */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>slideDur</span>
+                    <input type="number" defaultValue={slideDuration} key={`sd-${slideDuration}`} min={0} step={0.05}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0.3
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, slideDuration: v, _N$slideDuration: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>s</span>
+                    {([0.1, 0.2, 0.3, 0.5] as const).map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, slideDuration: v, _N$slideDuration: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${slideDuration === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: slideDuration === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
                   </div>
                   {[['scrollThreshold', scrollThreshold], ['autoTurning', autoThreshold]].map(([label, val]) => (
                     <div key={label as string} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

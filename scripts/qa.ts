@@ -20087,6 +20087,18 @@ console.log('\n## 737. R1846 BatchInspector cc.ParticleSystem startSize 체크')
   }
 }
 
+// ── Section 738: R1847 cc.PageView slideDuration 편집 ────────────────────────
+console.log('\n## 738. R1847 cc.PageView slideDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s738 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s738.includes('R1847') && s738.includes('slideDuration') && s738.includes('_N$slideDuration')) {
+    log('pass', 'R1847-pageview-slideduration', 'cc.PageView slideDuration 편집 + 프리셋')
+  } else {
+    log('warning', 'R1847-pageview-slideduration', 'cc.PageView slideDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
