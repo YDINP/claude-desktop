@@ -19523,6 +19523,18 @@ console.log('\n## 690. R1799 BatchInspector cc.Label hAlign 체크')
   }
 }
 
+// ── Section 691: R1800 BatchInspector cc.Label vAlign ────────────────────────
+console.log('\n## 691. R1800 BatchInspector cc.Label vAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s691 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s691.includes('R1800') && s691.includes('patchVAlign') && s691.includes('_N$verticalAlign: v')) {
+    log('pass', 'R1800-batch-label-valign', 'BatchInspector cc.Label vAlign 일괄 설정')
+  } else {
+    log('warning', 'R1800-batch-label-valign', 'BatchInspector cc.Label vAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

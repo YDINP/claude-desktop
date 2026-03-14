@@ -3877,6 +3877,31 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1800: 공통 cc.Label vAlign 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label vAlgn</span>
+          {([['T', 0], ['M', 1], ['B', 2]] as const).map(([l, v]) => (
+            <span key={v} title={`vAlign = ${l}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                function patchVAlign(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchVAlign)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, verticalAlign: v, _N$verticalAlign: v } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchVAlign(sceneFile.root))
+                setBatchMsg(`✓ vAlign ${l} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 9, cursor: 'pointer', padding: '1px 8px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+            >{l}</span>
+          ))}
+        </div>
+      )}
       {/* R1799: 공통 cc.Label hAlign 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
