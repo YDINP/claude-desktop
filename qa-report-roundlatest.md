@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:05:33.367Z
+> 2026-03-14T05:06:34.395Z
 
 ## Critical
 _없음_
@@ -1782,3 +1782,4 @@ _없음_
 - cc.CircleCollider friction/restitution 편집
 - BatchInspector cc.RigidBody fixedRotation 일괄 설정
 - BatchInspector cc.Mask inverted 일괄 설정
+- BatchInspector cc.ProgressBar reverse 일괄 설정

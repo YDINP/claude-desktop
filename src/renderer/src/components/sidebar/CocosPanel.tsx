@@ -4495,6 +4495,28 @@ function CCFileBatchInspector({
           />
         </div>
       )}
+      {/* R1853: 공통 cc.ProgressBar reverse 일괄 설정 */}
+      {commonCompTypes.includes('cc.ProgressBar') && (() => {
+        const applyPBReverse = async (reverse: boolean) => {
+          if (!sceneFile.root) return
+          function patchPBRev(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPBRev)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, reverse, _N$reverse: reverse } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchPBRev(sceneFile.root))
+          setBatchMsg(`✓ ProgressBar reverse=${reverse} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PBrev</span>
+            <span onClick={() => applyPBReverse(true)} title="reverse ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>rev✓</span>
+            <span onClick={() => applyPBReverse(false)} title="reverse OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>rev✗</span>
+          </div>
+        )
+      })()}
       {/* R1760: 공통 cc.Sprite tint 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

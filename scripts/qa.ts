@@ -20162,6 +20162,18 @@ console.log('\n## 743. R1852 BatchInspector cc.Mask inverted 체크')
   }
 }
 
+// ── Section 744: R1853 BatchInspector cc.ProgressBar reverse 일괄 ─────────────
+console.log('\n## 744. R1853 BatchInspector cc.ProgressBar reverse 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s744 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s744.includes('R1853') && s744.includes('applyPBReverse') && s744.includes('patchPBRev')) {
+    log('pass', 'R1853-batch-pb-reverse', 'BatchInspector cc.ProgressBar reverse 일괄 설정')
+  } else {
+    log('warning', 'R1853-batch-pb-reverse', 'BatchInspector cc.ProgressBar reverse 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
