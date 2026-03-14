@@ -8342,6 +8342,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2057: 공통 cc.Layout wrapMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutWrap = async (wrapMode: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutWrap(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutWrap)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLayoutWrap(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names = ['NoWrap','Wrap','SingleLine']
+          setBatchMsg(`✓ Layout wrapMode=${names[wrapMode]??wrapMode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LwrapM</span>
+            {([['NoWrap',0],['Wrap',1],['1Line',2]] as [string,number][]).map(([label,v]) => (
+              <span key={v} onClick={() => applyLayoutWrap(v)} title={`wrapMode=${label}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2043: 공통 cc.Widget alignMode 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetAlignMode = async (alignMode: number) => {
