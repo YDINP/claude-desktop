@@ -21470,6 +21470,18 @@ console.log('\n## 852. R1961 BatchInspector cc.ParticleSystem endSize 체크')
   }
 }
 
+// ── Section 853: R1962 BatchInspector cc.MotionStreak color ──────────
+console.log('\n## 853. R1962 BatchInspector cc.MotionStreak color 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s853 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s853.includes('R1962') && s853.includes('patchMotionColor') && s853.includes('applyMotionColor')) {
+    log('pass', 'R1962-batch-motionstreak-color', 'BatchInspector cc.MotionStreak color 일괄 설정')
+  } else {
+    log('warning', 'R1962-batch-motionstreak-color', 'BatchInspector cc.MotionStreak color 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
