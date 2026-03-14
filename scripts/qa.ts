@@ -22178,6 +22178,18 @@ console.log('\n## 911. R2020 BatchInspector cc.Button interactable 체크')
   }
 }
 
+// ── Section 912: R2021 BatchInspector cc.Layout paddingTop ──────────
+console.log('\n## 912. R2021 BatchInspector cc.Layout paddingTop 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s912 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s912.includes('R2021') && s912.includes('patchLayoutPadTop') && s912.includes('applyLayoutPadTop')) {
+    log('pass', 'R2021-batch-layout-padtop', 'BatchInspector cc.Layout paddingTop 일괄 설정')
+  } else {
+    log('warning', 'R2021-batch-layout-padtop', 'BatchInspector cc.Layout paddingTop 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
