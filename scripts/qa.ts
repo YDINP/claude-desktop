@@ -23018,6 +23018,18 @@ console.log('\n## 981. R2090 BatchInspector cc.CircleCollider friction 체크')
   }
 }
 
+// ── Section 982: R2091 BatchInspector cc.BoxCollider restitution ──────────
+console.log('\n## 982. R2091 BatchInspector cc.BoxCollider restitution 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s982 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s982.includes('R2091') && s982.includes('patchBoxRestitution') && s982.includes('applyBoxRestitution')) {
+    log('pass', 'R2091-batch-box-restitution', 'BatchInspector cc.BoxCollider restitution 일괄 설정')
+  } else {
+    log('warning', 'R2091-batch-box-restitution', 'BatchInspector cc.BoxCollider restitution 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
