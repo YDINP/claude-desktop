@@ -7937,9 +7937,20 @@ function CCFileNodeInspector({
                         style={{ width: '100%', boxSizing: 'border-box', fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', resize: 'vertical' }}
                       />
                       {/* R1773: 텍스트 길이 배지 */}
-                      <span style={{ fontSize: 8, color: str.length === 0 ? '#f87171' : 'var(--text-muted)', alignSelf: 'flex-end' }}>
-                        {str.length === 0 ? '⚠ 빈 문자열' : `${str.length}자`}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, alignSelf: 'flex-end' }}>
+                        <span style={{ fontSize: 8, color: str.length === 0 ? '#f87171' : 'var(--text-muted)' }}>
+                          {str.length === 0 ? '⚠ 빈 문자열' : `${str.length}자`}
+                        </span>
+                        {/* R1805: string 복사 버튼 */}
+                        {str.length > 0 && (
+                          <span title="텍스트 복사"
+                            onClick={() => navigator.clipboard.writeText(str).catch(() => {})}
+                            style={{ fontSize: 9, cursor: 'pointer', color: '#555', padding: '0 2px' }}
+                            onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+                            onMouseLeave={e => (e.currentTarget.style.color = '#555')}
+                          >⎘</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

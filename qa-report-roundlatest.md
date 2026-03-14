@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:08:34.063Z
+> 2026-03-14T04:09:22.463Z
 
 ## Critical
 _없음_
@@ -1734,3 +1734,4 @@ _없음_
 - BatchInspector cc.Label bold/italic/underline 일괄 설정
 - BatchInspector cc.Sprite grayscale 일괄 설정
 - BatchInspector cc.Label wrapText 일괄 설정
+- cc.Label string 클립보드 복사 버튼

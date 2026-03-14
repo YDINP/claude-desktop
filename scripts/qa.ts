@@ -19583,6 +19583,18 @@ console.log('\n## 695. R1804 BatchInspector cc.Label wrapText 체크')
   }
 }
 
+// ── Section 696: R1805 cc.Label string 클립보드 복사 ─────────────────────────
+console.log('\n## 696. R1805 cc.Label string 클립보드 복사 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s696 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s696.includes('R1805') && s696.includes('string 복사 버튼') && s696.includes('clipboard.writeText(str)')) {
+    log('pass', 'R1805-label-string-copy', 'cc.Label string 클립보드 복사 버튼')
+  } else {
+    log('warning', 'R1805-label-string-copy', 'cc.Label string 클립보드 복사 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
