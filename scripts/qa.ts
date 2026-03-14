@@ -20678,6 +20678,18 @@ console.log('\n## 786. R1895 BatchInspector cc.UIOpacity opacity 체크')
   }
 }
 
+// ── Section 787: R1896 BatchInspector cc.ParticleSystem angle ──────────
+console.log('\n## 787. R1896 BatchInspector cc.ParticleSystem angle 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s787 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s787.includes('R1896') && s787.includes('applyParticleAngle') && s787.includes('patchParticleAngle')) {
+    log('pass', 'R1896-batch-particle-angle', 'BatchInspector cc.ParticleSystem angle 일괄 설정')
+  } else {
+    log('warning', 'R1896-batch-particle-angle', 'BatchInspector cc.ParticleSystem angle 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

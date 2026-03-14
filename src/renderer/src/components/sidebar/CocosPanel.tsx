@@ -4737,6 +4737,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1896: 공통 cc.ParticleSystem angle 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyParticleAngle = async (angle: number) => {
+          if (!sceneFile.root) return
+          function patchParticleAngle(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchParticleAngle)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchParticleAngle(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Pangle</span>
+            {([0, 45, 90, 135, 180, 270] as const).map(v => (
+              <span key={v} title={`angle = ${v}°`}
+                onClick={() => applyParticleAngle(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{v}°</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1836: 공통 cc.SkeletalAnimation speedRatio 일괄 설정 */}
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {

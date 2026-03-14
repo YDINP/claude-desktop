@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:49:57.710Z
+> 2026-03-14T05:50:50.044Z
 
 ## Critical
 _없음_
@@ -1825,3 +1825,4 @@ _없음_
 - BatchInspector cc.ParticleSystem speed 일괄 설정
 - BatchInspector cc.Layout resizeMode 일괄 설정
 - BatchInspector cc.UIOpacity opacity 일괄 설정
+- BatchInspector cc.ParticleSystem angle 일괄 설정
