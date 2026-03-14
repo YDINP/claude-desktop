@@ -6839,6 +6839,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1975: 공통 cc.RigidBody awake 일괄 설정 */}
+      {commonCompTypes.includes('cc.RigidBody') && (() => {
+        const applyRBAwake = async (awake: boolean) => {
+          if (!sceneFile.root) return
+          function patchRBAwake(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBAwake)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RigidBody' ? { ...c, props: { ...c.props, awake } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchRBAwake(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ RigidBody awake=${awake} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBawake</span>
+            <span onClick={() => applyRBAwake(true)} title="awake ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>awk✓</span>
+            <span onClick={() => applyRBAwake(false)} title="awake OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>awk✗</span>
+          </div>
+        )
+      })()}
       {/* R1863: 공통 cc.Mask type 일괄 설정 */}
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskType = async (type: number) => {
