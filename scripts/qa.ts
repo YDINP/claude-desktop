@@ -21530,6 +21530,18 @@ console.log('\n## 857. R1966 BatchInspector cc.PageView autoPageTurningInterval 
   }
 }
 
+// ── Section 858: R1967 BatchInspector cc.PageView scrollThreshold ──────────
+console.log('\n## 858. R1967 BatchInspector cc.PageView scrollThreshold 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s858 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s858.includes('R1967') && s858.includes('patchPVScrollThresh') && s858.includes('applyPVScrollThresh')) {
+    log('pass', 'R1967-batch-pageview-scrollthresh', 'BatchInspector cc.PageView scrollThreshold 일괄 설정')
+  } else {
+    log('warning', 'R1967-batch-pageview-scrollthresh', 'BatchInspector cc.PageView scrollThreshold 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
