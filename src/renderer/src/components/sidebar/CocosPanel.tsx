@@ -9797,6 +9797,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2123: 공통 cc.Widget isAlignBottom 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetIsAlignBot = async (isAlignBottom: boolean) => {
+          if (!sceneFile.root) return
+          function patchWidgetIsAlignBot(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetIsAlignBot)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignBottom, _isAlignBottom: isAlignBottom } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetIsAlignBot(sceneFile.root) })
+          setBatchMsg(`✓ Widget isAlignBottom=${isAlignBottom} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WABot</span>
+            <span onClick={() => applyWidgetIsAlignBot(true)} title="isAlignBottom ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>B✓</span>
+            <span onClick={() => applyWidgetIsAlignBot(false)} title="isAlignBottom OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>B✗</span>
+          </div>
+        )
+      })()}
       {/* R2122: 공통 cc.Widget isAlignTop 일괄 설정 */}
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAlignTop = async (isAlignTop: boolean) => {

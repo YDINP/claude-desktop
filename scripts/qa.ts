@@ -23402,6 +23402,18 @@ console.log('\n## 1013. R2122 BatchInspector cc.Widget isAlignTop 체크')
   }
 }
 
+// ── Section 1014: R2123 BatchInspector cc.Widget isAlignBottom ──────────
+console.log('\n## 1014. R2123 BatchInspector cc.Widget isAlignBottom 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1014 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1014.includes('R2123') && s1014.includes('patchWidgetIsAlignBot') && s1014.includes('applyWidgetIsAlignBot')) {
+    log('pass', 'R2123-batch-widget-isalignbot', 'BatchInspector cc.Widget isAlignBottom 일괄 설정')
+  } else {
+    log('warning', 'R2123-batch-widget-isalignbot', 'BatchInspector cc.Widget isAlignBottom 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
