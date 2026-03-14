@@ -18515,6 +18515,18 @@ console.log('\n## 606. R1715 씬 트리 색상 태그 필터 체크')
   }
 }
 
+// ── Section 607: R1716 cc.Toggle Quick Edit interactable 추가 ───────────────
+console.log('\n## 607. R1716 cc.Toggle Quick Edit interactable 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s607 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s607.includes('R1716') && s607.includes('interactable') && s607.includes('isChecked + interactable')) {
+    log('pass', 'R1716-toggle-interactable', 'cc.Toggle Quick Edit interactable 추가')
+  } else {
+    log('warning', 'R1716-toggle-interactable', 'cc.Toggle Quick Edit interactable 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -6270,16 +6270,29 @@ function CCFileNodeInspector({
             }
             if (comp.type === 'cc.Toggle') {
               const checked = !!(p.isChecked ?? false)
+              const interactable = !!(p.interactable ?? true)
               return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '2px 0 4px 2px' }}>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>isChecked</span>
-                  <input type="checkbox" checked={checked}
-                    onChange={e => {
-                      const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: e.target.checked } } : c)
-                      applyAndSave({ components: updated })
-                    }}
-                  />
-                  <span style={{ fontSize: 9, color: checked ? '#4ade80' : '#888' }}>{checked ? '✓ checked' : '○ unchecked'}</span>
+                // R1716: isChecked + interactable 편집
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>isChecked</span>
+                    <input type="checkbox" checked={checked}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: e.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                    />
+                    <span style={{ fontSize: 9, color: checked ? '#4ade80' : '#888' }}>{checked ? '✓ checked' : '○ unchecked'}</span>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={interactable}
+                      onChange={e => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                    />
+                    <span style={{ color: interactable ? 'var(--text-muted)' : '#f85149' }}>interactable</span>
+                  </label>
                 </div>
               )
             }

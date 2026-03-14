@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:56:19.894Z
+> 2026-03-14T01:57:06.563Z
 
 ## Critical
 _없음_
@@ -1645,3 +1645,4 @@ _없음_
 - cc.Label fontSize 빠른 조절 버튼
 - cc.Label 텍스트 색상 편집
 - 씬 트리 색상 태그 필터
+- cc.Toggle Quick Edit interactable 추가
