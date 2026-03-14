@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1114: R2191 BatchInspector cc.Animation enabled ──────────
+console.log('\n## 1114. R2191 BatchInspector cc.Animation enabled (컴포넌트 레벨) 체크')
+const s1114 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1114.includes('R2191') && s1114.includes('applyAnimEnabled') && s1114.includes('AnimComp')) {
+  log('pass', 'R2191-batch-anim-enabled', 'BatchInspector cc.Animation enabled 일괄 설정')
+} else {
+  log('warning', 'R2191-batch-anim-enabled', 'BatchInspector cc.Animation enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1115: R2191 BatchInspector cc.Label enabled ──────────
+console.log('\n## 1115. R2191 BatchInspector cc.Label enabled (컴포넌트 레벨) 체크')
+const s1115 = s1114
+if (s1115.includes('R2191') && s1115.includes('applyLabelEnabled') && s1115.includes('LblComp')) {
+  log('pass', 'R2191-batch-label-enabled', 'BatchInspector cc.Label enabled 일괄 설정')
+} else {
+  log('warning', 'R2191-batch-label-enabled', 'BatchInspector cc.Label enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1112: R2190 BatchInspector cc.MotionStreak timeToLive ──────────
 console.log('\n## 1112. R2190 BatchInspector cc.MotionStreak timeToLive 체크')
 const s1112 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -5347,6 +5347,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2191: 공통 cc.Label enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Label enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyLabelEnabled(v)} title={`Label enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2184: 공통 cc.Label enableGradient 일괄 설정 (CC3.x) */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelGradient = async (enableGradient: boolean) => {
@@ -7617,6 +7643,32 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R2191: 공통 cc.Animation enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Animation') && (() => {
+        const applyAnimEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchAnimEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAnimEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Animation'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchAnimEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Animation enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>AnimComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyAnimEnabled(v)} title={`Animation enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#f59e0b', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2186: 공통 cc.Animation sample 일괄 설정 */}
       {commonCompTypes.includes('cc.Animation') && (() => {
         const applyAnimSample = async (sample: number) => {
