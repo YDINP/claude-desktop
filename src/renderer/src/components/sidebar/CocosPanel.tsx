@@ -4133,6 +4133,31 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>tint</span>
         </div>
       )}
+      {/* R1803: 공통 cc.Sprite grayscale 일괄 설정 */}
+      {commonCompTypes.includes('cc.Sprite') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>Sprite gray</span>
+          {(['✓ gray', '○ gray'] as const).map(label => (
+            <span key={label}
+              title={`grayscale 모두 ${label.startsWith('✓') ? '활성' : '비활성'}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                const val = label.startsWith('✓')
+                function patchGray(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchGray)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, grayscale: val } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchGray(sceneFile.root))
+                setBatchMsg(`✓ grayscale ${val} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: label.startsWith('✓') ? '#94a3b8' : 'var(--text-muted)', userSelect: 'none' }}
+            >{label}</span>
+          ))}
+        </div>
+      )}
       {/* R1801: 공통 cc.Sprite type 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

@@ -19559,6 +19559,18 @@ console.log('\n## 693. R1802 BatchInspector cc.Label bold/italic/underline 체�
   }
 }
 
+// ── Section 694: R1803 BatchInspector cc.Sprite grayscale ────────────────────
+console.log('\n## 694. R1803 BatchInspector cc.Sprite grayscale 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s694 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s694.includes('R1803') && s694.includes('patchGray') && s694.includes('grayscale: val')) {
+    log('pass', 'R1803-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 일괄 설정')
+  } else {
+    log('warning', 'R1803-batch-sprite-grayscale', 'BatchInspector cc.Sprite grayscale 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
