@@ -24095,6 +24095,24 @@ if (s1107.includes('R2187') && s1107.includes('applyCamClearDepth') && s1107.inc
   log('warning', 'R2187-batch-camera-cleardepth', 'BatchInspector cc.Camera clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1146: R2207 BatchInspector cc.BlockInputEvents enabled ──────────
+console.log('\n## 1146. R2207 BatchInspector cc.BlockInputEvents enabled (컴포넌트 레벨) 체크')
+const s1146 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1146.includes('R2207') && s1146.includes('applyBIEEnabled') && s1146.includes('BIEComp')) {
+  log('pass', 'R2207-batch-bie-enabled', 'BatchInspector cc.BlockInputEvents enabled 일괄 설정')
+} else {
+  log('warning', 'R2207-batch-bie-enabled', 'BatchInspector cc.BlockInputEvents enabled 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1147: R2207 BatchInspector cc.Canvas enabled ──────────
+console.log('\n## 1147. R2207 BatchInspector cc.Canvas enabled (컴포넌트 레벨) 체크')
+const s1147 = s1146
+if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.includes('CvsComp')) {
+  log('pass', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 일괄 설정')
+} else {
+  log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1144: R2206 BatchInspector cc.Sprite blendMode ──────────
 console.log('\n## 1144. R2206 BatchInspector cc.Sprite blendMode(srcBlendFactor/dstBlendFactor) 체크')
 const s1144 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

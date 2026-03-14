@@ -10753,6 +10753,58 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2207: 공통 cc.BlockInputEvents enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.BlockInputEvents') && (() => {
+        const applyBIEEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchBIEEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBIEEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.BlockInputEvents'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchBIEEnabled(sceneFile.root) })
+          setBatchMsg(`✓ BlockInputEvents enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>BIEComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyBIEEnabled(v)} title={`BlockInputEvents enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2207: 공통 cc.Canvas enabled (컴포넌트 레벨) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Canvas') && (() => {
+        const applyCanvasEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchCanvasEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCanvasEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Canvas'
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCanvasEnabled(sceneFile.root) })
+          setBatchMsg(`✓ Canvas enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>CvsComp</span>
+            {([['comp✓', true], ['comp✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyCanvasEnabled(v)} title={`Canvas enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2152: 공통 cc.Canvas fitWidth 일괄 설정 */}
       {commonCompTypes.includes('cc.Canvas') && (() => {
         const applyCanvasFitWidth = async (fitWidth: boolean) => {
