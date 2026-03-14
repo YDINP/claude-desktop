@@ -19859,6 +19859,18 @@ console.log('\n## 718. R1827 cc.Sprite hue 슬라이더 체크')
   }
 }
 
+// ── Section 719: R1828 BatchInspector cc.AudioSource volume 일괄 설정 ────────
+console.log('\n## 719. R1828 BatchInspector cc.AudioSource volume 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s719 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s719.includes('R1828') && s719.includes('patchAudioVol') && s719.includes("c.type === 'cc.AudioSource'") && s719.includes('applyAudioVol')) {
+    log('pass', 'R1828-batch-audio-volume', 'BatchInspector cc.AudioSource volume 일괄 설정')
+  } else {
+    log('warning', 'R1828-batch-audio-volume', 'BatchInspector cc.AudioSource volume 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
