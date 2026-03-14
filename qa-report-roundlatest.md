@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:17:58.866Z
+> 2026-03-14T04:19:12.695Z
 
 ## Critical
 _없음_
@@ -1740,3 +1740,4 @@ _없음_
 - cc.RichText applyAndSave + fontSize 프리셋
 - BatchInspector 크기배율 커스텀 입력
 - cc.Sprite Filled fillType/fillRange applyAndSave
+- cc.LabelOutline/LabelShadow applyAndSave

@@ -7311,7 +7311,7 @@ function CCFileNodeInspector({
                 </div>
               )
             }
-            // R1588: cc.LabelOutline / cc.LabelShadow Quick Edit
+            // R1588/R1811: cc.LabelOutline / cc.LabelShadow Quick Edit (applyAndSave)
             if (comp.type === 'cc.LabelOutline' || comp.type === 'cc.LabelShadow') {
               const toHex = (c: { r?: number; g?: number; b?: number } | undefined) => {
                 if (!c) return '#000000'
@@ -7324,46 +7324,76 @@ function CCFileNodeInspector({
                 const n = parseInt(hex.replace('#', ''), 16)
                 return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a: 255 }
               }
+              const offObj = p.offset as { x?: number; y?: number } | undefined
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {/* R1811: applyAndSave 교체 */}
                   {comp.type === 'cc.LabelOutline' && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <label style={{ fontSize: 11 }}>width</label>
-                      <input type="number" min={0} max={20} value={Number(p.width ?? 0)}
+                      <input type="number" min={0} max={20} defaultValue={Number(p.width ?? p._width ?? 0)}
                         style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'width', Number(ev.target.value))} />
+                        onBlur={ev => {
+                          const v = Number(ev.target.value)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, width: v, _width: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                       <label style={{ fontSize: 11 }}>color</label>
-                      <input type="color" value={toHex(p.color as { r?: number; g?: number; b?: number } | undefined)}
+                      <input type="color" value={toHex((p.color ?? p._color) as { r?: number; g?: number; b?: number } | undefined)}
                         style={{ width: 36, height: 22, border: 'none', background: 'none', cursor: 'pointer' }}
-                        onChange={ev => onPropChange?.(node.uuid, comp.type, 'color', fromHex(ev.target.value))} />
+                        onChange={ev => {
+                          const col = { ...fromHex(ev.target.value), a: 255 }
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
                     </div>
                   )}
                   {comp.type === 'cc.LabelShadow' && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
                       <div>
                         <label style={{ display: 'block', fontSize: 11 }}>offsetX</label>
-                        <input type="number" value={Number((p.offset as { x?: number })?.x ?? 2)}
+                        <input type="number" defaultValue={Number(offObj?.x ?? 2)}
                           style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'offsetX', Number(ev.target.value))} />
+                          onBlur={ev => {
+                            const x = Number(ev.target.value)
+                            const curOff = offObj ?? {}
+                            const newOff = { ...curOff, x }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
                       </div>
                       <div>
                         <label style={{ display: 'block', fontSize: 11 }}>offsetY</label>
-                        <input type="number" value={Number((p.offset as { y?: number })?.y ?? -2)}
+                        <input type="number" defaultValue={Number(offObj?.y ?? -2)}
                           style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'offsetY', Number(ev.target.value))} />
+                          onBlur={ev => {
+                            const y = Number(ev.target.value)
+                            const curOff = offObj ?? {}
+                            const newOff = { ...curOff, y }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, offset: newOff, _offset: newOff } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
                       </div>
                       <div>
                         <label style={{ display: 'block', fontSize: 11 }}>blur</label>
-                        <input type="number" min={0} max={20} value={Number(p.blur ?? 2)}
+                        <input type="number" min={0} max={20} defaultValue={Number(p.blur ?? p._blur ?? 2)}
                           style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'blur', Number(ev.target.value))} />
+                          onBlur={ev => {
+                            const v = Number(ev.target.value)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, blur: v, _blur: v } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
                       </div>
                       <div>
                         <label style={{ display: 'block', fontSize: 11 }}>color</label>
-                        <input type="color" value={toHex(p.color as { r?: number; g?: number; b?: number } | undefined)}
+                        <input type="color" value={toHex((p.color ?? p._color) as { r?: number; g?: number; b?: number } | undefined)}
                           style={{ width: '100%', height: 22, border: '1px solid #444', borderRadius: 3, cursor: 'pointer' }}
-                          onChange={ev => onPropChange?.(node.uuid, comp.type, 'color', fromHex(ev.target.value))} />
+                          onChange={ev => {
+                            const col = { ...fromHex(ev.target.value), a: 255 }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
                       </div>
                     </div>
                   )}

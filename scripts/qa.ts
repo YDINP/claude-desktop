@@ -19655,6 +19655,18 @@ console.log('\n## 701. R1810 cc.Sprite Filled fillType/fillRange applyAndSave �
   }
 }
 
+// ── Section 702: R1811 cc.LabelOutline/LabelShadow applyAndSave ───────────────
+console.log('\n## 702. R1811 cc.LabelOutline/LabelShadow applyAndSave 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s702 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s702.includes('R1811') && s702.includes('_width: v') && s702.includes('_blur: v')) {
+    log('pass', 'R1811-labeloutline-applyandsave', 'cc.LabelOutline/LabelShadow applyAndSave')
+  } else {
+    log('warning', 'R1811-labeloutline-applyandsave', 'cc.LabelOutline/LabelShadow applyAndSave 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
