@@ -18755,6 +18755,18 @@ console.log('\n## 626. R1735 BatchInspector 크기 맞추기 체크')
   }
 }
 
+// ── Section 627: R1736 자식 알파벳순 정렬 ──────────────────────────────────────
+console.log('\n## 627. R1736 자식 알파벳순 정렬 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s627 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s627.includes('R1736') && s627.includes('onSortChildren') && s627.includes('handleSortChildren') && s627.includes('자식 알파벳순 정렬')) {
+    log('pass', 'R1736-sort-children', '자식 알파벳순 정렬')
+  } else {
+    log('warning', 'R1736-sort-children', '자식 알파벳순 정렬 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

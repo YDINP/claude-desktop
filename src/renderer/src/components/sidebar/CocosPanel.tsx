@@ -1591,6 +1591,16 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(reorder(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  // R1736: 자식 알파벳순 정렬
+  const handleSortChildren = useCallback(async (uuid: string) => {
+    if (!sceneFile?.root) return
+    function sort(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === uuid) return { ...n, children: [...n.children].sort((a, b) => a.name.localeCompare(b.name)).map(sort) }
+      return { ...n, children: n.children.map(sort) }
+    }
+    await saveScene(sort(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   // R1565: H — 선택 노드 active 토글
   const handleToggleActive = useCallback(async (uuid: string) => {
     if (!sceneFile?.root) return
@@ -2917,6 +2927,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onCtrlSelect={uuid => setMultiSelectedUuids(prev =>
                   prev.includes(uuid) ? prev.filter(u => u !== uuid) : [...prev, uuid]
                 )}
+                onSortChildren={handleSortChildren}
               />
             </div>
           </div>
@@ -3367,7 +3378,7 @@ function GroupPanel({
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder, multiSelectedUuids, onCtrlSelect,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder, multiSelectedUuids, onCtrlSelect, onSortChildren,
 }: {
   node: CCSceneNode
   depth: number
@@ -3394,6 +3405,8 @@ function CCFileSceneTree({
   /** R1728: Ctrl+클릭 다중 선택 */
   multiSelectedUuids?: string[]
   onCtrlSelect?: (uuid: string) => void
+  /** R1736: 자식 알파벳순 정렬 */
+  onSortChildren?: (uuid: string) => void
 }) {
   const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
   const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
@@ -3430,6 +3443,8 @@ function CCFileSceneTree({
               ...(hasChildren ? [
                 { label: '자식 모두 활성화', action: () => { setCtxMenu(null); node.children.forEach(c => onToggleActive && !c.active && onToggleActive(c.uuid)) } },
                 { label: '자식 모두 비활성화', action: () => { setCtxMenu(null); node.children.forEach(c => onToggleActive && c.active && onToggleActive(c.uuid)) } },
+                // R1736: 자식 알파벳순 정렬
+                ...(onSortChildren ? [{ label: '자식 알파벳순 정렬', action: () => { setCtxMenu(null); onSortChildren(node.uuid) } }] : []),
               ] : []),
               // R1724: 형제 순서 이동
               ...(onReorder ? [
@@ -3626,6 +3641,7 @@ function CCFileSceneTree({
           onReorder={onReorder}
           multiSelectedUuids={multiSelectedUuids}
           onCtrlSelect={onCtrlSelect}
+          onSortChildren={onSortChildren}
         />
       ))}
     </div>
