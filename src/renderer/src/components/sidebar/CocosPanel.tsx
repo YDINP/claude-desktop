@@ -6541,6 +6541,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2027: 공통 cc.ParticleSystem duration 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSDuration = async (duration: number) => {
+          if (!sceneFile.root) return
+          function patchPSDuration(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSDuration)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, duration, _duration: duration, _N$duration: duration } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSDuration(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const label = duration === -1 ? '∞' : `${duration}s`
+          setBatchMsg(`✓ PS duration=${label} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSDur</span>
+            {([['∞',-1],['1s',1],['2s',2],['5s',5],['10s',10]] as [string,number][]).map(([label,v]) => (
+              <span key={v} onClick={() => applyPSDuration(v)} title={`duration=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2026: 공통 cc.ParticleSystem totalParticles 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSTotalPart = async (totalParticles: number) => {
