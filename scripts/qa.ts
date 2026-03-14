@@ -23150,6 +23150,18 @@ console.log('\n## 992. R2101 BatchInspector cc.Widget verticalCenter 체크')
   }
 }
 
+// ── Section 993: R2102 BatchInspector cc.Label spacingY ──────────
+console.log('\n## 993. R2102 BatchInspector cc.Label spacingY 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s993 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s993.includes('R2102') && s993.includes('patchLabelSpacingY') && s993.includes('applyLabelSpacingY')) {
+    log('pass', 'R2102-batch-label-spacingy', 'BatchInspector cc.Label spacingY 일괄 설정')
+  } else {
+    log('warning', 'R2102-batch-label-spacingy', 'BatchInspector cc.Label spacingY 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

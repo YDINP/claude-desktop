@@ -4908,6 +4908,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2102: 공통 cc.Label spacingY 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelSpacingY = async (spacingY: number) => {
+          if (!sceneFile.root) return
+          function patchLabelSpacingY(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelSpacingY)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelSpacingY(sceneFile.root) })
+          setBatchMsg(`✓ Label spacingY=${spacingY} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>LblSpY</span>
+            {[0, 2, 5, 10, 20, 30].map(v => (
+              <span key={v} onClick={() => applyLabelSpacingY(v)} title={`spacingY=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1951: 공통 cc.Label fontSize 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelFontSize = async (fontSize: number) => {
