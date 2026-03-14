@@ -21302,6 +21302,18 @@ console.log('\n## 838. R1947 BatchInspector cc.Button disabledColor 체크')
   }
 }
 
+// ── Section 839: R1948 BatchInspector cc.Button duration ──────────
+console.log('\n## 839. R1948 BatchInspector cc.Button duration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s839 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s839.includes('R1948') && s839.includes('patchBtnDuration') && s839.includes('applyBtnDuration')) {
+    log('pass', 'R1948-batch-button-duration', 'BatchInspector cc.Button duration 일괄 설정')
+  } else {
+    log('warning', 'R1948-batch-button-duration', 'BatchInspector cc.Button duration 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
