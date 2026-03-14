@@ -21362,6 +21362,18 @@ console.log('\n## 843. R1952 BatchInspector cc.Camera fov 체크')
   }
 }
 
+// ── Section 844: R1953 BatchInspector cc.RigidBody angularVelocity ──────────
+console.log('\n## 844. R1953 BatchInspector cc.RigidBody angularVelocity 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s844 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s844.includes('R1953') && s844.includes('patchRBAngVel') && s844.includes('applyRBAngVel')) {
+    log('pass', 'R1953-batch-rigidbody-angvel', 'BatchInspector cc.RigidBody angularVelocity 일괄 설정')
+  } else {
+    log('warning', 'R1953-batch-rigidbody-angvel', 'BatchInspector cc.RigidBody angularVelocity 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
