@@ -18119,6 +18119,18 @@ console.log('\n## 573. R1682 Inspector 위치/크기 복사 버튼 체크')
   }
 }
 
+// ── Section 574: R1683 SceneView 드래그 ghost ─────────────────────────────
+console.log('\n## 574. R1683 SceneView 드래그 ghost 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s574 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s574.includes('R1683') && s574.includes('dragGhost') && s574.includes('setDragGhost')) {
+    log('pass', 'R1683-drag-ghost', 'SceneView 드래그 ghost 원래 위치 표시')
+  } else {
+    log('warning', 'R1683-drag-ghost', 'SceneView 드래그 ghost 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

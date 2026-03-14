@@ -56,6 +56,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const panStart = useRef<{ mouseX: number; mouseY: number; offX: number; offY: number } | null>(null)
   const dragRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number } | null>(null)
   const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
+  // R1683: 드래그 ghost (원래 위치 반투명 표시) — worldX/worldY 기준
+  const [dragGhost, setDragGhost] = useState<{ uuid: string; worldX: number; worldY: number; w: number; h: number; anchorX: number; anchorY: number } | null>(null)
   const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number; dir: 'SE' | 'S' | 'E' } | null>(null)
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
   const rotateRef = useRef<{ uuid: string; centerX: number; centerY: number; startAngle: number; startRotation: number } | null>(null)
@@ -481,12 +483,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       setDragOverride(null)
       setSnapIndicator(null)
       setAlignGuides([])
+      setDragGhost(null)
       return
     }
     dragRef.current = null
     setDragOverride(null)
     setSnapIndicator(null)
     setAlignGuides([])
+    setDragGhost(null)
     setIsPanning(false)
     panStart.current = null
     // rubber-band 완료: 박스 내 노드 선택
@@ -1155,6 +1159,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             return els
           })()}
 
+          {/* R1683: 드래그 ghost — 원래 위치 반투명 표시 */}
+          {dragGhost && dragOverride && dragOverride.uuid === dragGhost.uuid && (() => {
+            const gp = ccToSvg(dragGhost.worldX, dragGhost.worldY)
+            const gSvgX = gp.x - dragGhost.w * dragGhost.anchorX
+            const gSvgY = gp.y - dragGhost.h * (1 - dragGhost.anchorY)
+            return (
+              <rect
+                x={gSvgX} y={gSvgY} width={Math.max(0, dragGhost.w)} height={Math.max(0, dragGhost.h)}
+                fill="none" stroke="#ff9944" strokeWidth={1.5 / view.zoom}
+                strokeDasharray={`${4 / view.zoom},${3 / view.zoom}`}
+                opacity={0.5} pointerEvents="none"
+              />
+            )
+          })()}
           {/* R1500: 스냅 포인트 시각적 피드백 */}
           {snapIndicator && (() => {
             const sp = ccToSvg(snapIndicator.x, snapIndicator.y)
@@ -1298,6 +1316,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     startNodeX: pos.x,
                     startNodeY: pos.y,
                   }
+                  // R1683: ghost 저장 (원래 world 위치)
+                  setDragGhost({ uuid: node.uuid, worldX, worldY, w: node.size?.x ?? 0, h: node.size?.y ?? 0, anchorX: node.anchor?.x ?? 0.5, anchorY: node.anchor?.y ?? 0.5 })
                 }}
                 style={{ cursor: lockedUuids.has(node.uuid) ? 'not-allowed' : isDragged ? 'grabbing' : 'grab' }}
               >
