@@ -19475,6 +19475,18 @@ console.log('\n## 686. R1795 BatchInspector cc.AudioSource loop/playOnLoad 체�
   }
 }
 
+// ── Section 687: R1796 cc.Layout paddingAll 퀵 프리셋 ────────────────────────
+console.log('\n## 687. R1796 cc.Layout paddingAll 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s687 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s687.includes('R1796') && s687.includes('padding 전체') && s687.includes('paddingBottom: v')) {
+    log('pass', 'R1796-layout-padding-preset', 'cc.Layout paddingAll 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1796-layout-padding-preset', 'cc.Layout paddingAll 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

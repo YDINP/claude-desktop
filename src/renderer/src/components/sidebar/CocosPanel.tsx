@@ -6924,6 +6924,13 @@ function CCFileNodeInspector({
                       onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
                       onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                     >=</span>
+                    {/* R1796: padding 퀵 프리셋 */}
+                    {[0, 5, 10, 20].map(v => (
+                      <span key={v} title={`padding 전체 = ${v}`}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, paddingLeft: v, paddingRight: v, paddingTop: v, paddingBottom: v } } : c); applyAndSave({ components: updated }) }}
+                        style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${pLeft === v && pRight === v && pTop === v && pBottom === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: pLeft === v && pRight === v && pTop === v && pBottom === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
                   </div>
                   {layoutType === 3 && (() => {
                     // R1709: Grid cellSize 편집
