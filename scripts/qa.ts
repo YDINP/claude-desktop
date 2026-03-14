@@ -21026,6 +21026,18 @@ console.log('\n## 815. R1924 cc.ParticleSystem startColor/endColor 편집 체크
   }
 }
 
+// ── Section 816: R1925 BatchInspector cc.Label cacheMode ──────────
+console.log('\n## 816. R1925 BatchInspector cc.Label cacheMode 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s816 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s816.includes('R1925') && s816.includes('patchCacheMode') && s816.includes('applyCacheMode')) {
+    log('pass', 'R1925-batch-label-cachemode', 'BatchInspector cc.Label cacheMode 일괄 설정')
+  } else {
+    log('warning', 'R1925-batch-label-cachemode', 'BatchInspector cc.Label cacheMode 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

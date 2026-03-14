@@ -4100,6 +4100,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1925: 공통 cc.Label cacheMode 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyCacheMode = async (cacheMode: number) => {
+          if (!sceneFile.root) return
+          function patchCacheMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCacheMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, cacheMode, _cacheMode: cacheMode, _N$cacheMode: cacheMode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchCacheMode(sceneFile.root))
+          const names = ['None', 'Bitmap', 'Char']
+          setBatchMsg(`✓ Label cacheMode=${names[cacheMode] ?? cacheMode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblCache</span>
+            {([['None',0],['Bitmap',1],['Char',2]] as [string,number][]).map(([l,v]) => (
+              <span key={v} title={`cacheMode = ${l}`}
+                onClick={() => applyCacheMode(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1888: 공통 cc.RichText maxWidth 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichMaxW = async (w: number) => {
