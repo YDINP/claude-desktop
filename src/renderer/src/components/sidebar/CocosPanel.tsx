@@ -15122,6 +15122,167 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2229: 공통 cc.Slider _direction 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Slider') && (() => {
+        const applySliderDir3 = async (direction: number) => {
+          if (!sceneFile.root) return
+          function patchSliderDir3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSliderDir3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Slider'
+              ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchSliderDir3(sceneFile.root))
+          setBatchMsg(`✓ Slider _direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>SldrDir3</span>
+            <span onClick={() => applySliderDir3(0)} title="_direction=Horizontal"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>H→</span>
+            <span onClick={() => applySliderDir3(1)} title="_direction=Vertical"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>V↓</span>
+          </div>
+        )
+      })()}
+      {/* R2229: 공통 cc.Slider _interactable 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Slider') && (() => {
+        const applySliderInteract3 = async (interactable: boolean) => {
+          if (!sceneFile.root) return
+          function patchSliderInteract3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSliderInteract3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Slider'
+              ? { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSliderInteract3(sceneFile.root) })
+          setBatchMsg(`✓ Slider _interactable=${interactable} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>SldrInt3</span>
+            <span onClick={() => applySliderInteract3(true)} title="Slider _interactable ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>int✓</span>
+            <span onClick={() => applySliderInteract3(false)} title="Slider _interactable OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#f85149', userSelect: 'none' }}>int✗</span>
+          </div>
+        )
+      })()}
+      {/* R2230: 공통 cc.EditBox _returnType 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.EditBox') && (() => {
+        const applyEditRetType3 = async (returnType: number) => {
+          if (!sceneFile.root) return
+          function patchEditRetType3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEditRetType3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.EditBox'
+              ? { ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchEditRetType3(sceneFile.root) })
+          const names = ['Dflt', 'Done', 'Send', 'Srch', 'Go', 'Next']
+          setBatchMsg(`✓ EditBox _returnType=${names[returnType] ?? returnType} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>EBret3</span>
+            {([['Dflt', 0], ['Done', 1], ['Send', 2], ['Go', 4]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applyEditRetType3(v)} title={`_returnType=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2230: 공통 cc.Animation _playOnLoad 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.Animation') && (() => {
+        const applyAnimPOL3 = async (playOnLoad: boolean) => {
+          if (!sceneFile.root) return
+          function patchAnimPOL3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchAnimPOL3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Animation'
+              ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchAnimPOL3(sceneFile.root) })
+          setBatchMsg(`✓ Animation _playOnLoad=${playOnLoad} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fbbf24', width: 48, flexShrink: 0 }}>AnimPOL3</span>
+            <span onClick={() => applyAnimPOL3(true)} title="Animation _playOnLoad ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: '#fbbf24', userSelect: 'none' }}>pol✓</span>
+            <span onClick={() => applyAnimPOL3(false)} title="Animation _playOnLoad OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>pol✗</span>
+          </div>
+        )
+      })()}
+      {/* R2231: 공통 cc.TiledLayer _opacity 일괄 설정 (CC3.x) */}
+      {commonCompTypes.includes('cc.TiledLayer') && (() => {
+        const applyTiledLayerOpa3 = async (opacity: number) => {
+          if (!sceneFile.root) return
+          function patchTiledLayerOpa3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchTiledLayerOpa3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.TiledLayer'
+              ? { ...c, props: { ...c.props, opacity, _opacity: opacity } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchTiledLayerOpa3(sceneFile.root) })
+          setBatchMsg(`✓ TiledLayer _opacity=${opacity} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>TLOpa3</span>
+            {[0, 0.25, 0.5, 0.75, 1].map(v => (
+              <span key={v} onClick={() => applyTiledLayerOpa3(v)} title={`_opacity=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2231: 공통 cc.RigidBody _type 일괄 설정 (CC3.x) */}
+      {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
+        const applyRBType3 = async (type: number) => {
+          if (!sceneFile.root) return
+          function patchRBType3(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRBType3)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D')
+              ? { ...c, props: { ...c.props, type, _type: type } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchRBType3(sceneFile.root))
+          setBatchMsg(`✓ RigidBody _type=${['Dynamic','Static','Kinematic'][type] ?? type} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>RBtype3</span>
+            {(['Dyn', 'Sta', 'Kin'] as const).map((l, v) => (
+              <span key={v} title={`RigidBody _type=${['Dynamic','Static','Kinematic'][v]}`}
+                onClick={() => applyRBType3(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2228: 공통 cc.Toggle _interactable 일괄 설정 (CC3.x) */}
       {commonCompTypes.includes('cc.Toggle') && (() => {
         const applyToggleInteract3 = async (interactable: boolean) => {

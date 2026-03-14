@@ -24143,6 +24143,60 @@ if (s1184.includes('R2225') && s1184.includes('applySpriteTrimMode') && s1184.in
   log('warning', 'R2225-batch-sprite-isTrimmedMode', 'BatchInspector cc.Sprite _isTrimmedMode 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
+console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
+const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1191.includes('R2229') && s1191.includes('applySliderDir3') && s1191.includes('SldrDir3')) {
+  log('pass', 'R2229-batch-slider-direction-cc3x', 'BatchInspector cc.Slider _direction (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2229-batch-slider-direction-cc3x', 'BatchInspector cc.Slider _direction (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1192: R2229 BatchInspector cc.Slider _interactable (CC3.x) ──────────
+console.log('\n## 1192. R2229 BatchInspector cc.Slider _interactable 체크')
+const s1192 = s1191
+if (s1192.includes('R2229') && s1192.includes('applySliderInteract3') && s1192.includes('SldrInt3')) {
+  log('pass', 'R2229-batch-slider-interactable-cc3x', 'BatchInspector cc.Slider _interactable (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2229-batch-slider-interactable-cc3x', 'BatchInspector cc.Slider _interactable (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1193: R2230 BatchInspector cc.EditBox _returnType (CC3.x) ──────────
+console.log('\n## 1193. R2230 BatchInspector cc.EditBox _returnType 체크')
+const s1193 = s1192
+if (s1193.includes('R2230') && s1193.includes('applyEditRetType3') && s1193.includes('EBret3')) {
+  log('pass', 'R2230-batch-editbox-returntype-cc3x', 'BatchInspector cc.EditBox _returnType (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2230-batch-editbox-returntype-cc3x', 'BatchInspector cc.EditBox _returnType (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1194: R2230 BatchInspector cc.Animation _playOnLoad (CC3.x) ──────────
+console.log('\n## 1194. R2230 BatchInspector cc.Animation _playOnLoad 체크')
+const s1194 = s1193
+if (s1194.includes('R2230') && s1194.includes('applyAnimPOL3') && s1194.includes('AnimPOL3')) {
+  log('pass', 'R2230-batch-animation-playonload-cc3x', 'BatchInspector cc.Animation _playOnLoad (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2230-batch-animation-playonload-cc3x', 'BatchInspector cc.Animation _playOnLoad (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1195: R2231 BatchInspector cc.TiledLayer _opacity (CC3.x) ──────────
+console.log('\n## 1195. R2231 BatchInspector cc.TiledLayer _opacity 체크')
+const s1195 = s1194
+if (s1195.includes('R2231') && s1195.includes('applyTiledLayerOpa3') && s1195.includes('TLOpa3')) {
+  log('pass', 'R2231-batch-tiledlayer-opacity-cc3x', 'BatchInspector cc.TiledLayer _opacity (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2231-batch-tiledlayer-opacity-cc3x', 'BatchInspector cc.TiledLayer _opacity (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1196: R2231 BatchInspector cc.RigidBody _type (CC3.x) ──────────
+console.log('\n## 1196. R2231 BatchInspector cc.RigidBody _type 체크')
+const s1196 = s1195
+if (s1196.includes('R2231') && s1196.includes('applyRBType3') && s1196.includes('RBtype3')) {
+  log('pass', 'R2231-batch-rigidbody-type-cc3x', 'BatchInspector cc.RigidBody _type (CC3.x) 일괄 설정')
+} else {
+  log('warning', 'R2231-batch-rigidbody-type-cc3x', 'BatchInspector cc.RigidBody _type (CC3.x) 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1189: R2228 BatchInspector cc.Toggle _interactable (CC3.x) ──────────
 console.log('\n## 1189. R2228 BatchInspector cc.Toggle _interactable 체크')
 const s1189 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
