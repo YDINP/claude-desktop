@@ -1519,7 +1519,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   <text
                     x={rectX + 3 / view.zoom}
                     y={rectY + labelFontSize / view.zoom}
-                    fontSize={labelFontSize / view.zoom}  {/* R1697 */}
+                    fontSize={labelFontSize / view.zoom}
                     fill={isSelected ? '#58a6ff' : '#ccc'}
                     style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
                     onDoubleClick={e => { e.stopPropagation(); setEditingUuid(node.uuid); setTimeout(() => editInputRef.current?.focus(), 30) }}
