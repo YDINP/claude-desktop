@@ -3721,6 +3721,10 @@ function CCFileBatchInspector({
   const [batchAnchor, setBatchAnchor] = useState<{ x: number; y: number } | null>(null)
   // R1750: 레이어 일괄 설정
   const [batchLayer, setBatchLayer] = useState<string>('')
+  // R1778: Regex 교체
+  const [batchRegexPat, setBatchRegexPat] = useState<string>('')
+  const [batchRegexRepl, setBatchRegexRepl] = useState<string>('')
+  const [batchRegexErr, setBatchRegexErr] = useState<boolean>(false)
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -4343,6 +4347,7 @@ function CCFileBatchInspector({
             setBatchOpacity(''); setBatchActive(''); setBatchDx(''); setBatchDy('')
             setBatchScaleX(''); setBatchScaleY(''); setBatchSizeW(''); setBatchSizeH('')
             setBatchColor(''); setBatchRot(''); setBatchLayer(''); setBatchNamePrefix(''); setBatchNameSuffix('')
+              setBatchRegexPat(''); setBatchRegexRepl(''); setBatchRegexErr(false)
           }}
           style={{ fontSize: 9, padding: '3px 8px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
         >↺ 초기화</button>
@@ -4351,6 +4356,36 @@ function CCFileBatchInspector({
           style={{ fontSize: 10, padding: '3px 8px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
         >선택 해제</button>
         {batchMsg && <span style={{ fontSize: 9, color: batchMsg.startsWith('✓') ? '#4ade80' : '#f85149' }}>{batchMsg}</span>}
+      </div>
+      {/* R1778: 이름 정규식 교체 */}
+      <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>이름 Regex 교체</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>패턴</span>
+          <input value={batchRegexPat} onChange={e => setBatchRegexPat(e.target.value)} placeholder="/pattern/" style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: `1px solid ${batchRegexErr ? '#f87171' : 'var(--border)'}`, color: 'var(--text-primary)', borderRadius: 3 }} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>교체</span>
+          <input value={batchRegexRepl} onChange={e => setBatchRegexRepl(e.target.value)} placeholder="교체 문자열" style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+        </div>
+        <button
+          title="선택 노드 이름에 정규식 교체 적용"
+          onClick={async () => {
+            if (!sceneFile.root || !batchRegexPat) return
+            let re: RegExp
+            try { re = new RegExp(batchRegexPat, 'g'); setBatchRegexErr(false) } catch { setBatchRegexErr(true); setBatchMsg('✗ 잘못된 정규식'); setTimeout(() => setBatchMsg(null), 2000); return }
+            function applyRegex(n: CCSceneNode): CCSceneNode {
+              const children = n.children.map(applyRegex)
+              if (!uuidSet.has(n.uuid)) return { ...n, children }
+              return { ...n, name: n.name.replace(re, batchRegexRepl), children }
+            }
+            const result = await saveScene(applyRegex(sceneFile.root))
+            setBatchMsg(result.success ? `✓ Regex 교체 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+            setTimeout(() => setBatchMsg(null), 2000)
+          }}
+          disabled={!batchRegexPat}
+          style={{ fontSize: 9, padding: '2px 8px', background: batchRegexPat ? 'rgba(167,139,250,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchRegexPat ? '#a78bfa' : 'var(--text-muted)', cursor: batchRegexPat ? 'pointer' : 'default' }}
+        >Regex 적용 ({uuids.length}개)</button>
       </div>
       {/* R1730: 이름 Prefix/Suffix 일괄 추가 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>

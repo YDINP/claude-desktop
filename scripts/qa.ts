@@ -19259,6 +19259,18 @@ console.log('\n## 668. R1777 BatchInspector 이름 prefix/suffix 제거 체크')
   }
 }
 
+// ── Section 669: R1778 BatchInspector 이름 Regex 교체 ────────────────────────
+console.log('\n## 669. R1778 BatchInspector 이름 Regex 교체 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s669 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s669.includes('R1778') && s669.includes('applyRegex') && s669.includes('batchRegexPat')) {
+    log('pass', 'R1778-regex-replace', 'BatchInspector 이름 Regex 교체')
+  } else {
+    log('warning', 'R1778-regex-replace', 'BatchInspector 이름 Regex 교체 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
