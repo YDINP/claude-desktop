@@ -5701,6 +5701,33 @@ function CCFileNodeInspector({
               const ratio = draft.size.y !== 0 ? v / draft.size.y : 1
               applyAndSave({ size: lockSize ? { x: draft.size.x * ratio, y: v } : { ...draft.size, y: v } })
             })}
+            {/* R1741: 크기 스텝 버튼 */}
+            <div style={{ display: 'flex', gap: 2, marginTop: 2, flexWrap: 'wrap' }}>
+              {([-10, -1, 1, 10] as const).map(d => (
+                <span key={`sw${d}`} title={`W ${d > 0 ? '+' : ''}${d}`}
+                  onClick={() => {
+                    const nw = draft.size.x + d
+                    const ratio = draft.size.x !== 0 ? nw / draft.size.x : 1
+                    applyAndSave({ size: lockSize ? { x: nw, y: draft.size.y * ratio } : { ...draft.size, x: nw } })
+                  }}
+                  style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none', whiteSpace: 'nowrap' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                >W{d > 0 ? '+' : ''}{d}</span>
+              ))}
+              {([-10, -1, 1, 10] as const).map(d => (
+                <span key={`sh${d}`} title={`H ${d > 0 ? '+' : ''}${d}`}
+                  onClick={() => {
+                    const nh = draft.size.y + d
+                    const ratio = draft.size.y !== 0 ? nh / draft.size.y : 1
+                    applyAndSave({ size: lockSize ? { x: draft.size.x * ratio, y: nh } : { ...draft.size, y: nh } })
+                  }}
+                  style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none', whiteSpace: 'nowrap' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                >H{d > 0 ? '+' : ''}{d}</span>
+              ))}
+            </div>
             {/* R1670: 크기 % 표시 */}
             {showPct && zOrderInfo?.parentSize && (() => {
               const pw = zOrderInfo.parentSize!.x, ph = zOrderInfo.parentSize!.y

@@ -18815,6 +18815,18 @@ console.log('\n## 631. R1740 cc.ScrollView content 크기 퀵 편집 체크')
   }
 }
 
+// ── Section 632: R1741 Inspector 크기 스텝 버튼 ──────────────────────────────
+console.log('\n## 632. R1741 Inspector 크기 스텝 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s632 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s632.includes('R1741') && s632.includes('크기 스텝 버튼') && s632.includes('draft.size.x + d') && s632.includes('draft.size.y + d')) {
+    log('pass', 'R1741-size-step', 'Inspector 크기 스텝 버튼')
+  } else {
+    log('warning', 'R1741-size-step', 'Inspector 크기 스텝 버튼 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
