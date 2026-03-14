@@ -395,6 +395,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         for (const svgY of [0, cy, effectiveH]) {
           if ([dTop, dCY, dBot].some(dp => Math.abs(dp - svgY) < ALIGN_SNAP_THRESHOLD)) guides.push({ type: 'H', pos: svgY })
         }
+        // R1669: 부모 노드 경계 정렬 가이드
+        if (draggedFn.parentUuid) {
+          const parentFn = flatNodes.find(fn => fn.node.uuid === draggedFn.parentUuid)
+          if (parentFn) {
+            const pp = { x: cx + parentFn.worldX, y: cy - parentFn.worldY }
+            const pw = parentFn.node.size?.x ?? 0, ph = parentFn.node.size?.y ?? 0
+            const pax = parentFn.node.anchor?.x ?? 0.5, pay = parentFn.node.anchor?.y ?? 0.5
+            const pLeft = pp.x - pw * pax, pRight = pp.x + pw * (1 - pax)
+            const pTop = pp.y - ph * (1 - pay), pBot = pp.y + ph * pay
+            for (const svgX of [pLeft, pp.x, pRight]) {
+              if ([dLeft, dCX, dRight].some(dp => Math.abs(dp - svgX) < ALIGN_SNAP_THRESHOLD * 1.5)) guides.push({ type: 'V', pos: svgX, label: '부모' })
+            }
+            for (const svgY of [pTop, pp.y, pBot]) {
+              if ([dTop, dCY, dBot].some(dp => Math.abs(dp - svgY) < ALIGN_SNAP_THRESHOLD * 1.5)) guides.push({ type: 'H', pos: svgY, label: '부모' })
+            }
+          }
+        }
         setAlignGuides(guides)
       }
       return

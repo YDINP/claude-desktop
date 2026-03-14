@@ -17951,6 +17951,18 @@ console.log('\n## 559. R1668 유사 노드 섹션 체크')
   }
 }
 
+// ── Section 560: R1669 부모 경계 정렬 가이드 ──────────────────────
+console.log('\n## 560. R1669 부모 경계 정렬 가이드 체크')
+{
+  const svpFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s560 = existsSync(svpFile) ? readFileSync(svpFile, 'utf8') : ''
+  if (s560.includes('R1669') && s560.includes('parentFn') && s560.includes('부모')) {
+    log('pass', 'R1669-parent-snap', 'SceneView 드래그 부모 경계 정렬 가이드')
+  } else {
+    log('warning', 'R1669-parent-snap', 'SceneView 드래그 부모 경계 정렬 가이드 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
