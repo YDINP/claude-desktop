@@ -9511,7 +9511,7 @@ function CCFileBatchInspector({
           function patchDB(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchDB)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, timeScale } } : c)
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchDB(sceneFile.root))
@@ -9537,7 +9537,7 @@ function CCFileBatchInspector({
           function patchDBPlayOnLoad(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchDBPlayOnLoad)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, playOnLoad } } : c)
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad, _N$playOnLoad: playOnLoad } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchDBPlayOnLoad(sceneFile.root) })
@@ -9589,7 +9589,7 @@ function CCFileBatchInspector({
           function patchDBLoop(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchDBLoop)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, loop } } : c)
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchDBLoop(sceneFile.root)
@@ -9614,7 +9614,7 @@ function CCFileBatchInspector({
           function patchDBDebugBones(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchDBDebugBones)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, debugBones } } : c)
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchDBDebugBones(sceneFile.root) })
@@ -9687,7 +9687,7 @@ function CCFileBatchInspector({
           function patchSpine(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSpine)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, timeScale } } : c)
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchSpine(sceneFile.root))
@@ -9713,7 +9713,7 @@ function CCFileBatchInspector({
           function patchSpineLoop(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSpineLoop)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, loop } } : c)
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpineLoop(sceneFile.root) })
@@ -9764,7 +9764,7 @@ function CCFileBatchInspector({
           function patchSpinePremult(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSpinePremult)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, premultipliedAlpha } } : c)
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, premultipliedAlpha, _premultipliedAlpha: premultipliedAlpha, _N$premultipliedAlpha: premultipliedAlpha } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchSpinePremult(sceneFile.root)
@@ -9789,7 +9789,7 @@ function CCFileBatchInspector({
           function patchSpinePaused(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSpinePaused)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, paused } } : c)
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, paused, _paused: paused, _N$paused: paused } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpinePaused(sceneFile.root) })
@@ -9812,7 +9812,7 @@ function CCFileBatchInspector({
           function patchSpineDebugBones(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSpineDebugBones)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, debugBones } } : c)
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpineDebugBones(sceneFile.root) })
@@ -9835,7 +9835,7 @@ function CCFileBatchInspector({
           function patchSpineDebugSlots(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSpineDebugSlots)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, debugSlots } } : c)
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, debugSlots, _debugSlots: debugSlots, _N$debugSlots: debugSlots } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpineDebugSlots(sceneFile.root) })
@@ -9858,7 +9858,7 @@ function CCFileBatchInspector({
           function patchSpineUseTint(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSpineUseTint)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, useTint } } : c)
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, useTint, _useTint: useTint, _N$useTint: useTint } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpineUseTint(sceneFile.root) })
@@ -9933,7 +9933,7 @@ function CCFileBatchInspector({
           function patchSpineEnableBatch(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSpineEnableBatch)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, enableBatch } } : c)
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, enableBatch, _enableBatch: enableBatch, _N$enableBatch: enableBatch } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpineEnableBatch(sceneFile.root) })
@@ -11496,7 +11496,7 @@ function CCFileBatchInspector({
           function patchTiledLayerVisible(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchTiledLayerVisible)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.TiledLayer' ? { ...c, props: { ...c.props, visible } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.TiledLayer' ? { ...c, props: { ...c.props, visible, _visible: visible, _N$visible: visible } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchTiledLayerVisible(sceneFile.root) })
@@ -11730,7 +11730,7 @@ function CCFileBatchInspector({
           function patchSkelPOL(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSkelPOL)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, playOnLoad } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchSkelPOL(sceneFile.root))
@@ -11803,7 +11803,7 @@ function CCFileBatchInspector({
           function patchSkeletalLoop(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSkeletalLoop)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, loop } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, loop, _loop: loop } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchSkeletalLoop(sceneFile.root)
@@ -12122,7 +12122,7 @@ function CCFileBatchInspector({
           function patchAudioVol(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchAudioVol)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, volume } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchAudioVol(sceneFile.root))
@@ -12174,7 +12174,7 @@ function CCFileBatchInspector({
           function patchAudioPreload(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchAudioPreload)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, preload } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, preload, _preload: preload, _N$preload: preload } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchAudioPreload(sceneFile.root))
@@ -12200,7 +12200,7 @@ function CCFileBatchInspector({
           function patchAudioStart(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchAudioStart)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, startTime } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchAudioStart(sceneFile.root)
@@ -12227,7 +12227,7 @@ function CCFileBatchInspector({
           function patchAudioEnd(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchAudioEnd)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, endTime } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, endTime, _endTime: endTime, _N$endTime: endTime } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchAudioEnd(sceneFile.root) })
@@ -13115,7 +13115,7 @@ function CCFileBatchInspector({
           function patchLayoutResize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchLayoutResize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, resizeMode } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLayoutResize(sceneFile.root) })
@@ -13397,7 +13397,7 @@ function CCFileBatchInspector({
           function patchWidgetIsAlignVCenter(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchWidgetIsAlignVCenter)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignVerticalCenter } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignVerticalCenter, _isAlignVerticalCenter: isAlignVerticalCenter, _N$isAlignVerticalCenter: isAlignVerticalCenter } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchWidgetIsAlignVCenter(sceneFile.root) })
@@ -13420,7 +13420,7 @@ function CCFileBatchInspector({
           function patchWidgetIsAlignHCenter(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchWidgetIsAlignHCenter)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignHorizontalCenter } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignHorizontalCenter, _isAlignHorizontalCenter: isAlignHorizontalCenter, _N$isAlignHorizontalCenter: isAlignHorizontalCenter } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchWidgetIsAlignHCenter(sceneFile.root) })
@@ -13588,7 +13588,7 @@ function CCFileBatchInspector({
           function patchRBType(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBType)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, type } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, type, _type: type, _N$type: type } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBType(sceneFile.root))
@@ -13615,7 +13615,7 @@ function CCFileBatchInspector({
           function patchRBMass(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBMass)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, mass } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, mass, _mass: mass, _N$mass: mass } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBMass(sceneFile.root))
@@ -13667,7 +13667,7 @@ function CCFileBatchInspector({
           function patchRBFixRot(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBFixRot)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, fixedRotation } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation, _N$fixedRotation: fixedRotation } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBFixRot(sceneFile.root))
@@ -13689,7 +13689,7 @@ function CCFileBatchInspector({
           function patchRBDamp(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBDamp)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearDamping } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene(patchRBDamp(sceneFile.root))
@@ -13721,7 +13721,7 @@ function CCFileBatchInspector({
           function patchAngularDamp(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchAngularDamp)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularDamping } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchAngularDamp(sceneFile.root) })
@@ -13745,7 +13745,7 @@ function CCFileBatchInspector({
           function patchRBBullet(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBBullet)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, bullet } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, bullet, _bullet: bullet, _N$bullet: bullet } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBBullet(sceneFile.root) })
@@ -13771,7 +13771,7 @@ function CCFileBatchInspector({
           function patchRBSleep(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBSleep)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, allowSleep } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, allowSleep, _allowSleep: allowSleep, _N$allowSleep: allowSleep } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBSleep(sceneFile.root) })
@@ -13879,7 +13879,7 @@ function CCFileBatchInspector({
           function patchRBAngDamp(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBAngDamp)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularDamping } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBAngDamp(sceneFile.root) })
@@ -13904,7 +13904,7 @@ function CCFileBatchInspector({
           function patchRBLinearDamp(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBLinearDamp)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearDamping } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRBLinearDamp(sceneFile.root) })
@@ -13955,7 +13955,7 @@ function CCFileBatchInspector({
           function patchRBContactListener(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBContactListener)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, enabledContactListener } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, enabledContactListener, _enabledContactListener: enabledContactListener, _N$enabledContactListener: enabledContactListener } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBContactListener(sceneFile.root)
@@ -13980,7 +13980,7 @@ function CCFileBatchInspector({
           function patchRBAwake(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBAwake)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, awake } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, awake, _awake: awake, _N$awake: awake } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBAwake(sceneFile.root)
@@ -14005,7 +14005,7 @@ function CCFileBatchInspector({
           function patchRBSleepThresh(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRBSleepThresh)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, sleepThreshold } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, sleepThreshold, _sleepThreshold: sleepThreshold, _N$sleepThreshold: sleepThreshold } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchRBSleepThresh(sceneFile.root)
@@ -14569,7 +14569,7 @@ function CCFileBatchInspector({
           function patchPBTotalLength(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPBTotalLength)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, totalLength } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPBTotalLength(sceneFile.root) })
@@ -14594,7 +14594,7 @@ function CCFileBatchInspector({
           function patchPBProgress(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPBProgress)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, progress } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPBProgress(sceneFile.root) })
@@ -14618,7 +14618,7 @@ function CCFileBatchInspector({
           function patchPBReverse(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchPBReverse)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, reverse } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchPBReverse(sceneFile.root) })
@@ -14728,7 +14728,7 @@ function CCFileBatchInspector({
           function patchSprGray(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSprGray)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, grayscale } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, grayscale, _grayscale: grayscale, _N$grayscale: grayscale } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSprGray(sceneFile.root) })

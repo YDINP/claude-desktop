@@ -25277,6 +25277,90 @@ if (
   log('warning', 'R2300-batch-direction-misc-cc3x', 'BatchInspector direction/keepAspectRatio/stroke/fade CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1305: R2301 BatchInspector dragonBones/sp.Skeleton timeScale/debugBones/premultipliedAlpha/paused/debugSlots/useTint/enableBatch _* ──────────
+console.log('\n## 1305. R2301 dragonBones/sp.Skeleton timeScale 등 CC3.x 체크')
+const s1305 = s1304
+if (
+  s1305.includes('timeScale, _timeScale: timeScale, _N$timeScale: timeScale } } : c)') &&
+  s1305.includes('debugBones, _debugBones: debugBones, _N$debugBones: debugBones } } : c)') &&
+  s1305.includes("'sp.Skeleton' ? { ...c, props: { ...c.props, premultipliedAlpha, _premultipliedAlpha: premultipliedAlpha, _N$premultipliedAlpha: premultipliedAlpha } } : c)") &&
+  s1305.includes("'sp.Skeleton' ? { ...c, props: { ...c.props, paused, _paused: paused, _N$paused: paused } } : c)") &&
+  s1305.includes('debugSlots, _debugSlots: debugSlots, _N$debugSlots: debugSlots } } : c)') &&
+  s1305.includes('useTint, _useTint: useTint, _N$useTint: useTint } } : c)') &&
+  s1305.includes('enableBatch, _enableBatch: enableBatch, _N$enableBatch: enableBatch } } : c)')
+) {
+  log('pass', 'R2301-batch-skeleton-props-cc3x', 'BatchInspector dragonBones/sp.Skeleton timeScale/debugBones/premultipliedAlpha/paused/debugSlots/useTint/enableBatch _* 갭 수정')
+} else {
+  log('warning', 'R2301-batch-skeleton-props-cc3x', 'BatchInspector dragonBones/sp.Skeleton 속성 CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1306: R2302 BatchInspector dragonBones/sp.Skeleton/SkeletalAnimation playOnLoad/loop + TiledLayer visible _* ──────────
+console.log('\n## 1306. R2302 BatchInspector playOnLoad/loop/visible CC3.x 체크')
+const s1306 = s1305
+if (
+  s1306.includes("'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad, _N$playOnLoad: playOnLoad } } : c)") &&
+  s1306.includes("'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } } : c)") &&
+  s1306.includes("'sp.Skeleton' ? { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } } : c)") &&
+  s1306.includes("'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } } : c)") &&
+  s1306.includes("'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, loop, _loop: loop } } : c)") &&
+  s1306.includes('visible, _visible: visible, _N$visible: visible } } : c)')
+) {
+  log('pass', 'R2302-batch-playonload-loop-visible-cc3x', 'BatchInspector dragonBones/sp.Skeleton/SkeletalAnimation playOnLoad/loop + TiledLayer visible _* 갭 수정')
+} else {
+  log('warning', 'R2302-batch-playonload-loop-visible-cc3x', 'BatchInspector playOnLoad/loop/visible CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1307: R2303 BatchInspector AudioSource/Layout/Widget _* ──────────
+console.log('\n## 1307. R2303 BatchInspector AudioSource/Layout/Widget CC3.x 체크')
+const s1307 = s1306
+if (
+  s1307.includes('volume, _volume: volume, _N$volume: volume } } : c)') &&
+  s1307.includes('preload, _preload: preload, _N$preload: preload } } : c)') &&
+  s1307.includes('startTime, _startTime: startTime, _N$startTime: startTime } } : c)') &&
+  s1307.includes('endTime, _endTime: endTime, _N$endTime: endTime } } : c)') &&
+  s1307.includes('resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } } : c)') &&
+  s1307.includes('isAlignVerticalCenter, _isAlignVerticalCenter: isAlignVerticalCenter, _N$isAlignVerticalCenter: isAlignVerticalCenter } } : c)') &&
+  s1307.includes('isAlignHorizontalCenter, _isAlignHorizontalCenter: isAlignHorizontalCenter, _N$isAlignHorizontalCenter: isAlignHorizontalCenter } } : c)')
+) {
+  log('pass', 'R2303-batch-audio-layout-widget-cc3x', 'BatchInspector AudioSource volume/preload/startTime/endTime + Layout resizeMode + Widget isAlignVerticalCenter/isAlignHorizontalCenter _* 갭 수정')
+} else {
+  log('warning', 'R2303-batch-audio-layout-widget-cc3x', 'BatchInspector AudioSource/Layout/Widget CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1308: R2304 BatchInspector RigidBody type/mass/fixedRotation/linearDamping/angularDamping/bullet/allowSleep/enabledContactListener/awake/sleepThreshold _* ──────────
+console.log('\n## 1308. R2304 BatchInspector RigidBody 물리속성 CC3.x 체크')
+const s1308 = s1307
+if (
+  s1308.includes("'cc.RigidBody2D') ? { ...c, props: { ...c.props, type, _type: type, _N$type: type } } : c)") &&
+  s1308.includes("'cc.RigidBody2D') ? { ...c, props: { ...c.props, mass, _mass: mass, _N$mass: mass } } : c)") &&
+  s1308.includes('fixedRotation, _fixedRotation: fixedRotation, _N$fixedRotation: fixedRotation } } : c)') &&
+  s1308.includes('linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } } : c)') &&
+  s1308.includes('angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } } : c)') &&
+  s1308.includes('bullet, _bullet: bullet, _N$bullet: bullet } } : c)') &&
+  s1308.includes('allowSleep, _allowSleep: allowSleep, _N$allowSleep: allowSleep } } : c)') &&
+  s1308.includes('enabledContactListener, _enabledContactListener: enabledContactListener, _N$enabledContactListener: enabledContactListener } } : c)') &&
+  s1308.includes('awake, _awake: awake, _N$awake: awake } } : c)') &&
+  s1308.includes('sleepThreshold, _sleepThreshold: sleepThreshold, _N$sleepThreshold: sleepThreshold } } : c)')
+) {
+  log('pass', 'R2304-batch-rigidbody-props-cc3x', 'BatchInspector RigidBody type/mass/fixedRotation/linearDamping/angularDamping/bullet/allowSleep/enabledContactListener/awake/sleepThreshold _* 갭 수정')
+} else {
+  log('warning', 'R2304-batch-rigidbody-props-cc3x', 'BatchInspector RigidBody 물리속성 CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1309: R2305 BatchInspector ProgressBar/Sprite totalLength/progress/reverse/grayscale _* ──────────
+console.log('\n## 1309. R2305 BatchInspector ProgressBar/Sprite CC3.x 체크')
+const s1309 = s1308
+if (
+  s1309.includes('totalLength, _totalLength: totalLength, _N$totalLength: totalLength } } : c)') &&
+  s1309.includes("'cc.ProgressBar' ? { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } } : c)") &&
+  s1309.includes('reverse, _reverse: reverse, _N$reverse: reverse } } : c)') &&
+  s1309.includes('grayscale, _grayscale: grayscale, _N$grayscale: grayscale } } : c)')
+) {
+  log('pass', 'R2305-batch-progressbar-sprite-cc3x', 'BatchInspector ProgressBar totalLength/progress/reverse + Sprite grayscale _* 갭 수정')
+} else {
+  log('warning', 'R2305-batch-progressbar-sprite-cc3x', 'BatchInspector ProgressBar/Sprite CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
