@@ -3911,6 +3911,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2083: 공통 cc.CircleCollider sensor 일괄 설정 */}
+      {commonCompTypes.includes('cc.CircleCollider') && (() => {
+        const applyCircleSensor = async (sensor: boolean) => {
+          if (!sceneFile.root) return
+          function patchCircleSensor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCircleSensor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, sensor } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCircleSensor(sceneFile.root) })
+          setBatchMsg(`✓ CircleCollider sensor=${sensor} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>CirSens</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`sensor = ${v}`}
+                onClick={() => applyCircleSensor(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f87171', userSelect: 'none' }}
+              >{v ? 'sns✓' : 'sns✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2082: 공통 cc.BoxCollider sensor 일괄 설정 */}
       {commonCompTypes.includes('cc.BoxCollider') && (() => {
         const applyBoxSensor = async (sensor: boolean) => {

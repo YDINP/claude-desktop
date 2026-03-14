@@ -22922,6 +22922,18 @@ console.log('\n## 973. R2082 BatchInspector cc.BoxCollider sensor 체크')
   }
 }
 
+// ── Section 974: R2083 BatchInspector cc.CircleCollider sensor ──────────
+console.log('\n## 974. R2083 BatchInspector cc.CircleCollider sensor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s974 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s974.includes('R2083') && s974.includes('patchCircleSensor') && s974.includes('applyCircleSensor')) {
+    log('pass', 'R2083-batch-circle-sensor', 'BatchInspector cc.CircleCollider sensor 일괄 설정')
+  } else {
+    log('warning', 'R2083-batch-circle-sensor', 'BatchInspector cc.CircleCollider sensor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
