@@ -24467,6 +24467,60 @@ if (s1232.includes('_resizeWithBrowserSize: resizeWithBrowserSize') && s1232.inc
   log('warning', 'R2249-batch-canvas-resizewithbrowsersize-cc3x', 'BatchInspector cc.Canvas _resizeWithBrowserSize CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1233: R2250 BatchInspector cc.Button _normalColor (CC3.x) ──────────
+console.log('\n## 1233. R2250 BatchInspector cc.Button _normalColor CC3.x 체크')
+const s1233 = s1232
+if (s1233.includes('_normalColor: col') && s1233.includes('patchBtnNormalColor')) {
+  log('pass', 'R2250-batch-button-normalcolor-cc3x', 'BatchInspector cc.Button _normalColor (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2250-batch-button-normalcolor-cc3x', 'BatchInspector cc.Button _normalColor CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1234: R2250 BatchInspector cc.Button _pressedColor (CC3.x) ──────────
+console.log('\n## 1234. R2250 BatchInspector cc.Button _pressedColor CC3.x 체크')
+const s1234 = s1233
+if (s1234.includes('_pressedColor: col') && s1234.includes('patchBtnPressedColor')) {
+  log('pass', 'R2250-batch-button-pressedcolor-cc3x', 'BatchInspector cc.Button _pressedColor (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2250-batch-button-pressedcolor-cc3x', 'BatchInspector cc.Button _pressedColor CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1235: R2251 BatchInspector cc.Button _disabledColor (CC3.x) ──────────
+console.log('\n## 1235. R2251 BatchInspector cc.Button _disabledColor CC3.x 체크')
+const s1235 = s1234
+if (s1235.includes('_disabledColor: col') && s1235.includes('patchBtnDisabledColor')) {
+  log('pass', 'R2251-batch-button-disabledcolor-cc3x', 'BatchInspector cc.Button _disabledColor (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2251-batch-button-disabledcolor-cc3x', 'BatchInspector cc.Button _disabledColor CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1236: R2251 BatchInspector cc.EditBox _fontSize (CC3.x) ──────────
+console.log('\n## 1236. R2251 BatchInspector cc.EditBox _fontSize CC3.x 체크')
+const s1236 = s1235
+if (s1236.includes('_fontSize: fontSize') && s1236.includes('patchEditBoxFontSize')) {
+  log('pass', 'R2251-batch-editbox-fontsize-cc3x', 'BatchInspector cc.EditBox _fontSize (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2251-batch-editbox-fontsize-cc3x', 'BatchInspector cc.EditBox _fontSize CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1237: R2252 BatchInspector cc.RichText _maxWidth (CC3.x) ──────────
+console.log('\n## 1237. R2252 BatchInspector cc.RichText _maxWidth CC3.x 체크')
+const s1237 = s1236
+if (s1237.includes('_maxWidth: w') && s1237.includes('patchRichMaxW')) {
+  log('pass', 'R2252-batch-richtext-maxwidth-cc3x', 'BatchInspector cc.RichText _maxWidth (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2252-batch-richtext-maxwidth-cc3x', 'BatchInspector cc.RichText _maxWidth CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1238: R2252 BatchInspector cc.RichText _fontSize (CC3.x) ──────────
+console.log('\n## 1238. R2252 BatchInspector cc.RichText _fontSize CC3.x 체크')
+const s1238 = s1237
+if (s1238.includes('_fontSize: fontSize') && s1238.includes('patchRichFontSize')) {
+  log('pass', 'R2252-batch-richtext-fontsize-cc3x', 'BatchInspector cc.RichText _fontSize (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2252-batch-richtext-fontsize-cc3x', 'BatchInspector cc.RichText _fontSize CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

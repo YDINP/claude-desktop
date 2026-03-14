@@ -6126,10 +6126,10 @@ function CCFileBatchInspector({
           function patchRichMaxW(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRichMaxW)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, maxWidth: w, _N$maxWidth: w } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, maxWidth: w, _maxWidth: w, _N$maxWidth: w } } : c)
             return { ...n, components: updComps, children }
           }
-          await saveScene({ ...sceneFile, root: patchRichMaxW(sceneFile.root) })
+          await saveScene({ ...sceneFile, root: patchRichMaxW(sceneFile.root) }) // R2252: _maxWidth CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -6150,10 +6150,10 @@ function CCFileBatchInspector({
           function patchRichFS(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRichFS)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, fontSize, _N$fontSize: fontSize } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } } : c)
             return { ...n, components: updComps, children }
           }
-          await saveScene({ ...sceneFile, root: patchRichFS(sceneFile.root) })
+          await saveScene({ ...sceneFile, root: patchRichFS(sceneFile.root) }) // R2252: _fontSize CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -6336,11 +6336,11 @@ function CCFileBatchInspector({
           function patchRichFontSize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchRichFontSize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, fontSize, _N$fontSize: fontSize } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchRichFontSize(sceneFile.root) })
-          setBatchMsg(`✓ RichText fontSize=${fontSize} (${uuids.length}개)`)
+          setBatchMsg(`✓ RichText fontSize=${fontSize} (${uuids.length}개)`) // R2252: _fontSize CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7106,12 +7106,12 @@ function CCFileBatchInspector({
           function patchEditBoxFontSize(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchEditBoxFontSize)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, fontSize, _N$fontSize: fontSize } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchEditBoxFontSize(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ EditBox fontSize=${fontSize} (${uuids.length}개)`)
+          setBatchMsg(`✓ EditBox fontSize=${fontSize} (${uuids.length}개)`) // R2251: _fontSize CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -7490,12 +7490,12 @@ function CCFileBatchInspector({
           function patchBtnNormalColor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBtnNormalColor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, normalColor: col, _N$normalColor: col } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, normalColor: col, _normalColor: col, _N$normalColor: col } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchBtnNormalColor(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Button normalColor (${uuids.length}개)`)
+          setBatchMsg(`✓ Button normalColor (${uuids.length}개)`) // R2250: _normalColor CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -7522,12 +7522,12 @@ function CCFileBatchInspector({
           function patchBtnPressedColor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBtnPressedColor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, pressedColor: col, _N$pressedColor: col } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, pressedColor: col, _pressedColor: col, _N$pressedColor: col } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchBtnPressedColor(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Button pressedColor (${uuids.length}개)`)
+          setBatchMsg(`✓ Button pressedColor (${uuids.length}개)`) // R2250: _pressedColor CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -7554,12 +7554,12 @@ function CCFileBatchInspector({
           function patchBtnDisabledColor(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchBtnDisabledColor)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, disabledColor: col, _N$disabledColor: col } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, disabledColor: col, _disabledColor: col, _N$disabledColor: col } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchBtnDisabledColor(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Button disabledColor (${uuids.length}개)`)
+          setBatchMsg(`✓ Button disabledColor (${uuids.length}개)`) // R2251: _disabledColor CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
