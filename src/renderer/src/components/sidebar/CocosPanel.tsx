@@ -3877,6 +3877,31 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1799: 공통 cc.Label hAlign 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label algn</span>
+          {([['L', 0], ['C', 1], ['R', 2]] as const).map(([l, v]) => (
+            <span key={v} title={`hAlign = ${l}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                function patchHAlign(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchHAlign)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, horizontalAlign: v, _N$horizontalAlign: v } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchHAlign(sceneFile.root))
+                setBatchMsg(`✓ hAlign ${l} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 9, cursor: 'pointer', padding: '1px 8px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+            >{l}</span>
+          ))}
+        </div>
+      )}
       {/* R1797: 공통 cc.Label overflow 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

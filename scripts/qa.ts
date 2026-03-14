@@ -19511,6 +19511,18 @@ console.log('\n## 689. R1798 cc.Label fontFamily 퀵 프리셋 체크')
   }
 }
 
+// ── Section 690: R1799 BatchInspector cc.Label hAlign ────────────────────────
+console.log('\n## 690. R1799 BatchInspector cc.Label hAlign 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s690 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s690.includes('R1799') && s690.includes('patchHAlign') && s690.includes('_N$horizontalAlign: v')) {
+    log('pass', 'R1799-batch-label-halign', 'BatchInspector cc.Label hAlign 일괄 설정')
+  } else {
+    log('warning', 'R1799-batch-label-halign', 'BatchInspector cc.Label hAlign 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

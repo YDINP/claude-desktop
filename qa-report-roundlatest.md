@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:03:46.203Z
+> 2026-03-14T04:04:30.692Z
 
 ## Critical
 _없음_
@@ -1728,3 +1728,4 @@ _없음_
 - cc.Layout paddingAll 퀵 프리셋 버튼
 - BatchInspector cc.Label overflow 일괄 설정
 - cc.Label fontFamily 퀵 프리셋 버튼
+- BatchInspector cc.Label hAlign 일괄 설정
