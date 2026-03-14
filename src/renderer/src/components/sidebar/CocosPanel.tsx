@@ -7500,6 +7500,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2081: 공통 cc.ParticleSystem life 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSLife = async (life: number) => {
+          if (!sceneFile.root) return
+          function patchPSLife(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSLife)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, life, _life: life, _N$life: life } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPSLife(sceneFile.root) })
+          setBatchMsg(`✓ PS life=${life} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PSlife</span>
+            {[0.5, 1, 1.5, 2, 3, 5].map(v => (
+              <span key={v} title={`life = ${v}s`}
+                onClick={() => applyPSLife(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              >{v}s</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2001: 공통 cc.ParticleSystem lifeVar 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSLifeVar = async (lifeVar: number) => {

@@ -22898,6 +22898,18 @@ console.log('\n## 971. R2080 BatchInspector cc.Layout resizeMode 체크')
   }
 }
 
+// ── Section 972: R2081 BatchInspector cc.ParticleSystem life ──────────
+console.log('\n## 972. R2081 BatchInspector cc.ParticleSystem life 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s972 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s972.includes('R2081') && s972.includes('patchPSLife') && s972.includes('applyPSLife')) {
+    log('pass', 'R2081-batch-ps-life', 'BatchInspector cc.ParticleSystem life 일괄 설정')
+  } else {
+    log('warning', 'R2081-batch-ps-life', 'BatchInspector cc.ParticleSystem life 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
