@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T00:06:30.158Z
+> 2026-03-14T01:14:33.901Z
 
 ## Critical
 _없음_
@@ -1584,3 +1584,39 @@ _없음_
 - Inspector 부모 크기에 맞추기 버튼
 - Inspector 회전 부호 반전 버튼
 - CocosPanel 씬 트리 컴포넌트 필터
+- CocosPanel 씬 트리 깊이 N까지 접기
+- Inspector 부모 기준 정렬 버튼
+- [ ] 키 형제 노드 순환 선택
+- Escape 키 부모 노드 선택
+- SceneView 솔로 모드 (선택 노드 외 흐리게)
+- Inspector 컴포넌트 씬 내 수 배지
+- Inspector 전체 하위 노드 수 배지 (⊲N)
+- Inspector 컴포넌트 배지 클릭 → 같은 타입 노드 목록 팝업
+- Inspector 잠금 토글 버튼
+- 씬 트리 검색어 하이라이트
+- 다중 선택 정렬 버튼 (align left/right/top/bottom/center)
+- Inspector pulse 미리보기 (SceneView 노드 강조)
+- 컴포넌트 필터 custom type 입력
+- 유사 노드 섹션 (공통 컴포넌트 타입 기반)
+- SceneView 드래그 부모 경계 정렬 가이드
+- Inspector 위치/크기 % 토글
+- 앵커 9-point 프리셋 그리드
+- 노드 북마크 (Ctrl+1-9 설정, 1-9 이동)
+- 컴포넌트 prop diff 표시 (변경된 prop 황색 dot)
+- SceneView snap 간격 custom 입력 (datalist)
+- cc.Widget 정렬 시각 다이어그램
+- Ctrl+Shift+C 노드 JSON 클립보드 복사
+- 비활성 조상 경고 배너
+- 최근 선택 노드 히스토리 칩
+- TreeSearch 전체 결과 수 및 더 보기
+- 컴포넌트 타입별 색상 구분
+- SceneView 선택 테두리 색상 사용자 설정
+- Inspector 위치/크기 빠른 복사 버튼
+- SceneView 드래그 ghost 원래 위치 표시
+- 씬 컴포넌트 통계 패널
+- SceneView Shift+드래그 축 제한
+- Inspector 균등 스케일 버튼 (⊟)
+- SceneView z-order 배지 (형제 순서 인덱스)
+- Ctrl+A 씬 전체 노드 다중 선택
+- 컴포넌트 일괄 접기/펴기 버튼
+- 회전 핸들 각도 표시

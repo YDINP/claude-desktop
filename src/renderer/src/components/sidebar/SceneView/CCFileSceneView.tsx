@@ -1700,6 +1700,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                         }
                       }}
                     />
+                    {/* R1690: 회전 핸들 옆 각도 표시 */}
+                    {rotateOverride?.uuid === node.uuid && (
+                      <text
+                        x={svgPos.x + 8 / view.zoom}
+                        y={rectY - 24 / view.zoom}
+                        fontSize={9 / view.zoom}
+                        fill="#ff9944"
+                        fontFamily="monospace"
+                        style={{ pointerEvents: 'none', userSelect: 'none' }}
+                      >
+                        {(((rotateOverride.angle % 360) + 360) % 360).toFixed(1)}°
+                      </text>
+                    )}
                   </>
                 )}
               </g>

@@ -18203,6 +18203,18 @@ console.log('\n## 580. R1689 컴포넌트 일괄 접기/펴기 버튼 체크')
   }
 }
 
+// ── Section 581: R1690 회전 핸들 각도 표시 ──────────────────────────────────
+console.log('\n## 581. R1690 회전 핸들 각도 표시 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s581 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s581.includes('R1690') && s581.includes('rotateOverride?.uuid === node.uuid') && s581.includes('.toFixed(1)}°')) {
+    log('pass', 'R1690-rotate-angle-label', '회전 핸들 각도 표시')
+  } else {
+    log('warning', 'R1690-rotate-angle-label', '회전 핸들 각도 표시 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
