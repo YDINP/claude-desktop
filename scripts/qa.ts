@@ -19943,6 +19943,18 @@ console.log('\n## 725. R1834 cc.ParticleSystem startColor/endColor 체크')
   }
 }
 
+// ── Section 726: R1835 BatchInspector cc.Slider progress 일괄 설정 ────────────
+console.log('\n## 726. R1835 BatchInspector cc.Slider progress 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s726 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s726.includes('R1835') && s726.includes('patchSlider') && s726.includes("c.type === 'cc.Slider'") && s726.includes('_N$progress: progress')) {
+    log('pass', 'R1835-batch-slider-progress', 'BatchInspector cc.Slider progress 일괄 설정')
+  } else {
+    log('warning', 'R1835-batch-slider-progress', 'BatchInspector cc.Slider progress 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
