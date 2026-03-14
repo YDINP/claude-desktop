@@ -20942,6 +20942,18 @@ console.log('\n## 808. R1917 BatchInspector cc.RigidBody bullet 체크')
   }
 }
 
+// ── Section 809: R1918 cc.Sprite capInsets Sliced ──────────
+console.log('\n## 809. R1918 cc.Sprite capInsets 편집 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s809 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s809.includes('R1918') && s809.includes('capInsets') && s809.includes('insetTop')) {
+    log('pass', 'R1918-sprite-capinsets', 'cc.Sprite capInsets Sliced 전용 편집')
+  } else {
+    log('warning', 'R1918-sprite-capinsets', 'cc.Sprite capInsets 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

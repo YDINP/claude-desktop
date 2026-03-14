@@ -9160,6 +9160,36 @@ function CCFileNodeInspector({
                       )
                     })}
                   </div>
+                  {/* R1918: capInsets (Sliced 타입 전용) */}
+                  {(() => {
+                    const sprType = Number(p.type ?? p._type ?? 0)
+                    if (sprType !== 1) return null
+                    const ci = p.insetTop !== undefined
+                      ? { t: Number(p.insetTop ?? 0), b: Number(p.insetBottom ?? 0), l: Number(p.insetLeft ?? 0), r: Number(p.insetRight ?? 0) }
+                      : (() => {
+                          const raw = (p.capInsets ?? p._capInsets ?? p._N$capInsets) as Record<string,number> | undefined
+                          return { t: Number(raw?.y ?? raw?.top ?? 0), b: Number(raw?.height ?? raw?.bottom ?? 0), l: Number(raw?.x ?? raw?.left ?? 0), r: Number(raw?.width ?? raw?.right ?? 0) }
+                        })()
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>inset</span>
+                        {(['t', 'b', 'l', 'r'] as const).map(side => (
+                          <label key={side} style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 9 }}>
+                            <span style={{ color: 'var(--text-muted)' }}>{side}</span>
+                            <input type="number" defaultValue={ci[side]} key={`cap-${side}-${ci[side]}`} min={0} step={1}
+                              onBlur={e => {
+                                const v = Math.max(0, parseFloat(e.target.value) || 0)
+                                const newCi = { ...ci, [side]: v }
+                                const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, insetTop: newCi.t, insetBottom: newCi.b, insetLeft: newCi.l, insetRight: newCi.r } } : c)
+                                applyAndSave({ components: updated })
+                              }}
+                              style={{ width: 34, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                            />
+                          </label>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }
