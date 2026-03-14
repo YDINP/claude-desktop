@@ -6579,6 +6579,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2169: 공통 cc.ScrollView scrollDuration 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVScrollDur = async (scrollDuration: number) => {
+          if (!sceneFile.root) return
+          function patchSVScrollDur(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVScrollDur)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, scrollDuration, _N$scrollDuration: scrollDuration } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSVScrollDur(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView scrollDuration=${scrollDuration}s (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SVsdur</span>
+            {[0, 0.1, 0.3, 0.5, 1].map(v => (
+              <span key={v} onClick={() => applySVScrollDur(v)} title={`scrollDuration=${v}s`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>{v}s</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2065: 공통 cc.ScrollView bounce 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollBounce = async (bounce: boolean) => {
@@ -10739,6 +10762,36 @@ function CCFileBatchInspector({
               <span key={v} onClick={() => applyLayoutWrap(v)} title={`wrapMode=${label}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{label}</span>
             ))}
+          </div>
+        )
+      })()}
+      {/* R2169: 공통 cc.Widget isAbs* 플래그 일괄 설정 (절대값/% 전환) */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetIsAbs = async (isAbs: boolean) => {
+          if (!sceneFile.root) return
+          function patchWidgetIsAbs(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetIsAbs)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props,
+              isAbsTop: isAbs, _N$isAbsTop: isAbs,
+              isAbsBottom: isAbs, _N$isAbsBottom: isAbs,
+              isAbsLeft: isAbs, _N$isAbsLeft: isAbs,
+              isAbsRight: isAbs, _N$isAbsRight: isAbs,
+              isAbsHorizontalCenter: isAbs, _N$isAbsHorizontalCenter: isAbs,
+              isAbsVerticalCenter: isAbs, _N$isAbsVerticalCenter: isAbs,
+            } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchWidgetIsAbs(sceneFile.root) })
+          setBatchMsg(`✓ Widget isAbs*=${isAbs} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WgtAbs</span>
+            <span onClick={() => applyWidgetIsAbs(true)} title="isAbs* 모두 true (절대px)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>px✓</span>
+            <span onClick={() => applyWidgetIsAbs(false)} title="isAbs* 모두 false (%)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>%✗</span>
           </div>
         )
       })()}

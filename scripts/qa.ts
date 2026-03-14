@@ -24023,6 +24023,24 @@ if (s1069.includes('R2168') && s1069.includes('applyPSSimSpace') && s1069.includ
   log('warning', 'R2168-batch-ps-simspace', 'BatchInspector cc.ParticleSystem simulationSpace 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1070: R2169 BatchInspector cc.ScrollView scrollDuration ──────────
+console.log('\n## 1070. R2169 BatchInspector cc.ScrollView scrollDuration 체크')
+const s1070 = s1069
+if (s1070.includes('R2169') && s1070.includes('applySVScrollDur') && s1070.includes('SVsdur')) {
+  log('pass', 'R2169-batch-sv-scrolldur', 'BatchInspector cc.ScrollView scrollDuration 일괄 설정')
+} else {
+  log('warning', 'R2169-batch-sv-scrolldur', 'BatchInspector cc.ScrollView scrollDuration 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1071: R2169 BatchInspector cc.Widget isAbs* ──────────
+console.log('\n## 1071. R2169 BatchInspector cc.Widget isAbs* 체크')
+const s1071 = s1070
+if (s1071.includes('R2169') && s1071.includes('applyWidgetIsAbs') && s1071.includes('WgtAbs')) {
+  log('pass', 'R2169-batch-widget-isabs', 'BatchInspector cc.Widget isAbs* 일괄 설정')
+} else {
+  log('warning', 'R2169-batch-widget-isabs', 'BatchInspector cc.Widget isAbs* 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
