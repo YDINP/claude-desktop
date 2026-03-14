@@ -20918,6 +20918,18 @@ console.log('\n## 806. R1915 BatchInspector cc.EditBox maxLength 체크')
   }
 }
 
+// ── Section 807: R1916 BatchInspector cc.ProgressBar reverse ──────────
+console.log('\n## 807. R1916 BatchInspector cc.ProgressBar reverse 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s807 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s807.includes('R1916') && s807.includes('patchPBReverse') && s807.includes('applyPBReverse')) {
+    log('pass', 'R1916-batch-progressbar-reverse', 'BatchInspector cc.ProgressBar reverse 일괄 설정')
+  } else {
+    log('warning', 'R1916-batch-progressbar-reverse', 'BatchInspector cc.ProgressBar reverse 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
