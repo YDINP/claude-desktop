@@ -23942,6 +23942,33 @@ if (s1060.includes('R2164') && s1060.includes('applyRichTouch') && s1060.include
   log('warning', 'R2164-batch-richtext-touch', 'BatchInspector cc.RichText handleTouchEvent 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1061: R2165 BatchInspector cc.VideoPlayer startTime ──────────
+console.log('\n## 1061. R2165 BatchInspector cc.VideoPlayer startTime 체크')
+const s1061 = s1060
+if (s1061.includes('R2165') && s1061.includes('applyVideoStart') && s1061.includes('VidSt')) {
+  log('pass', 'R2165-batch-video-starttime', 'BatchInspector cc.VideoPlayer startTime 일괄 설정')
+} else {
+  log('warning', 'R2165-batch-video-starttime', 'BatchInspector cc.VideoPlayer startTime 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1062: R2165 BatchInspector cc.Button autoGray ──────────
+console.log('\n## 1062. R2165 BatchInspector cc.Button autoGray 체크')
+const s1062 = s1061
+if (s1062.includes('R2165') && s1062.includes('applyBtnAutoGray') && s1062.includes('BtnGry')) {
+  log('pass', 'R2165-batch-button-autogray', 'BatchInspector cc.Button autoGray 일괄 설정')
+} else {
+  log('warning', 'R2165-batch-button-autogray', 'BatchInspector cc.Button autoGray 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1063: R2165 BatchInspector cc.Label isSystemFontUsed ──────────
+console.log('\n## 1063. R2165 BatchInspector cc.Label isSystemFontUsed 체크')
+const s1063 = s1062
+if (s1063.includes('R2165') && s1063.includes('applyLabelSysFont') && s1063.includes('LblSys')) {
+  log('pass', 'R2165-batch-label-sysfont', 'BatchInspector cc.Label isSystemFontUsed 일괄 설정')
+} else {
+  log('warning', 'R2165-batch-label-sysfont', 'BatchInspector cc.Label isSystemFontUsed 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

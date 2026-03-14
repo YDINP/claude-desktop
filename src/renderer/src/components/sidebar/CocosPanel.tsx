@@ -5160,6 +5160,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2165: 공통 cc.Label isSystemFontUsed 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelSysFont = async (isSystemFontUsed: boolean) => {
+          if (!sceneFile.root) return
+          function patchLabelSysFont(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelSysFont)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, isSystemFontUsed, _isSystemFontUsed: isSystemFontUsed, _N$isSystemFontUsed: isSystemFontUsed } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelSysFont(sceneFile.root) })
+          setBatchMsg(`✓ Label isSystemFontUsed=${isSystemFontUsed} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblSys</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`isSystemFontUsed = ${v}`}
+                onClick={() => applyLabelSysFont(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{v ? 'sys✓' : 'sys✗'}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1888: 공통 cc.RichText maxWidth 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichMaxW = async (w: number) => {
@@ -5969,6 +5994,31 @@ function CCFileBatchInspector({
             {([['ia✓',true],['ia✗',false]] as [string,boolean][]).map(([label,v]) => (
               <span key={label} onClick={() => applyBtnInteract(v)} title={`interactable=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2165: 공통 cc.Button autoGray 일괄 설정 */}
+      {commonCompTypes.includes('cc.Button') && (() => {
+        const applyBtnAutoGray = async (autoGrayEffect: boolean) => {
+          if (!sceneFile.root) return
+          function patchBtnAutoGray(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBtnAutoGray)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, autoGrayEffect, _autoGrayEffect: autoGrayEffect, _N$autoGrayEffect: autoGrayEffect } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchBtnAutoGray(sceneFile.root) })
+          setBatchMsg(`✓ Button autoGray=${autoGrayEffect} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>BtnGry</span>
+            {([true, false] as const).map(v => (
+              <span key={String(v)} title={`autoGrayEffect = ${v}`}
+                onClick={() => applyBtnAutoGray(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}
+              >{v ? 'gray✓' : 'gray✗'}</span>
             ))}
           </div>
         )
@@ -7133,6 +7183,32 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>ar✓</span>
             <span onClick={() => applyVideoKeepAspect(false)} title="keepAspectRatio OFF"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>ar✗</span>
+          </div>
+        )
+      })()}
+      {/* R2165: 공통 cc.VideoPlayer startTime 일괄 설정 */}
+      {commonCompTypes.includes('cc.VideoPlayer') && (() => {
+        const applyVideoStart = async (startTime: number) => {
+          if (!sceneFile.root) return
+          function patchVideoStart(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchVideoStart)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, startTime, _N$startTime: startTime } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchVideoStart(sceneFile.root) })
+          setBatchMsg(`✓ VideoPlayer startTime=${startTime}s (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>VidSt</span>
+            {([0, 1, 2, 5, 10, 30] as const).map(v => (
+              <span key={v} title={`startTime = ${v}s`}
+                onClick={() => applyVideoStart(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{v}s</span>
+            ))}
           </div>
         )
       })()}
