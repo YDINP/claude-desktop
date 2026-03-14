@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T05:11:40.825Z
+> 2026-03-14T05:12:17.540Z
 
 ## Critical
 _없음_
@@ -1788,3 +1788,4 @@ _없음_
 - BatchInspector 이름 find/replace 일괄 치환
 - BatchInspector cc.RigidBody gravityScale 일괄 설정
 - BatchInspector cc.PageView direction H/V 일괄 설정
+- BatchInspector cc.ScrollView H/V/inertia 일괄 설정

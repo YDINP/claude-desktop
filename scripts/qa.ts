@@ -20234,6 +20234,18 @@ console.log('\n## 749. R1858 BatchInspector cc.PageView direction 체크')
   }
 }
 
+// ── Section 750: R1859 BatchInspector cc.ScrollView H/V/inertia 일괄 ─────────
+console.log('\n## 750. R1859 BatchInspector cc.ScrollView H/V/inertia 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s750 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s750.includes('R1859') && s750.includes('applyScrollToggle') && s750.includes("'horizontal'") && s750.includes("'inertia'")) {
+    log('pass', 'R1859-batch-scrollview', 'BatchInspector cc.ScrollView H/V/inertia 일괄 설정')
+  } else {
+    log('warning', 'R1859-batch-scrollview', 'BatchInspector cc.ScrollView H/V/inertia 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
