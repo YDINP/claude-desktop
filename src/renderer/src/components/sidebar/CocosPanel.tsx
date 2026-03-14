@@ -4570,6 +4570,30 @@ function CCFileBatchInspector({
             ))}
           </div>
         )}
+        {/* R1781: 선택 노드 위치/크기 일괄 정수화 */}
+        <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+          {([
+            { label: '⊹pos int', title: '선택 노드 위치 정수화', fn: (n: CCSceneNode) => ({ ...n, position: { ...n.position, x: Math.round(n.position.x), y: Math.round(n.position.y) } }) },
+            { label: '⊹sz int', title: '선택 노드 크기 정수화', fn: (n: CCSceneNode) => { const sz = n.size as {x?: number; y?: number}; return { ...n, size: { x: Math.round(sz.x ?? 0), y: Math.round(sz.y ?? 0) } } } },
+          ] as { label: string; title: string; fn: (n: CCSceneNode) => CCSceneNode }[]).map(({ label, title, fn }) => (
+            <span key={label} title={title}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                function patchInt(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchInt)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  return { ...fn(n), children }
+                }
+                await saveScene(patchInt(sceneFile.root))
+                setBatchMsg(`✓ ${title} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 9, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
+            >{label}</span>
+          ))}
+        </div>
       </div>
       {/* R1737: 앵커 9-point 일괄 설정 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>

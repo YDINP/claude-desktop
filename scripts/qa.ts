@@ -19295,6 +19295,18 @@ console.log('\n## 671. R1780 BatchInspector 크기 배율 일괄 체크')
   }
 }
 
+// ── Section 672: R1781 BatchInspector 위치/크기 일괄 정수화 ──────────────────
+console.log('\n## 672. R1781 BatchInspector 일괄 정수화 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s672 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s672.includes('R1781') && s672.includes('patchInt') && s672.includes('정수화')) {
+    log('pass', 'R1781-batch-int', 'BatchInspector 선택 노드 위치/크기 일괄 정수화')
+  } else {
+    log('warning', 'R1781-batch-int', 'BatchInspector 일괄 정수화 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
