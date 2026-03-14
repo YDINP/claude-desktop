@@ -19571,6 +19571,18 @@ console.log('\n## 694. R1803 BatchInspector cc.Sprite grayscale 체크')
   }
 }
 
+// ── Section 695: R1804 BatchInspector cc.Label wrapText ──────────────────────
+console.log('\n## 695. R1804 BatchInspector cc.Label wrapText 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s695 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s695.includes('R1804') && s695.includes('patchWrap') && s695.includes('_N$enableWrapText: val')) {
+    log('pass', 'R1804-batch-label-wrap', 'BatchInspector cc.Label wrapText 일괄 설정')
+  } else {
+    log('warning', 'R1804-batch-label-wrap', 'BatchInspector cc.Label wrapText 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

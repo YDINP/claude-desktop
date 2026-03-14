@@ -3877,6 +3877,31 @@ function CCFileBatchInspector({
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
         </div>
       )}
+      {/* R1804: 공통 cc.Label wrapText 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label wrap</span>
+          {(['✓ wrap', '✕ wrap'] as const).map(label => (
+            <span key={label}
+              title={`enableWrapText 모두 ${label.startsWith('✓') ? '활성' : '비활성'}`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                const val = label.startsWith('✓')
+                function patchWrap(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchWrap)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, enableWrapText: val, _enableWrapText: val, _N$enableWrapText: val } } : c)
+                  return { ...n, components: updComps, children }
+                }
+                await saveScene(patchWrap(sceneFile.root))
+                setBatchMsg(`✓ wrap ${val} (${uuids.length}개)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: label.startsWith('✓') ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
+            >{label}</span>
+          ))}
+        </div>
+      )}
       {/* R1802: 공통 cc.Label bold/italic 일괄 토글 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
