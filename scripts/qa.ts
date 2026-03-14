@@ -18683,6 +18683,18 @@ console.log('\n## 620. R1729 cc.Label Find & Replace 체크')
   }
 }
 
+// ── Section 621: R1730 BatchInspector 이름 Prefix/Suffix ──────────────────────
+console.log('\n## 621. R1730 BatchInspector 이름 Prefix/Suffix 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s621 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s621.includes('R1730') && s621.includes('batchNamePrefix') && s621.includes('batchNameSuffix') && s621.includes('이름 일괄 변경')) {
+    log('pass', 'R1730-batch-rename', 'BatchInspector 이름 Prefix/Suffix 일괄 추가')
+  } else {
+    log('warning', 'R1730-batch-rename', 'BatchInspector 이름 Prefix/Suffix 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -3647,6 +3647,9 @@ function CCFileBatchInspector({
   const [batchColor, setBatchColor] = useState<string>('')
   // R1706: 회전 일괄 편집
   const [batchRot, setBatchRot] = useState<string>('')
+  // R1730: 이름 일괄 변경 (Prefix/Suffix)
+  const [batchNamePrefix, setBatchNamePrefix] = useState<string>('')
+  const [batchNameSuffix, setBatchNameSuffix] = useState<string>('')
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -3965,6 +3968,44 @@ function CCFileBatchInspector({
           style={{ fontSize: 10, padding: '3px 8px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
         >선택 해제</button>
         {batchMsg && <span style={{ fontSize: 9, color: batchMsg.startsWith('✓') ? '#4ade80' : '#f85149' }}>{batchMsg}</span>}
+      </div>
+      {/* R1730: 이름 Prefix/Suffix 일괄 추가 */}
+      <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>이름 일괄 변경</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>Prefix</span>
+          <input
+            value={batchNamePrefix}
+            onChange={e => setBatchNamePrefix(e.target.value)}
+            placeholder="앞에 추가할 텍스트"
+            style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+          />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>Suffix</span>
+          <input
+            value={batchNameSuffix}
+            onChange={e => setBatchNameSuffix(e.target.value)}
+            placeholder="뒤에 추가할 텍스트"
+            style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+          />
+        </div>
+        <button
+          onClick={async () => {
+            if (!sceneFile.root || (!batchNamePrefix && !batchNameSuffix)) return
+            function applyName(n: CCSceneNode): CCSceneNode {
+              const children = n.children.map(applyName)
+              if (!uuidSet.has(n.uuid)) return { ...n, children }
+              return { ...n, name: `${batchNamePrefix}${n.name}${batchNameSuffix}`, children }
+            }
+            const result = await saveScene(applyName(sceneFile.root))
+            setBatchMsg(result.success ? `✓ 이름 변경 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+            setBatchNamePrefix('')
+            setBatchNameSuffix('')
+            setTimeout(() => setBatchMsg(null), 2000)
+          }}
+          style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(88,166,255,0.12)', border: '1px solid rgba(88,166,255,0.3)', borderRadius: 3, color: '#58a6ff', cursor: 'pointer' }}
+        >이름 적용 ({uuids.length}개)</button>
       </div>
     </div>
   )
