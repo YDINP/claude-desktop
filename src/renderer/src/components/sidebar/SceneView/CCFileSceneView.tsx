@@ -357,6 +357,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const z = viewRef.current.zoom
       let nx = dragRef.current.startNodeX + dx / z
       let ny = dragRef.current.startNodeY - dy / z
+      // R1685: Shift 키: 축 제한 (더 많이 이동한 축으로 고정)
+      if (e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        if (Math.abs(dx) >= Math.abs(dy)) ny = dragRef.current.startNodeY
+        else nx = dragRef.current.startNodeX
+      }
       // Ctrl 키: 그리드 스냅
       if (e.ctrlKey || e.metaKey) {
         nx = Math.round(nx / snapSize) * snapSize

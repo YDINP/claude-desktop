@@ -18143,6 +18143,18 @@ console.log('\n## 575. R1684 씬 컴포넌트 통계 패널 체크')
   }
 }
 
+// ── Section 576: R1685 SceneView Shift+드래그 축 제한 ─────────────────────
+console.log('\n## 576. R1685 SceneView Shift+드래그 축 제한 체크')
+{
+  const svFile = join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx')
+  const s576 = existsSync(svFile) ? readFileSync(svFile, 'utf8') : ''
+  if (s576.includes('R1685') && s576.includes('e.shiftKey') && s576.includes('축 제한')) {
+    log('pass', 'R1685-axis-lock', 'SceneView Shift+드래그 축 제한')
+  } else {
+    log('warning', 'R1685-axis-lock', 'SceneView Shift+드래그 축 제한 미구현', 'CCFileSceneView.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
