@@ -5694,6 +5694,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1990: 공통 sp.Skeleton premultipliedAlpha 일괄 설정 */}
+      {commonCompTypes.includes('sp.Skeleton') && (() => {
+        const applySpinePremult = async (premultipliedAlpha: boolean) => {
+          if (!sceneFile.root) return
+          function patchSpinePremult(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpinePremult)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, premultipliedAlpha } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSpinePremult(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Spine premultAlpha=${premultipliedAlpha} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>SpPremult</span>
+            <span onClick={() => applySpinePremult(true)} title="premultipliedAlpha ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>pre✓</span>
+            <span onClick={() => applySpinePremult(false)} title="premultipliedAlpha OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>pre✗</span>
+          </div>
+        )
+      })()}
       {/* R1932: 공통 cc.ParticleSystem loop 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyParticleLoop = async (loop: boolean) => {

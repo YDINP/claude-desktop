@@ -21806,6 +21806,18 @@ console.log('\n## 880. R1989 BatchInspector cc.Camera cullingMask 체크')
   }
 }
 
+// ── Section 881: R1990 BatchInspector sp.Skeleton premultipliedAlpha ──────────
+console.log('\n## 881. R1990 BatchInspector sp.Skeleton premultipliedAlpha 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s881 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s881.includes('R1990') && s881.includes('patchSpinePremult') && s881.includes('applySpinePremult')) {
+    log('pass', 'R1990-batch-spine-premult', 'BatchInspector sp.Skeleton premultipliedAlpha 일괄 설정')
+  } else {
+    log('warning', 'R1990-batch-spine-premult', 'BatchInspector sp.Skeleton premultipliedAlpha 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
