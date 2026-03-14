@@ -25138,6 +25138,22 @@ if (
   log('warning', 'R2291-batch-toggle-btn-video-rb-pb-cc3x', 'BatchInspector Toggle/Button/VideoPlayer/RigidBody/ProgressBar CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1296: R2292 단일노드 Layout resizeMode + Graphics + Widget alignMode + Button zoomScale _* (CC3.x) ──────────
+console.log('\n## 1296. R2292 Layout resizeMode + Graphics + Widget alignMode + Button zoomScale CC3.x 체크')
+const s1296 = s1295
+if (
+  s1296.includes('resizeMode: v, _resizeMode: v, _N$resizeMode: v') &&
+  s1296.includes('lineWidth: v, _lineWidth: v, _N$lineWidth: v') &&
+  s1296.includes('fillColor: col, _fillColor: col, _N$fillColor: col') &&
+  s1296.includes('strokeColor: col, _strokeColor: col, _N$strokeColor: col') &&
+  s1296.includes('alignMode: v, _alignMode: v, _N$alignMode: v') &&
+  s1296.includes('zoomScale: v, _zoomScale: v, _N$zoomScale: v')
+) {
+  log('pass', 'R2292-node-layout-graphics-widget-btn-cc3x', '단일노드 Layout resizeMode + Graphics + Widget alignMode + Button zoomScale _* (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2292-node-layout-graphics-widget-btn-cc3x', '단일노드 Layout/Graphics/Widget/Button CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

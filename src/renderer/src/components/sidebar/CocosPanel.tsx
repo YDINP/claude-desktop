@@ -18597,7 +18597,7 @@ function CCFileNodeInspector({
                     <select value={resizeMode}
                       onChange={e => {
                         const v = parseInt(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, resizeMode: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, resizeMode: v, _resizeMode: v, _N$resizeMode: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
@@ -18747,7 +18747,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const v = Number(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineWidth: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineWidth: v, _lineWidth: v, _N$lineWidth: v } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -18758,7 +18758,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', height: 22, border: '1px solid #444', borderRadius: 3, cursor: 'pointer' }}
                         onChange={ev => {
                           const col = fromHex(ev.target.value, 255)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillColor: col } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillColor: col, _fillColor: col, _N$fillColor: col } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -18768,7 +18768,7 @@ function CCFileNodeInspector({
                         style={{ width: '100%', height: 22, border: '1px solid #444', borderRadius: 3, cursor: 'pointer' }}
                         onChange={ev => {
                           const col = fromHex(ev.target.value, 255)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, strokeColor: col } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, strokeColor: col, _strokeColor: col, _N$strokeColor: col } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -19451,7 +19451,7 @@ function CCFileNodeInspector({
                     <select value={alignMode}
                       onChange={e => {
                         const v = parseInt(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, alignMode: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, alignMode: v, _alignMode: v, _N$alignMode: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
@@ -19566,7 +19566,7 @@ function CCFileNodeInspector({
                       <input type="number" defaultValue={Number(p.zoomScale ?? 1.2)} min={0} step={0.05}
                         onBlur={e => {
                           const v = parseFloat(e.target.value) || 1.2
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, zoomScale: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, zoomScale: v, _zoomScale: v, _N$zoomScale: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
