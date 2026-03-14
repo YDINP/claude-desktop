@@ -24125,6 +24125,24 @@ if (folderTreeIdx > 0 && earlyReturnIdx > 0 && folderTreeIdx < earlyReturnIdx) {
   log('critical', 'fix-asset-browser-hooks', 'CCFileAssetBrowser folderTree useMemo가 early-return 이후에 있음 (Hooks 위반)', 'CocosPanel.tsx')
 }
 
+// ── Section 1183: R2225 BatchInspector cc.Label charSpacing ──────────
+console.log('\n## 1183. R2225 BatchInspector cc.Label charSpacing 체크')
+const s1183 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1183.includes('R2225') && s1183.includes('applyLabelCharSpacing') && s1183.includes('LblChSp')) {
+  log('pass', 'R2225-batch-label-charspacing', 'BatchInspector cc.Label charSpacing 일괄 설정')
+} else {
+  log('warning', 'R2225-batch-label-charspacing', 'BatchInspector cc.Label charSpacing 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1184: R2225 BatchInspector cc.Sprite _isTrimmedMode 숫자 선택 ──────────
+console.log('\n## 1184. R2225 BatchInspector cc.Sprite _isTrimmedMode 숫자 선택 체크')
+const s1184 = s1183
+if (s1184.includes('R2225') && s1184.includes('applySpriteTrimMode') && s1184.includes('SpTrimM')) {
+  log('pass', 'R2225-batch-sprite-isTrimmedMode', 'BatchInspector cc.Sprite _isTrimmedMode 숫자 프리셋')
+} else {
+  log('warning', 'R2225-batch-sprite-isTrimmedMode', 'BatchInspector cc.Sprite _isTrimmedMode 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1181: R2224 BatchInspector cc.VideoPlayer keepAspectRatio (CC3.x) ──────────
 console.log('\n## 1181. R2224 BatchInspector cc.VideoPlayer keepAspectRatio 체크')
 const s1181 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

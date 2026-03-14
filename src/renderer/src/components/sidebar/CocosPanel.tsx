@@ -5408,6 +5408,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2225: 공통 cc.Label charSpacing 일괄 설정 (CC2.x/CC3.x 문자 간격) */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelCharSpacing = async (charSpacing: number) => {
+          if (!sceneFile.root) return
+          function patchLabelCharSpacing(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelCharSpacing)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label'
+              ? { ...c, props: { ...c.props, charSpacing, _charSpacing: charSpacing, _N$charSpacing: charSpacing } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelCharSpacing(sceneFile.root) })
+          setBatchMsg(`✓ Label charSpacing=${charSpacing} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblChSp</span>
+            {[0, 1, 2, 3, 4, 5, 8].map(v => (
+              <span key={v} onClick={() => applyLabelCharSpacing(v)} title={`charSpacing=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1955: 공통 cc.Label color 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelColor = async (hex: string) => {
@@ -15041,6 +15067,32 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>trm✓</span>
             <span onClick={() => applySprTrimmed(false)} title="isTrimmedMode OFF"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>trm✗</span>
+          </div>
+        )
+      })()}
+      {/* R2225: 공통 cc.Sprite _isTrimmedMode 숫자 선택 (CC3.x: 0=Trim, 1=Raw, 2=Polygon) */}
+      {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
+        const applySpriteTrimMode = async (mode: number) => {
+          if (!sceneFile.root) return
+          function patchSpriteTrimMode(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSpriteTrimMode)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
+              ? { ...c, props: { ...c.props, _isTrimmedMode: mode } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSpriteTrimMode(sceneFile.root) })
+          setBatchMsg(`✓ Sprite _isTrimmedMode=${mode} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SpTrimM</span>
+            {([['Trim(0)', 0], ['Raw(1)', 1], ['Poly(2)', 2]] as [string, number][]).map(([label, mode]) => (
+              <span key={mode} onClick={() => applySpriteTrimMode(mode)} title={`_isTrimmedMode=${mode}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>{label}</span>
+            ))}
           </div>
         )
       })()}
