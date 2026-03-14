@@ -4705,6 +4705,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1862: 공통 cc.Sprite type 일괄 설정 */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applySpriteType = async (type: number) => {
+          if (!sceneFile.root) return
+          function patchSprType(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSprType)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, type, _type: type } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchSprType(sceneFile.root))
+          const names = ['Simple','Sliced','Tiled','Filled']
+          setBatchMsg(`✓ Sprite type=${names[type]} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>Spr type</span>
+            {(['Simple','Sliced','Tiled','Filled'] as const).map((l, v) => (
+              <span key={v} title={`Sprite type = ${l}`}
+                onClick={() => applySpriteType(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1760: 공통 cc.Sprite tint 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

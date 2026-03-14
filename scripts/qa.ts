@@ -20270,6 +20270,18 @@ console.log('\n## 752. R1861 BatchInspector cc.LabelShadow blur 체크')
   }
 }
 
+// ── Section 753: R1862 BatchInspector cc.Sprite type 일괄 ────────────────────
+console.log('\n## 753. R1862 BatchInspector cc.Sprite type 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s753 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s753.includes('R1862') && s753.includes('applySpriteType') && s753.includes('patchSprType') && s753.includes("'Sliced'")) {
+    log('pass', 'R1862-batch-sprite-type', 'BatchInspector cc.Sprite type (Simple/Sliced/Tiled/Filled) 일괄')
+  } else {
+    log('warning', 'R1862-batch-sprite-type', 'BatchInspector cc.Sprite type 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
