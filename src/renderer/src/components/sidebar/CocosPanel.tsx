@@ -4451,6 +4451,28 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1852: 공통 cc.Mask inverted 일괄 설정 */}
+      {commonCompTypes.includes('cc.Mask') && (() => {
+        const applyMaskInvert = async (inverted: boolean) => {
+          if (!sceneFile.root) return
+          function patchMask(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMask)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, _inverted: inverted, inverted } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene(patchMask(sceneFile.root))
+          setBatchMsg(`✓ Mask inverted=${inverted} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Mask</span>
+            <span onClick={() => applyMaskInvert(true)} title="inverted ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>inv✓</span>
+            <span onClick={() => applyMaskInvert(false)} title="inverted OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>inv✗</span>
+          </div>
+        )
+      })()}
       {/* R1771: 공통 cc.ProgressBar progress 일괄 설정 */}
       {commonCompTypes.includes('cc.ProgressBar') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

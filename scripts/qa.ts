@@ -20150,6 +20150,18 @@ console.log('\n## 742. R1851 BatchInspector cc.RigidBody fixedRotation 체크')
   }
 }
 
+// ── Section 743: R1852 BatchInspector cc.Mask inverted 일괄 ──────────────────
+console.log('\n## 743. R1852 BatchInspector cc.Mask inverted 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s743 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s743.includes('R1852') && s743.includes('applyMaskInvert') && s743.includes('patchMask') && s743.includes("'cc.Mask'")) {
+    log('pass', 'R1852-batch-mask-inverted', 'BatchInspector cc.Mask inverted 일괄 설정')
+  } else {
+    log('warning', 'R1852-batch-mask-inverted', 'BatchInspector cc.Mask inverted 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
