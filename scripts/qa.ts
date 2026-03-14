@@ -21254,6 +21254,18 @@ console.log('\n## 834. R1943 BatchInspector cc.EditBox fontSize 체크')
   }
 }
 
+// ── Section 835: R1944 BatchInspector cc.Slider min/max ──────────
+console.log('\n## 835. R1944 BatchInspector cc.Slider min/max 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s835 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s835.includes('R1944') && s835.includes('patchSliderRange') && s835.includes('applySliderRange')) {
+    log('pass', 'R1944-batch-slider-range', 'BatchInspector cc.Slider min/max 일괄 설정')
+  } else {
+    log('warning', 'R1944-batch-slider-range', 'BatchInspector cc.Slider min/max 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

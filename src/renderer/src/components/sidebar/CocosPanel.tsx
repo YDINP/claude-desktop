@@ -5414,6 +5414,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1944: 공통 cc.Slider min/max 일괄 설정 */}
+      {commonCompTypes.includes('cc.Slider') && (() => {
+        const applySliderRange = async (min: number, max: number) => {
+          if (!sceneFile.root) return
+          function patchSliderRange(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSliderRange)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, minValue: min, maxValue: max, _N$minValue: min, _N$maxValue: max } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSliderRange(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Slider [${min}~${max}] (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SLrange</span>
+            {([[0,1],[0,10],[0,100],[-1,1]] as const).map(([mn,mx]) => (
+              <span key={`${mn}-${mx}`} title={`min=${mn} max=${mx}`}
+                onClick={() => applySliderRange(mn, mx)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{mn}~{mx}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1828: 공통 cc.AudioSource volume 일괄 설정 */}
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioVol = async (volume: number) => {
