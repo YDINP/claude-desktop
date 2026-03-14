@@ -24113,6 +24113,24 @@ if (s1147.includes('R2207') && s1147.includes('applyCanvasEnabled') && s1147.inc
   log('warning', 'R2207-batch-canvas-enabled', 'BatchInspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1158: R2213 BatchInspector cc.Label colorTop (CC3.x gradient) ──────────
+console.log('\n## 1158. R2213 BatchInspector cc.Label colorTop 체크')
+const s1158 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1158.includes('R2213') && s1158.includes('applyLabelColorTop') && s1158.includes('LblClrT')) {
+  log('pass', 'R2213-batch-label-colortop', 'BatchInspector cc.Label colorTop 일괄 설정')
+} else {
+  log('warning', 'R2213-batch-label-colortop', 'BatchInspector cc.Label colorTop 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1159: R2213 BatchInspector cc.Label colorBottom (CC3.x gradient) ──────────
+console.log('\n## 1159. R2213 BatchInspector cc.Label colorBottom 체크')
+const s1159 = s1158
+if (s1159.includes('R2213') && s1159.includes('applyLabelColorBot') && s1159.includes('LblClrB')) {
+  log('pass', 'R2213-batch-label-colorbottom', 'BatchInspector cc.Label colorBottom 일괄 설정')
+} else {
+  log('warning', 'R2213-batch-label-colorbottom', 'BatchInspector cc.Label colorBottom 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1156: R2212 BatchInspector cc.Label shadowOffset (CC3.x) ──────────
 console.log('\n## 1156. R2212 BatchInspector cc.Label shadowOffset 체크')
 const s1156 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

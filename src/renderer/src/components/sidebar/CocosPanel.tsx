@@ -5811,6 +5811,62 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2213: 공통 cc.Label colorTop 일괄 설정 (CC3.x 그라디언트) */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelColorTop = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const colorTop = { r, g, b, a: 255 }
+          function patchLabelColorTop(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelColorTop)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label'
+              ? { ...c, props: { ...c.props, colorTop, _colorTop: colorTop } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelColorTop(sceneFile.root) })
+          setBatchMsg(`✓ Label colorTop=${hex} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblClrT</span>
+            {(['#ffffff', '#ffff00', '#ff8800', '#ff0000', '#00ff00', '#0088ff', '#000000'] as const).map(c => (
+              <span key={c} title={c} onClick={() => applyLabelColorTop(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, cursor: 'pointer',
+                  border: '1px solid var(--border)', display: 'inline-block' }} />
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2213: 공통 cc.Label colorBottom 일괄 설정 (CC3.x 그라디언트) */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelColorBot = async (hex: string) => {
+          if (!sceneFile.root) return
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const colorBottom = { r, g, b, a: 255 }
+          function patchLabelColorBot(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelColorBot)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label'
+              ? { ...c, props: { ...c.props, colorBottom, _colorBottom: colorBottom } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelColorBot(sceneFile.root) })
+          setBatchMsg(`✓ Label colorBottom=${hex} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LblClrB</span>
+            {(['#000000', '#333333', '#0000ff', '#ff0000', '#00ff00', '#ffff00', '#ffffff'] as const).map(c => (
+              <span key={c} title={c} onClick={() => applyLabelColorBot(c)}
+                style={{ width: 14, height: 14, borderRadius: 2, background: c, cursor: 'pointer',
+                  border: '1px solid var(--border)', display: 'inline-block' }} />
+            ))}
+          </div>
+        )
+      })()}
       {/* R2181: 공통 cc.Label enableDashLine 일괄 설정 (CC3.x) */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelDashLine = async (enableDashLine: boolean) => {
