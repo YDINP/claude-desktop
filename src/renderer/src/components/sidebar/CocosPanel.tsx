@@ -7763,6 +7763,22 @@ function CCFileNodeInspector({
                       }}
                     />interactable
                   </label>
+                  {/* R1807: normalColor 퀵 프리셋 */}
+                  {transition === 1 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>normal:</span>
+                      {([['white', {r:255,g:255,b:255}], ['gray', {r:180,g:180,b:180}], ['dark', {r:64,g:64,b:64}], ['red', {r:255,g:80,b:80}], ['green', {r:80,g:200,b:100}]] as const).map(([l, c]) => (
+                        <span key={l} title={`normalColor = ${l}`}
+                          onClick={() => {
+                            const col = { ...c, a: 255 }
+                            const updated = draft.components.map(comp2 => comp2 === comp ? { ...comp2, props: { ...comp2.props, normalColor: col, _N$normalColor: col } } : comp2)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 16, height: 14, background: `rgb(${c.r},${c.g},${c.b})`, border: '1px solid #555', borderRadius: 2, cursor: 'pointer', display: 'inline-block' }}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )
             }

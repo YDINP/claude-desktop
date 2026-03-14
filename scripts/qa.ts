@@ -19607,6 +19607,18 @@ console.log('\n## 697. R1806 cc.VideoPlayer playbackRate 퀵 프리셋 체크')
   }
 }
 
+// ── Section 698: R1807 cc.Button normalColor 퀵 프리셋 ─────────────────────────
+console.log('\n## 698. R1807 cc.Button normalColor 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s698 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s698.includes('R1807') && s698.includes('normalColor 퀵 프리셋') && s698.includes('_N$normalColor: col')) {
+    log('pass', 'R1807-button-normalcolor-preset', 'cc.Button normalColor 퀵 프리셋 버튼')
+  } else {
+    log('warning', 'R1807-button-normalcolor-preset', 'cc.Button normalColor 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

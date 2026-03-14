@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:11:22.014Z
+> 2026-03-14T04:12:28.719Z
 
 ## Critical
 _없음_
@@ -1736,3 +1736,4 @@ _없음_
 - BatchInspector cc.Label wrapText 일괄 설정
 - cc.Label string 클립보드 복사 버튼
 - cc.VideoPlayer playbackRate 퀵 프리셋 버튼
+- cc.Button normalColor 퀵 프리셋 버튼
