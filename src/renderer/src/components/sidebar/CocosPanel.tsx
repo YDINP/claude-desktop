@@ -6523,6 +6523,31 @@ function CCFileBatchInspector({
           ))}
         </div>
       )}
+      {/* R1974: 공통 cc.Widget margin(top/bottom/left/right) 일괄 설정 */}
+      {commonCompTypes.includes('cc.Widget') && (() => {
+        const applyWidgetMargin = async (v: number) => {
+          if (!sceneFile.root) return
+          function patchWidgetMargin(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchWidgetMargin)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, top: v, bottom: v, left: v, right: v, _N$top: v, _N$bottom: v, _N$left: v, _N$right: v } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchWidgetMargin(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Widget margin=${v} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>WgMargin</span>
+            {[0, 10, 20, 50, 100].map(v => (
+              <span key={v} onClick={() => applyWidgetMargin(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1881: 공통 cc.RigidBody type 일괄 설정 */}
       {commonCompTypes.includes('cc.RigidBody') && (() => {
         const applyRBType = async (type: number) => {

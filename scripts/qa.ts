@@ -21614,6 +21614,18 @@ console.log('\n## 864. R1973 BatchInspector cc.Layout verticalDirection 체크')
   }
 }
 
+// ── Section 865: R1974 BatchInspector cc.Widget margin ──────────
+console.log('\n## 865. R1974 BatchInspector cc.Widget margin 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s865 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s865.includes('R1974') && s865.includes('patchWidgetMargin') && s865.includes('applyWidgetMargin')) {
+    log('pass', 'R1974-batch-widget-margin', 'BatchInspector cc.Widget margin 일괄 설정')
+  } else {
+    log('warning', 'R1974-batch-widget-margin', 'BatchInspector cc.Widget margin 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
