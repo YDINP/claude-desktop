@@ -5651,13 +5651,13 @@ function CCFileBatchInspector({
           function patchLabelOverflow(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchLabelOverflow)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, overflow, _N$overflow: overflow } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchLabelOverflow(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
           const names: Record<number,string> = { 0:'None', 1:'Clamp', 2:'Shrink', 3:'Resize' }
-          setBatchMsg(`✓ Label overflow=${names[overflow]??overflow} (${uuids.length}개)`)
+          setBatchMsg(`✓ Label overflow=${names[overflow]??overflow} (${uuids.length}개)`) // R2238: _overflow CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -7335,13 +7335,13 @@ function CCFileBatchInspector({
           function patchEditReturnType(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchEditReturnType)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, returnType, _N$returnType: returnType } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchEditReturnType(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
           const names = ['Dflt', 'Done', 'Send', 'Srch', 'Go', 'Next']
-          setBatchMsg(`✓ EditBox returnType=${names[returnType] ?? returnType} (${uuids.length}개)`)
+          setBatchMsg(`✓ EditBox returnType=${names[returnType] ?? returnType} (${uuids.length}개)`) // R2238: _returnType CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8076,11 +8076,11 @@ function CCFileBatchInspector({
           function patchSVScrollDur(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVScrollDur)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, scrollDuration, _N$scrollDuration: scrollDuration } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, scrollDuration, _scrollDuration: scrollDuration, _N$scrollDuration: scrollDuration } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSVScrollDur(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView scrollDuration=${scrollDuration}s (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView scrollDuration=${scrollDuration}s (${uuids.length}개)`) // R2240: _scrollDuration CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8173,11 +8173,11 @@ function CCFileBatchInspector({
           function patchSBAutoHide(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSBAutoHide)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, enableAutoHide, _N$enableAutoHide: enableAutoHide } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, enableAutoHide, _enableAutoHide: enableAutoHide, _N$enableAutoHide: enableAutoHide } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSBAutoHide(sceneFile.root) })
-          setBatchMsg(`✓ Scrollbar enableAutoHide=${enableAutoHide} (${uuids.length}개)`)
+          setBatchMsg(`✓ Scrollbar enableAutoHide=${enableAutoHide} (${uuids.length}개)`) // R2239: _enableAutoHide CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         const applySBAutoHideTime = async (autoHideTime: number) => {
@@ -8340,11 +8340,11 @@ function CCFileBatchInspector({
           function patchSVHoriz(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVHoriz)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, horizontal, _N$horizontal: horizontal } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, horizontal, _horizontal: horizontal, _N$horizontal: horizontal } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSVHoriz(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView horizontal=${horizontal} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView horizontal=${horizontal} (${uuids.length}개)`) // R2240: _horizontal CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -9047,11 +9047,11 @@ function CCFileBatchInspector({
           function patchVideoVol(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchVideoVol)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, volume, _N$volume: volume } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchVideoVol(sceneFile.root) })
-          setBatchMsg(`✓ VideoPlayer volume=${volume} (${uuids.length}개)`)
+          setBatchMsg(`✓ VideoPlayer volume=${volume} (${uuids.length}개)`) // R2239: _volume CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>

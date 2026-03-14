@@ -24251,6 +24251,60 @@ if (s1208.includes('_bounceDuration: bounceDuration') && s1208.includes('applySV
   log('warning', 'R2237-batch-scrollview-bounceduration-cc3x', 'BatchInspector cc.ScrollView _bounceDuration CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1209: R2238 BatchInspector cc.Label overflow _overflow (CC3.x) ──────────
+console.log('\n## 1209. R2238 BatchInspector cc.Label overflow _overflow CC3.x 체크')
+const s1209 = s1208
+if (s1209.includes('_overflow: overflow') && s1209.includes('patchLabelOverflow')) {
+  log('pass', 'R2238-batch-label-overflow-cc3x', 'BatchInspector cc.Label overflow _overflow (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2238-batch-label-overflow-cc3x', 'BatchInspector cc.Label overflow _overflow CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1210: R2238 BatchInspector cc.EditBox returnType _returnType (CC3.x) ──────────
+console.log('\n## 1210. R2238 BatchInspector cc.EditBox returnType _returnType CC3.x 체크')
+const s1210 = s1209
+if (s1210.includes('_returnType: returnType') && s1210.includes('patchEditReturnType')) {
+  log('pass', 'R2238-batch-editbox-returntype-cc3x', 'BatchInspector cc.EditBox returnType _returnType (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2238-batch-editbox-returntype-cc3x', 'BatchInspector cc.EditBox returnType _returnType CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1211: R2239 BatchInspector cc.VideoPlayer volume _volume (CC3.x) ──────────
+console.log('\n## 1211. R2239 BatchInspector cc.VideoPlayer volume _volume CC3.x 체크')
+const s1211 = s1210
+if (s1211.includes('_volume: volume') && s1211.includes('patchVideoVol')) {
+  log('pass', 'R2239-batch-videoplayer-volume-cc3x', 'BatchInspector cc.VideoPlayer volume _volume (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2239-batch-videoplayer-volume-cc3x', 'BatchInspector cc.VideoPlayer volume _volume CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1212: R2239 BatchInspector cc.Scrollbar enableAutoHide _enableAutoHide (CC3.x) ──────────
+console.log('\n## 1212. R2239 BatchInspector cc.Scrollbar enableAutoHide _enableAutoHide CC3.x 체크')
+const s1212 = s1211
+if (s1212.includes('_enableAutoHide: enableAutoHide') && s1212.includes('patchSBAutoHide')) {
+  log('pass', 'R2239-batch-scrollbar-enableautohide-cc3x', 'BatchInspector cc.Scrollbar enableAutoHide _enableAutoHide (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2239-batch-scrollbar-enableautohide-cc3x', 'BatchInspector cc.Scrollbar enableAutoHide _enableAutoHide CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1213: R2240 BatchInspector cc.ScrollView scrollDuration _scrollDuration (CC3.x) ──────────
+console.log('\n## 1213. R2240 BatchInspector cc.ScrollView scrollDuration _scrollDuration CC3.x 체크')
+const s1213 = s1212
+if (s1213.includes('_scrollDuration: scrollDuration') && s1213.includes('patchSVScrollDur')) {
+  log('pass', 'R2240-batch-scrollview-scrollduration-cc3x', 'BatchInspector cc.ScrollView scrollDuration _scrollDuration (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2240-batch-scrollview-scrollduration-cc3x', 'BatchInspector cc.ScrollView scrollDuration _scrollDuration CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1214: R2240 BatchInspector cc.ScrollView horizontal _horizontal (CC3.x) ──────────
+console.log('\n## 1214. R2240 BatchInspector cc.ScrollView horizontal _horizontal CC3.x 체크')
+const s1214 = s1213
+if (s1214.includes('_horizontal: horizontal') && s1214.includes('patchSVHoriz')) {
+  log('pass', 'R2240-batch-scrollview-horizontal-cc3x', 'BatchInspector cc.ScrollView horizontal _horizontal (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2240-batch-scrollview-horizontal-cc3x', 'BatchInspector cc.ScrollView horizontal _horizontal CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
