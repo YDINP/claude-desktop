@@ -4088,6 +4088,58 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2218: 공통 cc.BoxCollider2D enabled (컴포넌트 레벨) 일괄 설정 */}
+      {(commonCompTypes.includes('cc.BoxCollider2D') || commonCompTypes.includes('cc.BoxCollider')) && (() => {
+        const applyBoxColliderEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchBoxColliderEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchBoxColliderEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider2D' || c.type === 'cc.BoxCollider')
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchBoxColliderEnabled(sceneFile.root) })
+          setBatchMsg(`✓ BoxCollider2D enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>BoxCEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyBoxColliderEnabled(v)} title={`BoxCollider2D enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2218: 공통 cc.CircleCollider2D enabled (컴포넌트 레벨) 일괄 설정 */}
+      {(commonCompTypes.includes('cc.CircleCollider2D') || commonCompTypes.includes('cc.CircleCollider')) && (() => {
+        const applyCircleColliderEnabled = async (enabled: boolean) => {
+          if (!sceneFile.root) return
+          function patchCircleColliderEnabled(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchCircleColliderEnabled)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider2D' || c.type === 'cc.CircleCollider')
+              ? { ...c, props: { ...c.props, enabled } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchCircleColliderEnabled(sceneFile.root) })
+          setBatchMsg(`✓ CircleCollider2D enabled=${enabled} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f87171', width: 48, flexShrink: 0 }}>CirCEn</span>
+            {([['on✓', true], ['off✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyCircleColliderEnabled(v)} title={`CircleCollider2D enabled=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2156: 공통 cc.PolygonCollider offset 일괄 설정 */}
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyOffset = async (ox: number, oy: number) => {
