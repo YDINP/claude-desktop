@@ -4568,6 +4568,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1928: 공통 cc.ScrollView elasticDuration 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applyElasticDur = async (elasticDuration: number) => {
+          if (!sceneFile.root) return
+          function patchElasticDur(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchElasticDur)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, elasticDuration, _N$elasticDuration: elasticDuration } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchElasticDur(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView elasticDuration=${elasticDuration} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>SVelast</span>
+            {([0.1, 0.2, 0.3, 0.5, 1] as const).map(v => (
+              <span key={v} title={`elasticDuration = ${v}s`}
+                onClick={() => applyElasticDur(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1875: 공통 cc.PageView slideDuration 일괄 설정 */}
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVSlideDur = async (dur: number) => {

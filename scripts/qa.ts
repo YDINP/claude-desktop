@@ -21062,6 +21062,18 @@ console.log('\n## 818. R1927 BatchInspector cc.Label enableWrapText 체크')
   }
 }
 
+// ── Section 819: R1928 BatchInspector cc.ScrollView elasticDuration ──────────
+console.log('\n## 819. R1928 BatchInspector cc.ScrollView elasticDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s819 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s819.includes('R1928') && s819.includes('patchElasticDur') && s819.includes('applyElasticDur')) {
+    log('pass', 'R1928-batch-scrollview-elasticduration', 'BatchInspector cc.ScrollView elasticDuration 일괄 설정')
+  } else {
+    log('warning', 'R1928-batch-scrollview-elasticduration', 'BatchInspector cc.ScrollView elasticDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
