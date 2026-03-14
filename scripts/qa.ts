@@ -17901,6 +17901,18 @@ console.log('\n## 555. R1664 씬 트리 검색어 하이라이트 체크')
   }
 }
 
+// ── Section 556: R1665 다중 선택 정렬 버튼 ──────────────────────
+console.log('\n## 556. R1665 다중 선택 정렬 버튼 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s556 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s556.includes('R1665') && s556.includes('align') && s556.includes('minLeft') && s556.includes('maxRight') && s556.includes('왼쪽 정렬')) {
+    log('pass', 'R1665-batch-align', '다중 선택 정렬 버튼 (align left/right/top/bottom/center)')
+  } else {
+    log('warning', 'R1665-batch-align', '다중 선택 정렬 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -3466,6 +3466,66 @@ function CCFileBatchInspector({
         />
         {batchColor && <button onClick={() => setBatchColor('')} style={{ fontSize: 9, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)' }}>✕</button>}
       </div>
+      {/* R1665: 정렬 버튼 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>정렬</span>
+        {[
+          { label: '⊢', title: '왼쪽 정렬', align: 'left' },
+          { label: '↔', title: '가로 중앙 정렬', align: 'centerH' },
+          { label: '⊣', title: '오른쪽 정렬', align: 'right' },
+          { label: '⊤', title: '위 정렬', align: 'top' },
+          { label: '↕', title: '세로 중앙 정렬', align: 'centerV' },
+          { label: '⊥', title: '아래 정렬', align: 'bottom' },
+        ].map(({ label, title, align }) => (
+          <button
+            key={align}
+            title={title}
+            onClick={async () => {
+              if (!sceneFile.root) return
+              const nodes: CCSceneNode[] = []
+              function collectAlign(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collectAlign) }
+              collectAlign(sceneFile.root)
+              if (nodes.length < 2) return
+              const info = nodes.map(n => {
+                const pos = n.position as { x: number; y: number; z?: number }
+                const sz = n.size as { x?: number; y?: number } | undefined
+                const anch = n.anchor as { x?: number; y?: number } | undefined
+                const w = sz?.x ?? 0, h = sz?.y ?? 0
+                const ax = anch?.x ?? 0.5, ay = anch?.y ?? 0.5
+                return { uuid: n.uuid, px: pos.x, py: pos.y, w, h, ax, ay,
+                  left: pos.x - w * ax, right: pos.x + w * (1 - ax),
+                  bottom: pos.y - h * ay, top: pos.y + h * (1 - ay) }
+              })
+              const minLeft = Math.min(...info.map(i => i.left))
+              const maxRight = Math.max(...info.map(i => i.right))
+              const minBottom = Math.min(...info.map(i => i.bottom))
+              const maxTop = Math.max(...info.map(i => i.top))
+              const newPositions: Record<string, { x: number; y: number }> = {}
+              for (const i of info) {
+                let nx = i.px, ny = i.py
+                if (align === 'left')    nx = minLeft + i.w * i.ax
+                else if (align === 'right')   nx = maxRight - i.w * (1 - i.ax)
+                else if (align === 'centerH') nx = (minLeft + maxRight) / 2 + i.w * (i.ax - 0.5)
+                else if (align === 'bottom')  ny = minBottom + i.h * i.ay
+                else if (align === 'top')     ny = maxTop - i.h * (1 - i.ay)
+                else if (align === 'centerV') ny = (minBottom + maxTop) / 2 + i.h * (i.ay - 0.5)
+                newPositions[i.uuid] = { x: nx, y: ny }
+              }
+              function applyAlign(n: CCSceneNode): CCSceneNode {
+                if (newPositions[n.uuid]) {
+                  const pos = n.position as { x: number; y: number; z?: number }
+                  return { ...n, position: { ...pos, ...newPositions[n.uuid] }, children: n.children.map(applyAlign) }
+                }
+                return { ...n, children: n.children.map(applyAlign) }
+              }
+              const result = await saveScene(applyAlign(sceneFile.root))
+              setBatchMsg(result.success ? `✓ ${title}` : `✗ ${result.error ?? '오류'}`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 11, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+          >{label}</button>
+        ))}
+      </div>
       {/* 적용 버튼 */}
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
         <button
