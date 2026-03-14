@@ -6859,6 +6859,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2180: 공통 cc.ScrollView hideScrollBar 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVHideScrollBar = async (hideScrollBar: boolean) => {
+          if (!sceneFile.root) return
+          function patchSVHideScrollBar(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVHideScrollBar)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, hideScrollBar, _N$hideScrollBar: hideScrollBar } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSVHideScrollBar(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView hideScrollBar=${hideScrollBar} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SVhide</span>
+            {([['hide✓', true], ['hide✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applySVHideScrollBar(v)} title={`hideScrollBar=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2174: 공통 cc.ScrollView bounceTime 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVBounceTime = async (bounceTime: number) => {
@@ -7071,6 +7095,30 @@ function CCFileBatchInspector({
                 onClick={() => applyPVTurnSpeed(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}
               >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
+      {/* R2180: 공통 cc.PageView effectType 일괄 설정 */}
+      {commonCompTypes.includes('cc.PageView') && (() => {
+        const applyPVEffectType = async (effectType: number) => {
+          if (!sceneFile.root) return
+          function patchPVEffectType(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPVEffectType)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, effectType, _N$effectType: effectType } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchPVEffectType(sceneFile.root) })
+          setBatchMsg(`✓ PageView effectType=${['NONE','SCROLL','FADE'][effectType] ?? effectType} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PVeffect</span>
+            {([['NONE', 0], ['SCROLL', 1], ['FADE', 2]] as const).map(([l, v]) => (
+              <span key={v} onClick={() => applyPVEffectType(v)} title={`effectType=${l}(${v})`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{l}</span>
             ))}
           </div>
         )

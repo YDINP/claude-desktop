@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1092: R2180 BatchInspector cc.PageView effectType ──────────
+console.log('\n## 1092. R2180 BatchInspector cc.PageView effectType 체크')
+const s1092 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1092.includes('R2180') && s1092.includes('applyPVEffectType') && s1092.includes('PVeffect')) {
+  log('pass', 'R2180-batch-pageview-effecttype', 'BatchInspector cc.PageView effectType 일괄 설정')
+} else {
+  log('warning', 'R2180-batch-pageview-effecttype', 'BatchInspector cc.PageView effectType 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1093: R2180 BatchInspector cc.ScrollView hideScrollBar ──────────
+console.log('\n## 1093. R2180 BatchInspector cc.ScrollView hideScrollBar 체크')
+const s1093 = s1092
+if (s1093.includes('R2180') && s1093.includes('applySVHideScrollBar') && s1093.includes('SVhide')) {
+  log('pass', 'R2180-batch-sv-hidescrollbar', 'BatchInspector cc.ScrollView hideScrollBar 일괄 설정')
+} else {
+  log('warning', 'R2180-batch-sv-hidescrollbar', 'BatchInspector cc.ScrollView hideScrollBar 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1090: R2179 BatchInspector cc.Graphics fillOpacity ──────────
 console.log('\n## 1090. R2179 BatchInspector cc.Graphics fillOpacity 체크')
 const s1090 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
