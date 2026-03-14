@@ -4126,6 +4126,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1940: 공통 cc.Label overflow 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelOverflow = async (overflow: number) => {
+          if (!sceneFile.root) return
+          function patchLabelOverflow(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelOverflow)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, overflow, _N$overflow: overflow } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelOverflow(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const names: Record<number,string> = { 0:'None', 1:'Clamp', 2:'Shrink', 3:'Resize' }
+          setBatchMsg(`✓ Label overflow=${names[overflow]??overflow} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LbOvflw</span>
+            {([['None',0],['Clamp',1],['Shrink',2],['Rsz',3]] as const).map(([l, v]) => (
+              <span key={v} title={`overflow = ${l}`}
+                onClick={() => applyLabelOverflow(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{l}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1925: 공통 cc.Label cacheMode 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyCacheMode = async (cacheMode: number) => {

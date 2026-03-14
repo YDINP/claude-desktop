@@ -21206,6 +21206,18 @@ console.log('\n## 830. R1939 BatchInspector cc.RigidBody linearVelocity 체크')
   }
 }
 
+// ── Section 831: R1940 BatchInspector cc.Label overflow ──────────
+console.log('\n## 831. R1940 BatchInspector cc.Label overflow 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s831 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s831.includes('R1940') && s831.includes('patchLabelOverflow') && s831.includes('applyLabelOverflow')) {
+    log('pass', 'R1940-batch-label-overflow', 'BatchInspector cc.Label overflow 일괄 설정')
+  } else {
+    log('warning', 'R1940-batch-label-overflow', 'BatchInspector cc.Label overflow 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
