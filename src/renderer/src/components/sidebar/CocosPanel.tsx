@@ -4126,6 +4126,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1951: 공통 cc.Label fontSize 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelFontSize = async (fontSize: number) => {
+          if (!sceneFile.root) return
+          function patchLabelFontSize(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelFontSize)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLabelFontSize(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Label fontSize=${fontSize} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LbFont</span>
+            {([16, 20, 24, 28, 32, 40] as const).map(v => (
+              <span key={v} title={`Label fontSize = ${v}`}
+                onClick={() => applyLabelFontSize(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1940: 공통 cc.Label overflow 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelOverflow = async (overflow: number) => {

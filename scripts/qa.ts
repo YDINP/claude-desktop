@@ -21338,6 +21338,18 @@ console.log('\n## 841. R1950 BatchInspector cc.ParticleSystem emissionRate 체�
   }
 }
 
+// ── Section 842: R1951 BatchInspector cc.Label fontSize ──────────
+console.log('\n## 842. R1951 BatchInspector cc.Label fontSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s842 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s842.includes('R1951') && s842.includes('patchLabelFontSize') && s842.includes('applyLabelFontSize')) {
+    log('pass', 'R1951-batch-label-fontsize', 'BatchInspector cc.Label fontSize 일괄 설정')
+  } else {
+    log('warning', 'R1951-batch-label-fontsize', 'BatchInspector cc.Label fontSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
