@@ -21314,6 +21314,18 @@ console.log('\n## 839. R1948 BatchInspector cc.Button duration 체크')
   }
 }
 
+// ── Section 840: R1949 BatchInspector cc.ScrollView bounceDuration ──────────
+console.log('\n## 840. R1949 BatchInspector cc.ScrollView bounceDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s840 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s840.includes('R1949') && s840.includes('patchSVBounceDur') && s840.includes('applySVBounceDur')) {
+    log('pass', 'R1949-batch-scrollview-bouncedur', 'BatchInspector cc.ScrollView bounceDuration 일괄 설정')
+  } else {
+    log('warning', 'R1949-batch-scrollview-bouncedur', 'BatchInspector cc.ScrollView bounceDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
