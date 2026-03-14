@@ -24966,6 +24966,19 @@ if (
   log('warning', 'R2279-node-pb-progress-audio-props-cc3x', '단일노드 ProgressBar/AudioSource CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1284: R2280 단일노드 cc.Toggle _interactable + cc.Label _overflow + cc.Button _interactable (CC3.x) ──────────
+console.log('\n## 1284. R2280 단일노드 Toggle _interactable + Label _overflow + Button _interactable CC3.x 체크')
+const s1284 = s1283
+if (
+  s1284.includes('interactable: ev.target.checked, _interactable: ev.target.checked') &&
+  s1284.includes('overflow: v, _overflow: v, _N$overflow: v') &&
+  s1284.includes('interactable: e.target.checked, _interactable: e.target.checked, _N$interactable: e.target.checked')
+) {
+  log('pass', 'R2280-node-toggle-label-button-interactable-cc3x', '단일노드 cc.Toggle/_Label _overflow/cc.Button _interactable (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2280-node-toggle-label-button-interactable-cc3x', '단일노드 interactable/overflow CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

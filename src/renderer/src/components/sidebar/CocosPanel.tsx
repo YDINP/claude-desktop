@@ -19099,7 +19099,7 @@ function CCFileNodeInspector({
                       <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
                         <input type="checkbox" checked={!!(p.interactable ?? true)}
                           onChange={ev => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: ev.target.checked } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: ev.target.checked, _interactable: ev.target.checked, _N$interactable: ev.target.checked } } : c)
                             applyAndSave({ components: updated })
                           }} />
                         interactable
@@ -19305,7 +19305,7 @@ function CCFileNodeInspector({
                       style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                       onChange={ev => {
                         const v = parseInt(ev.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, overflow: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, overflow: v, _overflow: v, _N$overflow: v } } : c)
                         applyAndSave({ components: updated })
                       }}>
                       {OVERFLOW.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
@@ -19593,7 +19593,7 @@ function CCFileNodeInspector({
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={interactable}
                       onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked, _interactable: e.target.checked, _N$interactable: e.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }}
                     />interactable
@@ -19660,7 +19660,7 @@ function CCFileNodeInspector({
                   <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={interactable}
                       onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked, _interactable: e.target.checked, _N$interactable: e.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }}
                     />
