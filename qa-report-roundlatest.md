@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:26:34.280Z
+> 2026-03-14T04:27:14.694Z
 
 ## Critical
 _없음_
@@ -1748,3 +1748,4 @@ _없음_
 - BatchInspector cc.Animation playOnLoad 일괄 설정
 - cc.RigidBody gravityScale 퀵 프리셋
 - sp.Skeleton timeScale 퀵 프리셋
+- dragonBones.ArmatureDisplay timeScale 퀵 프리셋

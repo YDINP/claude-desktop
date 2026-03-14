@@ -19751,6 +19751,18 @@ console.log('\n## 709. R1818 sp.Skeleton timeScale 퀵 프리셋 체크')
   }
 }
 
+// ── Section 710: R1819 dragonBones.ArmatureDisplay timeScale 퀵 프리셋 ───────
+console.log('\n## 710. R1819 dragonBones.ArmatureDisplay timeScale 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s710 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s710.includes('R1819') && s710.includes('dragonBones') && s710.includes('timeScale: v')) {
+    log('pass', 'R1819-dragonbones-timescale-preset', 'dragonBones.ArmatureDisplay timeScale 퀵 프리셋')
+  } else {
+    log('warning', 'R1819-dragonbones-timescale-preset', 'dragonBones.ArmatureDisplay timeScale 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
