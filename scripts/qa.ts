@@ -21590,6 +21590,18 @@ console.log('\n## 862. R1971 BatchInspector cc.AudioSource startTime 체크')
   }
 }
 
+// ── Section 863: R1972 BatchInspector cc.Layout horizontalDirection ──────────
+console.log('\n## 863. R1972 BatchInspector cc.Layout horizontalDirection 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s863 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s863.includes('R1972') && s863.includes('patchLayoutHorDir') && s863.includes('applyLayoutHorDir')) {
+    log('pass', 'R1972-batch-layout-hordir', 'BatchInspector cc.Layout horizontalDirection 일괄 설정')
+  } else {
+    log('warning', 'R1972-batch-layout-hordir', 'BatchInspector cc.Layout horizontalDirection 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

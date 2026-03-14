@@ -6343,6 +6343,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1972: 공통 cc.Layout horizontalDirection 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutHorDir = async (horizontalDirection: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutHorDir(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutHorDir)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, horizontalDirection, _horizontalDirection: horizontalDirection } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLayoutHorDir(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Layout horDir=${horizontalDirection===0?'L':'R'} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LyHorDir</span>
+            <span onClick={() => applyLayoutHorDir(0)} title="LEFT_TO_RIGHT"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>→L</span>
+            <span onClick={() => applyLayoutHorDir(1)} title="RIGHT_TO_LEFT"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>←R</span>
+          </div>
+        )
+      })()}
       {/* R1878: 공통 cc.Layout padding 일괄 설정 (uniform) */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPad = async (pad: number) => {
