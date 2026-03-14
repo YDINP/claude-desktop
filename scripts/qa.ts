@@ -22718,6 +22718,18 @@ console.log('\n## 956. R2065 BatchInspector cc.ScrollView bounce 체크')
   }
 }
 
+// ── Section 957: R2066 BatchInspector cc.RichText fontSize ──────────
+console.log('\n## 957. R2066 BatchInspector cc.RichText fontSize 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s957 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s957.includes('R2066') && s957.includes('patchRichFontSize') && s957.includes('applyRichFontSize')) {
+    log('pass', 'R2066-batch-rich-fontsize', 'BatchInspector cc.RichText fontSize 일괄 설정')
+  } else {
+    log('warning', 'R2066-batch-rich-fontsize', 'BatchInspector cc.RichText fontSize 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

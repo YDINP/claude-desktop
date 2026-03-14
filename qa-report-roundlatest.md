@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:09:59.182Z
+> 2026-03-14T08:10:54.057Z
 
 ## Critical
 _없음_
@@ -1995,3 +1995,4 @@ _없음_
 - BatchInspector cc.ProgressBar totalLength 일괄 설정
 - BatchInspector cc.Label fontFamily 일괄 설정
 - BatchInspector cc.ScrollView bounce 일괄 설정
+- BatchInspector cc.RichText fontSize 일괄 설정

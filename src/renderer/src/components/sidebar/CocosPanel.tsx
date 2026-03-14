@@ -4850,6 +4850,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2066: 공통 cc.RichText fontSize 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichFontSize = async (fontSize: number) => {
+          if (!sceneFile.root) return
+          function patchRichFontSize(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichFontSize)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, fontSize, _N$fontSize: fontSize } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRichFontSize(sceneFile.root) })
+          setBatchMsg(`✓ RichText fontSize=${fontSize} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>RichFS</span>
+            {[12, 16, 20, 24, 32, 40].map(v => (
+              <span key={v} title={`fontSize = ${v}`}
+                onClick={() => applyRichFontSize(v)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}
+              >{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2035: 공통 cc.RichText lineHeight 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichLineH = async (lineHeight: number) => {
