@@ -5551,11 +5551,11 @@ function CCFileBatchInspector({
           function patchLabelFontFamily(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchLabelFontFamily)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontFamily, _N$fontFamily: fontFamily } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontFamily, _fontFamily: fontFamily, _N$fontFamily: fontFamily } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLabelFontFamily(sceneFile.root) })
-          setBatchMsg(`✓ Label fontFamily=${fontFamily} (${uuids.length}개)`)
+          setBatchMsg(`✓ Label fontFamily=${fontFamily} (${uuids.length}개)`) // R2235: _fontFamily CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7159,11 +7159,11 @@ function CCFileBatchInspector({
           function patchEditInputFlag(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchEditInputFlag)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputFlag, _N$inputFlag: inputFlag } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputFlag, _inputFlag: inputFlag, _N$inputFlag: inputFlag } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchEditInputFlag(sceneFile.root) })
-          setBatchMsg(`✓ EditBox inputFlag=${inputFlag} (${uuids.length}개)`)
+          setBatchMsg(`✓ EditBox inputFlag=${inputFlag} (${uuids.length}개)`) // R2235: _inputFlag CC3.x
         }
         // 0=Default, 1=InitialCapsFWord, 2=InitialCapsSentence, 3=InitialCapsAllChars, 4=Sensitive
         return (
@@ -7309,11 +7309,11 @@ function CCFileBatchInspector({
           function patchEditInputMode(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchEditInputMode)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputMode, _N$inputMode: inputMode } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputMode, _inputMode: inputMode, _N$inputMode: inputMode } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchEditInputMode(sceneFile.root) })
-          setBatchMsg(`✓ EditBox inputMode=${inputMode} (${uuids.length}개)`)
+          setBatchMsg(`✓ EditBox inputMode=${inputMode} (${uuids.length}개)`) // R2236: _inputMode CC3.x
         }
         // 0=Any, 1=EmailAddr, 2=Numeric, 3=PhoneNum, 4=URL, 5=Decimal, 6=SingleLine
         return (
@@ -7997,11 +7997,11 @@ function CCFileBatchInspector({
           function patchScrollElastic(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchScrollElastic)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, elastic, _N$elastic: elastic } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, elastic, _elastic: elastic, _N$elastic: elastic } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchScrollElastic(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView elastic=${elastic} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView elastic=${elastic} (${uuids.length}개)`) // R2236: _elastic CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8023,11 +8023,11 @@ function CCFileBatchInspector({
           function patchElasticDur(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchElasticDur)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, elasticDuration, _N$elasticDuration: elasticDuration } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, elasticDuration, _elasticDuration: elasticDuration, _N$elasticDuration: elasticDuration } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchElasticDur(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView elasticDuration=${elasticDuration} (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView elasticDuration=${elasticDuration} (${uuids.length}개)`) // R2237: _elasticDuration CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
@@ -8049,12 +8049,12 @@ function CCFileBatchInspector({
           function patchSVBounceDur(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSVBounceDur)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounceDuration, _N$bounceDuration: bounceDuration } } : c)
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounceDuration, _bounceDuration: bounceDuration, _N$bounceDuration: bounceDuration } } : c)
             return { ...n, components: updComps, children }
           }
           const patchedRoot = patchSVBounceDur(sceneFile.root)
           await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ScrollView bounceDur=${bounceDuration}s (${uuids.length}개)`)
+          setBatchMsg(`✓ ScrollView bounceDur=${bounceDuration}s (${uuids.length}개)`) // R2237: _bounceDuration CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (

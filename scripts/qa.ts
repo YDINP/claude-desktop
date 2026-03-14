@@ -24197,6 +24197,60 @@ if (s1202.includes('R2234') && s1202.includes('applyCanvasFit3') && s1202.includ
   log('warning', 'R2234-batch-canvas-fitwidth-fitheight-cc3x', 'BatchInspector cc.Canvas _fitWidth/_fitHeight (CC3.x) 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1203: R2235 BatchInspector cc.Label _fontFamily (CC3.x) ──────────
+console.log('\n## 1203. R2235 BatchInspector cc.Label _fontFamily CC3.x 체크')
+const s1203 = s1202
+if (s1203.includes('_fontFamily: fontFamily') && s1203.includes('applyLabelFontFamily')) {
+  log('pass', 'R2235-batch-label-fontfamily-cc3x', 'BatchInspector cc.Label _fontFamily (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2235-batch-label-fontfamily-cc3x', 'BatchInspector cc.Label _fontFamily CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1204: R2235 BatchInspector cc.EditBox _inputFlag (CC3.x) ──────────
+console.log('\n## 1204. R2235 BatchInspector cc.EditBox _inputFlag CC3.x 체크')
+const s1204 = s1203
+if (s1204.includes('_inputFlag: inputFlag') && s1204.includes('applyEditInputFlag')) {
+  log('pass', 'R2235-batch-editbox-inputflag-cc3x', 'BatchInspector cc.EditBox _inputFlag (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2235-batch-editbox-inputflag-cc3x', 'BatchInspector cc.EditBox _inputFlag CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1205: R2236 BatchInspector cc.EditBox _inputMode (CC3.x) ──────────
+console.log('\n## 1205. R2236 BatchInspector cc.EditBox _inputMode CC3.x 체크')
+const s1205 = s1204
+if (s1205.includes('_inputMode: inputMode') && s1205.includes('applyEditInputMode')) {
+  log('pass', 'R2236-batch-editbox-inputmode-cc3x', 'BatchInspector cc.EditBox _inputMode (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2236-batch-editbox-inputmode-cc3x', 'BatchInspector cc.EditBox _inputMode CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1206: R2236 BatchInspector cc.ScrollView _elastic (CC3.x) ──────────
+console.log('\n## 1206. R2236 BatchInspector cc.ScrollView _elastic CC3.x 체크')
+const s1206 = s1205
+if (s1206.includes('_elastic: elastic') && s1206.includes('applyScrollElastic')) {
+  log('pass', 'R2236-batch-scrollview-elastic-cc3x', 'BatchInspector cc.ScrollView _elastic (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2236-batch-scrollview-elastic-cc3x', 'BatchInspector cc.ScrollView _elastic CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1207: R2237 BatchInspector cc.ScrollView _elasticDuration (CC3.x) ──────────
+console.log('\n## 1207. R2237 BatchInspector cc.ScrollView _elasticDuration CC3.x 체크')
+const s1207 = s1206
+if (s1207.includes('_elasticDuration: elasticDuration') && s1207.includes('applyElasticDur')) {
+  log('pass', 'R2237-batch-scrollview-elasticduration-cc3x', 'BatchInspector cc.ScrollView _elasticDuration (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2237-batch-scrollview-elasticduration-cc3x', 'BatchInspector cc.ScrollView _elasticDuration CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1208: R2237 BatchInspector cc.ScrollView _bounceDuration (CC3.x) ──────────
+console.log('\n## 1208. R2237 BatchInspector cc.ScrollView _bounceDuration CC3.x 체크')
+const s1208 = s1207
+if (s1208.includes('_bounceDuration: bounceDuration') && s1208.includes('applySVBounceDur')) {
+  log('pass', 'R2237-batch-scrollview-bounceduration-cc3x', 'BatchInspector cc.ScrollView _bounceDuration (CC3.x) 갭 수정')
+} else {
+  log('warning', 'R2237-batch-scrollview-bounceduration-cc3x', 'BatchInspector cc.ScrollView _bounceDuration CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
