@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1102: R2185 BatchInspector cc.Scrollbar enableAutoHide ──────────
+console.log('\n## 1102. R2185 BatchInspector cc.Scrollbar enableAutoHide 체크')
+const s1102 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1102.includes('R2185') && s1102.includes('applySBAutoHide') && s1102.includes('SBhide')) {
+  log('pass', 'R2185-batch-scrollbar-autoHide', 'BatchInspector cc.Scrollbar enableAutoHide 일괄 설정')
+} else {
+  log('warning', 'R2185-batch-scrollbar-autoHide', 'BatchInspector cc.Scrollbar enableAutoHide 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1103: R2185 BatchInspector cc.Scrollbar autoHideTime ──────────
+console.log('\n## 1103. R2185 BatchInspector cc.Scrollbar autoHideTime 체크')
+const s1103 = s1102
+if (s1103.includes('R2185') && s1103.includes('applySBAutoHideTime') && s1103.includes('SBhideT')) {
+  log('pass', 'R2185-batch-scrollbar-autoHideTime', 'BatchInspector cc.Scrollbar autoHideTime 일괄 설정')
+} else {
+  log('warning', 'R2185-batch-scrollbar-autoHideTime', 'BatchInspector cc.Scrollbar autoHideTime 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1100: R2184 BatchInspector 노드 cascadeColorEnabled ──────────
 console.log('\n## 1100. R2184 BatchInspector 노드 cascadeColorEnabled 체크')
 const s1100 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

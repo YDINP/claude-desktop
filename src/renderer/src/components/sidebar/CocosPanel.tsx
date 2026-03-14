@@ -7049,6 +7049,51 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2185: 공통 cc.ScrollBar enableAutoHide + autoHideTime 일괄 설정 */}
+      {commonCompTypes.includes('cc.Scrollbar') && (() => {
+        const applySBAutoHide = async (enableAutoHide: boolean) => {
+          if (!sceneFile.root) return
+          function patchSBAutoHide(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSBAutoHide)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, enableAutoHide, _N$enableAutoHide: enableAutoHide } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSBAutoHide(sceneFile.root) })
+          setBatchMsg(`✓ Scrollbar enableAutoHide=${enableAutoHide} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const applySBAutoHideTime = async (autoHideTime: number) => {
+          if (!sceneFile.root) return
+          function patchSBAutoHideTime(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSBAutoHideTime)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, autoHideTime, _N$autoHideTime: autoHideTime } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSBAutoHideTime(sceneFile.root) })
+          setBatchMsg(`✓ Scrollbar autoHideTime=${autoHideTime} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+              <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SBhide</span>
+              {([['hide✓', true], ['hide✗', false]] as const).map(([l, v]) => (
+                <span key={String(v)} onClick={() => applySBAutoHide(v)} title={`enableAutoHide=${v}`}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{l}</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+              <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SBhideT</span>
+              {[0.5, 1, 2, 3, 5].map(v => (
+                <span key={v} onClick={() => applySBAutoHideTime(v)} title={`autoHideTime=${v}s`}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>{v}</span>
+              ))}
+            </div>
+          </>
+        )
+      })()}
       {/* R2174: 공통 cc.ScrollView bounceTime 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVBounceTime = async (bounceTime: number) => {
