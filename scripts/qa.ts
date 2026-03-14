@@ -22454,6 +22454,18 @@ console.log('\n## 934. R2043 BatchInspector cc.Widget alignMode 체크')
   }
 }
 
+// ── Section 935: R2044 BatchInspector dragonBones.ArmatureDisplay playTimes ──────────
+console.log('\n## 935. R2044 BatchInspector dragonBones.ArmatureDisplay playTimes 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s935 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s935.includes('R2044') && s935.includes('patchDBPlayTimes') && s935.includes('applyDBPlayTimes')) {
+    log('pass', 'R2044-batch-db-playtimes', 'BatchInspector dragonBones.ArmatureDisplay playTimes 일괄 설정')
+  } else {
+    log('warning', 'R2044-batch-db-playtimes', 'BatchInspector dragonBones.ArmatureDisplay playTimes 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

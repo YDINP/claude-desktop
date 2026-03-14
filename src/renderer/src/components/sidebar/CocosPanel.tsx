@@ -6153,6 +6153,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2044: 공통 dragonBones.ArmatureDisplay playTimes 일괄 설정 */}
+      {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
+        const applyDBPlayTimes = async (playTimes: number) => {
+          if (!sceneFile.root) return
+          function patchDBPlayTimes(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchDBPlayTimes)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, playTimes, _playTimes: playTimes, _N$playTimes: playTimes } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchDBPlayTimes(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          const label = playTimes === -1 ? '∞' : `${playTimes}x`
+          setBatchMsg(`✓ DB playTimes=${label} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>DBplay</span>
+            {([['∞',-1],['1x',1],['2x',2],['3x',3],['5x',5]] as [string,number][]).map(([label,v]) => (
+              <span key={v} onClick={() => applyDBPlayTimes(v)} title={`playTimes=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2011: 공통 dragonBones.ArmatureDisplay loop 일괄 설정 */}
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBLoop = async (loop: boolean) => {
