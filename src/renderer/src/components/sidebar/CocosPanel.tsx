@@ -6541,6 +6541,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2026: 공통 cc.ParticleSystem totalParticles 일괄 설정 */}
+      {commonCompTypes.includes('cc.ParticleSystem') && (() => {
+        const applyPSTotalPart = async (totalParticles: number) => {
+          if (!sceneFile.root) return
+          function patchPSTotalPart(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchPSTotalPart)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ParticleSystem' ? { ...c, props: { ...c.props, totalParticles, _totalParticles: totalParticles, _N$totalParticles: totalParticles } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchPSTotalPart(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ PS totalParticles=${totalParticles} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>PStotal</span>
+            {[10, 25, 50, 100, 200, 500].map(v => (
+              <span key={v} onClick={() => applyPSTotalPart(v)} title={`totalParticles=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2016: 공통 cc.ParticleSystem rotatePerSVar 일괄 설정 */}
       {commonCompTypes.includes('cc.ParticleSystem') && (() => {
         const applyPSRotPerSVar = async (rotatePerSVar: number) => {

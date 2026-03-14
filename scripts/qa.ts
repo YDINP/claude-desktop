@@ -22238,6 +22238,18 @@ console.log('\n## 916. R2025 BatchInspector node anchor preset 체크')
   }
 }
 
+// ── Section 917: R2026 BatchInspector cc.ParticleSystem totalParticles ──────────
+console.log('\n## 917. R2026 BatchInspector cc.ParticleSystem totalParticles 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s917 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s917.includes('R2026') && s917.includes('patchPSTotalPart') && s917.includes('applyPSTotalPart')) {
+    log('pass', 'R2026-batch-ps-totalpart', 'BatchInspector cc.ParticleSystem totalParticles 일괄 설정')
+  } else {
+    log('warning', 'R2026-batch-ps-totalpart', 'BatchInspector cc.ParticleSystem totalParticles 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
