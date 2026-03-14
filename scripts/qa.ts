@@ -19703,6 +19703,18 @@ console.log('\n## 705. R1814 cc.SkeletalAnimation speedRatio 퀵 프리셋 체�
   }
 }
 
+// ── Section 706: R1815 cc.ParticleSystem emitRate 퀵 프리셋 ──────────────────
+console.log('\n## 706. R1815 cc.ParticleSystem emitRate 퀵 프리셋 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s706 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s706.includes('R1815') && s706.includes('emitRate 퀵 프리셋') && s706.includes('_N$emissionRate: v')) {
+    log('pass', 'R1815-particle-emitrate-preset', 'cc.ParticleSystem emitRate 퀵 프리셋')
+  } else {
+    log('warning', 'R1815-particle-emitrate-preset', 'cc.ParticleSystem emitRate 퀵 프리셋 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

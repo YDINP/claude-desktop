@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T04:22:47.370Z
+> 2026-03-14T04:23:48.873Z
 
 ## Critical
 _없음_
@@ -1744,3 +1744,4 @@ _없음_
 - cc.Toggle/EditBox(legacy) applyAndSave
 - cc.Graphics + Collider applyAndSave
 - cc.SkeletalAnimation speedRatio 퀵 프리셋
+- cc.ParticleSystem emitRate 퀵 프리셋

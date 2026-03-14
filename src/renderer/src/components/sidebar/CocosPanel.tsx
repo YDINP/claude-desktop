@@ -8845,6 +8845,7 @@ function CCFileNodeInspector({
             if (comp.type === 'cc.ParticleSystem' || comp.type === 'cc.ParticleSystem2D') {
               const duration = Number(p.duration ?? -1)
               const maxParticles = Number(p.maxParticles ?? 150)
+              const emitRate = Number(p.emissionRate ?? p._emissionRate ?? p._N$emissionRate ?? 10)
               const durKey = comp.type === 'cc.ParticleSystem2D' ? '_N$duration' : '_duration'
               const maxKey = comp.type === 'cc.ParticleSystem2D' ? '_N$totalParticles' : '_N$maxParticles'
               return (
@@ -8878,6 +8879,27 @@ function CCFileNodeInspector({
                       }}
                       style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
+                  </div>
+                  {/* R1815: emitRate 퀵 프리셋 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>emitRate</span>
+                    <input type="number" defaultValue={emitRate} min={0.1} step={5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 10
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, emissionRate: v, _emissionRate: v, _N$emissionRate: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    {[5, 10, 30, 50, 100, 200].map(v => (
+                      <span key={v} title={`emitRate = ${v}`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, emissionRate: v, _emissionRate: v, _N$emissionRate: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${emitRate === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: emitRate === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
                   </div>
                 </div>
               )
