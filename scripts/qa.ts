@@ -17987,6 +17987,18 @@ console.log('\n## 562. R1671 앵커 9-point 프리셋 그리드 체크')
   }
 }
 
+// ── Section 563: R1672 노드 북마크 (1-9키) ──────────────────────
+console.log('\n## 563. R1672 노드 북마크 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s563 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s563.includes('R1672') && s563.includes('nodeBookmarks') && s563.includes('[1-9]') && s563.includes('북마크 키')) {
+    log('pass', 'R1672-node-bookmarks', '노드 북마크 (Ctrl+1-9 설정, 1-9 이동)')
+  } else {
+    log('warning', 'R1672-node-bookmarks', '노드 북마크 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -585,6 +585,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [multiSelectedUuids, setMultiSelectedUuids] = useState<string[]>([])
   // R1666: 선택 노드 pulse 미리보기
   const [pulseUuid, setPulseUuid] = useState<string | null>(null)
+  // R1672: 노드 북마크 (1-9키 → uuid 매핑)
+  const [nodeBookmarks, setNodeBookmarks] = useState<Record<string, string>>({}) // key(1-9) → uuid
   const handleNodeColorChange = useCallback((uuid: string, color: string | null) => {
     setNodeColors(prev => {
       const next = { ...prev }
@@ -1261,10 +1263,23 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         }
         return
       }
+      // R1672: Ctrl+1-9 → 북마크 설정, 1-9 → 북마크 이동
+      if (!isInput && /^[1-9]$/.test(e.key)) {
+        if (ctrl && selectedNode) {
+          e.preventDefault()
+          setNodeBookmarks(prev => ({ ...prev, [e.key]: selectedNode.uuid }))
+        } else if (!ctrl && nodeBookmarks[e.key]) {
+          e.preventDefault()
+          const uuid = nodeBookmarks[e.key]
+          const found = nodeMap.get(uuid)
+          if (found) onSelectNode(found)
+        }
+        return
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene, handleSave, onSelectNode, parentMap, nodeMap])
+  }, [sceneFile, canUndo, canRedo, undo, redo, selectedNode, handleTreeDelete, handleTreeDuplicate, saveScene, handleSave, onSelectNode, parentMap, nodeMap, nodeBookmarks])
 
   // R1430: 전역 노드 검색 상태
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false)
@@ -2610,6 +2625,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   return next
                 })}
                 highlightQuery={treeHighlightQuery}
+                nodeBookmarks={nodeBookmarks}
               />
             </div>
           </div>
@@ -3060,7 +3076,7 @@ function GroupPanel({
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks,
 }: {
   node: CCSceneNode
   depth: number
@@ -3081,6 +3097,7 @@ function CCFileSceneTree({
   collapsedUuids?: Set<string>
   onToggleCollapse?: (uuid: string) => void
   highlightQuery?: string
+  nodeBookmarks?: Record<string, string>
 }) {
   const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
   const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
@@ -3205,6 +3222,12 @@ function CCFileSceneTree({
             return <>{name.slice(0, idx)}<span style={{ background: '#fbbf24', color: '#1a1a2e', borderRadius: 2 }}>{name.slice(idx, idx + ql.length)}</span>{name.slice(idx + ql.length)}</>
           })()}
         </span>
+        {/* R1672: 북마크 배지 */}
+        {nodeBookmarks && (() => {
+          const key = Object.entries(nodeBookmarks).find(([, uuid]) => uuid === node.uuid)?.[0]
+          if (!key) return null
+          return <span style={{ fontSize: 8, color: '#a78bfa', flexShrink: 0, padding: '0 2px', background: 'rgba(167,139,250,0.15)', borderRadius: 2 }} title={`북마크 키: ${key}`}>{key}</span>
+        })()}
         {!isRoot && (
           <span
             onClick={e => { e.stopPropagation(); onToggleActive?.(node.uuid) }}
@@ -3282,6 +3305,7 @@ function CCFileSceneTree({
           collapsedUuids={collapsedUuids}
           onToggleCollapse={onToggleCollapse}
           highlightQuery={highlightQuery}
+          nodeBookmarks={nodeBookmarks}
         />
       ))}
     </div>
