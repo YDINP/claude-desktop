@@ -9224,6 +9224,32 @@ function CCFileNodeInspector({
                       >{v}</span>
                     ))}
                   </div>
+                  {/* R1831: elasticDuration 편집 */}
+                  {(() => {
+                    const ed = Number(p.elasticDuration ?? p._N$elasticDuration ?? 0.2)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>elasticDur</span>
+                        <input type="number" defaultValue={ed} key={`ed-${ed}`} min={0} max={2} step={0.05}
+                          onBlur={e => {
+                            const v = Math.max(0, parseFloat(e.target.value) || 0.2)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, elasticDuration: v, _N$elasticDuration: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        {([0, 0.1, 0.2, 0.5, 1] as const).map(v => (
+                          <span key={v} title={`elasticDuration = ${v}s`}
+                            onClick={() => {
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, elasticDuration: v, _N$elasticDuration: v } } : c)
+                              applyAndSave({ components: updated })
+                            }}
+                            style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${Math.abs(ed - v) < 0.01 ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(ed - v) < 0.01 ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                          >{v}s</span>
+                        ))}
+                      </div>
+                    )
+                  })()}
                   {/* R1740: content 자식 노드 크기 퀵 편집 */}
                   {contentNode && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, borderTop: '1px solid var(--border)', paddingTop: 3 }}>

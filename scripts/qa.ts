@@ -19895,6 +19895,18 @@ console.log('\n## 721. R1830 cc.RigidBody angularDamping 체크')
   }
 }
 
+// ── Section 722: R1831 cc.ScrollView elasticDuration 편집 ───────────────────
+console.log('\n## 722. R1831 cc.ScrollView elasticDuration 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s722 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s722.includes('R1831') && s722.includes('elasticDuration') && s722.includes('_N$elasticDuration')) {
+    log('pass', 'R1831-scrollview-elasticduration', 'cc.ScrollView elasticDuration 편집 + 프리셋')
+  } else {
+    log('warning', 'R1831-scrollview-elasticduration', 'cc.ScrollView elasticDuration 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
