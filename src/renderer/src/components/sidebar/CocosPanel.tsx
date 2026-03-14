@@ -6368,6 +6368,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R1973: 공통 cc.Layout verticalDirection 일괄 설정 */}
+      {commonCompTypes.includes('cc.Layout') && (() => {
+        const applyLayoutVerDir = async (verticalDirection: number) => {
+          if (!sceneFile.root) return
+          function patchLayoutVerDir(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLayoutVerDir)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, verticalDirection, _verticalDirection: verticalDirection } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchLayoutVerDir(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Layout verDir=${verticalDirection===0?'T':'B'} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>LyVerDir</span>
+            <span onClick={() => applyLayoutVerDir(0)} title="TOP_TO_BOTTOM"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>↓T</span>
+            <span onClick={() => applyLayoutVerDir(1)} title="BOTTOM_TO_TOP"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>↑B</span>
+          </div>
+        )
+      })()}
       {/* R1878: 공통 cc.Layout padding 일괄 설정 (uniform) */}
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPad = async (pad: number) => {

@@ -21602,6 +21602,18 @@ console.log('\n## 863. R1972 BatchInspector cc.Layout horizontalDirection 체크
   }
 }
 
+// ── Section 864: R1973 BatchInspector cc.Layout verticalDirection ──────────
+console.log('\n## 864. R1973 BatchInspector cc.Layout verticalDirection 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s864 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s864.includes('R1973') && s864.includes('patchLayoutVerDir') && s864.includes('applyLayoutVerDir')) {
+    log('pass', 'R1973-batch-layout-verdir', 'BatchInspector cc.Layout verticalDirection 일괄 설정')
+  } else {
+    log('warning', 'R1973-batch-layout-verdir', 'BatchInspector cc.Layout verticalDirection 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
