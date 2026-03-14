@@ -23486,6 +23486,18 @@ console.log('\n## 1020. R2129 BatchInspector cc.RigidBody angularVelocityLimit �
   }
 }
 
+// ── Section 1021: R2130 BatchInspector cc.Button hoverColor ──────────
+console.log('\n## 1021. R2130 BatchInspector cc.Button hoverColor 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1021 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1021.includes('R2130') && s1021.includes('patchBtnHoverColor') && s1021.includes('applyBtnHoverColor')) {
+    log('pass', 'R2130-batch-btn-hovercolor', 'BatchInspector cc.Button hoverColor 일괄 설정')
+  } else {
+    log('warning', 'R2130-batch-btn-hovercolor', 'BatchInspector cc.Button hoverColor 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
