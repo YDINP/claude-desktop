@@ -22658,6 +22658,18 @@ console.log('\n## 951. R2060 BatchInspector cc.ParticleSystem endRadius 체크')
   }
 }
 
+// ── Section 952: R2061 BatchInspector cc.ParticleSystem startRadiusVar ──────────
+console.log('\n## 952. R2061 BatchInspector cc.ParticleSystem startRadiusVar 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s952 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s952.includes('R2061') && s952.includes('patchPSStartRadiusVar') && s952.includes('applyPSStartRadiusVar')) {
+    log('pass', 'R2061-batch-ps-startradvar', 'BatchInspector cc.ParticleSystem startRadiusVar 일괄 설정')
+  } else {
+    log('warning', 'R2061-batch-ps-startradvar', 'BatchInspector cc.ParticleSystem startRadiusVar 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
