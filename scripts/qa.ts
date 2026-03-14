@@ -23306,6 +23306,18 @@ console.log('\n## 1005. R2114 BatchInspector cc.Camera targetDisplay 체크')
   }
 }
 
+// ── Section 1006: R2115 BatchInspector cc.ScrollView horizontal ──────────
+console.log('\n## 1006. R2115 BatchInspector cc.ScrollView horizontal 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s1006 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s1006.includes('R2115') && s1006.includes('patchSVHoriz') && s1006.includes('applySVHoriz')) {
+    log('pass', 'R2115-batch-sv-horiz', 'BatchInspector cc.ScrollView horizontal 일괄 설정')
+  } else {
+    log('warning', 'R2115-batch-sv-horiz', 'BatchInspector cc.ScrollView horizontal 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

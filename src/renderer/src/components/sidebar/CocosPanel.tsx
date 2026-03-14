@@ -6146,6 +6146,29 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2115: 공통 cc.ScrollView horizontal 일괄 설정 */}
+      {commonCompTypes.includes('cc.ScrollView') && (() => {
+        const applySVHoriz = async (horizontal: boolean) => {
+          if (!sceneFile.root) return
+          function patchSVHoriz(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSVHoriz)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, horizontal, _N$horizontal: horizontal } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchSVHoriz(sceneFile.root) })
+          setBatchMsg(`✓ ScrollView horizontal=${horizontal} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>SVHoriz</span>
+            <span onClick={() => applySVHoriz(true)} title="horizontal ON"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>H✓</span>
+            <span onClick={() => applySVHoriz(false)} title="horizontal OFF"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>H✗</span>
+          </div>
+        )
+      })()}
       {/* R2004: 공통 cc.ScrollView pagingEnabled 일괄 설정 */}
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVPaging = async (pagingEnabled: boolean) => {
