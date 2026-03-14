@@ -5966,6 +5966,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2036: 공통 cc.MotionStreak minSeg 일괄 설정 */}
+      {commonCompTypes.includes('cc.MotionStreak') && (() => {
+        const applyMSMinSeg = async (minSeg: number) => {
+          if (!sceneFile.root) return
+          function patchMSMinSeg(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchMSMinSeg)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, minSeg, _minSeg: minSeg, _N$minSeg: minSeg } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchMSMinSeg(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ MotionStreak minSeg=${minSeg} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f472b6', width: 48, flexShrink: 0 }}>MSminSeg</span>
+            {[1, 2, 5, 10, 20, 50].map(v => (
+              <span key={v} onClick={() => applyMSMinSeg(v)} title={`minSeg=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f472b6', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1883: 공통 cc.MotionStreak stroke 일괄 설정 */}
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMotionStroke = async (stroke: number) => {

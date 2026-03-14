@@ -22358,6 +22358,18 @@ console.log('\n## 926. R2035 BatchInspector cc.RichText lineHeight 체크')
   }
 }
 
+// ── Section 927: R2036 BatchInspector cc.MotionStreak minSeg ──────────
+console.log('\n## 927. R2036 BatchInspector cc.MotionStreak minSeg 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s927 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s927.includes('R2036') && s927.includes('patchMSMinSeg') && s927.includes('applyMSMinSeg')) {
+    log('pass', 'R2036-batch-ms-minseg', 'BatchInspector cc.MotionStreak minSeg 일괄 설정')
+  } else {
+    log('warning', 'R2036-batch-ms-minseg', 'BatchInspector cc.MotionStreak minSeg 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
