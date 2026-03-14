@@ -19139,6 +19139,18 @@ console.log('\n## 658. R1767 cc.RichText 텍스트 미리보기 체크')
   }
 }
 
+// ── Section 659: R1768 BatchInspector X/Y 균등 배치 ─────────────────────────
+console.log('\n## 659. R1768 BatchInspector X/Y 균등 배치 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s659 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s659.includes('R1768') && s659.includes('균등 배치') && s659.includes('patchDist') && s659.includes('distMap')) {
+    log('pass', 'R1768-distribute', 'BatchInspector X/Y 균등 배치')
+  } else {
+    log('warning', 'R1768-distribute', 'BatchInspector X/Y 균등 배치 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

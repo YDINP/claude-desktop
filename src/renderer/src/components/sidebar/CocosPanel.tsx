@@ -4341,6 +4341,50 @@ function CCFileBatchInspector({
             style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 3, color: '#fbbf24', cursor: 'pointer' }}
           >번호 추가 _1,_2... ({uuids.length}개)</button>
         </div>
+        {/* R1768: X/Y 균등 배치 (3개 이상 선택 시) */}
+        {uuids.length >= 3 && (
+          <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+            {(['X', 'Y'] as const).map(axis => (
+              <button key={axis} title={`선택 노드를 ${axis}축으로 균등 배치`}
+                onClick={async () => {
+                  if (!sceneFile.root) return
+                  const posMap: Record<string, { x: number; y: number }> = {}
+                  function collectPos(nd: CCSceneNode) {
+                    if (uuidSet.has(nd.uuid)) posMap[nd.uuid] = { x: nd.position.x, y: nd.position.y }
+                    nd.children.forEach(collectPos)
+                  }
+                  collectPos(sceneFile.root)
+                  const sortedUuids = [...uuids].sort((a, b) => {
+                    const pa = posMap[a], pb = posMap[b]
+                    if (!pa || !pb) return 0
+                    return axis === 'X' ? pa.x - pb.x : pa.y - pb.y
+                  })
+                  const first = posMap[sortedUuids[0]], last = posMap[sortedUuids[sortedUuids.length - 1]]
+                  if (!first || !last) return
+                  const cnt = sortedUuids.length - 1
+                  const distMap: Record<string, number> = {}
+                  sortedUuids.forEach((uid, i) => {
+                    distMap[uid] = axis === 'X'
+                      ? first.x + (last.x - first.x) * i / cnt
+                      : first.y + (last.y - first.y) * i / cnt
+                  })
+                  function patchDist(nd: CCSceneNode): CCSceneNode {
+                    const children = nd.children.map(patchDist)
+                    if (!uuidSet.has(nd.uuid) || distMap[nd.uuid] === undefined) return { ...nd, children }
+                    const newPos = axis === 'X'
+                      ? { ...nd.position, x: Math.round(distMap[nd.uuid]) }
+                      : { ...nd.position, y: Math.round(distMap[nd.uuid]) }
+                    return { ...nd, position: newPos, children }
+                  }
+                  await saveScene(patchDist(sceneFile.root))
+                  setBatchMsg(`✓ ${axis}축 균등 배치 (${uuids.length}개)`)
+                  setTimeout(() => setBatchMsg(null), 2000)
+                }}
+                style={{ flex: 1, fontSize: 9, padding: '2px 4px', background: 'rgba(88,166,255,0.1)', border: '1px solid var(--border)', borderRadius: 3, color: '#58a6ff', cursor: 'pointer' }}
+              >⇔ {axis}축 균등 배치</button>
+            ))}
+          </div>
+        )}
       </div>
       {/* R1737: 앵커 9-point 일괄 설정 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
