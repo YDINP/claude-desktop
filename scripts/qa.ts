@@ -22682,6 +22682,18 @@ console.log('\n## 953. R2062 BatchInspector cc.ParticleSystem rotationIsDir 체�
   }
 }
 
+// ── Section 954: R2063 BatchInspector cc.ProgressBar totalLength ──────────
+console.log('\n## 954. R2063 BatchInspector cc.ProgressBar totalLength 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s954 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s954.includes('R2063') && s954.includes('patchPBTotalLength') && s954.includes('applyPBTotalLength')) {
+    log('pass', 'R2063-batch-pb-totallength', 'BatchInspector cc.ProgressBar totalLength 일괄 설정')
+  } else {
+    log('warning', 'R2063-batch-pb-totallength', 'BatchInspector cc.ProgressBar totalLength 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
