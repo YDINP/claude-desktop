@@ -5432,6 +5432,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2182: 공통 cc.RichText imageLineHeight 일괄 설정 */}
+      {commonCompTypes.includes('cc.RichText') && (() => {
+        const applyRichImgLineH = async (imageLineHeight: number) => {
+          if (!sceneFile.root) return
+          function patchRichImgLineH(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRichImgLineH)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, imageLineHeight, _imageLineHeight: imageLineHeight, _N$imageLineHeight: imageLineHeight } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchRichImgLineH(sceneFile.root) })
+          setBatchMsg(`✓ RichText imageLineHeight=${imageLineHeight} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#f59e0b', width: 48, flexShrink: 0 }}>RTImgLH</span>
+            {[20, 24, 28, 32, 40, 48].map(v => (
+              <span key={v} onClick={() => applyRichImgLineH(v)} title={`imageLineHeight=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#f59e0b', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1942: 공통 cc.RichText lineHeight 일괄 설정 */}
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichLineH = async (lineHeight: number) => {
@@ -5998,6 +6022,30 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>TogInter</span>
             <span onClick={() => applyToggleInteract(true)} title="interactable ON" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>inter✓</span>
             <span onClick={() => applyToggleInteract(false)} title="interactable OFF" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#f85149', userSelect: 'none' }}>inter✗</span>
+          </div>
+        )
+      })()}
+      {/* R2182: 공통 cc.ToggleContainer autoCheckToggle 일괄 설정 */}
+      {commonCompTypes.includes('cc.ToggleContainer') && (() => {
+        const applyTCAutoCheck = async (autoCheckToggle: boolean) => {
+          if (!sceneFile.root) return
+          function patchTCAutoCheck(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchTCAutoCheck)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.ToggleContainer' ? { ...c, props: { ...c.props, autoCheckToggle, _autoCheckToggle: autoCheckToggle } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchTCAutoCheck(sceneFile.root) })
+          setBatchMsg(`✓ ToggleContainer autoCheckToggle=${autoCheckToggle} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>TCauto</span>
+            {([['auto✓', true], ['auto✗', false]] as const).map(([l, v]) => (
+              <span key={String(v)} onClick={() => applyTCAutoCheck(v)} title={`autoCheckToggle=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>{l}</span>
+            ))}
           </div>
         )
       })()}

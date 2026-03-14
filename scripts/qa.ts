@@ -24077,6 +24077,24 @@ if (s1075.includes('R2171') && s1075.includes('applyGraphicsLineJoin') && s1075.
   log('warning', 'R2171-batch-graphics-linejoin', 'BatchInspector cc.Graphics lineJoin 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1096: R2182 BatchInspector cc.ToggleContainer autoCheckToggle ──────────
+console.log('\n## 1096. R2182 BatchInspector cc.ToggleContainer autoCheckToggle 체크')
+const s1096 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (s1096.includes('R2182') && s1096.includes('applyTCAutoCheck') && s1096.includes('TCauto')) {
+  log('pass', 'R2182-batch-tc-autochecktoggle', 'BatchInspector cc.ToggleContainer autoCheckToggle 일괄 설정')
+} else {
+  log('warning', 'R2182-batch-tc-autochecktoggle', 'BatchInspector cc.ToggleContainer autoCheckToggle 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1097: R2182 BatchInspector cc.RichText imageLineHeight ──────────
+console.log('\n## 1097. R2182 BatchInspector cc.RichText imageLineHeight 체크')
+const s1097 = s1096
+if (s1097.includes('R2182') && s1097.includes('applyRichImgLineH') && s1097.includes('RTImgLH')) {
+  log('pass', 'R2182-batch-richtext-imagelineheight', 'BatchInspector cc.RichText imageLineHeight 일괄 설정')
+} else {
+  log('warning', 'R2182-batch-richtext-imagelineheight', 'BatchInspector cc.RichText imageLineHeight 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1094: R2181 BatchInspector cc.Label enableDashLine ──────────
 console.log('\n## 1094. R2181 BatchInspector cc.Label enableDashLine 체크')
 const s1094 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
