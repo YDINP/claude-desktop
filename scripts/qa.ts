@@ -22694,6 +22694,18 @@ console.log('\n## 954. R2063 BatchInspector cc.ProgressBar totalLength 체크')
   }
 }
 
+// ── Section 955: R2064 BatchInspector cc.Label fontFamily ──────────
+console.log('\n## 955. R2064 BatchInspector cc.Label fontFamily 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s955 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s955.includes('R2064') && s955.includes('patchLabelFontFamily') && s955.includes('applyLabelFontFamily')) {
+    log('pass', 'R2064-batch-label-fontfamily', 'BatchInspector cc.Label fontFamily 일괄 설정')
+  } else {
+    log('warning', 'R2064-batch-label-fontfamily', 'BatchInspector cc.Label fontFamily 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

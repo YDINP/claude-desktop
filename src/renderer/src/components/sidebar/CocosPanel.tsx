@@ -4558,6 +4558,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2064: 공통 cc.Label fontFamily preset 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelFontFamily = async (fontFamily: string) => {
+          if (!sceneFile.root) return
+          function patchLabelFontFamily(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelFontFamily)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontFamily, _N$fontFamily: fontFamily } } : c)
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelFontFamily(sceneFile.root) })
+          setBatchMsg(`✓ Label fontFamily=${fontFamily} (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>LblFont</span>
+            {['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Georgia'].map(f => (
+              <span key={f} title={`fontFamily = ${f}`}
+                onClick={() => applyLabelFontFamily(f)}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}
+              >{f.split(' ')[0]}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2017: 공통 cc.Label lineHeight 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelLineHeight = async (lineHeight: number) => {
