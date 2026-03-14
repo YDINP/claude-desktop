@@ -4468,7 +4468,7 @@ function CCFileNodeInspector({
           </datalist>
         )
       })()}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
         <input
           defaultValue={draft.name}
           list={`cc-node-names-${node.uuid}`}
@@ -4880,6 +4880,17 @@ function CCFileNodeInspector({
             📜
           </button>
         </div>
+      </div>
+      {/* R1702: 노드 UUID 표시 + 복사 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+        <span style={{ fontSize: 8, color: '#444', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={node.uuid}>{node.uuid}</span>
+        <span
+          title="노드 UUID 복사"
+          onClick={() => navigator.clipboard.writeText(node.uuid).catch(() => {})}
+          style={{ fontSize: 8, cursor: 'pointer', color: '#444', flexShrink: 0 }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#888')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#444')}
+        >⎘</span>
       </div>
 
       {/* R699: 변경 이력 패널 */}

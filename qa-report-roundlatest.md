@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T01:31:23.398Z
+> 2026-03-14T01:33:17.949Z
 
 ## Critical
 _없음_
@@ -1631,3 +1631,4 @@ _없음_
 - SceneView 선택 노드 정보 오버레이
 - cc.Animation 클립 이름 복사
 - cc.AudioSource 클립 uuid 복사
+- Inspector 노드 UUID 표시 + 복사

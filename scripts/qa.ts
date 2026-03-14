@@ -18347,6 +18347,18 @@ console.log('\n## 592. R1701 cc.AudioSource 클립 uuid 복사 체크')
   }
 }
 
+// ── Section 593: R1702 Inspector 노드 UUID 표시 + 복사 ──────────────────────
+console.log('\n## 593. R1702 Inspector 노드 UUID 복사 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s593 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s593.includes('R1702') && s593.includes('노드 UUID 표시') && s593.includes('node.uuid')) {
+    log('pass', 'R1702-node-uuid-copy', 'Inspector 노드 UUID 표시 + 복사')
+  } else {
+    log('warning', 'R1702-node-uuid-copy', 'Inspector 노드 UUID 복사 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
