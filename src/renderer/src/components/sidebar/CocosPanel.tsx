@@ -7280,6 +7280,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2042: 공통 cc.Slider value 일괄 설정 */}
+      {commonCompTypes.includes('cc.Slider') && (() => {
+        const applySliderVal = async (progress: number) => {
+          if (!sceneFile.root) return
+          function patchSliderVal(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSliderVal)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, progress, _N$progress: progress } } : c)
+            return { ...n, components: updComps, children }
+          }
+          const patchedRoot = patchSliderVal(sceneFile.root)
+          await saveScene({ ...sceneFile, root: patchedRoot })
+          setBatchMsg(`✓ Slider value=${progress} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>SldrVal</span>
+            {[0, 0.25, 0.5, 0.75, 1].map(v => (
+              <span key={v} onClick={() => applySliderVal(v)} title={`progress=${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{v}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1944: 공통 cc.Slider min/max 일괄 설정 */}
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderRange = async (min: number, max: number) => {

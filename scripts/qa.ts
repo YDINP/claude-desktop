@@ -22430,6 +22430,18 @@ console.log('\n## 932. R2041 BatchInspector cc.Layout spacingY 체크')
   }
 }
 
+// ── Section 933: R2042 BatchInspector cc.Slider value ──────────
+console.log('\n## 933. R2042 BatchInspector cc.Slider value 체크')
+{
+  const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const s933 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
+  if (s933.includes('R2042') && s933.includes('patchSliderVal') && s933.includes('applySliderVal')) {
+    log('pass', 'R2042-batch-slider-val', 'BatchInspector cc.Slider value 일괄 설정')
+  } else {
+    log('warning', 'R2042-batch-slider-val', 'BatchInspector cc.Slider value 미구현', 'CocosPanel.tsx')
+  }
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
