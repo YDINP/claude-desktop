@@ -17943,6 +17943,20 @@ function CCFileBatchInspector({
               title={`선택 노드 이름 목록 복사 (줄바꿈 구분) — R2580`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none', background: 'rgba(148,163,184,0.05)' }}
             >📋 이름</span>
+            {/* R2584: 선택 노드 UUID 목록 클립보드 복사 */}
+            <span
+              onClick={() => {
+                if (!sceneFile.root) return
+                const uuidList: string[] = []
+                function collectUuids(n: CCSceneNode) { if (uuidSet.has(n.uuid)) uuidList.push(n.uuid); n.children.forEach(collectUuids) }
+                collectUuids(sceneFile.root)
+                navigator.clipboard.writeText(uuidList.join('\n')).catch(() => {})
+                setBatchMsg(`✓ UUID ${uuidList.length}개 복사 (R2584)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              title={`선택 노드 UUID 목록 복사 (줄바꿈 구분) — R2584`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}
+            >📋 UUID</span>
           </div>
         )
       })()}

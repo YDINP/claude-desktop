@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1576: R2584 BatchInspector UUID 목록 복사 (📋 UUID) ──────────────
+console.log('\n## 1576. R2584 — BatchInspector UUID 목록 복사 (📋 UUID)')
+const s1576 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1576.includes('R2584') &&
+  s1576.includes('collectUuids') &&
+  s1576.includes('📋 UUID')
+) {
+  log('pass', 'R2584-copy-uuids', 'R2584 UUID 목록 복사 구현 완료')
+} else {
+  log('warning', 'R2584-copy-uuids', 'R2584 UUID 목록 복사 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1575: R2583 SceneView 회전값 레이블 오버레이 (∠°) ───────────────
 console.log('\n## 1575. R2583 — SceneView 회전값 레이블 오버레이 (∠°)')
 const s1575sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
