@@ -25969,37 +25969,65 @@ function CCFileNodeInspector({
           </div>
         )
       })()}
-      {/* R1497: Raw JSON 뷰 */}
+      {/* R1497: Raw JSON 뷰 / R2487: 인라인 편집 */}
       {secHeader('rawJson', 'Raw JSON')}
-      {!collapsed['rawJson'] && (
-        <div style={{ marginTop: 4 }}>
-          <pre style={{
-            fontSize: 8, fontFamily: 'monospace', color: '#556', background: 'rgba(0,0,0,0.2)',
-            borderRadius: 3, padding: '4px 6px', overflowX: 'auto', maxHeight: 160, overflowY: 'auto',
-            userSelect: 'text', whiteSpace: 'pre-wrap', wordBreak: 'break-all',
-          }}>
-            {JSON.stringify({
-              uuid: draft.uuid,
-              name: draft.name,
-              active: draft.active,
-              position: draft.position,
-              rotation: draft.rotation,
-              scale: draft.scale,
-              size: draft.size,
-              anchor: draft.anchor,
-              opacity: draft.opacity,
-              color: draft.color,
-              components: draft.components.map(c => ({ type: c.type, props: c.props })),
-            }, null, 2)}
-          </pre>
-          <button
-            onClick={() => navigator.clipboard.writeText(JSON.stringify(draft, null, 2)).catch(() => {})}
-            style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', marginTop: 3, background: 'transparent', border: '1px solid #444', color: '#666' }}
-          >
-            JSON 복사
-          </button>
-        </div>
-      )}
+      {!collapsed['rawJson'] && (() => {
+        const [jsonEdit, setJsonEdit] = React.useState(false)
+        const [jsonText, setJsonText] = React.useState('')
+        const [jsonErr, setJsonErr] = React.useState('')
+        const jsonObj = {
+          uuid: draft.uuid, name: draft.name, active: draft.active,
+          position: draft.position, rotation: draft.rotation, scale: draft.scale,
+          size: draft.size, anchor: draft.anchor, opacity: draft.opacity,
+          color: draft.color, components: draft.components.map(c => ({ type: c.type, props: c.props })),
+        }
+        const startEdit = () => { setJsonText(JSON.stringify(jsonObj, null, 2)); setJsonErr(''); setJsonEdit(true) }
+        const applyJson = () => {
+          try {
+            const parsed = JSON.parse(jsonText)
+            const patch: Partial<CCSceneNode> = {}
+            if (parsed.name !== undefined) patch.name = String(parsed.name)
+            if (parsed.active !== undefined) patch.active = Boolean(parsed.active)
+            if (parsed.position !== undefined) patch.position = parsed.position
+            if (parsed.rotation !== undefined) patch.rotation = parsed.rotation
+            if (parsed.scale !== undefined) patch.scale = parsed.scale
+            if (parsed.size !== undefined) patch.size = parsed.size
+            if (parsed.anchor !== undefined) patch.anchor = parsed.anchor
+            if (parsed.opacity !== undefined) patch.opacity = Number(parsed.opacity)
+            if (parsed.color !== undefined) patch.color = parsed.color
+            if (Array.isArray(parsed.components)) patch.components = parsed.components
+            applyAndSave(patch)
+            setJsonEdit(false); setJsonErr('')
+          } catch (e) { setJsonErr(String(e)) }
+        }
+        return (
+          <div style={{ marginTop: 4 }}>
+            {jsonEdit ? (
+              <>
+                <textarea
+                  value={jsonText} onChange={e => { setJsonText(e.target.value); setJsonErr('') }}
+                  style={{ width: '100%', minHeight: 160, fontSize: 8, fontFamily: 'monospace', background: 'rgba(0,0,0,0.3)', border: `1px solid ${jsonErr ? '#f85149' : '#334'}`, color: '#aac', borderRadius: 3, padding: '4px 6px', boxSizing: 'border-box', resize: 'vertical' }}
+                />
+                {jsonErr && <div style={{ fontSize: 8, color: '#f85149', marginTop: 2 }}>{jsonErr}</div>}
+                <div style={{ display: 'flex', gap: 4, marginTop: 3 }}>
+                  <button onClick={applyJson} style={{ fontSize: 9, padding: '1px 7px', borderRadius: 3, cursor: 'pointer', background: 'rgba(88,166,255,0.15)', border: '1px solid #334a6a', color: '#58a6ff' }}>적용 (R2487)</button>
+                  <button onClick={() => { setJsonEdit(false); setJsonErr('') }} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', background: 'transparent', border: '1px solid #444', color: '#666' }}>취소</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <pre style={{ fontSize: 8, fontFamily: 'monospace', color: '#556', background: 'rgba(0,0,0,0.2)', borderRadius: 3, padding: '4px 6px', overflowX: 'auto', maxHeight: 160, overflowY: 'auto', userSelect: 'text', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                  {JSON.stringify(jsonObj, null, 2)}
+                </pre>
+                <div style={{ display: 'flex', gap: 4, marginTop: 3 }}>
+                  <button onClick={startEdit} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', background: 'transparent', border: '1px solid #334a6a', color: '#58a6ff' }}>편집 (R2487)</button>
+                  <button onClick={() => navigator.clipboard.writeText(JSON.stringify(draft, null, 2)).catch(() => {})} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', background: 'transparent', border: '1px solid #444', color: '#666' }}>JSON 복사</button>
+                </div>
+              </>
+            )}
+          </div>
+        )
+      })()}
       {/* R1508: 빠른 편집 CLI 입력 바 */}
       {(() => {
         const runCmd = (cmd: string) => {

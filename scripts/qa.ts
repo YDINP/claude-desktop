@@ -28719,6 +28719,19 @@ if (
   log('warning', 'R2486-scene-view-persist', 'R2486 씬별 뷰 상태 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1479: R2487 Inspector Raw JSON 인라인 편집 ──────────────────────
+const s1479 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1479.includes('R2487') &&
+  s1479.includes('applyJson') &&
+  s1479.includes('jsonEdit') &&
+  s1479.includes('jsonText')
+) {
+  log('pass', 'R2487-json-edit', 'R2487 Inspector Raw JSON 인라인 편집 구현 완료')
+} else {
+  log('warning', 'R2487-json-edit', 'R2487 Raw JSON 편집 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
