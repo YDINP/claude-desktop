@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1325: R2321 undo/redo 스택 카운터 표시 ──────────
+console.log('\n## 1325. R2321 undo/redo 카운터 체크')
+const s1325hook = readFileSync(join(ROOT, 'src/renderer/src/hooks/useCCFileProject.ts'), 'utf-8')
+const s1325panel = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1325hook.includes('undoCount') &&
+  s1325hook.includes('redoCount') &&
+  s1325panel.includes('undoCount') &&
+  s1325panel.includes('R2321')
+) {
+  log('pass', 'R2321-undo-redo-counter', 'undo/redo 스택 카운터 표시 구현 완료')
+} else {
+  log('warning', 'R2321-undo-redo-counter', 'undo/redo 카운터 미구현', 'useCCFileProject.ts / CocosPanel.tsx')
+}
+
 // ── Section 1324: R2320 씬 교차 붙여넣기 (cross-scene paste) ──────────
 console.log('\n## 1324. R2320 씬 교차 붙여넣기 체크')
 const s1324 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

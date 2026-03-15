@@ -268,6 +268,8 @@ interface CCFileProjectUIProps {
     externalChange: { path: string; timestamp: number } | null
     canUndo: boolean
     canRedo: boolean
+    undoCount?: number  // R2321
+    redoCount?: number  // R2321
     openProject: () => Promise<void>
     detectProject?: (path: string) => Promise<void>
     loadScene: (scenePath: string) => Promise<void>
@@ -297,7 +299,7 @@ function deepCopyNodeWithNewUuids(node: CCSceneNode, suffix = '_Copy'): CCSceneN
 }
 
 function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
-  const { projectInfo, sceneFile, loading, error, externalChange, canUndo, canRedo, conflictInfo, openProject, detectProject, loadScene, saveScene, undo, redo, restoreBackup, forceOverwrite } = fileProject
+  const { projectInfo, sceneFile, loading, error, externalChange, canUndo, canRedo, undoCount, redoCount, conflictInfo, openProject, detectProject, loadScene, saveScene, undo, redo, restoreBackup, forceOverwrite } = fileProject
   // R2317: 즐겨찾기 프로젝트 목록
   const CC_FAV_KEY = 'cc-favorite-projects'
   const [favProjects, setFavProjects] = useState<string[]>(() => {
@@ -2292,7 +2294,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 opacity: canUndo ? 1 : 0.4,
               }}
             >
-              ↩
+              {/* R2321: undo 카운터 */}
+              ↩{undoCount && undoCount > 0 ? <span style={{ fontSize: 8, marginLeft: 2, opacity: 0.7 }}>{undoCount}</span> : null}
             </button>
             <button
               onClick={redo}
@@ -2306,7 +2309,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 opacity: canRedo ? 1 : 0.4,
               }}
             >
-              ↪
+              {/* R2321: redo 카운터 */}
+              ↪{redoCount && redoCount > 0 ? <span style={{ fontSize: 8, marginLeft: 2, opacity: 0.7 }}>{redoCount}</span> : null}
             </button>
             <button
               onClick={handleRestore}

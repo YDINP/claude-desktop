@@ -20,6 +20,9 @@ export function useCCFileProject() {
   const [externalChange, setExternalChange] = useState<{ path: string; timestamp: number } | null>(null)
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
+  // R2321: undo/redo 스택 크기 노출
+  const [undoCount, setUndoCount] = useState(0)
+  const [redoCount, setRedoCount] = useState(0)
   const sceneFileRef = useRef(sceneFile)
   sceneFileRef.current = sceneFile
   const projectInfoRef = useRef(projectInfo)
@@ -190,8 +193,8 @@ export function useCCFileProject() {
       // 현재 상태를 undo 스택에 push
       undoStackRef.current = [...undoStackRef.current.slice(-49), JSON.parse(JSON.stringify(sf.root))]
       redoStackRef.current = []
-      setCanUndo(true)
-      setCanRedo(false)
+      setCanUndo(true); setCanRedo(false)
+      setUndoCount(undoStackRef.current.length); setRedoCount(0)
       return _saveRaw(modifiedRoot)
     },
     [_saveRaw]
@@ -201,10 +204,11 @@ export function useCCFileProject() {
   const undo = useCallback(async () => {
     const prev = undoStackRef.current.pop()
     const sf = sceneFileRef.current
-    if (!prev || !sf?.root) { setCanUndo(false); return }
+    if (!prev || !sf?.root) { setCanUndo(false); setUndoCount(0); return }
     setCanUndo(undoStackRef.current.length > 0)
     redoStackRef.current = [...redoStackRef.current, JSON.parse(JSON.stringify(sf.root))]
     setCanRedo(true)
+    setUndoCount(undoStackRef.current.length); setRedoCount(redoStackRef.current.length)
     return _saveRaw(prev)
   }, [_saveRaw])
 
@@ -212,10 +216,11 @@ export function useCCFileProject() {
   const redo = useCallback(async () => {
     const next = redoStackRef.current.pop()
     const sf = sceneFileRef.current
-    if (!next || !sf?.root) { setCanRedo(false); return }
+    if (!next || !sf?.root) { setCanRedo(false); setRedoCount(0); return }
     setCanRedo(redoStackRef.current.length > 0)
     undoStackRef.current = [...undoStackRef.current, JSON.parse(JSON.stringify(sf.root))]
     setCanUndo(true)
+    setUndoCount(undoStackRef.current.length); setRedoCount(redoStackRef.current.length)
     return _saveRaw(next)
   }, [_saveRaw])
 
@@ -243,6 +248,8 @@ export function useCCFileProject() {
     externalChange,
     canUndo,
     canRedo,
+    undoCount,   // R2321
+    redoCount,   // R2321
     conflictInfo,   // R1437
     openProject,
     detectProject,
