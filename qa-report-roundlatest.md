@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T18:21:18.021Z
+> 2026-03-15T18:22:57.581Z
 
 ## Critical
 _없음_
@@ -2543,3 +2543,4 @@ _없음_
 - R2510 같은 이름 노드 일괄 선택 구현 완료
 - R2511 SceneView 엣지 거리 가이드선 구현 완료
 - R2512 BatchInspector 선택 노드 JSON 내보내기 구현 완료
+- R2513 BatchInspector Z-Order 이동 구현 완료

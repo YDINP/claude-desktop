@@ -4261,6 +4261,47 @@ function CCFileBatchInspector({
   const [batchAddComp, setBatchAddComp] = useState<string>('')
   // R2506: 컴포넌트 일괄 제거
   const [batchRemComp, setBatchRemComp] = useState<string>('')
+  // R2513: Z-Order 이동
+  const moveZOrder = useCallback(async (dir: 'up' | 'down' | 'top' | 'bottom') => {
+    if (!sceneFile.root) return
+    function patch(n: CCSceneNode): CCSceneNode {
+      const children = n.children.map(patch)
+      // children에서 선택된 노드들 추출 후 이동
+      const selIdx = children.map((c, i) => uuidSet.has(c.uuid) ? i : -1).filter(i => i >= 0)
+      if (selIdx.length === 0) return { ...n, children }
+      const moved = [...children]
+      if (dir === 'top') {
+        const sel = selIdx.map(i => moved[i])
+        const rest = moved.filter((_, i) => !selIdx.includes(i))
+        return { ...n, children: [...rest, ...sel] }
+      } else if (dir === 'bottom') {
+        const sel = selIdx.map(i => moved[i])
+        const rest = moved.filter((_, i) => !selIdx.includes(i))
+        return { ...n, children: [...sel, ...rest] }
+      } else if (dir === 'up') {
+        // 선택 노드들을 각각 1 위로 이동
+        for (let k = selIdx.length - 1; k >= 0; k--) {
+          const i = selIdx[k]
+          if (i < moved.length - 1 && !uuidSet.has(moved[i + 1].uuid)) {
+            [moved[i], moved[i + 1]] = [moved[i + 1], moved[i]]
+          }
+        }
+        return { ...n, children: moved }
+      } else {
+        // down: 선택 노드들을 각각 1 아래로
+        for (let k = 0; k < selIdx.length; k++) {
+          const i = selIdx[k]
+          if (i > 0 && !uuidSet.has(moved[i - 1].uuid)) {
+            [moved[i], moved[i - 1]] = [moved[i - 1], moved[i]]
+          }
+        }
+        return { ...n, children: moved }
+      }
+    }
+    await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+    setBatchMsg(`✓ Z-Order ${dir}`)
+    setTimeout(() => setBatchMsg(null), 2000)
+  }, [sceneFile, uuidSet, saveScene])
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -4451,6 +4492,21 @@ function CCFileBatchInspector({
             onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
           >⊕ 하위</span>
         )}
+      </div>
+      {/* R2513: Z-Order 이동 버튼 */}
+      <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+        <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>Z순서 (R2513)</span>
+        {(['top', 'up', 'down', 'bottom'] as const).map(dir => {
+          const labels: Record<string, string> = { top: '⊤ 최상', up: '▲', down: '▼', bottom: '⊥ 최하' }
+          const titles: Record<string, string> = { top: '최상위로 이동', up: '한 칸 앞으로', down: '한 칸 뒤로', bottom: '최하위로 이동' }
+          return (
+            <span key={dir} onClick={() => moveZOrder(dir)} title={titles[dir]}
+              style={{ fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >{labels[dir]}</span>
+          )
+        })}
       </div>
       {/* R2336: 2-노드 선택 시 거리/간격 정보 */}
       {uuids.length === 2 && sceneFile.root && (() => {

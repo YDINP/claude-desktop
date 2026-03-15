@@ -29041,6 +29041,18 @@ if (
   log('warning', 'R2512-json-export', 'R2512 JSON 내보내기 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1505: R2513 BatchInspector Z-Order 이동 ──────────────────────────
+const s1505 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1505.includes('R2513') &&
+  s1505.includes('moveZOrder') &&
+  s1505.includes('Z순서')
+) {
+  log('pass', 'R2513-zorder-move', 'R2513 BatchInspector Z-Order 이동 구현 완료')
+} else {
+  log('warning', 'R2513-zorder-move', 'R2513 Z-Order 이동 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
