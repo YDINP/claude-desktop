@@ -19164,6 +19164,31 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2667: 노드 이름 대소문자 변환 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyNameCase = async (mode: 'upper' | 'lower' | 'title') => {
+          if (!sceneFile.root) return
+          function toTitle(s: string) { return s.replace(/\b\w/g, c => c.toUpperCase()) }
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const newName = mode === 'upper' ? n.name.toUpperCase() : mode === 'lower' ? n.name.toLowerCase() : toTitle(n.name)
+            return { ...n, name: newName, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 이름 ${mode === 'upper' ? 'UPPER' : mode === 'lower' ? 'lower' : 'Title'} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>케이스 (R2667)</span>
+            <span onClick={() => applyNameCase('upper')} title="이름 모두 대문자 (R2667)" style={bs}>ABC</span>
+            <span onClick={() => applyNameCase('lower')} title="이름 모두 소문자 (R2667)" style={bs}>abc</span>
+            <span onClick={() => applyNameCase('title')} title="이름 단어 첫 글자 대문자 (R2667)" style={bs}>Abc</span>
+          </div>
+        )
+      })()}
       {/* R2650: 노드 이름 일련번호 치환 — {base}{n} 형식으로 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyNameSerial = async () => {

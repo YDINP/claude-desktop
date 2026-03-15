@@ -29161,6 +29161,35 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1660: R2668 SceneView 회전각 텍스트 오버레이 ─────────────────────
+console.log('\n## 1660. R2668 — SceneView 회전각 텍스트 오버레이')
+const s1660 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1660.includes('R2668') &&
+  s1660.includes('showRotOverlay') &&
+  s1660.includes('a78bfa') &&
+  s1660.includes('∠')
+) {
+  log('pass', 'R2668-rotOverlay', 'R2668 회전각 텍스트 오버레이 구현 완료')
+} else {
+  log('warning', 'R2668-rotOverlay', 'R2668 회전각 텍스트 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1659: R2667 BatchInspector 이름 대소문자 변환 ────────────────────
+console.log('\n## 1659. R2667 — BatchInspector 이름 대소문자 변환')
+const s1659 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1659.includes('R2667') &&
+  s1659.includes('applyNameCase') &&
+  s1659.includes('toUpperCase') &&
+  s1659.includes('toLowerCase') &&
+  s1659.includes('케이스')
+) {
+  log('pass', 'R2667-nameCase', 'R2667 이름 대소문자 변환 구현 완료')
+} else {
+  log('warning', 'R2667-nameCase', 'R2667 이름 대소문자 변환 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1658: R2666 SceneView opacity 값 텍스트 오버레이 ─────────────────
 console.log('\n## 1658. R2666 — SceneView opacity 값 텍스트 오버레이')
 const s1658 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
