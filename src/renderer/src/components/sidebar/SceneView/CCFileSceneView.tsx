@@ -233,6 +233,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showFlipOverlay, setShowFlipOverlay] = useState(false)
   // R2600: 다중 선택 bounding box 오버레이
   const [showSelBBox, setShowSelBBox] = useState(false)
+  // R2601: component 타입 배지 오버레이
+  const [showCompBadge, setShowCompBadge] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1575,6 +1577,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSelBBox ? '선택 BBox 끄기 (R2600)' : '다중 선택 노드 전체 영역 표시 (R2600)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelBBox ? '#60a5fa' : 'var(--text-muted)' }}
         >⬚</button>
+        {/* R2601: component 타입 배지 오버레이 토글 */}
+        <button
+          onClick={() => setShowCompBadge(v => !v)}
+          title={showCompBadge ? '컴포넌트 배지 끄기 (R2601)' : '노드 주요 컴포넌트 타입 배지 표시 (R2601)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompBadge ? 'rgba(192,132,252,0.5)' : 'var(--border)'}`, background: showCompBadge ? 'rgba(192,132,252,0.12)' : 'none', color: showCompBadge ? '#c084fc' : 'var(--text-muted)' }}
+        >CT</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2451,6 +2459,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(250,204,21,0.9)" fontFamily="monospace" fontWeight="bold"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{label}</text>
+                  )
+                })()}
+                {/* R2601: component 타입 배지 */}
+                {showCompBadge && view.zoom > 0.3 && (() => {
+                  const ccIgnore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
+                  const mainComp = node.components.find(c => !ccIgnore.has(c.type))
+                  if (!mainComp) return null
+                  const short = mainComp.type.includes('.') ? mainComp.type.split('.').pop()!.slice(0, 4) : mainComp.type.slice(0, 4)
+                  const fs = Math.max(5, 7 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + w - 1/view.zoom} y={rectY + h - 1/view.zoom}
+                      textAnchor="end" dominantBaseline="text-after-edge"
+                      fontSize={fs} fill="rgba(192,132,252,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{short}</text>
                   )
                 })()}
                 {/* R2578: 노드 불투명도 α% 오버레이 */}

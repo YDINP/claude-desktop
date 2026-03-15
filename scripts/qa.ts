@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1593: R2601 SceneView component 타입 배지 오버레이 ───────────────
+console.log('\n## 1593. R2601 — SceneView component 타입 배지 오버레이')
+const s1593 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1593.includes('R2601') &&
+  s1593.includes('showCompBadge') &&
+  s1593.includes('setShowCompBadge') &&
+  s1593.includes('mainComp')
+) {
+  log('pass', 'R2601-comp-badge', 'R2601 component 타입 배지 오버레이 구현 완료')
+} else {
+  log('warning', 'R2601-comp-badge', 'R2601 component 타입 배지 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1592: R2600 SceneView 다중 선택 bounding box 오버레이 ─────────────
 console.log('\n## 1592. R2600 — SceneView 다중 선택 bounding box 오버레이')
 const s1592 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
