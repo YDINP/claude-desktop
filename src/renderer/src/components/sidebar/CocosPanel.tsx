@@ -21692,6 +21692,36 @@ function CCFileNodeInspector({
                       >×{v}</span>
                     ))}
                   </div>
+                  {/* R2408: wrapMode + loop + defaultCachingMode */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>wrapMode</span>
+                    {([['Dflt', 1], ['Norm', 2], ['Loop', 3], ['Ping', 4], ['Rev', 8]] as const).map(([l, v]) => {
+                      const cur = Number(p.wrapMode ?? p._wrapMode ?? p._N$wrapMode ?? 2)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, wrapMode: v, _wrapMode: v, _N$wrapMode: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.loop ?? p._loop ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0, accentColor: '#a78bfa' }}
+                      />loop
+                    </label>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>cache:</span>
+                    {([['RT', 0], ['Sh', 1], ['Pr', 2]] as const).map(([l, v]) => {
+                      const cur = Number(p.defaultCachingMode ?? p._defaultCachingMode ?? 0)
+                      return (
+                        <span key={v} title={['Realtime', 'Shared', 'Private'][v]}
+                          onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, defaultCachingMode: v, _defaultCachingMode: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={playOnLoad}
                       onChange={e => {

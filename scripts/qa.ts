@@ -27805,6 +27805,21 @@ if (
   log('warning', 'R2407-spine-enablebatch', 'Inspector sp.Skeleton enableBatch 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1412: R2408 Inspector cc.SkeletalAnimation wrapMode + loop + defaultCachingMode ──────────
+console.log('\n## 1412. R2408 Inspector cc.SkeletalAnimation wrapMode + loop + defaultCachingMode 체크')
+const s1412 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1412.includes('R2408') &&
+  s1412.includes('wrapMode') &&
+  s1412.includes('_wrapMode') &&
+  s1412.includes('defaultCachingMode') &&
+  s1412.includes('cc.SkeletalAnimation')
+) {
+  log('pass', 'R2408-skelanim-wrapmode', 'Inspector cc.SkeletalAnimation wrapMode+loop+cachingMode 구현 완료')
+} else {
+  log('warning', 'R2408-skelanim-wrapmode', 'Inspector cc.SkeletalAnimation wrapMode 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
