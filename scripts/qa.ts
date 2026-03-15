@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1650: R2658 SceneView 노드 색상 tint 시각화 ──────────────────────
+console.log('\n## 1650. R2658 — SceneView 노드 색상 tint 시각화')
+const s1650 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1650.includes('R2658') &&
+  s1650.includes('showColorViz') &&
+  s1650.includes('setShowColorViz') &&
+  s1650.includes('c.r') &&
+  s1650.includes('node.color')
+) {
+  log('pass', 'R2658-color-viz', 'R2658 노드 색상 tint 시각화 구현 완료')
+} else {
+  log('warning', 'R2658-color-viz', 'R2658 노드 색상 tint 시각화 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1649: R2657 BatchInspector opacity 255 일괄 리셋 ─────────────────
 console.log('\n## 1649. R2657 — BatchInspector opacity 255 일괄 리셋')
 const s1649 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

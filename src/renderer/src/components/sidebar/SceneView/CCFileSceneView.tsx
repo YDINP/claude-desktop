@@ -273,6 +273,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showParentHighlight, setShowParentHighlight] = useState(false)
   // R2652: 비활성 노드 반투명 오버레이
   const [showInactiveDim, setShowInactiveDim] = useState(false)
+  // R2658: 노드 색상 tint 시각화
+  const [showColorViz, setShowColorViz] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1742,6 +1744,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showInactiveDim ? '비활성 dim 끄기 (R2652)' : 'active=false 노드 반투명 처리 (R2652)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showInactiveDim ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showInactiveDim ? 'rgba(148,163,184,0.12)' : 'none', color: showInactiveDim ? '#94a3b8' : 'var(--text-muted)' }}
         >⊡</button>
+        {/* R2658: 노드 색상 tint 시각화 토글 */}
+        <button
+          onClick={() => setShowColorViz(v => !v)}
+          title={showColorViz ? '색상 tint 끄기 (R2658)' : '각 노드 color tint를 rect fill로 시각화 (R2658)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showColorViz ? 'rgba(217,119,6,0.5)' : 'var(--border)'}`, background: showColorViz ? 'rgba(217,119,6,0.12)' : 'none', color: showColorViz ? '#d97706' : 'var(--text-muted)' }}
+        >🎨</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2757,6 +2765,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       <line x1={apx} y1={apy - r} x2={apx} y2={apy + r} stroke="#fb923c" strokeWidth={sw} />
                       <circle cx={apx} cy={apy} r={sw * 1.5} fill="#fb923c" />
                     </g>
+                  )
+                })()}
+                {/* R2658: 노드 색상 tint 시각화 */}
+                {showColorViz && w > 0 && h > 0 && (() => {
+                  const c = node.color
+                  if (!c || (c.r === 255 && c.g === 255 && c.b === 255)) return null
+                  return (
+                    <rect x={rectX} y={rectY} width={w} height={h}
+                      fill={`rgba(${c.r},${c.g},${c.b},0.3)`}
+                      style={{ pointerEvents: 'none' }} />
                   )
                 })()}
                 {/* R2652: 비활성 노드 반투명 오버레이 */}
