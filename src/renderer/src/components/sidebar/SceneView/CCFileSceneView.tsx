@@ -197,6 +197,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   multiSelectedRef.current = multiSelected
   const selBoxRef = useRef<{ startSvgX: number; startSvgY: number } | null>(null)
   const [selectionBox, setSelectionBox] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
+  // R2544: 핀 마커 목록 패널 토글
+  const [showPinPanel, setShowPinPanel] = useState(false)
   // R2521: 세계 좌표 표시 토글
   const [showWorldPos, setShowWorldPos] = useState(false)
   // R2465: 거리 측정 도구
@@ -1359,13 +1361,36 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.5)', background: 'rgba(251,146,60,0.12)', color: '#fb923c' }}
           >👁‍🗨 {hiddenUuids.size}</button>
         )}
-        {/* R1693: 핀 마커 카운트 + 초기화 */}
+        {/* R1693/R2544: 핀 마커 카운트 + 드롭다운 패널 */}
         {pinMarkers.length > 0 && (
-          <button
-            onClick={() => setPinMarkers([])}
-            title={`핀 마커 ${pinMarkers.length}개 — 클릭하여 모두 삭제 (R1693)`}
-            style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(244,114,182,0.5)', background: 'rgba(244,114,182,0.12)', color: '#f472b6' }}
-          >📌 {pinMarkers.length}</button>
+          <span style={{ position: 'relative', flexShrink: 0 }}>
+            <button
+              onClick={() => setShowPinPanel(p => !p)}
+              title={`핀 마커 ${pinMarkers.length}개 — 클릭: 목록 패널 (R2544) / Shift+클릭: 전체 삭제`}
+              onClickCapture={e => { if (e.shiftKey) { e.stopPropagation(); setPinMarkers([]); setShowPinPanel(false) } }}
+              style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showPinPanel ? '#f472b6' : 'rgba(244,114,182,0.5)'}`, background: showPinPanel ? 'rgba(244,114,182,0.25)' : 'rgba(244,114,182,0.12)', color: '#f472b6' }}
+            >📌 {pinMarkers.length}</button>
+            {showPinPanel && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, padding: 4, minWidth: 140, boxShadow: '0 4px 12px rgba(0,0,0,0.4)' }}>
+                {pinMarkers.map(pm => (
+                  <div key={pm.id} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span onClick={() => {
+                      const svg = svgRef.current; if (!svg) return
+                      const rect = svg.getBoundingClientRect()
+                      const sp = ccToSvg(pm.ccX, pm.ccY)
+                      const z = viewRef.current.zoom
+                      setView(v => ({ ...v, offsetX: rect.width / 2 - sp.x * z, offsetY: rect.height / 2 - sp.y * z }))
+                      setShowPinPanel(false)
+                    }} title="이 핀으로 이동" style={{ flex: 1, cursor: 'pointer', fontSize: 9, color: '#f472b6', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {pm.label ?? `${pm.ccX},${pm.ccY}`}
+                    </span>
+                    <span onClick={() => setPinMarkers(prev => prev.filter(p => p.id !== pm.id))} style={{ cursor: 'pointer', color: 'var(--text-muted)', fontSize: 8, flexShrink: 0 }}>✕</span>
+                  </div>
+                ))}
+                <div onClick={() => { setPinMarkers([]); setShowPinPanel(false) }} style={{ cursor: 'pointer', fontSize: 8, color: 'var(--text-muted)', paddingTop: 4, textAlign: 'center' }}>전체 삭제</div>
+              </div>
+            )}
+          </span>
         )}
         {/* R2329: 선택 이력 이전/다음 버튼 (R1705 Alt+←/→ UI 연동) */}
         {selHistoryRef.current.length > 1 && (<>

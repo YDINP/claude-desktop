@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1536: R2544 핀 마커 드롭다운 목록 패널 ───────────────────────────
+console.log('\n## 1536. R2544 — 핀 마커 드롭다운 목록 패널')
+const s1536 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1536.includes('R2544') &&
+  s1536.includes('showPinPanel') &&
+  s1536.includes('setShowPinPanel') &&
+  s1536.includes('이 핀으로 이동')
+) {
+  log('pass', 'R2544-pin-panel', 'R2544 핀 마커 드롭다운 패널 구현 완료')
+} else {
+  log('warning', 'R2544-pin-panel', 'R2544 핀 마커 드롭다운 패널 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1535: R2543 SceneView 뷰 북마크 ──────────────────────────────────
 console.log('\n## 1535. R2543 — SceneView 뷰 북마크 (1/2/3 슬롯)')
 const s1535 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
