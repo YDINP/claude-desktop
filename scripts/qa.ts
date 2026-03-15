@@ -28307,6 +28307,18 @@ if (
   log('warning', 'R2443-spotlight-enabled', 'Inspector cc.SpotLight enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1448: R2444 cc.Canvas enabled ──────────────────────────────────────────────────────
+console.log('\n## 1448. R2444 cc.Canvas enabled 체크')
+const s1448 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1448.includes('R2444') &&
+  s1448.includes('cc.Canvas')
+) {
+  log('pass', 'R2444-canvas-enabled', 'Inspector cc.Canvas enabled 토글 구현 완료')
+} else {
+  log('warning', 'R2444-canvas-enabled', 'Inspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
