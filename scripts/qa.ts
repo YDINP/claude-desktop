@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1366: R2362 Inspector cc.Widget isAbs* unit toggle ──────────
+console.log('\n## 1366. R2362 Inspector cc.Widget isAbs* px/% 전환 버튼 체크')
+const s1366 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1366.includes('R2362') &&
+  s1366.includes('isAbsTop') &&
+  s1366.includes('isAbsHorizontalCenter') &&
+  s1366.includes('_N$isAbsTop')
+) {
+  log('pass', 'R2362-widget-isabs', 'Inspector cc.Widget isAbs* px/% 전환 버튼 구현 완료')
+} else {
+  log('warning', 'R2362-widget-isabs', 'Inspector cc.Widget isAbs* 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1365: R2361 Inspector cc.AudioSource preload/startTime/endTime ──────────
 console.log('\n## 1365. R2361 Inspector cc.AudioSource preload/startTime/endTime 체크')
 const s1365 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

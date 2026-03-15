@@ -19979,6 +19979,36 @@ function CCFileNodeInspector({
                       <option value={2}>Editor</option>
                     </select>
                   </div>
+                  {/* R2362: isAbs* 전환 버튼 (절대px / %) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>unit</span>
+                    <span title="모든 isAbs* = true (절대 px)"
+                      onClick={() => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props,
+                          isAbsTop: true, _isAbsTop: true, _N$isAbsTop: true,
+                          isAbsBottom: true, _isAbsBottom: true, _N$isAbsBottom: true,
+                          isAbsLeft: true, _isAbsLeft: true, _N$isAbsLeft: true,
+                          isAbsRight: true, _isAbsRight: true, _N$isAbsRight: true,
+                          isAbsHorizontalCenter: true, _isAbsHorizontalCenter: true, _N$isAbsHorizontalCenter: true,
+                          isAbsVerticalCenter: true, _isAbsVerticalCenter: true, _N$isAbsVerticalCenter: true,
+                        } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#60a5fa', userSelect: 'none' }}>px</span>
+                    <span title="모든 isAbs* = false (%)"
+                      onClick={() => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props,
+                          isAbsTop: false, _isAbsTop: false, _N$isAbsTop: false,
+                          isAbsBottom: false, _isAbsBottom: false, _N$isAbsBottom: false,
+                          isAbsLeft: false, _isAbsLeft: false, _N$isAbsLeft: false,
+                          isAbsRight: false, _isAbsRight: false, _N$isAbsRight: false,
+                          isAbsHorizontalCenter: false, _isAbsHorizontalCenter: false, _N$isAbsHorizontalCenter: false,
+                          isAbsVerticalCenter: false, _isAbsVerticalCenter: false, _N$isAbsVerticalCenter: false,
+                        } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}>%</span>
+                  </div>
                   {/* R1753: Widget 프리셋 버튼 (Stretch / Center / None) */}
                   <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
                     {[
