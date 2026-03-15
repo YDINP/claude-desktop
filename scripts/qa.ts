@@ -27908,6 +27908,21 @@ if (
   log('warning', 'R2414-videoplayer-resourcetype', 'Inspector cc.VideoPlayer resourceType 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1419: R2415 Inspector cc.PageView bounceEnabled ──────────
+console.log('\n## 1419. R2415 Inspector cc.PageView bounceEnabled 체크')
+const s1419 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1419.includes('R2415') &&
+  s1419.includes('bounceEnabled') &&
+  s1419.includes('_bounceEnabled') &&
+  s1419.includes('_N$bounceEnabled') &&
+  s1419.includes('cc.PageView')
+) {
+  log('pass', 'R2415-pageview-bounceenabled', 'Inspector cc.PageView bounceEnabled 구현 완료')
+} else {
+  log('warning', 'R2415-pageview-bounceenabled', 'Inspector cc.PageView bounceEnabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

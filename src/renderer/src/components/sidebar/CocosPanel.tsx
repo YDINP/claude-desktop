@@ -22067,6 +22067,13 @@ function CCFileNodeInspector({
                       title="speedAmplifier"
                     />
                   </div>
+                  {/* R2415: bounceEnabled (BatchInspector R1936) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.bounceEnabled ?? p._bounceEnabled ?? p._N$bounceEnabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, bounceEnabled: e.target.checked, _bounceEnabled: e.target.checked, _N$bounceEnabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0, accentColor: '#34d399' }}
+                    />bounceEnabled
+                  </label>
                 </div>
               )
             }
