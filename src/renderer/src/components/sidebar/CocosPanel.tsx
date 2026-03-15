@@ -16434,6 +16434,47 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2485: 크기 균등화 — 선택 노드들의 W/H를 max/min/avg로 맞춤 */}
+      {uuids.length >= 2 && (() => {
+        const sizes: { uuid: string; w: number; h: number }[] = []
+        function collectSizes(n: CCSceneNode) {
+          if (uuidSet.has(n.uuid)) {
+            const sz = n.size as { x?: number; y?: number } | undefined
+            sizes.push({ uuid: n.uuid, w: sz?.x ?? 0, h: sz?.y ?? 0 })
+          }
+          n.children.forEach(collectSizes)
+        }
+        if (sceneFile.root) collectSizes(sceneFile.root)
+        const ws = sizes.map(s => s.w), hs = sizes.map(s => s.h)
+        const maxW = Math.max(...ws), minW = Math.min(...ws), avgW = Math.round(ws.reduce((a, b) => a + b, 0) / ws.length)
+        const maxH = Math.max(...hs), minH = Math.min(...hs), avgH = Math.round(hs.reduce((a, b) => a + b, 0) / hs.length)
+        const applyEqSize = async (axis: 'w' | 'h', value: number) => {
+          if (!sceneFile.root) return
+          function patchEq(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchEq)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const sz = n.size as { x?: number; y?: number } | undefined
+            const newSz = axis === 'w' ? { x: value, y: sz?.y ?? 0 } : { x: sz?.x ?? 0, y: value }
+            return { ...n, size: newSz, children }
+          }
+          await saveScene(patchEq(sceneFile.root))
+          setBatchMsg(`✓ ${axis === 'w' ? 'W' : 'H'}=${value} 균등화`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs = { fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#7dd3fc', userSelect: 'none' } as React.CSSProperties
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>크기균등</span>
+            <span style={bs} onClick={() => applyEqSize('w', maxW)} title={`W 최대 ${maxW}로 통일 (R2485)`}>W↑{maxW}</span>
+            <span style={bs} onClick={() => applyEqSize('w', minW)} title={`W 최소 ${minW}로 통일`}>W↓{minW}</span>
+            <span style={bs} onClick={() => applyEqSize('w', avgW)} title={`W 평균 ${avgW}로 통일`}>W≈{avgW}</span>
+            <span style={{ color: 'var(--border)', fontSize: 10 }}>|</span>
+            <span style={bs} onClick={() => applyEqSize('h', maxH)} title={`H 최대 ${maxH}로 통일`}>H↑{maxH}</span>
+            <span style={bs} onClick={() => applyEqSize('h', minH)} title={`H 최소 ${minH}로 통일`}>H↓{minH}</span>
+            <span style={bs} onClick={() => applyEqSize('h', avgH)} title={`H 평균 ${avgH}로 통일`}>H≈{avgH}</span>
+          </div>
+        )
+      })()}
       {/* R1706: 회전 일괄 설정 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>회전 °</span>

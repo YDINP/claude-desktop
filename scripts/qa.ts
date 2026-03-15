@@ -28694,6 +28694,18 @@ if (
   log('warning', 'R2484-same-name-badge', 'R2484 동일 이름 뱃지 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1477: R2485 BatchInspector 크기 균등화 ──────────────────────────
+const s1477 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1477.includes('R2485') &&
+  s1477.includes('applyEqSize') &&
+  s1477.includes('크기균등')
+) {
+  log('pass', 'R2485-size-equalize', 'R2485 BatchInspector 크기 균등화 구현 완료')
+} else {
+  log('warning', 'R2485-size-equalize', 'R2485 크기 균등화 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
