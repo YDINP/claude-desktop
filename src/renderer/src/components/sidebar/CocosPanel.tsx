@@ -17785,6 +17785,30 @@ function CCFileBatchInspector({
           <div style={{ display: 'flex', gap: 4, marginBottom: 4, paddingLeft: 52, alignItems: 'center' }}>
             <span onClick={applyRandColor} title={`각 선택 노드에 서로 다른 색상 할당 (R2538)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(217,119,6,0.5)', color: '#fbbf24', userSelect: 'none', background: 'rgba(217,119,6,0.05)' }}>🎲 색상</span>
+            {/* R2573: 그룹 원점화 — 그룹 중심을 (0,0)으로 이동 */}
+            <span
+              title="그룹 중심을 (0,0)으로 이동 — 상대 배치 유지 (R2573)"
+              onClick={async () => {
+                if (!sceneFile.root) return
+                const nodes: CCSceneNode[] = []
+                function collectNorm(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collectNorm) }
+                collectNorm(sceneFile.root)
+                if (nodes.length < 1) return
+                const avgX = nodes.reduce((s, n) => s + (n.position as { x: number }).x, 0) / nodes.length
+                const avgY = nodes.reduce((s, n) => s + (n.position as { y: number }).y, 0) / nodes.length
+                function applyNorm(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(applyNorm)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  const pos = n.position as { x: number; y: number; z?: number }
+                  return { ...n, position: { ...pos, x: Math.round(pos.x - avgX), y: Math.round(pos.y - avgY) }, children }
+                }
+                const result = await saveScene(applyNorm(sceneFile.root))
+                setBatchMsg(result.success ? `✓ 원점화 (${nodes.length}개)` : `✗ 오류`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#6ee7b7')} onMouseLeave={e => (e.currentTarget.style.color = '#34d399')}
+            >⊕0</span>
             {/* R2572: 랜덤 산포 버튼 */}
             {([50, 100, 200] as const).map(r => (
               <span key={r}

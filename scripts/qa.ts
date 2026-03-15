@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1565: R2573 BatchInspector 그룹 원점화 (⊕0) ─────────────────────
+console.log('\n## 1565. R2573 — BatchInspector 그룹 원점화 (⊕0)')
+const s1565 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1565.includes('R2573') &&
+  s1565.includes('그룹 원점화') &&
+  s1565.includes('applyNorm') &&
+  s1565.includes('⊕0')
+) {
+  log('pass', 'R2573-group-origin', 'R2573 그룹 원점화 구현 완료')
+} else {
+  log('warning', 'R2573-group-origin', 'R2573 그룹 원점화 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1564: R2572 BatchInspector 랜덤 산포 (±50/100/200) ───────────────
 console.log('\n## 1564. R2572 — BatchInspector 랜덤 산포 (Random Scatter)')
 const s1564 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
