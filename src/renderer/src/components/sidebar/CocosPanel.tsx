@@ -282,6 +282,58 @@ interface CCFileProjectUIProps {
   onSelectNode: (n: CCSceneNode | null) => void
 }
 
+/** R2463: 선택 노드 서브트리를 prefab raw 배열로 변환 */
+function extractPrefabEntries(raw: unknown[], rootRawIdx: number): unknown[] {
+  const rawArr = raw as Record<string, unknown>[]
+  const collected: number[] = []
+  const seen = new Set<number>()
+
+  function collectDfs(idx: number) {
+    if (idx < 0 || idx >= rawArr.length || seen.has(idx)) return
+    seen.add(idx)
+    collected.push(idx)
+    const e = rawArr[idx]
+    // components 먼저 수집
+    const comps = e._components as { __id__: number }[] | undefined
+    comps?.forEach(c => { if (typeof c.__id__ === 'number') collectDfs(c.__id__) })
+    // children 수집
+    const children = e._children as { __id__: number }[] | undefined
+    children?.forEach(c => { if (typeof c.__id__ === 'number') collectDfs(c.__id__) })
+  }
+  collectDfs(rootRawIdx)
+
+  // oldIdx → newIdx 매핑 (0=cc.Prefab, 1=root, ...)
+  const oldToNew = new Map<number, number>()
+  collected.forEach((oldIdx, i) => oldToNew.set(oldIdx, i + 1))
+
+  // __id__ 재매핑 (deep)
+  function remapRefs(v: unknown, isRoot: boolean): unknown {
+    if (Array.isArray(v)) return v.map(el => remapRefs(el, false))
+    if (v && typeof v === 'object') {
+      const obj = v as Record<string, unknown>
+      if ('__id__' in obj && typeof obj.__id__ === 'number') {
+        const mapped = oldToNew.get(obj.__id__)
+        return mapped != null ? { __id__: mapped } : { __id__: obj.__id__ }
+      }
+      const result: Record<string, unknown> = {}
+      for (const [k, val] of Object.entries(obj)) {
+        result[k] = (isRoot && k === '_parent') ? null : remapRefs(val, false)
+      }
+      return result
+    }
+    return v
+  }
+
+  const prefabHeader = {
+    __type__: 'cc.Prefab', _name: '', _objFlags: 0,
+    data: { __id__: 1 }, optimizationPolicy: 0, asyncLoadAssets: false, readonly: false,
+  }
+  const nodeEntries = collected.map((oldIdx, i) =>
+    remapRefs(JSON.parse(JSON.stringify(rawArr[oldIdx])), i === 0) as unknown
+  )
+  return [prefabHeader, ...nodeEntries]
+}
+
 // R1476: 노드 딥복사 + UUID 자동 재생성 (재귀, crypto.randomUUID)
 function deepCopyNodeWithNewUuids(node: CCSceneNode, suffix = '_Copy'): CCSceneNode {
   const genUuid = () => (typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : `node-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`)
@@ -1838,6 +1890,30 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(rename(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  // R2463: 노드를 프리팹 파일로 저장
+  const handleSaveAsPrefab = useCallback(async (uuid: string) => {
+    if (!sceneFile?._raw || !projectInfo?.projectPath) return
+    function findNode(n: CCSceneNode): CCSceneNode | null {
+      if (n.uuid === uuid) return n
+      for (const c of n.children) { const f = findNode(c); if (f) return f }
+      return null
+    }
+    const node = findNode(sceneFile.root)
+    if (!node || node._rawIndex == null) return
+    const safeName = (node.name || 'Prefab').replace(/[<>:"/\\|?*]/g, '_')
+    const prefabName = window.prompt('프리팹 파일 이름 (확장자 제외):', safeName)
+    if (!prefabName?.trim()) return
+    const prefabEntries = extractPrefabEntries(sceneFile._raw, node._rawIndex)
+    const prefabJson = JSON.stringify(prefabEntries, null, 2)
+    const sceneDir = sceneFile.scenePath.replace(/[\\/][^\\/]+$/, '').replace(/\\/g, '/')
+    const prefabPath = `${sceneDir}/${prefabName.trim()}.prefab`
+    const res = await window.api.writeTextFile?.(prefabPath, prefabJson)
+    if (res && 'error' in res) { alert(`프리팹 저장 실패: ${(res as { error: string }).error}`); return }
+    await detectProject?.(projectInfo.projectPath)
+    setSaveMsg({ ok: true, text: `🧩 ${prefabName.trim()}.prefab 저장 완료` })
+    setTimeout(() => setSaveMsg(null), 3000)
+  }, [sceneFile, projectInfo, detectProject])
+
   const handleRestore = useCallback(async () => {
     if (!sceneFile) return
     const result = await restoreBackup()
@@ -3122,6 +3198,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 )}
                 onSortChildren={handleSortChildren}
                 onRename={handleRenameInView}
+                onSaveAsPrefab={handleSaveAsPrefab}
               />
             </div>
           </div>
@@ -3580,7 +3657,7 @@ function GroupPanel({
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder, multiSelectedUuids, onCtrlSelect, onSortChildren,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder, multiSelectedUuids, onCtrlSelect, onSortChildren, onRename, onSaveAsPrefab,
 }: {
   node: CCSceneNode
   depth: number
@@ -3611,6 +3688,8 @@ function CCFileSceneTree({
   onSortChildren?: (uuid: string) => void
   /** R2453: 인라인 이름 편집 */
   onRename?: (uuid: string, newName: string) => void
+  /** R2463: 노드를 프리팹으로 저장 */
+  onSaveAsPrefab?: (uuid: string) => void
 }) {
   const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
   const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
@@ -3653,6 +3732,8 @@ function CCFileSceneTree({
             ...(!isRoot ? [
               // R2453: 이름 변경 (더블클릭 또는 컨텍스트 메뉴)
               ...(onRename ? [{ label: '✏️ 이름 변경', action: () => { setCtxMenu(null); setEditNameVal(node.name); setEditingName(true) } }] : []),
+              // R2463: 프리팹으로 저장
+              ...(onSaveAsPrefab ? [{ label: '🧩 프리팹으로 저장', action: () => { setCtxMenu(null); onSaveAsPrefab(node.uuid) } }] : []),
               { label: node.active ? '비활성화' : '활성화', action: () => { setCtxMenu(null); onToggleActive?.(node.uuid) } },
               // R1712: 자식 일괄 활성/비활성
               ...(hasChildren ? [
@@ -3894,6 +3975,7 @@ function CCFileSceneTree({
           onCtrlSelect={onCtrlSelect}
           onSortChildren={onSortChildren}
           onRename={onRename}
+          onSaveAsPrefab={onSaveAsPrefab}
         />
       ))}
     </div>
