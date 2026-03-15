@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1406: R2402 Inspector cc.PageView pageTurningEventTiming+speedAmplifier + cc.Sprite _color ──────────
+console.log('\n## 1406. R2402 Inspector cc.PageView pageTurningEventTiming + speedAmplifier + cc.Sprite _color 체크')
+const s1406 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1406.includes('R2402') &&
+  s1406.includes('pageTurningEventTiming') &&
+  s1406.includes('speedAmplifier') &&
+  s1406.includes('_color') &&
+  s1406.includes('cc.PageView')
+) {
+  log('pass', 'R2402-pageview-timing-speed-sprite-color', 'Inspector cc.PageView evtTiming/speedAmp + cc.Sprite _color 구현 완료')
+} else {
+  log('warning', 'R2402-pageview-timing-speed-sprite-color', 'Inspector cc.PageView evtTiming/speedAmp + cc.Sprite _color 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1405: R2401 Inspector cc.Sprite _isTrimmedMode + Collider tag ──────────
 console.log('\n## 1405. R2401 Inspector cc.Sprite _isTrimmedMode + Collider tag 체크')
 const s1405 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -19410,6 +19410,26 @@ function CCFileNodeInspector({
                       grayscale
                     </label>
                   </div>
+                  {/* R2402: _color CC3.x 컴포넌트 레벨 색상 */}
+                  {is3x && (() => {
+                    const colRaw = p._color as { r?: number; g?: number; b?: number; a?: number } | undefined
+                    const toHex = (c: typeof colRaw) => `#${[(c?.r ?? 255),(c?.g ?? 255),(c?.b ?? 255)].map(v => v.toString(16).padStart(2,'0')).join('')}`
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>color</span>
+                        <input type="color" value={toHex(colRaw)}
+                          onChange={e => { const n2 = parseInt(e.target.value.slice(1), 16); const col = { r: (n2>>16)&255, g: (n2>>8)&255, b: n2&255, a: colRaw?.a ?? 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _color: col } } : c); applyAndSave({ components: u }) }}
+                          style={{ width: 36, height: 20, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', padding: 0 }}
+                          title="Sprite _color (CC3.x)"
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>α</span>
+                        <input type="number" defaultValue={colRaw?.a ?? 255} min={0} max={255} step={1}
+                          onBlur={e => { const a = Math.max(0, Math.min(255, parseInt(e.target.value) || 255)); const col = { ...(colRaw ?? { r: 255, g: 255, b: 255 }), a }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _color: col } } : c); applyAndSave({ components: u }) }}
+                          style={{ width: 36, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                      </div>
+                    )
+                  })()}
                   {/* R1865: srcBlendFactor / dstBlendFactor 퀵 버튼 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>blend</span>
@@ -21920,6 +21940,24 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2402: pageTurningEventTiming + speedAmplifier */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>evtTiming</span>
+                    {([['Start', 0], ['End', 1]] as const).map(([l, v]) => {
+                      const cur = Number(p.pageTurningEventTiming ?? p._pageTurningEventTiming ?? p._N$pageTurningEventTiming ?? 0)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pageTurningEventTiming: v, _pageTurningEventTiming: v, _N$pageTurningEventTiming: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0, marginLeft: 8 }}>speedAmp</span>
+                    <input type="number" defaultValue={Number(p.speedAmplifier ?? p._speedAmplifier ?? p._N$speedAmplifier ?? 1)} min={0} step={0.1}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedAmplifier: v, _speedAmplifier: v, _N$speedAmplifier: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="speedAmplifier"
+                    />
+                  </div>
                 </div>
               )
             }
