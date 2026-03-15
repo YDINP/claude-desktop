@@ -332,6 +332,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     } catch { return {} }
   })
   const clipboardRef = useRef<CCSceneNode | null>(null)
+  // R2323: Inspector 자동 스크롤 — 노드 전환 시 상단으로
+  const inspectorScrollRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => { inspectorScrollRef.current?.scrollTo(0, 0) }, [selectedNode?.uuid])
   const [hideInactive, setHideInactive] = useState(false)
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(() => new Set())
   const expandAll = useCallback(() => setCollapsedUuids(new Set()), [])
@@ -3114,7 +3117,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               </div>
             )}
             {multiSelectedUuids.length <= 1 && selectedNode && (
-              <div style={{ height: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderTop: 'none' }}>
+              <div ref={inspectorScrollRef} style={{ height: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderTop: 'none' }}>
                 <CCFileNodeInspector
                   node={selectedNode}
                   sceneFile={sceneFile}
