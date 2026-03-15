@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1638: R2646 SceneView 계층 구조 연결선 오버레이 ───────────────────
+console.log('\n## 1638. R2646 — SceneView 계층 구조 연결선 오버레이')
+const s1638 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1638.includes('R2646') &&
+  s1638.includes('showHierarchyLines') &&
+  s1638.includes('setShowHierarchyLines') &&
+  s1638.includes('parentUuid') &&
+  s1638.includes('posMap')
+) {
+  log('pass', 'R2646-hierarchy-lines', 'R2646 계층 구조 연결선 구현 완료')
+} else {
+  log('warning', 'R2646-hierarchy-lines', 'R2646 계층 구조 연결선 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1637: R2645 SceneView 선택 노드 연결선 오버레이 ───────────────────
 console.log('\n## 1637. R2645 — SceneView 선택 노드 연결선 오버레이')
 const s1637 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

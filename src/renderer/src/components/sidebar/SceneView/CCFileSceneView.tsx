@@ -265,6 +265,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showAnchorDot, setShowAnchorDot] = useState(false)
   // R2645: 선택 노드 연결선 오버레이
   const [showSelPolyline, setShowSelPolyline] = useState(false)
+  // R2646: 계층 구조 연결선 오버레이
+  const [showHierarchyLines, setShowHierarchyLines] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1703,6 +1705,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSelPolyline ? '선택 연결선 끄기 (R2645)' : '선택 노드 순서대로 연결선 표시 (R2645)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelPolyline ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showSelPolyline ? 'rgba(167,139,250,0.12)' : 'none', color: showSelPolyline ? '#a78bfa' : 'var(--text-muted)' }}
         >⌇</button>
+        {/* R2646: 계층 구조 연결선 오버레이 토글 */}
+        <button
+          onClick={() => setShowHierarchyLines(v => !v)}
+          title={showHierarchyLines ? '계층 연결선 끄기 (R2646)' : '부모-자식 계층 구조 연결선 표시 (R2646)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showHierarchyLines ? 'rgba(103,232,249,0.5)' : 'var(--border)'}`, background: showHierarchyLines ? 'rgba(103,232,249,0.12)' : 'none', color: showHierarchyLines ? '#67e8f9' : 'var(--text-muted)' }}
+        >⊣</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3170,6 +3178,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 fill="none" stroke="rgba(167,139,250,0.7)" strokeWidth={sw}
                 strokeDasharray={`${4/view.zoom} ${2/view.zoom}`}
                 style={{ pointerEvents: 'none' }} />
+            )
+          })()}
+          {/* R2646: 계층 구조 연결선 오버레이 */}
+          {showHierarchyLines && (() => {
+            const posMap = new Map<string, { x: number; y: number }>()
+            flatNodes.forEach(fn => { posMap.set(fn.node.uuid, ccToSvg(fn.worldX, fn.worldY)) })
+            const sw = 1 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                {flatNodes.map(fn => {
+                  if (!fn.parentUuid) return null
+                  const from = posMap.get(fn.parentUuid)
+                  const to = posMap.get(fn.node.uuid)
+                  if (!from || !to) return null
+                  return (
+                    <line key={fn.node.uuid}
+                      x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+                      stroke="rgba(103,232,249,0.35)" strokeWidth={sw}
+                      style={{ pointerEvents: 'none' }} />
+                  )
+                })}
+              </g>
             )
           })()}
           {/* R2629: 안전 영역 + 비율 가이드 오버레이 */}
