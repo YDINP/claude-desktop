@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1333: R2329 씬뷰 선택 이력 UI 버튼 ──────────
+console.log('\n## 1333. R2329 씬뷰 선택 이력 ← → 버튼 체크')
+const s1333 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1333.includes('R2329') &&
+  s1333.includes('이전 선택으로') &&
+  s1333.includes('다음 선택으로')
+) {
+  log('pass', 'R2329-history-nav', '씬뷰 선택 이력 ← → 버튼 구현 완료')
+} else {
+  log('warning', 'R2329-history-nav', 'R2329 씬뷰 선택 이력 버튼 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1332: R2328 Inspector 컴포넌트 타입 설명 tooltip ──────────
 console.log('\n## 1332. R2328 컴포넌트 타입 설명 tooltip 체크')
 const s1332 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

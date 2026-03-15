@@ -1175,6 +1175,38 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(244,114,182,0.5)', background: 'rgba(244,114,182,0.12)', color: '#f472b6' }}
           >📌 {pinMarkers.length}</button>
         )}
+        {/* R2329: 선택 이력 이전/다음 버튼 (R1705 Alt+←/→ UI 연동) */}
+        {selHistoryRef.current.length > 1 && (<>
+          <button
+            onClick={() => {
+              const hist = selHistoryRef.current
+              const idx = selHistoryIdxRef.current
+              if (idx < hist.length - 1) {
+                const newIdx = idx + 1
+                selHistoryIdxRef.current = newIdx
+                navSkipRef.current = true
+                onSelect(hist[newIdx])
+              }
+            }}
+            disabled={selHistoryIdxRef.current >= selHistoryRef.current.length - 1}
+            title="이전 선택으로 (Alt+←)"
+            style={{ padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: selHistoryIdxRef.current >= selHistoryRef.current.length - 1 ? 'default' : 'pointer', border: '1px solid var(--border)', background: 'none', color: selHistoryIdxRef.current >= selHistoryRef.current.length - 1 ? 'var(--text-muted)' : 'var(--text-primary)', opacity: selHistoryIdxRef.current >= selHistoryRef.current.length - 1 ? 0.3 : 1 }}
+          >←</button>
+          <button
+            onClick={() => {
+              const idx = selHistoryIdxRef.current
+              if (idx > 0) {
+                const newIdx = idx - 1
+                selHistoryIdxRef.current = newIdx
+                navSkipRef.current = true
+                onSelect(selHistoryRef.current[newIdx])
+              }
+            }}
+            disabled={selHistoryIdxRef.current <= 0}
+            title="다음 선택으로 (Alt+→)"
+            style={{ padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: selHistoryIdxRef.current <= 0 ? 'default' : 'pointer', border: '1px solid var(--border)', background: 'none', color: selHistoryIdxRef.current <= 0 ? 'var(--text-muted)' : 'var(--text-primary)', opacity: selHistoryIdxRef.current <= 0 ? 0.3 : 1 }}
+          >→</button>
+        </>)}
         {/* R1623: 와이어프레임 모드 */}
         <button
           onClick={() => setWireframeMode(w => !w)}
