@@ -1631,6 +1631,26 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             })}
           </>
         })()}
+        {/* R2550: 다중 선택 일괄 잠금/해제 버튼 */}
+        {multiSelected.size >= 2 && (() => {
+          const allLocked = [...multiSelected].every(u => lockedUuids.has(u))
+          const anyLocked = [...multiSelected].some(u => lockedUuids.has(u))
+          return (
+            <button
+              onClick={() => {
+                setLockedUuids(prev => {
+                  const next = new Set(prev)
+                  if (anyLocked) [...multiSelected].forEach(u => next.delete(u))
+                  else [...multiSelected].forEach(u => next.add(u))
+                  localStorage.setItem('sv-locked-uuids', JSON.stringify([...next]))
+                  return next
+                })
+              }}
+              title={`선택 ${multiSelected.size}개 노드 일괄 ${anyLocked ? '잠금 해제' : '잠금'} (R2550)`}
+              style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${allLocked ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: allLocked ? 'rgba(251,191,36,0.1)' : 'none', color: allLocked ? '#fbbf24' : 'var(--text-muted)' }}
+            >{allLocked ? '🔒' : anyLocked ? '🔓±' : '🔒'}</button>
+          )
+        })()}
         {/* R2466: 다중 선택 그룹화 버튼 */}
         {multiSelected.size >= 2 && onGroupNodes && (
           <button

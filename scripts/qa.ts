@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1542: R2550 SceneView 다중 선택 일괄 잠금/해제 버튼 ──────────────
+console.log('\n## 1542. R2550 — SceneView 다중 선택 일괄 잠금/해제 버튼')
+const s1542 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1542.includes('R2550') &&
+  s1542.includes('allLocked') &&
+  s1542.includes('anyLocked') &&
+  s1542.includes('일괄')
+) {
+  log('pass', 'R2550-batch-lock', 'R2550 다중 선택 일괄 잠금/해제 구현 완료')
+} else {
+  log('warning', 'R2550-batch-lock', 'R2550 다중 선택 일괄 잠금/해제 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1541: R2549 SceneView 맨 앞/뒤 이동 버튼 ─────────────────────────
 console.log('\n## 1541. R2549 — SceneView 맨 앞/뒤 이동 버튼 (⤒/⤓)')
 const s1541sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
