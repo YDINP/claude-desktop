@@ -19181,6 +19181,36 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2398: constraint + constraintNum + startAxis (Grid) */}
+                  {layoutType === 3 && (() => {
+                    const constraint = Number(p.constraint ?? p._constraint ?? p._N$constraint ?? 0)
+                    const constraintNum = Number(p.constraintNum ?? p._constraintNum ?? p._N$constraintNum ?? 0)
+                    const startAxis = Number(p.startAxis ?? p._startAxis ?? p._N$startAxis ?? 0)
+                    return (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>constr</span>
+                          {([['None', 0], ['Row', 1], ['Col', 2]] as const).map(([l, v]) => (
+                            <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, constraint: v, _constraint: v, _N$constraint: v } } : c); applyAndSave({ components: u }) }}
+                              style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${constraint === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: constraint === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                            >{l}</span>
+                          ))}
+                          <input type="number" defaultValue={constraintNum} min={0} step={1} title="constraintNum"
+                            onBlur={e => { const v = parseInt(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, constraintNum: v, _constraintNum: v, _N$constraintNum: v } } : c); applyAndSave({ components: u }) }}
+                            style={{ width: 36, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>axis</span>
+                          {([['H→', 0], ['V↓', 1]] as const).map(([l, v]) => (
+                            <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startAxis: v, _startAxis: v, _N$startAxis: v } } : c); applyAndSave({ components: u }) }}
+                              style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${startAxis === v ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: startAxis === v ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
+                            >{l}</span>
+                          ))}
+                        </div>
+                      </>
+                    )
+                  })()}
                   {layoutType === 3 && (() => {
                     // R1709: Grid cellSize 편집
                     const cellSizeRaw = p.cellSize as { width?: number; height?: number } | undefined

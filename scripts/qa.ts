@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1402: R2398 Inspector cc.Layout constraint + constraintNum + startAxis ──────────
+console.log('\n## 1402. R2398 Inspector cc.Layout constraint + constraintNum + startAxis 체크')
+const s1402 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1402.includes('R2398') &&
+  s1402.includes('constraint') &&
+  s1402.includes('constraintNum') &&
+  s1402.includes('startAxis') &&
+  s1402.includes('_N$constraint')
+) {
+  log('pass', 'R2398-layout-constraint-startaxis', 'Inspector cc.Layout constraint + constraintNum + startAxis 구현 완료')
+} else {
+  log('warning', 'R2398-layout-constraint-startaxis', 'Inspector cc.Layout constraint + constraintNum + startAxis 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1401: R2397 Inspector dragonBones.ArmatureDisplay debugBones + enableBatch ──────────
 console.log('\n## 1401. R2397 Inspector dragonBones.ArmatureDisplay debugBones + enableBatch 체크')
 const s1401 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
