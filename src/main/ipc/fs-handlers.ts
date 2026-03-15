@@ -608,6 +608,21 @@ export function registerFsHandlers(_win: unknown) {
   })
 
   ipcMain.handle('shell:exec', async (_, code: string) => {
+    // R2316: ISSUE-001 — 위험 패턴 블록리스트 (shell:true 입력검증)
+    const DANGEROUS = [
+      /\brm\s+-[^a-z]*r[^a-z]*f\b/i,   // rm -rf
+      /\bdel\s+\/[sqf]/i,               // del /s /q /f
+      /\brd\s+\/s\b/i,                  // rd /s
+      /\brmdir\s+\/s\b/i,               // rmdir /s
+      /\bformat\s+[a-z]:/i,             // format C:
+      /\bdd\s+if=/i,                    // dd if=
+      /:\(\)\{.*:\|:/,                  // fork bomb
+      />\s*\/dev\/sd[a-z]/i,            // disk overwrite
+      /\b(shutdown|reboot)\b/i,         // shutdown/reboot
+    ]
+    if (DANGEROUS.some(p => p.test(code))) {
+      return { ok: false, output: '보안 정책으로 차단된 명령어입니다.' }
+    }
     const { execSync } = require('child_process')
     try {
       const output = execSync(code, { timeout: 10000, encoding: 'utf8', shell: true })

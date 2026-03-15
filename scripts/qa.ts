@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1320: R2316 ISSUE-001 shell:exec 위험 패턴 블록리스트 ──────────
+console.log('\n## 1320. R2316 ISSUE-001 shell:exec 보안 검증 체크')
+const s1320 = readFileSync(join(ROOT, 'src/main/ipc/fs-handlers.ts'), 'utf-8')
+if (
+  s1320.includes('R2316') &&
+  s1320.includes('DANGEROUS') &&
+  s1320.includes('보안 정책으로 차단된 명령어입니다') &&
+  s1320.includes('rm -rf') &&
+  s1320.includes('format')
+) {
+  log('pass', 'R2316-shell-exec-blocklist', 'shell:exec 위험 패턴 블록리스트 적용 완료')
+} else {
+  log('warning', 'R2316-shell-exec-blocklist', 'ISSUE-001 shell:exec 입력검증 미완료', 'fs-handlers.ts')
+}
+
 // ── Section 1319: R2315 씬뷰 SVG Export ──────────
 console.log('\n## 1319. R2315 씬뷰 SVG Export 체크')
 const s1319 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
