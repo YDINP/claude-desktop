@@ -22079,6 +22079,50 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2360: pagingEnabled + cancelInnerEvents + scrollDuration */}
+                  {(() => {
+                    const paging = !!(p.pagingEnabled ?? p._pagingEnabled ?? p._N$pagingEnabled ?? false)
+                    const cancelInner = !!(p.cancelInnerEvents ?? p._cancelInnerEvents ?? p._N$cancelInnerEvents ?? true)
+                    const scrollDur = Number(p.scrollDuration ?? p._scrollDuration ?? p._N$scrollDuration ?? 0.2)
+                    return (
+                      <>
+                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                            <input type="checkbox" checked={paging}
+                              onChange={e => {
+                                const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pagingEnabled: e.target.checked, _pagingEnabled: e.target.checked, _N$pagingEnabled: e.target.checked } } : c)
+                                applyAndSave({ components: updated })
+                              }}
+                            />paging
+                          </label>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                            <input type="checkbox" checked={cancelInner}
+                              onChange={e => {
+                                const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cancelInnerEvents: e.target.checked, _cancelInnerEvents: e.target.checked, _N$cancelInnerEvents: e.target.checked } } : c)
+                                applyAndSave({ components: updated })
+                              }}
+                            />cancelInner
+                          </label>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>scrollDur</span>
+                          <input type="number" min={0} step={0.05} defaultValue={scrollDur} key={`sd-${scrollDur}`}
+                            onBlur={e => {
+                              const v = Math.max(0, parseFloat(e.target.value) || 0.2)
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, scrollDuration: v, _scrollDuration: v, _N$scrollDuration: v } } : c)
+                              applyAndSave({ components: updated })
+                            }}
+                            style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                          />
+                          {[0, 0.1, 0.2, 0.5, 1].map(v => (
+                            <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, scrollDuration: v, _scrollDuration: v, _N$scrollDuration: v } } : c); applyAndSave({ components: u }) }}
+                              style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(scrollDur - v) < 0.01 ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(scrollDur - v) < 0.01 ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                            >{v}s</span>
+                          ))}
+                        </div>
+                      </>
+                    )
+                  })()}
                   {/* R1740: content 자식 노드 크기 퀵 편집 */}
                   {contentNode && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, borderTop: '1px solid var(--border)', paddingTop: 3 }}>

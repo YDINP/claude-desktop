@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1364: R2360 Inspector cc.ScrollView pagingEnabled/cancelInner/scrollDur ──────────
+console.log('\n## 1364. R2360 Inspector cc.ScrollView pagingEnabled/cancelInnerEvents/scrollDuration 체크')
+const s1364 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1364.includes('R2360') &&
+  s1364.includes('pagingEnabled') &&
+  s1364.includes('cancelInnerEvents') &&
+  s1364.includes('scrollDuration')
+) {
+  log('pass', 'R2360-scrollview-paging-cancel-dur', 'Inspector cc.ScrollView pagingEnabled/cancelInner/scrollDuration 구현 완료')
+} else {
+  log('warning', 'R2360-scrollview-paging-cancel-dur', 'Inspector cc.ScrollView pagingEnabled/cancelInner/scrollDuration 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1363: R2359 Inspector cc.Slider minValue/maxValue/step ──────────
 console.log('\n## 1363. R2359 Inspector cc.Slider minValue/maxValue/step 체크')
 const s1363 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
