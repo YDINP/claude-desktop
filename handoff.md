@@ -113,12 +113,18 @@
 - [x] R2479: BatchInspector 원형 배치 — N개 노드를 반지름 r px 원형으로 균등 배치
 - [x] R2480: QA section 1472 추가 (Pass 2503)
 
-## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2503** ← R2480 현재
-- Branch: dev
-- 최근 커밋: `6141b2c7` (R2480), `4a408df8` (R2479), `63c4b2e6` (R2478), `e7d01dcb` (R2477)
+## 완료 (R2481~R2484)
+- [x] R2481: BatchInspector 격자 배치 — 열/gX/gY 입력, M×N 격자 균등 배치 (기본 열수=ceil(sqrt(N)))
+- [x] R2482: BatchInspector 정렬 도구 — ←L/↔C/R→ + ↑T/↕M/B↓ 6종 (min/mid/max 기반)
+- [x] R2483: BatchInspector 균등 배분 — ↔=/↕= (3개+ 노드, 정렬 행에 통합)
+- [x] R2484: Inspector 동일 이름 노드 수 뱃지 — =×N 오렌지 뱃지 (씬 내 같은 name 2개+)
 
-## 다음 예정 (R2481+)
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2507** ← R2484 현재
+- Branch: dev
+- 최근 커밋: `ac6f82ad` (R2484), `add27e2e` (R2483), `8897ec45` (R2482), `ef53cead` (R2481)
+
+## 다음 예정 (R2485+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
