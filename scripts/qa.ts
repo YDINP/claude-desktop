@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1397: R2393 Inspector cascadeOpacityEnabled + cascadeColorEnabled (CC2.x 노드) ──────────
+console.log('\n## 1397. R2393 Inspector cascadeOpacityEnabled + cascadeColorEnabled 체크')
+const s1397 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1397.includes('R2393') &&
+  s1397.includes('cascadeOpacityEnabled') &&
+  s1397.includes('cascadeColorEnabled') &&
+  s1397.includes('!is3x')
+) {
+  log('pass', 'R2393-cascade-opacity-color', 'Inspector cascadeOpacityEnabled + cascadeColorEnabled 구현 완료')
+} else {
+  log('warning', 'R2393-cascade-opacity-color', 'Inspector cascadeOpacityEnabled + cascadeColorEnabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1396: R2392 Inspector cc.RichText imageLineHeight ──────────
 console.log('\n## 1396. R2392 Inspector cc.RichText imageLineHeight 체크')
 const s1396 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

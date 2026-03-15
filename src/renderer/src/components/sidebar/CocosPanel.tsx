@@ -18684,6 +18684,24 @@ function CCFileNodeInspector({
         </div>
       )}
 
+      {/* R2393: cascadeOpacityEnabled + cascadeColorEnabled (CC2.x 노드 레벨) */}
+      {!is3x && (
+        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+            <input type="checkbox"
+              checked={!!(draft.cascadeOpacityEnabled ?? (draft as Record<string,unknown>)._cascadeOpacityEnabled ?? true)}
+              onChange={e => applyAndSave({ cascadeOpacityEnabled: e.target.checked } as Partial<CCSceneNode>)}
+            />cascadeOpacity
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+            <input type="checkbox"
+              checked={!!(draft.cascadeColorEnabled ?? (draft as Record<string,unknown>)._cascadeColorEnabled ?? false)}
+              onChange={e => applyAndSave({ cascadeColorEnabled: e.target.checked } as Partial<CCSceneNode>)}
+            />cascadeColor
+          </label>
+        </div>
+      )}
+
       {/* R1646: 색상 변경 인디케이터 */}
       {secHeader('color', '색상', (() => {
         const os = origSnapRef.current
