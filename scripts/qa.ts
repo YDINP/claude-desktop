@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1620: R2628 BatchInspector 앵커 X/Y 균등 분배 ────────────────────
+console.log('\n## 1620. R2628 — BatchInspector 앵커 X/Y 균등 분배')
+const s1620 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1620.includes('R2628') &&
+  s1620.includes('applyAnchorXGrad') &&
+  s1620.includes('applyAnchorYGrad') &&
+  s1620.includes('anchorXFrom')
+) {
+  log('pass', 'R2628-anchor-grad', 'R2628 앵커 X/Y 균등 분배 구현 완료')
+} else {
+  log('warning', 'R2628-anchor-grad', 'R2628 앵커 X/Y 균등 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1619: R2627 BatchInspector Label 텍스트 일련번호 추가 ────────────
 console.log('\n## 1619. R2627 — BatchInspector Label 텍스트 일련번호 추가')
 const s1619 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

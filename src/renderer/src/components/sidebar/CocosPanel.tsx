@@ -4319,6 +4319,11 @@ function CCFileBatchInspector({
   // R2619: position Y 분배
   const [posYFrom, setPosYFrom] = useState<number>(-200)
   const [posYTo, setPosYTo] = useState<number>(200)
+  // R2628: 앵커 X/Y 균등 분배
+  const [anchorXFrom, setAnchorXFrom] = useState<number>(0)
+  const [anchorXTo, setAnchorXTo] = useState<number>(1)
+  const [anchorYFrom, setAnchorYFrom] = useState<number>(0)
+  const [anchorYTo, setAnchorYTo] = useState<number>(1)
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -6090,6 +6095,67 @@ function CCFileBatchInspector({
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#fb923c', userSelect: 'none' }}>{label}</span>
             ))}
           </div>
+        )
+      })()}
+      {/* R2628: 앵커 X 균등 분배 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const applyAnchorXGrad = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const ax = parseFloat((anchorXFrom + (anchorXTo - anchorXFrom) * t).toFixed(3))
+            return { ...n, anchor: { x: ax, y: n.anchor?.y ?? 0.5 }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ anchor.X ${anchorXFrom}→${anchorXTo} (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const applyAnchorYGrad = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const ay = parseFloat((anchorYFrom + (anchorYTo - anchorYFrom) * t).toFixed(3))
+            return { ...n, anchor: { x: n.anchor?.x ?? 0.5, y: ay }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ anchor.Y ${anchorYFrom}→${anchorYTo} (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const btnS: React.CSSProperties = { fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }
+        return (
+          <>
+            <div style={{ display: 'flex', gap: 3, marginBottom: 4, alignItems: 'center' }}>
+              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>ancX분배 (R2628)</span>
+              <input type="number" value={anchorXFrom} min={0} max={1} step={0.1} onChange={e => setAnchorXFrom(parseFloat(e.target.value) || 0)} style={niS} title="시작 anchor.x" />
+              <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+              <input type="number" value={anchorXTo} min={0} max={1} step={0.1} onChange={e => setAnchorXTo(parseFloat(e.target.value) || 0)} style={niS} title="끝 anchor.x" />
+              <span onClick={applyAnchorXGrad} title={`anchor.X ${anchorXFrom}→${anchorXTo} 균등 분배 (R2628)`} style={btnS}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+              >분배</span>
+            </div>
+            <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>ancY분배 (R2628)</span>
+              <input type="number" value={anchorYFrom} min={0} max={1} step={0.1} onChange={e => setAnchorYFrom(parseFloat(e.target.value) || 0)} style={niS} title="시작 anchor.y" />
+              <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+              <input type="number" value={anchorYTo} min={0} max={1} step={0.1} onChange={e => setAnchorYTo(parseFloat(e.target.value) || 0)} style={niS} title="끝 anchor.y" />
+              <span onClick={applyAnchorYGrad} title={`anchor.Y ${anchorYFrom}→${anchorYTo} 균등 분배 (R2628)`} style={btnS}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+              >분배</span>
+            </div>
+          </>
         )
       })()}
       {/* R2013: 노드 position 일괄 설정 (reset/preset) */}
