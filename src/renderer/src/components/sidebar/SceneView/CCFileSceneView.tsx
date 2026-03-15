@@ -140,6 +140,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
   const [depthColorMode, setDepthColorMode] = useState(false)
+  // R2526: 깊이 필터 (최대 표시 depth)
+  const [depthFilterMax, setDepthFilterMax] = useState<number | null>(null)
   // R1659: 솔로 모드 (선택 노드 외 흐리게)
   const [soloMode, setSoloMode] = useState(false)
   // R1474: 씬뷰 스크린샷 → Claude 비전 분석
@@ -1371,6 +1373,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={depthColorMode ? 'Depth 색조 시각화 해제' : 'Depth별 색조 표시 (R1641)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${depthColorMode ? '#a78bfa' : 'var(--border)'}`, background: depthColorMode ? 'rgba(167,139,250,0.12)' : 'none', color: depthColorMode ? '#a78bfa' : 'var(--text-muted)' }}
         >⧫</button>
+        {/* R2526: 깊이 필터 */}
+        <button
+          onClick={() => setDepthFilterMax(v => v === null ? 2 : null)}
+          title={depthFilterMax !== null ? `깊이 필터 해제 (현재: D${depthFilterMax} 이하만 표시) (R2526)` : '깊이 필터 ON — 특정 depth 이하만 표시 (R2526)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${depthFilterMax !== null ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: depthFilterMax !== null ? 'rgba(52,211,153,0.1)' : 'none', color: depthFilterMax !== null ? '#34d399' : 'var(--text-muted)' }}
+        >D{depthFilterMax !== null ? `≤${depthFilterMax}` : '∞'}</button>
+        {depthFilterMax !== null && (
+          <input type="range" min={0} max={10} value={depthFilterMax}
+            onChange={e => setDepthFilterMax(parseInt(e.target.value))}
+            title={`깊이 제한: D${depthFilterMax} (R2526)`}
+            style={{ width: 50, cursor: 'pointer', accentColor: '#34d399' }} />
+        )}
         {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
         <button
           onClick={e => handleScreenshotAI(e)}
@@ -1806,7 +1820,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const searchDim = svSearch.trim() && !isSearchMatch && !isSelected ? 0.2 : 1
             // R1659: 솔로 모드 — 선택 노드 외 흐리게
             const soloDim = soloMode && !isSelected && !isHovered ? 0.12 : 1
-            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim
+            // R2526: 깊이 필터 — maxDepth 초과 노드 dim
+            const depthDim = depthFilterMax !== null && fn.depth > depthFilterMax && !isSelected ? 0.08 : 1
+            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5

@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1518: R2526 SceneView 깊이 필터 ─────────────────────────────────
+console.log('\n## 1518. R2526 — SceneView 깊이 필터 (Depth Filter)')
+const s1518 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1518.includes('R2526') &&
+  s1518.includes('depthFilterMax') &&
+  s1518.includes('depthDim') &&
+  s1518.includes("'∞'")
+) {
+  log('pass', 'R2526-depth-filter', 'R2526 SceneView 깊이 필터 구현 완료')
+} else {
+  log('warning', 'R2526-depth-filter', 'R2526 깊이 필터 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1517: R2525 BatchInspector 오파시티 그라디언트 ──────────────────
 console.log('\n## 1517. R2525 — BatchInspector 오파시티 그라디언트')
 const s1517 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
