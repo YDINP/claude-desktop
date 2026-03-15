@@ -17313,6 +17313,36 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2541: 스케일 1:1 리셋 + 회전 0° 리셋 (일괄) */}
+      {sceneFile.root && uuids.length > 0 && (() => {
+        const applyReset = async (mode: 'scale' | 'rot') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            if (mode === 'scale') {
+              const sc = n.scale as { x: number; y: number; z?: number }
+              return { ...n, scale: { ...sc, x: 1, y: 1 }, children: ch }
+            } else {
+              const rot = n.rotation
+              if (typeof rot === 'number') return { ...n, rotation: 0, children: ch }
+              return { ...n, rotation: { ...(rot as object), z: 0 } as typeof rot, children: ch }
+            }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ${mode === 'scale' ? 'scale 1:1' : '회전 0°'} 리셋 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>리셋 (R2541)</span>
+            <span onClick={() => applyReset('scale')} title="선택 노드 scale 1:1 초기화 (R2541)"
+              style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid rgba(56,189,248,0.4)', borderRadius: 2, color: '#38bdf8', userSelect: 'none', background: 'rgba(56,189,248,0.05)' }}>↺1:1</span>
+            <span onClick={() => applyReset('rot')} title="선택 노드 rotation 0° 초기화 (R2541)"
+              style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid rgba(56,189,248,0.4)', borderRadius: 2, color: '#38bdf8', userSelect: 'none', background: 'rgba(56,189,248,0.05)' }}>∠0°</span>
+          </div>
+        )
+      })()}
       {/* R2536: 선택 노드 미러 (scale 부호 반전 — 좌우/상하 뒤집기) */}
       {sceneFile.root && uuids.length > 0 && (() => {
         const applyFlip = async (axis: 'x' | 'y') => {

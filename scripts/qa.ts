@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1533: R2541 BatchInspector 스케일/회전 리셋 버튼 ──────────────────
+console.log('\n## 1533. R2541 — BatchInspector 스케일 1:1 + 회전 0° 일괄 리셋')
+const s1533 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1533.includes('R2541') &&
+  s1533.includes('applyReset') &&
+  s1533.includes('↺1:1') &&
+  s1533.includes('∠0°')
+) {
+  log('pass', 'R2541-reset', 'R2541 스케일/회전 리셋 구현 완료')
+} else {
+  log('warning', 'R2541-reset', 'R2541 스케일/회전 리셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1532: R2540 SceneView 좌표 이동 입력 (Go-to XY) ──────────────────
 console.log('\n## 1532. R2540 — SceneView Go-to XY 좌표 이동')
 const s1532 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
