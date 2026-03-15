@@ -29094,6 +29094,19 @@ if (
   log('warning', 'R2516-pos-offset', 'R2516 위치 오프셋 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1509: R2517 BatchInspector 컴포넌트 타입 전체 선택 ──────────────────────────
+console.log('\n## 1509. R2517 — BatchInspector 컴포넌트 타입 전체 선택')
+const s1509 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1509.includes('R2517') &&
+  s1509.includes('compTypeSet') &&
+  s1509.includes('⊞전체')
+) {
+  log('pass', 'R2517-comp-type-select-all', 'R2517 BatchInspector 컴포넌트 타입 전체 선택 구현 완료')
+} else {
+  log('warning', 'R2517-comp-type-select-all', 'R2517 컴포넌트 타입 전체 선택 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

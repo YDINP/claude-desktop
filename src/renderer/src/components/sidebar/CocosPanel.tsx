@@ -4599,6 +4599,37 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2517: 컴포넌트 타입으로 씬 전체 선택 — 선택 노드의 공통 comp 타입 표시 + ⊞전체 클릭 */}
+      {onMultiSelectChange && sceneFile.root && uuids.length > 0 && (() => {
+        const selectedNodes: CCSceneNode[] = []
+        function collectSel(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selectedNodes.push(n); n.children.forEach(collectSel) }
+        collectSel(sceneFile.root!)
+        // 선택 노드 중 공통 comp 타입 (중복 없이 up to 6개)
+        const compTypeSet = new Set<string>()
+        selectedNodes.forEach(n => n.components.forEach(c => compTypeSet.add(c.type)))
+        const compTypes = [...compTypeSet].slice(0, 6)
+        if (compTypes.length === 0) return null
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>⊞전체 (R2517)</span>
+            {compTypes.map(ct => {
+              // 씬 내 해당 타입 노드 모두 찾기
+              const all: string[] = []
+              function walkType(n: CCSceneNode) { if (n.components.some(c => c.type === ct)) all.push(n.uuid); n.children.forEach(walkType) }
+              walkType(sceneFile.root!)
+              const shortName = ct.includes('.') ? ct.split('.').pop()! : ct
+              return (
+                <span key={ct} onClick={() => onMultiSelectChange(all)}
+                  title={`씬 내 ${ct} 컴포넌트를 가진 ${all.length}개 노드 전체 선택 (R2517)`}
+                  style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+                >{shortName}×{all.length}</span>
+              )
+            })}
+          </div>
+        )
+      })()}
       {/* R2336: 2-노드 선택 시 거리/간격 정보 */}
       {uuids.length === 2 && sceneFile.root && (() => {
         const nodes2: CCSceneNode[] = []
