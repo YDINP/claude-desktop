@@ -4048,8 +4048,18 @@ function CCFileSceneTree({
           >
             {(() => {
               const name = node.name || '(unnamed)'
-              const ql = highlightQuery?.trim().toLowerCase()
-              if (!ql) return name
+              const q = highlightQuery?.trim()
+              if (!q) return name
+              // R2498: /regex/ 구문 하이라이트
+              if (q.startsWith('/') && q.length > 1) {
+                try {
+                  const re = new RegExp(q.slice(1), 'i')
+                  const m = re.exec(name)
+                  if (!m) return name
+                  return <>{name.slice(0, m.index)}<span style={{ background: '#fbbf24', color: '#1a1a2e', borderRadius: 2 }}>{m[0]}</span>{name.slice(m.index + m[0].length)}</>
+                } catch { return name }
+              }
+              const ql = q.toLowerCase()
               const idx = name.toLowerCase().indexOf(ql)
               if (idx < 0) return name
               return <>{name.slice(0, idx)}<span style={{ background: '#fbbf24', color: '#1a1a2e', borderRadius: 2 }}>{name.slice(idx, idx + ql.length)}</span>{name.slice(idx + ql.length)}</>
@@ -26406,12 +26416,17 @@ function TreeSearch({ root, onSelect, onQueryChange }: { root: CCSceneNode; onSe
     setActiveIdx(-1)
     onQueryChange?.(q)
     if (!q.trim()) { setResults([]); setTotalFound(0); setOpen(false); setPageSize(12); return }
+    // R2498: /regex/ 구문 지원 — 슬래시로 시작하면 정규식으로 파싱
+    let regex: RegExp | null = null
+    if (q.startsWith('/') && q.length > 1) {
+      try { regex = new RegExp(q.slice(1), 'i') } catch { /* invalid regex — fall back to literal */ }
+    }
     const ql = q.toLowerCase()
     const found: CCSceneNode[] = []
     function walk(n: CCSceneNode) {
       // R1558: 이름 + 컴포넌트 타입 모두 검색
-      const nameMatch = n.name.toLowerCase().includes(ql)
-      const compMatch = n.components.some(c => c.type.toLowerCase().includes(ql))
+      const nameMatch = regex ? regex.test(n.name) : n.name.toLowerCase().includes(ql)
+      const compMatch = !regex && n.components.some(c => c.type.toLowerCase().includes(ql))
       if (nameMatch || compMatch) found.push(n)
       n.children.forEach(walk)
     }

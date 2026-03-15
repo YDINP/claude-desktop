@@ -28857,6 +28857,19 @@ if (
   log('warning', 'R2497-reveal-hierarchy', 'R2497 계층 트리 자동 펼치기 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1490: R2498 TreeSearch 정규식 검색 ──────────────────────────────
+const s1490 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1490.includes('R2498') &&
+  s1490.includes('regex') &&
+  s1490.includes('/regex/') &&
+  s1490.includes('정규식')
+) {
+  log('pass', 'R2498-regex-search', 'R2498 TreeSearch 정규식 검색 구현 완료')
+} else {
+  log('warning', 'R2498-regex-search', 'R2498 정규식 검색 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
