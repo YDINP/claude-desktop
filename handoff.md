@@ -29,11 +29,16 @@
 - [x] R2337: Inspector 노드 N-복제 (dupeCount ×N 입력, 최대 20개)
 - [x] R2338: 씬 트리 우클릭 메뉴 JSON 복사 옵션
 - [x] R2339: 씬 트리 노드 색상 태그 커스텀 색상 picker 추가
+- [x] R2340: Inspector cc.SpotLight intensity/range/spotAngle/color 퀵 편집
+- [x] R2341: Inspector cc.WebView url/visibleWithMouse 퀵 편집
+- [x] R2342: Inspector cc.Scrollbar direction/enableAutoHide/autoHideTime 퀵 편집
+- [x] R2343: Inspector 단일노드 tag(_tag CC2.x) 편집 필드 (0이 아닌 경우만 표시)
+- [x] R2344: 씬 통계 컴포넌트 분포 인라인 바 시각화 + 전체 컴포넌트 수
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2374** ← R2339 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2379** ← R2344 현재
 - Branch: dev
-- 최근 커밋: `31ecac5` (R2339), `d3499f0` (R2338), `c6f1325` (R2337), `5b2897c` (R2336), `a02d5bc` (R2335)
+- 최근 커밋: `41e9bf2` (R2344), `7f7394d` (R2343 fix), `27515c6` (R2343), `a72e2ba` (R2342), `45db11a` (R2341)
 
 ## 갭 수정 완료 상태
 - **BatchInspector bare shorthand → ALL DONE** (R2298-R2305)

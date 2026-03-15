@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1349: R2345 씬 트리 북마크 퀵액세스 바 ──────────
+console.log('\n## 1349. R2345 씬 트리 북마크 퀵액세스 바 체크')
+const s1349 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1349.includes('R2345') &&
+  s1349.includes('nodeBookmarks') &&
+  s1349.includes('onContextMenu') &&
+  s1349.includes('북마크 제거')
+) {
+  log('pass', 'R2345-bookmark-bar', '씬 트리 북마크 퀵액세스 바 구현 완료')
+} else {
+  log('warning', 'R2345-bookmark-bar', '씬 트리 북마크 퀵액세스 바 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1348: R2344 씬 통계 바 시각화 ──────────
 console.log('\n## 1348. R2344 씬 통계 인라인 바 시각화 체크')
 const s1348 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

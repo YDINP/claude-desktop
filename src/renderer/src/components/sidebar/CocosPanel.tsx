@@ -2853,6 +2853,26 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 })}
               </div>
             )}
+            {/* R2345: 노드 북마크 퀵액세스 바 (Ctrl+1-9 설정, 1-9 이동) */}
+            {Object.keys(nodeBookmarks).length > 0 && (
+              <div style={{ padding: '2px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+                <span style={{ fontSize: 8, color: '#444', flexShrink: 0 }}>🔖</span>
+                {Object.entries(nodeBookmarks).sort(([a], [b]) => a.localeCompare(b)).map(([key, uuid]) => {
+                  const n = nodeMap.get(uuid)
+                  if (!n) return null
+                  const isSelected = selectedNode?.uuid === uuid
+                  return (
+                    <span
+                      key={key}
+                      onClick={() => { const found = nodeMap.get(uuid); if (found) onSelectNode(found) }}
+                      onContextMenu={e => { e.preventDefault(); setNodeBookmarks(prev => { const next = { ...prev }; delete next[key]; return next }) }}
+                      title={`[${key}] ${n.name} — 클릭: 이동, 우클릭: 북마크 제거`}
+                      style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, cursor: 'pointer', border: `1px solid ${isSelected ? '#f472b6' : 'rgba(244,114,182,0.3)'}`, color: isSelected ? '#f472b6' : 'rgba(244,114,182,0.7)', background: isSelected ? 'rgba(244,114,182,0.1)' : 'none', userSelect: 'none', maxWidth: 72, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                    ><span style={{ opacity: 0.6, fontWeight: 700 }}>{key}</span>{n.name || '(unnamed)'}</span>
+                  )
+                })}
+              </div>
+            )}
             {/* R1654: 컴포넌트 필터 패널 */}
             {showNodeFilters && (
               <div style={{ padding: '3px 4px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
