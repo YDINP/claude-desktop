@@ -259,6 +259,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showOOBHighlight, setShowOOBHighlight] = useState(false)
   // R2637: 씬 전체 바운딩박스 오버레이
   const [showSceneBBox, setShowSceneBBox] = useState(false)
+  // R2640: 선택 순서 번호 오버레이
+  const [showSelOrder, setShowSelOrder] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1679,6 +1681,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSceneBBox ? '씬 바운딩박스 끄기 (R2637)' : '씬 전체 노드 바운딩박스 표시 (R2637)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSceneBBox ? 'rgba(248,113,113,0.5)' : 'var(--border)'}`, background: showSceneBBox ? 'rgba(248,113,113,0.12)' : 'none', color: showSceneBBox ? '#f87171' : 'var(--text-muted)' }}
         >⊏</button>
+        {/* R2640: 선택 순서 번호 오버레이 토글 */}
+        <button
+          onClick={() => setShowSelOrder(v => !v)}
+          title={showSelOrder ? '선택 순서 번호 끄기 (R2640)' : '선택된 노드에 배치 순서 번호 ①② 표시 (R2640)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelOrder ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSelOrder ? 'rgba(52,211,153,0.12)' : 'none', color: showSelOrder ? '#34d399' : 'var(--text-muted)' }}
+        >①</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2663,6 +2671,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(99,102,241,0.9)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{layerName}</text>
+                  )
+                })()}
+                {/* R2640: 선택 순서 번호 오버레이 */}
+                {showSelOrder && (() => {
+                  const selIdx = uuids.indexOf(node.uuid)
+                  if (selIdx < 0) return null
+                  const fs = Math.max(7, 9 / view.zoom)
+                  const pad = 2 / view.zoom
+                  return (
+                    <text
+                      x={rectX + pad} y={rectY + pad}
+                      dominantBaseline="hanging"
+                      fontSize={fs} fill="rgba(52,211,153,0.95)" fontFamily="monospace" fontWeight="bold"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{selIdx + 1}</text>
                   )
                 })()}
                 {/* R2636: 캔버스 경계 초과 노드 강조 */}

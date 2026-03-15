@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1632: R2640 SceneView 선택 순서 번호 오버레이 ─────────────────────
+console.log('\n## 1632. R2640 — SceneView 선택 순서 번호 오버레이')
+const s1632 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1632.includes('R2640') &&
+  s1632.includes('showSelOrder') &&
+  s1632.includes('setShowSelOrder') &&
+  s1632.includes('selIdx')
+) {
+  log('pass', 'R2640-sel-order', 'R2640 선택 순서 번호 오버레이 구현 완료')
+} else {
+  log('warning', 'R2640-sel-order', 'R2640 선택 순서 번호 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1631: R2639 BatchInspector 원형 배치 ──────────────────────────────
 console.log('\n## 1631. R2639 — BatchInspector 원형 배치')
 const s1631 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
