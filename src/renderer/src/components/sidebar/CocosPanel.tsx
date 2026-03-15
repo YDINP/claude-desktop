@@ -1804,6 +1804,63 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(insert(reduced))
   }, [sceneFile, saveScene])
 
+  // R2466: 다중 선택 노드 그룹화
+  const handleGroupNodes = useCallback(async (uuids: string[]) => {
+    if (!sceneFile?.root || !sceneFile._raw || uuids.length < 2) return
+    const raw = sceneFile._raw as Record<string, unknown>[]
+    const version = sceneFile.projectInfo.version ?? '2x'
+    const uuidSet = new Set(uuids)
+    // 선택 노드 수집
+    const collected: CCSceneNode[] = []
+    function findSelected(n: CCSceneNode) {
+      if (uuidSet.has(n.uuid)) collected.push(n)
+      n.children.forEach(findSelected)
+    }
+    findSelected(sceneFile.root)
+    if (collected.length === 0) return
+    // 평균 위치 계산
+    const avgX = Math.round(collected.reduce((s, n) => s + ((n.position as { x: number }).x ?? 0), 0) / collected.length)
+    const avgY = Math.round(collected.reduce((s, n) => s + ((n.position as { y: number }).y ?? 0), 0) / collected.length)
+    // 새 Group 노드 raw 엔트리
+    const groupId = 'grp-' + Date.now()
+    const groupIdx = raw.length
+    raw.push(version === '3x' ? {
+      __type__: 'cc.Node', _id: groupId, _name: 'Group', _active: true,
+      _children: [], _components: [],
+      _lpos: { x: avgX, y: avgY, z: 0 }, _lrot: { x: 0, y: 0, z: 0 }, _lscale: { x: 1, y: 1, z: 1 },
+      _color: { r: 255, g: 255, b: 255, a: 255 }, _layer: 33554432,
+    } : {
+      __type__: 'cc.Node', _id: groupId, _name: 'Group', _active: true,
+      _children: [], _components: [],
+      _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [avgX, avgY, 0, 0, 0, 0, 1, 1, 1, 1] },
+      _contentSize: { width: 100, height: 100 }, _anchorPoint: { x: 0.5, y: 0.5 },
+      _opacity: 255, _color: { r: 255, g: 255, b: 255, a: 255 },
+    })
+    const groupNode: CCSceneNode = {
+      uuid: groupId, name: 'Group', active: true,
+      position: { x: avgX, y: avgY, z: 0 }, size: { x: 100, y: 100 },
+      scale: { x: 1, y: 1, z: 1 }, anchor: { x: 0.5, y: 0.5 }, rotation: 0,
+      opacity: 255, color: null, components: [], children: [], _rawIndex: groupIdx,
+    }
+    // 선택 노드를 트리에서 제거
+    function removeSelected(n: CCSceneNode): CCSceneNode {
+      const children = n.children.filter(c => !uuidSet.has(c.uuid))
+      return { ...n, children: children.map(removeSelected) }
+    }
+    const reduced = removeSelected(sceneFile.root)
+    // group 노드에 수집된 노드 추가 (위치를 group 기준 로컬 좌표로 변환)
+    const groupWithChildren: CCSceneNode = {
+      ...groupNode,
+      children: collected.map(c => ({
+        ...c,
+        position: { x: ((c.position as { x: number }).x ?? 0) - avgX, y: ((c.position as { y: number }).y ?? 0) - avgY, z: 0 },
+      })),
+    }
+    // root 직속 자식으로 group 노드 추가
+    const newRoot = { ...reduced, children: [...reduced.children, groupWithChildren] }
+    await saveScene(newRoot)
+  }, [sceneFile, saveScene])
+
   // R1514: 프리팹 삽입 핸들러
   const handleInsertPrefab = useCallback(async (prefabPath: string) => {
     if (!sceneFile?.root || !projectInfo) return
@@ -3240,6 +3297,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onReorder={handleReorder}
                 onAnchorMove={handleAnchorMove}
                 onMultiSelectChange={setMultiSelectedUuids}
+                onGroupNodes={handleGroupNodes}
                 pulseUuid={pulseUuid}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }

@@ -42,6 +42,8 @@ interface CCFileSceneViewProps {
   onReorder?: (uuid: string, direction: 1 | -1) => void
   /** R1666: 선택 노드 pulse 미리보기 uuid */
   pulseUuid?: string | null
+  /** R2466: 다중 선택 노드 그룹화 */
+  onGroupNodes?: (uuids: string[]) => void
 }
 
 /**
@@ -49,7 +51,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -1360,6 +1362,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             })}
           </>
         })()}
+        {/* R2466: 다중 선택 그룹화 버튼 */}
+        {multiSelected.size >= 2 && onGroupNodes && (
+          <button
+            onClick={() => onGroupNodes(Array.from(multiSelected))}
+            title={`선택 ${multiSelected.size}개 노드를 Group 노드 아래로 묶기 (R2466)`}
+            style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,191,36,0.5)', background: 'rgba(251,191,36,0.1)', color: '#fbbf24' }}
+          >📦</button>
+        )}
         {/* R1599: 두 노드 선택 시 거리 표시 */}
         {multiSelected.size === 2 && (() => {
           const [a, b] = flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
