@@ -169,6 +169,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   multiSelectedRef.current = multiSelected
   const selBoxRef = useRef<{ startSvgX: number; startSvgY: number } | null>(null)
   const [selectionBox, setSelectionBox] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
+  // R2465: 거리 측정 도구
+  const [measureMode, setMeasureMode] = useState(false)
+  const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
+  const measureStartRef = useRef<{ svgX: number; svgY: number } | null>(null)
 
   // R1516: 다중 선택 변경 → 부모에 알림
   useEffect(() => {
@@ -338,16 +342,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       setIsPanning(true)
       panStart.current = { mouseX: e.clientX, mouseY: e.clientY, offX: view.offsetX, offY: view.offsetY }
     } else if (e.button === 0) {
-      // 빈 공간 드래그: rubber-band 선택 시작
       const svg = svgRef.current
       if (!svg) return
       const rect = svg.getBoundingClientRect()
       const v = viewRef.current
       const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
       const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
+      // R2465: 측정 모드 시작
+      if (measureMode) {
+        measureStartRef.current = { svgX, svgY }
+        setMeasureLine(null)
+        return
+      }
+      // 빈 공간 드래그: rubber-band 선택 시작
       selBoxRef.current = { startSvgX: svgX, startSvgY: svgY }
     }
-  }, [view])
+  }, [view, measureMode])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // R1598: 마우스 위치 씬 좌표 업데이트
@@ -360,6 +370,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         const svgY = -((e.clientY - rect.top - v.offsetY) / v.zoom)  // Y 반전 (씬 좌표계)
         setMouseScenePos({ x: Math.round(svgX), y: Math.round(svgY) })
       }
+    }
+    // R2465: 측정 도구 드래그 업데이트
+    if (measureStartRef.current) {
+      const svg = svgRef.current
+      if (svg) {
+        const rect = svg.getBoundingClientRect()
+        const v = viewRef.current
+        const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
+        const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
+        setMeasureLine({ svgX1: measureStartRef.current.svgX, svgY1: measureStartRef.current.svgY, svgX2: svgX, svgY2: svgY })
+      }
+      return
     }
     // R1506: 앵커 포인트 드래그
     if (anchorRef.current) {
@@ -539,6 +561,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [isPanning, cx, cy, snapSize, flatNodes])
 
   const handleMouseUp = useCallback(() => {
+    // R2465: 측정 도구 — 드래그 완료 시 start ref 해제 (측정 선은 유지)
+    if (measureStartRef.current) {
+      measureStartRef.current = null
+      return
+    }
     // R1506: 앵커 포인트 드래그 완료
     if (anchorRef.current && anchorOverride) {
       onAnchorMove?.(anchorOverride.uuid, anchorOverride.ax, anchorOverride.ay)
@@ -786,6 +813,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           else next.add(selectedUuid)
           return next
         })
+        return
+      }
+      // R2465: M — 거리 측정 도구 토글
+      if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        e.preventDefault()
+        setMeasureMode(m => !m)
+        setMeasureLine(null)
+        measureStartRef.current = null
         return
       }
       // R1622: O — 선택 노드 캔버스 중앙(0,0) 이동
@@ -1277,6 +1312,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             style={{ width: 50 }}
           />
         )}
+        {/* R2465: 거리 측정 도구 */}
+        <button
+          onClick={() => { setMeasureMode(m => { if (m) setMeasureLine(null); return !m }); measureStartRef.current = null }}
+          title={measureMode ? '측정 도구 종료 (M)' : '거리 측정 도구 (M) — 드래그로 두 점 거리 측정 (R2465)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${measureMode ? '#ff6b6b' : 'var(--border)'}`, background: measureMode ? 'rgba(255,107,107,0.12)' : 'none', color: measureMode ? '#ff6b6b' : 'var(--text-muted)', flexShrink: 0 }}
+        >📏</button>
+        {measureLine && measureMode && (
+          <span style={{ fontSize: 9, color: '#ff6b6b', flexShrink: 0, fontFamily: 'monospace' }}>
+            {Math.sqrt((measureLine.svgX2 - measureLine.svgX1) ** 2 + (measureLine.svgY2 - measureLine.svgY1) ** 2).toFixed(1)}px
+          </span>
+        )}
         {/* R1486: 다중 선택 정렬 툴바 */}
         {multiSelected.size > 1 && (() => {
           const selNodes = flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
@@ -1347,7 +1393,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       {/* SVG 캔버스 */}
       <svg
         ref={svgRef}
-        style={{ flex: 1, background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : rotateOverride ? 'crosshair' : 'default', display: 'block' }}
+        style={{ flex: 1, background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : rotateOverride ? 'crosshair' : measureMode ? 'crosshair' : 'default', display: 'block' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -2318,6 +2364,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             </g>
           )
         })()}
+        {/* R2465: 거리 측정 도구 오버레이 */}
+        {measureLine && measureMode && (() => {
+          const { svgX1, svgY1, svgX2, svgY2 } = measureLine
+          const dx = svgX2 - svgX1; const dy = svgY2 - svgY1
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const midX = (svgX1 + svgX2) / 2; const midY = (svgY1 + svgY2) / 2
+          const sz = 3 / view.zoom; const fs = 9 / view.zoom; const lw = 1.5 / view.zoom
+          return (
+            <g pointerEvents="none" transform={`translate(${view.offsetX},${view.offsetY}) scale(${view.zoom})`}>
+              <line x1={svgX1} y1={svgY1} x2={svgX2} y2={svgY2} stroke="#ff6b6b" strokeWidth={lw} strokeDasharray={`${5 / view.zoom},${2 / view.zoom}`} />
+              <circle cx={svgX1} cy={svgY1} r={sz} fill="#ff6b6b" />
+              <circle cx={svgX2} cy={svgY2} r={sz} fill="#ff6b6b" />
+              <rect x={midX - 32 / view.zoom} y={midY - 9 / view.zoom} width={64 / view.zoom} height={15 / view.zoom} fill="rgba(0,0,0,0.75)" rx={2 / view.zoom} />
+              <text x={midX} y={midY + 4 / view.zoom} textAnchor="middle" fontSize={fs} fill="#ff6b6b" fontFamily="monospace">{dist.toFixed(1)}px</text>
+            </g>
+          )
+        })()}
       </svg>
       {/* R1522: 노드 호버 정보 패널 */}
       {hoverUuid && hoverClientPos && (() => {
@@ -2535,6 +2598,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             // R2334: 최근 추가 단축키
             ['Alt+←/→', '선택 이력 이전/다음 (R1705)'],
             ['G', '형제 그룹 하이라이트 토글'],
+            ['M', '거리 측정 도구 토글 (R2465)'],
             ['Ctrl+P', '핀 마커 추가'],
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', gap: 8 }}>
