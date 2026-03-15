@@ -19603,14 +19603,25 @@ function CCFileNodeInspector({
                     </>
                   )}
                   {comp.type === 'cc.ToggleContainer' && (
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
-                      <input type="checkbox" checked={!!(p.allowSwitchOff ?? false)}
-                        onChange={ev => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, allowSwitchOff: ev.target.checked, _allowSwitchOff: ev.target.checked, _N$allowSwitchOff: ev.target.checked } } : c)
-                          applyAndSave({ components: updated })
-                        }} />
-                      allowSwitchOff
-                    </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                        <input type="checkbox" checked={!!(p.allowSwitchOff ?? false)}
+                          onChange={ev => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, allowSwitchOff: ev.target.checked, _allowSwitchOff: ev.target.checked, _N$allowSwitchOff: ev.target.checked } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
+                        allowSwitchOff
+                      </label>
+                      {/* R2378: autoCheckToggle */}
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                        <input type="checkbox" checked={!!(p.autoCheckToggle ?? p._autoCheckToggle ?? p._N$autoCheckToggle ?? false)}
+                          onChange={ev => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoCheckToggle: ev.target.checked, _autoCheckToggle: ev.target.checked, _N$autoCheckToggle: ev.target.checked } } : c)
+                            applyAndSave({ components: updated })
+                          }} />
+                        autoCheckToggle
+                      </label>
+                    </div>
                   )}
                 </div>
               )
