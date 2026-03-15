@@ -29053,6 +29053,20 @@ if (
   log('warning', 'R2513-zorder-move', 'R2513 Z-Order 이동 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1506: R2514 BatchInspector 그리드 스냅 ──────────────────────────
+console.log('\n## 1506. R2514 — BatchInspector 그리드 스냅')
+const s1506 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1506.includes('R2514') &&
+  s1506.includes('snapGridSize') &&
+  s1506.includes('applyGridSnap') &&
+  s1506.includes('그리드 스냅')
+) {
+  log('pass', 'R2514-grid-snap', 'R2514 BatchInspector 그리드 스냅 구현 완료')
+} else {
+  log('warning', 'R2514-grid-snap', 'R2514 그리드 스냅 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -4261,6 +4261,8 @@ function CCFileBatchInspector({
   const [batchAddComp, setBatchAddComp] = useState<string>('')
   // R2506: 컴포넌트 일괄 제거
   const [batchRemComp, setBatchRemComp] = useState<string>('')
+  // R2514: 그리드 스냅 크기
+  const [snapGridSize, setSnapGridSize] = useState<number>(8)
   // R2513: Z-Order 이동
   const moveZOrder = useCallback(async (dir: 'up' | 'down' | 'top' | 'bottom') => {
     if (!sceneFile.root) return
@@ -4508,6 +4510,41 @@ function CCFileBatchInspector({
           )
         })}
       </div>
+      {/* R2514: 그리드 스냅 — 선택 노드 위치를 지정 격자에 맞춤 */}
+      {sceneFile.root && (() => {
+        const applyGridSnap = async () => {
+          const g = snapGridSize
+          if (g < 1 || !sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const p = n.position as { x: number; y: number; z?: number }
+            const snappedX = Math.round(p.x / g) * g
+            const snappedY = Math.round(p.y / g) * g
+            return { ...n, position: { ...p, x: snappedX, y: snappedY }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ${uuids.length}개 노드 ${g}px 그리드 스냅`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>◫ 스냅 (R2514)</span>
+            <input
+              type="number" value={snapGridSize} min={1} max={256}
+              onChange={e => setSnapGridSize(Math.max(1, parseInt(e.target.value) || 8))}
+              style={{ width: 38, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }}
+              title="그리드 크기 (px)" />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
+            <span onClick={applyGridSnap}
+              title={`선택된 ${uuids.length}개 노드 위치를 ${snapGridSize}px 그리드에 스냅 (R2514)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >스냅</span>
+          </div>
+        )
+      })()}
       {/* R2336: 2-노드 선택 시 거리/간격 정보 */}
       {uuids.length === 2 && sceneFile.root && (() => {
         const nodes2: CCSceneNode[] = []
