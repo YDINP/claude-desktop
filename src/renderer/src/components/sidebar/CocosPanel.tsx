@@ -508,6 +508,18 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [nodeColors, setNodeColors] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('node-colors') ?? '{}') } catch { return {} }
   })
+  // R2474: 핀 노드 — 빠른 선택을 위한 노드 고정 목록 (localStorage 영속화)
+  const [pinnedNodes, setPinnedNodes] = useState<Array<{ uuid: string; name: string }>>(() => {
+    try { return JSON.parse(localStorage.getItem('cc-pinned-nodes') ?? '[]') } catch { return [] }
+  })
+  const togglePinNode = useCallback((uuid: string, name: string) => {
+    setPinnedNodes(prev => {
+      const exists = prev.some(p => p.uuid === uuid)
+      const next = exists ? prev.filter(p => p.uuid !== uuid) : [...prev, { uuid, name }]
+      localStorage.setItem('cc-pinned-nodes', JSON.stringify(next))
+      return next
+    })
+  }, [])
   const [nodeLayers, setNodeLayers] = useState<Record<string, number>>({})
   const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [nodeSearchHistory, setNodeSearchHistory] = useState<string[]>([])
@@ -3288,6 +3300,24 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 ✓ {lastDiffDisplay}
               </div>
             )}
+            {/* R2474: 핀 노드 빠른 선택 바 */}
+            {pinnedNodes.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '2px 6px', background: 'rgba(251,191,36,0.05)', borderBottom: '1px solid rgba(251,191,36,0.2)', flexShrink: 0, flexWrap: 'wrap', maxHeight: 36, overflow: 'hidden' }}>
+                <span style={{ fontSize: 8, color: '#fbbf24', flexShrink: 0 }}>📌</span>
+                {pinnedNodes.map(p => (
+                  <span
+                    key={p.uuid}
+                    onClick={() => {
+                      const fn = sceneFile?.root && (function find(n: CCSceneNode): CCSceneNode | null { if (n.uuid === p.uuid) return n; for (const c of n.children) { const f = find(c); if (f) return f } return null })(sceneFile.root)
+                      if (fn) onSelectNode(fn)
+                    }}
+                    onContextMenu={e => { e.preventDefault(); togglePinNode(p.uuid, p.name) }}
+                    title={`${p.name} 선택 / 우클릭: 핀 해제 (R2474)`}
+                    style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,191,36,0.4)', background: selectedNode?.uuid === p.uuid ? 'rgba(251,191,36,0.2)' : 'none', color: selectedNode?.uuid === p.uuid ? '#fbbf24' : '#a88a44', flexShrink: 0, maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                  >{p.name}</span>
+                ))}
+              </div>
+            )}
             {/* SceneView — flex:1 (남은 공간 전부) */}
             <div style={{ flex: 1, minHeight: 0 }}>
               <CCFileSceneView
@@ -3378,6 +3408,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   lockedUuids={lockedUuids}
                   onToggleLocked={toggleLocked}
                   onPulse={uuid => { setPulseUuid(uuid); setTimeout(() => setPulseUuid(null), 1400) }}
+                  pinnedUuids={new Set(pinnedNodes.map(p => p.uuid))}
+                  onTogglePin={togglePinNode}
                 />
               </div>
             )}
@@ -17049,7 +17081,7 @@ const COMP_DESCRIPTIONS: Record<string, string> = {
 
 /** CCSceneNode 프로퍼티 인스펙터 — 노드 선택 시 표시 */
 function CCFileNodeInspector({
-  node, sceneFile, saveScene, onUpdate, lockedUuids, onToggleLocked, onPulse,
+  node, sceneFile, saveScene, onUpdate, lockedUuids, onToggleLocked, onPulse, pinnedUuids, onTogglePin,
 }: {
   node: CCSceneNode
   sceneFile: CCSceneFile
@@ -17058,6 +17090,9 @@ function CCFileNodeInspector({
   lockedUuids?: Set<string>
   onToggleLocked?: (uuid: string) => void
   onPulse?: (uuid: string) => void
+  /** R2474: 핀 노드 */
+  pinnedUuids?: Set<string>
+  onTogglePin?: (uuid: string, name: string) => void
 }) {
   // R1597: 노드 커스텀 메모 (localStorage 기반)
   const NOTES_KEY = 'cc-node-notes'
@@ -17844,6 +17879,16 @@ function CCFileNodeInspector({
                 onMouseEnter={e => (e.currentTarget.style.color = '#fbbf24')}
                 onMouseLeave={e => (e.currentTarget.style.color = '#445')}
               >✨</span>
+            )}
+            {/* R2474: 핀 토글 버튼 */}
+            {onTogglePin && (
+              <span
+                title={pinnedUuids?.has(node.uuid) ? '핀 해제 (R2474)' : '씬뷰 핀 바에 고정 (R2474)'}
+                onClick={() => onTogglePin(node.uuid, node.name)}
+                style={{ fontSize: 9, color: pinnedUuids?.has(node.uuid) ? '#fbbf24' : '#445', padding: '1px 3px', borderRadius: 2, cursor: 'pointer', lineHeight: 1 }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#fbbf24')}
+                onMouseLeave={e => (e.currentTarget.style.color = pinnedUuids?.has(node.uuid) ? '#fbbf24' : '#445')}
+              >📌</span>
             )}
             {/* R1726: 노드 JSON 복사 버튼 */}
             <span
