@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1334: R2330 Inspector 컴포넌트 헤더 아이콘 ──────────
+console.log('\n## 1334. R2330 Inspector 컴포넌트 헤더 아이콘 체크')
+const s1334 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1334.includes('COMP_ICONS') &&
+  s1334.includes('R2330') &&
+  s1334.includes("COMP_ICONS[comp.type]")
+) {
+  log('pass', 'R2330-comp-icons', 'Inspector 컴포넌트 헤더 아이콘 구현 완료')
+} else {
+  log('warning', 'R2330-comp-icons', 'R2330 컴포넌트 아이콘 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1333: R2329 씬뷰 선택 이력 UI 버튼 ──────────
 console.log('\n## 1333. R2329 씬뷰 선택 이력 ← → 버튼 체크')
 const s1333 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

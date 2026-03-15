@@ -16535,6 +16535,22 @@ function CCFileBatchInspector({
   )
 }
 
+// R2330: 컴포넌트 타입별 아이콘 (Inspector 헤더 + hover panel 공유)
+const COMP_ICONS: Record<string, string> = {
+  'cc.Label': 'T', 'cc.RichText': 'T',
+  'cc.Sprite': '🖼', 'cc.TiledMap': '🗺', 'cc.VideoPlayer': '▷',
+  'cc.Button': '⬜', 'cc.Toggle': '☑', 'cc.Slider': '⊟',
+  'cc.Widget': '⚓', 'cc.Layout': '▤', 'cc.SafeArea': '📱',
+  'cc.ScrollView': '⊠', 'cc.PageView': '⊟',
+  'cc.EditBox': '✏', 'cc.ProgressBar': '▰',
+  'cc.Animation': '▶', 'sp.Skeleton': '🦴', 'dragonBones.ArmatureDisplay': '🐉',
+  'cc.AudioSource': '♪',
+  'cc.RigidBody': '⚙', 'cc.BoxCollider': '⬡', 'cc.CircleCollider': '○', 'cc.PolygonCollider': '⬠',
+  'cc.Camera': '📷', 'cc.Canvas': '🎨',
+  'cc.BlockInputEvents': '🚫', 'cc.Mask': '◰', 'cc.ParticleSystem': '✦',
+  'cc.MotionStreak': '〰', 'cc.GraphicsComponent': '✏',
+}
+
 // R2328: 컴포넌트 타입별 간단 설명 (Inspector 헤더 tooltip)
 const COMP_DESCRIPTIONS: Record<string, string> = {
   'cc.Label': '텍스트 레이블 — 문자열 렌더링',
@@ -18623,7 +18639,8 @@ function CCFileNodeInspector({
               }
               return typeColorMap[comp.type] ?? (isCustomScript(comp.type) ? '#c084fc' : 'var(--text-primary)')
             })() }}>
-              {isCustomScript(comp.type) ? '📝 ' : ''}{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
+              {/* R2330: 컴포넌트 타입 아이콘 */}
+              {isCustomScript(comp.type) ? '📝 ' : COMP_ICONS[comp.type] ? <span style={{ fontSize: 9, marginRight: 3, opacity: 0.8 }}>{COMP_ICONS[comp.type]}</span> : null}{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
             </span>
             {/* R1660/R1662: 씬 내 동일 타입 노드 수 배지 + 팝업 */}
             {(compTypeCountMap[comp.type] ?? 0) > 1 && (
