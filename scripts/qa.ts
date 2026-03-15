@@ -28670,6 +28670,18 @@ if (
   log('warning', 'R2482-align-tools', 'R2482 정렬 도구 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1475: R2483 BatchInspector 균등 배분 ────────────────────────────
+const s1475 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1475.includes('R2483') &&
+  s1475.includes('applyDistribute') &&
+  s1475.includes('균등 배분')
+) {
+  log('pass', 'R2483-distribute', 'R2483 BatchInspector 균등 배분 구현 완료')
+} else {
+  log('warning', 'R2483-distribute', 'R2483 균등 배분 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

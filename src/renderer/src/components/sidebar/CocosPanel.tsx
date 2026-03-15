@@ -17044,6 +17044,22 @@ function CCFileBatchInspector({
           setBatchMsg(result.success ? `✓ 정렬 (${axis}=${value})` : `✗ 오류`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
+        // R2483: 균등 배분
+        const applyDistribute = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root || posList.length < 3) return
+          const sorted = [...posList].sort((a, b) => a[axis] - b[axis])
+          const first = sorted[0][axis], last = sorted[sorted.length - 1][axis]
+          const step = (last - first) / (sorted.length - 1)
+          const newPos = new Map(sorted.map((p, i) => [p.uuid, Math.round(first + i * step)]))
+          function patchDist(node: CCSceneNode): CCSceneNode {
+            const children = node.children.map(patchDist)
+            if (!newPos.has(node.uuid)) return { ...node, children }
+            return { ...node, position: { ...(node.position || {}), [axis]: newPos.get(node.uuid)! }, children }
+          }
+          const result = await saveScene(patchDist(sceneFile.root!))
+          setBatchMsg(result.success ? `✓ 균등 배분 (${axis})` : `✗ 오류`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
         const bs = { fontSize: 9, padding: '2px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' } as React.CSSProperties
         return (
           <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
@@ -17056,6 +17072,11 @@ function CCFileBatchInspector({
               <button style={bs} onClick={() => applyAlign('y', maxY)} title={`위쪽 정렬 Y=${maxY} (R2482)`}>↑T</button>
               <button style={bs} onClick={() => applyAlign('y', midY)} title={`수직 중앙 Y=${midY} (R2482)`}>↕M</button>
               <button style={bs} onClick={() => applyAlign('y', minY)} title={`아래쪽 정렬 Y=${minY} (R2482)`}>B↓</button>
+              {posList.length >= 3 && <>
+                <span style={{ color: 'var(--border)', fontSize: 10, margin: '0 1px' }}>|</span>
+                <button style={bs} onClick={() => applyDistribute('x')} title={`수평 균등 배분 (R2483)`}>↔=</button>
+                <button style={bs} onClick={() => applyDistribute('y')} title={`수직 균등 배분 (R2483)`}>↕=</button>
+              </>}
             </div>
           </div>
         )
