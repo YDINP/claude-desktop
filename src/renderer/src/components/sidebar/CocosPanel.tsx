@@ -22961,6 +22961,19 @@ function CCFileNodeInspector({
                       />
                     </div>
                   </div>
+                  {/* R2391: category + mask */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                    <label style={{ fontSize: 10, width: 50, flexShrink: 0 }}>category</label>
+                    <input type="number" defaultValue={Number(p.category ?? p._category ?? p._N$category ?? 1)} min={0} step={1}
+                      style={{ width: 52, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, category: v, _category: v, _N$category: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    <label style={{ fontSize: 10, width: 30, flexShrink: 0 }}>mask</label>
+                    <input type="number" defaultValue={Number(p.mask ?? p._mask ?? p._N$mask ?? -1)} step={1}
+                      style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) ?? -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                  </div>
                 </div>
               )
             }
@@ -23035,6 +23048,19 @@ function CCFileNodeInspector({
                         onBlur={ev => { const v = parseFloat(ev.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, density: v, _density: v, _N$density: v } } : c); applyAndSave({ components: u }) }}
                       />
                     </div>
+                  </div>
+                  {/* R2391: category + mask */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                    <label style={{ fontSize: 10, width: 50, flexShrink: 0 }}>category</label>
+                    <input type="number" defaultValue={Number(p.category ?? p._category ?? p._N$category ?? 1)} min={0} step={1}
+                      style={{ width: 52, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, category: v, _category: v, _N$category: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    <label style={{ fontSize: 10, width: 30, flexShrink: 0 }}>mask</label>
+                    <input type="number" defaultValue={Number(p.mask ?? p._mask ?? p._N$mask ?? -1)} step={1}
+                      style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) ?? -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
+                    />
                   </div>
                 </div>
               )
@@ -23111,6 +23137,19 @@ function CCFileNodeInspector({
                         style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}
                       >{v}</span>
                     ))}
+                  </div>
+                  {/* R2391: category + mask */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                    <label style={{ fontSize: 10, width: 50, flexShrink: 0 }}>category</label>
+                    <input type="number" defaultValue={Number(p.category ?? p._category ?? p._N$category ?? 1)} min={0} step={1}
+                      style={{ width: 52, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, category: v, _category: v, _N$category: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    <label style={{ fontSize: 10, width: 30, flexShrink: 0 }}>mask</label>
+                    <input type="number" defaultValue={Number(p.mask ?? p._mask ?? p._N$mask ?? -1)} step={1}
+                      style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) ?? -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
+                    />
                   </div>
                 </div>
               )
