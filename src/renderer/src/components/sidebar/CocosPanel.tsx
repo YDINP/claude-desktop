@@ -22059,6 +22059,44 @@ function CCFileNodeInspector({
                       />
                     </div>
                   )}
+                  {/* R2449: clearDepth (BatchInspector R2187) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>clearDepth</span>
+                    <input type="number" defaultValue={Number(p.clearDepth ?? p._clearDepth ?? 1)} min={0} max={1} step={0.5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 1
+                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v } } : c)
+                        applyAndSave({ components: u })
+                      }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    {[0, 0.5, 1].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
+                  {/* R2449: ortho toggle (BatchInspector R2058) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>ortho</span>
+                    {([['ort✓', true], ['ort✗', false]] as const).map(([l, v]) => {
+                      const cur = !!(p.ortho ?? p._ortho ?? false)
+                      return (
+                        <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, ortho: v, _ortho: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#60a5fa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#60a5fa' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
+                  {/* R2449: cullingMask (BatchInspector R1989) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>cullingMask</span>
+                    {([['All', -1], ['None', 0], ['Dflt', 1]] as [string, number][]).map(([l, v]) => (
+                      <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cullingMask: v, _cullingMask: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{l}</span>
+                    ))}
+                  </div>
                   {/* R2405: targetDisplay */}
                   {!is3x && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

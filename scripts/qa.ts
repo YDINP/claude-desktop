@@ -28380,6 +28380,20 @@ if (
   log('warning', 'R2448-particle-variance-props', 'Inspector ParticleSystem variance props 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1453: R2449 Inspector cc.Camera clearDepth/ortho/cullingMask ─────────────────
+console.log('\n## 1453. R2449 Inspector cc.Camera clearDepth/ortho/cullingMask 체크')
+const s1453 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1453.includes('R2449') &&
+  s1453.includes('clearDepth') &&
+  s1453.includes('ortho') &&
+  s1453.includes('cullingMask')
+) {
+  log('pass', 'R2449-camera-clearDepth-ortho-culling', 'Inspector cc.Camera clearDepth/ortho toggle/cullingMask 구현 완료')
+} else {
+  log('warning', 'R2449-camera-clearDepth-ortho-culling', 'Inspector cc.Camera clearDepth/ortho/cullingMask 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
