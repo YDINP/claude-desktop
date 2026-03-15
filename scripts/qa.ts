@@ -28256,6 +28256,19 @@ if (
   log('warning', 'R2439-collider-enabled', 'Inspector cc.BoxCollider/CircleCollider/PolygonCollider enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1444: R2440 Inspector ParticleSystem loop/positionType/blendMode ──────────
+console.log('\n## 1444. R2440 Inspector ParticleSystem loop/positionType/blendMode 체크')
+const s1444 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1444.includes('R2440') &&
+  s1444.includes('positionType') &&
+  s1444.includes('_N$positionType')
+) {
+  log('pass', 'R2440-particle-loop-postype-blend', 'Inspector ParticleSystem loop/positionType/blendMode 구현 완료')
+} else {
+  log('warning', 'R2440-particle-loop-postype-blend', 'Inspector ParticleSystem loop/positionType/blendMode 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -23225,6 +23225,40 @@ function CCFileNodeInspector({
                       />autoRm
                     </label>
                   </div>
+                  {/* R2440: loop + positionType + blendMode (BatchInspector R1932/R1976/R1977) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>loop</span>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.loop ?? p._loop ?? p._N$loop ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked, _N$loop: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0 }}
+                      />on
+                    </label>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>posType</span>
+                    {([['Free', 0], ['Rel', 1], ['Grp', 2]] as const).map(([l, v]) => {
+                      const cur = Number(p.positionType ?? p._positionType ?? p._N$positionType ?? 0)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, positionType: v, _positionType: v, _N$positionType: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>blend</span>
+                    {([['Norm', 770, 771], ['Add', 770, 1], ['Mul', 774, 771]] as [string, number, number][]).map(([l, src, dst]) => {
+                      const curSrc = Number(p.srcBlendFactor ?? p._srcBlendFactor ?? p._N$srcBlendFactor ?? 770)
+                      const curDst = Number(p.dstBlendFactor ?? p._dstBlendFactor ?? p._N$dstBlendFactor ?? 771)
+                      const active = curSrc === src && curDst === dst
+                      return (
+                        <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, _N$srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst, _N$dstBlendFactor: dst } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${active ? '#4ade80' : 'var(--border)'}`, borderRadius: 2, color: active ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                 </div>
               )
             }
