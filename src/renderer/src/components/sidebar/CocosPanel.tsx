@@ -20781,6 +20781,26 @@ function CCFileNodeInspector({
                       )
                     })}
                   </div>
+                  {/* R2404: isSystemFontUsed + platformFont (CC2.x) */}
+                  {!is3x && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                        <input type="checkbox" checked={!!(p.isSystemFontUsed ?? p._isSystemFontUsed ?? p._N$isSystemFontUsed ?? false)}
+                          onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isSystemFontUsed: e.target.checked, _isSystemFontUsed: e.target.checked, _N$isSystemFontUsed: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                          style={{ margin: 0, accentColor: '#a78bfa' }}
+                        />sysFont
+                      </label>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>platFont:</span>
+                      {(['', 'system-ui', 'sans-serif', 'monospace'] as const).map(f => {
+                        const cur = String(p.platformFont ?? p._platformFont ?? p._N$platformFont ?? '')
+                        return (
+                          <span key={f || 'def'} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, platformFont: f, _platformFont: f, _N$platformFont: f } } : c); applyAndSave({ components: u }) }}
+                            style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${cur === f ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: cur === f ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                          >{f || 'def'}</span>
+                        )
+                      })}
+                    </div>
+                  )}
                   {/* R1757: fontFamily 입력 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>fontFam</span>

@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1408: R2404 Inspector cc.Label isSystemFontUsed + platformFont ──────────
+console.log('\n## 1408. R2404 Inspector cc.Label isSystemFontUsed + platformFont 체크')
+const s1408 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1408.includes('R2404') &&
+  s1408.includes('isSystemFontUsed') &&
+  s1408.includes('platformFont') &&
+  s1408.includes('_N$isSystemFontUsed') &&
+  s1408.includes('_N$platformFont')
+) {
+  log('pass', 'R2404-label-sysfont-platfont', 'Inspector cc.Label isSystemFontUsed + platformFont 구현 완료')
+} else {
+  log('warning', 'R2404-label-sysfont-platfont', 'Inspector cc.Label isSystemFontUsed + platformFont 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1407: R2403 Inspector cc.RigidBody linearVelocity + angularVelocity ──────────
 console.log('\n## 1407. R2403 Inspector cc.RigidBody linearVelocity + angularVelocity 체크')
 const s1407 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
