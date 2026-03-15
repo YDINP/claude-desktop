@@ -1,6 +1,22 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-15
 
+## 완료 (R2637-2650) — 이번 세션
+- [x] R2637: SceneView 씬 전체 바운딩박스 오버레이 (showSceneBBox, 적색 점선 + WxH)
+- [x] R2638: BatchInspector 회전 균등 분배 (rotGradFrom→rotGradTo, applyRotGrad)
+- [x] R2639: BatchInspector 원형 배치 (applyCircleArrange, circleRadius)
+- [x] R2640: SceneView 선택 순서 번호 오버레이 (showSelOrder, 녹색 ①② 번호)
+- [x] R2641: SceneView 앵커 포인트 십자 마커 (showAnchorDot, 주황 ⊕)
+- [x] R2642: BatchInspector 노드 이름 접두사/접미사 추가 (namePrefix, nameSuffix)
+- [x] R2643: BatchInspector 격자 배치 (applyGridArrange, gridCols, dx/dy)
+- [x] R2644: BatchInspector 선택 노드 통계 패널 (selStats, X/Y/W/H min·avg·max)
+- [x] R2645: SceneView 선택 노드 연결선 오버레이 (showSelPolyline, 자주색 polyline)
+- [x] R2646: SceneView 계층 구조 연결선 (showHierarchyLines, 부모→자식 cyan)
+- [x] R2647: SceneView 선택 노드 그룹 BBox (showSelBBox, 파란 점선 + WxH)
+- [x] R2648: BatchInspector 이름 알파벳순 Z-order 정렬 (applySortByName, A→Z/Z→A)
+- [x] R2649: BatchInspector 선택 노드 복제 (applyDuplicate, deepClone + dx/dy)
+- [x] R2650: BatchInspector 노드 이름 일련번호 치환 (applyNameSerial, {base}{n})
+
 ## 완료 (R1500-2331)
 - [x] R1500~R2305: (이전 세션 완료)
 - [x] R2306~R2314: 갭 수정 + 이슈 버그 수정 (이전 세션 완료)

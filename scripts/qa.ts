@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1643: R2651 SceneView 선택 노드 부모 하이라이트 ───────────────────
+console.log('\n## 1643. R2651 — SceneView 선택 노드 부모 하이라이트')
+const s1643 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1643.includes('R2651') &&
+  s1643.includes('showParentHighlight') &&
+  s1643.includes('setShowParentHighlight') &&
+  s1643.includes('parentUuidSet')
+) {
+  log('pass', 'R2651-parent-highlight', 'R2651 선택 노드 부모 하이라이트 구현 완료')
+} else {
+  log('warning', 'R2651-parent-highlight', 'R2651 선택 노드 부모 하이라이트 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1642: R2650 BatchInspector 노드 이름 일련번호 치환 ───────────────
 console.log('\n## 1642. R2650 — BatchInspector 노드 이름 일련번호 치환')
 const s1642 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

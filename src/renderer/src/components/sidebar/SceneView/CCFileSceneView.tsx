@@ -269,6 +269,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showHierarchyLines, setShowHierarchyLines] = useState(false)
   // R2647: 선택 노드 그룹 바운딩박스
   const [showSelBBox, setShowSelBBox] = useState(false)
+  // R2651: 선택 노드 부모 하이라이트
+  const [showParentHighlight, setShowParentHighlight] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -371,6 +373,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     return result
   }, [sceneFile])
+
+  // R2651: 선택 노드 부모 UUID 집합
+  const parentUuidSet = useMemo(() => {
+    const result = new Set<string>()
+    flatNodes.forEach(fn => { if (uuids.includes(fn.node.uuid) && fn.parentUuid) result.add(fn.parentUuid) })
+    return result
+  }, [flatNodes, uuids])
 
   // R2324: 선택 노드 자동 팬 — 트리에서 선택 시 뷰포트 밖이면 중심 이동
   const flatNodesRef = useRef(flatNodes)
@@ -1719,6 +1728,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSelBBox ? '선택 BBox 끄기 (R2647)' : '선택 노드 그룹 경계 박스 표시 (R2647)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelBBox ? '#60a5fa' : 'var(--text-muted)' }}
         >▣</button>
+        {/* R2651: 선택 노드 부모 하이라이트 토글 */}
+        <button
+          onClick={() => setShowParentHighlight(v => !v)}
+          title={showParentHighlight ? '부모 강조 끄기 (R2651)' : '선택 노드의 부모 노드 강조 표시 (R2651)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showParentHighlight ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showParentHighlight ? 'rgba(251,146,60,0.12)' : 'none', color: showParentHighlight ? '#fb923c' : 'var(--text-muted)' }}
+        >⊘</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2736,6 +2751,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     </g>
                   )
                 })()}
+                {/* R2651: 선택 노드 부모 하이라이트 */}
+                {showParentHighlight && parentUuidSet.has(node.uuid) && w > 0 && h > 0 && (
+                  <rect x={rectX} y={rectY} width={w} height={h}
+                    fill="none" stroke="rgba(251,146,60,0.8)" strokeWidth={2 / view.zoom}
+                    style={{ pointerEvents: 'none' }} />
+                )}
                 {/* R2636: 캔버스 경계 초과 노드 강조 */}
                 {showOOBHighlight && isOutOfCanvas && (
                   <rect x={rectX} y={rectY} width={w} height={h}
