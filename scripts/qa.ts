@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1672: R2680 SceneView 선택 그룹 중심 마커 ────────────────────────
+console.log('\n## 1672. R2680 — SceneView 선택 그룹 중심 마커')
+const s1672 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1672.includes('R2680') &&
+  s1672.includes('showSelCenter') &&
+  s1672.includes('34d399') &&
+  s1672.includes('⊕')
+) {
+  log('pass', 'R2680-selCenter', 'R2680 선택 그룹 중심 마커 구현 완료')
+} else {
+  log('warning', 'R2680-selCenter', 'R2680 선택 그룹 중심 마커 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1671: R2679 BatchInspector 선택 노드 원점 이동 ───────────────────
+console.log('\n## 1671. R2679 — BatchInspector 선택 노드 원점 이동')
+const s1671 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1671.includes('R2679') &&
+  s1671.includes('applyMoveToCenter') &&
+  s1671.includes('원점이동') &&
+  s1671.includes('→(0,0)')
+) {
+  log('pass', 'R2679-moveToCenter', 'R2679 원점 이동 구현 완료')
+} else {
+  log('warning', 'R2679-moveToCenter', 'R2679 원점 이동 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1670: R2678 BatchInspector opacity 배수 ──────────────────────────
 console.log('\n## 1670. R2678 — BatchInspector opacity 배수')
 const s1670 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

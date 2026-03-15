@@ -291,6 +291,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showCompCountBadge, setShowCompCountBadge] = useState(false)
   // R2675: 노드 크기 히트맵 (큰=노란, 작은=파란)
   const [showSizeHeat, setShowSizeHeat] = useState(false)
+  // R2680: 선택 그룹 중심 마커
+  const [showSelCenter, setShowSelCenter] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1819,6 +1821,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSizeHeat ? '크기 히트맵 끄기 (R2675)' : '노드 크기 히트맵 (큰=노란, 작은=파란) (R2675)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeHeat ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showSizeHeat ? 'rgba(250,204,21,0.1)' : 'none', color: showSizeHeat ? '#facc15' : 'var(--text-muted)' }}
         >Sz</button>
+        {/* R2680: 선택 그룹 중심 마커 토글 */}
+        <button
+          onClick={() => setShowSelCenter(v => !v)}
+          title={showSelCenter ? '중심 마커 끄기 (R2680)' : '선택 노드 그룹 중심점 마커 표시 (R2680)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelCenter ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSelCenter ? 'rgba(52,211,153,0.1)' : 'none', color: showSelCenter ? '#34d399' : 'var(--text-muted)' }}
+        >⊕</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3427,6 +3435,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               <g style={{ pointerEvents: 'none' }}>
                 <line x1={left} y1={sp.y} x2={right} y2={sp.y} stroke="rgba(148,163,184,0.5)" strokeWidth={sw} />
                 <line x1={sp.x} y1={top} x2={sp.x} y2={bottom} stroke="rgba(148,163,184,0.5)" strokeWidth={sw} />
+              </g>
+            )
+          })()}
+          {/* R2680: 선택 그룹 중심 마커 */}
+          {showSelCenter && uuids.length >= 1 && (() => {
+            const selFlat = flatNodes.filter(fn => uuids.includes(fn.node.uuid))
+            if (selFlat.length === 0) return null
+            const xs = selFlat.map(fn => fn.worldX)
+            const ys = selFlat.map(fn => fn.worldY)
+            const cx = (Math.min(...xs) + Math.max(...xs)) / 2
+            const cy = (Math.min(...ys) + Math.max(...ys)) / 2
+            const sp = ccToSvg(cx, cy)
+            const r = 6 / view.zoom
+            const sw = 1.5 / view.zoom
+            return (
+              <g pointerEvents="none">
+                <line x1={sp.x - r} y1={sp.y} x2={sp.x + r} y2={sp.y} stroke="rgba(52,211,153,0.9)" strokeWidth={sw} />
+                <line x1={sp.x} y1={sp.y - r} x2={sp.x} y2={sp.y + r} stroke="rgba(52,211,153,0.9)" strokeWidth={sw} />
+                <circle cx={sp.x} cy={sp.y} r={r * 0.4} fill="none" stroke="rgba(52,211,153,0.9)" strokeWidth={sw} />
               </g>
             )
           })()}

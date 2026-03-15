@@ -5411,6 +5411,36 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2679: 선택 노드 (0,0) 이동 — 선택 노드 그룹 중심을 캔버스 원점으로 이동 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyMoveToCenter = async () => {
+          if (!sceneFile.root) return
+          const selNodes: CCSceneNode[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          if (selNodes.length === 0) return
+          const xs = selNodes.map(n => (n.position as { x: number }).x)
+          const ys = selNodes.map(n => (n.position as { y: number }).y)
+          const cx = (Math.min(...xs) + Math.max(...xs)) / 2
+          const cy = (Math.min(...ys) + Math.max(...ys)) / 2
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, x: Math.round(pos.x - cx), y: Math.round(pos.y - cy) }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 중심 이동 Δ(${-Math.round(cx)}, ${-Math.round(cy)}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>원점이동 (R2679)</span>
+            <span onClick={applyMoveToCenter} title="선택 노드 그룹 중심을 (0,0)으로 이동 (R2679)" style={bs}>→(0,0)</span>
+          </div>
+        )
+      })()}
       {/* R2677: 색상 반전 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyColorInvert = async () => {
