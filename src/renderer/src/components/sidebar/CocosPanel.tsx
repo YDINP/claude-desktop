@@ -4485,6 +4485,28 @@ function CCFileBatchInspector({
             )}
           </>
         })()}
+        {/* R2545: 컴포넌트 타입 필터 — 특정 컴포넌트 있는 노드만 선택 유지 */}
+        {onMultiSelectChange && sceneFile.root && uuids.length >= 2 && (() => {
+          const nodeByUuid = new Map<string, CCSceneNode>()
+          function coll2545(n: CCSceneNode) { nodeByUuid.set(n.uuid, n); n.children.forEach(coll2545) }
+          coll2545(sceneFile.root!)
+          // 공통 컴포넌트 타입 목록 (2개 이상 노드에 있는 타입, cc.Node 제외)
+          const typeCount = new Map<string, number>()
+          uuids.forEach(u => nodeByUuid.get(u)?.components.forEach(c => { if (c.type !== 'cc.Node') typeCount.set(c.type, (typeCount.get(c.type) ?? 0) + 1) }))
+          const commonTypes = [...typeCount.entries()].filter(([, n]) => n >= 2 && n < uuids.length).map(([t]) => t).slice(0, 4)
+          if (commonTypes.length === 0) return null
+          return commonTypes.map(type => {
+            const filtered = uuids.filter(u => nodeByUuid.get(u)?.components.some(c => c.type === type))
+            return (
+              <span key={type} onClick={() => onMultiSelectChange(filtered)}
+                title={`${type} 있는 노드만 선택 (${filtered.length}개) (R2545)`}
+                style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid rgba(167,139,250,0.4)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(167,139,250,0.4)')}
+              >{type.replace('cc.', '')}×{filtered.length}</span>
+            )
+          })
+        })()}
         {/* R2507: 하위 노드 포함 확장 선택 */}
         {onMultiSelectChange && sceneFile.root && uuids.length > 0 && (
           <span

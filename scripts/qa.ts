@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1537: R2545 BatchInspector 컴포넌트 타입 필터 ────────────────────
+console.log('\n## 1537. R2545 — BatchInspector 컴포넌트 타입 필터 선택')
+const s1537 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1537.includes('R2545') &&
+  s1537.includes('coll2545') &&
+  s1537.includes('commonTypes') &&
+  s1537.includes("replace('cc.', '')")
+) {
+  log('pass', 'R2545-comp-filter', 'R2545 컴포넌트 타입 필터 구현 완료')
+} else {
+  log('warning', 'R2545-comp-filter', 'R2545 컴포넌트 타입 필터 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1536: R2544 핀 마커 드롭다운 목록 패널 ───────────────────────────
 console.log('\n## 1536. R2544 — 핀 마커 드롭다운 목록 패널')
 const s1536 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
