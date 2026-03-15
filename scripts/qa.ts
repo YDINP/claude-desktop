@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1339: R2335 Inspector Sprite 텍스처 썸네일 미리보기 ──────────
+console.log('\n## 1339. R2335 Sprite 텍스처 썸네일 미리보기 체크')
+const s1339 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1339.includes('SpriteThumb') &&
+  s1339.includes('ccFileResolveTexture') &&
+  s1339.includes('R2335')
+) {
+  log('pass', 'R2335-sprite-thumb', 'Inspector Sprite 텍스처 썸네일 미리보기 구현 완료')
+} else {
+  log('warning', 'R2335-sprite-thumb', 'Inspector Sprite 썸네일 미리보기 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1338: R2334 씬뷰 단축키 도움말 업데이트 ──────────
 console.log('\n## 1338. R2334 씬뷰 단축키 도움말 업데이트 체크')
 const s1338 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

@@ -16535,6 +16535,22 @@ function CCFileBatchInspector({
   )
 }
 
+// R2335: Sprite 텍스처 썸네일 미리보기 서브컴포넌트
+function SpriteThumb({ sfUuid, assetsDir }: { sfUuid: string; assetsDir: string }) {
+  const [url, setUrl] = useState<string | null>(null)
+  useEffect(() => {
+    window.api.ccFileResolveTexture?.(sfUuid, assetsDir).then(u => u && setUrl(u))
+  }, [sfUuid, assetsDir])
+  if (!url) return null
+  return (
+    <img
+      src={url}
+      title="스프라이트 텍스처 미리보기"
+      style={{ width: 36, height: 36, objectFit: 'contain', border: '1px solid var(--border)', borderRadius: 3, background: 'rgba(0,0,0,0.4)', flexShrink: 0 }}
+    />
+  )
+}
+
 // R2330: 컴포넌트 타입별 아이콘 (Inspector 헤더 + hover panel 공유)
 const COMP_ICONS: Record<string, string> = {
   'cc.Label': 'T', 'cc.RichText': 'T',
@@ -18974,6 +18990,8 @@ function CCFileNodeInspector({
                   {/* R1696: spriteFrame uuid 표시 + 복사 버튼 */}
                   {sfUuid && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                      {/* R2335: 텍스처 썸네일 미리보기 */}
+                      <SpriteThumb sfUuid={sfUuid} assetsDir={sceneFile.projectInfo.assetsDir ?? ''} />
                       <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>sf uuid</span>
                       <span style={{ fontSize: 8, color: '#4ade80', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={sfUuid}>{sfUuid}</span>
                       <span
