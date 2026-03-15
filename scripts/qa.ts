@@ -28993,6 +28993,18 @@ if (
   log('warning', 'R2508-centroid-marker', 'R2508 중심점 마커 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1501: R2509 BatchInspector 선택 필터 ──────────────────────────
+const s1501 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1501.includes('R2509') &&
+  s1501.includes('활성 노드만 선택') &&
+  s1501.includes('비활성 노드만 선택')
+) {
+  log('pass', 'R2509-selection-filter', 'R2509 BatchInspector 선택 필터 구현 완료')
+} else {
+  log('warning', 'R2509-selection-filter', 'R2509 선택 필터 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

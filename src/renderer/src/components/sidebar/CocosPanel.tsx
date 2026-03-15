@@ -4368,6 +4368,31 @@ function CCFileBatchInspector({
             onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
           >⊝ 반전</span>
         )}
+        {/* R2509: 선택 필터 — 활성/비활성 노드만 남기기 */}
+        {onMultiSelectChange && sceneFile.root && uuids.length > 0 && (() => {
+          const nodeByUuid = new Map<string, CCSceneNode>()
+          function coll(n: CCSceneNode) { nodeByUuid.set(n.uuid, n); n.children.forEach(coll) }
+          coll(sceneFile.root!)
+          const activeCount = uuids.filter(u => nodeByUuid.get(u)?.active !== false).length
+          const inactiveCount = uuids.length - activeCount
+          const btnS: React.CSSProperties = { fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }
+          return <>
+            {activeCount > 0 && activeCount < uuids.length && (
+              <span style={btnS} title={`활성 노드만 선택 (${activeCount}개, R2509)`}
+                onClick={() => onMultiSelectChange(uuids.filter(u => nodeByUuid.get(u)?.active !== false))}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#4ade80')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+              >✓{activeCount}</span>
+            )}
+            {inactiveCount > 0 && inactiveCount < uuids.length && (
+              <span style={btnS} title={`비활성 노드만 선택 (${inactiveCount}개, R2509)`}
+                onClick={() => onMultiSelectChange(uuids.filter(u => nodeByUuid.get(u)?.active === false))}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#f87171')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+              >✗{inactiveCount}</span>
+            )}
+          </>
+        })()}
         {/* R2507: 하위 노드 포함 확장 선택 */}
         {onMultiSelectChange && sceneFile.root && uuids.length > 0 && (
           <span
