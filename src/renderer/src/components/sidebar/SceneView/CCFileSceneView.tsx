@@ -235,6 +235,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSelBBox, setShowSelBBox] = useState(false)
   // R2601: component 타입 배지 오버레이
   const [showCompBadge, setShowCompBadge] = useState(false)
+  // R2603: tag 배지 오버레이
+  const [showTagBadge, setShowTagBadge] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1583,6 +1585,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showCompBadge ? '컴포넌트 배지 끄기 (R2601)' : '노드 주요 컴포넌트 타입 배지 표시 (R2601)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompBadge ? 'rgba(192,132,252,0.5)' : 'var(--border)'}`, background: showCompBadge ? 'rgba(192,132,252,0.12)' : 'none', color: showCompBadge ? '#c084fc' : 'var(--text-muted)' }}
         >CT</button>
+        {/* R2603: tag 배지 오버레이 토글 */}
+        <button
+          onClick={() => setShowTagBadge(v => !v)}
+          title={showTagBadge ? 'tag 배지 끄기 (R2603)' : 'tag≠0 노드에 #N 배지 표시 (R2603)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showTagBadge ? 'rgba(56,189,248,0.5)' : 'var(--border)'}`, background: showTagBadge ? 'rgba(56,189,248,0.12)' : 'none', color: showTagBadge ? '#38bdf8' : 'var(--text-muted)' }}
+        >#T</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2475,6 +2483,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(192,132,252,0.9)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{short}</text>
+                  )
+                })()}
+                {/* R2603: tag 배지 */}
+                {showTagBadge && (node.tag ?? 0) !== 0 && view.zoom > 0.3 && (() => {
+                  const fs = Math.max(5, 7 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + 1/view.zoom} y={rectY + h - 1/view.zoom}
+                      textAnchor="start" dominantBaseline="text-after-edge"
+                      fontSize={fs} fill="rgba(56,189,248,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >#{node.tag}</text>
                   )
                 })()}
                 {/* R2578: 노드 불투명도 α% 오버레이 */}

@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1595: R2603 SceneView tag 배지 오버레이 ─────────────────────────
+console.log('\n## 1595. R2603 — SceneView tag 배지 오버레이')
+const s1595 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1595.includes('R2603') &&
+  s1595.includes('showTagBadge') &&
+  s1595.includes('setShowTagBadge') &&
+  s1595.includes('node.tag')
+) {
+  log('pass', 'R2603-tag-badge', 'R2603 tag 배지 오버레이 구현 완료')
+} else {
+  log('warning', 'R2603-tag-badge', 'R2603 tag 배지 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1594: R2602 BatchInspector active 반전 버튼 ─────────────────────
 console.log('\n## 1594. R2602 — BatchInspector active 개별 반전')
 const s1594 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
