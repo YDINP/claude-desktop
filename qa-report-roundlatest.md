@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T13:51:30.546Z
+> 2026-03-15T16:27:53.996Z
 
 ## Critical
 _없음_
@@ -2481,3 +2481,25 @@ _없음_
 - Inspector MotionStreak/ParticleSystem/DragonBones/Spine enabled 구현 완료
 - Inspector LabelOutline/UIOpacity/SkeletalAnimation enabled 구현 완료
 - Inspector cc.RigidBody/ScrollView/Camera enabled 구현 완료
+- Inspector cc.BoxCollider/CircleCollider/PolygonCollider enabled 구현 완료
+- Inspector ParticleSystem loop/positionType/blendMode 구현 완료
+- Inspector cc.TiledLayer/DirectionalLight/PointLight enabled 구현 완료
+- cc.Camera block1에 orthoHeight/near/far/zoomRatio 통합 완료
+- Inspector cc.SpotLight enabled 토글 구현 완료
+- Inspector cc.Canvas enabled 토글 구현 완료
+- Inspector cc.Label cacheMode None/Bitmap/Char 구현 완료
+- Inspector cc.RichText verticalAlign+imageLineHeight+handleTouchEvent 구현 완료
+- Inspector cc.EditBox placeholderFontSize+fontColor+placeholderFontColor 구현 완료
+- Inspector ParticleSystem startSizeVar/endSizeVar/radialAccelVar/tangentialAccelVar/colorVar/radiusVar/rotatePerS/rotation 구현 완료
+- Inspector cc.Camera clearDepth/ortho toggle/cullingMask 구현 완료
+- Inspector cc.Toggle enabled 체크박스 구현 완료
+- Inspector cc.ScrollView bounce 체크박스 구현 완료
+- R2452 씬 드롭다운 버그 수정 + 마지막 씬 자동 로드 구현 완료
+- R2458 외부 변경 자동 리로드 토글 구현 완료
+- R2459 새 컴포넌트 raw 엔트리 생성 + _components 동기화 구현 완료
+- R2460 복제 노드 컴포넌트 _rawIndex 초기화 구현 완료
+- R2462 buildNewRawComp 타입별 기본값 맵 구현 완료
+- R2463 Save As Prefab 기능 구현 완료
+- R2465 씬뷰 거리 측정 도구 구현 완료
+- R2466 다중 선택 노드 그룹화 구현 완료
+- R2467 BatchInspector 컴포넌트 일괄 추가 구현 완료

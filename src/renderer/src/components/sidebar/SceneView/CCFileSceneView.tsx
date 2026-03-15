@@ -2668,25 +2668,39 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             borderRadius: 4, overflow: 'hidden', cursor: 'pointer',
           }}
             onClick={e => {
-              // R1498: 클릭한 미니맵 좌표 → 씬 좌표 → pan
               const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
               const mmX = e.clientX - rect.left
               const mmY = e.clientY - rect.top
-              // 미니맵 → 씬 좌표 역변환
+              // R2470: 노드 히트 테스트 — 역순(나중에 렌더된 노드 우선)
+              let hitUuid: string | null = null
+              for (let i = flatNodes.length - 1; i >= 0; i--) {
+                const fn2 = flatNodes[i]
+                const p2 = toMM(fn2.worldX, fn2.worldY)
+                const nw2 = fn2.node.size?.x ?? 0, nh2 = fn2.node.size?.y ?? 0
+                const mw2 = nw2 * s, mh2 = nh2 * s
+                if (mw2 > 2 && mh2 > 2) {
+                  const ax2 = fn2.node.anchor?.x ?? 0.5, ay2 = fn2.node.anchor?.y ?? 0.5
+                  const rx = p2.x - mw2 * ax2, ry = p2.y - mh2 * (1 - ay2)
+                  if (mmX >= rx && mmX <= rx + mw2 && mmY >= ry && mmY <= ry + mh2) { hitUuid = fn2.node.uuid; break }
+                } else {
+                  if ((mmX - p2.x) ** 2 + (mmY - p2.y) ** 2 <= 16) { hitUuid = fn2.node.uuid; break }
+                }
+              }
+              if (hitUuid) { onSelect(hitUuid); return }
+              // R1498: 빈 공간 클릭 → 해당 위치로 팬
               const scX = (mmX - ofX) / s + sceneX
               const scY = sceneH - (mmY - ofY) / s + sceneY
               const svgEl = svgRef.current
               if (!svgEl) return
               const svgRect = svgEl.getBoundingClientRect()
               const z = viewRef.current.zoom
-              // ccToSvg 역변환: svgX = scX * 1 (scale=1 assumed), svgY = -scY (Y 반전)
               setView(v => ({
                 ...v,
                 offsetX: svgRect.width / 2 - scX * z,
                 offsetY: svgRect.height / 2 + scY * z,
               }))
             }}
-            title="미니맵 — 클릭하여 해당 위치로 이동"
+            title="미니맵 — 노드 클릭으로 선택 / 빈 공간 클릭으로 이동 (R2470)"
           >
             <svg width={MM_W} height={MM_H}>
               {/* 씬 경계 */}
