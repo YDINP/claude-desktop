@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1539: R2547 BatchInspector 2-노드 위치 교환 ──────────────────────
+console.log('\n## 1539. R2547 — BatchInspector 2-노드 위치 교환')
+const s1539 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1539.includes('R2547') &&
+  s1539.includes('applySwapPos') &&
+  s1539.includes('uuids.length === 2') &&
+  s1539.includes('⇄ 위치')
+) {
+  log('pass', 'R2547-swap-pos', 'R2547 2-노드 위치 교환 구현 완료')
+} else {
+  log('warning', 'R2547-swap-pos', 'R2547 2-노드 위치 교환 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1538: R2546 SceneView 빈 컨테이너 노드 점선 테두리 ───────────────
 console.log('\n## 1538. R2546 — SceneView 빈 컨테이너 노드 점선 테두리')
 const s1538 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

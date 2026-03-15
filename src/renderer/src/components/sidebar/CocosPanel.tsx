@@ -17392,6 +17392,39 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2547: 정확히 2개 선택 시 위치 교환 버튼 */}
+      {sceneFile.root && uuids.length === 2 && (() => {
+        const applySwapPos = async () => {
+          if (!sceneFile.root) return
+          const [uA, uB] = uuids
+          let posA: { x: number; y: number; z?: number } | null = null
+          let posB: { x: number; y: number; z?: number } | null = null
+          function collect(n: CCSceneNode): void {
+            if (n.uuid === uA) posA = n.position as { x: number; y: number; z?: number }
+            if (n.uuid === uB) posB = n.position as { x: number; y: number; z?: number }
+            n.children.forEach(collect)
+          }
+          collect(sceneFile.root)
+          if (!posA || !posB) return
+          const pA = posA, pB = posB
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (n.uuid === uA) return { ...n, position: pB, children: ch }
+            if (n.uuid === uB) return { ...n, position: pA, children: ch }
+            return { ...n, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg('✓ 위치 교환 (R2547)')
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>교환 (R2547)</span>
+            <span onClick={applySwapPos} title="두 노드 위치(position) 교환 — 정확히 2개 선택 시 활성 (R2547)"
+              style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid rgba(251,191,36,0.4)', borderRadius: 2, color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }}>⇄ 위치</span>
+          </div>
+        )
+      })()}
       {/* R2536: 선택 노드 미러 (scale 부호 반전 — 좌우/상하 뒤집기) */}
       {sceneFile.root && uuids.length > 0 && (() => {
         const applyFlip = async (axis: 'x' | 'y') => {
