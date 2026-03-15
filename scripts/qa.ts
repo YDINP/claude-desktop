@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1581: R2589 BatchInspector 두 노드 위치 교환 (⇄) ──────────────────
+console.log('\n## 1581. R2589 — BatchInspector 두 노드 위치 교환')
+const s1581 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1581.includes('R2589') &&
+  s1581.includes('applySwap') &&
+  s1581.includes('⇄ 위치')
+) {
+  log('pass', 'R2589-swap-pos', 'R2589 두 노드 위치 교환 구현 완료')
+} else {
+  log('warning', 'R2589-swap-pos', 'R2589 위치 교환 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1580: R2588 SceneView 노드 색상 스와치 오버레이 ──────────────────
 console.log('\n## 1580. R2588 — SceneView 노드 색상 스와치 오버레이')
 const s1580 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

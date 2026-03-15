@@ -5337,6 +5337,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2589: 정확히 2개 노드 선택 시 위치 교환 (⇄) */}
+      {uuids.length === 2 && sceneFile.root && (() => {
+        const swapNodes: { uuid: string; pos: { x: number; y: number; z?: number } }[] = []
+        function collectSwap(n: CCSceneNode) {
+          if (uuidSet.has(n.uuid)) swapNodes.push({ uuid: n.uuid, pos: n.position as { x: number; y: number; z?: number } })
+          n.children.forEach(collectSwap)
+        }
+        collectSwap(sceneFile.root!)
+        if (swapNodes.length !== 2) return null
+        const applySwap = async () => {
+          if (!sceneFile.root) return
+          const [a, b] = swapNodes
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (n.uuid === a.uuid) return { ...n, position: { ...b.pos }, children: ch }
+            if (n.uuid === b.uuid) return { ...n, position: { ...a.pos }, children: ch }
+            return { ...n, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>교환 (R2589)</span>
+            <span onClick={applySwap} title="두 노드의 위치(position) 교환 (R2589)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }}>⇄ 위치</span>
+          </div>
+        )
+      })()}
       {/* R2582: 선택 노드 형제 위치 순서로 Z-order 재정렬 */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const applySortByPos = async (axis: 'x' | 'y') => {
