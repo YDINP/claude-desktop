@@ -1409,6 +1409,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             >⊹px</button>
           )
         })()}
+        {/* R2534: 선택 노드 회전 리셋(0°) + ±90° 버튼 */}
+        {selectedUuid && onRotate && (() => {
+          const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+          if (!fn) return null
+          const rot = typeof fn.node.rotation === 'number' ? fn.node.rotation : (fn.node.rotation as { x: number; y: number; z: number })?.z ?? 0
+          return (
+            <>
+              <button onClick={() => onRotate!(selectedUuid, rot - 90)}
+                title="반시계 90° 회전 (R2534)" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>↺90</button>
+              <button onClick={() => onRotate!(selectedUuid, rot + 90)}
+                title="시계 90° 회전 (R2534)" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>↻90</button>
+              {rot !== 0 && (
+                <button onClick={() => onRotate!(selectedUuid, 0)}
+                  title={`회전 리셋 (현재 ${Math.round(rot)}°→0°) (R2534)`} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.4)', background: 'none', color: '#fb923c' }}>∠0</button>
+              )}
+            </>
+          )
+        })()}
         {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
         <button
           onClick={e => handleScreenshotAI(e)}

@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1526: R2534 SceneView 회전 리셋 + ±90° 버튼 ──────────────────────
+console.log('\n## 1526. R2534 — SceneView 회전 리셋(0°) + ±90° 툴바 버튼')
+const s1526 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1526.includes('R2534') &&
+  s1526.includes('↺90') &&
+  s1526.includes('↻90') &&
+  s1526.includes('∠0')
+) {
+  log('pass', 'R2534-rot-btn', 'R2534 회전 리셋 + ±90° 버튼 구현 완료')
+} else {
+  log('warning', 'R2534-rot-btn', 'R2534 회전 버튼 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1525: R2533 BatchInspector 가장자리 정렬 ─────────────────────────
 console.log('\n## 1525. R2533 — BatchInspector 가장자리 정렬 (edge alignment)')
 const s1525 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
