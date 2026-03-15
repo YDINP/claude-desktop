@@ -28319,6 +28319,32 @@ if (
   log('warning', 'R2444-canvas-enabled', 'Inspector cc.Canvas enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1449: R2445 cc.Label cacheMode ──────────────────────────────────────────────────────
+console.log('\n## 1449. R2445 cc.Label cacheMode 체크')
+const s1449 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1449.includes('R2445') &&
+  s1449.includes('cacheMode')
+) {
+  log('pass', 'R2445-label-cachemode', 'Inspector cc.Label cacheMode None/Bitmap/Char 구현 완료')
+} else {
+  log('warning', 'R2445-label-cachemode', 'Inspector cc.Label cacheMode 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1450: R2446 cc.RichText verticalAlign+imageLineHeight+handleTouchEvent ──────────────
+console.log('\n## 1450. R2446 cc.RichText gaps 체크')
+const s1450 = s1449
+if (
+  s1450.includes('R2446') &&
+  s1450.includes('verticalAlign') &&
+  s1450.includes('imageLineHeight') &&
+  s1450.includes('handleTouchEvent')
+) {
+  log('pass', 'R2446-richtext-gaps', 'Inspector cc.RichText verticalAlign+imageLineHeight+handleTouchEvent 구현 완료')
+} else {
+  log('warning', 'R2446-richtext-gaps', 'Inspector cc.RichText gaps 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

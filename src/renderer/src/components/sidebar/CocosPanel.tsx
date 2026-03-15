@@ -20072,6 +20072,33 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2446: verticalAlign (BatchInspector R2010) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                    <label style={{ fontSize: 11, flexShrink: 0, marginRight: 4 }}>verticalAlign</label>
+                    {([['Top', 0], ['Ctr', 1], ['Bot', 2]] as const).map(([l, v]) => {
+                      const cur = Number(p.verticalAlign ?? p._verticalAlign ?? p._N$verticalAlign ?? 0)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, verticalAlign: v, _verticalAlign: v, _N$verticalAlign: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
+                  {/* R2446: imageLineHeight (BatchInspector R2182) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <label style={{ fontSize: 11, flexShrink: 0, width: 80 }}>imgLineH</label>
+                    <input type="number" defaultValue={Number(p.imageLineHeight ?? p._imageLineHeight ?? p._N$imageLineHeight ?? 40)} min={0} step={1}
+                      onBlur={e => { const v = parseInt(e.target.value) || 40; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, imageLineHeight: v, _imageLineHeight: v, _N$imageLineHeight: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 52, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      title="imageLineHeight"
+                    />
+                  </div>
+                  {/* R2446: handleTouchEvent (BatchInspector R2164) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.handleTouchEvent ?? p._handleTouchEvent ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, handleTouchEvent: e.target.checked, _handleTouchEvent: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                    />handleTouchEvent
+                  </label>
                 </div>
               )
             }
@@ -20953,6 +20980,18 @@ function CCFileNodeInspector({
                           }}
                           style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${curFf === ff ? '#f59e0b' : 'var(--border)'}`, borderRadius: 2, color: curFf === ff ? '#f59e0b' : 'var(--text-muted)', userSelect: 'none', fontFamily: ff || 'inherit' }}
                         >{ff || 'default'}</span>
+                      )
+                    })}
+                  </div>
+                  {/* R2445: cacheMode (BatchInspector R1925) None/Bitmap/Char */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>cacheMode</span>
+                    {([['None', 0], ['Bitmap', 1], ['Char', 2]] as const).map(([l, v]) => {
+                      const cur = Number(p.cacheMode ?? p._cacheMode ?? p._N$cacheMode ?? 0)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cacheMode: v, _cacheMode: v, _N$cacheMode: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
                       )
                     })}
                   </div>
