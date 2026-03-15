@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1635: R2643 BatchInspector 격자 배치 ──────────────────────────────
+console.log('\n## 1635. R2643 — BatchInspector 격자 배치')
+const s1635 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1635.includes('R2643') &&
+  s1635.includes('applyGridArrange') &&
+  s1635.includes('gridCols') &&
+  s1635.includes('gridSpacingX') &&
+  s1635.includes('격자배치')
+) {
+  log('pass', 'R2643-grid-arrange', 'R2643 격자 배치 구현 완료')
+} else {
+  log('warning', 'R2643-grid-arrange', 'R2643 격자 배치 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1634: R2642 BatchInspector 노드 이름 접두사/접미사 일괄 추가 ────────
 console.log('\n## 1634. R2642 — BatchInspector 노드 이름 접두사/접미사 일괄 추가')
 const s1634 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

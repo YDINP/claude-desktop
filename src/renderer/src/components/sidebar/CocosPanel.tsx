@@ -4333,6 +4333,10 @@ function CCFileBatchInspector({
   // R2642: 노드 이름 접두사/접미사
   const [namePrefix, setNamePrefix] = useState<string>('')
   const [nameSuffix, setNameSuffix] = useState<string>('')
+  // R2643: 격자 배치
+  const [gridCols, setGridCols] = useState<number>(3)
+  const [gridSpacingX, setGridSpacingX] = useState<number>(150)
+  const [gridSpacingY, setGridSpacingY] = useState<number>(150)
   // R2639: 원형 배치
   const [circleRadius, setCircleRadius] = useState<number>(200)
   // R2527: 스케일 X/Y 링크
@@ -6023,6 +6027,55 @@ function CCFileBatchInspector({
               title={`선택된 ${uuids.length}개 노드를 반지름 ${circleRadius}인 원형으로 균등 배치 (R2639)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}
             >○배치</span>
+          </div>
+        )
+      })()}
+      {/* R2643: 격자 배치 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyGridArrange = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const collected: CCSceneNode[] = []
+          function collect(n: CCSceneNode) {
+            if (uuidSet.has(n.uuid)) collected.push(n)
+            n.children.forEach(collect)
+          }
+          collect(sceneFile.root)
+          if (collected.length === 0) return
+          const startX = (collected[0].position as { x: number }).x
+          const startY = (collected[0].position as { y: number }).y
+          const cols = Math.max(1, gridCols)
+          const posMap = new Map<string, { x: number; y: number }>()
+          collected.forEach((n, i) => {
+            const col = i % cols
+            const row = Math.floor(i / cols)
+            posMap.set(n.uuid, { x: startX + col * gridSpacingX, y: startY - row * gridSpacingY })
+          })
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            const p = posMap.get(n.uuid)
+            if (!p) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, x: Math.round(p.x), y: Math.round(p.y) }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 격자 배치 ${cols}열 (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 34, fontSize: 9, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>격자배치 (R2643)</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>열</span>
+            <input type="number" value={gridCols} min={1} max={20} step={1} onChange={e => setGridCols(parseInt(e.target.value) || 3)} style={niS} title="열 수" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dx</span>
+            <input type="number" value={gridSpacingX} step={10} onChange={e => setGridSpacingX(parseInt(e.target.value) || 150)} style={niS} title="가로 간격" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dy</span>
+            <input type="number" value={gridSpacingY} step={10} onChange={e => setGridSpacingY(parseInt(e.target.value) || 150)} style={niS} title="세로 간격" />
+            <span onClick={applyGridArrange}
+              title={`선택된 ${uuids.length}개 노드를 ${gridCols}열 격자로 배치 (R2643)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
+            >⊞배치</span>
           </div>
         )
       })()}
