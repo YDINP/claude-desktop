@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1585: R2593 BatchInspector 랜덤 회전 적용 ────────────────────────
+console.log('\n## 1585. R2593 — BatchInspector 랜덤 회전 적용 (±Ndeg)')
+const s1585 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1585.includes('R2593') &&
+  s1585.includes('applyRandRot') &&
+  s1585.includes('🎲rot')
+) {
+  log('pass', 'R2593-random-rot', 'R2593 랜덤 회전 적용 구현 완료')
+} else {
+  log('warning', 'R2593-random-rot', 'R2593 랜덤 회전 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1584: R2592 SceneView 깊이 레이블 오버레이 (D:N) ────────────────
 console.log('\n## 1584. R2592 — SceneView 깊이 레이블 오버레이 (D:N)')
 const s1584 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

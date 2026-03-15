@@ -17969,6 +17969,35 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2593: 랜덤 회전 적용 (±Ndeg) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>🎲rot (R2593)</span>
+            {([5, 15, 45] as const).map(deg => (
+              <span key={deg}
+                onClick={async () => {
+                  if (!sceneFile.root) return
+                  function applyRandRot(n: CCSceneNode): CCSceneNode {
+                    const ch = n.children.map(applyRandRot)
+                    if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+                    const existingRot = typeof n.rotation === 'number' ? n.rotation : ((n.rotation as { z?: number })?.z ?? 0)
+                    const randDeg = (Math.random() * 2 - 1) * deg
+                    const newRot = typeof n.rotation === 'number' ? Math.round(existingRot + randDeg) : { ...(n.rotation as object), z: Math.round(existingRot + randDeg) }
+                    return { ...n, rotation: newRot, children: ch }
+                  }
+                  const result = await saveScene({ ...sceneFile, root: applyRandRot(sceneFile.root) })
+                  setBatchMsg(result.success ? `✓ 랜덤 회전 ±${deg}°` : `✗ 오류`)
+                  setTimeout(() => setBatchMsg(null), 2000)
+                }}
+                title={`선택 노드에 ±${deg}° 랜덤 회전 추가 (R2593)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#fde68a')} onMouseLeave={e => (e.currentTarget.style.color = '#fbbf24')}
+              >±{deg}°</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2559: 선택 노드 JSON 내보내기 */}
       {sceneFile.root && uuids.length > 0 && (() => {
         const exportNodes = () => {
