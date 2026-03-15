@@ -23579,6 +23579,13 @@ function CCFileNodeInspector({
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {/* R2439: enabled (BatchInspector R2218) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginBottom: 2 }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>offset X</label>
@@ -23688,6 +23695,13 @@ function CCFileNodeInspector({
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {/* R2439: enabled (BatchInspector R2220) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginBottom: 2 }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>offset X</label>
@@ -23790,6 +23804,13 @@ function CCFileNodeInspector({
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {/* R2439: enabled (BatchInspector R2220) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginBottom: 2 }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11 }}>offset X</label>

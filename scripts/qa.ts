@@ -28242,6 +28242,20 @@ if (
   log('warning', 'R2438-rigidbody-scrollview-camera-enabled', 'Inspector cc.RigidBody/ScrollView/Camera enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1443: R2439 Inspector cc.BoxCollider/CircleCollider/PolygonCollider enabled ──────────
+console.log('\n## 1443. R2439 Inspector cc.BoxCollider/CircleCollider/PolygonCollider enabled 체크')
+const s1443 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1443.includes('R2439') &&
+  s1443.includes('cc.BoxCollider') &&
+  s1443.includes('cc.CircleCollider') &&
+  s1443.includes('cc.PolygonCollider')
+) {
+  log('pass', 'R2439-collider-enabled', 'Inspector cc.BoxCollider/CircleCollider/PolygonCollider enabled 구현 완료')
+} else {
+  log('warning', 'R2439-collider-enabled', 'Inspector cc.BoxCollider/CircleCollider/PolygonCollider enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
