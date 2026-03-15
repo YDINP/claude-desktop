@@ -23628,6 +23628,8 @@ function CCFileNodeInspector({
                       ['vertical', vertical, 'vertical'],
                       ['inertia', inertia, 'inertia'],
                       ['elastic', elastic, 'elastic'],
+                      /* R2450: bounce (BatchInspector R2065 — CC3.x) */
+                      ['bounce', !!(p.bounce ?? p._bounce ?? p._N$bounce ?? false), 'bounce'],
                     ].map(([label, val, key]) => (
                       <label key={key as string} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                         <input type="checkbox" checked={val as boolean}

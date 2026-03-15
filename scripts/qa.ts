@@ -28394,6 +28394,18 @@ if (
   log('warning', 'R2449-camera-clearDepth-ortho-culling', 'Inspector cc.Camera clearDepth/ortho/cullingMask 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1454: R2450 Inspector cc.ScrollView bounce ─────────────────
+console.log('\n## 1454. R2450 Inspector cc.ScrollView bounce 체크')
+const s1454 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1454.includes('R2450') &&
+  s1454.includes('bounce')
+) {
+  log('pass', 'R2450-scrollview-bounce', 'Inspector cc.ScrollView bounce 체크박스 구현 완료')
+} else {
+  log('warning', 'R2450-scrollview-bounce', 'Inspector cc.ScrollView bounce 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
