@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1328: R2324 씬뷰 자동 팬 ──────────
+console.log('\n## 1328. R2324 씬뷰 자동 팬 체크')
+const s1328 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1328.includes('R2324') &&
+  s1328.includes('flatNodesRef') &&
+  s1328.includes('effectiveWRef') &&
+  s1328.includes('inView')
+) {
+  log('pass', 'R2324-scene-autopan', '씬뷰 선택 노드 자동 팬 구현 완료')
+} else {
+  log('warning', 'R2324-scene-autopan', 'R2324 씬뷰 자동 팬 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1327: R2323 Inspector 자동 스크롤 ──────────
 console.log('\n## 1327. R2323 Inspector 자동 스크롤 체크')
 const s1327 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

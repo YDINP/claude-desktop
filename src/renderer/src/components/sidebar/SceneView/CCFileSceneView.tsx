@@ -244,6 +244,38 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     return result
   }, [sceneFile])
 
+  // R2324: 선택 노드 자동 팬 — 트리에서 선택 시 뷰포트 밖이면 중심 이동
+  const flatNodesRef = useRef(flatNodes)
+  flatNodesRef.current = flatNodes
+  const effectiveWRef = useRef(effectiveW)
+  effectiveWRef.current = effectiveW
+  const effectiveHRef = useRef(effectiveH)
+  effectiveHRef.current = effectiveH
+  useEffect(() => {
+    if (!selectedUuid) return
+    const fn = flatNodesRef.current.find(f => f.node.uuid === selectedUuid)
+    if (!fn) return
+    const svg = svgRef.current
+    if (!svg) return
+    const rect = svg.getBoundingClientRect()
+    const v = viewRef.current
+    const cxV = effectiveWRef.current / 2
+    const cyV = effectiveHRef.current / 2
+    const svgX = cxV + fn.worldX
+    const svgY = cyV - fn.worldY
+    const screenX = svgX * v.zoom + v.offsetX
+    const screenY = svgY * v.zoom + v.offsetY
+    const margin = 50
+    const inView = screenX > margin && screenX < rect.width - margin &&
+                   screenY > margin && screenY < rect.height - margin
+    if (!inView) {
+      setView(vv => ({ ...vv,
+        offsetX: rect.width / 2 - svgX * vv.zoom,
+        offsetY: rect.height / 2 - svgY * vv.zoom,
+      }))
+    }
+  }, [selectedUuid])
+
   // Sprite UUID → local:// URL 비동기 해상
   useEffect(() => {
     const assetsDir = sceneFile.projectInfo.assetsDir
