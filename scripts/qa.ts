@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1579: R2587 BatchInspector 위치 대칭 이동 (⟺X/⟺Y) ──────────────
+console.log('\n## 1579. R2587 — BatchInspector 위치 대칭 이동')
+const s1579 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1579.includes('R2587') &&
+  s1579.includes('applyMirror') &&
+  s1579.includes('⟺X')
+) {
+  log('pass', 'R2587-mirror-pos', 'R2587 BatchInspector 위치 대칭 이동 구현 완료')
+} else {
+  log('warning', 'R2587-mirror-pos', 'R2587 위치 대칭 이동 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1578: R2586 SceneView 앵커 포인트 전체 오버레이 ──────────────────
 console.log('\n## 1578. R2586 — SceneView 앵커 포인트 전체 오버레이 (⊕)')
 const s1578 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

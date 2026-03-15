@@ -5306,6 +5306,37 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2587: 선택 노드 위치 대칭 이동 (바운딩박스 중심 기준) */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const selNodes: CCSceneNode[] = []
+        function collectMirror(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collectMirror) }
+        collectMirror(sceneFile.root!)
+        if (selNodes.length < 2) return null
+        const xs = selNodes.map(n => (n.position as { x: number }).x)
+        const ys = selNodes.map(n => (n.position as { y: number }).y)
+        const cx = (Math.min(...xs) + Math.max(...xs)) / 2
+        const cy = (Math.min(...ys) + Math.max(...ys)) / 2
+        const applyMirror = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          const center = axis === 'x' ? cx : cy
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, [axis]: 2 * center - pos[axis] }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>대칭 (R2587)</span>
+            <span onClick={() => applyMirror('x')} title="X축 대칭 이동 — 바운딩박스 중심 기준 좌우 반전 (R2587)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>⟺X</span>
+            <span onClick={() => applyMirror('y')} title="Y축 대칭 이동 — 바운딩박스 중심 기준 상하 반전 (R2587)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>⟺Y</span>
+          </div>
+        )
+      })()}
       {/* R2582: 선택 노드 형제 위치 순서로 Z-order 재정렬 */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const applySortByPos = async (axis: 'x' | 'y') => {
