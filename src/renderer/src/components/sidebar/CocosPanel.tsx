@@ -365,7 +365,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   })
   const hDividerDragRef = useRef<{ startX: number; startW: number } | null>(null)
   // R1414: 씬 저장 이력 타임라인
-  type SceneHistoryEntry = { timestamp: number; nodeCount: number; size: number }
+  // R2312: snapshotKey 추가 (복원 기능용 localStorage 스냅샷 키)
+  type SceneHistoryEntry = { timestamp: number; nodeCount: number; size: number; snapshotKey?: string }
   const sceneHistoryKey = sceneFile?.scenePath ? `scene-history-${sceneFile.scenePath.replace(/[\\/]/g, '_')}` : null
   const [sceneHistoryTimeline, setSceneHistoryTimeline] = useState<SceneHistoryEntry[]>(() => {
     try { return sceneHistoryKey ? JSON.parse(localStorage.getItem(sceneHistoryKey) ?? '[]') : [] } catch { return [] }
@@ -1051,14 +1052,19 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           } catch { /* 썸네일 생성 실패는 무시 */ }
         })
       }
-      // R1414: 저장 이력 추가
+      // R1414: 저장 이력 추가 / R2312: 스냅샷 저장 (복원 기능)
       if (result.success && sceneHistoryKey) {
         let count = 0
-        function countNodes(n: CCSceneNode) { count++; n.children.forEach(countNodes) }
-        countNodes(sceneFile.root)
-        const entry: SceneHistoryEntry = { timestamp: Date.now(), nodeCount: count, size: JSON.stringify(sceneFile._raw ?? sceneFile.root).length }
+        const countNodesLocal = (n: CCSceneNode) => { count++; n.children.forEach(countNodesLocal) }
+        countNodesLocal(sceneFile.root)
+        const ts = Date.now()
+        const snapKey = `${sceneHistoryKey}-snap-${ts}`
+        try { localStorage.setItem(snapKey, JSON.stringify(sceneFile._raw ?? sceneFile.root)) } catch { /* storage full — skip */ }
+        const entry: SceneHistoryEntry = { timestamp: ts, nodeCount: count, size: JSON.stringify(sceneFile._raw ?? sceneFile.root).length, snapshotKey: snapKey }
         setSceneHistoryTimeline(prev => {
-          const next = [entry, ...prev].slice(0, 20)
+          const combined = [entry, ...prev]
+          const next = combined.slice(0, 5)
+          combined.slice(5).forEach(e => { if (e.snapshotKey) try { localStorage.removeItem(e.snapshotKey) } catch { /* ignore */ } })
           try { localStorage.setItem(sceneHistoryKey!, JSON.stringify(next)) } catch { /* ignore */ }
           return next
         })
@@ -2537,9 +2543,22 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 <span style={{ color: 'var(--text-primary)', flexShrink: 0 }}>{entry.nodeCount}N</span>
                 <span style={{ color: '#555', fontSize: 8 }}>{(entry.size / 1024).toFixed(1)}KB</span>
                 <button
-                  disabled
-                  title="복원 기능은 추후 구현 예정 (TODO)"
-                  style={{ marginLeft: 'auto', fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'default', opacity: 0.4 }}
+                  disabled={!entry.snapshotKey}
+                  title={entry.snapshotKey ? '이 시점으로 씬 복원' : '스냅샷 없음 (이전 방식 저장됨)'}
+                  onClick={async () => {
+                    if (!entry.snapshotKey || !sceneFile?.scenePath) return
+                    const snap = localStorage.getItem(entry.snapshotKey)
+                    if (!snap) { alert('스냅샷 데이터가 없습니다.'); return }
+                    const timeStr = new Date(entry.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                    if (!window.confirm(`${timeStr} 시점으로 씬을 복원하시겠습니까?\n현재 저장되지 않은 변경사항이 손실됩니다.`)) return
+                    try {
+                      const formatted = JSON.stringify(JSON.parse(snap), null, 2)
+                      const res = await window.api.writeTextFile?.(sceneFile.scenePath, formatted)
+                      if (res && 'error' in res) { alert('복원 실패: ' + res.error); return }
+                      loadScene(sceneFile.scenePath)
+                    } catch (e) { alert('복원 오류: ' + String(e)) }
+                  }}
+                  style={{ marginLeft: 'auto', fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, color: entry.snapshotKey ? 'var(--accent)' : 'var(--text-muted)', cursor: entry.snapshotKey ? 'pointer' : 'default', opacity: entry.snapshotKey ? 1 : 0.4 }}
                 >복원</button>
               </div>
             ))}
@@ -3105,23 +3124,31 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           <button
             disabled={buildRunning || !projectInfo.projectPath}
             onClick={async () => {
-              // R1406: TODO — window.api.runCommand 또는 window.api.shellExec이 구현되면 실제 CLI 빌드 실행
-              // 현재는 빌드 명령 미리보기 + UI 시뮬레이션
+              // R2312: window.api.shellExec으로 CocosCreator CLI 빌드 실제 실행 (백그라운드)
               setBuildRunning(true)
               setBuildResult(null)
               const version = projectInfo.version ?? '2.4.13'
               const editorPath = CC_EDITOR_PATHS[version] ?? CC_EDITOR_PATHS['2.4.13']
-              const projPath = (projectInfo.projectPath ?? '').replace(/\\/g, '/')
+              const projPath = (projectInfo.projectPath ?? '').replace(/\//g, '\\')
+              const editorWinPath = editorPath.replace(/\//g, '\\')
               const isCC3 = version.startsWith('3')
-              const cmd = isCC3
-                ? `"${editorPath}" --project "${projPath}" --build "platform=${buildPlatform}"`
-                : `"${editorPath}" --path "${projPath}" --build "platform=${buildPlatform}"`
-              console.log('[R1406] Build command:', cmd)
-              // 시뮬레이션: 2초 후 완료 (실제 실행은 IPC 구현 시)
-              setTimeout(() => {
+              const flagAndPath = isCC3
+                ? `--project "${projPath}" --build "platform=${buildPlatform}"`
+                : `--path "${projPath}" --build "platform=${buildPlatform}"`
+              // start /B: 백그라운드 실행 (블로킹 없이 즉시 반환)
+              const startCmd = `start /B "" "${editorWinPath}" ${flagAndPath}`
+              try {
+                const res = await window.api.shellExec?.(startCmd)
                 setBuildRunning(false)
-                setBuildResult({ ok: true, msg: `빌드 명령 준비됨 (${buildPlatform}). IPC 실행 대기 중.` })
-              }, 1500)
+                if (res && !res.ok && res.output) {
+                  setBuildResult({ ok: false, msg: res.output.slice(0, 300) })
+                } else {
+                  setBuildResult({ ok: true, msg: `빌드 시작됨 (${buildPlatform}) — CocosCreator가 백그라운드에서 빌드 중입니다.` })
+                }
+              } catch (e) {
+                setBuildRunning(false)
+                setBuildResult({ ok: false, msg: String(e) })
+              }
             }}
             style={{
               width: '100%', padding: '6px 0', fontSize: 11, fontWeight: 600, cursor: buildRunning ? 'wait' : 'pointer',

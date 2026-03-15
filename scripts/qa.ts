@@ -25447,6 +25447,21 @@ if (
   log('warning', 'R2311-computed-key-animation-sprite-scrollview-cc3x', 'cc.Animation/Sprite/ScrollView computed key CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1316: R2312 씬 저장 이력 복원 기능 + CLI 빌드 실제 실행 ──────────
+console.log('\n## 1316. R2312 씬 이력 복원 + 빌드 shellExec 체크')
+const s1316 = s1315
+if (
+  s1316.includes('snapshotKey?: string') &&
+  s1316.includes('localStorage.setItem(snapKey, JSON.stringify(') &&
+  s1316.includes('combined.slice(5).forEach') &&
+  s1316.includes('window.api.writeTextFile?.(sceneFile.scenePath, formatted)') &&
+  s1316.includes("start /B")
+) {
+  log('pass', 'R2312-scene-history-restore-build-exec', '씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행')
+} else {
+  log('warning', 'R2312-scene-history-restore-build-exec', '씬 이력 복원 또는 빌드 shellExec 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

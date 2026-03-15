@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T16:08:49.093Z
+> 2026-03-15T07:08:06.687Z
 
 ## Critical
 _없음_
@@ -2127,6 +2127,120 @@ _없음_
 - BatchInspector cc.ToggleContainer _allowSwitchOff (CC3.x) 일괄 설정
 - BatchInspector cc.RichText _overflow (CC3.x) 일괄 설정
 - BatchInspector cc.Canvas _fitWidth/_fitHeight (CC3.x) 동시 설정
+- BatchInspector cc.Label _fontFamily (CC3.x) 갭 수정
+- BatchInspector cc.EditBox _inputFlag (CC3.x) 갭 수정
+- BatchInspector cc.EditBox _inputMode (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _elastic (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _elasticDuration (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _bounceDuration (CC3.x) 갭 수정
+- BatchInspector cc.Label overflow _overflow (CC3.x) 갭 수정
+- BatchInspector cc.EditBox returnType _returnType (CC3.x) 갭 수정
+- BatchInspector cc.VideoPlayer volume _volume (CC3.x) 갭 수정
+- BatchInspector cc.Scrollbar enableAutoHide _enableAutoHide (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView scrollDuration _scrollDuration (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView horizontal _horizontal (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _vertical (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _cancelInnerEvents (CC3.x) 갭 수정
+- BatchInspector cc.Scrollbar _autoHideTime (CC3.x) 갭 수정
+- BatchInspector cc.Scrollbar _direction (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _bounceTime (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _bounce (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _pagingEnabled (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _speedAmplifier (CC3.x) 갭 수정
+- BatchInspector cc.PageView _pageTurningSpeed (CC3.x) 갭 수정
+- BatchInspector cc.PageView _effectType (CC3.x) 갭 수정
+- BatchInspector cc.PageView _direction (CC3.x) 갭 수정
+- BatchInspector cc.PageView _autoPageTurningThreshold (CC3.x) 갭 수정
+- BatchInspector cc.PageView _scrollThreshold (CC3.x) 갭 수정
+- BatchInspector cc.PageView _autoPageTurningInterval (CC3.x) 갭 수정
+- BatchInspector cc.PageView _pageTurningEventTiming (CC3.x) 갭 수정
+- BatchInspector cc.PageView _slideDuration (CC3.x) 갭 수정
+- BatchInspector cc.VideoPlayer _startTime (CC3.x) 갭 수정
+- BatchInspector cc.Canvas _resizeWithBrowserSize (CC3.x) 갭 수정
+- BatchInspector cc.Button _normalColor (CC3.x) 갭 수정
+- BatchInspector cc.Button _pressedColor (CC3.x) 갭 수정
+- BatchInspector cc.Button _disabledColor (CC3.x) 갭 수정
+- BatchInspector cc.EditBox _fontSize (CC3.x) 갭 수정
+- BatchInspector cc.RichText _maxWidth (CC3.x) 갭 수정
+- BatchInspector cc.RichText _fontSize (CC3.x) 갭 수정
+- BatchInspector cc.Label _verticalAlign (CC3.x) 갭 수정
+- BatchInspector cc.Label _horizontalAlign (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _brake (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _mouseWheelScrollSensitivity (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _hideScrollBar (CC3.x) 갭 수정
+- BatchInspector cc.Canvas _resolutionPolicy (CC3.x) 갭 수정
+- BatchInspector cc.Slider _progress (CC3.x) 갭 수정
+- BatchInspector cc.Slider _direction (CC3.x) old section 갭 수정
+- BatchInspector cc.Slider _interactable (CC3.x) old section 갭 수정
+- BatchInspector cc.Slider _step (CC3.x) 갭 수정
+- BatchInspector cc.Slider _minValue/_maxValue (CC3.x) 갭 수정
+- BatchInspector cc.Layout _resizeMode (CC3.x) 갭 수정
+- BatchInspector cc.LabelOutline _width (CC3.x) old section 갭 수정
+- BatchInspector cc.PageView _bounceEnabled (CC3.x) old section 갭 수정
+- BatchInspector cc.Slider _progress (CC3.x) patchSliderVal 갭 수정
+- BatchInspector cc.Layout _constraint (CC3.x) 갭 수정
+- BatchInspector cc.Layout _constraintNum (CC3.x) 갭 수정
+- BatchInspector cc.Layout _startAxis (CC3.x) 갭 수정
+- BatchInspector cc.Layout _cellSize (CC3.x) 갭 수정
+- BatchInspector cc.Widget _isAbs* 6종 (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _horizontal/_vertical/_inertia (CC3.x) 갭 수정
+- 단일노드 cc.ParticleSystem2D _startColor/_endColor (CC3.x) 갭 수정
+- 단일노드 cc.ScrollView _brake (CC3.x) 갭 수정
+- 단일노드 cc.ScrollView _elasticDuration (CC3.x) 갭 수정
+- BatchInspector cc.Widget 4방향 _top/_bottom/_left/_right (CC3.x) 갭 수정
+- BatchInspector cc.ProgressBar _totalLength (CC3.x) 갭 수정
+- BatchInspector cc.ProgressBar _reverse (CC3.x) 갭 수정
+- BatchInspector cc.ProgressBar _mode (CC3.x) 갭 수정
+- BatchInspector cc.ProgressBar _startWidth (CC3.x) 갭 수정
+- 단일노드 cc.Layout _horizontalDirection/_verticalDirection (CC3.x) 갭 수정
+- 단일노드 cc.RichText _string/_fontSize/_lineHeight/_maxWidth/_horizontalAlign (CC3.x) 갭 수정
+- 단일노드 cc.Canvas _resolutionPolicy (CC3.x) 갭 수정
+- 단일노드 stateColors [`_${colorKey}`] (CC3.x) 갭 수정
+- 단일노드 cc.Button normalColor + reset 4색 _* (CC3.x) 갭 수정
+- 단일노드 cc.ProgressBar _totalLength/_reverse (CC3.x) 갭 수정
+- 단일노드 cc.Label _horizontalAlign/_verticalAlign (CC3.x) 갭 수정
+- 단일노드 cc.Button _duration (CC3.x) 갭 수정
+- BatchInspector cc.ParticleSystem maxParticles/_maxParticles (CC3.x) 갭 수정
+- cc.Canvas _fitWidth/_fitHeight (CC3.x) 갭 수정 (Batch + 단일노드)
+- 단일노드 cc.Label _string / cc.Slider _progress / cc.Button _interactable (CC3.x) 갭 수정
+- 단일노드 cc.VideoPlayer _remoteURL + cc.PageView _slideDuration/_autoPageTurningInterval (CC3.x) 갭 수정
+- 단일노드 cc.ParticleSystem _color + cc.PageView _slideDuration 프리셋 (CC3.x) 갭 수정
+- BatchInspector cc.VideoPlayer _loop/_muted/_fullScreenEnabled (CC3.x) 갭 수정
+- BatchInspector cc.AudioSource _volume + _loop/_playOnLoad (CC3.x) 갭 수정
+- 단일노드 cc.ProgressBar _progress + cc.AudioSource _volume/_loop/_playOnLoad (CC3.x) 갭 수정
+- 단일노드 cc.Toggle/_Label _overflow/cc.Button _interactable (CC3.x) 갭 수정
+- 단일노드 cc.EditBox _string/_placeholder/_maxLength/_inputMode/_returnType (CC3.x) 갭 수정
+- 단일노드 cc.Slider _direction + cc.VideoPlayer _playbackRate/_muted (CC3.x) 갭 수정
+- 단일노드 cc.Camera _backgroundColor + cc.ScrollView _brake range (CC3.x) 갭 수정
+- 단일노드 cc.ParticleSystem _fastMode + cc.PageView threshold _* (CC3.x) 갭 수정
+- 단일노드 cc.TiledLayer layerName/visible + cc.RigidBody type/mass/gravityScale _* (CC3.x) 갭 수정
+- 단일노드 cc.RigidBody linearDamping/angularDamping/fixedRotation _* (CC3.x) 갭 수정
+- cc.Toggle isChecked + DragonBones/sp.Skeleton timeScale/loop _* (CC3.x) 갭 수정
+- sp.Skeleton defaultSkin/defaultAnimation/paused/pma/debug _* (CC3.x) 갭 수정
+- 단일노드 Layout cellSize/autoWrap + SkeletalAnimation playOnLoad + TiledLayer opacity _* (CC3.x) 갭 수정
+- cc.SkeletalAnimation speedRatio _N$ + cc.Slider inverted _N$ (CC3.x) 갭 수정
+- BatchInspector Toggle/Button/VideoPlayer/RigidBody/ProgressBar _* (CC3.x) 갭 수정
+- 단일노드 Layout resizeMode + Graphics + Widget alignMode + Button zoomScale _* (CC3.x) 갭 수정
+- 단일노드 VideoPlayer playbackRate + Collider offset/size/sensor/friction/restitution/radius _* (CC3.x) 갭 수정
+- BatchInspector Button hoverColor + Camera bg + Layout type/padding/spacing + Sprite grayscale _* (CC3.x) 갭 수정
+- cc.UITransform contentSize + cc.RigidBody linearVelocity _N$ + cc.Mask _N$ (CC3.x) 갭 수정
+- BoxCollider/ParticleSystem/Sprite/LabelShadow/MotionStreak _N$ (CC3.x) 갭 수정
+- BatchInspector Collider restitution/friction/density/sensor/offset/threshold/size/radius _* (CC3.x) 갭 수정
+- BatchInspector enabled → _enabled (CC3.x) 전체 갭 수정
+- BatchInspector UIOpacity opacity + TiledLayer opacity + Toggle interactable _* 갭 수정
+- BatchInspector PageView direction + VideoPlayer keepAspectRatio + MotionStreak stroke/fade _* 갭 수정
+- BatchInspector dragonBones/sp.Skeleton timeScale/debugBones/premultipliedAlpha/paused/debugSlots/useTint/enableBatch _* 갭 수정
+- BatchInspector dragonBones/sp.Skeleton/SkeletalAnimation playOnLoad/loop + TiledLayer visible _* 갭 수정
+- BatchInspector AudioSource volume/preload/startTime/endTime + Layout resizeMode + Widget isAlignVerticalCenter/isAlignHorizontalCenter _* 갭 수정
+- BatchInspector RigidBody type/mass/fixedRotation/linearDamping/angularDamping/bullet/allowSleep/enabledContactListener/awake/sleepThreshold _* 갭 수정
+- BatchInspector ProgressBar totalLength/progress/reverse + Sprite grayscale _* 갭 수정
+- BatchInspector cc.Layout padding + cc.Sprite capInset _N$* 갭 수정
+- 단일노드 cc.Layout spacing/padding computed key + quick preset _N$* 갭 수정
+- 단일노드 cc.Sprite trim/grayscale/fillCenter/capInsets _N$* 갭 수정
+- 단일노드 cc.Toggle isChecked + cc.ToggleContainer allowSwitchOff _N$* 갭 수정
+- BatchInspector cc.ParticleSystem gravity _N$* + 단일노드 all-enabled _enabled 갭 수정
+- cc.Animation/Sprite flipX/Y/ScrollView 단일노드 computed key _N$* 갭 수정
+- 씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행
 - BatchInspector cc.Slider _direction (CC3.x) 일괄 설정
 - BatchInspector cc.Slider _interactable (CC3.x) 일괄 설정
 - BatchInspector cc.EditBox _returnType (CC3.x) 일괄 설정
