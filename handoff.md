@@ -135,7 +135,16 @@
 - Branch: dev
 - 최근 커밋: `afaccab8` (R2488), `7a0d39d4` (R2487 fix), `9af9fbb7` (R2486), `4f3e419e` (R2485)
 
-## 다음 예정 (R2489+)
+## 완료 (R2489~R2490)
+- [x] R2489: Inspector 동일 이름 노드 팝업 — =×N 클릭 시 목록, 클릭으로 노드 전환
+- [x] R2490: 씬뷰 HUD 컴포넌트 아이콘 목록 — 선택 노드 컴포넌트 타입 아이콘 22종
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2513** ← R2490 현재 (체크포인트 통과)
+- Branch: dev
+- 최근 커밋: `39b24aca` (R2490), `22502958` (R2489), `afaccab8` (R2488)
+
+## 다음 예정 (R2491+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
