@@ -2465,16 +2465,34 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               }
               walkStats(sceneFile.root)
               const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15)
+              const maxCount = sorted[0]?.[1] ?? 1
+              const totalComps = Object.values(counts).reduce((s, v) => s + v, 0)
+              // R2344: 컴포넌트 타입별 색상 (바 시각화)
+              const barColor = (type: string) => {
+                if (type.startsWith('cc.Label') || type.startsWith('cc.RichText')) return '#58a6ff'
+                if (type.startsWith('cc.Sprite')) return '#4ade80'
+                if (type.startsWith('cc.Button') || type.startsWith('cc.Toggle') || type.startsWith('cc.Slider')) return '#fb923c'
+                if (type.startsWith('cc.Layout') || type.startsWith('cc.Widget')) return '#a78bfa'
+                if (type.startsWith('cc.Animation') || type.startsWith('sp.') || type.startsWith('dragonBones.')) return '#f472b6'
+                if (type.startsWith('cc.AudioSource')) return '#facc15'
+                if (type.startsWith('cc.ScrollView') || type.startsWith('cc.PageView')) return '#34d399'
+                if (type.startsWith('cc.RigidBody') || type.startsWith('cc.BoxCollider') || type.startsWith('cc.CircleCollider')) return '#f87171'
+                return '#94a3b8'
+              }
               return (
                 <div style={{ marginTop: 4, padding: '6px 8px', borderRadius: 4, border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)', fontSize: 9 }}>
                   <div style={{ color: 'var(--text-muted)', marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
-                    <span>노드: <span style={{ color: '#c9d1d9' }}>{total}</span> (활성 {active})</span>
+                    <span>노드: <span style={{ color: '#c9d1d9' }}>{total}</span> (활성 {active}) · 컴포넌트 <span style={{ color: '#c9d1d9' }}>{totalComps}</span></span>
                     <span style={{ cursor: 'pointer', color: '#555' }} onClick={() => setShowSceneStats(false)}>✕</span>
                   </div>
                   {sorted.map(([type, count]) => (
-                    <div key={type} style={{ display: 'flex', justifyContent: 'space-between', gap: 4, marginBottom: 2 }}>
-                      <span style={{ color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={type}>{type.includes('.') ? type.split('.').pop() : type}</span>
-                      <span style={{ color: '#58a6ff', flexShrink: 0 }}>{count}</span>
+                    <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                      <span style={{ color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: 88, flexShrink: 0 }} title={type}>{type.includes('.') ? type.split('.').pop() : type}</span>
+                      {/* R2344: 인라인 바 시각화 */}
+                      <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', borderRadius: 2, height: 6, overflow: 'hidden' }}>
+                        <div style={{ width: `${Math.round(count / maxCount * 100)}%`, height: '100%', background: barColor(type), borderRadius: 2, transition: 'width 0.2s' }} />
+                      </div>
+                      <span style={{ color: barColor(type), flexShrink: 0, width: 24, textAlign: 'right' }}>{count}</span>
                     </div>
                   ))}
                 </div>

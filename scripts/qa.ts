@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1348: R2344 씬 통계 바 시각화 ──────────
+console.log('\n## 1348. R2344 씬 통계 인라인 바 시각화 체크')
+const s1348 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1348.includes('R2344') &&
+  s1348.includes('barColor') &&
+  s1348.includes('maxCount') &&
+  s1348.includes('totalComps')
+) {
+  log('pass', 'R2344-scene-stats-bar', '씬 통계 컴포넌트 분포 인라인 바 시각화 구현 완료')
+} else {
+  log('warning', 'R2344-scene-stats-bar', '씬 통계 바 시각화 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1347: R2343 Inspector 단일노드 _tag/_zIndex 편집 ──────────
 console.log('\n## 1347. R2343 Inspector _tag/_zIndex 필드 체크')
 const s1347 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
