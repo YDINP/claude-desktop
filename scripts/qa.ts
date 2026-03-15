@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1351: R2347 BatchInspector matchPosition 기능 ──────────
+console.log('\n## 1351. R2347 BatchInspector matchPosition X/Y 위치 맞추기 체크')
+const s1351 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1351.includes('R2347') &&
+  s1351.includes('applyMatchPos') &&
+  s1351.includes('MatchPos')
+) {
+  log('pass', 'R2347-batch-matchpos', 'BatchInspector matchPosition X/Y 위치 맞추기 구현 완료')
+} else {
+  log('warning', 'R2347-batch-matchpos', 'BatchInspector matchPosition 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1350: R2346 BatchInspector matchSize 기능 ──────────
 console.log('\n## 1350. R2346 BatchInspector matchSize 첫 번째 선택 노드 크기 맞추기 체크')
 const s1350 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

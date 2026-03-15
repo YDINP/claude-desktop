@@ -4045,6 +4045,39 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2347: 선택 노드 위치 맞추기 (match position) */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const nodesOrdered: CCSceneNode[] = []
+        function collectPos(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodesOrdered.push(n); n.children.forEach(collectPos) }
+        collectPos(sceneFile.root)
+        if (nodesOrdered.length < 2) return null
+        const refNode = nodesOrdered[0]
+        const refPos = refNode.position as { x: number; y: number }
+        const applyMatchPos = async (axis: 'x' | 'y' | 'xy') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid) || n.uuid === refNode.uuid) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            const nx = axis === 'y' ? pos.x : refPos.x
+            const ny = axis === 'x' ? pos.y : refPos.y
+            return { ...n, position: { ...pos, x: nx, y: ny }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ matchPos(${axis.toUpperCase()}) → (${Math.round(refPos.x)}, ${Math.round(refPos.y)}) (${uuids.length - 1}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>MatchPos</span>
+            <span style={{ fontSize: 8, color: '#555', marginRight: 2 }}>{refNode.name.slice(0, 6)}({Math.round(refPos.x)},{Math.round(refPos.y)})</span>
+            {([['X', 'x'], ['Y', 'y'], ['XY', 'xy']] as [string, 'x' | 'y' | 'xy'][]).map(([label, axis]) => (
+              <span key={axis} onClick={() => applyMatchPos(axis)} title={`첫 번째 노드(${refNode.name}) ${label} 위치로 맞추기`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(96,165,250,0.4)', color: '#60a5fa', userSelect: 'none', background: 'rgba(96,165,250,0.05)' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2346: 첫 번째 선택 노드 크기 맞추기 (match size) */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const nodes: CCSceneNode[] = []
