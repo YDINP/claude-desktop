@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1355: R2351 Inspector cc.Label strikethrough + charSpacing ──────────
+console.log('\n## 1355. R2351 Inspector cc.Label strikethrough + charSpacing 체크')
+const s1355 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1355.includes('R2351') &&
+  s1355.includes('isStrike') &&
+  s1355.includes('charSpacing')
+) {
+  log('pass', 'R2351-label-strike-charspacing', 'Inspector cc.Label strikethrough + charSpacing 단일노드 편집 구현 완료')
+} else {
+  log('warning', 'R2351-label-strike-charspacing', 'Inspector cc.Label strikethrough + charSpacing 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1354: R2350 Inspector cc.Label underlineHeight (CC3.x) ──────────
 console.log('\n## 1354. R2350 Inspector cc.Label underlineHeight 체크')
 const s1354 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

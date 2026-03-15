@@ -20489,6 +20489,44 @@ function CCFileNodeInspector({
                       ))}
                     </div>
                   )}
+                  {/* R2351: cc.Label strikethrough + charSpacing */}
+                  {(() => {
+                    const isStrike = !!(p.isStrikethrough ?? p._isStrikethrough ?? p.isStrike ?? p._isStrike ?? p._N$isStrike ?? false)
+                    const charSpacing = Number(p.charSpacing ?? p._charSpacing ?? p._N$charSpacing ?? 0)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <span
+                          title={isStrike ? '취소선 해제' : '취소선 활성'}
+                          onClick={() => {
+                            const nv = !isStrike
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isStrikethrough: nv, isStrike: nv, _isStrike: nv, _N$isStrike: nv } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ fontSize: 10, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: `1px solid ${isStrike ? '#f472b6' : 'var(--border)'}`, color: isStrike ? '#f472b6' : 'var(--text-muted)', background: isStrike ? 'rgba(244,114,182,0.1)' : 'transparent', textDecoration: 'line-through', userSelect: 'none' }}
+                        >S</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>spcX</span>
+                        <input type="number" defaultValue={charSpacing} step={1}
+                          key={`cs-${charSpacing}`}
+                          onBlur={e => {
+                            const v = parseFloat(e.target.value) || 0
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, charSpacing: v, _charSpacing: v, _N$charSpacing: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                          title="문자 간격 (charSpacing)"
+                        />
+                        {[-2, 0, 2, 4, 8].map(v => (
+                          <span key={v} title={`charSpacing = ${v}`}
+                            onClick={() => {
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, charSpacing: v, _charSpacing: v, _N$charSpacing: v } } : c)
+                              applyAndSave({ components: updated })
+                            }}
+                            style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${charSpacing === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: charSpacing === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                          >{v}</span>
+                        ))}
+                      </div>
+                    )
+                  })()}
                   {/* R1746: 텍스트 대소문자 변환 버튼 */}
                   {str && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
