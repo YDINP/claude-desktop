@@ -4271,6 +4271,8 @@ function CCFileBatchInspector({
   const [opGradTo, setOpGradTo] = useState<number>(0)
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
+  // R2530: 앵커 변경 시 위치 보정 여부
+  const [batchAnchorCompensate, setBatchAnchorCompensate] = useState(true)
   // R2513: Z-Order 이동
   const moveZOrder = useCallback(async (dir: 'up' | 'down' | 'top' | 'bottom') => {
     if (!sceneFile.root) return
@@ -17789,7 +17791,14 @@ function CCFileBatchInspector({
       </div>
       {/* R1737: 앵커 9-point 일괄 설정 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
-        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>앵커 일괄 설정</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+          <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>앵커 일괄 설정</div>
+          {/* R2530: 위치 보정 체크박스 */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }} title="앵커 변경 시 위치를 자동 보정하여 노드가 시각적으로 같은 위치에 유지 (R2530)">
+            <input type="checkbox" checked={batchAnchorCompensate} onChange={e => setBatchAnchorCompensate(e.target.checked)} style={{ width: 10, height: 10, cursor: 'pointer' }} />
+            <span style={{ fontSize: 8, color: batchAnchorCompensate ? '#34d399' : 'var(--text-muted)' }}>위치 보정</span>
+          </label>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 20px)', gap: 2, marginBottom: 4 }}>
           {([
             [0, 1, '↖'], [0.5, 1, '↑'], [1, 1, '↗'],
@@ -17800,17 +17809,26 @@ function CCFileBatchInspector({
             return (
               <span
                 key={`${ax},${ay}`}
-                title={`앵커 (${ax}, ${ay})`}
+                title={`앵커 (${ax}, ${ay})${batchAnchorCompensate ? ' + 위치 보정' : ''}`}
                 onClick={async () => {
                   if (!sceneFile.root) return
                   function applyAnchor(n: CCSceneNode): CCSceneNode {
                     const children = n.children.map(applyAnchor)
                     if (!uuidSet.has(n.uuid)) return { ...n, children }
+                    // R2530: 위치 보정 — 앵커 변경 시 position 조정으로 시각적 위치 유지
+                    if (batchAnchorCompensate) {
+                      const oldAx = n.anchor?.x ?? 0.5, oldAy = n.anchor?.y ?? 0.5
+                      const w = n.size?.x ?? 0, h = n.size?.y ?? 0
+                      const pos = n.position as { x: number; y: number; z?: number }
+                      const newPosX = pos.x + w * (ax - oldAx)
+                      const newPosY = pos.y + h * (ay - oldAy)
+                      return { ...n, anchor: { x: ax, y: ay }, position: { ...pos, x: newPosX, y: newPosY }, children }
+                    }
                     return { ...n, anchor: { x: ax, y: ay }, children }
                   }
                   const result = await saveScene(applyAnchor(sceneFile.root))
                   setBatchAnchor({ x: ax, y: ay })
-                  setBatchMsg(result.success ? `✓ 앵커 (${ax},${ay}) 적용` : `✗ 오류`)
+                  setBatchMsg(result.success ? `✓ 앵커 (${ax},${ay}) 적용${batchAnchorCompensate ? ' (보정)' : ''}` : `✗ 오류`)
                   setTimeout(() => setBatchMsg(null), 2000)
                 }}
                 style={{

@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1522: R2530 BatchInspector 앵커 변경 시 위치 보정 ───────────────
+console.log('\n## 1522. R2530 — BatchInspector 앵커 변경 + 위치 자동 보정')
+const s1522 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1522.includes('R2530') &&
+  s1522.includes('batchAnchorCompensate') &&
+  s1522.includes('위치 보정') &&
+  s1522.includes('newPosX')
+) {
+  log('pass', 'R2530-anchor-compensate', 'R2530 앵커 변경 위치 보정 구현 완료')
+} else {
+  log('warning', 'R2530-anchor-compensate', 'R2530 앵커 위치 보정 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1521: R2529 SceneView 핀 마커 레이블 편집 ───────────────────────
 console.log('\n## 1521. R2529 — SceneView 핀 마커 더블클릭 레이블 편집')
 const s1521 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
