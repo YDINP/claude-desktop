@@ -28040,6 +28040,21 @@ if (
   log('warning', 'R2423-dragonbones-playonload', 'Inspector dragonBones.ArmatureDisplay playOnLoad 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1428: R2424 Inspector cc.ScrollView bounceDuration ──────────
+console.log('\n## 1428. R2424 Inspector cc.ScrollView bounceDuration 체크')
+const s1428 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1428.includes('R2424') &&
+  s1428.includes('bounceDuration') &&
+  s1428.includes('_bounceDuration') &&
+  s1428.includes('_N$bounceDuration') &&
+  s1428.includes('cc.ScrollView')
+) {
+  log('pass', 'R2424-scrollview-bounceduration', 'Inspector cc.ScrollView bounceDuration 구현 완료')
+} else {
+  log('warning', 'R2424-scrollview-bounceduration', 'Inspector cc.ScrollView bounceDuration 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

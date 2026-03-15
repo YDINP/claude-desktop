@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T13:10:23.660Z
+> 2026-03-15T13:25:52.768Z
 
 ## Critical
 _없음_
@@ -2464,3 +2464,6 @@ _없음_
 - Inspector cc.EditBox fontSize + inputMode 구현 완료
 - Inspector cc.LabelOutline width+color + cc.LabelShadow blur+color 구현 완료
 - Inspector cc.ParticleSystem emitterMode + autoRemoveOnFinish 구현 완료
+- Inspector cc.RigidBody awake + sleepThreshold 구현 완료
+- Inspector dragonBones.ArmatureDisplay playOnLoad 구현 완료
+- Inspector cc.ScrollView bounceDuration 구현 완료

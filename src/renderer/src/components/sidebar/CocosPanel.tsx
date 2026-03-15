@@ -23147,8 +23147,10 @@ function CCFileNodeInspector({
                     )
                   })()}
                   {/* R2379: bounceTime + mouseWheelScrollSensitivity + hideScrollBar */}
+                  {/* R2424: bounceDuration (CC2.x, BatchInspector R1949) */}
                   {(() => {
                     const bounceTime = Number(p.bounceTime ?? p._bounceTime ?? p._N$bounceTime ?? 1)
+                    const bounceDuration = Number(p.bounceDuration ?? p._bounceDuration ?? p._N$bounceDuration ?? 0.2)
                     const mwSens = Number(p.mouseWheelScrollSensitivity ?? p._mouseWheelScrollSensitivity ?? p._N$mouseWheelScrollSensitivity ?? 3.5)
                     const hideBar = !!(p.hideScrollBar ?? p._hideScrollBar ?? p._N$hideScrollBar ?? false)
                     return (
@@ -23163,6 +23165,19 @@ function CCFileNodeInspector({
                           {[0.1, 0.3, 0.5, 1].map(v => (
                             <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, bounceTime: v, _bounceTime: v, _N$bounceTime: v } } : c); applyAndSave({ components: u }) }}
                               style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(bounceTime - v) < 0.01 ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(bounceTime - v) < 0.01 ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                            >{v}s</span>
+                          ))}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>bounceDur</span>
+                          <input type="number" defaultValue={bounceDuration} key={`bd-${bounceDuration}`} min={0} step={0.05}
+                            onBlur={e => { const v = Math.max(0, parseFloat(e.target.value) || 0.2); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, bounceDuration: v, _bounceDuration: v, _N$bounceDuration: v } } : c); applyAndSave({ components: u }) }}
+                            style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                            title="bounceDuration (CC2.x)"
+                          />
+                          {[0.1, 0.2, 0.4, 0.8].map(v => (
+                            <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, bounceDuration: v, _bounceDuration: v, _N$bounceDuration: v } } : c); applyAndSave({ components: u }) }}
+                              style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(bounceDuration - v) < 0.01 ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(bounceDuration - v) < 0.01 ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
                             >{v}s</span>
                           ))}
                         </div>
