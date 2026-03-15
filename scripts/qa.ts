@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1392: R2388 Inspector cc.EditBox returnType ──────────
+console.log('\n## 1392. R2388 Inspector cc.EditBox returnType 체크')
+const s1392 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1392.includes('R2388') &&
+  s1392.includes('returnType') &&
+  s1392.includes('_N$returnType') &&
+  s1392.includes('cc.EditBox')
+) {
+  log('pass', 'R2388-editbox-returntype', 'Inspector cc.EditBox returnType 구현 완료')
+} else {
+  log('warning', 'R2388-editbox-returntype', 'Inspector cc.EditBox returnType 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1391: R2387 Inspector cc.Canvas resizeWithBrowserSize ──────────
 console.log('\n## 1391. R2387 Inspector cc.Canvas resizeWithBrowserSize 체크')
 const s1391 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

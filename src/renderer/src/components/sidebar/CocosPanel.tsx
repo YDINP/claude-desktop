@@ -21093,6 +21093,19 @@ function CCFileNodeInspector({
                       >{l}</span>
                     ))}
                   </div>
+                  {/* R2388: returnType 버튼 (CC3.x) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>returnType</span>
+                    {([['Default', 0], ['Done', 1], ['Send', 2], ['Search', 3], ['Go', 4], ['Next', 5]] as const).map(([l, v]) => {
+                      const cur = Number(p.returnType ?? p._returnType ?? p._N$returnType ?? 0)
+                      return (
+                        <span key={v} title={l}
+                          onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, returnType: v, _returnType: v, _N$returnType: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${cur === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                   {/* R2386: placeholderFontSize 퀵 편집 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>phFontSize</span>
