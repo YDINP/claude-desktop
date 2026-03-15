@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1651: R2659 BatchInspector 크기 W=H 정사각형화 ───────────────────
+console.log('\n## 1651. R2659 — BatchInspector 크기 W=H 정사각형화')
+const s1651 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1651.includes('R2659') &&
+  s1651.includes('applySquarify') &&
+  s1651.includes('정사각') &&
+  s1651.includes("'max'")
+) {
+  log('pass', 'R2659-squarify', 'R2659 크기 W=H 정사각형화 구현 완료')
+} else {
+  log('warning', 'R2659-squarify', 'R2659 크기 W=H 정사각형화 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1650: R2658 SceneView 노드 색상 tint 시각화 ──────────────────────
 console.log('\n## 1650. R2658 — SceneView 노드 색상 tint 시각화')
 const s1650 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

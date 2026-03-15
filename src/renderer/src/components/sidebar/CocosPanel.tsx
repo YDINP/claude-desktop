@@ -6501,6 +6501,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2659: 크기 W=H 정사각형화 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applySquarify = async (basis: 'max' | 'min' | 'w' | 'h') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const cw = n.size?.x ?? n.size?.width ?? 100
+            const ch2 = n.size?.y ?? n.size?.height ?? 100
+            const side = basis === 'max' ? Math.max(cw, ch2) : basis === 'min' ? Math.min(cw, ch2) : basis === 'w' ? cw : ch2
+            const newSize = { width: side, height: side, x: side, y: side }
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: side, height: side }, _contentSize: { width: side, height: side } } } : c)
+            return { ...n, size: newSize, components: updComps, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 정사각형화(${basis}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>정사각 (R2659)</span>
+            {([['max', '大'], ['min', '小'], ['W기준', 'w'], ['H기준', 'h']] as [string, 'max' | 'min' | 'w' | 'h'][]).map(([label, basis]) => (
+              <span key={basis} onClick={() => applySquarify(basis)} title={`W=H 정사각형화 (${label}) (R2659)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2203: 노드 width 독립 일괄 설정 */}
       {(() => {
         const applyNodeWidth = async (w: number) => {
