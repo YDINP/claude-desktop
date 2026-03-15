@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1636: R2644 BatchInspector 선택 노드 통계 패널 ────────────────────
+console.log('\n## 1636. R2644 — BatchInspector 선택 노드 통계 패널')
+const s1636 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1636.includes('R2644') &&
+  s1636.includes('selStats') &&
+  s1636.includes('selStats.x.min') &&
+  s1636.includes('selStats.w.avg')
+) {
+  log('pass', 'R2644-sel-stats', 'R2644 선택 노드 통계 패널 구현 완료')
+} else {
+  log('warning', 'R2644-sel-stats', 'R2644 선택 노드 통계 패널 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1635: R2643 BatchInspector 격자 배치 ──────────────────────────────
 console.log('\n## 1635. R2643 — BatchInspector 격자 배치')
 const s1635 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

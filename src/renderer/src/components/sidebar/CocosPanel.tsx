@@ -4403,6 +4403,27 @@ function CCFileBatchInspector({
     }
   }, [sceneFile.root, uuidSet])
 
+  // R2644: 선택 노드 통계
+  const selStats = useMemo(() => {
+    if (!sceneFile.root || uuids.length === 0) return null
+    const nodes: CCSceneNode[] = []
+    function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collect) }
+    collect(sceneFile.root)
+    if (nodes.length === 0) return null
+    const xs = nodes.map(n => (n.position as { x: number }).x)
+    const ys = nodes.map(n => (n.position as { y: number }).y)
+    const ws = nodes.map(n => n.size?.x ?? 0)
+    const hs = nodes.map(n => n.size?.y ?? 0)
+    const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length
+    return {
+      count: nodes.length,
+      x: { min: Math.round(Math.min(...xs)), max: Math.round(Math.max(...xs)), avg: Math.round(avg(xs)) },
+      y: { min: Math.round(Math.min(...ys)), max: Math.round(Math.max(...ys)), avg: Math.round(avg(ys)) },
+      w: { min: Math.round(Math.min(...ws)), max: Math.round(Math.max(...ws)), avg: Math.round(avg(ws)) },
+      h: { min: Math.round(Math.min(...hs)), max: Math.round(Math.max(...hs)), avg: Math.round(avg(hs)) },
+    }
+  }, [sceneFile.root, uuidSet, uuids])
+
   const applyBatch = useCallback(async () => {
     if (!sceneFile.root) return
     const opacity = batchOpacity !== '' ? Math.max(0, Math.min(255, parseInt(batchOpacity))) : null
@@ -19411,6 +19432,15 @@ function CCFileBatchInspector({
         >선택 해제</button>
         {batchMsg && <span style={{ fontSize: 9, color: batchMsg.startsWith('✓') ? '#4ade80' : '#f85149' }}>{batchMsg}</span>}
       </div>
+      {/* R2644: 선택 노드 통계 패널 */}
+      {selStats && (
+        <div style={{ fontSize: 8, color: '#64748b', marginBottom: 4, display: 'flex', gap: 6, flexWrap: 'wrap', borderTop: '1px solid var(--border)', paddingTop: 3 }}>
+          <span title="X 최소/평균/최대">X {selStats.x.min}~{selStats.x.max} μ{selStats.x.avg}</span>
+          <span title="Y 최소/평균/최대">Y {selStats.y.min}~{selStats.y.max} μ{selStats.y.avg}</span>
+          <span title="W 최소/평균/최대">W {selStats.w.min}~{selStats.w.max} μ{selStats.w.avg}</span>
+          <span title="H 최소/평균/최대">H {selStats.h.min}~{selStats.h.max} μ{selStats.h.avg}</span>
+        </div>
+      )}
       {/* R1778: 이름 정규식 교체 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
         <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>이름 Regex 교체</div>
