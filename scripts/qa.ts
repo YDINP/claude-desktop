@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1640: R2648 BatchInspector 이름 알파벳순 Z-order 정렬 ────────────
+console.log('\n## 1640. R2648 — BatchInspector 이름 알파벳순 Z-order 정렬')
+const s1640 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1640.includes('R2648') &&
+  s1640.includes('applySortByName') &&
+  s1640.includes('localeCompare') &&
+  s1640.includes('이름정렬')
+) {
+  log('pass', 'R2648-sort-name', 'R2648 이름 알파벳순 Z-order 정렬 구현 완료')
+} else {
+  log('warning', 'R2648-sort-name', 'R2648 이름 알파벳순 Z-order 정렬 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1639: R2647 SceneView 선택 노드 그룹 바운딩박스 ───────────────────
 console.log('\n## 1639. R2647 — SceneView 선택 노드 그룹 바운딩박스')
 const s1639 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

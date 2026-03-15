@@ -6144,6 +6144,42 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2648: 이름 알파벳순 Z-order 정렬 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applySortByName = async (dir: 'asc' | 'desc') => {
+          if (!sceneFile.root) return
+          const parentMap = new Map<string, CCSceneNode[]>()
+          function findParents(n: CCSceneNode) {
+            const selectedChildren = n.children.filter(c => uuidSet.has(c.uuid))
+            if (selectedChildren.length > 0) parentMap.set(n.uuid, n.children)
+            n.children.forEach(findParents)
+          }
+          findParents(sceneFile.root!)
+          if (parentMap.size === 0) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!parentMap.has(n.uuid)) return { ...n, children: ch }
+            const selected = ch.filter(c => uuidSet.has(c.uuid))
+            selected.sort((a, b) => dir === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name))
+            const result: CCSceneNode[] = [...ch]
+            const indices = ch.map((c, i) => uuidSet.has(c.uuid) ? i : -1).filter(i => i >= 0)
+            indices.forEach((idx, i) => { result[idx] = selected[i] })
+            return { ...n, children: result }
+          }
+          await saveScene(patch(sceneFile.root))
+          setBatchMsg(`✓ 이름 ${dir === 'asc' ? 'A→Z' : 'Z→A'} Z-order 정렬`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>이름정렬 (R2648)</span>
+            <span onClick={() => applySortByName('asc')} title="이름 A→Z 순으로 Z-order 재정렬 (R2648)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>A→Z</span>
+            <span onClick={() => applySortByName('desc')} title="이름 Z→A 순으로 Z-order 재정렬 (R2648)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>Z→A</span>
+          </div>
+        )
+      })()}
       {/* R2535: 선택 노드 스택 배치 (edge-to-edge stack X/Y + 간격) */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const stkNodes: CCSceneNode[] = []
