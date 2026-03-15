@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1568: R2576 SceneView 노드 크기 레이블 오버레이 (W×H) ─────────────
+console.log('\n## 1568. R2576 — SceneView 노드 크기 레이블 오버레이 (W×H)')
+const s1568sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1568sv.includes('R2576') &&
+  s1568sv.includes('showSizeLabels') &&
+  s1568sv.includes('W×H')
+) {
+  log('pass', 'R2576-size-labels', 'R2576 노드 크기 레이블 오버레이 구현 완료')
+} else {
+  log('warning', 'R2576-size-labels', 'R2576 노드 크기 레이블 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1567: R2575 BatchInspector 스케일 반전 (↔H / ↕V) ────────────────
 console.log('\n## 1567. R2575 — BatchInspector 스케일 반전 (↔H / ↕V)')
 const s1567 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

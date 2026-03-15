@@ -209,6 +209,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showLabelText, setShowLabelText] = useState(false)
   // R2558: 씬 통계 팝업 토글
   const [showSceneStats, setShowSceneStats] = useState(false)
+  // R2576: 노드 크기 레이블 오버레이 (W×H)
+  const [showSizeLabels, setShowSizeLabels] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1468,6 +1470,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showLabelText ? 'Label 텍스트 오버레이 끄기 (R2557)' : 'Label 텍스트 내용을 SVG에 직접 표시 (R2557)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLabelText ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showLabelText ? 'rgba(139,92,246,0.12)' : 'none', color: showLabelText ? '#a78bfa' : 'var(--text-muted)' }}
         >T</button>
+        {/* R2576: 노드 크기 레이블 오버레이 토글 */}
+        <button
+          onClick={() => setShowSizeLabels(v => !v)}
+          title={showSizeLabels ? '크기 레이블 끄기 (R2576)' : '노드 W×H 크기 레이블 오버레이 (R2576)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeLabels ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSizeLabels ? 'rgba(52,211,153,0.12)' : 'none', color: showSizeLabels ? '#34d399' : 'var(--text-muted)' }}
+        >W×H</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2227,6 +2235,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   strokeDasharray={isContainer && !isSelected ? `${4 / view.zoom},${4 / view.zoom}` : undefined}
                   className={isSelected ? 'cc-selected-rect' : undefined}
                 />
+                {/* R2576: 노드 크기 W×H 오버레이 */}
+                {showSizeLabels && view.zoom > 0.3 && (() => {
+                  const sw = Math.round(node.size?.x ?? 0), sh = Math.round(node.size?.y ?? 0)
+                  if (sw === 0 && sh === 0) return null
+                  const fs = Math.max(6, 9 / view.zoom)
+                  return (
+                    <text
+                      x={svgPos.x} y={rectY + h + fs * 1.2}
+                      textAnchor="middle"
+                      fontSize={fs} fill="rgba(52,211,153,0.85)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{sw}×{sh}</text>
+                  )
+                })()}
                 {/* R2557: Label 텍스트 콘텐츠 오버레이 */}
                 {showLabelText && hasLabel && (() => {
                   const labelComp = node.components.find(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
