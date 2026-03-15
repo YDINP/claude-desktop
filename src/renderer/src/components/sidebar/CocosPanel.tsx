@@ -4347,6 +4347,9 @@ function CCFileBatchInspector({
   // R2671: 이름 find/replace
   const [nameFind, setNameFind] = useState<string>('')
   const [nameReplace, setNameReplace] = useState<string>('')
+  // R2676: 색상 블렌드
+  const [colorBlendTarget, setColorBlendTarget] = useState<string>('#ff0000')
+  const [colorBlendAmount, setColorBlendAmount] = useState<number>(50)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -5373,6 +5376,41 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color리셋 (R2656)</span>
             <span onClick={applyColorReset} title="선택 노드 color를 흰색(255,255,255)으로 리셋 (R2656)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(255,255,255,0.3)', color: '#e2e8f0', userSelect: 'none', background: 'rgba(255,255,255,0.05)' }}>⬜ 흰색</span>
+          </div>
+        )
+      })()}
+      {/* R2676: 색상 블렌드 — 현재 색상을 목표 색상으로 t% 블렌드 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyColorBlend = async () => {
+          if (!sceneFile.root) return
+          const hex = colorBlendTarget.replace('#', '')
+          const tr = parseInt(hex.slice(0, 2), 16)
+          const tg = parseInt(hex.slice(2, 4), 16)
+          const tb = parseInt(hex.slice(4, 6), 16)
+          const t = Math.max(0, Math.min(100, colorBlendAmount)) / 100
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const c = n.color ?? { r: 255, g: 255, b: 255, a: 255 }
+            return { ...n, color: { r: Math.round(c.r + (tr - c.r) * t), g: Math.round(c.g + (tg - c.g) * t), b: Math.round(c.b + (tb - c.b) * t), a: c.a }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ color 블렌드 ${colorBlendAmount}% → ${colorBlendTarget} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color블렌드 (R2676)</span>
+            <input type="color" value={colorBlendTarget} onChange={e => setColorBlendTarget(e.target.value)} style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', borderRadius: 2, background: 'none' }} title="목표 색상" />
+            <input type="number" value={colorBlendAmount} min={0} max={100} step={10} onChange={e => setColorBlendAmount(parseInt(e.target.value) || 0)} style={niS} title="블렌드 비율 (%)" />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>%</span>
+            <span onClick={applyColorBlend}
+              title={`현재 색상을 ${colorBlendTarget}으로 ${colorBlendAmount}% 블렌드 (R2676)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#f472b6', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >블렌드</span>
           </div>
         )
       })()}

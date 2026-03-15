@@ -289,6 +289,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showScaleText, setShowScaleText] = useState(false)
   // R2673: 컴포넌트 수 배지 오버레이
   const [showCompCountBadge, setShowCompCountBadge] = useState(false)
+  // R2675: 노드 크기 히트맵 (큰=노란, 작은=파란)
+  const [showSizeHeat, setShowSizeHeat] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -401,6 +403,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   // R2665: 깊이 히트맵용 최대 깊이
   const maxDepthVal = useMemo(() => Math.max(...flatNodes.map(fn => fn.depth), 1), [flatNodes])
+  // R2675: 크기 히트맵용 최대 노드 면적
+  const maxNodeArea = useMemo(() => Math.max(...flatNodes.map(fn => (fn.node.size?.x ?? 0) * (fn.node.size?.y ?? 0)), 1), [flatNodes])
 
   // R2324: 선택 노드 자동 팬 — 트리에서 선택 시 뷰포트 밖이면 중심 이동
   const flatNodesRef = useRef(flatNodes)
@@ -1809,6 +1813,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showCompCountBadge ? '컴포넌트 수 끄기 (R2673)' : '노드당 컴포넌트 수 배지 표시 (기본 제외) (R2673)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompCountBadge ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showCompCountBadge ? 'rgba(129,140,248,0.1)' : 'none', color: showCompCountBadge ? '#818cf8' : 'var(--text-muted)' }}
         >C#</button>
+        {/* R2675: 크기 히트맵 토글 */}
+        <button
+          onClick={() => setShowSizeHeat(v => !v)}
+          title={showSizeHeat ? '크기 히트맵 끄기 (R2675)' : '노드 크기 히트맵 (큰=노란, 작은=파란) (R2675)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeHeat ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showSizeHeat ? 'rgba(250,204,21,0.1)' : 'none', color: showSizeHeat ? '#facc15' : 'var(--text-muted)' }}
+        >Sz</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2902,6 +2912,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       <rect x={bx} y={by} width={bw} height={bh} fill="rgba(129,140,248,0.85)" rx={2 / view.zoom} />
                       <text x={bx + bw / 2} y={by + bh - 2 / view.zoom} fontSize={7 / view.zoom} fill="#fff" textAnchor="middle" style={{ userSelect: 'none' }}>{cnt}</text>
                     </g>
+                  )
+                })()}
+                {/* R2675: 노드 크기 히트맵 */}
+                {showSizeHeat && w > 0 && h > 0 && (() => {
+                  const area = w * h
+                  const t = maxNodeArea > 0 ? Math.min(area / maxNodeArea, 1) : 0
+                  const r = Math.round(t * 250)
+                  const g2 = Math.round(t * 200 + (1 - t) * 80)
+                  const b = Math.round((1 - t) * 250)
+                  return (
+                    <rect x={rectX} y={rectY} width={w} height={h}
+                      fill={`rgba(${r},${g2},${b},0.25)`}
+                      style={{ pointerEvents: 'none' }} />
                   )
                 })()}
                 {/* R2652: 비활성 노드 반투명 오버레이 */}

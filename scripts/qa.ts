@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1668: R2676 BatchInspector 색상 블렌드 ───────────────────────────
+console.log('\n## 1668. R2676 — BatchInspector 색상 블렌드')
+const s1668 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1668.includes('R2676') &&
+  s1668.includes('applyColorBlend') &&
+  s1668.includes('colorBlendTarget') &&
+  s1668.includes('colorBlendAmount')
+) {
+  log('pass', 'R2676-colorBlend', 'R2676 색상 블렌드 구현 완료')
+} else {
+  log('warning', 'R2676-colorBlend', 'R2676 색상 블렌드 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1667: R2675 SceneView 노드 크기 히트맵 ───────────────────────────
+console.log('\n## 1667. R2675 — SceneView 노드 크기 히트맵')
+const s1667 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1667.includes('R2675') &&
+  s1667.includes('showSizeHeat') &&
+  s1667.includes('maxNodeArea') &&
+  s1667.includes('Sz')
+) {
+  log('pass', 'R2675-sizeHeat', 'R2675 노드 크기 히트맵 구현 완료')
+} else {
+  log('warning', 'R2675-sizeHeat', 'R2675 노드 크기 히트맵 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1666: R2674 BatchInspector 절대 위치 지정 ────────────────────────
 console.log('\n## 1666. R2674 — BatchInspector 절대 위치 지정')
 const s1666 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
