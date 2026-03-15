@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1590: R2598 SceneView flip(음수 scale) 노드 표시 오버레이 ─────────
+console.log('\n## 1590. R2598 — SceneView flip(음수 scale) 노드 표시 오버레이')
+const s1590 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1590.includes('R2598') &&
+  s1590.includes('showFlipOverlay') &&
+  s1590.includes('setShowFlipOverlay')
+) {
+  log('pass', 'R2598-flip-overlay', 'R2598 flip 오버레이 구현 완료')
+} else {
+  log('warning', 'R2598-flip-overlay', 'R2598 flip 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1589: R2597 BatchInspector scale 배수 적용 ───────────────────────
 console.log('\n## 1589. R2597 — BatchInspector scale 배수 적용')
 const s1589 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

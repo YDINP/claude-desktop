@@ -229,6 +229,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showChildCountBadge, setShowChildCountBadge] = useState(false)
   // R2592: 깊이(Depth) 레이블 오버레이
   const [showDepthLabel, setShowDepthLabel] = useState(false)
+  // R2598: flip(음수 scale) 노드 표시 오버레이
+  const [showFlipOverlay, setShowFlipOverlay] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1559,6 +1561,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showDepthLabel ? '깊이 레이블 끄기 (R2592)' : '노드 계층 깊이 D:N 표시 (R2592)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDepthLabel ? 'rgba(134,239,172,0.5)' : 'var(--border)'}`, background: showDepthLabel ? 'rgba(134,239,172,0.12)' : 'none', color: showDepthLabel ? '#86efac' : 'var(--text-muted)' }}
         >D:</button>
+        {/* R2598: flip(음수 scale) 노드 표시 토글 */}
+        <button
+          onClick={() => setShowFlipOverlay(v => !v)}
+          title={showFlipOverlay ? 'flip 표시 끄기 (R2598)' : 'scale 음수(뒤집힌) 노드에 ↔↕ 표시 (R2598)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showFlipOverlay ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showFlipOverlay ? 'rgba(250,204,21,0.12)' : 'none', color: showFlipOverlay ? '#facc15' : 'var(--text-muted)' }}
+        >↔↕</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2419,6 +2427,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(134,239,172,0.9)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >D:{depth}</text>
+                  )
+                })()}
+                {/* R2598: flip(음수 scale) 노드 표시 */}
+                {showFlipOverlay && (() => {
+                  const sc = node.scale as { x: number; y: number }
+                  const fx = sc.x < 0, fy = sc.y < 0
+                  if (!fx && !fy) return null
+                  const label = fx && fy ? '↔↕' : fx ? '↔' : '↕'
+                  const fs = Math.max(7, 10 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + w / 2} y={rectY + h / 2 + fs * 0.35}
+                      textAnchor="middle"
+                      fontSize={fs} fill="rgba(250,204,21,0.9)" fontFamily="monospace" fontWeight="bold"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{label}</text>
                   )
                 })()}
                 {/* R2578: 노드 불투명도 α% 오버레이 */}
