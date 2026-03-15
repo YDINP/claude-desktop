@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T18:14:31.425Z
+> 2026-03-15T18:16:09.954Z
 
 ## Critical
 _없음_
@@ -2540,3 +2540,4 @@ _없음_
 - R2507 BatchInspector 하위 노드 포함 선택 확장 구현 완료
 - R2508 SceneView 다중 선택 중심점 마커 구현 완료
 - R2509 BatchInspector 선택 필터 구현 완료
+- R2510 같은 이름 노드 일괄 선택 구현 완료

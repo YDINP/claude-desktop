@@ -4353,6 +4353,27 @@ function CCFileBatchInspector({
           {commonValues?.opacity != null ? `opacity:${commonValues.opacity}` : ''}
           {commonValues?.active != null ? ` ${commonValues.active ? '활성' : '비활성'}` : ''}
         </span>
+        {/* R2510: 같은 이름 노드 일괄 선택 */}
+        {onMultiSelectChange && sceneFile.root && uuids.length === 1 && (() => {
+          const ns: CCSceneNode[] = []
+          function coll(n: CCSceneNode) { if (uuidSet.has(n.uuid)) ns.push(n); n.children.forEach(coll) }
+          coll(sceneFile.root!)
+          if (ns.length === 0) return null
+          const targetName = ns[0].name
+          const sameNameUuids: string[] = []
+          function walkSame(n: CCSceneNode) { if (n.name === targetName) sameNameUuids.push(n.uuid); n.children.forEach(walkSame) }
+          walkSame(sceneFile.root!)
+          if (sameNameUuids.length <= 1) return null
+          return (
+            <span
+              title={`"${targetName}" 이름의 노드 ${sameNameUuids.length}개 모두 선택 (R2510)`}
+              onClick={() => onMultiSelectChange(sameNameUuids)}
+              style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fbbf24', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#fbbf24')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >=×{sameNameUuids.length}</span>
+          )
+        })()}
         {/* R2500: 선택 반전 버튼 */}
         {onMultiSelectChange && sceneFile.root && (
           <span

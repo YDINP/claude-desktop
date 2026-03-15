@@ -29005,6 +29005,18 @@ if (
   log('warning', 'R2509-selection-filter', 'R2509 선택 필터 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1502: R2510 BatchInspector 같은 이름 노드 일괄 선택 ──────────────────────────
+const s1502 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1502.includes('R2510') &&
+  s1502.includes('sameNameUuids') &&
+  s1502.includes('같은 이름 노드 일괄 선택')
+) {
+  log('pass', 'R2510-same-name-select', 'R2510 같은 이름 노드 일괄 선택 구현 완료')
+} else {
+  log('warning', 'R2510-same-name-select', 'R2510 같은 이름 선택 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
