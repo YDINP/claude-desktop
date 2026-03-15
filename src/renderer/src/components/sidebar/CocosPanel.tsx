@@ -4294,6 +4294,8 @@ function CCFileBatchInspector({
   const [colorGradTo, setColorGradTo] = useState<string>('#ff0000')
   // R2597: scale 배수
   const [scaleMulInput, setScaleMulInput] = useState<string>('2')
+  // R2599: size 배수
+  const [sizeMulInput, setSizeMulInput] = useState<string>('2')
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -18065,6 +18067,37 @@ function CCFileBatchInspector({
               title="사용자 정의 배수" />
             <span onClick={() => !isNaN(mul) && applyScaleMul(mul)}
               title={`선택 노드 scale ×${mul} 적용 (R2597)`}
+              style={btnS}>적용</span>
+          </div>
+        )
+      })()}
+      {/* R2599: size 배수 적용 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applySizeMul = async (mul: number) => {
+          if (!sceneFile.root || isNaN(mul) || mul === 0) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sz = n.size as { x: number; y: number }
+            return { ...n, size: { x: Math.round(sz.x * mul * 100) / 100, y: Math.round(sz.y * mul * 100) / 100 }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ size ×${mul} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const btnS: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }
+        const mul = parseFloat(sizeMulInput)
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>sz배수 (R2599)</span>
+            <span onClick={() => applySizeMul(0.5)} title="선택 노드 size ×0.5 (R2599)" style={btnS}>×0.5</span>
+            <span onClick={() => applySizeMul(2)} title="선택 노드 size ×2 (R2599)" style={btnS}>×2</span>
+            <input type="number" value={sizeMulInput} min={0.01} step={0.1}
+              onChange={e => setSizeMulInput(e.target.value)}
+              style={{ width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }}
+              title="사용자 정의 배수" />
+            <span onClick={() => !isNaN(mul) && applySizeMul(mul)}
+              title={`선택 노드 size ×${mul} 적용 (R2599)`}
               style={btnS}>적용</span>
           </div>
         )
