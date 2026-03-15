@@ -19382,6 +19382,21 @@ function CCFileNodeInspector({
                         style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${sizeModeVal === i ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: sizeModeVal === i ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
                       >{l}</span>
                     ))}
+                    {/* R2401: _isTrimmedMode CC3.x */}
+                    {is3x && (() => {
+                      const tm = Number(p._isTrimmedMode ?? 0)
+                      return (
+                        <>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 6, flexShrink: 0 }}>trim3:</span>
+                          {([['T', 0], ['R', 1], ['P', 2]] as const).map(([l, v]) => (
+                            <span key={v} title={['Trim','Raw','Polygon'][v]}
+                              onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _isTrimmedMode: v } } : c); applyAndSave({ components: u }) }}
+                              style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${tm === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: tm === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                            >{l}</span>
+                          ))}
+                        </>
+                      )
+                    })()}
                   </div>
                   <div style={{ display: 'flex', gap: 12 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
@@ -23097,6 +23112,19 @@ function CCFileNodeInspector({
                       onBlur={ev => { const v = parseInt(ev.target.value) ?? -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
                     />
                   </div>
+                  {/* R2401: tag */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                    <label style={{ fontSize: 10, width: 50, flexShrink: 0 }}>tag</label>
+                    <input type="number" defaultValue={Number(p.tag ?? p._tag ?? 0)} min={0} step={1}
+                      style={{ width: 44, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    {[0,1,2,3,4].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
                 </div>
               )
             }
@@ -23184,6 +23212,19 @@ function CCFileNodeInspector({
                       style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                       onBlur={ev => { const v = parseInt(ev.target.value) ?? -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
                     />
+                  </div>
+                  {/* R2401: tag */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                    <label style={{ fontSize: 10, width: 50, flexShrink: 0 }}>tag</label>
+                    <input type="number" defaultValue={Number(p.tag ?? p._tag ?? 0)} min={0} step={1}
+                      style={{ width: 44, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    {[0,1,2,3,4].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
                   </div>
                 </div>
               )
@@ -23273,6 +23314,19 @@ function CCFileNodeInspector({
                       style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                       onBlur={ev => { const v = parseInt(ev.target.value) ?? -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
                     />
+                  </div>
+                  {/* R2401: tag */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                    <label style={{ fontSize: 10, width: 50, flexShrink: 0 }}>tag</label>
+                    <input type="number" defaultValue={Number(p.tag ?? p._tag ?? 0)} min={0} step={1}
+                      style={{ width: 44, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    {[0,1,2,3,4].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
                   </div>
                 </div>
               )

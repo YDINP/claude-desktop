@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1405: R2401 Inspector cc.Sprite _isTrimmedMode + Collider tag ──────────
+console.log('\n## 1405. R2401 Inspector cc.Sprite _isTrimmedMode + Collider tag 체크')
+const s1405 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1405.includes('R2401') &&
+  s1405.includes('_isTrimmedMode') &&
+  s1405.includes('Polygon') &&
+  s1405.includes('tag') &&
+  s1405.includes('_tag')
+) {
+  log('pass', 'R2401-sprite-trimmode-collider-tag', 'Inspector cc.Sprite _isTrimmedMode + Collider tag 구현 완료')
+} else {
+  log('warning', 'R2401-sprite-trimmode-collider-tag', 'Inspector cc.Sprite _isTrimmedMode + Collider tag 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1404: R2400 Inspector cc.Sprite _useGrayscale + cc.RigidBody velocityLimit ──────────
 console.log('\n## 1404. R2400 Inspector cc.Sprite _useGrayscale + cc.RigidBody velocityLimit 체크')
 const s1404 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
