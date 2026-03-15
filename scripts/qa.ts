@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1389: R2385 Inspector cc.Label shadowOffset x/y ──────────
+console.log('\n## 1389. R2385 Inspector cc.Label shadowOffset x/y 체크')
+const s1389 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1389.includes('R2385') &&
+  s1389.includes('shadowOffset') &&
+  s1389.includes('_shadowOffset') &&
+  s1389.includes('shadowOffset.x')
+) {
+  log('pass', 'R2385-label-shadow-offset', 'Inspector cc.Label shadowOffset x/y 구현 완료')
+} else {
+  log('warning', 'R2385-label-shadow-offset', 'Inspector cc.Label shadowOffset x/y 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1388: R2384 Inspector cc.ParticleSystem sourcePos x/y ──────────
 console.log('\n## 1388. R2384 Inspector cc.ParticleSystem sourcePos x/y 체크')
 const s1388 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
