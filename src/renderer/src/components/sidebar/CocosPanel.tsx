@@ -6150,6 +6150,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2653: Z-order 최전면/최후면 이동 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyZMove = async (dir: 'front' | 'back') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            const selCh = ch.filter(c => uuidSet.has(c.uuid))
+            if (selCh.length === 0) return { ...n, children: ch }
+            const others = ch.filter(c => !uuidSet.has(c.uuid))
+            const result = dir === 'front' ? [...others, ...selCh] : [...selCh, ...others]
+            return { ...n, children: result }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ${dir === 'front' ? '최전면' : '최후면'} 이동 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Z이동 (R2653)</span>
+            <span onClick={() => applyZMove('front')} title="선택 노드를 형제 중 최전면(맨 뒤 배열)으로 이동 (R2653)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>▲맨앞</span>
+            <span onClick={() => applyZMove('back')} title="선택 노드를 형제 중 최후면(맨 앞 배열)으로 이동 (R2653)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>▼맨뒤</span>
+          </div>
+        )
+      })()}
       {/* R2648: 이름 알파벳순 Z-order 정렬 */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const applySortByName = async (dir: 'asc' | 'desc') => {

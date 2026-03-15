@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1645: R2653 BatchInspector Z-order 최전면/최후면 이동 ────────────
+console.log('\n## 1645. R2653 — BatchInspector Z-order 최전면/최후면 이동')
+const s1645 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1645.includes('R2653') &&
+  s1645.includes('applyZMove') &&
+  s1645.includes('최전면') &&
+  s1645.includes('최후면')
+) {
+  log('pass', 'R2653-z-move', 'R2653 Z-order 최전면/최후면 이동 구현 완료')
+} else {
+  log('warning', 'R2653-z-move', 'R2653 Z-order 최전면/최후면 이동 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1644: R2652 SceneView 비활성 노드 반투명 오버레이 ─────────────────
 console.log('\n## 1644. R2652 — SceneView 비활성 노드 반투명 오버레이')
 const s1644 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
