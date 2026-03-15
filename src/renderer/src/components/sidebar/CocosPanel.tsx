@@ -21860,6 +21860,21 @@ function CCFileNodeInspector({
                       onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fastMode: e.target.checked, _fastMode: e.target.checked, _N$fastMode: e.target.checked } } : c); applyAndSave({ components: u }) }}
                     />
                   </div>
+                  {/* R2374: timeToLive / speedThreshold */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>TTL</span>
+                    <input type="number" defaultValue={Number(p.timeToLive ?? p._timeToLive ?? 1)} min={0} step={0.1}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeToLive: v, _timeToLive: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="timeToLive (초)"
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>spdThr</span>
+                    <input type="number" defaultValue={Number(p.speedThreshold ?? p._speedThreshold ?? p._N$speedThreshold ?? 1)} min={0} step={0.5}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedThreshold: v, _speedThreshold: v, _N$speedThreshold: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="speedThreshold"
+                    />
+                  </div>
                 </div>
               )
             }
