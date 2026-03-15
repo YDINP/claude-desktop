@@ -28608,6 +28608,29 @@ if (
   log('warning', 'R2474-pin-nodes', 'R2474 핀 노드 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1470: R2476 씬뷰 HUD opacity 슬라이더 ────────────────────────────
+const s1470a = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1470a.includes('R2476') &&
+  s1470a.includes('onOpacity') &&
+  s1470a.includes('opacity 인라인 슬라이더')
+) {
+  log('pass', 'R2476-opacity-slider', 'R2476 씬뷰 HUD opacity 슬라이더 구현 완료')
+} else {
+  log('warning', 'R2476-opacity-slider', 'R2476 opacity 슬라이더 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1471: R2477 씬뷰 Escape 부모 선택 ────────────────────────────────
+if (
+  s1470a.includes('R2477') &&
+  s1470a.includes('parentUuid') &&
+  s1470a.includes('Escape')
+) {
+  log('pass', 'R2477-escape-parent', 'R2477 씬뷰 Escape 부모 노드 선택 구현 완료')
+} else {
+  log('warning', 'R2477-escape-parent', 'R2477 Escape 부모 선택 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
