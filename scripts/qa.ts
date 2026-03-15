@@ -28143,6 +28143,18 @@ if (
   log('warning', 'R2431-progressbar-enabled', 'Inspector cc.ProgressBar enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1436: R2432 Inspector cc.Label enabled ──────────
+console.log('\n## 1436. R2432 Inspector cc.Label enabled 체크')
+const s1436 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1436.includes('R2432') &&
+  s1436.includes('cc.Label')
+) {
+  log('pass', 'R2432-label-enabled', 'Inspector cc.Label enabled 구현 완료')
+} else {
+  log('warning', 'R2432-label-enabled', 'Inspector cc.Label enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

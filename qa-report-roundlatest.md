@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T13:39:36.544Z
+> 2026-03-15T13:41:10.728Z
 
 ## Critical
 _없음_
@@ -2474,3 +2474,4 @@ _없음_
 - Inspector cc.Slider enabled 구현 완료
 - Inspector cc.Scrollbar enabled 구현 완료
 - Inspector cc.ProgressBar enabled 구현 완료
+- Inspector cc.Label enabled 구현 완료
