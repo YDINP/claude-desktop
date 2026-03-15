@@ -263,6 +263,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSelOrder, setShowSelOrder] = useState(false)
   // R2641: 앵커 포인트 시각화 오버레이
   const [showAnchorDot, setShowAnchorDot] = useState(false)
+  // R2645: 선택 노드 연결선 오버레이
+  const [showSelPolyline, setShowSelPolyline] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1695,6 +1697,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showAnchorDot ? '앵커 포인트 끄기 (R2641)' : '각 노드의 앵커 포인트 십자 마커 표시 (R2641)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showAnchorDot ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showAnchorDot ? 'rgba(251,146,60,0.12)' : 'none', color: showAnchorDot ? '#fb923c' : 'var(--text-muted)' }}
         >⊕</button>
+        {/* R2645: 선택 노드 연결선 오버레이 토글 */}
+        <button
+          onClick={() => setShowSelPolyline(v => !v)}
+          title={showSelPolyline ? '선택 연결선 끄기 (R2645)' : '선택 노드 순서대로 연결선 표시 (R2645)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelPolyline ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showSelPolyline ? 'rgba(167,139,250,0.12)' : 'none', color: showSelPolyline ? '#a78bfa' : 'var(--text-muted)' }}
+        >⌇</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3147,6 +3155,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })}
 
+          {/* R2645: 선택 노드 순서 연결선 오버레이 */}
+          {showSelPolyline && uuids.length >= 2 && (() => {
+            const ordered: { x: number; y: number }[] = []
+            uuids.forEach(uid => {
+              const found = flatNodes.find(fn => fn.node.uuid === uid)
+              if (found) ordered.push(ccToSvg(found.worldX, found.worldY))
+            })
+            if (ordered.length < 2) return null
+            const pts = ordered.map(p => `${p.x},${p.y}`).join(' ')
+            const sw = 1.5 / view.zoom
+            return (
+              <polyline points={pts}
+                fill="none" stroke="rgba(167,139,250,0.7)" strokeWidth={sw}
+                strokeDasharray={`${4/view.zoom} ${2/view.zoom}`}
+                style={{ pointerEvents: 'none' }} />
+            )
+          })()}
           {/* R2629: 안전 영역 + 비율 가이드 오버레이 */}
           {showSafeZone && (() => {
             const cw = effectiveW, ch = effectiveH

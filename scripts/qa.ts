@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1637: R2645 SceneView 선택 노드 연결선 오버레이 ───────────────────
+console.log('\n## 1637. R2645 — SceneView 선택 노드 연결선 오버레이')
+const s1637 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1637.includes('R2645') &&
+  s1637.includes('showSelPolyline') &&
+  s1637.includes('setShowSelPolyline') &&
+  s1637.includes('polyline')
+) {
+  log('pass', 'R2645-sel-polyline', 'R2645 선택 노드 연결선 오버레이 구현 완료')
+} else {
+  log('warning', 'R2645-sel-polyline', 'R2645 선택 노드 연결선 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1636: R2644 BatchInspector 선택 노드 통계 패널 ────────────────────
 console.log('\n## 1636. R2644 — BatchInspector 선택 노드 통계 패널')
 const s1636 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
