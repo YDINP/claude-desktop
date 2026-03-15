@@ -19616,6 +19616,29 @@ function CCFileNodeInspector({
                       {RETURN_TYPE.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
                     </select>
                   </div>
+                  {/* R2352: lineCount + tabIndex */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginTop: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>lineCount</label>
+                      <input type="number" min={1} defaultValue={Number(p.lineCount ?? p._lineCount ?? p._N$lineCount ?? 1)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => {
+                          const v = parseInt(ev.target.value) || 1
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineCount: v, _lineCount: v, _N$lineCount: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>tabIndex</label>
+                      <input type="number" min={0} defaultValue={Number(p.tabIndex ?? p._tabIndex ?? 0)}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => {
+                          const v = parseInt(ev.target.value) || 0
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tabIndex: v, _tabIndex: v } } : c)
+                          applyAndSave({ components: updated })
+                        }} />
+                    </div>
+                  </div>
                 </div>
               )
             }

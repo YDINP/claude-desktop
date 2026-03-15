@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1356: R2352 Inspector cc.EditBox lineCount + tabIndex ──────────
+console.log('\n## 1356. R2352 Inspector cc.EditBox lineCount + tabIndex 체크')
+const s1356 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1356.includes('R2352') &&
+  s1356.includes('lineCount') &&
+  s1356.includes('tabIndex')
+) {
+  log('pass', 'R2352-editbox-linecount-tabindex', 'Inspector cc.EditBox lineCount + tabIndex 단일노드 편집 구현 완료')
+} else {
+  log('warning', 'R2352-editbox-linecount-tabindex', 'Inspector cc.EditBox lineCount + tabIndex 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1355: R2351 Inspector cc.Label strikethrough + charSpacing ──────────
 console.log('\n## 1355. R2351 Inspector cc.Label strikethrough + charSpacing 체크')
 const s1355 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
