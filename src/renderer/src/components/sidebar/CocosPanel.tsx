@@ -21179,6 +21179,12 @@ function CCFileNodeInspector({
                       title="playback speed"
                     />
                   </div>
+                  {/* R2389: playOnLoad 체크박스 */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.playOnLoad ?? p._playOnLoad ?? p._N$playOnLoad ?? false)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playOnLoad: e.target.checked, _playOnLoad: e.target.checked, _N$playOnLoad: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                    />playOnLoad
+                  </label>
                   {/* R1700: 클립 목록 + 이름 복사 */}
                   <div style={{ paddingLeft: 62 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>

@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1393: R2389 Inspector cc.Animation playOnLoad ──────────
+console.log('\n## 1393. R2389 Inspector cc.Animation playOnLoad 체크')
+const s1393 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1393.includes('R2389') &&
+  s1393.includes('playOnLoad') &&
+  s1393.includes('_N$playOnLoad') &&
+  s1393.includes('cc.Animation')
+) {
+  log('pass', 'R2389-animation-playonload', 'Inspector cc.Animation playOnLoad 구현 완료')
+} else {
+  log('warning', 'R2389-animation-playonload', 'Inspector cc.Animation playOnLoad 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1392: R2388 Inspector cc.EditBox returnType ──────────
 console.log('\n## 1392. R2388 Inspector cc.EditBox returnType 체크')
 const s1392 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
