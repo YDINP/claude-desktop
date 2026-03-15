@@ -17313,6 +17313,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2542: 선택 노드 사이즈 정수화 (⊹sz) */}
+      {sceneFile.root && uuids.length > 0 && (() => {
+        const applySzInt = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const w = n.size?.x ?? n.size?.width ?? 0
+            const h = n.size?.y ?? n.size?.height ?? 0
+            const rw = Math.round(w), rh = Math.round(h)
+            if (rw === w && rh === h) return { ...n, children: ch }
+            const newSize = { ...(n.size ?? {}), x: rw, y: rh, width: rw, height: rh }
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: rw, height: rh }, _contentSize: { width: rw, height: rh } } } : c)
+            return { ...n, size: newSize, components: updComps, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 사이즈 정수화 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>⊹sz (R2542)</span>
+            <span onClick={applySzInt} title="선택 노드 size.x/y Math.round() 정수화 (R2542)"
+              style={{ fontSize: 8, padding: '1px 6px', cursor: 'pointer', border: '1px solid rgba(74,222,128,0.4)', borderRadius: 2, color: '#4ade80', userSelect: 'none', background: 'rgba(74,222,128,0.05)' }}>정수화</span>
+          </div>
+        )
+      })()}
       {/* R2541: 스케일 1:1 리셋 + 회전 0° 리셋 (일괄) */}
       {sceneFile.root && uuids.length > 0 && (() => {
         const applyReset = async (mode: 'scale' | 'rot') => {

@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1534: R2542 BatchInspector 사이즈 정수화 ─────────────────────────
+console.log('\n## 1534. R2542 — BatchInspector 사이즈 정수화 (⊹sz)')
+const s1534 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1534.includes('R2542') &&
+  s1534.includes('applySzInt') &&
+  s1534.includes('⊹sz') &&
+  s1534.includes('사이즈 정수화')
+) {
+  log('pass', 'R2542-sz-int', 'R2542 사이즈 정수화 구현 완료')
+} else {
+  log('warning', 'R2542-sz-int', 'R2542 사이즈 정수화 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1533: R2541 BatchInspector 스케일/회전 리셋 버튼 ──────────────────
 console.log('\n## 1533. R2541 — BatchInspector 스케일 1:1 + 회전 0° 일괄 리셋')
 const s1533 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
