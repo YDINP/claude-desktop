@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1609: R2617 SceneView 원점(0,0) 십자선 오버레이 ─────────────────
+console.log('\n## 1609. R2617 — SceneView 원점(0,0) 십자선 오버레이')
+const s1609 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1609.includes('R2617') &&
+  s1609.includes('showOriginCross') &&
+  s1609.includes('setShowOriginCross')
+) {
+  log('pass', 'R2617-origin-cross', 'R2617 원점 십자선 오버레이 구현 완료')
+} else {
+  log('warning', 'R2617-origin-cross', 'R2617 원점 십자선 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1608: R2616 BatchInspector position Z 균등 분배 ──────────────────
 console.log('\n## 1608. R2616 — BatchInspector position Z 균등 분배')
 const s1608 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

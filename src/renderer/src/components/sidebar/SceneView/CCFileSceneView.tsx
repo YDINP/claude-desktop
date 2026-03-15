@@ -243,6 +243,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showRotArrow, setShowRotArrow] = useState(false)
   // R2615: W×H 크기 표시 오버레이
   const [showSizeOverlay, setShowSizeOverlay] = useState(false)
+  // R2617: 원점(0,0) 십자선 오버레이
+  const [showOriginCross, setShowOriginCross] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1615,6 +1617,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSizeOverlay ? 'W×H 크기 표시 끄기 (R2615)' : '노드 W×H 크기 텍스트 표시 (R2615)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeOverlay ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showSizeOverlay ? 'rgba(34,211,238,0.12)' : 'none', color: showSizeOverlay ? '#22d3ee' : 'var(--text-muted)' }}
         >WH</button>
+        {/* R2617: 원점(0,0) 십자선 토글 */}
+        <button
+          onClick={() => setShowOriginCross(v => !v)}
+          title={showOriginCross ? '원점 십자선 끄기 (R2617)' : 'CC 좌표 (0,0) 원점 십자선 표시 (R2617)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOriginCross ? 'rgba(74,222,128,0.5)' : 'var(--border)'}`, background: showOriginCross ? 'rgba(74,222,128,0.12)' : 'none', color: showOriginCross ? '#4ade80' : 'var(--text-muted)' }}
+        >⊕</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2978,6 +2986,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })}
 
+          {/* R2617: 원점(0,0) 십자선 */}
+          {showOriginCross && (() => {
+            const arm = Math.max(20, Math.min(effectiveW, effectiveH) * 0.1) / view.zoom
+            const fs = Math.max(6, 9 / view.zoom)
+            return (
+              <>
+                <line x1={cx - arm} y1={cy} x2={cx + arm} y2={cy}
+                  stroke="rgba(74,222,128,0.7)" strokeWidth={1 / view.zoom} style={{ pointerEvents: 'none' }} />
+                <line x1={cx} y1={cy - arm} x2={cx} y2={cy + arm}
+                  stroke="rgba(74,222,128,0.7)" strokeWidth={1 / view.zoom} style={{ pointerEvents: 'none' }} />
+                <circle cx={cx} cy={cy} r={3 / view.zoom}
+                  fill="rgba(74,222,128,0.9)" style={{ pointerEvents: 'none' }} />
+                <text x={cx + 4 / view.zoom} y={cy - 3 / view.zoom}
+                  fontSize={fs} fill="rgba(74,222,128,0.9)" fontFamily="monospace"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                >(0,0)</text>
+              </>
+            )
+          })()}
           {/* R2607: 중복 이름 노드 강조 */}
           {showDupNameOverlay && (() => {
             const nameCount = new Map<string, number>()
