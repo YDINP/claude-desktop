@@ -110,11 +110,11 @@ export function detectCCVersion(rootPath: string): CCFileProjectInfo {
 }
 
 /** assets 폴더에서 씬/프리팹 파일 목록 재귀 탐색 (최대 50개) */
-function findSceneFiles(assetsDir: string, ext: string): string[] {
-  // ISSUE-06 fix: 씬 파일과 프리팹을 별도로 스캔해 씬이 누락되지 않도록
+// R2452 ISSUE-011: .fire/.scene 모두 스캔 (버전 오감지 시 씬 누락 방지)
+function findSceneFiles(assetsDir: string, _ext: string): string[] {
   const scenes: string[] = []
   const prefabs: string[] = []
-  try { walkDir(assetsDir, [ext], scenes) } catch { /* ignore */ }
+  try { walkDir(assetsDir, ['.fire', '.scene'], scenes) } catch { /* ignore */ }
   try { walkDir(assetsDir, ['.prefab'], prefabs) } catch { /* ignore */ }
   return [...scenes, ...prefabs]
 }

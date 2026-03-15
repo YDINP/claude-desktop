@@ -315,6 +315,9 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     localStorage.setItem(CC_FAV_KEY, JSON.stringify(next))
   }
   const [selectedScene, setSelectedScene] = useState<string>('')
+  // R2452: sceneFile 변경 시 드롭다운 sync (자동 로드 후 표시 정합성)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (sceneFile?.scenePath) setSelectedScene(sceneFile.scenePath) }, [sceneFile?.scenePath])
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
   // R1501: 마지막 저장 diff 로컬 상태
@@ -902,6 +905,19 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     })
   }, [ccCtxInject, sceneFile?.scenePath, projectInfo?.version, selectedNode?.uuid, selectedNode?.name, selectedNode?.components])
 
+  // R2452: 프로젝트 로드 후 마지막 씬 자동 열기
+  useEffect(() => {
+    if (!projectInfo?.projectPath || sceneFile) return
+    const lastScene = localStorage.getItem(`cc-last-scene-${projectInfo.projectPath}`)
+    if (lastScene && projectInfo.scenes?.includes(lastScene)) {
+      loadScene(lastScene)
+    } else {
+      const match = recentSceneFiles.find(p => projectInfo.scenes?.includes(p))
+      if (match) loadScene(match)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectInfo?.projectPath])
+
   // R1390: 프로젝트 설정 로드
   useEffect(() => {
     if (!projectInfo?.projectPath) { setProjectSettings(null); return }
@@ -1000,8 +1016,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
   const handleSceneChange = useCallback(async (path: string) => {
     setSelectedScene(path)
-    if (path) { await loadScene(path); addRecent(path); addRecentScene(path) }
-  }, [loadScene, addRecent, addRecentScene])
+    if (path) {
+      await loadScene(path); addRecent(path); addRecentScene(path)
+      // R2452: 프로젝트별 마지막 씬 저장
+      if (projectInfo?.projectPath) localStorage.setItem(`cc-last-scene-${projectInfo.projectPath}`, path)
+    }
+  }, [loadScene, addRecent, addRecentScene, projectInfo?.projectPath])
 
   const handleTreeDelete = useCallback(async (nodeUuid: string) => {
     if (!sceneFile?.root || sceneFile.root.uuid === nodeUuid) return
