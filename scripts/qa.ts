@@ -28932,6 +28932,18 @@ if (
   log('warning', 'R2503-align-distrib', 'R2503 정렬/분배 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1496: R2504 BatchInspector 노드 이름 일련번호 ──────────────────────────
+const s1496 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1496.includes('R2504') &&
+  s1496.includes('applySerial') &&
+  s1496.includes('applyStrip')
+) {
+  log('pass', 'R2504-serial-name', 'R2504 BatchInspector 노드 이름 일련번호 구현 완료')
+} else {
+  log('warning', 'R2504-serial-name', 'R2504 이름 번호 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -4411,6 +4411,52 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2504: 노드 이름 일련번호 매기기 (2+ 노드) */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applySerial = async (mode: 'append' | 'replace') => {
+          if (!sceneFile.root) return
+          const ns: CCSceneNode[] = []
+          function coll(n: CCSceneNode) { if (uuidSet.has(n.uuid)) ns.push(n); n.children.forEach(coll) }
+          coll(sceneFile.root)
+          if (ns.length < 2) return
+          // 순서 유지: 씬 트리 DFS 순서 그대로
+          const nameMap = new Map(ns.map((n, i) => {
+            const pad = String(i + 1).padStart(2, '0')
+            const base = mode === 'replace' ? n.name.replace(/_\d+$/, '') : n.name
+            return [n.uuid, `${base}_${pad}`]
+          }))
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!nameMap.has(n.uuid)) return { ...n, children }
+            return { ...n, name: nameMap.get(n.uuid)!, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 이름 ${ns.length}개 번호 매기기 완료`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const applyStrip = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, name: n.name.replace(/_\d+$/, ''), children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg('✓ 접미어 제거 완료')
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs: React.CSSProperties = { fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.3)', background: 'rgba(251,146,60,0.07)', color: '#fb923c', lineHeight: 1.6 }
+        return (
+          <div style={{ marginBottom: 6, padding: '3px 6px', background: 'rgba(251,146,60,0.04)', border: '1px solid rgba(251,146,60,0.15)', borderRadius: 4 }}>
+            <div style={{ fontSize: 9, color: '#fb923c', fontWeight: 600, marginBottom: 3 }}>① 이름 번호 (R2504)</div>
+            <div style={{ display: 'flex', gap: 3 }}>
+              <span style={bs} onClick={() => applySerial('append')} title="현재 이름 뒤에 _01, _02... 추가">+번호</span>
+              <span style={bs} onClick={() => applySerial('replace')} title="기존 _숫자 접미어 제거 후 새 번호 부여">교체</span>
+              <span style={{ ...bs, color: '#888', borderColor: '#444' }} onClick={applyStrip} title="이름 끝의 _숫자 접미어 제거">-번호</span>
+            </div>
+          </div>
+        )
+      })()}
       {/* R2503: 정렬/분배 도구 (2+ 노드) */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const applyAlign = async (axis: 'x' | 'y', mode: 'min' | 'max' | 'center' | 'distrib') => {
