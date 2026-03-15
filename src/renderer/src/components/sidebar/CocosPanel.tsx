@@ -19906,6 +19906,45 @@ function CCFileNodeInspector({
                       )}
                     </div>
                   ))}
+                  {/* R2354: isAlignHorizontalCenter / isAlignVerticalCenter 편집 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={isHCenter}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isAlignHorizontalCenter: e.target.checked, _isAlignHorizontalCenter: e.target.checked, _N$isAlignHorizontalCenter: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                      />H-center
+                    </label>
+                    {isHCenter && (
+                      <input type="number" defaultValue={Number(p.horizontalCenter ?? p._N$horizontalCenter ?? 0)} step={1}
+                        onBlur={ev => {
+                          const v = parseFloat(ev.target.value) || 0
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalCenter: v, _horizontalCenter: v, _N$horizontalCenter: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      />
+                    )}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={isVCenter}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isAlignVerticalCenter: e.target.checked, _isAlignVerticalCenter: e.target.checked, _N$isAlignVerticalCenter: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                      />V-center
+                    </label>
+                    {isVCenter && (
+                      <input type="number" defaultValue={Number(p.verticalCenter ?? p._N$verticalCenter ?? 0)} step={1}
+                        onBlur={ev => {
+                          const v = parseFloat(ev.target.value) || 0
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, verticalCenter: v, _verticalCenter: v, _N$verticalCenter: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      />
+                    )}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>mode</span>
                     <select value={alignMode}

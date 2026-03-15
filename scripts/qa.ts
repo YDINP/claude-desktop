@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1358: R2354 Inspector cc.Widget HCenter/VCenter ──────────
+console.log('\n## 1358. R2354 Inspector cc.Widget isAlignHorizontalCenter/VerticalCenter 체크')
+const s1358 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1358.includes('R2354') &&
+  s1358.includes('isAlignHorizontalCenter') &&
+  s1358.includes('isAlignVerticalCenter')
+) {
+  log('pass', 'R2354-widget-hcenter-vcenter', 'Inspector cc.Widget H/V-center 체크박스 편집 구현 완료')
+} else {
+  log('warning', 'R2354-widget-hcenter-vcenter', 'Inspector cc.Widget H/V-center 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1357: R2353 Inspector cc.RichText fontColor ──────────
 console.log('\n## 1357. R2353 Inspector cc.RichText fontColor 체크')
 const s1357 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
