@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1326: R2322 씬 파일명 클릭으로 탐색기 열기 ──────────
+console.log('\n## 1326. R2322 씬 파일명 클릭 탐색기 체크')
+const s1326 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1326.includes('R2322') &&
+  s1326.includes("explorer /select") &&
+  s1326.includes('탐색기에서 열기')
+) {
+  log('pass', 'R2322-scene-explorer-open', '씬 파일명 클릭 → 탐색기 열기 구현 완료')
+} else {
+  log('warning', 'R2322-scene-explorer-open', 'R2322 씬 탐색기 열기 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1325: R2321 undo/redo 스택 카운터 표시 ──────────
 console.log('\n## 1325. R2321 undo/redo 카운터 체크')
 const s1325hook = readFileSync(join(ROOT, 'src/renderer/src/hooks/useCCFileProject.ts'), 'utf-8')

@@ -2919,7 +2919,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               const topComps = Object.entries(statsMap).sort((a, b) => b[1] - a[1]).slice(0, 4)
               return (
                 <div style={{ padding: '2px 6px', fontSize: 9, color: '#555', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {/* R2322: 클릭으로 파일 탐색기에서 열기 */}
+                  <div
+                    style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer' }}
+                    title={`탐색기에서 열기: ${sceneFile.scenePath}`}
+                    onClick={() => {
+                      const winPath = sceneFile.scenePath.replace(/\//g, '\\')
+                      window.api.shellExec?.(`explorer /select,"${winPath}"`)
+                    }}
+                  >
                     {sceneFile.scenePath.split(/[\\/]/).pop()}
                   </div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 1 }}>
