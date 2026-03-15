@@ -1519,13 +1519,22 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     const lq = q.toLowerCase()
     // R2325: UUID 검색 지원 — `#uuid-prefix` 또는 순수 hex+dash 패턴으로 UUID 부분 매칭
     const uuidQuery = q.startsWith('#') ? q.slice(1).toLowerCase() : (/^[0-9a-f\-]{6,}$/i.test(q) ? lq : null)
+    // R2469: text: 또는 t: 접두어로 Label 텍스트 검색 모드
+    const textQuery = q.startsWith('text:') ? q.slice(5).toLowerCase() : q.startsWith('t:') ? q.slice(2).toLowerCase() : null
     const found: Array<{ node: CCSceneNode; path: string }> = []
     function walk(n: CCSceneNode, parentPath: string): void {
       const currentPath = parentPath ? `${parentPath}/${n.name}` : n.name
-      const nameMatch = n.name.toLowerCase().includes(lq)
-      const compMatch = n.components.some(c => c.type.toLowerCase().includes(lq))
-      const uuidMatch = uuidQuery ? n.uuid.toLowerCase().startsWith(uuidQuery) || n.uuid.toLowerCase().includes(uuidQuery) : false
-      if (nameMatch || compMatch || uuidMatch) found.push({ node: n, path: currentPath })
+      const nameMatch = !textQuery && n.name.toLowerCase().includes(lq)
+      const compMatch = !textQuery && n.components.some(c => c.type.toLowerCase().includes(lq))
+      const uuidMatch = !textQuery && (uuidQuery ? n.uuid.toLowerCase().startsWith(uuidQuery) || n.uuid.toLowerCase().includes(uuidQuery) : false)
+      // R2469: Label/RichText 텍스트 내용 검색
+      const effectiveTextQ = textQuery ?? lq
+      const labelMatch = n.components.some(c => {
+        if (!c.type.includes('Label') && !c.type.includes('Text')) return false
+        const str = String(c.props.string ?? c.props['_N$string'] ?? c.props.text ?? '')
+        return str.toLowerCase().includes(effectiveTextQ)
+      })
+      if (nameMatch || compMatch || uuidMatch || (textQuery ? labelMatch : false)) found.push({ node: n, path: currentPath })
       for (const child of n.children) walk(child, currentPath)
     }
     walk(sceneFile.root, '')
@@ -2009,7 +2018,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onKeyDown={e => {
                 if (e.key === 'Escape') { setGlobalSearchOpen(false); setGlobalSearchQuery(''); setGlobalSearchResults([]) }
               }}
-              placeholder="노드 이름 / 컴포넌트 / UUID(#접두어) 검색... (Esc 닫기)"
+              placeholder="노드 이름 / 컴포넌트 / UUID(#) / 텍스트(text:) 검색... (Esc 닫기)"
               style={{
                 flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
                 color: 'var(--text-primary)', borderRadius: 3, padding: '3px 6px', fontSize: 10, boxSizing: 'border-box',
