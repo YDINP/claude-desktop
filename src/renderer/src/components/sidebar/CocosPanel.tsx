@@ -17360,6 +17360,10 @@ function CCFileNodeInspector({
     catch { return new Set() }
   })
   const [expandedArrayProps, setExpandedArrayProps] = useState<Set<string>>(new Set())
+  // R2487: Raw JSON 인라인 편집 상태
+  const [jsonEditMode, setJsonEditMode] = useState(false)
+  const [jsonEditText, setJsonEditText] = useState('')
+  const [jsonEditErr, setJsonEditErr] = useState('')
   const [lockScale, setLockScale] = useState(false)
   const [lockSize, setLockSize] = useState(false)  // R1593: 크기 비율 잠금
   // R1617: 트랜스폼 복사/붙여넣기 클립보드
@@ -25972,19 +25976,16 @@ function CCFileNodeInspector({
       {/* R1497: Raw JSON 뷰 / R2487: 인라인 편집 */}
       {secHeader('rawJson', 'Raw JSON')}
       {!collapsed['rawJson'] && (() => {
-        const [jsonEdit, setJsonEdit] = React.useState(false)
-        const [jsonText, setJsonText] = React.useState('')
-        const [jsonErr, setJsonErr] = React.useState('')
         const jsonObj = {
           uuid: draft.uuid, name: draft.name, active: draft.active,
           position: draft.position, rotation: draft.rotation, scale: draft.scale,
           size: draft.size, anchor: draft.anchor, opacity: draft.opacity,
           color: draft.color, components: draft.components.map(c => ({ type: c.type, props: c.props })),
         }
-        const startEdit = () => { setJsonText(JSON.stringify(jsonObj, null, 2)); setJsonErr(''); setJsonEdit(true) }
+        const startEdit = () => { setJsonEditText(JSON.stringify(jsonObj, null, 2)); setJsonEditErr(''); setJsonEditMode(true) }
         const applyJson = () => {
           try {
-            const parsed = JSON.parse(jsonText)
+            const parsed = JSON.parse(jsonEditText)
             const patch: Partial<CCSceneNode> = {}
             if (parsed.name !== undefined) patch.name = String(parsed.name)
             if (parsed.active !== undefined) patch.active = Boolean(parsed.active)
@@ -25997,21 +25998,21 @@ function CCFileNodeInspector({
             if (parsed.color !== undefined) patch.color = parsed.color
             if (Array.isArray(parsed.components)) patch.components = parsed.components
             applyAndSave(patch)
-            setJsonEdit(false); setJsonErr('')
-          } catch (e) { setJsonErr(String(e)) }
+            setJsonEditMode(false); setJsonEditErr('')
+          } catch (e) { setJsonEditErr(String(e)) }
         }
         return (
           <div style={{ marginTop: 4 }}>
-            {jsonEdit ? (
+            {jsonEditMode ? (
               <>
                 <textarea
-                  value={jsonText} onChange={e => { setJsonText(e.target.value); setJsonErr('') }}
-                  style={{ width: '100%', minHeight: 160, fontSize: 8, fontFamily: 'monospace', background: 'rgba(0,0,0,0.3)', border: `1px solid ${jsonErr ? '#f85149' : '#334'}`, color: '#aac', borderRadius: 3, padding: '4px 6px', boxSizing: 'border-box', resize: 'vertical' }}
+                  value={jsonEditText} onChange={e => { setJsonEditText(e.target.value); setJsonEditErr('') }}
+                  style={{ width: '100%', minHeight: 160, fontSize: 8, fontFamily: 'monospace', background: 'rgba(0,0,0,0.3)', border: `1px solid ${jsonEditErr ? '#f85149' : '#334'}`, color: '#aac', borderRadius: 3, padding: '4px 6px', boxSizing: 'border-box', resize: 'vertical' }}
                 />
-                {jsonErr && <div style={{ fontSize: 8, color: '#f85149', marginTop: 2 }}>{jsonErr}</div>}
+                {jsonEditErr && <div style={{ fontSize: 8, color: '#f85149', marginTop: 2 }}>{jsonEditErr}</div>}
                 <div style={{ display: 'flex', gap: 4, marginTop: 3 }}>
                   <button onClick={applyJson} style={{ fontSize: 9, padding: '1px 7px', borderRadius: 3, cursor: 'pointer', background: 'rgba(88,166,255,0.15)', border: '1px solid #334a6a', color: '#58a6ff' }}>적용 (R2487)</button>
-                  <button onClick={() => { setJsonEdit(false); setJsonErr('') }} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', background: 'transparent', border: '1px solid #444', color: '#666' }}>취소</button>
+                  <button onClick={() => { setJsonEditMode(false); setJsonEditErr('') }} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', background: 'transparent', border: '1px solid #444', color: '#666' }}>취소</button>
                 </div>
               </>
             ) : (

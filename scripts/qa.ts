@@ -28724,8 +28724,8 @@ const s1479 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/Cocos
 if (
   s1479.includes('R2487') &&
   s1479.includes('applyJson') &&
-  s1479.includes('jsonEdit') &&
-  s1479.includes('jsonText')
+  s1479.includes('jsonEditMode') &&
+  s1479.includes('jsonEditText')
 ) {
   log('pass', 'R2487-json-edit', 'R2487 Inspector Raw JSON 인라인 편집 구현 완료')
 } else {
