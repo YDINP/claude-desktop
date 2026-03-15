@@ -217,6 +217,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showOpacityLabels, setShowOpacityLabels] = useState(false)
   // R2579: 컴포넌트 배지 오버레이
   const [showCompBadges, setShowCompBadges] = useState(false)
+  // R2583: 회전값 레이블 오버레이 (∠°)
+  const [showRotLabels, setShowRotLabels] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1511,6 +1513,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showCompBadges ? '컴포넌트 배지 끄기 (R2579)' : '노드별 컴포넌트 아이콘 배지 표시 (R2579)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompBadges ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showCompBadges ? 'rgba(250,204,21,0.12)' : 'none', color: showCompBadges ? '#facc15' : 'var(--text-muted)' }}
         >⚙</button>
+        {/* R2583: 회전값 레이블 오버레이 토글 */}
+        <button
+          onClick={() => setShowRotLabels(v => !v)}
+          title={showRotLabels ? '회전 레이블 끄기 (R2583)' : '비영(非零) 회전 노드에 ∠° 표시 (R2583)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotLabels ? 'rgba(236,72,153,0.5)' : 'var(--border)'}`, background: showRotLabels ? 'rgba(236,72,153,0.12)' : 'none', color: showRotLabels ? '#ec4899' : 'var(--text-muted)' }}
+        >∠°</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2282,6 +2290,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(52,211,153,0.85)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{sw}×{sh}</text>
+                  )
+                })()}
+                {/* R2583: 회전값 ∠° 오버레이 */}
+                {showRotLabels && view.zoom > 0.3 && (() => {
+                  const rot = node.rotation
+                  const deg = typeof rot === 'number' ? rot : (rot as { z?: number })?.z ?? 0
+                  if (Math.abs(deg) < 0.5) return null
+                  const fs = Math.max(6, 9 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + fs * 0.3} y={rectY + h - fs * 0.5}
+                      textAnchor="start"
+                      fontSize={fs} fill="rgba(236,72,153,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >∠{Math.round(deg)}°</text>
                   )
                 })()}
                 {/* R2578: 노드 불투명도 α% 오버레이 */}

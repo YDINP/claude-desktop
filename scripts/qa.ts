@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1575: R2583 SceneView 회전값 레이블 오버레이 (∠°) ───────────────
+console.log('\n## 1575. R2583 — SceneView 회전값 레이블 오버레이 (∠°)')
+const s1575sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1575sv.includes('R2583') &&
+  s1575sv.includes('showRotLabels') &&
+  s1575sv.includes('∠°')
+) {
+  log('pass', 'R2583-rot-overlay', 'R2583 회전값 레이블 오버레이 구현 완료')
+} else {
+  log('warning', 'R2583-rot-overlay', 'R2583 회전값 레이블 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1574: R2582 BatchInspector 위치 순 Z-order 재정렬 (X↗/Y↗) ────────
 console.log('\n## 1574. R2582 — BatchInspector 위치 순 Z-order 재정렬 (X↗/Y↗)')
 const s1574 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
