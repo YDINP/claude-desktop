@@ -19251,6 +19251,18 @@ function CCFileNodeInspector({
                       style={{ margin: 0, accentColor: '#818cf8' }}
                     />affectedByScale
                   </label>
+                  {/* R2410: wrapMode (BatchInspector R2057) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>wrapMode</span>
+                    {([['NoWrap', 0], ['Wrap', 1], ['1Line', 2]] as const).map(([l, v]) => {
+                      const cur = Number(p.wrapMode ?? p._wrapMode ?? p._N$wrapMode ?? 0)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, wrapMode: v, _wrapMode: v, _N$wrapMode: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                 </div>
               )
             }

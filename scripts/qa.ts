@@ -27834,6 +27834,20 @@ if (
   log('warning', 'R2409-layout-affectedbyscale', 'Inspector cc.Layout affectedByScale 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1414: R2410 Inspector cc.Layout wrapMode ──────────
+console.log('\n## 1414. R2410 Inspector cc.Layout wrapMode 체크')
+const s1414 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1414.includes('R2410') &&
+  s1414.includes('wrapMode') &&
+  s1414.includes('_N$wrapMode') &&
+  s1414.includes('cc.Layout')
+) {
+  log('pass', 'R2410-layout-wrapmode', 'Inspector cc.Layout wrapMode 구현 완료')
+} else {
+  log('warning', 'R2410-layout-wrapmode', 'Inspector cc.Layout wrapMode 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
