@@ -18391,6 +18391,47 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2627: cc.Label 텍스트 일련번호 추가 — 선택 Label 노드에 1,2,3... 순번 붙이기 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const hasLabelNode = uuids.some(u => {
+          let found = false
+          function find(n: CCSceneNode) { if (n.uuid === u) { found = n.components.some(c => c.type === 'cc.Label'); return }; n.children.forEach(find) }
+          find(sceneFile.root!)
+          return found
+        })
+        if (!hasLabelNode) return null
+        const applyLabelSerial = async (mode: 'append' | 'replace') => {
+          if (!sceneFile.root) return
+          let counter = 1
+          const orderedUuids = uuids
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children: ch }
+            const hasLabel = n.components.some(c => c.type === 'cc.Label')
+            if (!hasLabel) return { ...n, children: ch }
+            const num = counter++
+            const comps = n.components.map(c => {
+              if (c.type !== 'cc.Label') return c
+              const cur = (c.props?.string as string | undefined) ?? ''
+              const newStr = mode === 'append' ? `${cur}${num}` : String(num)
+              return { ...c, props: { ...c.props, string: newStr } }
+            })
+            return { ...n, components: comps, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ Label 순번 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs: React.CSSProperties = { fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#67e8f9', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>L순번 (R2627)</span>
+            <span onClick={() => applyLabelSerial('append')} title="Label 텍스트 뒤에 순번 추가 (R2627)" style={bs}>+번호</span>
+            <span onClick={() => applyLabelSerial('replace')} title="Label 텍스트를 순번으로 교체 (R2627)" style={{ ...bs, color: '#f9a8d4' }}>번호만</span>
+          </div>
+        )
+      })()}
       {/* R2538: 랜덤 색상 할당 — 선택 노드 각각에 서로 다른 색상 적용 */}
       {sceneFile.root && uuids.length >= 1 && (() => {
         const palette = ['#ff6b6b','#ffa94d','#ffd43b','#69db7c','#38d9a9','#4dabf7','#748ffc','#da77f2','#f783ac','#a9e34b']

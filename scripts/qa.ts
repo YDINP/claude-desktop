@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1619: R2627 BatchInspector Label 텍스트 일련번호 추가 ────────────
+console.log('\n## 1619. R2627 — BatchInspector Label 텍스트 일련번호 추가')
+const s1619 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1619.includes('R2627') &&
+  s1619.includes('applyLabelSerial') &&
+  s1619.includes('L순번')
+) {
+  log('pass', 'R2627-label-serial', 'R2627 Label 텍스트 일련번호 추가 구현 완료')
+} else {
+  log('warning', 'R2627-label-serial', 'R2627 Label 텍스트 일련번호 추가 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1618: R2626 BatchInspector 무지개 색상 분배 ──────────────────────
 console.log('\n## 1618. R2626 — BatchInspector 무지개 색상 분배')
 const s1618 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
