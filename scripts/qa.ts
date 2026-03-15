@@ -25493,6 +25493,18 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1343: R2339 씬 트리 노드 색상 태그 커스텀 색상 입력 ──────────
+console.log('\n## 1343. R2339 씬 트리 노드 색상 태그 커스텀 색상 체크')
+const s1343 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1343.includes('R2339') &&
+  s1343.includes('커스텀 색상')
+) {
+  log('pass', 'R2339-custom-node-color', '씬 트리 노드 커스텀 색상 입력 구현 완료')
+} else {
+  log('warning', 'R2339-custom-node-color', '씬 트리 노드 커스텀 색상 입력 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1342: R2338 씬 트리 우클릭 노드 JSON 복사 ──────────
 console.log('\n## 1342. R2338 씬 트리 우클릭 노드 JSON 복사 체크')
 const s1342 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

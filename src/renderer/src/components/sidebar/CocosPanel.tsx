@@ -3606,6 +3606,15 @@ function CCFileSceneTree({
                   fontSize: 9, color: 'var(--text-muted)', boxSizing: 'border-box',
                 }}
               >✕</div>
+              {/* R2339: 커스텀 색상 입력 */}
+              <input
+                type="color"
+                value={nodeColors?.[node.uuid] ?? '#ffffff'}
+                title="커스텀 색상 선택"
+                onChange={e => { onNodeColorChange?.(node.uuid, e.target.value); }}
+                onClick={e => e.stopPropagation()}
+                style={{ width: 16, height: 16, borderRadius: '50%', border: '1px solid var(--border)', padding: 0, cursor: 'pointer', flexShrink: 0 }}
+              />
             </div>
           </div>
         </div>
