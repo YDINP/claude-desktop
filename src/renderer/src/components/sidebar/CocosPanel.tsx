@@ -20809,6 +20809,37 @@ function CCFileNodeInspector({
                       ))}
                     </div>
                   )}
+                  {/* R2371: CC3.x Label enableGradient + colorTop + colorBottom */}
+                  {(() => {
+                    const enableGradient = !!(p.enableGradient ?? p._enableGradient ?? false)
+                    const ct = p.colorTop ?? p._colorTop as { r?: number; g?: number; b?: number } | undefined
+                    const cb = p.colorBottom ?? p._colorBottom as { r?: number; g?: number; b?: number } | undefined
+                    const ctHex = ct ? `#${((ct.r ?? 255) << 16 | (ct.g ?? 255) << 8 | (ct.b ?? 255)).toString(16).padStart(6, '0')}` : '#ffffff'
+                    const cbHex = cb ? `#${((cb.r ?? 0) << 16 | (cb.g ?? 0) << 8 | (cb.b ?? 0)).toString(16).padStart(6, '0')}` : '#000000'
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>gradient</span>
+                        <span title={enableGradient ? 'gradient 비활성' : 'gradient 활성'}
+                          onClick={() => { const nv = !enableGradient; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableGradient: nv, _enableGradient: nv } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableGradient ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: enableGradient ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{enableGradient ? 'ON' : 'OFF'}</span>
+                        {enableGradient && (<>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>top</span>
+                          <input type="color" defaultValue={ctHex}
+                            style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
+                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, colorTop: col, _colorTop: col } } : c); applyAndSave({ components: u }) }}
+                            title="colorTop"
+                          />
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>bot</span>
+                          <input type="color" defaultValue={cbHex}
+                            style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
+                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, colorBottom: col, _colorBottom: col } } : c); applyAndSave({ components: u }) }}
+                            title="colorBottom"
+                          />
+                        </>)}
+                      </div>
+                    )
+                  })()}
                   {/* R2370: CC3.x Label enableShadow + shadowColor + shadowBlur */}
                   {(() => {
                     const enableShadow = !!(p.enableShadow ?? p._enableShadow ?? false)

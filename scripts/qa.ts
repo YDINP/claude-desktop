@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1375: R2371 Inspector cc.Label enableGradient/colorTop/colorBottom (CC3.x) ──────────
+console.log('\n## 1375. R2371 Inspector cc.Label enableGradient/colorTop/colorBottom 체크')
+const s1375 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1375.includes('R2371') &&
+  s1375.includes('enableGradient') &&
+  s1375.includes('colorTop') &&
+  s1375.includes('colorBottom') &&
+  s1375.includes('_enableGradient')
+) {
+  log('pass', 'R2371-label-gradient', 'Inspector cc.Label enableGradient/colorTop/colorBottom 구현 완료')
+} else {
+  log('warning', 'R2371-label-gradient', 'Inspector cc.Label enableGradient 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1374: R2370 Inspector cc.Label enableShadow/shadowBlur/shadowColor (CC3.x) ──────────
 console.log('\n## 1374. R2370 Inspector cc.Label enableShadow/shadowBlur/shadowColor 체크')
 const s1374 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
