@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1557: R2565 BatchInspector Z축 오프셋 (dZ) ───────────────────────
+console.log('\n## 1557. R2565 — BatchInspector Z축 오프셋 (dZ)')
+const s1557 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1557.includes('R2565') &&
+  s1557.includes('batchDz') &&
+  s1557.includes('setBatchDz') &&
+  s1557.includes('dZ')
+) {
+  log('pass', 'R2565-batch-dz', 'R2565 Z축 오프셋 구현 완료')
+} else {
+  log('warning', 'R2565-batch-dz', 'R2565 Z축 오프셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1556: R2564 NodeInspector 스케일 클립보드 (Sc↑/Sc↓) ─────────────
 console.log('\n## 1556. R2564 — NodeInspector 스케일 클립보드 (Sc↑/Sc↓)')
 const s1556 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

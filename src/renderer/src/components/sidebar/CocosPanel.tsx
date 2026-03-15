@@ -4245,6 +4245,8 @@ function CCFileBatchInspector({
   const [batchActive, setBatchActive] = useState<'active' | 'inactive' | ''>('')
   const [batchDx, setBatchDx] = useState<string>('')
   const [batchDy, setBatchDy] = useState<string>('')
+  // R2565: Z축 오프셋 (CC3.x 3D 씬 지원)
+  const [batchDz, setBatchDz] = useState<string>('')
   // R2491: 범용 컴포넌트 prop 일괄 편집
   const [genericCompType, setGenericCompType] = useState<string>('')
   const [genericPropName, setGenericPropName] = useState<string>('')
@@ -4357,6 +4359,8 @@ function CCFileBatchInspector({
     const active = batchActive !== '' ? batchActive === 'active' : null
     const dx = batchDx !== '' ? parseFloat(batchDx) : null
     const dy = batchDy !== '' ? parseFloat(batchDy) : null
+    // R2565: Z오프셋
+    const dz = batchDz !== '' ? parseFloat(batchDz) : null
     // R1553: 스케일/사이즈
     const scaleX = batchScaleX !== '' ? parseFloat(batchScaleX) : null
     const scaleY = batchScaleY !== '' ? parseFloat(batchScaleY) : null
@@ -4370,16 +4374,16 @@ function CCFileBatchInspector({
     }
     // R1706: 회전
     const rot = batchRot !== '' ? parseFloat(batchRot) : null
-    if (opacity == null && active == null && dx == null && dy == null && scaleX == null && scaleY == null && sizeW == null && sizeH == null && !colorRgb && rot == null) { setBatchMsg('변경 항목 없음'); return }
+    if (opacity == null && active == null && dx == null && dy == null && dz == null && scaleX == null && scaleY == null && sizeW == null && sizeH == null && !colorRgb && rot == null) { setBatchMsg('변경 항목 없음'); return }
 
     function applyNode(n: CCSceneNode): CCSceneNode {
       if (uuidSet.has(n.uuid)) {
         let updated = { ...n }
         if (opacity != null) updated = { ...updated, opacity }
         if (active != null) updated = { ...updated, active }
-        if (dx != null || dy != null) {
+        if (dx != null || dy != null || dz != null) {
           const pos = n.position as { x: number; y: number; z?: number }
-          updated = { ...updated, position: { ...pos, x: pos.x + (dx ?? 0), y: pos.y + (dy ?? 0) } }
+          updated = { ...updated, position: { ...pos, x: pos.x + (dx ?? 0), y: pos.y + (dy ?? 0), z: (pos.z ?? 0) + (dz ?? 0) } }
         }
         if (scaleX != null || scaleY != null) {
           const sc = n.scale as { x?: number; y?: number; z?: number } | undefined
@@ -4403,7 +4407,7 @@ function CCFileBatchInspector({
     const result = await saveScene(applyNode(sceneFile.root))
     setBatchMsg(result.success ? `✓ ${uuids.length}개 노드 적용` : `✗ ${result.error ?? '오류'}`)
     setTimeout(() => setBatchMsg(null), 2500)
-  }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, batchScaleX, batchScaleY, batchSizeW, batchSizeH, batchColor, batchRot, uuids.length, saveScene])
+  }, [sceneFile.root, uuidSet, batchOpacity, batchActive, batchDx, batchDy, batchDz, batchScaleX, batchScaleY, batchSizeW, batchSizeH, batchColor, batchRot, uuids.length, saveScene])
 
   // R1698: 공통 컴포넌트 타입 계산
   const commonCompTypes = useMemo(() => {
@@ -17359,6 +17363,10 @@ function CCFileBatchInspector({
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
         <input type="number" placeholder="dY" value={batchDy} onChange={e => setBatchDy(e.target.value)}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+        {/* R2565: Z축 오프셋 */}
+        <input type="number" placeholder="dZ" value={batchDz} onChange={e => setBatchDz(e.target.value)}
+          title="Z축 오프셋 (CC3.x 3D 씬 전용) — R2565"
+          style={{ width: 46, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: `1px solid ${batchDz ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, color: batchDz ? '#fb923c' : 'var(--text-primary)', borderRadius: 3 }} />
       </div>
       {/* R1553: Scale 일괄 설정 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
