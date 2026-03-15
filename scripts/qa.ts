@@ -28131,6 +28131,18 @@ if (
   log('warning', 'R2430-scrollbar-enabled', 'Inspector cc.Scrollbar enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1435: R2431 Inspector cc.ProgressBar enabled ──────────
+console.log('\n## 1435. R2431 Inspector cc.ProgressBar enabled 체크')
+const s1435 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1435.includes('R2431') &&
+  s1435.includes('cc.ProgressBar')
+) {
+  log('pass', 'R2431-progressbar-enabled', 'Inspector cc.ProgressBar enabled 구현 완료')
+} else {
+  log('warning', 'R2431-progressbar-enabled', 'Inspector cc.ProgressBar enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
