@@ -4337,6 +4337,9 @@ function CCFileBatchInspector({
   const [gridCols, setGridCols] = useState<number>(3)
   const [gridSpacingX, setGridSpacingX] = useState<number>(150)
   const [gridSpacingY, setGridSpacingY] = useState<number>(150)
+  // R2649: 선택 노드 복제 오프셋
+  const [cloneOffsetX, setCloneOffsetX] = useState<number>(50)
+  const [cloneOffsetY, setCloneOffsetY] = useState<number>(-50)
   // R2639: 원형 배치
   const [circleRadius, setCircleRadius] = useState<number>(200)
   // R2527: 스케일 X/Y 링크
@@ -6177,6 +6180,59 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>A→Z</span>
             <span onClick={() => applySortByName('desc')} title="이름 Z→A 순으로 Z-order 재정렬 (R2648)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>Z→A</span>
+          </div>
+        )
+      })()}
+      {/* R2649: 선택 노드 복제 (offset 후 형제로 추가) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyDuplicate = async () => {
+          if (!sceneFile.root) return
+          function deepClone(n: CCSceneNode, dx: number, dy: number, topLevel: boolean): CCSceneNode {
+            const newUuid = `clone-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+            const pos = n.position as { x: number; y: number; z?: number }
+            return {
+              ...n,
+              uuid: newUuid,
+              name: `${n.name}_copy`,
+              _rawIndex: undefined,
+              position: topLevel ? { ...pos, x: pos.x + dx, y: pos.y + dy } : pos,
+              components: n.components.map(c => ({ ...c, _rawIndex: undefined })),
+              children: n.children.map(c => deepClone(c, 0, 0, false)),
+            }
+          }
+          const clones: Map<string, CCSceneNode[]> = new Map()
+          function collectForClone(n: CCSceneNode) {
+            if (uuidSet.has(n.uuid)) {
+              const parentKey = n.uuid // placeholder; actual grouping by parent
+              void parentKey
+            }
+            n.children.forEach(collectForClone)
+          }
+          collectForClone(sceneFile.root)
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            const selChildren = ch.filter(c => uuidSet.has(c.uuid))
+            if (selChildren.length === 0) return { ...n, children: ch }
+            const cloned = selChildren.map(c => deepClone(c, cloneOffsetX, cloneOffsetY, true))
+            return { ...n, children: [...ch, ...cloned] }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 복제 +${cloneOffsetX},${cloneOffsetY} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        void clones
+        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>복제 (R2649)</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dx</span>
+            <input type="number" value={cloneOffsetX} step={10} onChange={e => setCloneOffsetX(parseInt(e.target.value) || 0)} style={niS} title="복제 X 오프셋" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dy</span>
+            <input type="number" value={cloneOffsetY} step={10} onChange={e => setCloneOffsetY(parseInt(e.target.value) || 0)} style={niS} title="복제 Y 오프셋" />
+            <span onClick={applyDuplicate}
+              title={`선택 노드 복제 후 (${cloneOffsetX}, ${cloneOffsetY}) 오프셋 (R2649)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}
+            >⎘복제</span>
           </div>
         )
       })()}

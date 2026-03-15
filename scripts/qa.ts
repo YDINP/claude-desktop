@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1641: R2649 BatchInspector 선택 노드 복제 ────────────────────────
+console.log('\n## 1641. R2649 — BatchInspector 선택 노드 복제')
+const s1641 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1641.includes('R2649') &&
+  s1641.includes('applyDuplicate') &&
+  s1641.includes('deepClone') &&
+  s1641.includes('복제') &&
+  s1641.includes('cloneOffsetX')
+) {
+  log('pass', 'R2649-duplicate', 'R2649 선택 노드 복제 구현 완료')
+} else {
+  log('warning', 'R2649-duplicate', 'R2649 선택 노드 복제 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1640: R2648 BatchInspector 이름 알파벳순 Z-order 정렬 ────────────
 console.log('\n## 1640. R2648 — BatchInspector 이름 알파벳순 Z-order 정렬')
 const s1640 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
