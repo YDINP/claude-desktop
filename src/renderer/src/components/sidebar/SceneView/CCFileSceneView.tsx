@@ -211,6 +211,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSceneStats, setShowSceneStats] = useState(false)
   // R2576: 노드 크기 레이블 오버레이 (W×H)
   const [showSizeLabels, setShowSizeLabels] = useState(false)
+  // R2578: 노드 불투명도 오버레이 (α%)
+  const [showOpacityLabels, setShowOpacityLabels] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1476,6 +1478,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSizeLabels ? '크기 레이블 끄기 (R2576)' : '노드 W×H 크기 레이블 오버레이 (R2576)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeLabels ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSizeLabels ? 'rgba(52,211,153,0.12)' : 'none', color: showSizeLabels ? '#34d399' : 'var(--text-muted)' }}
         >W×H</button>
+        {/* R2578: 불투명도 레이블 오버레이 토글 */}
+        <button
+          onClick={() => setShowOpacityLabels(v => !v)}
+          title={showOpacityLabels ? '불투명도 오버레이 끄기 (R2578)' : '노드 α% 불투명도 표시 (R2578)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityLabels ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityLabels ? 'rgba(251,191,36,0.12)' : 'none', color: showOpacityLabels ? '#fbbf24' : 'var(--text-muted)' }}
+        >α%</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2247,6 +2255,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(52,211,153,0.85)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{sw}×{sh}</text>
+                  )
+                })()}
+                {/* R2578: 노드 불투명도 α% 오버레이 */}
+                {showOpacityLabels && view.zoom > 0.3 && (() => {
+                  const pct = Math.round(((node.opacity ?? 255) / 255) * 100)
+                  if (pct === 100) return null
+                  const fs = Math.max(6, 9 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + w - fs * 0.3} y={rectY + fs * 1.2}
+                      textAnchor="end"
+                      fontSize={fs} fill="rgba(251,191,36,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{pct}%</text>
                   )
                 })()}
                 {/* R2557: Label 텍스트 콘텐츠 오버레이 */}

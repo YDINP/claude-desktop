@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1570: R2578 SceneView 노드 불투명도 레이블 오버레이 (α%) ──────────
+console.log('\n## 1570. R2578 — SceneView 노드 불투명도 레이블 오버레이 (α%)')
+const s1570sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1570sv.includes('R2578') &&
+  s1570sv.includes('showOpacityLabels') &&
+  s1570sv.includes('α%')
+) {
+  log('pass', 'R2578-opacity-overlay', 'R2578 불투명도 레이블 오버레이 구현 완료')
+} else {
+  log('warning', 'R2578-opacity-overlay', 'R2578 불투명도 레이블 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1569: R2577 BatchInspector 일괄 픽셀 반올림 (⌊⌉All) ──────────────
 console.log('\n## 1569. R2577 — BatchInspector 일괄 픽셀 반올림 (⌊⌉All)')
 const s1569 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
