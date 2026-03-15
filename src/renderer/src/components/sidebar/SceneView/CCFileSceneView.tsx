@@ -283,6 +283,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showOpacityOverlay, setShowOpacityOverlay] = useState(false)
   // R2668: 회전각 텍스트 오버레이
   const [showRotOverlay, setShowRotOverlay] = useState(false)
+  // R2670: 선택 노드 위치 텍스트 오버레이
+  const [showPosText, setShowPosText] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1785,6 +1787,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showRotOverlay ? '회전각 끄기 (R2668)' : 'rotation ≠ 0 노드에 각도값 표시 (R2668)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotOverlay ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showRotOverlay ? 'rgba(167,139,250,0.1)' : 'none', color: showRotOverlay ? '#a78bfa' : 'var(--text-muted)' }}
         >∠</button>
+        {/* R2670: 선택 노드 위치 텍스트 오버레이 토글 */}
+        <button
+          onClick={() => setShowPosText(v => !v)}
+          title={showPosText ? '위치 텍스트 끄기 (R2670)' : '선택 노드 position(x,y) 표시 (R2670)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showPosText ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showPosText ? 'rgba(52,211,153,0.1)' : 'none', color: showPosText ? '#34d399' : 'var(--text-muted)' }}
+        >xy</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2841,6 +2849,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <text x={rectX + w / 2} y={rectY + h - 2 / view.zoom}
                       fontSize={8 / view.zoom} fill="#a78bfa" textAnchor="middle"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}>{Math.round(rot)}°</text>
+                  )
+                })()}
+                {/* R2670: 선택 노드 위치 텍스트 오버레이 */}
+                {showPosText && uuidSet.has(node.uuid) && view.zoom > 0.25 && (() => {
+                  const pos = node.position as { x: number; y: number }
+                  return (
+                    <text x={rectX + (w > 0 ? w / 2 : 0)} y={rectY - 3 / view.zoom}
+                      fontSize={8 / view.zoom} fill="#34d399" textAnchor="middle"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}>{Math.round(pos.x)},{Math.round(pos.y)}</text>
                   )
                 })()}
                 {/* R2652: 비활성 노드 반투명 오버레이 */}

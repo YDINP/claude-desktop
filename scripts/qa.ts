@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1662: R2670 SceneView 선택 노드 position 텍스트 오버레이 ─────────
+console.log('\n## 1662. R2670 — SceneView 선택 노드 위치 텍스트 오버레이')
+const s1662 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1662.includes('R2670') &&
+  s1662.includes('showPosText') &&
+  s1662.includes('34d399') &&
+  s1662.includes('xy')
+) {
+  log('pass', 'R2670-posText', 'R2670 선택 노드 위치 텍스트 오버레이 구현 완료')
+} else {
+  log('warning', 'R2670-posText', 'R2670 선택 노드 위치 텍스트 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1661: R2669 BatchInspector 이름 공백 정리 ────────────────────────
+console.log('\n## 1661. R2669 — BatchInspector 이름 공백 정리')
+const s1661 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1661.includes('R2669') &&
+  s1661.includes('applyNameTrim') &&
+  s1661.includes('trim()') &&
+  s1661.includes('공백제거')
+) {
+  log('pass', 'R2669-nameTrim', 'R2669 이름 공백 정리 구현 완료')
+} else {
+  log('warning', 'R2669-nameTrim', 'R2669 이름 공백 정리 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1660: R2668 SceneView 회전각 텍스트 오버레이 ─────────────────────
 console.log('\n## 1660. R2668 — SceneView 회전각 텍스트 오버레이')
 const s1660 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

@@ -19164,6 +19164,27 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2669: 노드 이름 공백 정리 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyNameTrim = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, name: n.name.trim().replace(/\s+/g, ' '), children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 이름 공백 정리 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>trim (R2669)</span>
+            <span onClick={applyNameTrim} title="이름 앞뒤 공백 제거 + 연속 공백 → 단일 공백 (R2669)" style={bs}>공백제거</span>
+          </div>
+        )
+      })()}
       {/* R2667: 노드 이름 대소문자 변환 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyNameCase = async (mode: 'upper' | 'lower' | 'title') => {
