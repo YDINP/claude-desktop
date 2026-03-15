@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1532: R2540 SceneView 좌표 이동 입력 (Go-to XY) ──────────────────
+console.log('\n## 1532. R2540 — SceneView Go-to XY 좌표 이동')
+const s1532 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1532.includes('R2540') &&
+  s1532.includes('Go-to XY') &&
+  s1532.includes("placeholder=\"x,y\"") &&
+  s1532.includes('ccToSvg(ccX, ccY)')
+) {
+  log('pass', 'R2540-goto-xy', 'R2540 Go-to XY 좌표 이동 구현 완료')
+} else {
+  log('warning', 'R2540-goto-xy', 'R2540 Go-to XY 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1531: R2539 SceneView breadcrumb 계층 경로 표시 ──────────────────
 console.log('\n## 1531. R2539 — SceneView 선택 노드 breadcrumb 계층 경로')
 const s1531 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

@@ -195,7 +195,23 @@
 - Branch: dev
 - 최근 커밋: `d49f6c8a` (R2530)
 
-## 다음 예정 (R2531+)
+## 완료 (R2531~R2539)
+- [x] R2531: BatchInspector 2-노드 위치 교환 — ⇄ 교환 버튼 (posA↔posB swap)
+- [x] R2532: SceneView 툴바 ⊹px 스냅-to-pixel — 선택 노드 position Math.round() 정수화
+- [x] R2533: BatchInspector 가장자리 정렬 — ⊢L/R⊣/⊤T/B⊥/↔X/↕Y 6방향 edge align
+- [x] R2534: SceneView 툴바 회전 버튼 — ↺90/↻90 + ∠0 리셋 (단일 노드 선택 시)
+- [x] R2535: BatchInspector 스택 배치 — →/↓ edge-to-edge + 0/4/8px 간격 (2개+ 노드)
+- [x] R2536: BatchInspector 미러 — ↔H/↕V scale 부호 반전으로 좌우/상하 뒤집기
+- [x] R2537: SceneView 툴바 W/H 인라인 편집 — Enter/blur 시 onResize 직접 호출
+- [x] R2538: BatchInspector 랜덤 색상 할당 — 🎲 버튼, 팔레트 10색 순환 적용
+- [x] R2539: SceneView breadcrumb — 선택 노드 Root›Parent›Node 계층 경로 (조상 클릭 선택)
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2562** ← R2539 현재
+- Branch: dev
+- 최근 커밋: `4be0b5bf` (R2539)
+
+## 다음 예정 (R2540+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 

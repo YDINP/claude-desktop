@@ -1290,6 +1290,27 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             style={{ padding: '0 3px', fontSize: 8, borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', background: Math.abs(view.zoom - z) < 0.01 ? 'rgba(88,166,255,0.15)' : 'none', color: Math.abs(view.zoom - z) < 0.01 ? '#58a6ff' : 'var(--text-muted)', lineHeight: '14px' }}
           >{z === 1 ? '1×' : z === 0.5 ? '½' : '2×'}</button>
         ))}
+        {/* R2540: 좌표 이동 입력 (Go-to XY) */}
+        <input
+          placeholder="x,y"
+          title="CC 좌표로 이동 (예: 100,-50) Enter — R2540"
+          onKeyDown={e => {
+            if (e.key !== 'Enter') return
+            const svg = svgRef.current
+            if (!svg) return
+            const val = (e.target as HTMLInputElement).value.trim()
+            const m = val.match(/^(-?\d+(?:\.\d+)?)[,\s]+(-?\d+(?:\.\d+)?)$/)
+            if (!m) return
+            const ccX = parseFloat(m[1]), ccY = parseFloat(m[2])
+            const rect = svg.getBoundingClientRect()
+            const svgPos = ccToSvg(ccX, ccY)
+            const z = viewRef.current.zoom
+            setView(v => ({ ...v, offsetX: rect.width / 2 - svgPos.x * z, offsetY: rect.height / 2 - svgPos.y * z }))
+            ;(e.target as HTMLInputElement).value = ''
+            ;(e.target as HTMLInputElement).blur()
+          }}
+          style={{ width: 50, fontSize: 8, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-muted)', borderRadius: 2, height: 16 }}
+        />
         {/* R1602: 눈금자 토글 */}
         <button
           onClick={() => setShowRuler(r => !r)}
