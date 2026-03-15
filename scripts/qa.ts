@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1394: R2390 Inspector cc.RigidBody group + rotationOffset ──────────
+console.log('\n## 1394. R2390 Inspector cc.RigidBody group + rotationOffset 체크')
+const s1394 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1394.includes('R2390') &&
+  s1394.includes('rotationOffset') &&
+  s1394.includes('_N$rotationOffset') &&
+  s1394.includes('cc.RigidBody')
+) {
+  log('pass', 'R2390-rigidbody-group-rotoff', 'Inspector cc.RigidBody group + rotationOffset 구현 완료')
+} else {
+  log('warning', 'R2390-rigidbody-group-rotoff', 'Inspector cc.RigidBody group + rotationOffset 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1393: R2389 Inspector cc.Animation playOnLoad ──────────
 console.log('\n## 1393. R2389 Inspector cc.Animation playOnLoad 체크')
 const s1393 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -23217,6 +23217,20 @@ function CCFileNodeInspector({
                       >{v}</span>
                     ))}
                   </div>
+                  {/* R2390: group + rotationOffset */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>group</span>
+                    <input type="number" defaultValue={Number(p.group ?? p._group ?? p._N$group ?? 0)} step={1} min={0}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      onBlur={e => { const v = parseInt(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, group: v, _group: v, _N$group: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 8, flexShrink: 0 }}>rotOff</span>
+                    <input type="number" defaultValue={Number(p.rotationOffset ?? p._rotationOffset ?? p._N$rotationOffset ?? 0)} step={1}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, rotationOffset: v, _rotationOffset: v, _N$rotationOffset: v } } : c); applyAndSave({ components: u }) }}
+                      title="rotationOffset"
+                    />
+                  </div>
                   {/* R2366: fixedRotation + bullet + allowSleep */}
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
