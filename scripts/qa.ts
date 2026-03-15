@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1516: R2524 SceneView 다중 선택 통합 바운딩박스 ─────────────────
+console.log('\n## 1516. R2524 — SceneView 다중 선택 통합 바운딩박스')
+const s1516 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1516.includes('R2524') &&
+  s1516.includes('multiSelected.size > 1') &&
+  s1516.includes('minX') &&
+  s1516.includes('strokeDasharray')
+) {
+  log('pass', 'R2524-multi-bbox', 'R2524 다중 선택 통합 바운딩박스 구현 완료')
+} else {
+  log('warning', 'R2524-multi-bbox', 'R2524 통합 바운딩박스 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1515: R2523 BatchInspector 공통 컴포넌트 enabled 토글 ──────────
 console.log('\n## 1515. R2523 — BatchInspector 공통 컴포넌트 ON/OFF 일괄 토글')
 const s1515 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

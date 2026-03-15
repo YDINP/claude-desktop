@@ -1614,6 +1614,29 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })()}
+          {/* R2524: 다중 선택 통합 바운딩박스 */}
+          {multiSelected.size > 1 && (() => {
+            const selFn = flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
+            if (selFn.length < 2) return null
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
+            for (const fn of selFn) {
+              const sp = ccToSvg(fn.worldX, fn.worldY)
+              const w = fn.node.size?.x ?? 0, h = fn.node.size?.y ?? 0
+              const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+              minX = Math.min(minX, sp.x - w * ax)
+              maxX = Math.max(maxX, sp.x + w * (1 - ax))
+              minY = Math.min(minY, sp.y - h * (1 - ay))
+              maxY = Math.max(maxY, sp.y + h * ay)
+            }
+            const bw = maxX - minX, bh = maxY - minY
+            const sw = 1 / view.zoom, ds = 4 / view.zoom
+            return (
+              <rect x={minX} y={minY} width={bw} height={bh}
+                fill="none" stroke="rgba(251,146,60,0.5)" strokeWidth={sw}
+                strokeDasharray={`${ds},${ds}`}
+                style={{ pointerEvents: 'none' }} />
+            )
+          })()}
           {/* R2511: 선택 노드 엣지-캔버스 거리 가이드선 */}
           {showEdgeGuides && selectedUuid && (() => {
             const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
