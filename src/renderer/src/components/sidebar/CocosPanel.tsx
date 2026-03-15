@@ -19286,6 +19286,13 @@ function CCFileNodeInspector({
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {/* R2434: enabled (BatchInspector R2194) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginBottom: 2 }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>lineWidth</label>
@@ -19813,6 +19820,13 @@ function CCFileNodeInspector({
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {/* R2434: enabled (BatchInspector R2198) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginBottom: 2 }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ marginBottom: 4 }}>
                     <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>string (초기값)</label>
                     <input type="text" defaultValue={String(p.string ?? '')}
@@ -20145,6 +20159,13 @@ function CCFileNodeInspector({
               ] as const
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2434: enabled (BatchInspector R2172) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   {/* R1675: Widget 정렬 시각 다이어그램 */}
                   <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
                     <svg width={56} height={56} style={{ overflow: 'visible' }}>
@@ -20627,6 +20648,13 @@ function CCFileNodeInspector({
               const clipUuid = (clipRaw as Record<string,unknown> | null)?.__uuid__ as string | undefined
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2434: enabled (BatchInspector R2196) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   {/* R1701: 오디오 클립 uuid 표시 + 복사 */}
                   {clipUuid && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

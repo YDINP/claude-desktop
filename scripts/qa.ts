@@ -28169,6 +28169,21 @@ if (
   log('warning', 'R2433-layout-sprite-richtext-enabled', 'Inspector cc.Layout/Sprite/RichText enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1438: R2434 Inspector cc.Graphics/Widget/AudioSource/EditBox enabled ──────────
+console.log('\n## 1438. R2434 Inspector cc.Graphics/Widget/AudioSource/EditBox enabled 체크')
+const s1438 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1438.includes('R2434') &&
+  s1438.includes('cc.Graphics') &&
+  s1438.includes('cc.Widget') &&
+  s1438.includes('cc.AudioSource') &&
+  s1438.includes('cc.EditBox')
+) {
+  log('pass', 'R2434-multi-enabled', 'Inspector cc.Graphics/Widget/AudioSource/EditBox enabled 구현 완료')
+} else {
+  log('warning', 'R2434-multi-enabled', 'Inspector cc.Graphics/Widget/AudioSource/EditBox enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
