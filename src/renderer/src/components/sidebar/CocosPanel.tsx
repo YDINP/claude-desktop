@@ -17776,6 +17776,19 @@ function CCFileNodeInspector({
             ))}
             <span style={{ color: 'var(--accent)' }}>{nodePath[nodePath.length - 1]?.name}</span>
           </div>
+          {/* R2471: cc.find() 경로 클립보드 복사 */}
+          {nodePath.length > 1 && (
+            <span
+              title={`cc.find("${nodePath.slice(1).map(p => p.name).join('/')}") 복사 (R2471)`}
+              onClick={() => {
+                const path = nodePath.slice(1).map(p => p.name).join('/')
+                navigator.clipboard.writeText(`cc.find("${path}")`).catch(() => {})
+              }}
+              style={{ fontSize: 8, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: '1px solid #334', color: '#556', flexShrink: 0, userSelect: 'none' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#58a6ff'; (e.currentTarget as HTMLElement).style.color = '#58a6ff' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#334'; (e.currentTarget as HTMLElement).style.color = '#556' }}
+            >📋</span>
+          )}
           {/* R1488: 노드 통계 뱃지 — 깊이/자식/컴포넌트 수 */}
           <div style={{ display: 'flex', gap: 3, flexShrink: 0, alignItems: 'center' }}>
             {nodePath.length > 1 && <span style={{ fontSize: 8, color: '#556', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title="깊이 (루트=0)">d{nodePath.length - 1}</span>}
