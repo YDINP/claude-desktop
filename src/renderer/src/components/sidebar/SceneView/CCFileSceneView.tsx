@@ -1409,6 +1409,29 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             >⊹px</button>
           )
         })()}
+        {/* R2537: 선택 노드 W/H 인라인 편집 */}
+        {selectedUuid && onResize && (() => {
+          const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+          if (!fn) return null
+          const w = Math.round(fn.node.size?.x ?? fn.node.size?.width ?? 0)
+          const h = Math.round(fn.node.size?.y ?? fn.node.size?.height ?? 0)
+          return (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+              <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>W</span>
+              <input type="number" defaultValue={w} key={`w-${selectedUuid}-${w}`}
+                onBlur={e => { const v = parseInt(e.target.value); if (!isNaN(v) && v > 0 && v !== w) onResize!(selectedUuid, v, h) }}
+                onKeyDown={e => { if (e.key === 'Enter') { const v = parseInt((e.target as HTMLInputElement).value); if (!isNaN(v) && v > 0) onResize!(selectedUuid, v, h); (e.target as HTMLInputElement).blur() } }}
+                title={`선택 노드 너비 인라인 편집 (R2537)`}
+                style={{ width: 38, fontSize: 9, padding: '0 2px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }} />
+              <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>H</span>
+              <input type="number" defaultValue={h} key={`h-${selectedUuid}-${h}`}
+                onBlur={e => { const v = parseInt(e.target.value); if (!isNaN(v) && v > 0 && v !== h) onResize!(selectedUuid, w, v) }}
+                onKeyDown={e => { if (e.key === 'Enter') { const v = parseInt((e.target as HTMLInputElement).value); if (!isNaN(v) && v > 0) onResize!(selectedUuid, w, v); (e.target as HTMLInputElement).blur() } }}
+                title={`선택 노드 높이 인라인 편집 (R2537)`}
+                style={{ width: 38, fontSize: 9, padding: '0 2px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }} />
+            </span>
+          )
+        })()}
         {/* R2534: 선택 노드 회전 리셋(0°) + ±90° 버튼 */}
         {selectedUuid && onRotate && (() => {
           const fn = flatNodes.find(f => f.node.uuid === selectedUuid)

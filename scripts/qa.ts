@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1529: R2537 SceneView 툴바 W/H 인라인 편집 ───────────────────────
+console.log('\n## 1529. R2537 — SceneView 툴바 W/H 인라인 편집')
+const s1529 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1529.includes('R2537') &&
+  s1529.includes('W/H 인라인 편집') &&
+  s1529.includes('onResize!(selectedUuid') &&
+  s1529.includes('key={`w-${selectedUuid}')
+) {
+  log('pass', 'R2537-wh-inline', 'R2537 W/H 인라인 편집 구현 완료')
+} else {
+  log('warning', 'R2537-wh-inline', 'R2537 W/H 인라인 편집 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1528: R2536 BatchInspector 미러(flip) ────────────────────────────
 console.log('\n## 1528. R2536 — BatchInspector 미러 (scale 부호 반전)')
 const s1528 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
