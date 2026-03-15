@@ -5200,6 +5200,27 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2657: opacity 255 일괄 리셋 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyOpacityReset = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, opacity: 255, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ opacity 255 리셋 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op리셋 (R2657)</span>
+            <span onClick={applyOpacityReset} title="선택 노드 opacity를 255(불투명)으로 리셋 (R2657)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>op=255</span>
+          </div>
+        )
+      })()}
       {/* R2656: 색상 흰색 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyColorReset = async () => {

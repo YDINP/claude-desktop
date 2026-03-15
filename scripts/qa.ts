@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1649: R2657 BatchInspector opacity 255 일괄 리셋 ─────────────────
+console.log('\n## 1649. R2657 — BatchInspector opacity 255 일괄 리셋')
+const s1649 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1649.includes('R2657') &&
+  s1649.includes('applyOpacityReset') &&
+  s1649.includes('op리셋') &&
+  s1649.includes('opacity: 255')
+) {
+  log('pass', 'R2657-opacity-reset', 'R2657 opacity 255 일괄 리셋 구현 완료')
+} else {
+  log('warning', 'R2657-opacity-reset', 'R2657 opacity 255 일괄 리셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1648: R2656 BatchInspector 색상 흰색 일괄 리셋 ──────────────────
 console.log('\n## 1648. R2656 — BatchInspector 색상 흰색 일괄 리셋')
 const s1648 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
