@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1385: R2381 Inspector cc.RichText lineHeight/overflow/handleTouchEvent ──────────
+console.log('\n## 1385. R2381 Inspector cc.RichText lineHeight/overflow/handleTouchEvent 체크')
+const s1385 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1385.includes('R2381') &&
+  s1385.includes('handleTouchEvent') &&
+  s1385.includes('_handleTouchEvent') &&
+  s1385.includes('cc.RichText')
+) {
+  log('pass', 'R2381-richtext-extra', 'Inspector cc.RichText lineHeight/overflow/handleTouchEvent 구현 완료')
+} else {
+  log('warning', 'R2381-richtext-extra', 'Inspector cc.RichText 추가 속성 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1384: R2380 Inspector cc.EditBox fontColor/placeholderFontColor ──────────
 console.log('\n## 1384. R2380 Inspector cc.EditBox fontColor/placeholderFontColor 체크')
 const s1384 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

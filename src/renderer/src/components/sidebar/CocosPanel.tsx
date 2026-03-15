@@ -20980,7 +20980,7 @@ function CCFileNodeInspector({
             if (comp.type === 'cc.RichText') {
               const str = String(p.string ?? p.String ?? '')
               return (
-                <div style={{ padding: '2px 0 4px 2px' }}>
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* R1808: _N$string 포함 */}
                   <textarea
                     defaultValue={str}
@@ -20991,6 +20991,27 @@ function CCFileNodeInspector({
                     }}
                     style={{ width: '100%', boxSizing: 'border-box', fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', resize: 'vertical' }}
                   />
+                  {/* R2381: lineHeight + overflow + handleTouchEvent */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>lineH</span>
+                    <input type="number" defaultValue={Number(p.lineHeight ?? p._lineHeight ?? p._N$lineHeight ?? 40)} min={1} step={1}
+                      onBlur={e => { const v = parseInt(e.target.value) || 40; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineHeight: v, _lineHeight: v, _N$lineHeight: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="lineHeight"
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 4, flexShrink: 0 }}>overflow</span>
+                    {([['Clamp', 0], ['Shrink', 1], ['Resize', 2], ['None', 3]] as const).map(([l, v]) => (
+                      <span key={v} title={`overflow=${l}(${v})`}
+                        onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, overflow: v, _overflow: v, _N$overflow: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${Number(p.overflow ?? p._N$overflow ?? 0) === v ? '#60a5fa' : 'var(--border)'}`, borderRadius: 2, color: Number(p.overflow ?? p._N$overflow ?? 0) === v ? '#60a5fa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{l}</span>
+                    ))}
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.handleTouchEvent ?? p._handleTouchEvent ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, handleTouchEvent: e.target.checked, _handleTouchEvent: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                    />handleTouchEvent
+                  </label>
                 </div>
               )
             }
