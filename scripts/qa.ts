@@ -27791,6 +27791,20 @@ if (
   log('warning', 'R2406-dragonbones-blendmode', 'Inspector dragonBones.ArmatureDisplay blendMode 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1411: R2407 Inspector sp.Skeleton enableBatch ──────────
+console.log('\n## 1411. R2407 Inspector sp.Skeleton enableBatch 체크')
+const s1411 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1411.includes('R2407') &&
+  s1411.includes('enableBatch') &&
+  s1411.includes('_N$enableBatch') &&
+  s1411.includes('sp.Skeleton')
+) {
+  log('pass', 'R2407-spine-enablebatch', 'Inspector sp.Skeleton enableBatch 구현 완료')
+} else {
+  log('warning', 'R2407-spine-enablebatch', 'Inspector sp.Skeleton enableBatch 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

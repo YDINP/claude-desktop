@@ -23795,6 +23795,13 @@ function CCFileNodeInspector({
                         style={{ margin: 0, accentColor: '#fbbf24' }}
                       />debugBones
                     </label>
+                    {/* R2407: enableBatch (BatchInspector R2188) */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.enableBatch ?? p._enableBatch ?? p._N$enableBatch ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableBatch: e.target.checked, _enableBatch: e.target.checked, _N$enableBatch: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0, accentColor: '#34d399' }}
+                      />batch
+                    </label>
                   </div>
                 </div>
               )
