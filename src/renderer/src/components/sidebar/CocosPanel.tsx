@@ -4353,6 +4353,24 @@ function CCFileBatchInspector({
           {commonValues?.opacity != null ? `opacity:${commonValues.opacity}` : ''}
           {commonValues?.active != null ? ` ${commonValues.active ? '활성' : '비활성'}` : ''}
         </span>
+        {/* R2512: 선택 노드 JSON 클립보드 내보내기 */}
+        {sceneFile.root && (
+          <span
+            title={`선택된 ${uuids.length}개 노드 JSON 복사 (R2512)`}
+            onClick={() => {
+              const ns: CCSceneNode[] = []
+              function coll(n: CCSceneNode) { if (uuidSet.has(n.uuid)) ns.push(n); n.children.forEach(coll) }
+              coll(sceneFile.root!)
+              const json = JSON.stringify(ns.map(n => ({ name: n.name, uuid: n.uuid, position: n.position, size: n.size, scale: n.scale, rotation: n.rotation, opacity: n.opacity, active: n.active, components: n.components.map(c => c.type) })), null, 2)
+              navigator.clipboard.writeText(json).catch(() => {})
+              setBatchMsg(`✓ ${ns.length}개 JSON 복사`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#64748b', userSelect: 'none', flexShrink: 0 }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
+          >⎘ JSON</span>
+        )
         {/* R2510: 같은 이름 노드 일괄 선택 */}
         {onMultiSelectChange && sceneFile.root && uuids.length === 1 && (() => {
           const ns: CCSceneNode[] = []

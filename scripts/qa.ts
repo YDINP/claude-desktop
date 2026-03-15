@@ -29029,6 +29029,18 @@ if (
   log('warning', 'R2511-edge-guides', 'R2511 엣지 가이드선 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1504: R2512 BatchInspector 선택 노드 JSON 내보내기 ──────────────────────────
+const s1504 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1504.includes('R2512') &&
+  s1504.includes('JSON 복사') &&
+  s1504.includes('⎘ JSON')
+) {
+  log('pass', 'R2512-json-export', 'R2512 BatchInspector 선택 노드 JSON 내보내기 구현 완료')
+} else {
+  log('warning', 'R2512-json-export', 'R2512 JSON 내보내기 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
