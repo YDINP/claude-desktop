@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1654: R2662 BatchInspector 회전 0 일괄 리셋 ─────────────────────
+console.log('\n## 1654. R2662 — BatchInspector 회전 0 리셋')
+const s1654 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1654.includes('R2662') &&
+  s1654.includes('applyRotReset') &&
+  s1654.includes('rot리셋') &&
+  s1654.includes('R=0')
+) {
+  log('pass', 'R2662-rotReset', 'R2662 회전 0 리셋 구현 완료')
+} else {
+  log('warning', 'R2662-rotReset', 'R2662 회전 0 리셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1653: R2661 SceneView 마우스 크로스헤어 가이드라인 ──────────────
 console.log('\n## 1653. R2661 — SceneView 마우스 크로스헤어 가이드라인')
 const s1653 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

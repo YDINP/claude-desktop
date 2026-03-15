@@ -5203,6 +5203,28 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2662: 회전 0 일괄 리셋 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyRotReset = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const rot = typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 }
+            return { ...n, rotation: rot, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ rotation → 0 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot리셋 (R2662)</span>
+            <span onClick={applyRotReset} title="rotation → 0 (CC2.x 숫자/CC3.x {x,y,z} 공통 처리) (R2662)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }}>R=0</span>
+          </div>
+        )
+      })()}
       {/* R2657: opacity 255 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyOpacityReset = async () => {
