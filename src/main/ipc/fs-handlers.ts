@@ -577,6 +577,11 @@ export function registerFsHandlers(_win: unknown) {
       })
 
       watchers.set(dirPath, watcher)
+      // R2313: ISSUE-005 — sender(WebContents) 파괴 시 watcher 즉시 정리 (창 닫힘 누수 방지)
+      event.sender.once('destroyed', () => {
+        watcher.close()
+        watchers.delete(dirPath)
+      })
       return { ok: true }
     } catch (e) {
       return { error: String(e) }

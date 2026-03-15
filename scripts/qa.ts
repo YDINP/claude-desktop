@@ -25462,6 +25462,22 @@ if (
   log('warning', 'R2312-scene-history-restore-build-exec', '씬 이력 복원 또는 빌드 shellExec 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1317: R2313 ISSUE-003/004/005 버그 수정 (chokidar v5 + race condition + watcher 누수) ──────────
+console.log('\n## 1317. R2313 ISSUE-003/004/005 버그 수정 체크')
+const s1317watcher = readFileSync(join(ROOT, 'src/main/cc/cc-file-watcher.ts'), 'utf-8')
+const s1317fs = readFileSync(join(ROOT, 'src/main/ipc/fs-handlers.ts'), 'utf-8')
+if (
+  s1317watcher.includes('awaitWriteFinish: true') &&
+  !s1317watcher.includes('stabilityThreshold') &&
+  s1317watcher.includes('_initPromise') &&
+  s1317watcher.includes('return this._initPromise') &&
+  s1317fs.includes("event.sender.once('destroyed'")
+) {
+  log('pass', 'R2313-chokidar-v5-race-condition-watcher-leak', 'chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정')
+} else {
+  log('warning', 'R2313-chokidar-v5-race-condition-watcher-leak', 'ISSUE-003/004/005 버그 수정 미완료', 'cc-file-watcher.ts / fs-handlers.ts')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

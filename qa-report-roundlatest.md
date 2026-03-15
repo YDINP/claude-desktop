@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T07:08:06.687Z
+> 2026-03-15T07:13:51.038Z
 
 ## Critical
 _없음_
@@ -2241,6 +2241,7 @@ _없음_
 - BatchInspector cc.ParticleSystem gravity _N$* + 단일노드 all-enabled _enabled 갭 수정
 - cc.Animation/Sprite flipX/Y/ScrollView 단일노드 computed key _N$* 갭 수정
 - 씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행
+- chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
 - BatchInspector cc.Slider _direction (CC3.x) 일괄 설정
 - BatchInspector cc.Slider _interactable (CC3.x) 일괄 설정
 - BatchInspector cc.EditBox _returnType (CC3.x) 일괄 설정
