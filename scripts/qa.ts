@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1556: R2564 NodeInspector 스케일 클립보드 (Sc↑/Sc↓) ─────────────
+console.log('\n## 1556. R2564 — NodeInspector 스케일 클립보드 (Sc↑/Sc↓)')
+const s1556 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1556.includes('R2564') &&
+  s1556.includes('scaleClipboard') &&
+  s1556.includes('scaleClipFilled') &&
+  s1556.includes('Sc↑') &&
+  s1556.includes('Sc↓')
+) {
+  log('pass', 'R2564-scale-clipboard', 'R2564 스케일 클립보드 구현 완료')
+} else {
+  log('warning', 'R2564-scale-clipboard', 'R2564 스케일 클립보드 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1555: R2563 NodeInspector 회전 클립보드 (R↑/R↓) ─────────────────
 console.log('\n## 1555. R2563 — NodeInspector 회전 클립보드 (R↑/R↓)')
 const s1555 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -18751,6 +18751,9 @@ function CCFileNodeInspector({
   // R2563: 회전 전용 클립보드
   const rotClipboard = useRef<number | null>(null)
   const [rotClipFilled, setRotClipFilled] = useState(false)
+  // R2564: 스케일 전용 클립보드
+  const scaleClipboard = useRef<{ x: number; y: number } | null>(null)
+  const [scaleClipFilled, setScaleClipFilled] = useState(false)
   // R2554: 앵커 변경 시 position 자동 보정 토글
   const [anchorCompensate, setAnchorCompensate] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
@@ -20479,6 +20482,19 @@ function CCFileNodeInspector({
               {draft.scale.x !== draft.scale.y && (
                 <span title={`균등 스케일 X=Y (평균: ${((draft.scale.x + draft.scale.y) / 2).toFixed(2)})`} onClick={() => { const avg = (draft.scale.x + draft.scale.y) / 2; applyAndSave({ scale: { ...draft.scale, x: avg, y: avg } }) }} style={{ cursor: 'pointer', color: '#fbbf24', fontSize: 8, padding: '0 2px', borderRadius: 2 }} onMouseEnter={e => (e.currentTarget.style.color = '#fde68a')} onMouseLeave={e => (e.currentTarget.style.color = '#fbbf24')}>⊟</span>
               )}
+              {/* R2564: 스케일 클립보드 복사/붙여넣기 */}
+              <span
+                title="스케일(X,Y) 복사 — 다른 노드에 붙여넣기 가능 (R2564)"
+                onClick={() => { scaleClipboard.current = { x: draft.scale.x, y: draft.scale.y }; setScaleClipFilled(true) }}
+                style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: '#34d399', background: 'none', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#6ee7b7')} onMouseLeave={e => (e.currentTarget.style.color = '#34d399')}
+              >Sc↑</span>
+              <span
+                title={scaleClipFilled && scaleClipboard.current ? `스케일 붙여넣기 (${scaleClipboard.current.x}, ${scaleClipboard.current.y}) — R2564` : '복사된 스케일 없음'}
+                onClick={() => { if (scaleClipboard.current) applyAndSave({ scale: { ...draft.scale, x: scaleClipboard.current.x, y: scaleClipboard.current.y } }) }}
+                style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: scaleClipFilled ? 'pointer' : 'default', color: scaleClipFilled ? '#34d399' : '#333', background: 'none', userSelect: 'none' }}
+                onMouseEnter={e => { if (scaleClipFilled) e.currentTarget.style.color = '#6ee7b7' }} onMouseLeave={e => { e.currentTarget.style.color = scaleClipFilled ? '#34d399' : '#333' }}
+              >Sc↓</span>
             </div>
             {numInput('X', draft.scale.x, v => {
               const ratio = draft.scale.x !== 0 ? v / draft.scale.x : 1
