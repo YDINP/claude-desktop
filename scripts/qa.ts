@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1345: R2341 Inspector cc.WebView Quick Edit ──────────
+console.log('\n## 1345. R2341 Inspector cc.WebView url/visibleWithMouse 체크')
+const s1345 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1345.includes('R2341') &&
+  s1345.includes("comp.type === 'cc.WebView'") &&
+  s1345.includes('visibleWithMouse')
+) {
+  log('pass', 'R2341-webview-inspector', 'Inspector cc.WebView url/visibleWithMouse 편집 구현 완료')
+} else {
+  log('warning', 'R2341-webview-inspector', 'Inspector cc.WebView Quick Edit 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1344: R2340 Inspector cc.SpotLight Quick Edit ──────────
 console.log('\n## 1344. R2340 Inspector cc.SpotLight Quick Edit 체크')
 const s1344 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

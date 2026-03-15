@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T07:16:09.366Z
+> 2026-03-15T10:19:36.484Z
 
 ## Critical
 _없음_
@@ -2243,6 +2243,33 @@ _없음_
 - 씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행
 - chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
 - session:setCollection try/catch + memTimer clearInterval 수정
+- Inspector cc.WebView url/visibleWithMouse 편집 구현 완료
+- Inspector cc.SpotLight intensity/range/spotAngle/color 편집 구현 완료
+- 씬 트리 노드 커스텀 색상 입력 구현 완료
+- 씬 트리 우클릭 노드 JSON 복사 구현 완료
+- Inspector 노드 N-복제 (×N) 구현 완료
+- BatchInspector 2-노드 거리/간격 정보 패널 구현 완료
+- Inspector Sprite 텍스처 썸네일 미리보기 구현 완료
+- 씬뷰 단축키 도움말 최신화 완료
+- 회전 0° + 스케일 1:1 리셋 버튼 구현 완료
+- Inspector active 토글 H키 힌트 구현 완료
+- 컴포넌트 추가 패널 개선 완료 (아이콘 + 커스텀 입력)
+- Inspector 컴포넌트 헤더 아이콘 구현 완료
+- 씬뷰 선택 이력 ← → 버튼 구현 완료
+- Inspector 컴포넌트 타입 설명 tooltip 구현 완료
+- 다른 이름으로 저장(Save As) 구현 완료
+- 씬뷰 체크무늬 배경 패턴 구현 완료
+- UUID 검색 지원 구현 완료
+- 씬뷰 선택 노드 자동 팬 구현 완료
+- Inspector 자동 스크롤 구현 완료
+- 씬 파일명 클릭 → 탐색기 열기 구현 완료
+- undo/redo 스택 카운터 표시 구현 완료
+- cross-scene 노드 클립보드 (localStorage) 구현 완료
+- 카메라 프레임 토글 버튼 구현 완료
+- cc.Camera 뷰 프레임 오버레이 구현 완료
+- CocosPanel 즐겨찾기 프로젝트 기능 구현 완료
+- shell:exec 위험 패턴 블록리스트 적용 완료
+- 씬뷰 SVG 직접 내보내기 버튼 구현 완료
 - BatchInspector cc.Slider _direction (CC3.x) 일괄 설정
 - BatchInspector cc.Slider _interactable (CC3.x) 일괄 설정
 - BatchInspector cc.EditBox _returnType (CC3.x) 일괄 설정

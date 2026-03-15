@@ -20927,6 +20927,36 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R2341: cc.WebView — url/visibleWithMouse Quick Edit
+            if (comp.type === 'cc.WebView') {
+              const url = String(p.url ?? p._url ?? p._N$url ?? '')
+              const visibleWithMouse = !!(p.visibleWithMouse ?? p._N$visibleWithMouse ?? false)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>url</span>
+                    <input type="text" defaultValue={url} key={`wv-url-${url}`} placeholder="https://..."
+                      onBlur={e => {
+                        const v = e.target.value.trim()
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, url: v, _url: v, _N$url: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
+                    <input type="checkbox" checked={visibleWithMouse}
+                      onChange={e => {
+                        const v = e.target.checked
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, visibleWithMouse: v, _N$visibleWithMouse: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ margin: 0, accentColor: '#58a6ff' }}
+                    />visibleWithMouse
+                  </label>
+                </div>
+              )
+            }
             // R1568: cc.Camera — depth/zoomRatio Quick Edit
             if (comp.type === 'cc.Camera') {
               const depth = Number(p.depth ?? 0)
