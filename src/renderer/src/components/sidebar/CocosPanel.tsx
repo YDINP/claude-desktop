@@ -17135,6 +17135,34 @@ function CCFileBatchInspector({
         <input type="number" placeholder="H" value={batchSizeH} onChange={e => setBatchSizeH(e.target.value)} min={0}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
       </div>
+      {/* R2528: 스케일 배율 일괄 적용 (각 노드 scaleX/Y 곱셈) */}
+      {sceneFile.root && (() => {
+        const applyScaleMult = async (m: number) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, x: sc.x * m, y: sc.y * m }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 스케일 ×${m} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>스케일× (R2528)</span>
+            {([0.5, 0.75, 1.25, 2] as const).map(m => (
+              <span key={m} title={`선택 노드 scaleX/Y ×${m} 곱셈 (R2528)`}
+                onClick={() => applyScaleMult(m)}
+                style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#38bdf8', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#7dd3fc')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#38bdf8')}
+              >×{m}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1780: 크기 배율 일괄 적용 (각 노드 비율 유지) */}
       {(() => {
         // R1809: 커스텀 배율 입력

@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1520: R2528 BatchInspector 스케일 배율 버튼 ─────────────────────
+console.log('\n## 1520. R2528 — BatchInspector 스케일 배율 버튼 (×0.5~×2)')
+const s1520 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1520.includes('R2528') &&
+  s1520.includes('applyScaleMult') &&
+  s1520.includes('sc.x * m')
+) {
+  log('pass', 'R2528-scale-mult', 'R2528 스케일 배율 버튼 구현 완료')
+} else {
+  log('warning', 'R2528-scale-mult', 'R2528 스케일 배율 버튼 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1519: R2527 BatchInspector 스케일 X/Y 링크 ──────────────────────
 console.log('\n## 1519. R2527 — BatchInspector 스케일 X/Y 링크 토글')
 const s1519 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
