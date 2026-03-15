@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1582: R2590 SceneView 컨텍스트 메뉴 — 동일 이름 모두 선택 ──────────
+console.log('\n## 1582. R2590 — SceneView 컨텍스트 메뉴 동일 이름 선택')
+const s1582 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1582.includes('R2590') &&
+  s1582.includes('동일 이름') &&
+  s1582.includes('setMultiSelected')
+) {
+  log('pass', 'R2590-ctx-same-name', 'R2590 컨텍스트 메뉴 동일 이름 선택 구현 완료')
+} else {
+  log('warning', 'R2590-ctx-same-name', 'R2590 동일 이름 선택 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1581: R2589 BatchInspector 두 노드 위치 교환 (⇄) ──────────────────
 console.log('\n## 1581. R2589 — BatchInspector 두 노드 위치 교환')
 const s1581 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

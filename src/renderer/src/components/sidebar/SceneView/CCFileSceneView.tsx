@@ -3537,6 +3537,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 if (matched.length > 0) onSelect(matched[0])
               }}
             })(),
+            // R2590: 동일 이름 노드 모두 선택
+            ctxMenu.uuid && (() => {
+              const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
+              if (!fn) return false
+              const count = flatNodes.filter(f => f.node.name === fn.node.name).length
+              if (count < 2) return false
+              return { label: `"${fn.node.name}" 동일 이름 모두 선택 (${count}개)`, action: () => {
+                const matched = flatNodes.filter(f => f.node.name === fn.node.name).map(f => f.node.uuid)
+                setMultiSelected(new Set(matched))
+                if (matched.length > 0) onSelect(matched[0])
+                setCtxMenu(null)
+              }}
+            })(),
             // R1717: 활성/비활성 토글 + 새 노드 추가
             ctxMenu.uuid && (() => {
               const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
