@@ -28472,6 +28472,36 @@ if (
   log('warning', 'R2460-comp-rawindex-clear', 'R2460 컴포넌트 _rawIndex 초기화 미확인', 'CocosPanel.tsx')
 }
 
+// ── Section 1460: R2462 buildNewRawComp 타입별 기본값 ─────────────────
+console.log('\n## 1460. R2462 buildNewRawComp 타입별 기본값 체크')
+const s1460 = readFileSync(join(ROOT, 'src/main/cc/cc-file-saver.ts'), 'utf-8')
+if (
+  s1460.includes('R2462') &&
+  s1460.includes('COMP_DEFAULT_2x') &&
+  s1460.includes('COMP_DEFAULT_3x') &&
+  s1460.includes('cc.Label') &&
+  s1460.includes('cc.Sprite')
+) {
+  log('pass', 'R2462-comp-defaults', 'R2462 buildNewRawComp 타입별 기본값 맵 구현 완료')
+} else {
+  log('warning', 'R2462-comp-defaults', 'R2462 컴포넌트 기본값 맵 미확인', 'cc-file-saver.ts')
+}
+
+// ── Section 1461: R2463 Save As Prefab ─────────────────
+console.log('\n## 1461. R2463 Save As Prefab 기능 체크')
+const s1461 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1461.includes('R2463') &&
+  s1461.includes('extractPrefabEntries') &&
+  s1461.includes('handleSaveAsPrefab') &&
+  s1461.includes('onSaveAsPrefab') &&
+  s1461.includes('.prefab')
+) {
+  log('pass', 'R2463-save-as-prefab', 'R2463 Save As Prefab 기능 구현 완료')
+} else {
+  log('warning', 'R2463-save-as-prefab', 'R2463 Save As Prefab 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
