@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1319: R2315 씬뷰 SVG Export ──────────
+console.log('\n## 1319. R2315 씬뷰 SVG Export 체크')
+const s1319 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1319.includes('handleSvgExport') &&
+  s1319.includes("link.download = `scene-${Date.now()}.svg`") &&
+  s1319.includes('R2315')
+) {
+  log('pass', 'R2315-svg-export', '씬뷰 SVG 직접 내보내기 버튼 구현 완료')
+} else {
+  log('warning', 'R2315-svg-export', 'SVG Export 미구현', 'SceneView/CCFileSceneView.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

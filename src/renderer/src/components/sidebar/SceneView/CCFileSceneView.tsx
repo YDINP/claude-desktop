@@ -851,6 +851,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     img.src = svgUrl
   }, [svgRef, screenshotSending, designW, designH])
 
+  // R2315: SVG 파일 직접 내보내기
+  const handleSvgExport = useCallback(() => {
+    if (!svgRef.current) return
+    const svgEl = svgRef.current
+    const svgStr = new XMLSerializer().serializeToString(svgEl)
+    const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.download = `scene-${Date.now()}.svg`
+    link.href = url
+    link.click()
+    URL.revokeObjectURL(url)
+  }, [svgRef])
+
   const transform = `translate(${view.offsetX}, ${view.offsetY}) scale(${view.zoom})`
 
   return (
@@ -1130,6 +1144,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           disabled={screenshotSending}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: screenshotSending ? 'wait' : 'pointer', border: '1px solid var(--border)', background: screenshotSending ? 'rgba(255,200,50,0.12)' : 'none', color: screenshotSending ? '#fbbf24' : 'var(--text-muted)', opacity: screenshotSending ? 0.6 : 1 }}
         >{screenshotSending ? '⟳' : '📷'}</button>
+        {/* R2315: SVG 직접 내보내기 */}
+        <button
+          onClick={handleSvgExport}
+          title="씬 SVG 파일 내보내기 (R2315)"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
+        >SVG</button>
         {/* R1530: 디자인 레퍼런스 이미지 overlay */}
         <input ref={refImgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
           onChange={e => {
