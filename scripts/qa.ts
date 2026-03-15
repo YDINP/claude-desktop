@@ -28795,6 +28795,18 @@ if (
   log('warning', 'R2492-tree-ccfind', 'R2492 씬 트리 cc.find() 복사 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1485: R2493 계층 트리 캔버스 범위 초과 경고 뱃지 ────────────────
+const s1485 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1485.includes('R2493') &&
+  s1485.includes('outOfCanvasUuids') &&
+  s1485.includes('캔버스 범위 초과 노드')
+) {
+  log('pass', 'R2493-oocanvas-badge', 'R2493 계층 트리 캔버스 범위 초과 뱃지 구현 완료')
+} else {
+  log('warning', 'R2493-oocanvas-badge', 'R2493 캔버스 범위 초과 뱃지 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

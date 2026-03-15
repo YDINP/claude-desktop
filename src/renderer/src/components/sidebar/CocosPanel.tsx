@@ -761,6 +761,29 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     return map
   }, [sceneFile?.root])
 
+  // R2493: 캔버스 범위 초과 노드 UUID Set (계층 트리 경고 뱃지용)
+  const outOfCanvasUuids = useMemo(() => {
+    const uuids = new Set<string>()
+    if (!sceneFile?.root || !projectSettings) return uuids
+    const dW = projectSettings.designWidth ?? 960
+    const dH = projectSettings.designHeight ?? 640
+    function walk(n: CCSceneNode, px: number, py: number) {
+      const lx = n.position?.x ?? 0
+      const ly = n.position?.y ?? 0
+      const effX = px + lx
+      const effY = py + ly
+      const w = n.size?.width ?? 0
+      const h = n.size?.height ?? 0
+      if (n.position && w > 0 && h > 0) {
+        const isOut = effX + w / 2 < -dW / 2 || effX - w / 2 > dW / 2 || effY + h / 2 < -dH / 2 || effY - h / 2 > dH / 2
+        if (isOut) uuids.add(n.uuid)
+      }
+      n.children.forEach(c => walk(c, effX, effY))
+    }
+    walk(sceneFile.root, 0, 0)
+    return uuids
+  }, [sceneFile?.root, projectSettings])
+
   // R1654: 컴포넌트 필터 적용 트리
   const filteredRoot = useMemo(() => {
     if (!sceneFile?.root) return null
@@ -3302,6 +3325,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onSortChildren={handleSortChildren}
                 onRename={handleRenameInView}
                 onSaveAsPrefab={handleSaveAsPrefab}
+                outOfCanvasUuids={outOfCanvasUuids}
               />
             </div>
           </div>
@@ -3800,7 +3824,7 @@ function GroupPanel({
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder, multiSelectedUuids, onCtrlSelect, onSortChildren, onRename, onSaveAsPrefab, ancestors,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder, multiSelectedUuids, onCtrlSelect, onSortChildren, onRename, onSaveAsPrefab, ancestors, outOfCanvasUuids,
 }: {
   node: CCSceneNode
   depth: number
@@ -3835,6 +3859,8 @@ function CCFileSceneTree({
   onSaveAsPrefab?: (uuid: string) => void
   /** R2492: cc.find() 경로 계산용 조상 이름 스택 */
   ancestors?: string[]
+  /** R2493: 캔버스 범위 초과 UUID Set — 계층 트리 ⚠️ 뱃지 표시용 */
+  outOfCanvasUuids?: Set<string>
 }) {
   const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
   const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
@@ -4074,6 +4100,10 @@ function CCFileSceneTree({
             {node.children.length}
           </span>
         )}
+        {/* R2493: 캔버스 범위 초과 경고 뱃지 */}
+        {outOfCanvasUuids?.has(node.uuid) && (
+          <span title="캔버스 범위 초과 노드" style={{ fontSize: 9, flexShrink: 0, color: '#f59e0b', lineHeight: 1 }}>⚠</span>
+        )}
         {node.components.length > 0 && (() => {
           const typeIconMap: Record<string, string> = {
             'cc.Sprite': '🖼', 'cc.Label': 'T', 'cc.RichText': 'T',
@@ -4124,6 +4154,7 @@ function CCFileSceneTree({
           onRename={onRename}
           onSaveAsPrefab={onSaveAsPrefab}
           ancestors={[...(ancestors ?? []), node.name]}
+          outOfCanvasUuids={outOfCanvasUuids}
         />
       ))}
     </div>
