@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T18:22:57.581Z
+> 2026-03-15T18:53:59.664Z
 
 ## Critical
 _없음_
@@ -2544,3 +2544,12 @@ _없음_
 - R2511 SceneView 엣지 거리 가이드선 구현 완료
 - R2512 BatchInspector 선택 노드 JSON 내보내기 구현 완료
 - R2513 BatchInspector Z-Order 이동 구현 완료
+- R2514 BatchInspector 그리드 스냅 구현 완료
+- R2515 BatchInspector 부모 노드 선택 구현 완료
+- R2516 BatchInspector 위치 오프셋 이동 구현 완료
+- R2517 BatchInspector 컴포넌트 타입 전체 선택 구현 완료
+- R2518 NodeInspector tint hex 텍스트 입력 구현 완료
+- R2519 BatchInspector Transform 초기화 구현 완료
+- R2520 BatchInspector 노드 반전 (Flip X/Y) 구현 완료
+- R2521 SceneView 세계 좌표 표시 토글 구현 완료
+- R2522 직접 자식 선택 확장 구현 완료

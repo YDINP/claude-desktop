@@ -178,7 +178,24 @@
 - Branch: dev
 - 최근 커밋: `47f26bff` (R2510)
 
-## 다음 예정 (R2511+)
+## 완료 (R2511~R2520)
+- [x] R2511: SceneView 엣지 거리 가이드선 — 선택 노드와 캔버스 경계 거리 점선+수치 오버레이
+- [x] R2512: BatchInspector JSON 내보내기 — ⎘ JSON 버튼으로 선택 노드 JSON 클립보드
+- [x] R2513: BatchInspector Z-Order 이동 — ⊤/▲/▼/⊥ 버튼으로 형제 순서 조작
+- [x] R2514: BatchInspector 그리드 스냅 — snapGridSize 입력 + Math.round(pos/g)*g 스냅
+- [x] R2515: BatchInspector 부모 선택 — parentOfMap 빌드 후 ⬆ 부모 버튼
+- [x] R2516: BatchInspector Δ위치 이동 — posOffsetX/Y 입력 후 선택 노드 좌표에 더하기
+- [x] R2517: BatchInspector 컴포넌트 타입 전체 선택 — ⊞전체 버튼으로 씬 내 동일 타입 노드 선택
+- [x] R2518: NodeInspector tint hex 직접 입력 — onFocus/Blur로 #rrggbb 텍스트 파싱
+- [x] R2519: BatchInspector Transform 초기화 — P↺/R↺/S↺ 버튼으로 위치/회전/스케일 리셋
+- [x] R2520: BatchInspector 노드 반전 — ⇆X/⇅Y 버튼으로 scaleX/Y 부호 반전
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2543** ← R2520 현재
+- Branch: dev
+- 최근 커밋: `e257f806` (R2520)
+
+## 다음 예정 (R2521+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 

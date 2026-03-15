@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1514: R2522 BatchInspector 직접 자식 선택 ──────────────────────
+console.log('\n## 1514. R2522 — BatchInspector 직접 자식 선택 확장')
+const s1514 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1514.includes('R2522') &&
+  s1514.includes('collectChildren') &&
+  s1514.includes('⬇ 자식')
+) {
+  log('pass', 'R2522-child-select', 'R2522 직접 자식 선택 확장 구현 완료')
+} else {
+  log('warning', 'R2522-child-select', 'R2522 직접 자식 선택 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

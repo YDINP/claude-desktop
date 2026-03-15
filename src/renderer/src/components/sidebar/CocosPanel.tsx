@@ -4517,6 +4517,26 @@ function CCFileBatchInspector({
             >⬆ 부모</span>
           )
         })()}
+        {/* R2522: 직접 자식 선택 확장 */}
+        {onMultiSelectChange && sceneFile.root && uuids.length > 0 && (() => {
+          const childUuids: string[] = []
+          function collectChildren(n: CCSceneNode) {
+            if (uuidSet.has(n.uuid)) n.children.forEach(c => childUuids.push(c.uuid))
+            else n.children.forEach(collectChildren)
+          }
+          collectChildren(sceneFile.root!)
+          const unique = [...new Set(childUuids)]
+          if (unique.length === 0) return null
+          return (
+            <span
+              title={`선택된 노드의 직접 자식 ${unique.length}개 선택 (R2522)`}
+              onClick={() => onMultiSelectChange(unique)}
+              style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >⬇ 자식</span>
+          )
+        })()}
       </div>
       {/* R2513: Z-Order 이동 버튼 */}
       <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
