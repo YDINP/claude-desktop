@@ -28769,6 +28769,19 @@ if (
   log('warning', 'R2490-hud-comp-icons', 'R2490 HUD 컴포넌트 아이콘 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1483: R2491 BatchInspector 범용 prop 일괄 편집 ──────────────────
+const s1483 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1483.includes('R2491') &&
+  s1483.includes('genericCompType') &&
+  s1483.includes('genericPropName') &&
+  s1483.includes('범용 prop 편집')
+) {
+  log('pass', 'R2491-generic-prop', 'R2491 BatchInspector 범용 prop 일괄 편집 구현 완료')
+} else {
+  log('warning', 'R2491-generic-prop', 'R2491 범용 prop 편집 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -4175,6 +4175,10 @@ function CCFileBatchInspector({
   const [batchActive, setBatchActive] = useState<'active' | 'inactive' | ''>('')
   const [batchDx, setBatchDx] = useState<string>('')
   const [batchDy, setBatchDy] = useState<string>('')
+  // R2491: 범용 컴포넌트 prop 일괄 편집
+  const [genericCompType, setGenericCompType] = useState<string>('')
+  const [genericPropName, setGenericPropName] = useState<string>('')
+  const [genericPropVal, setGenericPropVal] = useState<string>('')
   // R1553: 스케일/사이즈 일괄 편집
   const [batchScaleX, setBatchScaleX] = useState<string>('')
   const [batchScaleY, setBatchScaleY] = useState<string>('')
@@ -17243,6 +17247,45 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2491: 범용 컴포넌트 prop 일괄 편집 */}
+      <div style={{ borderTop: '1px solid var(--border)', marginTop: 4, paddingTop: 6 }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>⚙ 범용 prop 편집</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+          <input placeholder="cc.Label" value={genericCompType} onChange={e => setGenericCompType(e.target.value)}
+            style={{ width: 68, fontSize: 9, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+            title="컴포넌트 타입 (R2491)" />
+          <input placeholder="prop명" value={genericPropName} onChange={e => setGenericPropName(e.target.value)}
+            style={{ width: 60, fontSize: 9, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+            title="prop 이름 (R2491)" />
+          <input placeholder="값" value={genericPropVal} onChange={e => setGenericPropVal(e.target.value)}
+            style={{ width: 52, fontSize: 9, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+            title="설정할 값 (숫자/true/false/문자열) (R2491)" />
+          <button
+            onClick={async () => {
+              if (!sceneFile.root || !genericCompType.trim() || !genericPropName.trim()) return
+              const rawVal = genericPropVal
+              let parsed: unknown = rawVal
+              if (rawVal === 'true') parsed = true
+              else if (rawVal === 'false') parsed = false
+              else if (rawVal !== '' && !isNaN(Number(rawVal))) parsed = Number(rawVal)
+              function patchGeneric(node: CCSceneNode): CCSceneNode {
+                const children = node.children.map(patchGeneric)
+                if (!uuidSet.has(node.uuid)) return { ...node, children }
+                const comps = node.components.map(c => {
+                  if (c.type !== genericCompType.trim()) return c
+                  return { ...c, props: { ...c.props, [genericPropName.trim()]: parsed } }
+                })
+                return { ...node, components: comps, children }
+              }
+              const result = await saveScene(patchGeneric(sceneFile.root))
+              setBatchMsg(result.success ? `✓ ${genericCompType}.${genericPropName}=${rawVal} (${uuids.length}개)` : `✗ 오류`)
+              setTimeout(() => setBatchMsg(null), 2500)
+            }}
+            style={{ fontSize: 9, padding: '2px 7px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,191,36,0.5)', background: 'rgba(251,191,36,0.1)', color: '#fbbf24' }}
+            title={`${genericCompType}.${genericPropName} = ${genericPropVal} (R2491)`}
+          >적용</button>
+        </div>
+      </div>
     </div>
   )
 }
