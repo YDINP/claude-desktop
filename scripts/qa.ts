@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1521: R2529 SceneView 핀 마커 레이블 편집 ───────────────────────
+console.log('\n## 1521. R2529 — SceneView 핀 마커 더블클릭 레이블 편집')
+const s1521 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1521.includes('R2529') &&
+  s1521.includes('onDoubleClick') &&
+  s1521.includes('pm.label') &&
+  s1521.includes('window.prompt')
+) {
+  log('pass', 'R2529-pin-label', 'R2529 핀 마커 레이블 편집 구현 완료')
+} else {
+  log('warning', 'R2529-pin-label', 'R2529 핀 레이블 편집 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1520: R2528 BatchInspector 스케일 배율 버튼 ─────────────────────
 console.log('\n## 1520. R2528 — BatchInspector 스케일 배율 버튼 (×0.5~×2)')
 const s1520 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

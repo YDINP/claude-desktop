@@ -126,7 +126,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R1692: 시각적 숨기기 (에디터 전용, active 불변)
   const [hiddenUuids, setHiddenUuids] = useState<Set<string>>(new Set())
   // R1693: 좌표 핀 마커 (Ctrl+P로 추가, 클릭으로 삭제)
-  const [pinMarkers, setPinMarkers] = useState<{ id: number; ccX: number; ccY: number }[]>([])
+  // R2529: 핀 마커 레이블 포함
+  const [pinMarkers, setPinMarkers] = useState<{ id: number; ccX: number; ccY: number; label?: string }[]>([])
   const pinIdRef = useRef(0)
   const hoverClientPosRef = useRef<{ x: number; y: number } | null>(null)
   // R1697: 노드 레이블 폰트 크기 (기본 11px)
@@ -2358,12 +2359,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const sp = ccToSvg(pm.ccX, pm.ccY)
             const r = 6 / view.zoom
             return (
-              <g key={pm.id} style={{ cursor: 'pointer' }} onClick={() => setPinMarkers(prev => prev.filter(p => p.id !== pm.id))}>
+              <g key={pm.id} style={{ cursor: 'pointer' }}
+                onClick={() => setPinMarkers(prev => prev.filter(p => p.id !== pm.id))}
+                onDoubleClick={e => {
+                  e.stopPropagation()
+                  // R2529: 더블클릭으로 레이블 편집
+                  const input = window.prompt('핀 레이블 (비워두면 좌표 표시)', pm.label ?? '')
+                  if (input !== null) setPinMarkers(prev => prev.map(p => p.id === pm.id ? { ...p, label: input || undefined } : p))
+                }}
+              >
                 <line x1={sp.x} y1={sp.y - r} x2={sp.x} y2={sp.y + r} stroke="#f472b6" strokeWidth={1.5 / view.zoom} />
                 <line x1={sp.x - r} y1={sp.y} x2={sp.x + r} y2={sp.y} stroke="#f472b6" strokeWidth={1.5 / view.zoom} />
                 <circle cx={sp.x} cy={sp.y} r={2 / view.zoom} fill="#f472b6" />
                 <text x={sp.x + 5 / view.zoom} y={sp.y - 4 / view.zoom} fontSize={8 / view.zoom} fill="#f472b6" fontFamily="monospace" style={{ pointerEvents: 'none', userSelect: 'none' }}>
-                  {pm.ccX},{pm.ccY}
+                  {pm.label ?? `${pm.ccX},${pm.ccY}`}
                 </text>
               </g>
             )
