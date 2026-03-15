@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1530: R2538 BatchInspector 랜덤 색상 할당 ────────────────────────
+console.log('\n## 1530. R2538 — BatchInspector 랜덤 색상 할당')
+const s1530 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1530.includes('R2538') &&
+  s1530.includes('applyRandColor') &&
+  s1530.includes('palette') &&
+  s1530.includes('🎲 색상')
+) {
+  log('pass', 'R2538-rand-color', 'R2538 랜덤 색상 할당 구현 완료')
+} else {
+  log('warning', 'R2538-rand-color', 'R2538 랜덤 색상 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1529: R2537 SceneView 툴바 W/H 인라인 편집 ───────────────────────
 console.log('\n## 1529. R2537 — SceneView 툴바 W/H 인라인 편집')
 const s1529 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

@@ -17492,6 +17492,38 @@ function CCFileBatchInspector({
         />
         {batchColor && <button onClick={() => setBatchColor('')} style={{ fontSize: 9, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)' }}>✕</button>}
       </div>
+      {/* R2538: 랜덤 색상 할당 — 선택 노드 각각에 서로 다른 색상 적용 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const palette = ['#ff6b6b','#ffa94d','#ffd43b','#69db7c','#38d9a9','#4dabf7','#748ffc','#da77f2','#f783ac','#a9e34b']
+        const applyRandColor = async () => {
+          if (!sceneFile.root) return
+          const collected: CCSceneNode[] = []
+          function collectRC(n: CCSceneNode) { if (uuidSet.has(n.uuid)) collected.push(n); n.children.forEach(collectRC) }
+          collectRC(sceneFile.root)
+          const colorMap = new Map<string, { r: number; g: number; b: number; a: number }>()
+          collected.forEach((n, i) => {
+            const hex = palette[i % palette.length]
+            const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16)
+            colorMap.set(n.uuid, { r, g, b, a: 255 })
+          })
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const c = colorMap.get(n.uuid)
+            return c ? { ...n, color: c, children: ch } : { ...n, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 랜덤 색상 (${collected.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 4, marginBottom: 4, paddingLeft: 52, alignItems: 'center' }}>
+            <span onClick={applyRandColor} title={`각 선택 노드에 서로 다른 색상 할당 (R2538)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(217,119,6,0.5)', color: '#fbbf24', userSelect: 'none', background: 'rgba(217,119,6,0.05)' }}>🎲 색상</span>
+            {palette.map(c => <span key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c, display: 'inline-block', flexShrink: 0 }} />)}
+          </div>
+        )
+      })()}
       {/* R1751: 색상 퀵 프리셋 */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 6, paddingLeft: 52, flexWrap: 'wrap' }}>
         {([['#ffffff', '⬜ 흰'], ['#000000', '⬛ 검'], ['#ff0000', '🔴 빨'], ['#00ff00', '🟢 초'], ['#0000ff', '🔵 파'], ['#ffff00', '🟡 노']] as [string, string][]).map(([hex, label]) => (
