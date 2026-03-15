@@ -18521,6 +18521,34 @@ function CCFileNodeInspector({
         )
       })()}
 
+      {/* R2343: 노드 _tag / _zIndex 편집 (CC2.x) */}
+      {(draft as CCSceneNode & { _tag?: number; _zIndex?: number })._tag != null || (draft as CCSceneNode & { _tag?: number; _zIndex?: number })._zIndex != null ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+          {(draft as CCSceneNode & { _tag?: number })._tag != null && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 26, flexShrink: 0 }}>tag</span>
+              <input type="number" defaultValue={(draft as CCSceneNode & { _tag?: number })._tag ?? 0}
+                key={`tag-${(draft as CCSceneNode & { _tag?: number })._tag}`}
+                onBlur={e => applyAndSave({ _tag: parseInt(e.target.value) || 0 } as Partial<CCSceneNode>)}
+                style={{ width: 48, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                title="노드 태그 (_tag, CC2.x)"
+              />
+            </div>
+          )}
+          {(draft as CCSceneNode & { _zIndex?: number })._zIndex != null && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>zIndex</span>
+              <input type="number" defaultValue={(draft as CCSceneNode & { _zIndex?: number })._zIndex ?? 0}
+                key={`zi-${(draft as CCSceneNode & { _zIndex?: number })._zIndex}`}
+                onBlur={e => applyAndSave({ _zIndex: parseInt(e.target.value) || 0 } as Partial<CCSceneNode>)}
+                style={{ width: 48, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                title="노드 z-order (_zIndex, CC2.x)"
+              />
+            </div>
+          )}
+        </div>
+      ) : null}
+
       {/* R1646: 색상 변경 인디케이터 */}
       {secHeader('color', '색상', (() => {
         const os = origSnapRef.current

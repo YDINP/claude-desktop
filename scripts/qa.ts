@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1347: R2343 Inspector 단일노드 _tag/_zIndex 편집 ──────────
+console.log('\n## 1347. R2343 Inspector _tag/_zIndex 필드 체크')
+const s1347 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1347.includes('R2343') &&
+  s1347.includes('_tag') &&
+  s1347.includes('_zIndex') &&
+  s1347.includes('노드 태그')
+) {
+  log('pass', 'R2343-tag-zindex-inspector', 'Inspector 단일노드 _tag/_zIndex 편집 필드 구현 완료')
+} else {
+  log('warning', 'R2343-tag-zindex-inspector', 'Inspector 단일노드 _tag/_zIndex 편집 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1346: R2342 Inspector cc.Scrollbar Quick Edit ──────────
 console.log('\n## 1346. R2342 Inspector cc.Scrollbar direction/enableAutoHide 체크')
 const s1346 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
