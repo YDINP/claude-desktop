@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1623: R2631 BatchInspector 색상 팔레트 추출 ──────────────────────
+console.log('\n## 1623. R2631 — BatchInspector 색상 팔레트 추출')
+const s1623 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1623.includes('R2631') &&
+  s1623.includes('팔레트') &&
+  s1623.includes('colorMap') &&
+  s1623.includes('applyColor')
+) {
+  log('pass', 'R2631-palette', 'R2631 색상 팔레트 추출 구현 완료')
+} else {
+  log('warning', 'R2631-palette', 'R2631 색상 팔레트 추출 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1622: R2630 SceneView 삼분법 가이드 오버레이 ─────────────────────
 console.log('\n## 1622. R2630 — SceneView 삼분법 가이드 오버레이')
 const s1622 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

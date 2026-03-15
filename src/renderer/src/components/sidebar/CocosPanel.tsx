@@ -4940,6 +4940,44 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2631: 선택 노드 색상 팔레트 — 고유 색상 추출 + 클릭 적용 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        // 선택 노드의 색상 수집 (고유 RGB값 기준)
+        const colorMap = new Map<string, { r: number; g: number; b: number; a: number }>()
+        function collect(n: CCSceneNode) {
+          if (uuidSet.has(n.uuid) && n.color) {
+            const key = `${n.color.r},${n.color.g},${n.color.b}`
+            if (!colorMap.has(key)) colorMap.set(key, { ...n.color })
+          }
+          n.children.forEach(collect)
+        }
+        collect(sceneFile.root!)
+        if (colorMap.size === 0) return null
+        const colors = [...colorMap.entries()].slice(0, 12)  // 최대 12색
+        const applyColor = async (r: number, g: number, b: number, a: number) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, color: { r, g, b, a: n.color?.a ?? a }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 색상 적용 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>팔레트 (R2631)</span>
+            {colors.map(([key, c]) => (
+              <div key={key}
+                onClick={() => applyColor(c.r, c.g, c.b, c.a)}
+                title={`rgb(${c.r},${c.g},${c.b}) — 클릭하여 선택 노드에 적용 (R2631)`}
+                style={{ width: 16, height: 16, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', background: `rgb(${c.r},${c.g},${c.b})`, flexShrink: 0 }}
+              />
+            ))}
+          </div>
+        )
+      })()}
       {/* R2626: 무지개 색상 분배 — 선택 노드를 HSL 균등 색조로 채색 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyRainbow = async () => {
