@@ -865,6 +865,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     URL.revokeObjectURL(url)
   }, [svgRef])
 
+  // R2318: cc.Camera 뷰 프레임 오버레이 — 카메라 컴포넌트 추출
+  const cameraFrames = useMemo(() => {
+    return flatNodes.flatMap(fn => {
+      const camComp = fn.node.components.find(c => c.type === 'cc.Camera' || c.type === 'Camera')
+      if (!camComp) return []
+      const props = camComp.props as Record<string, unknown>
+      const rawH = (props['orthoHeight'] ?? props['_orthoHeight'] ?? (designH / 2)) as number
+      const zoom = (props['zoomRatio'] as number | undefined) ?? 1
+      const h = rawH * 2 / zoom
+      const w = h * (designW / designH)
+      return [{ worldX: fn.worldX, worldY: fn.worldY, w, h }]
+    })
+  }, [flatNodes, designW, designH])
+
   const transform = `translate(${view.offsetX}, ${view.offsetY}) scale(${view.zoom})`
 
   return (
@@ -2108,6 +2122,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })()}
+        {/* R2318: cc.Camera 뷰 프레임 오버레이 */}
+        {cameraFrames.map((cam, i) => {
+          const sp = ccToSvg(cam.worldX, cam.worldY)
+          return (
+            <g key={i} pointerEvents="none">
+              <rect
+                x={sp.x - cam.w / 2} y={sp.y - cam.h / 2}
+                width={cam.w} height={cam.h}
+                fill="none" stroke="rgba(255,200,60,0.6)" strokeWidth={1.5 / view.zoom}
+                strokeDasharray={`${6 / view.zoom},${3 / view.zoom}`}
+              />
+              <text x={sp.x - cam.w / 2 + 3 / view.zoom} y={sp.y - cam.h / 2 - 2 / view.zoom}
+                fontSize={8 / view.zoom} fill="rgba(255,200,60,0.8)" style={{ pointerEvents: 'none', userSelect: 'none' }}>📷</text>
+            </g>
+          )
+        })}
         </g>
         {/* R1602: 눈금자 오버레이 (SVG viewport 좌표계) */}
         {showRuler && (() => {
