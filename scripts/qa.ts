@@ -28358,6 +28358,28 @@ if (
   log('warning', 'R2447-editbox-gaps', 'Inspector cc.EditBox gaps 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1452: R2448 Inspector ParticleSystem variance props ──────────────────────────────
+console.log('\n## 1452. R2448 Inspector ParticleSystem variance/Radius-mode props 체크')
+const s1452 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1452.includes('R2448') &&
+  s1452.includes('startSizeVar') &&
+  s1452.includes('endSizeVar') &&
+  s1452.includes('radialAccelVar') &&
+  s1452.includes('tangentialAccelVar') &&
+  s1452.includes('startColorVar') &&
+  s1452.includes('endColorVar') &&
+  s1452.includes('startRadiusVar') &&
+  s1452.includes('endRadiusVar') &&
+  s1452.includes('rotatePerS') &&
+  s1452.includes('startRotation') &&
+  s1452.includes('endRotation')
+) {
+  log('pass', 'R2448-particle-variance-props', 'Inspector ParticleSystem startSizeVar/endSizeVar/radialAccelVar/tangentialAccelVar/colorVar/radiusVar/rotatePerS/rotation 구현 완료')
+} else {
+  log('warning', 'R2448-particle-variance-props', 'Inspector ParticleSystem variance props 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

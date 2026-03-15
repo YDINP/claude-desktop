@@ -22949,6 +22949,27 @@ function CCFileNodeInspector({
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                   </div>
+                  {/* R2448: startSizeVar / endSizeVar (BatchInspector R2049) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>sizeVar</span>
+                    <input type="number" defaultValue={Number(p.startSizeVar ?? p._startSizeVar ?? p._N$startSizeVar ?? 0)} min={0} step={5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startSizeVar: v, _startSizeVar: v, _N$startSizeVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>end</span>
+                    <input type="number" defaultValue={Number(p.endSizeVar ?? p._endSizeVar ?? p._N$endSizeVar ?? 0)} min={0} step={5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endSizeVar: v, _endSizeVar: v, _N$endSizeVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
                   {/* R1815: emitRate 퀵 프리셋 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>emitRate</span>
@@ -23124,6 +23145,27 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2448: startRadiusVar / endRadiusVar (BatchInspector — Radius mode) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startRVar</span>
+                    <input type="number" defaultValue={Number(p.startRadiusVar ?? p._startRadiusVar ?? p._N$startRadiusVar ?? 0)} min={0} step={10}
+                      onBlur={e => {
+                        const v = Math.max(0, parseFloat(e.target.value) || 0)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startRadiusVar: v, _startRadiusVar: v, _N$startRadiusVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>endRVar</span>
+                    <input type="number" defaultValue={Number(p.endRadiusVar ?? p._endRadiusVar ?? p._N$endRadiusVar ?? 0)} min={0} step={10}
+                      onBlur={e => {
+                        const v = Math.max(0, parseFloat(e.target.value) || 0)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endRadiusVar: v, _endRadiusVar: v, _N$endRadiusVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
                   {/* R1905: radialAccel / tangentialAccel */}
                   {(() => {
                     const radialAccel = Number(p.radialAccel ?? p._radialAccel ?? p._N$radialAccel ?? 0)
@@ -23151,6 +23193,27 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2448: radialAccelVar / tangentialAccelVar (BatchInspector R2050/R2051) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>rAccelVar</span>
+                    <input type="number" defaultValue={Number(p.radialAccelVar ?? p._radialAccelVar ?? p._N$radialAccelVar ?? 0)} step={10}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, radialAccelVar: v, _radialAccelVar: v, _N$radialAccelVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>tanVar</span>
+                    <input type="number" defaultValue={Number(p.tangentialAccelVar ?? p._tangentialAccelVar ?? p._N$tangentialAccelVar ?? 0)} step={10}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tangentialAccelVar: v, _tangentialAccelVar: v, _N$tangentialAccelVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
                   {/* R1887: angle / angleVar */}
                   {(() => {
                     const angle = Number(p.angle ?? p._angle ?? p._N$angle ?? 90)
@@ -23345,6 +23408,101 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2448: startColorVar / endColorVar (BatchInspector PS color variation) */}
+                  {(() => {
+                    const scvRaw = p.startColorVar as { r?: number; g?: number; b?: number; a?: number } | undefined
+                    const ecvRaw = p.endColorVar as { r?: number; g?: number; b?: number; a?: number } | undefined
+                    const scvHex = `#${((scvRaw?.r ?? 0)).toString(16).padStart(2,'0')}${((scvRaw?.g ?? 0)).toString(16).padStart(2,'0')}${((scvRaw?.b ?? 0)).toString(16).padStart(2,'0')}`
+                    const ecvHex = `#${((ecvRaw?.r ?? 0)).toString(16).padStart(2,'0')}${((ecvRaw?.g ?? 0)).toString(16).padStart(2,'0')}${((ecvRaw?.b ?? 0)).toString(16).padStart(2,'0')}`
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>colorVar S</span>
+                        <input type="color" value={scvHex} key={`scv-${scvHex}`}
+                          onChange={e => {
+                            const h = e.target.value
+                            const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16)
+                            const col = { r, g, b, a: scvRaw?.a ?? 0 }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startColorVar: col, _startColorVar: col, _N$startColorVar: col } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>E</span>
+                        <input type="color" value={ecvHex} key={`ecv-${ecvHex}`}
+                          onChange={e => {
+                            const h = e.target.value
+                            const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16)
+                            const col = { r, g, b, a: ecvRaw?.a ?? 0 }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endColorVar: col, _endColorVar: col, _N$endColorVar: col } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 28, height: 20, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
+                        />
+                      </div>
+                    )
+                  })()}
+                  {/* R2448: rotatePerS / rotatePerSVar (BatchInspector — Radius mode) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>rotPerS</span>
+                    <input type="number" defaultValue={Number(p.rotatePerS ?? p._rotatePerS ?? p._N$rotatePerS ?? 0)} step={10}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, rotatePerS: v, _rotatePerS: v, _N$rotatePerS: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>var</span>
+                    <input type="number" defaultValue={Number(p.rotatePerSVar ?? p._rotatePerSVar ?? p._N$rotatePerSVar ?? 0)} step={10}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, rotatePerSVar: v, _rotatePerSVar: v, _N$rotatePerSVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  {/* R2448: startRotation / startRotationVar + endRotation / endRotationVar (BatchInspector — Radius mode) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startRot</span>
+                    <input type="number" defaultValue={Number(p.startRotation ?? p._startRotation ?? 0)} step={1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startRotation: v, _startRotation: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>var</span>
+                    <input type="number" defaultValue={Number(p.startRotationVar ?? p._startRotationVar ?? 0)} step={1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startRotationVar: v, _startRotationVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>endRot</span>
+                    <input type="number" defaultValue={Number(p.endRotation ?? p._endRotation ?? 0)} step={1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endRotation: v, _endRotation: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>var</span>
+                    <input type="number" defaultValue={Number(p.endRotationVar ?? p._endRotationVar ?? 0)} step={1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endRotationVar: v, _endRotationVar: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
                   {/* R2421: emitterMode + autoRemoveOnFinish (BatchInspector R1981/R1979) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>emitMode</span>
