@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T16:56:34.398Z
+> 2026-03-15T16:58:36.400Z
 
 ## Critical
 _없음_
@@ -2510,3 +2510,4 @@ _없음_
 - R2474 Inspector 핀 노드 구현 완료
 - R2476 씬뷰 HUD opacity 슬라이더 구현 완료
 - R2477 씬뷰 Escape 부모 노드 선택 구현 완료
+- R2479 BatchInspector 원형 배치 구현 완료

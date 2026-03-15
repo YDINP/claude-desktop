@@ -28631,6 +28631,19 @@ if (
   log('warning', 'R2477-escape-parent', 'R2477 Escape 부모 선택 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1472: R2479 BatchInspector 원형 배치 ────────────────────────────
+const s1472 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1472.includes('R2479') &&
+  s1472.includes('applyCircle') &&
+  s1472.includes('circleRadius') &&
+  s1472.includes('원형 배치')
+) {
+  log('pass', 'R2479-circle-layout', 'R2479 BatchInspector 원형 배치 구현 완료')
+} else {
+  log('warning', 'R2479-circle-layout', 'R2479 원형 배치 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
