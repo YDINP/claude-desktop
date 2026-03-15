@@ -28502,6 +28502,49 @@ if (
   log('warning', 'R2463-save-as-prefab', 'R2463 Save As Prefab 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1462: R2465 씬뷰 거리 측정 도구 ─────────────────
+console.log('\n## 1462. R2465 씬뷰 거리 측정 도구 체크')
+const s1462 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1462.includes('R2465') &&
+  s1462.includes('measureMode') &&
+  s1462.includes('measureLine') &&
+  s1462.includes('measureStartRef') &&
+  s1462.includes('📏')
+) {
+  log('pass', 'R2465-measure-tool', 'R2465 씬뷰 거리 측정 도구 구현 완료')
+} else {
+  log('warning', 'R2465-measure-tool', 'R2465 거리 측정 도구 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1463: R2466 씬뷰 다중 선택 노드 그룹화 ─────────────────
+console.log('\n## 1463. R2466 씬뷰 다중 선택 노드 그룹화 체크')
+const s1463cp = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+const s1463sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1463cp.includes('R2466') &&
+  s1463cp.includes('handleGroupNodes') &&
+  s1463sv.includes('onGroupNodes') &&
+  s1463sv.includes('📦')
+) {
+  log('pass', 'R2466-group-nodes', 'R2466 다중 선택 노드 그룹화 구현 완료')
+} else {
+  log('warning', 'R2466-group-nodes', 'R2466 노드 그룹화 미구현', 'CocosPanel.tsx / CCFileSceneView.tsx')
+}
+
+// ── Section 1464: R2467 BatchInspector 컴포넌트 일괄 추가 ─────────────────
+console.log('\n## 1464. R2467 BatchInspector 컴포넌트 일괄 추가 체크')
+const s1464 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1464.includes('R2467') &&
+  s1464.includes('컴포넌트 일괄 추가') &&
+  s1464.includes('patchAddComp')
+) {
+  log('pass', 'R2467-batch-add-comp', 'R2467 BatchInspector 컴포넌트 일괄 추가 구현 완료')
+} else {
+  log('warning', 'R2467-batch-add-comp', 'R2467 컴포넌트 일괄 추가 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
