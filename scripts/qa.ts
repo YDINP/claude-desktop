@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1639: R2647 SceneView 선택 노드 그룹 바운딩박스 ───────────────────
+console.log('\n## 1639. R2647 — SceneView 선택 노드 그룹 바운딩박스')
+const s1639 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1639.includes('R2647') &&
+  s1639.includes('showSelBBox') &&
+  s1639.includes('setShowSelBBox') &&
+  s1639.includes('selFlat')
+) {
+  log('pass', 'R2647-sel-bbox', 'R2647 선택 노드 그룹 바운딩박스 구현 완료')
+} else {
+  log('warning', 'R2647-sel-bbox', 'R2647 선택 노드 그룹 바운딩박스 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1638: R2646 SceneView 계층 구조 연결선 오버레이 ───────────────────
 console.log('\n## 1638. R2646 — SceneView 계층 구조 연결선 오버레이')
 const s1638 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

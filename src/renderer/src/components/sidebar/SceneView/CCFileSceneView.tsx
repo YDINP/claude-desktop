@@ -267,6 +267,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSelPolyline, setShowSelPolyline] = useState(false)
   // R2646: 계층 구조 연결선 오버레이
   const [showHierarchyLines, setShowHierarchyLines] = useState(false)
+  // R2647: 선택 노드 그룹 바운딩박스
+  const [showSelBBox, setShowSelBBox] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1711,6 +1713,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showHierarchyLines ? '계층 연결선 끄기 (R2646)' : '부모-자식 계층 구조 연결선 표시 (R2646)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showHierarchyLines ? 'rgba(103,232,249,0.5)' : 'var(--border)'}`, background: showHierarchyLines ? 'rgba(103,232,249,0.12)' : 'none', color: showHierarchyLines ? '#67e8f9' : 'var(--text-muted)' }}
         >⊣</button>
+        {/* R2647: 선택 노드 그룹 바운딩박스 토글 */}
+        <button
+          onClick={() => setShowSelBBox(v => !v)}
+          title={showSelBBox ? '선택 BBox 끄기 (R2647)' : '선택 노드 그룹 경계 박스 표시 (R2647)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelBBox ? '#60a5fa' : 'var(--text-muted)' }}
+        >▣</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3200,6 +3208,36 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   )
                 })}
               </g>
+            )
+          })()}
+          {/* R2647: 선택 노드 그룹 바운딩박스 */}
+          {showSelBBox && uuids.length >= 1 && (() => {
+            const selFlat = flatNodes.filter(fn => uuids.includes(fn.node.uuid))
+            if (selFlat.length === 0) return null
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+            selFlat.forEach(({ node, worldX, worldY }) => {
+              const w2 = (node.size?.x ?? 0) / 2, h2 = (node.size?.y ?? 0) / 2
+              if (w2 === 0 && h2 === 0) { minX = Math.min(minX, worldX); maxX = Math.max(maxX, worldX); minY = Math.min(minY, worldY); maxY = Math.max(maxY, worldY); return }
+              minX = Math.min(minX, worldX - w2); maxX = Math.max(maxX, worldX + w2)
+              minY = Math.min(minY, worldY - h2); maxY = Math.max(maxY, worldY + h2)
+            })
+            if (!isFinite(minX)) return null
+            const svgL = ccToSvg(minX, maxY).x, svgT = ccToSvg(minX, maxY).y
+            const svgR = ccToSvg(maxX, minY).x, svgB = ccToSvg(maxX, minY).y
+            const bw = svgR - svgL, bh = svgB - svgT
+            const sw = 1.5 / view.zoom
+            const fs = Math.max(6, 9 / view.zoom)
+            const wCC = Math.round(maxX - minX), hCC = Math.round(maxY - minY)
+            return (
+              <>
+                <rect x={svgL} y={svgT} width={bw} height={bh}
+                  fill="none" stroke="rgba(96,165,250,0.7)" strokeWidth={sw}
+                  strokeDasharray={`${4/view.zoom} ${2/view.zoom}`} style={{ pointerEvents: 'none' }} />
+                <text x={svgL + 2/view.zoom} y={svgT - 2/view.zoom}
+                  fontSize={fs} fill="rgba(96,165,250,0.9)" fontFamily="monospace"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                >{wCC}×{hCC}</text>
+              </>
             )
           })()}
           {/* R2629: 안전 영역 + 비율 가이드 오버레이 */}
