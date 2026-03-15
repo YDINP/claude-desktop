@@ -1607,6 +1607,16 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(updateRot(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  // R2476: 씬뷰 HUD opacity 인라인 편집
+  const handleNodeOpacity = useCallback(async (uuid: string, opacity: number) => {
+    if (!sceneFile?.root) return
+    function updateOp(n: CCSceneNode): CCSceneNode {
+      if (n.uuid === uuid) return { ...n, opacity }
+      return { ...n, children: n.children.map(updateOp) }
+    }
+    await saveScene(updateOp(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   // R1506: 앵커 포인트 드래그 편집 (SceneView ◇ 핸들)
   const handleAnchorMove = useCallback(async (uuid: string, ax: number, ay: number) => {
     if (!sceneFile?.root) return
@@ -3337,6 +3347,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onAnchorMove={handleAnchorMove}
                 onMultiSelectChange={setMultiSelectedUuids}
                 onGroupNodes={handleGroupNodes}
+                onOpacity={handleNodeOpacity}
                 pulseUuid={pulseUuid}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }

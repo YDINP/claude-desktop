@@ -44,6 +44,8 @@ interface CCFileSceneViewProps {
   pulseUuid?: string | null
   /** R2466: 다중 선택 노드 그룹화 */
   onGroupNodes?: (uuids: string[]) => void
+  /** R2476: 선택 노드 opacity 인라인 편집 */
+  onOpacity?: (uuid: string, opacity: number) => void
 }
 
 /**
@@ -51,7 +53,7 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
   const viewRef = useRef(view)
@@ -2591,6 +2593,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             {alignBtn('▷', '우측 정렬', effectiveW / 2 - w / 2, pos.y)}
             {alignBtn('△', '상단 정렬', pos.x, effectiveH / 2 - h / 2)}
             {alignBtn('▽', '하단 정렬', pos.x, -(effectiveH / 2 - h / 2))}
+            {/* R2476: opacity 인라인 슬라이더 */}
+            {onOpacity && node.opacity != null && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }} title={`opacity: ${node.opacity} (R2476)`}>
+                <span style={{ color: '#666', fontSize: 8 }}>α</span>
+                <input
+                  type="range" min={0} max={255} step={1}
+                  defaultValue={node.opacity}
+                  onChange={e => onOpacity(node.uuid, parseInt(e.target.value))}
+                  style={{ width: 50, height: 6, accentColor: '#58a6ff', cursor: 'pointer' }}
+                />
+                <span style={{ color: '#555', fontSize: 8, minWidth: 20 }}>{node.opacity}</span>
+              </label>
+            )}
             {multiSelected.size > 1 && (
               <span style={{ color: '#ff9944', flexShrink: 0, pointerEvents: 'none' }}>
                 ⊕{multiSelected.size}개
