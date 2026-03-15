@@ -17492,14 +17492,15 @@ function CCFileNodeInspector({
               color: redoStack.length === 0 ? '#333' : '#94a3b8', cursor: redoStack.length === 0 ? 'default' : 'pointer',
             }}
           >↪</button>
-          <label style={{ fontSize: 10, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3 }}>
+          {/* R2332: active 토글 — H 키 단축키 힌트 */}
+          <label title="노드 활성/비활성 토글 (단축키: H)" style={{ fontSize: 10, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={draft.active}
               onChange={e => applyAndSave({ active: e.target.checked })}
               style={{ margin: 0 }}
             />
-            활성
+            활성<span style={{ fontSize: 8, color: '#444', marginLeft: 1 }}>(H)</span>
           </label>
           {/* Round 635: Transform 복사/붙여넣기 */}
           <button

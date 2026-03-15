@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1336: R2332 Inspector active 토글 H키 힌트 ──────────
+console.log('\n## 1336. R2332 Inspector active 토글 H키 힌트 체크')
+const s1336 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1336.includes('R2332') &&
+  s1336.includes('(H)') &&
+  s1336.includes('단축키: H')
+) {
+  log('pass', 'R2332-active-h-hint', 'Inspector active 토글 H키 힌트 구현 완료')
+} else {
+  log('warning', 'R2332-active-h-hint', 'R2332 H키 힌트 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1335: R2331 컴포넌트 추가 패널 개선 ──────────
 console.log('\n## 1335. R2331 컴포넌트 추가 패널 개선 체크')
 const s1335 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
