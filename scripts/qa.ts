@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1646: R2654 BatchInspector 위치 XY 원점 리셋 ─────────────────────
+console.log('\n## 1646. R2654 — BatchInspector 위치 XY 원점 리셋')
+const s1646 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1646.includes('R2654') &&
+  s1646.includes('applyPosReset') &&
+  s1646.includes('pos리셋') &&
+  s1646.includes('XY=0')
+) {
+  log('pass', 'R2654-pos-reset', 'R2654 위치 XY 원점 리셋 구현 완료')
+} else {
+  log('warning', 'R2654-pos-reset', 'R2654 위치 XY 원점 리셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1645: R2653 BatchInspector Z-order 최전면/최후면 이동 ────────────
 console.log('\n## 1645. R2653 — BatchInspector Z-order 최전면/최후면 이동')
 const s1645 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

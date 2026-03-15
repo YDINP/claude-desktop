@@ -4865,6 +4865,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2654: 위치 XY 원점 리셋 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyPosReset = async (axis: 'x' | 'y' | 'both') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            const nx = axis === 'y' ? pos.x : 0
+            const ny = axis === 'x' ? pos.y : 0
+            return { ...n, position: { ...pos, x: nx, y: ny }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ position ${axis === 'both' ? 'XY' : axis.toUpperCase()}→0 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>pos리셋 (R2654)</span>
+            <span onClick={() => applyPosReset('x')} title="position.x → 0 (R2654)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>X=0</span>
+            <span onClick={() => applyPosReset('y')} title="position.y → 0 (R2654)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>Y=0</span>
+            <span onClick={() => applyPosReset('both')} title="position XY → 0,0 (R2654)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>XY=0</span>
+          </div>
+        )
+      })()}
       {/* R2516: 위치 오프셋 이동 — 선택 노드 위치에 Δx/Δy 더하기 */}
       {sceneFile.root && (() => {
         const applyOffset = async () => {
