@@ -18160,6 +18160,18 @@ function CCFileNodeInspector({
                   onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                 >{delta > 0 ? '+' : ''}{delta}°</span>
               ))}
+              {/* R2333: 회전 0° 리셋 */}
+              {Math.abs(rotation) > 0.01 && (
+                <span title="회전 0°으로 리셋"
+                  onClick={() => {
+                    const r = typeof draft.rotation === 'number' ? 0 : { ...(draft.rotation as object), z: 0 } as CCSceneNode['rotation']
+                    applyAndSave({ rotation: r })
+                  }}
+                  style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#6ee7b7')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#34d399')}
+                >0°</span>
+              )}
             </div>
           </div>
           <div>
@@ -18288,6 +18300,13 @@ function CCFileNodeInspector({
                 onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')}
                 onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
               >int</span>
+              {/* R2333: 스케일 1:1 리셋 */}
+              <span title="스케일 1:1 리셋 (X=1, Y=1)"
+                onClick={() => applyAndSave({ scale: { x: 1, y: 1, z: 1 } })}
+                style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#6ee7b7')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#34d399')}
+              >1:1</span>
             </div>
           </div>
         </div>

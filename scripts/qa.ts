@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1337: R2333 회전 0° 리셋 + 스케일 1:1 리셋 버튼 ──────────
+console.log('\n## 1337. R2333 회전 0° + 스케일 1:1 리셋 버튼 체크')
+const s1337 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1337.includes('R2333') &&
+  s1337.includes('1:1') &&
+  s1337.includes('0°으로 리셋')
+) {
+  log('pass', 'R2333-reset-buttons', '회전 0° + 스케일 1:1 리셋 버튼 구현 완료')
+} else {
+  log('warning', 'R2333-reset-buttons', 'R2333 리셋 버튼 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1336: R2332 Inspector active 토글 H키 힌트 ──────────
 console.log('\n## 1336. R2332 Inspector active 토글 H키 힌트 체크')
 const s1336 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
