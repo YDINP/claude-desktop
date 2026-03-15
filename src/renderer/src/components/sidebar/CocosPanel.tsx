@@ -4313,6 +4313,12 @@ function CCFileBatchInspector({
   // R2616: position Z 분배
   const [posZFrom, setPosZFrom] = useState<number>(0)
   const [posZTo, setPosZTo] = useState<number>(100)
+  // R2618: position X 분배
+  const [posXFrom, setPosXFrom] = useState<number>(-200)
+  const [posXTo, setPosXTo] = useState<number>(200)
+  // R2619: position Y 분배
+  const [posYFrom, setPosYFrom] = useState<number>(-200)
+  const [posYTo, setPosYTo] = useState<number>(200)
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -5041,6 +5047,76 @@ function CCFileBatchInspector({
             <input type="number" value={posZTo} onChange={e => setPosZTo(parseInt(e.target.value) || 0)} style={niS} title="끝 Z" />
             <span onClick={applyPosZGrad}
               title={`선택된 ${uuids.length}개 노드 position.Z ${posZFrom}→${posZTo} 균등 분배 (R2616)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#94a3b8')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >분배</span>
+          </div>
+        )
+      })()}
+      {/* R2618: position X 균등 분배 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const applyPosXGrad = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const newX = Math.round(posXFrom + (posXTo - posXFrom) * t)
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...p, x: newX }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ pos.X 분배 ${posXFrom}→${posXTo} (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posX분배 (R2618)</span>
+            <input type="number" value={posXFrom} onChange={e => setPosXFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 X" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={posXTo} onChange={e => setPosXTo(parseInt(e.target.value) || 0)} style={niS} title="끝 X" />
+            <span onClick={applyPosXGrad}
+              title={`선택된 ${uuids.length}개 노드 position.X ${posXFrom}→${posXTo} 균등 분배 (R2618)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#94a3b8')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >분배</span>
+          </div>
+        )
+      })()}
+      {/* R2619: position Y 균등 분배 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const applyPosYGrad = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const newY = Math.round(posYFrom + (posYTo - posYFrom) * t)
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...p, y: newY }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ pos.Y 분배 ${posYFrom}→${posYTo} (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posY분배 (R2619)</span>
+            <input type="number" value={posYFrom} onChange={e => setPosYFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 Y" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={posYTo} onChange={e => setPosYTo(parseInt(e.target.value) || 0)} style={niS} title="끝 Y" />
+            <span onClick={applyPosYGrad}
+              title={`선택된 ${uuids.length}개 노드 position.Y ${posYFrom}→${posYTo} 균등 분배 (R2619)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#94a3b8')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}

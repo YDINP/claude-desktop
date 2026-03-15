@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1611: R2619 BatchInspector position Y 균등 분배 ──────────────────
+console.log('\n## 1611. R2619 — BatchInspector position Y 균등 분배')
+const s1611 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1611.includes('R2619') &&
+  s1611.includes('posYFrom') &&
+  s1611.includes('posYTo') &&
+  s1611.includes('applyPosYGrad')
+) {
+  log('pass', 'R2619-posY-grad', 'R2619 position Y 균등 분배 구현 완료')
+} else {
+  log('warning', 'R2619-posY-grad', 'R2619 position Y 균등 분배 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1610: R2618 BatchInspector position X 균등 분배 ──────────────────
+console.log('\n## 1610. R2618 — BatchInspector position X 균등 분배')
+const s1610 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1610.includes('R2618') &&
+  s1610.includes('posXFrom') &&
+  s1610.includes('posXTo') &&
+  s1610.includes('applyPosXGrad')
+) {
+  log('pass', 'R2618-posX-grad', 'R2618 position X 균등 분배 구현 완료')
+} else {
+  log('warning', 'R2618-posX-grad', 'R2618 position X 균등 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1609: R2617 SceneView 원점(0,0) 십자선 오버레이 ─────────────────
 console.log('\n## 1609. R2617 — SceneView 원점(0,0) 십자선 오버레이')
 const s1609 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
