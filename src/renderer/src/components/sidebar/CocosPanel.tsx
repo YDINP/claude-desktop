@@ -23432,15 +23432,30 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{playTimes === 0 ? '(loop∞)' : `×${playTimes}`}</span>
                   </div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
-                    <input type="checkbox" checked={loop}
-                      onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked, _N$loop: e.target.checked } } : c)
-                        applyAndSave({ components: updated })
-                      }}
-                      style={{ margin: 0, accentColor: '#4ade80' }}
-                    />loop
-                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={loop}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked, _N$loop: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ margin: 0, accentColor: '#4ade80' }}
+                      />loop
+                    </label>
+                    {/* R2397: debugBones + enableBatch */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.debugBones ?? p._debugBones ?? p._N$debugBones ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, debugBones: e.target.checked, _debugBones: e.target.checked, _N$debugBones: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0, accentColor: '#fbbf24' }}
+                      />debugBones
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.enableBatch ?? p._enableBatch ?? p._N$enableBatch ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableBatch: e.target.checked, _enableBatch: e.target.checked, _N$enableBatch: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0, accentColor: '#34d399' }}
+                      />batch
+                    </label>
+                  </div>
                 </div>
               )
             }

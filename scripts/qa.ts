@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1401: R2397 Inspector dragonBones.ArmatureDisplay debugBones + enableBatch ──────────
+console.log('\n## 1401. R2397 Inspector dragonBones.ArmatureDisplay debugBones + enableBatch 체크')
+const s1401 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1401.includes('R2397') &&
+  s1401.includes('debugBones') &&
+  s1401.includes('_N$debugBones') &&
+  s1401.includes('enableBatch') &&
+  s1401.includes('dragonBones.ArmatureDisplay')
+) {
+  log('pass', 'R2397-dragonbones-debugbones-enablebatch', 'Inspector dragonBones.ArmatureDisplay debugBones + enableBatch 구현 완료')
+} else {
+  log('warning', 'R2397-dragonbones-debugbones-enablebatch', 'Inspector dragonBones.ArmatureDisplay debugBones + enableBatch 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1400: R2396 Inspector sp.Skeleton useTint 체크박스 ──────────
 console.log('\n## 1400. R2396 Inspector sp.Skeleton useTint 체크')
 const s1400 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
