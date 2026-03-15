@@ -21029,6 +21029,47 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R2349: cc.PageViewIndicator — direction/spacingX/spacingY Quick Edit
+            if (comp.type === 'cc.PageViewIndicator') {
+              const direction = Number(p.direction ?? p._N$direction ?? 0)
+              const spacingX = Number(p.spacingX ?? p._N$spacingX ?? 0)
+              const spacingY = Number(p.spacingY ?? p._N$spacingY ?? 0)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>direction</span>
+                    {[['H', 0], ['V', 1]].map(([label, v]) => (
+                      <span key={v} onClick={() => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v, _direction: v, _N$direction: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                        style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', border: `1px solid ${direction === v ? '#34d399' : 'var(--border)'}`, color: direction === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{label}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>spacingX</span>
+                    <input type="number" defaultValue={spacingX} key={`pvix-${spacingX}`} step={1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingX: v, _spacingX: v, _N$spacingX: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>spacingY</span>
+                    <input type="number" defaultValue={spacingY} key={`pviy-${spacingY}`} step={1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingY: v, _spacingY: v, _N$spacingY: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                </div>
+              )
+            }
             // R2340: cc.SpotLight — intensity/range/spotAngle Quick Edit
             if (comp.type === 'cc.SpotLight') {
               const intensity = Number(p.intensity ?? 1800)

@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1353: R2349 Inspector cc.PageViewIndicator Quick Edit ──────────
+console.log('\n## 1353. R2349 Inspector cc.PageViewIndicator direction/spacingX/Y 체크')
+const s1353 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1353.includes('R2349') &&
+  s1353.includes("comp.type === 'cc.PageViewIndicator'") &&
+  s1353.includes('spacingX')
+) {
+  log('pass', 'R2349-pageviewindicator-inspector', 'Inspector cc.PageViewIndicator direction/spacingX/Y 편집 구현 완료')
+} else {
+  log('warning', 'R2349-pageviewindicator-inspector', 'Inspector cc.PageViewIndicator 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1352: R2348 BatchInspector distribute evenly ──────────
 console.log('\n## 1352. R2348 BatchInspector 균등 배분(distribute evenly) 체크')
 const s1352 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
