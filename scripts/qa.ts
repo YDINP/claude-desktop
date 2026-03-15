@@ -25478,6 +25478,21 @@ if (
   log('warning', 'R2313-chokidar-v5-race-condition-watcher-leak', 'ISSUE-003/004/005 버그 수정 미완료', 'cc-file-watcher.ts / fs-handlers.ts')
 }
 
+// ── Section 1318: R2314 ISSUE-002/006 버그 수정 (session:setCollection + setInterval clearInterval) ──────────
+console.log('\n## 1318. R2314 ISSUE-002/006 버그 수정 체크')
+const s1318session = readFileSync(join(ROOT, 'src/main/ipc/session-handlers.ts'), 'utf-8')
+const s1318index = readFileSync(join(ROOT, 'src/main/index.ts'), 'utf-8')
+if (
+  s1318session.includes('세션 파일 읽기 실패') &&
+  s1318session.includes("throw new Error(`세션 파일 읽기 실패") &&
+  s1318index.includes('const memTimer = setInterval') &&
+  s1318index.includes("app.on('will-quit', () => clearInterval(memTimer))")
+) {
+  log('pass', 'R2314-session-setcollection-memtimer-fix', 'session:setCollection try/catch + memTimer clearInterval 수정')
+} else {
+  log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

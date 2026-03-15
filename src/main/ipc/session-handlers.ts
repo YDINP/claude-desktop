@@ -618,7 +618,13 @@ ${messages.map(m => `<div class="msg ${m.role === 'user' ? 'user' : 'assistant'}
       throw new Error('Invalid session ID')
     }
     const filePath = join(sessionsDir, `${id}.json`)
-    const raw = JSON.parse(await readFile(filePath, 'utf-8'))
+    // R2314: ISSUE-002 — readFile 예외 처리 (파일 삭제/권한 오류 시 UI 무응답 방지)
+    let raw: Record<string, unknown>
+    try {
+      raw = JSON.parse(await readFile(filePath, 'utf-8'))
+    } catch (e) {
+      throw new Error(`세션 파일 읽기 실패: ${String(e)}`)
+    }
     if (collection) raw.collection = collection
     else delete raw.collection
     await writeFile(filePath, JSON.stringify(raw))
