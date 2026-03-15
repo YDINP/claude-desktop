@@ -859,6 +859,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         measureStartRef.current = null
         return
       }
+      // R2477: Escape — 부모 노드 선택 (없으면 선택 해제)
+      if (e.code === 'Escape' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault()
+        if (selectedUuid) {
+          const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+          const parentUuid = fn?.parentUuid
+          if (parentUuid) {
+            onSelect(parentUuid)
+            multiSelectedRef.current = new Set()
+          } else {
+            onSelect(null)
+            multiSelectedRef.current = new Set()
+            onMultiSelectChange?.([])
+          }
+        }
+        return
+      }
       // R1622: O — 선택 노드 캔버스 중앙(0,0) 이동
       if (e.code === 'KeyO' && !e.ctrlKey && !e.metaKey && selectedUuid) {
         e.preventDefault()
@@ -2652,7 +2669,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['# 버튼', `그리드 오버레이 표시/숨기기 (R2456)`],
             ['SE 핸들 드래그', '노드 리사이즈'],
             ['↻ 핸들 드래그', '노드 회전 (Shift: 15°)'],
-            ['Escape', '선택 해제'],
+            ['Escape', '부모 노드 선택 (없으면 해제) (R2477)'],
             ['←↑→↓', '선택 노드 1px 이동'],
             ['Shift+←↑→↓', '10px 이동'],
             ['Ctrl+↑↓', '형제 순서 변경'],
