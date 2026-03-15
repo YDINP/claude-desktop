@@ -27996,6 +27996,21 @@ if (
   log('warning', 'R2420-labeloutline-labelshadow', 'Inspector cc.LabelOutline/LabelShadow 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1425: R2421 Inspector cc.ParticleSystem emitterMode + autoRemoveOnFinish ──────────
+console.log('\n## 1425. R2421 Inspector cc.ParticleSystem emitterMode + autoRemoveOnFinish 체크')
+const s1425 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1425.includes('R2421') &&
+  s1425.includes('emitterMode') &&
+  s1425.includes('_N$emitterMode') &&
+  s1425.includes('autoRemoveOnFinish') &&
+  s1425.includes('_autoRemoveOnFinish')
+) {
+  log('pass', 'R2421-particle-emittermode-autoremove', 'Inspector cc.ParticleSystem emitterMode + autoRemoveOnFinish 구현 완료')
+} else {
+  log('warning', 'R2421-particle-emittermode-autoremove', 'Inspector cc.ParticleSystem emitterMode/autoRemoveOnFinish 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

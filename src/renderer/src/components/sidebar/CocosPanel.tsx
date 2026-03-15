@@ -23039,6 +23039,24 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2421: emitterMode + autoRemoveOnFinish (BatchInspector R1981/R1979) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>emitMode</span>
+                    {([['Grav', 0], ['Rad', 1]] as const).map(([l, v]) => {
+                      const cur = Number(p.emitterMode ?? p._emitterMode ?? p._N$emitterMode ?? 0)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, emitterMode: v, _emitterMode: v, _N$emitterMode: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginLeft: 8 }}>
+                      <input type="checkbox" checked={!!(p.autoRemoveOnFinish ?? p._autoRemoveOnFinish ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoRemoveOnFinish: e.target.checked, _autoRemoveOnFinish: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0 }}
+                      />autoRm
+                    </label>
+                  </div>
                 </div>
               )
             }
