@@ -21087,6 +21087,19 @@ function CCFileNodeInspector({
                       >{l}</span>
                     ))}
                   </div>
+                  {/* R2386: placeholderFontSize 퀵 편집 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>phFontSize</span>
+                    <input type="number" defaultValue={Number(p.placeholderFontSize ?? p._placeholderFontSize ?? p._N$placeholderFontSize ?? 20)} min={1} step={2}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      onBlur={ev => { const v = Math.max(1, parseInt(ev.target.value) || 20); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholderFontSize: v, _placeholderFontSize: v, _N$placeholderFontSize: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    {[12, 16, 20, 24, 32, 48].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholderFontSize: v, _placeholderFontSize: v, _N$placeholderFontSize: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
                   {/* R2380: fontColor + placeholderFontColor */}
                   {(() => {
                     const fc = p.fontColor ?? p._fontColor ?? p._N$fontColor as { r?: number; g?: number; b?: number } | undefined

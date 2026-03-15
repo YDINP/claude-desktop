@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1390: R2386 Inspector cc.EditBox placeholderFontSize ──────────
+console.log('\n## 1390. R2386 Inspector cc.EditBox placeholderFontSize 체크')
+const s1390 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1390.includes('R2386') &&
+  s1390.includes('placeholderFontSize') &&
+  s1390.includes('_N$placeholderFontSize') &&
+  s1390.includes('cc.EditBox')
+) {
+  log('pass', 'R2386-editbox-phfontsize', 'Inspector cc.EditBox placeholderFontSize 구현 완료')
+} else {
+  log('warning', 'R2386-editbox-phfontsize', 'Inspector cc.EditBox placeholderFontSize 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1389: R2385 Inspector cc.Label shadowOffset x/y ──────────
 console.log('\n## 1389. R2385 Inspector cc.Label shadowOffset x/y 체크')
 const s1389 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
