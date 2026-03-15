@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1567: R2575 BatchInspector 스케일 반전 (↔H / ↕V) ────────────────
+console.log('\n## 1567. R2575 — BatchInspector 스케일 반전 (↔H / ↕V)')
+const s1567 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1567.includes('R2575') &&
+  s1567.includes('applyFlip') &&
+  s1567.includes('↔H') &&
+  s1567.includes('↕V')
+) {
+  log('pass', 'R2575-scale-flip', 'R2575 스케일 반전 구현 완료')
+} else {
+  log('warning', 'R2575-scale-flip', 'R2575 스케일 반전 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1566: R2574 NodeInspector 불투명도 클립보드 (o↑/o↓) ──────────────
 console.log('\n## 1566. R2574 — NodeInspector 불투명도 클립보드 (o↑/o↓)')
 const s1566 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

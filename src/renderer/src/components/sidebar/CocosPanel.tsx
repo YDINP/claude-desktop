@@ -5278,6 +5278,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2575: 선택 노드 스케일 반전 (↔H / ↕V) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const flipNodes: CCSceneNode[] = []
+        function collectFlip(n: CCSceneNode) { if (uuidSet.has(n.uuid)) flipNodes.push(n); n.children.forEach(collectFlip) }
+        collectFlip(sceneFile.root!)
+        if (flipNodes.length === 0) return null
+        const applyFlip = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, [axis]: -(sc[axis] ?? 1) }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ scale${axis.toUpperCase()} flip (${flipNodes.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>반전 (R2575)</span>
+            <span onClick={() => applyFlip('x')} title="scaleX 부호 반전 — 좌우 미러 (R2575)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}>↔H</span>
+            <span onClick={() => applyFlip('y')} title="scaleY 부호 반전 — 상하 미러 (R2575)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}>↕V</span>
+          </div>
+        )
+      })()}
       {/* R2535: 선택 노드 스택 배치 (edge-to-edge stack X/Y + 간격) */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const stkNodes: CCSceneNode[] = []
