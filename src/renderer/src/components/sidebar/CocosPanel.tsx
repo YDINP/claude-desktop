@@ -18662,6 +18662,9 @@ function CCFileNodeInspector({
   // R2552: 위치 전용 클립보드
   const posClipboard = useRef<{ x: number; y: number } | null>(null)
   const [posClipFilled, setPosClipFilled] = useState(false)
+  // R2553: 크기 전용 클립보드
+  const sizeClipboard = useRef<{ w: number; h: number } | null>(null)
+  const [sizeClipFilled, setSizeClipFilled] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
 
   // R1484: World Transform — 부모 체인 누산 좌표
@@ -20098,6 +20101,19 @@ function CCFileNodeInspector({
             style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: posClipFilled ? 'pointer' : 'default', color: posClipFilled ? '#4ade80' : '#333', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => { if (posClipFilled) e.currentTarget.style.color = '#86efac' }} onMouseLeave={e => { e.currentTarget.style.color = posClipFilled ? '#4ade80' : '#333' }}
           >P↓</span>
+          {/* R2553: 크기 전용 복사/붙여넣기 */}
+          <span
+            title="크기(size) 복사 — 다른 노드에 붙여넣기 가능 (R2553)"
+            onClick={() => { const sz = draft.size as { x: number; y: number } | undefined; sizeClipboard.current = { w: sz?.x ?? 0, h: sz?.y ?? 0 }; setSizeClipFilled(true) }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+          >S↑</span>
+          <span
+            title={sizeClipFilled ? `크기 붙여넣기 (${sizeClipboard.current?.w}×${sizeClipboard.current?.h}) — R2553` : '복사된 크기 없음'}
+            onClick={() => { if (sizeClipboard.current) applyAndSave({ size: { x: sizeClipboard.current.w, y: sizeClipboard.current.h } }) }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: sizeClipFilled ? 'pointer' : 'default', color: sizeClipFilled ? '#f472b6' : '#333', background: 'none', userSelect: 'none' }}
+            onMouseEnter={e => { if (sizeClipFilled) e.currentTarget.style.color = '#f9a8d4' }} onMouseLeave={e => { e.currentTarget.style.color = sizeClipFilled ? '#f472b6' : '#333' }}
+          >S↓</span>
           {/* R1635: 세션 시작 상태로 트랜스폼 원복 */}
           {origSnapRef.current && (() => {
             const os = origSnapRef.current!

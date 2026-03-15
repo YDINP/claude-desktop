@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1545: R2553 NodeInspector 크기 전용 복사/붙여넣기 (S↑/S↓) ────────
+console.log('\n## 1545. R2553 — NodeInspector 크기 전용 복사/붙여넣기')
+const s1545 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1545.includes('R2553') &&
+  s1545.includes('sizeClipboard') &&
+  s1545.includes('sizeClipFilled') &&
+  s1545.includes('S↑') &&
+  s1545.includes('S↓')
+) {
+  log('pass', 'R2553-paste-size', 'R2553 크기 전용 복사/붙여넣기 구현 완료')
+} else {
+  log('warning', 'R2553-paste-size', 'R2553 크기 전용 복사/붙여넣기 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1544: R2552 NodeInspector 위치 전용 복사/붙여넣기 (P↑/P↓) ────────
 console.log('\n## 1544. R2552 — NodeInspector 위치 전용 복사/붙여넣기')
 const s1544 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
