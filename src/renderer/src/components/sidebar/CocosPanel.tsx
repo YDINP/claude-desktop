@@ -4340,6 +4340,9 @@ function CCFileBatchInspector({
   // R2649: 선택 노드 복제 오프셋
   const [cloneOffsetX, setCloneOffsetX] = useState<number>(50)
   const [cloneOffsetY, setCloneOffsetY] = useState<number>(-50)
+  // R2650: 노드 이름 일련번호 치환
+  const [nameSerialBase, setNameSerialBase] = useState<string>('node')
+  const [nameSerialStart, setNameSerialStart] = useState<number>(1)
   // R2639: 원형 배치
   const [circleRadius, setCircleRadius] = useState<number>(200)
   // R2527: 스케일 X/Y 링크
@@ -18876,6 +18879,34 @@ function CCFileBatchInspector({
             <input value={nameSuffix} onChange={e => setNameSuffix(e.target.value)} placeholder="suffix" style={inS} title="접미사 (빈칸 가능)" />
             <span onClick={applyNamePatch}
               title={`선택 노드 이름에 prefix/suffix 추가 (R2642)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
+            >적용</span>
+          </div>
+        )
+      })()}
+      {/* R2650: 노드 이름 일련번호 치환 — {base}{n} 형식으로 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyNameSerial = async () => {
+          if (!sceneFile.root) return
+          let idx = nameSerialStart
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, name: `${nameSerialBase}${idx++}`, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 이름 일련번호 ${nameSerialBase}${nameSerialStart}… (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
+        const niS: React.CSSProperties = { width: 30, fontSize: 9, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>이름번호 (R2650)</span>
+            <input value={nameSerialBase} onChange={e => setNameSerialBase(e.target.value)} placeholder="base" style={inS} title="기본 이름" />
+            <input type="number" value={nameSerialStart} min={0} step={1} onChange={e => setNameSerialStart(parseInt(e.target.value) || 1)} style={niS} title="시작 번호" />
+            <span onClick={applyNameSerial}
+              title={`선택 노드 이름을 ${nameSerialBase}N 형식으로 치환 (R2650)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
             >적용</span>
           </div>

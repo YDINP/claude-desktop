@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1642: R2650 BatchInspector 노드 이름 일련번호 치환 ───────────────
+console.log('\n## 1642. R2650 — BatchInspector 노드 이름 일련번호 치환')
+const s1642 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1642.includes('R2650') &&
+  s1642.includes('applyNameSerial') &&
+  s1642.includes('nameSerialBase') &&
+  s1642.includes('nameSerialStart') &&
+  s1642.includes('이름번호')
+) {
+  log('pass', 'R2650-name-serial', 'R2650 노드 이름 일련번호 치환 구현 완료')
+} else {
+  log('warning', 'R2650-name-serial', 'R2650 노드 이름 일련번호 치환 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1641: R2649 BatchInspector 선택 노드 복제 ────────────────────────
 console.log('\n## 1641. R2649 — BatchInspector 선택 노드 복제')
 const s1641 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
