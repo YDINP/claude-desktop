@@ -28682,6 +28682,18 @@ if (
   log('warning', 'R2483-distribute', 'R2483 균등 배분 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1476: R2484 Inspector 동일 이름 노드 수 뱃지 ────────────────────
+const s1476 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1476.includes('R2484') &&
+  s1476.includes('sameNameCount') &&
+  s1476.includes('같은 이름 노드')
+) {
+  log('pass', 'R2484-same-name-badge', 'R2484 Inspector 동일 이름 노드 수 뱃지 구현 완료')
+} else {
+  log('warning', 'R2484-same-name-badge', 'R2484 동일 이름 뱃지 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

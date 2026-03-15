@@ -17895,6 +17895,14 @@ function CCFileNodeInspector({
     return count
   }, [node])
 
+  // R2484: 씬 내 같은 이름 노드 수
+  const sameNameCount = useMemo(() => {
+    let count = 0
+    function countName(n: CCSceneNode) { if (n.name === node.name) count++; n.children.forEach(countName) }
+    countName(sceneFile.root)
+    return count
+  }, [sceneFile.root, node.name])
+
   // R1660: 씬 전체 컴포넌트 타입별 노드 수
   const compTypeCountMap = useMemo(() => {
     const map: Record<string, number> = {}
@@ -17991,6 +17999,8 @@ function CCFileNodeInspector({
             {/* R1661: 전체 하위 노드 수 */}
             {totalDescendants > draft.children.length && <span style={{ fontSize: 8, color: '#454', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`전체 하위 노드 ${totalDescendants}개`}>⊲{totalDescendants}</span>}
             {draft.components.length > 0 && <span style={{ fontSize: 8, color: '#556a', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`컴포넌트 ${draft.components.length}개`}>⊕{draft.components.length}</span>}
+            {/* R2484: 씬 내 같은 이름 노드 수 */}
+            {sameNameCount > 1 && <span style={{ fontSize: 8, color: '#a87', padding: '1px 3px', background: 'rgba(180,120,80,0.12)', borderRadius: 2, cursor: 'pointer' }} title={`씬 내 "${node.name}" 이름 노드 ${sameNameCount}개 (R2484)`}>=×{sameNameCount}</span>}
             {/* R1721: 형제 노드 탐색 버튼 ◀ ▶ */}
             {siblings.length > 1 && (() => {
               const idx = siblings.findIndex(s => s.uuid === node.uuid)
