@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1368: R2364 Inspector cc.Label spacingY ──────────
+console.log('\n## 1368. R2364 Inspector cc.Label spacingY 체크')
+const s1368 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1368.includes('R2364') &&
+  s1368.includes('spacingY') &&
+  s1368.includes('_N$spacingY')
+) {
+  log('pass', 'R2364-label-spacingy', 'Inspector cc.Label spacingY 입력 구현 완료')
+} else {
+  log('warning', 'R2364-label-spacingy', 'Inspector cc.Label spacingY 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1367: R2363 Inspector cc.Sprite packable/meshType ──────────
 console.log('\n## 1367. R2363 Inspector cc.Sprite packable/meshType 체크')
 const s1367 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

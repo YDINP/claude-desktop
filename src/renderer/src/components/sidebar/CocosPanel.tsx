@@ -20683,6 +20683,17 @@ function CCFileNodeInspector({
                       }}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
+                    {/* R2364: spacingY */}
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 4, flexShrink: 0 }}>Y</span>
+                    <input type="number" defaultValue={Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)} step={1}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingY: v, _spacingY: v, _N$spacingY: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 40, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="spacingY (R2364)"
+                    />
                   </div>
                   {/* R1743: bold / italic / underline 토글 */}
                   {(() => {
