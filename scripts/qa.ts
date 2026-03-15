@@ -28570,6 +28570,31 @@ if (
   log('warning', 'R2470-minimap-select', 'R2470 미니맵 노드 클릭 선택 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1467: R2471 Inspector cc.find() 경로 복사 ───────────────────────
+const s1467 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1467.includes('R2471') &&
+  s1467.includes('cc.find(') &&
+  s1467.includes('nodePath.slice(1)')
+) {
+  log('pass', 'R2471-ccfind-copy', 'R2471 Inspector cc.find() 경로 클립보드 복사 구현 완료')
+} else {
+  log('warning', 'R2471-ccfind-copy', 'R2471 cc.find() 복사 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1468: R2472 씬뷰 다중 선택 노드 동시 드래그 ─────────────────────
+const s1468 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1468.includes('R2472') &&
+  s1468.includes('multiDragRef') &&
+  s1468.includes('multiDragDelta') &&
+  s1468.includes('isMultiDragged')
+) {
+  log('pass', 'R2472-multi-drag', 'R2472 씬뷰 다중 선택 노드 동시 드래그 구현 완료')
+} else {
+  log('warning', 'R2472-multi-drag', 'R2472 다중 드래그 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
