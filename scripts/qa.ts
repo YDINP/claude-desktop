@@ -29067,6 +29067,19 @@ if (
   log('warning', 'R2514-grid-snap', 'R2514 그리드 스냅 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1507: R2515 BatchInspector 부모 노드 선택 ──────────────────────────
+console.log('\n## 1507. R2515 — BatchInspector 부모 선택')
+const s1507 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1507.includes('R2515') &&
+  s1507.includes('parentOfMap') &&
+  s1507.includes('⬆ 부모')
+) {
+  log('pass', 'R2515-parent-select', 'R2515 BatchInspector 부모 노드 선택 구현 완료')
+} else {
+  log('warning', 'R2515-parent-select', 'R2515 부모 노드 선택 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -4494,6 +4494,26 @@ function CCFileBatchInspector({
             onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
           >⊕ 하위</span>
         )}
+        {/* R2515: 부모 노드 선택 */}
+        {onMultiSelectChange && sceneFile.root && uuids.length > 0 && (() => {
+          const parentOfMap = new Map<string, string>()
+          function buildParentMap(n: CCSceneNode, parentUuid: string | null) {
+            if (parentUuid) parentOfMap.set(n.uuid, parentUuid)
+            n.children.forEach(c => buildParentMap(c, n.uuid))
+          }
+          buildParentMap(sceneFile.root!, null)
+          const parentUuids = [...new Set(uuids.map(u => parentOfMap.get(u)).filter((p): p is string => !!p))]
+          if (parentUuids.length === 0) return null
+          return (
+            <span
+              title={`선택된 노드의 부모 ${parentUuids.length}개 선택 (R2515)`}
+              onClick={() => onMultiSelectChange(parentUuids)}
+              style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#60a5fa')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >⬆ 부모</span>
+          )
+        })()}
       </div>
       {/* R2513: Z-Order 이동 버튼 */}
       <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
