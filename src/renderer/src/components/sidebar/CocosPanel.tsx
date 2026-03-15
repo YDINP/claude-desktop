@@ -19747,6 +19747,30 @@ function CCFileNodeInspector({
                       {OVERFLOW.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
                     </select>
                   </div>
+                  {/* R2353: fontColor */}
+                  {(() => {
+                    const fc = p.fontColor ?? p._fontColor ?? p._N$fontColor as { r?: number; g?: number; b?: number } | undefined
+                    const fcR = (fc as Record<string,number> | undefined)?.r ?? 0
+                    const fcG = (fc as Record<string,number> | undefined)?.g ?? 0
+                    const fcB = (fc as Record<string,number> | undefined)?.b ?? 0
+                    const fcHex = `#${fcR.toString(16).padStart(2,'0')}${fcG.toString(16).padStart(2,'0')}${fcB.toString(16).padStart(2,'0')}`
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                        <label style={{ fontSize: 11, flexShrink: 0 }}>fontColor</label>
+                        <input type="color" value={fcHex}
+                          onChange={e => {
+                            const h = e.target.value
+                            const nr = parseInt(h.slice(1,3),16), ng = parseInt(h.slice(3,5),16), nb = parseInt(h.slice(5,7),16)
+                            const col = { r: nr, g: ng, b: nb, a: 255 }
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontColor: col, _fontColor: col, _N$fontColor: col } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 28, height: 22, border: '1px solid #444', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+                        />
+                        <span style={{ fontSize: 9, color: '#ccc' }}>{fcR},{fcG},{fcB}</span>
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }

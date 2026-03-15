@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1357: R2353 Inspector cc.RichText fontColor ──────────
+console.log('\n## 1357. R2353 Inspector cc.RichText fontColor 체크')
+const s1357 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1357.includes('R2353') &&
+  s1357.includes('fontColor') &&
+  s1357.includes('cc.RichText')
+) {
+  log('pass', 'R2353-richtext-fontcolor', 'Inspector cc.RichText fontColor 단일노드 편집 구현 완료')
+} else {
+  log('warning', 'R2353-richtext-fontcolor', 'Inspector cc.RichText fontColor 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1356: R2352 Inspector cc.EditBox lineCount + tabIndex ──────────
 console.log('\n## 1356. R2352 Inspector cc.EditBox lineCount + tabIndex 체크')
 const s1356 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
