@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T13:36:04.006Z
+> 2026-03-15T13:37:09.389Z
 
 ## Critical
 _없음_
@@ -2470,3 +2470,4 @@ _없음_
 - Inspector cc.Mask enabled 구현 완료
 - Inspector cc.Toggle enabled 구현 완료
 - Inspector cc.ToggleContainer enabled 구현 완료
+- Inspector cc.Button enabled 구현 완료
