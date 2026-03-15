@@ -21640,6 +21640,22 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
                   </div>
+                  {/* R2405: targetDisplay */}
+                  {!is3x && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>targetDisp</span>
+                      <input type="number" defaultValue={Number(p.targetDisplay ?? p._targetDisplay ?? p._N$targetDisplay ?? 0)} min={0} step={1}
+                        onBlur={e => { const v = parseInt(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, targetDisplay: v, _targetDisplay: v, _N$targetDisplay: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        title="targetDisplay (Camera)"
+                      />
+                      {[0, 1, 2, 3].map(v => (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, targetDisplay: v, _targetDisplay: v, _N$targetDisplay: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                        >{v}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )
             }

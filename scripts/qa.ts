@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1409: R2405 Inspector cc.Camera targetDisplay ──────────
+console.log('\n## 1409. R2405 Inspector cc.Camera targetDisplay 체크')
+const s1409 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1409.includes('R2405') &&
+  s1409.includes('targetDisplay') &&
+  s1409.includes('_targetDisplay') &&
+  s1409.includes('_N$targetDisplay') &&
+  s1409.includes('cc.Camera')
+) {
+  log('pass', 'R2405-camera-targetdisplay', 'Inspector cc.Camera targetDisplay 구현 완료')
+} else {
+  log('warning', 'R2405-camera-targetdisplay', 'Inspector cc.Camera targetDisplay 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1408: R2404 Inspector cc.Label isSystemFontUsed + platformFont ──────────
 console.log('\n## 1408. R2404 Inspector cc.Label isSystemFontUsed + platformFont 체크')
 const s1408 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
