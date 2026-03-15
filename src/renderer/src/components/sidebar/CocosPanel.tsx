@@ -269,6 +269,7 @@ interface CCFileProjectUIProps {
     canUndo: boolean
     canRedo: boolean
     openProject: () => Promise<void>
+    detectProject?: (path: string) => Promise<void>
     loadScene: (scenePath: string) => Promise<void>
     saveScene: (root: import('../../../../shared/ipc-schema').CCSceneNode) => Promise<{ success: boolean; error?: string }>
     undo: () => Promise<{ success: boolean; error?: string } | undefined>
@@ -296,7 +297,21 @@ function deepCopyNodeWithNewUuids(node: CCSceneNode, suffix = '_Copy'): CCSceneN
 }
 
 function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
-  const { projectInfo, sceneFile, loading, error, externalChange, canUndo, canRedo, conflictInfo, openProject, loadScene, saveScene, undo, redo, restoreBackup, forceOverwrite } = fileProject
+  const { projectInfo, sceneFile, loading, error, externalChange, canUndo, canRedo, conflictInfo, openProject, detectProject, loadScene, saveScene, undo, redo, restoreBackup, forceOverwrite } = fileProject
+  // R2317: 즐겨찾기 프로젝트 목록
+  const CC_FAV_KEY = 'cc-favorite-projects'
+  const [favProjects, setFavProjects] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(CC_FAV_KEY) ?? '[]') } catch { return [] }
+  })
+  const [showFavMenu, setShowFavMenu] = useState(false)
+  const isFav = projectInfo?.projectPath ? favProjects.includes(projectInfo.projectPath) : false
+  const toggleFav = () => {
+    const path = projectInfo?.projectPath
+    if (!path) return
+    const next = isFav ? favProjects.filter(p => p !== path) : [...favProjects, path]
+    setFavProjects(next)
+    localStorage.setItem(CC_FAV_KEY, JSON.stringify(next))
+  }
   const [selectedScene, setSelectedScene] = useState<string>('')
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
@@ -1963,6 +1978,33 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           >
             {loading ? '로드 중...' : projectInfo?.detected ? '📂 다른 프로젝트 열기' : '📂 CC 프로젝트 열기'}
           </button>
+          {/* R2317: 즐겨찾기 토글 버튼 */}
+          <div style={{ position: 'relative' }}>
+            <button
+              title={isFav ? '즐겨찾기 해제' : (projectInfo?.projectPath ? '즐겨찾기 추가' : '즐겨찾기 목록')}
+              onClick={() => {
+                if (projectInfo?.projectPath) toggleFav()
+                else setShowFavMenu(v => !v)
+              }}
+              style={{ padding: '4px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 4, fontSize: 13, cursor: 'pointer', color: isFav ? '#fbbf24' : 'var(--text-muted)' }}
+            >{isFav ? '★' : '☆'}</button>
+            {/* 즐겨찾기 드롭다운 (목록) */}
+            {showFavMenu && favProjects.length > 0 && (
+              <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 200, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 4, minWidth: 220, boxShadow: '0 4px 12px rgba(0,0,0,0.4)', overflow: 'hidden' }}>
+                {favProjects.map(path => (
+                  <div key={path}
+                    onClick={() => { detectProject?.(path); setShowFavMenu(false) }}
+                    style={{ padding: '5px 10px', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--border)' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--hover)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '')}
+                  >
+                    <span>📁</span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={path}>{path.split(/[\\/]/).pop()}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           {/* R1461: 새 프로젝트 생성 마법사 */}
           <button
             onClick={() => { setShowProjectWizard(true); setWizardStep(1); setWizardError(null) }}

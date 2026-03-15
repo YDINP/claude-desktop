@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1321: R2317 CocosPanel 즐겨찾기 프로젝트 ──────────
+console.log('\n## 1321. R2317 CocosPanel 즐겨찾기 프로젝트 체크')
+const s1321 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1321.includes('cc-favorite-projects') &&
+  s1321.includes('favProjects') &&
+  s1321.includes('toggleFav') &&
+  s1321.includes('R2317')
+) {
+  log('pass', 'R2317-cocos-fav-projects', 'CocosPanel 즐겨찾기 프로젝트 기능 구현 완료')
+} else {
+  log('warning', 'R2317-cocos-fav-projects', 'CocosPanel 즐겨찾기 프로젝트 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1320: R2316 ISSUE-001 shell:exec 위험 패턴 블록리스트 ──────────
 console.log('\n## 1320. R2316 ISSUE-001 shell:exec 보안 검증 체크')
 const s1320 = readFileSync(join(ROOT, 'src/main/ipc/fs-handlers.ts'), 'utf-8')
