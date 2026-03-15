@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1598: R2606 BatchInspector tint 색상 초기화 버튼 (C↺) ──────────
+console.log('\n## 1598. R2606 — BatchInspector tint 색상 초기화 (C↺)')
+const s1598 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1598.includes('R2606') &&
+  s1598.includes("what === 'color'") &&
+  s1598.includes('C↺')
+) {
+  log('pass', 'R2606-color-reset', 'R2606 tint 색상 초기화 버튼 구현 완료')
+} else {
+  log('warning', 'R2606-color-reset', 'R2606 tint 색상 초기화 버튼 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1597: R2605 BatchInspector scale 균등 분배 ───────────────────────
 console.log('\n## 1597. R2605 — BatchInspector scale 균등 분배')
 const s1597 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

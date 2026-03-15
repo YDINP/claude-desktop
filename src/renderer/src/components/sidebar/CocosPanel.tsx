@@ -4667,17 +4667,18 @@ function CCFileBatchInspector({
       })()}
       {/* R2519: Transform 빠른 초기화 (P/R/S reset) */}
       {sceneFile.root && (() => {
-        const doReset = async (what: 'pos' | 'rot' | 'scale') => {
+        const doReset = async (what: 'pos' | 'rot' | 'scale' | 'color') => {
           if (!sceneFile.root) return
           function patch(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patch)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             if (what === 'pos') return { ...n, position: { x: 0, y: 0, z: 0 }, children }
             if (what === 'rot') return { ...n, rotation: typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 }, children }
+            if (what === 'color') return { ...n, color: { r: 255, g: 255, b: 255, a: n.color?.a ?? 255 }, children }  // R2606
             return { ...n, scale: { x: 1, y: 1, z: 1 }, children }
           }
           await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          const label = what === 'pos' ? '위치' : what === 'rot' ? '회전' : '스케일'
+          const label = what === 'pos' ? '위치' : what === 'rot' ? '회전' : what === 'color' ? 'tint색상' : '스케일'
           setBatchMsg(`✓ ${uuids.length}개 ${label} 초기화`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -4694,6 +4695,9 @@ function CCFileBatchInspector({
             <span style={rs} onClick={() => doReset('scale')} title="선택 노드 스케일 → (1,1,1) 초기화"
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fbbf24')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>S↺</span>
+            <span style={rs} onClick={() => doReset('color')} title="선택 노드 tint 색상 → 흰색(255,255,255) 초기화 (R2606)"
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>C↺</span>
           </div>
         )
       })()}
