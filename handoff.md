@@ -211,7 +211,29 @@
 - Branch: dev
 - 최근 커밋: `4be0b5bf` (R2539)
 
-## 다음 예정 (R2540+)
+## 완료 (R2540~R2554)
+- [x] R2540: SceneView Go-to XY 입력 — x,y 좌표 입력 후 Enter로 뷰 중심 이동
+- [x] R2541: BatchInspector 리셋 버튼 — ↺1:1 스케일 리셋 + ∠0° 회전 리셋
+- [x] R2542: BatchInspector 사이즈 정수화 — ⊹sz 버튼, size.x/y Math.round + UITransform 동기화
+- [x] R2543: SceneView 뷰 북마크 — 1/2/3 슬롯 (Ctrl+클릭 저장, 클릭 복원, 키보드 1~3)
+- [x] R2544: SceneView 핀 마커 드롭다운 패널 — 📌N 클릭 시 핀 목록, 클릭으로 이동, X 삭제
+- [x] R2545: BatchInspector 컴포넌트 타입 필터 — 2개+ 선택 시 공통 타입 버튼, 클릭으로 해당 타입만 선택
+- [x] R2546: SceneView 빈 컨테이너 노드 점선 테두리 — isContainer + strokeDasharray
+- [x] R2547: BatchInspector 2-노드 위치 교환 — ⇄ 위치 버튼 (정확히 2개 선택 시)
+- [x] R2548: BatchInspector Label 텍스트 일괄 적용 — cc.Label/RichText 있는 노드에 Enter로 적용
+- [x] R2549: SceneView 형제 순서 맨 앞/뒤 이동 — ⤒/⤓ 버튼 + handleReorderExtreme
+- [x] R2550: SceneView 다중 선택 일괄 잠금/해제 — 🔒/🔓± 버튼, allLocked/anyLocked 상태 표시
+- [x] R2551: SceneView 컴포넌트 타입 필터 — 상위 5종 자동 추출, 클릭 시 해당 타입 없는 노드 dim
+- [x] R2552: NodeInspector 위치 전용 복사/붙여넣기 — P↑/P↓ 버튼 (posClipboard 분리)
+- [x] R2553: NodeInspector 크기 전용 복사/붙여넣기 — S↑/S↓ 버튼 (sizeClipboard 분리)
+- [x] R2554: NodeInspector 앵커 변경 시 위치 자동 보정 — 체크박스 토글, 9-point 프리셋 클릭 적용
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2577** ← R2554 현재
+- Branch: dev
+- 최근 커밋: `efd72855` (R2554)
+
+## 다음 예정 (R2555+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
