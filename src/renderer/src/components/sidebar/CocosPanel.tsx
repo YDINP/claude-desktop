@@ -17056,6 +17056,58 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2481: 격자 배치 */}
+      {uuids.length >= 2 && (() => {
+        const defaultCols = Math.ceil(Math.sqrt(uuids.length))
+        const [gridCols, setGridCols] = React.useState(defaultCols)
+        const [gridGapX, setGridGapX] = React.useState(120)
+        const [gridGapY, setGridGapY] = React.useState(120)
+        const applyGrid = async () => {
+          if (!sceneFile.root) return
+          const cols = Math.max(1, gridCols)
+          const moves = uuids.map((uuid, i) => {
+            const col = i % cols
+            const row = Math.floor(i / cols)
+            return { uuid, x: col * gridGapX, y: -row * gridGapY }
+          })
+          function patchGrid(node: CCSceneNode): CCSceneNode {
+            const move = moves.find(m => m.uuid === node.uuid)
+            const children = node.children.map(patchGrid)
+            if (!move) return { ...node, children }
+            return { ...node, position: { ...(node.position || { z: 0 }), x: move.x, y: move.y }, children }
+          }
+          const rows = Math.ceil(uuids.length / cols)
+          const result = await saveScene(patchGrid(sceneFile.root))
+          setBatchMsg(result.success ? `✓ 격자 배치 ${cols}×${rows} (${uuids.length}개)` : `✗ 오류`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ borderTop: '1px solid var(--border)', marginTop: 4, paddingTop: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>⊞ 격자 배치</span>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>열</span>
+              <input type="number" min={1} max={uuids.length} value={gridCols} onChange={e => setGridCols(parseInt(e.target.value) || defaultCols)}
+                style={{ width: 38, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                title="열 수 (R2481)"
+              />
+              <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>gX</span>
+              <input type="number" min={0} max={2000} value={gridGapX} onChange={e => setGridGapX(parseInt(e.target.value) || 120)}
+                style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                title="X 간격 px (R2481)"
+              />
+              <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>gY</span>
+              <input type="number" min={0} max={2000} value={gridGapY} onChange={e => setGridGapY(parseInt(e.target.value) || 120)}
+                style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                title="Y 간격 px (R2481)"
+              />
+              <button onClick={applyGrid}
+                style={{ fontSize: 9, padding: '2px 7px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,191,36,0.5)', background: 'rgba(251,191,36,0.1)', color: '#fbbf24' }}
+                title={`선택 ${uuids.length}개 노드를 ${gridCols}열 격자로 배치 (R2481)`}
+              >배치</button>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

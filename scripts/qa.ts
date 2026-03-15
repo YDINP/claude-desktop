@@ -28644,6 +28644,19 @@ if (
   log('warning', 'R2479-circle-layout', 'R2479 원형 배치 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1473: R2481 BatchInspector 격자 배치 ────────────────────────────
+const s1473 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1473.includes('R2481') &&
+  s1473.includes('applyGrid') &&
+  s1473.includes('gridCols') &&
+  s1473.includes('격자 배치')
+) {
+  log('pass', 'R2481-grid-layout', 'R2481 BatchInspector 격자 배치 구현 완료')
+} else {
+  log('warning', 'R2481-grid-layout', 'R2481 격자 배치 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
