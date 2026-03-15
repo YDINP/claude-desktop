@@ -17811,6 +17811,42 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2570: 자동 그리드 배치 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        return (
+          <div style={{ display: 'flex', gap: 4, marginBottom: 4, paddingLeft: 52, flexWrap: 'wrap' }}>
+            {([{ label: '⊞2열', cols: 2 }, { label: '⊞3열', cols: 3 }, { label: '⊞√N', cols: 0 }] as { label: string; cols: number }[]).map(({ label, cols: colsArg }) => (
+              <span
+                key={label}
+                title={`선택 노드를 ${colsArg === 0 ? 'sqrt(N)' : colsArg}열 그리드로 배치 (R2570)`}
+                onClick={async () => {
+                  if (!sceneFile.root) return
+                  const nodes: CCSceneNode[] = []
+                  function collectG(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collectG) }
+                  collectG(sceneFile.root)
+                  if (nodes.length < 2) return
+                  const cols = colsArg === 0 ? Math.ceil(Math.sqrt(nodes.length)) : colsArg
+                  const gapX = Math.max((nodes[0]?.size?.x ?? 100) + 10, 20)
+                  const gapY = Math.max((nodes[0]?.size?.y ?? 100) + 10, 20)
+                  function applyGrid(n: CCSceneNode): CCSceneNode {
+                    const children = n.children.map(applyGrid)
+                    const idx = nodes.findIndex(x => x.uuid === n.uuid)
+                    if (idx === -1) return { ...n, children }
+                    const col = idx % cols, row = Math.floor(idx / cols)
+                    const pos = n.position as { x: number; y: number; z?: number }
+                    return { ...n, position: { ...pos, x: col * gapX, y: -row * gapY }, children }
+                  }
+                  const result = await saveScene(applyGrid(sceneFile.root))
+                  setBatchMsg(result.success ? `✓ 그리드 배치 ${cols}열 (${nodes.length}개)` : `✗ 오류`)
+                  setTimeout(() => setBatchMsg(null), 2000)
+                }}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 3, border: '1px solid rgba(139,92,246,0.4)', color: '#a78bfa', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')} onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
+              >{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1751: 색상 퀵 프리셋 */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 6, paddingLeft: 52, flexWrap: 'wrap' }}>
         {([['#ffffff', '⬜ 흰'], ['#000000', '⬛ 검'], ['#ff0000', '🔴 빨'], ['#00ff00', '🟢 초'], ['#0000ff', '🔵 파'], ['#ffff00', '🟡 노']] as [string, string][]).map(([hex, label]) => (

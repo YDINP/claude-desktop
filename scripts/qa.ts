@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1562: R2570 BatchInspector 자동 그리드 배치 (⊞) ─────────────────
+console.log('\n## 1562. R2570 — BatchInspector 자동 그리드 배치 (⊞)')
+const s1562 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1562.includes('R2570') &&
+  s1562.includes('그리드 배치') &&
+  s1562.includes('⊞2열') &&
+  s1562.includes('⊞√N')
+) {
+  log('pass', 'R2570-grid-arrange', 'R2570 자동 그리드 배치 구현 완료')
+} else {
+  log('warning', 'R2570-grid-arrange', 'R2570 자동 그리드 배치 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1561: R2569 BatchInspector opacity 그라데이션 분배 ───────────────
 console.log('\n## 1561. R2569 — BatchInspector opacity 그라데이션 분배')
 const s1561 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
