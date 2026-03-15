@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1647: R2655 BatchInspector 스케일 1.0 일괄 리셋 ─────────────────
+console.log('\n## 1647. R2655 — BatchInspector 스케일 1.0 일괄 리셋')
+const s1647 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1647.includes('R2655') &&
+  s1647.includes('applyScaleReset') &&
+  s1647.includes('scale리셋') &&
+  s1647.includes('SXY=1')
+) {
+  log('pass', 'R2655-scale-reset', 'R2655 스케일 1.0 일괄 리셋 구현 완료')
+} else {
+  log('warning', 'R2655-scale-reset', 'R2655 스케일 1.0 일괄 리셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1646: R2654 BatchInspector 위치 XY 원점 리셋 ─────────────────────
 console.log('\n## 1646. R2654 — BatchInspector 위치 XY 원점 리셋')
 const s1646 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -5172,6 +5172,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2655: 스케일 1.0 일괄 리셋 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyScaleReset = async (axis: 'x' | 'y' | 'both') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sc = n.scale as { x: number; y: number; z?: number }
+            const nx = axis === 'y' ? sc.x : 1
+            const ny = axis === 'x' ? sc.y : 1
+            return { ...n, scale: { ...sc, x: nx, y: ny }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ scale ${axis === 'both' ? 'XY' : axis.toUpperCase()}→1 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale리셋 (R2655)</span>
+            <span onClick={() => applyScaleReset('x')} title="scale.x → 1 (R2655)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }}>Sx=1</span>
+            <span onClick={() => applyScaleReset('y')} title="scale.y → 1 (R2655)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }}>Sy=1</span>
+            <span onClick={() => applyScaleReset('both')} title="scale XY → 1,1 (R2655)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }}>SXY=1</span>
+          </div>
+        )
+      })()}
       {/* R2613: size W 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applySzGrad = async () => {
