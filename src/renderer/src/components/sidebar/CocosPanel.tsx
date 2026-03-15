@@ -4296,6 +4296,9 @@ function CCFileBatchInspector({
   const [scaleMulInput, setScaleMulInput] = useState<string>('2')
   // R2599: size 배수
   const [sizeMulInput, setSizeMulInput] = useState<string>('2')
+  // R2604: rotation 균등 분배
+  const [rotDistFrom, setRotDistFrom] = useState<number>(0)
+  const [rotDistTo, setRotDistTo] = useState<number>(360)
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -4823,6 +4826,41 @@ function CCFileBatchInspector({
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >색상그라디언트</span>
+          </div>
+        )
+      })()}
+      {/* R2604: rotation 균등 분배 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const applyRotDist = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const deg = Math.round(rotDistFrom + (rotDistTo - rotDistFrom) * t)
+            const newRot = typeof n.rotation === 'number' ? deg : { ...(n.rotation as object), z: deg }
+            return { ...n, rotation: newRot, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 회전 분배 ${rotDistFrom}°→${rotDistTo}° (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전분배 (R2604)</span>
+            <input type="number" value={rotDistFrom} onChange={e => setRotDistFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 각도(°)" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={rotDistTo} onChange={e => setRotDistTo(parseInt(e.target.value) || 0)} style={niS} title="끝 각도(°)" />
+            <span onClick={applyRotDist}
+              title={`선택된 ${uuids.length}개 노드 rotation ${rotDistFrom}°→${rotDistTo}° 균등 분배 (R2604)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >분배</span>
           </div>
         )
       })()}

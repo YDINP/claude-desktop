@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1596: R2604 BatchInspector rotation 균등 분배 ────────────────────
+console.log('\n## 1596. R2604 — BatchInspector rotation 균등 분배')
+const s1596 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1596.includes('R2604') &&
+  s1596.includes('rotDistFrom') &&
+  s1596.includes('rotDistTo') &&
+  s1596.includes('applyRotDist')
+) {
+  log('pass', 'R2604-rot-dist', 'R2604 rotation 균등 분배 구현 완료')
+} else {
+  log('warning', 'R2604-rot-dist', 'R2604 rotation 균등 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1595: R2603 SceneView tag 배지 오버레이 ─────────────────────────
 console.log('\n## 1595. R2603 — SceneView tag 배지 오버레이')
 const s1595 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
