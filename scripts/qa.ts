@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1600: R2608 BatchInspector rotation 스냅 ─────────────────────────
+console.log('\n## 1600. R2608 — BatchInspector rotation N° 배수 스냅')
+const s1600 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1600.includes('R2608') &&
+  s1600.includes('applyRotSnap') &&
+  s1600.includes('rot스냅')
+) {
+  log('pass', 'R2608-rot-snap', 'R2608 rotation 스냅 구현 완료')
+} else {
+  log('warning', 'R2608-rot-snap', 'R2608 rotation 스냅 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1599: R2607 SceneView 중복 이름 노드 강조 오버레이 ───────────────
 console.log('\n## 1599. R2607 — SceneView 중복 이름 노드 강조 오버레이')
 const s1599 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

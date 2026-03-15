@@ -18256,6 +18256,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2608: rotation 스냅 (N° 배수로 반올림) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyRotSnap = async (step: number) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const cur = typeof n.rotation === 'number' ? n.rotation : ((n.rotation as { z?: number })?.z ?? 0)
+            const snapped = Math.round(cur / step) * step
+            return { ...n, rotation: typeof n.rotation === 'number' ? snapped : { ...(n.rotation as object), z: snapped }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 회전 스냅 ${step}° (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>rot스냅 (R2608)</span>
+            {([15, 45, 90] as const).map(step => (
+              <span key={step} onClick={() => applyRotSnap(step)}
+                title={`rotation을 ${step}° 배수로 스냅 (R2608)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(236,72,153,0.4)', color: '#ec4899', userSelect: 'none', background: 'rgba(236,72,153,0.05)' }}
+              >⌐{step}°</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2559: 선택 노드 JSON 내보내기 */}
       {sceneFile.root && uuids.length > 0 && (() => {
         const exportNodes = () => {
