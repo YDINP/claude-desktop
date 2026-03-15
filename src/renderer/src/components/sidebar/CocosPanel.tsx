@@ -23515,6 +23515,27 @@ function CCFileNodeInspector({
                       />allowSleep
                     </label>
                   </div>
+                  {/* R2403: linearVelocity + angularVelocity */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>linVel x</span>
+                    <input type="number" defaultValue={Number((p.linearVelocity ?? p._linearVelocity ?? p._N$linearVelocity as { x?: number } | undefined)?.x ?? 0)} step={1}
+                      onBlur={e => { const x = parseFloat(e.target.value) || 0; const y = Number((p.linearVelocity as { y?: number } | undefined)?.y ?? 0); const vel = { x, y }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel, _N$linearVelocity: vel } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="linearVelocity.x"
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>y</span>
+                    <input type="number" defaultValue={Number((p.linearVelocity ?? p._linearVelocity ?? p._N$linearVelocity as { y?: number } | undefined)?.y ?? 0)} step={1}
+                      onBlur={e => { const y = parseFloat(e.target.value) || 0; const x = Number((p.linearVelocity as { x?: number } | undefined)?.x ?? 0); const vel = { x, y }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel, _N$linearVelocity: vel } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="linearVelocity.y"
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0, marginLeft: 4 }}>angVel</span>
+                    <input type="number" defaultValue={Number(p.angularVelocity ?? p._angularVelocity ?? 0)} step={1}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularVelocity: v, _angularVelocity: v, _N$angularVelocity: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="angularVelocity"
+                    />
+                  </div>
                   {/* R2400: linearVelocityLimit + angularVelocityLimit */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>linVelLim</span>

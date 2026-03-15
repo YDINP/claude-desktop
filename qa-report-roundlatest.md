@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T12:20:20.597Z
+> 2026-03-15T12:21:37.877Z
 
 ## Critical
 _없음_
@@ -2243,6 +2243,7 @@ _없음_
 - 씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행
 - chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
 - session:setCollection try/catch + memTimer clearInterval 수정
+- Inspector cc.RigidBody linearVelocity + angularVelocity 구현 완료
 - Inspector cc.PageView evtTiming/speedAmp + cc.Sprite _color 구현 완료
 - Inspector cc.Sprite _isTrimmedMode + Collider tag 구현 완료
 - Inspector cc.Sprite _useGrayscale + cc.RigidBody velocityLimit 구현 완료

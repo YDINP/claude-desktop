@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1407: R2403 Inspector cc.RigidBody linearVelocity + angularVelocity ──────────
+console.log('\n## 1407. R2403 Inspector cc.RigidBody linearVelocity + angularVelocity 체크')
+const s1407 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1407.includes('R2403') &&
+  s1407.includes('linearVelocity') &&
+  s1407.includes('angularVelocity') &&
+  s1407.includes('_N$linearVelocity') &&
+  s1407.includes('cc.RigidBody')
+) {
+  log('pass', 'R2403-rigidbody-velocity', 'Inspector cc.RigidBody linearVelocity + angularVelocity 구현 완료')
+} else {
+  log('warning', 'R2403-rigidbody-velocity', 'Inspector cc.RigidBody linearVelocity + angularVelocity 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1406: R2402 Inspector cc.PageView pageTurningEventTiming+speedAmplifier + cc.Sprite _color ──────────
 console.log('\n## 1406. R2402 Inspector cc.PageView pageTurningEventTiming + speedAmplifier + cc.Sprite _color 체크')
 const s1406 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
