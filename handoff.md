@@ -62,21 +62,41 @@
 - [x] R2376: Inspector cc.VideoPlayer volume 슬라이더 + keepAspectRatio/fullScreenEnabled
 - [x] R2377: Inspector cc.PageView pageTurningSpeed/effectType/autoPlay 퀵 편집
 - [x] R2378: Inspector cc.ToggleContainer autoCheckToggle 체크박스
+- [x] R2379~R2451: Inspector 단일노드 갭 수정 (이전 세션 완료) — 주요: R2383(UITransform), R2384(sourcePos), R2387(Canvas.resize), R2390(RB group/rotOff), R2400(velLimits), R2402(PS speedAmplifier), R2403(linVel/angVel), R2404(Label platformFont), R2405(AudioSource), R2408(SkeletalAnim), R2409(Layout affectedByScale), R2410(Layout wrapMode), R2411(RB contactListener), R2415(PageView bounce), R2417(Anim wrapMode), R2420(LabelShadow), R2421(PS emitter), R2422(RB awake/sleep), R2425(Mask enabled), R2434(Widget enabled), R2436(PS/Dragon enabled), R2437(LabelOutline/Shadow enabled), R2438(RB enabled), R2440(PS loop), R2441(TiledLayer enabled), R2444(Canvas enabled), R2446(RichText props), R2447(EditBox props), R2448(PS var props), R2449(Sprite enabled), R2450(ScrollView bounce), R2451(Toggle enabled)
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2413** ← R2378 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2486** ← R2452 현재
 - Branch: dev
-- 최근 커밋: `a88cb67` (R2378), `fa66902` (R2377), `7986369` (R2376), `464bd91` (R2375), `5b8cca4` (R2374)
+- 최근 커밋: `9bcc8999` (R2451), `f2495dfd` (R2448~R2450), `a88cb67` (R2378)
 
-## 갭 수정 완료 상태
+## 갭 수정 완료 상태 (2026-03-15 기준)
 - **BatchInspector bare shorthand → ALL DONE** (R2298-R2305)
 - **BatchInspector 명시적 prop → ALL DONE** (R2306-R2311)
-- **단일노드 인스펙터 갭 → ALL DONE** (R2306-R2311)
-- **`_N$` 패턴 총 550건** (CocosPanel.tsx 기준)
+- **단일노드 인스펙터 갭 → 전면 분석 완료 — 모든 컴포넌트 타입 커버됨**
+  - 44개 BatchInspector 컴포넌트 타입 전부 단일노드에도 구현됨
+  - 마지막 갭: R2451 cc.Toggle enabled (2026-03-15 완료)
+  - cc.Canvas/Mask/BlockInputEvents/UITransform/UIOpacity/LabelOutline/LabelShadow/ParticleSystem/TiledLayer/RigidBody/RigidBody2D/BoxCollider2D/CircleCollider2D/PolygonCollider2D/Sprite2D 등 모두 완료
+- **더 이상 배치-단일노드 간 갭 없음 → 새 UX 기능 탐색으로 전환**
 
-## 다음 예정 (R2332+)
-- 기능 탐색: 대부분의 씬뷰/Inspector 기능이 이미 구현됨 (매우 comprehensive)
-- 미발견 영역: 씬 비교, prefab 저장, 새로운 UX 개선 아이디어 탐색 필요
+## 완료 (R2452~R2461)
+- [x] R2452: ISSUE-011 CC Editor 씬 드롭다운 버그 수정 + 마지막 씬 자동 로드
+- [x] R2453: 계층 패널 더블클릭/우클릭 인라인 이름 편집 (CC Editor F2 rename 패리티)
+- [x] R2454: Inspector 섹션 접힘 상태 localStorage 영속화
+- [x] R2455: 전역 검색 결과 클릭 시 계층 트리 자동 펼치기 (reveal in hierarchy)
+- [x] R2456: 씬뷰 그리드 오버레이 토글 버튼 (#)
+- [x] R2457: Inspector 노드 이름 입력 Enter 키 즉시 저장
+- [x] R2458: 외부 변경 자동 리로드 토글 — 배너 체크박스 + localStorage 영속화
+- [x] R2459: cc-file-saver 컴포넌트 추가 미저장 버그 수정 — normalizeTree에서 새 comp raw 엔트리 생성 + _components 동기화
+- [x] R2460: deepCopyNodeWithNewUuids 컴포넌트 _rawIndex 초기화 — R2459 _components 동기화 충돌 방지
+- [x] R2461: QA 섹션 1456~1459 추가 (Pass 2490)
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2490** ← R2461 현재
+- Branch: dev
+- 최근 커밋: `928b8794` (R2461), `1c1c2a75` (R2460), `8790abaa` (R2459), `7bf74089` (R2458)
+
+## 다음 예정 (R2462+)
+- CC Editor 패리티 계속: prefab 저장/로드, 씬뷰 추가 UX
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
 ## 누적 이슈 (QA 체크포인트에서 발견된 기존 이슈)
