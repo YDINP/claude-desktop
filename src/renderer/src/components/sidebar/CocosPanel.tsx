@@ -22039,8 +22039,16 @@ function CCFileNodeInspector({
               const maskType = Number(p._type ?? p.type ?? 0)
               const inverted = !!(p._inverted ?? p.inverted ?? false)
               const alphaThreshold = Number(p._alphaThreshold ?? p.alphaThreshold ?? 0)
+              const maskEnabled = !!(p.enabled ?? p._enabled ?? true)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2425: enabled (BatchInspector R2193) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={maskEnabled}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>type</span>
                     <select value={maskType}

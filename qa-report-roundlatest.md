@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T13:25:52.768Z
+> 2026-03-15T13:34:13.277Z
 
 ## Critical
 _없음_
@@ -2467,3 +2467,4 @@ _없음_
 - Inspector cc.RigidBody awake + sleepThreshold 구현 완료
 - Inspector dragonBones.ArmatureDisplay playOnLoad 구현 완료
 - Inspector cc.ScrollView bounceDuration 구현 완료
+- Inspector cc.Mask enabled 구현 완료
