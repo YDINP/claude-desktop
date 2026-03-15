@@ -28026,6 +28026,20 @@ if (
   log('warning', 'R2422-rigidbody-awake-sleepthreshold', 'Inspector cc.RigidBody awake/sleepThreshold 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1427: R2423 Inspector dragonBones.ArmatureDisplay playOnLoad ──────────
+console.log('\n## 1427. R2423 Inspector dragonBones.ArmatureDisplay playOnLoad 체크')
+const s1427 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1427.includes('R2423') &&
+  s1427.includes('playOnLoad') &&
+  s1427.includes('_N$playOnLoad') &&
+  s1427.includes('dragonBones.ArmatureDisplay')
+) {
+  log('pass', 'R2423-dragonbones-playonload', 'Inspector dragonBones.ArmatureDisplay playOnLoad 구현 완료')
+} else {
+  log('warning', 'R2423-dragonbones-playonload', 'Inspector dragonBones.ArmatureDisplay playOnLoad 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

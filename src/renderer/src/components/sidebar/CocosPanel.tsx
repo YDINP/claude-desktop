@@ -23971,6 +23971,13 @@ function CCFileNodeInspector({
                         style={{ margin: 0, accentColor: '#4ade80' }}
                       />loop
                     </label>
+                    {/* R2423: playOnLoad (BatchInspector R1930) */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.playOnLoad ?? p._playOnLoad ?? p._N$playOnLoad ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playOnLoad: e.target.checked, _playOnLoad: e.target.checked, _N$playOnLoad: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0, accentColor: '#60a5fa' }}
+                      />playOnLoad
+                    </label>
                     {/* R2397: debugBones + enableBatch */}
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
                       <input type="checkbox" checked={!!(p.debugBones ?? p._debugBones ?? p._N$debugBones ?? false)}
