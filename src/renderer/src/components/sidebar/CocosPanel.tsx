@@ -20069,6 +20069,17 @@ function CCFileNodeInspector({
           onMouseEnter={e => (e.currentTarget.style.color = '#888')}
           onMouseLeave={e => (e.currentTarget.style.color = '#444')}
         >⎘</span>
+        {/* R2567: 노드 JSON 복사 */}
+        <span
+          title="노드를 JSON으로 복사 (children 제외) — R2567"
+          onClick={() => {
+            const { children: _c, ...rest } = draft
+            navigator.clipboard.writeText(JSON.stringify(rest, null, 2)).catch(() => {})
+          }}
+          style={{ fontSize: 8, cursor: 'pointer', color: '#444', flexShrink: 0, padding: '0 2px', border: '1px solid #333', borderRadius: 2 }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#888')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#444')}
+        >{'{}'}</span>
       </div>
 
       {/* R699: 변경 이력 패널 */}

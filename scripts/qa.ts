@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1559: R2567 NodeInspector 노드 JSON 복사 버튼 ({}) ───────────────
+console.log('\n## 1559. R2567 — NodeInspector 노드 JSON 복사 ({}) ')
+const s1559 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1559.includes('R2567') &&
+  s1559.includes('노드를 JSON으로 복사') &&
+  s1559.includes("JSON.stringify(rest")
+) {
+  log('pass', 'R2567-node-json-copy', 'R2567 노드 JSON 복사 버튼 구현 완료')
+} else {
+  log('warning', 'R2567-node-json-copy', 'R2567 노드 JSON 복사 버튼 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1558: R2566 SceneView Ctrl+Click 다중 선택 토글 ──────────────────
 console.log('\n## 1558. R2566 — SceneView Ctrl+Click 다중 선택 토글')
 const s1558 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
