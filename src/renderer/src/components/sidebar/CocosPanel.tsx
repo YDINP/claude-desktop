@@ -3089,6 +3089,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   prev.includes(uuid) ? prev.filter(u => u !== uuid) : [...prev, uuid]
                 )}
                 onSortChildren={handleSortChildren}
+                onRename={handleRenameInView}
               />
             </div>
           </div>
@@ -3576,6 +3577,8 @@ function CCFileSceneTree({
   onCtrlSelect?: (uuid: string) => void
   /** R1736: 자식 알파벳순 정렬 */
   onSortChildren?: (uuid: string) => void
+  /** R2453: 인라인 이름 편집 */
+  onRename?: (uuid: string, newName: string) => void
 }) {
   const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
   const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
@@ -3584,6 +3587,15 @@ function CCFileSceneTree({
     : setLocalCollapsed
   const [isDragOver, setIsDragOver] = useState(false)
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; showColorPicker?: boolean } | null>(null)
+  // R2453: 인라인 이름 편집 상태
+  const [editingName, setEditingName] = useState(false)
+  const [editNameVal, setEditNameVal] = useState('')
+  const nameInputRef = useRef<HTMLInputElement | null>(null)
+  useEffect(() => { if (editingName && nameInputRef.current) { nameInputRef.current.focus(); nameInputRef.current.select() } }, [editingName])
+  const commitNameEdit = () => {
+    if (onRename && editNameVal.trim()) onRename(node.uuid, editNameVal.trim())
+    setEditingName(false)
+  }
   const hasChildren = node.children.length > 0
   const isSelected = selected?.uuid === node.uuid
   const isRoot = depth === 0
@@ -3607,6 +3619,8 @@ function CCFileSceneTree({
             // R1712: 즐겨찾기 토글
             onToggleFavorite ? { label: favorites?.has(node.uuid) ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가', action: () => { setCtxMenu(null); onToggleFavorite(node.uuid) } } : null,
             ...(!isRoot ? [
+              // R2453: 이름 변경 (더블클릭 또는 컨텍스트 메뉴)
+              ...(onRename ? [{ label: '✏️ 이름 변경', action: () => { setCtxMenu(null); setEditNameVal(node.name); setEditingName(true) } }] : []),
               { label: node.active ? '비활성화' : '활성화', action: () => { setCtxMenu(null); onToggleActive?.(node.uuid) } },
               // R1712: 자식 일괄 활성/비활성
               ...(hasChildren ? [
@@ -3724,16 +3738,35 @@ function CCFileSceneTree({
         {nodeColors?.[node.uuid] && (
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: nodeColors[node.uuid], flexShrink: 0, display: 'inline-block' }} />
         )}
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-          {(() => {
-            const name = node.name || '(unnamed)'
-            const ql = highlightQuery?.trim().toLowerCase()
-            if (!ql) return name
-            const idx = name.toLowerCase().indexOf(ql)
-            if (idx < 0) return name
-            return <>{name.slice(0, idx)}<span style={{ background: '#fbbf24', color: '#1a1a2e', borderRadius: 2 }}>{name.slice(idx, idx + ql.length)}</span>{name.slice(idx + ql.length)}</>
-          })()}
-        </span>
+        {/* R2453: 더블클릭/F2 인라인 이름 편집 */}
+        {editingName && onRename ? (
+          <input
+            ref={nameInputRef}
+            value={editNameVal}
+            onChange={e => setEditNameVal(e.target.value)}
+            onBlur={commitNameEdit}
+            onKeyDown={e => {
+              if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); commitNameEdit() }
+              if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setEditingName(false) }
+            }}
+            onClick={e => e.stopPropagation()}
+            style={{ flex: 1, fontSize: 11, background: 'var(--bg-input, #1a1a2e)', border: '1px solid var(--accent)', borderRadius: 2, padding: '0 3px', color: 'var(--text-primary)', outline: 'none', minWidth: 0 }}
+          />
+        ) : (
+          <span
+            style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}
+            onDoubleClick={e => { if (!isRoot && onRename) { e.preventDefault(); e.stopPropagation(); setEditNameVal(node.name); setEditingName(true) } }}
+          >
+            {(() => {
+              const name = node.name || '(unnamed)'
+              const ql = highlightQuery?.trim().toLowerCase()
+              if (!ql) return name
+              const idx = name.toLowerCase().indexOf(ql)
+              if (idx < 0) return name
+              return <>{name.slice(0, idx)}<span style={{ background: '#fbbf24', color: '#1a1a2e', borderRadius: 2 }}>{name.slice(idx, idx + ql.length)}</span>{name.slice(idx + ql.length)}</>
+            })()}
+          </span>
+        )}
         {/* R1672: 북마크 배지 */}
         {nodeBookmarks && (() => {
           const key = Object.entries(nodeBookmarks).find(([, uuid]) => uuid === node.uuid)?.[0]
@@ -3828,6 +3861,7 @@ function CCFileSceneTree({
           multiSelectedUuids={multiSelectedUuids}
           onCtrlSelect={onCtrlSelect}
           onSortChildren={onSortChildren}
+          onRename={onRename}
         />
       ))}
     </div>
