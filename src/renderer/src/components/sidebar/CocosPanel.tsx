@@ -621,6 +621,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   // R1389: 외부 변경 배너 자동 숨김
   const [bannerHidden, setBannerHidden] = useState(false)
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // R2458: 외부 변경 자동 리로드 토글
+  const [autoReload, setAutoReload] = useState(() => localStorage.getItem('cc-auto-reload') === 'true')
   // R1394: 씬 템플릿 생성
   const [showNewSceneForm, setShowNewSceneForm] = useState(false)
   const [newSceneName, setNewSceneName] = useState('NewScene')
@@ -983,9 +985,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     loadSettings()
   }, [projectInfo?.projectPath])
 
-  // R1389: 외부 변경 배너 5초 후 자동 숨김
+  // R1389: 외부 변경 배너 5초 후 자동 숨김 / R2458: 자동 리로드
   useEffect(() => {
     if (externalChange) {
+      if (autoReload && sceneFile) {
+        loadScene(sceneFile.scenePath)
+        return
+      }
       setBannerHidden(false)
       if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current)
       bannerTimerRef.current = setTimeout(() => setBannerHidden(true), 5000)
@@ -993,7 +999,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       setBannerHidden(false)
     }
     return () => { if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current) }
-  }, [externalChange])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalChange, autoReload])
 
   // R1394: 새 씬 파일 생성
   const handleCreateScene = useCallback(async () => {
@@ -1957,7 +1964,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         </div>
       )}
 
-      {/* 외부 파일 변경 감지 배너 (R1389: 5초 자동 숨김) */}
+      {/* 외부 파일 변경 감지 배너 (R1389: 5초 자동 숨김 / R2458: 자동 리로드 토글) */}
       {externalChange && sceneFile && !bannerHidden && (
         <div style={{
           padding: '5px 10px', background: '#2d1a00', borderBottom: '1px solid #ff9944',
@@ -1966,6 +1973,14 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           <span style={{ fontSize: 10, color: '#ff9944', flex: 1 }}>
             파일이 외부에서 수정됨
           </span>
+          <label style={{ fontSize: 9, color: '#ff9944', display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', userSelect: 'none' }}>
+            <input type="checkbox" checked={autoReload} onChange={e => {
+              const v = e.target.checked
+              setAutoReload(v)
+              try { localStorage.setItem('cc-auto-reload', String(v)) } catch {}
+            }} style={{ cursor: 'pointer' }} />
+            자동
+          </label>
           <button
             onClick={() => loadScene(sceneFile.scenePath)}
             style={{
