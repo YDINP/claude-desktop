@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1599: R2607 SceneView 중복 이름 노드 강조 오버레이 ───────────────
+console.log('\n## 1599. R2607 — SceneView 중복 이름 노드 강조 오버레이')
+const s1599 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1599.includes('R2607') &&
+  s1599.includes('showDupNameOverlay') &&
+  s1599.includes('setShowDupNameOverlay') &&
+  s1599.includes('nameCount')
+) {
+  log('pass', 'R2607-dup-name', 'R2607 중복 이름 강조 오버레이 구현 완료')
+} else {
+  log('warning', 'R2607-dup-name', 'R2607 중복 이름 강조 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1598: R2606 BatchInspector tint 색상 초기화 버튼 (C↺) ──────────
 console.log('\n## 1598. R2606 — BatchInspector tint 색상 초기화 (C↺)')
 const s1598 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

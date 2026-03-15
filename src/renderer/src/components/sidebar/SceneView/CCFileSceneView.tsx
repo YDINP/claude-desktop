@@ -237,6 +237,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showCompBadge, setShowCompBadge] = useState(false)
   // R2603: tag 배지 오버레이
   const [showTagBadge, setShowTagBadge] = useState(false)
+  // R2607: 중복 이름 노드 강조 오버레이
+  const [showDupNameOverlay, setShowDupNameOverlay] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1591,6 +1593,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showTagBadge ? 'tag 배지 끄기 (R2603)' : 'tag≠0 노드에 #N 배지 표시 (R2603)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showTagBadge ? 'rgba(56,189,248,0.5)' : 'var(--border)'}`, background: showTagBadge ? 'rgba(56,189,248,0.12)' : 'none', color: showTagBadge ? '#38bdf8' : 'var(--text-muted)' }}
         >#T</button>
+        {/* R2607: 중복 이름 노드 강조 토글 */}
+        <button
+          onClick={() => setShowDupNameOverlay(v => !v)}
+          title={showDupNameOverlay ? '중복 이름 강조 끄기 (R2607)' : '같은 이름 2개 이상인 노드 주황 점선 강조 (R2607)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDupNameOverlay ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showDupNameOverlay ? 'rgba(251,146,60,0.12)' : 'none', color: showDupNameOverlay ? '#fb923c' : 'var(--text-muted)' }}
+        >=N</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2923,6 +2931,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })}
 
+          {/* R2607: 중복 이름 노드 강조 */}
+          {showDupNameOverlay && (() => {
+            const nameCount = new Map<string, number>()
+            flatNodes.forEach(fn => nameCount.set(fn.node.name, (nameCount.get(fn.node.name) ?? 0) + 1))
+            const dupFns = flatNodes.filter(fn => (nameCount.get(fn.node.name) ?? 0) > 1 && (fn.node.size?.x || fn.node.size?.y))
+            if (dupFns.length === 0) return null
+            return dupFns.map(fn => {
+              const svgX = cx + fn.worldX, svgY = cy - fn.worldY
+              const w = fn.node.size?.x ?? 0, h = fn.node.size?.y ?? 0
+              const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+              const rx = svgX - w * ax, ry = svgY - h * (1 - ay)
+              return (
+                <rect key={`dup_${fn.node.uuid}`} x={rx} y={ry} width={w} height={h}
+                  fill="none" stroke="rgba(251,146,60,0.8)" strokeWidth={2/view.zoom}
+                  strokeDasharray={`${5/view.zoom} ${2.5/view.zoom}`}
+                  style={{ pointerEvents: 'none' }} />
+              )
+            })
+          })()}
           {/* R2600: 다중 선택 bounding box */}
           {showSelBBox && multiSelected.size >= 2 && (() => {
             const selFns = flatNodes.filter(fn => multiSelected.has(fn.node.uuid) && (fn.node.size?.x || fn.node.size?.y))
