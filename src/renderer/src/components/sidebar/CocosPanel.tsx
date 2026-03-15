@@ -4371,6 +4371,28 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2499: 3+ 노드 선택 바운딩박스 통계 (center, span, rot range) */}
+      {uuids.length >= 3 && sceneFile.root && (() => {
+        const ns: CCSceneNode[] = []
+        function coll(n: CCSceneNode) { if (uuidSet.has(n.uuid)) ns.push(n); n.children.forEach(coll) }
+        coll(sceneFile.root)
+        if (ns.length < 3) return null
+        const xs = ns.map(n => (n.position as { x?: number }).x ?? 0)
+        const ys = ns.map(n => (n.position as { y?: number }).y ?? 0)
+        const minX = Math.min(...xs), maxX = Math.max(...xs)
+        const minY = Math.min(...ys), maxY = Math.max(...ys)
+        const cx = Math.round((minX + maxX) / 2), cy = Math.round((minY + maxY) / 2)
+        const spanX = Math.round(maxX - minX), spanY = Math.round(maxY - minY)
+        return (
+          <div style={{ display: 'flex', gap: 6, marginBottom: 6, padding: '3px 6px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 4, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#818cf8', fontWeight: 600 }}>⊞</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>center</span>
+            <span style={{ fontSize: 9, color: '#818cf8', fontFamily: 'monospace' }}>{cx},{cy}</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>span</span>
+            <span style={{ fontSize: 9, color: '#a78bfa', fontFamily: 'monospace' }}>{spanX}×{spanY}</span>
+          </div>
+        )
+      })()}
       {/* R1698: 공통 컴포넌트 표시 */}
       {commonCompTypes.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 6 }}>

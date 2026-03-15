@@ -28870,6 +28870,19 @@ if (
   log('warning', 'R2498-regex-search', 'R2498 정규식 검색 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1491: R2499 BatchInspector N개 선택 바운딩박스 통계 ─────────────
+const s1491 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1491.includes('R2499') &&
+  s1491.includes('바운딩박스 통계') &&
+  s1491.includes('spanX') &&
+  s1491.includes('center')
+) {
+  log('pass', 'R2499-bbox-stats', 'R2499 BatchInspector 바운딩박스 통계 구현 완료')
+} else {
+  log('warning', 'R2499-bbox-stats', 'R2499 바운딩박스 통계 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
