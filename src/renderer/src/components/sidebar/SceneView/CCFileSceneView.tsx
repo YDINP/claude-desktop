@@ -253,6 +253,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showEventBadge, setShowEventBadge] = useState(false)
   // R2629: 안전 영역 + 비율 가이드 오버레이
   const [showSafeZone, setShowSafeZone] = useState(false)
+  // R2630: 삼분법(Rule of Thirds) 가이드 오버레이
+  const [showRuleOfThirds, setShowRuleOfThirds] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1655,6 +1657,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSafeZone ? '안전 영역 가이드 끄기 (R2629)' : '90% 안전 영역 + 비율 가이드 표시 (R2629)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSafeZone ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showSafeZone ? 'rgba(251,191,36,0.12)' : 'none', color: showSafeZone ? '#fbbf24' : 'var(--text-muted)' }}
         >☰</button>
+        {/* R2630: 삼분법 가이드 토글 */}
+        <button
+          onClick={() => setShowRuleOfThirds(v => !v)}
+          title={showRuleOfThirds ? '삼분법 가이드 끄기 (R2630)' : '3×3 Rule of Thirds 가이드 표시 (R2630)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRuleOfThirds ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showRuleOfThirds ? 'rgba(167,139,250,0.12)' : 'none', color: showRuleOfThirds ? '#a78bfa' : 'var(--text-muted)' }}
+        >⊞</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3108,6 +3116,32 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   style={{ pointerEvents: 'none', userSelect: 'none' }}>16:9</text>
               </>
             )
+          })()}
+          {/* R2630: 삼분법(Rule of Thirds) 가이드 */}
+          {showRuleOfThirds && (() => {
+            const cw = effectiveW, ch = effectiveH
+            const svgLeft = cx - cw / 2, svgTop = cy - ch / 2
+            const sw = 1 / view.zoom
+            const lines = []
+            for (let i = 1; i <= 2; i++) {
+              const x = svgLeft + cw * i / 3
+              const y = svgTop + ch * i / 3
+              lines.push(
+                <line key={`v${i}`} x1={x} y1={svgTop} x2={x} y2={svgTop + ch}
+                  stroke="rgba(167,139,250,0.4)" strokeWidth={sw} style={{ pointerEvents: 'none' }} />,
+                <line key={`h${i}`} x1={svgLeft} y1={y} x2={svgLeft + cw} y2={y}
+                  stroke="rgba(167,139,250,0.4)" strokeWidth={sw} style={{ pointerEvents: 'none' }} />
+              )
+              // 교차점 원
+              for (let j = 1; j <= 2; j++) {
+                const ix = svgLeft + cw * i / 3, iy = svgTop + ch * j / 3
+                lines.push(
+                  <circle key={`c${i}${j}`} cx={ix} cy={iy} r={3/view.zoom}
+                    fill="none" stroke="rgba(167,139,250,0.7)" strokeWidth={sw} style={{ pointerEvents: 'none' }} />
+                )
+              }
+            }
+            return <>{lines}</>
           })()}
           {/* R2617: 원점(0,0) 십자선 */}
           {showOriginCross && (() => {

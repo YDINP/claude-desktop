@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1622: R2630 SceneView 삼분법 가이드 오버레이 ─────────────────────
+console.log('\n## 1622. R2630 — SceneView 삼분법 가이드 오버레이')
+const s1622 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1622.includes('R2630') &&
+  s1622.includes('showRuleOfThirds') &&
+  s1622.includes('setShowRuleOfThirds')
+) {
+  log('pass', 'R2630-rule-thirds', 'R2630 삼분법 가이드 오버레이 구현 완료')
+} else {
+  log('warning', 'R2630-rule-thirds', 'R2630 삼분법 가이드 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1621: R2629 SceneView 안전 영역 + 비율 가이드 오버레이 ───────────
 console.log('\n## 1621. R2629 — SceneView 안전 영역 + 비율 가이드 오버레이')
 const s1621 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
