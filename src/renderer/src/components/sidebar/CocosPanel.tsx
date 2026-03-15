@@ -4935,6 +4935,47 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2626: 무지개 색상 분배 — 선택 노드를 HSL 균등 색조로 채색 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const applyRainbow = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          // HSL→RGB 변환
+          function hslToRgb(h: number, s: number, l: number) {
+            const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+            const p = 2 * l - q
+            const hue2rgb = (t: number) => {
+              if (t < 0) t += 1; if (t > 1) t -= 1
+              if (t < 1/6) return p + (q - p) * 6 * t
+              if (t < 1/2) return q
+              if (t < 2/3) return p + (q - p) * (2/3 - t) * 6
+              return p
+            }
+            return { r: Math.round(hue2rgb(h + 1/3) * 255), g: Math.round(hue2rgb(h) * 255), b: Math.round(hue2rgb(h - 1/3) * 255) }
+          }
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const hue = idx / count  // 균등 색조 분배 (0~1, 마지막은 첫번째와 다른 색)
+            const rgb = hslToRgb(hue, 1, 0.6)
+            return { ...n, color: { ...rgb, a: n.color?.a ?? 255 }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 무지개 색상 (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>무지개 (R2626)</span>
+            <span onClick={applyRainbow}
+              title={`선택된 ${uuids.length}개 노드에 HSL 균등 색조 무지개 분배 적용 (R2626)`}
+              style={{ fontSize: 9, padding: '1px 8px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, background: 'linear-gradient(to right, #f87171, #fb923c, #facc15, #4ade80, #60a5fa, #a78bfa, #f472b6)', color: '#fff', userSelect: 'none', fontWeight: 600 }}
+            >🌈 적용</span>
+          </div>
+        )
+      })()}
       {/* R2604: rotation 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyRotDist = async () => {

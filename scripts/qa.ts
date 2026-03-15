@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1618: R2626 BatchInspector 무지개 색상 분배 ──────────────────────
+console.log('\n## 1618. R2626 — BatchInspector 무지개 색상 분배')
+const s1618 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1618.includes('R2626') &&
+  s1618.includes('applyRainbow') &&
+  s1618.includes('hslToRgb') &&
+  s1618.includes('무지개')
+) {
+  log('pass', 'R2626-rainbow', 'R2626 무지개 색상 분배 구현 완료')
+} else {
+  log('warning', 'R2626-rainbow', 'R2626 무지개 색상 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1617: R2625 SceneView 이벤트 핸들러 배지 오버레이 ────────────────
 console.log('\n## 1617. R2625 — SceneView 이벤트 핸들러 배지 오버레이')
 const s1617 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
