@@ -20243,6 +20243,18 @@ function CCFileNodeInspector({
                       }}
                       style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}>%</span>
                   </div>
+                  {/* R2411: alignMode (BatchInspector R2043) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>alignMode</span>
+                    {([['Once', 0], ['Resize', 1], ['Always', 2]] as const).map(([l, v]) => {
+                      const cur = Number(p.alignMode ?? p._alignMode ?? p._N$alignMode ?? 1)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, alignMode: v, _alignMode: v, _N$alignMode: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#60a5fa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#60a5fa' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                   {/* R1753: Widget 프리셋 버튼 (Stretch / Center / None) */}
                   <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
                     {[
@@ -23636,6 +23648,13 @@ function CCFileNodeInspector({
                       title="angularVelocityLimit (0=무제한)"
                     />
                   </div>
+                  {/* R2411: enabledContactListener (BatchInspector R2009) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', marginTop: 2 }}>
+                    <input type="checkbox" checked={!!(p.enabledContactListener ?? p._enabledContactListener ?? p._N$enabledContactListener ?? false)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabledContactListener: e.target.checked, _enabledContactListener: e.target.checked, _N$enabledContactListener: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0, accentColor: '#f472b6' }}
+                    />contactListener
+                  </label>
                 </div>
               )
             }

@@ -27848,6 +27848,21 @@ if (
   log('warning', 'R2410-layout-wrapmode', 'Inspector cc.Layout wrapMode 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1415: R2411 Inspector cc.Widget alignMode + cc.RigidBody enabledContactListener ──────────
+console.log('\n## 1415. R2411 Inspector cc.Widget alignMode + cc.RigidBody enabledContactListener 체크')
+const s1415 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1415.includes('R2411') &&
+  s1415.includes('alignMode') &&
+  s1415.includes('_N$alignMode') &&
+  s1415.includes('enabledContactListener') &&
+  s1415.includes('_N$enabledContactListener')
+) {
+  log('pass', 'R2411-widget-alignmode-rigidbody-contactlistener', 'Inspector cc.Widget alignMode + cc.RigidBody enabledContactListener 구현 완료')
+} else {
+  log('warning', 'R2411-widget-alignmode-rigidbody-contactlistener', 'Inspector alignMode/enabledContactListener 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
