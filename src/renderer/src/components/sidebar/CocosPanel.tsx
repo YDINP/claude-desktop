@@ -20108,14 +20108,25 @@ function CCFileNodeInspector({
                       })}
                     </div>
                   )}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
-                    <input type="checkbox" checked={interactable}
-                      onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked, _interactable: e.target.checked, _N$interactable: e.target.checked } } : c)
-                        applyAndSave({ components: updated })
-                      }}
-                    />interactable
-                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={interactable}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked, _interactable: e.target.checked, _N$interactable: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                      />interactable
+                    </label>
+                    {/* R2358: autoGrayEffect */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.autoGrayEffect ?? p._autoGrayEffect ?? p._N$autoGrayEffect ?? false)}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoGrayEffect: e.target.checked, _autoGrayEffect: e.target.checked, _N$autoGrayEffect: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                      />autoGray
+                    </label>
+                  </div>
                   {/* R1807: normalColor 퀵 프리셋 */}
                   {transition === 1 && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
