@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1601: R2609 BatchInspector size 스냅 ─────────────────────────────
+console.log('\n## 1601. R2609 — BatchInspector size N px 배수 스냅')
+const s1601 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1601.includes('R2609') &&
+  s1601.includes('applySzSnap') &&
+  s1601.includes('sz스냅')
+) {
+  log('pass', 'R2609-sz-snap', 'R2609 size 스냅 구현 완료')
+} else {
+  log('warning', 'R2609-sz-snap', 'R2609 size 스냅 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1600: R2608 BatchInspector rotation 스냅 ─────────────────────────
 console.log('\n## 1600. R2608 — BatchInspector rotation N° 배수 스냅')
 const s1600 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
