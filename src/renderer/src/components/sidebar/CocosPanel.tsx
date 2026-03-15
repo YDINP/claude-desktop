@@ -23055,6 +23055,25 @@ function CCFileNodeInspector({
                       </>
                     )
                   })()}
+                  {/* R2413: speedAmplifier (BatchInspector R1980) */}
+                  {(() => {
+                    const speed = Number(p.speedAmplifier ?? p._speedAmplifier ?? p._N$speedAmplifier ?? 1)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>speedAmp</span>
+                        <input type="number" defaultValue={speed} key={`sa-${speed}`} min={0} step={0.1}
+                          onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedAmplifier: v, _speedAmplifier: v, _N$speedAmplifier: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                          title="speedAmplifier"
+                        />
+                        {([0.5, 1, 1.5, 2, 3] as const).map(v => (
+                          <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedAmplifier: v, _speedAmplifier: v, _N$speedAmplifier: v } } : c); applyAndSave({ components: u }) }}
+                            style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(speed - v) < 0.01 ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(speed - v) < 0.01 ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                          >{v}x</span>
+                        ))}
+                      </div>
+                    )
+                  })()}
                   {/* R1740: content 자식 노드 크기 퀵 편집 */}
                   {contentNode && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, borderTop: '1px solid var(--border)', paddingTop: 3 }}>

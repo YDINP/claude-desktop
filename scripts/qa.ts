@@ -27878,6 +27878,21 @@ if (
   log('warning', 'R2412-camera-cullingmask-cleardepth', 'Inspector cc.Camera cullingMask/clearDepth 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1417: R2413 Inspector cc.ScrollView speedAmplifier ──────────
+console.log('\n## 1417. R2413 Inspector cc.ScrollView speedAmplifier 체크')
+const s1417 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1417.includes('R2413') &&
+  s1417.includes('speedAmplifier') &&
+  s1417.includes('_speedAmplifier') &&
+  s1417.includes('_N$speedAmplifier') &&
+  s1417.includes('cc.ScrollView')
+) {
+  log('pass', 'R2413-scrollview-speedamplifier', 'Inspector cc.ScrollView speedAmplifier 구현 완료')
+} else {
+  log('warning', 'R2413-scrollview-speedamplifier', 'Inspector cc.ScrollView speedAmplifier 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
