@@ -4813,6 +4813,27 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#34d399', fontFamily: 'monospace' }}>{dy}</span>
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dist:</span>
             <span style={{ fontSize: 9, color: '#fbbf24', fontFamily: 'monospace' }}>{dist}</span>
+            {/* R2531: 2-노드 위치 교환 */}
+            <span onClick={async () => {
+              if (!sceneFile.root) return
+              const posA = { ...(a.position as { x: number; y: number; z?: number }) }
+              const posB = { ...(b.position as { x: number; y: number; z?: number }) }
+              const uuidA = a.uuid, uuidB = b.uuid
+              function patch(n: CCSceneNode): CCSceneNode {
+                const children = n.children.map(patch)
+                if (n.uuid === uuidA) return { ...n, position: posB, children }
+                if (n.uuid === uuidB) return { ...n, position: posA, children }
+                return { ...n, children }
+              }
+              await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+              setBatchMsg('✓ 위치 교환 (R2531)')
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+              title="두 노드 위치 교환 (R2531)"
+              style={{ fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid rgba(52,211,153,0.4)', borderRadius: 2, color: '#34d399', userSelect: 'none', marginLeft: 'auto' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.4)')}
+            >⇄ 교환</span>
           </div>
         )
       })()}

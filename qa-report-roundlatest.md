@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T19:12:38.728Z
+> 2026-03-15T19:18:04.624Z
 
 ## Critical
 _없음_
@@ -2552,6 +2552,7 @@ _없음_
 - R2519 BatchInspector Transform 초기화 구현 완료
 - R2520 BatchInspector 노드 반전 (Flip X/Y) 구현 완료
 - R2521 SceneView 세계 좌표 표시 토글 구현 완료
+- R2531 2-노드 위치 교환 구현 완료
 - R2530 앵커 변경 위치 보정 구현 완료
 - R2529 핀 마커 레이블 편집 구현 완료
 - R2528 스케일 배율 버튼 구현 완료

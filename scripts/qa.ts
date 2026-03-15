@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1523: R2531 BatchInspector 2-노드 위치 교환 ─────────────────────
+console.log('\n## 1523. R2531 — BatchInspector 2-노드 위치 교환 (Swap)')
+const s1523 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1523.includes('R2531') &&
+  s1523.includes('위치 교환') &&
+  s1523.includes('posA') &&
+  s1523.includes('posB')
+) {
+  log('pass', 'R2531-swap-pos', 'R2531 2-노드 위치 교환 구현 완료')
+} else {
+  log('warning', 'R2531-swap-pos', 'R2531 위치 교환 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1522: R2530 BatchInspector 앵커 변경 시 위치 보정 ───────────────
 console.log('\n## 1522. R2530 — BatchInspector 앵커 변경 + 위치 자동 보정')
 const s1522 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
