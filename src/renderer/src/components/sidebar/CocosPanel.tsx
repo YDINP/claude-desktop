@@ -4411,6 +4411,55 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2503: 정렬/분배 도구 (2+ 노드) */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyAlign = async (axis: 'x' | 'y', mode: 'min' | 'max' | 'center' | 'distrib') => {
+          if (!sceneFile.root) return
+          const ns: CCSceneNode[] = []
+          function coll(n: CCSceneNode) { if (uuidSet.has(n.uuid)) ns.push(n); n.children.forEach(coll) }
+          coll(sceneFile.root)
+          if (ns.length < 2) return
+          const vals = ns.map(n => ((n.position as Record<string, number>)[axis] ?? 0))
+          const minV = Math.min(...vals), maxV = Math.max(...vals)
+          const avgV = vals.reduce((a, b) => a + b, 0) / vals.length
+          const sorted = [...ns].sort((a, b) => ((a.position as Record<string, number>)[axis] ?? 0) - ((b.position as Record<string, number>)[axis] ?? 0))
+          const targetMap = new Map<string, number>()
+          if (mode === 'min') ns.forEach(n => targetMap.set(n.uuid, minV))
+          else if (mode === 'max') ns.forEach(n => targetMap.set(n.uuid, maxV))
+          else if (mode === 'center') ns.forEach(n => targetMap.set(n.uuid, avgV))
+          else if (mode === 'distrib') {
+            sorted.forEach((n, i) => {
+              const t = sorted.length === 1 ? minV : minV + (maxV - minV) * i / (sorted.length - 1)
+              targetMap.set(n.uuid, t)
+            })
+          }
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!targetMap.has(n.uuid)) return { ...n, children }
+            const pos = { ...((n.position as object) ?? {}) } as Record<string, number>
+            pos[axis] = Math.round(targetMap.get(n.uuid)!)
+            return { ...n, position: pos as CCSceneNode['position'], children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+        }
+        const btnS: React.CSSProperties = { fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(52,211,153,0.3)', background: 'rgba(52,211,153,0.08)', color: '#34d399', lineHeight: 1.6 }
+        return (
+          <div style={{ marginBottom: 6, padding: '3px 6px', background: 'rgba(52,211,153,0.05)', border: '1px solid rgba(52,211,153,0.18)', borderRadius: 4 }}>
+            <div style={{ fontSize: 9, color: '#34d399', fontWeight: 600, marginBottom: 3 }}>⊟ 정렬 (R2503)</div>
+            <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+              <span style={btnS} onClick={() => applyAlign('x', 'min')} title="X 최솟값 정렬">◁ L</span>
+              <span style={btnS} onClick={() => applyAlign('x', 'center')} title="X 중앙 정렬">↔ CX</span>
+              <span style={btnS} onClick={() => applyAlign('x', 'max')} title="X 최댓값 정렬">▷ R</span>
+              <span style={btnS} onClick={() => applyAlign('x', 'distrib')} title="X 균등 분배">⇹ DH</span>
+              <span style={{ width: 1, background: 'rgba(52,211,153,0.2)', margin: '0 1px' }} />
+              <span style={btnS} onClick={() => applyAlign('y', 'max')} title="Y 최댓값 정렬">△ T</span>
+              <span style={btnS} onClick={() => applyAlign('y', 'center')} title="Y 중앙 정렬">↕ CY</span>
+              <span style={btnS} onClick={() => applyAlign('y', 'min')} title="Y 최솟값 정렬">▽ B</span>
+              <span style={btnS} onClick={() => applyAlign('y', 'distrib')} title="Y 균등 분배">⇳ DV</span>
+            </div>
+          </div>
+        )
+      })()}
       {/* R1698: 공통 컴포넌트 표시 */}
       {commonCompTypes.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 6 }}>

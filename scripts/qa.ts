@@ -28920,6 +28920,18 @@ if (
   log('warning', 'R2502-recent-comps', 'R2502 최근 컴포넌트 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1495: R2503 BatchInspector 정렬/분배 도구 ──────────────────────────
+const s1495 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1495.includes('R2503') &&
+  s1495.includes('applyAlign') &&
+  s1495.includes('distrib')
+) {
+  log('pass', 'R2503-align-distrib', 'R2503 BatchInspector 정렬/분배 도구 구현 완료')
+} else {
+  log('warning', 'R2503-align-distrib', 'R2503 정렬/분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
