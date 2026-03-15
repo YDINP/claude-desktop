@@ -18298,6 +18298,10 @@ function CCFileNodeInspector({
   const [showScriptLogs, setShowScriptLogs] = useState(false)
   const [showDepMap, setShowDepMap] = useState(false)
 
+  // R2518: tint hex 텍스트 입력 로컬 상태
+  const [tintHexInput, setTintHexInput] = useState<string>('')
+  const [tintHexFocused, setTintHexFocused] = useState(false)
+
   // 노드 교체 시 draft + 컴포넌트 접힘 상태 + propSearch 초기화
   useMemo(() => { setDraft({ ...node }); setExpandedArrayProps(new Set()); setPropSearch(''); setShowPropSearch(false) }, [node.uuid])
   const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
@@ -19879,6 +19883,37 @@ function CCFileNodeInspector({
             title="노드 색상 tint (흰색=기본)"
             style={{ width: 26, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
           />
+          {/* R2518: hex 텍스트 직접 입력 */}
+          {(() => {
+            const c = draft.color ?? { r: 255, g: 255, b: 255 }
+            const currentHex = `#${(c.r ?? 255).toString(16).padStart(2,'0')}${(c.g ?? 255).toString(16).padStart(2,'0')}${(c.b ?? 255).toString(16).padStart(2,'0')}`
+            const displayVal = tintHexFocused ? tintHexInput : currentHex
+            return (
+              <input
+                type="text" value={displayVal} maxLength={7}
+                title="hex 코드 직접 입력 (예: #ff0000) (R2518)"
+                onFocus={() => { setTintHexFocused(true); setTintHexInput(currentHex) }}
+                onBlur={() => {
+                  setTintHexFocused(false)
+                  const m = tintHexInput.match(/^#?([0-9a-f]{6})$/i)
+                  if (m) {
+                    const hex = m[1]
+                    const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16)
+                    applyAndSave({ color: { r, g, b, a: c.a ?? 255 } })
+                  }
+                }}
+                onChange={e => setTintHexInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    const m = tintHexInput.match(/^#?([0-9a-f]{6})$/i)
+                    if (m) { const hex = m[1]; const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16); applyAndSave({ color: { r, g, b, a: c.a ?? 255 } }) }
+                    e.currentTarget.blur()
+                  }
+                }}
+                style={{ width: 52, fontSize: 8, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-muted)', fontFamily: 'monospace', flexShrink: 0 }}
+              />
+            )
+          })()}
           {((draft.color?.r ?? 255) !== 255 || (draft.color?.g ?? 255) !== 255 || (draft.color?.b ?? 255) !== 255) && (
             <span
               title="tint 초기화 (흰색)"

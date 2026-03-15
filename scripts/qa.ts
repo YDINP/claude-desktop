@@ -29107,6 +29107,19 @@ if (
   log('warning', 'R2517-comp-type-select-all', 'R2517 컴포넌트 타입 전체 선택 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1510: R2518 NodeInspector tint hex 텍스트 입력 ──────────────────────────
+console.log('\n## 1510. R2518 — NodeInspector tint hex 직접 입력')
+const s1510 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1510.includes('R2518') &&
+  s1510.includes('tintHexInput') &&
+  s1510.includes('tintHexFocused')
+) {
+  log('pass', 'R2518-tint-hex-input', 'R2518 NodeInspector tint hex 텍스트 입력 구현 완료')
+} else {
+  log('warning', 'R2518-tint-hex-input', 'R2518 tint hex 입력 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
