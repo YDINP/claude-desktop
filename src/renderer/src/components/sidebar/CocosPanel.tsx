@@ -4710,6 +4710,47 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2523: 공통 컴포넌트 enabled 일괄 토글 */}
+      {sceneFile.root && uuids.length > 0 && (() => {
+        const selNodes: CCSceneNode[] = []
+        function collectSel2523(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collectSel2523) }
+        collectSel2523(sceneFile.root!)
+        const typeSet = new Set<string>()
+        selNodes.forEach(n => n.components.forEach(c => typeSet.add(c.type)))
+        const types = [...typeSet].filter(t => t !== 'cc.Node').slice(0, 5)
+        if (types.length === 0) return null
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>컴프 ON/OFF (R2523)</span>
+            {types.map(ct => {
+              const nodesWithComp = selNodes.filter(n => n.components.some(c => c.type === ct))
+              const allOn = nodesWithComp.every(n => n.components.find(c => c.type === ct)?.props.enabled !== false)
+              const shortName = ct.includes('.') ? ct.split('.').pop()! : ct
+              return (
+                <span key={ct}
+                  title={`선택된 노드의 ${ct} 컴포넌트를 일괄 ${allOn ? '비활성화' : '활성화'} (R2523)`}
+                  onClick={async () => {
+                    if (!sceneFile.root) return
+                    const newEnabled = !allOn
+                    function patch(n: CCSceneNode): CCSceneNode {
+                      const children = n.children.map(patch)
+                      if (!uuidSet.has(n.uuid)) return { ...n, children }
+                      const comps = n.components.map(c => c.type === ct ? { ...c, props: { ...c.props, enabled: newEnabled, _enabled: newEnabled } } : c)
+                      return { ...n, components: comps, children }
+                    }
+                    await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+                    setBatchMsg(`✓ ${ct} ${newEnabled ? '활성화' : '비활성화'} (${nodesWithComp.length}개)`)
+                    setTimeout(() => setBatchMsg(null), 2000)
+                  }}
+                  style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${allOn ? 'rgba(52,211,153,0.4)' : 'rgba(248,113,113,0.4)'}`, borderRadius: 2, color: allOn ? '#34d399' : '#f87171', userSelect: 'none' }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                >{shortName} {allOn ? '●' : '○'}</span>
+              )
+            })}
+          </div>
+        )
+      })()}
       {/* R2336: 2-노드 선택 시 거리/간격 정보 */}
       {uuids.length === 2 && sceneFile.root && (() => {
         const nodes2: CCSceneNode[] = []

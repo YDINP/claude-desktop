@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1515: R2523 BatchInspector 공통 컴포넌트 enabled 토글 ──────────
+console.log('\n## 1515. R2523 — BatchInspector 공통 컴포넌트 ON/OFF 일괄 토글')
+const s1515 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1515.includes('R2523') &&
+  s1515.includes('collectSel2523') &&
+  s1515.includes('컴프 ON/OFF') &&
+  s1515.includes('newEnabled')
+) {
+  log('pass', 'R2523-comp-toggle', 'R2523 공통 컴포넌트 enabled 일괄 토글 구현 완료')
+} else {
+  log('warning', 'R2523-comp-toggle', 'R2523 컴포넌트 ON/OFF 토글 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1514: R2522 BatchInspector 직접 자식 선택 ──────────────────────
 console.log('\n## 1514. R2522 — BatchInspector 직접 자식 선택 확장')
 const s1514 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

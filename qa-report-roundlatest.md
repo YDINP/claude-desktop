@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T18:53:59.664Z
+> 2026-03-15T18:56:10.608Z
 
 ## Critical
 _없음_
@@ -2552,4 +2552,5 @@ _없음_
 - R2519 BatchInspector Transform 초기화 구현 완료
 - R2520 BatchInspector 노드 반전 (Flip X/Y) 구현 완료
 - R2521 SceneView 세계 좌표 표시 토글 구현 완료
+- R2523 공통 컴포넌트 enabled 일괄 토글 구현 완료
 - R2522 직접 자식 선택 확장 구현 완료
