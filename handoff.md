@@ -124,7 +124,18 @@
 - Branch: dev
 - 최근 커밋: `ac6f82ad` (R2484), `add27e2e` (R2483), `8897ec45` (R2482), `ef53cead` (R2481)
 
-## 다음 예정 (R2485+)
+## 완료 (R2485~R2488)
+- [x] R2485: BatchInspector 크기 균등화 — W↑/↓/≈ + H↑/↓/≈ (max/min/avg 버튼, 2개+ 노드)
+- [x] R2486: 씬뷰 씬별 뷰 상태 영속화 — 씬 전환 시 pan/zoom 자동 복원 (sv-view2-* localStorage)
+- [x] R2487: Inspector Raw JSON 인라인 편집 — 편집/적용/취소 버튼 + JSON 파싱 적용
+- [x] R2488: 복제 오프셋 설정 — Ctrl+D 복제 시 X/Y 위치 오프셋 (SceneView 상단 바, 퀵 프리셋)
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2511** ← R2488 현재
+- Branch: dev
+- 최근 커밋: `afaccab8` (R2488), `7a0d39d4` (R2487 fix), `9af9fbb7` (R2486), `4f3e419e` (R2485)
+
+## 다음 예정 (R2489+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
