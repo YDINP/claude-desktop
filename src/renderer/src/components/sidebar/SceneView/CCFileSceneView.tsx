@@ -192,6 +192,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   multiSelectedRef.current = multiSelected
   const selBoxRef = useRef<{ startSvgX: number; startSvgY: number } | null>(null)
   const [selectionBox, setSelectionBox] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
+  // R2521: 세계 좌표 표시 토글
+  const [showWorldPos, setShowWorldPos] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -2711,7 +2713,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             padding: '2px 8px', fontSize: 9, color: '#ccc',
             display: 'flex', gap: 8,
           }}>
-            <span style={{ pointerEvents: 'none', color: dragOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>pos</span> {parseFloat(pos.x.toFixed(2))},{parseFloat(pos.y.toFixed(2))}{/* R1611: 드래그 delta */}{dragOverride?.uuid === node.uuid && dragRef.current && ` (Δ${(dragOverride.x - dragRef.current.startNodeX).toFixed(0)},${(dragOverride.y - dragRef.current.startNodeY).toFixed(0)})`}</span>
+            {/* R2521: Local/World 좌표 토글 */}
+            <span
+              onClick={() => setShowWorldPos(v => !v)}
+              title={showWorldPos ? '세계 좌표 표시 중 — 클릭하여 로컬로 전환 (R2521)' : '로컬 좌표 표시 중 — 클릭하여 세계로 전환 (R2521)'}
+              style={{ cursor: 'pointer', color: showWorldPos ? '#34d399' : '#888', fontSize: 8, flexShrink: 0, userSelect: 'none' }}
+            >{showWorldPos ? 'W' : 'L'}</span>
+            <span style={{ pointerEvents: 'none', color: dragOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>pos</span> {showWorldPos ? `${parseFloat(fn.worldX.toFixed(2))},${parseFloat(fn.worldY.toFixed(2))}` : `${parseFloat(pos.x.toFixed(2))},${parseFloat(pos.y.toFixed(2))}`}{/* R1611: 드래그 delta */}{dragOverride?.uuid === node.uuid && dragRef.current && ` (Δ${(dragOverride.x - dragRef.current.startNodeX).toFixed(0)},${(dragOverride.y - dragRef.current.startNodeY).toFixed(0)})`}</span>
             <span style={{ pointerEvents: 'none', color: resizeOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>size</span> {parseFloat(w.toFixed(2))}×{parseFloat(h.toFixed(2))}</span>
             {(rotZ !== 0 || rotateOverride?.uuid === node.uuid) && <span style={{ pointerEvents: 'none', color: rotateOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
             {/* 정렬 버튼 */}

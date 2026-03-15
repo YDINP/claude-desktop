@@ -29148,6 +29148,19 @@ if (
   log('warning', 'R2520-flip-xy', 'R2520 노드 반전 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1513: R2521 SceneView 세계 좌표 표시 ──────────────────────────
+console.log('\n## 1513. R2521 — SceneView 세계 좌표 표시 토글')
+const s1513 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1513.includes('R2521') &&
+  s1513.includes('showWorldPos') &&
+  s1513.includes('fn.worldX')
+) {
+  log('pass', 'R2521-world-pos', 'R2521 SceneView 세계 좌표 표시 토글 구현 완료')
+} else {
+  log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
