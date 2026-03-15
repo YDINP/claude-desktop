@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1603: R2611 BatchInspector 위치 셔플 (≥3개) ──────────────────────
+console.log('\n## 1603. R2611 — BatchInspector 위치 셔플')
+const s1603 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1603.includes('R2611') &&
+  s1603.includes('applyPosShuffle') &&
+  s1603.includes('셔플 (R2611)')
+) {
+  log('pass', 'R2611-pos-shuffle', 'R2611 위치 셔플 구현 완료')
+} else {
+  log('warning', 'R2611-pos-shuffle', 'R2611 위치 셔플 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1602: R2610 SceneView rotation 방향 화살표 오버레이 ───────────────
 console.log('\n## 1602. R2610 — SceneView rotation 방향 화살표 오버레이')
 const s1602 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

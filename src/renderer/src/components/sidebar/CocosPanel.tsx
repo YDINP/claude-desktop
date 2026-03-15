@@ -5513,6 +5513,36 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2611: 선택 노드 위치 셔플 (≥3개) */}
+      {uuids.length >= 3 && sceneFile.root && (() => {
+        const applyPosShuffle = async () => {
+          if (!sceneFile.root) return
+          const selNodes: CCSceneNode[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          const positions = selNodes.map(n => ({ ...(n.position as { x: number; y: number; z?: number }) }))
+          for (let i = positions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [positions[i], positions[j]] = [positions[j], positions[i]]
+          }
+          const posMap = new Map(selNodes.map((n, i) => [n.uuid, positions[i]]))
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, position: { ...(n.position as object), ...posMap.get(n.uuid)! }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 위치 셔플 (${selNodes.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>셔플 (R2611)</span>
+            <span onClick={applyPosShuffle} title={`${uuids.length}개 노드 위치를 무작위 교환 (R2611)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(129,140,248,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(129,140,248,0.05)' }}>⇌ 위치</span>
+          </div>
+        )
+      })()}
       {/* R2582: 선택 노드 형제 위치 순서로 Z-order 재정렬 */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const applySortByPos = async (axis: 'x' | 'y') => {
