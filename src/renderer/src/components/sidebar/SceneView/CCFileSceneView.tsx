@@ -219,6 +219,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showCompBadges, setShowCompBadges] = useState(false)
   // R2583: 회전값 레이블 오버레이 (∠°)
   const [showRotLabels, setShowRotLabels] = useState(false)
+  // R2585: 노드 이름 레이블 오버레이
+  const [showNameLabels, setShowNameLabels] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1519,6 +1521,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showRotLabels ? '회전 레이블 끄기 (R2583)' : '비영(非零) 회전 노드에 ∠° 표시 (R2583)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotLabels ? 'rgba(236,72,153,0.5)' : 'var(--border)'}`, background: showRotLabels ? 'rgba(236,72,153,0.12)' : 'none', color: showRotLabels ? '#ec4899' : 'var(--text-muted)' }}
         >∠°</button>
+        {/* R2585: 노드 이름 레이블 오버레이 토글 */}
+        <button
+          onClick={() => setShowNameLabels(v => !v)}
+          title={showNameLabels ? '이름 레이블 끄기 (R2585)' : '각 노드에 이름 텍스트 오버레이 (R2585)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNameLabels ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showNameLabels ? 'rgba(96,165,250,0.12)' : 'none', color: showNameLabels ? '#60a5fa' : 'var(--text-muted)' }}
+        >이름</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2305,6 +2313,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(236,72,153,0.9)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >∠{Math.round(deg)}°</text>
+                  )
+                })()}
+                {/* R2585: 노드 이름 레이블 오버레이 */}
+                {showNameLabels && view.zoom > 0.3 && (() => {
+                  const fs = Math.max(6, 9 / view.zoom)
+                  const maxChars = Math.max(4, Math.floor(w / (fs * 0.6)))
+                  const label = node.name.length > maxChars ? node.name.slice(0, maxChars - 1) + '…' : node.name
+                  return (
+                    <text
+                      x={svgPos.x} y={rectY + fs * 1.1}
+                      textAnchor="middle"
+                      fontSize={fs} fill="rgba(96,165,250,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{label}</text>
                   )
                 })()}
                 {/* R2578: 노드 불투명도 α% 오버레이 */}

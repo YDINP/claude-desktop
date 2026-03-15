@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1577: R2585 SceneView 노드 이름 레이블 오버레이 ──────────────────
+console.log('\n## 1577. R2585 — SceneView 노드 이름 레이블 오버레이')
+const s1577 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1577.includes('R2585') &&
+  s1577.includes('showNameLabels') &&
+  s1577.includes('이름')
+) {
+  log('pass', 'R2585-name-labels', 'R2585 SceneView 이름 레이블 오버레이 구현 완료')
+} else {
+  log('warning', 'R2585-name-labels', 'R2585 이름 레이블 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1576: R2584 BatchInspector UUID 목록 복사 (📋 UUID) ──────────────
 console.log('\n## 1576. R2584 — BatchInspector UUID 목록 복사 (📋 UUID)')
 const s1576 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
