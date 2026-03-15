@@ -16799,35 +16799,42 @@ function CCFileNodeInspector({
     else setMsg({ ok: false, text: result.error ?? '삭제 실패' })
   }, [node.uuid, sceneFile, saveScene, onUpdate])
 
-  // 노드 복제 (부모 아래에 형제로 추가)
+  // 노드 복제 (부모 아래에 형제로 추가) — R2337: N-복제 지원
   const handleDuplicate = useCallback(async () => {
     if (!sceneFile.root || !sceneFile._raw || sceneFile.root.uuid === node.uuid) return
+    const n = Math.max(1, Math.min(20, dupeCount))
     const raw = sceneFile._raw as Record<string, unknown>[]
-    const newId = 'dup-' + Date.now()
+    const dupNodes: CCSceneNode[] = []
     const origRaw = node._rawIndex != null ? { ...raw[node._rawIndex] } : {}
-    const newIdx = raw.length
-    raw.push({ ...origRaw, _id: newId, _name: node.name + '_Copy', _children: [] })
-    const dupNode: CCSceneNode = { ...node, uuid: newId, name: node.name + '_Copy', children: [], _rawIndex: newIdx }
-    function insertAfter(n: CCSceneNode): CCSceneNode {
-      const idx = n.children.findIndex(c => c.uuid === node.uuid)
-      if (idx >= 0) { const ch = [...n.children]; ch.splice(idx + 1, 0, dupNode); return { ...n, children: ch } }
-      return { ...n, children: n.children.map(insertAfter) }
+    for (let i = 0; i < n; i++) {
+      const newId = `dup-${Date.now()}-${i}`
+      const newIdx = raw.length
+      const suffix = n > 1 ? `_Copy${i + 1}` : '_Copy'
+      raw.push({ ...origRaw, _id: newId, _name: node.name + suffix, _children: [] })
+      dupNodes.push({ ...node, uuid: newId, name: node.name + suffix, children: [], _rawIndex: newIdx })
+    }
+    function insertAfterAll(root: CCSceneNode): CCSceneNode {
+      const idx = root.children.findIndex(c => c.uuid === node.uuid)
+      if (idx >= 0) { const ch = [...root.children]; ch.splice(idx + 1, 0, ...dupNodes); return { ...root, children: ch } }
+      return { ...root, children: root.children.map(insertAfterAll) }
     }
     setSaving(true)
     try {
-      const result = await saveScene(insertAfter(sceneFile.root))
-      if (result.success) onUpdate(dupNode)
-      else { raw.pop(); setMsg({ ok: false, text: result.error ?? '복제 실패' }) }
+      const result = await saveScene(insertAfterAll(sceneFile.root))
+      if (result.success) onUpdate(dupNodes[0])
+      else { dupNodes.forEach(() => raw.pop()); setMsg({ ok: false, text: result.error ?? '복제 실패' }) }
     } catch {
-      raw.pop()
+      dupNodes.forEach(() => raw.pop())
       setMsg({ ok: false, text: '복제 실패' })
     } finally {
       setSaving(false)
     }
-  }, [node, sceneFile, saveScene, onUpdate])
+  }, [node, sceneFile, saveScene, onUpdate, dupeCount])
 
   const [propSearch, setPropSearch] = useState('')
   const [showPropSearch, setShowPropSearch] = useState(false)
+  // R2337: N-복제 카운트
+  const [dupeCount, setDupeCount] = useState(1)
 
   // Round 611: prop 변경 히스토리
   const PROP_HISTORY_KEY = 'prop-history'
@@ -17881,16 +17888,23 @@ function CCFileNodeInspector({
               <button onClick={() => handleZOrder(-1)} disabled={!zOrderInfo || zOrderInfo.idx === 0} title="앞으로 이동" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: zOrderInfo?.idx === 0 ? 'default' : 'pointer', background: 'transparent', color: zOrderInfo?.idx === 0 ? '#444' : '#888', border: `1px solid ${zOrderInfo?.idx === 0 ? '#333' : '#555'}`, lineHeight: 1.4 }}>↑</button>
               <button onClick={() => handleZOrder(1)} disabled={!zOrderInfo || zOrderInfo.idx === zOrderInfo.total - 1} title="뒤로 이동" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: zOrderInfo?.idx === zOrderInfo?.total - 1 ? 'default' : 'pointer', background: 'transparent', color: zOrderInfo?.idx === zOrderInfo?.total - 1 ? '#444' : '#888', border: `1px solid ${zOrderInfo?.idx === zOrderInfo?.total - 1 ? '#333' : '#555'}`, lineHeight: 1.4 }}>↓</button>
               <button onClick={() => handleZOrderEdge('last')} disabled={!zOrderInfo || zOrderInfo.idx === zOrderInfo.total - 1} title="맨 뒤로" style={{ padding: '1px 3px', fontSize: 10, borderRadius: 3, cursor: zOrderInfo?.idx === zOrderInfo?.total - 1 ? 'default' : 'pointer', background: 'transparent', color: zOrderInfo?.idx === zOrderInfo?.total - 1 ? '#444' : '#888', border: `1px solid ${zOrderInfo?.idx === zOrderInfo?.total - 1 ? '#333' : '#555'}`, lineHeight: 1.4 }}>⤓</button>
+              {/* R2337: N-복제 — 복제 버튼 + 횟수 입력 */}
+              <input
+                type="number" min={1} max={20} value={dupeCount}
+                onChange={e => setDupeCount(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
+                title="복제 횟수 (최대 20)"
+                style={{ width: 32, fontSize: 10, textAlign: 'center', background: 'var(--bg-primary)', border: '1px solid #336', color: '#58a6ff', borderRadius: 3, padding: '1px 2px' }}
+              />
               <button
                 onClick={handleDuplicate}
-                title="노드 복제"
+                title={`노드 복제 ×${dupeCount}`}
                 style={{
                   padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
                   background: 'transparent', color: '#58a6ff', border: '1px solid #58a6ff',
                   lineHeight: 1.4,
                 }}
               >
-                복제
+                복제{dupeCount > 1 ? `×${dupeCount}` : ''}
               </button>
               <button
                 onClick={handleDelete}

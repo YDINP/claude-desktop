@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1341: R2337 Inspector 노드 N-복제 ──────────
+console.log('\n## 1341. R2337 Inspector 노드 N-복제 (×N) 체크')
+const s1341 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1341.includes('R2337') &&
+  s1341.includes('dupeCount') &&
+  s1341.includes('복제 횟수')
+) {
+  log('pass', 'R2337-n-duplicate', 'Inspector 노드 N-복제 (×N) 구현 완료')
+} else {
+  log('warning', 'R2337-n-duplicate', 'Inspector 노드 N-복제 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1340: R2336 BatchInspector 2-노드 거리 정보 ──────────
 console.log('\n## 1340. R2336 2-노드 거리/간격 정보 패널 체크')
 const s1340 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
