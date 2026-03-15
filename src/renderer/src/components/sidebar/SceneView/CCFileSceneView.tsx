@@ -94,6 +94,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showRuler, setShowRuler] = useState(false)
   // R2319: 카메라 프레임 토글
   const [showCameraFrames, setShowCameraFrames] = useState(true)
+  // R2456: 그리드 오버레이 토글
+  const [showGrid, setShowGrid] = useState(false)
   // R1605: 편집 잠금 (View-only lock)
   const [viewLock, setViewLock] = useState(false)
   // R1610: 비활성 노드 완전 숨기기
@@ -1030,6 +1032,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={`배경 패턴: ${bgPattern === 'solid' ? '단색' : '체크무늬'} (클릭 전환)`}
           style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: bgPattern === 'checker' ? 'rgba(88,166,255,0.12)' : 'none', color: bgPattern === 'checker' ? '#58a6ff' : 'var(--text-muted)', flexShrink: 0 }}
         >⊞</button>
+        {/* R2456: 그리드 오버레이 토글 */}
+        <button
+          onClick={() => setShowGrid(g => !g)}
+          title={`그리드 오버레이 (${snapSize}px 간격) — ${showGrid ? '숨기기' : '표시'}`}
+          style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showGrid ? 'rgba(100,220,100,0.5)' : 'var(--border)'}`, background: showGrid ? 'rgba(100,220,100,0.1)' : 'none', color: showGrid ? 'rgba(100,220,100,0.9)' : 'var(--text-muted)', flexShrink: 0 }}
+        >#</button>
         {/* R1681: 선택 노드 테두리 색상 */}
         <input
           type="color"
@@ -1400,6 +1408,27 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {bgPattern === 'checker' && (
             <rect x={0} y={0} width={effectiveW} height={effectiveH} fill="url(#checkerBg)" style={{ pointerEvents: 'none' }} />
           )}
+          {/* R2456: 그리드 오버레이 */}
+          {showGrid && (() => {
+            const gs = snapSize
+            const lines: React.ReactNode[] = []
+            const sw = 1 / view.zoom
+            const strokeCol = 'rgba(255,255,255,0.12)'
+            // 원점(중심)에서 snapSize 간격으로 그리드 (CC 좌표: origin = canvas center, SVG: 0,0 = top-left)
+            const ox = effectiveW / 2  // SVG x where CC x=0
+            const oy = effectiveH / 2  // SVG y where CC y=0
+            // 세로선
+            for (let x = ((ox % gs) + gs) % gs; x <= effectiveW; x += gs) {
+              const isOrigin = Math.abs(x - ox) < 0.5
+              lines.push(<line key={`v${x}`} x1={x} y1={0} x2={x} y2={effectiveH} stroke={isOrigin ? 'rgba(255,80,80,0.3)' : strokeCol} strokeWidth={sw} />)
+            }
+            // 가로선
+            for (let y = ((oy % gs) + gs) % gs; y <= effectiveH; y += gs) {
+              const isOrigin = Math.abs(y - oy) < 0.5
+              lines.push(<line key={`h${y}`} x1={0} y1={y} x2={effectiveW} y2={y} stroke={isOrigin ? 'rgba(80,200,80,0.3)' : strokeCol} strokeWidth={sw} />)
+            }
+            return <g style={{ pointerEvents: 'none' }}>{lines}</g>
+          })()}
           {/* R1530: 디자인 레퍼런스 이미지 overlay */}
           {refImgSrc && (
             <image href={refImgSrc} x={0} y={0} width={effectiveW} height={effectiveH}
@@ -2485,6 +2514,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['F', '선택 노드 중앙 포커스'],
             ['좌클릭 드래그', '노드 이동'],
             ['Ctrl+드래그', `${snapSize}px 그리드 스냅`],
+            ['# 버튼', `그리드 오버레이 표시/숨기기 (R2456)`],
             ['SE 핸들 드래그', '노드 리사이즈'],
             ['↻ 핸들 드래그', '노드 회전 (Shift: 15°)'],
             ['Escape', '선택 해제'],
