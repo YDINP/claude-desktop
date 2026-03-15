@@ -29080,6 +29080,20 @@ if (
   log('warning', 'R2515-parent-select', 'R2515 부모 노드 선택 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1508: R2516 BatchInspector 위치 오프셋 이동 ──────────────────────────
+console.log('\n## 1508. R2516 — BatchInspector 위치 Δ이동')
+const s1508 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1508.includes('R2516') &&
+  s1508.includes('posOffsetX') &&
+  s1508.includes('posOffsetY') &&
+  s1508.includes('applyOffset')
+) {
+  log('pass', 'R2516-pos-offset', 'R2516 BatchInspector 위치 오프셋 이동 구현 완료')
+} else {
+  log('warning', 'R2516-pos-offset', 'R2516 위치 오프셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -4263,6 +4263,9 @@ function CCFileBatchInspector({
   const [batchRemComp, setBatchRemComp] = useState<string>('')
   // R2514: 그리드 스냅 크기
   const [snapGridSize, setSnapGridSize] = useState<number>(8)
+  // R2516: 위치 오프셋 이동
+  const [posOffsetX, setPosOffsetX] = useState<number>(0)
+  const [posOffsetY, setPosOffsetY] = useState<number>(0)
   // R2513: Z-Order 이동
   const moveZOrder = useCallback(async (dir: 'up' | 'down' | 'top' | 'bottom') => {
     if (!sceneFile.root) return
@@ -4562,6 +4565,37 @@ function CCFileBatchInspector({
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >스냅</span>
+          </div>
+        )
+      })()}
+      {/* R2516: 위치 오프셋 이동 — 선택 노드 위치에 Δx/Δy 더하기 */}
+      {sceneFile.root && (() => {
+        const applyOffset = async () => {
+          if ((posOffsetX === 0 && posOffsetY === 0) || !sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...p, x: p.x + posOffsetX, y: p.y + posOffsetY }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ${uuids.length}개 노드 Δ(${posOffsetX >= 0 ? '+' : ''}${posOffsetX}, ${posOffsetY >= 0 ? '+' : ''}${posOffsetY})`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const numInputS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>Δ이동 (R2516)</span>
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>X</span>
+            <input type="number" value={posOffsetX} onChange={e => setPosOffsetX(parseFloat(e.target.value) || 0)} style={numInputS} title="X 오프셋 (px)" />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>Y</span>
+            <input type="number" value={posOffsetY} onChange={e => setPosOffsetY(parseFloat(e.target.value) || 0)} style={numInputS} title="Y 오프셋 (px)" />
+            <span onClick={applyOffset}
+              title={`선택된 ${uuids.length}개 노드 위치에 Δ(${posOffsetX}, ${posOffsetY}) 더하기 (R2516)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >적용</span>
           </div>
         )
       })()}
