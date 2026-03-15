@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1670: R2678 BatchInspector opacity 배수 ──────────────────────────
+console.log('\n## 1670. R2678 — BatchInspector opacity 배수')
+const s1670 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1670.includes('R2678') &&
+  s1670.includes('applyOpacityMult') &&
+  s1670.includes('opacityMult') &&
+  s1670.includes('op배수')
+) {
+  log('pass', 'R2678-opMult', 'R2678 opacity 배수 구현 완료')
+} else {
+  log('warning', 'R2678-opMult', 'R2678 opacity 배수 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1669: R2677 BatchInspector 색상 반전 ─────────────────────────────
+console.log('\n## 1669. R2677 — BatchInspector 색상 반전')
+const s1669 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1669.includes('R2677') &&
+  s1669.includes('applyColorInvert') &&
+  s1669.includes('255 - c.r') &&
+  s1669.includes('color반전')
+) {
+  log('pass', 'R2677-colorInvert', 'R2677 색상 반전 구현 완료')
+} else {
+  log('warning', 'R2677-colorInvert', 'R2677 색상 반전 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1668: R2676 BatchInspector 색상 블렌드 ───────────────────────────
 console.log('\n## 1668. R2676 — BatchInspector 색상 블렌드')
 const s1668 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
