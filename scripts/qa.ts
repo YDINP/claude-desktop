@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1564: R2572 BatchInspector 랜덤 산포 (±50/100/200) ───────────────
+console.log('\n## 1564. R2572 — BatchInspector 랜덤 산포 (Random Scatter)')
+const s1564 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1564.includes('R2572') &&
+  s1564.includes('랜덤 산포') &&
+  s1564.includes('applyScatter') &&
+  s1564.includes('50, 100, 200')
+) {
+  log('pass', 'R2572-random-scatter', 'R2572 랜덤 산포 구현 완료')
+} else {
+  log('warning', 'R2572-random-scatter', 'R2572 랜덤 산포 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1563: R2571 NodeInspector 전체 픽셀 반올림 버튼 (⌊⌉All) ─────────
 console.log('\n## 1563. R2571 — NodeInspector 전체 픽셀 반올림 (⌊⌉All)')
 const s1563 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

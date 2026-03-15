@@ -17785,6 +17785,31 @@ function CCFileBatchInspector({
           <div style={{ display: 'flex', gap: 4, marginBottom: 4, paddingLeft: 52, alignItems: 'center' }}>
             <span onClick={applyRandColor} title={`각 선택 노드에 서로 다른 색상 할당 (R2538)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(217,119,6,0.5)', color: '#fbbf24', userSelect: 'none', background: 'rgba(217,119,6,0.05)' }}>🎲 색상</span>
+            {/* R2572: 랜덤 산포 버튼 */}
+            {([50, 100, 200] as const).map(r => (
+              <span key={r}
+                onClick={async () => {
+                  if (!sceneFile.root) return
+                  const nodes: CCSceneNode[] = []
+                  function collectSc(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collectSc) }
+                  collectSc(sceneFile.root)
+                  function applyScatter(n: CCSceneNode): CCSceneNode {
+                    const children = n.children.map(applyScatter)
+                    if (!uuidSet.has(n.uuid)) return { ...n, children }
+                    const pos = n.position as { x: number; y: number; z?: number }
+                    const angle = Math.random() * Math.PI * 2
+                    const dist = Math.random() * r
+                    return { ...n, position: { ...pos, x: Math.round(pos.x + Math.cos(angle) * dist), y: Math.round(pos.y + Math.sin(angle) * dist) }, children }
+                  }
+                  const result = await saveScene(applyScatter(sceneFile.root))
+                  setBatchMsg(result.success ? `✓ 산포 ±${r} (${nodes.length}개)` : `✗ 오류`)
+                  setTimeout(() => setBatchMsg(null), 2000)
+                }}
+                title={`선택 노드를 ±${r}px 반경 내 랜덤 산포 (R2572)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')} onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
+              >±{r}</span>
+            ))}
             {palette.map(c => <span key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c, display: 'inline-block', flexShrink: 0 }} />)}
           </div>
         )
