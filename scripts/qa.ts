@@ -27923,6 +27923,19 @@ if (
   log('warning', 'R2415-pageview-bounceenabled', 'Inspector cc.PageView bounceEnabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1420: R2416 Inspector cc.BlockInputEvents ──────────
+console.log('\n## 1420. R2416 Inspector cc.BlockInputEvents 체크')
+const s1420 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1420.includes('R2416') &&
+  s1420.includes('cc.BlockInputEvents') &&
+  s1420.includes('입력 이벤트 차단')
+) {
+  log('pass', 'R2416-blockinputevents', 'Inspector cc.BlockInputEvents 구현 완료')
+} else {
+  log('warning', 'R2416-blockinputevents', 'Inspector cc.BlockInputEvents 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

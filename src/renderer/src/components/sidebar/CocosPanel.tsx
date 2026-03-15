@@ -23945,6 +23945,20 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R2416: cc.BlockInputEvents — enabled 퀵 편집
+            if (comp.type === 'cc.BlockInputEvents') {
+              const enabled = !!(p.enabled ?? p._enabled ?? true)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={enabled}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled (입력 이벤트 차단)
+                  </label>
+                </div>
+              )
+            }
             return null
           })()}
           {(!collapsedComps.has(comp.type) || typeMatchedComps !== null) && (() => {
