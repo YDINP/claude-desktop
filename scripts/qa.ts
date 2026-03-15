@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1340: R2336 BatchInspector 2-노드 거리 정보 ──────────
+console.log('\n## 1340. R2336 2-노드 거리/간격 정보 패널 체크')
+const s1340 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1340.includes('R2336') &&
+  s1340.includes('uuids.length === 2') &&
+  s1340.includes('dist:')
+) {
+  log('pass', 'R2336-two-node-distance', 'BatchInspector 2-노드 거리/간격 정보 패널 구현 완료')
+} else {
+  log('warning', 'R2336-two-node-distance', 'BatchInspector 2-노드 거리/간격 정보 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1339: R2335 Inspector Sprite 텍스처 썸네일 미리보기 ──────────
 console.log('\n## 1339. R2335 Sprite 텍스처 썸네일 미리보기 체크')
 const s1339 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

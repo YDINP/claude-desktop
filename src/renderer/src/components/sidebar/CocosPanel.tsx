@@ -3934,6 +3934,30 @@ function CCFileBatchInspector({
           {commonValues?.active != null ? ` ${commonValues.active ? '활성' : '비활성'}` : ''}
         </span>
       </div>
+      {/* R2336: 2-노드 선택 시 거리/간격 정보 */}
+      {uuids.length === 2 && sceneFile.root && (() => {
+        const nodes2: CCSceneNode[] = []
+        function collectTwo(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes2.push(n); n.children.forEach(collectTwo) }
+        collectTwo(sceneFile.root)
+        if (nodes2.length !== 2) return null
+        const [a, b] = nodes2
+        const pa = a.position as { x: number; y: number }
+        const pb = b.position as { x: number; y: number }
+        const dx = Math.round((pb.x - pa.x) * 10) / 10
+        const dy = Math.round((pb.y - pa.y) * 10) / 10
+        const dist = Math.round(Math.sqrt(dx * dx + dy * dy) * 10) / 10
+        return (
+          <div style={{ display: 'flex', gap: 8, marginBottom: 6, padding: '3px 6px', background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.2)', borderRadius: 4, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#34d399', fontWeight: 600 }}>📐</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dx:</span>
+            <span style={{ fontSize: 9, color: '#34d399', fontFamily: 'monospace' }}>{dx}</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dy:</span>
+            <span style={{ fontSize: 9, color: '#34d399', fontFamily: 'monospace' }}>{dy}</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dist:</span>
+            <span style={{ fontSize: 9, color: '#fbbf24', fontFamily: 'monospace' }}>{dist}</span>
+          </div>
+        )
+      })()}
       {/* R1698: 공통 컴포넌트 표시 */}
       {commonCompTypes.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 6 }}>
