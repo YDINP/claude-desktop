@@ -4045,6 +4045,43 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2346: 첫 번째 선택 노드 크기 맞추기 (match size) */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const nodes: CCSceneNode[] = []
+        function collectOrder(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collectOrder) }
+        collectOrder(sceneFile.root)
+        if (nodes.length < 2) return null
+        const ref = nodes[0]
+        const refW = Math.round(ref.size?.x ?? ref.size?.width ?? 100)
+        const refH = Math.round(ref.size?.y ?? ref.size?.height ?? 100)
+        const applyMatchSize = async (mode: 'both' | 'w' | 'h') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid) || n.uuid === ref.uuid) return { ...n, children: ch }
+            const curW = n.size?.x ?? n.size?.width ?? 100
+            const curH = n.size?.y ?? n.size?.height ?? 100
+            const nw = mode === 'h' ? curW : refW
+            const nh = mode === 'w' ? curH : refH
+            const newSize = { width: nw, height: nh, x: nw, y: nh }
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: nw, height: nh }, _contentSize: { width: nw, height: nh } } } : c)
+            return { ...n, size: newSize, components: updComps, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ matchSize(${mode === 'both' ? `${refW}×${refH}` : mode === 'w' ? `W=${refW}` : `H=${refH}`}) (${uuids.length - 1}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Match</span>
+            <span style={{ fontSize: 8, color: '#555', marginRight: 2 }}>{ref.name.slice(0, 8)}({refW}×{refH})</span>
+            {([['W+H', 'both'], ['W', 'w'], ['H', 'h']] as [string, 'both' | 'w' | 'h'][]).map(([label, mode]) => (
+              <span key={mode} onClick={() => applyMatchSize(mode)} title={`첫 번째 노드(${ref.name}) ${label}=${mode === 'w' ? refW : mode === 'h' ? refH : `${refW}×${refH}`} 맞추기`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>{label}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2203: 노드 width 독립 일괄 설정 */}
       {(() => {
         const applyNodeWidth = async (w: number) => {

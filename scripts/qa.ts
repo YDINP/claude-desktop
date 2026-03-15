@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1350: R2346 BatchInspector matchSize 기능 ──────────
+console.log('\n## 1350. R2346 BatchInspector matchSize 첫 번째 선택 노드 크기 맞추기 체크')
+const s1350 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1350.includes('R2346') &&
+  s1350.includes('applyMatchSize') &&
+  s1350.includes('matchSize')
+) {
+  log('pass', 'R2346-batch-matchsize', 'BatchInspector matchSize 첫 번째 선택 노드 크기 맞추기 구현 완료')
+} else {
+  log('warning', 'R2346-batch-matchsize', 'BatchInspector matchSize 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1349: R2345 씬 트리 북마크 퀵액세스 바 ──────────
 console.log('\n## 1349. R2345 씬 트리 북마크 퀵액세스 바 체크')
 const s1349 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
