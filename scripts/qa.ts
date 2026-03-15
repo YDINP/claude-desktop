@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1388: R2384 Inspector cc.ParticleSystem sourcePos x/y ──────────
+console.log('\n## 1388. R2384 Inspector cc.ParticleSystem sourcePos x/y 체크')
+const s1388 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1388.includes('R2384') &&
+  s1388.includes('sourcePos') &&
+  s1388.includes('_N$sourcePos') &&
+  s1388.includes('_sourcePos')
+) {
+  log('pass', 'R2384-ps-sourcepos-xy', 'Inspector cc.ParticleSystem sourcePos x/y 구현 완료')
+} else {
+  log('warning', 'R2384-ps-sourcepos-xy', 'Inspector cc.ParticleSystem sourcePos x/y 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1387: R2383 Inspector cc.UITransform priority/anchorPoint ──────────
 console.log('\n## 1387. R2383 Inspector cc.UITransform priority/anchorPoint 체크')
 const s1387 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

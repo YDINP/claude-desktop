@@ -22436,6 +22436,42 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2384: sourcePos x/y */}
+                  {(() => {
+                    const spRaw = p.sourcePos ?? p._sourcePos ?? p._N$sourcePos as Record<string,number> | undefined
+                    const spx = Number((spRaw as Record<string,number>|undefined)?.x ?? 0)
+                    const spy = Number((spRaw as Record<string,number>|undefined)?.y ?? 0)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>sourcePos</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>x</span>
+                        <input type="number" defaultValue={spx} key={`spx-${spx}`} step={10}
+                          onBlur={e => {
+                            const x = parseFloat(e.target.value) || 0
+                            const np = { x, y: spy }
+                            const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sourcePos: np, _sourcePos: np, _N$sourcePos: np } } : c)
+                            applyAndSave({ components: u })
+                          }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>y</span>
+                        <input type="number" defaultValue={spy} key={`spy-${spy}`} step={10}
+                          onBlur={e => {
+                            const y = parseFloat(e.target.value) || 0
+                            const np = { x: spx, y }
+                            const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sourcePos: np, _sourcePos: np, _N$sourcePos: np } } : c)
+                            applyAndSave({ components: u })
+                          }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        {[0, 50, 100, -50, -100].map(v => (
+                          <span key={v} onClick={() => { const np = { x: v, y: spy }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sourcePos: np, _sourcePos: np, _N$sourcePos: np } } : c); applyAndSave({ components: u }) }}
+                            style={{ fontSize: 8, padding: '1px 2px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                          >{v}</span>
+                        ))}
+                      </div>
+                    )
+                  })()}
                   {/* R2382: simulationSpace + rotationIsDir */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>simSpace</span>
