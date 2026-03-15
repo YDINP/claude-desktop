@@ -4567,6 +4567,19 @@ function CCFileBatchInspector({
             )
           })
         })()}
+        {/* R2635: 선택 홀수/짝수 필터 — 현재 선택에서 홀수/짝수 인덱스만 유지 */}
+        {onMultiSelectChange && uuids.length >= 4 && (
+          <>
+            <span onClick={() => onMultiSelectChange(uuids.filter((_, i) => i % 2 === 0))}
+              title={`현재 선택 ${uuids.length}개에서 짝수 인덱스(0,2,4...) ${Math.ceil(uuids.length / 2)}개만 선택 (R2635)`}
+              style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid rgba(52,211,153,0.4)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
+            >짝수</span>
+            <span onClick={() => onMultiSelectChange(uuids.filter((_, i) => i % 2 === 1))}
+              title={`현재 선택 ${uuids.length}개에서 홀수 인덱스(1,3,5...) ${Math.floor(uuids.length / 2)}개만 선택 (R2635)`}
+              style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid rgba(52,211,153,0.4)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
+            >홀수</span>
+          </>
+        )}
         {/* R2556: 같은 Layer 노드 선택 — 씬 전체에서 동일 layer 값 노드 다중 선택 */}
         {onMultiSelectChange && sceneFile.root && selectedNode && (selectedNode.layer != null) && (() => {
           const targetLayer = selectedNode.layer

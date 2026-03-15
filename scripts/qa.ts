@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1627: R2635 BatchInspector 선택 홀수/짝수 필터 ──────────────────
+console.log('\n## 1627. R2635 — BatchInspector 선택 홀수/짝수 필터')
+const s1627 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1627.includes('R2635') &&
+  s1627.includes('짝수') &&
+  s1627.includes('홀수') &&
+  s1627.includes('i % 2 === 0')
+) {
+  log('pass', 'R2635-odd-even', 'R2635 선택 홀수/짝수 필터 구현 완료')
+} else {
+  log('warning', 'R2635-odd-even', 'R2635 선택 홀수/짝수 필터 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1626: R2634 BatchInspector 첫 노드 크기로 나머지 통일 ─────────────
 console.log('\n## 1626. R2634 — BatchInspector 첫 노드 크기로 나머지 통일')
 const s1626 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
