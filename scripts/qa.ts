@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1614: R2622 BatchInspector active 교차 패턴 ──────────────────────
+console.log('\n## 1614. R2622 — BatchInspector active 교차 패턴')
+const s1614 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1614.includes('R2622') &&
+  s1614.includes('교차') &&
+  s1614.includes('idx % 2 === 0')
+) {
+  log('pass', 'R2622-active-alt', 'R2622 active 교차 패턴 구현 완료')
+} else {
+  log('warning', 'R2622-active-alt', 'R2622 active 교차 패턴 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1613: R2621 BatchInspector opacity 스냅 ──────────────────────────
 console.log('\n## 1613. R2621 — BatchInspector opacity 스냅')
 const s1613 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

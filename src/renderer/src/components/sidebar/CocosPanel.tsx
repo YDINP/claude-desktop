@@ -17877,6 +17877,26 @@ function CCFileBatchInspector({
           }}
           style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', background: 'none' }}
         >반전</button>
+        {/* R2622: active 교차 패턴 — 홀수 인덱스: 활성, 짝수: 비활성 */}
+        {uuids.length >= 2 && (
+          <button
+            title={`선택 ${uuids.length}개 노드 active 교차 패턴 설정 (홀수=on, 짝수=off) (R2622)`}
+            onClick={async () => {
+              if (!sceneFile.root) return
+              const orderedUuids = uuids
+              function patch(n: CCSceneNode): CCSceneNode {
+                const ch = n.children.map(patch)
+                const idx = orderedUuids.indexOf(n.uuid)
+                if (idx < 0) return { ...n, children: ch }
+                return { ...n, active: idx % 2 === 0, children: ch }
+              }
+              await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+              setBatchMsg(`✓ active 교차 (${uuids.length}개)`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', background: 'none' }}
+          >교차</button>
+        )}
       </div>
       {/* Opacity */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
