@@ -520,6 +520,17 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       return next
     })
   }, [])
+  // R2488: 복제 오프셋
+  const [dupeOffsetX, setDupeOffsetX] = useState<number>(() => {
+    try { return JSON.parse(localStorage.getItem('cc-dupe-offset') ?? '[20,20]')[0] } catch { return 20 }
+  })
+  const [dupeOffsetY, setDupeOffsetY] = useState<number>(() => {
+    try { return JSON.parse(localStorage.getItem('cc-dupe-offset') ?? '[20,20]')[1] } catch { return 20 }
+  })
+  const saveDupeOffset = (x: number, y: number) => {
+    setDupeOffsetX(x); setDupeOffsetY(y)
+    localStorage.setItem('cc-dupe-offset', JSON.stringify([x, y]))
+  }
   const [nodeLayers, setNodeLayers] = useState<Record<string, number>>({})
   const [showLayerPanel, setShowLayerPanel] = useState(false)
   const [nodeSearchHistory, setNodeSearchHistory] = useState<string[]>([])
@@ -1782,8 +1793,12 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     const genId = () => is3x
       ? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2, 14))
       : Math.random().toString(36).slice(2, 14)
+    let isRoot = true
     function deepClone(n: CCSceneNode): CCSceneNode {
-      return { ...n, uuid: genId(), name: n.name + '_copy', children: n.children.map(deepClone) }
+      // R2488: 최상위 복제 노드에만 offset 적용
+      const applyOffset = isRoot; isRoot = false
+      const pos = applyOffset && n.position ? { ...n.position, x: (n.position.x ?? 0) + dupeOffsetX, y: (n.position.y ?? 0) + dupeOffsetY } : n.position
+      return { ...n, uuid: genId(), name: n.name + '_copy', position: pos, children: n.children.map(deepClone) }
     }
     // 원본 찾아서 부모 children에 clone 삽입 (원본 바로 다음)
     let clonedNode: CCSceneNode | null = null
@@ -3328,6 +3343,24 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 ))}
               </div>
             )}
+            {/* R2488: 복제 오프셋 설정 바 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.15)', borderBottom: '1px solid var(--border)', flexShrink: 0, fontSize: 9, color: 'var(--text-muted)' }}>
+              <span title="복제(Ctrl+D) 위치 오프셋 (R2488)" style={{ flexShrink: 0 }}>Δ복제</span>
+              <span>X</span>
+              <input type="number" value={dupeOffsetX} onChange={e => saveDupeOffset(parseInt(e.target.value) || 0, dupeOffsetY)}
+                style={{ width: 38, fontSize: 9, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                title="복제 X 오프셋 (R2488)" />
+              <span>Y</span>
+              <input type="number" value={dupeOffsetY} onChange={e => saveDupeOffset(dupeOffsetX, parseInt(e.target.value) || 0)}
+                style={{ width: 38, fontSize: 9, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                title="복제 Y 오프셋 (R2488)" />
+              <span style={{ color: 'var(--border)', fontSize: 10 }}>|</span>
+              {([0, 10, 20, 50] as const).map(v => (
+                <span key={v} onClick={() => saveDupeOffset(v, v)} title={`Δ${v}px`}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '0 3px', borderRadius: 2, border: '1px solid var(--border)', color: dupeOffsetX === v && dupeOffsetY === v ? '#58a6ff' : 'var(--text-muted)' }}
+                >{v}</span>
+              ))}
+            </div>
             {/* SceneView — flex:1 (남은 공간 전부) */}
             <div style={{ flex: 1, minHeight: 0 }}>
               <CCFileSceneView

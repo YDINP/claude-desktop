@@ -28732,6 +28732,19 @@ if (
   log('warning', 'R2487-json-edit', 'R2487 Raw JSON 편집 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1480: R2488 복제 오프셋 설정 ────────────────────────────────────
+const s1480 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1480.includes('R2488') &&
+  s1480.includes('dupeOffsetX') &&
+  s1480.includes('dupeOffsetY') &&
+  s1480.includes('cc-dupe-offset')
+) {
+  log('pass', 'R2488-dupe-offset', 'R2488 복제 오프셋 설정 구현 완료')
+} else {
+  log('warning', 'R2488-dupe-offset', 'R2488 복제 오프셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
