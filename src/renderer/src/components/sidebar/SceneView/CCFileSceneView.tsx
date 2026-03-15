@@ -141,6 +141,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
   const [depthColorMode, setDepthColorMode] = useState(false)
+  // R2543: 뷰 북마크 (1~3번 슬롯)
+  const [viewBookmarks, setViewBookmarks] = useState<(ViewTransform | null)[]>([null, null, null])
   // R2526: 깊이 필터 (최대 표시 depth)
   const [depthFilterMax, setDepthFilterMax] = useState<number | null>(null)
   // R1659: 솔로 모드 (선택 노드 외 흐리게)
@@ -875,6 +877,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         }
         return
       }
+      // R2543: 1/2/3 — 뷰 북마크 복원, Ctrl+1/2/3 — 저장
+      if (['Digit1', 'Digit2', 'Digit3'].includes(e.code) && !e.altKey && !e.shiftKey) {
+        const idx = parseInt(e.code.slice(-1)) - 1
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault()
+          setViewBookmarks(prev => { const n = [...prev]; n[idx] = viewRef.current; return n })
+        } else {
+          const bm = viewBookmarks[idx]
+          if (bm) { e.preventDefault(); setView(bm) }
+        }
+        return
+      }
       // R1565: H — 선택 노드 active 토글 (숨기기/보이기)
       if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && !e.shiftKey && selectedUuid) {
         e.preventDefault()
@@ -1242,6 +1256,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title="형제 순서(z-order) 인덱스 표시 토글"
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showZOrder ? 'rgba(251,191,36,0.12)' : 'none', color: showZOrder ? '#fbbf24' : 'var(--text-muted)' }}
         >#</button>
+        {/* R2543: 뷰 북마크 1/2/3 (Ctrl+클릭 저장, 클릭 복원) */}
+        {viewBookmarks.map((bm, i) => (
+          <button key={i}
+            onClick={e => { if (e.ctrlKey || e.metaKey) setViewBookmarks(prev => { const n=[...prev]; n[i]=viewRef.current; return n }); else if (bm) setView(bm) }}
+            title={bm ? `북마크 ${i+1} 복원 (Ctrl+클릭: 현재 뷰 저장) (R2543)` : `북마크 ${i+1} 비어있음 — Ctrl+클릭으로 저장 (R2543)`}
+            style={{ padding: '0 4px', fontSize: 8, borderRadius: 2, cursor: 'pointer', border: `1px solid ${bm ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: bm ? 'rgba(251,146,60,0.08)' : 'none', color: bm ? '#fb923c' : 'var(--text-muted)', lineHeight: '14px' }}
+          >{i+1}</button>
+        ))}
         <button
           onClick={handleFit}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}

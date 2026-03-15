@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1535: R2543 SceneView 뷰 북마크 ──────────────────────────────────
+console.log('\n## 1535. R2543 — SceneView 뷰 북마크 (1/2/3 슬롯)')
+const s1535 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1535.includes('R2543') &&
+  s1535.includes('viewBookmarks') &&
+  s1535.includes('Ctrl+클릭') &&
+  s1535.includes('setViewBookmarks')
+) {
+  log('pass', 'R2543-view-bm', 'R2543 뷰 북마크 구현 완료')
+} else {
+  log('warning', 'R2543-view-bm', 'R2543 뷰 북마크 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1534: R2542 BatchInspector 사이즈 정수화 ─────────────────────────
 console.log('\n## 1534. R2542 — BatchInspector 사이즈 정수화 (⊹sz)')
 const s1534 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
