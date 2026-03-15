@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1554: R2562 NodeInspector 색상 클립보드 (C↑/C↓) ─────────────────
+console.log('\n## 1554. R2562 — NodeInspector 색상 클립보드 (C↑/C↓)')
+const s1554 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1554.includes('R2562') &&
+  s1554.includes('colorClipboard') &&
+  s1554.includes('colorClipFilled') &&
+  s1554.includes('C↑') &&
+  s1554.includes('C↓')
+) {
+  log('pass', 'R2562-color-clipboard', 'R2562 색상 클립보드 구현 완료')
+} else {
+  log('warning', 'R2562-color-clipboard', 'R2562 색상 클립보드 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1553: R2561 BatchInspector 위치 역전 버튼 (⇄X/⇅Y) ───────────────
 console.log('\n## 1553. R2561 — BatchInspector 위치 역전 (⇄X/⇅Y)')
 const s1553 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

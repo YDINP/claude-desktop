@@ -18745,6 +18745,9 @@ function CCFileNodeInspector({
   // R2553: 크기 전용 클립보드
   const sizeClipboard = useRef<{ w: number; h: number } | null>(null)
   const [sizeClipFilled, setSizeClipFilled] = useState(false)
+  // R2562: 색상 전용 클립보드
+  const colorClipboard = useRef<{ r: number; g: number; b: number } | null>(null)
+  const [colorClipFilled, setColorClipFilled] = useState(false)
   // R2554: 앵커 변경 시 position 자동 보정 토글
   const [anchorCompensate, setAnchorCompensate] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
@@ -20639,6 +20642,19 @@ function CCFileNodeInspector({
               onMouseLeave={e => (e.currentTarget.style.color = '#555')}
             >↺</span>
           )}
+          {/* R2562: 색상 클립보드 복사/붙여넣기 */}
+          <span
+            title="색상(tint) 복사 — 다른 노드에 붙여넣기 가능 (R2562)"
+            onClick={() => { const c = draft.color ?? { r: 255, g: 255, b: 255 }; colorClipboard.current = { r: c.r ?? 255, g: c.g ?? 255, b: c.b ?? 255 }; setColorClipFilled(true) }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: '#fb923c', background: 'none', userSelect: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#fdba74')} onMouseLeave={e => (e.currentTarget.style.color = '#fb923c')}
+          >C↑</span>
+          <span
+            title={colorClipFilled && colorClipboard.current ? `색상 붙여넣기 (#${colorClipboard.current.r.toString(16).padStart(2,'0')}${colorClipboard.current.g.toString(16).padStart(2,'0')}${colorClipboard.current.b.toString(16).padStart(2,'0')}) — R2562` : '복사된 색상 없음'}
+            onClick={() => { if (colorClipboard.current) { const cc = colorClipboard.current; applyAndSave({ color: { r: cc.r, g: cc.g, b: cc.b, a: draft.color?.a ?? 255 } }) } }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: colorClipFilled ? 'pointer' : 'default', color: colorClipFilled ? '#fb923c' : '#333', background: 'none', userSelect: 'none' }}
+            onMouseEnter={e => { if (colorClipFilled) e.currentTarget.style.color = '#fdba74' }} onMouseLeave={e => { e.currentTarget.style.color = colorClipFilled ? '#fb923c' : '#333' }}
+          >C↓</span>
           {/* R1631: 빠른 tint 색상 프리셋 */}
           {([{ r:255,g:0,b:0 },{ r:255,g:128,b:0 },{ r:255,g:255,b:0 },{ r:0,g:255,b:0 },{ r:0,g:128,b:255 },{ r:128,g:0,b:255 },{ r:0,g:0,b:0 }] as const).map(c => (
             <div
