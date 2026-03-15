@@ -29134,6 +29134,20 @@ if (
   log('warning', 'R2519-transform-reset', 'R2519 Transform 초기화 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1512: R2520 BatchInspector 노드 반전 (Flip X/Y) ──────────────────────────
+console.log('\n## 1512. R2520 — BatchInspector 노드 반전 (Flip X/Y)')
+const s1512 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1512.includes('R2520') &&
+  s1512.includes('doFlip') &&
+  s1512.includes("doFlip('x')") &&
+  s1512.includes("doFlip('y')")
+) {
+  log('pass', 'R2520-flip-xy', 'R2520 BatchInspector 노드 반전 (Flip X/Y) 구현 완료')
+} else {
+  log('warning', 'R2520-flip-xy', 'R2520 노드 반전 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

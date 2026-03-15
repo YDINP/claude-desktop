@@ -4533,6 +4533,34 @@ function CCFileBatchInspector({
           )
         })}
       </div>
+      {/* R2520: 노드 반전 — scaleX/Y 부호 반전 (Flip) */}
+      {sceneFile.root && (() => {
+        const doFlip = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const sc = n.scale as { x: number; y: number; z?: number }
+            const newScale = axis === 'x' ? { ...sc, x: -sc.x } : { ...sc, y: -sc.y }
+            return { ...n, scale: newScale, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ${uuids.length}개 노드 ${axis.toUpperCase()} 반전`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const fs: React.CSSProperties = { fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>반전 (R2520)</span>
+            <span style={fs} onClick={() => doFlip('x')} title="선택 노드 scaleX 부호 반전 (Flip Horizontal)"
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#38bdf8')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>⇆ X</span>
+            <span style={fs} onClick={() => doFlip('y')} title="선택 노드 scaleY 부호 반전 (Flip Vertical)"
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>⇅ Y</span>
+          </div>
+        )
+      })()}
       {/* R2519: Transform 빠른 초기화 (P/R/S reset) */}
       {sceneFile.root && (() => {
         const doReset = async (what: 'pos' | 'rot' | 'scale') => {
