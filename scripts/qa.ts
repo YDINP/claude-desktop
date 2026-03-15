@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1587: R2595 BatchInspector 크기 통일 (=W/=H/=WH) ────────────────
+console.log('\n## 1587. R2595 — BatchInspector 크기 통일 (첫째 노드 기준)')
+const s1587 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1587.includes('R2595') &&
+  s1587.includes('applyMatchSize') &&
+  s1587.includes('=WH')
+) {
+  log('pass', 'R2595-match-size', 'R2595 크기 통일 구현 완료')
+} else {
+  log('warning', 'R2595-match-size', 'R2595 크기 통일 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1586: R2594 BatchInspector 랜덤 스케일 변동 ──────────────────────
 console.log('\n## 1586. R2594 — BatchInspector 랜덤 스케일 변동 (±%)')
 const s1586 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -17969,6 +17969,35 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2595: 크기 통일 (첫째 노드 기준) */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const selNodes: CCSceneNode[] = []
+        function collectSz(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collectSz) }
+        collectSz(sceneFile.root!)
+        if (selNodes.length < 2) return null
+        const refSz = selNodes[0].size as { x: number; y: number }
+        const applyMatchSize = async (matchW: boolean, matchH: boolean) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sz = n.size as { x: number; y: number }
+            return { ...n, size: { x: matchW ? refSz.x : sz.x, y: matchH ? refSz.y : sz.y }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>크기맞춤 (R2595)</span>
+            <span onClick={() => applyMatchSize(true, false)} title={`모든 선택 노드 너비를 첫째(${Math.round(refSz.x)}px)로 통일 (R2595)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(56,189,248,0.4)', color: '#38bdf8', userSelect: 'none', background: 'rgba(56,189,248,0.05)' }}>=W</span>
+            <span onClick={() => applyMatchSize(false, true)} title={`모든 선택 노드 높이를 첫째(${Math.round(refSz.y)}px)로 통일 (R2595)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(56,189,248,0.4)', color: '#38bdf8', userSelect: 'none', background: 'rgba(56,189,248,0.05)' }}>=H</span>
+            <span onClick={() => applyMatchSize(true, true)} title={`모든 선택 노드 W×H를 첫째(${Math.round(refSz.x)}×${Math.round(refSz.y)})로 통일 (R2595)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(56,189,248,0.4)', color: '#38bdf8', userSelect: 'none', background: 'rgba(56,189,248,0.05)' }}>=WH</span>
+          </div>
+        )
+      })()}
       {/* R2594: 랜덤 스케일 변동 (×(1±f)) */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         return (
