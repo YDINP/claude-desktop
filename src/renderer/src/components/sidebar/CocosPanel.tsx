@@ -21251,7 +21251,7 @@ function CCFileNodeInspector({
                       >×{v}</span>
                     ))}
                   </div>
-                  <div style={{ display: 'flex', gap: 10 }}>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={loop}
                         onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked, _N$loop: e.target.checked } } : c); applyAndSave({ components: u }) }}
@@ -21262,6 +21262,31 @@ function CCFileNodeInspector({
                         onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, muted: e.target.checked, _muted: e.target.checked, _N$muted: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       /> muted
                     </label>
+                    {/* R2376: keepAspectRatio + fullScreenEnabled */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.keepAspectRatio ?? p._keepAspectRatio ?? p._N$keepAspectRatio ?? true)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, keepAspectRatio: e.target.checked, _keepAspectRatio: e.target.checked, _N$keepAspectRatio: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      /> ratio
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.fullScreenEnabled ?? p._fullScreenEnabled ?? p._N$fullScreenEnabled ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fullScreenEnabled: e.target.checked, _fullScreenEnabled: e.target.checked, _N$fullScreenEnabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      /> fullscr
+                    </label>
+                  </div>
+                  {/* R2376: volume */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>volume</span>
+                    <input type="range" min={0} max={1} step={0.05} defaultValue={Number(p.volume ?? p._volume ?? p._N$volume ?? 1)}
+                      onMouseUp={e => { const v = parseFloat((e.target as HTMLInputElement).value); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, volume: v, _volume: v, _N$volume: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ flex: 1 }}
+                      title="volume (0~1)"
+                    />
+                    {[0, 0.5, 1].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, volume: v, _volume: v, _N$volume: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
                   </div>
                 </div>
               )

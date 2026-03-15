@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1380: R2376 Inspector cc.VideoPlayer volume/keepAspectRatio/fullScreenEnabled ──────────
+console.log('\n## 1380. R2376 Inspector cc.VideoPlayer volume/ratio/fullscreen 체크')
+const s1380 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1380.includes('R2376') &&
+  s1380.includes('keepAspectRatio') &&
+  s1380.includes('fullScreenEnabled') &&
+  s1380.includes('_N$volume') &&
+  s1380.includes('cc.VideoPlayer')
+) {
+  log('pass', 'R2376-videoplayer-extra', 'Inspector cc.VideoPlayer volume/keepAspectRatio/fullScreenEnabled 구현 완료')
+} else {
+  log('warning', 'R2376-videoplayer-extra', 'Inspector cc.VideoPlayer volume/ratio/fullscreen 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1379: R2375 Inspector cc.Animation sample/speed 입력 필드 ──────────
 console.log('\n## 1379. R2375 Inspector cc.Animation sample/speed 체크')
 const s1379 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
