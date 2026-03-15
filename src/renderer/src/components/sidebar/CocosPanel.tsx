@@ -22621,6 +22621,19 @@ function CCFileNodeInspector({
                       />
                     </div>
                   </div>
+                  {/* R2368: PolygonCollider threshold */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                    <label style={{ fontSize: 11, flexShrink: 0, width: 60 }}>threshold</label>
+                    <input type="number" defaultValue={Number(p.threshold ?? p._threshold ?? 1)} min={0} step={0.5}
+                      style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = parseFloat(ev.target.value) ?? 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, threshold: v, _threshold: v, _N$threshold: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    {[0.5, 1, 2, 5].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, threshold: v, _threshold: v, _N$threshold: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
                 </div>
               )
             }

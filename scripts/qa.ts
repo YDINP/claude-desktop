@@ -20128,9 +20128,9 @@ console.log('\n## 741. R1850 cc.CircleCollider friction/restitution 체크')
 {
   const cpFile = join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
   const s741 = existsSync(cpFile) ? readFileSync(cpFile, 'utf8') : ''
-  // R1850 follows the CircleCollider sensor checkbox
+  // R1850 follows the CircleCollider sensor checkbox (range extended for added PolygonCollider rows)
   const idx = s741.indexOf("'cc.RigidBody' || comp.type === 'cc.RigidBody2D'")
-  const chunk = idx > 0 ? s741.slice(Math.max(0, idx - 3000), idx) : ''
+  const chunk = idx > 0 ? s741.slice(Math.max(0, idx - 6000), idx) : ''
   if (s741.includes('R1850') && chunk.includes('restitution') && chunk.includes('friction')) {
     log('pass', 'R1850-circlecollider-friction', 'cc.CircleCollider friction/restitution 편집')
   } else {
@@ -25491,6 +25491,20 @@ if (
   log('pass', 'R2314-session-setcollection-memtimer-fix', 'session:setCollection try/catch + memTimer clearInterval 수정')
 } else {
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
+}
+
+// ── Section 1372: R2368 Inspector cc.PolygonCollider threshold 입력 필드 ──────────
+console.log('\n## 1372. R2368 Inspector cc.PolygonCollider threshold 체크')
+const s1372 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1372.includes('R2368') &&
+  s1372.includes('threshold') &&
+  s1372.includes('_N$threshold') &&
+  s1372.includes('cc.PolygonCollider')
+) {
+  log('pass', 'R2368-polygon-threshold', 'Inspector cc.PolygonCollider threshold 입력 필드 구현 완료')
+} else {
+  log('warning', 'R2368-polygon-threshold', 'Inspector cc.PolygonCollider threshold 미구현', 'CocosPanel.tsx')
 }
 
 // ── Section 1371: R2367 Inspector cc.BoxCollider/CircleCollider/PolygonCollider density ──────────
