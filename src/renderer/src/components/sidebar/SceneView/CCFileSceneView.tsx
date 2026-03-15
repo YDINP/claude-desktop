@@ -1580,6 +1580,31 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         >?</button>
       </div>
 
+      {/* R2539: 선택 노드 계층 breadcrumb */}
+      {selectedUuid && (() => {
+        const chain: { uuid: string; name: string }[] = []
+        let cur = flatNodes.find(f => f.node.uuid === selectedUuid)
+        while (cur) {
+          chain.unshift({ uuid: cur.node.uuid, name: cur.node.name })
+          cur = cur.parentUuid ? flatNodes.find(f => f.node.uuid === cur!.parentUuid) : undefined
+        }
+        if (chain.length <= 1) return null
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '1px 8px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid var(--border)', flexShrink: 0, overflowX: 'auto', fontSize: 9, color: 'var(--text-muted)' }}>
+            {chain.map((item, i) => (
+              <span key={item.uuid} style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+                {i > 0 && <span style={{ opacity: 0.4 }}>›</span>}
+                <span
+                  onClick={e => { e.stopPropagation(); onSelect(item.uuid) }}
+                  style={{ cursor: i < chain.length - 1 ? 'pointer' : 'default', color: i === chain.length - 1 ? '#e2e8f0' : 'var(--text-muted)', maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                  title={`${item.name} (R2539 breadcrumb)`}
+                >{item.name}</span>
+              </span>
+            ))}
+          </div>
+        )
+      })()}
+
       {/* SVG 캔버스 */}
       <svg
         ref={svgRef}

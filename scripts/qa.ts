@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1531: R2539 SceneView breadcrumb 계층 경로 표시 ──────────────────
+console.log('\n## 1531. R2539 — SceneView 선택 노드 breadcrumb 계층 경로')
+const s1531 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1531.includes('R2539') &&
+  s1531.includes('breadcrumb') &&
+  s1531.includes('chain.unshift') &&
+  s1531.includes('›')
+) {
+  log('pass', 'R2539-breadcrumb', 'R2539 breadcrumb 계층 경로 구현 완료')
+} else {
+  log('warning', 'R2539-breadcrumb', 'R2539 breadcrumb 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1530: R2538 BatchInspector 랜덤 색상 할당 ────────────────────────
 console.log('\n## 1530. R2538 — BatchInspector 랜덤 색상 할당')
 const s1530 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
