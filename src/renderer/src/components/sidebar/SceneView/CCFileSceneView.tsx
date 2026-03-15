@@ -2664,9 +2664,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             {node.children.length > 0 && (
               <span style={{ color: '#555', flexShrink: 0, pointerEvents: 'none' }} title={`자식 ${node.children.length}개`}>▸{node.children.length}</span>
             )}
-            {node.components && node.components.length > 0 && (
-              <span style={{ color: '#555', flexShrink: 0, pointerEvents: 'none' }} title={`컴포넌트 ${node.components.length}개`}>⊞{node.components.length}</span>
-            )}
+            {/* R2490: 컴포넌트 타입 아이콘 목록 */}
+            {node.components && node.components.length > 0 && (() => {
+              const ICONS_HUD: Record<string, string> = {
+                'cc.Label': 'T', 'cc.RichText': 'T', 'cc.Sprite': '🖼', 'cc.Button': '⬜',
+                'cc.Toggle': '☑', 'cc.Slider': '⊟', 'cc.Widget': '⚓', 'cc.Layout': '▤',
+                'cc.ScrollView': '⊠', 'cc.EditBox': '✏', 'cc.ProgressBar': '▰',
+                'cc.Animation': '▶', 'sp.Skeleton': '🦴', 'cc.AudioSource': '♪',
+                'cc.RigidBody': '⚙', 'cc.BoxCollider': '⬡', 'cc.CircleCollider': '○',
+                'cc.Camera': '📷', 'cc.Canvas': '🎨', 'cc.ParticleSystem': '✦',
+                'cc.Mask': '◰', 'cc.BlockInputEvents': '🚫',
+              }
+              const icons = node.components.map(c => ICONS_HUD[c.type] || '·')
+              return (
+                <span style={{ color: '#556', flexShrink: 0, pointerEvents: 'none', letterSpacing: 1 }}
+                  title={`컴포넌트: ${node.components.map(c => c.type).join(', ')} (R2490)`}
+                >{icons.join('')}</span>
+              )
+            })()}
             {/* R1618: depth 레벨 표시 */}
             <span style={{ color: '#444', flexShrink: 0, pointerEvents: 'none' }} title={`계층 깊이 D${fn.depth}`}>D{fn.depth}</span>
             <span style={{ color: '#58a6ff', flex: 1, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}>

@@ -28757,6 +28757,18 @@ if (
   log('warning', 'R2489-same-name-popup', 'R2489 동일 이름 노드 팝업 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1482: R2490 씬뷰 HUD 컴포넌트 아이콘 ────────────────────────────
+const s1482 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1482.includes('R2490') &&
+  s1482.includes('ICONS_HUD') &&
+  s1482.includes('컴포넌트 타입 아이콘')
+) {
+  log('pass', 'R2490-hud-comp-icons', 'R2490 씬뷰 HUD 컴포넌트 아이콘 목록 구현 완료')
+} else {
+  log('warning', 'R2490-hud-comp-icons', 'R2490 HUD 컴포넌트 아이콘 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
