@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1360: R2356 Inspector cc.ProgressBar mode ──────────
+console.log('\n## 1360. R2356 Inspector cc.ProgressBar mode 체크')
+const s1360 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1360.includes('R2356') &&
+  s1360.includes('pbMode') &&
+  s1360.includes("['H', 0], ['V', 1], ['Fill', 2]")
+) {
+  log('pass', 'R2356-progressbar-mode', 'Inspector cc.ProgressBar mode H/V/Fill 퀵 편집 구현 완료')
+} else {
+  log('warning', 'R2356-progressbar-mode', 'Inspector cc.ProgressBar mode 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1359: R2355 Inspector cc.Layout childAlignment ──────────
 console.log('\n## 1359. R2355 Inspector cc.Layout childAlignment 체크')
 const s1359 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

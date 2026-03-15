@@ -20237,6 +20237,24 @@ function CCFileNodeInspector({
                       />reverse
                     </label>
                   </div>
+                  {/* R2356: ProgressBar mode 퀵 편집 (H/V/Filled) */}
+                  {(() => {
+                    const pbMode = Number(p.mode ?? p._mode ?? p._N$mode ?? 0)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>mode</span>
+                        {([['H', 0], ['V', 1], ['Fill', 2]] as const).map(([l, v]) => (
+                          <span key={v} title={`mode=${l}(${v})`}
+                            onClick={() => {
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mode: v, _mode: v, _N$mode: v } } : c)
+                              applyAndSave({ components: updated })
+                            }}
+                            style={{ fontSize: 8, padding: '0 5px', cursor: 'pointer', border: `1px solid ${pbMode === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: pbMode === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+                          >{l}</span>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }
