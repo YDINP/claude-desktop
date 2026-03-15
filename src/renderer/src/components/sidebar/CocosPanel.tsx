@@ -21551,6 +21551,13 @@ function CCFileNodeInspector({
               if (clips.length === 0) return null
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2435: enabled (BatchInspector R2191) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>default</span>
                     <select
@@ -21756,6 +21763,13 @@ function CCFileNodeInspector({
               const playbackRate = Number(p.playbackRate ?? p._N$playbackRate ?? 1)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2435: enabled (BatchInspector R2196) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   {/* R2414: resourceType (BatchInspector R2046) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>resType</span>
@@ -22188,6 +22202,13 @@ function CCFileNodeInspector({
               const slideDuration = Number(p.slideDuration ?? p._N$slideDuration ?? 0.3)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2435: enabled (BatchInspector R2200) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>direction</span>
                     <select value={direction}
@@ -22417,6 +22438,13 @@ function CCFileNodeInspector({
               const visibleWithMouse = !!(p.visibleWithMouse ?? p._N$visibleWithMouse ?? false)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2435: enabled (BatchInspector R2220) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>url</span>
                     <input type="text" defaultValue={url} key={`wv-url-${url}`} placeholder="https://..."

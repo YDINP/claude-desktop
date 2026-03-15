@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T13:44:32.691Z
+> 2026-03-15T13:46:14.396Z
 
 ## Critical
 _없음_
@@ -2477,3 +2477,4 @@ _없음_
 - Inspector cc.Label enabled 구현 완료
 - Inspector cc.Layout/Sprite/RichText enabled 구현 완료
 - Inspector cc.Graphics/Widget/AudioSource/EditBox enabled 구현 완료
+- Inspector cc.Animation/VideoPlayer/PageView/WebView enabled 구현 완료

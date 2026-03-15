@@ -28184,6 +28184,21 @@ if (
   log('warning', 'R2434-multi-enabled', 'Inspector cc.Graphics/Widget/AudioSource/EditBox enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1439: R2435 Inspector cc.Animation/VideoPlayer/PageView/WebView enabled ──────────
+console.log('\n## 1439. R2435 Inspector cc.Animation/VideoPlayer/PageView/WebView enabled 체크')
+const s1439 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1439.includes('R2435') &&
+  s1439.includes('cc.Animation') &&
+  s1439.includes('cc.VideoPlayer') &&
+  s1439.includes('cc.PageView') &&
+  s1439.includes('cc.WebView')
+) {
+  log('pass', 'R2435-multi-enabled2', 'Inspector cc.Animation/VideoPlayer/PageView/WebView enabled 구현 완료')
+} else {
+  log('warning', 'R2435-multi-enabled2', 'Inspector cc.Animation/VideoPlayer/PageView/WebView enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
