@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1631: R2639 BatchInspector 원형 배치 ──────────────────────────────
+console.log('\n## 1631. R2639 — BatchInspector 원형 배치')
+const s1631 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1631.includes('R2639') &&
+  s1631.includes('applyCircleArrange') &&
+  s1631.includes('circleRadius') &&
+  s1631.includes('원형배치')
+) {
+  log('pass', 'R2639-circle-arrange', 'R2639 원형 배치 구현 완료')
+} else {
+  log('warning', 'R2639-circle-arrange', 'R2639 원형 배치 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1630: R2638 BatchInspector 회전 균등 분배 ─────────────────────────
 console.log('\n## 1630. R2638 — BatchInspector 회전 균등 분배')
 const s1630 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

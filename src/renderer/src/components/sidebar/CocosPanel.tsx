@@ -4330,6 +4330,8 @@ function CCFileBatchInspector({
   // R2638: 회전 균등 분배
   const [rotGradFrom, setRotGradFrom] = useState<number>(0)
   const [rotGradTo, setRotGradTo] = useState<number>(360)
+  // R2639: 원형 배치
+  const [circleRadius, setCircleRadius] = useState<number>(200)
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -5976,6 +5978,48 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(244,114,182,0.4)', color: '#f472b6', userSelect: 'none', background: 'rgba(244,114,182,0.05)' }}>⇔ X</span>
             <span onClick={() => applyMirror('y')} title="선택 노드 Y 위치를 그룹 중심 기준 반전 (R2632)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(244,114,182,0.4)', color: '#f472b6', userSelect: 'none', background: 'rgba(244,114,182,0.05)' }}>⇕ Y</span>
+          </div>
+        )
+      })()}
+      {/* R2639: 원형 배치 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyCircleArrange = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const collected: CCSceneNode[] = []
+          function collect(n: CCSceneNode) {
+            if (uuidSet.has(n.uuid)) collected.push(n)
+            n.children.forEach(collect)
+          }
+          collect(sceneFile.root)
+          if (collected.length === 0) return
+          const cx = collected.reduce((s, n) => s + ((n.position as { x: number }).x ?? 0), 0) / count
+          const cy = collected.reduce((s, n) => s + ((n.position as { y: number }).y ?? 0), 0) / count
+          let idx = 0
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const angle = (idx / count) * Math.PI * 2 - Math.PI / 2
+            const nx = Math.round(cx + circleRadius * Math.cos(angle))
+            const ny = Math.round(cy + circleRadius * Math.sin(angle))
+            idx++
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, x: nx, y: ny }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 원형 배치 r=${circleRadius} (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 46, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>원형배치 (R2639)</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>r=</span>
+            <input type="number" value={circleRadius} min={10} step={10} onChange={e => setCircleRadius(parseInt(e.target.value) || 200)} style={niS} title="원 반지름 (CC 단위)" />
+            <span onClick={applyCircleArrange}
+              title={`선택된 ${uuids.length}개 노드를 반지름 ${circleRadius}인 원형으로 균등 배치 (R2639)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}
+            >○배치</span>
           </div>
         )
       })()}
