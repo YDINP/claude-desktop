@@ -23522,6 +23522,13 @@ function CCFileNodeInspector({
                         style={{ margin: 0 }}
                       />pma
                     </label>
+                    {/* R2396: useTint */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.useTint ?? p._useTint ?? p._N$useTint ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, useTint: e.target.checked, _useTint: e.target.checked, _N$useTint: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0, accentColor: '#818cf8' }}
+                      />tint
+                    </label>
                   </div>
                   {/* R1826: debug 옵션 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

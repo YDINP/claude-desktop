@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1400: R2396 Inspector sp.Skeleton useTint 체크박스 ──────────
+console.log('\n## 1400. R2396 Inspector sp.Skeleton useTint 체크')
+const s1400 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1400.includes('R2396') &&
+  s1400.includes('useTint') &&
+  s1400.includes('_N$useTint') &&
+  s1400.includes('sp.Skeleton')
+) {
+  log('pass', 'R2396-skeleton-usetint', 'Inspector sp.Skeleton useTint 구현 완료')
+} else {
+  log('warning', 'R2396-skeleton-usetint', 'Inspector sp.Skeleton useTint 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1399: R2395 Inspector 노드 rotationX/rotationY (CC2.x 3D 회전) ──────────
 console.log('\n## 1399. R2395 Inspector 노드 rotationX/rotationY 체크')
 const s1399 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
