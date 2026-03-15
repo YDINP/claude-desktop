@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1629: R2637 SceneView 씬 전체 바운딩박스 오버레이 ─────────────────
+console.log('\n## 1629. R2637 — SceneView 씬 전체 바운딩박스 오버레이')
+const s1629 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1629.includes('R2637') &&
+  s1629.includes('showSceneBBox') &&
+  s1629.includes('setShowSceneBBox') &&
+  s1629.includes('wCC') &&
+  s1629.includes('hCC')
+) {
+  log('pass', 'R2637-scene-bbox', 'R2637 씬 전체 바운딩박스 오버레이 구현 완료')
+} else {
+  log('warning', 'R2637-scene-bbox', 'R2637 씬 전체 바운딩박스 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1628: R2636 SceneView 캔버스 경계 초과 노드 강조 ─────────────────
 console.log('\n## 1628. R2636 — SceneView 캔버스 경계 초과 노드 강조')
 const s1628 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

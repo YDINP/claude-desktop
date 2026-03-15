@@ -233,7 +233,112 @@
 - Branch: dev
 - 최근 커밋: `efd72855` (R2554)
 
-## 다음 예정 (R2555+)
+## 완료 (R2555~R2561)
+- [x] R2555: NodeInspector Z-order 이동 — 형제 내 인덱스 이동 ▲/▼/⤒/⤓ + 현재 위치 N/T 표시
+- [x] R2556: BatchInspector 공통 prop 평균값 표시 — 선택 노드의 opacity/scale/rotation 평균 배지
+- [x] R2557: SceneView cc.Label 텍스트 오버레이 — T 버튼으로 Label 텍스트 SVG에 직접 표시
+- [x] R2558: SceneView 씬 통계 팝업 — ⓘ 버튼, 노드/비활성/컴포넌트 수, 유형 분포
+- [x] R2559: BatchInspector 선택 노드 JSON 내보내기 — ⬇ JSON 버튼, children 제외 배열 다운로드
+- [x] R2560: SceneView 미니맵 클릭 팬 — zoom<0.8 시 미니맵 클릭으로 뷰 이동
+- [x] R2561: BatchInspector 위치 역전 — ⇄X/⇅Y 버튼으로 선택 노드 위치 순서 반전
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2584** ← R2561 현재
+
+## 완료 (R2562~R2573)
+- [x] R2562: NodeInspector 색상 클립보드 — C↑ 복사 / C↓ 붙여넣기 (posClipboard 패턴 확장)
+- [x] R2563: NodeInspector 회전 클립보드 — R↑ 복사 / R↓ 붙여넣기 (CC2/3 rotation 양쪽 지원)
+- [x] R2564: NodeInspector 스케일 클립보드 — Sc↑ 복사 / Sc↓ 붙여넣기
+- [x] R2565: BatchInspector Z축 오프셋 (dZ) — CC3.x 3D 씬 위치 조정 지원
+- [x] R2566: SceneView Ctrl+Click 다중 선택 토글 — 표준 에디터 멀티셀렉트 동작
+- [x] R2567: NodeInspector 노드 JSON 복사 — {} 버튼으로 children 제외 JSON 클립보드
+- [x] R2568: NodeInspector 개별 컴포넌트 ⏸/▶ 토글 — 컴포넌트 헤더에 enabled 빠른 전환
+- [x] R2569: BatchInspector opacity 그라데이션 분배 — 255→0/0→255/128→0 선형 보간
+- [x] R2570: BatchInspector 자동 그리드 배치 — ⊞2열/⊞3열/⊞√N 정렬
+- [x] R2571: NodeInspector ⌊⌉All — 위치/크기/스케일 전체를 정수 픽셀로 반올림
+- [x] R2572: BatchInspector 랜덤 산포 — ±50/100/200px 반경 내 random scatter
+- [x] R2573: BatchInspector ⊕0 그룹 원점화 — 그룹 평균 중심을 (0,0)으로 이동
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2596** ← R2573 현재
+
+## 완료 (R2574~R2577)
+- [x] R2574: NodeInspector 불투명도 클립보드 — o↑ 복사 / o↓ 붙여넣기 (rotClipboard 패턴 확장)
+- [x] R2575: BatchInspector 스케일 반전 — ↔H scaleX / ↕V scaleY 부호 반전으로 선택 노드 미러
+- [x] R2576: SceneView 노드 크기 레이블 오버레이 — W×H 버튼으로 모든 노드 치수 표시 토글
+- [x] R2577: BatchInspector ⌊⌉All — 선택 노드 위치/크기를 정수 픽셀로 일괄 반올림
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2600** ← R2577 현재 (2600 달성)
+- Branch: dev
+- 최근 커밋: `16457231` (R2577)
+
+## 완료 (R2578~R2595)
+- [x] R2578: SceneView 노드 불투명도 α% 오버레이 — α% 버튼 (100% 제외)
+- [x] R2579: SceneView 컴포넌트 배지 오버레이 — ⚙ 버튼, 16종 아이콘 맵
+- [x] R2580: BatchInspector 이름 목록 복사 — 📋 이름 버튼으로 선택 노드 이름 클립보드
+- [x] R2581: SceneView 검색 결과 ‹/› 순환 — 검색 중 ‹/› 버튼으로 매칭 노드 순회
+- [x] R2582: BatchInspector Z-order 재정렬 — 형제 내 선택 노드를 X↗/Y↗ 위치 기준 정렬
+- [x] R2583: SceneView 회전값 ∠° 오버레이 — ∠° 버튼, 비영 회전 노드에 각도 표시
+- [x] R2584: BatchInspector UUID 목록 복사 — 📋 UUID 버튼
+- [x] R2585: SceneView 노드 이름 레이블 오버레이 — 이름 버튼, 줄임 처리
+- [x] R2586: SceneView 앵커 포인트 전체 오버레이 — ⊕ 버튼, 십자선 + 원형 마커
+- [x] R2587: BatchInspector 위치 대칭 이동 — ⟺X/⟺Y, 바운딩박스 중심 기준
+- [x] R2588: SceneView 비흰색 노드 색상 스와치 오버레이 — 🎨 버튼
+- [x] R2589: BatchInspector 정확히 2노드 선택 시 위치 교환 — ⇄ 위치 버튼
+- [x] R2590: SceneView 우클릭 메뉴 '동일 이름 모두 선택' — 중복 이름 노드 일괄 선택
+- [x] R2591: SceneView 자식 수 배지 오버레이 — ↳N 버튼, 자식 있는 노드에 배지
+- [x] R2592: SceneView 깊이 레이블 오버레이 — D: 버튼 + flatNodes.map에 depth 추가
+- [x] R2593: BatchInspector 랜덤 회전 — 🎲rot ±5/15/45° 프리셋
+- [x] R2594: BatchInspector 랜덤 스케일 변동 — 🎲sc ±10/25/50% 프리셋
+- [x] R2595: BatchInspector 크기 통일 — =W/=H/=WH (첫째 노드 기준)
+- [x] R2596: BatchInspector tint 색상 그라디언트 — from/to 색상 RGB 선형 분배
+- [x] R2597: BatchInspector scale 배수 적용 — ×0.5, ×2, 사용자 정의
+- [x] R2598: SceneView flip 오버레이 — 음수 scale 노드에 ↔↕ 배지
+- [x] R2599: BatchInspector size 배수 적용 — ×0.5, ×2, 사용자 정의
+- [x] R2600: SceneView 다중 선택 bounding box — 2개 이상 선택 시 파란 점선 박스
+- [x] R2601: SceneView component 타입 배지 — 주요 컴포넌트 단축명 우하단 배지
+- [x] R2602: BatchInspector active 반전 — 선택 노드 active 개별 반전
+- [x] R2603: SceneView tag 배지 — tag≠0 노드에 #N 배지
+- [x] R2604: BatchInspector rotation 균등 분배 — from→to 각도 분배
+- [x] R2605: BatchInspector scale 균등 분배 — from→to 스케일 분배
+- [x] R2606: BatchInspector C↺ color 초기화 — tint 색상 흰색으로 reset
+- [x] R2607: SceneView 중복 이름 노드 강조 — 같은 이름 2개 이상 주황 점선
+- [x] R2608: BatchInspector rotation 스냅 — 15°/45°/90° 배수 반올림
+- [x] R2609: BatchInspector size 스냅 — 8/16/32px 배수 반올림
+- [x] R2610: SceneView rotation 방향 화살표 — 비영 회전 노드에 핑크 화살표
+- [x] R2611: BatchInspector 위치 셔플 — Fisher-Yates 무작위 위치 교환
+- [x] R2612: BatchInspector rotation 오프셋 — +90/-90/±180/사용자 정의 추가
+- [x] R2613: BatchInspector sizeW 균등 분배 — from→to 너비 분배
+- [x] R2614: BatchInspector sizeH 균등 분배 — from→to 높이 분배
+- [x] R2615: SceneView W×H 크기 텍스트 오버레이 — 청록색 W×H 배지
+- [x] R2616: BatchInspector posZ 균등 분배 — CC3.x position.Z 분배
+- [x] R2617: SceneView 원점 십자선 오버레이 — CC (0,0) 녹색 십자선
+- [x] R2618: BatchInspector posX 균등 분배 — position.X from→to 분배
+- [x] R2619: BatchInspector posY 균등 분배 — position.Y from→to 분배
+- [x] R2620: SceneView 스케일 배수 텍스트 오버레이 — scale≠1 노드에 황색 ×sx,sy
+- [x] R2621: BatchInspector opacity 배수 스냅 — 64/128/192/255 배수 반올림
+- [x] R2622: BatchInspector active 교차 패턴 — 홀수=on/짝수=off 교번
+- [x] R2623: BatchInspector position XY 스냅 — 1/8/16/32px 배수 반올림
+- [x] R2624: SceneView 레이어 배지 오버레이 — CC3.x 비기본 레이어 노드에 레이어명
+- [x] R2625: SceneView 이벤트 핸들러 배지(⚡) — Button/Toggle/Slider 노드 강조
+- [x] R2626: BatchInspector 무지개 색상 분배 — HSL 균등 색조 무지개 패턴
+- [x] R2627: BatchInspector Label 텍스트 일련번호 — +번호/번호만 두 모드
+- [x] R2628: BatchInspector 앵커 X/Y 균등 분배 — anchor.x/y from→to
+- [x] R2629: SceneView 안전 영역 가이드 — 90% 황색 + 16:9 청색 점선
+- [x] R2630: SceneView 삼분법 가이드 — 3×3 Rule of Thirds 보라색 점선
+- [x] R2631: BatchInspector 색상 팔레트 추출 — 고유 색상 스와치 + 클릭 적용
+- [x] R2632: BatchInspector 위치 X/Y 미러 — 그룹 중심 기준 수평/수직 반전
+- [x] R2633: BatchInspector Label 폰트 크기 균등 분배 — fontSize from→to
+- [x] R2634: BatchInspector 크기 통일 — 첫째 노드 W×H로 나머지 W만/H만/둘다
+- [x] R2635: BatchInspector 선택 홀수/짝수 필터 — 짝수/홀수 인덱스만 유지
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2640+** ← R2635 현재 (세션 컴팩션 후 계속)
+- Branch: dev
+- 최근 커밋: `c8bc5262` (R2635)
+
+## 다음 예정 (R2636+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 

@@ -257,6 +257,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showRuleOfThirds, setShowRuleOfThirds] = useState(false)
   // R2636: 캔버스 경계 초과 노드 강조 오버레이
   const [showOOBHighlight, setShowOOBHighlight] = useState(false)
+  // R2637: 씬 전체 바운딩박스 오버레이
+  const [showSceneBBox, setShowSceneBBox] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1671,6 +1673,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showOOBHighlight ? '경계 초과 강조 끄기 (R2636)' : '캔버스 경계 초과 노드 적색 강조 (R2636)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOOBHighlight ? 'rgba(239,68,68,0.5)' : 'var(--border)'}`, background: showOOBHighlight ? 'rgba(239,68,68,0.12)' : 'none', color: showOOBHighlight ? '#ef4444' : 'var(--text-muted)' }}
         >⬚</button>
+        {/* R2637: 씬 전체 바운딩박스 토글 */}
+        <button
+          onClick={() => setShowSceneBBox(v => !v)}
+          title={showSceneBBox ? '씬 바운딩박스 끄기 (R2637)' : '씬 전체 노드 바운딩박스 표시 (R2637)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSceneBBox ? 'rgba(248,113,113,0.5)' : 'var(--border)'}`, background: showSceneBBox ? 'rgba(248,113,113,0.12)' : 'none', color: showSceneBBox ? '#f87171' : 'var(--text-muted)' }}
+        >⊏</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3130,6 +3138,40 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 <text x={svgLeft + 2/view.zoom} y={svgTop + fs * 1.4}
                   fontSize={fs} fill="rgba(96,165,250,0.6)" fontFamily="monospace"
                   style={{ pointerEvents: 'none', userSelect: 'none' }}>16:9</text>
+              </>
+            )
+          })()}
+          {/* R2637: 씬 전체 바운딩박스 */}
+          {showSceneBBox && (() => {
+            if (flatNodes.length === 0) return null
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+            flatNodes.forEach(({ node, worldX, worldY }) => {
+              const w2 = (node.size?.x || 0) / 2, h2 = (node.size?.y || 0) / 2
+              if (w2 === 0 && h2 === 0) return
+              const ax = node.anchor?.x ?? 0.5, ay = node.anchor?.y ?? 0.5
+              const left = worldX - w2, right = worldX + w2
+              const top = worldY - h2, bottom = worldY + h2
+              minX = Math.min(minX, left); maxX = Math.max(maxX, right)
+              minY = Math.min(minY, bottom); maxY = Math.max(maxY, top)
+              // Suppress unused lint warning for ax/ay
+              void ax; void ay
+            })
+            if (!isFinite(minX)) return null
+            const svgL = ccToSvg(minX, maxY).x, svgT = ccToSvg(minX, maxY).y
+            const svgR = ccToSvg(maxX, minY).x, svgB = ccToSvg(maxX, minY).y
+            const bw = svgR - svgL, bh = svgB - svgT
+            const sw = 1.5 / view.zoom
+            const fs = Math.max(6, 9 / view.zoom)
+            const wCC = Math.round(maxX - minX), hCC = Math.round(maxY - minY)
+            return (
+              <>
+                <rect x={svgL} y={svgT} width={bw} height={bh}
+                  fill="none" stroke="rgba(248,113,113,0.6)" strokeWidth={sw}
+                  strokeDasharray={`${5/view.zoom} ${2/view.zoom}`} style={{ pointerEvents: 'none' }} />
+                <text x={svgL + 2/view.zoom} y={svgT - 2/view.zoom}
+                  fontSize={fs} fill="rgba(248,113,113,0.8)" fontFamily="monospace"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                >{wCC}×{hCC}</text>
               </>
             )
           })()}
