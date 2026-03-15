@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1560: R2568 NodeInspector 개별 컴포넌트 enabled 토글 (⏸/▶) ──────
+console.log('\n## 1560. R2568 — NodeInspector 개별 컴포넌트 enabled 토글 (⏸/▶)')
+const s1560 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1560.includes('R2568') &&
+  s1560.includes('개별 컴포넌트 enabled 토글') &&
+  s1560.includes('⏸') &&
+  s1560.includes('▶')
+) {
+  log('pass', 'R2568-comp-enable-toggle', 'R2568 개별 컴포넌트 enabled 토글 구현 완료')
+} else {
+  log('warning', 'R2568-comp-enable-toggle', 'R2568 개별 컴포넌트 enabled 토글 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1559: R2567 NodeInspector 노드 JSON 복사 버튼 ({}) ───────────────
 console.log('\n## 1559. R2567 — NodeInspector 노드 JSON 복사 ({}) ')
 const s1559 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -21080,6 +21080,23 @@ function CCFileNodeInspector({
                 style={{ cursor: 'pointer', color: '#58a6ff', fontSize: 9, padding: '0 3px', lineHeight: 1 }}
               >📋</span>
             )}
+            {/* R2568: 개별 컴포넌트 enabled 토글 */}
+            {(() => {
+              const isEnabled = comp.props.enabled !== false && comp.props._enabled !== false
+              return (
+                <span
+                  title={isEnabled ? `${comp.type.split('.').pop()} 비활성화 (R2568)` : `${comp.type.split('.').pop()} 활성화 (R2568)`}
+                  onClick={e => {
+                    e.stopPropagation()
+                    const newEnabled = !isEnabled
+                    applyAndSave({ components: draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: newEnabled, _enabled: newEnabled } } : c) })
+                  }}
+                  style={{ cursor: 'pointer', color: isEnabled ? '#666' : '#fbbf24', fontSize: 9, padding: '0 2px', lineHeight: 1 }}
+                  onMouseEnter={e => (e.currentTarget.style.color = isEnabled ? '#aaa' : '#f59e0b')}
+                  onMouseLeave={e => (e.currentTarget.style.color = isEnabled ? '#666' : '#fbbf24')}
+                >{isEnabled ? '⏸' : '▶'}</span>
+              )
+            })()}
             <span
               title="컴포넌트 복사"
               onClick={e => {
