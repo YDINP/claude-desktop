@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1352: R2348 BatchInspector distribute evenly ──────────
+console.log('\n## 1352. R2348 BatchInspector 균등 배분(distribute evenly) 체크')
+const s1352 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1352.includes('R2348') &&
+  s1352.includes('applyDistribute') &&
+  s1352.includes('균등 배분')
+) {
+  log('pass', 'R2348-batch-distribute', 'BatchInspector 균등 배분(distribute evenly) 구현 완료')
+} else {
+  log('warning', 'R2348-batch-distribute', 'BatchInspector distribute evenly 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1351: R2347 BatchInspector matchPosition 기능 ──────────
 console.log('\n## 1351. R2347 BatchInspector matchPosition X/Y 위치 맞추기 체크')
 const s1351 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

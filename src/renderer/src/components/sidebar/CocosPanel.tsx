@@ -4045,6 +4045,47 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2348: 선택 노드 균등 배분 (distribute evenly) — 3개 이상 */}
+      {uuids.length >= 3 && sceneFile.root && (() => {
+        const distNodes: CCSceneNode[] = []
+        function collectDist(n: CCSceneNode) { if (uuidSet.has(n.uuid)) distNodes.push(n); n.children.forEach(collectDist) }
+        collectDist(sceneFile.root)
+        if (distNodes.length < 3) return null
+        const applyDistribute = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          const sorted = [...distNodes].sort((a, b) => {
+            const pa = a.position as { x: number; y: number }
+            const pb = b.position as { x: number; y: number }
+            return pa[axis] - pb[axis]
+          })
+          const first = (sorted[0].position as { x: number; y: number })[axis]
+          const last = (sorted[sorted.length - 1].position as { x: number; y: number })[axis]
+          const step = (last - first) / (sorted.length - 1)
+          const posMap = new Map<string, number>()
+          sorted.forEach((n, i) => posMap.set(n.uuid, first + step * i))
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const newVal = posMap.get(n.uuid)
+            if (newVal == null) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, [axis]: Math.round(newVal) }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ distribute ${axis.toUpperCase()} (${distNodes.length}개, step=${Math.round(step)})`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Dist</span>
+            {([['X →', 'x'], ['Y ↕', 'y']] as [string, 'x' | 'y'][]).map(([label, axis]) => (
+              <span key={axis} onClick={() => applyDistribute(axis)} title={`${axis.toUpperCase()}축 균등 배분 (첫/끝 노드 고정, ${distNodes.length}개)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}>{label}</span>
+            ))}
+            <span style={{ fontSize: 8, color: '#555' }}>{distNodes.length}개</span>
+          </div>
+        )
+      })()}
       {/* R2347: 선택 노드 위치 맞추기 (match position) */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const nodesOrdered: CCSceneNode[] = []

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T10:40:09.666Z
+> 2026-03-15T10:41:05.463Z
 
 ## Critical
 _없음_
@@ -2243,6 +2243,7 @@ _없음_
 - 씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행
 - chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
 - session:setCollection try/catch + memTimer clearInterval 수정
+- BatchInspector 균등 배분(distribute evenly) 구현 완료
 - BatchInspector matchPosition X/Y 위치 맞추기 구현 완료
 - BatchInspector matchSize 첫 번째 선택 노드 크기 맞추기 구현 완료
 - 씬 트리 북마크 퀵액세스 바 구현 완료
