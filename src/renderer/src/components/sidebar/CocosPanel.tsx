@@ -21532,6 +21532,18 @@ function CCFileNodeInspector({
               const playbackRate = Number(p.playbackRate ?? p._N$playbackRate ?? 1)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2414: resourceType (BatchInspector R2046) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>resType</span>
+                    {([['Local', 0], ['Remote', 1]] as const).map(([l, v]) => {
+                      const cur = Number(p.resourceType ?? p._resourceType ?? p._N$resourceType ?? 0)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, resourceType: v, _resourceType: v, _N$resourceType: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#60a5fa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#60a5fa' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>remoteURL</span>
                     <input type="text" defaultValue={url}

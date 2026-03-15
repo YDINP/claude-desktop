@@ -27893,6 +27893,21 @@ if (
   log('warning', 'R2413-scrollview-speedamplifier', 'Inspector cc.ScrollView speedAmplifier 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1418: R2414 Inspector cc.VideoPlayer resourceType ──────────
+console.log('\n## 1418. R2414 Inspector cc.VideoPlayer resourceType 체크')
+const s1418 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1418.includes('R2414') &&
+  s1418.includes('resourceType') &&
+  s1418.includes('_resourceType') &&
+  s1418.includes('_N$resourceType') &&
+  s1418.includes('cc.VideoPlayer')
+) {
+  log('pass', 'R2414-videoplayer-resourcetype', 'Inspector cc.VideoPlayer resourceType 구현 완료')
+} else {
+  log('warning', 'R2414-videoplayer-resourcetype', 'Inspector cc.VideoPlayer resourceType 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
