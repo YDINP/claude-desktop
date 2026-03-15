@@ -25493,6 +25493,22 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1331: R2327 Save As ──────────
+console.log('\n## 1331. R2327 Save As 체크')
+const s1331a = readFileSync(join(ROOT, 'src/main/ipc/cc-file-handlers.ts'), 'utf-8')
+const s1331b = readFileSync(join(ROOT, 'src/preload/index.ts'), 'utf-8')
+const s1331c = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1331a.includes('cc:file:saveAs') &&
+  s1331b.includes('ccFileSaveAs') &&
+  s1331c.includes('R2327') &&
+  s1331c.includes('ccFileSaveAs')
+) {
+  log('pass', 'R2327-save-as', '다른 이름으로 저장(Save As) 구현 완료')
+} else {
+  log('warning', 'R2327-save-as', 'R2327 Save As 미구현', 'cc-file-handlers.ts/preload/CocosPanel.tsx')
+}
+
 // ── Section 1330: R2326 체크무늬 배경 패턴 ──────────
 console.log('\n## 1330. R2326 체크무늬 배경 패턴 체크')
 const s1330 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

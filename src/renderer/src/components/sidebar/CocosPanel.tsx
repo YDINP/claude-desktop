@@ -2288,6 +2288,20 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             >
               {saving ? '저장 중...' : '💾 저장'}
             </button>
+            {/* R2327: 다른 이름으로 저장 */}
+            <button
+              onClick={async () => {
+                if (!sceneFile?.root) return
+                const result = await window.api.ccFileSaveAs?.(sceneFile, sceneFile.root)
+                if (result?.success) setSaveMsg({ ok: true, text: `저장: ${result.savedPath?.split(/[\\/]/).pop()}` })
+                else if (!result?.canceled) setSaveMsg({ ok: false, text: result?.error ?? '저장 실패' })
+              }}
+              title="다른 이름으로 저장 (Save As)"
+              style={{
+                padding: '3px 6px', fontSize: 10, borderRadius: 3, cursor: 'pointer',
+                background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)',
+              }}
+            >💾⬆</button>
             <button
               onClick={undo}
               disabled={!canUndo}
