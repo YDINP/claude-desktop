@@ -19244,6 +19244,13 @@ function CCFileNodeInspector({
                       </>
                     )
                   })()}
+                  {/* R2409: affectedByScale (BatchInspector R2112) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.affectedByScale ?? p._affectedByScale ?? false)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, affectedByScale: e.target.checked, _affectedByScale: e.target.checked, _N$affectedByScale: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0, accentColor: '#818cf8' }}
+                    />affectedByScale
+                  </label>
                 </div>
               )
             }

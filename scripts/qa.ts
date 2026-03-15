@@ -27820,6 +27820,20 @@ if (
   log('warning', 'R2408-skelanim-wrapmode', 'Inspector cc.SkeletalAnimation wrapMode 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1413: R2409 Inspector cc.Layout affectedByScale ──────────
+console.log('\n## 1413. R2409 Inspector cc.Layout affectedByScale 체크')
+const s1413 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1413.includes('R2409') &&
+  s1413.includes('affectedByScale') &&
+  s1413.includes('_affectedByScale') &&
+  s1413.includes('cc.Layout')
+) {
+  log('pass', 'R2409-layout-affectedbyscale', 'Inspector cc.Layout affectedByScale 구현 완료')
+} else {
+  log('warning', 'R2409-layout-affectedbyscale', 'Inspector cc.Layout affectedByScale 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
