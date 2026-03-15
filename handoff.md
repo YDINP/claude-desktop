@@ -178,24 +178,24 @@
 - Branch: dev
 - 최근 커밋: `47f26bff` (R2510)
 
-## 완료 (R2511~R2520)
-- [x] R2511: SceneView 엣지 거리 가이드선 — 선택 노드와 캔버스 경계 거리 점선+수치 오버레이
-- [x] R2512: BatchInspector JSON 내보내기 — ⎘ JSON 버튼으로 선택 노드 JSON 클립보드
-- [x] R2513: BatchInspector Z-Order 이동 — ⊤/▲/▼/⊥ 버튼으로 형제 순서 조작
-- [x] R2514: BatchInspector 그리드 스냅 — snapGridSize 입력 + Math.round(pos/g)*g 스냅
-- [x] R2515: BatchInspector 부모 선택 — parentOfMap 빌드 후 ⬆ 부모 버튼
-- [x] R2516: BatchInspector Δ위치 이동 — posOffsetX/Y 입력 후 선택 노드 좌표에 더하기
-- [x] R2517: BatchInspector 컴포넌트 타입 전체 선택 — ⊞전체 버튼으로 씬 내 동일 타입 노드 선택
-- [x] R2518: NodeInspector tint hex 직접 입력 — onFocus/Blur로 #rrggbb 텍스트 파싱
-- [x] R2519: BatchInspector Transform 초기화 — P↺/R↺/S↺ 버튼으로 위치/회전/스케일 리셋
-- [x] R2520: BatchInspector 노드 반전 — ⇆X/⇅Y 버튼으로 scaleX/Y 부호 반전
+## 완료 (R2521~R2530)
+- [x] R2521: SceneView 세계 좌표 표시 토글 — L/W 버튼으로 로컬/월드 좌표 전환
+- [x] R2522: BatchInspector 직접 자식 선택 — ⬇ 자식 버튼 (R2515 부모 선택 대칭)
+- [x] R2523: BatchInspector 공통 컴포넌트 ON/OFF — 선택 노드 컴포넌트 enabled 일괄 토글
+- [x] R2524: SceneView 다중 선택 통합 바운딩박스 — 2개+ 선택 시 주황 점선 통합 rect
+- [x] R2525: BatchInspector 오파시티 그라디언트 — from→to opacity 선형 분배
+- [x] R2526: SceneView 깊이 필터 — D≤N 버튼+슬라이더로 depth 초과 노드 dim
+- [x] R2527: BatchInspector 스케일 X/Y 링크 — ⊞/⊟ 토글로 X 변경 시 Y 동기화
+- [x] R2528: BatchInspector 스케일 배율 버튼 — ×0.5/×0.75/×1.25/×2 scaleX/Y 곱셈
+- [x] R2529: SceneView 핀 마커 레이블 — 더블클릭으로 커스텀 레이블 편집
+- [x] R2530: BatchInspector 앵커 위치 보정 — 앵커 변경 시 position 자동 보정 체크박스
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2543** ← R2520 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2553** ← R2530 현재
 - Branch: dev
-- 최근 커밋: `e257f806` (R2520)
+- 최근 커밋: `d49f6c8a` (R2530)
 
-## 다음 예정 (R2521+)
+## 다음 예정 (R2531+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
