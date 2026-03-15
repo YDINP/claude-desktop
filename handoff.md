@@ -161,7 +161,24 @@
 - Branch: dev
 - 최근 커밋: `a0b1df2c` (R2500)
 
-## 다음 예정 (R2501+)
+## 완료 (R2501~R2510)
+- [x] R2501: 씬뷰 중심선 가이드 오버레이 — CC 원점(0,0) 기준 점선 십자선 + ⊕ 버튼
+- [x] R2502: Inspector 컴포넌트 추가 최근 이력 — 마지막 5개 타입 localStorage, 상단 빠른 접근
+- [x] R2503: BatchInspector 정렬/분배 — L/CX/R/DH + T/CY/B/DV 8방향 정렬
+- [x] R2504: BatchInspector 이름 일련번호 — +번호/교체/제거로 _01 _02 순번 자동 부여
+- [x] R2505: BatchInspector 컴포넌트 일괄 추가 — 퀵버튼 7종 + 자유 입력, 중복 스킵
+- [x] R2506: BatchInspector 컴포넌트 일괄 제거 — 공통 × 버튼 + 자유 입력
+- [x] R2507: BatchInspector 하위 노드 포함 선택 확장 — ⊕하위 버튼으로 자손 UUID 추가
+- [x] R2508: SceneView 다중 선택 중심점 마커 — 평균 위치에 주황 원+십자 SVG 오버레이
+- [x] R2509: BatchInspector 선택 필터 — 활성/비활성 노드만 남기기 ✓N/✗N 버튼
+- [x] R2510: BatchInspector 같은 이름 노드 일괄 선택 — =×N 버튼으로 동명 노드 전체 선택
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2533** ← R2510 현재
+- Branch: dev
+- 최근 커밋: `47f26bff` (R2510)
+
+## 다음 예정 (R2511+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
