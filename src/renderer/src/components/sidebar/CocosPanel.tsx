@@ -19737,6 +19737,12 @@ function CCFileNodeInspector({
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
                   {comp.type === 'cc.Toggle' && (
                     <>
+                      {/* R2426: enabled (BatchInspector R2195) */}
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, fontSize: 12 }}>
+                        <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                          onChange={ev => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: ev.target.checked, _enabled: ev.target.checked } } : c); applyAndSave({ components: u }) }} />
+                        enabled
+                      </label>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, fontSize: 12 }}>
                         <input type="checkbox" checked={!!(p.isChecked ?? false)}
                           onChange={ev => {

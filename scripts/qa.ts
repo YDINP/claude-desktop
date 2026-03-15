@@ -28068,6 +28068,19 @@ if (
   log('warning', 'R2425-mask-enabled', 'Inspector cc.Mask enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1430: R2426 Inspector cc.Toggle enabled ──────────
+console.log('\n## 1430. R2426 Inspector cc.Toggle enabled 체크')
+const s1430 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1430.includes('R2426') &&
+  s1430.includes('cc.Toggle') &&
+  s1430.includes('_enabled')
+) {
+  log('pass', 'R2426-toggle-enabled', 'Inspector cc.Toggle enabled 구현 완료')
+} else {
+  log('warning', 'R2426-toggle-enabled', 'Inspector cc.Toggle enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

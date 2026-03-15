@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T13:34:13.277Z
+> 2026-03-15T13:35:21.012Z
 
 ## Critical
 _없음_
@@ -2468,3 +2468,4 @@ _없음_
 - Inspector dragonBones.ArmatureDisplay playOnLoad 구현 완료
 - Inspector cc.ScrollView bounceDuration 구현 완료
 - Inspector cc.Mask enabled 구현 완료
+- Inspector cc.Toggle enabled 구현 완료
