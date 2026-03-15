@@ -90,13 +90,22 @@
 - [x] R2460: deepCopyNodeWithNewUuids 컴포넌트 _rawIndex 초기화 — R2459 _components 동기화 충돌 방지
 - [x] R2461: QA 섹션 1456~1459 추가 (Pass 2490)
 
-## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2490** ← R2461 현재
-- Branch: dev
-- 최근 커밋: `928b8794` (R2461), `1c1c2a75` (R2460), `8790abaa` (R2459), `7bf74089` (R2458)
+## 완료 (R2462~R2468)
+- [x] R2462: buildNewRawComp 타입별 기본값 맵 (COMP_DEFAULT_2x/3x) — 14종 컴포넌트 기본 props
+- [x] R2463: Save As Prefab — 씬 트리 우클릭 "🧩 프리팹으로 저장", extractPrefabEntries DFS + UUID 재매핑
+- [x] R2464: QA sections 1460-1461 (R2462/R2463 커버)
+- [x] R2465: 씬뷰 거리 측정 도구 — M키/📏 버튼, 드래그로 두 점 거리 SVG 오버레이 + 수치 표시
+- [x] R2466: 씬뷰 다중 선택 노드 그룹화 — 📦 버튼, 선택 노드를 Group 노드 하위로 묶음 + 로컬 좌표 변환
+- [x] R2467: BatchInspector 컴포넌트 일괄 추가 — 다중 선택 노드에 12종 컴포넌트 일괄 부착 (중복 스킵)
+- [x] R2468: QA sections 1462-1464 추가 (Pass 2495)
 
-## 다음 예정 (R2462+)
-- CC Editor 패리티 계속: prefab 저장/로드, 씬뷰 추가 UX
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2495** ← R2468 현재
+- Branch: dev
+- 최근 커밋: `d51b0395` (R2468), `efe3041c` (R2467), `612f85dd` (R2466), `56b4a035` (R2465)
+
+## 다음 예정 (R2469+)
+- CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
 ## 누적 이슈 (QA 체크포인트에서 발견된 기존 이슈)
