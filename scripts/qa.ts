@@ -28907,6 +28907,19 @@ if (
   log('warning', 'R2501-cross-guide', 'R2501 중심선 가이드 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1494: R2502 컴포넌트 추가 최근 이력 ──────────────────────────
+const s1494 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1494.includes('R2502') &&
+  s1494.includes('recentAddedComps') &&
+  s1494.includes('trackAddComp') &&
+  s1494.includes('최근 추가')
+) {
+  log('pass', 'R2502-recent-comps', 'R2502 컴포넌트 추가 최근 이력 구현 완료')
+} else {
+  log('warning', 'R2502-recent-comps', 'R2502 최근 컴포넌트 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

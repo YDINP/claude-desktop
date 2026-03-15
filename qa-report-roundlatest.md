@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T16:58:36.400Z
+> 2026-03-15T17:55:07.092Z
 
 ## Critical
 _없음_
@@ -2511,3 +2511,25 @@ _없음_
 - R2476 씬뷰 HUD opacity 슬라이더 구현 완료
 - R2477 씬뷰 Escape 부모 노드 선택 구현 완료
 - R2479 BatchInspector 원형 배치 구현 완료
+- R2481 BatchInspector 격자 배치 구현 완료
+- R2482 BatchInspector 정렬 도구 구현 완료
+- R2483 BatchInspector 균등 배분 구현 완료
+- R2484 Inspector 동일 이름 노드 수 뱃지 구현 완료
+- R2485 BatchInspector 크기 균등화 구현 완료
+- R2486 씬뷰 씬별 뷰 상태 영속화 구현 완료
+- R2487 Inspector Raw JSON 인라인 편집 구현 완료
+- R2488 복제 오프셋 설정 구현 완료
+- R2489 동일 이름 노드 팝업 구현 완료
+- R2490 씬뷰 HUD 컴포넌트 아이콘 목록 구현 완료
+- R2491 BatchInspector 범용 prop 일괄 편집 구현 완료
+- R2492 씬 트리 cc.find() 경로 복사 구현 완료
+- R2493 계층 트리 캔버스 범위 초과 뱃지 구현 완료
+- R2494 BatchInspector 회전 델타 구현 완료
+- R2495 BatchInspector 그리드 스냅 구현 완료
+- R2496 BatchInspector 위치 흩뿌리기 구현 완료
+- R2497 씬뷰 클릭 계층 트리 자동 펼치기 구현 완료
+- R2498 TreeSearch 정규식 검색 구현 완료
+- R2499 BatchInspector 바운딩박스 통계 구현 완료
+- R2500 BatchInspector 선택 반전 구현 완료
+- R2501 씬뷰 중심선 가이드 오버레이 구현 완료
+- R2502 컴포넌트 추가 최근 이력 구현 완료

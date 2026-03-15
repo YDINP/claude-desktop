@@ -17565,6 +17565,18 @@ function CCFileNodeInspector({
       localStorage.setItem(NOTES_KEY, JSON.stringify(all))
     } catch { /* silent */ }
   }
+  // R2502: 최근 추가 컴포넌트 이력 (localStorage 공유)
+  const RECENT_COMPS_KEY = 'cc-recent-added-comps'
+  const [recentAddedComps, setRecentAddedComps] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(RECENT_COMPS_KEY) ?? '[]') } catch { return [] }
+  })
+  const trackAddComp = (ct: string) => {
+    setRecentAddedComps(prev => {
+      const next = [ct, ...prev.filter(c => c !== ct)].slice(0, 5)
+      try { localStorage.setItem(RECENT_COMPS_KEY, JSON.stringify(next)) } catch {}
+      return next
+    })
+  }
   // 편집 중인 로컬 상태 (노드 변경 시 초기화)
   // R1633: 노드 선택 시 초기값 스냅샷 (변경 인디케이터용)
   const origSnapUuidRef = useRef<string | null>(null)
@@ -26125,17 +26137,35 @@ function CCFileNodeInspector({
 
       {!collapsed['comps'] && (() => {
         const compTypes = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource', 'cc.RichText', 'cc.EditBox', 'cc.UIOpacity', 'cc.Mask']
+        const doAddComp = (ct: string) => { applyAndSave({ components: [...draft.components, { type: ct, props: {} }] }); trackAddComp(ct) }
         return (
           <details style={{ marginTop: 6 }}>
             <summary style={{ fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', padding: '3px 0' }}>
               + 컴포넌트 추가
             </summary>
+            {/* R2502: 최근 추가 이력 */}
+            {recentAddedComps.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 4, paddingBottom: 4, borderBottom: '1px solid var(--border)' }}>
+                <span style={{ fontSize: 8, color: '#555', alignSelf: 'center', flexShrink: 0 }}>최근:</span>
+                {recentAddedComps.map(ct => (
+                  <span key={ct} title={`최근 추가: ${ct}`}
+                    onClick={() => doAddComp(ct)}
+                    style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.3)', color: '#fb923c', display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(251,146,60,0.3)')}
+                  >
+                    {COMP_ICONS[ct] && <span style={{ opacity: 0.7 }}>{COMP_ICONS[ct]}</span>}
+                    {ct.split('.').pop()}
+                  </span>
+                ))}
+              </div>
+            )}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 4 }}>
               {compTypes.map(ct => (
                 <span
                   key={ct}
                   title={COMP_DESCRIPTIONS[ct] ?? ct}
-                  onClick={() => applyAndSave({ components: [...draft.components, { type: ct, props: {} }] })}
+                  onClick={() => doAddComp(ct)}
                   style={{
                     fontSize: 9, padding: '2px 5px', borderRadius: 3, cursor: 'pointer',
                     border: '1px solid var(--border)', color: 'var(--text-muted)',
@@ -26159,7 +26189,7 @@ function CCFileNodeInspector({
                   if (e.key !== 'Enter') return
                   const val = (e.target as HTMLInputElement).value.trim()
                   if (!val) return
-                  applyAndSave({ components: [...draft.components, { type: val, props: {} }] });
+                  doAddComp(val);
                   (e.target as HTMLInputElement).value = ''
                 }}
                 style={{ flex: 1, fontSize: 9, padding: '2px 5px', borderRadius: 3, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
