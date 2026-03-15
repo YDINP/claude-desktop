@@ -18665,6 +18665,8 @@ function CCFileNodeInspector({
   // R2553: 크기 전용 클립보드
   const sizeClipboard = useRef<{ w: number; h: number } | null>(null)
   const [sizeClipFilled, setSizeClipFilled] = useState(false)
+  // R2554: 앵커 변경 시 position 자동 보정 토글
+  const [anchorCompensate, setAnchorCompensate] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
 
   // R1484: World Transform — 부모 체인 누산 좌표
@@ -20425,6 +20427,11 @@ function CCFileNodeInspector({
       })())}
       {!collapsed['anchor'] && (
       <div>
+        {/* R2554: 앵커 변경 시 position 자동 보정 토글 */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4, cursor: 'pointer', fontSize: 9, color: anchorCompensate ? '#34d399' : 'var(--text-muted)' }}>
+          <input type="checkbox" checked={anchorCompensate} onChange={e => setAnchorCompensate(e.target.checked)} style={{ cursor: 'pointer', accentColor: '#34d399' }} />
+          앵커 변경 시 위치 자동 보정 (R2554)
+        </label>
         <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
             {numInput('aX', draft.anchor.x, v => applyAndSave({ anchor: { ...draft.anchor, x: v } }), 0.01)}
@@ -20444,7 +20451,19 @@ function CCFileNodeInspector({
                 <span
                   key={`${ax}-${ay}`}
                   title={`앵커 (${ax}, ${ay})`}
-                  onClick={() => applyAndSave({ anchor: { x: ax, y: ay } })}
+                  onClick={() => {
+                    // R2554: anchorCompensate ON이면 position 자동 보정
+                    if (anchorCompensate) {
+                      const oldAx = draft.anchor?.x ?? 0.5, oldAy = draft.anchor?.y ?? 0.5
+                      const w = draft.size?.x ?? 0, h = draft.size?.y ?? 0
+                      const pos = draft.position as { x: number; y: number; z?: number }
+                      const newPosX = pos.x + (oldAx - ax) * w
+                      const newPosY = pos.y + (oldAy - ay) * h
+                      applyAndSave({ anchor: { x: ax, y: ay }, position: { ...pos, x: newPosX, y: newPosY } })
+                    } else {
+                      applyAndSave({ anchor: { x: ax, y: ay } })
+                    }
+                  }}
                   style={{
                     width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 9, cursor: 'pointer', borderRadius: 2, userSelect: 'none',

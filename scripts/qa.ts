@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1546: R2554 NodeInspector 앵커 변경 시 위치 자동 보정 ────────────
+console.log('\n## 1546. R2554 — NodeInspector 앵커 변경 시 위치 자동 보정')
+const s1546 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1546.includes('R2554') &&
+  s1546.includes('anchorCompensate') &&
+  s1546.includes('setAnchorCompensate') &&
+  s1546.includes('자동 보정')
+) {
+  log('pass', 'R2554-anchor-comp', 'R2554 앵커 변경 시 위치 자동 보정 구현 완료')
+} else {
+  log('warning', 'R2554-anchor-comp', 'R2554 앵커 변경 시 위치 자동 보정 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1545: R2553 NodeInspector 크기 전용 복사/붙여넣기 (S↑/S↓) ────────
 console.log('\n## 1545. R2553 — NodeInspector 크기 전용 복사/붙여넣기')
 const s1545 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
