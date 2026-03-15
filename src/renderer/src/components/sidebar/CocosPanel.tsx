@@ -5875,6 +5875,44 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2632: 선택 노드 위치 X/Y 미러 — 그룹 중심 기준 반전 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyMirror = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          const selNodes: { uuid: string; pos: { x: number; y: number; z?: number } }[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push({ uuid: n.uuid, pos: n.position as { x: number; y: number; z?: number } }); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          if (selNodes.length < 2) return
+          const avgX = selNodes.reduce((s, n) => s + n.pos.x, 0) / selNodes.length
+          const avgY = selNodes.reduce((s, n) => s + n.pos.y, 0) / selNodes.length
+          const posMap = new Map<string, { x: number; y: number; z?: number }>()
+          selNodes.forEach(({ uuid, pos }) => {
+            posMap.set(uuid, {
+              x: axis === 'x' ? avgX * 2 - pos.x : pos.x,
+              y: axis === 'y' ? avgY * 2 - pos.y : pos.y,
+              z: pos.z,
+            })
+          })
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            const p = posMap.get(n.uuid)
+            if (!p) return { ...n, children: ch }
+            return { ...n, position: { ...n.position, ...p }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 위치 ${axis.toUpperCase()} 미러 (${selNodes.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>미러 (R2632)</span>
+            <span onClick={() => applyMirror('x')} title="선택 노드 X 위치를 그룹 중심 기준 반전 (R2632)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(244,114,182,0.4)', color: '#f472b6', userSelect: 'none', background: 'rgba(244,114,182,0.05)' }}>⇔ X</span>
+            <span onClick={() => applyMirror('y')} title="선택 노드 Y 위치를 그룹 중심 기준 반전 (R2632)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(244,114,182,0.4)', color: '#f472b6', userSelect: 'none', background: 'rgba(244,114,182,0.05)' }}>⇕ Y</span>
+          </div>
+        )
+      })()}
       {/* R2582: 선택 노드 형제 위치 순서로 Z-order 재정렬 */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const applySortByPos = async (axis: 'x' | 'y') => {

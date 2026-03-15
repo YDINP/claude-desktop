@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1624: R2632 BatchInspector 위치 X/Y 미러 ─────────────────────────
+console.log('\n## 1624. R2632 — BatchInspector 위치 X/Y 미러')
+const s1624 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1624.includes('R2632') &&
+  s1624.includes('applyMirror') &&
+  s1624.includes('미러') &&
+  s1624.includes('avgX')
+) {
+  log('pass', 'R2632-mirror', 'R2632 위치 X/Y 미러 구현 완료')
+} else {
+  log('warning', 'R2632-mirror', 'R2632 위치 X/Y 미러 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1623: R2631 BatchInspector 색상 팔레트 추출 ──────────────────────
 console.log('\n## 1623. R2631 — BatchInspector 색상 팔레트 추출')
 const s1623 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
