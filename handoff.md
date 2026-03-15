@@ -35,10 +35,38 @@
 - [x] R2343: Inspector 단일노드 tag(_tag CC2.x) 편집 필드 (0이 아닌 경우만 표시)
 - [x] R2344: 씬 통계 컴포넌트 분포 인라인 바 시각화 + 전체 컴포넌트 수
 
+- [x] R2345~R2354: 이전 세션 완료 (cc.Label underlineHeight/strikethrough/charSpacing, cc.EditBox lineCount/tabIndex, cc.RichText fontColor, cc.Widget H/V-center 등)
+- [x] R2355: Inspector cc.Layout childAlignment 퀵 편집 — None/LT/C/RB/LC/RC 버튼
+- [x] R2356: Inspector cc.ProgressBar mode H/V/Fill 퀵 편집 버튼
+- [x] R2357: Inspector cc.ProgressBar startWidth 입력 + 프리셋(0/1/5/10/20/50)
+- [x] R2358: Inspector cc.Button autoGrayEffect 체크박스 (interactable 옆)
+- [x] R2359: Inspector cc.Slider minValue/maxValue 범위 + step 퀵 편집 (프리셋 포함)
+- [x] R2360: Inspector cc.ScrollView pagingEnabled/cancelInnerEvents/scrollDuration 퀵 편집
+
+- [x] R2361: Inspector cc.AudioSource preload 체크박스 + startTime/endTime 입력 (-1=∞)
+- [x] R2362: Inspector cc.Widget isAbs* px/% 전환 버튼 (절대px↔비율)
+- [x] R2363: Inspector cc.Sprite packable 체크박스 + meshType Regular/Poly 버튼
+- [x] R2364: Inspector cc.Label spacingY 입력 필드 (spcX 옆)
+- [x] R2365: Inspector cc.Camera orthoHeight/near/far CC3.x 퀵 편집 (is3x 조건부)
+
+- [x] R2366: Inspector cc.RigidBody bullet/allowSleep 체크박스
+- [x] R2367: Inspector cc.BoxCollider/CircleCollider/PolygonCollider density 입력 필드 (3-col 그리드)
+- [x] R2368: Inspector cc.PolygonCollider threshold 입력 필드 + 프리셋
+- [x] R2369: Inspector cc.Label enableOutline/outlineWidth/outlineColor 퀵 편집 (CC3.x)
+- [x] R2370: Inspector cc.Label enableShadow/shadowBlur/shadowColor 퀵 편집 (CC3.x)
+- [x] R2371: Inspector cc.Label enableGradient/colorTop/colorBottom 퀵 편집 (CC3.x)
+- [x] R2372: Inspector cc.Label enableDashLine 토글 (CC3.x)
+- [x] R2373: Inspector cc.Graphics lineJoin/lineCap/miterLimit/fillOpacity/strokeOpacity 퀵 편집
+- [x] R2374: Inspector cc.MotionStreak timeToLive/speedThreshold 입력 필드
+- [x] R2375: Inspector cc.Animation sample rate/speed 입력 필드
+- [x] R2376: Inspector cc.VideoPlayer volume 슬라이더 + keepAspectRatio/fullScreenEnabled
+- [x] R2377: Inspector cc.PageView pageTurningSpeed/effectType/autoPlay 퀵 편집
+- [x] R2378: Inspector cc.ToggleContainer autoCheckToggle 체크박스
+
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2379** ← R2344 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2413** ← R2378 현재
 - Branch: dev
-- 최근 커밋: `41e9bf2` (R2344), `7f7394d` (R2343 fix), `27515c6` (R2343), `a72e2ba` (R2342), `45db11a` (R2341)
+- 최근 커밋: `a88cb67` (R2378), `fa66902` (R2377), `7986369` (R2376), `464bd91` (R2375), `5b8cca4` (R2374)
 
 ## 갭 수정 완료 상태
 - **BatchInspector bare shorthand → ALL DONE** (R2298-R2305)

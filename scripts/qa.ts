@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1383: R2379 Inspector cc.ScrollView bounceTime/mouseWheelScrollSensitivity/hideScrollBar ──────────
+console.log('\n## 1383. R2379 Inspector cc.ScrollView bounceTime/mwSens/hideScrollBar 체크')
+const s1383 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1383.includes('R2379') &&
+  s1383.includes('bounceTime') &&
+  s1383.includes('mouseWheelScrollSensitivity') &&
+  s1383.includes('hideScrollBar') &&
+  s1383.includes('_N$bounceTime')
+) {
+  log('pass', 'R2379-scrollview-extra', 'Inspector cc.ScrollView bounceTime/mouseWheelSens/hideScrollBar 구현 완료')
+} else {
+  log('warning', 'R2379-scrollview-extra', 'Inspector cc.ScrollView 추가 속성 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1382: R2378 Inspector cc.ToggleContainer autoCheckToggle ──────────
 console.log('\n## 1382. R2378 Inspector cc.ToggleContainer autoCheckToggle 체크')
 const s1382 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

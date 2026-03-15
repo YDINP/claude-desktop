@@ -22458,6 +22458,42 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2379: bounceTime + mouseWheelScrollSensitivity + hideScrollBar */}
+                  {(() => {
+                    const bounceTime = Number(p.bounceTime ?? p._bounceTime ?? p._N$bounceTime ?? 1)
+                    const mwSens = Number(p.mouseWheelScrollSensitivity ?? p._mouseWheelScrollSensitivity ?? p._N$mouseWheelScrollSensitivity ?? 3.5)
+                    const hideBar = !!(p.hideScrollBar ?? p._hideScrollBar ?? p._N$hideScrollBar ?? false)
+                    return (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>bounceT</span>
+                          <input type="number" defaultValue={bounceTime} key={`bt-${bounceTime}`} min={0} step={0.1}
+                            onBlur={e => { const v = Math.max(0, parseFloat(e.target.value) || 1); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, bounceTime: v, _bounceTime: v, _N$bounceTime: v } } : c); applyAndSave({ components: u }) }}
+                            style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                            title="bounceTime (CC3.x)"
+                          />
+                          {[0.1, 0.3, 0.5, 1].map(v => (
+                            <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, bounceTime: v, _bounceTime: v, _N$bounceTime: v } } : c); applyAndSave({ components: u }) }}
+                              style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(bounceTime - v) < 0.01 ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(bounceTime - v) < 0.01 ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                            >{v}s</span>
+                          ))}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>mwSens</span>
+                          <input type="number" defaultValue={mwSens} key={`mws-${mwSens}`} min={0} step={0.5}
+                            onBlur={e => { const v = parseFloat(e.target.value) || 3.5; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mouseWheelScrollSensitivity: v, _mouseWheelScrollSensitivity: v, _N$mouseWheelScrollSensitivity: v } } : c); applyAndSave({ components: u }) }}
+                            style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                            title="mouseWheelScrollSensitivity"
+                          />
+                          <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginLeft: 8 }}>
+                            <input type="checkbox" checked={hideBar}
+                              onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, hideScrollBar: e.target.checked, _hideScrollBar: e.target.checked, _N$hideScrollBar: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                            />hideBar
+                          </label>
+                        </div>
+                      </>
+                    )
+                  })()}
                   {/* R2360: pagingEnabled + cancelInnerEvents + scrollDuration */}
                   {(() => {
                     const paging = !!(p.pagingEnabled ?? p._pagingEnabled ?? p._N$pagingEnabled ?? false)
