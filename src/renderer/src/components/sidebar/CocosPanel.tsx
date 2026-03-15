@@ -1155,6 +1155,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
       if (ctrl && e.key === 'c' && selectedNode) {
         e.preventDefault()
         clipboardRef.current = selectedNode
+        // R2320: cross-scene paste — localStorage에도 직렬화 저장
+        try { localStorage.setItem('cc-node-clipboard', JSON.stringify(selectedNode)) } catch {}
         // R1676: Ctrl+Shift+C → JSON 시스템 클립보드 복사
         if (e.shiftKey) {
           const json = JSON.stringify(selectedNode, null, 2)
@@ -1164,7 +1166,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
         }
         return
       }
-      // Ctrl+V: 클립보드 노드 붙여넣기 (선택 노드의 자식으로 / 없으면 루트 자식으로)
+      // Ctrl+V: 클립보드 노드 붙여넣기 — R2320: clipboardRef 없으면 localStorage 복원
+      if (ctrl && e.key === 'v' && sceneFile?.root) {
+        if (!clipboardRef.current) {
+          try {
+            const raw = localStorage.getItem('cc-node-clipboard')
+            if (raw) clipboardRef.current = JSON.parse(raw) as CCSceneNode
+          } catch {}
+        }
+      }
       if (ctrl && e.key === 'v' && clipboardRef.current && sceneFile?.root) {
         e.preventDefault()
         const srcNode = clipboardRef.current

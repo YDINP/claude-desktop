@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1324: R2320 씬 교차 붙여넣기 (cross-scene paste) ──────────
+console.log('\n## 1324. R2320 씬 교차 붙여넣기 체크')
+const s1324 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1324.includes('cc-node-clipboard') &&
+  s1324.includes('cross-scene paste') &&
+  s1324.includes('R2320')
+) {
+  log('pass', 'R2320-cross-scene-paste', 'cross-scene 노드 클립보드 (localStorage) 구현 완료')
+} else {
+  log('warning', 'R2320-cross-scene-paste', 'cross-scene paste 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1323: R2319 씬뷰 카메라 프레임 토글 버튼 ──────────
 console.log('\n## 1323. R2319 씬뷰 카메라 프레임 토글 버튼 체크')
 const s1323 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
