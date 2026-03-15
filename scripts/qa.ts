@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1540: R2548 BatchInspector Label 텍스트 일괄 적용 ────────────────
+console.log('\n## 1540. R2548 — BatchInspector Label 텍스트 일괄 적용')
+const s1540 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1540.includes('R2548') &&
+  s1540.includes('hasLabelNode') &&
+  s1540.includes('텍스트 일괄 적용') &&
+  s1540.includes("c.type === 'cc.Label'")
+) {
+  log('pass', 'R2548-label-batch', 'R2548 Label 텍스트 일괄 적용 구현 완료')
+} else {
+  log('warning', 'R2548-label-batch', 'R2548 Label 텍스트 일괄 적용 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1539: R2547 BatchInspector 2-노드 위치 교환 ──────────────────────
 console.log('\n## 1539. R2547 — BatchInspector 2-노드 위치 교환')
 const s1539 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

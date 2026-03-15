@@ -17604,6 +17604,44 @@ function CCFileBatchInspector({
         />
         {batchColor && <button onClick={() => setBatchColor('')} style={{ fontSize: 9, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)' }}>✕</button>}
       </div>
+      {/* R2548: 선택 노드 중 cc.Label/cc.RichText 있는 것들에 텍스트 일괄 적용 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const hasLabelNode = uuids.some(u => {
+          let found = false
+          function find(n: CCSceneNode) { if (n.uuid === u) { found = n.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText'); return }; n.children.forEach(find) }
+          find(sceneFile.root!)
+          return found
+        })
+        if (!hasLabelNode) return null
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>레이블 (R2548)</span>
+            <input
+              placeholder="텍스트 일괄 적용 (Enter)"
+              title="선택 노드 중 cc.Label/cc.RichText에 텍스트 일괄 입력 — Enter로 저장 (R2548)"
+              style={{ fontSize: 9, padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', width: 120 }}
+              onKeyDown={async e => {
+                if (e.key !== 'Enter' || !sceneFile.root) return
+                const text = (e.target as HTMLInputElement).value
+                function patch(n: CCSceneNode): CCSceneNode {
+                  const ch = n.children.map(patch)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+                  const comps = n.components.map(c => {
+                    if (c.type === 'cc.Label') return { ...c, props: { ...c.props, string: text } }
+                    if (c.type === 'cc.RichText') return { ...c, props: { ...c.props, string: text } }
+                    return c
+                  })
+                  return { ...n, components: comps, children: ch }
+                }
+                await saveScene({ ...sceneFile, root: patch(sceneFile.root!) })
+                setBatchMsg(`✓ 레이블 텍스트 (R2548)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+                ;(e.target as HTMLInputElement).value = ''
+              }}
+            />
+          </div>
+        )
+      })()}
       {/* R2538: 랜덤 색상 할당 — 선택 노드 각각에 서로 다른 색상 적용 */}
       {sceneFile.root && uuids.length >= 1 && (() => {
         const palette = ['#ff6b6b','#ffa94d','#ffd43b','#69db7c','#38d9a9','#4dabf7','#748ffc','#da77f2','#f783ac','#a9e34b']
