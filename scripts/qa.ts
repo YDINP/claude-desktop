@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1594: R2602 BatchInspector active 반전 버튼 ─────────────────────
+console.log('\n## 1594. R2602 — BatchInspector active 개별 반전')
+const s1594 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1594.includes('R2602') &&
+  s1594.includes('active 반전') &&
+  s1594.includes('!n.active')
+) {
+  log('pass', 'R2602-active-invert', 'R2602 active 반전 구현 완료')
+} else {
+  log('warning', 'R2602-active-invert', 'R2602 active 반전 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1593: R2601 SceneView component 타입 배지 오버레이 ───────────────
 console.log('\n## 1593. R2601 — SceneView component 타입 배지 오버레이')
 const s1593 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

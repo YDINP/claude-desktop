@@ -17503,6 +17503,22 @@ function CCFileBatchInspector({
             }}
           >{v === '' ? '(변경 안 함)' : v === 'active' ? '활성화' : '비활성화'}</button>
         ))}
+        {/* R2602: active 반전 */}
+        <button
+          title={`선택 ${uuids.length}개 노드 active 개별 반전 (R2602)`}
+          onClick={async () => {
+            if (!sceneFile.root) return
+            function patch(n: CCSceneNode): CCSceneNode {
+              const ch = n.children.map(patch)
+              if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+              return { ...n, active: !n.active, children: ch }
+            }
+            await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+            setBatchMsg(`✓ active 반전 (${uuids.length}개)`)
+            setTimeout(() => setBatchMsg(null), 2000)
+          }}
+          style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', background: 'none' }}
+        >반전</button>
       </div>
       {/* Opacity */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
