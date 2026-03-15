@@ -99,21 +99,26 @@
 - [x] R2467: BatchInspector 컴포넌트 일괄 추가 — 다중 선택 노드에 12종 컴포넌트 일괄 부착 (중복 스킵)
 - [x] R2468: QA sections 1462-1464 추가 (Pass 2495)
 
-## 완료 (R2469~R2475)
+## 완료 (R2469~R2480)
 - [x] R2469: 전역 검색 text:/t: 구문 — cc.Label/RichText 텍스트 내용 검색
 - [x] R2470: 미니맵 노드 클릭 선택 — 히트 테스트(역순) + 빈 공간 클릭 시 팬 유지
 - [x] R2471: Inspector breadcrumb 📋 버튼 — cc.find("path") 클립보드 복사
-- [x] R2472: 씬뷰 다중 선택 노드 동시 드래그 — multiDragRef/multiDragDelta, Shift 축 제한 + Ctrl 스냅
+- [x] R2472: 씬뷰 다중 선택 노드 동시 드래그 — multiDragRef/multiDragDelta
 - [x] R2473: QA sections 1465-1468 추가 (Pass 2499)
 - [x] R2474: Inspector 📌 핀 노드 — 씬뷰 상단 핀 바, localStorage 영속화, 우클릭 해제
 - [x] R2475: QA section 1469 추가 (Pass 2500)
+- [x] R2476: 씬뷰 HUD opacity 인라인 슬라이더 — 선택 노드 불투명도 즉시 편집
+- [x] R2477: 씬뷰 Escape → 부모 노드 선택 (루트면 해제)
+- [x] R2478: QA sections 1470-1471 추가 (Pass 2502)
+- [x] R2479: BatchInspector 원형 배치 — N개 노드를 반지름 r px 원형으로 균등 배치
+- [x] R2480: QA section 1472 추가 (Pass 2503)
 
 ## 빌드/QA
-- **QA: Critical: 0, Warning: 0, Pass: 2500** ← R2475 현재
+- **QA: Critical: 0, Warning: 0, Pass: 2503** ← R2480 현재
 - Branch: dev
-- 최근 커밋: `8034c2eb` (R2475), `bf79ceae` (R2474), `2cc508a6` (R2472), `ad9ed7b3` (R2471)
+- 최근 커밋: `6141b2c7` (R2480), `4a408df8` (R2479), `63c4b2e6` (R2478), `e7d01dcb` (R2477)
 
-## 다음 예정 (R2476+)
+## 다음 예정 (R2481+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
