@@ -25361,6 +25361,66 @@ if (
   log('warning', 'R2305-batch-progressbar-sprite-cc3x', 'BatchInspector ProgressBar/Sprite CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1310: R2306 BatchInspector cc.Layout padding + cc.Sprite capInset _N$* ──────────
+console.log('\n## 1310. R2306 BatchInspector Layout padding / Sprite capInset CC3.x 체크')
+const s1310 = s1309
+if (
+  s1310.includes('paddingTop: pt, _paddingTop: pt, _N$paddingTop: pt') &&
+  s1310.includes('paddingBottom: pb, _paddingBottom: pb, _N$paddingBottom: pb') &&
+  s1310.includes('paddingLeft: pl, _paddingLeft: pl, _N$paddingLeft: pl') &&
+  s1310.includes('paddingRight: pr, _paddingRight: pr, _N$paddingRight: pr') &&
+  s1310.includes('insetTop: inset, _insetTop: inset, _N$insetTop: inset') &&
+  s1310.includes('insetBottom: inset, _insetBottom: inset, _N$insetBottom: inset') &&
+  s1310.includes('insetLeft: inset, _insetLeft: inset, _N$insetLeft: inset') &&
+  s1310.includes('insetRight: inset, _insetRight: inset, _N$insetRight: inset')
+) {
+  log('pass', 'R2306-batch-layout-padding-sprite-inset-cc3x', 'BatchInspector cc.Layout padding + cc.Sprite capInset _N$* 갭 수정')
+} else {
+  log('warning', 'R2306-batch-layout-padding-sprite-inset-cc3x', 'BatchInspector Layout padding/Sprite inset CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1311: R2307 단일노드 cc.Layout spacing/padding computed key + quick preset _N$* ──────────
+console.log('\n## 1311. R2307 단일노드 Layout spacing/padding CC3.x 체크')
+const s1311 = s1310
+if (
+  s1311.includes('[`_${key as string}`]: v, [`_N$${key as string}`]: v') &&
+  s1311.includes('spacingX: v, _spacingX: v, _N$spacingX: v, spacingY: v, _spacingY: v, _N$spacingY: v') &&
+  s1311.includes('paddingLeft: v, _paddingLeft: v, _N$paddingLeft: v, paddingRight: v, _paddingRight: v, _N$paddingRight: v, paddingTop: v, _paddingTop: v, _N$paddingTop: v, paddingBottom: v, _paddingBottom: v, _N$paddingBottom: v')
+) {
+  log('pass', 'R2307-single-layout-spacing-padding-cc3x', '단일노드 cc.Layout spacing/padding computed key + quick preset _N$* 갭 수정')
+} else {
+  log('warning', 'R2307-single-layout-spacing-padding-cc3x', '단일노드 Layout spacing/padding CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1312: R2308 단일노드 cc.Sprite trim/grayscale/fillCenter/capInsets _N$* ──────────
+console.log('\n## 1312. R2308 단일노드 Sprite trim/grayscale/fillCenter/insets CC3.x 체크')
+const s1312 = s1311
+if (
+  s1312.includes('trim: ev.target.checked, _trim: ev.target.checked, _N$trim: ev.target.checked') &&
+  s1312.includes('grayscale: ev.target.checked, _grayscale: ev.target.checked, _N$grayscale: ev.target.checked') &&
+  s1312.includes('fillCenter: ev.target.checked, _fillCenter: ev.target.checked, _N$fillCenter: ev.target.checked') &&
+  s1312.includes('insetTop: newCi.t, _insetTop: newCi.t, _N$insetTop: newCi.t') &&
+  s1312.includes('insetBottom: newCi.b, _insetBottom: newCi.b, _N$insetBottom: newCi.b') &&
+  s1312.includes('insetLeft: newCi.l, _insetLeft: newCi.l, _N$insetLeft: newCi.l') &&
+  s1312.includes('insetRight: newCi.r, _insetRight: newCi.r, _N$insetRight: newCi.r')
+) {
+  log('pass', 'R2308-single-sprite-trim-grayscale-fillcenter-cc3x', '단일노드 cc.Sprite trim/grayscale/fillCenter/capInsets _N$* 갭 수정')
+} else {
+  log('warning', 'R2308-single-sprite-trim-grayscale-fillcenter-cc3x', '단일노드 Sprite CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
+// ── Section 1313: R2309 단일노드 cc.Toggle isChecked + cc.ToggleContainer allowSwitchOff _N$* ──────────
+console.log('\n## 1313. R2309 단일노드 Toggle isChecked + ToggleContainer allowSwitchOff CC3.x 체크')
+const s1313 = s1312
+if (
+  s1313.includes('isChecked: ev.target.checked, _isChecked: ev.target.checked, _N$isChecked: ev.target.checked') &&
+  s1313.includes('allowSwitchOff: ev.target.checked, _allowSwitchOff: ev.target.checked, _N$allowSwitchOff: ev.target.checked')
+) {
+  log('pass', 'R2309-single-toggle-ischecked-allowswitchoff-cc3x', '단일노드 cc.Toggle isChecked + cc.ToggleContainer allowSwitchOff _N$* 갭 수정')
+} else {
+  log('warning', 'R2309-single-toggle-ischecked-allowswitchoff-cc3x', '단일노드 Toggle/ToggleContainer CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

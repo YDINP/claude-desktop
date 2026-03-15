@@ -12892,7 +12892,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchLayoutPad)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => c.type === 'cc.Layout'
-              ? { ...c, props: { ...c.props, paddingTop: pt, paddingBottom: pb, paddingLeft: pl, paddingRight: pr } } : c)
+              ? { ...c, props: { ...c.props, paddingTop: pt, _paddingTop: pt, _N$paddingTop: pt, paddingBottom: pb, _paddingBottom: pb, _N$paddingBottom: pb, paddingLeft: pl, _paddingLeft: pl, _N$paddingLeft: pl, paddingRight: pr, _paddingRight: pr, _N$paddingRight: pr } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchLayoutPad(sceneFile.root) })
@@ -15104,7 +15104,7 @@ function CCFileBatchInspector({
             const children = n.children.map(patchSpriteCap)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
             const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-              ? { ...c, props: { ...c.props, insetTop: inset, insetBottom: inset, insetLeft: inset, insetRight: inset } } : c)
+              ? { ...c, props: { ...c.props, insetTop: inset, _insetTop: inset, _N$insetTop: inset, insetBottom: inset, _insetBottom: inset, _N$insetBottom: inset, insetLeft: inset, _insetLeft: inset, _N$insetLeft: inset, insetRight: inset, _insetRight: inset, _N$insetRight: inset } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSpriteCap(sceneFile.root) })
@@ -18613,7 +18613,7 @@ function CCFileNodeInspector({
                       <input key={key as string} type="number" defaultValue={val as number} step={1}
                         onBlur={e => {
                           const v = parseFloat(e.target.value) || 0
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key as string]: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key as string]: v, [`_${key as string}`]: v, [`_N$${key as string}`]: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         placeholder={label as string}
@@ -18624,7 +18624,7 @@ function CCFileNodeInspector({
                     {[0, 5, 10, 20].map(v => (
                       <span key={v} title={`spacing X/Y = ${v}`}
                         onClick={() => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingX: v, spacingY: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingX: v, _spacingX: v, _N$spacingX: v, spacingY: v, _spacingY: v, _N$spacingY: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${spacingX === v && spacingY === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: spacingX === v && spacingY === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
@@ -18637,7 +18637,7 @@ function CCFileNodeInspector({
                       <input key={key as string} type="number" defaultValue={val as number} step={1}
                         onBlur={e => {
                           const v = parseFloat(e.target.value) || 0
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key as string]: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key as string]: v, [`_${key as string}`]: v, [`_N$${key as string}`]: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         placeholder={label as string}
@@ -18649,7 +18649,7 @@ function CCFileNodeInspector({
                       title="모든 패딩 동일하게 (최솟값)"
                       onClick={() => {
                         const v = Math.min(pLeft, pRight, pTop, pBottom)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, paddingLeft: v, paddingRight: v, paddingTop: v, paddingBottom: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, paddingLeft: v, _paddingLeft: v, _N$paddingLeft: v, paddingRight: v, _paddingRight: v, _N$paddingRight: v, paddingTop: v, _paddingTop: v, _N$paddingTop: v, paddingBottom: v, _paddingBottom: v, _N$paddingBottom: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ fontSize: 8, cursor: 'pointer', padding: '0 3px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
@@ -18659,7 +18659,7 @@ function CCFileNodeInspector({
                     {/* R1796: padding 퀵 프리셋 */}
                     {[0, 5, 10, 20].map(v => (
                       <span key={v} title={`padding 전체 = ${v}`}
-                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, paddingLeft: v, paddingRight: v, paddingTop: v, paddingBottom: v } } : c); applyAndSave({ components: updated }) }}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, paddingLeft: v, _paddingLeft: v, _N$paddingLeft: v, paddingRight: v, _paddingRight: v, _N$paddingRight: v, paddingTop: v, _paddingTop: v, _N$paddingTop: v, paddingBottom: v, _paddingBottom: v, _N$paddingBottom: v } } : c); applyAndSave({ components: updated }) }}
                         style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${pLeft === v && pRight === v && pTop === v && pBottom === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: pLeft === v && pRight === v && pTop === v && pBottom === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}
@@ -18824,12 +18824,12 @@ function CCFileNodeInspector({
                   <div style={{ display: 'flex', gap: 12 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                       <input type="checkbox" checked={!!(p.trim ?? true)}
-                        onChange={ev => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, trim: ev.target.checked } } : c); applyAndSave({ components: updated }) }} />
+                        onChange={ev => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, trim: ev.target.checked, _trim: ev.target.checked, _N$trim: ev.target.checked } } : c); applyAndSave({ components: updated }) }} />
                       trim
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                       <input type="checkbox" checked={!!(p.grayscale ?? false)}
-                        onChange={ev => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, grayscale: ev.target.checked } } : c); applyAndSave({ components: updated }) }} />
+                        onChange={ev => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, grayscale: ev.target.checked, _grayscale: ev.target.checked, _N$grayscale: ev.target.checked } } : c); applyAndSave({ components: updated }) }} />
                       grayscale
                     </label>
                   </div>
@@ -18933,7 +18933,7 @@ function CCFileNodeInspector({
                       <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                         <input type="checkbox" checked={!!(p.fillCenter ?? false)}
                           onChange={ev => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillCenter: ev.target.checked } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillCenter: ev.target.checked, _fillCenter: ev.target.checked, _N$fillCenter: ev.target.checked } } : c)
                             applyAndSave({ components: updated })
                           }} />
                         fillCenter
@@ -18979,7 +18979,7 @@ function CCFileNodeInspector({
                               onBlur={e => {
                                 const v = Math.max(0, parseFloat(e.target.value) || 0)
                                 const newCi = { ...ci, [side]: v }
-                                const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, insetTop: newCi.t, insetBottom: newCi.b, insetLeft: newCi.l, insetRight: newCi.r } } : c)
+                                const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, insetTop: newCi.t, _insetTop: newCi.t, _N$insetTop: newCi.t, insetBottom: newCi.b, _insetBottom: newCi.b, _N$insetBottom: newCi.b, insetLeft: newCi.l, _insetLeft: newCi.l, _N$insetLeft: newCi.l, insetRight: newCi.r, _insetRight: newCi.r, _N$insetRight: newCi.r } } : c)
                                 applyAndSave({ components: updated })
                               }}
                               style={{ width: 34, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
@@ -19091,7 +19091,7 @@ function CCFileNodeInspector({
                       <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, fontSize: 12 }}>
                         <input type="checkbox" checked={!!(p.isChecked ?? false)}
                           onChange={ev => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: ev.target.checked } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: ev.target.checked, _isChecked: ev.target.checked, _N$isChecked: ev.target.checked } } : c)
                             applyAndSave({ components: updated })
                           }} />
                         isChecked
@@ -19110,7 +19110,7 @@ function CCFileNodeInspector({
                     <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
                       <input type="checkbox" checked={!!(p.allowSwitchOff ?? false)}
                         onChange={ev => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, allowSwitchOff: ev.target.checked } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, allowSwitchOff: ev.target.checked, _allowSwitchOff: ev.target.checked, _N$allowSwitchOff: ev.target.checked } } : c)
                           applyAndSave({ components: updated })
                         }} />
                       allowSwitchOff
