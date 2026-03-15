@@ -21055,6 +21055,21 @@ function CCFileNodeInspector({
                       ))}
                     </select>
                   </div>
+                  {/* R2375: sample + speed */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>sample</span>
+                    <input type="number" defaultValue={Number(p.sample ?? p._sample ?? 60)} min={1} step={1}
+                      onBlur={e => { const v = parseInt(e.target.value) || 60; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sample: v, _sample: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="sample rate"
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 4, flexShrink: 0 }}>speed</span>
+                    <input type="number" defaultValue={Number(p.speed ?? p._speed ?? 1)} min={0} step={0.1}
+                      onBlur={e => { const v = parseFloat(e.target.value) ?? 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speed: v, _speed: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="playback speed"
+                    />
+                  </div>
                   {/* R1700: 클립 목록 + 이름 복사 */}
                   <div style={{ paddingLeft: 62 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
