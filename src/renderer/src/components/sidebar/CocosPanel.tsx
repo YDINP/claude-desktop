@@ -20278,6 +20278,21 @@ function CCFileNodeInspector({
             style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: posClipFilled ? 'pointer' : 'default', color: posClipFilled ? '#4ade80' : '#333', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => { if (posClipFilled) e.currentTarget.style.color = '#86efac' }} onMouseLeave={e => { e.currentTarget.style.color = posClipFilled ? '#4ade80' : '#333' }}
           >P↓</span>
+          {/* R2571: 전체 픽셀 반올림 버튼 */}
+          <span
+            title="위치/크기/스케일 전체를 정수 픽셀로 반올림 (R2571)"
+            onClick={() => {
+              const pos = draft.position as { x: number; y: number; z?: number }
+              const sz = draft.size as { x: number; y: number } | undefined
+              applyAndSave({
+                position: { ...pos, x: Math.round(pos.x), y: Math.round(pos.y) },
+                ...(sz ? { size: { x: Math.round(sz.x), y: Math.round(sz.y) } } : {}),
+                scale: { x: Math.round(draft.scale.x * 100) / 100, y: Math.round(draft.scale.y * 100) / 100, z: draft.scale.z ?? 1 },
+              })
+            }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: '#64748b', background: 'none', userSelect: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')} onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
+          >⌊⌉All</span>
           {/* R2553: 크기 전용 복사/붙여넣기 */}
           <span
             title="크기(size) 복사 — 다른 노드에 붙여넣기 가능 (R2553)"

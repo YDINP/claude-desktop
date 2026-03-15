@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1563: R2571 NodeInspector 전체 픽셀 반올림 버튼 (⌊⌉All) ─────────
+console.log('\n## 1563. R2571 — NodeInspector 전체 픽셀 반올림 (⌊⌉All)')
+const s1563 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1563.includes('R2571') &&
+  s1563.includes('⌊⌉All') &&
+  s1563.includes('전체 픽셀 반올림')
+) {
+  log('pass', 'R2571-snap-all-pixel', 'R2571 전체 픽셀 반올림 버튼 구현 완료')
+} else {
+  log('warning', 'R2571-snap-all-pixel', 'R2571 전체 픽셀 반올림 버튼 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1562: R2570 BatchInspector 자동 그리드 배치 (⊞) ─────────────────
 console.log('\n## 1562. R2570 — BatchInspector 자동 그리드 배치 (⊞)')
 const s1562 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
