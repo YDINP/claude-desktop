@@ -27777,6 +27777,20 @@ if (s1077.includes('R2172') && s1077.includes('applyWidgetEnabled') && s1077.inc
   log('warning', 'R2172-batch-widget-enabled', 'BatchInspector cc.Widget enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1410: R2406 Inspector dragonBones.ArmatureDisplay blendMode ──────────
+console.log('\n## 1410. R2406 Inspector dragonBones.ArmatureDisplay blendMode 체크')
+const s1410 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1410.includes('R2406') &&
+  s1410.includes('blendMode') &&
+  s1410.includes('_blendMode') &&
+  s1410.includes('dragonBones.ArmatureDisplay')
+) {
+  log('pass', 'R2406-dragonbones-blendmode', 'Inspector dragonBones.ArmatureDisplay blendMode 구현 완료')
+} else {
+  log('warning', 'R2406-dragonbones-blendmode', 'Inspector dragonBones.ArmatureDisplay blendMode 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
