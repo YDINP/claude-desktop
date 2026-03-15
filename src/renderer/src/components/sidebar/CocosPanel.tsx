@@ -18722,6 +18722,27 @@ function CCFileNodeInspector({
           </div>
         )
       })()}
+      {/* R2395: _rotationX / _rotationY (CC2.x 3D 회전) */}
+      {!is3x && (() => {
+        const rx = Number((draft as Record<string,unknown>)._rotationX ?? (draft as Record<string,unknown>).rotationX ?? 0)
+        const ry = Number((draft as Record<string,unknown>)._rotationY ?? (draft as Record<string,unknown>).rotationY ?? 0)
+        if (rx === 0 && ry === 0) return null
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 26, flexShrink: 0 }}>rot3</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>x</span>
+            <input type="number" defaultValue={rx} key={`rx-${rx}`} step={1}
+              onBlur={e => applyAndSave({ _rotationX: parseFloat(e.target.value) || 0 } as Partial<CCSceneNode>)}
+              style={{ width: 44, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: '#fb923c', borderRadius: 3, padding: '1px 3px' }}
+            />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>y</span>
+            <input type="number" defaultValue={ry} key={`ry-${ry}`} step={1}
+              onBlur={e => applyAndSave({ _rotationY: parseFloat(e.target.value) || 0 } as Partial<CCSceneNode>)}
+              style={{ width: 44, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: '#fb923c', borderRadius: 3, padding: '1px 3px' }}
+            />
+          </div>
+        )
+      })()}
 
       {/* R1646: 색상 변경 인디케이터 */}
       {secHeader('color', '색상', (() => {

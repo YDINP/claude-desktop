@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1399: R2395 Inspector 노드 rotationX/rotationY (CC2.x 3D 회전) ──────────
+console.log('\n## 1399. R2395 Inspector 노드 rotationX/rotationY 체크')
+const s1399 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1399.includes('R2395') &&
+  s1399.includes('_rotationX') &&
+  s1399.includes('_rotationY') &&
+  s1399.includes('rot3')
+) {
+  log('pass', 'R2395-node-rotation-xyz', 'Inspector 노드 rotationX/rotationY 구현 완료')
+} else {
+  log('warning', 'R2395-node-rotation-xyz', 'Inspector 노드 rotationX/rotationY 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1398: R2394 Inspector 노드 skewX/skewY (CC2.x) ──────────
 console.log('\n## 1398. R2394 Inspector 노드 skewX/skewY 체크')
 const s1398 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
