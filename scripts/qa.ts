@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1580: R2588 SceneView 노드 색상 스와치 오버레이 ──────────────────
+console.log('\n## 1580. R2588 — SceneView 노드 색상 스와치 오버레이')
+const s1580 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1580.includes('R2588') &&
+  s1580.includes('showColorSwatch') &&
+  s1580.includes('🎨')
+) {
+  log('pass', 'R2588-color-swatch', 'R2588 색상 스와치 오버레이 구현 완료')
+} else {
+  log('warning', 'R2588-color-swatch', 'R2588 색상 스와치 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1579: R2587 BatchInspector 위치 대칭 이동 (⟺X/⟺Y) ──────────────
 console.log('\n## 1579. R2587 — BatchInspector 위치 대칭 이동')
 const s1579 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

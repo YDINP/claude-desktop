@@ -223,6 +223,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showNameLabels, setShowNameLabels] = useState(false)
   // R2586: 앵커 포인트 전체 오버레이 (⊕)
   const [showAnchorOverlay, setShowAnchorOverlay] = useState(false)
+  // R2588: 노드 색상 스와치 오버레이
+  const [showColorSwatch, setShowColorSwatch] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1535,6 +1537,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showAnchorOverlay ? '앵커 오버레이 끄기 (R2586)' : '모든 노드 앵커 포인트 표시 (R2586)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showAnchorOverlay ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showAnchorOverlay ? 'rgba(251,146,60,0.12)' : 'none', color: showAnchorOverlay ? '#fb923c' : 'var(--text-muted)' }}
         >⊕</button>
+        {/* R2588: 노드 색상 스와치 오버레이 토글 */}
+        <button
+          onClick={() => setShowColorSwatch(v => !v)}
+          title={showColorSwatch ? '색상 스와치 끄기 (R2588)' : '비흰색 노드에 색상 스와치 표시 (R2588)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showColorSwatch ? 'rgba(244,114,182,0.5)' : 'var(--border)'}`, background: showColorSwatch ? 'rgba(244,114,182,0.12)' : 'none', color: showColorSwatch ? '#f472b6' : 'var(--text-muted)' }}
+        >🎨</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2351,6 +2359,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       <line x1={apX} y1={apY - cs} x2={apX} y2={apY + cs} stroke="rgba(251,146,60,0.85)" strokeWidth={sw} />
                       <circle cx={apX} cy={apY} r={cs * 0.4} fill="rgba(251,146,60,0.6)" />
                     </g>
+                  )
+                })()}
+                {/* R2588: 노드 색상 스와치 오버레이 */}
+                {showColorSwatch && view.zoom > 0.25 && (() => {
+                  const c = node.color ?? { r: 255, g: 255, b: 255, a: 255 }
+                  if (c.r === 255 && c.g === 255 && c.b === 255) return null
+                  const ss = Math.max(4, 8 / view.zoom)
+                  return (
+                    <rect
+                      x={rectX + w - ss - 1 / view.zoom} y={rectY + 1 / view.zoom}
+                      width={ss} height={ss}
+                      fill={`rgb(${c.r},${c.g},${c.b})`}
+                      stroke="rgba(0,0,0,0.4)" strokeWidth={0.5 / view.zoom}
+                      style={{ pointerEvents: 'none' }}
+                      title={`색상: rgb(${c.r},${c.g},${c.b})`}
+                    />
                   )
                 })()}
                 {/* R2578: 노드 불투명도 α% 오버레이 */}
