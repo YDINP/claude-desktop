@@ -287,6 +287,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showPosText, setShowPosText] = useState(false)
   // R2672: scale 값 텍스트 오버레이
   const [showScaleText, setShowScaleText] = useState(false)
+  // R2673: 컴포넌트 수 배지 오버레이
+  const [showCompCountBadge, setShowCompCountBadge] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1801,6 +1803,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showScaleText ? 'scale 텍스트 끄기 (R2672)' : 'scale ≠ 1 노드에 scale 값 표시 (R2672)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showScaleText ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showScaleText ? 'rgba(34,211,238,0.1)' : 'none', color: showScaleText ? '#22d3ee' : 'var(--text-muted)' }}
         >S×</button>
+        {/* R2673: 컴포넌트 수 배지 토글 */}
+        <button
+          onClick={() => setShowCompCountBadge(v => !v)}
+          title={showCompCountBadge ? '컴포넌트 수 끄기 (R2673)' : '노드당 컴포넌트 수 배지 표시 (기본 제외) (R2673)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompCountBadge ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showCompCountBadge ? 'rgba(129,140,248,0.1)' : 'none', color: showCompCountBadge ? '#818cf8' : 'var(--text-muted)' }}
+        >C#</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2878,6 +2886,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <text x={rectX + w - 2 / view.zoom} y={rectY + 10 / view.zoom}
                       fontSize={8 / view.zoom} fill="#22d3ee" textAnchor="end"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}>{sx}×{sy}</text>
+                  )
+                })()}
+                {/* R2673: 컴포넌트 수 배지 */}
+                {showCompCountBadge && view.zoom > 0.25 && (() => {
+                  const ignore = new Set(['cc.Node', 'cc.UITransform', 'cc.UIOpacity'])
+                  const cnt = node.components.filter(c => !ignore.has(c.type)).length
+                  if (cnt === 0) return null
+                  const bx = rectX + 2 / view.zoom
+                  const by = rectY + 2 / view.zoom
+                  const bw = 12 / view.zoom
+                  const bh = 10 / view.zoom
+                  return (
+                    <g pointerEvents="none">
+                      <rect x={bx} y={by} width={bw} height={bh} fill="rgba(129,140,248,0.85)" rx={2 / view.zoom} />
+                      <text x={bx + bw / 2} y={by + bh - 2 / view.zoom} fontSize={7 / view.zoom} fill="#fff" textAnchor="middle" style={{ userSelect: 'none' }}>{cnt}</text>
+                    </g>
                   )
                 })()}
                 {/* R2652: 비활성 노드 반투명 오버레이 */}

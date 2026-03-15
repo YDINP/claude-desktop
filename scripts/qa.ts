@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1666: R2674 BatchInspector 절대 위치 지정 ────────────────────────
+console.log('\n## 1666. R2674 — BatchInspector 절대 위치 지정')
+const s1666 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1666.includes('R2674') &&
+  s1666.includes('applyAbsPos') &&
+  s1666.includes('absPosX') &&
+  s1666.includes('절대pos')
+) {
+  log('pass', 'R2674-absPos', 'R2674 절대 위치 지정 구현 완료')
+} else {
+  log('warning', 'R2674-absPos', 'R2674 절대 위치 지정 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1665: R2673 SceneView 컴포넌트 수 배지 ───────────────────────────
+console.log('\n## 1665. R2673 — SceneView 컴포넌트 수 배지')
+const s1665 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1665.includes('R2673') &&
+  s1665.includes('showCompCountBadge') &&
+  s1665.includes('818cf8') &&
+  s1665.includes('C#')
+) {
+  log('pass', 'R2673-compCountBadge', 'R2673 컴포넌트 수 배지 구현 완료')
+} else {
+  log('warning', 'R2673-compCountBadge', 'R2673 컴포넌트 수 배지 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1664: R2672 SceneView scale 텍스트 오버레이 ──────────────────────
 console.log('\n## 1664. R2672 — SceneView scale 텍스트 오버레이')
 const s1664 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

@@ -4347,6 +4347,11 @@ function CCFileBatchInspector({
   // R2671: 이름 find/replace
   const [nameFind, setNameFind] = useState<string>('')
   const [nameReplace, setNameReplace] = useState<string>('')
+  // R2674: 절대 위치 지정
+  const [absPosX, setAbsPosX] = useState<number>(0)
+  const [absPosY, setAbsPosY] = useState<number>(0)
+  const [absPosAxisX, setAbsPosAxisX] = useState(true)
+  const [absPosAxisY, setAbsPosAxisY] = useState(true)
   // R2660: 가로세로 비율
   const [aspectRatioW, setAspectRatioW] = useState<number>(16)
   const [aspectRatioH, setAspectRatioH] = useState<number>(9)
@@ -4900,6 +4905,38 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>Y=0</span>
             <span onClick={() => applyPosReset('both')} title="position XY → 0,0 (R2654)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>XY=0</span>
+          </div>
+        )
+      })()}
+      {/* R2674: 절대 위치 직접 지정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyAbsPos = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, x: absPosAxisX ? absPosX : pos.x, y: absPosAxisY ? absPosY : pos.y }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 절대위치 ${absPosAxisX ? `X=${absPosX}` : ''}${absPosAxisX && absPosAxisY ? ' ' : ''}${absPosAxisY ? `Y=${absPosY}` : ''} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const ckS: React.CSSProperties = { cursor: 'pointer', fontSize: 9, color: '#94a3b8', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>절대pos (R2674)</span>
+            <label style={ckS}><input type="checkbox" checked={absPosAxisX} onChange={e => setAbsPosAxisX(e.target.checked)} style={{ marginRight: 2 }} />X</label>
+            <input type="number" value={absPosX} onChange={e => setAbsPosX(parseFloat(e.target.value) || 0)} style={niS} title="절대 X 좌표" disabled={!absPosAxisX} />
+            <label style={ckS}><input type="checkbox" checked={absPosAxisY} onChange={e => setAbsPosAxisY(e.target.checked)} style={{ marginRight: 2 }} />Y</label>
+            <input type="number" value={absPosY} onChange={e => setAbsPosY(parseFloat(e.target.value) || 0)} style={niS} title="절대 Y 좌표" disabled={!absPosAxisY} />
+            <span onClick={applyAbsPos}
+              title={`선택 노드 position을 절대 좌표로 지정 (R2674)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >지정</span>
           </div>
         )
       })()}
