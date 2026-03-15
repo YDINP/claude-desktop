@@ -277,6 +277,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showColorViz, setShowColorViz] = useState(false)
   // R2661: 마우스 크로스헤어 가이드라인
   const [showCrosshair, setShowCrosshair] = useState(false)
+  // R2665: 깊이 히트맵 오버레이 (shallow=초록, deep=빨강)
+  const [showDepthHeat, setShowDepthHeat] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -386,6 +388,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     flatNodes.forEach(fn => { if (uuids.includes(fn.node.uuid) && fn.parentUuid) result.add(fn.parentUuid) })
     return result
   }, [flatNodes, uuids])
+
+  // R2665: 깊이 히트맵용 최대 깊이
+  const maxDepthVal = useMemo(() => Math.max(...flatNodes.map(fn => fn.depth), 1), [flatNodes])
 
   // R2324: 선택 노드 자동 팬 — 트리에서 선택 시 뷰포트 밖이면 중심 이동
   const flatNodesRef = useRef(flatNodes)
@@ -1758,6 +1763,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showCrosshair ? '크로스헤어 끄기 (R2661)' : '마우스 위치 수직/수평 가이드라인 표시 (R2661)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrosshair ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showCrosshair ? 'rgba(148,163,184,0.12)' : 'none', color: showCrosshair ? '#94a3b8' : 'var(--text-muted)' }}
         >✛</button>
+        {/* R2665: 깊이 히트맵 토글 */}
+        <button
+          onClick={() => setShowDepthHeat(v => !v)}
+          title={showDepthHeat ? '깊이 히트맵 끄기 (R2665)' : '씬 트리 깊이별 색상 오버레이 (초록=얕음, 빨강=깊음) (R2665)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDepthHeat ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showDepthHeat ? 'rgba(251,146,60,0.1)' : 'none', color: showDepthHeat ? '#fb923c' : 'var(--text-muted)' }}
+        >🌡</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2782,6 +2793,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   return (
                     <rect x={rectX} y={rectY} width={w} height={h}
                       fill={`rgba(${c.r},${c.g},${c.b},0.3)`}
+                      style={{ pointerEvents: 'none' }} />
+                  )
+                })()}
+                {/* R2665: 깊이 히트맵 오버레이 */}
+                {showDepthHeat && w > 0 && h > 0 && (() => {
+                  const t = maxDepthVal > 0 ? depth / maxDepthVal : 0
+                  const r = Math.round(t * 220)
+                  const g = Math.round((1 - t) * 200)
+                  return (
+                    <rect x={rectX} y={rectY} width={w} height={h}
+                      fill={`rgba(${r},${g},40,0.28)`}
                       style={{ pointerEvents: 'none' }} />
                   )
                 })()}

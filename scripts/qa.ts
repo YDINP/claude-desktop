@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1657: R2665 SceneView 깊이 히트맵 오버레이 ──────────────────────
+console.log('\n## 1657. R2665 — SceneView 깊이 히트맵 오버레이')
+const s1657 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1657.includes('R2665') &&
+  s1657.includes('showDepthHeat') &&
+  s1657.includes('maxDepthVal') &&
+  s1657.includes('🌡')
+) {
+  log('pass', 'R2665-depthHeat', 'R2665 깊이 히트맵 오버레이 구현 완료')
+} else {
+  log('warning', 'R2665-depthHeat', 'R2665 깊이 히트맵 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1656: R2664 BatchInspector 랜덤 회전 오프셋 ─────────────────────
 console.log('\n## 1656. R2664 — BatchInspector 랜덤 회전 오프셋')
 const s1656 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
