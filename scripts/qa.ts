@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1329: R2325 UUID 검색 ──────────
+console.log('\n## 1329. R2325 UUID 검색 체크')
+const s1329 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1329.includes('R2325') &&
+  s1329.includes('uuidQuery') &&
+  s1329.includes('uuidMatch')
+) {
+  log('pass', 'R2325-uuid-search', 'UUID 검색 지원 구현 완료')
+} else {
+  log('warning', 'R2325-uuid-search', 'R2325 UUID 검색 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1328: R2324 씬뷰 자동 팬 ──────────
 console.log('\n## 1328. R2324 씬뷰 자동 팬 체크')
 const s1328 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

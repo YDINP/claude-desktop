@@ -1423,12 +1423,15 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     setGlobalSearchQuery(q)
     if (!q.trim() || !sceneFile?.root) { setGlobalSearchResults([]); return }
     const lq = q.toLowerCase()
+    // R2325: UUID 검색 지원 — `#uuid-prefix` 또는 순수 hex+dash 패턴으로 UUID 부분 매칭
+    const uuidQuery = q.startsWith('#') ? q.slice(1).toLowerCase() : (/^[0-9a-f\-]{6,}$/i.test(q) ? lq : null)
     const found: Array<{ node: CCSceneNode; path: string }> = []
     function walk(n: CCSceneNode, parentPath: string): void {
       const currentPath = parentPath ? `${parentPath}/${n.name}` : n.name
       const nameMatch = n.name.toLowerCase().includes(lq)
       const compMatch = n.components.some(c => c.type.toLowerCase().includes(lq))
-      if (nameMatch || compMatch) found.push({ node: n, path: currentPath })
+      const uuidMatch = uuidQuery ? n.uuid.toLowerCase().startsWith(uuidQuery) || n.uuid.toLowerCase().includes(uuidQuery) : false
+      if (nameMatch || compMatch || uuidMatch) found.push({ node: n, path: currentPath })
       for (const child of n.children) walk(child, currentPath)
     }
     walk(sceneFile.root, '')
@@ -1831,7 +1834,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               onKeyDown={e => {
                 if (e.key === 'Escape') { setGlobalSearchOpen(false); setGlobalSearchQuery(''); setGlobalSearchResults([]) }
               }}
-              placeholder="노드 이름 또는 컴포넌트 타입으로 검색... (Esc 닫기)"
+              placeholder="노드 이름 / 컴포넌트 / UUID(#접두어) 검색... (Esc 닫기)"
               style={{
                 flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
                 color: 'var(--text-primary)', borderRadius: 3, padding: '3px 6px', fontSize: 10, boxSizing: 'border-box',
