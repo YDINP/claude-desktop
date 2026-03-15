@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1664: R2672 SceneView scale 텍스트 오버레이 ──────────────────────
+console.log('\n## 1664. R2672 — SceneView scale 텍스트 오버레이')
+const s1664 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1664.includes('R2672') &&
+  s1664.includes('showScaleText') &&
+  s1664.includes('22d3ee') &&
+  s1664.includes('S×')
+) {
+  log('pass', 'R2672-scaleText', 'R2672 scale 텍스트 오버레이 구현 완료')
+} else {
+  log('warning', 'R2672-scaleText', 'R2672 scale 텍스트 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1663: R2671 BatchInspector 이름 find/replace ─────────────────────
+console.log('\n## 1663. R2671 — BatchInspector 이름 find/replace')
+const s1663 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1663.includes('R2671') &&
+  s1663.includes('applyFindReplace') &&
+  s1663.includes('nameFind') &&
+  s1663.includes('nameReplace')
+) {
+  log('pass', 'R2671-findReplace', 'R2671 이름 find/replace 구현 완료')
+} else {
+  log('warning', 'R2671-findReplace', 'R2671 이름 find/replace 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1662: R2670 SceneView 선택 노드 position 텍스트 오버레이 ─────────
 console.log('\n## 1662. R2670 — SceneView 선택 노드 위치 텍스트 오버레이')
 const s1662 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

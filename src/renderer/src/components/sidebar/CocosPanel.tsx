@@ -4344,6 +4344,9 @@ function CCFileBatchInspector({
   const [randomRange, setRandomRange] = useState<number>(50)
   // R2664: 랜덤 회전 오프셋
   const [randomRotRange, setRandomRotRange] = useState<number>(30)
+  // R2671: 이름 find/replace
+  const [nameFind, setNameFind] = useState<string>('')
+  const [nameReplace, setNameReplace] = useState<string>('')
   // R2660: 가로세로 비율
   const [aspectRatioW, setAspectRatioW] = useState<number>(16)
   const [aspectRatioH, setAspectRatioH] = useState<number>(9)
@@ -19159,6 +19162,33 @@ function CCFileBatchInspector({
             <input value={nameSuffix} onChange={e => setNameSuffix(e.target.value)} placeholder="suffix" style={inS} title="접미사 (빈칸 가능)" />
             <span onClick={applyNamePatch}
               title={`선택 노드 이름에 prefix/suffix 추가 (R2642)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
+            >적용</span>
+          </div>
+        )
+      })()}
+      {/* R2671: 노드 이름 문자열 찾아 치환 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyFindReplace = async () => {
+          if (!sceneFile.root || !nameFind) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, name: n.name.split(nameFind).join(nameReplace), children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 이름 치환 "${nameFind}"→"${nameReplace}" (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>치환 (R2671)</span>
+            <input value={nameFind} onChange={e => setNameFind(e.target.value)} placeholder="find" style={inS} title="찾을 문자열" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input value={nameReplace} onChange={e => setNameReplace(e.target.value)} placeholder="replace" style={inS} title="바꿀 문자열" />
+            <span onClick={applyFindReplace}
+              title={`이름에서 "${nameFind}"를 "${nameReplace}"로 치환 (R2671)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
             >적용</span>
           </div>
