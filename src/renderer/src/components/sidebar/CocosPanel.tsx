@@ -19933,6 +19933,12 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2387: resizeWithBrowserSize 토글 */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.resizeWithBrowserSize ?? p._resizeWithBrowserSize ?? p._N$resizeWithBrowserSize ?? false)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, resizeWithBrowserSize: e.target.checked, _resizeWithBrowserSize: e.target.checked, _N$resizeWithBrowserSize: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                    />resizeWithBrowserSize
+                  </label>
                 </div>
               )
             }

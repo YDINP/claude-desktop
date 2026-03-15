@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1391: R2387 Inspector cc.Canvas resizeWithBrowserSize ──────────
+console.log('\n## 1391. R2387 Inspector cc.Canvas resizeWithBrowserSize 체크')
+const s1391 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1391.includes('R2387') &&
+  s1391.includes('resizeWithBrowserSize') &&
+  s1391.includes('_N$resizeWithBrowserSize')
+) {
+  log('pass', 'R2387-canvas-resize-browser', 'Inspector cc.Canvas resizeWithBrowserSize 구현 완료')
+} else {
+  log('warning', 'R2387-canvas-resize-browser', 'Inspector cc.Canvas resizeWithBrowserSize 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1390: R2386 Inspector cc.EditBox placeholderFontSize ──────────
 console.log('\n## 1390. R2386 Inspector cc.EditBox placeholderFontSize 체크')
 const s1390 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
