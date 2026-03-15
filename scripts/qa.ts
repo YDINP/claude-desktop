@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1548: R2556 BatchInspector 같은 Layer 노드 선택 ──────────────────
+console.log('\n## 1548. R2556 — BatchInspector 같은 Layer 노드 선택')
+const s1548 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1548.includes('R2556') &&
+  s1548.includes('targetLayer') &&
+  s1548.includes('sameLayerUuids') &&
+  s1548.includes('findSameLayer')
+) {
+  log('pass', 'R2556-same-layer', 'R2556 같은 Layer 노드 선택 구현 완료')
+} else {
+  log('warning', 'R2556-same-layer', 'R2556 같은 Layer 노드 선택 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1547: R2555 SceneView 같은 이름 노드 순환 선택 버튼 ──────────────
 console.log('\n## 1547. R2555 — SceneView 같은 이름 노드 순환 선택 버튼 (↻N)')
 const s1547 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

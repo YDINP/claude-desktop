@@ -4525,6 +4525,26 @@ function CCFileBatchInspector({
             )
           })
         })()}
+        {/* R2556: 같은 Layer 노드 선택 — 씬 전체에서 동일 layer 값 노드 다중 선택 */}
+        {onMultiSelectChange && sceneFile.root && selectedNode && (selectedNode.layer != null) && (() => {
+          const targetLayer = selectedNode.layer
+          const sameLayerUuids: string[] = []
+          function findSameLayer(n: CCSceneNode) {
+            if (n.layer === targetLayer) sameLayerUuids.push(n.uuid)
+            n.children.forEach(findSameLayer)
+          }
+          findSameLayer(sceneFile.root!)
+          if (sameLayerUuids.length <= 1) return null
+          return (
+            <span
+              title={`Layer ${targetLayer} 노드 전체 선택 (${sameLayerUuids.length}개) (R2556)`}
+              onClick={() => onMultiSelectChange(sameLayerUuids)}
+              style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid rgba(52,211,153,0.4)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.4)')}
+            >L{targetLayer}×{sameLayerUuids.length}</span>
+          )
+        })()}
         {/* R2507: 하위 노드 포함 확장 선택 */}
         {onMultiSelectChange && sceneFile.root && uuids.length > 0 && (
           <span
