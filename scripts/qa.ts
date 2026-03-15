@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1524: R2532 SceneView 스냅-to-pixel 버튼 ─────────────────────────
+console.log('\n## 1524. R2532 — SceneView 스냅-to-pixel 위치 정수화 버튼')
+const s1524 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1524.includes('R2532') &&
+  s1524.includes('⊹px') &&
+  s1524.includes('Math.round') &&
+  s1524.includes('정수화')
+) {
+  log('pass', 'R2532-snap-pixel', 'R2532 SceneView snap-to-pixel 버튼 구현 완료')
+} else {
+  log('warning', 'R2532-snap-pixel', 'R2532 snap-to-pixel 버튼 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1523: R2531 BatchInspector 2-노드 위치 교환 ─────────────────────
 console.log('\n## 1523. R2531 — BatchInspector 2-노드 위치 교환 (Swap)')
 const s1523 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

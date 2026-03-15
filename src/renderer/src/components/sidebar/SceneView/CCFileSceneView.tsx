@@ -1386,6 +1386,29 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             title={`깊이 제한: D${depthFilterMax} (R2526)`}
             style={{ width: 50, cursor: 'pointer', accentColor: '#34d399' }} />
         )}
+        {/* R2532: 선택 노드 위치 정수화 (snap-to-pixel) */}
+        {(selectedUuid || multiSelected.size > 0) && (onMove || onMultiMove) && (() => {
+          const targets = multiSelected.size > 0 ? [...multiSelected] : (selectedUuid ? [selectedUuid] : [])
+          return (
+            <button
+              onClick={() => {
+                const moves = targets.flatMap(uid => {
+                  const fn = flatNodes.find(f => f.node.uuid === uid)
+                  if (!fn) return []
+                  const pos = fn.node.position as { x: number; y: number; z?: number }
+                  const rx = Math.round(pos.x), ry = Math.round(pos.y)
+                  if (rx === pos.x && ry === pos.y) return []
+                  return [{ uuid: uid, x: rx, y: ry }]
+                })
+                if (moves.length === 0) return
+                if (moves.length === 1) onMove?.(moves[0].uuid, moves[0].x, moves[0].y)
+                else onMultiMove?.(moves)
+              }}
+              title={`선택 노드 위치 정수화 — position.x/y를 Math.round() 적용 (R2532)`}
+              style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
+            >⊹px</button>
+          )
+        })()}
         {/* R1474: 씬뷰 스크린샷 → Claude AI 분석 */}
         <button
           onClick={e => handleScreenshotAI(e)}
