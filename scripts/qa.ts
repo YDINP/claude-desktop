@@ -28807,6 +28807,18 @@ if (
   log('warning', 'R2493-oocanvas-badge', 'R2493 캔버스 범위 초과 뱃지 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1486: R2494 BatchInspector 회전 델타 ────────────────────────────
+const s1486 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1486.includes('R2494') &&
+  s1486.includes('applyRotDelta') &&
+  s1486.includes('회전±')
+) {
+  log('pass', 'R2494-rot-delta', 'R2494 BatchInspector 회전 델타 구현 완료')
+} else {
+  log('warning', 'R2494-rot-delta', 'R2494 회전 델타 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

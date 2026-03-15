@@ -16548,6 +16548,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2494: 회전 델타 — 선택 노드 현재 회전값에 +/- 적용 */}
+      {uuids.length >= 2 && (() => {
+        const applyRotDelta = async (delta: number) => {
+          if (!sceneFile.root) return
+          function patchRot(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchRot)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const cur = (n.rotation as number | undefined) ?? 0
+            return { ...n, rotation: cur + delta, children }
+          }
+          const result = await saveScene(patchRot(sceneFile.root))
+          setBatchMsg(result.success ? `✓ 회전 ${delta > 0 ? '+' : ''}${delta}° (R2494)` : '✗ 오류')
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs = { fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#86efac', userSelect: 'none' } as React.CSSProperties
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>회전±</span>
+            {([-90, -45, -15, -5] as const).map(d => (
+              <span key={d} style={bs} onClick={() => applyRotDelta(d)} title={`현재 회전 ${d}° 적용`}>{d}°</span>
+            ))}
+            <span style={{ color: 'var(--border)', fontSize: 10 }}>|</span>
+            {([5, 15, 45, 90] as const).map(d => (
+              <span key={d} style={bs} onClick={() => applyRotDelta(d)} title={`현재 회전 +${d}° 적용`}>+{d}°</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R1706: 회전 일괄 설정 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>회전 °</span>
