@@ -19679,6 +19679,13 @@ function CCFileNodeInspector({
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {/* R2437: enabled (BatchInspector R2219) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginBottom: 2 }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   {/* R1811: applyAndSave 교체 */}
                   {comp.type === 'cc.LabelOutline' && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -21947,6 +21954,13 @@ function CCFileNodeInspector({
               const defaultClipName = String(p.defaultClipName ?? '')
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2437: enabled (BatchInspector R2221) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   {defaultClipName && (
                     <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>
                       defaultClip: <span style={{ color: '#58a6ff' }}>{defaultClipName}</span>
@@ -22058,6 +22072,13 @@ function CCFileNodeInspector({
               const uiOpacity = Number(p.opacity ?? 255)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2437: enabled (BatchInspector R2217) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>opacity</span>
                     <input type="range" min={0} max={255} step={1} value={uiOpacity}

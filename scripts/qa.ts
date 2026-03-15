@@ -28214,6 +28214,20 @@ if (
   log('warning', 'R2436-multi-enabled3', 'Inspector MotionStreak/ParticleSystem/DragonBones/Spine enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1441: R2437 Inspector LabelOutline/LabelShadow/UIOpacity/SkeletalAnimation enabled ──────────
+console.log('\n## 1441. R2437 Inspector LabelOutline/LabelShadow/UIOpacity/SkeletalAnimation enabled 체크')
+const s1441 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1441.includes('R2437') &&
+  s1441.includes('cc.LabelOutline') &&
+  s1441.includes('cc.UIOpacity') &&
+  s1441.includes('cc.SkeletalAnimation')
+) {
+  log('pass', 'R2437-multi-enabled4', 'Inspector LabelOutline/UIOpacity/SkeletalAnimation enabled 구현 완료')
+} else {
+  log('warning', 'R2437-multi-enabled4', 'Inspector LabelOutline/UIOpacity/SkeletalAnimation enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

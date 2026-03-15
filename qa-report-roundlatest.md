@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T13:47:53.997Z
+> 2026-03-15T13:49:38.375Z
 
 ## Critical
 _없음_
@@ -2479,3 +2479,4 @@ _없음_
 - Inspector cc.Graphics/Widget/AudioSource/EditBox enabled 구현 완료
 - Inspector cc.Animation/VideoPlayer/PageView/WebView enabled 구현 완료
 - Inspector MotionStreak/ParticleSystem/DragonBones/Spine enabled 구현 완료
+- Inspector LabelOutline/UIOpacity/SkeletalAnimation enabled 구현 완료
