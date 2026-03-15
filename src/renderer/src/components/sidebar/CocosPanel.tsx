@@ -18878,6 +18878,9 @@ function CCFileNodeInspector({
   // R2564: 스케일 전용 클립보드
   const scaleClipboard = useRef<{ x: number; y: number } | null>(null)
   const [scaleClipFilled, setScaleClipFilled] = useState(false)
+  // R2574: 불투명도 전용 클립보드
+  const opacityClipboard = useRef<number | null>(null)
+  const [opacityClipFilled, setOpacityClipFilled] = useState(false)
   // R2554: 앵커 변경 시 position 자동 보정 토글
   const [anchorCompensate, setAnchorCompensate] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
@@ -20755,6 +20758,19 @@ function CCFileNodeInspector({
           <span style={{ width: 36, fontSize: 10, color: 'var(--text-muted)', textAlign: 'right', flexShrink: 0 }}>
             {Math.round(((draft.opacity ?? 255) / 255) * 100)}%
           </span>
+          {/* R2574: 불투명도 클립보드 o↑/o↓ */}
+          <span
+            title={`불투명도 복사 (${draft.opacity ?? 255}) — R2574`}
+            onClick={() => { opacityClipboard.current = draft.opacity ?? 255; setOpacityClipFilled(true) }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: '#94a3b8', background: 'none', userSelect: 'none', flexShrink: 0 }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#cbd5e1' }} onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8' }}
+          >o↑</span>
+          <span
+            title={opacityClipFilled && opacityClipboard.current !== null ? `불투명도 붙여넣기 (${opacityClipboard.current}) — R2574` : '복사된 불투명도 없음'}
+            onClick={() => { if (opacityClipboard.current !== null) applyAndSave({ opacity: opacityClipboard.current }) }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: opacityClipFilled ? 'pointer' : 'default', color: opacityClipFilled ? '#94a3b8' : '#333', background: 'none', userSelect: 'none', flexShrink: 0 }}
+            onMouseEnter={e => { if (opacityClipFilled) e.currentTarget.style.color = '#cbd5e1' }} onMouseLeave={e => { e.currentTarget.style.color = opacityClipFilled ? '#94a3b8' : '#333' }}
+          >o↓</span>
         </div>
         {/* R1647: opacity 빠른 프리셋 */}
         <div style={{ display: 'flex', gap: 3, marginBottom: 4, marginTop: 2 }}>

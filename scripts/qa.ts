@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1566: R2574 NodeInspector 불투명도 클립보드 (o↑/o↓) ──────────────
+console.log('\n## 1566. R2574 — NodeInspector 불투명도 클립보드 (o↑/o↓)')
+const s1566 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1566.includes('R2574') &&
+  s1566.includes('opacityClipboard') &&
+  s1566.includes('opacityClipFilled') &&
+  s1566.includes('o↑') &&
+  s1566.includes('o↓')
+) {
+  log('pass', 'R2574-opacity-clip', 'R2574 불투명도 클립보드 구현 완료')
+} else {
+  log('warning', 'R2574-opacity-clip', 'R2574 불투명도 클립보드 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1565: R2573 BatchInspector 그룹 원점화 (⊕0) ─────────────────────
 console.log('\n## 1565. R2573 — BatchInspector 그룹 원점화 (⊕0)')
 const s1565 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
