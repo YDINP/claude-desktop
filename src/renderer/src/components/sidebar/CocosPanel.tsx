@@ -341,6 +341,20 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [hideInactive, setHideInactive] = useState(false)
   const [collapsedUuids, setCollapsedUuids] = useState<Set<string>>(() => new Set())
   const expandAll = useCallback(() => setCollapsedUuids(new Set()), [])
+  // R2455: 특정 노드까지의 경로 모두 펼치기 (검색 결과 클릭 시 reveal in hierarchy)
+  const expandToNode = useCallback((targetUuid: string) => {
+    if (!sceneFile?.root) return
+    const ancestors = new Set<string>()
+    function findAncestors(n: CCSceneNode, path: string[]): boolean {
+      if (n.uuid === targetUuid) { path.forEach(u => ancestors.add(u)); return true }
+      for (const c of n.children) {
+        if (findAncestors(c, [...path, n.uuid])) return true
+      }
+      return false
+    }
+    findAncestors(sceneFile.root, [])
+    setCollapsedUuids(prev => { const next = new Set(prev); ancestors.forEach(u => next.delete(u)); return next })
+  }, [sceneFile?.root])
   // R1655: 깊이 N까지 펼치기
   const collapseToDepth = useCallback((maxDepth: number) => {
     if (!sceneFile?.root) return
@@ -1903,6 +1917,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   key={n.uuid}
                   onClick={() => {
                     onSelectNode(n)
+                    // R2455: 계층 트리 자동 펼치기 (reveal in hierarchy)
+                    expandToNode(n.uuid)
                     // R1481: SceneView 자동 포커스
                     window.dispatchEvent(new CustomEvent('cc-focus-node', { detail: { uuid: n.uuid } }))
                     setGlobalSearchOpen(false)
