@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1538: R2546 SceneView 빈 컨테이너 노드 점선 테두리 ───────────────
+console.log('\n## 1538. R2546 — SceneView 빈 컨테이너 노드 점선 테두리')
+const s1538 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1538.includes('R2546') &&
+  s1538.includes('isContainer') &&
+  s1538.includes('strokeDasharray') &&
+  s1538.includes('isContainer && !isSelected')
+) {
+  log('pass', 'R2546-container-dash', 'R2546 빈 컨테이너 점선 테두리 구현 완료')
+} else {
+  log('warning', 'R2546-container-dash', 'R2546 빈 컨테이너 점선 테두리 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1537: R2545 BatchInspector 컴포넌트 타입 필터 ────────────────────
 console.log('\n## 1537. R2545 — BatchInspector 컴포넌트 타입 필터 선택')
 const s1537 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -1999,6 +1999,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const hasScroll = node.components.some(c => c.type === 'cc.ScrollView' || c.type === 'cc.ScrollBar')
             const hasEdit = node.components.some(c => c.type === 'cc.EditBox')
             const hasSlider = node.components.some(c => c.type === 'cc.Slider' || c.type === 'cc.Toggle' || c.type === 'cc.ToggleGroup')
+            // R2546: 빈 컨테이너 노드 (렌더링 컴포넌트 없음) — 점선 스트로크
+            const isContainer = !hasLabel && !hasSprite && !hasBg && !hasButton && !hasScroll && !hasEdit && !hasSlider && node.components.filter(c => c.type !== 'cc.Node' && c.type !== 'cc.UITransform' && c.type !== 'cc.UIOpacity' && c.type !== 'cc.Widget' && c.type !== 'cc.BlockInputEvents').length === 0
 
             // R1623: 와이어프레임 모드시 fill 투명
             // R1641: depth 색조 — hue 순환 (30° 간격)
@@ -2089,6 +2091,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   fill={fillColor}
                   stroke={strokeColor}
                   strokeWidth={(isSelected ? 2 : 1) / view.zoom}
+                  strokeDasharray={isContainer && !isSelected ? `${4 / view.zoom},${4 / view.zoom}` : undefined}
                   className={isSelected ? 'cc-selected-rect' : undefined}
                 />
                 {/* R1666: pulse 미리보기 링 */}
