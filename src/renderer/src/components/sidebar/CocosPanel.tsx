@@ -20809,6 +20809,35 @@ function CCFileNodeInspector({
                       ))}
                     </div>
                   )}
+                  {/* R2370: CC3.x Label enableShadow + shadowColor + shadowBlur */}
+                  {(() => {
+                    const enableShadow = !!(p.enableShadow ?? p._enableShadow ?? false)
+                    const shadowBlur = Number(p.shadowBlur ?? p._shadowBlur ?? 2)
+                    const sc = p.shadowColor ?? p._shadowColor as { r?: number; g?: number; b?: number } | undefined
+                    const scHex = sc ? `#${((sc.r ?? 0) << 16 | (sc.g ?? 0) << 8 | (sc.b ?? 0)).toString(16).padStart(6, '0')}` : '#000000'
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>shadow</span>
+                        <span title={enableShadow ? 'shadow 비활성' : 'shadow 활성'}
+                          onClick={() => { const nv = !enableShadow; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableShadow: nv, _enableShadow: nv } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableShadow ? '#818cf8' : 'var(--border)'}`, borderRadius: 2, color: enableShadow ? '#818cf8' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{enableShadow ? 'ON' : 'OFF'}</span>
+                        {enableShadow && (<>
+                          <input type="number" defaultValue={shadowBlur} min={0} max={20} step={1}
+                            style={{ width: 36, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                            onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowBlur: v, _shadowBlur: v } } : c); applyAndSave({ components: u }) }}
+                            title="shadowBlur"
+                          />
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>blur</span>
+                          <input type="color" defaultValue={scHex}
+                            style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
+                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowColor: col, _shadowColor: col } } : c); applyAndSave({ components: u }) }}
+                            title="shadowColor"
+                          />
+                        </>)}
+                      </div>
+                    )
+                  })()}
                   {/* R2369: CC3.x Label enableOutline + outlineWidth + outlineColor */}
                   {(() => {
                     const enableOutline = !!(p.enableOutline ?? p._enableOutline ?? false)

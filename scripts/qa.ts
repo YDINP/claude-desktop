@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1374: R2370 Inspector cc.Label enableShadow/shadowBlur/shadowColor (CC3.x) ──────────
+console.log('\n## 1374. R2370 Inspector cc.Label enableShadow/shadowBlur/shadowColor 체크')
+const s1374 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1374.includes('R2370') &&
+  s1374.includes('enableShadow') &&
+  s1374.includes('shadowBlur') &&
+  s1374.includes('shadowColor') &&
+  s1374.includes('_enableShadow')
+) {
+  log('pass', 'R2370-label-shadow', 'Inspector cc.Label enableShadow/shadowBlur/shadowColor 구현 완료')
+} else {
+  log('warning', 'R2370-label-shadow', 'Inspector cc.Label enableShadow 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1373: R2369 Inspector cc.Label enableOutline/outlineWidth/outlineColor (CC3.x) ──────────
 console.log('\n## 1373. R2369 Inspector cc.Label enableOutline/outlineWidth/outlineColor 체크')
 const s1373 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
