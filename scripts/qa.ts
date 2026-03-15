@@ -28107,6 +28107,18 @@ if (
   log('warning', 'R2428-button-enabled', 'Inspector cc.Button enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1433: R2429 Inspector cc.Slider enabled ──────────
+console.log('\n## 1433. R2429 Inspector cc.Slider enabled 체크')
+const s1433 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1433.includes('R2429') &&
+  s1433.includes('cc.Slider')
+) {
+  log('pass', 'R2429-slider-enabled', 'Inspector cc.Slider enabled 구현 완료')
+} else {
+  log('warning', 'R2429-slider-enabled', 'Inspector cc.Slider enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
