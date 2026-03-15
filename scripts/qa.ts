@@ -28394,6 +28394,18 @@ if (
   log('warning', 'R2449-camera-clearDepth-ortho-culling', 'Inspector cc.Camera clearDepth/ortho/cullingMask 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1455: R2451 Inspector cc.Toggle enabled ─────────────────
+console.log('\n## 1455. R2451 Inspector cc.Toggle enabled 체크')
+const s1455 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1455.includes('R2451') &&
+  s1455.includes("comp.type === 'cc.Toggle'")
+) {
+  log('pass', 'R2451-toggle-enabled', 'Inspector cc.Toggle enabled 체크박스 구현 완료')
+} else {
+  log('warning', 'R2451-toggle-enabled', 'Inspector cc.Toggle enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1454: R2450 Inspector cc.ScrollView bounce ─────────────────
 console.log('\n## 1454. R2450 Inspector cc.ScrollView bounce 체크')
 const s1454 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

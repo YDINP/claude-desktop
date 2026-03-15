@@ -20583,6 +20583,13 @@ function CCFileNodeInspector({
               return (
                 // R1716: isChecked + interactable 편집
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2451: enabled (BatchInspector R2195) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>isChecked</span>
                     <input type="checkbox" checked={checked}
