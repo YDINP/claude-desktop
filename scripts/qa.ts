@@ -28269,6 +28269,19 @@ if (
   log('warning', 'R2440-particle-loop-postype-blend', 'Inspector ParticleSystem loop/positionType/blendMode 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1445: R2441 Inspector cc.TiledLayer/DirectionalLight/PointLight enabled ──────────
+console.log('\n## 1445. R2441 Inspector cc.TiledLayer/DirectionalLight/PointLight enabled 체크')
+const s1445 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1445.includes('R2441') &&
+  s1445.includes('cc.TiledLayer') &&
+  s1445.includes('cc.DirectionalLight')
+) {
+  log('pass', 'R2441-tiledlayer-light-enabled', 'Inspector cc.TiledLayer/DirectionalLight/PointLight enabled 구현 완료')
+} else {
+  log('warning', 'R2441-tiledlayer-light-enabled', 'Inspector cc.TiledLayer/DirectionalLight/PointLight enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
