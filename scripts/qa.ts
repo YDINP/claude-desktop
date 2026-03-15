@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1586: R2594 BatchInspector 랜덤 스케일 변동 ──────────────────────
+console.log('\n## 1586. R2594 — BatchInspector 랜덤 스케일 변동 (±%)')
+const s1586 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1586.includes('R2594') &&
+  s1586.includes('applyRandScale') &&
+  s1586.includes('🎲sc')
+) {
+  log('pass', 'R2594-random-scale', 'R2594 랜덤 스케일 변동 구현 완료')
+} else {
+  log('warning', 'R2594-random-scale', 'R2594 랜덤 스케일 변동 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1585: R2593 BatchInspector 랜덤 회전 적용 ────────────────────────
 console.log('\n## 1585. R2593 — BatchInspector 랜덤 회전 적용 (±Ndeg)')
 const s1585 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

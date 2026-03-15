@@ -17969,6 +17969,35 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2594: 랜덤 스케일 변동 (×(1±f)) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>🎲sc (R2594)</span>
+            {([0.1, 0.25, 0.5] as const).map(f => (
+              <span key={f}
+                onClick={async () => {
+                  if (!sceneFile.root) return
+                  function applyRandScale(n: CCSceneNode): CCSceneNode {
+                    const ch = n.children.map(applyRandScale)
+                    if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+                    const sc = n.scale as { x: number; y: number; z?: number }
+                    const rx = 1 + (Math.random() * 2 - 1) * f
+                    const ry = 1 + (Math.random() * 2 - 1) * f
+                    return { ...n, scale: { ...sc, x: Math.round(sc.x * rx * 1000) / 1000, y: Math.round(sc.y * ry * 1000) / 1000 }, children: ch }
+                  }
+                  const result = await saveScene({ ...sceneFile, root: applyRandScale(sceneFile.root) })
+                  setBatchMsg(result.success ? `✓ 랜덤 스케일 ±${Math.round(f * 100)}%` : `✗ 오류`)
+                  setTimeout(() => setBatchMsg(null), 2000)
+                }}
+                title={`선택 노드에 ±${Math.round(f * 100)}% 랜덤 스케일 변동 (R2594)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#6ee7b7')} onMouseLeave={e => (e.currentTarget.style.color = '#34d399')}
+              >±{Math.round(f * 100)}%</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2593: 랜덤 회전 적용 (±Ndeg) */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         return (
