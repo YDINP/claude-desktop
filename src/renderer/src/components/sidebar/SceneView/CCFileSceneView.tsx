@@ -249,6 +249,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showScaleLabel, setShowScaleLabel] = useState(false)
   // R2624: 레이어 배지 오버레이 (CC3.x 비기본 레이어 노드에 레이어명 표시)
   const [showLayerBadge, setShowLayerBadge] = useState(false)
+  // R2625: 이벤트 핸들러 배지 오버레이 (Button/Toggle/Slider 있는 노드에 ⚡ 표시)
+  const [showEventBadge, setShowEventBadge] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1639,6 +1641,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showLayerBadge ? '레이어 배지 끄기 (R2624)' : 'CC3.x 비기본 레이어 노드에 레이어명 배지 표시 (R2624)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLayerBadge ? 'rgba(99,102,241,0.5)' : 'var(--border)'}`, background: showLayerBadge ? 'rgba(99,102,241,0.12)' : 'none', color: showLayerBadge ? '#6366f1' : 'var(--text-muted)' }}
         >L</button>
+        {/* R2625: 이벤트 핸들러 배지 오버레이 토글 */}
+        <button
+          onClick={() => setShowEventBadge(v => !v)}
+          title={showEventBadge ? '이벤트 배지 끄기 (R2625)' : 'Button/Toggle/Slider 노드에 ⚡ 배지 표시 (R2625)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEventBadge ? 'rgba(234,179,8,0.5)' : 'var(--border)'}`, background: showEventBadge ? 'rgba(234,179,8,0.12)' : 'none', color: showEventBadge ? '#eab308' : 'var(--text-muted)' }}
+        >⚡</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2623,6 +2631,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(99,102,241,0.9)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{layerName}</text>
+                  )
+                })()}
+                {/* R2625: 이벤트 핸들러 배지 오버레이 */}
+                {showEventBadge && view.zoom > 0.3 && (() => {
+                  const interactiveTypes = new Set(['cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.EditBox', 'cc.PageView'])
+                  const hasInteractive = node.components.some(c => interactiveTypes.has(c.type)) || (node.eventHandlers && node.eventHandlers.length > 0)
+                  if (!hasInteractive) return null
+                  const fs = Math.max(6, 8 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + w - 1/view.zoom} y={rectY + 1/view.zoom}
+                      textAnchor="end" dominantBaseline="hanging"
+                      fontSize={fs} fill="rgba(234,179,8,0.95)"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >⚡</text>
                   )
                 })()}
                 {/* R2557: Label 텍스트 콘텐츠 오버레이 */}

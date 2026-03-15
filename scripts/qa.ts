@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1617: R2625 SceneView 이벤트 핸들러 배지 오버레이 ────────────────
+console.log('\n## 1617. R2625 — SceneView 이벤트 핸들러 배지 오버레이')
+const s1617 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1617.includes('R2625') &&
+  s1617.includes('showEventBadge') &&
+  s1617.includes('setShowEventBadge') &&
+  s1617.includes('interactiveTypes')
+) {
+  log('pass', 'R2625-event-badge', 'R2625 이벤트 핸들러 배지 오버레이 구현 완료')
+} else {
+  log('warning', 'R2625-event-badge', 'R2625 이벤트 핸들러 배지 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1616: R2624 SceneView 레이어 배지 오버레이 ───────────────────────
 console.log('\n## 1616. R2624 — SceneView 레이어 배지 오버레이')
 const s1616 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
