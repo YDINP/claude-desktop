@@ -4342,6 +4342,8 @@ function CCFileBatchInspector({
   const [cloneOffsetY, setCloneOffsetY] = useState<number>(-50)
   // R2663: 랜덤 위치 오프셋
   const [randomRange, setRandomRange] = useState<number>(50)
+  // R2664: 랜덤 회전 오프셋
+  const [randomRotRange, setRandomRotRange] = useState<number>(30)
   // R2660: 가로세로 비율
   const [aspectRatioW, setAspectRatioW] = useState<number>(16)
   const [aspectRatioH, setAspectRatioH] = useState<number>(9)
@@ -4955,6 +4957,40 @@ function CCFileBatchInspector({
               title={`선택된 ${uuids.length}개 노드 위치에 ±${randomRange}px 랜덤 오프셋 추가 (R2663)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >적용</span>
+          </div>
+        )
+      })()}
+      {/* R2664: 랜덤 회전 오프셋 — 선택 노드 rotation에 ±range 랜덤 값 추가 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyRandomRotation = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const delta = (Math.random() * 2 - 1) * randomRotRange
+            if (typeof n.rotation === 'number') {
+              return { ...n, rotation: Math.round(n.rotation + delta), children: ch }
+            }
+            const r = n.rotation as { x: number; y: number; z: number }
+            return { ...n, rotation: { ...r, z: Math.round(r.z + delta) }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 랜덤 회전 ±${randomRotRange}° (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤회전 (R2664)</span>
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>±</span>
+            <input type="number" value={randomRotRange} min={1} max={180} step={5} onChange={e => setRandomRotRange(Math.max(1, parseInt(e.target.value) || 1))} style={niS} title="랜덤 회전 범위 (도)" />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>°</span>
+            <span onClick={applyRandomRotation}
+              title={`선택된 ${uuids.length}개 노드에 ±${randomRotRange}° 랜덤 회전 추가 (R2664)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >적용</span>
           </div>
