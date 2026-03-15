@@ -2502,6 +2502,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             ['Enter', '첫 번째 자식 선택'],
             ['Tab', '다음 형제 선택'],
             ['Shift+Tab', '이전 형제 선택'],
+            // R2334: 최근 추가 단축키
+            ['Alt+←/→', '선택 이력 이전/다음 (R1705)'],
+            ['G', '형제 그룹 하이라이트 토글'],
+            ['Ctrl+P', '핀 마커 추가'],
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', gap: 8 }}>
               <span style={{ color: '#58a6ff', minWidth: 100 }}>{k}</span>

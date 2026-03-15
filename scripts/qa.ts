@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1338: R2334 씬뷰 단축키 도움말 업데이트 ──────────
+console.log('\n## 1338. R2334 씬뷰 단축키 도움말 업데이트 체크')
+const s1338 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1338.includes('R2334') &&
+  s1338.includes('Alt+←/→') &&
+  s1338.includes('선택 이력 이전/다음')
+) {
+  log('pass', 'R2334-help-update', '씬뷰 단축키 도움말 최신화 완료')
+} else {
+  log('warning', 'R2334-help-update', 'R2334 단축키 도움말 미업데이트', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1337: R2333 회전 0° 리셋 + 스케일 1:1 리셋 버튼 ──────────
 console.log('\n## 1337. R2333 회전 0° + 스케일 1:1 리셋 버튼 체크')
 const s1337 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
