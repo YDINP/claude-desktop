@@ -27863,6 +27863,21 @@ if (
   log('warning', 'R2411-widget-alignmode-rigidbody-contactlistener', 'Inspector alignMode/enabledContactListener 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1416: R2412 Inspector cc.Camera cullingMask + clearDepth ──────────
+console.log('\n## 1416. R2412 Inspector cc.Camera cullingMask + clearDepth 체크')
+const s1416 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1416.includes('R2412') &&
+  s1416.includes('cullingMask') &&
+  s1416.includes('_cullingMask') &&
+  s1416.includes('clearDepth') &&
+  s1416.includes('cc.Camera')
+) {
+  log('pass', 'R2412-camera-cullingmask-cleardepth', 'Inspector cc.Camera cullingMask + clearDepth 구현 완료')
+} else {
+  log('warning', 'R2412-camera-cullingmask-cleardepth', 'Inspector cc.Camera cullingMask/clearDepth 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

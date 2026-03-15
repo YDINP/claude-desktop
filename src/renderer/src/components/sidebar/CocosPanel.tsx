@@ -22283,6 +22283,39 @@ function CCFileNodeInspector({
                       </div>
                     </>
                   )}
+                  {/* R2412: cullingMask (BatchInspector R1989) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>cullMask</span>
+                    {([['All', -1], ['Dflt', 1], ['None', 0]] as const).map(([l, v]) => {
+                      const cur = Number(p.cullingMask ?? p._cullingMask ?? -1)
+                      return (
+                        <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cullingMask: v, _cullingMask: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#818cf8' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#818cf8' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                    <input type="number" defaultValue={Number(p.cullingMask ?? p._cullingMask ?? -1)} step={1}
+                      onBlur={e => { const v = parseInt(e.target.value) || -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cullingMask: v, _cullingMask: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="cullingMask"
+                    />
+                  </div>
+                  {/* R2412: clearDepth (CC3.x, BatchInspector R2187) */}
+                  {is3x && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>clearDepth</span>
+                      <input type="number" defaultValue={Number(p.clearDepth ?? p._clearDepth ?? 1)} min={0} max={1} step={0.1}
+                        onBlur={e => { const v = Math.max(0, Math.min(1, parseFloat(e.target.value) || 1)); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        title="clearDepth (CC3.x)"
+                      />
+                      {[0, 0.5, 1].map(v => (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                        >{v}</span>
+                      ))}
+                    </div>
+                  )}
                   {/* R1790: clearFlags + backgroundColor */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>clear</span>
