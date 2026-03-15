@@ -22646,6 +22646,13 @@ function CCFileNodeInspector({
               const mHex = `#${mr.toString(16).padStart(2,'0')}${mg.toString(16).padStart(2,'0')}${mb.toString(16).padStart(2,'0')}`
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2436: enabled (BatchInspector R2200) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>fade</span>
                     <input type="number" defaultValue={fade} key={`mfade-${fade}`} min={0} max={10} step={0.1}
@@ -22718,6 +22725,13 @@ function CCFileNodeInspector({
               const maxKey = comp.type === 'cc.ParticleSystem2D' ? '_N$totalParticles' : '_N$maxParticles'
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2436: enabled (BatchInspector R2194) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>duration</span>
                     <input type="number" defaultValue={duration} step={0.5}
@@ -24058,6 +24072,13 @@ function CCFileNodeInspector({
               const playTimes = Number(p.playTimes ?? 0)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2436: enabled (BatchInspector R2201) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>armature</span>
                     <input type="text" defaultValue={armatureName}
@@ -24164,6 +24185,13 @@ function CCFileNodeInspector({
               const paused = !!(p.paused ?? false)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2436: enabled (BatchInspector R2201) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>skin</span>
                     <input type="text" defaultValue={defaultSkin}

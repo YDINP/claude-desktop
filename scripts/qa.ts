@@ -28199,6 +28199,21 @@ if (
   log('warning', 'R2435-multi-enabled2', 'Inspector cc.Animation/VideoPlayer/PageView/WebView enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1440: R2436 Inspector MotionStreak/ParticleSystem/DragonBones/Spine enabled ──────────
+console.log('\n## 1440. R2436 Inspector MotionStreak/ParticleSystem/DragonBones/Spine enabled 체크')
+const s1440 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1440.includes('R2436') &&
+  s1440.includes('cc.MotionStreak') &&
+  s1440.includes('cc.ParticleSystem') &&
+  s1440.includes('dragonBones.ArmatureDisplay') &&
+  s1440.includes('sp.Skeleton')
+) {
+  log('pass', 'R2436-multi-enabled3', 'Inspector MotionStreak/ParticleSystem/DragonBones/Spine enabled 구현 완료')
+} else {
+  log('warning', 'R2436-multi-enabled3', 'Inspector MotionStreak/ParticleSystem/DragonBones/Spine enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
