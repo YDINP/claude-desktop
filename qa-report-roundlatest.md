@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T18:00:51.111Z
+> 2026-03-15T18:05:06.871Z
 
 ## Critical
 _없음_
@@ -2535,3 +2535,4 @@ _없음_
 - R2502 컴포넌트 추가 최근 이력 구현 완료
 - R2503 BatchInspector 정렬/분배 도구 구현 완료
 - R2504 BatchInspector 노드 이름 일련번호 구현 완료
+- R2505 BatchInspector 컴포넌트 일괄 추가 구현 완료

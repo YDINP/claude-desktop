@@ -4257,6 +4257,8 @@ function CCFileBatchInspector({
   // R1856: 이름 find/replace
   const [batchFindStr, setBatchFindStr] = useState<string>('')
   const [batchReplaceStr, setBatchReplaceStr] = useState<string>('')
+  // R2505: 컴포넌트 일괄 추가
+  const [batchAddComp, setBatchAddComp] = useState<string>('')
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -4502,6 +4504,55 @@ function CCFileBatchInspector({
               <span style={btnS} onClick={() => applyAlign('y', 'center')} title="Y 중앙 정렬">↕ CY</span>
               <span style={btnS} onClick={() => applyAlign('y', 'min')} title="Y 최솟값 정렬">▽ B</span>
               <span style={btnS} onClick={() => applyAlign('y', 'distrib')} title="Y 균등 분배">⇳ DV</span>
+            </div>
+          </div>
+        )
+      })()}
+      {/* R2505: 컴포넌트 일괄 추가 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const doBatchAdd = async () => {
+          const ct = batchAddComp.trim()
+          if (!ct || !sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            if (n.components.some(c => c.type === ct)) return { ...n, children } // 이미 있으면 스킵
+            return { ...n, components: [...n.components, { type: ct, props: {} }], children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ${ct} 일괄 추가 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+          setBatchAddComp('')
+        }
+        const QUICK_COMPS = ['cc.Widget', 'cc.Layout', 'cc.Button', 'cc.Toggle', 'cc.Mask', 'cc.BlockInputEvents', 'cc.AudioSource']
+        return (
+          <div style={{ marginBottom: 6, padding: '3px 6px', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: 4 }}>
+            <div style={{ fontSize: 9, color: '#38bdf8', fontWeight: 600, marginBottom: 3 }}>⊕ 컴포넌트 일괄 추가 (R2505)</div>
+            <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginBottom: 3 }}>
+              {QUICK_COMPS.map(ct => (
+                <span key={ct} style={{ fontSize: 8, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8', background: 'rgba(56,189,248,0.06)' }}
+                  onClick={async () => {
+                    if (!sceneFile.root) return
+                    function patch(n: CCSceneNode): CCSceneNode {
+                      const ch = n.children.map(patch)
+                      if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+                      if (n.components.some(c => c.type === ct)) return { ...n, children: ch }
+                      return { ...n, components: [...n.components, { type: ct, props: {} }], children: ch }
+                    }
+                    await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+                    setBatchMsg(`✓ ${ct.split('.').pop()} 일괄 추가`)
+                    setTimeout(() => setBatchMsg(null), 2000)
+                  }}
+                  title={`${ct} 일괄 추가`}
+                >{ct.split('.').pop()}</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 3 }}>
+              <input value={batchAddComp} onChange={e => setBatchAddComp(e.target.value)}
+                placeholder="컴포넌트 타입 (예: cc.Widget)"
+                onKeyDown={e => { if (e.key === 'Enter') doBatchAdd() }}
+                style={{ flex: 1, fontSize: 9, padding: '2px 4px', borderRadius: 3, background: 'var(--bg-input, #1a1a2e)', border: '1px solid #334', color: 'var(--text-primary)', outline: 'none', minWidth: 0 }} />
+              <span onClick={doBatchAdd} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(56,189,248,0.4)', color: '#38bdf8', lineHeight: 1.6 }}>추가</span>
             </div>
           </div>
         )

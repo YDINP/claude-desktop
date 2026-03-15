@@ -28944,6 +28944,18 @@ if (
   log('warning', 'R2504-serial-name', 'R2504 이름 번호 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1497: R2505 BatchInspector 컴포넌트 일괄 추가 ──────────────────────────
+const s1497 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1497.includes('R2505') &&
+  s1497.includes('batchAddComp') &&
+  s1497.includes('doBatchAdd')
+) {
+  log('pass', 'R2505-batch-add-comp', 'R2505 BatchInspector 컴포넌트 일괄 추가 구현 완료')
+} else {
+  log('warning', 'R2505-batch-add-comp', 'R2505 컴포넌트 일괄 추가 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
