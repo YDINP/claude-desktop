@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1553: R2561 BatchInspector 위치 역전 버튼 (⇄X/⇅Y) ───────────────
+console.log('\n## 1553. R2561 — BatchInspector 위치 역전 (⇄X/⇅Y)')
+const s1553 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1553.includes('R2561') &&
+  s1553.includes('applyReverse') &&
+  s1553.includes('collectRev') &&
+  s1553.includes('⇄X') &&
+  s1553.includes('⇅Y')
+) {
+  log('pass', 'R2561-reverse-pos', 'R2561 위치 역전 버튼 구현 완료')
+} else {
+  log('warning', 'R2561-reverse-pos', 'R2561 위치 역전 버튼 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1552: R2560 SceneView 미니맵 클릭 팬 기능 ────────────────────────
 console.log('\n## 1552. R2560 — SceneView 미니맵 클릭 팬')
 const s1552 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

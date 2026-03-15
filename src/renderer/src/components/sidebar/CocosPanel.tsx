@@ -5236,6 +5236,44 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2561: 선택 노드 위치 역전 (X축/Y축 순서 뒤집기) */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const revNodes: CCSceneNode[] = []
+        function collectRev(n: CCSceneNode) { if (uuidSet.has(n.uuid)) revNodes.push(n); n.children.forEach(collectRev) }
+        collectRev(sceneFile.root!)
+        if (revNodes.length < 2) return null
+        const applyReverse = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          const sorted = [...revNodes].sort((a, b) => {
+            const pa = a.position as { x: number; y: number }
+            const pb = b.position as { x: number; y: number }
+            return pa[axis] - pb[axis]
+          })
+          const positions = sorted.map(n => (n.position as { x: number; y: number })[axis])
+          const newPosMap = new Map<string, number>()
+          sorted.forEach((n, i) => newPosMap.set(n.uuid, positions[positions.length - 1 - i]))
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const np = newPosMap.get(n.uuid)
+            if (np === undefined) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, [axis]: np }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ reverse ${axis.toUpperCase()} (${revNodes.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>역전 (R2561)</span>
+            <span onClick={() => applyReverse('x')} title="X축 위치 순서 뒤집기 — 좌우 반전 배치 (R2561)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none', background: 'rgba(251,146,60,0.05)' }}>⇄X</span>
+            <span onClick={() => applyReverse('y')} title="Y축 위치 순서 뒤집기 — 상하 반전 배치 (R2561)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none', background: 'rgba(251,146,60,0.05)' }}>⇅Y</span>
+          </div>
+        )
+      })()}
       {/* R2535: 선택 노드 스택 배치 (edge-to-edge stack X/Y + 간격) */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const stkNodes: CCSceneNode[] = []
