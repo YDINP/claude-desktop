@@ -17020,6 +17020,42 @@ function CCFileBatchInspector({
           ))}
         </div>
       </div>
+      {/* R2479: 원형 배치 */}
+      {uuids.length >= 2 && (() => {
+        const [circleRadius, setCircleRadius] = React.useState(100)
+        const applyCircle = async () => {
+          if (!sceneFile.root) return
+          const n = uuids.length
+          const moves = uuids.map((uuid, i) => {
+            const angle = (2 * Math.PI * i) / n - Math.PI / 2
+            return { uuid, x: Math.round(circleRadius * Math.cos(angle)), y: Math.round(circleRadius * Math.sin(angle)) }
+          })
+          function patchCircle(node: CCSceneNode): CCSceneNode {
+            const move = moves.find(m => m.uuid === node.uuid)
+            const children = node.children.map(patchCircle)
+            if (!move) return { ...node, children }
+            return { ...node, position: { ...(node.position || { z: 0 }), x: move.x, y: move.y }, children }
+          }
+          const result = await saveScene(patchCircle(sceneFile.root))
+          setBatchMsg(result.success ? `✓ 원형 배치 r=${circleRadius} (${n}개)` : `✗ 오류`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>⊙ 원형 배치 r=</span>
+              <input type="number" min={10} max={2000} value={circleRadius} onChange={e => setCircleRadius(parseInt(e.target.value) || 100)}
+                style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                title="원형 배치 반지름 (R2479)"
+              />
+              <button onClick={applyCircle}
+                style={{ fontSize: 9, padding: '2px 7px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,191,36,0.5)', background: 'rgba(251,191,36,0.1)', color: '#fbbf24' }}
+                title={`선택 ${uuids.length}개 노드를 반지름 ${circleRadius}px 원형으로 배치 (R2479)`}
+              >배치</button>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
