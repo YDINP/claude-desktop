@@ -225,6 +225,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showAnchorOverlay, setShowAnchorOverlay] = useState(false)
   // R2588: 노드 색상 스와치 오버레이
   const [showColorSwatch, setShowColorSwatch] = useState(false)
+  // R2591: 자식 수 배지 오버레이
+  const [showChildCountBadge, setShowChildCountBadge] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1543,6 +1545,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showColorSwatch ? '색상 스와치 끄기 (R2588)' : '비흰색 노드에 색상 스와치 표시 (R2588)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showColorSwatch ? 'rgba(244,114,182,0.5)' : 'var(--border)'}`, background: showColorSwatch ? 'rgba(244,114,182,0.12)' : 'none', color: showColorSwatch ? '#f472b6' : 'var(--text-muted)' }}
         >🎨</button>
+        {/* R2591: 자식 수 배지 오버레이 토글 */}
+        <button
+          onClick={() => setShowChildCountBadge(v => !v)}
+          title={showChildCountBadge ? '자식 수 배지 끄기 (R2591)' : '자식 노드 수 배지 표시 (R2591)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showChildCountBadge ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showChildCountBadge ? 'rgba(167,139,250,0.12)' : 'none', color: showChildCountBadge ? '#a78bfa' : 'var(--text-muted)' }}
+        >↳N</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2375,6 +2383,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       style={{ pointerEvents: 'none' }}
                       title={`색상: rgb(${c.r},${c.g},${c.b})`}
                     />
+                  )
+                })()}
+                {/* R2591: 자식 수 배지 오버레이 */}
+                {showChildCountBadge && view.zoom > 0.3 && node.children.length > 0 && (() => {
+                  const cnt = node.children.length
+                  const fs = Math.max(5, 8 / view.zoom)
+                  const pad = fs * 0.4
+                  const bw = (cnt >= 10 ? fs * 1.6 : fs * 1.2) + pad * 2
+                  const bh = fs + pad * 2
+                  const bx = rectX + 1 / view.zoom
+                  const by = rectY + h - bh - 1 / view.zoom
+                  return (
+                    <g style={{ pointerEvents: 'none' }}>
+                      <rect x={bx} y={by} width={bw} height={bh} rx={bh * 0.3} fill="rgba(167,139,250,0.75)" />
+                      <text x={bx + bw / 2} y={by + bh / 2 + fs * 0.35} textAnchor="middle" fontSize={fs} fill="#fff" fontFamily="monospace" style={{ userSelect: 'none' }}>{cnt}</text>
+                    </g>
                   )
                 })()}
                 {/* R2578: 노드 불투명도 α% 오버레이 */}

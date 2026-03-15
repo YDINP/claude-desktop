@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1583: R2591 SceneView 자식 수 배지 오버레이 ──────────────────────
+console.log('\n## 1583. R2591 — SceneView 자식 수 배지 오버레이 (↳N)')
+const s1583 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1583.includes('R2591') &&
+  s1583.includes('showChildCountBadge') &&
+  s1583.includes('↳N')
+) {
+  log('pass', 'R2591-child-badge', 'R2591 자식 수 배지 오버레이 구현 완료')
+} else {
+  log('warning', 'R2591-child-badge', 'R2591 자식 수 배지 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1582: R2590 SceneView 컨텍스트 메뉴 — 동일 이름 모두 선택 ──────────
 console.log('\n## 1582. R2590 — SceneView 컨텍스트 메뉴 동일 이름 선택')
 const s1582 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
