@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1550: R2558 SceneView 씬 통계 팝업 버튼 (ⓘ) ──────────────────────
+console.log('\n## 1550. R2558 — SceneView 씬 통계 팝업 버튼')
+const s1550 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1550.includes('R2558') &&
+  s1550.includes('showSceneStats') &&
+  s1550.includes('setShowSceneStats') &&
+  s1550.includes('씬 통계')
+) {
+  log('pass', 'R2558-scene-stats', 'R2558 씬 통계 팝업 구현 완료')
+} else {
+  log('warning', 'R2558-scene-stats', 'R2558 씬 통계 팝업 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1549: R2557 SceneView Label 텍스트 콘텐츠 오버레이 ───────────────
 console.log('\n## 1549. R2557 — SceneView Label 텍스트 콘텐츠 오버레이')
 const s1549 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

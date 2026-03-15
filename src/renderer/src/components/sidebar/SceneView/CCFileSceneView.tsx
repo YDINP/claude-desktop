@@ -207,6 +207,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [compFilterType, setCompFilterType] = useState<string | null>(null)
   // R2557: Label 텍스트 콘텐츠 SVG 오버레이 토글
   const [showLabelText, setShowLabelText] = useState(false)
+  // R2558: 씬 통계 팝업 토글
+  const [showSceneStats, setShowSceneStats] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1593,6 +1595,36 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           disabled={screenshotSending}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: screenshotSending ? 'wait' : 'pointer', border: '1px solid var(--border)', background: screenshotSending ? 'rgba(255,200,50,0.12)' : 'none', color: screenshotSending ? '#fbbf24' : 'var(--text-muted)', opacity: screenshotSending ? 0.6 : 1 }}
         >{screenshotSending ? '⟳' : '📷'}</button>
+        {/* R2558: 씬 통계 팝업 버튼 */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setShowSceneStats(v => !v)}
+            title="씬 통계 팝업 — 노드/컴포넌트 수, 활성 여부 (R2558)"
+            style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSceneStats ? 'rgba(88,166,255,0.5)' : 'var(--border)'}`, background: showSceneStats ? 'rgba(88,166,255,0.1)' : 'none', color: showSceneStats ? '#58a6ff' : 'var(--text-muted)' }}
+          >ⓘ</button>
+          {showSceneStats && (() => {
+            const total = flatNodes.length
+            const activeCount = flatNodes.filter(fn => fn.node.active !== false).length
+            const compCounts = new Map<string, number>()
+            flatNodes.forEach(fn => fn.node.components.forEach(c => { if (c.type !== 'cc.Node') compCounts.set(c.type, (compCounts.get(c.type) ?? 0) + 1) }))
+            const topComps = [...compCounts.entries()].sort((a,b) => b[1]-a[1]).slice(0, 8)
+            const maxDepth = Math.max(...flatNodes.map(fn => fn.depth), 0)
+            return (
+              <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 60, marginTop: 4, background: 'rgba(10,14,28,0.95)', border: '1px solid rgba(88,166,255,0.3)', borderRadius: 5, padding: '8px 10px', minWidth: 160, fontSize: 9, color: 'var(--text-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                <div style={{ fontWeight: 700, marginBottom: 5, color: '#c9d1d9' }}>씬 통계 (R2558)</div>
+                <div style={{ color: '#58a6ff' }}>노드: {total}개 (활성 {activeCount} / 비활성 {total - activeCount})</div>
+                <div style={{ color: '#aaa', marginTop: 2 }}>최대 깊이: D{maxDepth}</div>
+                <div style={{ marginTop: 5, color: '#94a3b8', fontWeight: 600 }}>컴포넌트 Top 8</div>
+                {topComps.map(([t, n]) => (
+                  <div key={t} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, color: '#aaa', marginTop: 1 }}>
+                    <span>{t.replace('cc.','').replace('dragonBones.','dB.')}</span>
+                    <span style={{ color: '#58a6ff' }}>{n}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+        </div>
         {/* R2315: SVG 직접 내보내기 */}
         <button
           onClick={handleSvgExport}
