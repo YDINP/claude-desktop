@@ -23878,6 +23878,26 @@ function CCFileNodeInspector({
                       style={{ margin: 0, accentColor: '#f472b6' }}
                     />contactListener
                   </label>
+                  {/* R2422: awake + sleepThreshold (BatchInspector R1975/R1997) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.awake ?? p._awake ?? p._N$awake ?? true)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, awake: e.target.checked, _awake: e.target.checked, _N$awake: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0, accentColor: '#fb923c' }}
+                      />awake
+                    </label>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 8, flexShrink: 0 }}>sleepThres</span>
+                    <input type="number" defaultValue={Number(p.sleepThreshold ?? p._sleepThreshold ?? p._N$sleepThreshold ?? 0.01)} min={0} step={0.001}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 0.01; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sleepThreshold: v, _sleepThreshold: v, _N$sleepThreshold: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="sleepThreshold"
+                    />
+                    {([0.005, 0.01, 0.02, 0.05] as const).map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sleepThreshold: v, _sleepThreshold: v, _N$sleepThreshold: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(Number(p.sleepThreshold ?? p._sleepThreshold ?? 0.01) - v) < 0.001 ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(Number(p.sleepThreshold ?? p._sleepThreshold ?? 0.01) - v) < 0.001 ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
                 </div>
               )
             }

@@ -28011,6 +28011,21 @@ if (
   log('warning', 'R2421-particle-emittermode-autoremove', 'Inspector cc.ParticleSystem emitterMode/autoRemoveOnFinish 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1426: R2422 Inspector cc.RigidBody awake + sleepThreshold ──────────
+console.log('\n## 1426. R2422 Inspector cc.RigidBody awake + sleepThreshold 체크')
+const s1426 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1426.includes('R2422') &&
+  s1426.includes('awake') &&
+  s1426.includes('_N$awake') &&
+  s1426.includes('sleepThreshold') &&
+  s1426.includes('_N$sleepThreshold')
+) {
+  log('pass', 'R2422-rigidbody-awake-sleepthreshold', 'Inspector cc.RigidBody awake + sleepThreshold 구현 완료')
+} else {
+  log('warning', 'R2422-rigidbody-awake-sleepthreshold', 'Inspector cc.RigidBody awake/sleepThreshold 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
