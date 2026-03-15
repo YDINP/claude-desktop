@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1525: R2533 BatchInspector 가장자리 정렬 ─────────────────────────
+console.log('\n## 1525. R2533 — BatchInspector 가장자리 정렬 (edge alignment)')
+const s1525 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1525.includes('R2533') &&
+  s1525.includes('applyAlign') &&
+  s1525.includes('collectAln') &&
+  s1525.includes("'CX'")
+) {
+  log('pass', 'R2533-edge-align', 'R2533 가장자리 정렬 구현 완료')
+} else {
+  log('warning', 'R2533-edge-align', 'R2533 가장자리 정렬 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1524: R2532 SceneView 스냅-to-pixel 버튼 ─────────────────────────
 console.log('\n## 1524. R2532 — SceneView 스냅-to-pixel 위치 정수화 버튼')
 const s1524 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

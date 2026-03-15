@@ -5117,6 +5117,65 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2533: 선택 노드 가장자리 정렬 (edge alignment: L/R/T/B/CX/CY) */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const alnNodes: CCSceneNode[] = []
+        function collectAln(n: CCSceneNode) { if (uuidSet.has(n.uuid)) alnNodes.push(n); n.children.forEach(collectAln) }
+        collectAln(sceneFile.root!)
+        if (alnNodes.length < 2) return null
+        type AlnMode = 'L' | 'R' | 'T' | 'B' | 'CX' | 'CY'
+        const applyAlign = async (mode: AlnMode) => {
+          if (!sceneFile.root) return
+          // CC 좌표: y 위가 +. left=pos.x-w*ax, right=pos.x+w*(1-ax), top=pos.y+h*(1-ay), bottom=pos.y-h*ay
+          const bounds = alnNodes.map(n => {
+            const pos = n.position as { x: number; y: number }
+            const w = n.size?.x ?? 0, h = n.size?.y ?? 0
+            const ax = n.anchor?.x ?? 0.5, ay = n.anchor?.y ?? 0.5
+            return { uuid: n.uuid, L: pos.x - w * ax, R: pos.x + w * (1 - ax), T: pos.y + h * (1 - ay), B: pos.y - h * ay, ax, ay, w, h }
+          })
+          const minL = Math.min(...bounds.map(b => b.L))
+          const maxR = Math.max(...bounds.map(b => b.R))
+          const maxT = Math.max(...bounds.map(b => b.T))
+          const minB = Math.min(...bounds.map(b => b.B))
+          const midX = (minL + maxR) / 2
+          const midY = (minB + maxT) / 2
+          const newPosMap = new Map<string, { x: number; y: number }>()
+          for (const b of bounds) {
+            const pos = alnNodes.find(n => n.uuid === b.uuid)!.position as { x: number; y: number }
+            let nx = pos.x, ny = pos.y
+            if (mode === 'L') nx = minL + b.w * b.ax
+            else if (mode === 'R') nx = maxR - b.w * (1 - b.ax)
+            else if (mode === 'T') ny = maxT - b.h * (1 - b.ay)
+            else if (mode === 'B') ny = minB + b.h * b.ay
+            else if (mode === 'CX') nx = midX
+            else if (mode === 'CY') ny = midY
+            newPosMap.set(b.uuid, { x: Math.round(nx), y: Math.round(ny) })
+          }
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const np = newPosMap.get(n.uuid)
+            if (!np) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, x: np.x, y: np.y }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ align ${mode} (${alnNodes.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const modes: [AlnMode, string][] = [['L','⊢L'],['R','R⊣'],['T','⊤T'],['B','B⊥'],['CX','↔X'],['CY','↕Y']]
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Align</span>
+            {modes.map(([mode, label]) => (
+              <span key={mode} onClick={() => applyAlign(mode)}
+                title={`${mode === 'L' ? '왼쪽 가장자리' : mode === 'R' ? '오른쪽 가장자리' : mode === 'T' ? '위 가장자리' : mode === 'B' ? '아래 가장자리' : mode === 'CX' ? '수평 중앙' : '수직 중앙'} 정렬 (R2533)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none', background: 'rgba(251,146,60,0.05)' }}>{label}</span>
+            ))}
+            <span style={{ fontSize: 8, color: '#555' }}>{alnNodes.length}개</span>
+          </div>
+        )
+      })()}
       {/* R2347: 선택 노드 위치 맞추기 (match position) */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const nodesOrdered: CCSceneNode[] = []
