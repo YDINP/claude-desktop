@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1615: R2623 BatchInspector position XY 스냅 ──────────────────────
+console.log('\n## 1615. R2623 — BatchInspector position XY 스냅')
+const s1615 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1615.includes('R2623') &&
+  s1615.includes('applyPosSnap') &&
+  s1615.includes('pos스냅')
+) {
+  log('pass', 'R2623-pos-snap', 'R2623 position XY 스냅 구현 완료')
+} else {
+  log('warning', 'R2623-pos-snap', 'R2623 position XY 스냅 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1614: R2622 BatchInspector active 교차 패턴 ──────────────────────
 console.log('\n## 1614. R2622 — BatchInspector active 교차 패턴')
 const s1614 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

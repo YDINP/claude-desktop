@@ -4779,6 +4779,32 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2623: position XY 스냅 — 선택 노드 좌표를 N px 배수로 반올림 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyPosSnap = async (step: number) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...p, x: Math.round(p.x / step) * step, y: Math.round(p.y / step) * step }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ pos ${step}px 스냅 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>pos스냅 (R2623)</span>
+            {([1, 8, 16, 32] as const).map(step => (
+              <span key={step} onClick={() => applyPosSnap(step)}
+                title={`position.x/y를 ${step}px 배수로 반올림 스냅 (R2623)`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}
+              >{step}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2516: 위치 오프셋 이동 — 선택 노드 위치에 Δx/Δy 더하기 */}
       {sceneFile.root && (() => {
         const applyOffset = async () => {
