@@ -27950,6 +27950,23 @@ if (
   log('warning', 'R2417-animation-wrapmode', 'Inspector cc.Animation wrapMode 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1422: R2418 Inspector cc.RichText horizontalAlign+fontSize+maxWidth+fontColor ──────────
+console.log('\n## 1422. R2418 Inspector cc.RichText horizontalAlign+fontSize+maxWidth+fontColor 체크')
+const s1422 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1422.includes('R2418') &&
+  s1422.includes('horizontalAlign') &&
+  s1422.includes('_N$horizontalAlign') &&
+  s1422.includes('fontColor') &&
+  s1422.includes('_N$fontColor') &&
+  s1422.includes('maxWidth') &&
+  s1422.includes('cc.RichText')
+) {
+  log('pass', 'R2418-richtext-align-fontsize-maxwidth-color', 'Inspector cc.RichText horizontalAlign+fontSize+maxWidth+fontColor 구현 완료')
+} else {
+  log('warning', 'R2418-richtext-align-fontsize-maxwidth-color', 'Inspector cc.RichText 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
