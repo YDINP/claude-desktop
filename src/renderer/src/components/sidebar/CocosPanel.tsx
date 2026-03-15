@@ -4269,6 +4269,8 @@ function CCFileBatchInspector({
   // R2525: 오파시티 그라디언트
   const [opGradFrom, setOpGradFrom] = useState<number>(255)
   const [opGradTo, setOpGradTo] = useState<number>(0)
+  // R2527: 스케일 X/Y 링크
+  const [scaleLinked, setScaleLinked] = useState(false)
   // R2513: Z-Order 이동
   const moveZOrder = useCallback(async (dir: 'up' | 'down' | 'top' | 'bottom') => {
     if (!sceneFile.root) return
@@ -17113,9 +17115,16 @@ function CCFileBatchInspector({
       {/* R1553: Scale 일괄 설정 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>스케일</span>
-        <input type="number" placeholder="X" value={batchScaleX} onChange={e => setBatchScaleX(e.target.value)} step={0.1}
+        <input type="number" placeholder="X" value={batchScaleX}
+          onChange={e => { setBatchScaleX(e.target.value); if (scaleLinked) setBatchScaleY(e.target.value) }} step={0.1}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
-        <input type="number" placeholder="Y" value={batchScaleY} onChange={e => setBatchScaleY(e.target.value)} step={0.1}
+        {/* R2527: X/Y 링크 토글 */}
+        <span onClick={() => setScaleLinked(v => !v)}
+          title={scaleLinked ? 'X/Y 링크 해제 (R2527)' : 'X=Y 링크 ON — X 변경 시 Y 자동 동기화 (R2527)'}
+          style={{ fontSize: 10, cursor: 'pointer', color: scaleLinked ? '#34d399' : 'var(--text-muted)', userSelect: 'none', padding: '0 1px' }}
+        >{scaleLinked ? '⊟' : '⊞'}</span>
+        <input type="number" placeholder="Y" value={batchScaleY}
+          onChange={e => { setBatchScaleY(e.target.value); if (scaleLinked) setBatchScaleX(e.target.value) }} step={0.1}
           style={{ width: 50, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
       </div>
       {/* R1553: Size 일괄 설정 */}

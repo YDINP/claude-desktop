@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T19:06:20.926Z
+> 2026-03-15T19:07:50.974Z
 
 ## Critical
 _없음_
@@ -2552,6 +2552,7 @@ _없음_
 - R2519 BatchInspector Transform 초기화 구현 완료
 - R2520 BatchInspector 노드 반전 (Flip X/Y) 구현 완료
 - R2521 SceneView 세계 좌표 표시 토글 구현 완료
+- R2527 스케일 X/Y 링크 토글 구현 완료
 - R2526 SceneView 깊이 필터 구현 완료
 - R2525 오파시티 그라디언트 구현 완료
 - R2524 다중 선택 통합 바운딩박스 구현 완료

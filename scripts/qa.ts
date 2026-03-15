@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1519: R2527 BatchInspector 스케일 X/Y 링크 ──────────────────────
+console.log('\n## 1519. R2527 — BatchInspector 스케일 X/Y 링크 토글')
+const s1519 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1519.includes('R2527') &&
+  s1519.includes('scaleLinked') &&
+  s1519.includes('setBatchScaleY(e.target.value)')
+) {
+  log('pass', 'R2527-scale-link', 'R2527 스케일 X/Y 링크 토글 구현 완료')
+} else {
+  log('warning', 'R2527-scale-link', 'R2527 스케일 링크 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1518: R2526 SceneView 깊이 필터 ─────────────────────────────────
 console.log('\n## 1518. R2526 — SceneView 깊이 필터 (Depth Filter)')
 const s1518 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
