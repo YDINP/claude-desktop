@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1604: R2612 BatchInspector rotation 오프셋 추가 ──────────────────
+console.log('\n## 1604. R2612 — BatchInspector rotation 오프셋 추가')
+const s1604 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1604.includes('R2612') &&
+  s1604.includes('rotOffsetInput') &&
+  s1604.includes('addRot') &&
+  s1604.includes('rot+= (R2612)')
+) {
+  log('pass', 'R2612-rot-offset', 'R2612 rotation 오프셋 구현 완료')
+} else {
+  log('warning', 'R2612-rot-offset', 'R2612 rotation 오프셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1603: R2611 BatchInspector 위치 셔플 (≥3개) ──────────────────────
 console.log('\n## 1603. R2611 — BatchInspector 위치 셔플')
 const s1603 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

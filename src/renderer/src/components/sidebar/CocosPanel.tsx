@@ -4302,6 +4302,8 @@ function CCFileBatchInspector({
   // R2605: scale 균등 분배
   const [scaleGradFrom, setScaleGradFrom] = useState<number>(1)
   const [scaleGradTo, setScaleGradTo] = useState<number>(2)
+  // R2612: rotation 오프셋
+  const [rotOffsetInput, setRotOffsetInput] = useState<string>('90')
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -18336,6 +18338,37 @@ function CCFileBatchInspector({
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(236,72,153,0.4)', color: '#ec4899', userSelect: 'none', background: 'rgba(236,72,153,0.05)' }}
               >⌐{step}°</span>
             ))}
+          </div>
+        )
+      })()}
+      {/* R2612: rotation 오프셋 추가 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const addRot = async (deg: number) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const cur = typeof n.rotation === 'number' ? n.rotation : ((n.rotation as { z?: number })?.z ?? 0)
+            const next = Math.round(cur + deg)
+            return { ...n, rotation: typeof n.rotation === 'number' ? next : { ...(n.rotation as object), z: next }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 회전 +${deg}° (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const deg = parseFloat(rotOffsetInput) || 0
+        const btnS: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>rot+= (R2612)</span>
+            <span onClick={() => addRot(90)} title="rotation +90°" style={btnS}>+90</span>
+            <span onClick={() => addRot(-90)} title="rotation -90°" style={btnS}>-90</span>
+            <span onClick={() => addRot(180)} title="rotation +180°" style={btnS}>±180</span>
+            <input type="number" value={rotOffsetInput} step={1}
+              onChange={e => setRotOffsetInput(e.target.value)}
+              style={{ width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }}
+              title="사용자 정의 오프셋(°)" />
+            <span onClick={() => addRot(deg)} title={`rotation +${deg}° 적용 (R2612)`} style={btnS}>적용</span>
           </div>
         )
       })()}
