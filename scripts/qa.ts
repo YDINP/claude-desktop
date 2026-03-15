@@ -27936,6 +27936,20 @@ if (
   log('warning', 'R2416-blockinputevents', 'Inspector cc.BlockInputEvents 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1421: R2417 Inspector cc.Animation wrapMode ──────────
+console.log('\n## 1421. R2417 Inspector cc.Animation wrapMode 체크')
+const s1421 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1421.includes('R2417') &&
+  s1421.includes('wrapMode') &&
+  s1421.includes('_wrapMode') &&
+  s1421.includes('cc.Animation')
+) {
+  log('pass', 'R2417-animation-wrapmode', 'Inspector cc.Animation wrapMode 구현 완료')
+} else {
+  log('warning', 'R2417-animation-wrapmode', 'Inspector cc.Animation wrapMode 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

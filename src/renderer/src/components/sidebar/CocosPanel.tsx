@@ -21373,6 +21373,18 @@ function CCFileNodeInspector({
                       title="playback speed"
                     />
                   </div>
+                  {/* R2417: wrapMode (BatchInspector R1984) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>wrapMode</span>
+                    {([['Dflt', 0], ['Norm', 1], ['Loop', 2], ['Ping', 3], ['Clamp', 4]] as const).map(([l, v]) => {
+                      const cur = Number(p.wrapMode ?? p._wrapMode ?? 0)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, wrapMode: v, _wrapMode: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                   {/* R2389: playOnLoad 체크박스 */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.playOnLoad ?? p._playOnLoad ?? p._N$playOnLoad ?? false)}
