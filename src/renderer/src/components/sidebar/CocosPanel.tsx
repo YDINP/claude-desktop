@@ -21502,6 +21502,21 @@ function CCFileNodeInspector({
                       >{v}</span>
                     ))}
                   </div>
+                  {/* R2399: startTime 입력 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>startTime</span>
+                    <input type="number" min={0} step={0.5} defaultValue={Number(p.startTime ?? p._startTime ?? p._N$startTime ?? 0)}
+                      onBlur={e => { const v = Math.max(0, parseFloat(e.target.value) || 0); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startTime: v, _startTime: v, _N$startTime: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="startTime (초)"
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>s</span>
+                    {[0, 5, 10, 30].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startTime: v, _startTime: v, _N$startTime: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
                 </div>
               )
             }

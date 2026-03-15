@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1403: R2399 Inspector cc.VideoPlayer startTime ──────────
+console.log('\n## 1403. R2399 Inspector cc.VideoPlayer startTime 체크')
+const s1403 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1403.includes('R2399') &&
+  s1403.includes('startTime') &&
+  s1403.includes('_N$startTime') &&
+  s1403.includes('cc.VideoPlayer')
+) {
+  log('pass', 'R2399-videoplayer-starttime', 'Inspector cc.VideoPlayer startTime 구현 완료')
+} else {
+  log('warning', 'R2399-videoplayer-starttime', 'Inspector cc.VideoPlayer startTime 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1402: R2398 Inspector cc.Layout constraint + constraintNum + startAxis ──────────
 console.log('\n## 1402. R2398 Inspector cc.Layout constraint + constraintNum + startAxis 체크')
 const s1402 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
