@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1367: R2363 Inspector cc.Sprite packable/meshType ──────────
+console.log('\n## 1367. R2363 Inspector cc.Sprite packable/meshType 체크')
+const s1367 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1367.includes('R2363') &&
+  s1367.includes('packable') &&
+  s1367.includes('meshType') &&
+  s1367.includes('_packable')
+) {
+  log('pass', 'R2363-sprite-packable-meshtype', 'Inspector cc.Sprite packable 체크박스 + meshType 버튼 구현 완료')
+} else {
+  log('warning', 'R2363-sprite-packable-meshtype', 'Inspector cc.Sprite packable/meshType 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1366: R2362 Inspector cc.Widget isAbs* unit toggle ──────────
 console.log('\n## 1366. R2362 Inspector cc.Widget isAbs* px/% 전환 버튼 체크')
 const s1366 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

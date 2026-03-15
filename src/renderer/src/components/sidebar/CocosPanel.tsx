@@ -19372,6 +19372,30 @@ function CCFileNodeInspector({
                       </label>
                     </div>
                   )}
+                  {/* R2363: packable + meshType */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.packable ?? p._packable ?? true)}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, packable: e.target.checked, _packable: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                      />packable
+                    </label>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>mesh:</span>
+                    {([['Reg', 0], ['Poly', 1]] as const).map(([l, v]) => {
+                      const cur = Number(p.meshType ?? p._meshType ?? 0)
+                      return (
+                        <span key={v} title={`meshType=${l}(${v})`}
+                          onClick={() => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, meshType: v, _meshType: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ fontSize: 8, padding: '0 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#4ade80' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                   {/* R1890: flipX / flipY */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>flip</span>
