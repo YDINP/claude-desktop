@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1597: R2605 BatchInspector scale 균등 분배 ───────────────────────
+console.log('\n## 1597. R2605 — BatchInspector scale 균등 분배')
+const s1597 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1597.includes('R2605') &&
+  s1597.includes('scaleGradFrom') &&
+  s1597.includes('scaleGradTo') &&
+  s1597.includes('applyScaleGrad')
+) {
+  log('pass', 'R2605-scale-grad', 'R2605 scale 균등 분배 구현 완료')
+} else {
+  log('warning', 'R2605-scale-grad', 'R2605 scale 균등 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1596: R2604 BatchInspector rotation 균등 분배 ────────────────────
 console.log('\n## 1596. R2604 — BatchInspector rotation 균등 분배')
 const s1596 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
