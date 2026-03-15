@@ -4289,6 +4289,9 @@ function CCFileBatchInspector({
   // R2525: 오파시티 그라디언트
   const [opGradFrom, setOpGradFrom] = useState<number>(255)
   const [opGradTo, setOpGradTo] = useState<number>(0)
+  // R2596: 색상(tint) 그라디언트
+  const [colorGradFrom, setColorGradFrom] = useState<string>('#ffffff')
+  const [colorGradTo, setColorGradTo] = useState<string>('#ff0000')
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -4781,6 +4784,41 @@ function CCFileBatchInspector({
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#c084fc')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >그라디언트</span>
+          </div>
+        )
+      })()}
+      {/* R2596: 색상(tint) 그라디언트 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const applyColorGrad = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          const parseHex = (hex: string) => ({ r: parseInt(hex.slice(1,3),16), g: parseInt(hex.slice(3,5),16), b: parseInt(hex.slice(5,7),16) })
+          const from = parseHex(colorGradFrom)
+          const to = parseHex(colorGradTo)
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            return { ...n, color: { r: Math.round(from.r + (to.r - from.r) * t), g: Math.round(from.g + (to.g - from.g) * t), b: Math.round(from.b + (to.b - from.b) * t), a: (n.color?.a ?? 255) }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 색상 그라디언트 ${colorGradFrom}→${colorGradTo} (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2596)</span>
+            <input type="color" value={colorGradFrom} onChange={e => setColorGradFrom(e.target.value)} style={{ width: 26, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }} title="시작 색상" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="color" value={colorGradTo} onChange={e => setColorGradTo(e.target.value)} style={{ width: 26, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }} title="끝 색상" />
+            <span onClick={applyColorGrad}
+              title={`선택된 ${uuids.length}개 노드에 tint 색상 ${colorGradFrom}→${colorGradTo} 선형 그라디언트 적용 (R2596)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#f472b6', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >색상그라디언트</span>
           </div>
         )
       })()}

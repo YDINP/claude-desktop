@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1588: R2596 BatchInspector 색상(tint) 그라디언트 ─────────────────
+console.log('\n## 1588. R2596 — BatchInspector tint 색상 그라디언트')
+const s1588 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1588.includes('R2596') &&
+  s1588.includes('colorGradFrom') &&
+  s1588.includes('colorGradTo') &&
+  s1588.includes('색상그라디언트')
+) {
+  log('pass', 'R2596-color-grad', 'R2596 색상 그라디언트 구현 완료')
+} else {
+  log('warning', 'R2596-color-grad', 'R2596 색상 그라디언트 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1587: R2595 BatchInspector 크기 통일 (=W/=H/=WH) ────────────────
 console.log('\n## 1587. R2595 — BatchInspector 크기 통일 (첫째 노드 기준)')
 const s1587 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
