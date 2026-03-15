@@ -28657,6 +28657,19 @@ if (
   log('warning', 'R2481-grid-layout', 'R2481 격자 배치 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1474: R2482 BatchInspector 정렬 도구 ────────────────────────────
+const s1474 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1474.includes('R2482') &&
+  s1474.includes('applyAlign') &&
+  s1474.includes('collectAlignPos') &&
+  s1474.includes('정렬')
+) {
+  log('pass', 'R2482-align-tools', 'R2482 BatchInspector 정렬 도구 구현 완료')
+} else {
+  log('warning', 'R2482-align-tools', 'R2482 정렬 도구 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

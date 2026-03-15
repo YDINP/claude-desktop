@@ -17020,6 +17020,46 @@ function CCFileBatchInspector({
           ))}
         </div>
       </div>
+      {/* R2482: 정렬 도구 */}
+      {uuids.length >= 2 && (() => {
+        const posList: { uuid: string; x: number; y: number }[] = []
+        function collectAlignPos(node: CCSceneNode) {
+          if (uuidSet.has(node.uuid)) posList.push({ uuid: node.uuid, x: node.position?.x ?? 0, y: node.position?.y ?? 0 })
+          node.children.forEach(collectAlignPos)
+        }
+        if (sceneFile.root) collectAlignPos(sceneFile.root)
+        const xs = posList.map(p => p.x), ys = posList.map(p => p.y)
+        const minX = Math.min(...xs), maxX = Math.max(...xs)
+        const minY = Math.min(...ys), maxY = Math.max(...ys)
+        const midX = Math.round((minX + maxX) / 2), midY = Math.round((minY + maxY) / 2)
+        const applyAlign = async (axis: 'x' | 'y', value: number) => {
+          if (!sceneFile.root) return
+          const map = new Map(posList.map(p => [p.uuid, p]))
+          function patchAlign(node: CCSceneNode): CCSceneNode {
+            const children = node.children.map(patchAlign)
+            if (!map.has(node.uuid)) return { ...node, children }
+            return { ...node, position: { ...(node.position || {}), [axis]: value }, children }
+          }
+          const result = await saveScene(patchAlign(sceneFile.root!))
+          setBatchMsg(result.success ? `✓ 정렬 (${axis}=${value})` : `✗ 오류`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs = { fontSize: 9, padding: '2px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' } as React.CSSProperties
+        return (
+          <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0, marginRight: 2 }}>⬚ 정렬</span>
+              <button style={bs} onClick={() => applyAlign('x', minX)} title={`왼쪽 정렬 X=${minX} (R2482)`}>←L</button>
+              <button style={bs} onClick={() => applyAlign('x', midX)} title={`수평 중앙 X=${midX} (R2482)`}>↔C</button>
+              <button style={bs} onClick={() => applyAlign('x', maxX)} title={`오른쪽 정렬 X=${maxX} (R2482)`}>R→</button>
+              <span style={{ color: 'var(--border)', fontSize: 10, margin: '0 1px' }}>|</span>
+              <button style={bs} onClick={() => applyAlign('y', maxY)} title={`위쪽 정렬 Y=${maxY} (R2482)`}>↑T</button>
+              <button style={bs} onClick={() => applyAlign('y', midY)} title={`수직 중앙 Y=${midY} (R2482)`}>↕M</button>
+              <button style={bs} onClick={() => applyAlign('y', minY)} title={`아래쪽 정렬 Y=${minY} (R2482)`}>B↓</button>
+            </div>
+          </div>
+        )
+      })()}
       {/* R2479: 원형 배치 */}
       {uuids.length >= 2 && (() => {
         const [circleRadius, setCircleRadius] = React.useState(100)
