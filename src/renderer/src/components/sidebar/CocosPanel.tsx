@@ -20866,6 +20866,67 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R2340: cc.SpotLight — intensity/range/spotAngle Quick Edit
+            if (comp.type === 'cc.SpotLight') {
+              const intensity = Number(p.intensity ?? 1800)
+              const range = Number(p.range ?? 1)
+              const spotAngle = Number(p.spotAngle ?? 30)
+              const lightColor = p.color as { r?: number; g?: number; b?: number } | undefined
+              const hexColor = lightColor
+                ? `#${(lightColor.r ?? 255).toString(16).padStart(2, '0')}${(lightColor.g ?? 255).toString(16).padStart(2, '0')}${(lightColor.b ?? 255).toString(16).padStart(2, '0')}`
+                : '#ffffff'
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>intensity</span>
+                    <input type="number" defaultValue={intensity} key={`si-${intensity}`} min={0} step={100}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, intensity: v, _intensity: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 64, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>range</span>
+                    <input type="number" defaultValue={range} key={`sr-${range}`} min={0} step={0.5}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 1
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, range: v, _range: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 64, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>spotAngle</span>
+                    <input type="number" defaultValue={spotAngle} key={`sa-${spotAngle}`} min={0} max={180} step={5}
+                      onBlur={e => {
+                        const v = Math.max(0, Math.min(180, parseFloat(e.target.value) || 30))
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spotAngle: v, _spotAngle: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 64, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>color</span>
+                    <input type="color" value={hexColor}
+                      onChange={e => {
+                        const hex = e.target.value
+                        const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 28, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{hexColor}</span>
+                  </div>
+                </div>
+              )
+            }
             // R1568: cc.Camera — depth/zoomRatio Quick Edit
             if (comp.type === 'cc.Camera') {
               const depth = Number(p.depth ?? 0)

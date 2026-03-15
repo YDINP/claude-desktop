@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1344: R2340 Inspector cc.SpotLight Quick Edit ──────────
+console.log('\n## 1344. R2340 Inspector cc.SpotLight Quick Edit 체크')
+const s1344 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1344.includes('R2340') &&
+  s1344.includes("comp.type === 'cc.SpotLight'") &&
+  s1344.includes('spotAngle')
+) {
+  log('pass', 'R2340-spotlight-inspector', 'Inspector cc.SpotLight intensity/range/spotAngle/color 편집 구현 완료')
+} else {
+  log('warning', 'R2340-spotlight-inspector', 'Inspector cc.SpotLight Quick Edit 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1343: R2339 씬 트리 노드 색상 태그 커스텀 색상 입력 ──────────
 console.log('\n## 1343. R2339 씬 트리 노드 색상 태그 커스텀 색상 체크')
 const s1343 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
