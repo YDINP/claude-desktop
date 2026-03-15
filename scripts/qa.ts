@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1652: R2660 BatchInspector 가로세로 비율 적용 ────────────────────
+console.log('\n## 1652. R2660 — BatchInspector 가로세로 비율 적용')
+const s1652 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1652.includes('R2660') &&
+  s1652.includes('applyAspectRatio') &&
+  s1652.includes('aspectRatioW') &&
+  s1652.includes('aspectRatioH') &&
+  s1652.includes('비율')
+) {
+  log('pass', 'R2660-aspect-ratio', 'R2660 가로세로 비율 적용 구현 완료')
+} else {
+  log('warning', 'R2660-aspect-ratio', 'R2660 가로세로 비율 적용 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1651: R2659 BatchInspector 크기 W=H 정사각형화 ───────────────────
 console.log('\n## 1651. R2659 — BatchInspector 크기 W=H 정사각형화')
 const s1651 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

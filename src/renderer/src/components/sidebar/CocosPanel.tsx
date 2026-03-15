@@ -4340,6 +4340,9 @@ function CCFileBatchInspector({
   // R2649: 선택 노드 복제 오프셋
   const [cloneOffsetX, setCloneOffsetX] = useState<number>(50)
   const [cloneOffsetY, setCloneOffsetY] = useState<number>(-50)
+  // R2660: 가로세로 비율
+  const [aspectRatioW, setAspectRatioW] = useState<number>(16)
+  const [aspectRatioH, setAspectRatioH] = useState<number>(9)
   // R2650: 노드 이름 일련번호 치환
   const [nameSerialBase, setNameSerialBase] = useState<string>('node')
   const [nameSerialStart, setNameSerialStart] = useState<number>(1)
@@ -6526,6 +6529,40 @@ function CCFileBatchInspector({
               <span key={basis} onClick={() => applySquarify(basis)} title={`W=H 정사각형화 (${label}) (R2659)`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>{label}</span>
             ))}
+          </div>
+        )
+      })()}
+      {/* R2660: 가로세로 비율 적용 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyAspectRatio = async (basis: 'w' | 'h') => {
+          if (!sceneFile.root || aspectRatioW <= 0 || aspectRatioH <= 0) return
+          const ratio = aspectRatioW / aspectRatioH
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const cw = n.size?.x ?? n.size?.width ?? 100
+            const cht = n.size?.y ?? n.size?.height ?? 100
+            const nw = basis === 'w' ? cw : Math.round(cht * ratio)
+            const nh = basis === 'h' ? cht : Math.round(cw / ratio)
+            const newSize = { width: nw, height: nh, x: nw, y: nh }
+            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: nw, height: nh }, _contentSize: { width: nw, height: nh } } } : c)
+            return { ...n, size: newSize, components: updComps, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ${aspectRatioW}:${aspectRatioH} 비율 적용 (${basis.toUpperCase()}기준, ${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 30, fontSize: 9, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>비율 (R2660)</span>
+            <input type="number" value={aspectRatioW} min={1} step={1} onChange={e => setAspectRatioW(parseInt(e.target.value) || 16)} style={niS} title="비율 가로" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>:</span>
+            <input type="number" value={aspectRatioH} min={1} step={1} onChange={e => setAspectRatioH(parseInt(e.target.value) || 9)} style={niS} title="비율 세로" />
+            <span onClick={() => applyAspectRatio('w')} title={`W 고정, H를 ${aspectRatioW}:${aspectRatioH} 비율로 조정 (R2660)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>W기준</span>
+            <span onClick={() => applyAspectRatio('h')} title={`H 고정, W를 ${aspectRatioW}:${aspectRatioH} 비율로 조정 (R2660)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>H기준</span>
           </div>
         )
       })()}
