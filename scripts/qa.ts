@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1625: R2633 BatchInspector cc.Label 폰트 크기 균등 분배 ──────────
+console.log('\n## 1625. R2633 — BatchInspector cc.Label 폰트 크기 균등 분배')
+const s1625 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1625.includes('R2633') &&
+  s1625.includes('applyFontSizeGrad') &&
+  s1625.includes('fontSizeFrom') &&
+  s1625.includes('font분배')
+) {
+  log('pass', 'R2633-font-grad', 'R2633 cc.Label 폰트 크기 균등 분배 구현 완료')
+} else {
+  log('warning', 'R2633-font-grad', 'R2633 cc.Label 폰트 크기 균등 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1624: R2632 BatchInspector 위치 X/Y 미러 ─────────────────────────
 console.log('\n## 1624. R2632 — BatchInspector 위치 X/Y 미러')
 const s1624 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

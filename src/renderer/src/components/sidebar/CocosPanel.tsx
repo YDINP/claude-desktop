@@ -4324,6 +4324,9 @@ function CCFileBatchInspector({
   const [anchorXTo, setAnchorXTo] = useState<number>(1)
   const [anchorYFrom, setAnchorYFrom] = useState<number>(0)
   const [anchorYTo, setAnchorYTo] = useState<number>(1)
+  // R2633: cc.Label 폰트 크기 균등 분배
+  const [fontSizeFrom, setFontSizeFrom] = useState<number>(16)
+  const [fontSizeTo, setFontSizeTo] = useState<number>(48)
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -5154,6 +5157,53 @@ function CCFileBatchInspector({
               title={`선택된 ${uuids.length}개 노드 size.H ${szGradFromH}→${szGradToH} 균등 분배 (R2614)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >분배</span>
+          </div>
+        )
+      })()}
+      {/* R2633: cc.Label 폰트 크기 균등 분배 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        // Label이 있는 노드만 있으면 표시
+        const hasLabel = uuids.some(u => {
+          let found = false
+          function find(n: CCSceneNode) { if (n.uuid === u) { found = n.components.some(c => c.type === 'cc.Label'); return }; n.children.forEach(find) }
+          find(sceneFile.root!)
+          return found
+        })
+        if (!hasLabel) return null
+        const applyFontSizeGrad = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          let labelCounter = 0
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const hasLabelComp = n.components.some(c => c.type === 'cc.Label')
+            if (!hasLabelComp) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const fs = Math.round(fontSizeFrom + (fontSizeTo - fontSizeFrom) * t)
+            labelCounter++
+            const comps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontSize: fs, _fontSize: fs, _N$fontSize: fs } } : c)
+            return { ...n, components: comps, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ font 분배 ${fontSizeFrom}→${fontSizeTo} (${labelCounter}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#67e8f9', flexShrink: 0 }}>font분배 (R2633)</span>
+            <input type="number" value={fontSizeFrom} min={1} onChange={e => setFontSizeFrom(parseInt(e.target.value) || 1)} style={niS} title="시작 fontSize" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={fontSizeTo} min={1} onChange={e => setFontSizeTo(parseInt(e.target.value) || 1)} style={niS} title="끝 fontSize" />
+            <span onClick={applyFontSizeGrad}
+              title={`선택된 ${uuids.length}개 Label 노드 fontSize ${fontSizeFrom}→${fontSizeTo} 균등 분배 (R2633)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#67e8f9', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#67e8f9')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >분배</span>
           </div>
