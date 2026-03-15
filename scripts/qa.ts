@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1653: R2661 SceneView 마우스 크로스헤어 가이드라인 ──────────────
+console.log('\n## 1653. R2661 — SceneView 마우스 크로스헤어 가이드라인')
+const s1653 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1653.includes('R2661') &&
+  s1653.includes('showCrosshair') &&
+  s1653.includes('setShowCrosshair') &&
+  s1653.includes('mouseScenePos') &&
+  s1653.includes('ccToSvg')
+) {
+  log('pass', 'R2661-crosshair', 'R2661 마우스 크로스헤어 가이드라인 구현 완료')
+} else {
+  log('warning', 'R2661-crosshair', 'R2661 마우스 크로스헤어 가이드라인 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1652: R2660 BatchInspector 가로세로 비율 적용 ────────────────────
 console.log('\n## 1652. R2660 — BatchInspector 가로세로 비율 적용')
 const s1652 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

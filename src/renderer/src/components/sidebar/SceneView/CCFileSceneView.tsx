@@ -275,6 +275,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showInactiveDim, setShowInactiveDim] = useState(false)
   // R2658: 노드 색상 tint 시각화
   const [showColorViz, setShowColorViz] = useState(false)
+  // R2661: 마우스 크로스헤어 가이드라인
+  const [showCrosshair, setShowCrosshair] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1750,6 +1752,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showColorViz ? '색상 tint 끄기 (R2658)' : '각 노드 color tint를 rect fill로 시각화 (R2658)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showColorViz ? 'rgba(217,119,6,0.5)' : 'var(--border)'}`, background: showColorViz ? 'rgba(217,119,6,0.12)' : 'none', color: showColorViz ? '#d97706' : 'var(--text-muted)' }}
         >🎨</button>
+        {/* R2661: 마우스 크로스헤어 가이드라인 토글 */}
+        <button
+          onClick={() => setShowCrosshair(v => !v)}
+          title={showCrosshair ? '크로스헤어 끄기 (R2661)' : '마우스 위치 수직/수평 가이드라인 표시 (R2661)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrosshair ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showCrosshair ? 'rgba(148,163,184,0.12)' : 'none', color: showCrosshair ? '#94a3b8' : 'var(--text-muted)' }}
+        >✛</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3260,6 +3268,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       style={{ pointerEvents: 'none' }} />
                   )
                 })}
+              </g>
+            )
+          })()}
+          {/* R2661: 마우스 크로스헤어 가이드라인 */}
+          {showCrosshair && mouseScenePos && (() => {
+            const sp = ccToSvg(mouseScenePos.x, mouseScenePos.y)
+            const sw = 1 / view.zoom
+            const viewW = svgRef.current?.clientWidth ?? 800
+            const viewH = svgRef.current?.clientHeight ?? 600
+            const left = (0 - view.offsetX) / view.zoom
+            const right = (viewW - view.offsetX) / view.zoom
+            const top = (0 - view.offsetY) / view.zoom
+            const bottom = (viewH - view.offsetY) / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <line x1={left} y1={sp.y} x2={right} y2={sp.y} stroke="rgba(148,163,184,0.5)" strokeWidth={sw} />
+                <line x1={sp.x} y1={top} x2={sp.x} y2={bottom} stroke="rgba(148,163,184,0.5)" strokeWidth={sw} />
               </g>
             )
           })()}
