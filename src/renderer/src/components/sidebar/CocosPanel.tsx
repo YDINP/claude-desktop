@@ -17885,6 +17885,20 @@ function CCFileBatchInspector({
           <div style={{ display: 'flex', gap: 4, marginBottom: 4, paddingLeft: 52 }}>
             <span onClick={exportNodes} title={`선택 ${uuids.length}개 노드를 JSON 파일로 내보내기 (R2559)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>⬇ JSON</span>
+            {/* R2580: 선택 노드 이름 목록 클립보드 복사 */}
+            <span
+              onClick={() => {
+                if (!sceneFile.root) return
+                const names: string[] = []
+                function collectNames(n: CCSceneNode) { if (uuidSet.has(n.uuid)) names.push(n.name); n.children.forEach(collectNames) }
+                collectNames(sceneFile.root)
+                navigator.clipboard.writeText(names.join('\n')).catch(() => {})
+                setBatchMsg(`✓ 이름 ${names.length}개 복사 (R2580)`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              title={`선택 노드 이름 목록 복사 (줄바꿈 구분) — R2580`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none', background: 'rgba(148,163,184,0.05)' }}
+            >📋 이름</span>
           </div>
         )
       })()}

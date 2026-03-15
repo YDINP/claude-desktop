@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1572: R2580 BatchInspector 선택 노드 이름 목록 복사 (📋 이름) ──────
+console.log('\n## 1572. R2580 — BatchInspector 선택 노드 이름 목록 복사')
+const s1572 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1572.includes('R2580') &&
+  s1572.includes('collectNames') &&
+  s1572.includes('📋 이름')
+) {
+  log('pass', 'R2580-copy-names', 'R2580 노드 이름 목록 복사 구현 완료')
+} else {
+  log('warning', 'R2580-copy-names', 'R2580 노드 이름 목록 복사 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1571: R2579 SceneView 컴포넌트 배지 오버레이 (⚙) ─────────────────
 console.log('\n## 1571. R2579 — SceneView 컴포넌트 배지 오버레이 (⚙)')
 const s1571sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
