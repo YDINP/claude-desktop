@@ -28345,6 +28345,19 @@ if (
   log('warning', 'R2446-richtext-gaps', 'Inspector cc.RichText gaps 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1451: R2447 cc.EditBox placeholderFontSize+fontColor+placeholderFontColor ───────────
+console.log('\n## 1451. R2447 cc.EditBox gaps 체크')
+const s1451 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1451.includes('R2447') &&
+  s1451.includes('placeholderFontSize') &&
+  s1451.includes('placeholderFontColor')
+) {
+  log('pass', 'R2447-editbox-gaps', 'Inspector cc.EditBox placeholderFontSize+fontColor+placeholderFontColor 구현 완료')
+} else {
+  log('warning', 'R2447-editbox-gaps', 'Inspector cc.EditBox gaps 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -19933,6 +19933,34 @@ function CCFileNodeInspector({
                         }} />
                     </div>
                   </div>
+                  {/* R2447: placeholderFontSize + fontColor + placeholderFontColor (BatchInspector R2208) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                    <label style={{ fontSize: 11, flexShrink: 0, width: 100 }}>phFontSize</label>
+                    <input type="number" defaultValue={Number(p.placeholderFontSize ?? p._placeholderFontSize ?? p._N$placeholderFontSize ?? 20)} min={1} step={2}
+                      style={{ width: 52, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                      onBlur={ev => { const v = Math.max(1, parseInt(ev.target.value) || 20); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholderFontSize: v, _placeholderFontSize: v, _N$placeholderFontSize: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                  </div>
+                  {(() => {
+                    const fc = p.fontColor ?? p._fontColor ?? p._N$fontColor as { r?: number; g?: number; b?: number } | undefined
+                    const pfc = p.placeholderFontColor ?? p._placeholderFontColor ?? p._N$placeholderFontColor as { r?: number; g?: number; b?: number } | undefined
+                    const fcHex = fc ? `#${(((fc as Record<string,number>).r ?? 255) << 16 | ((fc as Record<string,number>).g ?? 255) << 8 | ((fc as Record<string,number>).b ?? 255)).toString(16).padStart(6, '0')}` : '#ffffff'
+                    const pfcHex = pfc ? `#${(((pfc as Record<string,number>).r ?? 127) << 16 | ((pfc as Record<string,number>).g ?? 127) << 8 | ((pfc as Record<string,number>).b ?? 127)).toString(16).padStart(6, '0')}` : '#888888'
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, flexWrap: 'wrap' }}>
+                        <label style={{ fontSize: 11, flexShrink: 0 }}>fontColor</label>
+                        <input type="color" defaultValue={fcHex}
+                          style={{ width: 26, height: 20, border: '1px solid #444', borderRadius: 2, padding: 0, cursor: 'pointer', background: 'none' }}
+                          onChange={ev => { const h = ev.target.value; const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16); const col = {r,g,b,a:255}; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontColor: col, _fontColor: col, _N$fontColor: col } } : c); applyAndSave({ components: u }) }}
+                        />
+                        <label style={{ fontSize: 11, flexShrink: 0 }}>phColor</label>
+                        <input type="color" defaultValue={pfcHex}
+                          style={{ width: 26, height: 20, border: '1px solid #444', borderRadius: 2, padding: 0, cursor: 'pointer', background: 'none' }}
+                          onChange={ev => { const h = ev.target.value; const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16); const col = {r,g,b,a:255}; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholderFontColor: col, _placeholderFontColor: col, _N$placeholderFontColor: col } } : c); applyAndSave({ components: u }) }}
+                        />
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }
