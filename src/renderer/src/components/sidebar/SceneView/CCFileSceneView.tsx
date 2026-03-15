@@ -90,6 +90,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [snapIndicator, setSnapIndicator] = useState<{ x: number; y: number } | null>(null)
   // R1602: 눈금자 오버레이
   const [showRuler, setShowRuler] = useState(false)
+  // R2319: 카메라 프레임 토글
+  const [showCameraFrames, setShowCameraFrames] = useState(true)
   // R1605: 편집 잠금 (View-only lock)
   const [viewLock, setViewLock] = useState(false)
   // R1610: 비활성 노드 완전 숨기기
@@ -1164,6 +1166,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title="씬 SVG 파일 내보내기 (R2315)"
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >SVG</button>
+        {/* R2319: 카메라 프레임 토글 */}
+        {cameraFrames.length > 0 && (
+          <button
+            onClick={() => setShowCameraFrames(v => !v)}
+            title={showCameraFrames ? '카메라 프레임 숨기기 (R2319)' : '카메라 프레임 표시 (R2319)'}
+            style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCameraFrames ? 'rgba(255,200,60,0.5)' : 'var(--border)'}`, background: showCameraFrames ? 'rgba(255,200,60,0.1)' : 'none', color: showCameraFrames ? 'rgba(255,200,60,0.9)' : 'var(--text-muted)' }}
+          >📷</button>
+        )}
         {/* R1530: 디자인 레퍼런스 이미지 overlay */}
         <input ref={refImgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
           onChange={e => {
@@ -2122,8 +2132,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })()}
-        {/* R2318: cc.Camera 뷰 프레임 오버레이 */}
-        {cameraFrames.map((cam, i) => {
+        {/* R2318/R2319: cc.Camera 뷰 프레임 오버레이 (토글 가능) */}
+        {showCameraFrames && cameraFrames.map((cam, i) => {
           const sp = ccToSvg(cam.worldX, cam.worldY)
           return (
             <g key={i} pointerEvents="none">

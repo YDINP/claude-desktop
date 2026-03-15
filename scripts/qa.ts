@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1323: R2319 씬뷰 카메라 프레임 토글 버튼 ──────────
+console.log('\n## 1323. R2319 씬뷰 카메라 프레임 토글 버튼 체크')
+const s1323 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1323.includes('showCameraFrames') &&
+  s1323.includes('setShowCameraFrames') &&
+  s1323.includes('R2319')
+) {
+  log('pass', 'R2319-camera-frame-toggle', '카메라 프레임 토글 버튼 구현 완료')
+} else {
+  log('warning', 'R2319-camera-frame-toggle', '카메라 프레임 토글 미구현', 'SceneView/CCFileSceneView.tsx')
+}
+
 // ── Section 1322: R2318 씬뷰 cc.Camera 뷰 프레임 오버레이 ──────────
 console.log('\n## 1322. R2318 씬뷰 cc.Camera 뷰 프레임 오버레이 체크')
 const s1322 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
