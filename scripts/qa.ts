@@ -28595,6 +28595,19 @@ if (
   log('warning', 'R2472-multi-drag', 'R2472 다중 드래그 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1469: R2474 Inspector 핀 노드 ───────────────────────────────────
+const s1469 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1469.includes('R2474') &&
+  s1469.includes('pinnedNodes') &&
+  s1469.includes('togglePinNode') &&
+  s1469.includes('cc-pinned-nodes')
+) {
+  log('pass', 'R2474-pin-nodes', 'R2474 Inspector 핀 노드 구현 완료')
+} else {
+  log('warning', 'R2474-pin-nodes', 'R2474 핀 노드 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
