@@ -11014,7 +11014,7 @@ function CCFileBatchInspector({
             const updComps = n.components.map(c => {
               if (c.type !== 'cc.ParticleSystem') return c
               const grav = (c.props?.gravity as { x?: number; y?: number } | undefined) ?? {}
-              return { ...c, props: { ...c.props, gravity: { x: grav.x ?? 0, y: gy } } }
+              const newGrav = { x: grav.x ?? 0, y: gy }; return { ...c, props: { ...c.props, gravity: newGrav, _gravity: newGrav, _N$gravity: newGrav } }
             })
             return { ...n, components: updComps, children }
           }
@@ -18353,7 +18353,7 @@ function CCFileNodeInspector({
                 <span
                   title={allEnabled ? '모든 컴포넌트 비활성화 (R1704)' : '모든 컴포넌트 활성화 (R1704)'}
                   onClick={() => {
-                    const updated = draft.components.map(c => ({ ...c, props: { ...c.props, enabled: !allEnabled } }))
+                    const updated = draft.components.map(c => ({ ...c, props: { ...c.props, enabled: !allEnabled, _enabled: !allEnabled } }))
                     applyAndSave({ components: updated })
                   }}
                   style={{ fontSize: 8, cursor: 'pointer', color: allEnabled ? '#555' : '#fbbf24', padding: '0 3px' }}
