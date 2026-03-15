@@ -261,6 +261,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSceneBBox, setShowSceneBBox] = useState(false)
   // R2640: 선택 순서 번호 오버레이
   const [showSelOrder, setShowSelOrder] = useState(false)
+  // R2641: 앵커 포인트 시각화 오버레이
+  const [showAnchorDot, setShowAnchorDot] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1687,6 +1689,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSelOrder ? '선택 순서 번호 끄기 (R2640)' : '선택된 노드에 배치 순서 번호 ①② 표시 (R2640)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelOrder ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSelOrder ? 'rgba(52,211,153,0.12)' : 'none', color: showSelOrder ? '#34d399' : 'var(--text-muted)' }}
         >①</button>
+        {/* R2641: 앵커 포인트 시각화 오버레이 토글 */}
+        <button
+          onClick={() => setShowAnchorDot(v => !v)}
+          title={showAnchorDot ? '앵커 포인트 끄기 (R2641)' : '각 노드의 앵커 포인트 십자 마커 표시 (R2641)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showAnchorDot ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showAnchorDot ? 'rgba(251,146,60,0.12)' : 'none', color: showAnchorDot ? '#fb923c' : 'var(--text-muted)' }}
+        >⊕</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2686,6 +2694,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(52,211,153,0.95)" fontFamily="monospace" fontWeight="bold"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{selIdx + 1}</text>
+                  )
+                })()}
+                {/* R2641: 앵커 포인트 십자 마커 */}
+                {showAnchorDot && w > 0 && h > 0 && (() => {
+                  const ax = node.anchor?.x ?? 0.5
+                  const ay = node.anchor?.y ?? 0.5
+                  const apx = rectX + w * ax
+                  const apy = rectY + h * (1 - ay)
+                  const r = Math.max(2, 4 / view.zoom)
+                  const sw = 1 / view.zoom
+                  return (
+                    <g style={{ pointerEvents: 'none' }}>
+                      <line x1={apx - r} y1={apy} x2={apx + r} y2={apy} stroke="#fb923c" strokeWidth={sw} />
+                      <line x1={apx} y1={apy - r} x2={apx} y2={apy + r} stroke="#fb923c" strokeWidth={sw} />
+                      <circle cx={apx} cy={apy} r={sw * 1.5} fill="#fb923c" />
+                    </g>
                   )
                 })()}
                 {/* R2636: 캔버스 경계 초과 노드 강조 */}

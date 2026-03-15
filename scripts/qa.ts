@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1633: R2641 SceneView 앵커 포인트 십자 마커 오버레이 ───────────────
+console.log('\n## 1633. R2641 — SceneView 앵커 포인트 십자 마커 오버레이')
+const s1633 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1633.includes('R2641') &&
+  s1633.includes('showAnchorDot') &&
+  s1633.includes('setShowAnchorDot') &&
+  s1633.includes('fb923c')
+) {
+  log('pass', 'R2641-anchor-dot', 'R2641 앵커 포인트 십자 마커 구현 완료')
+} else {
+  log('warning', 'R2641-anchor-dot', 'R2641 앵커 포인트 십자 마커 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1632: R2640 SceneView 선택 순서 번호 오버레이 ─────────────────────
 console.log('\n## 1632. R2640 — SceneView 선택 순서 번호 오버레이')
 const s1632 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
