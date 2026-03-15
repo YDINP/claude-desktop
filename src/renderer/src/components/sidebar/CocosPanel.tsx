@@ -22702,15 +22702,36 @@ function CCFileNodeInspector({
                       >{v}</span>
                     ))}
                   </div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
-                    <input type="checkbox" checked={fixedRotation}
-                      onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fixedRotation: e.target.checked, _fixedRotation: e.target.checked, _N$fixedRotation: e.target.checked } } : c)
-                        applyAndSave({ components: updated })
-                      }}
-                      style={{ margin: 0, accentColor: '#58a6ff' }}
-                    />fixedRotation
-                  </label>
+                  {/* R2366: fixedRotation + bullet + allowSleep */}
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={fixedRotation}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fixedRotation: e.target.checked, _fixedRotation: e.target.checked, _N$fixedRotation: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ margin: 0, accentColor: '#58a6ff' }}
+                      />fixedRot
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.bullet ?? p._bullet ?? p._N$bullet ?? false)}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, bullet: e.target.checked, _bullet: e.target.checked, _N$bullet: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ margin: 0, accentColor: '#58a6ff' }}
+                      />bullet
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.allowSleep ?? p._allowSleep ?? p._N$allowSleep ?? true)}
+                        onChange={e => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, allowSleep: e.target.checked, _allowSleep: e.target.checked, _N$allowSleep: e.target.checked } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ margin: 0, accentColor: '#58a6ff' }}
+                      />allowSleep
+                    </label>
+                  </div>
                 </div>
               )
             }
