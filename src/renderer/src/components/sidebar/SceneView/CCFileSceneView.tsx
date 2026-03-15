@@ -115,6 +115,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showCameraFrames, setShowCameraFrames] = useState(true)
   // R2456: 그리드 오버레이 토글
   const [showGrid, setShowGrid] = useState(false)
+  // R2501: 중심선 가이드 오버레이 (CC 좌표 원점 기준 수직/수평선)
+  const [showCrossGuide, setShowCrossGuide] = useState(false)
   // R1605: 편집 잠금 (View-only lock)
   const [viewLock, setViewLock] = useState(false)
   // R1610: 비활성 노드 완전 숨기기
@@ -1158,6 +1160,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={`그리드 오버레이 (${snapSize}px 간격) — ${showGrid ? '숨기기' : '표시'}`}
           style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showGrid ? 'rgba(100,220,100,0.5)' : 'var(--border)'}`, background: showGrid ? 'rgba(100,220,100,0.1)' : 'none', color: showGrid ? 'rgba(100,220,100,0.9)' : 'var(--text-muted)', flexShrink: 0 }}
         >#</button>
+        {/* R2501: 중심선 가이드 오버레이 토글 */}
+        <button
+          onClick={() => setShowCrossGuide(g => !g)}
+          title={`중심선 가이드 — CC 좌표 원점(0,0) 기준 수직/수평선 (R2501)`}
+          style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrossGuide ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showCrossGuide ? 'rgba(251,146,60,0.1)' : 'none', color: showCrossGuide ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', flexShrink: 0 }}
+        >⊕</button>
         {/* R1681: 선택 노드 테두리 색상 */}
         <input
           type="color"
@@ -1567,6 +1575,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               lines.push(<line key={`h${y}`} x1={0} y1={y} x2={effectiveW} y2={y} stroke={isOrigin ? 'rgba(80,200,80,0.3)' : strokeCol} strokeWidth={sw} />)
             }
             return <g style={{ pointerEvents: 'none' }}>{lines}</g>
+          })()}
+          {/* R2501: 중심선 가이드 — CC 좌표 원점(0,0) 수직/수평선 */}
+          {showCrossGuide && (() => {
+            const ox = effectiveW / 2, oy = effectiveH / 2
+            const sw = 1 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <line x1={ox} y1={0} x2={ox} y2={effectiveH} stroke="rgba(251,146,60,0.5)" strokeWidth={sw} strokeDasharray={`${4 / view.zoom},${4 / view.zoom}`} />
+                <line x1={0} y1={oy} x2={effectiveW} y2={oy} stroke="rgba(251,146,60,0.5)" strokeWidth={sw} strokeDasharray={`${4 / view.zoom},${4 / view.zoom}`} />
+                <circle cx={ox} cy={oy} r={4 / view.zoom} fill="rgba(251,146,60,0.6)" />
+              </g>
+            )
           })()}
           {/* R1530: 디자인 레퍼런스 이미지 overlay */}
           {refImgSrc && (

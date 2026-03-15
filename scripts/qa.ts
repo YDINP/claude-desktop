@@ -28895,6 +28895,18 @@ if (
   log('warning', 'R2500-invert-select', 'R2500 선택 반전 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1493: R2501 씬뷰 중심선 가이드 오버레이 ──────────────────────────
+const s1493 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1493.includes('R2501') &&
+  s1493.includes('showCrossGuide') &&
+  s1493.includes('중심선 가이드')
+) {
+  log('pass', 'R2501-cross-guide', 'R2501 씬뷰 중심선 가이드 오버레이 구현 완료')
+} else {
+  log('warning', 'R2501-cross-guide', 'R2501 중심선 가이드 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
