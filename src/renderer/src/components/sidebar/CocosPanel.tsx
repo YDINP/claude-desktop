@@ -16941,6 +16941,33 @@ function CCFileBatchInspector({
           })}
         </div>
       </div>
+      {/* R2467: 컴포넌트 일괄 추가 */}
+      <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>컴포넌트 일괄 추가</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+          {(['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource', 'cc.UIOpacity', 'cc.Mask'] as const).map(ct => (
+            <span
+              key={ct}
+              title={`선택 ${uuids.length}개 노드에 ${ct} 추가 (R2467)`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                function patchAddComp(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(patchAddComp)
+                  if (!uuidSet.has(n.uuid)) return { ...n, children }
+                  if (n.components.some(c => c.type === ct)) return { ...n, children }
+                  return { ...n, components: [...n.components, { type: ct, props: {} }], children }
+                }
+                const result = await saveScene(patchAddComp(sceneFile.root))
+                setBatchMsg(result.success ? `✓ ${ct.split('.').pop()} 추가 (${uuids.length}개)` : `✗ 오류`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 9, padding: '2px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#4ade80')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >{ct.split('.').pop()}</span>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
