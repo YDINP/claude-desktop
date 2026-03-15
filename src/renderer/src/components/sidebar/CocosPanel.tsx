@@ -8800,7 +8800,7 @@ function CCFileBatchInspector({
                 function patchAnim(n: CCSceneNode): CCSceneNode {
                   const children = n.children.map(patchAnim)
                   if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, [key]: val } } : c)
+                  const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } } : c)
                   return { ...n, components: updComps, children }
                 }
                 await saveScene(patchAnim(sceneFile.root))
@@ -14699,7 +14699,7 @@ function CCFileBatchInspector({
           function patchSprFlip(n: CCSceneNode): CCSceneNode {
             const children = n.children.map(patchSprFlip)
             if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value } } : c)
+            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } } : c)
             return { ...n, components: updComps, children }
           }
           await saveScene({ ...sceneFile, root: patchSprFlip(sceneFile.root) })
@@ -18951,7 +18951,7 @@ function CCFileNodeInspector({
                           <input type="checkbox" checked={val}
                             onChange={e => {
                               const v = e.target.checked
-                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key]: v, [`_${key}`]: v } } : c)
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key]: v, [`_${key}`]: v, [`_N$${key}`]: v } } : c)
                               applyAndSave({ components: updated })
                             }}
                           />flip{axis}
@@ -21198,7 +21198,7 @@ function CCFileNodeInspector({
                       <label key={key as string} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                         <input type="checkbox" checked={val as boolean}
                           onChange={e => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key as string]: e.target.checked } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [key as string]: e.target.checked, [`_${key as string}`]: e.target.checked, [`_N$${key as string}`]: e.target.checked } } : c)
                             applyAndSave({ components: updated })
                           }}
                         />{label as string}

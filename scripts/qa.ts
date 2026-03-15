@@ -25433,6 +25433,20 @@ if (
   log('warning', 'R2310-ps-gravity-all-enabled-cc3x', 'PS gravity/all-enabled CC3.x 갭 미수정', 'CocosPanel.tsx')
 }
 
+// ── Section 1315: R2311 cc.Animation BatchInspector + cc.Sprite flipX/Y + cc.ScrollView 단일노드 computed key _N$* ──────────
+console.log('\n## 1315. R2311 Animation/Sprite flip/ScrollView computed key CC3.x 체크')
+const s1315 = s1314
+if (
+  s1315.includes("c.type === 'cc.Animation' ? { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } } : c)") &&
+  s1315.includes("(c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } } : c)") &&
+  s1315.includes('[`_N$${key}`]: v') &&
+  s1315.includes('[`_N$${key as string}`]: e.target.checked')
+) {
+  log('pass', 'R2311-computed-key-animation-sprite-scrollview-cc3x', 'cc.Animation/Sprite flipX/Y/ScrollView 단일노드 computed key _N$* 갭 수정')
+} else {
+  log('warning', 'R2311-computed-key-animation-sprite-scrollview-cc3x', 'cc.Animation/Sprite/ScrollView computed key CC3.x 갭 미수정', 'CocosPanel.tsx')
+}
+
 // ── Section 1191: R2229 BatchInspector cc.Slider _direction (CC3.x) ──────────
 console.log('\n## 1191. R2229 BatchInspector cc.Slider _direction 체크')
 const s1191 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
