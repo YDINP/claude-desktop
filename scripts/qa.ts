@@ -29017,6 +29017,18 @@ if (
   log('warning', 'R2510-same-name-select', 'R2510 같은 이름 선택 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1503: R2511 SceneView 엣지 거리 가이드선 ──────────────────────────
+const s1503 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1503.includes('R2511') &&
+  s1503.includes('showEdgeGuides') &&
+  s1503.includes('엣지 가이드선')
+) {
+  log('pass', 'R2511-edge-guides', 'R2511 SceneView 엣지 거리 가이드선 구현 완료')
+} else {
+  log('warning', 'R2511-edge-guides', 'R2511 엣지 가이드선 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

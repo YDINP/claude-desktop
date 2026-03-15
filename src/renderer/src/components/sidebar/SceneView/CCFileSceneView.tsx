@@ -117,6 +117,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showGrid, setShowGrid] = useState(false)
   // R2501: 중심선 가이드 오버레이 (CC 좌표 원점 기준 수직/수평선)
   const [showCrossGuide, setShowCrossGuide] = useState(false)
+  // R2511: 선택 노드 엣지-캔버스 거리 가이드선
+  const [showEdgeGuides, setShowEdgeGuides] = useState(false)
   // R1605: 편집 잠금 (View-only lock)
   const [viewLock, setViewLock] = useState(false)
   // R1610: 비활성 노드 완전 숨기기
@@ -1166,6 +1168,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={`중심선 가이드 — CC 좌표 원점(0,0) 기준 수직/수평선 (R2501)`}
           style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrossGuide ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showCrossGuide ? 'rgba(251,146,60,0.1)' : 'none', color: showCrossGuide ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', flexShrink: 0 }}
         >⊕</button>
+        {/* R2511: 엣지 거리 가이드선 토글 */}
+        <button
+          onClick={() => setShowEdgeGuides(g => !g)}
+          title={`엣지 가이드선 — 선택 노드와 캔버스 경계 거리 표시 (R2511)`}
+          style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEdgeGuides ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showEdgeGuides ? 'rgba(129,140,248,0.1)' : 'none', color: showEdgeGuides ? 'rgba(129,140,248,0.9)' : 'var(--text-muted)', flexShrink: 0 }}
+        >⊢</button>
         {/* R1681: 선택 노드 테두리 색상 */}
         <input
           type="color"
@@ -1601,6 +1609,40 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 <line x1={sp.x - r * 2} y1={sp.y} x2={sp.x + r * 2} y2={sp.y} stroke="rgba(251,146,60,0.7)" strokeWidth={sw} />
                 <line x1={sp.x} y1={sp.y - r * 2} x2={sp.x} y2={sp.y + r * 2} stroke="rgba(251,146,60,0.7)" strokeWidth={sw} />
                 <circle cx={sp.x} cy={sp.y} r={r} fill="none" stroke="rgba(251,146,60,0.7)" strokeWidth={sw} />
+              </g>
+            )
+          })()}
+          {/* R2511: 선택 노드 엣지-캔버스 거리 가이드선 */}
+          {showEdgeGuides && selectedUuid && (() => {
+            const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!fn) return null
+            const sp = ccToSvg(fn.worldX, fn.worldY)
+            const w = fn.node.size?.x ?? 0, h = fn.node.size?.y ?? 0
+            const sw = 1 / view.zoom
+            const fs = 9 / view.zoom
+            const canL = 0, canR = effectiveW, canT = 0, canB = effectiveH
+            const nodeL = sp.x - w / 2, nodeR = sp.x + w / 2
+            const nodeT = sp.y - h / 2, nodeB = sp.y + h / 2
+            const dL = Math.round(fn.worldX - (-effectiveW / 2) - w / 2)
+            const dR = Math.round(effectiveW / 2 - fn.worldX - w / 2)
+            const dT = Math.round(effectiveH / 2 - fn.worldY - h / 2)
+            const dB = Math.round(fn.worldY - (-effectiveH / 2) - h / 2)
+            const gc = 'rgba(129,140,248,0.5)'
+            const tc = 'rgba(129,140,248,0.8)'
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                {/* Left guide */}
+                <line x1={canL} y1={sp.y} x2={nodeL} y2={sp.y} stroke={gc} strokeWidth={sw} strokeDasharray={`${3/view.zoom},${3/view.zoom}`} />
+                <text x={(canL + nodeL) / 2} y={sp.y - 2 / view.zoom} fontSize={fs} fill={tc} textAnchor="middle">{dL}</text>
+                {/* Right guide */}
+                <line x1={nodeR} y1={sp.y} x2={canR} y2={sp.y} stroke={gc} strokeWidth={sw} strokeDasharray={`${3/view.zoom},${3/view.zoom}`} />
+                <text x={(nodeR + canR) / 2} y={sp.y - 2 / view.zoom} fontSize={fs} fill={tc} textAnchor="middle">{dR}</text>
+                {/* Top guide */}
+                <line x1={sp.x} y1={canT} x2={sp.x} y2={nodeT} stroke={gc} strokeWidth={sw} strokeDasharray={`${3/view.zoom},${3/view.zoom}`} />
+                <text x={sp.x + 2 / view.zoom} y={(canT + nodeT) / 2} fontSize={fs} fill={tc}>{dT}</text>
+                {/* Bottom guide */}
+                <line x1={sp.x} y1={nodeB} x2={sp.x} y2={canB} stroke={gc} strokeWidth={sw} strokeDasharray={`${3/view.zoom},${3/view.zoom}`} />
+                <text x={sp.x + 2 / view.zoom} y={(nodeB + canB) / 2} fontSize={fs} fill={tc}>{dB}</text>
               </g>
             )
           })()}
