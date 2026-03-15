@@ -29161,6 +29161,33 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1613: R2621 BatchInspector opacity 스냅 ──────────────────────────
+console.log('\n## 1613. R2621 — BatchInspector opacity 스냅')
+const s1613 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1613.includes('R2621') &&
+  s1613.includes('applyOpSnap') &&
+  s1613.includes('op스냅')
+) {
+  log('pass', 'R2621-op-snap', 'R2621 opacity 스냅 구현 완료')
+} else {
+  log('warning', 'R2621-op-snap', 'R2621 opacity 스냅 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1612: R2620 SceneView 스케일 배수 텍스트 오버레이 ────────────────
+console.log('\n## 1612. R2620 — SceneView 스케일 배수 텍스트 오버레이')
+const s1612 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1612.includes('R2620') &&
+  s1612.includes('showScaleLabel') &&
+  s1612.includes('setShowScaleLabel') &&
+  s1612.includes('×S')
+) {
+  log('pass', 'R2620-scale-label', 'R2620 스케일 배수 텍스트 오버레이 구현 완료')
+} else {
+  log('warning', 'R2620-scale-label', 'R2620 스케일 배수 텍스트 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1611: R2619 BatchInspector position Y 균등 분배 ──────────────────
 console.log('\n## 1611. R2619 — BatchInspector position Y 균등 분배')
 const s1611 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

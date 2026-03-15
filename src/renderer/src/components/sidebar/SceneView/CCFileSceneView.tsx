@@ -245,6 +245,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSizeOverlay, setShowSizeOverlay] = useState(false)
   // R2617: 원점(0,0) 십자선 오버레이
   const [showOriginCross, setShowOriginCross] = useState(false)
+  // R2620: 스케일 배수 텍스트 오버레이 (scale≠1 노드에 ×sx,sy 표시)
+  const [showScaleLabel, setShowScaleLabel] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1623,6 +1625,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showOriginCross ? '원점 십자선 끄기 (R2617)' : 'CC 좌표 (0,0) 원점 십자선 표시 (R2617)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOriginCross ? 'rgba(74,222,128,0.5)' : 'var(--border)'}`, background: showOriginCross ? 'rgba(74,222,128,0.12)' : 'none', color: showOriginCross ? '#4ade80' : 'var(--text-muted)' }}
         >⊕</button>
+        {/* R2620: 스케일 배수 텍스트 오버레이 토글 */}
+        <button
+          onClick={() => setShowScaleLabel(v => !v)}
+          title={showScaleLabel ? '스케일 표시 끄기 (R2620)' : 'scale≠1 노드에 ×sx,sy 배수 표시 (R2620)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showScaleLabel ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showScaleLabel ? 'rgba(250,204,21,0.12)' : 'none', color: showScaleLabel ? '#facc15' : 'var(--text-muted)' }}
+        >×S</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2572,6 +2580,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(251,191,36,0.9)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{pct}%</text>
+                  )
+                })()}
+                {/* R2620: 스케일 배수 텍스트 오버레이 */}
+                {showScaleLabel && view.zoom > 0.3 && (() => {
+                  const sc = node.scale as { x: number; y: number }
+                  const sx = sc?.x ?? 1, sy = sc?.y ?? 1
+                  if (Math.abs(sx - 1) < 0.01 && Math.abs(sy - 1) < 0.01) return null
+                  const fmtN = (v: number) => (Math.abs(v - Math.round(v)) < 0.01 ? Math.round(v).toString() : v.toFixed(2))
+                  const label = sx === sy ? `×${fmtN(sx)}` : `×${fmtN(sx)},${fmtN(sy)}`
+                  const fs = Math.max(5, 7 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + 1/view.zoom} y={rectY + fs * 1.2}
+                      textAnchor="start"
+                      fontSize={fs} fill="rgba(250,204,21,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{label}</text>
                   )
                 })()}
                 {/* R2557: Label 텍스트 콘텐츠 오버레이 */}

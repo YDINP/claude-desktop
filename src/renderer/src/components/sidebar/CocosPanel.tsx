@@ -4844,6 +4844,36 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2621: opacity 스냅 — 선택 노드 불투명도를 N 배수로 반올림 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyOpSnap = async (step: number) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const cur = n.opacity ?? 255
+            const snapped = Math.max(0, Math.min(255, Math.round(cur / step) * step))
+            return { ...n, opacity: snapped, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ opacity 스냅 ${step} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const btnS: React.CSSProperties = { fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#c084fc', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op스냅 (R2621)</span>
+            {[64, 128, 192, 255].map(step => (
+              <span key={step} onClick={() => applyOpSnap(step)}
+                title={`opacity를 ${step} 배수로 반올림 (R2621)`}
+                style={btnS}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#c084fc')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+              >{step}</span>
+            ))}
+          </div>
+        )
+      })()}
       {/* R2596: 색상(tint) 그라디언트 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyColorGrad = async () => {
