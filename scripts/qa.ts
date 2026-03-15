@@ -25493,6 +25493,22 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1377: R2373 Inspector cc.Graphics lineJoin/lineCap/miterLimit/fillOpacity/strokeOpacity ──────────
+console.log('\n## 1377. R2373 Inspector cc.Graphics 추가 속성 체크')
+const s1377 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1377.includes('R2373') &&
+  s1377.includes('lineJoin') &&
+  s1377.includes('lineCap') &&
+  s1377.includes('miterLimit') &&
+  s1377.includes('fillOpacity') &&
+  s1377.includes('strokeOpacity')
+) {
+  log('pass', 'R2373-graphics-extra', 'Inspector cc.Graphics lineJoin/lineCap/miterLimit/opacity 구현 완료')
+} else {
+  log('warning', 'R2373-graphics-extra', 'Inspector cc.Graphics 추가 속성 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1376: R2372 Inspector cc.Label enableDashLine (CC3.x) ──────────
 console.log('\n## 1376. R2372 Inspector cc.Label enableDashLine 체크')
 const s1376 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

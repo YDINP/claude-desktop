@@ -19203,6 +19203,46 @@ function CCFileNodeInspector({
                         }} />
                     </div>
                   </div>
+                  {/* R2373: lineJoin / lineCap / miterLimit / fillOpacity / strokeOpacity */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>join</span>
+                    {(['miter', 'round', 'bevel'] as const).map(v => (
+                      <span key={v} title={`lineJoin=${v}`}
+                        onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineJoin: v, _lineJoin: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${(p.lineJoin ?? 'miter') === v ? '#60a5fa' : 'var(--border)'}`, borderRadius: 2, color: (p.lineJoin ?? 'miter') === v ? '#60a5fa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 4, flexShrink: 0 }}>cap</span>
+                    {(['butt', 'round', 'square'] as const).map(v => (
+                      <span key={v} title={`lineCap=${v}`}
+                        onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineCap: v, _lineCap: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${(p.lineCap ?? 'butt') === v ? '#60a5fa' : 'var(--border)'}`, borderRadius: 2, color: (p.lineCap ?? 'butt') === v ? '#60a5fa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4, marginTop: 4 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 10 }}>miterLmt</label>
+                      <input type="number" defaultValue={Number(p.miterLimit ?? 10)} min={1} step={1}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => { const v = Number(ev.target.value); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, miterLimit: v, _miterLimit: v } } : c); applyAndSave({ components: u }) }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 10 }}>fillOpa</label>
+                      <input type="number" defaultValue={Number(p.fillOpacity ?? p._fillOpacity ?? 255)} min={0} max={255} step={1}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => { const v = Number(ev.target.value); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillOpacity: v, _fillOpacity: v } } : c); applyAndSave({ components: u }) }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 10 }}>strokeOpa</label>
+                      <input type="number" defaultValue={Number(p.strokeOpacity ?? p._strokeOpacity ?? 255)} min={0} max={255} step={1}
+                        style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
+                        onBlur={ev => { const v = Number(ev.target.value); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, strokeOpacity: v, _strokeOpacity: v } } : c); applyAndSave({ components: u }) }}
+                      />
+                    </div>
+                  </div>
                 </div>
               )
             }
