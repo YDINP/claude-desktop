@@ -21587,6 +21587,53 @@ function CCFileNodeInspector({
                       <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
                     </div>
                   )}
+                  {/* R2365: CC3.x orthoHeight + near/far */}
+                  {is3x && (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>orthoH</span>
+                        <input type="number" min={1} step={10}
+                          defaultValue={Number(p.orthoHeight ?? p._orthoHeight ?? 540)}
+                          key={`oh-${Number(p.orthoHeight ?? 540)}`}
+                          onBlur={e => {
+                            const v = Math.max(1, parseFloat(e.target.value) || 540)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: '#93c5fd', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        {[360, 540, 720, 1080].map(v => (
+                          <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v } } : c); applyAndSave({ components: u }) }}
+                            style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}>{v}</span>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>near/far</span>
+                        <input type="number" step={0.1}
+                          defaultValue={Number(p.near ?? p._near ?? 1)}
+                          key={`cn-${Number(p.near ?? 1)}`}
+                          onBlur={e => {
+                            const v = parseFloat(e.target.value) || 1
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, near: v, _near: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                          title="near"
+                        />
+                        <input type="number" step={10}
+                          defaultValue={Number(p.far ?? p._far ?? 4096)}
+                          key={`cf-${Number(p.far ?? 4096)}`}
+                          onBlur={e => {
+                            const v = parseFloat(e.target.value) || 4096
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, far: v, _far: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                          title="far"
+                        />
+                      </div>
+                    </>
+                  )}
                   {/* R1790: clearFlags + backgroundColor */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>clear</span>
