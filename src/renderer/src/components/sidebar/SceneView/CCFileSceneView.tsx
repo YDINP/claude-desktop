@@ -205,6 +205,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showWorldPos, setShowWorldPos] = useState(false)
   // R2551: 컴포넌트 타입 필터 — 선택 타입 외 노드 dim
   const [compFilterType, setCompFilterType] = useState<string | null>(null)
+  // R2557: Label 텍스트 콘텐츠 SVG 오버레이 토글
+  const [showLabelText, setShowLabelText] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1458,6 +1460,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             title={`깊이 제한: D${depthFilterMax} (R2526)`}
             style={{ width: 50, cursor: 'pointer', accentColor: '#34d399' }} />
         )}
+        {/* R2557: Label 텍스트 콘텐츠 오버레이 토글 */}
+        <button
+          onClick={() => setShowLabelText(v => !v)}
+          title={showLabelText ? 'Label 텍스트 오버레이 끄기 (R2557)' : 'Label 텍스트 내용을 SVG에 직접 표시 (R2557)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLabelText ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showLabelText ? 'rgba(139,92,246,0.12)' : 'none', color: showLabelText ? '#a78bfa' : 'var(--text-muted)' }}
+        >T</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2176,6 +2184,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   strokeDasharray={isContainer && !isSelected ? `${4 / view.zoom},${4 / view.zoom}` : undefined}
                   className={isSelected ? 'cc-selected-rect' : undefined}
                 />
+                {/* R2557: Label 텍스트 콘텐츠 오버레이 */}
+                {showLabelText && hasLabel && (() => {
+                  const labelComp = node.components.find(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
+                  const txt = (labelComp?.props?.string as string | undefined) ?? ''
+                  if (!txt) return null
+                  const fs = Math.max(6, Math.min(16, (labelComp?.props?.fontSize as number | undefined ?? 20) * view.zoom * 0.6))
+                  return (
+                    <text
+                      x={svgPos.x} y={svgPos.y + fs / 3}
+                      textAnchor="middle" dominantBaseline="middle"
+                      fontSize={fs} fill="rgba(255,220,80,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{txt.length > 12 ? txt.slice(0, 11) + '…' : txt}</text>
+                  )
+                })()}
                 {/* R1666: pulse 미리보기 링 */}
                 {node.uuid === pulseUuid && (
                   <rect

@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1549: R2557 SceneView Label 텍스트 콘텐츠 오버레이 ───────────────
+console.log('\n## 1549. R2557 — SceneView Label 텍스트 콘텐츠 오버레이')
+const s1549 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1549.includes('R2557') &&
+  s1549.includes('showLabelText') &&
+  s1549.includes('setShowLabelText') &&
+  s1549.includes('dominantBaseline')
+) {
+  log('pass', 'R2557-label-overlay', 'R2557 Label 텍스트 오버레이 구현 완료')
+} else {
+  log('warning', 'R2557-label-overlay', 'R2557 Label 텍스트 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1548: R2556 BatchInspector 같은 Layer 노드 선택 ──────────────────
 console.log('\n## 1548. R2556 — BatchInspector 같은 Layer 노드 선택')
 const s1548 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
