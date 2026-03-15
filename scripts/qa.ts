@@ -28706,6 +28706,19 @@ if (
   log('warning', 'R2485-size-equalize', 'R2485 크기 균등화 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1478: R2486 씬뷰 씬별 뷰 상태 영속화 ────────────────────────────
+const s1478 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1478.includes('R2486') &&
+  s1478.includes('sceneViewKey') &&
+  s1478.includes('sv-view2-') &&
+  s1478.includes('prevScenePath')
+) {
+  log('pass', 'R2486-scene-view-persist', 'R2486 씬뷰 씬별 뷰 상태 영속화 구현 완료')
+} else {
+  log('warning', 'R2486-scene-view-persist', 'R2486 씬별 뷰 상태 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

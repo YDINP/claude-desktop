@@ -53,9 +53,21 @@ interface CCFileSceneViewProps {
  * SVG 렌더링, 팬/줌, 노드 선택
  * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
  */
+// R2486: 씬별 뷰 상태 영속화 — scenePath 기반 localStorage 키
+function sceneViewKey(scenePath: string) {
+  return 'sv-view2-' + scenePath.replace(/[^a-zA-Z0-9]/g, '_').slice(-60)
+}
+
 export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
-  const [view, setView] = useState<ViewTransform>({ offsetX: 0, offsetY: 0, zoom: 0.5 })
+  const [view, setView] = useState<ViewTransform>(() => {
+    // R2486: 씬 전환 시 이전 뷰 상태 복원
+    try {
+      const saved = localStorage.getItem(sceneViewKey(sceneFile.scenePath))
+      if (saved) { const p = JSON.parse(saved); if (p.zoom) return p }
+    } catch { /* ignore */ }
+    return { offsetX: 0, offsetY: 0, zoom: 0.5 }
+  })
   const viewRef = useRef(view)
   viewRef.current = view
   const [isPanning, setIsPanning] = useState(false)
@@ -185,6 +197,26 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   useEffect(() => {
     onMultiSelectChange?.(Array.from(multiSelected))
   }, [multiSelected, onMultiSelectChange])
+
+  // R2486: 씬 전환 시 해당 씬의 저장된 뷰 상태 복원
+  const prevScenePath = useRef(sceneFile.scenePath)
+  useEffect(() => {
+    if (sceneFile.scenePath === prevScenePath.current) return
+    prevScenePath.current = sceneFile.scenePath
+    try {
+      const saved = localStorage.getItem(sceneViewKey(sceneFile.scenePath))
+      if (saved) { const p = JSON.parse(saved); if (p.zoom) { setView(p); return } }
+    } catch { /* ignore */ }
+    setView({ offsetX: 0, offsetY: 0, zoom: 0.5 })
+  }, [sceneFile.scenePath])
+
+  // R2486: 뷰 변경 시 localStorage에 저장 (debounce 500ms)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try { localStorage.setItem(sceneViewKey(sceneFile.scenePath), JSON.stringify(view)) } catch { /* ignore */ }
+    }, 500)
+    return () => clearTimeout(t)
+  }, [view, sceneFile.scenePath])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
