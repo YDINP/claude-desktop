@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1655: R2663 BatchInspector 랜덤 위치 오프셋 ─────────────────────
+console.log('\n## 1655. R2663 — BatchInspector 랜덤 위치 오프셋')
+const s1655 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1655.includes('R2663') &&
+  s1655.includes('applyRandomOffset') &&
+  s1655.includes('randomRange') &&
+  s1655.includes('Math.random()')
+) {
+  log('pass', 'R2663-randomOffset', 'R2663 랜덤 위치 오프셋 구현 완료')
+} else {
+  log('warning', 'R2663-randomOffset', 'R2663 랜덤 위치 오프셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1654: R2662 BatchInspector 회전 0 일괄 리셋 ─────────────────────
 console.log('\n## 1654. R2662 — BatchInspector 회전 0 리셋')
 const s1654 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -4340,6 +4340,8 @@ function CCFileBatchInspector({
   // R2649: 선택 노드 복제 오프셋
   const [cloneOffsetX, setCloneOffsetX] = useState<number>(50)
   const [cloneOffsetY, setCloneOffsetY] = useState<number>(-50)
+  // R2663: 랜덤 위치 오프셋
+  const [randomRange, setRandomRange] = useState<number>(50)
   // R2660: 가로세로 비율
   const [aspectRatioW, setAspectRatioW] = useState<number>(16)
   const [aspectRatioH, setAspectRatioH] = useState<number>(9)
@@ -4920,6 +4922,37 @@ function CCFileBatchInspector({
             <input type="number" value={posOffsetY} onChange={e => setPosOffsetY(parseFloat(e.target.value) || 0)} style={numInputS} title="Y 오프셋 (px)" />
             <span onClick={applyOffset}
               title={`선택된 ${uuids.length}개 노드 위치에 Δ(${posOffsetX}, ${posOffsetY}) 더하기 (R2516)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >적용</span>
+          </div>
+        )
+      })()}
+      {/* R2663: 랜덤 위치 오프셋 — 선택 노드 위치에 ±range 랜덤 오프셋 추가 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyRandomOffset = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const p = n.position as { x: number; y: number; z?: number }
+            const dx = (Math.random() * 2 - 1) * randomRange
+            const dy = (Math.random() * 2 - 1) * randomRange
+            return { ...n, position: { ...p, x: Math.round(p.x + dx), y: Math.round(p.y + dy) }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 랜덤 오프셋 ±${randomRange} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤 (R2663)</span>
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>±</span>
+            <input type="number" value={randomRange} min={1} step={10} onChange={e => setRandomRange(Math.max(1, parseInt(e.target.value) || 1))} style={niS} title="랜덤 오프셋 범위 (px)" />
+            <span onClick={applyRandomOffset}
+              title={`선택된 ${uuids.length}개 노드 위치에 ±${randomRange}px 랜덤 오프셋 추가 (R2663)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
