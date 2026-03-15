@@ -1792,6 +1792,23 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     await saveScene(reorder(sceneFile.root))
   }, [sceneFile, saveScene])
 
+  // R2549: 형제 순서 맨 앞/뒤 이동
+  const handleReorderExtreme = useCallback(async (uuid: string, to: 'first' | 'last') => {
+    if (!sceneFile?.root) return
+    function reorderEx(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === uuid)
+      if (idx !== -1) {
+        const arr = [...n.children]
+        const [item] = arr.splice(idx, 1)
+        if (to === 'first') arr.unshift(item)
+        else arr.push(item)
+        return { ...n, children: arr }
+      }
+      return { ...n, children: n.children.map(reorderEx) }
+    }
+    await saveScene(reorderEx(sceneFile.root))
+  }, [sceneFile, saveScene])
+
   // R1736: 자식 알파벳순 정렬
   const handleSortChildren = useCallback(async (uuid: string) => {
     if (!sceneFile?.root) return
@@ -3408,6 +3425,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onMultiSelectChange={setMultiSelectedUuids}
                 onGroupNodes={handleGroupNodes}
                 onOpacity={handleNodeOpacity}
+                onReorderExtreme={handleReorderExtreme}
                 pulseUuid={pulseUuid}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }

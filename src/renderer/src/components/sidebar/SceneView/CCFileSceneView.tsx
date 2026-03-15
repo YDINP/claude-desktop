@@ -46,6 +46,8 @@ interface CCFileSceneViewProps {
   onGroupNodes?: (uuids: string[]) => void
   /** R2476: 선택 노드 opacity 인라인 편집 */
   onOpacity?: (uuid: string, opacity: number) => void
+  /** R2549: 형제 순서를 맨 앞(first) / 맨 뒤(last)로 이동 */
+  onReorderExtreme?: (uuid: string, to: 'first' | 'last') => void
 }
 
 /**
@@ -58,7 +60,7 @@ function sceneViewKey(scenePath: string) {
   return 'sv-view2-' + scenePath.replace(/[^a-zA-Z0-9]/g, '_').slice(-60)
 }
 
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>(() => {
     // R2486: 씬 전환 시 이전 뷰 상태 복원
@@ -1514,6 +1516,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               {rot !== 0 && (
                 <button onClick={() => onRotate!(selectedUuid, 0)}
                   title={`회전 리셋 (현재 ${Math.round(rot)}°→0°) (R2534)`} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.4)', background: 'none', color: '#fb923c' }}>∠0</button>
+              )}
+            </>
+          )
+        })()}
+        {/* R2549: 선택 노드 형제 순서 맨 앞/뒤 이동 버튼 */}
+        {selectedUuid && onReorderExtreme && (() => {
+          const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+          if (!fn || fn.siblingTotal <= 1) return null
+          return (
+            <>
+              {fn.siblingIdx > 0 && (
+                <button onClick={() => onReorderExtreme!(selectedUuid, 'first')}
+                  title="맨 뒤로 (형제 중 첫 번째 — CC 렌더 순서상 뒤) (R2549)"
+                  style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>⤒</button>
+              )}
+              {fn.siblingIdx < fn.siblingTotal - 1 && (
+                <button onClick={() => onReorderExtreme!(selectedUuid, 'last')}
+                  title="맨 앞으로 (형제 중 마지막 — CC 렌더 순서상 앞) (R2549)"
+                  style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>⤓</button>
               )}
             </>
           )

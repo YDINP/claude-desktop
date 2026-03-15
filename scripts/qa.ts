@@ -29161,6 +29161,23 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1541: R2549 SceneView 맨 앞/뒤 이동 버튼 ─────────────────────────
+console.log('\n## 1541. R2549 — SceneView 맨 앞/뒤 이동 버튼 (⤒/⤓)')
+const s1541sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+const s1541cp = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1541sv.includes('R2549') &&
+  s1541sv.includes('onReorderExtreme') &&
+  s1541sv.includes('⤒') &&
+  s1541sv.includes('⤓') &&
+  s1541cp.includes('handleReorderExtreme') &&
+  s1541cp.includes("to: 'first' | 'last'")
+) {
+  log('pass', 'R2549-reorder-extreme', 'R2549 맨 앞/뒤 이동 버튼 구현 완료')
+} else {
+  log('warning', 'R2549-reorder-extreme', 'R2549 맨 앞/뒤 이동 버튼 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1540: R2548 BatchInspector Label 텍스트 일괄 적용 ────────────────
 console.log('\n## 1540. R2548 — BatchInspector Label 텍스트 일괄 적용')
 const s1540 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
