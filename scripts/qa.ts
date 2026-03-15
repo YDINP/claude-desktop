@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1626: R2634 BatchInspector 첫 노드 크기로 나머지 통일 ─────────────
+console.log('\n## 1626. R2634 — BatchInspector 첫 노드 크기로 나머지 통일')
+const s1626 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1626.includes('R2634') &&
+  s1626.includes('applyMatchSize') &&
+  s1626.includes('크기통일')
+) {
+  log('pass', 'R2634-match-size', 'R2634 첫 노드 크기 통일 구현 완료')
+} else {
+  log('warning', 'R2634-match-size', 'R2634 첫 노드 크기 통일 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1625: R2633 BatchInspector cc.Label 폰트 크기 균등 분배 ──────────
 console.log('\n## 1625. R2633 — BatchInspector cc.Label 폰트 크기 균등 분배')
 const s1625 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

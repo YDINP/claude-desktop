@@ -18796,6 +18796,44 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2634: 첫 번째 선택 노드 크기로 나머지 통일 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        // 첫 번째 선택 노드의 size 수집
+        let refSize: { x: number; y: number } | null = null
+        function findRef(n: CCSceneNode) {
+          if (n.uuid === uuids[0]) { refSize = n.size as { x: number; y: number }; return }
+          n.children.forEach(findRef)
+        }
+        findRef(sceneFile.root!)
+        if (!refSize) return null
+        const rs = refSize as { x: number; y: number }
+        const applyMatchSize = async (mode: 'both' | 'w' | 'h') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid) || n.uuid === uuids[0]) return { ...n, children: ch }
+            const sz = n.size as { x: number; y: number }
+            const newSz = {
+              x: (mode === 'both' || mode === 'w') ? rs.x : sz.x,
+              y: (mode === 'both' || mode === 'h') ? rs.y : sz.y,
+            }
+            return { ...n, size: newSz, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 크기 통일 (${uuids.length - 1}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>크기통일 (R2634)</span>
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{Math.round(rs.x)}×{Math.round(rs.y)}</span>
+            <span onClick={() => applyMatchSize('both')} title="첫 노드 W×H로 나머지 통일 (R2634)" style={bs}>W+H</span>
+            <span onClick={() => applyMatchSize('w')} title="첫 노드 W만 나머지 통일 (R2634)" style={bs}>W만</span>
+            <span onClick={() => applyMatchSize('h')} title="첫 노드 H만 나머지 통일 (R2634)" style={bs}>H만</span>
+          </div>
+        )
+      })()}
       {/* R2594: 랜덤 스케일 변동 (×(1±f)) */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         return (
