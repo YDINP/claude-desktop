@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1589: R2597 BatchInspector scale 배수 적용 ───────────────────────
+console.log('\n## 1589. R2597 — BatchInspector scale 배수 적용')
+const s1589 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1589.includes('R2597') &&
+  s1589.includes('scaleMulInput') &&
+  s1589.includes('applyScaleMul') &&
+  s1589.includes('×0.5')
+) {
+  log('pass', 'R2597-scale-mul', 'R2597 scale 배수 적용 구현 완료')
+} else {
+  log('warning', 'R2597-scale-mul', 'R2597 scale 배수 적용 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1588: R2596 BatchInspector 색상(tint) 그라디언트 ─────────────────
 console.log('\n## 1588. R2596 — BatchInspector tint 색상 그라디언트')
 const s1588 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

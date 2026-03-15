@@ -4292,6 +4292,8 @@ function CCFileBatchInspector({
   // R2596: 색상(tint) 그라디언트
   const [colorGradFrom, setColorGradFrom] = useState<string>('#ffffff')
   const [colorGradTo, setColorGradTo] = useState<string>('#ff0000')
+  // R2597: scale 배수
+  const [scaleMulInput, setScaleMulInput] = useState<string>('2')
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -18033,6 +18035,37 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(56,189,248,0.4)', color: '#38bdf8', userSelect: 'none', background: 'rgba(56,189,248,0.05)' }}>=H</span>
             <span onClick={() => applyMatchSize(true, true)} title={`모든 선택 노드 W×H를 첫째(${Math.round(refSz.x)}×${Math.round(refSz.y)})로 통일 (R2595)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(56,189,248,0.4)', color: '#38bdf8', userSelect: 'none', background: 'rgba(56,189,248,0.05)' }}>=WH</span>
+          </div>
+        )
+      })()}
+      {/* R2597: scale 배수 적용 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyScaleMul = async (mul: number) => {
+          if (!sceneFile.root || isNaN(mul) || mul === 0) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, x: Math.round(sc.x * mul * 1000) / 1000, y: Math.round(sc.y * mul * 1000) / 1000 }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ scale ×${mul} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const btnS: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }
+        const mul = parseFloat(scaleMulInput)
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>sc배수 (R2597)</span>
+            <span onClick={() => applyScaleMul(0.5)} title="선택 노드 scale ×0.5 (R2597)" style={btnS}>×0.5</span>
+            <span onClick={() => applyScaleMul(2)} title="선택 노드 scale ×2 (R2597)" style={btnS}>×2</span>
+            <input type="number" value={scaleMulInput} min={0.01} step={0.1}
+              onChange={e => setScaleMulInput(e.target.value)}
+              style={{ width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }}
+              title="사용자 정의 배수" />
+            <span onClick={() => !isNaN(mul) && applyScaleMul(mul)}
+              title={`선택 노드 scale ×${mul} 적용 (R2597)`}
+              style={btnS}>적용</span>
           </div>
         )
       })()}
