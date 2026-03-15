@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1354: R2350 Inspector cc.Label underlineHeight (CC3.x) ──────────
+console.log('\n## 1354. R2350 Inspector cc.Label underlineHeight 체크')
+const s1354 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1354.includes('R2350') &&
+  s1354.includes('underlineHeight') &&
+  s1354.includes('ulHeight')
+) {
+  log('pass', 'R2350-label-underlineheight', 'Inspector cc.Label underlineHeight 단일노드 편집 구현 완료')
+} else {
+  log('warning', 'R2350-label-underlineheight', 'Inspector cc.Label underlineHeight 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1353: R2349 Inspector cc.PageViewIndicator Quick Edit ──────────
 console.log('\n## 1353. R2349 Inspector cc.PageViewIndicator direction/spacingX/Y 체크')
 const s1353 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

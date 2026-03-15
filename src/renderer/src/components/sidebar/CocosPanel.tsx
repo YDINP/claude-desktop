@@ -20463,6 +20463,32 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2350: underlineHeight (CC3.x) — isUnderline 활성 시 표시 */}
+                  {!!(p.isUnderline ?? p._isUnderline ?? p._N$isUnderline ?? false) && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>ulHeight</span>
+                      <input type="number" defaultValue={Number(p.underlineHeight ?? p._underlineHeight ?? 2)} min={1} max={20} step={1}
+                        key={`ulh-${Number(p.underlineHeight ?? p._underlineHeight ?? 2)}`}
+                        onBlur={e => {
+                          const v = parseInt(e.target.value) || 2
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, underlineHeight: v, _underlineHeight: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: '#93c5fd', borderRadius: 3, padding: '1px 4px' }}
+                        title="밑줄 두께 (CC3.x underlineHeight, 기본 2px)"
+                      />
+                      <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
+                      {[1, 2, 3, 4, 6].map(v => (
+                        <span key={v} title={`underlineHeight = ${v}`}
+                          onClick={() => {
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, underlineHeight: v, _underlineHeight: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Number(p.underlineHeight ?? p._underlineHeight ?? 2) === v ? '#93c5fd' : 'var(--border)'}`, borderRadius: 2, color: Number(p.underlineHeight ?? p._underlineHeight ?? 2) === v ? '#93c5fd' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{v}</span>
+                      ))}
+                    </div>
+                  )}
                   {/* R1746: 텍스트 대소문자 변환 버튼 */}
                   {str && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
