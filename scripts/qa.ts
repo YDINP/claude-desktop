@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1658: R2666 SceneView opacity 값 텍스트 오버레이 ─────────────────
+console.log('\n## 1658. R2666 — SceneView opacity 값 텍스트 오버레이')
+const s1658 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1658.includes('R2666') &&
+  s1658.includes('showOpacityOverlay') &&
+  s1658.includes('node.opacity') &&
+  s1658.includes('fbbf24')
+) {
+  log('pass', 'R2666-opacityOverlay', 'R2666 opacity 텍스트 오버레이 구현 완료')
+} else {
+  log('warning', 'R2666-opacityOverlay', 'R2666 opacity 텍스트 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1657: R2665 SceneView 깊이 히트맵 오버레이 ──────────────────────
 console.log('\n## 1657. R2665 — SceneView 깊이 히트맵 오버레이')
 const s1657 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
