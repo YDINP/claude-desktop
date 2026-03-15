@@ -28980,6 +28980,19 @@ if (
   log('warning', 'R2507-expand-select', 'R2507 하위 노드 포함 선택 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1500: R2508 SceneView 다중 선택 중심점 마커 ──────────────────────────
+const s1500 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1500.includes('R2508') &&
+  s1500.includes('다중 선택 중심점') &&
+  s1500.includes('avgX') &&
+  s1500.includes('avgY')
+) {
+  log('pass', 'R2508-centroid-marker', 'R2508 SceneView 다중 선택 중심점 마커 구현 완료')
+} else {
+  log('warning', 'R2508-centroid-marker', 'R2508 중심점 마커 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

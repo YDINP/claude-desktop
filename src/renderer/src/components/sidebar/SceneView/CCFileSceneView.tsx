@@ -1588,6 +1588,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })()}
+          {/* R2508: 다중 선택 중심점 마커 */}
+          {multiSelected.size > 1 && (() => {
+            const selFn = flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
+            if (selFn.length < 2) return null
+            const avgX = selFn.reduce((s, fn) => s + fn.worldX, 0) / selFn.length
+            const avgY = selFn.reduce((s, fn) => s + fn.worldY, 0) / selFn.length
+            const sp = ccToSvg(avgX, avgY)
+            const r = 5 / view.zoom, sw = 1 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <line x1={sp.x - r * 2} y1={sp.y} x2={sp.x + r * 2} y2={sp.y} stroke="rgba(251,146,60,0.7)" strokeWidth={sw} />
+                <line x1={sp.x} y1={sp.y - r * 2} x2={sp.x} y2={sp.y + r * 2} stroke="rgba(251,146,60,0.7)" strokeWidth={sw} />
+                <circle cx={sp.x} cy={sp.y} r={r} fill="none" stroke="rgba(251,146,60,0.7)" strokeWidth={sw} />
+              </g>
+            )
+          })()}
           {/* R1530: 디자인 레퍼런스 이미지 overlay */}
           {refImgSrc && (
             <image href={refImgSrc} x={0} y={0} width={effectiveW} height={effectiveH}
