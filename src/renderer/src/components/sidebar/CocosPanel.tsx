@@ -3564,6 +3564,8 @@ function CCFileSceneTree({
               ] : []),
               { label: '복제', action: () => { setCtxMenu(null); onDuplicate?.(node.uuid) } },
               { label: '삭제', action: () => { setCtxMenu(null); onDelete?.(node.uuid) } },
+              // R2338: 노드 JSON 복사
+              { label: '⎘ JSON 복사', action: () => { setCtxMenu(null); try { navigator.clipboard.writeText(JSON.stringify({ name: node.name, uuid: node.uuid, position: node.position, size: node.size, scale: node.scale, rotation: node.rotation, anchor: node.anchor, opacity: node.opacity, active: node.active, components: node.components.map(c => c.type) }, null, 2)) } catch { /* ignore */ } } },
             ] : []),
           ].filter(Boolean).map(item => (
             <div key={item.label}

@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1342: R2338 씬 트리 우클릭 노드 JSON 복사 ──────────
+console.log('\n## 1342. R2338 씬 트리 우클릭 노드 JSON 복사 체크')
+const s1342 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1342.includes('R2338') &&
+  s1342.includes('JSON 복사') &&
+  s1342.includes('navigator.clipboard.writeText')
+) {
+  log('pass', 'R2338-ctx-json-copy', '씬 트리 우클릭 노드 JSON 복사 구현 완료')
+} else {
+  log('warning', 'R2338-ctx-json-copy', '씬 트리 우클릭 노드 JSON 복사 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1341: R2337 Inspector 노드 N-복제 ──────────
 console.log('\n## 1341. R2337 Inspector 노드 N-복제 (×N) 체크')
 const s1341 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
