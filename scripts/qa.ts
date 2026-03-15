@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1608: R2616 BatchInspector position Z 균등 분배 ──────────────────
+console.log('\n## 1608. R2616 — BatchInspector position Z 균등 분배')
+const s1608 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1608.includes('R2616') &&
+  s1608.includes('posZFrom') &&
+  s1608.includes('posZTo') &&
+  s1608.includes('applyPosZGrad')
+) {
+  log('pass', 'R2616-pos-z-grad', 'R2616 position Z 균등 분배 구현 완료')
+} else {
+  log('warning', 'R2616-pos-z-grad', 'R2616 position Z 균등 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1607: R2615 SceneView W×H 크기 표시 오버레이 ─────────────────────
 console.log('\n## 1607. R2615 — SceneView W×H 크기 표시 오버레이')
 const s1607 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

@@ -4310,6 +4310,9 @@ function CCFileBatchInspector({
   // R2614: size H 균등 분배
   const [szGradFromH, setSzGradFromH] = useState<number>(50)
   const [szGradToH, setSzGradToH] = useState<number>(200)
+  // R2616: position Z 분배
+  const [posZFrom, setPosZFrom] = useState<number>(0)
+  const [posZTo, setPosZTo] = useState<number>(100)
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -5005,6 +5008,41 @@ function CCFileBatchInspector({
               title={`선택된 ${uuids.length}개 노드 size.H ${szGradFromH}→${szGradToH} 균등 분배 (R2614)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >분배</span>
+          </div>
+        )
+      })()}
+      {/* R2616: position Z 균등 분배 (CC3.x) */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const applyPosZGrad = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const newZ = Math.round(posZFrom + (posZTo - posZFrom) * t)
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...p, z: newZ }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ pos.Z 분배 ${posZFrom}→${posZTo} (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posZ분배 (R2616)</span>
+            <input type="number" value={posZFrom} onChange={e => setPosZFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 Z" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={posZTo} onChange={e => setPosZTo(parseInt(e.target.value) || 0)} style={niS} title="끝 Z" />
+            <span onClick={applyPosZGrad}
+              title={`선택된 ${uuids.length}개 노드 position.Z ${posZFrom}→${posZTo} 균등 분배 (R2616)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#94a3b8')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >분배</span>
           </div>
