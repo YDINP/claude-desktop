@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1628: R2636 SceneView 캔버스 경계 초과 노드 강조 ─────────────────
+console.log('\n## 1628. R2636 — SceneView 캔버스 경계 초과 노드 강조')
+const s1628 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1628.includes('R2636') &&
+  s1628.includes('showOOBHighlight') &&
+  s1628.includes('setShowOOBHighlight') &&
+  s1628.includes('isOutOfCanvas')
+) {
+  log('pass', 'R2636-oob-highlight', 'R2636 캔버스 경계 초과 노드 강조 구현 완료')
+} else {
+  log('warning', 'R2636-oob-highlight', 'R2636 캔버스 경계 초과 노드 강조 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1627: R2635 BatchInspector 선택 홀수/짝수 필터 ──────────────────
 console.log('\n## 1627. R2635 — BatchInspector 선택 홀수/짝수 필터')
 const s1627 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -255,6 +255,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSafeZone, setShowSafeZone] = useState(false)
   // R2630: 삼분법(Rule of Thirds) 가이드 오버레이
   const [showRuleOfThirds, setShowRuleOfThirds] = useState(false)
+  // R2636: 캔버스 경계 초과 노드 강조 오버레이
+  const [showOOBHighlight, setShowOOBHighlight] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1663,6 +1665,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showRuleOfThirds ? '삼분법 가이드 끄기 (R2630)' : '3×3 Rule of Thirds 가이드 표시 (R2630)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRuleOfThirds ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showRuleOfThirds ? 'rgba(167,139,250,0.12)' : 'none', color: showRuleOfThirds ? '#a78bfa' : 'var(--text-muted)' }}
         >⊞</button>
+        {/* R2636: 캔버스 경계 초과 노드 강조 토글 */}
+        <button
+          onClick={() => setShowOOBHighlight(v => !v)}
+          title={showOOBHighlight ? '경계 초과 강조 끄기 (R2636)' : '캔버스 경계 초과 노드 적색 강조 (R2636)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOOBHighlight ? 'rgba(239,68,68,0.5)' : 'var(--border)'}`, background: showOOBHighlight ? 'rgba(239,68,68,0.12)' : 'none', color: showOOBHighlight ? '#ef4444' : 'var(--text-muted)' }}
+        >⬚</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2649,6 +2657,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     >{layerName}</text>
                   )
                 })()}
+                {/* R2636: 캔버스 경계 초과 노드 강조 */}
+                {showOOBHighlight && isOutOfCanvas && (
+                  <rect x={rectX} y={rectY} width={w} height={h}
+                    fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.8)"
+                    strokeWidth={2 / view.zoom}
+                    strokeDasharray={`${4/view.zoom} ${2/view.zoom}`}
+                    style={{ pointerEvents: 'none' }} />
+                )}
                 {/* R2625: 이벤트 핸들러 배지 오버레이 */}
                 {showEventBadge && view.zoom > 0.3 && (() => {
                   const interactiveTypes = new Set(['cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.EditBox', 'cc.PageView'])
