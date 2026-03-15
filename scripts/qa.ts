@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1592: R2600 SceneView 다중 선택 bounding box 오버레이 ─────────────
+console.log('\n## 1592. R2600 — SceneView 다중 선택 bounding box 오버레이')
+const s1592 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1592.includes('R2600') &&
+  s1592.includes('showSelBBox') &&
+  s1592.includes('setShowSelBBox')
+) {
+  log('pass', 'R2600-sel-bbox', 'R2600 다중 선택 bounding box 오버레이 구현 완료')
+} else {
+  log('warning', 'R2600-sel-bbox', 'R2600 다중 선택 bounding box 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1591: R2599 BatchInspector size 배수 적용 ────────────────────────
 console.log('\n## 1591. R2599 — BatchInspector size 배수 적용')
 const s1591 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

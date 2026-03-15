@@ -231,6 +231,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showDepthLabel, setShowDepthLabel] = useState(false)
   // R2598: flip(음수 scale) 노드 표시 오버레이
   const [showFlipOverlay, setShowFlipOverlay] = useState(false)
+  // R2600: 다중 선택 bounding box 오버레이
+  const [showSelBBox, setShowSelBBox] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1567,6 +1569,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showFlipOverlay ? 'flip 표시 끄기 (R2598)' : 'scale 음수(뒤집힌) 노드에 ↔↕ 표시 (R2598)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showFlipOverlay ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showFlipOverlay ? 'rgba(250,204,21,0.12)' : 'none', color: showFlipOverlay ? '#facc15' : 'var(--text-muted)' }}
         >↔↕</button>
+        {/* R2600: 다중 선택 bounding box 토글 */}
+        <button
+          onClick={() => setShowSelBBox(v => !v)}
+          title={showSelBBox ? '선택 BBox 끄기 (R2600)' : '다중 선택 노드 전체 영역 표시 (R2600)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelBBox ? '#60a5fa' : 'var(--text-muted)' }}
+        >⬚</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2871,6 +2879,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })}
 
+          {/* R2600: 다중 선택 bounding box */}
+          {showSelBBox && multiSelected.size >= 2 && (() => {
+            const selFns = flatNodes.filter(fn => multiSelected.has(fn.node.uuid) && (fn.node.size?.x || fn.node.size?.y))
+            if (selFns.length < 2) return null
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+            selFns.forEach(fn => {
+              const svgX = cx + fn.worldX, svgY = cy - fn.worldY
+              const w = fn.node.size?.x ?? 0, h = fn.node.size?.y ?? 0
+              const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+              const rx = svgX - w * ax, ry = svgY - h * (1 - ay)
+              minX = Math.min(minX, rx); minY = Math.min(minY, ry)
+              maxX = Math.max(maxX, rx + w); maxY = Math.max(maxY, ry + h)
+            })
+            const bw = maxX - minX, bh = maxY - minY
+            const pad = 6 / view.zoom, fs = Math.max(6, 9 / view.zoom)
+            return (
+              <>
+                <rect x={minX - pad} y={minY - pad} width={bw + pad*2} height={bh + pad*2}
+                  fill="none" stroke="rgba(96,165,250,0.7)" strokeWidth={1.5 / view.zoom}
+                  strokeDasharray={`${6/view.zoom} ${3/view.zoom}`}
+                  style={{ pointerEvents: 'none' }} />
+                <text x={minX - pad} y={minY - pad - 2/view.zoom}
+                  textAnchor="start" fontSize={fs} fill="rgba(96,165,250,0.9)"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                >{Math.round(bw)}×{Math.round(bh)} ({selFns.length})</text>
+              </>
+            )
+          })()}
           {/* 크기 없는 노드 → 십자 표시 (비활성 포함, 반투명) */}
           {flatNodes.filter(fn => !(fn.node.size?.x) && !(fn.node.size?.y) && !(hideInactiveNodes && fn.node.active === false)).map(({ node, worldX, worldY }) => {
             const svgPos = ccToSvg(worldX, worldY)
