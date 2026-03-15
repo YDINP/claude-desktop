@@ -5176,6 +5176,74 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2535: 선택 노드 스택 배치 (edge-to-edge stack X/Y + 간격) */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const stkNodes: CCSceneNode[] = []
+        function collectStk(n: CCSceneNode) { if (uuidSet.has(n.uuid)) stkNodes.push(n); n.children.forEach(collectStk) }
+        collectStk(sceneFile.root!)
+        if (stkNodes.length < 2) return null
+        const applyStack = async (axis: 'x' | 'y', gap: number) => {
+          if (!sceneFile.root) return
+          // sort by current position on axis
+          const sorted = [...stkNodes].sort((a, b) => {
+            const pa = a.position as { x: number; y: number }
+            const pb = b.position as { x: number; y: number }
+            return pa[axis] - pb[axis]
+          })
+          const newPosMap = new Map<string, { x: number; y: number }>()
+          // first node stays; each subsequent node placed edge-to-edge
+          if (axis === 'x') {
+            let curRight = (() => {
+              const n = sorted[0]; const pos = n.position as { x: number; y: number }
+              return pos.x + (n.size?.x ?? 0) * (1 - (n.anchor?.x ?? 0.5))
+            })()
+            for (let i = 1; i < sorted.length; i++) {
+              const n = sorted[i]; const w = n.size?.x ?? 0; const ax = n.anchor?.x ?? 0.5
+              const nx = Math.round(curRight + gap + w * ax)
+              const pos = n.position as { x: number; y: number }
+              newPosMap.set(n.uuid, { x: nx, y: pos.y })
+              curRight = nx + w * (1 - ax)
+            }
+          } else {
+            // CC: y-up. Stack downward (decreasing y). top of node = pos.y + h*(1-ay)
+            let curBottom = (() => {
+              const n = sorted[sorted.length - 1]; const pos = n.position as { x: number; y: number }
+              return pos.y - (n.size?.y ?? 0) * (n.anchor?.y ?? 0.5)
+            })()
+            for (let i = sorted.length - 2; i >= 0; i--) {
+              const n = sorted[i]; const h = n.size?.y ?? 0; const ay = n.anchor?.y ?? 0.5
+              const ny = Math.round(curBottom - gap - h * (1 - ay))
+              const pos = n.position as { x: number; y: number }
+              newPosMap.set(n.uuid, { x: pos.x, y: ny })
+              curBottom = ny - h * ay
+            }
+          }
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const np = newPosMap.get(n.uuid)
+            if (!np) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, x: np.x, y: np.y }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ stack ${axis.toUpperCase()} gap=${gap} (${sorted.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Stack</span>
+            {(['x', 'y'] as const).map(axis => (
+              [0, 4, 8].map(g => (
+                <span key={`${axis}-${g}`} onClick={() => applyStack(axis, g)}
+                  title={`${axis.toUpperCase()}축 스택 배치 (gap=${g}px) — 가장자리끼리 붙임 (R2535)`}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>{axis === 'x' ? '→' : '↓'}{g > 0 ? `+${g}` : ''}</span>
+              ))
+            ))}
+            <span style={{ fontSize: 8, color: '#555' }}>{stkNodes.length}개</span>
+          </div>
+        )
+      })()}
       {/* R2347: 선택 노드 위치 맞추기 (match position) */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const nodesOrdered: CCSceneNode[] = []

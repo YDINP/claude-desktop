@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1527: R2535 BatchInspector 스택 배치 ─────────────────────────────
+console.log('\n## 1527. R2535 — BatchInspector 스택 배치 (edge-to-edge)')
+const s1527 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1527.includes('R2535') &&
+  s1527.includes('applyStack') &&
+  s1527.includes('collectStk') &&
+  s1527.includes('curRight')
+) {
+  log('pass', 'R2535-stack', 'R2535 스택 배치 구현 완료')
+} else {
+  log('warning', 'R2535-stack', 'R2535 스택 배치 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1526: R2534 SceneView 회전 리셋 + ±90° 버튼 ──────────────────────
 console.log('\n## 1526. R2534 — SceneView 회전 리셋(0°) + ±90° 툴바 버튼')
 const s1526 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
