@@ -58,6 +58,7 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
   }
 
   // R1504: 새 노드(_rawIndex==null) → raw 배열에 항목 추가 (정규화)
+  // R2459: 새 컴포넌트(_rawIndex==null) → raw 배열에 항목 추가
   function normalizeTree(node: CCSceneNode, parentRawIdx: number | null): CCSceneNode {
     let cur = node
     if (cur._rawIndex == null) {
@@ -67,6 +68,16 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
         : buildNewRawNode3x(cur, parentRawIdx))
       cur = { ...cur, _rawIndex: newIdx }
     }
+    // R2459: 새 컴포넌트 정규화 (rawIndex 없는 컴포넌트 → raw 배열에 추가)
+    const normalizedComps = cur.components.map(comp => {
+      if (comp._rawIndex != null) return comp
+      const compIdx = raw.length
+      raw.push(version === '2x'
+        ? buildNewRawComp2x(comp.type, cur._rawIndex!)
+        : buildNewRawComp3x(comp.type, cur._rawIndex!))
+      return { ...comp, _rawIndex: compIdx }
+    })
+    cur = { ...cur, components: normalizedComps }
     const children = cur.children.map(c => normalizeTree(c, cur._rawIndex!))
     return { ...cur, children }
   }
@@ -101,6 +112,12 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
       e._children = node.children
         .filter(c => c._rawIndex != null)
         .map(c => ({ __id__: c._rawIndex! }))
+    }
+
+    // R2459: _components 동기화 — 새 컴포넌트 포함
+    const compRefs = node.components.filter(c => c._rawIndex != null).map(c => ({ __id__: c._rawIndex! }))
+    if (compRefs.length > 0 || Array.isArray(e._components)) {
+      e._components = compRefs
     }
 
     // 컴포넌트 props 패치 (Label 텍스트 등)
@@ -216,6 +233,29 @@ function buildNewRawNode3x(node: CCSceneNode, parentIdx: number | null): RawEntr
     _uiProps: { _localOpacity: (node.opacity ?? 255) / 255 },
     _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 },
     layer: 33554432,
+  }
+}
+
+// ── R2459: 새 컴포넌트 raw entry 빌드 ─────────────────────────────────────────
+
+function buildNewRawComp2x(type: string, nodeIdx: number): RawEntry {
+  return {
+    __type__: type,
+    _name: '',
+    _objFlags: 0,
+    node: { __id__: nodeIdx },
+    _enabled: true,
+  }
+}
+
+function buildNewRawComp3x(type: string, nodeIdx: number): RawEntry {
+  return {
+    __type__: type,
+    _name: '',
+    _objFlags: 0,
+    '__editorExtras__': {},
+    node: { __id__: nodeIdx },
+    _enabled: true,
   }
 }
 
