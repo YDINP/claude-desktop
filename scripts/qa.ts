@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1616: R2624 SceneView 레이어 배지 오버레이 ───────────────────────
+console.log('\n## 1616. R2624 — SceneView 레이어 배지 오버레이')
+const s1616 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1616.includes('R2624') &&
+  s1616.includes('showLayerBadge') &&
+  s1616.includes('setShowLayerBadge') &&
+  s1616.includes('LAYER_NAMES')
+) {
+  log('pass', 'R2624-layer-badge', 'R2624 레이어 배지 오버레이 구현 완료')
+} else {
+  log('warning', 'R2624-layer-badge', 'R2624 레이어 배지 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1615: R2623 BatchInspector position XY 스냅 ──────────────────────
 console.log('\n## 1615. R2623 — BatchInspector position XY 스냅')
 const s1615 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

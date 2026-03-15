@@ -247,6 +247,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showOriginCross, setShowOriginCross] = useState(false)
   // R2620: 스케일 배수 텍스트 오버레이 (scale≠1 노드에 ×sx,sy 표시)
   const [showScaleLabel, setShowScaleLabel] = useState(false)
+  // R2624: 레이어 배지 오버레이 (CC3.x 비기본 레이어 노드에 레이어명 표시)
+  const [showLayerBadge, setShowLayerBadge] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1631,6 +1633,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showScaleLabel ? '스케일 표시 끄기 (R2620)' : 'scale≠1 노드에 ×sx,sy 배수 표시 (R2620)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showScaleLabel ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showScaleLabel ? 'rgba(250,204,21,0.12)' : 'none', color: showScaleLabel ? '#facc15' : 'var(--text-muted)' }}
         >×S</button>
+        {/* R2624: 레이어 배지 오버레이 토글 */}
+        <button
+          onClick={() => setShowLayerBadge(v => !v)}
+          title={showLayerBadge ? '레이어 배지 끄기 (R2624)' : 'CC3.x 비기본 레이어 노드에 레이어명 배지 표시 (R2624)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLayerBadge ? 'rgba(99,102,241,0.5)' : 'var(--border)'}`, background: showLayerBadge ? 'rgba(99,102,241,0.12)' : 'none', color: showLayerBadge ? '#6366f1' : 'var(--text-muted)' }}
+        >L</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2597,6 +2605,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(250,204,21,0.9)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{label}</text>
+                  )
+                })()}
+                {/* R2624: 레이어 배지 오버레이 */}
+                {showLayerBadge && node.layer != null && view.zoom > 0.3 && (() => {
+                  const LAYER_NAMES: Record<number, string> = {
+                    1: 'DEF', 2: 'IGN', 16: 'UI3D', 524288: 'UI2D', 1048576: 'GFX',
+                    1073741824: 'ALL',
+                  }
+                  const layerName = LAYER_NAMES[node.layer] ?? `L${node.layer}`
+                  if (node.layer === 1048576) return null  // default CC3.x layer — skip
+                  const fs = Math.max(5, 7 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + w / 2} y={rectY + fs * 1.2}
+                      textAnchor="middle"
+                      fontSize={fs} fill="rgba(99,102,241,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{layerName}</text>
                   )
                 })()}
                 {/* R2557: Label 텍스트 콘텐츠 오버레이 */}
