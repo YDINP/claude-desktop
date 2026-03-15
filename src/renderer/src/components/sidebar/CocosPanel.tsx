@@ -17973,13 +17973,15 @@ function CCFileNodeInspector({
     return count
   }, [node])
 
-  // R2484: 씬 내 같은 이름 노드 수
-  const sameNameCount = useMemo(() => {
-    let count = 0
-    function countName(n: CCSceneNode) { if (n.name === node.name) count++; n.children.forEach(countName) }
-    countName(sceneFile.root)
-    return count
+  // R2484/R2489: 씬 내 같은 이름 노드 목록
+  const sameNameNodes = useMemo(() => {
+    const list: CCSceneNode[] = []
+    function collectName(n: CCSceneNode) { if (n.name === node.name) list.push(n); n.children.forEach(collectName) }
+    collectName(sceneFile.root)
+    return list
   }, [sceneFile.root, node.name])
+  const sameNameCount = sameNameNodes.length
+  const [showSameNameMenu, setShowSameNameMenu] = useState(false)
 
   // R1660: 씬 전체 컴포넌트 타입별 노드 수
   const compTypeCountMap = useMemo(() => {
@@ -18077,8 +18079,31 @@ function CCFileNodeInspector({
             {/* R1661: 전체 하위 노드 수 */}
             {totalDescendants > draft.children.length && <span style={{ fontSize: 8, color: '#454', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`전체 하위 노드 ${totalDescendants}개`}>⊲{totalDescendants}</span>}
             {draft.components.length > 0 && <span style={{ fontSize: 8, color: '#556a', padding: '1px 3px', background: 'rgba(255,255,255,0.04)', borderRadius: 2 }} title={`컴포넌트 ${draft.components.length}개`}>⊕{draft.components.length}</span>}
-            {/* R2484: 씬 내 같은 이름 노드 수 */}
-            {sameNameCount > 1 && <span style={{ fontSize: 8, color: '#a87', padding: '1px 3px', background: 'rgba(180,120,80,0.12)', borderRadius: 2, cursor: 'pointer' }} title={`씬 내 "${node.name}" 이름 노드 ${sameNameCount}개 (R2484)`}>=×{sameNameCount}</span>}
+            {/* R2484/R2489: 씬 내 같은 이름 노드 수 + 클릭 목록 */}
+            {sameNameCount > 1 && (
+              <span style={{ position: 'relative', display: 'inline-block' }}>
+                <span
+                  style={{ fontSize: 8, color: '#a87', padding: '1px 3px', background: 'rgba(180,120,80,0.12)', borderRadius: 2, cursor: 'pointer', userSelect: 'none' }}
+                  title={`씬 내 "${node.name}" 이름 노드 ${sameNameCount}개 — 클릭으로 목록 (R2489)`}
+                  onClick={() => setShowSameNameMenu(v => !v)}
+                >=×{sameNameCount}</span>
+                {showSameNameMenu && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, minWidth: 140, boxShadow: '0 4px 12px rgba(0,0,0,0.4)', padding: '4px 0', marginTop: 2 }}
+                    onMouseLeave={() => setShowSameNameMenu(false)}
+                  >
+                    <div style={{ fontSize: 8, color: '#a87', padding: '2px 8px 4px', borderBottom: '1px solid var(--border)', marginBottom: 2 }}>"{node.name}" 동명 노드</div>
+                    {sameNameNodes.map(n => (
+                      <div key={n.uuid} onClick={() => { onUpdate(n); setShowSameNameMenu(false) }}
+                        style={{ padding: '3px 8px', fontSize: 9, cursor: 'pointer', color: n.uuid === node.uuid ? '#58a6ff' : 'var(--text-primary)', background: n.uuid === node.uuid ? 'rgba(88,166,255,0.08)' : 'none' }}
+                        onMouseEnter={e => { if (n.uuid !== node.uuid) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = n.uuid === node.uuid ? 'rgba(88,166,255,0.08)' : 'none' }}
+                        title={n.uuid}
+                      >{n.uuid === node.uuid ? '▸ ' : ''}{n.name} <span style={{ color: '#444', fontSize: 8 }}>{n.uuid.slice(0, 8)}</span></div>
+                    ))}
+                  </div>
+                )}
+              </span>
+            )}
             {/* R1721: 형제 노드 탐색 버튼 ◀ ▶ */}
             {siblings.length > 1 && (() => {
               const idx = siblings.findIndex(s => s.uuid === node.uuid)

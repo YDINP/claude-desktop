@@ -28745,6 +28745,18 @@ if (
   log('warning', 'R2488-dupe-offset', 'R2488 복제 오프셋 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1481: R2489 동일 이름 노드 팝업 ─────────────────────────────────
+const s1481 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1481.includes('R2489') &&
+  s1481.includes('sameNameNodes') &&
+  s1481.includes('showSameNameMenu')
+) {
+  log('pass', 'R2489-same-name-popup', 'R2489 동일 이름 노드 팝업 구현 완료')
+} else {
+  log('warning', 'R2489-same-name-popup', 'R2489 동일 이름 노드 팝업 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
