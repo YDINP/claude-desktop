@@ -28081,6 +28081,19 @@ if (
   log('warning', 'R2426-toggle-enabled', 'Inspector cc.Toggle enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1431: R2427 Inspector cc.ToggleContainer enabled ──────────
+console.log('\n## 1431. R2427 Inspector cc.ToggleContainer enabled 체크')
+const s1431 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1431.includes('R2427') &&
+  s1431.includes('cc.ToggleContainer') &&
+  s1431.includes('_enabled')
+) {
+  log('pass', 'R2427-togglecontainer-enabled', 'Inspector cc.ToggleContainer enabled 구현 완료')
+} else {
+  log('warning', 'R2427-togglecontainer-enabled', 'Inspector cc.ToggleContainer enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

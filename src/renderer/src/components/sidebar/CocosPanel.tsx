@@ -19763,6 +19763,12 @@ function CCFileNodeInspector({
                   )}
                   {comp.type === 'cc.ToggleContainer' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {/* R2427: ToggleContainer enabled (BatchInspector R2199) */}
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                        <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                          onChange={ev => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: ev.target.checked, _enabled: ev.target.checked } } : c); applyAndSave({ components: u }) }} />
+                        enabled
+                      </label>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
                         <input type="checkbox" checked={!!(p.allowSwitchOff ?? false)}
                           onChange={ev => {
