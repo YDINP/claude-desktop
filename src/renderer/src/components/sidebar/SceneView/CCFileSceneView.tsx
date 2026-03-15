@@ -62,6 +62,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
   // R1683: 드래그 ghost (원래 위치 반투명 표시) — worldX/worldY 기준
   const [dragGhost, setDragGhost] = useState<{ uuid: string; worldX: number; worldY: number; w: number; h: number; anchorX: number; anchorY: number } | null>(null)
+  // R2472: 다중 선택 노드 동시 드래그
+  const multiDragRef = useRef<{ startMouseX: number; startMouseY: number; nodes: Map<string, { localX: number; localY: number }> } | null>(null)
+  const [multiDragDelta, setMultiDragDelta] = useState<{ dx: number; dy: number } | null>(null)
   const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number; dir: 'SE' | 'S' | 'E' } | null>(null)
   const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
   const rotateRef = useRef<{ uuid: string; centerX: number; centerY: number; startAngle: number; startRotation: number } | null>(null)
@@ -530,6 +533,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       }
       return
     }
+    // R2472: 다중 선택 동시 드래그
+    if (multiDragRef.current) {
+      const z = viewRef.current.zoom
+      let dx = (e.clientX - multiDragRef.current.startMouseX) / z
+      let dy = -(e.clientY - multiDragRef.current.startMouseY) / z
+      if (e.shiftKey && !e.ctrlKey) {
+        if (Math.abs(dx) >= Math.abs(dy)) dy = 0
+        else dx = 0
+      }
+      if (e.ctrlKey || e.metaKey) {
+        dx = Math.round(dx / snapSize) * snapSize
+        dy = Math.round(dy / snapSize) * snapSize
+      }
+      setMultiDragDelta({ dx, dy })
+      return
+    }
     if (isPanning && panStart.current) {
       const dx = e.clientX - panStart.current.mouseX
       const dy = e.clientY - panStart.current.mouseY
@@ -607,6 +626,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     setSnapIndicator(null)
     setAlignGuides([])
     setDragGhost(null)
+    // R2472: 다중 선택 동시 드래그 완료
+    if (multiDragRef.current && multiDragDelta) {
+      const { dx, dy } = multiDragDelta
+      const moves = Array.from(multiDragRef.current.nodes.entries()).map(([uuid, { localX, localY }]) => ({
+        uuid, x: localX + dx, y: localY + dy,
+      }))
+      if (moves.length > 0) onMultiMove?.(moves)
+      multiDragRef.current = null
+      setMultiDragDelta(null)
+      return
+    }
+    multiDragRef.current = null
+    setMultiDragDelta(null)
     setIsPanning(false)
     panStart.current = null
     // rubber-band 완료: 박스 내 노드 선택
@@ -1599,8 +1631,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {flatNodes.map(({ node, worldX, worldY }) => {
             const isDragged = dragOverride?.uuid === node.uuid
             const isResized = resizeOverride?.uuid === node.uuid
-            const effX = isDragged ? dragOverride!.x : worldX
-            const effY = isDragged ? dragOverride!.y : worldY
+            // R2472: 다중 선택 동시 드래그 오프셋
+            const isMultiDragged = !isDragged && !!multiDragDelta && multiSelected.has(node.uuid)
+            const effX = isDragged ? dragOverride!.x : isMultiDragged ? worldX + multiDragDelta!.dx : worldX
+            const effY = isDragged ? dragOverride!.y : isMultiDragged ? worldY + multiDragDelta!.dy : worldY
             const svgPos = ccToSvg(effX, effY)
             const w = isResized ? resizeOverride!.w : (node.size?.x || 0)
             const h = isResized ? resizeOverride!.h : (node.size?.y || 0)
@@ -1696,6 +1730,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   e.stopPropagation()
                   if (viewLock || lockedUuids.has(node.uuid)) return  // R1605 / R1543: 잠금
                   const pos = node.position as CCVec3
+                  // R2472: 다중 선택 노드 동시 드래그
+                  const multiSel = multiSelectedRef.current
+                  if (multiSel.has(node.uuid) && multiSel.size > 1) {
+                    const nodesMap = new Map<string, { localX: number; localY: number }>()
+                    for (const fn2 of flatNodesRef.current) {
+                      if (multiSel.has(fn2.node.uuid)) {
+                        const p2 = fn2.node.position as CCVec3
+                        nodesMap.set(fn2.node.uuid, { localX: p2.x, localY: p2.y })
+                      }
+                    }
+                    multiDragRef.current = { startMouseX: e.clientX, startMouseY: e.clientY, nodes: nodesMap }
+                    return
+                  }
                   dragRef.current = {
                     uuid: node.uuid,
                     startMouseX: e.clientX,
