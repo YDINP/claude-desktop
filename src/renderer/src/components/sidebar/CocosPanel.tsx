@@ -20809,6 +20809,35 @@ function CCFileNodeInspector({
                       ))}
                     </div>
                   )}
+                  {/* R2369: CC3.x Label enableOutline + outlineWidth + outlineColor */}
+                  {(() => {
+                    const enableOutline = !!(p.enableOutline ?? p._enableOutline ?? false)
+                    const outlineWidth = Number(p.outlineWidth ?? p._outlineWidth ?? 2)
+                    const oc = p.outlineColor ?? p._outlineColor as { r?: number; g?: number; b?: number } | undefined
+                    const ocHex = oc ? `#${((oc.r ?? 0) << 16 | (oc.g ?? 0) << 8 | (oc.b ?? 0)).toString(16).padStart(6, '0')}` : '#000000'
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>outline</span>
+                        <span title={enableOutline ? 'outline 비활성' : 'outline 활성'}
+                          onClick={() => { const nv = !enableOutline; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableOutline: nv, _enableOutline: nv } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableOutline ? '#f59e0b' : 'var(--border)'}`, borderRadius: 2, color: enableOutline ? '#f59e0b' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{enableOutline ? 'ON' : 'OFF'}</span>
+                        {enableOutline && (<>
+                          <input type="number" defaultValue={outlineWidth} min={1} max={20} step={1}
+                            style={{ width: 36, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                            onBlur={ev => { const v = parseInt(ev.target.value) || 2; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, outlineWidth: v, _outlineWidth: v } } : c); applyAndSave({ components: u }) }}
+                            title="outlineWidth"
+                          />
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>px</span>
+                          <input type="color" defaultValue={ocHex}
+                            style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
+                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, outlineColor: col, _outlineColor: col } } : c); applyAndSave({ components: u }) }}
+                            title="outlineColor"
+                          />
+                        </>)}
+                      </div>
+                    )
+                  })()}
                   {/* R1691: 멀티라인 텍스트 미리보기 */}
                   {(str.includes('\n') || str.includes('\\n')) && (() => {
                     const lines = str.replace(/\\n/g, '\n').split('\n')

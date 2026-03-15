@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1373: R2369 Inspector cc.Label enableOutline/outlineWidth/outlineColor (CC3.x) ──────────
+console.log('\n## 1373. R2369 Inspector cc.Label enableOutline/outlineWidth/outlineColor 체크')
+const s1373 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1373.includes('R2369') &&
+  s1373.includes('enableOutline') &&
+  s1373.includes('outlineWidth') &&
+  s1373.includes('outlineColor') &&
+  s1373.includes('_enableOutline')
+) {
+  log('pass', 'R2369-label-outline', 'Inspector cc.Label enableOutline/outlineWidth/outlineColor 구현 완료')
+} else {
+  log('warning', 'R2369-label-outline', 'Inspector cc.Label enableOutline 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1372: R2368 Inspector cc.PolygonCollider threshold 입력 필드 ──────────
 console.log('\n## 1372. R2368 Inspector cc.PolygonCollider threshold 체크')
 const s1372 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
