@@ -239,6 +239,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showTagBadge, setShowTagBadge] = useState(false)
   // R2607: 중복 이름 노드 강조 오버레이
   const [showDupNameOverlay, setShowDupNameOverlay] = useState(false)
+  // R2610: rotation 방향 화살표 오버레이
+  const [showRotArrow, setShowRotArrow] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1599,6 +1601,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showDupNameOverlay ? '중복 이름 강조 끄기 (R2607)' : '같은 이름 2개 이상인 노드 주황 점선 강조 (R2607)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDupNameOverlay ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showDupNameOverlay ? 'rgba(251,146,60,0.12)' : 'none', color: showDupNameOverlay ? '#fb923c' : 'var(--text-muted)' }}
         >=N</button>
+        {/* R2610: rotation 방향 화살표 토글 */}
+        <button
+          onClick={() => setShowRotArrow(v => !v)}
+          title={showRotArrow ? 'rotation 화살표 끄기 (R2610)' : '비영 rotation 노드에 방향 화살표 표시 (R2610)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotArrow ? 'rgba(236,72,153,0.5)' : 'var(--border)'}`, background: showRotArrow ? 'rgba(236,72,153,0.12)' : 'none', color: showRotArrow ? '#ec4899' : 'var(--text-muted)' }}
+        >↗R</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -1958,6 +1966,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             <rect x={-99999} y={-99999} width={199999} height={199999} fill="white" />
             <rect x={0} y={0} width={effectiveW} height={effectiveH} fill="black" />
           </mask>
+          {/* R2610: rotation 화살표 마커 */}
+          <marker id="rot-arrow" markerWidth={6} markerHeight={6} refX={5} refY={3} orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="rgba(236,72,153,0.9)" />
+          </marker>
           {/* R2326: 체크무늬 배경 패턴 */}
           {bgPattern === 'checker' && (() => {
             const cs = 20
@@ -2475,6 +2487,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(250,204,21,0.9)" fontFamily="monospace" fontWeight="bold"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{label}</text>
+                  )
+                })()}
+                {/* R2610: rotation 방향 화살표 */}
+                {showRotArrow && view.zoom > 0.3 && (() => {
+                  const rotDeg = typeof node.rotation === 'number' ? node.rotation : ((node.rotation as { z?: number })?.z ?? 0)
+                  if (Math.abs(rotDeg) < 1) return null
+                  const mcx = rectX + w / 2, mcy = rectY + h / 2
+                  const arrowLen = Math.max(6, Math.min(w, h) * 0.4)
+                  const rad = rotDeg * Math.PI / 180  // CC: CCW positive, SVG Y축 반전이므로 그대로 사용
+                  const ex = mcx + arrowLen * Math.sin(rad)
+                  const ey = mcy - arrowLen * Math.cos(rad)
+                  return (
+                    <line x1={mcx} y1={mcy} x2={ex} y2={ey}
+                      stroke="rgba(236,72,153,0.9)" strokeWidth={1.5 / view.zoom}
+                      markerEnd="url(#rot-arrow)" style={{ pointerEvents: 'none' }} />
                   )
                 })()}
                 {/* R2601: component 타입 배지 */}

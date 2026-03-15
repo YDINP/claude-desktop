@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1602: R2610 SceneView rotation 방향 화살표 오버레이 ───────────────
+console.log('\n## 1602. R2610 — SceneView rotation 방향 화살표 오버레이')
+const s1602 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1602.includes('R2610') &&
+  s1602.includes('showRotArrow') &&
+  s1602.includes('setShowRotArrow') &&
+  s1602.includes('rot-arrow')
+) {
+  log('pass', 'R2610-rot-arrow', 'R2610 rotation 화살표 오버레이 구현 완료')
+} else {
+  log('warning', 'R2610-rot-arrow', 'R2610 rotation 화살표 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1601: R2609 BatchInspector size 스냅 ─────────────────────────────
 console.log('\n## 1601. R2609 — BatchInspector size N px 배수 스냅')
 const s1601 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
