@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1396: R2392 Inspector cc.RichText imageLineHeight ──────────
+console.log('\n## 1396. R2392 Inspector cc.RichText imageLineHeight 체크')
+const s1396 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1396.includes('R2392') &&
+  s1396.includes('imageLineHeight') &&
+  s1396.includes('_N$imageLineHeight')
+) {
+  log('pass', 'R2392-richtext-imagelineheight', 'Inspector cc.RichText imageLineHeight 구현 완료')
+} else {
+  log('warning', 'R2392-richtext-imagelineheight', 'Inspector cc.RichText imageLineHeight 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1395: R2391 Inspector Collider category + mask ──────────
 console.log('\n## 1395. R2391 Inspector Collider category + mask 체크')
 const s1395 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

@@ -21035,6 +21035,15 @@ function CCFileNodeInspector({
                       >{l}</span>
                     ))}
                   </div>
+                  {/* R2392: imageLineHeight */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>imgLineH</span>
+                    <input type="number" defaultValue={Number(p.imageLineHeight ?? p._imageLineHeight ?? p._N$imageLineHeight ?? 40)} min={0} step={1}
+                      onBlur={e => { const v = parseInt(e.target.value) || 40; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, imageLineHeight: v, _imageLineHeight: v, _N$imageLineHeight: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="imageLineHeight"
+                    />
+                  </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.handleTouchEvent ?? p._handleTouchEvent ?? true)}
                       onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, handleTouchEvent: e.target.checked, _handleTouchEvent: e.target.checked } } : c); applyAndSave({ components: u }) }}
