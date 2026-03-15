@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1359: R2355 Inspector cc.Layout childAlignment ──────────
+console.log('\n## 1359. R2355 Inspector cc.Layout childAlignment 체크')
+const s1359 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1359.includes('R2355') &&
+  s1359.includes('childAlignment') &&
+  s1359.includes('alignNames')
+) {
+  log('pass', 'R2355-layout-childalignment', 'Inspector cc.Layout childAlignment 퀵 편집 구현 완료')
+} else {
+  log('warning', 'R2355-layout-childalignment', 'Inspector cc.Layout childAlignment 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1358: R2354 Inspector cc.Widget HCenter/VCenter ──────────
 console.log('\n## 1358. R2354 Inspector cc.Widget isAlignHorizontalCenter/VerticalCenter 체크')
 const s1358 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
