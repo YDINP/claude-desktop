@@ -17313,6 +17313,30 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2536: 선택 노드 미러 (scale 부호 반전 — 좌우/상하 뒤집기) */}
+      {sceneFile.root && uuids.length > 0 && (() => {
+        const applyFlip = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, [axis]: -sc[axis] }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ flip${axis.toUpperCase()} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>미러 (R2536)</span>
+            <span onClick={() => applyFlip('x')} title="좌우 미러 (scale.x 부호 반전) (R2536)"
+              style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid rgba(167,139,250,0.4)', borderRadius: 2, color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}>↔H</span>
+            <span onClick={() => applyFlip('y')} title="상하 미러 (scale.y 부호 반전) (R2536)"
+              style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid rgba(167,139,250,0.4)', borderRadius: 2, color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}>↕V</span>
+          </div>
+        )
+      })()}
       {/* R1780: 크기 배율 일괄 적용 (각 노드 비율 유지) */}
       {(() => {
         // R1809: 커스텀 배율 입력

@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1528: R2536 BatchInspector 미러(flip) ────────────────────────────
+console.log('\n## 1528. R2536 — BatchInspector 미러 (scale 부호 반전)')
+const s1528 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1528.includes('R2536') &&
+  s1528.includes('applyFlip') &&
+  s1528.includes('↔H') &&
+  s1528.includes('↕V')
+) {
+  log('pass', 'R2536-flip', 'R2536 미러(flip) 구현 완료')
+} else {
+  log('warning', 'R2536-flip', 'R2536 미러(flip) 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1527: R2535 BatchInspector 스택 배치 ─────────────────────────────
 console.log('\n## 1527. R2535 — BatchInspector 스택 배치 (edge-to-edge)')
 const s1527 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
