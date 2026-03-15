@@ -17712,6 +17712,28 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2559: 선택 노드 JSON 내보내기 */}
+      {sceneFile.root && uuids.length > 0 && (() => {
+        const exportNodes = () => {
+          if (!sceneFile.root) return
+          const selected: CCSceneNode[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selected.push(n); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          const blob = new Blob([JSON.stringify(selected, null, 2)], { type: 'application/json' })
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `nodes-export-${Date.now()}.json`
+          a.click()
+          URL.revokeObjectURL(url)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 4, marginBottom: 4, paddingLeft: 52 }}>
+            <span onClick={exportNodes} title={`선택 ${uuids.length}개 노드를 JSON 파일로 내보내기 (R2559)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>⬇ JSON</span>
+          </div>
+        )
+      })()}
       {/* R1751: 색상 퀵 프리셋 */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 6, paddingLeft: 52, flexWrap: 'wrap' }}>
         {([['#ffffff', '⬜ 흰'], ['#000000', '⬛ 검'], ['#ff0000', '🔴 빨'], ['#00ff00', '🟢 초'], ['#0000ff', '🔵 파'], ['#ffff00', '🟡 노']] as [string, string][]).map(([hex, label]) => (

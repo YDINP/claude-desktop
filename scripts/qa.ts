@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1551: R2559 BatchInspector 선택 노드 JSON 내보내기 ───────────────
+console.log('\n## 1551. R2559 — BatchInspector 선택 노드 JSON 내보내기')
+const s1551 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1551.includes('R2559') &&
+  s1551.includes('exportNodes') &&
+  s1551.includes('nodes-export') &&
+  s1551.includes('⬇ JSON')
+) {
+  log('pass', 'R2559-export-json', 'R2559 선택 노드 JSON 내보내기 구현 완료')
+} else {
+  log('warning', 'R2559-export-json', 'R2559 선택 노드 JSON 내보내기 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1550: R2558 SceneView 씬 통계 팝업 버튼 (ⓘ) ──────────────────────
 console.log('\n## 1550. R2558 — SceneView 씬 통계 팝업 버튼')
 const s1550 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
