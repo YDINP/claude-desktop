@@ -17223,6 +17223,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2495: 그리드 스냅 — 선택 노드 위치를 N픽셀 그리드에 정렬 */}
+      {uuids.length >= 2 && (() => {
+        const [snapGrid, setSnapGrid] = React.useState(10)
+        const applySnap = async () => {
+          if (!sceneFile.root) return
+          function patchSnap(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSnap)
+            if (!uuidSet.has(n.uuid) || !n.position) return { ...n, children }
+            const sx = Math.round((n.position.x ?? 0) / snapGrid) * snapGrid
+            const sy = Math.round((n.position.y ?? 0) / snapGrid) * snapGrid
+            return { ...n, position: { ...n.position, x: sx, y: sy }, children }
+          }
+          const result = await saveScene(patchSnap(sceneFile.root))
+          setBatchMsg(result.success ? `✓ 그리드 스냅 ${snapGrid}px (R2495)` : '✗ 오류')
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs2 = { fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fbbf24', userSelect: 'none' } as React.CSSProperties
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>스냅px</span>
+            {[1, 5, 10, 20, 50, 100].map(g => (
+              <span key={g} style={{ ...bs2, color: snapGrid === g ? '#fbbf24' : '#666', borderColor: snapGrid === g ? '#fbbf24' : 'var(--border)' }}
+                onClick={() => setSnapGrid(g)}>{g}</span>
+            ))}
+            <button style={{ ...bs2, color: '#7dd3fc', borderColor: '#7dd3fc', marginLeft: 4 }} onClick={applySnap} title={`위치 ${snapGrid}px 그리드 정렬`}>적용</button>
+          </div>
+        )
+      })()}
       {/* R2479: 원형 배치 */}
       {uuids.length >= 2 && (() => {
         const [circleRadius, setCircleRadius] = React.useState(100)

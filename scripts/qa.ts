@@ -28819,6 +28819,19 @@ if (
   log('warning', 'R2494-rot-delta', 'R2494 회전 델타 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1487: R2495 BatchInspector 그리드 스냅 ──────────────────────────
+const s1487 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1487.includes('R2495') &&
+  s1487.includes('applySnap') &&
+  s1487.includes('snapGrid') &&
+  s1487.includes('스냅px')
+) {
+  log('pass', 'R2495-batch-snap', 'R2495 BatchInspector 그리드 스냅 구현 완료')
+} else {
+  log('warning', 'R2495-batch-snap', 'R2495 그리드 스냅 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
