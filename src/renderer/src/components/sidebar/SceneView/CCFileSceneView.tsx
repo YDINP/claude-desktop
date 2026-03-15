@@ -251,6 +251,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showLayerBadge, setShowLayerBadge] = useState(false)
   // R2625: 이벤트 핸들러 배지 오버레이 (Button/Toggle/Slider 있는 노드에 ⚡ 표시)
   const [showEventBadge, setShowEventBadge] = useState(false)
+  // R2629: 안전 영역 + 비율 가이드 오버레이
+  const [showSafeZone, setShowSafeZone] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1647,6 +1649,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showEventBadge ? '이벤트 배지 끄기 (R2625)' : 'Button/Toggle/Slider 노드에 ⚡ 배지 표시 (R2625)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEventBadge ? 'rgba(234,179,8,0.5)' : 'var(--border)'}`, background: showEventBadge ? 'rgba(234,179,8,0.12)' : 'none', color: showEventBadge ? '#eab308' : 'var(--text-muted)' }}
         >⚡</button>
+        {/* R2629: 안전 영역 가이드 토글 */}
+        <button
+          onClick={() => setShowSafeZone(v => !v)}
+          title={showSafeZone ? '안전 영역 가이드 끄기 (R2629)' : '90% 안전 영역 + 비율 가이드 표시 (R2629)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSafeZone ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showSafeZone ? 'rgba(251,191,36,0.12)' : 'none', color: showSafeZone ? '#fbbf24' : 'var(--text-muted)' }}
+        >☰</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3060,6 +3068,47 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })}
 
+          {/* R2629: 안전 영역 + 비율 가이드 오버레이 */}
+          {showSafeZone && (() => {
+            const cw = effectiveW, ch = effectiveH
+            // SVG 내 캔버스 좌상단 좌표: cc(0,0) = SVG(cx,cy), cc(-cw/2, ch/2) = 좌상단
+            const svgLeft = cx - cw / 2, svgTop = cy - ch / 2
+            // 90% safe zone
+            const safeMarginX = cw * 0.05, safeMarginY = ch * 0.05
+            const safeX = svgLeft + safeMarginX, safeY = svgTop + safeMarginY
+            const safeW = cw * 0.9, safeH = ch * 0.9
+            const sw = 1 / view.zoom
+            const fs = Math.max(5, 8 / view.zoom)
+            return (
+              <>
+                {/* 90% 안전 영역 */}
+                <rect x={safeX} y={safeY} width={safeW} height={safeH}
+                  fill="none" stroke="rgba(251,191,36,0.5)" strokeWidth={sw}
+                  strokeDasharray={`${4/view.zoom} ${2/view.zoom}`} style={{ pointerEvents: 'none' }} />
+                <text x={safeX + 2/view.zoom} y={safeY - 2/view.zoom}
+                  fontSize={fs} fill="rgba(251,191,36,0.7)" fontFamily="monospace"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}>90%</text>
+                {/* 16:9 가이드 (캔버스 높이 기준) */}
+                {(() => {
+                  const h169 = ch, w169 = Math.round(ch * 16 / 9)
+                  if (w169 <= cw) {
+                    const x169 = cx - w169 / 2
+                    return <rect x={x169} y={svgTop} width={w169} height={h169}
+                      fill="none" stroke="rgba(96,165,250,0.35)" strokeWidth={sw}
+                      strokeDasharray={`${6/view.zoom} ${3/view.zoom}`} style={{ pointerEvents: 'none' }} />
+                  }
+                  const w169b = cw, h169b = Math.round(cw * 9 / 16)
+                  const y169b = cy - h169b / 2
+                  return <rect x={svgLeft} y={y169b} width={w169b} height={h169b}
+                    fill="none" stroke="rgba(96,165,250,0.35)" strokeWidth={sw}
+                    strokeDasharray={`${6/view.zoom} ${3/view.zoom}`} style={{ pointerEvents: 'none' }} />
+                })()}
+                <text x={svgLeft + 2/view.zoom} y={svgTop + fs * 1.4}
+                  fontSize={fs} fill="rgba(96,165,250,0.6)" fontFamily="monospace"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}>16:9</text>
+              </>
+            )
+          })()}
           {/* R2617: 원점(0,0) 십자선 */}
           {showOriginCross && (() => {
             const arm = Math.max(20, Math.min(effectiveW, effectiveH) * 0.1) / view.zoom
