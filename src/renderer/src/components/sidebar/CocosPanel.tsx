@@ -3438,6 +3438,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   sceneFile={sceneFile}
                   saveScene={saveScene}
                   onSelectNode={onSelectNode}
+                  onMultiSelectChange={setMultiSelectedUuids}
                 />
               </div>
             )}
@@ -4213,12 +4214,14 @@ function ScrubLabel({ label, value, onChange, step = 1, inputRef }: { label: str
 
 /** R1516: 다중 노드 공통 속성 배치 편집 패널 */
 function CCFileBatchInspector({
-  uuids, sceneFile, saveScene, onSelectNode,
+  uuids, sceneFile, saveScene, onSelectNode, onMultiSelectChange,
 }: {
   uuids: string[]
   sceneFile: CCSceneFile
   saveScene: (root: CCSceneNode) => Promise<{ success: boolean; error?: string }>
   onSelectNode: (n: CCSceneNode | null) => void
+  /** R2500: 선택 변경 콜백 (반전 선택 등) */
+  onMultiSelectChange?: (uuids: string[]) => void
 }) {
   const [batchOpacity, setBatchOpacity] = useState<string>('')
   const [batchActive, setBatchActive] = useState<'active' | 'inactive' | ''>('')
@@ -4346,6 +4349,21 @@ function CCFileBatchInspector({
           {commonValues?.opacity != null ? `opacity:${commonValues.opacity}` : ''}
           {commonValues?.active != null ? ` ${commonValues.active ? '활성' : '비활성'}` : ''}
         </span>
+        {/* R2500: 선택 반전 버튼 */}
+        {onMultiSelectChange && sceneFile.root && (
+          <span
+            title="선택 반전 — 현재 선택 제외한 모든 노드 선택 (R2500)"
+            onClick={() => {
+              const all: string[] = []
+              function collectAll(n: CCSceneNode) { if (!uuidSet.has(n.uuid)) all.push(n.uuid); n.children.forEach(collectAll) }
+              collectAll(sceneFile.root!)
+              onMultiSelectChange(all)
+            }}
+            style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none', marginLeft: 'auto' }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+          >⊝ 반전</span>
+        )}
       </div>
       {/* R2336: 2-노드 선택 시 거리/간격 정보 */}
       {uuids.length === 2 && sceneFile.root && (() => {

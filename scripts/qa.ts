@@ -28883,6 +28883,18 @@ if (
   log('warning', 'R2499-bbox-stats', 'R2499 바운딩박스 통계 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1492: R2500 BatchInspector 선택 반전 ────────────────────────────
+const s1492 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1492.includes('R2500') &&
+  s1492.includes('onMultiSelectChange') &&
+  s1492.includes('선택 반전')
+) {
+  log('pass', 'R2500-invert-select', 'R2500 BatchInspector 선택 반전 구현 완료')
+} else {
+  log('warning', 'R2500-invert-select', 'R2500 선택 반전 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
