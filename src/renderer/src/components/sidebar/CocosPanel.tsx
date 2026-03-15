@@ -21633,6 +21633,51 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R2342: cc.Scrollbar — direction/enableAutoHide/autoHideTime Quick Edit
+            if (comp.type === 'cc.Scrollbar') {
+              const direction = Number(p.direction ?? p._direction ?? p._N$direction ?? 1)
+              const enableAutoHide = !!(p.enableAutoHide ?? p._enableAutoHide ?? p._N$enableAutoHide ?? false)
+              const autoHideTime = Number(p.autoHideTime ?? p._autoHideTime ?? p._N$autoHideTime ?? 1)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>direction</span>
+                    {[['H', 0], ['V', 1]].map(([label, v]) => (
+                      <span key={v} onClick={() => {
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v, _direction: v, _N$direction: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                        style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', border: `1px solid ${direction === v ? '#34d399' : 'var(--border)'}`, color: direction === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{label}</span>
+                    ))}
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: 2 }}>
+                    <input type="checkbox" checked={enableAutoHide}
+                      onChange={e => {
+                        const v = e.target.checked
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableAutoHide: v, _enableAutoHide: v, _N$enableAutoHide: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ margin: 0, accentColor: '#58a6ff' }}
+                    />enableAutoHide
+                  </label>
+                  {enableAutoHide && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>autoHideTime</span>
+                      <input type="number" defaultValue={autoHideTime} key={`sb-aht-${autoHideTime}`} min={0} step={0.1}
+                        onBlur={e => {
+                          const v = parseFloat(e.target.value) || 1
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoHideTime: v, _autoHideTime: v, _N$autoHideTime: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      />
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>s</span>
+                    </div>
+                  )}
+                </div>
+              )
+            }
             // R1556: cc.TiledMap / cc.TiledLayer Quick Edit
             if (comp.type === 'cc.TiledMap') {
               return (

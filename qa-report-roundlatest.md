@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T10:19:36.484Z
+> 2026-03-15T10:21:39.065Z
 
 ## Critical
 _없음_
@@ -2243,6 +2243,7 @@ _없음_
 - 씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행
 - chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
 - session:setCollection try/catch + memTimer clearInterval 수정
+- Inspector cc.Scrollbar direction/enableAutoHide/autoHideTime 편집 구현 완료
 - Inspector cc.WebView url/visibleWithMouse 편집 구현 완료
 - Inspector cc.SpotLight intensity/range/spotAngle/color 편집 구현 완료
 - 씬 트리 노드 커스텀 색상 입력 구현 완료

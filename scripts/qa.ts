@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1346: R2342 Inspector cc.Scrollbar Quick Edit ──────────
+console.log('\n## 1346. R2342 Inspector cc.Scrollbar direction/enableAutoHide 체크')
+const s1346 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1346.includes('R2342') &&
+  s1346.includes("comp.type === 'cc.Scrollbar'") &&
+  s1346.includes('enableAutoHide') &&
+  s1346.includes('autoHideTime')
+) {
+  log('pass', 'R2342-scrollbar-inspector', 'Inspector cc.Scrollbar direction/enableAutoHide/autoHideTime 편집 구현 완료')
+} else {
+  log('warning', 'R2342-scrollbar-inspector', 'Inspector cc.Scrollbar Quick Edit 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1345: R2341 Inspector cc.WebView Quick Edit ──────────
 console.log('\n## 1345. R2341 Inspector cc.WebView url/visibleWithMouse 체크')
 const s1345 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
