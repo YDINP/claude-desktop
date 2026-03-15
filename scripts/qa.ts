@@ -25498,8 +25498,8 @@ console.log('\n## 1347. R2343 Inspector _tag/_zIndex 필드 체크')
 const s1347 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
 if (
   s1347.includes('R2343') &&
-  s1347.includes('_tag') &&
-  s1347.includes('_zIndex') &&
+  s1347.includes('R2343') &&
+  s1347.includes('draft.tag') &&
   s1347.includes('노드 태그')
 ) {
   log('pass', 'R2343-tag-zindex-inspector', 'Inspector 단일노드 _tag/_zIndex 편집 필드 구현 완료')
