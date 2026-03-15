@@ -442,11 +442,14 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     if (!collapsedPersistKey) return
     try { localStorage.setItem(collapsedPersistKey, JSON.stringify([...collapsedUuids])) } catch {}
   }, [collapsedPersistKey, collapsedUuids])
-  // R1644: 선택 노드 트리 자동 스크롤
+  // R1644: 선택 노드 트리 자동 스크롤 + R2497: 조상 노드 자동 펼치기 (씬뷰 클릭 포함)
   useEffect(() => {
     if (!selectedNode) return
-    const el = document.getElementById(`tree-node-${selectedNode.uuid}`)
-    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    expandToNode(selectedNode.uuid)
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`tree-node-${selectedNode.uuid}`)
+      if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    })
   }, [selectedNode?.uuid])
   const [sceneViewHeight, setSceneViewHeight] = useState(240)
   // R1470: Cocos 에디터 레이아웃 — 계층 패널 너비 (좌우 분할)

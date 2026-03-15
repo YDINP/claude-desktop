@@ -28845,6 +28845,18 @@ if (
   log('warning', 'R2496-scatter', 'R2496 흩뿌리기 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1489: R2497 씬뷰 클릭 계층 트리 조상 자동 펼치기 ─────────────────
+const s1489 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1489.includes('R2497') &&
+  s1489.includes('expandToNode(selectedNode.uuid)') &&
+  s1489.includes('조상 노드 자동 펼치기')
+) {
+  log('pass', 'R2497-reveal-hierarchy', 'R2497 씬뷰 클릭 계층 트리 자동 펼치기 구현 완료')
+} else {
+  log('warning', 'R2497-reveal-hierarchy', 'R2497 계층 트리 자동 펼치기 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
