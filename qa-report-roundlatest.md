@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T10:42:25.970Z
+> 2026-03-15T11:46:56.461Z
 
 ## Critical
 _없음_
@@ -2243,6 +2243,40 @@ _없음_
 - 씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행
 - chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
 - session:setCollection try/catch + memTimer clearInterval 수정
+- Inspector cc.UITransform priority/anchorPoint 구현 완료
+- Inspector cc.ParticleSystem simulationSpace/rotationIsDir 구현 완료
+- Inspector cc.RichText lineHeight/overflow/handleTouchEvent 구현 완료
+- Inspector cc.EditBox fontColor/placeholderFontColor 구현 완료
+- Inspector cc.ScrollView bounceTime/mouseWheelSens/hideScrollBar 구현 완료
+- Inspector cc.ToggleContainer autoCheckToggle 구현 완료
+- Inspector cc.PageView pageTurningSpeed/effectType/autoPlay 구현 완료
+- Inspector cc.VideoPlayer volume/keepAspectRatio/fullScreenEnabled 구현 완료
+- Inspector cc.Animation sample/speed 구현 완료
+- Inspector cc.MotionStreak timeToLive/speedThreshold 구현 완료
+- Inspector cc.Graphics lineJoin/lineCap/miterLimit/opacity 구현 완료
+- Inspector cc.Label enableDashLine 구현 완료
+- Inspector cc.Label enableGradient/colorTop/colorBottom 구현 완료
+- Inspector cc.Label enableShadow/shadowBlur/shadowColor 구현 완료
+- Inspector cc.Label enableOutline/outlineWidth/outlineColor 구현 완료
+- Inspector cc.PolygonCollider threshold 입력 필드 구현 완료
+- Inspector BoxCollider/CircleCollider/PolygonCollider density 입력 필드 구현 완료
+- Inspector cc.RigidBody bullet/allowSleep 체크박스 구현 완료
+- Inspector cc.Camera orthoHeight/near/far CC3.x 편집 구현 완료
+- Inspector cc.Label spacingY 입력 구현 완료
+- Inspector cc.Sprite packable 체크박스 + meshType 버튼 구현 완료
+- Inspector cc.Widget isAbs* px/% 전환 버튼 구현 완료
+- Inspector cc.AudioSource preload/startTime/endTime 구현 완료
+- Inspector cc.ScrollView pagingEnabled/cancelInner/scrollDuration 구현 완료
+- Inspector cc.Slider minValue/maxValue/step 퀵 편집 구현 완료
+- Inspector cc.Button autoGrayEffect 체크박스 구현 완료
+- Inspector cc.ProgressBar startWidth 퀵 편집 구현 완료
+- Inspector cc.ProgressBar mode H/V/Fill 퀵 편집 구현 완료
+- Inspector cc.Layout childAlignment 퀵 편집 구현 완료
+- Inspector cc.Widget H/V-center 체크박스 편집 구현 완료
+- Inspector cc.RichText fontColor 단일노드 편집 구현 완료
+- Inspector cc.EditBox lineCount + tabIndex 단일노드 편집 구현 완료
+- Inspector cc.Label strikethrough + charSpacing 단일노드 편집 구현 완료
+- Inspector cc.Label underlineHeight 단일노드 편집 구현 완료
 - Inspector cc.PageViewIndicator direction/spacingX/Y 편집 구현 완료
 - BatchInspector 균등 배분(distribute evenly) 구현 완료
 - BatchInspector matchPosition X/Y 위치 맞추기 구현 완료

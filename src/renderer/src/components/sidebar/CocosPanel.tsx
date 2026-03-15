@@ -21517,6 +21517,62 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R2383: cc.UITransform — priority + anchorPoint 퀵 편집 (CC3.x)
+            if (comp.type === 'cc.UITransform') {
+              const priority = Number(p.priority ?? p._priority ?? 0)
+              const apRaw = p.anchorPoint ?? p._anchorPoint as { x?: number; y?: number } | undefined
+              const apx = Number((apRaw as Record<string,number>|undefined)?.x ?? 0.5)
+              const apy = Number((apRaw as Record<string,number>|undefined)?.y ?? 0.5)
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* priority */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>priority</span>
+                    <input type="number" defaultValue={priority} step={1}
+                      onBlur={e => {
+                        const v = parseInt(e.target.value) || 0
+                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, priority: v, _priority: v } } : c)
+                        applyAndSave({ components: u })
+                      }}
+                      style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    {[-1, 0, 1, 2, 5, 10].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, priority: v, _priority: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${priority === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: priority === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
+                  {/* anchorPoint */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>anchor</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>x</span>
+                    <input type="number" defaultValue={apx} min={0} max={1} step={0.1}
+                      onBlur={e => {
+                        const x = parseFloat(e.target.value) || 0; const ap = { x, y: apy }
+                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, anchorPoint: ap, _anchorPoint: ap } } : c)
+                        applyAndSave({ components: u })
+                      }}
+                      style={{ width: 40, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>y</span>
+                    <input type="number" defaultValue={apy} min={0} max={1} step={0.1}
+                      onBlur={e => {
+                        const y = parseFloat(e.target.value) || 0; const ap = { x: apx, y }
+                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, anchorPoint: ap, _anchorPoint: ap } } : c)
+                        applyAndSave({ components: u })
+                      }}
+                      style={{ width: 40, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    {[['TL',[0,1]],['TC',[0.5,1]],['TR',[1,1]],['CL',[0,0.5]],['CC',[0.5,0.5]],['CR',[1,0.5]],['BL',[0,0]],['BC',[0.5,0]],['BR',[1,0]]].map(([l,v]) => (
+                      <span key={l as string} title={`anchor=(${(v as number[])[0]},${(v as number[])[1]})`}
+                        onClick={() => { const ap = { x: (v as number[])[0], y: (v as number[])[1] }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, anchorPoint: ap, _anchorPoint: ap } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 7, padding: '1px 2px', cursor: 'pointer', border: `1px solid ${Math.abs(apx-(v as number[])[0])<0.01&&Math.abs(apy-(v as number[])[1])<0.01 ? '#38bdf8' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(apx-(v as number[])[0])<0.01&&Math.abs(apy-(v as number[])[1])<0.01 ? '#38bdf8' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{l}</span>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
             // R1572: cc.Mask — type/inverted/alphaThreshold Quick Edit
             if (comp.type === 'cc.Mask') {
               const maskType = Number(p._type ?? p.type ?? 0)
@@ -22380,6 +22436,21 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2382: simulationSpace + rotationIsDir */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>simSpace</span>
+                    {([['World', 0], ['Local', 1]] as const).map(([l, v]) => (
+                      <span key={v} title={`simulationSpace=${l}(${v})`}
+                        onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, simulationSpace: v, _simulationSpace: v, _N$simulationSpace: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${Number(p.simulationSpace ?? p._N$simulationSpace ?? 0) === v ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: Number(p.simulationSpace ?? p._N$simulationSpace ?? 0) === v ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{l}</span>
+                    ))}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginLeft: 8 }}>
+                      <input type="checkbox" checked={!!(p.rotationIsDir ?? p._rotationIsDir ?? p._N$rotationIsDir ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, rotationIsDir: e.target.checked, _rotationIsDir: e.target.checked, _N$rotationIsDir: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      />rotIsDir
+                    </label>
+                  </div>
                   {/* R1924: startColor / startColorVar */}
                   {(() => {
                     const scRaw = p.startColor as { r?: number; g?: number; b?: number } | undefined

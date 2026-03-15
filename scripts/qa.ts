@@ -25493,6 +25493,35 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1387: R2383 Inspector cc.UITransform priority/anchorPoint ──────────
+console.log('\n## 1387. R2383 Inspector cc.UITransform priority/anchorPoint 체크')
+const s1387 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1387.includes('R2383') &&
+  s1387.includes('cc.UITransform') &&
+  s1387.includes('priority') &&
+  s1387.includes('anchorPoint') &&
+  s1387.includes('_anchorPoint')
+) {
+  log('pass', 'R2383-uitransform-priority-anchor', 'Inspector cc.UITransform priority/anchorPoint 구현 완료')
+} else {
+  log('warning', 'R2383-uitransform-priority-anchor', 'Inspector cc.UITransform priority/anchorPoint 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1386: R2382 Inspector cc.ParticleSystem simulationSpace/rotationIsDir ──────────
+console.log('\n## 1386. R2382 Inspector cc.ParticleSystem simulationSpace/rotationIsDir 체크')
+const s1386 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1386.includes('R2382') &&
+  s1386.includes('simulationSpace') &&
+  s1386.includes('rotationIsDir') &&
+  s1386.includes('_N$simulationSpace')
+) {
+  log('pass', 'R2382-ps-simspace-rotdir', 'Inspector cc.ParticleSystem simulationSpace/rotationIsDir 구현 완료')
+} else {
+  log('warning', 'R2382-ps-simspace-rotdir', 'Inspector cc.ParticleSystem simulationSpace/rotationIsDir 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1385: R2381 Inspector cc.RichText lineHeight/overflow/handleTouchEvent ──────────
 console.log('\n## 1385. R2381 Inspector cc.RichText lineHeight/overflow/handleTouchEvent 체크')
 const s1385 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
