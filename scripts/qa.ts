@@ -29120,6 +29120,20 @@ if (
   log('warning', 'R2518-tint-hex-input', 'R2518 tint hex 입력 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1511: R2519 BatchInspector Transform 초기화 ──────────────────────────
+console.log('\n## 1511. R2519 — BatchInspector Transform 초기화 (P/R/S)')
+const s1511 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1511.includes('R2519') &&
+  s1511.includes("doReset('pos')") &&
+  s1511.includes("doReset('rot')") &&
+  s1511.includes("doReset('scale')")
+) {
+  log('pass', 'R2519-transform-reset', 'R2519 BatchInspector Transform 초기화 구현 완료')
+} else {
+  log('warning', 'R2519-transform-reset', 'R2519 Transform 초기화 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

@@ -4533,6 +4533,38 @@ function CCFileBatchInspector({
           )
         })}
       </div>
+      {/* R2519: Transform 빠른 초기화 (P/R/S reset) */}
+      {sceneFile.root && (() => {
+        const doReset = async (what: 'pos' | 'rot' | 'scale') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            if (what === 'pos') return { ...n, position: { x: 0, y: 0, z: 0 }, children }
+            if (what === 'rot') return { ...n, rotation: typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 }, children }
+            return { ...n, scale: { x: 1, y: 1, z: 1 }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          const label = what === 'pos' ? '위치' : what === 'rot' ? '회전' : '스케일'
+          setBatchMsg(`✓ ${uuids.length}개 ${label} 초기화`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const rs: React.CSSProperties = { fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>초기화 (R2519)</span>
+            <span style={rs} onClick={() => doReset('pos')} title="선택 노드 위치 → (0,0) 초기화"
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>P↺</span>
+            <span style={rs} onClick={() => doReset('rot')} title="선택 노드 회전 → 0° 초기화"
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>R↺</span>
+            <span style={rs} onClick={() => doReset('scale')} title="선택 노드 스케일 → (1,1,1) 초기화"
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#fbbf24')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>S↺</span>
+          </div>
+        )
+      })()}
       {/* R2514: 그리드 스냅 — 선택 노드 위치를 지정 격자에 맞춤 */}
       {sceneFile.root && (() => {
         const applyGridSnap = async () => {
