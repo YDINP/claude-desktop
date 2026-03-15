@@ -2180,6 +2180,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 onMouseDown={e => {
                   if (e.button !== 0) return
                   e.stopPropagation()
+                  // R2566: Ctrl+Click → 다중 선택 토글 (add/remove from multiSelected)
+                  if (e.ctrlKey || e.metaKey) {
+                    onSelect(node.uuid)
+                    setMultiSelected(prev => {
+                      const next = new Set(prev)
+                      if (next.has(node.uuid)) next.delete(node.uuid)
+                      else next.add(node.uuid)
+                      return next
+                    })
+                    return
+                  }
                   if (viewLock || lockedUuids.has(node.uuid)) return  // R1605 / R1543: 잠금
                   const pos = node.position as CCVec3
                   // R2472: 다중 선택 노드 동시 드래그

@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1558: R2566 SceneView Ctrl+Click 다중 선택 토글 ──────────────────
+console.log('\n## 1558. R2566 — SceneView Ctrl+Click 다중 선택 토글')
+const s1558 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1558.includes('R2566') &&
+  s1558.includes('ctrlKey') &&
+  s1558.includes('setMultiSelected') &&
+  s1558.includes('다중 선택 토글')
+) {
+  log('pass', 'R2566-ctrl-click-multi', 'R2566 Ctrl+Click 다중 선택 토글 구현 완료')
+} else {
+  log('warning', 'R2566-ctrl-click-multi', 'R2566 Ctrl+Click 다중 선택 토글 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1557: R2565 BatchInspector Z축 오프셋 (dZ) ───────────────────────
 console.log('\n## 1557. R2565 — BatchInspector Z축 오프셋 (dZ)')
 const s1557 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
