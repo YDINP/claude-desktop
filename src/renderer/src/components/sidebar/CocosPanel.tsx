@@ -4307,6 +4307,9 @@ function CCFileBatchInspector({
   // R2613: size W/H 균등 분배
   const [szGradFromW, setSzGradFromW] = useState<number>(50)
   const [szGradToW, setSzGradToW] = useState<number>(200)
+  // R2614: size H 균등 분배
+  const [szGradFromH, setSzGradFromH] = useState<number>(50)
+  const [szGradToH, setSzGradToH] = useState<number>(200)
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -4967,6 +4970,41 @@ function CCFileBatchInspector({
               title={`선택된 ${uuids.length}개 노드 size.W ${szGradFromW}→${szGradToW} 균등 분배 (R2613)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#38bdf8', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#38bdf8')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >분배</span>
+          </div>
+        )
+      })()}
+      {/* R2614: size H 균등 분배 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const applySzGradH = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const newH = Math.round(szGradFromH + (szGradToH - szGradFromH) * t)
+            const sz = n.size as { x: number; y: number }
+            return { ...n, size: { ...sz, y: newH }, children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ size.H 분배 ${szGradFromH}→${szGradToH} (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sizeH분배 (R2614)</span>
+            <input type="number" value={szGradFromH} min={1} onChange={e => setSzGradFromH(parseInt(e.target.value) || 1)} style={niS} title="시작 height" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={szGradToH} min={1} onChange={e => setSzGradToH(parseInt(e.target.value) || 1)} style={niS} title="끝 height" />
+            <span onClick={applySzGradH}
+              title={`선택된 ${uuids.length}개 노드 size.H ${szGradFromH}→${szGradToH} 균등 분배 (R2614)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >분배</span>
           </div>
