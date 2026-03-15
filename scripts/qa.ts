@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1574: R2582 BatchInspector 위치 순 Z-order 재정렬 (X↗/Y↗) ────────
+console.log('\n## 1574. R2582 — BatchInspector 위치 순 Z-order 재정렬 (X↗/Y↗)')
+const s1574 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1574.includes('R2582') &&
+  s1574.includes('applySortByPos') &&
+  s1574.includes('X↗') &&
+  s1574.includes('Y↗')
+) {
+  log('pass', 'R2582-sort-by-pos', 'R2582 위치 순 Z-order 재정렬 구현 완료')
+} else {
+  log('warning', 'R2582-sort-by-pos', 'R2582 위치 순 Z-order 재정렬 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1573: R2581 SceneView 검색 결과 순환 (‹ / ›) ────────────────────
 console.log('\n## 1573. R2581 — SceneView 검색 결과 순환 (‹ / ›)')
 const s1573sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

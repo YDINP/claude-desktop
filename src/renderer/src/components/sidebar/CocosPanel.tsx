@@ -5306,6 +5306,50 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2582: 선택 노드 형제 위치 순서로 Z-order 재정렬 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applySortByPos = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          // 선택 노드의 부모별로 그룹화
+          const parentMap = new Map<string, CCSceneNode[]>()
+          function findParents(n: CCSceneNode) {
+            const selectedChildren = n.children.filter(c => uuidSet.has(c.uuid))
+            if (selectedChildren.length > 0) parentMap.set(n.uuid, n.children)
+            n.children.forEach(findParents)
+          }
+          findParents(sceneFile.root!)
+          if (parentMap.size === 0) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!parentMap.has(n.uuid)) return { ...n, children: ch }
+            // 선택된 자식만 position 순으로 정렬, 비선택 자식은 원래 위치 유지
+            const selected = ch.filter(c => uuidSet.has(c.uuid))
+            const others = ch.filter(c => !uuidSet.has(c.uuid))
+            selected.sort((a, b) => {
+              const pa = a.position as { x: number; y: number }
+              const pb = b.position as { x: number; y: number }
+              return axis === 'x' ? pa.x - pb.x : pa.y - pb.y
+            })
+            // 원본 children에서 선택된 것들의 인덱스에 정렬된 순서 삽입
+            const result: CCSceneNode[] = [...ch]
+            const indices = ch.map((c, i) => uuidSet.has(c.uuid) ? i : -1).filter(i => i >= 0)
+            indices.forEach((idx, i) => { result[idx] = selected[i] })
+            return { ...n, children: result }
+          }
+          await saveScene(patch(sceneFile.root))
+          setBatchMsg(`✓ ${axis.toUpperCase()}축 위치 순 Z-order 정렬 — R2582`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Z-sort (R2582)</span>
+            <span onClick={() => applySortByPos('x')} title="X축 위치 순으로 형제 Z-order 재정렬 (R2582)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>X↗</span>
+            <span onClick={() => applySortByPos('y')} title="Y축 위치 순으로 형제 Z-order 재정렬 (R2582)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>Y↗</span>
+          </div>
+        )
+      })()}
       {/* R2535: 선택 노드 스택 배치 (edge-to-edge stack X/Y + 간격) */}
       {uuids.length >= 2 && sceneFile.root && (() => {
         const stkNodes: CCSceneNode[] = []
