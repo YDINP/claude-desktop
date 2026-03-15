@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1365: R2361 Inspector cc.AudioSource preload/startTime/endTime ──────────
+console.log('\n## 1365. R2361 Inspector cc.AudioSource preload/startTime/endTime 체크')
+const s1365 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1365.includes('R2361') &&
+  s1365.includes('preload') &&
+  s1365.includes('startTime') &&
+  s1365.includes('endTime') &&
+  s1365.includes('_N$preload')
+) {
+  log('pass', 'R2361-audiosource-preload-time', 'Inspector cc.AudioSource preload/startTime/endTime 구현 완료')
+} else {
+  log('warning', 'R2361-audiosource-preload-time', 'Inspector cc.AudioSource preload/startTime/endTime 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1364: R2360 Inspector cc.ScrollView pagingEnabled/cancelInner/scrollDur ──────────
 console.log('\n## 1364. R2360 Inspector cc.ScrollView pagingEnabled/cancelInnerEvents/scrollDuration 체크')
 const s1364 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

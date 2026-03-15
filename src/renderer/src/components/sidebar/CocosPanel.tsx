@@ -20375,7 +20375,43 @@ function CCFileNodeInspector({
                         onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playOnLoad: e.target.checked, _playOnLoad: e.target.checked, _N$playOnLoad: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       /> playOnLoad
                     </label>
+                    {/* R2361: preload */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.preload ?? p._preload ?? p._N$preload ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, preload: e.target.checked, _preload: e.target.checked, _N$preload: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      /> preload
+                    </label>
                   </div>
+                  {/* R2361: startTime + endTime */}
+                  {(() => {
+                    const startTime = Number(p.startTime ?? p._startTime ?? p._N$startTime ?? 0)
+                    const endTime = Number(p.endTime ?? p._endTime ?? p._N$endTime ?? -1)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>time</span>
+                        <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>start</span>
+                        <input type="number" min={0} step={0.1} defaultValue={startTime} key={`ast-${startTime}`}
+                          onBlur={e => {
+                            const v = Math.max(0, parseFloat(e.target.value) || 0)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startTime: v, _startTime: v, _N$startTime: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 40, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>end</span>
+                        <input type="number" step={0.1} defaultValue={endTime} key={`aet-${endTime}`}
+                          onBlur={e => {
+                            const v = parseFloat(e.target.value) || -1
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endTime: v, _endTime: v, _N$endTime: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 40, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                          title="-1 = 끝까지"
+                        />
+                        <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{endTime < 0 ? '∞' : endTime + 's'}</span>
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }
