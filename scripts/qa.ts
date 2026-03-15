@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1569: R2577 BatchInspector 일괄 픽셀 반올림 (⌊⌉All) ──────────────
+console.log('\n## 1569. R2577 — BatchInspector 일괄 픽셀 반올림 (⌊⌉All)')
+const s1569 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1569.includes('R2577') &&
+  s1569.includes('applyBatchRound') &&
+  s1569.includes('정수화')
+) {
+  log('pass', 'R2577-batch-round', 'R2577 일괄 픽셀 반올림 구현 완료')
+} else {
+  log('warning', 'R2577-batch-round', 'R2577 일괄 픽셀 반올림 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1568: R2576 SceneView 노드 크기 레이블 오버레이 (W×H) ─────────────
 console.log('\n## 1568. R2576 — SceneView 노드 크기 레이블 오버레이 (W×H)')
 const s1568sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

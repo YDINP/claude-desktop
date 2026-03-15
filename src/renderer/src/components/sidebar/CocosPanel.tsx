@@ -18537,6 +18537,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2577: 일괄 픽셀 반올림 — 선택 노드 위치/크기를 정수로 반올림 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyBatchRound = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            const sz = n.size as { x: number; y: number }
+            return {
+              ...n,
+              position: { ...pos, x: Math.round(pos.x), y: Math.round(pos.y) },
+              size: { x: Math.round(sz.x), y: Math.round(sz.y) },
+              children: ch,
+            }
+          }
+          const result = await saveScene(patch(sceneFile.root))
+          setBatchMsg(result.success ? `✓ 픽셀 반올림 (${uuids.length}개) — R2577` : '✗ 오류')
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>정수화 (R2577)</span>
+            <span onClick={applyBatchRound} title="선택 노드 위치/크기를 정수 픽셀로 반올림 (R2577)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }}>⌊⌉All</span>
+          </div>
+        )
+      })()}
       {/* R2495: 그리드 스냅 — 선택 노드 위치를 N픽셀 그리드에 정렬 */}
       {uuids.length >= 2 && (() => {
         const [snapGrid, setSnapGrid] = React.useState(10)
