@@ -221,6 +221,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showRotLabels, setShowRotLabels] = useState(false)
   // R2585: 노드 이름 레이블 오버레이
   const [showNameLabels, setShowNameLabels] = useState(false)
+  // R2586: 앵커 포인트 전체 오버레이 (⊕)
+  const [showAnchorOverlay, setShowAnchorOverlay] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1527,6 +1529,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showNameLabels ? '이름 레이블 끄기 (R2585)' : '각 노드에 이름 텍스트 오버레이 (R2585)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNameLabels ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showNameLabels ? 'rgba(96,165,250,0.12)' : 'none', color: showNameLabels ? '#60a5fa' : 'var(--text-muted)' }}
         >이름</button>
+        {/* R2586: 앵커 포인트 전체 오버레이 토글 */}
+        <button
+          onClick={() => setShowAnchorOverlay(v => !v)}
+          title={showAnchorOverlay ? '앵커 오버레이 끄기 (R2586)' : '모든 노드 앵커 포인트 표시 (R2586)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showAnchorOverlay ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showAnchorOverlay ? 'rgba(251,146,60,0.12)' : 'none', color: showAnchorOverlay ? '#fb923c' : 'var(--text-muted)' }}
+        >⊕</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2327,6 +2335,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fontSize={fs} fill="rgba(96,165,250,0.9)" fontFamily="monospace"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{label}</text>
+                  )
+                })()}
+                {/* R2586: 앵커 포인트 전체 오버레이 */}
+                {showAnchorOverlay && view.zoom > 0.2 && (() => {
+                  const ax = node.anchor?.x ?? 0.5
+                  const ay = node.anchor?.y ?? 0.5
+                  const apX = rectX + w * ax
+                  const apY = rectY + h * (1 - ay)
+                  const cs = Math.max(3, 5 / view.zoom)
+                  const sw = Math.max(0.5, 1 / view.zoom)
+                  return (
+                    <g style={{ pointerEvents: 'none' }}>
+                      <line x1={apX - cs} y1={apY} x2={apX + cs} y2={apY} stroke="rgba(251,146,60,0.85)" strokeWidth={sw} />
+                      <line x1={apX} y1={apY - cs} x2={apX} y2={apY + cs} stroke="rgba(251,146,60,0.85)" strokeWidth={sw} />
+                      <circle cx={apX} cy={apY} r={cs * 0.4} fill="rgba(251,146,60,0.6)" />
+                    </g>
                   )
                 })()}
                 {/* R2578: 노드 불투명도 α% 오버레이 */}

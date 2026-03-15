@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1578: R2586 SceneView 앵커 포인트 전체 오버레이 ──────────────────
+console.log('\n## 1578. R2586 — SceneView 앵커 포인트 전체 오버레이 (⊕)')
+const s1578 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1578.includes('R2586') &&
+  s1578.includes('showAnchorOverlay') &&
+  s1578.includes('⊕')
+) {
+  log('pass', 'R2586-anchor-overlay', 'R2586 앵커 포인트 전체 오버레이 구현 완료')
+} else {
+  log('warning', 'R2586-anchor-overlay', 'R2586 앵커 포인트 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1577: R2585 SceneView 노드 이름 레이블 오버레이 ──────────────────
 console.log('\n## 1577. R2585 — SceneView 노드 이름 레이블 오버레이')
 const s1577 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
