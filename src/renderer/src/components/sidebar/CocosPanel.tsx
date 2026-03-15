@@ -4368,6 +4368,25 @@ function CCFileBatchInspector({
             onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
           >⊝ 반전</span>
         )}
+        {/* R2507: 하위 노드 포함 확장 선택 */}
+        {onMultiSelectChange && sceneFile.root && uuids.length > 0 && (
+          <span
+            title="하위 노드 포함 — 선택된 노드의 모든 자손 추가 (R2507)"
+            onClick={() => {
+              const extra: string[] = []
+              function collectDesc(n: CCSceneNode) { n.children.forEach(c => { extra.push(c.uuid); collectDesc(c) }) }
+              const ns: CCSceneNode[] = []
+              function coll(n: CCSceneNode) { if (uuidSet.has(n.uuid)) ns.push(n); n.children.forEach(coll) }
+              coll(sceneFile.root!)
+              ns.forEach(collectDesc)
+              const merged = [...new Set([...uuids, ...extra])]
+              onMultiSelectChange(merged)
+            }}
+            style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#fbbf24')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+          >⊕ 하위</span>
+        )}
       </div>
       {/* R2336: 2-노드 선택 시 거리/간격 정보 */}
       {uuids.length === 2 && sceneFile.root && (() => {

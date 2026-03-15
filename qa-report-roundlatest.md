@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T18:06:03.600Z
+> 2026-03-15T18:07:56.892Z
 
 ## Critical
 _없음_
@@ -2537,3 +2537,4 @@ _없음_
 - R2504 BatchInspector 노드 이름 일련번호 구현 완료
 - R2505 BatchInspector 컴포넌트 일괄 추가 구현 완료
 - R2506 BatchInspector 컴포넌트 일괄 제거 구현 완료
+- R2507 BatchInspector 하위 노드 포함 선택 확장 구현 완료

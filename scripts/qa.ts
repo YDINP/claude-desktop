@@ -28968,6 +28968,18 @@ if (
   log('warning', 'R2506-batch-rem-comp', 'R2506 컴포넌트 일괄 제거 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1499: R2507 BatchInspector 하위 노드 포함 선택 확장 ──────────────────────────
+const s1499 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1499.includes('R2507') &&
+  s1499.includes('collectDesc') &&
+  s1499.includes('하위 노드 포함')
+) {
+  log('pass', 'R2507-expand-select', 'R2507 BatchInspector 하위 노드 포함 선택 확장 구현 완료')
+} else {
+  log('warning', 'R2507-expand-select', 'R2507 하위 노드 포함 선택 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
