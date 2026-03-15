@@ -79,6 +79,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showZOrder, setShowZOrder] = useState(false)
   const [snapSize, setSnapSize] = useState(10)
   const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
+  // R2326: 배경 패턴 모드 (solid | checker)
+  const [bgPattern, setBgPattern] = useState<'solid' | 'checker'>('solid')
   // R1681: 선택 노드 테두리 색상 사용자 설정
   const [selectionColor, setSelectionColor] = useState('#58a6ff')
   const [showHelp, setShowHelp] = useState(false)
@@ -1022,6 +1024,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onDoubleClick={() => setBgColorOverride(null)}
           style={{ width: 18, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
         />
+        {/* R2326: 배경 패턴 토글 (체크무늬) */}
+        <button
+          onClick={() => setBgPattern(p => p === 'solid' ? 'checker' : 'solid')}
+          title={`배경 패턴: ${bgPattern === 'solid' ? '단색' : '체크무늬'} (클릭 전환)`}
+          style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: bgPattern === 'checker' ? 'rgba(88,166,255,0.12)' : 'none', color: bgPattern === 'checker' ? '#58a6ff' : 'var(--text-muted)', flexShrink: 0 }}
+        >⊞</button>
         {/* R1681: 선택 노드 테두리 색상 */}
         <input
           type="color"
@@ -1330,6 +1338,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             <rect x={-99999} y={-99999} width={199999} height={199999} fill="white" />
             <rect x={0} y={0} width={effectiveW} height={effectiveH} fill="black" />
           </mask>
+          {/* R2326: 체크무늬 배경 패턴 */}
+          {bgPattern === 'checker' && (() => {
+            const cs = 20
+            const c1 = 'rgba(255,255,255,0.06)'
+            const c2 = 'rgba(0,0,0,0.08)'
+            return (
+              <pattern id="checkerBg" width={cs * 2} height={cs * 2} patternUnits="userSpaceOnUse">
+                <rect width={cs} height={cs} fill={c1} />
+                <rect x={cs} y={cs} width={cs} height={cs} fill={c1} />
+                <rect x={cs} width={cs} height={cs} fill={c2} />
+                <rect y={cs} width={cs} height={cs} fill={c2} />
+              </pattern>
+            )
+          })()}
           {/* 선택 노드 마칭 앤트 애니메이션 */}
           <style>{`
             @keyframes march { to { stroke-dashoffset: -20; } }
@@ -1342,6 +1364,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {/* 게임 캔버스 배경 */}
           <rect x={0} y={0} width={effectiveW} height={effectiveH}
             fill={bgColorOverride ?? bgColor} stroke="#555" strokeWidth={1 / view.zoom} />
+          {/* R2326: 체크무늬 오버레이 */}
+          {bgPattern === 'checker' && (
+            <rect x={0} y={0} width={effectiveW} height={effectiveH} fill="url(#checkerBg)" style={{ pointerEvents: 'none' }} />
+          )}
           {/* R1530: 디자인 레퍼런스 이미지 overlay */}
           {refImgSrc && (
             <image href={refImgSrc} x={0} y={0} width={effectiveW} height={effectiveH}

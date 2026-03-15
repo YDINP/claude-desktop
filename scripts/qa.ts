@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1330: R2326 체크무늬 배경 패턴 ──────────
+console.log('\n## 1330. R2326 체크무늬 배경 패턴 체크')
+const s1330 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1330.includes('R2326') &&
+  s1330.includes('bgPattern') &&
+  s1330.includes('checkerBg')
+) {
+  log('pass', 'R2326-checker-bg', '씬뷰 체크무늬 배경 패턴 구현 완료')
+} else {
+  log('warning', 'R2326-checker-bg', 'R2326 체크무늬 배경 패턴 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1329: R2325 UUID 검색 ──────────
 console.log('\n## 1329. R2325 UUID 검색 체크')
 const s1329 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
