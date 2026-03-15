@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1573: R2581 SceneView 검색 결과 순환 (‹ / ›) ────────────────────
+console.log('\n## 1573. R2581 — SceneView 검색 결과 순환 (‹ / ›)')
+const s1573sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1573sv.includes('R2581') &&
+  s1573sv.includes('svSearchMatchIdxRef') &&
+  s1573sv.includes('orderedMatches')
+) {
+  log('pass', 'R2581-search-cycle', 'R2581 검색 결과 순환 구현 완료')
+} else {
+  log('warning', 'R2581-search-cycle', 'R2581 검색 결과 순환 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1572: R2580 BatchInspector 선택 노드 이름 목록 복사 (📋 이름) ──────
 console.log('\n## 1572. R2580 — BatchInspector 선택 노드 이름 목록 복사')
 const s1572 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

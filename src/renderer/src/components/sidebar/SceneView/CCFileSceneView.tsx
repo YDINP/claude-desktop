@@ -162,6 +162,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [resOverride, setResOverride] = useState<{ w: number; h: number } | null>(null)
   // R1550: 씬뷰 노드 검색 + 하이라이트
   const [svSearch, setSvSearch] = useState('')
+  // R2581: 검색 결과 순환 인덱스
+  const svSearchMatchIdxRef = useRef(0)
   const svSearchMatches = useMemo(() => {
     if (!svSearch.trim()) return new Set<string>()
     const q = svSearch.toLowerCase()
@@ -1167,6 +1169,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             </span>
           )}
         </div>
+        {/* R2581: 검색 결과 ← / → 순환 버튼 */}
+        {svSearch.trim() && svSearchMatches.size > 0 && (() => {
+          const orderedMatches = flatNodes.filter(fn => svSearchMatches.has(fn.node.uuid)).map(fn => fn.node.uuid)
+          const navigate = (dir: 1 | -1) => {
+            if (orderedMatches.length === 0) return
+            svSearchMatchIdxRef.current = ((svSearchMatchIdxRef.current + dir) + orderedMatches.length) % orderedMatches.length
+            onSelect(orderedMatches[svSearchMatchIdxRef.current])
+          }
+          return (
+            <>
+              <span onClick={() => navigate(-1)} title="이전 검색 결과 (R2581)"
+                style={{ fontSize: 9, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#58a6ff', userSelect: 'none', flexShrink: 0 }}>‹</span>
+              <span onClick={() => navigate(1)} title="다음 검색 결과 (R2581)"
+                style={{ fontSize: 9, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#58a6ff', userSelect: 'none', flexShrink: 0 }}>›</span>
+            </>
+          )
+        })()}
         <span style={{
           fontSize: 8, padding: '1px 4px', borderRadius: 3, background: 'rgba(88,166,255,0.15)',
           color: '#58a6ff', flexShrink: 0,
