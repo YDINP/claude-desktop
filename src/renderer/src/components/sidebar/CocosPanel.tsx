@@ -22550,17 +22550,37 @@ function CCFileNodeInspector({
               {compTypes.map(ct => (
                 <span
                   key={ct}
+                  title={COMP_DESCRIPTIONS[ct] ?? ct}
                   onClick={() => applyAndSave({ components: [...draft.components, { type: ct, props: {} }] })}
                   style={{
                     fontSize: 9, padding: '2px 5px', borderRadius: 3, cursor: 'pointer',
                     border: '1px solid var(--border)', color: 'var(--text-muted)',
+                    display: 'inline-flex', alignItems: 'center', gap: 2,
                   }}
                   onMouseEnter={e => (e.currentTarget.style.borderColor = '#58a6ff')}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
                 >
+                  {/* R2331: 컴포넌트 추가 버튼에 아이콘 표시 */}
+                  {COMP_ICONS[ct] && <span style={{ opacity: 0.7 }}>{COMP_ICONS[ct]}</span>}
                   {ct.split('.').pop()}
                 </span>
               ))}
+            </div>
+            {/* R2331: 커스텀 컴포넌트 타입 직접 입력 */}
+            <div style={{ display: 'flex', gap: 4, marginTop: 5, alignItems: 'center' }}>
+              <input
+                type="text"
+                placeholder="커스텀 타입 입력 (예: MyScript)"
+                onKeyDown={e => {
+                  if (e.key !== 'Enter') return
+                  const val = (e.target as HTMLInputElement).value.trim()
+                  if (!val) return
+                  applyAndSave({ components: [...draft.components, { type: val, props: {} }] });
+                  (e.target as HTMLInputElement).value = ''
+                }}
+                style={{ flex: 1, fontSize: 9, padding: '2px 5px', borderRadius: 3, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+              />
+              <span style={{ fontSize: 9, color: '#555', flexShrink: 0 }}>↵</span>
             </div>
           </details>
         )

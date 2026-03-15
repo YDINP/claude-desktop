@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1335: R2331 컴포넌트 추가 패널 개선 ──────────
+console.log('\n## 1335. R2331 컴포넌트 추가 패널 개선 체크')
+const s1335 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1335.includes('R2331') &&
+  s1335.includes('커스텀 타입 입력') &&
+  s1335.includes('COMP_ICONS[ct]')
+) {
+  log('pass', 'R2331-add-comp-panel', '컴포넌트 추가 패널 개선 완료 (아이콘 + 커스텀 입력)')
+} else {
+  log('warning', 'R2331-add-comp-panel', 'R2331 컴포넌트 추가 패널 미개선', 'CocosPanel.tsx')
+}
+
 // ── Section 1334: R2330 Inspector 컴포넌트 헤더 아이콘 ──────────
 console.log('\n## 1334. R2330 Inspector 컴포넌트 헤더 아이콘 체크')
 const s1334 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
