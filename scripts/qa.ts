@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1547: R2555 SceneView 같은 이름 노드 순환 선택 버튼 ──────────────
+console.log('\n## 1547. R2555 — SceneView 같은 이름 노드 순환 선택 버튼 (↻N)')
+const s1547 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1547.includes('R2555') &&
+  s1547.includes('sameNameNodes') &&
+  s1547.includes('node.name === fn.node.name') &&
+  s1547.includes('↻')
+) {
+  log('pass', 'R2555-same-name-cycle', 'R2555 같은 이름 노드 순환 선택 구현 완료')
+} else {
+  log('warning', 'R2555-same-name-cycle', 'R2555 같은 이름 노드 순환 선택 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1546: R2554 NodeInspector 앵커 변경 시 위치 자동 보정 ────────────
 console.log('\n## 1546. R2554 — NodeInspector 앵커 변경 시 위치 자동 보정')
 const s1546 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

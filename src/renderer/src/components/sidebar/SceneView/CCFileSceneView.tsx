@@ -1500,6 +1500,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             >⊹px</button>
           )
         })()}
+        {/* R2555: 같은 이름 노드 순환 선택 */}
+        {selectedUuid && (() => {
+          const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+          if (!fn) return null
+          const sameNameNodes = flatNodes.filter(f => f.node.name === fn.node.name)
+          if (sameNameNodes.length <= 1) return null
+          const curIdx = sameNameNodes.findIndex(f => f.node.uuid === selectedUuid)
+          return (
+            <button
+              onClick={() => {
+                const nextIdx = (curIdx + 1) % sameNameNodes.length
+                onSelect(sameNameNodes[nextIdx].node.uuid)
+              }}
+              title={`같은 이름 "${fn.node.name}" 노드 순환 선택 (${curIdx + 1}/${sameNameNodes.length}) (R2555)`}
+              style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,191,36,0.4)', background: 'none', color: '#fbbf24' }}
+            >↻{sameNameNodes.length}</button>
+          )
+        })()}
         {/* R2537: 선택 노드 W/H 인라인 편집 */}
         {selectedUuid && onResize && (() => {
           const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
