@@ -18701,6 +18701,27 @@ function CCFileNodeInspector({
           </label>
         </div>
       )}
+      {/* R2394: skewX / skewY (CC2.x 노드 레벨) */}
+      {!is3x && (() => {
+        const sx = Number((draft as Record<string,unknown>)._skewX ?? (draft as Record<string,unknown>).skewX ?? 0)
+        const sy = Number((draft as Record<string,unknown>)._skewY ?? (draft as Record<string,unknown>).skewY ?? 0)
+        if (sx === 0 && sy === 0) return null
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 26, flexShrink: 0 }}>skew</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>x</span>
+            <input type="number" defaultValue={sx} key={`skx-${sx}`} step={1}
+              onBlur={e => applyAndSave({ _skewX: parseFloat(e.target.value) || 0 } as Partial<CCSceneNode>)}
+              style={{ width: 44, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: '#fbbf24', borderRadius: 3, padding: '1px 3px' }}
+            />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>y</span>
+            <input type="number" defaultValue={sy} key={`sky-${sy}`} step={1}
+              onBlur={e => applyAndSave({ _skewY: parseFloat(e.target.value) || 0 } as Partial<CCSceneNode>)}
+              style={{ width: 44, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: '#fbbf24', borderRadius: 3, padding: '1px 3px' }}
+            />
+          </div>
+        )
+      })()}
 
       {/* R1646: 색상 변경 인디케이터 */}
       {secHeader('color', '색상', (() => {

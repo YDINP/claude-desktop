@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1398: R2394 Inspector 노드 skewX/skewY (CC2.x) ──────────
+console.log('\n## 1398. R2394 Inspector 노드 skewX/skewY 체크')
+const s1398 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1398.includes('R2394') &&
+  s1398.includes('_skewX') &&
+  s1398.includes('_skewY') &&
+  s1398.includes('skewX')
+) {
+  log('pass', 'R2394-node-skew-xy', 'Inspector 노드 skewX/skewY 구현 완료')
+} else {
+  log('warning', 'R2394-node-skew-xy', 'Inspector 노드 skewX/skewY 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1397: R2393 Inspector cascadeOpacityEnabled + cascadeColorEnabled (CC2.x 노드) ──────────
 console.log('\n## 1397. R2393 Inspector cascadeOpacityEnabled + cascadeColorEnabled 체크')
 const s1397 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
