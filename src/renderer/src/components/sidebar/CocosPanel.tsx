@@ -17251,6 +17251,34 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2496: 위치 흩뿌리기(Scatter) — 선택 노드 위치를 ±N 범위 내 랜덤 분산 */}
+      {uuids.length >= 2 && (() => {
+        const [scatterAmt, setScatterAmt] = React.useState(30)
+        const applyScatter = async () => {
+          if (!sceneFile.root) return
+          function patchScatter(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchScatter)
+            if (!uuidSet.has(n.uuid) || !n.position) return { ...n, children }
+            const dx = Math.round((Math.random() * 2 - 1) * scatterAmt)
+            const dy = Math.round((Math.random() * 2 - 1) * scatterAmt)
+            return { ...n, position: { ...n.position, x: (n.position.x ?? 0) + dx, y: (n.position.y ?? 0) + dy }, children }
+          }
+          const result = await saveScene(patchScatter(sceneFile.root))
+          setBatchMsg(result.success ? `✓ 흩뿌리기 ±${scatterAmt}px (R2496)` : '✗ 오류')
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs3 = { fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#f9a8d4', userSelect: 'none' } as React.CSSProperties
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>흩뿌리기</span>
+            {[10, 30, 50, 100, 200].map(a => (
+              <span key={a} style={{ ...bs3, color: scatterAmt === a ? '#f9a8d4' : '#666', borderColor: scatterAmt === a ? '#f9a8d4' : 'var(--border)' }}
+                onClick={() => setScatterAmt(a)}>±{a}</span>
+            ))}
+            <button style={{ ...bs3, color: '#fb7185', borderColor: '#fb7185', marginLeft: 4 }} onClick={applyScatter} title={`±${scatterAmt}px 무작위 흩뿌리기`}>흩뿌리기</button>
+          </div>
+        )
+      })()}
       {/* R2479: 원형 배치 */}
       {uuids.length >= 2 && (() => {
         const [circleRadius, setCircleRadius] = React.useState(100)

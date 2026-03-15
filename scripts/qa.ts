@@ -28832,6 +28832,19 @@ if (
   log('warning', 'R2495-batch-snap', 'R2495 그리드 스냅 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1488: R2496 BatchInspector 흩뿌리기 ─────────────────────────────
+const s1488 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1488.includes('R2496') &&
+  s1488.includes('scatterAmt') &&
+  s1488.includes('applyScatter') &&
+  s1488.includes('흩뿌리기')
+) {
+  log('pass', 'R2496-scatter', 'R2496 BatchInspector 위치 흩뿌리기 구현 완료')
+} else {
+  log('warning', 'R2496-scatter', 'R2496 흩뿌리기 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
