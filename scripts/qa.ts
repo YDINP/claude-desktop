@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1361: R2357 Inspector cc.ProgressBar startWidth ──────────
+console.log('\n## 1361. R2357 Inspector cc.ProgressBar startWidth 체크')
+const s1361 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1361.includes('R2357') &&
+  s1361.includes('startWidth') &&
+  s1361.includes('_N$startWidth')
+) {
+  log('pass', 'R2357-progressbar-startwidth', 'Inspector cc.ProgressBar startWidth 퀵 편집 구현 완료')
+} else {
+  log('warning', 'R2357-progressbar-startwidth', 'Inspector cc.ProgressBar startWidth 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1360: R2356 Inspector cc.ProgressBar mode ──────────
 console.log('\n## 1360. R2356 Inspector cc.ProgressBar mode 체크')
 const s1360 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
