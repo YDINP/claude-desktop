@@ -271,6 +271,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSelBBox, setShowSelBBox] = useState(false)
   // R2651: 선택 노드 부모 하이라이트
   const [showParentHighlight, setShowParentHighlight] = useState(false)
+  // R2652: 비활성 노드 반투명 오버레이
+  const [showInactiveDim, setShowInactiveDim] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1734,6 +1736,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showParentHighlight ? '부모 강조 끄기 (R2651)' : '선택 노드의 부모 노드 강조 표시 (R2651)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showParentHighlight ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showParentHighlight ? 'rgba(251,146,60,0.12)' : 'none', color: showParentHighlight ? '#fb923c' : 'var(--text-muted)' }}
         >⊘</button>
+        {/* R2652: 비활성 노드 반투명 오버레이 토글 */}
+        <button
+          onClick={() => setShowInactiveDim(v => !v)}
+          title={showInactiveDim ? '비활성 dim 끄기 (R2652)' : 'active=false 노드 반투명 처리 (R2652)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showInactiveDim ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showInactiveDim ? 'rgba(148,163,184,0.12)' : 'none', color: showInactiveDim ? '#94a3b8' : 'var(--text-muted)' }}
+        >⊡</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2751,6 +2759,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     </g>
                   )
                 })()}
+                {/* R2652: 비활성 노드 반투명 오버레이 */}
+                {showInactiveDim && node.active === false && w > 0 && h > 0 && (
+                  <rect x={rectX} y={rectY} width={w} height={h}
+                    fill="rgba(0,0,0,0.45)"
+                    style={{ pointerEvents: 'none' }} />
+                )}
                 {/* R2651: 선택 노드 부모 하이라이트 */}
                 {showParentHighlight && parentUuidSet.has(node.uuid) && w > 0 && h > 0 && (
                   <rect x={rectX} y={rectY} width={w} height={h}

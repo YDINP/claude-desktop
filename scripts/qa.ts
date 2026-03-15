@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1644: R2652 SceneView 비활성 노드 반투명 오버레이 ─────────────────
+console.log('\n## 1644. R2652 — SceneView 비활성 노드 반투명 오버레이')
+const s1644 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1644.includes('R2652') &&
+  s1644.includes('showInactiveDim') &&
+  s1644.includes('setShowInactiveDim') &&
+  s1644.includes('node.active === false')
+) {
+  log('pass', 'R2652-inactive-dim', 'R2652 비활성 노드 반투명 오버레이 구현 완료')
+} else {
+  log('warning', 'R2652-inactive-dim', 'R2652 비활성 노드 반투명 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1643: R2651 SceneView 선택 노드 부모 하이라이트 ───────────────────
 console.log('\n## 1643. R2651 — SceneView 선택 노드 부모 하이라이트')
 const s1643 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
