@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1605: R2613 BatchInspector size W 균등 분배 ──────────────────────
+console.log('\n## 1605. R2613 — BatchInspector size W 균등 분배')
+const s1605 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1605.includes('R2613') &&
+  s1605.includes('szGradFromW') &&
+  s1605.includes('szGradToW') &&
+  s1605.includes('applySzGrad')
+) {
+  log('pass', 'R2613-sz-grad', 'R2613 size W 균등 분배 구현 완료')
+} else {
+  log('warning', 'R2613-sz-grad', 'R2613 size W 균등 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1604: R2612 BatchInspector rotation 오프셋 추가 ──────────────────
 console.log('\n## 1604. R2612 — BatchInspector rotation 오프셋 추가')
 const s1604 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
