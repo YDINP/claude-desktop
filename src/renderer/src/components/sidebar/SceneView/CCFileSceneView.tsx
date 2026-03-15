@@ -2987,12 +2987,27 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         const vpW = svgW / view.zoom
         const vpH = svgH / view.zoom
         return (
-          <div style={{
-            position: 'absolute', top: 28, right: 4,
-            width: mmW, height: mmH, background: 'rgba(0,0,0,0.7)',
-            border: '1px solid #444', borderRadius: 3, overflow: 'hidden',
-            pointerEvents: 'none',
-          }}>
+          <div
+            title="클릭하면 해당 위치로 뷰 이동 (R2560)"
+            style={{
+              position: 'absolute', top: 28, right: 4,
+              width: mmW, height: mmH, background: 'rgba(0,0,0,0.7)',
+              border: '1px solid #444', borderRadius: 3, overflow: 'hidden',
+              cursor: 'crosshair',
+            }}
+            onClick={e => {
+              // R2560: 미니맵 클릭 → 씬 좌표로 뷰 팬
+              const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
+              const relX = e.clientX - rect.left, relY = e.clientY - rect.top
+              // mmOffX, mmScale 기반 역산 → SVG 좌표
+              const svgClickX = (relX - mmOffX) / mmScale
+              const svgClickY = (relY - mmOffY) / mmScale
+              const svgEl2 = svgRef.current
+              const svgW2 = svgEl2?.clientWidth ?? 300
+              const svgH2 = svgEl2?.clientHeight ?? 200
+              setView(v => ({ ...v, offsetX: svgW2 / 2 - svgClickX * v.zoom, offsetY: svgH2 / 2 - svgClickY * v.zoom }))
+            }}
+          >
             <svg width={mmW} height={mmH}>
               {/* 게임 캔버스 */}
               <rect x={mmOffX} y={mmOffY} width={designW * mmScale} height={designH * mmScale}

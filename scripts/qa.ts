@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1552: R2560 SceneView 미니맵 클릭 팬 기능 ────────────────────────
+console.log('\n## 1552. R2560 — SceneView 미니맵 클릭 팬')
+const s1552 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1552.includes('R2560') &&
+  s1552.includes('미니맵 클릭') &&
+  s1552.includes('mmOffX') &&
+  s1552.includes('svgClickX')
+) {
+  log('pass', 'R2560-minimap-click', 'R2560 미니맵 클릭 팬 구현 완료')
+} else {
+  log('warning', 'R2560-minimap-click', 'R2560 미니맵 클릭 팬 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1551: R2559 BatchInspector 선택 노드 JSON 내보내기 ───────────────
 console.log('\n## 1551. R2559 — BatchInspector 선택 노드 JSON 내보내기')
 const s1551 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
