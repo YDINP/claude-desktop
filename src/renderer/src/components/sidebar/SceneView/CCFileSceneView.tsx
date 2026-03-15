@@ -2687,7 +2687,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 }
               }
               if (hitUuid) { onSelect(hitUuid); return }
-              // R1498: 빈 공간 클릭 → 해당 위치로 팬
+              // R1498: 빈 공간 클릭 → 씬 좌표 역변환 → pan
               const scX = (mmX - ofX) / s + sceneX
               const scY = sceneH - (mmY - ofY) / s + sceneY
               const svgEl = svgRef.current

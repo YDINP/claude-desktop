@@ -28545,6 +28545,31 @@ if (
   log('warning', 'R2467-batch-add-comp', 'R2467 컴포넌트 일괄 추가 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1465: R2469 전역 검색 text: 구문 ─────────────────────────────────
+const s1465 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1465.includes('R2469') &&
+  s1465.includes('textQuery') &&
+  s1465.includes('text:') &&
+  s1465.includes('t:')
+) {
+  log('pass', 'R2469-text-search', 'R2469 전역 검색 text:/t: 구문 구현 완료')
+} else {
+  log('warning', 'R2469-text-search', 'R2469 text: 구문 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1466: R2470 미니맵 노드 클릭 선택 ───────────────────────────────
+const s1466 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1466.includes('R2470') &&
+  s1466.includes('hitUuid') &&
+  s1466.includes('onSelect(hitUuid)')
+) {
+  log('pass', 'R2470-minimap-select', 'R2470 미니맵 노드 클릭 선택 구현 완료')
+} else {
+  log('warning', 'R2470-minimap-select', 'R2470 미니맵 노드 클릭 선택 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
