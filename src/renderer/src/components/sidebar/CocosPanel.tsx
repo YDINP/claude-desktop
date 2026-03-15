@@ -16905,7 +16905,11 @@ function CCFileNodeInspector({
   const [changeHistory, setChangeHistory] = useState<Array<{ timestamp: number; prop: string; oldVal: unknown; newVal: unknown }>>([])
   const [showHistory, setShowHistory] = useState(false)
   const [redoStack, setRedoStack] = useState<Partial<CCSceneNode>[]>([])
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+  // R2454: Inspector 섹션 접힘 상태 localStorage 영속화
+  const INSPECTOR_COLLAPSED_KEY = 'cc-inspector-collapsed'
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem(INSPECTOR_COLLAPSED_KEY) ?? '{}') } catch { return {} }
+  })
   const COLLAPSED_COMPS_KEY = 'collapsed-comps'
   const [collapsedComps, setCollapsedComps] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(COLLAPSED_COMPS_KEY) ?? '[]')) }
@@ -16941,7 +16945,7 @@ function CCFileNodeInspector({
   const [cliVal, setCliVal] = useState('')
   const [cliMsg, setCliMsg] = useState<string | null>(null)
   const secHeader = (key: string, label: string, modified?: boolean) => (
-    <div onClick={() => setCollapsed(c => ({ ...c, [key]: !c[key] }))}
+    <div onClick={() => setCollapsed(c => { const next = { ...c, [key]: !c[key] }; try { localStorage.setItem(INSPECTOR_COLLAPSED_KEY, JSON.stringify(next)) } catch {} return next })}
       style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
       <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{collapsed[key] ? '▸' : '▾'}</span>
       <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>{label}</span>
