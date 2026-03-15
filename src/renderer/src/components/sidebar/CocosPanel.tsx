@@ -4330,6 +4330,9 @@ function CCFileBatchInspector({
   // R2638: 회전 균등 분배
   const [rotGradFrom, setRotGradFrom] = useState<number>(0)
   const [rotGradTo, setRotGradTo] = useState<number>(360)
+  // R2642: 노드 이름 접두사/접미사
+  const [namePrefix, setNamePrefix] = useState<string>('')
+  const [nameSuffix, setNameSuffix] = useState<string>('')
   // R2639: 원형 배치
   const [circleRadius, setCircleRadius] = useState<number>(200)
   // R2527: 스케일 X/Y 링크
@@ -18681,6 +18684,34 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>L순번 (R2627)</span>
             <span onClick={() => applyLabelSerial('append')} title="Label 텍스트 뒤에 순번 추가 (R2627)" style={bs}>+번호</span>
             <span onClick={() => applyLabelSerial('replace')} title="Label 텍스트를 순번으로 교체 (R2627)" style={{ ...bs, color: '#f9a8d4' }}>번호만</span>
+          </div>
+        )
+      })()}
+      {/* R2642: 노드 이름 접두사/접미사 일괄 추가 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyNamePatch = async () => {
+          if (!sceneFile.root) return
+          if (!namePrefix && !nameSuffix) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, name: `${namePrefix}${n.name}${nameSuffix}`, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 이름 패치: ${namePrefix}*${nameSuffix} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>이름패치 (R2642)</span>
+            <input value={namePrefix} onChange={e => setNamePrefix(e.target.value)} placeholder="prefix" style={inS} title="접두사 (빈칸 가능)" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>*</span>
+            <input value={nameSuffix} onChange={e => setNameSuffix(e.target.value)} placeholder="suffix" style={inS} title="접미사 (빈칸 가능)" />
+            <span onClick={applyNamePatch}
+              title={`선택 노드 이름에 prefix/suffix 추가 (R2642)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
+            >적용</span>
           </div>
         )
       })()}

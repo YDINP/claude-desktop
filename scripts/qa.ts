@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1634: R2642 BatchInspector 노드 이름 접두사/접미사 일괄 추가 ────────
+console.log('\n## 1634. R2642 — BatchInspector 노드 이름 접두사/접미사 일괄 추가')
+const s1634 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1634.includes('R2642') &&
+  s1634.includes('applyNamePatch') &&
+  s1634.includes('namePrefix') &&
+  s1634.includes('nameSuffix') &&
+  s1634.includes('이름패치')
+) {
+  log('pass', 'R2642-name-patch', 'R2642 노드 이름 접두사/접미사 구현 완료')
+} else {
+  log('warning', 'R2642-name-patch', 'R2642 노드 이름 접두사/접미사 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1633: R2641 SceneView 앵커 포인트 십자 마커 오버레이 ───────────────
 console.log('\n## 1633. R2641 — SceneView 앵커 포인트 십자 마커 오버레이')
 const s1633 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
