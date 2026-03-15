@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1648: R2656 BatchInspector 색상 흰색 일괄 리셋 ──────────────────
+console.log('\n## 1648. R2656 — BatchInspector 색상 흰색 일괄 리셋')
+const s1648 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1648.includes('R2656') &&
+  s1648.includes('applyColorReset') &&
+  s1648.includes('color리셋') &&
+  s1648.includes('r: 255, g: 255, b: 255')
+) {
+  log('pass', 'R2656-color-reset', 'R2656 색상 흰색 일괄 리셋 구현 완료')
+} else {
+  log('warning', 'R2656-color-reset', 'R2656 색상 흰색 일괄 리셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1647: R2655 BatchInspector 스케일 1.0 일괄 리셋 ─────────────────
 console.log('\n## 1647. R2655 — BatchInspector 스케일 1.0 일괄 리셋')
 const s1647 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

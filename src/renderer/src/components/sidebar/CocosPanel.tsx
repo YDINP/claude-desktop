@@ -5200,6 +5200,27 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2656: 색상 흰색 일괄 리셋 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyColorReset = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, color: { r: 255, g: 255, b: 255, a: n.color?.a ?? 255 }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ color 흰색 리셋 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color리셋 (R2656)</span>
+            <span onClick={applyColorReset} title="선택 노드 color를 흰색(255,255,255)으로 리셋 (R2656)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(255,255,255,0.3)', color: '#e2e8f0', userSelect: 'none', background: 'rgba(255,255,255,0.05)' }}>⬜ 흰색</span>
+          </div>
+        )
+      })()}
       {/* R2613: size W 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applySzGrad = async () => {
