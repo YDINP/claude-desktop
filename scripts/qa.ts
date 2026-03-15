@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1376: R2372 Inspector cc.Label enableDashLine (CC3.x) ──────────
+console.log('\n## 1376. R2372 Inspector cc.Label enableDashLine 체크')
+const s1376 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1376.includes('R2372') &&
+  s1376.includes('enableDashLine') &&
+  s1376.includes('_enableDashLine')
+) {
+  log('pass', 'R2372-label-dashline', 'Inspector cc.Label enableDashLine 구현 완료')
+} else {
+  log('warning', 'R2372-label-dashline', 'Inspector cc.Label enableDashLine 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1375: R2371 Inspector cc.Label enableGradient/colorTop/colorBottom (CC3.x) ──────────
 console.log('\n## 1375. R2371 Inspector cc.Label enableGradient/colorTop/colorBottom 체크')
 const s1375 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

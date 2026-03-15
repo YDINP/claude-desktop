@@ -20809,6 +20809,19 @@ function CCFileNodeInspector({
                       ))}
                     </div>
                   )}
+                  {/* R2372: CC3.x Label enableDashLine */}
+                  {(() => {
+                    const enableDashLine = !!(p.enableDashLine ?? p._enableDashLine ?? false)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>dashLine</span>
+                        <span title={enableDashLine ? 'dashLine 비활성' : 'dashLine 활성'}
+                          onClick={() => { const nv = !enableDashLine; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableDashLine: nv, _enableDashLine: nv } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableDashLine ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: enableDashLine ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{enableDashLine ? 'ON' : 'OFF'}</span>
+                      </div>
+                    )
+                  })()}
                   {/* R2371: CC3.x Label enableGradient + colorTop + colorBottom */}
                   {(() => {
                     const enableGradient = !!(p.enableGradient ?? p._enableGradient ?? false)
