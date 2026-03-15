@@ -144,7 +144,24 @@
 - Branch: dev
 - 최근 커밋: `39b24aca` (R2490), `22502958` (R2489), `afaccab8` (R2488)
 
-## 다음 예정 (R2491+)
+## 완료 (R2491~R2500)
+- [x] R2491: BatchInspector 범용 prop 일괄 편집 — 컴포넌트타입/prop명/값 입력 적용
+- [x] R2492: 씬 트리 우클릭 cc.find() 경로 복사 — ancestors 전파로 전체 경로 계산
+- [x] R2493: 계층 트리 캔버스 범위 초과 노드 ⚠ 뱃지 — outOfCanvasUuids 누적 좌표 계산
+- [x] R2494: BatchInspector 회전 델타 — 선택 노드 현재 회전값에 ±5/15/45/90° 증분 적용
+- [x] R2495: BatchInspector 그리드 스냅 — 1/5/10/20/50/100px 단위 위치 정렬
+- [x] R2496: BatchInspector 위치 흩뿌리기 — ±10~200px 범위 무작위 분산 (Scatter)
+- [x] R2497: 씬뷰 클릭 시 계층 트리 조상 자동 펼치기 — expandToNode + requestAnimationFrame 스크롤
+- [x] R2498: TreeSearch /regex/ 정규식 검색 — /Button.*/ 패턴으로 노드 이름 매칭 + 하이라이트
+- [x] R2499: BatchInspector 3+노드 선택 시 바운딩박스 통계 — center/span 표시
+- [x] R2500: BatchInspector 선택 반전 — 현재 선택 제외한 모든 노드 역선택
+
+## 빌드/QA
+- **QA: Critical: 0, Warning: 0, Pass: 2523** ← R2500 현재
+- Branch: dev
+- 최근 커밋: `a0b1df2c` (R2500)
+
+## 다음 예정 (R2501+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
