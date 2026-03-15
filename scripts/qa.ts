@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1381: R2377 Inspector cc.PageView pageTurningSpeed/effectType/autoPlay ──────────
+console.log('\n## 1381. R2377 Inspector cc.PageView pageTurningSpeed/effectType/autoPlay 체크')
+const s1381 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1381.includes('R2377') &&
+  s1381.includes('pageTurningSpeed') &&
+  s1381.includes('effectType') &&
+  s1381.includes('autoPlay') &&
+  s1381.includes('_N$pageTurningSpeed')
+) {
+  log('pass', 'R2377-pageview-extra', 'Inspector cc.PageView pageTurningSpeed/effectType/autoPlay 구현 완료')
+} else {
+  log('warning', 'R2377-pageview-extra', 'Inspector cc.PageView 추가 속성 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1380: R2376 Inspector cc.VideoPlayer volume/keepAspectRatio/fullScreenEnabled ──────────
 console.log('\n## 1380. R2376 Inspector cc.VideoPlayer volume/ratio/fullscreen 체크')
 const s1380 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

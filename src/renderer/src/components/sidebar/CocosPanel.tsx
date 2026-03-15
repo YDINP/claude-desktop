@@ -21565,6 +21565,29 @@ function CCFileNodeInspector({
                       <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{(val as number).toFixed(2)}</span>
                     </div>
                   ))}
+                  {/* R2377: pageTurningSpeed + effectType + autoPlay */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>turnSpd</span>
+                    <input type="number" defaultValue={Number(p.pageTurningSpeed ?? p._pageTurningSpeed ?? p._N$pageTurningSpeed ?? 0.3)} min={0} step={0.05}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 0.3; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pageTurningSpeed: v, _pageTurningSpeed: v, _N$pageTurningSpeed: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="pageTurningSpeed"
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>effect</span>
+                    {([['NONE', 0], ['SCROLL', 1], ['FADE', 2]] as const).map(([l, v]) => (
+                      <span key={v} title={`effectType=${l}(${v})`}
+                        onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, effectType: v, _effectType: v, _N$effectType: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${Number(p.effectType ?? p._N$effectType ?? 0) === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: Number(p.effectType ?? p._N$effectType ?? 0) === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                      >{l}</span>
+                    ))}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginLeft: 8 }}>
+                      <input type="checkbox" checked={!!(p.autoPlay ?? p._autoPlay ?? p._N$autoPlay ?? false)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoPlay: e.target.checked, _autoPlay: e.target.checked, _N$autoPlay: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      /> autoPlay
+                    </label>
+                  </div>
                   {/* R1901: autoPageTurningInterval (0=비활성) */}
                   {(() => {
                     const interval = Number(p.autoPageTurningInterval ?? p._N$autoPageTurningInterval ?? 0)
