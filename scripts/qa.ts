@@ -28228,6 +28228,20 @@ if (
   log('warning', 'R2437-multi-enabled4', 'Inspector LabelOutline/UIOpacity/SkeletalAnimation enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1442: R2438 Inspector cc.RigidBody/ScrollView/Camera enabled ──────────
+console.log('\n## 1442. R2438 Inspector cc.RigidBody/ScrollView/Camera enabled 체크')
+const s1442 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1442.includes('R2438') &&
+  s1442.includes('cc.RigidBody') &&
+  s1442.includes('cc.ScrollView') &&
+  s1442.includes('cc.Camera')
+) {
+  log('pass', 'R2438-rigidbody-scrollview-camera-enabled', 'Inspector cc.RigidBody/ScrollView/Camera enabled 구현 완료')
+} else {
+  log('warning', 'R2438-rigidbody-scrollview-camera-enabled', 'Inspector cc.RigidBody/ScrollView/Camera enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
