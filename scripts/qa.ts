@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1607: R2615 SceneView W×H 크기 표시 오버레이 ─────────────────────
+console.log('\n## 1607. R2615 — SceneView W×H 크기 표시 오버레이')
+const s1607 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1607.includes('R2615') &&
+  s1607.includes('showSizeOverlay') &&
+  s1607.includes('setShowSizeOverlay')
+) {
+  log('pass', 'R2615-size-overlay', 'R2615 W×H 크기 표시 오버레이 구현 완료')
+} else {
+  log('warning', 'R2615-size-overlay', 'R2615 W×H 크기 표시 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1606: R2614 BatchInspector size H 균등 분배 ──────────────────────
 console.log('\n## 1606. R2614 — BatchInspector size H 균등 분배')
 const s1606 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

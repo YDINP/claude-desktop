@@ -241,6 +241,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showDupNameOverlay, setShowDupNameOverlay] = useState(false)
   // R2610: rotation 방향 화살표 오버레이
   const [showRotArrow, setShowRotArrow] = useState(false)
+  // R2615: W×H 크기 표시 오버레이
+  const [showSizeOverlay, setShowSizeOverlay] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1607,6 +1609,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showRotArrow ? 'rotation 화살표 끄기 (R2610)' : '비영 rotation 노드에 방향 화살표 표시 (R2610)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotArrow ? 'rgba(236,72,153,0.5)' : 'var(--border)'}`, background: showRotArrow ? 'rgba(236,72,153,0.12)' : 'none', color: showRotArrow ? '#ec4899' : 'var(--text-muted)' }}
         >↗R</button>
+        {/* R2615: W×H 크기 표시 토글 */}
+        <button
+          onClick={() => setShowSizeOverlay(v => !v)}
+          title={showSizeOverlay ? 'W×H 크기 표시 끄기 (R2615)' : '노드 W×H 크기 텍스트 표시 (R2615)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeOverlay ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showSizeOverlay ? 'rgba(34,211,238,0.12)' : 'none', color: showSizeOverlay ? '#22d3ee' : 'var(--text-muted)' }}
+        >WH</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2502,6 +2510,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <line x1={mcx} y1={mcy} x2={ex} y2={ey}
                       stroke="rgba(236,72,153,0.9)" strokeWidth={1.5 / view.zoom}
                       markerEnd="url(#rot-arrow)" style={{ pointerEvents: 'none' }} />
+                  )
+                })()}
+                {/* R2615: W×H 크기 표시 */}
+                {showSizeOverlay && w > 0 && h > 0 && view.zoom > 0.3 && (() => {
+                  const fs = Math.max(5, 7 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + w / 2} y={rectY + h + fs * 1.2}
+                      textAnchor="middle"
+                      fontSize={fs} fill="rgba(34,211,238,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{Math.round(w)}×{Math.round(h)}</text>
                   )
                 })()}
                 {/* R2601: component 타입 배지 */}
