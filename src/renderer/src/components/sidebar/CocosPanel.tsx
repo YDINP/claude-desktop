@@ -19051,6 +19051,13 @@ function CCFileNodeInspector({
               const autoWrap = !!(p.autoWrap ?? false)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2433: enabled (BatchInspector R2197) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', gap: 4 }}>
                     <select value={layoutType}
                       onChange={e => {
@@ -19367,6 +19374,13 @@ function CCFileNodeInspector({
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
+                  {/* R2433: enabled (BatchInspector R2190) */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginBottom: 2 }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   {/* R1696: spriteFrame uuid 표시 + 복사 버튼 */}
                   {sfUuid && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
@@ -19918,6 +19932,13 @@ function CCFileNodeInspector({
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                     <span style={{ fontWeight: 'bold' }}>{comp.type}</span>
+                    {/* R2433: enabled (BatchInspector R2192) */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        style={{ margin: 0 }}
+                      />enabled
+                    </label>
                     {/* R1767: 미리보기 토글 */}
                     <span title={showRichPreview ? '미리보기 숨기기' : '미리보기 표시'}
                       onClick={() => setShowRichPreview(v => !v)}

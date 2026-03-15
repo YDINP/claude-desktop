@@ -28155,6 +28155,20 @@ if (
   log('warning', 'R2432-label-enabled', 'Inspector cc.Label enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1437: R2433 Inspector cc.Layout/Sprite/RichText enabled ──────────
+console.log('\n## 1437. R2433 Inspector cc.Layout/Sprite/RichText enabled 체크')
+const s1437 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1437.includes('R2433') &&
+  s1437.includes('cc.Layout') &&
+  s1437.includes('cc.Sprite') &&
+  s1437.includes('cc.RichText')
+) {
+  log('pass', 'R2433-layout-sprite-richtext-enabled', 'Inspector cc.Layout/Sprite/RichText enabled 구현 완료')
+} else {
+  log('warning', 'R2433-layout-sprite-richtext-enabled', 'Inspector cc.Layout/Sprite/RichText enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
