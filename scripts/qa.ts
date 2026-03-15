@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1543: R2551 SceneView 컴포넌트 타입 필터 버튼 ────────────────────
+console.log('\n## 1543. R2551 — SceneView 컴포넌트 타입 필터 버튼')
+const s1543 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1543.includes('R2551') &&
+  s1543.includes('compFilterType') &&
+  s1543.includes('setCompFilterType') &&
+  s1543.includes('compDim')
+) {
+  log('pass', 'R2551-comp-filter', 'R2551 컴포넌트 타입 필터 구현 완료')
+} else {
+  log('warning', 'R2551-comp-filter', 'R2551 컴포넌트 타입 필터 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1542: R2550 SceneView 다중 선택 일괄 잠금/해제 버튼 ──────────────
 console.log('\n## 1542. R2550 — SceneView 다중 선택 일괄 잠금/해제 버튼')
 const s1542 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

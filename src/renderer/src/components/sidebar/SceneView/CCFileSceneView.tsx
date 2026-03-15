@@ -203,6 +203,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showPinPanel, setShowPinPanel] = useState(false)
   // R2521: 세계 좌표 표시 토글
   const [showWorldPos, setShowWorldPos] = useState(false)
+  // R2551: 컴포넌트 타입 필터 — 선택 타입 외 노드 dim
+  const [compFilterType, setCompFilterType] = useState<string | null>(null)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1456,6 +1458,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             title={`깊이 제한: D${depthFilterMax} (R2526)`}
             style={{ width: 50, cursor: 'pointer', accentColor: '#34d399' }} />
         )}
+        {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
+        {(() => {
+          const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
+          const typeCounts = new Map<string, number>()
+          flatNodes.forEach(fn => fn.node.components.forEach(c => { if (!ignore.has(c.type)) typeCounts.set(c.type, (typeCounts.get(c.type) ?? 0) + 1) }))
+          const types = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([t]) => t)
+          if (types.length === 0) return null
+          const shortName = (t: string) => t.replace('cc.','').replace('dragonBones.','').slice(0, 6)
+          return (
+            <>
+              {types.map(t => (
+                <button key={t} onClick={() => setCompFilterType(v => v === t ? null : t)}
+                  title={`${t} 컴포넌트 있는 노드만 강조 (R2551)${compFilterType === t ? ' — 클릭해 해제' : ''}`}
+                  style={{ padding: '1px 4px', fontSize: 8, borderRadius: 3, cursor: 'pointer', border: `1px solid ${compFilterType === t ? 'rgba(139,92,246,0.6)' : 'var(--border)'}`, background: compFilterType === t ? 'rgba(139,92,246,0.15)' : 'none', color: compFilterType === t ? '#a78bfa' : 'var(--text-muted)' }}
+                >{shortName(t)}</button>
+              ))}
+            </>
+          )
+        })()}
         {/* R2532: 선택 노드 위치 정수화 (snap-to-pixel) */}
         {(selectedUuid || multiSelected.size > 0) && (onMove || onMultiMove) && (() => {
           const targets = multiSelected.size > 0 ? [...multiSelected] : (selectedUuid ? [selectedUuid] : [])
@@ -2021,7 +2042,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const soloDim = soloMode && !isSelected && !isHovered ? 0.12 : 1
             // R2526: 깊이 필터 — maxDepth 초과 노드 dim
             const depthDim = depthFilterMax !== null && fn.depth > depthFilterMax && !isSelected ? 0.08 : 1
-            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim
+            // R2551: 컴포넌트 타입 필터 — 해당 타입 없는 노드 dim
+            const compDim = compFilterType && !isSelected ? (node.components.some(c => c.type === compFilterType) ? 1 : 0.1) : 1
+            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5
