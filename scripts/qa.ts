@@ -28956,6 +28956,18 @@ if (
   log('warning', 'R2505-batch-add-comp', 'R2505 컴포넌트 일괄 추가 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1498: R2506 BatchInspector 컴포넌트 일괄 제거 ──────────────────────────
+const s1498 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1498.includes('R2506') &&
+  s1498.includes('batchRemComp') &&
+  s1498.includes('doBatchRem')
+) {
+  log('pass', 'R2506-batch-rem-comp', 'R2506 BatchInspector 컴포넌트 일괄 제거 구현 완료')
+} else {
+  log('warning', 'R2506-batch-rem-comp', 'R2506 컴포넌트 일괄 제거 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

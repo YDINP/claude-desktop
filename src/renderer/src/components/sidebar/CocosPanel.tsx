@@ -4259,6 +4259,8 @@ function CCFileBatchInspector({
   const [batchReplaceStr, setBatchReplaceStr] = useState<string>('')
   // R2505: 컴포넌트 일괄 추가
   const [batchAddComp, setBatchAddComp] = useState<string>('')
+  // R2506: 컴포넌트 일괄 제거
+  const [batchRemComp, setBatchRemComp] = useState<string>('')
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
 
@@ -4553,6 +4555,41 @@ function CCFileBatchInspector({
                 onKeyDown={e => { if (e.key === 'Enter') doBatchAdd() }}
                 style={{ flex: 1, fontSize: 9, padding: '2px 4px', borderRadius: 3, background: 'var(--bg-input, #1a1a2e)', border: '1px solid #334', color: 'var(--text-primary)', outline: 'none', minWidth: 0 }} />
               <span onClick={doBatchAdd} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(56,189,248,0.4)', color: '#38bdf8', lineHeight: 1.6 }}>추가</span>
+            </div>
+          </div>
+        )
+      })()}
+      {/* R2506: 컴포넌트 일괄 제거 */}
+      {commonCompTypes.length > 0 && uuids.length >= 1 && sceneFile.root && (() => {
+        const doBatchRem = async (ct: string) => {
+          if (!ct || !sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            return { ...n, components: n.components.filter(c => c.type !== ct), children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ${ct.split('.').pop()} 일괄 제거 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+          setBatchRemComp('')
+        }
+        return (
+          <div style={{ marginBottom: 6, padding: '3px 6px', background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.15)', borderRadius: 4 }}>
+            <div style={{ fontSize: 9, color: '#f87171', fontWeight: 600, marginBottom: 3 }}>⊖ 컴포넌트 일괄 제거 (R2506)</div>
+            <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginBottom: 3 }}>
+              {commonCompTypes.map(ct => (
+                <span key={ct} style={{ fontSize: 8, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(248,113,113,0.3)', color: '#f87171', background: 'rgba(248,113,113,0.06)' }}
+                  onClick={() => doBatchRem(ct)}
+                  title={`${ct} 공통 컴포넌트 일괄 제거`}
+                >{ct.split('.').pop()} ×</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 3 }}>
+              <input value={batchRemComp} onChange={e => setBatchRemComp(e.target.value)}
+                placeholder="제거할 컴포넌트 타입"
+                onKeyDown={e => { if (e.key === 'Enter') doBatchRem(batchRemComp.trim()) }}
+                style={{ flex: 1, fontSize: 9, padding: '2px 4px', borderRadius: 3, background: 'var(--bg-input, #1a1a2e)', border: '1px solid #334', color: 'var(--text-primary)', outline: 'none', minWidth: 0 }} />
+              <span onClick={() => doBatchRem(batchRemComp.trim())} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(248,113,113,0.4)', color: '#f87171', lineHeight: 1.6 }}>제거</span>
             </div>
           </div>
         )
