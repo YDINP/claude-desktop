@@ -227,6 +227,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showColorSwatch, setShowColorSwatch] = useState(false)
   // R2591: 자식 수 배지 오버레이
   const [showChildCountBadge, setShowChildCountBadge] = useState(false)
+  // R2592: 깊이(Depth) 레이블 오버레이
+  const [showDepthLabel, setShowDepthLabel] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1551,6 +1553,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showChildCountBadge ? '자식 수 배지 끄기 (R2591)' : '자식 노드 수 배지 표시 (R2591)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showChildCountBadge ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showChildCountBadge ? 'rgba(167,139,250,0.12)' : 'none', color: showChildCountBadge ? '#a78bfa' : 'var(--text-muted)' }}
         >↳N</button>
+        {/* R2592: 깊이 레이블 오버레이 토글 */}
+        <button
+          onClick={() => setShowDepthLabel(v => !v)}
+          title={showDepthLabel ? '깊이 레이블 끄기 (R2592)' : '노드 계층 깊이 D:N 표시 (R2592)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDepthLabel ? 'rgba(134,239,172,0.5)' : 'var(--border)'}`, background: showDepthLabel ? 'rgba(134,239,172,0.12)' : 'none', color: showDepthLabel ? '#86efac' : 'var(--text-muted)' }}
+        >D:</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2157,7 +2165,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             </g>
           )}
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
-          {flatNodes.map(({ node, worldX, worldY }) => {
+          {flatNodes.map(({ node, worldX, worldY, depth }) => {
             const isDragged = dragOverride?.uuid === node.uuid
             const isResized = resizeOverride?.uuid === node.uuid
             // R2472: 다중 선택 동시 드래그 오프셋
@@ -2182,7 +2190,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             // R1659: 솔로 모드 — 선택 노드 외 흐리게
             const soloDim = soloMode && !isSelected && !isHovered ? 0.12 : 1
             // R2526: 깊이 필터 — maxDepth 초과 노드 dim
-            const depthDim = depthFilterMax !== null && fn.depth > depthFilterMax && !isSelected ? 0.08 : 1
+            const depthDim = depthFilterMax !== null && depth > depthFilterMax && !isSelected ? 0.08 : 1
             // R2551: 컴포넌트 타입 필터 — 해당 타입 없는 노드 dim
             const compDim = compFilterType && !isSelected ? (node.components.some(c => c.type === compFilterType) ? 1 : 0.1) : 1
             const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
@@ -2399,6 +2407,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       <rect x={bx} y={by} width={bw} height={bh} rx={bh * 0.3} fill="rgba(167,139,250,0.75)" />
                       <text x={bx + bw / 2} y={by + bh / 2 + fs * 0.35} textAnchor="middle" fontSize={fs} fill="#fff" fontFamily="monospace" style={{ userSelect: 'none' }}>{cnt}</text>
                     </g>
+                  )
+                })()}
+                {/* R2592: 깊이 레이블 오버레이 (D:N) */}
+                {showDepthLabel && view.zoom > 0.3 && (() => {
+                  const fs = Math.max(5, 8 / view.zoom)
+                  return (
+                    <text
+                      x={rectX + 1 / view.zoom} y={rectY + fs * 1.1}
+                      textAnchor="start"
+                      fontSize={fs} fill="rgba(134,239,172,0.9)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >D:{depth}</text>
                   )
                 })()}
                 {/* R2578: 노드 불투명도 α% 오버레이 */}

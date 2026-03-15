@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1584: R2592 SceneView 깊이 레이블 오버레이 (D:N) ────────────────
+console.log('\n## 1584. R2592 — SceneView 깊이 레이블 오버레이 (D:N)')
+const s1584 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1584.includes('R2592') &&
+  s1584.includes('showDepthLabel') &&
+  s1584.includes('D:')
+) {
+  log('pass', 'R2592-depth-label', 'R2592 깊이 레이블 오버레이 구현 완료')
+} else {
+  log('warning', 'R2592-depth-label', 'R2592 깊이 레이블 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1583: R2591 SceneView 자식 수 배지 오버레이 ──────────────────────
 console.log('\n## 1583. R2591 — SceneView 자식 수 배지 오버레이 (↳N)')
 const s1583 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
