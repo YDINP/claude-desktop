@@ -17356,6 +17356,37 @@ function CCFileBatchInspector({
           >{Math.round(v / 255 * 100)}%</span>
         ))}
       </div>
+      {/* R2569: opacity 그라데이션 분배 */}
+      {uuids.length >= 2 && sceneFile.root && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4, paddingLeft: 52 }}>
+          {([{ label: '255→0', from: 255, to: 0 }, { label: '0→255', from: 0, to: 255 }, { label: '128→0', from: 128, to: 0 }] as const).map(({ label, from, to }) => (
+            <span
+              key={label}
+              title={`opacity 그라데이션: ${from}→${to} (트리 순서로 분배) — R2569`}
+              onClick={async () => {
+                if (!sceneFile.root) return
+                const nodes: CCSceneNode[] = []
+                function collectO(n: CCSceneNode) { if (uuidSet.has(n.uuid)) nodes.push(n); n.children.forEach(collectO) }
+                collectO(sceneFile.root)
+                if (nodes.length < 2) return
+                const opacities = nodes.map((_, i) => Math.round(from + (to - from) * (i / (nodes.length - 1))))
+                const opMap: Record<string, number> = {}
+                nodes.forEach((n, i) => { opMap[n.uuid] = opacities[i] })
+                function applyOp(n: CCSceneNode): CCSceneNode {
+                  const children = n.children.map(applyOp)
+                  if (opMap[n.uuid] !== undefined) return { ...n, opacity: opMap[n.uuid], children }
+                  return { ...n, children }
+                }
+                const result = await saveScene(applyOp(sceneFile.root))
+                setBatchMsg(result.success ? `✓ opacity ${label} (${nodes.length}개)` : `✗ 오류`)
+                setTimeout(() => setBatchMsg(null), 2000)
+              }}
+              style={{ fontSize: 8, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#fdba74')} onMouseLeave={e => (e.currentTarget.style.color = '#fb923c')}
+            >{label}</span>
+          ))}
+        </div>
+      )}
       {/* Position delta */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
         <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>위치 ±</span>

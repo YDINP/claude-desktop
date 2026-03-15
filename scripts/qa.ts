@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1561: R2569 BatchInspector opacity 그라데이션 분배 ───────────────
+console.log('\n## 1561. R2569 — BatchInspector opacity 그라데이션 분배')
+const s1561 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1561.includes('R2569') &&
+  s1561.includes('opacity 그라데이션') &&
+  s1561.includes('255→0') &&
+  s1561.includes('0→255')
+) {
+  log('pass', 'R2569-opacity-gradient', 'R2569 opacity 그라데이션 분배 구현 완료')
+} else {
+  log('warning', 'R2569-opacity-gradient', 'R2569 opacity 그라데이션 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1560: R2568 NodeInspector 개별 컴포넌트 enabled 토글 (⏸/▶) ──────
 console.log('\n## 1560. R2568 — NodeInspector 개별 컴포넌트 enabled 토글 (⏸/▶)')
 const s1560 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
