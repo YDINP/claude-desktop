@@ -27981,6 +27981,21 @@ if (
   log('warning', 'R2419-editbox-fontsize-inputmode', 'Inspector cc.EditBox fontSize/inputMode 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1424: R2420 Inspector cc.LabelOutline + cc.LabelShadow ──────────
+console.log('\n## 1424. R2420 Inspector cc.LabelOutline + cc.LabelShadow 체크')
+const s1424 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1424.includes('R2420') &&
+  s1424.includes('cc.LabelOutline') &&
+  s1424.includes('cc.LabelShadow') &&
+  s1424.includes('_N$width') &&
+  s1424.includes('_blur')
+) {
+  log('pass', 'R2420-labeloutline-labelshadow', 'Inspector cc.LabelOutline width+color + cc.LabelShadow blur+color 구현 완료')
+} else {
+  log('warning', 'R2420-labeloutline-labelshadow', 'Inspector cc.LabelOutline/LabelShadow 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

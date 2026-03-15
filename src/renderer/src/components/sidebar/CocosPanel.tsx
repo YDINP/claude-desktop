@@ -21190,6 +21190,64 @@ function CCFileNodeInspector({
                 </div>
               )
             }
+            // R2420: cc.LabelOutline — width + color (BatchInspector R1860/R1909)
+            if (comp.type === 'cc.LabelOutline') {
+              const width = Number(p.width ?? p._width ?? p._N$width ?? 1)
+              const colRaw = p.color ?? p._color ?? p._N$color as { r?: number; g?: number; b?: number } | undefined
+              const toHex = (c: typeof colRaw) => `#${[(c?.r ?? 0),(c?.g ?? 0),(c?.b ?? 0)].map(v => v.toString(16).padStart(2,'0')).join('')}`
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>width</span>
+                    <input type="number" defaultValue={width} min={0} step={1}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      onBlur={ev => { const v = Math.max(0, parseInt(ev.target.value) || 0); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, width: v, _width: v, _N$width: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    {[1, 2, 3, 4, 5, 8].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, width: v, _width: v, _N$width: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>color</span>
+                    <input type="color" value={toHex(colRaw as { r?: number; g?: number; b?: number } | undefined)}
+                      onChange={e => { const n2 = parseInt(e.target.value.slice(1), 16); const col = { r: (n2>>16)&255, g: (n2>>8)&255, b: n2&255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 36, height: 20, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', padding: 0 }}
+                    />
+                  </div>
+                </div>
+              )
+            }
+            // R2420: cc.LabelShadow — blur + color (BatchInspector R1861/R1910)
+            if (comp.type === 'cc.LabelShadow') {
+              const blur = Number(p.blur ?? p._blur ?? 2)
+              const colRaw = p.color ?? p._color ?? p._N$color as { r?: number; g?: number; b?: number } | undefined
+              const toHex = (c: typeof colRaw) => `#${[(c?.r ?? 0),(c?.g ?? 0),(c?.b ?? 0)].map(v => v.toString(16).padStart(2,'0')).join('')}`
+              return (
+                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>blur</span>
+                    <input type="number" defaultValue={blur} min={0} step={1}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      onBlur={ev => { const v = Math.max(0, parseInt(ev.target.value) || 0); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, blur: v, _blur: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    {[1, 2, 3, 5, 8].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, blur: v, _blur: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>color</span>
+                    <input type="color" value={toHex(colRaw as { r?: number; g?: number; b?: number } | undefined)}
+                      onChange={e => { const n2 = parseInt(e.target.value.slice(1), 16); const col = { r: (n2>>16)&255, g: (n2>>8)&255, b: n2&255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 36, height: 20, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', padding: 0 }}
+                    />
+                  </div>
+                </div>
+              )
+            }
             if (comp.type === 'cc.RichText') {
               const str = String(p.string ?? p.String ?? '')
               return (

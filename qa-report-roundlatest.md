@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T13:05:58.157Z
+> 2026-03-15T13:08:40.329Z
 
 ## Critical
 _없음_
@@ -2462,3 +2462,4 @@ _없음_
 - Inspector cc.Animation wrapMode 구현 완료
 - Inspector cc.RichText horizontalAlign+fontSize+maxWidth+fontColor 구현 완료
 - Inspector cc.EditBox fontSize + inputMode 구현 완료
+- Inspector cc.LabelOutline width+color + cc.LabelShadow blur+color 구현 완료
