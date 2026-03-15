@@ -29161,6 +29161,19 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1571: R2579 SceneView 컴포넌트 배지 오버레이 (⚙) ─────────────────
+console.log('\n## 1571. R2579 — SceneView 컴포넌트 배지 오버레이 (⚙)')
+const s1571sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1571sv.includes('R2579') &&
+  s1571sv.includes('showCompBadges') &&
+  s1571sv.includes('BADGE_ICONS')
+) {
+  log('pass', 'R2579-comp-badges', 'R2579 컴포넌트 배지 오버레이 구현 완료')
+} else {
+  log('warning', 'R2579-comp-badges', 'R2579 컴포넌트 배지 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1570: R2578 SceneView 노드 불투명도 레이블 오버레이 (α%) ──────────
 console.log('\n## 1570. R2578 — SceneView 노드 불투명도 레이블 오버레이 (α%)')
 const s1570sv = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

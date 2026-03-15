@@ -213,6 +213,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSizeLabels, setShowSizeLabels] = useState(false)
   // R2578: 노드 불투명도 오버레이 (α%)
   const [showOpacityLabels, setShowOpacityLabels] = useState(false)
+  // R2579: 컴포넌트 배지 오버레이
+  const [showCompBadges, setShowCompBadges] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1484,6 +1486,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showOpacityLabels ? '불투명도 오버레이 끄기 (R2578)' : '노드 α% 불투명도 표시 (R2578)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityLabels ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityLabels ? 'rgba(251,191,36,0.12)' : 'none', color: showOpacityLabels ? '#fbbf24' : 'var(--text-muted)' }}
         >α%</button>
+        {/* R2579: 컴포넌트 배지 오버레이 토글 */}
+        <button
+          onClick={() => setShowCompBadges(v => !v)}
+          title={showCompBadges ? '컴포넌트 배지 끄기 (R2579)' : '노드별 컴포넌트 아이콘 배지 표시 (R2579)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompBadges ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showCompBadges ? 'rgba(250,204,21,0.12)' : 'none', color: showCompBadges ? '#facc15' : 'var(--text-muted)' }}
+        >⚙</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2303,6 +2311,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   r={3 / view.zoom}
                   fill={isSelected ? '#58a6ff' : '#888'}
                 />
+                {/* R2579: 컴포넌트 배지 오버레이 */}
+                {showCompBadges && view.zoom > 0.25 && node.components.length > 0 && (() => {
+                  const BADGE_ICONS: Record<string, string> = {
+                    'cc.Label': 'T', 'cc.Sprite': '🖼', 'cc.Button': '⬜', 'cc.Toggle': '☑',
+                    'cc.Slider': '⊟', 'cc.ScrollView': '⊠', 'cc.RichText': '✍', 'cc.AudioSource': '♪',
+                    'cc.Widget': '⚓', 'cc.Layout': '▤', 'cc.Animation': '▶', 'cc.ProgressBar': '▰',
+                    'cc.VideoPlayer': '▷', 'cc.Camera': '📷', 'sp.Skeleton': '🦴', 'dragonBones.ArmatureDisplay': '🐉',
+                  }
+                  const ignore = new Set(['cc.UITransform','cc.UIOpacity','cc.BlockInputEvents'])
+                  const shown = node.components.filter(c => !ignore.has(c.type)).slice(0, 3)
+                  if (shown.length === 0) return null
+                  const fs = Math.max(7, 10 / view.zoom)
+                  const badges = shown.map(c => BADGE_ICONS[c.type] ?? c.type.split('.').pop()?.slice(0, 3) ?? '?').join(' ')
+                  return (
+                    <text
+                      x={rectX + w / 2} y={rectY - fs * 0.5}
+                      textAnchor="middle"
+                      fontSize={fs} fill="rgba(250,204,21,0.8)" fontFamily="monospace"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >{badges}</text>
+                  )
+                })()}
                 {/* 노드 이름 레이블 */}
                 {showNodeNames && view.zoom > 0.3 && editingUuid !== node.uuid && (
                   <text
