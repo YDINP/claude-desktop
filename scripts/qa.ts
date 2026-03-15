@@ -28782,6 +28782,19 @@ if (
   log('warning', 'R2491-generic-prop', 'R2491 범용 prop 편집 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1484: R2492 씬 트리 cc.find() 경로 복사 ─────────────────────────
+const s1484 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1484.includes('R2492') &&
+  s1484.includes('ancestors') &&
+  s1484.includes('cc.find(') &&
+  s1484.includes('📋 cc.find() 복사')
+) {
+  log('pass', 'R2492-tree-ccfind', 'R2492 씬 트리 cc.find() 경로 복사 구현 완료')
+} else {
+  log('warning', 'R2492-tree-ccfind', 'R2492 씬 트리 cc.find() 복사 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

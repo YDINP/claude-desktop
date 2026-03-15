@@ -3800,7 +3800,7 @@ function GroupPanel({
 
 /** 파싱된 CCSceneNode 트리 렌더링 */
 function CCFileSceneTree({
-  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder, multiSelectedUuids, onCtrlSelect, onSortChildren, onRename, onSaveAsPrefab,
+  node, depth, selected, onSelect, onReparent, onAddChild, onDelete, onDuplicate, onToggleActive, hideInactive, favorites, onToggleFavorite, lockedUuids, onToggleLocked, nodeColors, onNodeColorChange, collapsedUuids, onToggleCollapse, highlightQuery, nodeBookmarks, onReorder, multiSelectedUuids, onCtrlSelect, onSortChildren, onRename, onSaveAsPrefab, ancestors,
 }: {
   node: CCSceneNode
   depth: number
@@ -3833,6 +3833,8 @@ function CCFileSceneTree({
   onRename?: (uuid: string, newName: string) => void
   /** R2463: 노드를 프리팹으로 저장 */
   onSaveAsPrefab?: (uuid: string) => void
+  /** R2492: cc.find() 경로 계산용 조상 이름 스택 */
+  ancestors?: string[]
 }) {
   const [localCollapsed, setLocalCollapsed] = useState(depth > 2)
   const collapsed = collapsedUuids ? collapsedUuids.has(node.uuid) : localCollapsed
@@ -3894,6 +3896,8 @@ function CCFileSceneTree({
               { label: '삭제', action: () => { setCtxMenu(null); onDelete?.(node.uuid) } },
               // R2338: 노드 JSON 복사
               { label: '⎘ JSON 복사', action: () => { setCtxMenu(null); try { navigator.clipboard.writeText(JSON.stringify({ name: node.name, uuid: node.uuid, position: node.position, size: node.size, scale: node.scale, rotation: node.rotation, anchor: node.anchor, opacity: node.opacity, active: node.active, components: node.components.map(c => c.type) }, null, 2)) } catch { /* ignore */ } } },
+              // R2492: cc.find() 경로 복사
+              ...(ancestors && ancestors.length > 0 ? [{ label: '📋 cc.find() 복사', action: () => { setCtxMenu(null); const path = [...ancestors, node.name].slice(1).join('/'); navigator.clipboard.writeText(`cc.find("${path}")`).catch(() => {}) } }] : []),
             ] : []),
           ].filter(Boolean).map(item => (
             <div key={item.label}
@@ -4119,6 +4123,7 @@ function CCFileSceneTree({
           onSortChildren={onSortChildren}
           onRename={onRename}
           onSaveAsPrefab={onSaveAsPrefab}
+          ancestors={[...(ancestors ?? []), node.name]}
         />
       ))}
     </div>
