@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1555: R2563 NodeInspector 회전 클립보드 (R↑/R↓) ─────────────────
+console.log('\n## 1555. R2563 — NodeInspector 회전 클립보드 (R↑/R↓)')
+const s1555 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1555.includes('R2563') &&
+  s1555.includes('rotClipboard') &&
+  s1555.includes('rotClipFilled') &&
+  s1555.includes('R↑') &&
+  s1555.includes('R↓')
+) {
+  log('pass', 'R2563-rot-clipboard', 'R2563 회전 클립보드 구현 완료')
+} else {
+  log('warning', 'R2563-rot-clipboard', 'R2563 회전 클립보드 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1554: R2562 NodeInspector 색상 클립보드 (C↑/C↓) ─────────────────
 console.log('\n## 1554. R2562 — NodeInspector 색상 클립보드 (C↑/C↓)')
 const s1554 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

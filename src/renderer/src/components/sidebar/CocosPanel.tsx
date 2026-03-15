@@ -18748,6 +18748,9 @@ function CCFileNodeInspector({
   // R2562: 색상 전용 클립보드
   const colorClipboard = useRef<{ r: number; g: number; b: number } | null>(null)
   const [colorClipFilled, setColorClipFilled] = useState(false)
+  // R2563: 회전 전용 클립보드
+  const rotClipboard = useRef<number | null>(null)
+  const [rotClipFilled, setRotClipFilled] = useState(false)
   // R2554: 앵커 변경 시 position 자동 보정 토글
   const [anchorCompensate, setAnchorCompensate] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
@@ -20330,6 +20333,19 @@ function CCFileNodeInspector({
                   onMouseLeave={e => (e.currentTarget.style.color = '#f87171')}
                 >normalize</span>
               )}
+              {/* R2563: 회전 클립보드 복사/붙여넣기 */}
+              <span
+                title="회전 복사 — 다른 노드에 붙여넣기 가능 (R2563)"
+                onClick={() => { rotClipboard.current = rotation; setRotClipFilled(true) }}
+                style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: '#a78bfa', background: 'none', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')} onMouseLeave={e => (e.currentTarget.style.color = '#a78bfa')}
+              >R↑</span>
+              <span
+                title={rotClipFilled && rotClipboard.current !== null ? `회전 붙여넣기 (${rotClipboard.current}°) — R2563` : '복사된 회전 없음'}
+                onClick={() => { if (rotClipboard.current !== null) { const r = typeof draft.rotation === 'number' ? rotClipboard.current : { ...(draft.rotation as object), z: rotClipboard.current } as CCSceneNode['rotation']; applyAndSave({ rotation: r }) } }}
+                style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: rotClipFilled ? 'pointer' : 'default', color: rotClipFilled ? '#a78bfa' : '#333', background: 'none', userSelect: 'none' }}
+                onMouseEnter={e => { if (rotClipFilled) e.currentTarget.style.color = '#c4b5fd' }} onMouseLeave={e => { e.currentTarget.style.color = rotClipFilled ? '#a78bfa' : '#333' }}
+              >R↓</span>
             </div>
             {numInput('Z°', rotation, v => {
               const r = typeof draft.rotation === 'number' ? v : { ...(draft.rotation as object), z: v } as CCSceneNode['rotation']
