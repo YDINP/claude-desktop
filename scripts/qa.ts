@@ -25493,6 +25493,19 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1332: R2328 Inspector 컴포넌트 타입 설명 tooltip ──────────
+console.log('\n## 1332. R2328 컴포넌트 타입 설명 tooltip 체크')
+const s1332 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1332.includes('COMP_DESCRIPTIONS') &&
+  s1332.includes('R2328') &&
+  s1332.includes('title={COMP_DESCRIPTIONS[comp.type]')
+) {
+  log('pass', 'R2328-comp-tooltip', 'Inspector 컴포넌트 타입 설명 tooltip 구현 완료')
+} else {
+  log('warning', 'R2328-comp-tooltip', 'R2328 컴포넌트 tooltip 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1331: R2327 Save As ──────────
 console.log('\n## 1331. R2327 Save As 체크')
 const s1331a = readFileSync(join(ROOT, 'src/main/ipc/cc-file-handlers.ts'), 'utf-8')
