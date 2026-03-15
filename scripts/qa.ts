@@ -28282,6 +28282,31 @@ if (
   log('warning', 'R2441-tiledlayer-light-enabled', 'Inspector cc.TiledLayer/DirectionalLight/PointLight enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1446: R2442 cc.Camera block1에 CC3.x orthoHeight/near/far + CC2.x zoomRatio 통합 ──
+console.log('\n## 1446. R2442 cc.Camera block1 CC3.x/CC2.x prop 통합 체크')
+const s1446 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1446.includes('R2442') &&
+  s1446.includes('orthoHeight') &&
+  s1446.includes('zoomRatio')
+) {
+  log('pass', 'R2442-camera-block-merge', 'cc.Camera block1에 orthoHeight/near/far/zoomRatio 통합 완료')
+} else {
+  log('warning', 'R2442-camera-block-merge', 'cc.Camera block1 CC3.x prop 통합 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1447: R2443 cc.SpotLight enabled ──────────────────────────────────────────────────
+console.log('\n## 1447. R2443 cc.SpotLight enabled 체크')
+const s1447 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1447.includes('R2443') &&
+  s1447.includes('cc.SpotLight')
+) {
+  log('pass', 'R2443-spotlight-enabled', 'Inspector cc.SpotLight enabled 토글 구현 완료')
+} else {
+  log('warning', 'R2443-spotlight-enabled', 'Inspector cc.SpotLight enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

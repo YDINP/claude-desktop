@@ -21935,6 +21935,56 @@ function CCFileNodeInspector({
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
                   </div>
+                  {/* R2442: CC3.x orthoHeight/near/far (dead block 2 props 통합) */}
+                  {is3x && (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>orthoH</span>
+                        <input type="number" min={1} step={10}
+                          defaultValue={Number(p.orthoHeight ?? p._orthoHeight ?? 540)}
+                          key={`oh-${Number(p.orthoHeight ?? 540)}`}
+                          onBlur={e => {
+                            const v = Math.max(1, parseFloat(e.target.value) || 540)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v } } : c)
+                            applyAndSave({ components: updated })
+                          }}
+                          style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: '#93c5fd', borderRadius: 3, padding: '1px 4px' }}
+                        />
+                        {[360, 540, 720, 1080].map(v => (
+                          <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v } } : c); applyAndSave({ components: u }) }}
+                            style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}>{v}</span>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>near/far</span>
+                        <input type="number" step={0.1}
+                          defaultValue={Number(p.near ?? p._near ?? 1)}
+                          key={`cn-${Number(p.near ?? 1)}`}
+                          onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, near: v, _near: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                          title="near"
+                        />
+                        <input type="number" step={10}
+                          defaultValue={Number(p.far ?? p._far ?? 4096)}
+                          key={`cf-${Number(p.far ?? 4096)}`}
+                          onBlur={e => { const v = parseFloat(e.target.value) || 4096; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, far: v, _far: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ width: 56, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                          title="far"
+                        />
+                      </div>
+                    </>
+                  )}
+                  {/* R2442: CC2.x zoomRatio */}
+                  {!is3x && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>zoomRatio</span>
+                      <input type="number" defaultValue={Number(p.zoomRatio ?? p._zoomRatio ?? 1)} min={0.01} step={0.1}
+                        onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, zoomRatio: v, _zoomRatio: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                        title="zoomRatio (CC2.x)"
+                      />
+                    </div>
+                  )}
                   {/* R2405: targetDisplay */}
                   {!is3x && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -22417,6 +22467,13 @@ function CCFileNodeInspector({
                 : '#ffffff'
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* R2443: enabled */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>intensity</span>
                     <input type="number" defaultValue={intensity} key={`si-${intensity}`} min={0} step={100}
