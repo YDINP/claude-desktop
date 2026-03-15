@@ -29161,6 +29161,20 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1517: R2525 BatchInspector 오파시티 그라디언트 ──────────────────
+console.log('\n## 1517. R2525 — BatchInspector 오파시티 그라디언트')
+const s1517 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1517.includes('R2525') &&
+  s1517.includes('opGradFrom') &&
+  s1517.includes('opGradTo') &&
+  s1517.includes('applyOpGrad')
+) {
+  log('pass', 'R2525-opacity-grad', 'R2525 오파시티 그라디언트 구현 완료')
+} else {
+  log('warning', 'R2525-opacity-grad', 'R2525 오파시티 그라디언트 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1516: R2524 SceneView 다중 선택 통합 바운딩박스 ─────────────────
 console.log('\n## 1516. R2524 — SceneView 다중 선택 통합 바운딩박스')
 const s1516 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

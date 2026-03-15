@@ -4266,6 +4266,9 @@ function CCFileBatchInspector({
   // R2516: 위치 오프셋 이동
   const [posOffsetX, setPosOffsetX] = useState<number>(0)
   const [posOffsetY, setPosOffsetY] = useState<number>(0)
+  // R2525: 오파시티 그라디언트
+  const [opGradFrom, setOpGradFrom] = useState<number>(255)
+  const [opGradTo, setOpGradTo] = useState<number>(0)
   // R2513: Z-Order 이동
   const moveZOrder = useCallback(async (dir: 'up' | 'down' | 'top' | 'bottom') => {
     if (!sceneFile.root) return
@@ -4676,6 +4679,40 @@ function CCFileBatchInspector({
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >적용</span>
+          </div>
+        )
+      })()}
+      {/* R2525: 오파시티 그라디언트 — 선택 노드에 from→to 선형 투명도 적용 */}
+      {sceneFile.root && uuids.length >= 2 && (() => {
+        const applyOpGrad = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          const orderedUuids = uuids
+          function patch(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patch)
+            const idx = orderedUuids.indexOf(n.uuid)
+            if (idx < 0) return { ...n, children }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const op = Math.round(opGradFrom + (opGradTo - opGradFrom) * t)
+            return { ...n, opacity: Math.max(0, Math.min(255, op)), children }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 오파시티 그라디언트 ${opGradFrom}→${opGradTo} (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>불투명도 (R2525)</span>
+            <input type="number" value={opGradFrom} min={0} max={255} onChange={e => setOpGradFrom(Math.max(0, Math.min(255, parseInt(e.target.value) || 0)))} style={niS} title="시작 opacity (0-255)" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={opGradTo} min={0} max={255} onChange={e => setOpGradTo(Math.max(0, Math.min(255, parseInt(e.target.value) || 0)))} style={niS} title="끝 opacity (0-255)" />
+            <span onClick={applyOpGrad}
+              title={`선택된 ${uuids.length}개 노드에 opacity ${opGradFrom}→${opGradTo} 선형 그라디언트 적용 (R2525)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#c084fc', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#c084fc')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >그라디언트</span>
           </div>
         )
       })()}
