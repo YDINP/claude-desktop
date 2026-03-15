@@ -28418,6 +28418,60 @@ if (
   log('warning', 'R2450-scrollview-bounce', 'Inspector cc.ScrollView bounce 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1456: R2452 씬 드롭다운 버그 수정 + 마지막 씬 자동 로드 ─────────────────
+console.log('\n## 1456. R2452 씬/프리팹 드롭다운 버그 수정 + 마지막 씬 자동 로드 체크')
+const s1456 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+const s1456m = readFileSync(join(ROOT, 'src/main/cc/cc-version-detector.ts'), 'utf-8')
+if (
+  s1456.includes('R2452') &&
+  s1456.includes('cc-last-scene-') &&
+  s1456m.includes('R2452 ISSUE-011')
+) {
+  log('pass', 'R2452-scene-dropdown-fix', 'R2452 씬 드롭다운 버그 수정 + 마지막 씬 자동 로드 구현 완료')
+} else {
+  log('warning', 'R2452-scene-dropdown-fix', 'R2452 씬 드롭다운 버그 수정 미확인', 'cc-version-detector.ts / CocosPanel.tsx')
+}
+
+// ── Section 1457: R2458 자동 리로드 토글 ─────────────────
+console.log('\n## 1457. R2458 외부 변경 자동 리로드 토글 체크')
+const s1457 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1457.includes('R2458') &&
+  s1457.includes('autoReload') &&
+  s1457.includes('cc-auto-reload')
+) {
+  log('pass', 'R2458-auto-reload-toggle', 'R2458 외부 변경 자동 리로드 토글 구현 완료')
+} else {
+  log('warning', 'R2458-auto-reload-toggle', 'R2458 자동 리로드 토글 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1458: R2459 컴포넌트 추가 저장 버그 수정 ─────────────────
+console.log('\n## 1458. R2459 cc-file-saver 새 컴포넌트 저장 버그 수정 체크')
+const s1458 = readFileSync(join(ROOT, 'src/main/cc/cc-file-saver.ts'), 'utf-8')
+if (
+  s1458.includes('R2459') &&
+  s1458.includes('buildNewRawComp2x') &&
+  s1458.includes('buildNewRawComp3x') &&
+  s1458.includes('_components = compRefs')
+) {
+  log('pass', 'R2459-new-comp-save-fix', 'R2459 새 컴포넌트 raw 엔트리 생성 + _components 동기화 구현 완료')
+} else {
+  log('warning', 'R2459-new-comp-save-fix', 'R2459 컴포넌트 저장 버그 수정 미확인', 'cc-file-saver.ts')
+}
+
+// ── Section 1459: R2460 deepCopyNodeWithNewUuids 컴포넌트 _rawIndex 초기화 ─────────────────
+console.log('\n## 1459. R2460 deepCopyNodeWithNewUuids 컴포넌트 _rawIndex 초기화 체크')
+const s1459 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1459.includes('R2460') &&
+  s1459.includes('_rawIndex: undefined') &&
+  s1459.includes('deepCopyNodeWithNewUuids')
+) {
+  log('pass', 'R2460-comp-rawindex-clear', 'R2460 복제 노드 컴포넌트 _rawIndex 초기화 구현 완료')
+} else {
+  log('warning', 'R2460-comp-rawindex-clear', 'R2460 컴포넌트 _rawIndex 초기화 미확인', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
