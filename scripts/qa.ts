@@ -28119,6 +28119,18 @@ if (
   log('warning', 'R2429-slider-enabled', 'Inspector cc.Slider enabled 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1434: R2430 Inspector cc.Scrollbar enabled ──────────
+console.log('\n## 1434. R2430 Inspector cc.Scrollbar enabled 체크')
+const s1434 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1434.includes('R2430') &&
+  s1434.includes('cc.Scrollbar')
+) {
+  log('pass', 'R2430-scrollbar-enabled', 'Inspector cc.Scrollbar enabled 구현 완료')
+} else {
+  log('warning', 'R2430-scrollbar-enabled', 'Inspector cc.Scrollbar enabled 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')
