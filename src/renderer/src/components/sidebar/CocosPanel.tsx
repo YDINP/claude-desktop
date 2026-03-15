@@ -290,7 +290,8 @@ function deepCopyNodeWithNewUuids(node: CCSceneNode, suffix = '_Copy'): CCSceneN
       ...n,
       uuid: genUuid(),
       name: isToplevel ? n.name + suffix : n.name,
-      components: n.components.map(c => ({ ...c, props: { ...c.props } })),
+      // R2460: _rawIndex 초기화 — 복제 노드의 컴포넌트는 새 raw 엔트리로 생성 (R2459 _components 동기화와 충돌 방지)
+      components: n.components.map(c => ({ ...c, props: { ...c.props }, _rawIndex: undefined })),
       children: n.children.map(c => deepCopy(c, false)),
       _rawIndex: undefined,
     }
