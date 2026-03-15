@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1544: R2552 NodeInspector 위치 전용 복사/붙여넣기 (P↑/P↓) ────────
+console.log('\n## 1544. R2552 — NodeInspector 위치 전용 복사/붙여넣기')
+const s1544 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1544.includes('R2552') &&
+  s1544.includes('posClipboard') &&
+  s1544.includes('posClipFilled') &&
+  s1544.includes('P↑') &&
+  s1544.includes('P↓')
+) {
+  log('pass', 'R2552-paste-pos', 'R2552 위치 전용 복사/붙여넣기 구현 완료')
+} else {
+  log('warning', 'R2552-paste-pos', 'R2552 위치 전용 복사/붙여넣기 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1543: R2551 SceneView 컴포넌트 타입 필터 버튼 ────────────────────
 console.log('\n## 1543. R2551 — SceneView 컴포넌트 타입 필터 버튼')
 const s1543 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

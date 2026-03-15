@@ -18659,6 +18659,9 @@ function CCFileNodeInspector({
   // R1617: 트랜스폼 복사/붙여넣기 클립보드
   const transformClipboard = useRef<{ position: CCSceneNode['position']; rotation: CCSceneNode['rotation']; scale: CCSceneNode['scale']; size: CCSceneNode['size'] } | null>(null)
   const [transformClipFilled, setTransformClipFilled] = useState(false)
+  // R2552: 위치 전용 클립보드
+  const posClipboard = useRef<{ x: number; y: number } | null>(null)
+  const [posClipFilled, setPosClipFilled] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
 
   // R1484: World Transform — 부모 체인 누산 좌표
@@ -20082,6 +20085,19 @@ function CCFileNodeInspector({
             style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: transformClipFilled ? 'pointer' : 'default', color: transformClipFilled ? '#58a6ff' : '#333', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => { if (transformClipFilled) e.currentTarget.style.color = '#7fc6ff' }} onMouseLeave={e => { e.currentTarget.style.color = transformClipFilled ? '#58a6ff' : '#333' }}
           >T↓붙여넣기</span>
+          {/* R2552: 위치 전용 복사/붙여넣기 */}
+          <span
+            title="위치(position) 복사 — 다른 노드에 붙여넣기 가능 (R2552)"
+            onClick={() => { const pos = draft.position as { x: number; y: number }; posClipboard.current = { x: pos.x, y: pos.y }; setPosClipFilled(true) }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+          >P↑</span>
+          <span
+            title={posClipFilled ? `위치 붙여넣기 (${posClipboard.current?.x}, ${posClipboard.current?.y}) — R2552` : '복사된 위치 없음'}
+            onClick={() => { if (posClipboard.current) { const pos = draft.position as { x: number; y: number; z?: number }; applyAndSave({ position: { ...pos, x: posClipboard.current.x, y: posClipboard.current.y } }) } }}
+            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: posClipFilled ? 'pointer' : 'default', color: posClipFilled ? '#4ade80' : '#333', background: 'none', userSelect: 'none' }}
+            onMouseEnter={e => { if (posClipFilled) e.currentTarget.style.color = '#86efac' }} onMouseLeave={e => { e.currentTarget.style.color = posClipFilled ? '#4ade80' : '#333' }}
+          >P↓</span>
           {/* R1635: 세션 시작 상태로 트랜스폼 원복 */}
           {origSnapRef.current && (() => {
             const os = origSnapRef.current!
