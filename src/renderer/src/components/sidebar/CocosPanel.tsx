@@ -20896,6 +20896,64 @@ function CCFileNodeInspector({
                     />
                     <span style={{ color: !!(p.interactable ?? p._N$interactable ?? true) ? 'var(--text-muted)' : '#f85149' }}>interactable</span>
                   </label>
+                  {/* R2359: minValue / maxValue / step */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>range</span>
+                    <input type="number" step={0.1}
+                      defaultValue={Number(p.minValue ?? p._minValue ?? p._N$minValue ?? 0)}
+                      key={`smn-${Number(p.minValue ?? p._minValue ?? 0)}`}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, minValue: v, _minValue: v, _N$minValue: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="minValue"
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>~</span>
+                    <input type="number" step={0.1}
+                      defaultValue={Number(p.maxValue ?? p._maxValue ?? p._N$maxValue ?? 1)}
+                      key={`smx-${Number(p.maxValue ?? p._maxValue ?? 1)}`}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 1
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxValue: v, _maxValue: v, _N$maxValue: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="maxValue"
+                    />
+                    {([[0,1],[0,10],[0,100],[-1,1]] as const).map(([mn, mx]) => (
+                      <span key={`${mn}-${mx}`} title={`min=${mn} max=${mx}`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, minValue: mn, maxValue: mx, _minValue: mn, _maxValue: mx, _N$minValue: mn, _N$maxValue: mx } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{mn}~{mx}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>step</span>
+                    <input type="number" min={0} step={0.01}
+                      defaultValue={Number(p.step ?? p._step ?? p._N$step ?? 0)}
+                      key={`sst-${Number(p.step ?? p._step ?? 0)}`}
+                      onBlur={e => {
+                        const v = parseFloat(e.target.value) || 0
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, step: v, _step: v, _N$step: v } } : c)
+                        applyAndSave({ components: updated })
+                      }}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                    />
+                    {[0, 0.01, 0.05, 0.1, 0.5, 1].map(v => (
+                      <span key={v} title={`step = ${v}`}
+                        onClick={() => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, step: v, _step: v, _N$step: v } } : c)
+                          applyAndSave({ components: updated })
+                        }}
+                        style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
                 </div>
               )
             }

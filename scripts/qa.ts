@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1363: R2359 Inspector cc.Slider minValue/maxValue/step ──────────
+console.log('\n## 1363. R2359 Inspector cc.Slider minValue/maxValue/step 체크')
+const s1363 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1363.includes('R2359') &&
+  s1363.includes('minValue') &&
+  s1363.includes('maxValue') &&
+  s1363.includes('_N$minValue')
+) {
+  log('pass', 'R2359-slider-range-step', 'Inspector cc.Slider minValue/maxValue/step 퀵 편집 구현 완료')
+} else {
+  log('warning', 'R2359-slider-range-step', 'Inspector cc.Slider minValue/maxValue/step 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1362: R2358 Inspector cc.Button autoGrayEffect ──────────
 console.log('\n## 1362. R2358 Inspector cc.Button autoGrayEffect 체크')
 const s1362 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
