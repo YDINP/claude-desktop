@@ -19503,6 +19503,7 @@ function CCFileNodeInspector({
                     </div>
                   )}
                   {/* R2363: packable + meshType */}
+                  {/* R2400: _useGrayscale (CC3.x) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={!!(p.packable ?? p._packable ?? true)}
@@ -19512,6 +19513,14 @@ function CCFileNodeInspector({
                         }}
                       />packable
                     </label>
+                    {is3x && (
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                        <input type="checkbox" checked={!!(p._useGrayscale ?? false)}
+                          onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _useGrayscale: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                          style={{ margin: 0, accentColor: '#818cf8' }}
+                        />grayscale
+                      </label>
+                    )}
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>mesh:</span>
                     {([['Reg', 0], ['Poly', 1]] as const).map(([l, v]) => {
                       const cur = Number(p.meshType ?? p._meshType ?? 0)
@@ -23413,6 +23422,21 @@ function CCFileNodeInspector({
                         style={{ margin: 0, accentColor: '#58a6ff' }}
                       />allowSleep
                     </label>
+                  </div>
+                  {/* R2400: linearVelocityLimit + angularVelocityLimit */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>linVelLim</span>
+                    <input type="number" defaultValue={Number(p.linearVelocityLimit ?? p._linearVelocityLimit ?? p._N$linearVelocityLimit ?? 0)} min={0} step={1}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearVelocityLimit: v, _linearVelocityLimit: v, _N$linearVelocityLimit: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="linearVelocityLimit (0=무제한)"
+                    />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0, marginLeft: 6 }}>angVelLim</span>
+                    <input type="number" defaultValue={Number(p.angularVelocityLimit ?? p._angularVelocityLimit ?? p._N$angularVelocityLimit ?? 0)} min={0} step={1}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularVelocityLimit: v, _angularVelocityLimit: v, _N$angularVelocityLimit: v } } : c); applyAndSave({ components: u }) }}
+                      style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      title="angularVelocityLimit (0=무제한)"
+                    />
                   </div>
                 </div>
               )

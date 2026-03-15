@@ -25493,6 +25493,21 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1404: R2400 Inspector cc.Sprite _useGrayscale + cc.RigidBody velocityLimit ──────────
+console.log('\n## 1404. R2400 Inspector cc.Sprite _useGrayscale + cc.RigidBody velocityLimit 체크')
+const s1404 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1404.includes('R2400') &&
+  s1404.includes('_useGrayscale') &&
+  s1404.includes('linearVelocityLimit') &&
+  s1404.includes('angularVelocityLimit') &&
+  s1404.includes('_N$linearVelocityLimit')
+) {
+  log('pass', 'R2400-sprite-grayscale-rb-vellim', 'Inspector cc.Sprite _useGrayscale + cc.RigidBody velocityLimit 구현 완료')
+} else {
+  log('warning', 'R2400-sprite-grayscale-rb-vellim', 'Inspector cc.Sprite _useGrayscale + cc.RigidBody velocityLimit 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1403: R2399 Inspector cc.VideoPlayer startTime ──────────
 console.log('\n## 1403. R2399 Inspector cc.VideoPlayer startTime 체크')
 const s1403 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
