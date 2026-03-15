@@ -25493,6 +25493,20 @@ if (
   log('warning', 'R2314-session-setcollection-memtimer-fix', 'ISSUE-002/006 버그 수정 미완료', 'session-handlers.ts / index.ts')
 }
 
+// ── Section 1384: R2380 Inspector cc.EditBox fontColor/placeholderFontColor ──────────
+console.log('\n## 1384. R2380 Inspector cc.EditBox fontColor/placeholderFontColor 체크')
+const s1384 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1384.includes('R2380') &&
+  s1384.includes('fontColor') &&
+  s1384.includes('placeholderFontColor') &&
+  s1384.includes('_N$placeholderFontColor')
+) {
+  log('pass', 'R2380-editbox-colors', 'Inspector cc.EditBox fontColor/placeholderFontColor 구현 완료')
+} else {
+  log('warning', 'R2380-editbox-colors', 'Inspector cc.EditBox fontColor/placeholderFontColor 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1383: R2379 Inspector cc.ScrollView bounceTime/mouseWheelScrollSensitivity/hideScrollBar ──────────
 console.log('\n## 1383. R2379 Inspector cc.ScrollView bounceTime/mwSens/hideScrollBar 체크')
 const s1383 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

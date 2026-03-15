@@ -21044,6 +21044,29 @@ function CCFileNodeInspector({
                       >{l}</span>
                     ))}
                   </div>
+                  {/* R2380: fontColor + placeholderFontColor */}
+                  {(() => {
+                    const fc = p.fontColor ?? p._fontColor ?? p._N$fontColor as { r?: number; g?: number; b?: number } | undefined
+                    const pfc = p.placeholderFontColor ?? p._placeholderFontColor ?? p._N$placeholderFontColor as { r?: number; g?: number; b?: number } | undefined
+                    const fcHex = fc ? `#${((fc.r ?? 255) << 16 | (fc.g ?? 255) << 8 | (fc.b ?? 255)).toString(16).padStart(6, '0')}` : '#ffffff'
+                    const pfcHex = pfc ? `#${((pfc.r ?? 128) << 16 | (pfc.g ?? 128) << 8 | (pfc.b ?? 128)).toString(16).padStart(6, '0')}` : '#808080'
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>fontColor</span>
+                        <input type="color" defaultValue={fcHex}
+                          style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
+                          onChange={ev => { const n2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (n2 >> 16) & 255, g: (n2 >> 8) & 255, b: n2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontColor: col, _fontColor: col, _N$fontColor: col } } : c); applyAndSave({ components: u }) }}
+                          title="fontColor"
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>phColor</span>
+                        <input type="color" defaultValue={pfcHex}
+                          style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
+                          onChange={ev => { const n2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (n2 >> 16) & 255, g: (n2 >> 8) & 255, b: n2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholderFontColor: col, _placeholderFontColor: col, _N$placeholderFontColor: col } } : c); applyAndSave({ components: u }) }}
+                          title="placeholderFontColor"
+                        />
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             }
