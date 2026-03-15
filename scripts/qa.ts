@@ -29161,6 +29161,21 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1630: R2638 BatchInspector 회전 균등 분배 ─────────────────────────
+console.log('\n## 1630. R2638 — BatchInspector 회전 균등 분배')
+const s1630 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1630.includes('R2638') &&
+  s1630.includes('applyRotGrad') &&
+  s1630.includes('rotGradFrom') &&
+  s1630.includes('rotGradTo') &&
+  s1630.includes('rot분배')
+) {
+  log('pass', 'R2638-rot-grad', 'R2638 회전 균등 분배 구현 완료')
+} else {
+  log('warning', 'R2638-rot-grad', 'R2638 회전 균등 분배 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1629: R2637 SceneView 씬 전체 바운딩박스 오버레이 ─────────────────
 console.log('\n## 1629. R2637 — SceneView 씬 전체 바운딩박스 오버레이')
 const s1629 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

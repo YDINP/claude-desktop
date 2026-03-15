@@ -4327,6 +4327,9 @@ function CCFileBatchInspector({
   // R2633: cc.Label 폰트 크기 균등 분배
   const [fontSizeFrom, setFontSizeFrom] = useState<number>(16)
   const [fontSizeTo, setFontSizeTo] = useState<number>(48)
+  // R2638: 회전 균등 분배
+  const [rotGradFrom, setRotGradFrom] = useState<number>(0)
+  const [rotGradTo, setRotGradTo] = useState<number>(360)
   // R2527: 스케일 X/Y 링크
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
@@ -18960,6 +18963,44 @@ function CCFileBatchInspector({
               style={{ width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }}
               title="사용자 정의 오프셋(°)" />
             <span onClick={() => addRot(deg)} title={`rotation +${deg}° 적용 (R2612)`} style={btnS}>적용</span>
+          </div>
+        )
+      })()}
+      {/* R2638: 회전 균등 분배 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyRotGrad = async () => {
+          if (!sceneFile.root) return
+          const count = uuids.length
+          let idx = 0
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const t = count > 1 ? idx / (count - 1) : 0
+            const rot = Math.round(rotGradFrom + (rotGradTo - rotGradFrom) * t)
+            idx++
+            return {
+              ...n,
+              rotation: typeof n.rotation === 'number' ? rot : { ...(n.rotation as object), z: rot },
+              children: ch,
+            }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ rot 분배 ${rotGradFrom}°→${rotGradTo}° (${count}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#ec4899', flexShrink: 0 }}>rot분배 (R2638)</span>
+            <input type="number" value={rotGradFrom} step={1} onChange={e => setRotGradFrom(parseFloat(e.target.value) || 0)} style={niS} title="시작 rotation°" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={rotGradTo} step={1} onChange={e => setRotGradTo(parseFloat(e.target.value) || 0)} style={niS} title="끝 rotation°" />
+            <span onClick={applyRotGrad}
+              title={`선택된 ${uuids.length}개 노드 rotation ${rotGradFrom}°→${rotGradTo}° 균등 분배 (R2638)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#ec4899', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#ec4899')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >분배</span>
           </div>
         )
       })()}
