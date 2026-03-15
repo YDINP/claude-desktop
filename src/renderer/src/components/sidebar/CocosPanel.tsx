@@ -21376,6 +21376,30 @@ function CCFileNodeInspector({
                       </div>
                     )
                   })()}
+                  {/* R2419: fontSize + inputMode (BatchInspector R1943/R2085) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>fontSize</span>
+                    <input type="number" defaultValue={Number(p.fontSize ?? p._fontSize ?? p._N$fontSize ?? 20)} min={1} step={2}
+                      style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
+                      onBlur={ev => { const v = Math.max(1, parseInt(ev.target.value) || 20); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c); applyAndSave({ components: u }) }}
+                    />
+                    {[12, 16, 20, 24, 32, 40].map(v => (
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c); applyAndSave({ components: u }) }}
+                        style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
+                      >{v}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>inputMode</span>
+                    {([['Any', 0], ['Num', 2], ['Dec', 5], ['1L', 6]] as const).map(([l, v]) => {
+                      const cur = Number(p.inputMode ?? p._inputMode ?? p._N$inputMode ?? 0)
+                      return (
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputMode: v, _inputMode: v, _N$inputMode: v } } : c); applyAndSave({ components: u }) }}
+                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
+                        >{l}</span>
+                      )
+                    })}
+                  </div>
                 </div>
               )
             }

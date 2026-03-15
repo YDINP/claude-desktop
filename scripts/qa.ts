@@ -27967,6 +27967,20 @@ if (
   log('warning', 'R2418-richtext-align-fontsize-maxwidth-color', 'Inspector cc.RichText 미구현', 'CocosPanel.tsx')
 }
 
+// ── Section 1423: R2419 Inspector cc.EditBox fontSize + inputMode ──────────
+console.log('\n## 1423. R2419 Inspector cc.EditBox fontSize + inputMode 체크')
+const s1423 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1423.includes('R2419') &&
+  s1423.includes('_N$fontSize') &&
+  s1423.includes('_N$inputMode') &&
+  s1423.includes('cc.EditBox')
+) {
+  log('pass', 'R2419-editbox-fontsize-inputmode', 'Inspector cc.EditBox fontSize + inputMode 구현 완료')
+} else {
+  log('warning', 'R2419-editbox-fontsize-inputmode', 'Inspector cc.EditBox fontSize/inputMode 미구현', 'CocosPanel.tsx')
+}
+
 // ── 리포트 ───────────────────────────────────────────────
 console.log('\n## QA 결과 요약')
 const criticals = results.filter(r => r.level === 'critical')

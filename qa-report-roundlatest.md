@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T12:23:56.515Z
+> 2026-03-15T13:05:58.157Z
 
 ## Critical
 _없음_
@@ -2448,3 +2448,17 @@ _없음_
 - BatchInspector cc.ProgressBar startWidth 일괄 설정
 - BatchInspector cc.Graphics lineCap 일괄 설정
 - BatchInspector cc.Widget enabled 일괄 설정
+- Inspector dragonBones.ArmatureDisplay blendMode 구현 완료
+- Inspector sp.Skeleton enableBatch 구현 완료
+- Inspector cc.SkeletalAnimation wrapMode+loop+cachingMode 구현 완료
+- Inspector cc.Layout affectedByScale 구현 완료
+- Inspector cc.Layout wrapMode 구현 완료
+- Inspector cc.Widget alignMode + cc.RigidBody enabledContactListener 구현 완료
+- Inspector cc.Camera cullingMask + clearDepth 구현 완료
+- Inspector cc.ScrollView speedAmplifier 구현 완료
+- Inspector cc.VideoPlayer resourceType 구현 완료
+- Inspector cc.PageView bounceEnabled 구현 완료
+- Inspector cc.BlockInputEvents 구현 완료
+- Inspector cc.Animation wrapMode 구현 완료
+- Inspector cc.RichText horizontalAlign+fontSize+maxWidth+fontColor 구현 완료
+- Inspector cc.EditBox fontSize + inputMode 구현 완료
