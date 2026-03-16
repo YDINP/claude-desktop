@@ -305,6 +305,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showNonDefaultAnchor, setShowNonDefaultAnchor] = useState(false)
   // R2696: 크기 0 노드 경고 오버레이
   const [showZeroSizeWarn, setShowZeroSizeWarn] = useState(false)
+  // R2698: 선택 노드 위치 가이드 십자선 오버레이
+  const [showSelAxisLine, setShowSelAxisLine] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1878,6 +1880,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showZeroSizeWarn ? '크기 0 경고 끄기 (R2696)' : 'width 또는 height = 0인 노드 경고 표시 (R2696)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showZeroSizeWarn ? 'rgba(239,68,68,0.5)' : 'var(--border)'}`, background: showZeroSizeWarn ? 'rgba(239,68,68,0.1)' : 'none', color: showZeroSizeWarn ? '#ef4444' : 'var(--text-muted)' }}
         >⚠</button>
+        {/* R2698: 선택 노드 위치 가이드 십자선 토글 */}
+        <button
+          onClick={() => setShowSelAxisLine(v => !v)}
+          title={showSelAxisLine ? '위치 가이드선 끄기 (R2698)' : '선택 노드 X/Y 위치 가이드 전체 선 표시 (R2698)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelAxisLine ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showSelAxisLine ? 'rgba(34,211,238,0.1)' : 'none', color: showSelAxisLine ? '#22d3ee' : 'var(--text-muted)' }}
+        >╋</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3542,6 +3550,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               <g style={{ pointerEvents: 'none' }}>
                 <line x1={left} y1={sp.y} x2={right} y2={sp.y} stroke="rgba(148,163,184,0.5)" strokeWidth={sw} />
                 <line x1={sp.x} y1={top} x2={sp.x} y2={bottom} stroke="rgba(148,163,184,0.5)" strokeWidth={sw} />
+              </g>
+            )
+          })()}
+          {/* R2698: 선택 노드 위치 가이드 십자선 */}
+          {showSelAxisLine && selectedUuid && (() => {
+            const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!fn) return null
+            const sp = ccToSvg(fn.worldX, fn.worldY)
+            const viewW = svgRef.current?.clientWidth ?? 800
+            const viewH = svgRef.current?.clientHeight ?? 600
+            const left = (0 - view.offsetX) / view.zoom
+            const right = (viewW - view.offsetX) / view.zoom
+            const top = (0 - view.offsetY) / view.zoom
+            const bottom = (viewH - view.offsetY) / view.zoom
+            const sw = 1 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <line x1={left} y1={sp.y} x2={right} y2={sp.y} stroke="rgba(34,211,238,0.45)" strokeWidth={sw} strokeDasharray={`${5/view.zoom} ${3/view.zoom}`} />
+                <line x1={sp.x} y1={top} x2={sp.x} y2={bottom} stroke="rgba(34,211,238,0.45)" strokeWidth={sw} strokeDasharray={`${5/view.zoom} ${3/view.zoom}`} />
               </g>
             )
           })()}

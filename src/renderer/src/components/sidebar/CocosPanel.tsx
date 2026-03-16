@@ -4366,6 +4366,8 @@ function CCFileBatchInspector({
   const [nudgeStep, setNudgeStep] = useState<number>(1)
   const [posGradFrom, setPosGradFrom] = useState<number>(-200)
   const [posGradTo, setPosGradTo] = useState<number>(200)
+  const [opGradFrom, setOpGradFrom] = useState<number>(255)
+  const [opGradTo, setOpGradTo] = useState<number>(0)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -5457,6 +5459,38 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op리셋 (R2657)</span>
             <span onClick={applyOpacityReset} title="선택 노드 opacity를 255(불투명)으로 리셋 (R2657)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>op=255</span>
+          </div>
+        )
+      })()}
+      {/* R2697: opacity 선형 그라데이션 — 선택 노드 순서대로 opacity from→to */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyOpGradient = async () => {
+          if (!sceneFile.root) return
+          const selNodes: CCSceneNode[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          if (selNodes.length < 2) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            const idx = selNodes.findIndex(s => s.uuid === n.uuid)
+            if (idx < 0) return { ...n, children: ch }
+            const t = selNodes.length > 1 ? idx / (selNodes.length - 1) : 0
+            const op = Math.round(opGradFrom + (opGradTo - opGradFrom) * t)
+            return { ...n, opacity: Math.max(0, Math.min(255, op)), children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ opacity 그라데이션 ${opGradFrom}→${opGradTo} (${selNodes.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op분포 (R2697)</span>
+            <input type="number" value={opGradFrom} min={0} max={255} onChange={e => setOpGradFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 opacity (0-255)" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={opGradTo} min={0} max={255} onChange={e => setOpGradTo(parseInt(e.target.value) || 0)} style={niS} title="끝 opacity (0-255)" />
+            <span onClick={applyOpGradient} title={`선택 노드 순서대로 opacity ${opGradFrom}→${opGradTo} 적용 (R2697)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>적용</span>
           </div>
         )
       })()}

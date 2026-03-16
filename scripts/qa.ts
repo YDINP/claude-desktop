@@ -29161,6 +29161,32 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1690: R2698 SceneView 선택 노드 위치 가이드 십자선 ───────────────
+console.log('\n## 1690. R2698 — SceneView 선택 노드 위치 가이드 십자선')
+const s1690 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1690.includes('R2698') &&
+  s1690.includes('showSelAxisLine') &&
+  s1690.includes('22d3ee')
+) {
+  log('pass', 'R2698-axisLine', 'R2698 위치 가이드 십자선 구현 완료')
+} else {
+  log('warning', 'R2698-axisLine', 'R2698 위치 가이드 십자선 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1689: R2697 BatchInspector opacity 그라데이션 ────────────────────
+console.log('\n## 1689. R2697 — BatchInspector opacity 선형 그라데이션')
+const s1689 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1689.includes('R2697') &&
+  s1689.includes('opGradFrom') &&
+  s1689.includes('applyOpGradient')
+) {
+  log('pass', 'R2697-opGradient', 'R2697 opacity 그라데이션 구현 완료')
+} else {
+  log('warning', 'R2697-opGradient', 'R2697 opacity 그라데이션 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1688: R2696 SceneView 크기 0 노드 경고 오버레이 ──────────────────
 console.log('\n## 1688. R2696 — SceneView 크기 0 노드 경고')
 const s1688 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
