@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useCCFileProject } from '../../hooks/useCCFileProject'
 import { CCFileSceneView } from './SceneView/CCFileSceneView'
-import type { CCSceneNode, CCSceneFile } from '../../../../shared/ipc-schema'
+import type { CCSceneNode, CCSceneFile } from '@shared/ipc-schema'
 import { updateCCFileContext } from '../../hooks/useCCFileContext'
+import { validateScene, extractPrefabEntries, deepCopyNodeWithNewUuids, type ValidationIssue } from './cocos-utils'
+import { useBatchPatch } from './hooks/useBatchPatch'
 
 function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   const [checked, setChecked] = useState(value)
@@ -47,13 +49,6 @@ type TransformSnapshot = {
 }
 let transformClipboard: TransformSnapshot | null = null
 
-// R1418: 씬 유효성 검사 (Lint)
-interface ValidationIssue {
-  level: 'error' | 'warning'
-  message: string
-  nodeUuid?: string
-  nodeName?: string
-}
 
 // R1441: 최적화 제안 인터페이스 (cc-file-parser와 동기화)
 interface OptimizationSuggestion {
@@ -61,52 +56,6 @@ interface OptimizationSuggestion {
   severity: 'high' | 'medium' | 'low'
   message: string
   affectedUuids?: string[]
-}
-
-function validateScene(root: CCSceneNode): ValidationIssue[] {
-  const issues: ValidationIssue[] = []
-  const seenUuids = new Map<string, string>() // uuid → name
-  let hasCanvas = false
-
-  function walk(node: CCSceneNode, depth: number, parentActive: boolean): void {
-    // UUID 중복 체크
-    if (seenUuids.has(node.uuid)) {
-      issues.push({ level: 'error', message: `UUID 중복: "${node.name}" 와 "${seenUuids.get(node.uuid)}" (${node.uuid.slice(0, 8)}...)`, nodeUuid: node.uuid, nodeName: node.name })
-    } else {
-      seenUuids.set(node.uuid, node.name)
-    }
-
-    // 이름 빈 노드
-    if (node.name === '') {
-      issues.push({ level: 'warning', message: `이름 빈 노드 (uuid: ${node.uuid.slice(0, 8)}...)`, nodeUuid: node.uuid, nodeName: '(empty)' })
-    }
-
-    // Canvas 감지
-    if (node.components.some(c => c.type === 'cc.Canvas')) hasCanvas = true
-
-    // 비활성 부모 아래 활성 자식
-    if (!parentActive && node.active) {
-      issues.push({ level: 'warning', message: `비활성 부모 아래 활성 자식: "${node.name}"`, nodeUuid: node.uuid, nodeName: node.name })
-    }
-
-    // 깊이 경고
-    if (depth > 8) {
-      issues.push({ level: 'warning', message: `계층 깊이 ${depth}: "${node.name}" (8 초과)`, nodeUuid: node.uuid, nodeName: node.name })
-    }
-
-    for (const child of node.children) {
-      walk(child, depth + 1, node.active)
-    }
-  }
-
-  walk(root, 0, true)
-
-  // Canvas 없는 씬 경고 (루트가 Scene인 경우)
-  if (!hasCanvas && root.children.length > 0) {
-    issues.push({ level: 'warning', message: 'Canvas 컴포넌트가 없는 씬 (CC 2.x에서 UI가 표시되지 않을 수 있음)' })
-  }
-
-  return issues
 }
 
 export function CocosPanel() {
@@ -282,75 +231,6 @@ interface CCFileProjectUIProps {
   onSelectNode: (n: CCSceneNode | null) => void
 }
 
-/** R2463: 선택 노드 서브트리를 prefab raw 배열로 변환 */
-function extractPrefabEntries(raw: unknown[], rootRawIdx: number): unknown[] {
-  const rawArr = raw as Record<string, unknown>[]
-  const collected: number[] = []
-  const seen = new Set<number>()
-
-  function collectDfs(idx: number) {
-    if (idx < 0 || idx >= rawArr.length || seen.has(idx)) return
-    seen.add(idx)
-    collected.push(idx)
-    const e = rawArr[idx]
-    // components 먼저 수집
-    const comps = e._components as { __id__: number }[] | undefined
-    comps?.forEach(c => { if (typeof c.__id__ === 'number') collectDfs(c.__id__) })
-    // children 수집
-    const children = e._children as { __id__: number }[] | undefined
-    children?.forEach(c => { if (typeof c.__id__ === 'number') collectDfs(c.__id__) })
-  }
-  collectDfs(rootRawIdx)
-
-  // oldIdx → newIdx 매핑 (0=cc.Prefab, 1=root, ...)
-  const oldToNew = new Map<number, number>()
-  collected.forEach((oldIdx, i) => oldToNew.set(oldIdx, i + 1))
-
-  // __id__ 재매핑 (deep)
-  function remapRefs(v: unknown, isRoot: boolean): unknown {
-    if (Array.isArray(v)) return v.map(el => remapRefs(el, false))
-    if (v && typeof v === 'object') {
-      const obj = v as Record<string, unknown>
-      if ('__id__' in obj && typeof obj.__id__ === 'number') {
-        const mapped = oldToNew.get(obj.__id__)
-        return mapped != null ? { __id__: mapped } : { __id__: obj.__id__ }
-      }
-      const result: Record<string, unknown> = {}
-      for (const [k, val] of Object.entries(obj)) {
-        result[k] = (isRoot && k === '_parent') ? null : remapRefs(val, false)
-      }
-      return result
-    }
-    return v
-  }
-
-  const prefabHeader = {
-    __type__: 'cc.Prefab', _name: '', _objFlags: 0,
-    data: { __id__: 1 }, optimizationPolicy: 0, asyncLoadAssets: false, readonly: false,
-  }
-  const nodeEntries = collected.map((oldIdx, i) =>
-    remapRefs(JSON.parse(JSON.stringify(rawArr[oldIdx])), i === 0) as unknown
-  )
-  return [prefabHeader, ...nodeEntries]
-}
-
-// R1476: 노드 딥복사 + UUID 자동 재생성 (재귀, crypto.randomUUID)
-function deepCopyNodeWithNewUuids(node: CCSceneNode, suffix = '_Copy'): CCSceneNode {
-  const genUuid = () => (typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : `node-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`)
-  function deepCopy(n: CCSceneNode, isToplevel: boolean): CCSceneNode {
-    return {
-      ...n,
-      uuid: genUuid(),
-      name: isToplevel ? n.name + suffix : n.name,
-      // R2460: _rawIndex 초기화 — 복제 노드의 컴포넌트는 새 raw 엔트리로 생성 (R2459 _components 동기화와 충돌 방지)
-      components: n.components.map(c => ({ ...c, props: { ...c.props }, _rawIndex: undefined })),
-      children: n.children.map(c => deepCopy(c, false)),
-      _rawIndex: undefined,
-    }
-  }
-  return deepCopy(node, true)
-}
-
 function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
   const { projectInfo, sceneFile, loading, error, externalChange, canUndo, canRedo, undoCount, redoCount, conflictInfo, openProject, detectProject, loadScene, saveScene, undo, redo, restoreBackup, forceOverwrite } = fileProject
   // R2317: 즐겨찾기 프로젝트 목록
@@ -358,7 +238,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [favProjects, setFavProjects] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem(CC_FAV_KEY) ?? '[]') } catch { return [] }
   })
-  const [showFavMenu, setShowFavMenu] = useState(false)
+  // ISSUE-011: showFavMenu removed — favProjects now shown as tab bar
   const isFav = projectInfo?.projectPath ? favProjects.includes(projectInfo.projectPath) : false
   const toggleFav = () => {
     const path = projectInfo?.projectPath
@@ -534,125 +414,6 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     setDupeOffsetX(x); setDupeOffsetY(y)
     localStorage.setItem('cc-dupe-offset', JSON.stringify([x, y]))
   }
-  const [nodeLayers, setNodeLayers] = useState<Record<string, number>>({})
-  const [showLayerPanel, setShowLayerPanel] = useState(false)
-  const [nodeSearchHistory, setNodeSearchHistory] = useState<string[]>([])
-  const [showNodeSearchHistory, setShowNodeSearchHistory] = useState(false)
-  const [previewCacheSize, setPreviewCacheSize] = useState(0)
-  const [showCacheManager, setShowCacheManager] = useState(false)
-  const [batchEditMode, setBatchEditMode] = useState(false)
-  const [batchEditTargets, setBatchEditTargets] = useState<string[]>([])
-  const [compSearchFilter, setCompSearchFilter] = useState('')
-  const [compSearchResults, setCompSearchResults] = useState<string[]>([])
-  const [nodeTagFilter, setNodeTagFilter] = useState<string[]>([])
-  const [showNodeTagFilter, setShowNodeTagFilter] = useState(false)
-  const [nodeCopyHistory, setNodeCopyHistory] = useState<Array<{ uuid: string; name: string; ts: number }>>([])
-  const [showCopyHistory, setShowCopyHistory] = useState(false)
-  const [nodeGroups, setNodeGroups] = useState<Record<string, string[]>>({})
-  const [showGroupPanel, setShowGroupPanel] = useState(false)
-  const [prefabSearch, setPrefabSearch] = useState('')
-  const [prefabSearchResults, setPrefabSearchResults] = useState<string[]>([])
-  const [sceneHistory, setSceneHistory] = useState<string[]>([])
-  const [showSceneHistory, setShowSceneHistory] = useState(false)
-  const [animationPreview, setAnimationPreview] = useState(false)
-  const [previewAnimation, setPreviewAnimation] = useState<string | null>(null)
-  const [nodeEventLog, setNodeEventLog] = useState<Array<{ uuid: string; event: string; ts: number }>>([])
-  const [showEventLog, setShowEventLog] = useState(false)
-  const [materialInspector, setMaterialInspector] = useState<string | null>(null)
-  const [showMaterialPanel, setShowMaterialPanel] = useState(false)
-  const [physicsDebug, setPhysicsDebug] = useState(false)
-  const [physicsDebugOptions, setPhysicsDebugOptions] = useState<{ showColliders: boolean; showJoints: boolean }>({ showColliders: true, showJoints: false })
-  const [scriptEditorOpen, setScriptEditorOpen] = useState(false)
-  const [editingScript, setEditingScript] = useState<string | null>(null)
-  const [spriteEditorOpen, setSpriteEditorOpen] = useState(false)
-  const [editingSprite, setEditingSprite] = useState<string | null>(null)
-  const [particleEditorOpen, setParticleEditorOpen] = useState(false)
-  const [editingParticle, setEditingParticle] = useState<string | null>(null)
-  const [audioEditorOpen, setAudioEditorOpen] = useState(false)
-  const [editingAudio, setEditingAudio] = useState<string | null>(null)
-  const [tileMapEditorOpen, setTileMapEditorOpen] = useState(false)
-  const [editingTileMap, setEditingTileMap] = useState<string | null>(null)
-  const [sceneGraph, setSceneGraph] = useState<Record<string, unknown>>({})
-  const [showSceneGraph, setShowSceneGraph] = useState(false)
-  const [lockedNodes, setLockedNodes] = useState<string[]>([])
-  const [showLockPanel, setShowLockPanel] = useState(false)
-  const [assetFavorites, setAssetFavorites] = useState<string[]>([])
-  const [showFavoritesPanel, setShowFavoritesPanel] = useState(false)
-  const [nodeHistory, setNodeHistory] = useState<string[]>([])
-  const [showNodeHistory, setShowNodeHistory] = useState(false)
-  const [sceneSnapshots, setSceneSnapshots] = useState<string[]>([])
-  const [showSnapshotList, setShowSnapshotList] = useState(false)
-  const [resourcePreview, setResourcePreview] = useState<string | null>(null)
-  const [showResourcePreview, setShowResourcePreview] = useState(false)
-  const [buildSettings, setBuildSettings] = useState<Record<string, unknown>>({})
-  const [showBuildSettings, setShowBuildSettings] = useState(false)
-  const [plugins, setPlugins] = useState<string[]>([])
-  const [renderSettings, setRenderSettings] = useState<Record<string, unknown>>({})
-  const [showRenderSettings, setShowRenderSettings] = useState(false)
-  const [sceneFilter, setSceneFilter] = useState('')
-  const [sceneFilterResults, setSceneFilterResults] = useState<string[]>([])
-  const [nodeSortMode, setNodeSortMode] = useState<'name' | 'type' | 'index'>('index')
-  const [nodeSortOrder, setNodeSortOrder] = useState<'asc' | 'desc'>('asc')
-  const [sceneTags, setSceneTags] = useState<string[]>([])
-  const [showSceneTagEditor, setShowSceneTagEditor] = useState(false)
-  const [assetVersion, setAssetVersion] = useState<Record<string, number>>({})
-  const [showVersionHistory, setShowVersionHistory] = useState(false)
-  const [nodeAnnotations, setNodeAnnotations] = useState<Record<string, string>>({})
-  const [showAnnotationPanel, setShowAnnotationPanel] = useState(false)
-  const [sceneLockMode, setSceneLockMode] = useState(false)
-  const [lockedScenes, setLockedScenes] = useState<string[]>([])
-  const [assetDeps, setAssetDeps] = useState<Record<string, string[]>>({})
-  const [showDepsPanel, setShowDepsPanel] = useState(false)
-  const [nodeAdvSearch, setNodeAdvSearch] = useState(false)
-  const [nodeSearchField, setNodeSearchField] = useState<'name' | 'tag' | 'uuid'>('name')
-  const [sceneSnapshot, setSceneSnapshot] = useState<string | null>(null)
-  const [showSnapshotPanel, setShowSnapshotPanel] = useState(false)
-  const [nodeLayer, setNodeLayer] = useState<string>('all')
-  const [showLayerFilter, setShowLayerFilter] = useState(false)
-  const [sceneTemplates, setSceneTemplates] = useState<string[]>([])
-  const [showTemplatePanel, setShowTemplatePanel] = useState(false)
-  const [nodeStats, setNodeStats] = useState<Record<string, number>>({})
-  const [showNodeStats, setShowNodeStats] = useState(false)
-  const [sceneValidation, setSceneValidation] = useState<string[]>([])
-  const [showValidationPanel, setShowValidationPanel] = useState(false)
-  const [compSearch, setCompSearch] = useState('')
-  const [showCompSearch, setShowCompSearch] = useState(false)
-  const [autoSave, setAutoSave] = useState(false)
-  const [autoSaveInterval, setAutoSaveInterval] = useState(30)
-  const [prefabPreview, setPrefabPreview] = useState<string | null>(null)
-  const [showPrefabPreview, setShowPrefabPreview] = useState(false)
-  const [sceneExportPath, setSceneExportPath] = useState('')
-  const [showExportOptions, setShowExportOptions] = useState(false)
-  const [favNodes, setFavNodes] = useState<string[]>([])
-  const [showFavNodes, setShowFavNodes] = useState(false)
-  const [nodeLock, setNodeLock] = useState<string[]>([])
-  const [compareMode, setCompareMode] = useState(false)
-  const [compareTarget, setCompareTarget] = useState<string | null>(null)
-  const [assetTags, setAssetTags] = useState<Record<string, string[]>>({})
-  const [showTagEditor, setShowTagEditor] = useState(false)
-  const [importSource, setImportSource] = useState<string | null>(null)
-  const [showImportDialog, setShowImportDialog] = useState(false)
-  const [sceneOpHistory, setSceneOpHistory] = useState<string[]>([])
-  const [showOpHistory, setShowOpHistory] = useState(false)
-  const [scenePerms, setScenePerms] = useState<Record<string, string>>({})
-  const [showPermPanel, setShowPermPanel] = useState(false)
-  const [assetPreview, setAssetPreview] = useState<string | null>(null)
-  const [assetPreviewType, setAssetPreviewType] = useState<'image' | 'audio' | 'other'>('image')
-  // R1148: build queue
-  const [buildQueue, setBuildQueue] = useState<string[]>([])
-  const [showBuildQueue, setShowBuildQueue] = useState(false)
-  // R1160: build errors
-  const [buildErrors, setBuildErrors] = useState<string[]>([])
-  const [showBuildErrors, setShowBuildErrors] = useState(false)
-  // R1166: asset search
-  const [assetSearchQuery, setAssetSearchQuery] = useState('')
-  const [assetSearchResults, setAssetSearchResults] = useState<string[]>([])
-  // R1172: scene bookmarks
-  const [sceneBookmarks, setSceneBookmarks] = useState<string[]>([])
-  const [showSceneBookmarks, setShowSceneBookmarks] = useState(false)
-  // R1178: component search
-  const [componentSearch, setComponentSearch] = useState('')
-  const [componentSearchResults, setComponentSearchResults] = useState<string[]>([])
   // R1184: node filters
   const [nodeFilters, setNodeFilters] = useState<string[]>([])
   const [showNodeFilters, setShowNodeFilters] = useState(false)
@@ -662,24 +423,6 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [treeHighlightQuery, setTreeHighlightQuery] = useState('')
   // R1190: scene validation
   const [showValidation, setShowValidation] = useState(false)
-  // R1196: resource usage
-  const [resourceUsage, setResourceUsage] = useState<Record<string, number>>({})
-  const [showResourcePanel, setShowResourcePanel] = useState(false)
-  // R1202: build history
-  const [buildHistory, setBuildHistory] = useState<string[]>([])
-  const [showBuildHistory, setShowBuildHistory] = useState(false)
-  // R1208: deploy config
-  const [deployConfig, setDeployConfig] = useState<Record<string, string>>({})
-  const [showDeployPanel, setShowDeployPanel] = useState(false)
-  // R1220: scene export
-  const [sceneExportFormat, setSceneExportFormat] = useState<'json' | 'prefab' | 'fbx'>('json')
-  const [showExportScene, setShowExportScene] = useState(false)
-  // R1226: node tree view
-  const [nodeTreeExpanded, setNodeTreeExpanded] = useState<Set<string>>(new Set())
-  const [nodeTreeFilter, setNodeTreeFilter] = useState('')
-  // R1238: build profiles
-  const [buildProfiles, setBuildProfiles] = useState<Record<string, object>>({})
-  const [activeBuildProfile, setActiveBuildProfile] = useState<string | null>(null)
   // R1390: CC 프로젝트 설정 뷰어
   const [showProjectSettings, setShowProjectSettings] = useState(false)
   const [projectSettings, setProjectSettings] = useState<{
@@ -2270,33 +2013,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           >
             {loading ? '로드 중...' : projectInfo?.detected ? '📂 다른 프로젝트 열기' : '📂 CC 프로젝트 열기'}
           </button>
-          {/* R2317: 즐겨찾기 토글 버튼 */}
-          <div style={{ position: 'relative' }}>
-            <button
-              title={isFav ? '즐겨찾기 해제' : (projectInfo?.projectPath ? '즐겨찾기 추가' : '즐겨찾기 목록')}
-              onClick={() => {
-                if (projectInfo?.projectPath) toggleFav()
-                else setShowFavMenu(v => !v)
-              }}
-              style={{ padding: '4px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 4, fontSize: 13, cursor: 'pointer', color: isFav ? '#fbbf24' : 'var(--text-muted)' }}
-            >{isFav ? '★' : '☆'}</button>
-            {/* 즐겨찾기 드롭다운 (목록) */}
-            {showFavMenu && favProjects.length > 0 && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 200, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 4, minWidth: 220, boxShadow: '0 4px 12px rgba(0,0,0,0.4)', overflow: 'hidden' }}>
-                {favProjects.map(path => (
-                  <div key={path}
-                    onClick={() => { detectProject?.(path); setShowFavMenu(false) }}
-                    style={{ padding: '5px 10px', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--border)' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--hover)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = '')}
-                  >
-                    <span>📁</span>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={path}>{path.split(/[\\/]/).pop()}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* R2317/ISSUE-011: 즐겨찾기 토글 버튼 */}
+          <button
+            title={isFav ? '즐겨찾기 해제' : (projectInfo?.projectPath ? '즐겨찾기 추가' : '')}
+            onClick={() => { if (projectInfo?.projectPath) toggleFav() }}
+            disabled={!projectInfo?.projectPath}
+            style={{ padding: '4px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 4, fontSize: 13, cursor: projectInfo?.projectPath ? 'pointer' : 'default', color: isFav ? '#fbbf24' : 'var(--text-muted)', opacity: projectInfo?.projectPath ? 1 : 0.4 }}
+          >{isFav ? '★' : '☆'}</button>
           {/* R1461: 새 프로젝트 생성 마법사 */}
           <button
             onClick={() => { setShowProjectWizard(true); setWizardStep(1); setWizardError(null) }}
@@ -2310,6 +2033,31 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           </button>
         </div>
 
+        {/* ISSUE-011: 즐겨찾기 프로젝트 탭 바 — 클릭 시 해당 프로젝트 전환 + 마지막 씬 자동 로드 */}
+        {favProjects.length > 0 && (
+          <div style={{ display: 'flex', gap: 0, marginTop: 6, marginBottom: 4, overflowX: 'auto', flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
+            {favProjects.map(path => {
+              const isActive = projectInfo?.projectPath === path
+              const label = path.split(/[\\/]/).pop() ?? path
+              return (
+                <button key={path}
+                  onClick={() => { if (!isActive) detectProject?.(path) }}
+                  title={path}
+                  style={{
+                    padding: '4px 10px', fontSize: 10, border: 'none', cursor: isActive ? 'default' : 'pointer',
+                    background: isActive ? 'var(--bg-primary)' : 'transparent',
+                    color: isActive ? 'var(--accent)' : 'var(--text-muted)',
+                    borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+                    fontWeight: isActive ? 600 : 400,
+                    whiteSpace: 'nowrap', flexShrink: 0,
+                    transition: 'color 0.15s, border-bottom 0.15s',
+                  }}
+                >{label}</button>
+              )
+            })}
+          </div>
+        )}
+
         {/* 감지된 프로젝트 정보 */}
         {projectInfo?.detected && (
           <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.6 }}>
@@ -2321,10 +2069,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             </div>
             <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
               title={projectInfo.projectPath}>
-              📁 {projectInfo.projectPath}
+              {projectInfo.projectPath}
             </div>
             <div style={{ marginTop: 2 }}>
-              씬 파일: <strong>{projectInfo.scenes?.length ?? 0}개</strong>
+              씬 파일: <strong>{(projectInfo.scenes?.filter(s => !s.endsWith('.prefab'))?.length ?? 0)}개</strong>
+              {(projectInfo.scenes?.filter(s => s.endsWith('.prefab'))?.length ?? 0) > 0 && (
+                <span style={{ marginLeft: 6 }}>프리팹: <strong>{projectInfo.scenes?.filter(s => s.endsWith('.prefab'))?.length}개</strong></span>
+              )}
             </div>
           </div>
         )}
@@ -2480,10 +2231,10 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           </div>
         )}
 
-        {/* 씬 선택 드롭다운 */}
-        {projectInfo?.scenes && projectInfo.scenes.length > 0 && (
+        {/* ISSUE-011: 씬/프리팹 별도 드롭다운 */}
+        {projectInfo?.scenes && projectInfo.scenes.filter(s => !s.endsWith('.prefab')).length > 0 && (
           <select
-            value={selectedScene}
+            value={selectedScene.endsWith('.prefab') ? '' : selectedScene}
             onChange={e => handleSceneChange(e.target.value)}
             style={{
               width: '100%', marginTop: 6, padding: '3px 6px', fontSize: 10,
@@ -2491,22 +2242,26 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               border: '1px solid var(--border)', borderRadius: 4,
             }}
           >
-            <option value="">씬/프리팹 선택...</option>
-            {/* R1472: 씬/프리팹 그룹 분리 */}
-            {projectInfo.scenes.filter(s => !s.endsWith('.prefab')).length > 0 && (
-              <optgroup label="씬">
-                {projectInfo.scenes.filter(s => !s.endsWith('.prefab')).map(s => (
-                  <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
-                ))}
-              </optgroup>
-            )}
-            {projectInfo.scenes.filter(s => s.endsWith('.prefab')).length > 0 && (
-              <optgroup label="🧩 프리팹">
-                {projectInfo.scenes.filter(s => s.endsWith('.prefab')).map(s => (
-                  <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
-                ))}
-              </optgroup>
-            )}
+            <option value="">씬 선택...</option>
+            {projectInfo.scenes.filter(s => !s.endsWith('.prefab')).map(s => (
+              <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
+            ))}
+          </select>
+        )}
+        {projectInfo?.scenes && projectInfo.scenes.filter(s => s.endsWith('.prefab')).length > 0 && (
+          <select
+            value={selectedScene.endsWith('.prefab') ? selectedScene : ''}
+            onChange={e => handleSceneChange(e.target.value)}
+            style={{
+              width: '100%', marginTop: 4, padding: '3px 6px', fontSize: 10,
+              background: 'var(--bg-input)', color: '#a78bfa',
+              border: '1px solid rgba(167,139,250,0.3)', borderRadius: 4,
+            }}
+          >
+            <option value="" style={{ color: 'var(--text-primary)' }}>프리팹 선택...</option>
+            {projectInfo.scenes.filter(s => s.endsWith('.prefab')).map(s => (
+              <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
+            ))}
           </select>
         )}
 
@@ -2959,7 +2714,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           onMouseMove={e => {
             if (hDividerDragRef.current) {
               const dx = e.clientX - hDividerDragRef.current.startX
-              const newW = Math.max(100, Math.min(320, hDividerDragRef.current.startW + dx))
+              const newW = Math.max(100, Math.min(400, hDividerDragRef.current.startW + dx))
               setHierarchyWidth(newW)
               localStorage.setItem('cc-hierarchy-width', String(newW))
             }
@@ -4352,12 +4107,27 @@ function CCFileBatchInspector({
   const [colorBlendAmount, setColorBlendAmount] = useState<number>(50)
   // R2678: opacity 배수
   const [opacityMult, setOpacityMult] = useState<number>(80)
+  // R2702: opacity 고정값 일괄 설정
+  const [opacityFixed, setOpacityFixed] = useState<number>(255)
+  // R2710: 고정 크기 일괄 설정
+  const [fixedSizeW, setFixedSizeW] = useState<number>(100)
+  const [fixedSizeH, setFixedSizeH] = useState<number>(100)
+  const [fixedSizeApplyW, setFixedSizeApplyW] = useState<boolean>(true)
+  const [fixedSizeApplyH, setFixedSizeApplyH] = useState<boolean>(true)
   // R2681: 산포 factor
   const [spreadFactor, setSpreadFactor] = useState<number>(1.5)
   // R2684: 절대 간격
   const [evenSpacing, setEvenSpacing] = useState<number>(10)
   // R2685: 절대 회전값
   const [absRotValue, setAbsRotValue] = useState<number>(45)
+  // R2689: size 배수 스케일
+  const [sizeFactor, setSizeFactor] = useState<number>(1.5)
+  // R2690: 절대 scale 값
+  const [absScaleX, setAbsScaleX] = useState<number>(1)
+  const [absScaleY, setAbsScaleY] = useState<number>(1)
+  const [nudgeStep, setNudgeStep] = useState<number>(1)
+  const [posGradFrom, setPosGradFrom] = useState<number>(-200)
+  const [posGradTo, setPosGradTo] = useState<number>(200)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -4375,6 +4145,22 @@ function CCFileBatchInspector({
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
   const [batchAnchorCompensate, setBatchAnchorCompensate] = useState(true)
+  // -- style factories (btnS/niS 반복 제거) --
+  const mkBtnS = (color: string, extra?: React.CSSProperties): React.CSSProperties => ({
+    fontSize: 9, padding: '1px 5px', cursor: 'pointer',
+    border: '1px solid var(--border)', borderRadius: 2,
+    color, userSelect: 'none', ...extra,
+  })
+  const mkBtnTint = (rgb: string, hex: string, extra?: React.CSSProperties): React.CSSProperties => ({
+    fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+    border: `1px solid rgba(${rgb},0.4)`, color: hex,
+    userSelect: 'none', background: `rgba(${rgb},0.05)`, ...extra,
+  })
+  const mkNiS = (w: number, padding = '1px 3px'): React.CSSProperties => ({
+    width: w, fontSize: 9, padding, border: '1px solid var(--border)',
+    borderRadius: 2, background: 'var(--bg-secondary)',
+    color: 'var(--text-primary)', textAlign: 'center',
+  })
   // R2513: Z-Order 이동
   const moveZOrder = useCallback(async (dir: 'up' | 'down' | 'top' | 'bottom') => {
     if (!sceneFile.root) return
@@ -4418,6 +4204,7 @@ function CCFileBatchInspector({
   }, [sceneFile, uuidSet, saveScene])
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
+  const { patchNodes, patchComponents, patchOrdered } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
 
   // 공통 opacity / active 값 감지
   const commonValues = useMemo(() => {
@@ -4548,7 +4335,7 @@ function CCFileBatchInspector({
             onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
             onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
           >⎘ JSON</span>
-        )
+        )}
         {/* R2510: 같은 이름 노드 일괄 선택 */}
         {onMultiSelectChange && sceneFile.root && uuids.length === 1 && (() => {
           const ns: CCSceneNode[] = []
@@ -4592,7 +4379,7 @@ function CCFileBatchInspector({
           coll(sceneFile.root!)
           const activeCount = uuids.filter(u => nodeByUuid.get(u)?.active !== false).length
           const inactiveCount = uuids.length - activeCount
-          const btnS: React.CSSProperties = { fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }
+          const btnS = mkBtnS('#94a3b8', { fontSize: 8, padding: '1px 4px' })
           return <>
             {activeCount > 0 && activeCount < uuids.length && (
               <span style={btnS} title={`활성 노드만 선택 (${activeCount}개, R2509)`}
@@ -4808,18 +4595,11 @@ function CCFileBatchInspector({
       {sceneFile.root && (() => {
         const applyGridSnap = async () => {
           const g = snapGridSize
-          if (g < 1 || !sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          if (g < 1) return
+          await patchNodes(n => {
             const p = n.position as { x: number; y: number; z?: number }
-            const snappedX = Math.round(p.x / g) * g
-            const snappedY = Math.round(p.y / g) * g
-            return { ...n, position: { ...p, x: snappedX, y: snappedY }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${uuids.length}개 노드 ${g}px 그리드 스냅`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...p, x: Math.round(p.x / g) * g, y: Math.round(p.y / g) * g } }
+          }, `${uuids.length}개 노드 ${g}px 그리드 스냅`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4842,16 +4622,10 @@ function CCFileBatchInspector({
       {/* R2609: size 스냅 — 선택 노드 크기를 N px 배수로 반올림 */}
       {sceneFile.root && uuids.length >= 1 && (() => {
         const applySzSnap = async (step: number) => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sz = n.size as { x: number; y: number }
-            return { ...n, size: { x: Math.round(sz.x / step) * step, y: Math.round(sz.y / step) * step }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ size ${step}px 스냅 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: { x: Math.round(sz.x / step) * step, y: Math.round(sz.y / step) * step } }
+          }, `size ${step}px 스냅 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4868,16 +4642,10 @@ function CCFileBatchInspector({
       {/* R2623: position XY 스냅 — 선택 노드 좌표를 N px 배수로 반올림 */}
       {sceneFile.root && uuids.length >= 1 && (() => {
         const applyPosSnap = async (step: number) => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const p = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...p, x: Math.round(p.x / step) * step, y: Math.round(p.y / step) * step }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ pos ${step}px 스냅 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...p, x: Math.round(p.x / step) * step, y: Math.round(p.y / step) * step } }
+          }, `pos ${step}px 스냅 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4894,18 +4662,12 @@ function CCFileBatchInspector({
       {/* R2654: 위치 XY 원점 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyPosReset = async (axis: 'x' | 'y' | 'both') => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
             const nx = axis === 'y' ? pos.x : 0
             const ny = axis === 'x' ? pos.y : 0
-            return { ...n, position: { ...pos, x: nx, y: ny }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ position ${axis === 'both' ? 'XY' : axis.toUpperCase()}→0 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: nx, y: ny } }
+          }, `position ${axis === 'both' ? 'XY' : axis.toUpperCase()}→0 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4919,21 +4681,45 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
-      {/* R2674: 절대 위치 직접 지정 */}
+      {/* R2692: 방향 nudge 버튼 ←→↑↓ */}
       {uuids.length >= 1 && sceneFile.root && (() => {
-        const applyAbsPos = async () => {
+        const nudge = async (dx: number, dy: number) => {
           if (!sceneFile.root) return
           function patch(n: CCSceneNode): CCSceneNode {
             const ch = n.children.map(patch)
             if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, x: absPosAxisX ? absPosX : pos.x, y: absPosAxisY ? absPosY : pos.y }, children: ch }
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...p, x: p.x + dx, y: p.y + dy }, children: ch }
           }
           await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 절대위치 ${absPosAxisX ? `X=${absPosX}` : ''}${absPosAxisX && absPosAxisY ? ' ' : ''}${absPosAxisY ? `Y=${absPosY}` : ''} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          setBatchMsg(`✓ nudge Δ(${dx >= 0 ? '+' : ''}${dx},${dy >= 0 ? '+' : ''}${dy}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 1500)
         }
-        const niS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const btnS = mkBtnS('#34d399', { fontSize: 10, lineHeight: 1.2 })
+        const niS = mkNiS(36)
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>nudge (R2692)</span>
+            <span onClick={() => nudge(-nudgeStep, 0)} style={btnS} title={`←  X-${nudgeStep}`}>←</span>
+            <span onClick={() => nudge(nudgeStep, 0)} style={btnS} title={`→  X+${nudgeStep}`}>→</span>
+            <span onClick={() => nudge(0, nudgeStep)} style={btnS} title={`↑  Y+${nudgeStep}`}>↑</span>
+            <span onClick={() => nudge(0, -nudgeStep)} style={btnS} title={`↓  Y-${nudgeStep}`}>↓</span>
+            <input type="number" value={nudgeStep} min={1} max={100} step={1}
+              onChange={e => setNudgeStep(Math.max(1, parseInt(e.target.value) || 1))}
+              style={niS} title="nudge 단위 (px)" />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
+          </div>
+        )
+      })()}
+      {/* R2674: 절대 위치 직접 지정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyAbsPos = async () => {
+          await patchNodes(n => {
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, x: absPosAxisX ? absPosX : pos.x, y: absPosAxisY ? absPosY : pos.y } }
+          }, `절대위치 ${absPosAxisX ? `X=${absPosX}` : ''}${absPosAxisX && absPosAxisY ? ' ' : ''}${absPosAxisY ? `Y=${absPosY}` : ''} (${uuids.length}개)`)
+        }
+        const niS = mkNiS(52)
         const ckS: React.CSSProperties = { cursor: 'pointer', fontSize: 9, color: '#94a3b8', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4954,16 +4740,11 @@ function CCFileBatchInspector({
       {/* R2516: 위치 오프셋 이동 — 선택 노드 위치에 Δx/Δy 더하기 */}
       {sceneFile.root && (() => {
         const applyOffset = async () => {
-          if ((posOffsetX === 0 && posOffsetY === 0) || !sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          if (posOffsetX === 0 && posOffsetY === 0) return
+          await patchNodes(n => {
             const p = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...p, x: p.x + posOffsetX, y: p.y + posOffsetY }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${uuids.length}개 노드 Δ(${posOffsetX >= 0 ? '+' : ''}${posOffsetX}, ${posOffsetY >= 0 ? '+' : ''}${posOffsetY})`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...p, x: p.x + posOffsetX, y: p.y + posOffsetY } }
+          }, `${uuids.length}개 노드 Δ(${posOffsetX >= 0 ? '+' : ''}${posOffsetX}, ${posOffsetY >= 0 ? '+' : ''}${posOffsetY})`)
         }
         const numInputS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
         return (
@@ -4985,20 +4766,14 @@ function CCFileBatchInspector({
       {/* R2663: 랜덤 위치 오프셋 — 선택 노드 위치에 ±range 랜덤 오프셋 추가 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRandomOffset = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const p = n.position as { x: number; y: number; z?: number }
             const dx = (Math.random() * 2 - 1) * randomRange
             const dy = (Math.random() * 2 - 1) * randomRange
-            return { ...n, position: { ...p, x: Math.round(p.x + dx), y: Math.round(p.y + dy) }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 랜덤 오프셋 ±${randomRange} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...p, x: Math.round(p.x + dx), y: Math.round(p.y + dy) } }
+          }, `랜덤 오프셋 ±${randomRange} (${uuids.length}개)`)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤 (R2663)</span>
@@ -5016,22 +4791,14 @@ function CCFileBatchInspector({
       {/* R2664: 랜덤 회전 오프셋 — 선택 노드 rotation에 ±range 랜덤 값 추가 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRandomRotation = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const delta = (Math.random() * 2 - 1) * randomRotRange
-            if (typeof n.rotation === 'number') {
-              return { ...n, rotation: Math.round(n.rotation + delta), children: ch }
-            }
+            if (typeof n.rotation === 'number') return { ...n, rotation: Math.round(n.rotation + delta) }
             const r = n.rotation as { x: number; y: number; z: number }
-            return { ...n, rotation: { ...r, z: Math.round(r.z + delta) }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 랜덤 회전 ±${randomRotRange}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: { ...r, z: Math.round(r.z + delta) } }
+          }, `랜덤 회전 ±${randomRotRange}° (${uuids.length}개)`)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤회전 (R2664)</span>
@@ -5065,7 +4832,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 오파시티 그라디언트 ${opGradFrom}→${opGradTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>불투명도 (R2525)</span>
@@ -5096,7 +4863,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ opacity 스냅 ${step} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const btnS: React.CSSProperties = { fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#c084fc', userSelect: 'none' }
+        const btnS = mkBtnS('#c084fc')
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op스냅 (R2621)</span>
@@ -5161,15 +4928,7 @@ function CCFileBatchInspector({
         if (colorMap.size === 0) return null
         const colors = [...colorMap.entries()].slice(0, 12)  // 최대 12색
         const applyColor = async (r: number, g: number, b: number, a: number) => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, color: { r, g, b, a: n.color?.a ?? a }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 색상 적용 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, color: { r, g, b, a: n.color?.a ?? a } }), `색상 적용 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -5228,23 +4987,14 @@ function CCFileBatchInspector({
       {/* R2604: rotation 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyRotDist = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
+          await patchOrdered((n, idx, total) => {
+            const t = total > 1 ? idx / (total - 1) : 0
             const deg = Math.round(rotDistFrom + (rotDistTo - rotDistFrom) * t)
             const newRot = typeof n.rotation === 'number' ? deg : { ...(n.rotation as object), z: deg }
-            return { ...n, rotation: newRot, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 회전 분배 ${rotDistFrom}°→${rotDistTo}° (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: newRot }
+          }, `회전 분배 ${rotDistFrom}°→${rotDistTo}° (${uuids.length}개)`)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전분배 (R2604)</span>
@@ -5263,23 +5013,14 @@ function CCFileBatchInspector({
       {/* R2605: scale 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyScaleGrad = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
+          await patchOrdered((n, idx, total) => {
+            const t = total > 1 ? idx / (total - 1) : 0
             const sv = Math.round((scaleGradFrom + (scaleGradTo - scaleGradFrom) * t) * 1000) / 1000
             const sc = n.scale as { x: number; y: number; z?: number }
-            return { ...n, scale: { ...sc, x: sv, y: sv }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ scale 분배 ${scaleGradFrom}→${scaleGradTo} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, scale: { ...sc, x: sv, y: sv } }
+          }, `scale 분배 ${scaleGradFrom}→${scaleGradTo} (${uuids.length}개)`)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale분배 (R2605)</span>
@@ -5298,18 +5039,12 @@ function CCFileBatchInspector({
       {/* R2655: 스케일 1.0 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyScaleReset = async (axis: 'x' | 'y' | 'both') => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sc = n.scale as { x: number; y: number; z?: number }
             const nx = axis === 'y' ? sc.x : 1
             const ny = axis === 'x' ? sc.y : 1
-            return { ...n, scale: { ...sc, x: nx, y: ny }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ scale ${axis === 'both' ? 'XY' : axis.toUpperCase()}→1 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, scale: { ...sc, x: nx, y: ny } }
+          }, `scale ${axis === 'both' ? 'XY' : axis.toUpperCase()}→1 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5326,16 +5061,10 @@ function CCFileBatchInspector({
       {/* R2662: 회전 0 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRotReset = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const rot = typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 }
-            return { ...n, rotation: rot, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ rotation → 0 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: rot }
+          }, `rotation → 0 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5348,19 +5077,13 @@ function CCFileBatchInspector({
       {/* R2687: 위치/크기 정수 스냅 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRoundPos = async (target: 'pos' | 'size' | 'both') => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
             const sz = n.size as { x: number; y: number } | undefined
             const newPos = (target === 'pos' || target === 'both') ? { ...pos, x: Math.round(pos.x), y: Math.round(pos.y) } : pos
             const newSz = sz && (target === 'size' || target === 'both') ? { x: Math.round(sz.x), y: Math.round(sz.y) } : sz
-            return { ...n, position: newPos, ...(newSz ? { size: newSz } : {}), children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 정수 스냅 (${target}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: newPos, ...(newSz ? { size: newSz } : {}) }
+          }, `정수 스냅 (${target}) (${uuids.length}개)`)
         }
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }
         return (
@@ -5375,18 +5098,12 @@ function CCFileBatchInspector({
       {/* R2685: 회전 절대값 지정 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyAbsRot = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const rot = typeof n.rotation === 'number' ? absRotValue : { x: 0, y: 0, z: absRotValue }
-            return { ...n, rotation: rot, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ rotation = ${absRotValue}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: rot }
+          }, `rotation = ${absRotValue}° (${uuids.length}개)`)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot지정 (R2685)</span>
@@ -5404,21 +5121,45 @@ function CCFileBatchInspector({
       {/* R2657: opacity 255 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyOpacityReset = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, opacity: 255, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ opacity 255 리셋 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, opacity: 255 }), `opacity 255 리셋 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op리셋 (R2657)</span>
             <span onClick={applyOpacityReset} title="선택 노드 opacity를 255(불투명)으로 리셋 (R2657)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>op=255</span>
+          </div>
+        )
+      })()}
+      {/* R2697: opacity 선형 그라데이션 — 선택 노드 순서대로 opacity from→to */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyOpGradient = async () => {
+          if (!sceneFile.root) return
+          const selNodes: CCSceneNode[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          if (selNodes.length < 2) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            const idx = selNodes.findIndex(s => s.uuid === n.uuid)
+            if (idx < 0) return { ...n, children: ch }
+            const t = selNodes.length > 1 ? idx / (selNodes.length - 1) : 0
+            const op = Math.round(opGradFrom + (opGradTo - opGradFrom) * t)
+            return { ...n, opacity: Math.max(0, Math.min(255, op)), children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ opacity 그라데이션 ${opGradFrom}→${opGradTo} (${selNodes.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS = mkNiS(44)
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op분포 (R2697)</span>
+            <input type="number" value={opGradFrom} min={0} max={255} onChange={e => setOpGradFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 opacity (0-255)" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={opGradTo} min={0} max={255} onChange={e => setOpGradTo(parseInt(e.target.value) || 0)} style={niS} title="끝 opacity (0-255)" />
+            <span onClick={applyOpGradient} title={`선택 노드 순서대로 opacity ${opGradFrom}→${opGradTo} 적용 (R2697)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>적용</span>
           </div>
         )
       })()}
@@ -5437,7 +5178,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ opacity ×${opacityMult}% (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op배수 (R2678)</span>
@@ -5449,6 +5190,35 @@ function CCFileBatchInspector({
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#c084fc')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >적용</span>
+          </div>
+        )
+      })()}
+      {/* R2702: opacity 고정값 일괄 설정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyOpacityFixed = async () => {
+          await patchNodes(
+            n => ({ ...n, opacity: Math.max(0, Math.min(255, opacityFixed)) }),
+            `opacity 고정값 ${opacityFixed} (${uuids.length}개)`
+          )
+        }
+        const niS = mkNiS(45)
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op고정 (R2702)</span>
+            <input type="number" min={0} max={255} value={opacityFixed}
+              onChange={e => setOpacityFixed(Number(e.target.value))}
+              style={niS} />
+            {[0,64,128,192,255].map(v => (
+              <span key={v}
+                onClick={() => setOpacityFixed(v)}
+                title={`opacity = ${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: `1px solid ${v === opacityFixed ? '#4a9d6f' : 'var(--border)'}`, color: v === opacityFixed ? '#4a9d6f' : '#94a3b8', userSelect: 'none' }}>
+                {v}
+              </span>
+            ))}
+            <span onClick={applyOpacityFixed}
+              title={`선택 노드 opacity = ${opacityFixed} (R2702)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(42,74,106,0.6)', color: '#2a4a6a', userSelect: 'none' }}>적용</span>
           </div>
         )
       })()}
@@ -5470,6 +5240,45 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color리셋 (R2656)</span>
             <span onClick={applyColorReset} title="선택 노드 color를 흰색(255,255,255)으로 리셋 (R2656)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(255,255,255,0.3)', color: '#e2e8f0', userSelect: 'none', background: 'rgba(255,255,255,0.05)' }}>⬜ 흰색</span>
+          </div>
+        )
+      })()}
+      {/* R2695: 위치 선형 그라데이션 배치 — X/Y 축으로 from→to 균등 배치 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyPosGradient = async (axis: 'x' | 'y', from: number, to: number) => {
+          if (!sceneFile.root) return
+          const selNodes: CCSceneNode[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          if (selNodes.length < 2) return
+          const sorted = [...selNodes].sort((a, b) => {
+            const pa = a.position as { x: number; y: number }, pb = b.position as { x: number; y: number }
+            return (axis === 'x' ? pa.x : pa.y) - (axis === 'x' ? pb.x : pb.y)
+          })
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            const idx = sorted.findIndex(s => s.uuid === n.uuid)
+            if (idx < 0) return { ...n, children: ch }
+            const t = sorted.length > 1 ? idx / (sorted.length - 1) : 0
+            const val = from + (to - from) * t
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: axis === 'x' ? { ...p, x: val } : { ...p, y: val }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 위치 그라데이션 ${axis.toUpperCase()} ${from}→${to} (${selNodes.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS = mkNiS(52)
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>위치분포 (R2695)</span>
+            <input type="number" value={posGradFrom} onChange={e => setPosGradFrom(parseFloat(e.target.value) || 0)} style={niS} title="시작 좌표" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={posGradTo} onChange={e => setPosGradTo(parseFloat(e.target.value) || 0)} style={niS} title="끝 좌표" />
+            <span onClick={() => applyPosGradient('x', posGradFrom, posGradTo)} title={`X축 ${posGradFrom}→${posGradTo} 선형 배치 (R2695)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>X배치</span>
+            <span onClick={() => applyPosGradient('y', posGradFrom, posGradTo)} title={`Y축 ${posGradFrom}→${posGradTo} 선형 배치 (R2695)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>Y배치</span>
           </div>
         )
       })()}
@@ -5495,7 +5304,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 산포 ×${factor} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5511,16 +5320,10 @@ function CCFileBatchInspector({
         const hw = (projectSettings.designWidth ?? 960) / 2
         const hh = (projectSettings.designHeight ?? 640) / 2
         const applyAlignToCanvas = async (ax: number | null, ay: number | null) => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, x: ax !== null ? ax : pos.x, y: ay !== null ? ay : pos.y }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 캔버스 정렬 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: ax !== null ? ax : pos.x, y: ay !== null ? ay : pos.y } }
+          }, `캔버스 정렬 (${uuids.length}개)`)
         }
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid rgba(96,165,250,0.4)', color: '#60a5fa', userSelect: 'none' }
         return (
@@ -5557,7 +5360,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ ${axis.toUpperCase()}축 ${evenSpacing}px 간격 (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(96,165,250,0.4)', color: '#60a5fa', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5595,6 +5398,48 @@ function CCFileBatchInspector({
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>원점이동 (R2679)</span>
             <span onClick={applyMoveToCenter} title="선택 노드 그룹 중심을 (0,0)으로 이동 (R2679)" style={bs}>→(0,0)</span>
+          </div>
+        )
+      })()}
+      {/* R2699: 색상 리셋 (255,255,255,255) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyColorReset = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, color: { r: 255, g: 255, b: 255, a: 255 }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ color → 흰색 리셋 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2699)</span>
+            <span onClick={applyColorReset} title="color → (255,255,255,255) 흰색 리셋 (R2699)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>⬜ 리셋</span>
+          </div>
+        )
+      })()}
+      {/* R2693: 랜덤 색상 일괄 적용 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyRandomColor = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, color: { r: Math.round(Math.random() * 255), g: Math.round(Math.random() * 255), b: Math.round(Math.random() * 255), a: n.color?.a ?? 255 }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 랜덤 색상 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2693)</span>
+            <span onClick={applyRandomColor} title="각 노드에 랜덤 RGB 색상 적용 (R2693)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(251,113,133,0.4)', color: '#fb7185', userSelect: 'none' }}>🎲 랜덤</span>
           </div>
         )
       })()}
@@ -5639,7 +5484,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ color 블렌드 ${colorBlendAmount}% → ${colorBlendTarget} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color블렌드 (R2676)</span>
@@ -5674,7 +5519,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ size.W 분배 ${szGradFromW}→${szGradToW} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sizeW분배 (R2613)</span>
@@ -5709,7 +5554,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ size.H 분배 ${szGradFromH}→${szGradToH} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sizeH분배 (R2614)</span>
@@ -5722,6 +5567,59 @@ function CCFileBatchInspector({
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >분배</span>
+          </div>
+        )
+      })()}
+      {/* R2710: 고정 크기 일괄 설정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyBatchFixedSize = async () => {
+          await patchNodes(n => {
+            let updated = { ...n }
+            const curSize = n.size as { x: number; y: number } | undefined
+            if (fixedSizeApplyW || fixedSizeApplyH) {
+              updated = {
+                ...updated,
+                size: {
+                  x: fixedSizeApplyW ? fixedSizeW : (curSize?.x ?? 0),
+                  y: fixedSizeApplyH ? fixedSizeH : (curSize?.y ?? 0),
+                },
+              }
+              // UITransform 동기화
+              const comps = updated.__components?.map((c: any) => {
+                if (c.__type === 'cc.UITransform' || c.__type === 'UITransform') {
+                  return {
+                    ...c,
+                    contentSize: {
+                      ...(c.contentSize ?? {}),
+                      ...(fixedSizeApplyW ? { width: fixedSizeW } : {}),
+                      ...(fixedSizeApplyH ? { height: fixedSizeH } : {}),
+                    },
+                  }
+                }
+                return c
+              })
+              updated = { ...updated, __components: comps }
+            }
+            return updated
+          }, `고정크기 ${fixedSizeApplyW ? 'W' + fixedSizeW : ''} ${fixedSizeApplyH ? 'H' + fixedSizeH : ''} (${uuids.length}개)`)
+        }
+        const niS = mkNiS(40)
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기고정 (R2710)</span>
+            <label style={{ fontSize: 9, display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }}>
+              <input type="checkbox" checked={fixedSizeApplyW} onChange={e => setFixedSizeApplyW(e.target.checked)} style={{ cursor: 'pointer' }} />
+              <span>W</span>
+            </label>
+            <input type="number" value={fixedSizeW} onChange={e => setFixedSizeW(Number(e.target.value))} style={niS} disabled={!fixedSizeApplyW} title="고정 너비" />
+            <label style={{ fontSize: 9, display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }}>
+              <input type="checkbox" checked={fixedSizeApplyH} onChange={e => setFixedSizeApplyH(e.target.checked)} style={{ cursor: 'pointer' }} />
+              <span>H</span>
+            </label>
+            <input type="number" value={fixedSizeH} onChange={e => setFixedSizeH(Number(e.target.value))} style={niS} disabled={!fixedSizeApplyH} title="고정 높이" />
+            <span onClick={applyBatchFixedSize}
+              title={`선택 노드에 고정 크기 적용 (R2710)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(42,74,106,0.6)', color: '#2a4a6a', userSelect: 'none' }}>적용</span>
           </div>
         )
       })()}
@@ -5756,7 +5654,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ font 분배 ${fontSizeFrom}→${fontSizeTo} (${labelCounter}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#67e8f9', flexShrink: 0 }}>font분배 (R2633)</span>
@@ -5791,7 +5689,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ pos.Z 분배 ${posZFrom}→${posZTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posZ분배 (R2616)</span>
@@ -5826,7 +5724,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ pos.X 분배 ${posXFrom}→${posXTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posX분배 (R2618)</span>
@@ -5861,7 +5759,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ pos.Y 분배 ${posYFrom}→${posYTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posY분배 (R2619)</span>
@@ -6555,7 +6453,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 원형 배치 r=${circleRadius} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 46, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(46)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>원형배치 (R2639)</span>
@@ -6600,7 +6498,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 격자 배치 ${cols}열 (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 34, fontSize: 9, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(34, '1px 2px')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>격자배치 (R2643)</span>
@@ -6761,7 +6659,7 @@ function CCFileBatchInspector({
           setTimeout(() => setBatchMsg(null), 2000)
         }
         void clones
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>복제 (R2649)</span>
@@ -6914,6 +6812,69 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2689: 크기 배수 스케일 (W×factor, H×factor) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyScaleBySize = async (factor: number) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sz = n.size as { x: number; y: number } | undefined
+            if (!sz) return { ...n, children: ch }
+            const newSz = { x: Math.round(sz.x * factor), y: Math.round(sz.y * factor) }
+            // UITransform contentSize도 함께 업데이트
+            const comps = n.components.map(c => {
+              if (c.type === 'cc.UITransform') return { ...c, props: { ...c.props, '_contentSize': { width: newSz.x, height: newSz.y } } }
+              return c
+            })
+            return { ...n, size: newSz, components: comps, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 크기 ×${factor} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS = mkNiS(44)
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(34,211,238,0.4)', color: '#22d3ee', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기배수 (R2689)</span>
+            <input type="number" value={sizeFactor} min={0.1} max={10} step={0.1} onChange={e => setSizeFactor(parseFloat(e.target.value) || 1)} style={niS} title="크기 배수" />
+            <span onClick={() => applyScaleBySize(sizeFactor)} title={`W/H ×${sizeFactor} (R2689)`} style={bs}>확대</span>
+            <span onClick={() => applyScaleBySize(1 / sizeFactor)} title={`W/H ×${(1/sizeFactor).toFixed(2)} 축소 (R2689)`} style={bs}>축소</span>
+          </div>
+        )
+      })()}
+      {/* R2690: scale 절대값 지정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyAbsScale = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, x: absScaleX, y: absScaleY }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ scale = (${absScaleX}, ${absScaleY}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS = mkNiS(40)
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale지정 (R2690)</span>
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>X</span>
+            <input type="number" value={absScaleX} min={-10} max={10} step={0.1} onChange={e => setAbsScaleX(parseFloat(e.target.value) || 1)} style={niS} title="절대 scaleX" />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>Y</span>
+            <input type="number" value={absScaleY} min={-10} max={10} step={0.1} onChange={e => setAbsScaleY(parseFloat(e.target.value) || 1)} style={niS} title="절대 scaleY" />
+            <span onClick={applyAbsScale}
+              title={`scale = (${absScaleX}, ${absScaleY}) (R2690)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >지정</span>
+          </div>
+        )
+      })()}
       {/* R2659: 크기 W=H 정사각형화 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applySquarify = async (basis: 'max' | 'min' | 'w' | 'h') => {
@@ -6962,7 +6923,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ ${aspectRatioW}:${aspectRatioH} 비율 적용 (${basis.toUpperCase()}기준, ${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 30, fontSize: 9, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(30, '1px 2px')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>비율 (R2660)</span>
@@ -6979,18 +6940,12 @@ function CCFileBatchInspector({
       {/* R2203: 노드 width 독립 일괄 설정 */}
       {(() => {
         const applyNodeWidth = async (w: number) => {
-          if (!sceneFile.root) return
-          function patchNodeWidth(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeWidth)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const curH = n.size?.height ?? 100
             const newSize = { width: w, height: curH }
             const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize, _contentSize: newSize } } : c)
-            return { ...n, size: newSize, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeWidth(sceneFile.root) })
-          setBatchMsg(`✓ width=${w} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: newSize, components: updComps }
+          }, `width=${w} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7006,18 +6961,12 @@ function CCFileBatchInspector({
       {/* R2203: 노드 height 독립 일괄 설정 */}
       {(() => {
         const applyNodeHeight = async (h: number) => {
-          if (!sceneFile.root) return
-          function patchNodeHeight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeHeight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const curW = n.size?.width ?? 100
             const newSize = { width: curW, height: h }
             const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize, _contentSize: newSize } } : c)
-            return { ...n, size: newSize, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeHeight(sceneFile.root) })
-          setBatchMsg(`✓ height=${h} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: newSize, components: updComps }
+          }, `height=${h} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7033,16 +6982,7 @@ function CCFileBatchInspector({
       {/* R2025: 노드 anchor preset 일괄 설정 */}
       {(() => {
         const applyNodeAnchor = async (ax: number, ay: number) => {
-          if (!sceneFile.root) return
-          function patchNodeAnchor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeAnchor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, anchor: { x: ax, y: ay }, children }
-          }
-          const patchedRoot = patchNodeAnchor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ anchor=(${ax},${ay}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, anchor: { x: ax, y: ay } }), `anchor=(${ax},${ay}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7088,8 +7028,8 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ anchor.Y ${anchorYFrom}→${anchorYTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
-        const btnS: React.CSSProperties = { fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }
+        const niS = mkNiS(36)
+        const btnS = mkBtnS('#fb923c')
         return (
           <>
             <div style={{ display: 'flex', gap: 3, marginBottom: 4, alignItems: 'center' }}>
@@ -19571,7 +19511,7 @@ function CCFileBatchInspector({
           setTimeout(() => setBatchMsg(null), 2000)
         }
         const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
-        const niS: React.CSSProperties = { width: 30, fontSize: 9, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(30, '1px 2px')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>이름번호 (R2650)</span>
@@ -19708,7 +19648,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ scale ×${mul} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const btnS: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }
+        const btnS = mkBtnTint('251,191,36', '#fbbf24')
         const mul = parseFloat(scaleMulInput)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -19739,7 +19679,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ size ×${mul} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const btnS: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }
+        const btnS = mkBtnTint('52,211,153', '#34d399')
         const mul = parseFloat(sizeMulInput)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -19895,7 +19835,7 @@ function CCFileBatchInspector({
           setTimeout(() => setBatchMsg(null), 2000)
         }
         const deg = parseFloat(rotOffsetInput) || 0
-        const btnS: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }
+        const btnS = mkBtnTint('167,139,250', '#a78bfa')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>rot+= (R2612)</span>
@@ -19932,7 +19872,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ rot 분배 ${rotGradFrom}°→${rotGradTo}° (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#ec4899', flexShrink: 0 }}>rot분배 (R2638)</span>

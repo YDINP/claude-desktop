@@ -1,5 +1,69 @@
 # Handoff — claude-desktop
-> 마지막 업데이트: 2026-03-15
+> 마지막 업데이트: 2026-03-16
+
+## 완료 — 리팩토링 스프린트 (2026-03-16)
+- [x] ISSUE-001: shell:exec execSync→execFileAsync 교체 (보안/블로킹 수정)
+- [x] Phase 1-A: mkBtnS/mkBtnTint/mkNiS 팩토리 함수, btnS/niS 36개 교체
+- [x] Phase 1-B: validateScene/extractPrefabEntries/deepCopyNodeWithNewUuids → cocos-utils.ts
+- [x] Phase 2: useBatchPatch 훅 (hooks/useBatchPatch.ts), 20개 apply 교체
+- [x] Phase 3: qa.ts 31,802줄 → 81줄 (qa-checks/ 분리, OOM→정상)
+- [x] Phase 5: Phantom State 65쌍 제거 (-137줄)
+- [x] Phase 6: opGradFrom 이중 선언 버그 제거
+- [x] Phase 7: eslint.config.ts 추가 (@typescript-eslint + react-hooks)
+- [x] ISSUE-012: 리팩토링 로드맵 완료 처리 (Done/)
+
+## 완료 — 오케스트레이션 스프린트 (2026-03-16)
+- [x] ISSUE-008: claude-agent-sdk 0.1.75→0.2.76 업그레이드 (API 완전 호환)
+- [x] ISSUE-011: CC Editor 패널 UX — 탭 자동 로드, 씬/프리팹 분리, 레이아웃
+- [x] R2702: BatchInspector opacity 고정값 일괄 (0/64/128/192/255 프리셋)
+- [x] R2710: BatchInspector W/H 고정값 일괄 + 축 선택 + UITransform 동기화
+- [x] R2703: SceneView ⊕C 선택 노드 중심 팬 이동
+- QA: Critical 0, Warning 91, Pass 2606
+
+## 미완료 / 다음 스프린트
+- [ ] Phase 2 나머지: ~525개 apply 함수 useBatchPatch 교체 (훅은 완성)
+- [ ] Phase 4: CocosPanel → BatchInspector/NodeInspector/SceneView 파일 분리
+- [ ] ISSUE-007: npm audit 18 취약점 (devDep, electron 업그레이드 필요, non-breaking fix 없음)
+- [ ] ISSUE-009: 번들 최적화 (low priority)
+- [ ] R2701: 마퀴 선택 (selBoxRef 이미 구현됨, Shift 키 보완만 필요)
+- [ ] R2704-R2709: 신규 기능 구현 (QA 스텁만 있음)
+
+## 완료 (R2691-R2700) — 이번 세션 (계속)
+- [x] R2691: SceneView 노드 중심 점 마커 (showCenterDot, 빨간 점 · )
+- [x] R2692: BatchInspector nudge ←→↑↓ 버튼 + step 입력 (nudgeStep)
+- [x] R2693: BatchInspector 🎲 랜덤 색상 일괄 적용 (applyRandomColor)
+- [x] R2694: SceneView ⚓ 비기본 앵커 강조 (showNonDefaultAnchor, 앵커값 텍스트)
+- [x] R2695: BatchInspector X/Y축 위치 선형 배치 (posGradFrom/To, applyPosGradient)
+- [x] R2696: SceneView ⚠ 크기 0 노드 경고 오버레이 (showZeroSizeWarn)
+- [x] R2697: BatchInspector opacity 선형 그라데이션 배치 (opGradFrom/To, applyOpGradient)
+- [x] R2698: SceneView ╋ 선택 노드 위치 가이드 십자선 (showSelAxisLine, 청록 점선)
+- [x] R2699: BatchInspector ⬜리셋 — color → (255,255,255,255) (applyColorReset)
+- [x] R2700: SceneView ≡ 형제 노드 강조 오버레이 (showSiblingHighlight, 보라)
+버그 수정: CocosPanel R2512 JSX 닫힘 누락, SceneView uuids 미정의, showSelBBox 중복
+
+## 완료 (R2681-R2690) — 이번 세션 (이전)
+- [x] R2681-R2690: [이하 생략]
+
+## 완료 (R2662-2680) — 이번 세션 (계속)
+- [x] R2662: BatchInspector rotation→0 리셋 (CC2.x 숫자/CC3.x {x,y,z} 공통)
+- [x] R2663: BatchInspector ±range 랜덤 위치 오프셋 (randomRange)
+- [x] R2664: BatchInspector ±range 랜덤 회전 오프셋 (randomRotRange, CC2/3 공통)
+- [x] R2665: SceneView 깊이 히트맵 (얕음=초록→깊음=빨강, maxDepthVal)
+- [x] R2666: SceneView opacity<255 노드에 α값 텍스트 오버레이 (showOpacityOverlay)
+- [x] R2667: BatchInspector 이름 대소문자 변환 (UPPER/lower/Title, applyNameCase)
+- [x] R2668: SceneView rotation≠0 노드에 각도 텍스트 오버레이 (showRotOverlay)
+- [x] R2669: BatchInspector 이름 공백 정리 trim + replace(/\s+/g,' ')
+- [x] R2670: SceneView 선택 노드 position(x,y) 텍스트 오버레이 (showPosText)
+- [x] R2671: BatchInspector 이름 find/replace (nameFind→nameReplace)
+- [x] R2672: SceneView scale≠1 노드에 scale 값 텍스트 오버레이 (showScaleText)
+- [x] R2673: SceneView 노드당 컴포넌트 수 배지 (showCompCountBadge, 기본 타입 제외)
+- [x] R2674: BatchInspector 절대 위치 직접 지정 (absPosX/Y + 축 checkbox)
+- [x] R2675: SceneView 노드 크기 히트맵 (큰=노란/작은=파란, maxNodeArea)
+- [x] R2676: BatchInspector 색상 블렌드 (현재→목표색 t% 혼합, colorBlendTarget/Amount)
+- [x] R2677: BatchInspector 색상 반전 (255-r, 255-g, 255-b, applyColorInvert)
+- [x] R2678: BatchInspector opacity 배수 (×N%, applyOpacityMult)
+- [x] R2679: BatchInspector 선택 그룹 중심을 (0,0)으로 이동 (applyMoveToCenter)
+- [x] R2680: SceneView 선택 그룹 중심 마커 (showSelCenter, 녹색 ⊕ 십자)
 
 ## 완료 (R2637-2650) — 이번 세션
 - [x] R2637: SceneView 씬 전체 바운딩박스 오버레이 (showSceneBBox, 적색 점선 + WxH)
@@ -357,6 +421,19 @@
 ## 다음 예정 (R2636+)
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
+
+## ⚠️ 영구 규칙 — 이슈 최우선 처리 (모든 라운드에 적용)
+
+> 매 라운드 종료 후, 신규 기능 진행 전에 반드시 먼저 확인:
+> ```bash
+> ls C:/Users/a/Documents/claude-desktop/issues/*.md | grep -v README
+> ```
+> - `priority: high` 또는 `bug` 유형 → 즉시 현재/다음 라운드에서 처리
+> - `priority: medium` → 다음 라운드 1순위 (ROADMAP 신규 기능보다 앞)
+> - `priority: low` → 10라운드마다 기술부채 전용 라운드
+> - medium 이슈 3개 이상 → 이슈 전용 라운드 단독 편성
+>
+> **이슈가 처리되지 않은 상태에서 신규 기능 개발 절대 금지.**
 
 ## 누적 이슈 (QA 체크포인트에서 발견된 기존 이슈)
 - ISSUE-001: shell:true 입력검증 없음 (Critical — 기존 누적, R2316에서 부분 완화)

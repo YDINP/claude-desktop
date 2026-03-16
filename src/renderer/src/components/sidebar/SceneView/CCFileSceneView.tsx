@@ -195,6 +195,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R1491: Label 텍스트 인라인 편집
   const [editingLabelUuid, setEditingLabelUuid] = useState<string | null>(null)
   const editLabelRef = useRef<HTMLInputElement | null>(null)
+  const resCustomWRef = useRef<HTMLInputElement | null>(null)
+  const resCustomHRef = useRef<HTMLInputElement | null>(null)
   const isSpaceDownRef = useRef(false)
   const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set())
   const multiSelectedRef = useRef(multiSelected)
@@ -268,7 +270,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R2646: 계층 구조 연결선 오버레이
   const [showHierarchyLines, setShowHierarchyLines] = useState(false)
   // R2647: 선택 노드 그룹 바운딩박스
-  const [showSelBBox, setShowSelBBox] = useState(false)
+  const [showSelGroupBBox, setShowSelGroupBBox] = useState(false)
   // R2651: 선택 노드 부모 하이라이트
   const [showParentHighlight, setShowParentHighlight] = useState(false)
   // R2652: 비활성 노드 반투명 오버레이
@@ -299,6 +301,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSpriteName, setShowSpriteName] = useState(false)
   // R2688: UUID 앞 8자리 배지
   const [showUuidBadge, setShowUuidBadge] = useState(false)
+  // R2691: 노드 중심 점 마커
+  const [showCenterDot, setShowCenterDot] = useState(false)
+  // R2694: 비기본 앵커 강조 오버레이 (anchor ≠ 0.5,0.5)
+  const [showNonDefaultAnchor, setShowNonDefaultAnchor] = useState(false)
+  // R2696: 크기 0 노드 경고 오버레이
+  const [showZeroSizeWarn, setShowZeroSizeWarn] = useState(false)
+  // R2698: 선택 노드 위치 가이드 십자선 오버레이
+  const [showSelAxisLine, setShowSelAxisLine] = useState(false)
+  // R2700: 선택 노드 형제 강조 오버레이
+  const [showSiblingHighlight, setShowSiblingHighlight] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -402,6 +414,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     return result
   }, [sceneFile])
 
+  // 다중 선택 UUID 배열 (multiSelected Set → string[])
+  const uuids = useMemo(() => Array.from(multiSelected), [multiSelected])
+
   // R2651: 선택 노드 부모 UUID 집합
   const parentUuidSet = useMemo(() => {
     const result = new Set<string>()
@@ -460,7 +475,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url => {
         if (url) spriteCacheRef.current.set(uuid, url)
         setSpriteCacheVer(v => v + 1)
-      }).catch(() => {})
+      }).catch(() => {
+        spriteCacheRef.current.delete(uuid) // 실패 시 pending sentinel 제거 → 재시도 허용
+      })
     })
   }, [sceneFile, flatNodes])
 
@@ -854,6 +871,30 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }))
   }, [selectedUuid, flatNodes, ccToSvg, handleFit])
 
+  // R2703: 선택된 노드(들)의 평균 중심점으로 씬뷰 팬 이동 (centerSel)
+  const panToCenter = useCallback(() => {
+    // centerOnSel: 선택 노드 중심으로 팬
+    const targets = multiSelected.size > 0
+      ? flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
+      : flatNodes.filter(fn => fn.node.uuid === selectedUuid)
+    if (targets.length === 0) return
+
+    const cx = targets.reduce((sum, fn) => sum + (fn.worldX ?? 0), 0) / targets.length
+    const cy = targets.reduce((sum, fn) => sum + (fn.worldY ?? 0), 0) / targets.length
+
+    const svgEl = svgRef.current
+    if (!svgEl) return
+    const rect = svgEl.getBoundingClientRect()
+    const z = viewRef.current.zoom
+
+    const svgPos = ccToSvg(cx, cy)
+    setView(v => ({
+      ...v,
+      offsetX: rect.width / 2 - svgPos.x * z,
+      offsetY: rect.height / 2 - svgPos.y * z,
+    }))
+  }, [flatNodes, selectedUuid, multiSelected, ccToSvg])
+
   // R1481: cc-focus-node 이벤트 수신 → 해당 UUID 노드로 pan
   useEffect(() => {
     const onFocusNode = (e: Event) => {
@@ -1120,7 +1161,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const canvas = document.createElement('canvas')
       canvas.width = svgEl.clientWidth || designW
       canvas.height = svgEl.clientHeight || designH
-      const ctx = canvas.getContext('2d')!
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { URL.revokeObjectURL(svgUrl); setScreenshotSending(false); return }
       ctx.drawImage(img, 0, 0)
       URL.revokeObjectURL(svgUrl)
       if (saveLocal) {
@@ -1226,17 +1268,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               ))}
               <div style={{ borderTop: '1px solid var(--border)', padding: '4px 8px', display: 'flex', gap: 4 }}>
                 <input type="number" placeholder="W" defaultValue={effectiveW}
-                  id="res-custom-w"
+                  ref={resCustomWRef}
                   style={{ width: 50, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
                 />
                 <span style={{ color: 'var(--text-muted)' }}>×</span>
                 <input type="number" placeholder="H" defaultValue={effectiveH}
-                  id="res-custom-h"
+                  ref={resCustomHRef}
                   style={{ width: 50, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
                 />
                 <button onClick={() => {
-                  const w = parseInt((document.getElementById('res-custom-w') as HTMLInputElement)?.value)
-                  const h = parseInt((document.getElementById('res-custom-h') as HTMLInputElement)?.value)
+                  const w = parseInt(resCustomWRef.current?.value ?? '')
+                  const h = parseInt(resCustomHRef.current?.value ?? '')
                   if (w > 0 && h > 0) { setResOverride({ w, h }); setShowResPicker(false) }
                 }} style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', background: 'none', color: '#4ade80', cursor: 'pointer' }}>OK</button>
               </div>
@@ -1398,6 +1440,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >
           ⊞ Fit
+        </button>
+        {/* R2703: 선택 노드 중심으로 뷰 팬 이동 */}
+        <button
+          onClick={panToCenter}
+          disabled={!selectedUuid && multiSelected.size === 0}
+          title="선택된 노드(들)의 중심으로 뷰 이동 (R2703)"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: !selectedUuid && multiSelected.size === 0 ? 'not-allowed' : 'pointer', border: '1px solid var(--border)', background: 'none', color: !selectedUuid && multiSelected.size === 0 ? 'var(--text-muted-disabled)' : 'var(--text-muted)', opacity: !selectedUuid && multiSelected.size === 0 ? 0.5 : 1 }}
+        >
+          ⊕C
         </button>
         <button
           onClick={() => setView(v => ({ ...v, zoom: Math.min(5, v.zoom * 1.25) }))}
@@ -1757,9 +1808,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         >⊣</button>
         {/* R2647: 선택 노드 그룹 바운딩박스 토글 */}
         <button
-          onClick={() => setShowSelBBox(v => !v)}
-          title={showSelBBox ? '선택 BBox 끄기 (R2647)' : '선택 노드 그룹 경계 박스 표시 (R2647)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelBBox ? '#60a5fa' : 'var(--text-muted)' }}
+          onClick={() => setShowSelGroupBBox(v => !v)}
+          title={showSelGroupBBox ? '선택 BBox 끄기 (R2647)' : '선택 노드 그룹 경계 박스 표시 (R2647)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelGroupBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelGroupBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelGroupBBox ? '#60a5fa' : 'var(--text-muted)' }}
         >▣</button>
         {/* R2651: 선택 노드 부모 하이라이트 토글 */}
         <button
@@ -1851,6 +1902,36 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showUuidBadge ? 'UUID 배지 끄기 (R2688)' : '노드 UUID 앞 8자리 배지 표시 (R2688)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showUuidBadge ? 'rgba(100,116,139,0.5)' : 'var(--border)'}`, background: showUuidBadge ? 'rgba(100,116,139,0.1)' : 'none', color: showUuidBadge ? '#64748b' : 'var(--text-muted)' }}
         >ID</button>
+        {/* R2691: 노드 중심 점 마커 토글 */}
+        <button
+          onClick={() => setShowCenterDot(v => !v)}
+          title={showCenterDot ? '중심점 끄기 (R2691)' : '각 노드 중심에 점 마커 표시 (R2691)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCenterDot ? 'rgba(248,113,113,0.5)' : 'var(--border)'}`, background: showCenterDot ? 'rgba(248,113,113,0.1)' : 'none', color: showCenterDot ? '#f87171' : 'var(--text-muted)' }}
+        >·</button>
+        {/* R2694: 비기본 앵커 강조 토글 */}
+        <button
+          onClick={() => setShowNonDefaultAnchor(v => !v)}
+          title={showNonDefaultAnchor ? '비기본 앵커 끄기 (R2694)' : '앵커 ≠ (0.5,0.5) 노드 강조 표시 (R2694)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNonDefaultAnchor ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showNonDefaultAnchor ? 'rgba(251,191,36,0.1)' : 'none', color: showNonDefaultAnchor ? '#fbbf24' : 'var(--text-muted)' }}
+        >⚓</button>
+        {/* R2696: 크기 0 노드 경고 토글 */}
+        <button
+          onClick={() => setShowZeroSizeWarn(v => !v)}
+          title={showZeroSizeWarn ? '크기 0 경고 끄기 (R2696)' : 'width 또는 height = 0인 노드 경고 표시 (R2696)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showZeroSizeWarn ? 'rgba(239,68,68,0.5)' : 'var(--border)'}`, background: showZeroSizeWarn ? 'rgba(239,68,68,0.1)' : 'none', color: showZeroSizeWarn ? '#ef4444' : 'var(--text-muted)' }}
+        >⚠</button>
+        {/* R2698: 선택 노드 위치 가이드 십자선 토글 */}
+        <button
+          onClick={() => setShowSelAxisLine(v => !v)}
+          title={showSelAxisLine ? '위치 가이드선 끄기 (R2698)' : '선택 노드 X/Y 위치 가이드 전체 선 표시 (R2698)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelAxisLine ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showSelAxisLine ? 'rgba(34,211,238,0.1)' : 'none', color: showSelAxisLine ? '#22d3ee' : 'var(--text-muted)' }}
+        >╋</button>
+        {/* R2700: 선택 노드 형제 강조 토글 */}
+        <button
+          onClick={() => setShowSiblingHighlight(v => !v)}
+          title={showSiblingHighlight ? '형제 강조 끄기 (R2700)' : '선택 노드와 같은 부모를 가진 형제 노드 강조 (R2700)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSiblingHighlight ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showSiblingHighlight ? 'rgba(139,92,246,0.1)' : 'none', color: showSiblingHighlight ? '#8b5cf6' : 'var(--text-muted)' }}
+        >≡</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2719,8 +2800,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 })()}
                 {/* R2598: flip(음수 scale) 노드 표시 */}
                 {showFlipOverlay && (() => {
-                  const sc = node.scale as { x: number; y: number }
-                  const fx = sc.x < 0, fy = sc.y < 0
+                  const sc = node.scale as { x?: number; y?: number } | null
+                  const fx = (sc?.x ?? 1) < 0, fy = (sc?.y ?? 1) < 0
                   if (!fx && !fy) return null
                   const label = fx && fy ? '↔↕' : fx ? '↔' : '↕'
                   const fs = Math.max(7, 10 / view.zoom)
@@ -2970,6 +3051,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <text x={bx} y={by}
                       fontSize={6 / view.zoom} fill="rgba(100,116,139,0.8)" textAnchor="middle"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}>{short}</text>
+                  )
+                })()}
+                {/* R2691: 노드 중심 점 마커 */}
+                {showCenterDot && (
+                  <circle cx={svgPos.x} cy={svgPos.y} r={2.5 / view.zoom}
+                    fill="rgba(248,113,113,0.8)" stroke="rgba(255,255,255,0.6)" strokeWidth={0.8 / view.zoom}
+                    style={{ pointerEvents: 'none' }} />
+                )}
+                {/* R2694: 비기본 앵커 강조 */}
+                {showNonDefaultAnchor && w > 0 && h > 0 && (() => {
+                  const ax = node.anchor?.x ?? 0.5, ay = node.anchor?.y ?? 0.5
+                  if (Math.abs(ax - 0.5) < 0.001 && Math.abs(ay - 0.5) < 0.001) return null
+                  const fs = Math.max(6, 8 / view.zoom)
+                  const label = `(${ax.toFixed(1)},${ay.toFixed(1)})`
+                  return (
+                    <text x={rectX + w * ax} y={rectY + h * (1 - ay)}
+                      fontSize={fs} fill="rgba(251,191,36,0.9)" textAnchor="middle"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}>⚓{label}</text>
                   )
                 })()}
                 {/* R2675: 노드 크기 히트맵 */}
@@ -3432,6 +3531,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })}
 
+          {/* R2696: 크기 0 노드 경고 오버레이 */}
+          {showZeroSizeWarn && flatNodes.map(fn => {
+            if ((fn.node.size?.x ?? 0) !== 0 && (fn.node.size?.y ?? 0) !== 0) return null
+            const sp = ccToSvg(fn.worldX, fn.worldY)
+            const fs = Math.max(8, 11 / view.zoom)
+            return (
+              <g key={`zw-${fn.node.uuid}`} style={{ pointerEvents: 'none' }}>
+                <text x={sp.x} y={sp.y + fs * 0.4} textAnchor="middle" fontSize={fs}
+                  fill="rgba(239,68,68,0.9)" style={{ userSelect: 'none' }}>⚠</text>
+              </g>
+            )
+          })}
           {/* R2645: 선택 노드 순서 연결선 오버레이 */}
           {showSelPolyline && uuids.length >= 2 && (() => {
             const ordered: { x: number; y: number }[] = []
@@ -3488,6 +3599,48 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })()}
+          {/* R2698: 선택 노드 위치 가이드 십자선 */}
+          {showSelAxisLine && selectedUuid && (() => {
+            const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!fn) return null
+            const sp = ccToSvg(fn.worldX, fn.worldY)
+            const viewW = svgRef.current?.clientWidth ?? 800
+            const viewH = svgRef.current?.clientHeight ?? 600
+            const left = (0 - view.offsetX) / view.zoom
+            const right = (viewW - view.offsetX) / view.zoom
+            const top = (0 - view.offsetY) / view.zoom
+            const bottom = (viewH - view.offsetY) / view.zoom
+            const sw = 1 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <line x1={left} y1={sp.y} x2={right} y2={sp.y} stroke="rgba(34,211,238,0.45)" strokeWidth={sw} strokeDasharray={`${5/view.zoom} ${3/view.zoom}`} />
+                <line x1={sp.x} y1={top} x2={sp.x} y2={bottom} stroke="rgba(34,211,238,0.45)" strokeWidth={sw} strokeDasharray={`${5/view.zoom} ${3/view.zoom}`} />
+              </g>
+            )
+          })()}
+          {/* R2700: 선택 노드 형제 강조 오버레이 */}
+          {showSiblingHighlight && selectedUuid && (() => {
+            const selFn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!selFn || !selFn.parentUuid) return null
+            const siblings = flatNodes.filter(f => f.parentUuid === selFn.parentUuid && f.node.uuid !== selectedUuid)
+            if (siblings.length === 0) return null
+            const sw = 1.5 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                {siblings.map(fn => {
+                  const sp2 = ccToSvg(fn.worldX, fn.worldY)
+                  const w2 = fn.node.size?.x ?? 0, h2 = fn.node.size?.y ?? 0
+                  const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+                  const rx = sp2.x - w2 * ax, ry = sp2.y - h2 * (1 - ay)
+                  return (
+                    <rect key={fn.node.uuid} x={rx} y={ry} width={w2} height={h2}
+                      fill="rgba(139,92,246,0.1)" stroke="rgba(139,92,246,0.7)" strokeWidth={sw}
+                      strokeDasharray={`${3/view.zoom} ${2/view.zoom}`} />
+                  )
+                })}
+              </g>
+            )
+          })()}
           {/* R2682: 선택 노드 간 거리 텍스트 */}
           {showPairDist && uuids.length >= 2 && (() => {
             const posMap = new Map<string, { x: number; y: number }>()
@@ -3530,7 +3683,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })()}
           {/* R2647: 선택 노드 그룹 바운딩박스 */}
-          {showSelBBox && uuids.length >= 1 && (() => {
+          {showSelGroupBBox && uuids.length >= 1 && (() => {
             const selFlat = flatNodes.filter(fn => uuids.includes(fn.node.uuid))
             if (selFlat.length === 0) return null
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
@@ -3802,7 +3955,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             if (!parentFn || !parentFn.node.size?.x || !parentFn.node.size?.y) return null
             const { node: pn, worldX: px, worldY: py } = parentFn
             const sp = ccToSvg(px, py)
-            const w = pn.size!.x, h = pn.size!.y
+            const w = pn.size?.x ?? 0, h = pn.size?.y ?? 0
             const ax = pn.anchor?.x ?? 0.5, ay = pn.anchor?.y ?? 0.5
             return (
               <rect
@@ -3827,7 +3980,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {children.map(cf => {
                   const { node: cn, worldX: cx2, worldY: cy2 } = cf
                   const sp = ccToSvg(cx2, cy2)
-                  const w = cn.size!.x, h = cn.size!.y
+                  const w = cn.size?.x ?? 0, h = cn.size?.y ?? 0
                   const ax = cn.anchor?.x ?? 0.5, ay = cn.anchor?.y ?? 0.5
                   return (
                     <rect key={cf.node.uuid}
@@ -3876,7 +4029,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {siblings.map(sf => {
                   const { node: sn, worldX: sx, worldY: sy } = sf
                   const sp = ccToSvg(sx, sy)
-                  const w = sn.size!.x, h = sn.size!.y
+                  const w = sn.size?.x ?? 0, h = sn.size?.y ?? 0
                   const ax = sn.anchor?.x ?? 0.5, ay = sn.anchor?.y ?? 0.5
                   return (
                     <rect key={sf.node.uuid}
