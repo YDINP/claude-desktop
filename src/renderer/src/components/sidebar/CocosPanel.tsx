@@ -4233,6 +4233,24 @@ function CCFileBatchInspector({
     }
   }, [sceneFile.root, uuidSet, uuids])
 
+  // R2723: 선택 노드 이름에서 공통 접두사 추출 (상위 3개)
+  const topPrefixes = useMemo(() => {
+    if (uuids.length < 2 || !sceneFile.root) return []
+    const counts: Record<string, number> = {}
+    const nodeMap = new Map<string, CCSceneNode>()
+    function collectNodes(n: CCSceneNode) { nodeMap.set(n.uuid, n); n.children.forEach(collectNodes) }
+    collectNodes(sceneFile.root)
+    for (const uuid of uuids) {
+      const node = nodeMap.get(uuid)
+      if (node) {
+        const name = node.name
+        const prefix = name.split(/[_\d]/)[0]
+        if (prefix && prefix.length >= 2) counts[prefix] = (counts[prefix] ?? 0) + 1
+      }
+    }
+    return Object.entries(counts).filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([p]) => p)
+  }, [uuids, sceneFile.root])
+
   const applyBatch = useCallback(async () => {
     if (!sceneFile.root) return
     const opacity = batchOpacity !== '' ? Math.max(0, Math.min(255, parseInt(batchOpacity))) : null
@@ -4345,6 +4363,37 @@ function CCFileBatchInspector({
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fbbf24')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >=×{sameNameUuids.length}</span>
+          )
+        })()}
+        {/* R2723: 접두사 그룹 자동 선택 */}
+        {topPrefixes.length > 0 && onMultiSelectChange && sceneFile.root && (() => {
+          const collectByPrefix = (prefix: string): string[] => {
+            const result: string[] = []
+            function walk(n: CCSceneNode) {
+              if (n.name.startsWith(prefix)) result.push(n.uuid)
+              n.children.forEach(walk)
+            }
+            if (sceneFile.root) walk(sceneFile.root)
+            return result
+          }
+          return (
+            <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginTop: 2 }}>
+              {topPrefixes.map(prefix => {
+                const matchUuids = collectByPrefix(prefix)
+                return (
+                  <span key={prefix} onClick={() => onMultiSelectChange(matchUuids)}
+                    style={{
+                      cursor: 'pointer', fontSize: 9, padding: '1px 4px', borderRadius: 3,
+                      background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)',
+                      color: '#6366f1', userSelect: 'none'
+                    }}
+                    title={`"${prefix}*" 접두사 노드 ${matchUuids.length}개 선택 (R2723)`}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.3)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.2)')}
+                  >{prefix}* ({matchUuids.length})</span>
+                )
+              })}
+            </div>
           )
         })()}
         {/* R2500: 선택 반전 버튼 */}

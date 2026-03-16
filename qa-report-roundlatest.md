@@ -1,60 +1,11 @@
 # QA Report — Round latest
-> 2026-03-16T05:38:08.544Z
+> 2026-03-16T08:39:53.061Z
 
 ## Critical
 _없음_
 
 ## Warning
-- [sidebar/NodePropertyPanel.tsx] NodePropertyPanel 색상 스왓치 미구현
-- [SceneView/SceneViewPanel.tsx] SceneViewPanel onWheel JSX 미제거
-- [SceneView/SceneInspector.tsx] SceneInspector Position 리셋 미구현
-- [SceneView/SceneInspector.tsx] SceneInspector Rotation 리셋 미구현
-- [SceneView/SceneInspector.tsx] SceneInspector Scale 리셋 미구현
-- [SceneView/SceneInspector.tsx] SceneInspector Anchor 리셋 미구현
-- [sidebar/SearchPanel.tsx] SearchPanel 단어 단위 검색 미구현
-- [sidebar/OutlinePanel.tsx] OutlinePanel 레벨 카운트 미구현
-- [sidebar/ConnectionPanel.tsx] ConnectionPanel 헤더 배지 미구현
-- [sidebar/NotesPanel.tsx] NotesPanel 줄 수 표시 미구현
-- [SceneView/SceneViewPanel.tsx] SceneViewPanel 인라인 편집바 rotation 필드 미구현
-- [SceneView/SceneViewPanel.tsx] SceneViewPanel PNG 내보내기 미구현
-- [SceneViewPanel.tsx] 씬뷰 레이어 가시성 토글 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 레이어 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 검색 히스토리 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 캐시 관리 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 일괄 수정 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 검색 필터 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 태그 필터 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 복사 이력 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 노드 그룹 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 프리팹 검색 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 애니메이션 프리뷰 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 노드 이벤트 로그 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 머티리얼 인스펙터 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 물리 디버그 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 스크립트 에디터 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 스프라이트 에디터 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 파티클 에디터 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 오디오 에디터 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 타일맵 에디터 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 씬 그래프 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 노드 잠금 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 컴포넌트 검색 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 에셋 즐겨찾기 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 씬 스냅샷 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 리소스 미리보기 없음
-- [sidebar/CocosPanel.tsx] CocosPanel 씬 유효성 검사 없음
-- [CocosPanel.tsx] 프리팹 편집 모드 미구현
-- [CocosPanel.tsx] 노드 복사 UUID 재생성 미구현
-- [CocosPanel.tsx] Quick Edit CLI Rules of Hooks 위반 가능성
-- [CCFileSceneView.tsx] BBox rect 렌더링 미구현
-- [CCFileSceneView.tsx] editingZoom이 IIFE 내 React.useState 사용 — hooks 규칙 위반
-- [CocosPanel.tsx] 즐겨찾기 클릭 탐색 미구현 또는 console.log 여전히 존재
-- [CocosPanel.tsx] 즐겨찾기 컴포넌트 배지 미구현
-- [CocosPanel.tsx] cc.Label 멀티라인 미리보기 미구현
-- [CocosPanel.tsx] BatchInspector node anchor preset 미구현
-- [CocosPanel.tsx] R2460 컴포넌트 _rawIndex 초기화 미확인
-- [CCFileSceneView.tsx] R2705 Alt+drag 복제 미구현
-- [cc-file-watcher.ts / fs-handlers.ts] ISSUE-003/004/005 버그 수정 미완료
+_없음_
 
 ## Pass
 - tsc --noEmit 오류 없음
@@ -111,6 +62,7 @@ _없음_
 - SceneTree 노드 인라인 이름 편집 존재
 - 스트리밍 경과 시간 표시 존재
 - cc-bridge.ts: createNode + deleteNode 존재
+- NodePropertyPanel 색상 스왓치 표시 존재
 - globalStats: totalMessages/dailyMessageCounts/topSessions 존재
 - StatsPanel 일별 메시지 수 차트 존재
 - StatsPanel 상위 세션 TOP 5 존재
@@ -242,6 +194,10 @@ _없음_
 - SceneToolbar: 배경색 토글 prop 존재
 - SceneViewPanel: 배경색 state 존재
 - SceneViewPanel: Alt+Up/Down 계층 탐색 존재
+- SceneInspector: Position 리셋 버튼 존재
+- SceneInspector: Rotation ⊙ 리셋 버튼 존재
+- SceneInspector: Scale ⊙ 리셋 버튼 존재
+- SceneInspector: Anchor ⊙ 리셋 버튼 존재
 - SceneInspector: 조상 Breadcrumb 경로 표시 존재
 - SceneView: 미니맵 오버레이 존재
 - SceneView: 미니맵 클릭 뷰포트 이동 존재
@@ -271,6 +227,7 @@ _없음_
 - WebPreviewPanel: iframe 줌 컨트롤 존재 (+/-/% 버튼)
 - ConnectionPanel: 서버 이름 검색 필터 존재
 - NotesPanel: 노트 템플릿 기능 존재 (미팅/할일/버그/아이디어)
+- SearchPanel: 단어 단위 검색 Ww 토글 존재
 - CalendarPanel: 이벤트 목록 복사 버튼 존재
 - AgentPanel: 태스크 마지막 결과 복사 버튼 존재
 - GitPanel: 커밋 해시 복사 버튼 존재
@@ -340,6 +297,7 @@ _없음_
 - RunTimeline: RunCard 스텝 접기/펼치기 (expanded/setExpanded) 존재
 - BookmarksPanel: 북마크별 복사 버튼 (copiedId/copyBookmark/stopPropagation) 존재
 - OutlinePanel: H레벨 카운트 표시 (cnt/H1(N)/0개 숨김) 존재
+- OutlinePanel: H레벨 카운트 표시 (cnt/H1(N)/0개 숨김) 존재
 - GlobalSearchPanel: 날짜순 정렬 토글 (sortOrder/date/updatedAt) 존재
 - NotesPanel: 노트 목록 글자 수 표시 (content.length/1000/k자) 존재
 - CalendarPanel: 다음 이벤트 미리보기 (upcomingEvents/slice(0,3)) 존재
@@ -358,6 +316,7 @@ _없음_
 - TasksPanel: 내보내기 버튼 (exportTasks/text/markdown) 존재
 - StatsPanel: 히트맵 활동 일수/% 표시 (totalDays/heatmapDays.length) 존재
 - FileTree: 전체 접기 버튼 (expandedDirs.size/⊖/전체 접기) 존재
+- NotesPanel: 편집기 하단 줄 수 표시 (split('\n').length/줄) 존재
 - RunTimeline: 완료 런 삭제 버튼 (clearedAt/setClearedAt) 존재
 - GlobalSearchPanel: 역할 필터 (roleFilter/user/assistant) 존재
 - AssetBrowserPanel: 헤더 에셋 수 배지 (totalAssets/allFlat) 존재
@@ -425,6 +384,7 @@ _없음_
 - SceneViewPanel: Alt+[/] 투명도 조절 단축키 구현 존재
 - SceneViewPanel: Ctrl+Shift+A 선택 반전 구현 존재
 - SceneViewPanel: 인라인 편집바 rotation(r) 필드 구현 존재
+- SceneViewPanel: 인라인 편집바 rotation(r) 필드 구현 존재
 - SceneViewPanel: 연결선 cubic bezier + 화살표 마커 구현 존재
 - SceneViewPanel: 드래그 델타 오버레이 구현 존재
 - SceneViewPanel: 그룹 해제 (handleUngroup + Ctrl+Shift+G) 구현 존재
@@ -442,6 +402,7 @@ _없음_
 - SceneViewPanel: 노드 크기 맞추기 (W/H/both) 구현 존재
 - SceneToolbar: 크기 맞추기 버튼 3종 존재
 - SceneViewPanel: 씬 변경 감지 + Dirty 표시 구현 존재
+- SceneViewPanel: PNG 내보내기 (SVG→Canvas→PNG) 구현 존재
 - SceneToolbar: PNG 내보내기 버튼 존재
 - SceneViewPanel: 카메라 뷰 히스토리 + Alt+←/→ 네비게이션 존재
 - SceneViewPanel: 즐겨찾기 상태 + 목록 팝업 + Ctrl+B 단축키 존재
@@ -498,6 +459,7 @@ _없음_
 - 씬뷰 Delete 키 핸들러 존재
 - Inspector 섹션 상태 localStorage 저장
 - Inspector props 타입 힌트 배지 존재
+- 씬뷰 레이어 가시성 토글 존재
 - 시스템 프롬프트 변수 치환 존재 (resolveVars)
 - SessionList 날짜 그룹 헤더 존재
 - Edit 도구 인라인 diff 렌더링 존재
@@ -836,6 +798,7 @@ _없음_
 - SessionList 세션 태그 에디터 존재
 - ChatPanel 실시간 번역 존재
 - InputBar 이모지 검색 존재
+- CocosPanel 노드 잠금 존재
 - SceneViewPanel 스냅 설정 존재
 - TerminalPanel 터미널 메모 존재
 - SessionList 세션 메모 존재
@@ -1040,7 +1003,6 @@ _없음_
 - SessionList 즐겨찾기 세션 존재
 - ChatPanel 메시지 스케줄 존재
 - InputBar 텍스트 템플릿 존재
-- CocosPanel 컴포넌트 검색 존재
 - SceneViewPanel 노드 스크립트 존재
 - TerminalPanel 터미널 플러그인 존재
 - SessionList 세션 활동 존재
@@ -1248,6 +1210,7 @@ _없음_
 - Inspector 다중 노드 일괄 편집 (active 토글, position 오프셋, 일괄 적용 버튼)
 - CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5개/더보기, 복원 TODO)
 - SceneInspector Label 폰트 속성 표시 (fontFamily, spacingX/Y, overflow)
+- CocosPanel 씬 유효성 검사 (UUID중복, 빈이름, Canvas, 깊이 경고, 비활성부모)
 - Inspector cc.Button 속성 편집 (interactable, autoGray, transition, duration, 색상 읽기전용)
 - CocosPanel 백업 관리 UI (목록/복원/전체삭제, BackupManager 컴포넌트)
 - Inspector cc.ProgressBar/Slider 속성 편집 (progress, totalLength, reverse)
@@ -1287,10 +1250,12 @@ _없음_
 - SceneView 선택 노드 AI 분석 요청 (채팅 프리필 이벤트)
 - Inspector AI 분석 버튼 (채팅 프리필)
 - CocosPanel Cocos 에디터 레이아웃 재설계 (좌우 분할)
+- CocosPanel 프리팹 편집 모드 (씬/프리팹 분리 드롭다운)
 - Inspector 커스텀 스크립트 변수 편집 지원
 - NodeRenderer 물리 컴포넌트 시각화 (RigidBody/BoxCollider/CircleCollider)
 - CCFileSceneView 스크린샷 → Claude AI 분석 연동
 - ChatPanel cc-chat-prefill 이벤트 수신 → 입력창 프리필
+- 노드 복사 UUID 자동 재생성 (딥복사 + crypto.randomUUID)
 - 씬 변경 → Claude 컨텍스트 자동 diff 주입
 - Inspector Layer 편집 (CC2.x/3.x 레이어 옵션 + 직접 입력)
 - cc-file-parser 청크 스트리밍 파싱 (parseCCSceneChunked/isLargeScene)
@@ -1323,6 +1288,7 @@ _없음_
 - Inspector Quick Edit CLI 입력 상태 + runCmd 함수 구현
 - pos/size/rot/scale/alpha/color/name/active 명령 파서 구현
 - CLI 입력 UI (monosapce placeholder + 피드백) 구현
+- Quick Edit CLI useState 컴포넌트 최상위 선언 (Rules of Hooks 준수)
 - SceneView cc.Widget alignFlags 제약 화살표 시각화 구현
 - TOP/BOT/LEFT/RIGHT 4방향 제약 화살표 모두 구현
 - alignGuides 상태 + ALIGN_SNAP_THRESHOLD 선언
@@ -1370,9 +1336,11 @@ _없음_
 - lockedUuids Set + toggleLock + localStorage 연동 구현
 - 잠긴 노드 드래그 차단 + not-allowed 커서 + 🔒 아이콘
 - 컨텍스트 메뉴 잠금/해제 항목 구현
+- editingZoom 상태 컴포넌트 레벨 선언 (hooks 규칙 준수)
 - 줌 % span → input 인라인 전환 UI 구현
 - sp.Skeleton extractor 구현 (skin/animation/timeScale/loop/paused)
 - Inspector sp.Skeleton Quick Edit UI (skin/animation/timeScale/loop/paused)
+- 즐겨찾기 컴포넌트 타입 배지 + 없는 노드 희미하게 표시
 - resOverride + effectiveW/H 상태 구현
 - 해상도 preset picker UI (960×640, 1920×1080 등 포함)
 - dragonBones.ArmatureDisplay extractor 구현 (armature/animation/timeScale/loop/playTimes)
@@ -1508,9 +1476,9 @@ _없음_
 - Ctrl+A 씬 전체 노드 다중 선택
 - 컴포넌트 일괄 접기/펴기 버튼
 - 회전 핸들 각도 표시
+- cc.Label 멀티라인 미리보기
 - SceneView 시각적 숨기기 토글
 - SceneView 좌표 핀 마커
-- 씬 트리 검색 히스토리
 - SceneView 드래그 노드 경계 스냅
 - cc.Sprite spriteFrame uuid 복사
 - SceneView 레이블 폰트 크기 조정
@@ -1531,7 +1499,6 @@ _없음_
 - 씬 트리 컨텍스트 메뉴 확장
 - cc.Label fontSize 빠른 조절 버튼
 - cc.Label 텍스트 색상 편집
-- 씬 트리 색상 태그 필터
 - cc.Toggle Quick Edit interactable 추가
 - SceneView 컨텍스트 메뉴 확장
 - Stats 패널 비활성 노드 카운트 배지
@@ -1841,6 +1808,7 @@ _없음_
 - BatchInspector cc.Layout paddingBottom 일괄 설정
 - BatchInspector cc.Layout paddingLeft 일괄 설정
 - BatchInspector cc.Layout paddingRight 일괄 설정
+- BatchInspector node anchor preset 일괄 설정
 - BatchInspector cc.ParticleSystem totalParticles 일괄 설정
 - BatchInspector cc.ParticleSystem duration 일괄 설정
 - BatchInspector cc.ParticleSystem speed 일괄 설정
@@ -2430,6 +2398,7 @@ _없음_
 - R2702 opacity 고정값 일괄 설정 구현 완료
 - R2703 선택 중심 팬 구현 완료
 - R2704 색상 채널 오프셋 구현 완료
+- R2705 Alt+drag 복제 구현 완료
 - R2706 단색 일괄 적용 구현 완료
 - R2707 선택 히스토리 구현 완료
 - R2708 이름 정규식 필터 선택 구현 완료
@@ -2617,6 +2586,9 @@ _없음_
 - R2523 공통 컴포넌트 enabled 일괄 토글 구현 완료
 - R2522 직접 자식 선택 확장 구현 완료
 - R2702 opacity 고정값 일괄 설정 구현 완료
+- R2718 uuid 참조 화살표 오버레이 구현 완료
+- R2719 격자 스냅 구현 완료
+- R2721 Label 폰트 색상 일괄 구현 완료
 - 파일 탭 미저장 ● 인디케이터 존재
 - UndoEntry prop 타입 지원 (Inspector 속성 변경 undo)
 - 씬뷰 노드 검색 하이라이트 존재
@@ -2643,6 +2615,7 @@ _없음_
 - cc.Sprite extractor + Inspector: type/sizeMode/trim/grayscale
 - cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor
 - Inspector pulse 미리보기 (SceneView 노드 강조)
+- chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
 - session:setCollection try/catch + memTimer clearInterval 수정
 - 다른 이름으로 저장(Save As) 구현 완료
 - undo/redo 스택 카운터 표시 구현 완료
