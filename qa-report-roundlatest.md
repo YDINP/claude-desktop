@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-16T04:35:06.122Z
+> 2026-03-16T04:51:46.355Z
 
 ## Critical
 _없음_
@@ -42,7 +42,9 @@ _없음_
 - [sidebar/CocosPanel.tsx] CocosPanel 에셋 즐겨찾기 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 씬 스냅샷 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 리소스 미리보기 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 플러그인 관리 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 렌더 설정 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 씬 필터 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 노드 정렬 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 씬 태그 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 에셋 버전 없음
@@ -69,13 +71,33 @@ _없음_
 - [sidebar/CocosPanel.tsx] CocosPanel 빌드 큐 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 씬 스냅샷 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 빌드 에러 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 에셋 검색 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 씬 북마크 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 리소스 사용 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 빌드 히스토리 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 배포 설정 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 에셋 태그 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 씬 내보내기 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 프리팹 미리보기 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 빌드 프로필 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 플러그인 관리 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 핫 리로드 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 빌드 경고 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 에셋 번들 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 디버그 모드 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 에셋 필터 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 성능 통계 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 빌드 로그 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 원격 디버그 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 스크립트 템플릿 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 에디터 테마 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 빌드 알림 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 노드 템플릿 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 빌드 스케줄 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 에셋 번들 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 에디터 플러그인 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 빌드 프리셋 없음
+- [sidebar/CocosPanel.tsx] CocosPanel 씬 목록 필터 없음
 - [sidebar/CocosPanel.tsx] CocosPanel 씬 유효성 검사 없음
 - [CocosPanel.tsx] 프리팹 편집 모드 미구현
 - [CocosPanel.tsx] 노드 복사 UUID 재생성 미구현
@@ -87,7 +109,6 @@ _없음_
 - [CocosPanel.tsx] cc.Label 멀티라인 미리보기 미구현
 - [CocosPanel.tsx] BatchInspector node anchor preset 미구현
 - [CocosPanel.tsx] R2460 컴포넌트 _rawIndex 초기화 미확인
-- [CCFileSceneView.tsx] R2701 마르키 선택 미구현
 - [CCFileSceneView.tsx] R2705 Alt+drag 복제 미구현
 - [CocosPanel.tsx] R2706 단색 일괄 적용 미구현
 - [CCFileSceneView.tsx] R2707 선택 히스토리 미구현
@@ -910,7 +931,6 @@ _없음_
 - SessionList 최근 항목 존재
 - ChatPanel 메시지 통계 존재
 - InputBar 텍스트 확장 존재
-- CocosPanel 플러그인 관리 존재
 - SceneViewPanel 씬 북마크 존재
 - TerminalPanel 폰트 설정 존재
 - SessionList 세션 잠금 존재
@@ -921,7 +941,6 @@ _없음_
 - SessionList 세션 공유 존재
 - ChatPanel 채팅 테마 존재
 - InputBar 붙여넣기 처리 존재
-- CocosPanel 씬 필터 존재
 - SceneViewPanel 드래그 모드 존재
 - TerminalPanel 명령어 팔레트 존재
 - SessionList 세션 색상 존재
@@ -1069,7 +1088,6 @@ _없음_
 - SessionList 세션 노트 존재
 - ChatPanel 메시지 검색 존재
 - InputBar 멘션 제안 존재
-- CocosPanel 에셋 검색 존재
 - SceneViewPanel 씬 히스토리 존재
 - TerminalPanel SSH 프로필 존재
 - SessionList 세션 태그 존재
@@ -1103,7 +1121,6 @@ _없음_
 - SessionList 세션 병합 존재
 - ChatPanel 메시지 분석 존재
 - InputBar 집중 모드 존재
-- CocosPanel 빌드 히스토리 존재
 - SceneViewPanel 씬 메트릭 존재
 - TerminalPanel 터미널 diff 존재
 - SessionList 세션 버전 존재
@@ -1140,25 +1157,21 @@ _없음_
 - SessionList 세션 워크플로우 존재
 - ChatPanel 채팅 반응 존재
 - InputBar 입력 히스토리 존재
-- CocosPanel 플러그인 관리 존재
 - SceneViewPanel 씬 오디오 존재
 - TerminalPanel 터미널 매크로 존재
 - SessionList 세션 노트 존재
 - ChatPanel 채팅 번역 존재
 - InputBar 멘션 리스트 존재
-- CocosPanel 핫 리로드 존재
 - SceneViewPanel 씬 파티클 존재
 - TerminalPanel 터미널 프로필 존재
 - SessionList 세션 배지 존재
 - ChatPanel 채팅 폰트 존재
 - InputBar 드래그 앤 드롭 존재
-- CocosPanel 빌드 경고 존재
 - SceneViewPanel 씬 셰이더 존재
 - TerminalPanel 터미널 세션 존재
 - SessionList 세션 레이아웃 존재
 - ChatPanel 채팅 필터 존재
 - InputBar 문법 검사 존재
-- CocosPanel 에셋 번들 존재
 - SceneViewPanel 씬 스크립트 존재
 - TerminalPanel 터미널 북마크 존재
 - SessionList 세션 내보내기 존재
@@ -1176,85 +1189,71 @@ _없음_
 - SessionList 세션 즐겨찾기 존재
 - ChatPanel 나란히 보기 존재
 - InputBar 줄 바꿈 존재
-- CocosPanel 디버그 모드 존재
 - SceneViewPanel 씬 제약 존재
 - TerminalPanel 터미널 연결 존재
 - SessionList 세션 그룹 존재
 - ChatPanel 접근성 존재
 - InputBar 괄호 매칭 존재
-- CocosPanel 에셋 필터 존재
 - SceneViewPanel 타일맵 존재
 - TerminalPanel 터미널 테마 존재
 - SessionList 세션 고정 존재
 - ChatPanel 음성 입력 존재
 - InputBar 자동 들여쓰기 존재
-- CocosPanel 성능 통계 존재
 - SceneViewPanel 씬 스프라이트 존재
 - TerminalPanel 자동완성 존재
 - SessionList 세션 태그 존재
 - ChatPanel 채팅 위젯 존재
 - InputBar 미니맵 존재
-- CocosPanel 빌드 로그 존재
 - SceneViewPanel 씬 UI 존재
 - TerminalPanel 구문 강조 존재
 - SessionList 세션 히트맵 존재
 - ChatPanel 채팅 밀도 존재
 - InputBar 코드 폴딩 존재
-- CocosPanel 원격 디버그 존재
 - SceneViewPanel 씬 네트워크 존재
 - TerminalPanel 터미널 탭 존재
 - SessionList 세션 타임라인 존재
 - ChatPanel 채팅 프리셋 존재
 - InputBar 스크롤 동기화 존재
-- CocosPanel 스크립트 템플릿 존재
 - SceneViewPanel 씬 프리팹 존재
 - TerminalPanel 터미널 검색 존재
 - SessionList 세션 인사이트 존재
 - ChatPanel 채팅 초안 존재
 - InputBar 찾기/바꾸기 존재
-- CocosPanel 에디터 테마 존재
 - SceneViewPanel 씬 텍스처 존재
 - TerminalPanel 출력 필터 존재
 - SessionList 세션 비교 존재
 - ChatPanel 협업 존재
 - InputBar 녹음 존재
-- CocosPanel 빌드 알림 존재
 - SceneViewPanel 씬 폰트 존재
 - TerminalPanel 터미널 크기 존재
 - SessionList 세션 중복 존재
 - ChatPanel 줌 존재
 - InputBar 분할 편집 존재
-- CocosPanel 노드 템플릿 존재
 - SceneViewPanel 씬 아틀라스 존재
 - TerminalPanel 커서 스타일 존재
 - SessionList 세션 메트릭 존재
 - ChatPanel 소리내어 읽기 존재
 - InputBar 단축키 존재
-- CocosPanel 빌드 스케줄 존재
 - SceneViewPanel 씬 타이머 존재
 - TerminalPanel 스크롤백 존재
 - SessionList 세션 복구 존재
 - ChatPanel 채팅 북마크 존재
 - InputBar 입력 자동저장 존재
-- CocosPanel 에셋 번들 존재
 - SceneViewPanel 씬 오버레이 존재
 - TerminalPanel 터미널 탭 존재
 - SessionList 세션 내보내기 존재
 - ChatPanel 채팅 태그 존재
 - InputBar 멀티라인 모드 존재
-- CocosPanel 에디터 플러그인 존재
 - SceneViewPanel 씬 그리드 존재
 - TerminalPanel 터미널 테마 존재
 - SessionList 세션 핀고정 존재
 - ChatPanel 채팅 필터 존재
 - InputBar 드래그앤드롭 존재
-- CocosPanel 빌드 프리셋 존재
 - SceneViewPanel 씬 카메라 존재
 - TerminalPanel 터미널 로그 존재
 - SessionList 세션 통계 존재
 - ChatPanel 채팅 히스토리 검색 존재
 - InputBar 코드 스니펫 존재
-- CocosPanel 씬 목록 필터 존재
 - SceneViewPanel 씬 라이팅 존재
 - TerminalPanel 자동완성 존재
 - SessionList 세션 병합 존재
@@ -2486,6 +2485,7 @@ _없음_
 - R2519 BatchInspector Transform 초기화 구현 완료
 - R2520 BatchInspector 노드 반전 (Flip X/Y) 구현 완료
 - R2521 SceneView 세계 좌표 표시 토글 구현 완료
+- R2701 마르키 Shift 선택 병합 구현 완료
 - R2702 opacity 고정값 일괄 설정 구현 완료
 - R2703 선택 중심 팬 구현 완료
 - R2704 색상 채널 오프셋 구현 완료

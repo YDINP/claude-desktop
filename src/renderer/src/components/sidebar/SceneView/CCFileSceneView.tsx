@@ -759,7 +759,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     hoverClientPosRef.current = { x: e.clientX, y: e.clientY }  // R1693
   }, [isPanning, cx, cy, snapSize, flatNodes])
 
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback((e?: React.MouseEvent) => {
     // R2465: 측정 도구 — 드래그 완료 시 start ref 해제 (측정 선은 유지)
     if (measureStartRef.current) {
       measureStartRef.current = null
@@ -838,7 +838,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             picked.add(fn.node.uuid)
           }
         }
-        setMultiSelected(picked)
+        // R2701: Shift 키 누른 채 마르키 선택 시 기존 선택 병합
+        if (e?.shiftKey) {
+          setMultiSelected(prev => new Set([...prev, ...picked]))
+        } else {
+          setMultiSelected(picked)
+        }
         if (picked.size > 0) onSelect([...picked][0])
       }
     }
