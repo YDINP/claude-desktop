@@ -871,6 +871,30 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }))
   }, [selectedUuid, flatNodes, ccToSvg, handleFit])
 
+  // R2703: 선택된 노드(들)의 평균 중심점으로 씬뷰 팬 이동 (centerSel)
+  const panToCenter = useCallback(() => {
+    // centerOnSel: 선택 노드 중심으로 팬
+    const targets = multiSelected.size > 0
+      ? flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
+      : flatNodes.filter(fn => fn.node.uuid === selectedUuid)
+    if (targets.length === 0) return
+
+    const cx = targets.reduce((sum, fn) => sum + (fn.worldX ?? 0), 0) / targets.length
+    const cy = targets.reduce((sum, fn) => sum + (fn.worldY ?? 0), 0) / targets.length
+
+    const svgEl = svgRef.current
+    if (!svgEl) return
+    const rect = svgEl.getBoundingClientRect()
+    const z = viewRef.current.zoom
+
+    const svgPos = ccToSvg(cx, cy)
+    setView(v => ({
+      ...v,
+      offsetX: rect.width / 2 - svgPos.x * z,
+      offsetY: rect.height / 2 - svgPos.y * z,
+    }))
+  }, [flatNodes, selectedUuid, multiSelected, ccToSvg])
+
   // R1481: cc-focus-node 이벤트 수신 → 해당 UUID 노드로 pan
   useEffect(() => {
     const onFocusNode = (e: Event) => {
@@ -1416,6 +1440,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
         >
           ⊞ Fit
+        </button>
+        {/* R2703: 선택 노드 중심으로 뷰 팬 이동 */}
+        <button
+          onClick={panToCenter}
+          disabled={!selectedUuid && multiSelected.size === 0}
+          title="선택된 노드(들)의 중심으로 뷰 이동 (R2703)"
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: !selectedUuid && multiSelected.size === 0 ? 'not-allowed' : 'pointer', border: '1px solid var(--border)', background: 'none', color: !selectedUuid && multiSelected.size === 0 ? 'var(--text-muted-disabled)' : 'var(--text-muted)', opacity: !selectedUuid && multiSelected.size === 0 ? 0.5 : 1 }}
+        >
+          ⊕C
         </button>
         <button
           onClick={() => setView(v => ({ ...v, zoom: Math.min(5, v.zoom * 1.25) }))}

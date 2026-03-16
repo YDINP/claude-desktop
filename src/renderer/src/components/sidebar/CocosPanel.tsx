@@ -4107,6 +4107,13 @@ function CCFileBatchInspector({
   const [colorBlendAmount, setColorBlendAmount] = useState<number>(50)
   // R2678: opacity 배수
   const [opacityMult, setOpacityMult] = useState<number>(80)
+  // R2702: opacity 고정값 일괄 설정
+  const [opacityFixed, setOpacityFixed] = useState<number>(255)
+  // R2710: 고정 크기 일괄 설정
+  const [fixedSizeW, setFixedSizeW] = useState<number>(100)
+  const [fixedSizeH, setFixedSizeH] = useState<number>(100)
+  const [fixedSizeApplyW, setFixedSizeApplyW] = useState<boolean>(true)
+  const [fixedSizeApplyH, setFixedSizeApplyH] = useState<boolean>(true)
   // R2681: 산포 factor
   const [spreadFactor, setSpreadFactor] = useState<number>(1.5)
   // R2684: 절대 간격
@@ -5186,6 +5193,35 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2702: opacity 고정값 일괄 설정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyOpacityFixed = async () => {
+          await patchNodes(
+            n => ({ ...n, opacity: Math.max(0, Math.min(255, opacityFixed)) }),
+            `opacity 고정값 ${opacityFixed} (${uuids.length}개)`
+          )
+        }
+        const niS = mkNiS(45)
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op고정 (R2702)</span>
+            <input type="number" min={0} max={255} value={opacityFixed}
+              onChange={e => setOpacityFixed(Number(e.target.value))}
+              style={niS} />
+            {[0,64,128,192,255].map(v => (
+              <span key={v}
+                onClick={() => setOpacityFixed(v)}
+                title={`opacity = ${v}`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: `1px solid ${v === opacityFixed ? '#4a9d6f' : 'var(--border)'}`, color: v === opacityFixed ? '#4a9d6f' : '#94a3b8', userSelect: 'none' }}>
+                {v}
+              </span>
+            ))}
+            <span onClick={applyOpacityFixed}
+              title={`선택 노드 opacity = ${opacityFixed} (R2702)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(42,74,106,0.6)', color: '#2a4a6a', userSelect: 'none' }}>적용</span>
+          </div>
+        )
+      })()}
       {/* R2656: 색상 흰색 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyColorReset = async () => {
@@ -5531,6 +5567,59 @@ function CCFileBatchInspector({
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >분배</span>
+          </div>
+        )
+      })()}
+      {/* R2710: 고정 크기 일괄 설정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyBatchFixedSize = async () => {
+          await patchNodes(n => {
+            let updated = { ...n }
+            const curSize = n.size as { x: number; y: number } | undefined
+            if (fixedSizeApplyW || fixedSizeApplyH) {
+              updated = {
+                ...updated,
+                size: {
+                  x: fixedSizeApplyW ? fixedSizeW : (curSize?.x ?? 0),
+                  y: fixedSizeApplyH ? fixedSizeH : (curSize?.y ?? 0),
+                },
+              }
+              // UITransform 동기화
+              const comps = updated.__components?.map((c: any) => {
+                if (c.__type === 'cc.UITransform' || c.__type === 'UITransform') {
+                  return {
+                    ...c,
+                    contentSize: {
+                      ...(c.contentSize ?? {}),
+                      ...(fixedSizeApplyW ? { width: fixedSizeW } : {}),
+                      ...(fixedSizeApplyH ? { height: fixedSizeH } : {}),
+                    },
+                  }
+                }
+                return c
+              })
+              updated = { ...updated, __components: comps }
+            }
+            return updated
+          }, `고정크기 ${fixedSizeApplyW ? 'W' + fixedSizeW : ''} ${fixedSizeApplyH ? 'H' + fixedSizeH : ''} (${uuids.length}개)`)
+        }
+        const niS = mkNiS(40)
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기고정 (R2710)</span>
+            <label style={{ fontSize: 9, display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }}>
+              <input type="checkbox" checked={fixedSizeApplyW} onChange={e => setFixedSizeApplyW(e.target.checked)} style={{ cursor: 'pointer' }} />
+              <span>W</span>
+            </label>
+            <input type="number" value={fixedSizeW} onChange={e => setFixedSizeW(Number(e.target.value))} style={niS} disabled={!fixedSizeApplyW} title="고정 너비" />
+            <label style={{ fontSize: 9, display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }}>
+              <input type="checkbox" checked={fixedSizeApplyH} onChange={e => setFixedSizeApplyH(e.target.checked)} style={{ cursor: 'pointer' }} />
+              <span>H</span>
+            </label>
+            <input type="number" value={fixedSizeH} onChange={e => setFixedSizeH(Number(e.target.value))} style={niS} disabled={!fixedSizeApplyH} title="고정 높이" />
+            <span onClick={applyBatchFixedSize}
+              title={`선택 노드에 고정 크기 적용 (R2710)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(42,74,106,0.6)', color: '#2a4a6a', userSelect: 'none' }}>적용</span>
           </div>
         )
       })()}
