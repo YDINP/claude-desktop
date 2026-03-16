@@ -895,9 +895,11 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | ISSUE-009 | react-syntax-highlighter PrismLight (~500kB 절감) | ✅ |
 | ISSUE-011 | CC Editor 패널 UX — 탭 자동 로드, 씬/프리팹 드롭다운 분리 | ✅ |
 | ISSUE-012 | 리팩토링 로드맵 Phase 1-7 실행 완료 | ✅ |
+| R2701 | SceneView 마르키 선택 rubber-band + Shift 키 기존 선택 병합 | ✅ |
 | R2702 | BatchInspector opacity 고정값 일괄 (프리셋 0/64/128/192/255) | ✅ |
 | R2703 | SceneView ⊕C 선택 노드 중심 팬 이동 | ✅ |
 | R2704 | BatchInspector ΔR/ΔG/ΔB/ΔA 색상 채널 오프셋 | ✅ |
+| R2706 | BatchInspector Sprite 단색 일괄 교체 (batchSolidColor + applyBatchSolidColor) | ✅ |
 | R2708 | BatchInspector 이름 정규식 필터 다중 선택 | ✅ |
 | R2709 | SceneView W:H 커스텀 비율 가이드 오버레이 (노란 점선) | ✅ |
 | R2710 | BatchInspector W/H 고정값 일괄 + UITransform 동기화 | ✅ |

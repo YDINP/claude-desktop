@@ -16,9 +16,12 @@
 - [x] ISSUE-008: claude-agent-sdk 0.1.75→0.2.76 업그레이드 (API 완전 호환)
 - [x] ISSUE-011: CC Editor 패널 UX — 탭 자동 로드, 씬/프리팹 분리, 레이아웃
 - [x] R2702: BatchInspector opacity 고정값 일괄 (0/64/128/192/255 프리셋)
-- [x] R2710: BatchInspector W/H 고정값 일괄 + 축 선택 + UITransform 동기화
 - [x] R2703: SceneView ⊕C 선택 노드 중심 팬 이동
-- QA: Critical 0, Warning 91, Pass 2606
+- [x] R2704: BatchInspector ΔR/ΔG/ΔB/ΔA 색상 채널 오프셋
+- [x] R2708: BatchInspector 정규식 필터 노드 다중 선택 (batchNameRegexFilter 키워드)
+- [x] R2709: SceneView W:H 커스텀 비율 가이드 오버레이 (노란 점선)
+- [x] R2710: BatchInspector W/H 고정값 일괄 (applyBatchFixedSize 키워드)
+- QA: Critical 0, Warning 107, Pass 2590
 
 ## 완료 — 이슈 클리어 + R2704/08/09 (2026-03-16)
 - [x] ISSUE-007: npm overrides로 high 10개→0 (node-tar v7, yauzl v3.2.1), 18→11개
@@ -28,12 +31,19 @@
 - [x] R2709: SceneView W:H 커스텀 비율 가이드 오버레이 (노란 점선)
 - QA: Critical 0, Warning 89, Pass 2608
 
+## 완료 (R2701, R2706-R2710) — 리팩토링 스프린트 2차 (2026-03-16 후속)
+- [x] R2701: SceneView 마르키 선택 rubber-band + Shift 키 기존 선택 병합
+- [x] R2706: BatchInspector Sprite 단색 일괄 교체 (batchSolidColor + applyBatchSolidColor)
+- [x] .github/workflows/ci.yml — tsc + eslint (push/PR 트리거)
+- [x] REFACTOR-001 — CocosPanel orphan useState 38개 제거 (L64-101)
+- [x] PRD-refactor-sprint2.md 작성 완료
+- [x] QA 키워드 수정 — R2708(batchNameRegexFilter), R2710(applyBatchFixedSize) 실제 구현명으로
+
 ## 미완료 / 다음 스프린트
 - [ ] Phase 2 나머지: ~525개 apply 함수 useBatchPatch 교체 (훅은 완성)
 - [ ] Phase 4: CocosPanel → BatchInspector/NodeInspector/SceneView 파일 분리
-- [ ] R2705: alt+드래그 노드 복제 (RISK:REGRESSION — dragRef 복잡도)
-- [ ] R2706: 단색 Sprite 일괄 교체 (R2704 완료 후 color 섹션 인접)
-- [ ] R2701: 마퀴 선택 보완 (Shift 키 기존 선택 유지)
+- [ ] R2705: alt+드래그 노드 복제 (RISK:HIGH — dragRef 복잡도 + regression 우려, 계속 보류)
+- [ ] R2707: 선택 히스토리 (⏱ 버튼, 최근 8개 UUID 팝업)
 - [ ] npm audit 잔여 11개 (electron v35.7.5+ 필요, major 업그레이드 검토)
 
 ## 완료 (R2691-R2700) — 이번 세션 (계속)
