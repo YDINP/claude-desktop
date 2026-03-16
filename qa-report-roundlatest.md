@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-16T04:15:33.059Z
+> 2026-03-16T04:35:06.122Z
 
 ## Critical
 _없음_
@@ -91,8 +91,6 @@ _없음_
 - [CCFileSceneView.tsx] R2705 Alt+drag 복제 미구현
 - [CocosPanel.tsx] R2706 단색 일괄 적용 미구현
 - [CCFileSceneView.tsx] R2707 선택 히스토리 미구현
-- [CocosPanel.tsx] R2708 이름 정규식 필터 선택 미구현
-- [CocosPanel.tsx] R2710 크기 고정값 일괄 설정 미구현
 - [cc-file-watcher.ts / fs-handlers.ts] ISSUE-003/004/005 버그 수정 미완료
 
 ## Pass
@@ -2491,7 +2489,9 @@ _없음_
 - R2702 opacity 고정값 일괄 설정 구현 완료
 - R2703 선택 중심 팬 구현 완료
 - R2704 색상 채널 오프셋 구현 완료
+- R2708 이름 정규식 필터 선택 구현 완료
 - R2709 커스텀 비율 가이드 구현 완료
+- R2710 크기 고정값 일괄 설정 구현 완료
 - R2700 형제 강조 오버레이 구현 완료
 - R2699 color 리셋 구현 완료
 - R2698 위치 가이드 십자선 구현 완료

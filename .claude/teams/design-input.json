@@ -3,25 +3,16 @@
   "to": "design",
   "type": "design-request",
   "payload": {
-    "issueOverride": [
-      "ISSUE-008 (medium): claude-agent-sdk 0.1.75→0.2.76 업그레이드, agent-bridge.ts 호환성 확인 필요",
-      "ISSUE-011 (신규기능): CC Editor 패널 — 탭 클릭 시 Cocos 프로젝트 로드, 씬/프리팹 드롭다운, 우측 넓은 씬뷰, 좌측 노드 리스트, CC 2.x/3.x 호환",
-      "ISSUE-007 (medium): npm audit 18 취약점 — non-breaking fix 없음, electron/electron-rebuild 업그레이드 필요. devDep만 영향이므로 판단 후 라운드 편성 여부 결정"
-    ],
+    "issueOverride": [],
     "roadmapItems": [
-      "R2701: 마퀴 선택 (드래그로 여러 노드 선택)",
-      "R2702: opacity 고정값 + 증감 복합 UI",
-      "R2703: 선택 노드로 씬뷰 중심 이동",
-      "R2704: color 채널별 오프셋 (R/G/B/A 각각 ±N)",
-      "R2705: alt+드래그 노드 복제",
-      "R2706: 단색 Sprite 일괄 교체 (solidColor 배치)",
-      "R2707: 선택 히스토리 (이전 선택으로 복귀)",
-      "R2708: 이름 정규식 필터 선택 (regex match로 노드 선택)",
-      "R2709: 커스텀 비율 가이드 라인 (씬뷰에 비율선 표시)",
-      "R2710: 고정 크기 일괄 설정 (width/height 직접 입력)"
+      "R2701: SceneView 마르키 선택 — 빈 공간 드래그로 파란 반투명 사각형 rubber-band 다중 선택",
+      "R2705: alt+드래그 노드 복제 — SceneView에서 alt 누른 채 드래그 시 deepCopy 후 offset 이동",
+      "R2706: 단색 일괄 적용 (Solid Color) — CocosPanel BatchInspector에서 hex picker 1개로 선택 노드 color 일괄 설정",
+      "R2707: 선택 히스토리 — 최근 8개 UUID 기록, ⏱ 버튼 팝업 목록, 클릭 시 setSelectedUuid",
+      "REFACTOR-001: CocosPanel 최상단 orphan useState 제거 — L65~101 구간 미사용 useState 쌍 약 50개 삭제"
     ],
     "requestedCount": 3,
-    "completedRounds": "R2700까지 완료. 최근 리팩토링: qa.ts 선언적 테이블화, useBatchPatch 훅 도입, cocos-utils.ts 분리, ESLint 추가",
-    "note": "이슈 최우선 원칙: medium 이슈 2개+ → 이슈 전용 라운드 우선 편성. ISSUE-011은 큰 신규 기능이므로 별도 라운드로 설계 권장. R2701-R2710 중 3개 선택."
+    "completedRounds": "R2710까지 완료. R2702/R2703/R2704/R2708/R2709/R2710 구현✅. CI(.github/workflows/ci.yml) 추가✅. PRD-refactor-sprint2.md 작성✅. PRD-R2701-R2710.md 참고.",
+    "note": "R2705는 RISK:HIGH(dragRef 복잡도). R2701/R2706/R2707은 난이도 낮음. REFACTOR-001은 CocosPanel 데드코드 제거로 안전. 설계팀은 복잡도/파일 충돌 평가 후 3개 선택 — R2705 선택 시 별도 worktree 격리 권장. CI는 이미 구현됨 — 설계 불필요."
   }
 }
