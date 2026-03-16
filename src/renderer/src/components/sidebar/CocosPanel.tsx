@@ -4352,6 +4352,8 @@ function CCFileBatchInspector({
   const [colorBlendAmount, setColorBlendAmount] = useState<number>(50)
   // R2678: opacity 배수
   const [opacityMult, setOpacityMult] = useState<number>(80)
+  // R2681: 산포 factor
+  const [spreadFactor, setSpreadFactor] = useState<number>(1.5)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -5408,6 +5410,39 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color리셋 (R2656)</span>
             <span onClick={applyColorReset} title="선택 노드 color를 흰색(255,255,255)으로 리셋 (R2656)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(255,255,255,0.3)', color: '#e2e8f0', userSelect: 'none', background: 'rgba(255,255,255,0.05)' }}>⬜ 흰색</span>
+          </div>
+        )
+      })()}
+      {/* R2681: 선택 노드 산포/수축 — 중심 기준 거리를 factor배로 조정 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applySpread = async (factor: number) => {
+          if (!sceneFile.root) return
+          const selNodes: CCSceneNode[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          if (selNodes.length < 2) return
+          const xs = selNodes.map(n => (n.position as { x: number }).x)
+          const ys = selNodes.map(n => (n.position as { y: number }).y)
+          const cx = (Math.min(...xs) + Math.max(...xs)) / 2
+          const cy = (Math.min(...ys) + Math.max(...ys)) / 2
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, x: Math.round(cx + (pos.x - cx) * factor), y: Math.round(cy + (pos.y - cy) * factor) }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 산포 ×${factor} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>산포 (R2681)</span>
+            <input type="number" value={spreadFactor} min={0.1} max={5} step={0.1} onChange={e => setSpreadFactor(parseFloat(e.target.value) || 1)} style={niS} title="산포 배수 (>1 펼치기, <1 모으기)" />
+            <span onClick={() => applySpread(spreadFactor)} title={`중심 기준 ×${spreadFactor} 산포 (R2681)`} style={bs}>산포</span>
+            <span onClick={() => applySpread(1 / spreadFactor)} title={`중심 기준 ×${(1/spreadFactor).toFixed(2)} 수축 (R2681)`} style={bs}>수축</span>
           </div>
         )
       })()}

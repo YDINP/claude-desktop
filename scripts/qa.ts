@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1674: R2682 SceneView 선택 노드 간 거리 텍스트 ───────────────────
+console.log('\n## 1674. R2682 — SceneView 선택 노드 간 거리 텍스트')
+const s1674 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1674.includes('R2682') &&
+  s1674.includes('showPairDist') &&
+  s1674.includes('a78bfa') &&
+  s1674.includes('↔')
+) {
+  log('pass', 'R2682-pairDist', 'R2682 선택 노드 간 거리 텍스트 구현 완료')
+} else {
+  log('warning', 'R2682-pairDist', 'R2682 선택 노드 간 거리 텍스트 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1673: R2681 BatchInspector 산포/수축 ─────────────────────────────
+console.log('\n## 1673. R2681 — BatchInspector 산포/수축')
+const s1673 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1673.includes('R2681') &&
+  s1673.includes('applySpread') &&
+  s1673.includes('spreadFactor') &&
+  s1673.includes('산포')
+) {
+  log('pass', 'R2681-spread', 'R2681 산포/수축 구현 완료')
+} else {
+  log('warning', 'R2681-spread', 'R2681 산포/수축 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1672: R2680 SceneView 선택 그룹 중심 마커 ────────────────────────
 console.log('\n## 1672. R2680 — SceneView 선택 그룹 중심 마커')
 const s1672 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

@@ -293,6 +293,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSizeHeat, setShowSizeHeat] = useState(false)
   // R2680: 선택 그룹 중심 마커
   const [showSelCenter, setShowSelCenter] = useState(false)
+  // R2682: 선택 노드 간 거리 텍스트
+  const [showPairDist, setShowPairDist] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1827,6 +1829,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSelCenter ? '중심 마커 끄기 (R2680)' : '선택 노드 그룹 중심점 마커 표시 (R2680)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelCenter ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSelCenter ? 'rgba(52,211,153,0.1)' : 'none', color: showSelCenter ? '#34d399' : 'var(--text-muted)' }}
         >⊕</button>
+        {/* R2682: 선택 노드 간 거리 표시 토글 */}
+        <button
+          onClick={() => setShowPairDist(v => !v)}
+          title={showPairDist ? '거리 표시 끄기 (R2682)' : '선택 순서 인접 노드 간 거리 텍스트 표시 (R2682)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showPairDist ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showPairDist ? 'rgba(167,139,250,0.1)' : 'none', color: showPairDist ? '#a78bfa' : 'var(--text-muted)' }}
+        >↔</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3435,6 +3443,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               <g style={{ pointerEvents: 'none' }}>
                 <line x1={left} y1={sp.y} x2={right} y2={sp.y} stroke="rgba(148,163,184,0.5)" strokeWidth={sw} />
                 <line x1={sp.x} y1={top} x2={sp.x} y2={bottom} stroke="rgba(148,163,184,0.5)" strokeWidth={sw} />
+              </g>
+            )
+          })()}
+          {/* R2682: 선택 노드 간 거리 텍스트 */}
+          {showPairDist && uuids.length >= 2 && (() => {
+            const posMap = new Map<string, { x: number; y: number }>()
+            flatNodes.forEach(fn => posMap.set(fn.node.uuid, { x: fn.worldX, y: fn.worldY }))
+            const pairs: { a: string; b: string }[] = []
+            for (let i = 0; i < uuids.length - 1; i++) pairs.push({ a: uuids[i], b: uuids[i + 1] })
+            return (
+              <g pointerEvents="none">
+                {pairs.map(({ a, b }, i) => {
+                  const pa = posMap.get(a), pb = posMap.get(b)
+                  if (!pa || !pb) return null
+                  const sa = ccToSvg(pa.x, pa.y), sb = ccToSvg(pb.x, pb.y)
+                  const mx = (sa.x + sb.x) / 2, my = (sa.y + sb.y) / 2
+                  const dx = pb.x - pa.x, dy = pb.y - pa.y
+                  const dist = Math.round(Math.sqrt(dx * dx + dy * dy))
+                  return (
+                    <text key={i} x={mx} y={my - 3 / view.zoom} fontSize={8 / view.zoom} fill="#a78bfa" textAnchor="middle" style={{ userSelect: 'none' }}>{dist}</text>
+                  )
+                })}
               </g>
             )
           })()}
