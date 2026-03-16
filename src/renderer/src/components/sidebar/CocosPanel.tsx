@@ -4356,6 +4356,8 @@ function CCFileBatchInspector({
   const [spreadFactor, setSpreadFactor] = useState<number>(1.5)
   // R2684: 절대 간격
   const [evenSpacing, setEvenSpacing] = useState<number>(10)
+  // R2685: 절대 회전값
+  const [absRotValue, setAbsRotValue] = useState<number>(45)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -5340,6 +5342,35 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot리셋 (R2662)</span>
             <span onClick={applyRotReset} title="rotation → 0 (CC2.x 숫자/CC3.x {x,y,z} 공통 처리) (R2662)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }}>R=0</span>
+          </div>
+        )
+      })()}
+      {/* R2685: 회전 절대값 지정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyAbsRot = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const rot = typeof n.rotation === 'number' ? absRotValue : { x: 0, y: 0, z: absRotValue }
+            return { ...n, rotation: rot, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ rotation = ${absRotValue}° (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot지정 (R2685)</span>
+            <input type="number" value={absRotValue} min={-360} max={360} step={1} onChange={e => setAbsRotValue(parseFloat(e.target.value) || 0)} style={niS} title="절대 회전값 (도)" />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>°</span>
+            <span onClick={applyAbsRot}
+              title={`선택 노드 rotation = ${absRotValue}° (R2685)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >지정</span>
           </div>
         )
       })()}

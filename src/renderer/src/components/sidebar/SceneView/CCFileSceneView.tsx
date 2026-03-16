@@ -295,6 +295,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSelCenter, setShowSelCenter] = useState(false)
   // R2682: 선택 노드 간 거리 텍스트
   const [showPairDist, setShowPairDist] = useState(false)
+  // R2686: Sprite spriteFrame 이름 배지
+  const [showSpriteName, setShowSpriteName] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1835,6 +1837,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showPairDist ? '거리 표시 끄기 (R2682)' : '선택 순서 인접 노드 간 거리 텍스트 표시 (R2682)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showPairDist ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showPairDist ? 'rgba(167,139,250,0.1)' : 'none', color: showPairDist ? '#a78bfa' : 'var(--text-muted)' }}
         >↔</button>
+        {/* R2686: Sprite 이름 배지 토글 */}
+        <button
+          onClick={() => setShowSpriteName(v => !v)}
+          title={showSpriteName ? 'Sprite 이름 끄기 (R2686)' : 'cc.Sprite spriteFrame 이름 배지 표시 (R2686)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSpriteName ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showSpriteName ? 'rgba(251,146,60,0.1)' : 'none', color: showSpriteName ? '#fb923c' : 'var(--text-muted)' }}
+        >Sp</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2928,6 +2936,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       <rect x={bx} y={by} width={bw} height={bh} fill="rgba(129,140,248,0.85)" rx={2 / view.zoom} />
                       <text x={bx + bw / 2} y={by + bh - 2 / view.zoom} fontSize={7 / view.zoom} fill="#fff" textAnchor="middle" style={{ userSelect: 'none' }}>{cnt}</text>
                     </g>
+                  )
+                })()}
+                {/* R2686: Sprite spriteFrame 이름 배지 */}
+                {showSpriteName && w > 0 && h > 0 && view.zoom > 0.25 && (() => {
+                  const spr = node.components.find(c => c.type === 'cc.Sprite' || c.type === 'Sprite')
+                  if (!spr?.props) return null
+                  const frame = spr.props['_spriteFrame'] as { __uuid__?: string } | string | null | undefined
+                  let name = ''
+                  if (typeof frame === 'string') name = frame.split('/').pop()?.replace(/\.\w+$/, '') ?? ''
+                  else if (frame && typeof frame === 'object' && frame.__uuid__) name = frame.__uuid__.slice(0, 8)
+                  if (!name) return null
+                  return (
+                    <text x={rectX + w / 2} y={rectY + h + 10 / view.zoom}
+                      fontSize={7 / view.zoom} fill="#fb923c" textAnchor="middle"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}>{name}</text>
                   )
                 })()}
                 {/* R2675: 노드 크기 히트맵 */}

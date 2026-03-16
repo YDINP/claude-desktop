@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1678: R2686 SceneView Sprite 이름 배지 ───────────────────────────
+console.log('\n## 1678. R2686 — SceneView Sprite 이름 배지')
+const s1678 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1678.includes('R2686') &&
+  s1678.includes('showSpriteName') &&
+  s1678.includes('fb923c') &&
+  s1678.includes('Sp')
+) {
+  log('pass', 'R2686-spriteName', 'R2686 Sprite 이름 배지 구현 완료')
+} else {
+  log('warning', 'R2686-spriteName', 'R2686 Sprite 이름 배지 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1677: R2685 BatchInspector 회전 절대값 지정 ──────────────────────
+console.log('\n## 1677. R2685 — BatchInspector 회전 절대값 지정')
+const s1677 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1677.includes('R2685') &&
+  s1677.includes('applyAbsRot') &&
+  s1677.includes('absRotValue') &&
+  s1677.includes('rot지정')
+) {
+  log('pass', 'R2685-absRot', 'R2685 회전 절대값 지정 구현 완료')
+} else {
+  log('warning', 'R2685-absRot', 'R2685 회전 절대값 지정 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1676: R2684 BatchInspector 절대 간격 설정 ────────────────────────
 console.log('\n## 1676. R2684 — BatchInspector 절대 간격 설정')
 const s1676 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
