@@ -3,6 +3,7 @@ import { useCCFileProject } from '../../hooks/useCCFileProject'
 import { CCFileSceneView } from './SceneView/CCFileSceneView'
 import type { CCSceneNode, CCSceneFile } from '@shared/ipc-schema'
 import { updateCCFileContext } from '../../hooks/useCCFileContext'
+import { validateScene, extractPrefabEntries, deepCopyNodeWithNewUuids, type ValidationIssue } from './cocos-utils'
 
 function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   const [checked, setChecked] = useState(value)
@@ -47,13 +48,6 @@ type TransformSnapshot = {
 }
 let transformClipboard: TransformSnapshot | null = null
 
-// R1418: 씬 유효성 검사 (Lint)
-interface ValidationIssue {
-  level: 'error' | 'warning'
-  message: string
-  nodeUuid?: string
-  nodeName?: string
-}
 
 // R1441: 최적화 제안 인터페이스 (cc-file-parser와 동기화)
 interface OptimizationSuggestion {
@@ -61,52 +55,6 @@ interface OptimizationSuggestion {
   severity: 'high' | 'medium' | 'low'
   message: string
   affectedUuids?: string[]
-}
-
-function validateScene(root: CCSceneNode): ValidationIssue[] {
-  const issues: ValidationIssue[] = []
-  const seenUuids = new Map<string, string>() // uuid → name
-  let hasCanvas = false
-
-  function walk(node: CCSceneNode, depth: number, parentActive: boolean): void {
-    // UUID 중복 체크
-    if (seenUuids.has(node.uuid)) {
-      issues.push({ level: 'error', message: `UUID 중복: "${node.name}" 와 "${seenUuids.get(node.uuid)}" (${node.uuid.slice(0, 8)}...)`, nodeUuid: node.uuid, nodeName: node.name })
-    } else {
-      seenUuids.set(node.uuid, node.name)
-    }
-
-    // 이름 빈 노드
-    if (node.name === '') {
-      issues.push({ level: 'warning', message: `이름 빈 노드 (uuid: ${node.uuid.slice(0, 8)}...)`, nodeUuid: node.uuid, nodeName: '(empty)' })
-    }
-
-    // Canvas 감지
-    if (node.components.some(c => c.type === 'cc.Canvas')) hasCanvas = true
-
-    // 비활성 부모 아래 활성 자식
-    if (!parentActive && node.active) {
-      issues.push({ level: 'warning', message: `비활성 부모 아래 활성 자식: "${node.name}"`, nodeUuid: node.uuid, nodeName: node.name })
-    }
-
-    // 깊이 경고
-    if (depth > 8) {
-      issues.push({ level: 'warning', message: `계층 깊이 ${depth}: "${node.name}" (8 초과)`, nodeUuid: node.uuid, nodeName: node.name })
-    }
-
-    for (const child of node.children) {
-      walk(child, depth + 1, node.active)
-    }
-  }
-
-  walk(root, 0, true)
-
-  // Canvas 없는 씬 경고 (루트가 Scene인 경우)
-  if (!hasCanvas && root.children.length > 0) {
-    issues.push({ level: 'warning', message: 'Canvas 컴포넌트가 없는 씬 (CC 2.x에서 UI가 표시되지 않을 수 있음)' })
-  }
-
-  return issues
 }
 
 export function CocosPanel() {
@@ -280,75 +228,6 @@ interface CCFileProjectUIProps {
   }
   selectedNode: CCSceneNode | null
   onSelectNode: (n: CCSceneNode | null) => void
-}
-
-/** R2463: 선택 노드 서브트리를 prefab raw 배열로 변환 */
-function extractPrefabEntries(raw: unknown[], rootRawIdx: number): unknown[] {
-  const rawArr = raw as Record<string, unknown>[]
-  const collected: number[] = []
-  const seen = new Set<number>()
-
-  function collectDfs(idx: number) {
-    if (idx < 0 || idx >= rawArr.length || seen.has(idx)) return
-    seen.add(idx)
-    collected.push(idx)
-    const e = rawArr[idx]
-    // components 먼저 수집
-    const comps = e._components as { __id__: number }[] | undefined
-    comps?.forEach(c => { if (typeof c.__id__ === 'number') collectDfs(c.__id__) })
-    // children 수집
-    const children = e._children as { __id__: number }[] | undefined
-    children?.forEach(c => { if (typeof c.__id__ === 'number') collectDfs(c.__id__) })
-  }
-  collectDfs(rootRawIdx)
-
-  // oldIdx → newIdx 매핑 (0=cc.Prefab, 1=root, ...)
-  const oldToNew = new Map<number, number>()
-  collected.forEach((oldIdx, i) => oldToNew.set(oldIdx, i + 1))
-
-  // __id__ 재매핑 (deep)
-  function remapRefs(v: unknown, isRoot: boolean): unknown {
-    if (Array.isArray(v)) return v.map(el => remapRefs(el, false))
-    if (v && typeof v === 'object') {
-      const obj = v as Record<string, unknown>
-      if ('__id__' in obj && typeof obj.__id__ === 'number') {
-        const mapped = oldToNew.get(obj.__id__)
-        return mapped != null ? { __id__: mapped } : { __id__: obj.__id__ }
-      }
-      const result: Record<string, unknown> = {}
-      for (const [k, val] of Object.entries(obj)) {
-        result[k] = (isRoot && k === '_parent') ? null : remapRefs(val, false)
-      }
-      return result
-    }
-    return v
-  }
-
-  const prefabHeader = {
-    __type__: 'cc.Prefab', _name: '', _objFlags: 0,
-    data: { __id__: 1 }, optimizationPolicy: 0, asyncLoadAssets: false, readonly: false,
-  }
-  const nodeEntries = collected.map((oldIdx, i) =>
-    remapRefs(JSON.parse(JSON.stringify(rawArr[oldIdx])), i === 0) as unknown
-  )
-  return [prefabHeader, ...nodeEntries]
-}
-
-// R1476: 노드 딥복사 + UUID 자동 재생성 (재귀, crypto.randomUUID)
-function deepCopyNodeWithNewUuids(node: CCSceneNode, suffix = '_Copy'): CCSceneNode {
-  const genUuid = () => (typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : `node-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`)
-  function deepCopy(n: CCSceneNode, isToplevel: boolean): CCSceneNode {
-    return {
-      ...n,
-      uuid: genUuid(),
-      name: isToplevel ? n.name + suffix : n.name,
-      // R2460: _rawIndex 초기화 — 복제 노드의 컴포넌트는 새 raw 엔트리로 생성 (R2459 _components 동기화와 충돌 방지)
-      components: n.components.map(c => ({ ...c, props: { ...c.props }, _rawIndex: undefined })),
-      children: n.children.map(c => deepCopy(c, false)),
-      _rawIndex: undefined,
-    }
-  }
-  return deepCopy(node, true)
 }
 
 function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProjectUIProps) {
@@ -4366,8 +4245,6 @@ function CCFileBatchInspector({
   const [nudgeStep, setNudgeStep] = useState<number>(1)
   const [posGradFrom, setPosGradFrom] = useState<number>(-200)
   const [posGradTo, setPosGradTo] = useState<number>(200)
-  const [opGradFrom, setOpGradFrom] = useState<number>(255)
-  const [opGradTo, setOpGradTo] = useState<number>(0)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -4385,6 +4262,22 @@ function CCFileBatchInspector({
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
   const [batchAnchorCompensate, setBatchAnchorCompensate] = useState(true)
+  // -- style factories (btnS/niS 반복 제거) --
+  const mkBtnS = (color: string, extra?: React.CSSProperties): React.CSSProperties => ({
+    fontSize: 9, padding: '1px 5px', cursor: 'pointer',
+    border: '1px solid var(--border)', borderRadius: 2,
+    color, userSelect: 'none', ...extra,
+  })
+  const mkBtnTint = (rgb: string, hex: string, extra?: React.CSSProperties): React.CSSProperties => ({
+    fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+    border: `1px solid rgba(${rgb},0.4)`, color: hex,
+    userSelect: 'none', background: `rgba(${rgb},0.05)`, ...extra,
+  })
+  const mkNiS = (w: number, padding = '1px 3px'): React.CSSProperties => ({
+    width: w, fontSize: 9, padding, border: '1px solid var(--border)',
+    borderRadius: 2, background: 'var(--bg-secondary)',
+    color: 'var(--text-primary)', textAlign: 'center',
+  })
   // R2513: Z-Order 이동
   const moveZOrder = useCallback(async (dir: 'up' | 'down' | 'top' | 'bottom') => {
     if (!sceneFile.root) return
@@ -4602,7 +4495,7 @@ function CCFileBatchInspector({
           coll(sceneFile.root!)
           const activeCount = uuids.filter(u => nodeByUuid.get(u)?.active !== false).length
           const inactiveCount = uuids.length - activeCount
-          const btnS: React.CSSProperties = { fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }
+          const btnS = mkBtnS('#94a3b8', { fontSize: 8, padding: '1px 4px' })
           return <>
             {activeCount > 0 && activeCount < uuids.length && (
               <span style={btnS} title={`활성 노드만 선택 (${activeCount}개, R2509)`}
@@ -4943,8 +4836,8 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ nudge Δ(${dx >= 0 ? '+' : ''}${dx},${dy >= 0 ? '+' : ''}${dy}) (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 1500)
         }
-        const btnS: React.CSSProperties = { fontSize: 10, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#34d399', userSelect: 'none', lineHeight: 1.2 }
-        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const btnS = mkBtnS('#34d399', { fontSize: 10, lineHeight: 1.2 })
+        const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>nudge (R2692)</span>
@@ -4973,7 +4866,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 절대위치 ${absPosAxisX ? `X=${absPosX}` : ''}${absPosAxisX && absPosAxisY ? ' ' : ''}${absPosAxisY ? `Y=${absPosY}` : ''} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(52)
         const ckS: React.CSSProperties = { cursor: 'pointer', fontSize: 9, color: '#94a3b8', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5038,7 +4931,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 랜덤 오프셋 ±${randomRange} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤 (R2663)</span>
@@ -5071,7 +4964,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 랜덤 회전 ±${randomRotRange}° (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤회전 (R2664)</span>
@@ -5105,7 +4998,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 오파시티 그라디언트 ${opGradFrom}→${opGradTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>불투명도 (R2525)</span>
@@ -5136,7 +5029,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ opacity 스냅 ${step} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const btnS: React.CSSProperties = { fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#c084fc', userSelect: 'none' }
+        const btnS = mkBtnS('#c084fc')
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op스냅 (R2621)</span>
@@ -5284,7 +5177,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 회전 분배 ${rotDistFrom}°→${rotDistTo}° (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전분배 (R2604)</span>
@@ -5319,7 +5212,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ scale 분배 ${scaleGradFrom}→${scaleGradTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale분배 (R2605)</span>
@@ -5426,7 +5319,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ rotation = ${absRotValue}° (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot지정 (R2685)</span>
@@ -5482,7 +5375,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ opacity 그라데이션 ${opGradFrom}→${opGradTo} (${selNodes.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op분포 (R2697)</span>
@@ -5509,7 +5402,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ opacity ×${opacityMult}% (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op배수 (R2678)</span>
@@ -5570,7 +5463,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 위치 그라데이션 ${axis.toUpperCase()} ${from}→${to} (${selNodes.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(52)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>위치분포 (R2695)</span>
@@ -5606,7 +5499,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 산포 ×${factor} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5668,7 +5561,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ ${axis.toUpperCase()}축 ${evenSpacing}px 간격 (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(96,165,250,0.4)', color: '#60a5fa', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5792,7 +5685,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ color 블렌드 ${colorBlendAmount}% → ${colorBlendTarget} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color블렌드 (R2676)</span>
@@ -5827,7 +5720,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ size.W 분배 ${szGradFromW}→${szGradToW} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sizeW분배 (R2613)</span>
@@ -5862,7 +5755,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ size.H 분배 ${szGradFromH}→${szGradToH} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sizeH분배 (R2614)</span>
@@ -5909,7 +5802,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ font 분배 ${fontSizeFrom}→${fontSizeTo} (${labelCounter}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#67e8f9', flexShrink: 0 }}>font분배 (R2633)</span>
@@ -5944,7 +5837,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ pos.Z 분배 ${posZFrom}→${posZTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posZ분배 (R2616)</span>
@@ -5979,7 +5872,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ pos.X 분배 ${posXFrom}→${posXTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posX분배 (R2618)</span>
@@ -6014,7 +5907,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ pos.Y 분배 ${posYFrom}→${posYTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posY분배 (R2619)</span>
@@ -6708,7 +6601,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 원형 배치 r=${circleRadius} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 46, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(46)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>원형배치 (R2639)</span>
@@ -6753,7 +6646,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 격자 배치 ${cols}열 (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 34, fontSize: 9, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(34, '1px 2px')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>격자배치 (R2643)</span>
@@ -6914,7 +6807,7 @@ function CCFileBatchInspector({
           setTimeout(() => setBatchMsg(null), 2000)
         }
         void clones
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>복제 (R2649)</span>
@@ -7088,7 +6981,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 크기 ×${factor} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(44)
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(34,211,238,0.4)', color: '#22d3ee', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -7113,7 +7006,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ scale = (${absScaleX}, ${absScaleY}) (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale지정 (R2690)</span>
@@ -7178,7 +7071,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ ${aspectRatioW}:${aspectRatioH} 비율 적용 (${basis.toUpperCase()}기준, ${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 30, fontSize: 9, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(30, '1px 2px')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>비율 (R2660)</span>
@@ -7304,8 +7197,8 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ anchor.Y ${anchorYFrom}→${anchorYTo} (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
-        const btnS: React.CSSProperties = { fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }
+        const niS = mkNiS(36)
+        const btnS = mkBtnS('#fb923c')
         return (
           <>
             <div style={{ display: 'flex', gap: 3, marginBottom: 4, alignItems: 'center' }}>
@@ -19787,7 +19680,7 @@ function CCFileBatchInspector({
           setTimeout(() => setBatchMsg(null), 2000)
         }
         const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
-        const niS: React.CSSProperties = { width: 30, fontSize: 9, padding: '1px 2px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(30, '1px 2px')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>이름번호 (R2650)</span>
@@ -19924,7 +19817,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ scale ×${mul} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const btnS: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }
+        const btnS = mkBtnTint('251,191,36', '#fbbf24')
         const mul = parseFloat(scaleMulInput)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -19955,7 +19848,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ size ×${mul} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const btnS: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }
+        const btnS = mkBtnTint('52,211,153', '#34d399')
         const mul = parseFloat(sizeMulInput)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -20111,7 +20004,7 @@ function CCFileBatchInspector({
           setTimeout(() => setBatchMsg(null), 2000)
         }
         const deg = parseFloat(rotOffsetInput) || 0
-        const btnS: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }
+        const btnS = mkBtnTint('167,139,250', '#a78bfa')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>rot+= (R2612)</span>
@@ -20148,7 +20041,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ rot 분배 ${rotGradFrom}°→${rotGradTo}° (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#ec4899', flexShrink: 0 }}>rot분배 (R2638)</span>
