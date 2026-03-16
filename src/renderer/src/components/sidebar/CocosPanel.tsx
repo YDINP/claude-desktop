@@ -3178,6 +3178,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                   saveScene={saveScene}
                   onSelectNode={onSelectNode}
                   onMultiSelectChange={setMultiSelectedUuids}
+                  lockedUuids={lockedUuids}
+                  onSetLockedUuids={setLockedUuids}
                 />
               </div>
             )}
@@ -3953,7 +3955,7 @@ function ScrubLabel({ label, value, onChange, step = 1, inputRef }: { label: str
 
 /** R1516: 다중 노드 공통 속성 배치 편집 패널 */
 function CCFileBatchInspector({
-  uuids, sceneFile, saveScene, onSelectNode, onMultiSelectChange,
+  uuids, sceneFile, saveScene, onSelectNode, onMultiSelectChange, lockedUuids, onSetLockedUuids,
 }: {
   uuids: string[]
   sceneFile: CCSceneFile
@@ -3961,6 +3963,10 @@ function CCFileBatchInspector({
   onSelectNode: (n: CCSceneNode | null) => void
   /** R2500: 선택 변경 콜백 (반전 선택 등) */
   onMultiSelectChange?: (uuids: string[]) => void
+  /** R2725: 잠금 상태 */
+  lockedUuids?: Set<string>
+  /** R2725: 잠금 상태 setter (localStorage 동기화 포함) */
+  onSetLockedUuids?: (updater: (prev: Set<string>) => Set<string>) => void
 }) {
   const [batchOpacity, setBatchOpacity] = useState<string>('')
   const [batchActive, setBatchActive] = useState<'active' | 'inactive' | ''>('')
@@ -4551,6 +4557,37 @@ function CCFileBatchInspector({
           )
         })()}
       </div>
+      {/* R2725: 일괄 lock/unlock */}
+      {onSetLockedUuids && lockedUuids && (
+        <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+          <button
+            onClick={() => {
+              onSetLockedUuids(prev => {
+                const next = new Set(prev)
+                uuids.forEach(u => next.add(u))
+                localStorage.setItem('scene-locked', JSON.stringify([...next]))
+                return next
+              })
+              setBatchMsg(`✓ ${uuids.length}개 잠금`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 11, padding: '2px 8px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: '#f97316' }}
+          >🔒 일괄 잠금</button>
+          <button
+            onClick={() => {
+              onSetLockedUuids(prev => {
+                const next = new Set(prev)
+                uuids.forEach(u => next.delete(u))
+                localStorage.setItem('scene-locked', JSON.stringify([...next]))
+                return next
+              })
+              setBatchMsg(`✓ ${uuids.length}개 잠금해제`)
+              setTimeout(() => setBatchMsg(null), 2000)
+            }}
+            style={{ fontSize: 11, padding: '2px 8px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: '#4ade80' }}
+          >🔓 일괄 잠금해제</button>
+        </div>
+      )}
       {/* R2513: Z-Order 이동 버튼 */}
       <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
         <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>Z순서 (R2513)</span>

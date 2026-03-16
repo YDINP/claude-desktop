@@ -2617,6 +2617,7 @@ export const ROUND_CHECKS: RoundCheck[] = [
   { round: 'R2718-refArrows', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['showRefArrows', 'refUuids', 'ref-arrow'], operator: 'and', failLevel: 'warning', passMsg: 'R2718 uuid 참조 화살표 오버레이 구현 완료', failMsg: 'R2718 uuid 참조 화살표 미구현', failFile: 'CCFileSceneView.tsx' },
   { round: 'R2719-gridSnap', file: 'src/renderer/src/components/sidebar/CocosPanel.tsx', keywords: ['nearestGridSnap', 'applyGridSnapNearest'], operator: 'and', failLevel: 'warning', passMsg: 'R2719 격자 스냅 구현 완료', failMsg: 'R2719 격자 스냅 미구현', failFile: 'CocosPanel.tsx' },
   { round: 'R2721-labelFontColor', file: 'src/renderer/src/components/sidebar/CocosPanel.tsx', keywords: ['labelFontColor', 'applyLabelFontColor'], operator: 'and', failLevel: 'warning', passMsg: 'R2721 Label 폰트 색상 일괄 구현 완료', failMsg: 'R2721 Label 폰트 색상 미구현', failFile: 'CocosPanel.tsx' },
+  { round: 'R2725-batchLock', file: 'src/renderer/src/components/sidebar/CocosPanel.tsx', keywords: ['일괄 잠금', 'lockedUuids', 'onSetLockedUuids'], operator: 'and', failLevel: 'warning', passMsg: 'R2725 BatchInspector 일괄 lock/unlock 구현 완료', failMsg: 'R2725 BatchInspector 일괄 잠금 미구현', failFile: 'CocosPanel.tsx' },
 ]
 
 export const MULTI_FILE_CHECKS: MultiFileCheck[] = [
