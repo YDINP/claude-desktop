@@ -4,6 +4,7 @@ import { CCFileSceneView } from './SceneView/CCFileSceneView'
 import type { CCSceneNode, CCSceneFile } from '@shared/ipc-schema'
 import { updateCCFileContext } from '../../hooks/useCCFileContext'
 import { validateScene, extractPrefabEntries, deepCopyNodeWithNewUuids, type ValidationIssue } from './cocos-utils'
+import { useBatchPatch } from './hooks/useBatchPatch'
 
 function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   const [checked, setChecked] = useState(value)
@@ -4321,6 +4322,7 @@ function CCFileBatchInspector({
   }, [sceneFile, uuidSet, saveScene])
 
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
+  const { patchNodes, patchComponents, patchOrdered } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
 
   // 공통 opacity / active 값 감지
   const commonValues = useMemo(() => {
@@ -4711,18 +4713,11 @@ function CCFileBatchInspector({
       {sceneFile.root && (() => {
         const applyGridSnap = async () => {
           const g = snapGridSize
-          if (g < 1 || !sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          if (g < 1) return
+          await patchNodes(n => {
             const p = n.position as { x: number; y: number; z?: number }
-            const snappedX = Math.round(p.x / g) * g
-            const snappedY = Math.round(p.y / g) * g
-            return { ...n, position: { ...p, x: snappedX, y: snappedY }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${uuids.length}개 노드 ${g}px 그리드 스냅`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...p, x: Math.round(p.x / g) * g, y: Math.round(p.y / g) * g } }
+          }, `${uuids.length}개 노드 ${g}px 그리드 스냅`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4745,16 +4740,10 @@ function CCFileBatchInspector({
       {/* R2609: size 스냅 — 선택 노드 크기를 N px 배수로 반올림 */}
       {sceneFile.root && uuids.length >= 1 && (() => {
         const applySzSnap = async (step: number) => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sz = n.size as { x: number; y: number }
-            return { ...n, size: { x: Math.round(sz.x / step) * step, y: Math.round(sz.y / step) * step }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ size ${step}px 스냅 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: { x: Math.round(sz.x / step) * step, y: Math.round(sz.y / step) * step } }
+          }, `size ${step}px 스냅 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4771,16 +4760,10 @@ function CCFileBatchInspector({
       {/* R2623: position XY 스냅 — 선택 노드 좌표를 N px 배수로 반올림 */}
       {sceneFile.root && uuids.length >= 1 && (() => {
         const applyPosSnap = async (step: number) => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const p = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...p, x: Math.round(p.x / step) * step, y: Math.round(p.y / step) * step }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ pos ${step}px 스냅 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...p, x: Math.round(p.x / step) * step, y: Math.round(p.y / step) * step } }
+          }, `pos ${step}px 스냅 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4797,18 +4780,12 @@ function CCFileBatchInspector({
       {/* R2654: 위치 XY 원점 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyPosReset = async (axis: 'x' | 'y' | 'both') => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
             const nx = axis === 'y' ? pos.x : 0
             const ny = axis === 'x' ? pos.y : 0
-            return { ...n, position: { ...pos, x: nx, y: ny }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ position ${axis === 'both' ? 'XY' : axis.toUpperCase()}→0 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: nx, y: ny } }
+          }, `position ${axis === 'both' ? 'XY' : axis.toUpperCase()}→0 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4855,16 +4832,10 @@ function CCFileBatchInspector({
       {/* R2674: 절대 위치 직접 지정 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyAbsPos = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, x: absPosAxisX ? absPosX : pos.x, y: absPosAxisY ? absPosY : pos.y }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 절대위치 ${absPosAxisX ? `X=${absPosX}` : ''}${absPosAxisX && absPosAxisY ? ' ' : ''}${absPosAxisY ? `Y=${absPosY}` : ''} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: absPosAxisX ? absPosX : pos.x, y: absPosAxisY ? absPosY : pos.y } }
+          }, `절대위치 ${absPosAxisX ? `X=${absPosX}` : ''}${absPosAxisX && absPosAxisY ? ' ' : ''}${absPosAxisY ? `Y=${absPosY}` : ''} (${uuids.length}개)`)
         }
         const niS = mkNiS(52)
         const ckS: React.CSSProperties = { cursor: 'pointer', fontSize: 9, color: '#94a3b8', userSelect: 'none' }
@@ -4887,16 +4858,11 @@ function CCFileBatchInspector({
       {/* R2516: 위치 오프셋 이동 — 선택 노드 위치에 Δx/Δy 더하기 */}
       {sceneFile.root && (() => {
         const applyOffset = async () => {
-          if ((posOffsetX === 0 && posOffsetY === 0) || !sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          if (posOffsetX === 0 && posOffsetY === 0) return
+          await patchNodes(n => {
             const p = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...p, x: p.x + posOffsetX, y: p.y + posOffsetY }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${uuids.length}개 노드 Δ(${posOffsetX >= 0 ? '+' : ''}${posOffsetX}, ${posOffsetY >= 0 ? '+' : ''}${posOffsetY})`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...p, x: p.x + posOffsetX, y: p.y + posOffsetY } }
+          }, `${uuids.length}개 노드 Δ(${posOffsetX >= 0 ? '+' : ''}${posOffsetX}, ${posOffsetY >= 0 ? '+' : ''}${posOffsetY})`)
         }
         const numInputS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
         return (
@@ -4918,18 +4884,12 @@ function CCFileBatchInspector({
       {/* R2663: 랜덤 위치 오프셋 — 선택 노드 위치에 ±range 랜덤 오프셋 추가 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRandomOffset = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const p = n.position as { x: number; y: number; z?: number }
             const dx = (Math.random() * 2 - 1) * randomRange
             const dy = (Math.random() * 2 - 1) * randomRange
-            return { ...n, position: { ...p, x: Math.round(p.x + dx), y: Math.round(p.y + dy) }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 랜덤 오프셋 ±${randomRange} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...p, x: Math.round(p.x + dx), y: Math.round(p.y + dy) } }
+          }, `랜덤 오프셋 ±${randomRange} (${uuids.length}개)`)
         }
         const niS = mkNiS(44)
         return (
@@ -4949,20 +4909,12 @@ function CCFileBatchInspector({
       {/* R2664: 랜덤 회전 오프셋 — 선택 노드 rotation에 ±range 랜덤 값 추가 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRandomRotation = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const delta = (Math.random() * 2 - 1) * randomRotRange
-            if (typeof n.rotation === 'number') {
-              return { ...n, rotation: Math.round(n.rotation + delta), children: ch }
-            }
+            if (typeof n.rotation === 'number') return { ...n, rotation: Math.round(n.rotation + delta) }
             const r = n.rotation as { x: number; y: number; z: number }
-            return { ...n, rotation: { ...r, z: Math.round(r.z + delta) }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 랜덤 회전 ±${randomRotRange}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: { ...r, z: Math.round(r.z + delta) } }
+          }, `랜덤 회전 ±${randomRotRange}° (${uuids.length}개)`)
         }
         const niS = mkNiS(44)
         return (
@@ -5094,15 +5046,7 @@ function CCFileBatchInspector({
         if (colorMap.size === 0) return null
         const colors = [...colorMap.entries()].slice(0, 12)  // 최대 12색
         const applyColor = async (r: number, g: number, b: number, a: number) => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, color: { r, g, b, a: n.color?.a ?? a }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 색상 적용 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, color: { r, g, b, a: n.color?.a ?? a } }), `색상 적용 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -5161,21 +5105,12 @@ function CCFileBatchInspector({
       {/* R2604: rotation 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyRotDist = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
+          await patchOrdered((n, idx, total) => {
+            const t = total > 1 ? idx / (total - 1) : 0
             const deg = Math.round(rotDistFrom + (rotDistTo - rotDistFrom) * t)
             const newRot = typeof n.rotation === 'number' ? deg : { ...(n.rotation as object), z: deg }
-            return { ...n, rotation: newRot, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 회전 분배 ${rotDistFrom}°→${rotDistTo}° (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: newRot }
+          }, `회전 분배 ${rotDistFrom}°→${rotDistTo}° (${uuids.length}개)`)
         }
         const niS = mkNiS(40)
         return (
@@ -5196,21 +5131,12 @@ function CCFileBatchInspector({
       {/* R2605: scale 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyScaleGrad = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
+          await patchOrdered((n, idx, total) => {
+            const t = total > 1 ? idx / (total - 1) : 0
             const sv = Math.round((scaleGradFrom + (scaleGradTo - scaleGradFrom) * t) * 1000) / 1000
             const sc = n.scale as { x: number; y: number; z?: number }
-            return { ...n, scale: { ...sc, x: sv, y: sv }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ scale 분배 ${scaleGradFrom}→${scaleGradTo} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, scale: { ...sc, x: sv, y: sv } }
+          }, `scale 분배 ${scaleGradFrom}→${scaleGradTo} (${uuids.length}개)`)
         }
         const niS = mkNiS(40)
         return (
@@ -5231,18 +5157,12 @@ function CCFileBatchInspector({
       {/* R2655: 스케일 1.0 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyScaleReset = async (axis: 'x' | 'y' | 'both') => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sc = n.scale as { x: number; y: number; z?: number }
             const nx = axis === 'y' ? sc.x : 1
             const ny = axis === 'x' ? sc.y : 1
-            return { ...n, scale: { ...sc, x: nx, y: ny }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ scale ${axis === 'both' ? 'XY' : axis.toUpperCase()}→1 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, scale: { ...sc, x: nx, y: ny } }
+          }, `scale ${axis === 'both' ? 'XY' : axis.toUpperCase()}→1 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5259,16 +5179,10 @@ function CCFileBatchInspector({
       {/* R2662: 회전 0 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRotReset = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const rot = typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 }
-            return { ...n, rotation: rot, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ rotation → 0 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: rot }
+          }, `rotation → 0 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5281,19 +5195,13 @@ function CCFileBatchInspector({
       {/* R2687: 위치/크기 정수 스냅 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRoundPos = async (target: 'pos' | 'size' | 'both') => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
             const sz = n.size as { x: number; y: number } | undefined
             const newPos = (target === 'pos' || target === 'both') ? { ...pos, x: Math.round(pos.x), y: Math.round(pos.y) } : pos
             const newSz = sz && (target === 'size' || target === 'both') ? { x: Math.round(sz.x), y: Math.round(sz.y) } : sz
-            return { ...n, position: newPos, ...(newSz ? { size: newSz } : {}), children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 정수 스냅 (${target}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: newPos, ...(newSz ? { size: newSz } : {}) }
+          }, `정수 스냅 (${target}) (${uuids.length}개)`)
         }
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }
         return (
@@ -5308,16 +5216,10 @@ function CCFileBatchInspector({
       {/* R2685: 회전 절대값 지정 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyAbsRot = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const rot = typeof n.rotation === 'number' ? absRotValue : { x: 0, y: 0, z: absRotValue }
-            return { ...n, rotation: rot, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ rotation = ${absRotValue}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: rot }
+          }, `rotation = ${absRotValue}° (${uuids.length}개)`)
         }
         const niS = mkNiS(44)
         return (
@@ -5337,15 +5239,7 @@ function CCFileBatchInspector({
       {/* R2657: opacity 255 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyOpacityReset = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, opacity: 255, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ opacity 255 리셋 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, opacity: 255 }), `opacity 255 리셋 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5515,16 +5409,10 @@ function CCFileBatchInspector({
         const hw = (projectSettings.designWidth ?? 960) / 2
         const hh = (projectSettings.designHeight ?? 640) / 2
         const applyAlignToCanvas = async (ax: number | null, ay: number | null) => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, x: ax !== null ? ax : pos.x, y: ay !== null ? ay : pos.y }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 캔버스 정렬 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: ax !== null ? ax : pos.x, y: ay !== null ? ay : pos.y } }
+          }, `캔버스 정렬 (${uuids.length}개)`)
         }
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid rgba(96,165,250,0.4)', color: '#60a5fa', userSelect: 'none' }
         return (
@@ -7088,18 +6976,12 @@ function CCFileBatchInspector({
       {/* R2203: 노드 width 독립 일괄 설정 */}
       {(() => {
         const applyNodeWidth = async (w: number) => {
-          if (!sceneFile.root) return
-          function patchNodeWidth(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeWidth)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const curH = n.size?.height ?? 100
             const newSize = { width: w, height: curH }
             const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize, _contentSize: newSize } } : c)
-            return { ...n, size: newSize, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeWidth(sceneFile.root) })
-          setBatchMsg(`✓ width=${w} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: newSize, components: updComps }
+          }, `width=${w} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7115,18 +6997,12 @@ function CCFileBatchInspector({
       {/* R2203: 노드 height 독립 일괄 설정 */}
       {(() => {
         const applyNodeHeight = async (h: number) => {
-          if (!sceneFile.root) return
-          function patchNodeHeight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeHeight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const curW = n.size?.width ?? 100
             const newSize = { width: curW, height: h }
             const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize, _contentSize: newSize } } : c)
-            return { ...n, size: newSize, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeHeight(sceneFile.root) })
-          setBatchMsg(`✓ height=${h} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: newSize, components: updComps }
+          }, `height=${h} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7142,16 +7018,7 @@ function CCFileBatchInspector({
       {/* R2025: 노드 anchor preset 일괄 설정 */}
       {(() => {
         const applyNodeAnchor = async (ax: number, ay: number) => {
-          if (!sceneFile.root) return
-          function patchNodeAnchor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeAnchor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, anchor: { x: ax, y: ay }, children }
-          }
-          const patchedRoot = patchNodeAnchor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ anchor=(${ax},${ay}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, anchor: { x: ax, y: ay } }), `anchor=(${ax},${ay}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
