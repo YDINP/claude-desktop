@@ -4040,6 +4040,10 @@ function CCFileBatchInspector({
   // R2671: 이름 find/replace
   const [nameFind, setNameFind] = useState<string>('')
   const [nameReplace, setNameReplace] = useState<string>('')
+  // R2716: 이름 찾기+바꾸기 (정규식 지원)
+  const [nameReplaceFrom, setNameReplaceFrom] = useState('')
+  const [nameReplaceTo, setNameReplaceTo] = useState('')
+  const [nameReplaceUseRegex, setNameReplaceUseRegex] = useState(false)
   // R2676: 색상 블렌드
   const [colorBlendTarget, setColorBlendTarget] = useState<string>('#ff0000')
   const [colorBlendAmount, setColorBlendAmount] = useState<number>(50)
@@ -19412,6 +19416,48 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2716: 이름 찾기+바꾸기 (정규식 지원) */}
+      {uuids.length >= 1 && (
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap', marginBottom: 5 }}>
+          <input
+            placeholder="찾기"
+            value={nameReplaceFrom}
+            onChange={e => setNameReplaceFrom(e.target.value)}
+            style={{ flex: 1, minWidth: 60, fontSize: 11, padding: '2px 4px' }}
+          />
+          <span style={{ color: '#94a3b8', fontSize: 11 }}>→</span>
+          <input
+            placeholder="바꾸기"
+            value={nameReplaceTo}
+            onChange={e => setNameReplaceTo(e.target.value)}
+            style={{ flex: 1, minWidth: 60, fontSize: 11, padding: '2px 4px' }}
+          />
+          <label style={{ fontSize: 10, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 2 }}>
+            <input type="checkbox" checked={nameReplaceUseRegex} onChange={e => setNameReplaceUseRegex(e.target.checked)} />
+            /.*/
+          </label>
+          <button
+            onClick={async () => {
+              if (!nameReplaceFrom) return
+              await patchNodes(n => {
+                if (!uuidSet.has(n.uuid)) return n
+                try {
+                  const newName = nameReplaceUseRegex
+                    ? n.name.replace(new RegExp(nameReplaceFrom, 'g'), nameReplaceTo)
+                    : n.name.replaceAll(nameReplaceFrom, nameReplaceTo)
+                  return { ...n, name: newName }
+                } catch {
+                  return n
+                }
+              }, '이름 바꾸기')
+            }}
+            disabled={!nameReplaceFrom}
+            style={{ fontSize: 10, padding: '2px 6px' }}
+          >
+            바꾸기
+          </button>
+        </div>
+      )}
       {/* R2650: 노드 이름 일련번호 치환 — {base}{n} 형식으로 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyNameSerial = async () => {

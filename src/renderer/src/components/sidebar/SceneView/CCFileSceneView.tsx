@@ -318,15 +318,29 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSelAxisLine, setShowSelAxisLine] = useState(false)
   // R2700: 선택 노드 형제 강조 오버레이
   const [showSiblingHighlight, setShowSiblingHighlight] = useState(false)
+  // R2717: 선택 노드 opacity HUD 배지
+  const [showOpacityHud, setShowOpacityHud] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
+  const [showShortcutOverlay, setShowShortcutOverlay] = useState(false)
   const measureStartRef = useRef<{ svgX: number; svgY: number } | null>(null)
 
   // R1516: 다중 선택 변경 → 부모에 알림
   useEffect(() => {
     onMultiSelectChange?.(Array.from(multiSelected))
   }, [multiSelected, onMultiSelectChange])
+
+  // R2715: 단축키 오버레이 외부 클릭 닫기
+  useEffect(() => {
+    if (!showShortcutOverlay) return
+    const handler = (e: MouseEvent) => {
+      const el = document.getElementById('sc-shortcut-popup')
+      if (el && !el.contains(e.target as Node)) setShowShortcutOverlay(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showShortcutOverlay])
 
   // R2486: 씬 전환 시 해당 씬의 저장된 뷰 상태 복원
   const prevScenePath = useRef(sceneFile.scenePath)
@@ -2004,6 +2018,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSiblingHighlight ? '형제 강조 끄기 (R2700)' : '선택 노드와 같은 부모를 가진 형제 노드 강조 (R2700)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSiblingHighlight ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showSiblingHighlight ? 'rgba(139,92,246,0.1)' : 'none', color: showSiblingHighlight ? '#8b5cf6' : 'var(--text-muted)' }}
         >≡</button>
+        {/* R2717: 선택 노드 opacity HUD 배지 토글 */}
+        <button
+          onClick={() => setShowOpacityHud(v => !v)}
+          title={showOpacityHud ? 'opacity HUD 끄기 (R2717)' : '선택 노드 opacity 값 배지 표시 (R2717)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityHud ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityHud ? 'rgba(251,191,36,0.1)' : 'none', color: showOpacityHud ? '#fbbf24' : 'var(--text-muted)' }}
+        >op</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2298,10 +2318,46 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showMinimap ? 'rgba(88,166,255,0.12)' : 'none', color: showMinimap ? '#58a6ff' : 'var(--text-muted)' }}
         >⊟</button>
         <button
-          onClick={() => setShowHelp(h => !h)}
-          title="단축키 도움말"
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showHelp ? 'rgba(88,166,255,0.12)' : 'none', color: showHelp ? '#58a6ff' : 'var(--text-muted)' }}
-        >?</button>
+          onClick={() => setShowShortcutOverlay(v => !v)}
+          title="단축키 목록"
+          style={{ fontSize: 10, padding: '1px 5px', background: showShortcutOverlay ? '#3b82f6' : '#374151', color: '#fff', border: 'none', borderRadius: 3, cursor: 'pointer', position: 'relative' }}
+        >
+          ?
+          {showShortcutOverlay && (
+            <div id="sc-shortcut-popup" style={{
+              position: 'absolute', bottom: '110%', right: 0, background: '#1e293b', border: '1px solid #334155',
+              borderRadius: 6, padding: '8px 12px', zIndex: 200, minWidth: 260, textAlign: 'left',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.5)', pointerEvents: 'all'
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', marginBottom: 6 }}>단축키</div>
+              <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                <tbody>
+                  {[
+                    ['Ctrl+D', '노드 복제'],
+                    ['H', 'active 토글'],
+                    ['Ctrl+↑/↓', '형제 순서 이동'],
+                    ['Home/End', '맨 앞/뒤 이동'],
+                    ['Alt+←/→', '선택 히스토리'],
+                    ['Ctrl+P', '핀 마커 토글'],
+                    ['G', '그룹화'],
+                    ['M', '거리 측정 도구'],
+                    ['Ctrl+A', '전체 선택'],
+                    ['Del', '다중 삭제'],
+                    ['Ctrl+Z/Y', 'Undo/Redo'],
+                    ['1/2/3', '뷰 북마크'],
+                    ['Shift+클릭', '다중 선택'],
+                    ['Esc', '선택 해제'],
+                  ].map(([key, desc]) => (
+                    <tr key={key}>
+                      <td style={{ padding: '2px 8px 2px 0', color: '#fbbf24', fontFamily: 'monospace', fontSize: 11, whiteSpace: 'nowrap' }}>{key}</td>
+                      <td style={{ padding: '2px 0', color: '#e2e8f0', fontSize: 11 }}>{desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </button>
       </div>
 
       {/* R2539: 선택 노드 계층 breadcrumb */}
@@ -3069,6 +3125,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <text x={rectX + (w > 0 ? w / 2 : 0)} y={rectY - 3 / view.zoom}
                       fontSize={8 / view.zoom} fill="#34d399" textAnchor="middle"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}>{Math.round(pos.x)},{Math.round(pos.y)}</text>
+                  )
+                })()}
+                {/* R2717: 선택 노드 opacity HUD 배지 */}
+                {showOpacityHud && isSelected && (() => {
+                  return (
+                    <text
+                      x={rectX + (w > 0 ? w : 0)}
+                      y={rectY - 4 / view.zoom}
+                      fontSize={8 / view.zoom}
+                      fill="#fbbf24"
+                      textAnchor="end"
+                      pointerEvents="none"
+                      style={{ userSelect: 'none' }}
+                    >{`op:${node.opacity ?? 255}`}</text>
                   )
                 })()}
                 {/* R2672: scale 값 텍스트 오버레이 */}
