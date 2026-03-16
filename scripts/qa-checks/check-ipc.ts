@@ -140,7 +140,7 @@ export function runIpcChecks(root: string, log: LogFn): void {
   }
 
   // handleSave try/finally (H2 fix)
-  const cocosPanelPath = join(root, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
+  const cocosPanelPath = join(root, 'src/renderer/src/components/sidebar/CocosPanel/index.tsx')
   if (existsSync(cocosPanelPath)) {
     const cocosPanelSrc = readFileSync(cocosPanelPath, 'utf-8')
     const handleSaveIdx = cocosPanelSrc.indexOf('handleSave')
