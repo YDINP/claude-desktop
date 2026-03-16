@@ -1549,6 +1549,38 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     }
   }, [sceneFile, saveScene, projectInfo, onSelectNode])
 
+  // R2705: Alt+drag 복제 — 원본 uuid 위치에 deepCopy 삽입 후 x/y 이동
+  const handleAltDrag = useCallback(async (uuid: string, x: number, y: number) => {
+    if (!sceneFile?.root) return
+    const is3x = projectInfo?.version === '3x'
+    const genId = () => is3x
+      ? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2, 14))
+      : Math.random().toString(36).slice(2, 14)
+    let isRoot = true
+    function deepClone(n: CCSceneNode): CCSceneNode {
+      const applyPos = isRoot; isRoot = false
+      const position = applyPos ? { ...(n.position ?? { x: 0, y: 0, z: 0 }), x, y } : n.position
+      return { ...n, uuid: genId(), name: n.name + '_copy', position, children: n.children.map(deepClone) }
+    }
+    let clonedNode: CCSceneNode | null = null
+    function insertAfter(n: CCSceneNode): CCSceneNode {
+      const idx = n.children.findIndex(c => c.uuid === uuid)
+      if (idx !== -1) {
+        const clone = deepClone(n.children[idx])
+        clonedNode = clone
+        return { ...n, children: [...n.children.slice(0, idx + 1), clone, ...n.children.slice(idx + 1)] }
+      }
+      return { ...n, children: n.children.map(insertAfter) }
+    }
+    const newRoot = insertAfter(sceneFile.root)
+    if (!clonedNode) return
+    const result = await saveScene(newRoot)
+    if (result?.success !== false && clonedNode) {
+      const c = clonedNode
+      setTimeout(() => { onSelectNode(c) }, 100)
+    }
+  }, [sceneFile, saveScene, projectInfo, onSelectNode])
+
   const handleReparent = useCallback(async (dragUuid: string, dropUuid: string) => {
     if (!sceneFile?.root || dragUuid === dropUuid || sceneFile.root.uuid === dragUuid) return
     // 사이클 방지: drop 대상이 drag 노드의 하위인지 확인
@@ -3114,6 +3146,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
                 onGroupNodes={handleGroupNodes}
                 onOpacity={handleNodeOpacity}
                 onReorderExtreme={handleReorderExtreme}
+                onAltDrag={handleAltDrag}
                 pulseUuid={pulseUuid}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }

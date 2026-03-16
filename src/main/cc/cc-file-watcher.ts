@@ -69,6 +69,7 @@ export class CCFileWatcher {
           persistent: true,
           ignoreInitial: true,
           // R2313: ISSUE-003 — chokidar v5는 awaitWriteFinish boolean만 지원
+          // (chokidar v3의 stabilityThreshold: 100ms 대체)
           awaitWriteFinish: true,
           ignored: (filePath: string) => {
             if (typeof filePath !== 'string') return false

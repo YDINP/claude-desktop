@@ -48,6 +48,8 @@ interface CCFileSceneViewProps {
   onOpacity?: (uuid: string, opacity: number) => void
   /** R2549: 형제 순서를 맨 앞(first) / 맨 뒤(last)로 이동 */
   onReorderExtreme?: (uuid: string, to: 'first' | 'last') => void
+  /** R2705: Alt+drag 노드 복제 — 원본 uuid + 드래그 목적지 x/y */
+  onAltDrag?: (uuid: string, x: number, y: number) => void
 }
 
 /**
@@ -60,7 +62,7 @@ function sceneViewKey(scenePath: string) {
   return 'sv-view2-' + scenePath.replace(/[^a-zA-Z0-9]/g, '_').slice(-60)
 }
 
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme, onAltDrag }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>(() => {
     // R2486: 씬 전환 시 이전 뷰 상태 복원
@@ -74,7 +76,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   viewRef.current = view
   const [isPanning, setIsPanning] = useState(false)
   const panStart = useRef<{ mouseX: number; mouseY: number; offX: number; offY: number } | null>(null)
-  const dragRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number } | null>(null)
+  // R2705: isAltDrag — Alt 누른 채 드래그 시 복제
+  const dragRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number; isAltDrag?: boolean } | null>(null)
   const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
   // R1683: 드래그 ghost (원래 위치 반투명 표시) — worldX/worldY 기준
   const [dragGhost, setDragGhost] = useState<{ uuid: string; worldX: number; worldY: number; w: number; h: number; anchorX: number; anchorY: number } | null>(null)
@@ -808,7 +811,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     resizeRef.current = null
     setResizeOverride(null)
     if (dragRef.current && dragOverride) {
-      onMove?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
+      // R2705: altDrag — 복제 후 이동
+      if (dragRef.current.isAltDrag) {
+        onAltDrag?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
+      } else {
+        onMove?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
+      }
       dragRef.current = null
       setDragOverride(null)
       setSnapIndicator(null)
@@ -2808,6 +2816,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     startMouseY: e.clientY,
                     startNodeX: pos.x,
                     startNodeY: pos.y,
+                    // R2705: altDrag — Alt 누른 채 드래그 시 복제
+                    isAltDrag: e.altKey && !!onAltDrag,
                   }
                   // R1683: ghost 저장 (원래 world 위치)
                   setDragGhost({ uuid: node.uuid, worldX, worldY, w: node.size?.x ?? 0, h: node.size?.y ?? 0, anchorX: node.anchor?.x ?? 0.5, anchorY: node.anchor?.y ?? 0.5 })
