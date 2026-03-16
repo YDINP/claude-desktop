@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useCCFileProject } from '../../hooks/useCCFileProject'
 import { CCFileSceneView } from './SceneView/CCFileSceneView'
-import type { CCSceneNode, CCSceneFile } from '../../../../shared/ipc-schema'
+import type { CCSceneNode, CCSceneFile } from '@shared/ipc-schema'
 import { updateCCFileContext } from '../../hooks/useCCFileContext'
 
 function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {

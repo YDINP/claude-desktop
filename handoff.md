@@ -395,6 +395,19 @@
 - CC Editor 패리티 계속: 씬뷰 추가 UX, Inspector 개선
 - 남은 이슈: ISSUE-007(npm audit), ISSUE-008(SDK), ISSUE-009(번들)
 
+## ⚠️ 영구 규칙 — 이슈 최우선 처리 (모든 라운드에 적용)
+
+> 매 라운드 종료 후, 신규 기능 진행 전에 반드시 먼저 확인:
+> ```bash
+> ls C:/Users/a/Documents/claude-desktop/issues/*.md | grep -v README
+> ```
+> - `priority: high` 또는 `bug` 유형 → 즉시 현재/다음 라운드에서 처리
+> - `priority: medium` → 다음 라운드 1순위 (ROADMAP 신규 기능보다 앞)
+> - `priority: low` → 10라운드마다 기술부채 전용 라운드
+> - medium 이슈 3개 이상 → 이슈 전용 라운드 단독 편성
+>
+> **이슈가 처리되지 않은 상태에서 신규 기능 개발 절대 금지.**
+
 ## 누적 이슈 (QA 체크포인트에서 발견된 기존 이슈)
 - ISSUE-001: shell:true 입력검증 없음 (Critical — 기존 누적, R2316에서 부분 완화)
 - ISSUE-007: npm audit 18 취약점 (기존 누적 — 모두 breaking change 필요)

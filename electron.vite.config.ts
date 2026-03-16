@@ -19,7 +19,8 @@ export default defineConfig({
             'vendor-react': ['react', 'react-dom'],
             'vendor-syntax': ['react-syntax-highlighter'],
             'vendor-markdown': ['react-markdown', 'remark-gfm'],
-            'vendor-terminal': ['@xterm/xterm', '@xterm/addon-fit'],
+            'vendor-katex': ['katex', 'rehype-katex', 'remark-math'],
+            'vendor-terminal': ['@xterm/xterm', '@xterm/addon-fit', '@xterm/addon-search', '@xterm/addon-web-links'],
             'vendor-mermaid': ['mermaid'],
             'vendor-monaco': ['monaco-editor', '@monaco-editor/react'],
           }

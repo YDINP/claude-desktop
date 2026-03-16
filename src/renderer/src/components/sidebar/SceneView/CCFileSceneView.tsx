@@ -195,6 +195,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R1491: Label 텍스트 인라인 편집
   const [editingLabelUuid, setEditingLabelUuid] = useState<string | null>(null)
   const editLabelRef = useRef<HTMLInputElement | null>(null)
+  const resCustomWRef = useRef<HTMLInputElement | null>(null)
+  const resCustomHRef = useRef<HTMLInputElement | null>(null)
   const isSpaceDownRef = useRef(false)
   const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set())
   const multiSelectedRef = useRef(multiSelected)
@@ -473,7 +475,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url => {
         if (url) spriteCacheRef.current.set(uuid, url)
         setSpriteCacheVer(v => v + 1)
-      }).catch(() => {})
+      }).catch(() => {
+        spriteCacheRef.current.delete(uuid) // 실패 시 pending sentinel 제거 → 재시도 허용
+      })
     })
   }, [sceneFile, flatNodes])
 
@@ -1133,7 +1137,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const canvas = document.createElement('canvas')
       canvas.width = svgEl.clientWidth || designW
       canvas.height = svgEl.clientHeight || designH
-      const ctx = canvas.getContext('2d')!
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { URL.revokeObjectURL(svgUrl); setScreenshotSending(false); return }
       ctx.drawImage(img, 0, 0)
       URL.revokeObjectURL(svgUrl)
       if (saveLocal) {
@@ -1239,17 +1244,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               ))}
               <div style={{ borderTop: '1px solid var(--border)', padding: '4px 8px', display: 'flex', gap: 4 }}>
                 <input type="number" placeholder="W" defaultValue={effectiveW}
-                  id="res-custom-w"
+                  ref={resCustomWRef}
                   style={{ width: 50, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
                 />
                 <span style={{ color: 'var(--text-muted)' }}>×</span>
                 <input type="number" placeholder="H" defaultValue={effectiveH}
-                  id="res-custom-h"
+                  ref={resCustomHRef}
                   style={{ width: 50, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
                 />
                 <button onClick={() => {
-                  const w = parseInt((document.getElementById('res-custom-w') as HTMLInputElement)?.value)
-                  const h = parseInt((document.getElementById('res-custom-h') as HTMLInputElement)?.value)
+                  const w = parseInt(resCustomWRef.current?.value ?? '')
+                  const h = parseInt(resCustomHRef.current?.value ?? '')
                   if (w > 0 && h > 0) { setResOverride({ w, h }); setShowResPicker(false) }
                 }} style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', background: 'none', color: '#4ade80', cursor: 'pointer' }}>OK</button>
               </div>
@@ -2762,8 +2767,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 })()}
                 {/* R2598: flip(음수 scale) 노드 표시 */}
                 {showFlipOverlay && (() => {
-                  const sc = node.scale as { x: number; y: number }
-                  const fx = sc.x < 0, fy = sc.y < 0
+                  const sc = node.scale as { x?: number; y?: number } | null
+                  const fx = (sc?.x ?? 1) < 0, fy = (sc?.y ?? 1) < 0
                   if (!fx && !fy) return null
                   const label = fx && fy ? '↔↕' : fx ? '↔' : '↕'
                   const fs = Math.max(7, 10 / view.zoom)
@@ -3917,7 +3922,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             if (!parentFn || !parentFn.node.size?.x || !parentFn.node.size?.y) return null
             const { node: pn, worldX: px, worldY: py } = parentFn
             const sp = ccToSvg(px, py)
-            const w = pn.size!.x, h = pn.size!.y
+            const w = pn.size?.x ?? 0, h = pn.size?.y ?? 0
             const ax = pn.anchor?.x ?? 0.5, ay = pn.anchor?.y ?? 0.5
             return (
               <rect
@@ -3942,7 +3947,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {children.map(cf => {
                   const { node: cn, worldX: cx2, worldY: cy2 } = cf
                   const sp = ccToSvg(cx2, cy2)
-                  const w = cn.size!.x, h = cn.size!.y
+                  const w = cn.size?.x ?? 0, h = cn.size?.y ?? 0
                   const ax = cn.anchor?.x ?? 0.5, ay = cn.anchor?.y ?? 0.5
                   return (
                     <rect key={cf.node.uuid}
@@ -3991,7 +3996,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {siblings.map(sf => {
                   const { node: sn, worldX: sx, worldY: sy } = sf
                   const sp = ccToSvg(sx, sy)
-                  const w = sn.size!.x, h = sn.size!.y
+                  const w = sn.size?.x ?? 0, h = sn.size?.y ?? 0
                   const ax = sn.anchor?.x ?? 0.5, ay = sn.anchor?.y ?? 0.5
                   return (
                     <rect key={sf.node.uuid}

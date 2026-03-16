@@ -29161,6 +29161,135 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1702: R2701 SceneView 마르키 선택 (Rubber-band Select) ────────────
+console.log('\n## 1702. R2701 — SceneView 마르키 선택')
+const s1702 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1702.includes('R2701') &&
+  s1702.includes('marqueeStart') &&
+  s1702.includes('marqueeEnd')
+) {
+  log('pass', 'R2701-marquee', 'R2701 마르키 선택 구현 완료')
+} else {
+  log('warning', 'R2701-marquee', 'R2701 마르키 선택 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1701: R2702 BatchInspector opacity 고정값 일괄 설정 ───────────────
+console.log('\n## 1701. R2702 — BatchInspector opacity 고정값 일괄')
+const s1701 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1701.includes('R2702') &&
+  s1701.includes('opacityFixed') &&
+  s1701.includes('applyOpacityFixed')
+) {
+  log('pass', 'R2702-opacityFixed', 'R2702 opacity 고정값 일괄 설정 구현 완료')
+} else {
+  log('warning', 'R2702-opacityFixed', 'R2702 opacity 고정값 일괄 설정 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1700: R2703 SceneView 선택 노드 뷰 중심 팬 ───────────────────────
+console.log('\n## 1700. R2703 — SceneView 선택 중심 팬 (Center on Selection)')
+const s1700 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1700.includes('R2703') &&
+  (s1700.includes('centerOnSel') || s1700.includes('panToCenter') || s1700.includes('centerSel'))
+) {
+  log('pass', 'R2703-centerSel', 'R2703 선택 중심 팬 구현 완료')
+} else {
+  log('warning', 'R2703-centerSel', 'R2703 선택 중심 팬 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1699: R2704 BatchInspector 색상 채널 오프셋 ──────────────────────
+console.log('\n## 1699. R2704 — BatchInspector 색상 채널 오프셋 (ΔR/ΔG/ΔB)')
+const s1699 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1699.includes('R2704') &&
+  s1699.includes('colorDeltaR') &&
+  s1699.includes('applyColorDelta')
+) {
+  log('pass', 'R2704-colorDelta', 'R2704 색상 채널 오프셋 구현 완료')
+} else {
+  log('warning', 'R2704-colorDelta', 'R2704 색상 채널 오프셋 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1698: R2705 SceneView Alt+drag 노드 복제 ─────────────────────────
+console.log('\n## 1698. R2705 — SceneView Alt+drag 노드 복제')
+const s1698 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1698.includes('R2705') &&
+  s1698.includes('altDrag') &&
+  s1698.includes('altKey')
+) {
+  log('pass', 'R2705-altDrag', 'R2705 Alt+drag 복제 구현 완료')
+} else {
+  log('warning', 'R2705-altDrag', 'R2705 Alt+drag 복제 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1697: R2706 BatchInspector 단색 일괄 적용 ────────────────────────
+console.log('\n## 1697. R2706 — BatchInspector 단색 일괄 적용 (Solid Color)')
+const s1697 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1697.includes('R2706') &&
+  s1697.includes('batchSolidColor') &&
+  s1697.includes('applyBatchSolidColor')
+) {
+  log('pass', 'R2706-solidColor', 'R2706 단색 일괄 적용 구현 완료')
+} else {
+  log('warning', 'R2706-solidColor', 'R2706 단색 일괄 적용 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1696: R2707 SceneView 최근 선택 히스토리 ─────────────────────────
+console.log('\n## 1696. R2707 — SceneView 최근 선택 히스토리')
+const s1696 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1696.includes('R2707') &&
+  s1696.includes('selHistory') &&
+  s1696.includes('showSelHistory')
+) {
+  log('pass', 'R2707-selHistory', 'R2707 선택 히스토리 구현 완료')
+} else {
+  log('warning', 'R2707-selHistory', 'R2707 선택 히스토리 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1695: R2708 BatchInspector 이름 정규식 필터 선택 ─────────────────
+console.log('\n## 1695. R2708 — BatchInspector 이름 정규식 필터 선택')
+const s1695 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1695.includes('R2708') &&
+  s1695.includes('nameRegexFilter') &&
+  s1695.includes('applyNameRegexSelect')
+) {
+  log('pass', 'R2708-nameRegex', 'R2708 이름 정규식 필터 선택 구현 완료')
+} else {
+  log('warning', 'R2708-nameRegex', 'R2708 이름 정규식 필터 선택 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1694: R2709 SceneView 커스텀 비율 가이드 오버레이 ────────────────
+console.log('\n## 1694. R2709 — SceneView 커스텀 비율 가이드 오버레이')
+const s1694 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1694.includes('R2709') &&
+  s1694.includes('showCustomRatio') &&
+  s1694.includes('customRatioW')
+) {
+  log('pass', 'R2709-customRatio', 'R2709 커스텀 비율 가이드 구현 완료')
+} else {
+  log('warning', 'R2709-customRatio', 'R2709 커스텀 비율 가이드 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1693: R2710 BatchInspector 크기 고정값 일괄 설정 ─────────────────
+console.log('\n## 1693. R2710 — BatchInspector 크기 고정값 일괄 설정')
+const s1693 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1693.includes('R2710') &&
+  s1693.includes('fixedSizeW') &&
+  s1693.includes('applyFixedSize')
+) {
+  log('pass', 'R2710-fixedSize', 'R2710 크기 고정값 일괄 설정 구현 완료')
+} else {
+  log('warning', 'R2710-fixedSize', 'R2710 크기 고정값 일괄 설정 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1692: R2700 SceneView 형제 노드 강조 오버레이 ────────────────────
 console.log('\n## 1692. R2700 — SceneView 선택 노드 형제 강조')
 const s1692 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
