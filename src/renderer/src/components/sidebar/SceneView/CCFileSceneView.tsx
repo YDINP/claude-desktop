@@ -301,6 +301,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showUuidBadge, setShowUuidBadge] = useState(false)
   // R2691: 노드 중심 점 마커
   const [showCenterDot, setShowCenterDot] = useState(false)
+  // R2694: 비기본 앵커 강조 오버레이 (anchor ≠ 0.5,0.5)
+  const [showNonDefaultAnchor, setShowNonDefaultAnchor] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1862,6 +1864,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showCenterDot ? '중심점 끄기 (R2691)' : '각 노드 중심에 점 마커 표시 (R2691)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCenterDot ? 'rgba(248,113,113,0.5)' : 'var(--border)'}`, background: showCenterDot ? 'rgba(248,113,113,0.1)' : 'none', color: showCenterDot ? '#f87171' : 'var(--text-muted)' }}
         >·</button>
+        {/* R2694: 비기본 앵커 강조 토글 */}
+        <button
+          onClick={() => setShowNonDefaultAnchor(v => !v)}
+          title={showNonDefaultAnchor ? '비기본 앵커 끄기 (R2694)' : '앵커 ≠ (0.5,0.5) 노드 강조 표시 (R2694)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNonDefaultAnchor ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showNonDefaultAnchor ? 'rgba(251,191,36,0.1)' : 'none', color: showNonDefaultAnchor ? '#fbbf24' : 'var(--text-muted)' }}
+        >⚓</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2989,6 +2997,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     fill="rgba(248,113,113,0.8)" stroke="rgba(255,255,255,0.6)" strokeWidth={0.8 / view.zoom}
                     style={{ pointerEvents: 'none' }} />
                 )}
+                {/* R2694: 비기본 앵커 강조 */}
+                {showNonDefaultAnchor && w > 0 && h > 0 && (() => {
+                  const ax = node.anchor?.x ?? 0.5, ay = node.anchor?.y ?? 0.5
+                  if (Math.abs(ax - 0.5) < 0.001 && Math.abs(ay - 0.5) < 0.001) return null
+                  const fs = Math.max(6, 8 / view.zoom)
+                  const label = `(${ax.toFixed(1)},${ay.toFixed(1)})`
+                  return (
+                    <text x={rectX + w * ax} y={rectY + h * (1 - ay)}
+                      fontSize={fs} fill="rgba(251,191,36,0.9)" textAnchor="middle"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}>⚓{label}</text>
+                  )
+                })()}
                 {/* R2675: 노드 크기 히트맵 */}
                 {showSizeHeat && w > 0 && h > 0 && (() => {
                   const area = w * h

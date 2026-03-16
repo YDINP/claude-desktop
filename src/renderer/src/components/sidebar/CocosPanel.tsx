@@ -5634,6 +5634,27 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2693: 랜덤 색상 일괄 적용 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyRandomColor = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, color: { r: Math.round(Math.random() * 255), g: Math.round(Math.random() * 255), b: Math.round(Math.random() * 255), a: n.color?.a ?? 255 }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 랜덤 색상 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2693)</span>
+            <span onClick={applyRandomColor} title="각 노드에 랜덤 RGB 색상 적용 (R2693)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(251,113,133,0.4)', color: '#fb7185', userSelect: 'none' }}>🎲 랜덤</span>
+          </div>
+        )
+      })()}
       {/* R2677: 색상 반전 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyColorInvert = async () => {

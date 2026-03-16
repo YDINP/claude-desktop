@@ -29161,6 +29161,32 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1686: R2694 SceneView 비기본 앵커 오버레이 ───────────────────────
+console.log('\n## 1686. R2694 — SceneView 비기본 앵커 강조')
+const s1686 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1686.includes('R2694') &&
+  s1686.includes('showNonDefaultAnchor') &&
+  s1686.includes('fbbf24')
+) {
+  log('pass', 'R2694-anchorOverlay', 'R2694 비기본 앵커 오버레이 구현 완료')
+} else {
+  log('warning', 'R2694-anchorOverlay', 'R2694 비기본 앵커 오버레이 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1685: R2693 BatchInspector 랜덤 색상 ────────────────────────────
+console.log('\n## 1685. R2693 — BatchInspector 랜덤 색상 일괄 적용')
+const s1685 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1685.includes('R2693') &&
+  s1685.includes('applyRandomColor') &&
+  s1685.includes('랜덤 색상')
+) {
+  log('pass', 'R2693-randomColor', 'R2693 랜덤 색상 구현 완료')
+} else {
+  log('warning', 'R2693-randomColor', 'R2693 랜덤 색상 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1684: R2692 BatchInspector nudge 버튼 ────────────────────────────
 console.log('\n## 1684. R2692 — BatchInspector nudge ←→↑↓ 버튼')
 const s1684 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
