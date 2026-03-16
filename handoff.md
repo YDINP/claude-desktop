@@ -20,13 +20,21 @@
 - [x] R2703: SceneView ⊕C 선택 노드 중심 팬 이동
 - QA: Critical 0, Warning 91, Pass 2606
 
+## 완료 — 이슈 클리어 + R2704/08/09 (2026-03-16)
+- [x] ISSUE-007: npm overrides로 high 10개→0 (node-tar v7, yauzl v3.2.1), 18→11개
+- [x] ISSUE-009: react-syntax-highlighter PrismLight 전환 (~500kB 번들 절감)
+- [x] R2704: BatchInspector ΔR/ΔG/ΔB/ΔA 색상 채널 오프셋
+- [x] R2708: BatchInspector 정규식 필터 노드 다중 선택
+- [x] R2709: SceneView W:H 커스텀 비율 가이드 오버레이 (노란 점선)
+- QA: Critical 0, Warning 89, Pass 2608
+
 ## 미완료 / 다음 스프린트
 - [ ] Phase 2 나머지: ~525개 apply 함수 useBatchPatch 교체 (훅은 완성)
 - [ ] Phase 4: CocosPanel → BatchInspector/NodeInspector/SceneView 파일 분리
-- [ ] ISSUE-007: npm audit 18 취약점 (devDep, electron 업그레이드 필요, non-breaking fix 없음)
-- [ ] ISSUE-009: 번들 최적화 (low priority)
-- [ ] R2701: 마퀴 선택 (selBoxRef 이미 구현됨, Shift 키 보완만 필요)
-- [ ] R2704-R2709: 신규 기능 구현 (QA 스텁만 있음)
+- [ ] R2705: alt+드래그 노드 복제 (RISK:REGRESSION — dragRef 복잡도)
+- [ ] R2706: 단색 Sprite 일괄 교체 (R2704 완료 후 color 섹션 인접)
+- [ ] R2701: 마퀴 선택 보완 (Shift 키 기존 선택 유지)
+- [ ] npm audit 잔여 11개 (electron v35.7.5+ 필요, major 업그레이드 검토)
 
 ## 완료 (R2691-R2700) — 이번 세션 (계속)
 - [x] R2691: SceneView 노드 중심 점 마커 (showCenterDot, 빨간 점 · )
