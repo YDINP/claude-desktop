@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1676: R2684 BatchInspector 절대 간격 설정 ────────────────────────
+console.log('\n## 1676. R2684 — BatchInspector 절대 간격 설정')
+const s1676 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1676.includes('R2684') &&
+  s1676.includes('applyEvenSpacing') &&
+  s1676.includes('evenSpacing') &&
+  s1676.includes('간격')
+) {
+  log('pass', 'R2684-evenSpacing', 'R2684 절대 간격 설정 구현 완료')
+} else {
+  log('warning', 'R2684-evenSpacing', 'R2684 절대 간격 설정 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1675: R2683 BatchInspector 캔버스 기준 정렬 ──────────────────────
+console.log('\n## 1675. R2683 — BatchInspector 캔버스 기준 정렬')
+const s1675 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1675.includes('R2683') &&
+  s1675.includes('applyAlignToCanvas') &&
+  s1675.includes('캔버스정렬') &&
+  s1675.includes('designWidth')
+) {
+  log('pass', 'R2683-canvasAlign', 'R2683 캔버스 기준 정렬 구현 완료')
+} else {
+  log('warning', 'R2683-canvasAlign', 'R2683 캔버스 기준 정렬 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1674: R2682 SceneView 선택 노드 간 거리 텍스트 ───────────────────
 console.log('\n## 1674. R2682 — SceneView 선택 노드 간 거리 텍스트')
 const s1674 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

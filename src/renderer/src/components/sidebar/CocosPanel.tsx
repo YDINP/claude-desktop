@@ -4354,6 +4354,8 @@ function CCFileBatchInspector({
   const [opacityMult, setOpacityMult] = useState<number>(80)
   // R2681: 산포 factor
   const [spreadFactor, setSpreadFactor] = useState<number>(1.5)
+  // R2684: 절대 간격
+  const [evenSpacing, setEvenSpacing] = useState<number>(10)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -5443,6 +5445,68 @@ function CCFileBatchInspector({
             <input type="number" value={spreadFactor} min={0.1} max={5} step={0.1} onChange={e => setSpreadFactor(parseFloat(e.target.value) || 1)} style={niS} title="산포 배수 (>1 펼치기, <1 모으기)" />
             <span onClick={() => applySpread(spreadFactor)} title={`중심 기준 ×${spreadFactor} 산포 (R2681)`} style={bs}>산포</span>
             <span onClick={() => applySpread(1 / spreadFactor)} title={`중심 기준 ×${(1/spreadFactor).toFixed(2)} 수축 (R2681)`} style={bs}>수축</span>
+          </div>
+        )
+      })()}
+      {/* R2683: 캔버스 기준 정렬 — 선택 노드 위치를 캔버스 가장자리/중심으로 이동 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const hw = (projectSettings.designWidth ?? 960) / 2
+        const hh = (projectSettings.designHeight ?? 640) / 2
+        const applyAlignToCanvas = async (ax: number | null, ay: number | null) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, x: ax !== null ? ax : pos.x, y: ay !== null ? ay : pos.y }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 캔버스 정렬 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid rgba(96,165,250,0.4)', color: '#60a5fa', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>캔버스정렬 (R2683)</span>
+            <span onClick={() => applyAlignToCanvas(-hw, null)} title={`X → 캔버스 좌측 (${-hw}) (R2683)`} style={bs}>◁L</span>
+            <span onClick={() => applyAlignToCanvas(0, null)} title="X → 캔버스 중앙 X=0 (R2683)" style={bs}>↔C</span>
+            <span onClick={() => applyAlignToCanvas(hw, null)} title={`X → 캔버스 우측 (${hw}) (R2683)`} style={bs}>▷R</span>
+            <span onClick={() => applyAlignToCanvas(null, hh)} title={`Y → 캔버스 상단 (${hh}) (R2683)`} style={bs}>△T</span>
+            <span onClick={() => applyAlignToCanvas(null, 0)} title="Y → 캔버스 중앙 Y=0 (R2683)" style={bs}>↕C</span>
+            <span onClick={() => applyAlignToCanvas(null, -hh)} title={`Y → 캔버스 하단 (${-hh}) (R2683)`} style={bs}>▽B</span>
+          </div>
+        )
+      })()}
+      {/* R2684: 절대 간격 설정 — 선택 노드 X/Y축 간격을 N픽셀로 균등 조정 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyEvenSpacing = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          const selNodes: CCSceneNode[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          if (selNodes.length < 2) return
+          const sorted = [...selNodes].sort((a, b) => (a.position as { x: number; y: number })[axis] - (b.position as { x: number; y: number })[axis])
+          const start = (sorted[0].position as { x: number; y: number })[axis]
+          const uuidToPos = new Map<string, number>()
+          sorted.forEach((n, i) => uuidToPos.set(n.uuid, start + i * evenSpacing))
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, [axis]: uuidToPos.get(n.uuid) ?? pos[axis] }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ${axis.toUpperCase()}축 ${evenSpacing}px 간격 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(96,165,250,0.4)', color: '#60a5fa', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>간격 (R2684)</span>
+            <input type="number" value={evenSpacing} min={0} step={5} onChange={e => setEvenSpacing(parseFloat(e.target.value) || 0)} style={niS} title="노드 간 절대 간격 (px)" />
+            <span onClick={() => applyEvenSpacing('x')} title={`X축 ${evenSpacing}px 균등 간격 (R2684)`} style={bs}>X간격</span>
+            <span onClick={() => applyEvenSpacing('y')} title={`Y축 ${evenSpacing}px 균등 간격 (R2684)`} style={bs}>Y간격</span>
           </div>
         )
       })()}
