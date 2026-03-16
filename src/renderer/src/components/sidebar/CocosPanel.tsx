@@ -4069,6 +4069,8 @@ function CCFileBatchInspector({
   // R2676: 색상 블렌드
   const [colorBlendTarget, setColorBlendTarget] = useState<string>('#ff0000')
   const [colorBlendAmount, setColorBlendAmount] = useState<number>(50)
+  // R2706: 단색 Sprite 교체
+  const [batchSolidColor, setBatchSolidColor] = useState<string>('#ffffff')
   // R2704: 색상 채널 오프셋
   const [colorDeltaR, setColorDeltaR] = useState<number>(0)
   const [colorDeltaG, setColorDeltaG] = useState<number>(0)
@@ -18240,6 +18242,40 @@ function CCFileBatchInspector({
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2,
                   border: '1px solid var(--border)', color: '#4ade80', userSelect: 'none' }}>{v}</span>
             ))}
+          </div>
+        )
+      })()}
+      {/* R2706: 공통 cc.Sprite 단색 사각형 일괄 교체 */}
+      {commonCompTypes.includes('cc.Sprite') && (() => {
+        const applyBatchSolidColor = async () => {
+          if (!sceneFile.root) return
+          const m = batchSolidColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+          if (!m) return
+          const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16)
+          function patchSolidColor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchSolidColor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c =>
+              (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
+                ? { ...c, props: { ...c.props, spriteFrame: null, _spriteFrame: null, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } }
+                : c
+            )
+            return { ...n, color: { r, g, b, a: n.color?.a ?? 255 }, components: updComps, children }
+          }
+          await saveScene(patchSolidColor(sceneFile.root))
+          setBatchMsg(`✓ 단색 Sprite (${batchSolidColor}) 적용 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprSolid</span>
+            <input type="color" value={batchSolidColor} onChange={e => setBatchSolidColor(e.target.value)}
+              style={{ width: 32, height: 22, padding: 0, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer' }} />
+            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>단색</span>
+            <span onClick={applyBatchSolidColor}
+              style={{ fontSize: 9, padding: '1px 6px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text)', cursor: 'pointer', userSelect: 'none' }}>
+              적용
+            </span>
           </div>
         )
       })()}
