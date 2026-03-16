@@ -1,5 +1,25 @@
 # Handoff — claude-desktop
-> 마지막 업데이트: 2026-03-15
+> 마지막 업데이트: 2026-03-16
+
+## 완료 — 리팩토링 스프린트 (2026-03-16)
+- [x] ISSUE-001: shell:exec execSync→execFileAsync 교체 (보안/블로킹 수정)
+- [x] Phase 1-A: mkBtnS/mkBtnTint/mkNiS 팩토리 함수, btnS/niS 36개 교체
+- [x] Phase 1-B: validateScene/extractPrefabEntries/deepCopyNodeWithNewUuids → cocos-utils.ts
+- [x] Phase 2: useBatchPatch 훅 (hooks/useBatchPatch.ts), 20개 apply 교체
+- [x] Phase 3: qa.ts 31,802줄 → 81줄 (qa-checks/ 분리, OOM→정상)
+- [x] Phase 5: Phantom State 65쌍 제거 (-137줄)
+- [x] Phase 6: opGradFrom 이중 선언 버그 제거
+- [x] Phase 7: eslint.config.ts 추가 (@typescript-eslint + react-hooks)
+- [x] ISSUE-012: 리팩토링 로드맵 완료 처리 (Done/)
+
+## 미완료 / 다음 스프린트
+- [ ] Phase 2 나머지: ~525개 apply 함수 useBatchPatch 교체 (훅은 완성)
+- [ ] Phase 4: CocosPanel → BatchInspector/NodeInspector/SceneView 파일 분리
+- [ ] ISSUE-011: CC Editor 패널 (탭 클릭 시 Cocos 로드, 씬/프리팹 드롭다운, 노드 리스트)
+- [ ] ISSUE-007: npm audit 18 취약점 (devDep, electron 업그레이드 필요)
+- [ ] ISSUE-008: claude-agent-sdk 0.1.75 → 0.2.76 (agent-bridge.ts 호환성 확인 필요)
+- [ ] ISSUE-009: 번들 최적화 (low priority)
+- [ ] R2701-R2710: 10개 신규 기능 구현 (QA 스텁만 있음)
 
 ## 완료 (R2691-R2700) — 이번 세션 (계속)
 - [x] R2691: SceneView 노드 중심 점 마커 (showCenterDot, 빨간 점 · )

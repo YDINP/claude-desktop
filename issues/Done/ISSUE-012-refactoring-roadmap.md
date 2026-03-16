@@ -163,3 +163,19 @@ eslint.config.ts (flat config)
 | 5 Phantom State | 메모리 | 낮음 | Phase 4 중 |
 | 6 opGradFrom 버그 | 버그 수정 | 낮음 | 즉시 |
 | 7 ESLint | 품질 보증 | 낮음 | 즉시 |
+
+---
+
+## 완료 기록 (2026-03-16)
+
+| Phase | 결과 |
+|-------|------|
+| 1-A 스타일 팩토리 | mkBtnS/mkBtnTint/mkNiS 추가, 36개 로컬 const 교체 |
+| 1-B 유틸 분리 | validateScene/extractPrefabEntries/deepCopyNodeWithNewUuids → cocos-utils.ts |
+| 2 useBatchPatch | hooks/useBatchPatch.ts 생성, 20개 apply 함수 교체 (나머지 ~525개 다음 스프린트) |
+| 3 qa.ts 테이블화 | 31,802줄 → 81줄 (90% 감소), qa-checks/ 3개 파일로 분리 |
+| 4 컴포넌트 분리 | 다음 스프린트 (위험도 중간) |
+| 5 Phantom State | 65쌍 제거, -137줄 |
+| 6 opGradFrom 버그 | L4369 중복 선언 제거 |
+| 7 ESLint | eslint.config.ts 추가 |
+
