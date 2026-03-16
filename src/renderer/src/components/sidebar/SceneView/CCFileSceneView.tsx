@@ -1548,6 +1548,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={viewLock ? '편집 잠금 해제 (R1605)' : '편집 잠금 — 보기 전용 모드 (R1605)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${viewLock ? '#f85149' : 'var(--border)'}`, background: viewLock ? 'rgba(248,81,73,0.12)' : 'none', color: viewLock ? '#f85149' : 'var(--text-muted)' }}
         >{viewLock ? '🔒' : '🔓'}</button>
+        {/* R2711: 선택 노드 잠금/해제 */}
+        {!viewLock && selectedUuid && (
+          <button
+            onClick={() => toggleLock(selectedUuid)}
+            title={lockedUuids.has(selectedUuid) ? '노드 잠금 해제 (R2711)' : '노드 잠금 (R2711)'}
+            style={{ fontSize: 9, padding: '1px 4px', background: lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.12)' : 'var(--bg-secondary)', border: `1px solid ${lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, borderRadius: 3, color: lockedUuids.has(selectedUuid) ? '#fbbf24' : 'var(--text-muted)', cursor: 'pointer' }}
+          >{lockedUuids.has(selectedUuid) ? '🔒' : '🔓'}</button>
+        )}
         {/* R1610: 비활성 노드 숨기기 */}
         <button
           onClick={() => setHideInactiveNodes(h => !h)}

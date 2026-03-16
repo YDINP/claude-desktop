@@ -3974,6 +3974,9 @@ function CCFileBatchInspector({
   const [batchSizeW, setBatchSizeW] = useState<string>('')
   const [batchSizeH, setBatchSizeH] = useState<string>('')
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
+  // R2714: 조건부 active 토글
+  const [condActivePattern, setCondActivePattern] = useState<string>('')
+  const [condActiveValue, setCondActiveValue] = useState<'active' | 'inactive'>('active')
   // R1575: 색상 일괄 편집
   const [batchColor, setBatchColor] = useState<string>('')
   // R1706: 회전 일괄 편집
@@ -4118,6 +4121,8 @@ function CCFileBatchInspector({
   const [scaleLinked, setScaleLinked] = useState(false)
   // R2530: 앵커 변경 시 위치 보정 여부
   const [batchAnchorCompensate, setBatchAnchorCompensate] = useState(true)
+  // R2712: Label fontSize 사용자 정의 입력
+  const [customFontSize, setCustomFontSize] = useState<number>(24)
   // -- style factories (btnS/niS 반복 제거) --
   const mkBtnS = (color: string, extra?: React.CSSProperties): React.CSSProperties => ({
     fontSize: 9, padding: '1px 5px', cursor: 'pointer',
@@ -8675,15 +8680,29 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ Label fontSize=${fontSize} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
+        // R2712: 프리셋 확장 + 커스텀 입력
+        const niSFont = mkNiS(50)
+        const btnSApply = mkBtnS('#3b82f6', { fontSize: 8, padding: '1px 6px' })
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LbFont</span>
-            {([16, 20, 24, 28, 32, 40] as const).map(v => (
-              <span key={v} title={`Label fontSize = ${v}`}
-                onClick={() => applyLabelFontSize(v)}
-                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
-              >{v}</span>
-            ))}
+          <div style={{ marginBottom: 5 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>LbFont</span>
+              {([12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72] as const).map(v => (
+                <span key={v} title={`Label fontSize = ${v}`}
+                  onClick={() => applyLabelFontSize(v)}
+                  style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
+                >{v}</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 2 }}>
+              <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }} />
+              <input type="number" min={1} max={200} value={customFontSize}
+                onChange={e => setCustomFontSize(Math.max(1, Math.min(200, Number(e.target.value))))}
+                style={niSFont}
+                onKeyDown={e => e.key === 'Enter' && applyLabelFontSize(customFontSize)}
+              />
+              <span onClick={() => applyLabelFontSize(customFontSize)} style={btnSApply}>적용</span>
+            </div>
           </div>
         )
       })()}
@@ -18888,6 +18907,44 @@ function CCFileBatchInspector({
             style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', background: 'none' }}
           >교차</button>
         )}
+      </div>
+      {/* R2714: 조건부 active 토글 */}
+      <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 4, flexWrap: 'wrap', paddingLeft: 52, marginBottom: 4 }}>
+        <input
+          placeholder="이름 패턴 또는 /regex/"
+          value={condActivePattern}
+          onChange={e => setCondActivePattern(e.target.value)}
+          style={{ ...mkNiS(120), flex: 1 }}
+        />
+        <button onClick={() => setCondActiveValue('active')}
+          style={mkBtnS(condActiveValue === 'active' ? '#22c55e' : '#374151')}>ON</button>
+        <button onClick={() => setCondActiveValue('inactive')}
+          style={mkBtnS(condActiveValue === 'inactive' ? '#ef4444' : '#374151')}>OFF</button>
+        <button
+          onClick={async () => {
+            if (!condActivePattern.trim() || !sceneFile.root || uuids.length === 0) return
+            let re: RegExp
+            try {
+              const m = condActivePattern.match(/^\/(.+)\/([gi]*)$/)
+              re = m ? new RegExp(m[1], m[2] || 'i') : new RegExp(condActivePattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+            } catch { setBatchMsg('❌ 정규식 오류'); return }
+            const targetVal = condActiveValue === 'active'
+            let count = 0
+            function patch(n: CCSceneNode): CCSceneNode {
+              const ch = n.children.map(patch)
+              if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+              if (re.test(n.name ?? '')) { count++; return { ...n, active: targetVal, children: ch } }
+              return { ...n, children: ch }
+            }
+            const newRoot = patch(sceneFile.root)
+            if (count === 0) { setBatchMsg('⚠ 매칭 없음'); setTimeout(() => setBatchMsg(null), 2000); return }
+            await saveScene({ ...sceneFile, root: newRoot })
+            setBatchMsg(`✓ 조건부 ${condActiveValue} ${count}개`)
+            setTimeout(() => setBatchMsg(null), 2000)
+          }}
+          disabled={!condActivePattern.trim()}
+          style={mkBtnS('#6366f1')}
+        >적용</button>
       </div>
       {/* Opacity */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
