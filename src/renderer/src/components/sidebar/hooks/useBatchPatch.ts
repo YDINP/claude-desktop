@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import type { CCSceneNode, CCSceneFile, CCSceneComponent } from '@shared/ipc-schema'
 
 type NodePatcher = (node: CCSceneNode) => CCSceneNode
@@ -19,6 +19,13 @@ interface UseBatchPatchOptions {
  * 3) setBatchMsg — 결과 메시지 표시 후 2초 뒤 자동 해제
  */
 export function useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg }: UseBatchPatchOptions) {
+  const msgTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const scheduleMsgClear = (ms = 2000) => {
+    if (msgTimerRef.current !== null) clearTimeout(msgTimerRef.current)
+    msgTimerRef.current = setTimeout(() => { setBatchMsg(null); msgTimerRef.current = null }, ms)
+  }
+  useEffect(() => () => { if (msgTimerRef.current !== null) clearTimeout(msgTimerRef.current) }, [])
+
   /** Type A: 노드 프로퍼티 직접 패치 */
   const patchNodes = useCallback(
     async (patcher: NodePatcher, label: string) => {
@@ -30,7 +37,7 @@ export function useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMs
       }
       await saveScene({ ...sceneFile, root: walk(sceneFile.root) } as unknown as CCSceneNode)
       setBatchMsg(`✓ ${label}`)
-      setTimeout(() => setBatchMsg(null), 2000)
+      scheduleMsgClear()
     },
     [sceneFile, saveScene, uuidSet, setBatchMsg],
   )
@@ -51,7 +58,7 @@ export function useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMs
       }
       await saveScene({ ...sceneFile, root: walk(sceneFile.root) } as unknown as CCSceneNode)
       setBatchMsg(`✓ ${label}`)
-      setTimeout(() => setBatchMsg(null), 2000)
+      scheduleMsgClear()
     },
     [sceneFile, saveScene, uuidSet, setBatchMsg],
   )
@@ -79,7 +86,7 @@ export function useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMs
       }
       await saveScene({ ...sceneFile, root: walk(sceneFile.root) } as unknown as CCSceneNode)
       setBatchMsg(`✓ ${label}`)
-      setTimeout(() => setBatchMsg(null), 2000)
+      scheduleMsgClear()
     },
     [sceneFile, saveScene, uuidSet, setBatchMsg],
   )
