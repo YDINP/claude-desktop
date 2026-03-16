@@ -297,6 +297,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showPairDist, setShowPairDist] = useState(false)
   // R2686: Sprite spriteFrame 이름 배지
   const [showSpriteName, setShowSpriteName] = useState(false)
+  // R2688: UUID 앞 8자리 배지
+  const [showUuidBadge, setShowUuidBadge] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1843,6 +1845,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSpriteName ? 'Sprite 이름 끄기 (R2686)' : 'cc.Sprite spriteFrame 이름 배지 표시 (R2686)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSpriteName ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showSpriteName ? 'rgba(251,146,60,0.1)' : 'none', color: showSpriteName ? '#fb923c' : 'var(--text-muted)' }}
         >Sp</button>
+        {/* R2688: UUID 배지 토글 */}
+        <button
+          onClick={() => setShowUuidBadge(v => !v)}
+          title={showUuidBadge ? 'UUID 배지 끄기 (R2688)' : '노드 UUID 앞 8자리 배지 표시 (R2688)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showUuidBadge ? 'rgba(100,116,139,0.5)' : 'var(--border)'}`, background: showUuidBadge ? 'rgba(100,116,139,0.1)' : 'none', color: showUuidBadge ? '#64748b' : 'var(--text-muted)' }}
+        >ID</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2951,6 +2959,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <text x={rectX + w / 2} y={rectY + h + 10 / view.zoom}
                       fontSize={7 / view.zoom} fill="#fb923c" textAnchor="middle"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}>{name}</text>
+                  )
+                })()}
+                {/* R2688: UUID 앞 8자리 배지 */}
+                {showUuidBadge && view.zoom > 0.3 && (() => {
+                  const short = node.uuid.slice(0, 8)
+                  const bx = rectX + (w > 0 ? w / 2 : 0)
+                  const by = rectY - 3 / view.zoom
+                  return (
+                    <text x={bx} y={by}
+                      fontSize={6 / view.zoom} fill="rgba(100,116,139,0.8)" textAnchor="middle"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}>{short}</text>
                   )
                 })()}
                 {/* R2675: 노드 크기 히트맵 */}

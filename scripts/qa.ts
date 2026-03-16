@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1680: R2688 SceneView UUID 배지 ──────────────────────────────────
+console.log('\n## 1680. R2688 — SceneView UUID 배지')
+const s1680 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1680.includes('R2688') &&
+  s1680.includes('showUuidBadge') &&
+  s1680.includes('64748b') &&
+  s1680.includes('ID')
+) {
+  log('pass', 'R2688-uuidBadge', 'R2688 UUID 배지 구현 완료')
+} else {
+  log('warning', 'R2688-uuidBadge', 'R2688 UUID 배지 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1679: R2687 BatchInspector 정수 스냅 ─────────────────────────────
+console.log('\n## 1679. R2687 — BatchInspector 정수 스냅')
+const s1679 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1679.includes('R2687') &&
+  s1679.includes('applyRoundPos') &&
+  s1679.includes('정수스냅') &&
+  s1679.includes('Math.round')
+) {
+  log('pass', 'R2687-roundPos', 'R2687 정수 스냅 구현 완료')
+} else {
+  log('warning', 'R2687-roundPos', 'R2687 정수 스냅 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1678: R2686 SceneView Sprite 이름 배지 ───────────────────────────
 console.log('\n## 1678. R2686 — SceneView Sprite 이름 배지')
 const s1678 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')

@@ -5345,6 +5345,33 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2687: 위치/크기 정수 스냅 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyRoundPos = async (target: 'pos' | 'size' | 'both') => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const pos = n.position as { x: number; y: number; z?: number }
+            const sz = n.size as { x: number; y: number } | undefined
+            const newPos = (target === 'pos' || target === 'both') ? { ...pos, x: Math.round(pos.x), y: Math.round(pos.y) } : pos
+            const newSz = sz && (target === 'size' || target === 'both') ? { x: Math.round(sz.x), y: Math.round(sz.y) } : sz
+            return { ...n, position: newPos, ...(newSz ? { size: newSz } : {}), children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 정수 스냅 (${target}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>정수스냅 (R2687)</span>
+            <span onClick={() => applyRoundPos('pos')} title="position XY → Math.round (R2687)" style={bs}>pos</span>
+            <span onClick={() => applyRoundPos('size')} title="size WH → Math.round (R2687)" style={bs}>size</span>
+            <span onClick={() => applyRoundPos('both')} title="position+size 모두 정수화 (R2687)" style={bs}>all</span>
+          </div>
+        )
+      })()}
       {/* R2685: 회전 절대값 지정 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyAbsRot = async () => {
