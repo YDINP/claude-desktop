@@ -2614,6 +2614,9 @@ export const ROUND_CHECKS: RoundCheck[] = [
   { round: 'R2523-comp-toggle', file: 'src/renderer/src/components/sidebar/CocosPanel.tsx', keywords: ['R2523', 'collectSel2523', '컴프 ON/OFF', 'newEnabled'], operator: 'and', failLevel: 'warning', passMsg: 'R2523 공통 컴포넌트 enabled 일괄 토글 구현 완료', failMsg: 'R2523 컴포넌트 ON/OFF 토글 미구현', failFile: 'CocosPanel.tsx' },
   { round: 'R2522-child-select', file: 'src/renderer/src/components/sidebar/CocosPanel.tsx', keywords: ['R2522', 'collectChildren', '⬇ 자식'], operator: 'and', failLevel: 'warning', passMsg: 'R2522 직접 자식 선택 확장 구현 완료', failMsg: 'R2522 직접 자식 선택 미구현', failFile: 'CocosPanel.tsx' },
   { round: 'R2702', file: 'src/renderer/src/components/sidebar/CocosPanel.tsx', keywords: ['opacityFixed', 'applyOpacityFixed'], operator: 'and', failLevel: 'warning', passMsg: 'R2702 opacity 고정값 일괄 설정 구현 완료', failMsg: 'R2702 opacity 고정값 일괄 미구현', failFile: 'CocosPanel.tsx' },
+  { round: 'R2718-refArrows', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['showRefArrows', 'refUuids', 'ref-arrow'], operator: 'and', failLevel: 'warning', passMsg: 'R2718 uuid 참조 화살표 오버레이 구현 완료', failMsg: 'R2718 uuid 참조 화살표 미구현', failFile: 'CCFileSceneView.tsx' },
+  { round: 'R2719-gridSnap', file: 'src/renderer/src/components/sidebar/CocosPanel.tsx', keywords: ['nearestGridSnap', 'applyGridSnapNearest'], operator: 'and', failLevel: 'warning', passMsg: 'R2719 격자 스냅 구현 완료', failMsg: 'R2719 격자 스냅 미구현', failFile: 'CocosPanel.tsx' },
+  { round: 'R2721-labelFontColor', file: 'src/renderer/src/components/sidebar/CocosPanel.tsx', keywords: ['labelFontColor', 'applyLabelFontColor'], operator: 'and', failLevel: 'warning', passMsg: 'R2721 Label 폰트 색상 일괄 구현 완료', failMsg: 'R2721 Label 폰트 색상 미구현', failFile: 'CocosPanel.tsx' },
 ]
 
 export const MULTI_FILE_CHECKS: MultiFileCheck[] = [
