@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-14T08:35:22.114Z
+> 2026-03-15T22:36:11.331Z
 
 ## Critical
 _없음_
@@ -2031,3 +2031,626 @@ _없음_
 - BatchInspector cc.Widget right 일괄 설정
 - BatchInspector cc.Widget horizontalCenter 일괄 설정
 - BatchInspector cc.Widget verticalCenter 일괄 설정
+- BatchInspector cc.Label spacingY 일괄 설정
+- BatchInspector cc.VideoPlayer muted 일괄 설정
+- BatchInspector cc.ScrollView inertia 일괄 설정
+- BatchInspector cc.EditBox maxLength 일괄 설정
+- BatchInspector cc.Toggle isChecked 일괄 설정
+- BatchInspector cc.MotionStreak color 일괄 설정
+- BatchInspector cc.AudioSource loop 일괄 설정
+- BatchInspector cc.AudioSource playOnLoad 일괄 설정
+- BatchInspector cc.EditBox tabIndex 일괄 설정
+- BatchInspector cc.PageView autoPageTurningThreshold 일괄 설정
+- BatchInspector cc.Layout affectedByScale 일괄 설정
+- BatchInspector cc.Sprite trim 일괄 설정
+- BatchInspector cc.Camera targetDisplay 일괄 설정
+- BatchInspector cc.ScrollView horizontal 일괄 설정
+- BatchInspector cc.ScrollView vertical 일괄 설정
+- BatchInspector cc.ParticleSystem gravity.y 일괄 설정
+- BatchInspector cc.ParticleSystem startRotation 일괄 설정
+- BatchInspector cc.ParticleSystem endRotation 일괄 설정
+- BatchInspector cc.ParticleSystem startRotationVar 일괄 설정
+- BatchInspector cc.ParticleSystem endRotationVar 일괄 설정
+- BatchInspector cc.Widget isAlignTop 일괄 설정
+- BatchInspector cc.Widget isAlignBottom 일괄 설정
+- BatchInspector cc.Widget isAlignLeft 일괄 설정
+- BatchInspector cc.Widget isAlignRight 일괄 설정
+- BatchInspector cc.Widget isAlignHorizontalCenter 일괄 설정
+- BatchInspector cc.Widget isAlignVerticalCenter 일괄 설정
+- BatchInspector cc.RigidBody linearVelocityLimit 일괄 설정
+- BatchInspector cc.RigidBody angularVelocityLimit 일괄 설정
+- BatchInspector cc.Button hoverColor 일괄 설정
+- BatchInspector node color 일괄 설정
+- BatchInspector cc.ToggleContainer allowSwitchOff 일괄 설정
+- BatchInspector cc.SkeletalAnimation defaultCachingMode 일괄 설정
+- BatchInspector sp.Skeleton useTint 일괄 설정
+- BatchInspector sp.Skeleton debugSlots 일괄 설정
+- BatchInspector sp.Skeleton debugBones 일괄 설정
+- BatchInspector cc.MotionStreak fastMode 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay debugBones 일괄 설정
+- BatchInspector sp.Skeleton paused 일괄 설정
+- BatchInspector cc.Layout autoWrap 일괄 설정
+- BatchInspector cc.RichText overflow 일괄 설정
+- BatchInspector cc.DirectionalLight/PointLight intensity 일괄 설정
+- BatchInspector cc.DirectionalLight/PointLight color 일괄 설정
+- BatchInspector cc.Graphics lineWidth 일괄 설정
+- BatchInspector cc.Graphics fillColor 일괄 설정
+- BatchInspector cc.Graphics strokeColor 일괄 설정
+- BatchInspector cc.ParticleSystem endRadiusVar 일괄 설정
+- BatchInspector cc.ParticleSystem startColorVar 일괄 설정
+- BatchInspector cc.ParticleSystem endColorVar 일괄 설정
+- BatchInspector cc.TiledLayer opacity 일괄 설정
+- BatchInspector cc.TiledLayer visible 일괄 설정
+- BatchInspector cc.Canvas fitWidth 일괄 설정
+- BatchInspector cc.Canvas fitHeight 일괄 설정
+- BatchInspector cc.Canvas resolutionPolicy 일괄 설정
+- BatchInspector cc.Canvas designResolution 일괄 설정
+- BatchInspector cc.PolygonCollider offset 일괄 설정
+- BatchInspector cc.RigidBody2D 확장 (기존 배치에 포함)
+- BatchInspector cc.ParticleSystem2D + PolygonCollider2D 확장
+- BatchInspector cc.BoxCollider2D 확장 (sensor/density/friction/restitution)
+- BatchInspector cc.CircleCollider2D 확장 (sensor/density/friction/restitution)
+- BatchInspector cc.BoxCollider2D offset 일괄 설정
+- BatchInspector cc.CircleCollider2D offset 일괄 설정
+- BatchInspector 노드 _zIndex 일괄 설정
+- BatchInspector cc.RigidBody group 일괄 설정
+- BatchInspector cc.BoxCollider/CircleCollider/PolygonCollider tag 일괄 설정
+- BatchInspector 노드 _tag 일괄 설정
+- BatchInspector cc.Layout constraintNum 일괄 설정
+- BatchInspector cc.AudioSource endTime 일괄 설정
+- BatchInspector cc.RichText handleTouchEvent 일괄 설정
+- BatchInspector cc.VideoPlayer startTime 일괄 설정
+- BatchInspector cc.Button autoGray 일괄 설정
+- BatchInspector cc.Label isSystemFontUsed 일괄 설정
+- BatchInspector 노드 _skewX 일괄 설정
+- BatchInspector 노드 _skewY 일괄 설정
+- BatchInspector cc.Camera near 일괄 설정
+- BatchInspector cc.Camera far 일괄 설정
+- BatchInspector cc.ScrollView cancelInnerEvents 일괄 설정
+- BatchInspector cc.ParticleSystem simulationSpace 일괄 설정
+- BatchInspector cc.ScrollView scrollDuration 일괄 설정
+- BatchInspector cc.Widget isAbs* 일괄 설정
+- BatchInspector cc.RigidBody rotationOffset 일괄 설정
+- BatchInspector cc.Sprite fillCenter 일괄 설정
+- BatchInspector cc.PolygonCollider threshold 일괄 설정
+- BatchInspector cc.Graphics lineJoin 일괄 설정
+- BatchInspector cc.Canvas resizeWithBrowserSize 일괄 설정
+- BatchInspector cc.Camera clearDepth 일괄 설정
+- BatchInspector cc.BlockInputEvents enabled 일괄 설정
+- BatchInspector cc.Canvas enabled 일괄 설정
+- CCFileAssetBrowser folderTree useMemo early-return 전 배치 확인
+- BatchInspector cc.Label charSpacing 일괄 설정
+- BatchInspector cc.Sprite _isTrimmedMode 숫자 프리셋
+- BatchInspector cc.RigidBody _gravityScale (CC3.x) 일괄 설정
+- BatchInspector cc.Scrollbar _autoHideTime (CC3.x) 일괄 설정
+- BatchInspector cc.PageView _bounceEnabled (CC3.x) 일괄 설정
+- BatchInspector cc.ToggleContainer _allowSwitchOff (CC3.x) 일괄 설정
+- BatchInspector cc.RichText _overflow (CC3.x) 일괄 설정
+- BatchInspector cc.Canvas _fitWidth/_fitHeight (CC3.x) 동시 설정
+- BatchInspector cc.Label _fontFamily (CC3.x) 갭 수정
+- BatchInspector cc.EditBox _inputFlag (CC3.x) 갭 수정
+- BatchInspector cc.EditBox _inputMode (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _elastic (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _elasticDuration (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _bounceDuration (CC3.x) 갭 수정
+- BatchInspector cc.Label overflow _overflow (CC3.x) 갭 수정
+- BatchInspector cc.EditBox returnType _returnType (CC3.x) 갭 수정
+- BatchInspector cc.VideoPlayer volume _volume (CC3.x) 갭 수정
+- BatchInspector cc.Scrollbar enableAutoHide _enableAutoHide (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView scrollDuration _scrollDuration (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView horizontal _horizontal (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _vertical (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _cancelInnerEvents (CC3.x) 갭 수정
+- BatchInspector cc.Scrollbar _autoHideTime (CC3.x) 갭 수정
+- BatchInspector cc.Scrollbar _direction (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _bounceTime (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _bounce (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _pagingEnabled (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _speedAmplifier (CC3.x) 갭 수정
+- BatchInspector cc.PageView _pageTurningSpeed (CC3.x) 갭 수정
+- BatchInspector cc.PageView _effectType (CC3.x) 갭 수정
+- BatchInspector cc.PageView _direction (CC3.x) 갭 수정
+- BatchInspector cc.PageView _autoPageTurningThreshold (CC3.x) 갭 수정
+- BatchInspector cc.PageView _scrollThreshold (CC3.x) 갭 수정
+- BatchInspector cc.PageView _autoPageTurningInterval (CC3.x) 갭 수정
+- BatchInspector cc.PageView _pageTurningEventTiming (CC3.x) 갭 수정
+- BatchInspector cc.PageView _slideDuration (CC3.x) 갭 수정
+- BatchInspector cc.VideoPlayer _startTime (CC3.x) 갭 수정
+- BatchInspector cc.Canvas _resizeWithBrowserSize (CC3.x) 갭 수정
+- BatchInspector cc.Button _normalColor (CC3.x) 갭 수정
+- BatchInspector cc.Button _pressedColor (CC3.x) 갭 수정
+- BatchInspector cc.Button _disabledColor (CC3.x) 갭 수정
+- BatchInspector cc.EditBox _fontSize (CC3.x) 갭 수정
+- BatchInspector cc.RichText _maxWidth (CC3.x) 갭 수정
+- BatchInspector cc.RichText _fontSize (CC3.x) 갭 수정
+- BatchInspector cc.Label _verticalAlign (CC3.x) 갭 수정
+- BatchInspector cc.Label _horizontalAlign (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _brake (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _mouseWheelScrollSensitivity (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _hideScrollBar (CC3.x) 갭 수정
+- BatchInspector cc.Canvas _resolutionPolicy (CC3.x) 갭 수정
+- BatchInspector cc.Slider _progress (CC3.x) 갭 수정
+- BatchInspector cc.Slider _direction (CC3.x) old section 갭 수정
+- BatchInspector cc.Slider _interactable (CC3.x) old section 갭 수정
+- BatchInspector cc.Slider _step (CC3.x) 갭 수정
+- BatchInspector cc.Slider _minValue/_maxValue (CC3.x) 갭 수정
+- BatchInspector cc.Layout _resizeMode (CC3.x) 갭 수정
+- BatchInspector cc.LabelOutline _width (CC3.x) old section 갭 수정
+- BatchInspector cc.PageView _bounceEnabled (CC3.x) old section 갭 수정
+- BatchInspector cc.Slider _progress (CC3.x) patchSliderVal 갭 수정
+- BatchInspector cc.Layout _constraint (CC3.x) 갭 수정
+- BatchInspector cc.Layout _constraintNum (CC3.x) 갭 수정
+- BatchInspector cc.Layout _startAxis (CC3.x) 갭 수정
+- BatchInspector cc.Layout _cellSize (CC3.x) 갭 수정
+- BatchInspector cc.Widget _isAbs* 6종 (CC3.x) 갭 수정
+- BatchInspector cc.ScrollView _horizontal/_vertical/_inertia (CC3.x) 갭 수정
+- 단일노드 cc.ParticleSystem2D _startColor/_endColor (CC3.x) 갭 수정
+- 단일노드 cc.ScrollView _brake (CC3.x) 갭 수정
+- 단일노드 cc.ScrollView _elasticDuration (CC3.x) 갭 수정
+- BatchInspector cc.Widget 4방향 _top/_bottom/_left/_right (CC3.x) 갭 수정
+- BatchInspector cc.ProgressBar _totalLength (CC3.x) 갭 수정
+- BatchInspector cc.ProgressBar _reverse (CC3.x) 갭 수정
+- BatchInspector cc.ProgressBar _mode (CC3.x) 갭 수정
+- BatchInspector cc.ProgressBar _startWidth (CC3.x) 갭 수정
+- 단일노드 cc.Layout _horizontalDirection/_verticalDirection (CC3.x) 갭 수정
+- 단일노드 cc.RichText _string/_fontSize/_lineHeight/_maxWidth/_horizontalAlign (CC3.x) 갭 수정
+- 단일노드 cc.Canvas _resolutionPolicy (CC3.x) 갭 수정
+- 단일노드 stateColors [`_${colorKey}`] (CC3.x) 갭 수정
+- 단일노드 cc.Button normalColor + reset 4색 _* (CC3.x) 갭 수정
+- 단일노드 cc.ProgressBar _totalLength/_reverse (CC3.x) 갭 수정
+- 단일노드 cc.Label _horizontalAlign/_verticalAlign (CC3.x) 갭 수정
+- 단일노드 cc.Button _duration (CC3.x) 갭 수정
+- BatchInspector cc.ParticleSystem maxParticles/_maxParticles (CC3.x) 갭 수정
+- cc.Canvas _fitWidth/_fitHeight (CC3.x) 갭 수정 (Batch + 단일노드)
+- 단일노드 cc.Label _string / cc.Slider _progress / cc.Button _interactable (CC3.x) 갭 수정
+- 단일노드 cc.VideoPlayer _remoteURL + cc.PageView _slideDuration/_autoPageTurningInterval (CC3.x) 갭 수정
+- 단일노드 cc.ParticleSystem _color + cc.PageView _slideDuration 프리셋 (CC3.x) 갭 수정
+- BatchInspector cc.VideoPlayer _loop/_muted/_fullScreenEnabled (CC3.x) 갭 수정
+- BatchInspector cc.AudioSource _volume + _loop/_playOnLoad (CC3.x) 갭 수정
+- 단일노드 cc.ProgressBar _progress + cc.AudioSource _volume/_loop/_playOnLoad (CC3.x) 갭 수정
+- 단일노드 cc.Toggle/_Label _overflow/cc.Button _interactable (CC3.x) 갭 수정
+- 단일노드 cc.EditBox _string/_placeholder/_maxLength/_inputMode/_returnType (CC3.x) 갭 수정
+- 단일노드 cc.Slider _direction + cc.VideoPlayer _playbackRate/_muted (CC3.x) 갭 수정
+- 단일노드 cc.Camera _backgroundColor + cc.ScrollView _brake range (CC3.x) 갭 수정
+- 단일노드 cc.ParticleSystem _fastMode + cc.PageView threshold _* (CC3.x) 갭 수정
+- 단일노드 cc.TiledLayer layerName/visible + cc.RigidBody type/mass/gravityScale _* (CC3.x) 갭 수정
+- 단일노드 cc.RigidBody linearDamping/angularDamping/fixedRotation _* (CC3.x) 갭 수정
+- cc.Toggle isChecked + DragonBones/sp.Skeleton timeScale/loop _* (CC3.x) 갭 수정
+- sp.Skeleton defaultSkin/defaultAnimation/paused/pma/debug _* (CC3.x) 갭 수정
+- 단일노드 Layout cellSize/autoWrap + SkeletalAnimation playOnLoad + TiledLayer opacity _* (CC3.x) 갭 수정
+- cc.SkeletalAnimation speedRatio _N$ + cc.Slider inverted _N$ (CC3.x) 갭 수정
+- BatchInspector Toggle/Button/VideoPlayer/RigidBody/ProgressBar _* (CC3.x) 갭 수정
+- 단일노드 Layout resizeMode + Graphics + Widget alignMode + Button zoomScale _* (CC3.x) 갭 수정
+- 단일노드 VideoPlayer playbackRate + Collider offset/size/sensor/friction/restitution/radius _* (CC3.x) 갭 수정
+- BatchInspector Button hoverColor + Camera bg + Layout type/padding/spacing + Sprite grayscale _* (CC3.x) 갭 수정
+- cc.UITransform contentSize + cc.RigidBody linearVelocity _N$ + cc.Mask _N$ (CC3.x) 갭 수정
+- BoxCollider/ParticleSystem/Sprite/LabelShadow/MotionStreak _N$ (CC3.x) 갭 수정
+- BatchInspector Collider restitution/friction/density/sensor/offset/threshold/size/radius _* (CC3.x) 갭 수정
+- BatchInspector enabled → _enabled (CC3.x) 전체 갭 수정
+- BatchInspector UIOpacity opacity + TiledLayer opacity + Toggle interactable _* 갭 수정
+- BatchInspector PageView direction + VideoPlayer keepAspectRatio + MotionStreak stroke/fade _* 갭 수정
+- BatchInspector dragonBones/sp.Skeleton timeScale/debugBones/premultipliedAlpha/paused/debugSlots/useTint/enableBatch _* 갭 수정
+- BatchInspector dragonBones/sp.Skeleton/SkeletalAnimation playOnLoad/loop + TiledLayer visible _* 갭 수정
+- BatchInspector AudioSource volume/preload/startTime/endTime + Layout resizeMode + Widget isAlignVerticalCenter/isAlignHorizontalCenter _* 갭 수정
+- BatchInspector RigidBody type/mass/fixedRotation/linearDamping/angularDamping/bullet/allowSleep/enabledContactListener/awake/sleepThreshold _* 갭 수정
+- BatchInspector ProgressBar totalLength/progress/reverse + Sprite grayscale _* 갭 수정
+- BatchInspector cc.Layout padding + cc.Sprite capInset _N$* 갭 수정
+- 단일노드 cc.Layout spacing/padding computed key + quick preset _N$* 갭 수정
+- 단일노드 cc.Sprite trim/grayscale/fillCenter/capInsets _N$* 갭 수정
+- 단일노드 cc.Toggle isChecked + cc.ToggleContainer allowSwitchOff _N$* 갭 수정
+- BatchInspector cc.ParticleSystem gravity _N$* + 단일노드 all-enabled _enabled 갭 수정
+- cc.Animation/Sprite flipX/Y/ScrollView 단일노드 computed key _N$* 갭 수정
+- 씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행
+- chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
+- session:setCollection try/catch + memTimer clearInterval 수정
+- Inspector cc.Camera targetDisplay 구현 완료
+- Inspector cc.Label isSystemFontUsed + platformFont 구현 완료
+- Inspector cc.RigidBody linearVelocity + angularVelocity 구현 완료
+- Inspector cc.PageView evtTiming/speedAmp + cc.Sprite _color 구현 완료
+- Inspector cc.Sprite _isTrimmedMode + Collider tag 구현 완료
+- Inspector cc.Sprite _useGrayscale + cc.RigidBody velocityLimit 구현 완료
+- Inspector cc.VideoPlayer startTime 구현 완료
+- Inspector cc.Layout constraint + constraintNum + startAxis 구현 완료
+- Inspector dragonBones.ArmatureDisplay debugBones + enableBatch 구현 완료
+- Inspector sp.Skeleton useTint 구현 완료
+- Inspector 노드 rotationX/rotationY 구현 완료
+- Inspector 노드 skewX/skewY 구현 완료
+- Inspector cascadeOpacityEnabled + cascadeColorEnabled 구현 완료
+- Inspector cc.RichText imageLineHeight 구현 완료
+- Inspector Collider category + mask 구현 완료
+- Inspector cc.RigidBody group + rotationOffset 구현 완료
+- Inspector cc.Animation playOnLoad 구현 완료
+- Inspector cc.EditBox returnType 구현 완료
+- Inspector cc.Canvas resizeWithBrowserSize 구현 완료
+- Inspector cc.EditBox placeholderFontSize 구현 완료
+- Inspector cc.Label shadowOffset x/y 구현 완료
+- Inspector cc.ParticleSystem sourcePos x/y 구현 완료
+- Inspector cc.UITransform priority/anchorPoint 구현 완료
+- Inspector cc.ParticleSystem simulationSpace/rotationIsDir 구현 완료
+- Inspector cc.RichText lineHeight/overflow/handleTouchEvent 구현 완료
+- Inspector cc.EditBox fontColor/placeholderFontColor 구현 완료
+- Inspector cc.ScrollView bounceTime/mouseWheelSens/hideScrollBar 구현 완료
+- Inspector cc.ToggleContainer autoCheckToggle 구현 완료
+- Inspector cc.PageView pageTurningSpeed/effectType/autoPlay 구현 완료
+- Inspector cc.VideoPlayer volume/keepAspectRatio/fullScreenEnabled 구현 완료
+- Inspector cc.Animation sample/speed 구현 완료
+- Inspector cc.MotionStreak timeToLive/speedThreshold 구현 완료
+- Inspector cc.Graphics lineJoin/lineCap/miterLimit/opacity 구현 완료
+- Inspector cc.Label enableDashLine 구현 완료
+- Inspector cc.Label enableGradient/colorTop/colorBottom 구현 완료
+- Inspector cc.Label enableShadow/shadowBlur/shadowColor 구현 완료
+- Inspector cc.Label enableOutline/outlineWidth/outlineColor 구현 완료
+- Inspector cc.PolygonCollider threshold 입력 필드 구현 완료
+- Inspector BoxCollider/CircleCollider/PolygonCollider density 입력 필드 구현 완료
+- Inspector cc.RigidBody bullet/allowSleep 체크박스 구현 완료
+- Inspector cc.Camera orthoHeight/near/far CC3.x 편집 구현 완료
+- Inspector cc.Label spacingY 입력 구현 완료
+- Inspector cc.Sprite packable 체크박스 + meshType 버튼 구현 완료
+- Inspector cc.Widget isAbs* px/% 전환 버튼 구현 완료
+- Inspector cc.AudioSource preload/startTime/endTime 구현 완료
+- Inspector cc.ScrollView pagingEnabled/cancelInner/scrollDuration 구현 완료
+- Inspector cc.Slider minValue/maxValue/step 퀵 편집 구현 완료
+- Inspector cc.Button autoGrayEffect 체크박스 구현 완료
+- Inspector cc.ProgressBar startWidth 퀵 편집 구현 완료
+- Inspector cc.ProgressBar mode H/V/Fill 퀵 편집 구현 완료
+- Inspector cc.Layout childAlignment 퀵 편집 구현 완료
+- Inspector cc.Widget H/V-center 체크박스 편집 구현 완료
+- Inspector cc.RichText fontColor 단일노드 편집 구현 완료
+- Inspector cc.EditBox lineCount + tabIndex 단일노드 편집 구현 완료
+- Inspector cc.Label strikethrough + charSpacing 단일노드 편집 구현 완료
+- Inspector cc.Label underlineHeight 단일노드 편집 구현 완료
+- Inspector cc.PageViewIndicator direction/spacingX/Y 편집 구현 완료
+- BatchInspector 균등 배분(distribute evenly) 구현 완료
+- BatchInspector matchPosition X/Y 위치 맞추기 구현 완료
+- BatchInspector matchSize 첫 번째 선택 노드 크기 맞추기 구현 완료
+- 씬 트리 북마크 퀵액세스 바 구현 완료
+- 씬 통계 컴포넌트 분포 인라인 바 시각화 구현 완료
+- Inspector 단일노드 _tag/_zIndex 편집 필드 구현 완료
+- Inspector cc.Scrollbar direction/enableAutoHide/autoHideTime 편집 구현 완료
+- Inspector cc.WebView url/visibleWithMouse 편집 구현 완료
+- Inspector cc.SpotLight intensity/range/spotAngle/color 편집 구현 완료
+- 씬 트리 노드 커스텀 색상 입력 구현 완료
+- 씬 트리 우클릭 노드 JSON 복사 구현 완료
+- Inspector 노드 N-복제 (×N) 구현 완료
+- BatchInspector 2-노드 거리/간격 정보 패널 구현 완료
+- Inspector Sprite 텍스처 썸네일 미리보기 구현 완료
+- 씬뷰 단축키 도움말 최신화 완료
+- 회전 0° + 스케일 1:1 리셋 버튼 구현 완료
+- Inspector active 토글 H키 힌트 구현 완료
+- 컴포넌트 추가 패널 개선 완료 (아이콘 + 커스텀 입력)
+- Inspector 컴포넌트 헤더 아이콘 구현 완료
+- 씬뷰 선택 이력 ← → 버튼 구현 완료
+- Inspector 컴포넌트 타입 설명 tooltip 구현 완료
+- 다른 이름으로 저장(Save As) 구현 완료
+- 씬뷰 체크무늬 배경 패턴 구현 완료
+- UUID 검색 지원 구현 완료
+- 씬뷰 선택 노드 자동 팬 구현 완료
+- Inspector 자동 스크롤 구현 완료
+- 씬 파일명 클릭 → 탐색기 열기 구현 완료
+- undo/redo 스택 카운터 표시 구현 완료
+- cross-scene 노드 클립보드 (localStorage) 구현 완료
+- 카메라 프레임 토글 버튼 구현 완료
+- cc.Camera 뷰 프레임 오버레이 구현 완료
+- CocosPanel 즐겨찾기 프로젝트 기능 구현 완료
+- shell:exec 위험 패턴 블록리스트 적용 완료
+- 씬뷰 SVG 직접 내보내기 버튼 구현 완료
+- BatchInspector cc.Slider _direction (CC3.x) 일괄 설정
+- BatchInspector cc.Slider _interactable (CC3.x) 일괄 설정
+- BatchInspector cc.EditBox _returnType (CC3.x) 일괄 설정
+- BatchInspector cc.Animation _playOnLoad (CC3.x) 일괄 설정
+- BatchInspector cc.TiledLayer _opacity (CC3.x) 일괄 설정
+- BatchInspector cc.RigidBody _type (CC3.x) 일괄 설정
+- BatchInspector cc.Toggle _interactable (CC3.x) 일괄 설정
+- BatchInspector cc.ProgressBar _reverse (CC3.x) 일괄 설정
+- BatchInspector cc.Button _zoomScale (CC3.x) 일괄 설정
+- BatchInspector cc.ScrollView _brake (CC3.x) 일괄 설정
+- BatchInspector cc.Sprite capInsets 균등 일괄 설정
+- BatchInspector cc.AudioSource _volume (CC3.x) 일괄 설정
+- BatchInspector cc.VideoPlayer keepAspectRatio 토글
+- BatchInspector cc.Layout padding 사방향 프리셋
+- BatchInspector cc.AudioSource _pitch 일괄 설정
+- BatchInspector cc.RichText lineHeight 일괄 설정
+- BatchInspector cc.TiledLayer enabled 일괄 설정
+- BatchInspector cc.UITransform _anchorPoint 프리셋 일괄 설정
+- BatchInspector cc.DirectionalLight/PointLight enabled 일괄 설정
+- BatchInspector cc.SkeletalAnimation enabled 일괄 설정
+- BatchInspector cc.PolygonCollider2D enabled 일괄 설정
+- BatchInspector cc.WebView enabled 일괄 설정
+- BatchInspector cc.LabelOutline enabled 일괄 설정
+- BatchInspector cc.LabelShadow enabled 일괄 설정
+- BatchInspector cc.BoxCollider2D enabled 일괄 설정
+- BatchInspector cc.CircleCollider2D enabled 일괄 설정
+- BatchInspector cc.UIOpacity enabled 일괄 설정
+- BatchInspector cc.RigidBody enabled 일괄 설정
+- BatchInspector cc.Sprite _useGrayscale 일괄 설정
+- BatchInspector cc.Label _spacingX 일괄 설정
+- BatchInspector cc.Label _underlineHeight 일괄 설정
+- BatchInspector cc.Sprite _color 일괄 설정
+- BatchInspector node _rotationX 일괄 설정
+- BatchInspector node _rotationY 일괄 설정
+- BatchInspector cc.Label colorTop 일괄 설정
+- BatchInspector cc.Label colorBottom 일괄 설정
+- BatchInspector cc.Label shadowOffset 일괄 설정
+- BatchInspector cc.EditBox placeholderFontColor 일괄 설정
+- BatchInspector cc.Label shadowColor 일괄 설정
+- BatchInspector cc.Label shadowBlur 일괄 설정
+- BatchInspector cc.Label outlineWidth 일괄 설정
+- BatchInspector cc.Label outlineColor 일괄 설정
+- BatchInspector cc.BoxCollider2D size 일괄 설정
+- BatchInspector cc.CircleCollider2D radius 일괄 설정
+- BatchInspector cc.EditBox placeholderFontSize 일괄 설정
+- BatchInspector cc.EditBox fontColor 일괄 설정
+- BatchInspector cc.Sprite blendMode 일괄 설정
+- BatchInspector cc.PageView autoPlay 일괄 설정
+- BatchInspector cc.Label enableOutline 일괄 설정
+- BatchInspector cc.Label enableShadow 일괄 설정
+- 노드 posX 독립 일괄 설정
+- 노드 posY 독립 일괄 설정
+- 노드 width 독립 일괄 설정
+- 노드 height 독립 일괄 설정
+- 노드 scaleX 비균등/플립 일괄 설정
+- 노드 scaleY 비균등/플립 일괄 설정
+- BatchInspector sp.Skeleton enabled 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay enabled 일괄 설정
+- BatchInspector cc.PageView enabled 일괄 설정
+- BatchInspector cc.MotionStreak enabled 일괄 설정
+- BatchInspector cc.Camera enabled 일괄 설정
+- BatchInspector cc.ToggleContainer enabled 일괄 설정
+- BatchInspector cc.EditBox enabled 일괄 설정
+- BatchInspector cc.Scrollbar enabled 일괄 설정
+- BatchInspector cc.Layout enabled 일괄 설정
+- BatchInspector cc.ProgressBar enabled 일괄 설정
+- BatchInspector cc.AudioSource enabled 일괄 설정
+- BatchInspector cc.VideoPlayer enabled 일괄 설정
+- BatchInspector cc.Slider enabled 일괄 설정
+- BatchInspector cc.Toggle enabled 일괄 설정
+- BatchInspector cc.ParticleSystem enabled 일괄 설정
+- BatchInspector cc.Graphics enabled 일괄 설정
+- BatchInspector cc.ScrollView enabled 일괄 설정
+- BatchInspector cc.Mask enabled 일괄 설정
+- BatchInspector cc.Button enabled 일괄 설정
+- BatchInspector cc.RichText enabled 일괄 설정
+- BatchInspector cc.Animation enabled 일괄 설정
+- BatchInspector cc.Label enabled 일괄 설정
+- BatchInspector cc.MotionStreak timeToLive 일괄 설정
+- BatchInspector cc.Sprite enabled (컴포넌트 레벨) 일괄 설정
+- BatchInspector cc.ParticleSystem sourcePos.x 일괄 설정
+- BatchInspector cc.ParticleSystem sourcePos.y 일괄 설정
+- BatchInspector sp.Skeleton enableBatch 일괄 설정
+- BatchInspector dragonBones.ArmatureDisplay blendMode 일괄 설정
+- BatchInspector cc.Scrollbar direction 일괄 설정
+- BatchInspector cc.Animation sample 일괄 설정
+- BatchInspector cc.Scrollbar enableAutoHide 일괄 설정
+- BatchInspector cc.Scrollbar autoHideTime 일괄 설정
+- BatchInspector 노드 cascadeColorEnabled 일괄 설정
+- BatchInspector cc.Label enableGradient 일괄 설정
+- BatchInspector cc.Sprite packable 일괄 설정
+- BatchInspector 노드 cascadeOpacityEnabled 일괄 설정
+- BatchInspector cc.ToggleContainer autoCheckToggle 일괄 설정
+- BatchInspector cc.RichText imageLineHeight 일괄 설정
+- BatchInspector cc.Label enableDashLine 일괄 설정
+- BatchInspector cc.ScrollView mouseWheelScrollSensitivity 일괄 설정
+- BatchInspector cc.PageView effectType 일괄 설정
+- BatchInspector cc.ScrollView hideScrollBar 일괄 설정
+- BatchInspector cc.Graphics fillOpacity 일괄 설정
+- BatchInspector cc.Graphics strokeOpacity 일괄 설정
+- BatchInspector cc.Camera orthoHeight 일괄 설정
+- BatchInspector cc.UITransform priority 일괄 설정
+- BatchInspector cc.EditBox lineCount 일괄 설정
+- BatchInspector cc.Sprite meshType 일괄 설정
+- BatchInspector Collider category 일괄 설정
+- BatchInspector Collider mask 일괄 설정
+- BatchInspector cc.Graphics miterLimit 일괄 설정
+- BatchInspector cc.MotionStreak speedThreshold 일괄 설정
+- BatchInspector 노드 _group 일괄 설정
+- BatchInspector cc.ScrollView bounceTime 일괄 설정
+- BatchInspector cc.Label platformFont 일괄 설정
+- BatchInspector cc.ProgressBar startWidth 일괄 설정
+- BatchInspector cc.Graphics lineCap 일괄 설정
+- BatchInspector cc.Widget enabled 일괄 설정
+- Inspector dragonBones.ArmatureDisplay blendMode 구현 완료
+- Inspector sp.Skeleton enableBatch 구현 완료
+- Inspector cc.SkeletalAnimation wrapMode+loop+cachingMode 구현 완료
+- Inspector cc.Layout affectedByScale 구현 완료
+- Inspector cc.Layout wrapMode 구현 완료
+- Inspector cc.Widget alignMode + cc.RigidBody enabledContactListener 구현 완료
+- Inspector cc.Camera cullingMask + clearDepth 구현 완료
+- Inspector cc.ScrollView speedAmplifier 구현 완료
+- Inspector cc.VideoPlayer resourceType 구현 완료
+- Inspector cc.PageView bounceEnabled 구현 완료
+- Inspector cc.BlockInputEvents 구현 완료
+- Inspector cc.Animation wrapMode 구현 완료
+- Inspector cc.RichText horizontalAlign+fontSize+maxWidth+fontColor 구현 완료
+- Inspector cc.EditBox fontSize + inputMode 구현 완료
+- Inspector cc.LabelOutline width+color + cc.LabelShadow blur+color 구현 완료
+- Inspector cc.ParticleSystem emitterMode + autoRemoveOnFinish 구현 완료
+- Inspector cc.RigidBody awake + sleepThreshold 구현 완료
+- Inspector dragonBones.ArmatureDisplay playOnLoad 구현 완료
+- Inspector cc.ScrollView bounceDuration 구현 완료
+- Inspector cc.Mask enabled 구현 완료
+- Inspector cc.Toggle enabled 구현 완료
+- Inspector cc.ToggleContainer enabled 구현 완료
+- Inspector cc.Button enabled 구현 완료
+- Inspector cc.Slider enabled 구현 완료
+- Inspector cc.Scrollbar enabled 구현 완료
+- Inspector cc.ProgressBar enabled 구현 완료
+- Inspector cc.Label enabled 구현 완료
+- Inspector cc.Layout/Sprite/RichText enabled 구현 완료
+- Inspector cc.Graphics/Widget/AudioSource/EditBox enabled 구현 완료
+- Inspector cc.Animation/VideoPlayer/PageView/WebView enabled 구현 완료
+- Inspector MotionStreak/ParticleSystem/DragonBones/Spine enabled 구현 완료
+- Inspector LabelOutline/UIOpacity/SkeletalAnimation enabled 구현 완료
+- Inspector cc.RigidBody/ScrollView/Camera enabled 구현 완료
+- Inspector cc.BoxCollider/CircleCollider/PolygonCollider enabled 구현 완료
+- Inspector ParticleSystem loop/positionType/blendMode 구현 완료
+- Inspector cc.TiledLayer/DirectionalLight/PointLight enabled 구현 완료
+- cc.Camera block1에 orthoHeight/near/far/zoomRatio 통합 완료
+- Inspector cc.SpotLight enabled 토글 구현 완료
+- Inspector cc.Canvas enabled 토글 구현 완료
+- Inspector cc.Label cacheMode None/Bitmap/Char 구현 완료
+- Inspector cc.RichText verticalAlign+imageLineHeight+handleTouchEvent 구현 완료
+- Inspector cc.EditBox placeholderFontSize+fontColor+placeholderFontColor 구현 완료
+- Inspector ParticleSystem startSizeVar/endSizeVar/radialAccelVar/tangentialAccelVar/colorVar/radiusVar/rotatePerS/rotation 구현 완료
+- Inspector cc.Camera clearDepth/ortho toggle/cullingMask 구현 완료
+- Inspector cc.Toggle enabled 체크박스 구현 완료
+- Inspector cc.ScrollView bounce 체크박스 구현 완료
+- R2452 씬 드롭다운 버그 수정 + 마지막 씬 자동 로드 구현 완료
+- R2458 외부 변경 자동 리로드 토글 구현 완료
+- R2459 새 컴포넌트 raw 엔트리 생성 + _components 동기화 구현 완료
+- R2460 복제 노드 컴포넌트 _rawIndex 초기화 구현 완료
+- R2462 buildNewRawComp 타입별 기본값 맵 구현 완료
+- R2463 Save As Prefab 기능 구현 완료
+- R2465 씬뷰 거리 측정 도구 구현 완료
+- R2466 다중 선택 노드 그룹화 구현 완료
+- R2467 BatchInspector 컴포넌트 일괄 추가 구현 완료
+- R2469 전역 검색 text:/t: 구문 구현 완료
+- R2470 미니맵 노드 클릭 선택 구현 완료
+- R2471 Inspector cc.find() 경로 클립보드 복사 구현 완료
+- R2472 씬뷰 다중 선택 노드 동시 드래그 구현 완료
+- R2474 Inspector 핀 노드 구현 완료
+- R2476 씬뷰 HUD opacity 슬라이더 구현 완료
+- R2477 씬뷰 Escape 부모 노드 선택 구현 완료
+- R2479 BatchInspector 원형 배치 구현 완료
+- R2481 BatchInspector 격자 배치 구현 완료
+- R2482 BatchInspector 정렬 도구 구현 완료
+- R2483 BatchInspector 균등 배분 구현 완료
+- R2484 Inspector 동일 이름 노드 수 뱃지 구현 완료
+- R2485 BatchInspector 크기 균등화 구현 완료
+- R2486 씬뷰 씬별 뷰 상태 영속화 구현 완료
+- R2487 Inspector Raw JSON 인라인 편집 구현 완료
+- R2488 복제 오프셋 설정 구현 완료
+- R2489 동일 이름 노드 팝업 구현 완료
+- R2490 씬뷰 HUD 컴포넌트 아이콘 목록 구현 완료
+- R2491 BatchInspector 범용 prop 일괄 편집 구현 완료
+- R2492 씬 트리 cc.find() 경로 복사 구현 완료
+- R2493 계층 트리 캔버스 범위 초과 뱃지 구현 완료
+- R2494 BatchInspector 회전 델타 구현 완료
+- R2495 BatchInspector 그리드 스냅 구현 완료
+- R2496 BatchInspector 위치 흩뿌리기 구현 완료
+- R2497 씬뷰 클릭 계층 트리 자동 펼치기 구현 완료
+- R2498 TreeSearch 정규식 검색 구현 완료
+- R2499 BatchInspector 바운딩박스 통계 구현 완료
+- R2500 BatchInspector 선택 반전 구현 완료
+- R2501 씬뷰 중심선 가이드 오버레이 구현 완료
+- R2502 컴포넌트 추가 최근 이력 구현 완료
+- R2503 BatchInspector 정렬/분배 도구 구현 완료
+- R2504 BatchInspector 노드 이름 일련번호 구현 완료
+- R2505 BatchInspector 컴포넌트 일괄 추가 구현 완료
+- R2506 BatchInspector 컴포넌트 일괄 제거 구현 완료
+- R2507 BatchInspector 하위 노드 포함 선택 확장 구현 완료
+- R2508 SceneView 다중 선택 중심점 마커 구현 완료
+- R2509 BatchInspector 선택 필터 구현 완료
+- R2510 같은 이름 노드 일괄 선택 구현 완료
+- R2511 SceneView 엣지 거리 가이드선 구현 완료
+- R2512 BatchInspector 선택 노드 JSON 내보내기 구현 완료
+- R2513 BatchInspector Z-Order 이동 구현 완료
+- R2514 BatchInspector 그리드 스냅 구현 완료
+- R2515 BatchInspector 부모 노드 선택 구현 완료
+- R2516 BatchInspector 위치 오프셋 이동 구현 완료
+- R2517 BatchInspector 컴포넌트 타입 전체 선택 구현 완료
+- R2518 NodeInspector tint hex 텍스트 입력 구현 완료
+- R2519 BatchInspector Transform 초기화 구현 완료
+- R2520 BatchInspector 노드 반전 (Flip X/Y) 구현 완료
+- R2521 SceneView 세계 좌표 표시 토글 구현 완료
+- R2623 position XY 스냅 구현 완료
+- R2622 active 교차 패턴 구현 완료
+- R2621 opacity 스냅 구현 완료
+- R2620 스케일 배수 텍스트 오버레이 구현 완료
+- R2619 position Y 균등 분배 구현 완료
+- R2618 position X 균등 분배 구현 완료
+- R2617 원점 십자선 오버레이 구현 완료
+- R2616 position Z 균등 분배 구현 완료
+- R2615 W×H 크기 표시 오버레이 구현 완료
+- R2614 size H 균등 분배 구현 완료
+- R2613 size W 균등 분배 구현 완료
+- R2612 rotation 오프셋 구현 완료
+- R2611 위치 셔플 구현 완료
+- R2610 rotation 화살표 오버레이 구현 완료
+- R2609 size 스냅 구현 완료
+- R2608 rotation 스냅 구현 완료
+- R2607 중복 이름 강조 오버레이 구현 완료
+- R2606 tint 색상 초기화 버튼 구현 완료
+- R2605 scale 균등 분배 구현 완료
+- R2604 rotation 균등 분배 구현 완료
+- R2603 tag 배지 오버레이 구현 완료
+- R2602 active 반전 구현 완료
+- R2601 component 타입 배지 오버레이 구현 완료
+- R2600 다중 선택 bounding box 오버레이 구현 완료
+- R2599 size 배수 적용 구현 완료
+- R2598 flip 오버레이 구현 완료
+- R2597 scale 배수 적용 구현 완료
+- R2596 색상 그라디언트 구현 완료
+- R2595 크기 통일 구현 완료
+- R2594 랜덤 스케일 변동 구현 완료
+- R2593 랜덤 회전 적용 구현 완료
+- R2592 깊이 레이블 오버레이 구현 완료
+- R2591 자식 수 배지 오버레이 구현 완료
+- R2590 컨텍스트 메뉴 동일 이름 선택 구현 완료
+- R2589 두 노드 위치 교환 구현 완료
+- R2588 색상 스와치 오버레이 구현 완료
+- R2587 BatchInspector 위치 대칭 이동 구현 완료
+- R2586 앵커 포인트 전체 오버레이 구현 완료
+- R2585 SceneView 이름 레이블 오버레이 구현 완료
+- R2584 UUID 목록 복사 구현 완료
+- R2583 회전값 레이블 오버레이 구현 완료
+- R2582 위치 순 Z-order 재정렬 구현 완료
+- R2581 검색 결과 순환 구현 완료
+- R2580 노드 이름 목록 복사 구현 완료
+- R2579 컴포넌트 배지 오버레이 구현 완료
+- R2578 불투명도 레이블 오버레이 구현 완료
+- R2577 일괄 픽셀 반올림 구현 완료
+- R2576 노드 크기 레이블 오버레이 구현 완료
+- R2575 스케일 반전 구현 완료
+- R2574 불투명도 클립보드 구현 완료
+- R2573 그룹 원점화 구현 완료
+- R2572 랜덤 산포 구현 완료
+- R2571 전체 픽셀 반올림 버튼 구현 완료
+- R2570 자동 그리드 배치 구현 완료
+- R2569 opacity 그라데이션 분배 구현 완료
+- R2568 개별 컴포넌트 enabled 토글 구현 완료
+- R2567 노드 JSON 복사 버튼 구현 완료
+- R2566 Ctrl+Click 다중 선택 토글 구현 완료
+- R2565 Z축 오프셋 구현 완료
+- R2564 스케일 클립보드 구현 완료
+- R2563 회전 클립보드 구현 완료
+- R2562 색상 클립보드 구현 완료
+- R2561 위치 역전 버튼 구현 완료
+- R2560 미니맵 클릭 팬 구현 완료
+- R2559 선택 노드 JSON 내보내기 구현 완료
+- R2558 씬 통계 팝업 구현 완료
+- R2557 Label 텍스트 오버레이 구현 완료
+- R2556 같은 Layer 노드 선택 구현 완료
+- R2555 같은 이름 노드 순환 선택 구현 완료
+- R2554 앵커 변경 시 위치 자동 보정 구현 완료
+- R2553 크기 전용 복사/붙여넣기 구현 완료
+- R2552 위치 전용 복사/붙여넣기 구현 완료
+- R2551 컴포넌트 타입 필터 구현 완료
+- R2550 다중 선택 일괄 잠금/해제 구현 완료
+- R2549 맨 앞/뒤 이동 버튼 구현 완료
+- R2548 Label 텍스트 일괄 적용 구현 완료
+- R2547 2-노드 위치 교환 구현 완료
+- R2546 빈 컨테이너 점선 테두리 구현 완료
+- R2545 컴포넌트 타입 필터 구현 완료
+- R2544 핀 마커 드롭다운 패널 구현 완료
+- R2543 뷰 북마크 구현 완료
+- R2542 사이즈 정수화 구현 완료
+- R2541 스케일/회전 리셋 구현 완료
+- R2540 Go-to XY 좌표 이동 구현 완료
+- R2539 breadcrumb 계층 경로 구현 완료
+- R2538 랜덤 색상 할당 구현 완료
+- R2537 W/H 인라인 편집 구현 완료
+- R2536 미러(flip) 구현 완료
+- R2535 스택 배치 구현 완료
+- R2534 회전 리셋 + ±90° 버튼 구현 완료
+- R2533 가장자리 정렬 구현 완료
+- R2532 SceneView snap-to-pixel 버튼 구현 완료
+- R2531 2-노드 위치 교환 구현 완료
+- R2530 앵커 변경 위치 보정 구현 완료
+- R2529 핀 마커 레이블 편집 구현 완료
+- R2528 스케일 배율 버튼 구현 완료
+- R2527 스케일 X/Y 링크 토글 구현 완료
+- R2526 SceneView 깊이 필터 구현 완료
+- R2525 오파시티 그라디언트 구현 완료
+- R2524 다중 선택 통합 바운딩박스 구현 완료
+- R2523 공통 컴포넌트 enabled 일괄 토글 구현 완료
+- R2522 직접 자식 선택 확장 구현 완료

@@ -58,6 +58,7 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
   }
 
   // R1504: 새 노드(_rawIndex==null) → raw 배열에 항목 추가 (정규화)
+  // R2459: 새 컴포넌트(_rawIndex==null) → raw 배열에 항목 추가
   function normalizeTree(node: CCSceneNode, parentRawIdx: number | null): CCSceneNode {
     let cur = node
     if (cur._rawIndex == null) {
@@ -67,6 +68,16 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
         : buildNewRawNode3x(cur, parentRawIdx))
       cur = { ...cur, _rawIndex: newIdx }
     }
+    // R2459: 새 컴포넌트 정규화 (rawIndex 없는 컴포넌트 → raw 배열에 추가)
+    const normalizedComps = cur.components.map(comp => {
+      if (comp._rawIndex != null) return comp
+      const compIdx = raw.length
+      raw.push(version === '2x'
+        ? buildNewRawComp2x(comp.type, cur._rawIndex!)
+        : buildNewRawComp3x(comp.type, cur._rawIndex!))
+      return { ...comp, _rawIndex: compIdx }
+    })
+    cur = { ...cur, components: normalizedComps }
     const children = cur.children.map(c => normalizeTree(c, cur._rawIndex!))
     return { ...cur, children }
   }
@@ -101,6 +112,12 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
       e._children = node.children
         .filter(c => c._rawIndex != null)
         .map(c => ({ __id__: c._rawIndex! }))
+    }
+
+    // R2459: _components 동기화 — 새 컴포넌트 포함
+    const compRefs = node.components.filter(c => c._rawIndex != null).map(c => ({ __id__: c._rawIndex! }))
+    if (compRefs.length > 0 || Array.isArray(e._components)) {
+      e._components = compRefs
     }
 
     // 컴포넌트 props 패치 (Label 텍스트 등)
@@ -216,6 +233,70 @@ function buildNewRawNode3x(node: CCSceneNode, parentIdx: number | null): RawEntr
     _uiProps: { _localOpacity: (node.opacity ?? 255) / 255 },
     _color: { __type__: 'cc.Color', r: 255, g: 255, b: 255, a: 255 },
     layer: 33554432,
+  }
+}
+
+// ── R2459: 새 컴포넌트 raw entry 빌드 ─────────────────────────────────────────
+// R2462: 타입별 기본 필드 추가 (Inspector 즉시 편집 가능하도록)
+
+/** CC 2.x 컴포넌트 타입별 기본 필드 맵 (_N$ 접두사 포함) */
+const COMP_DEFAULT_2x: Record<string, Record<string, unknown>> = {
+  'cc.Label':       { '_N$string': '', '_N$horizontalAlign': 1, '_N$fontSize': 40, '_N$lineHeight': 40, '_N$enableWrapText': true },
+  'cc.RichText':    { '_N$string': '', '_N$fontSize': 40, '_N$maxWidth': 0 },
+  'cc.Sprite':      { '_N$type': 0, '_N$sizeMode': 1, '_N$fillType': 0, '_N$fillRange': 1 },
+  'cc.Button':      { '_N$interactable': true, '_N$enableAutoGrayEffect': false, '_N$transition': 1 },
+  'cc.Toggle':      { '_N$isChecked': false },
+  'cc.Slider':      { '_N$progress': 0, '_N$direction': 0 },
+  'cc.ProgressBar': { '_N$progress': 0.5, '_N$mode': 0, '_N$reverse': false },
+  'cc.ScrollView':  { '_N$horizontal': false, '_N$vertical': true, '_N$inertia': true, '_N$brake': 0.75 },
+  'cc.EditBox':     { '_N$string': '', '_N$maxLength': 20, '_N$inputMode': 0, '_N$inputFlag': 3 },
+  'cc.Layout':      { '_N$type': 0, '_N$resizeMode': 0, '_N$paddingLeft': 0, '_N$paddingRight': 0, '_N$paddingTop': 0, '_N$paddingBottom': 0, '_N$spacingX': 0, '_N$spacingY': 0 },
+  'cc.Widget':      { '_N$isAlignTop': false, '_N$isAlignBottom': false, '_N$isAlignLeft': false, '_N$isAlignRight': false, '_N$isAbsTop': true, '_N$isAbsBottom': true, '_N$isAbsLeft': true, '_N$isAbsRight': true, '_N$top': 0, '_N$bottom': 0, '_N$left': 0, '_N$right': 0 },
+  'cc.Animation':   { '_N$defaultClip': null, '_N$clips': [], '_N$playOnLoad': false },
+  'cc.AudioSource': { '_N$clip': null, '_N$volume': 1, '_N$loop': false, '_N$playOnLoad': false },
+  'cc.Mask':        { '_N$type': 0, '_N$inverted': false },
+  'cc.Graphics':    { '_N$lineWidth': 2, '_N$strokeColor': { '__type__': 'cc.Color', r: 255, g: 255, b: 255, a: 255 } },
+}
+
+/** CC 3.x 컴포넌트 타입별 기본 필드 맵 (언더스코어 접두사) */
+const COMP_DEFAULT_3x: Record<string, Record<string, unknown>> = {
+  'cc.Label':       { '_string': '', '_horizontalAlign': 1, '_fontSize': 40, '_lineHeight': 40, '_enableWrapText': true },
+  'cc.RichText':    { '_string': '', '_fontSize': 40, '_maxWidth': 0 },
+  'cc.Sprite':      { '_type': 0, '_sizeMode': 1, '_fillType': 0, '_fillRange': 1 },
+  'cc.Button':      { '_interactable': true, '_enableAutoGrayEffect': false, '_transition': 1 },
+  'cc.Toggle':      { '_isChecked': false },
+  'cc.Slider':      { '_progress': 0, '_direction': 0 },
+  'cc.ProgressBar': { '_progress': 0.5, '_mode': 0, '_reverse': false },
+  'cc.ScrollView':  { '_horizontal': false, '_vertical': true, '_inertia': true, '_brake': 0.75 },
+  'cc.EditBox':     { '_string': '', '_maxLength': 20, '_inputMode': 0, '_inputFlag': 3 },
+  'cc.Layout':      { '_type': 0, '_resizeMode': 0, '_paddingLeft': 0, '_paddingRight': 0, '_paddingTop': 0, '_paddingBottom': 0, '_spacingX': 0, '_spacingY': 0 },
+  'cc.Widget':      { '_isAlignTop': false, '_isAlignBottom': false, '_isAlignLeft': false, '_isAlignRight': false, '_isAbsTop': true, '_isAbsBottom': true, '_isAbsLeft': true, '_isAbsRight': true, '_top': 0, '_bottom': 0, '_left': 0, '_right': 0 },
+  'cc.Animation':   { '_defaultClip': null, '_clips': [], '_playOnLoad': false },
+  'cc.AudioSource': { '_clip': null, '_volume': 1, '_loop': false, '_playOnLoad': false },
+  'cc.Mask':        { '_type': 0, '_inverted': false },
+  'cc.Graphics':    { '_lineWidth': 2, '_strokeColor': { '__type__': 'cc.Color', r: 255, g: 255, b: 255, a: 255 } },
+}
+
+function buildNewRawComp2x(type: string, nodeIdx: number): RawEntry {
+  return {
+    __type__: type,
+    _name: '',
+    _objFlags: 0,
+    node: { __id__: nodeIdx },
+    _enabled: true,
+    ...(COMP_DEFAULT_2x[type] ?? {}),
+  }
+}
+
+function buildNewRawComp3x(type: string, nodeIdx: number): RawEntry {
+  return {
+    __type__: type,
+    _name: '',
+    _objFlags: 0,
+    '__editorExtras__': {},
+    node: { __id__: nodeIdx },
+    _enabled: true,
+    ...(COMP_DEFAULT_3x[type] ?? {}),
   }
 }
 

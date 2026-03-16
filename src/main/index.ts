@@ -198,12 +198,14 @@ app.whenReady().then(() => {
     const mem = process.memoryUsage()
     return { rss: mem.rss, heapUsed: mem.heapUsed, heapTotal: mem.heapTotal }
   })
-  setInterval(() => {
+  // R2314: ISSUE-006 — 반환값 저장 후 will-quit 시 clearInterval
+  const memTimer = setInterval(() => {
     if (win && !win.isDestroyed()) {
       const mem = process.memoryUsage()
       win.webContents.send('app:memoryUpdate', { rss: mem.rss, heapUsed: mem.heapUsed })
     }
   }, 3000)
+  app.on('will-quit', () => clearInterval(memTimer))
 
   // nativeTheme IPC
   ipcMain.handle('native-theme:get', () => ({ isDark: nativeTheme.shouldUseDarkColors }))

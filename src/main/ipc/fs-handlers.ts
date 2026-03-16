@@ -577,6 +577,11 @@ export function registerFsHandlers(_win: unknown) {
       })
 
       watchers.set(dirPath, watcher)
+      // R2313: ISSUE-005 — sender(WebContents) 파괴 시 watcher 즉시 정리 (창 닫힘 누수 방지)
+      event.sender.once('destroyed', () => {
+        watcher.close()
+        watchers.delete(dirPath)
+      })
       return { ok: true }
     } catch (e) {
       return { error: String(e) }
@@ -603,6 +608,21 @@ export function registerFsHandlers(_win: unknown) {
   })
 
   ipcMain.handle('shell:exec', async (_, code: string) => {
+    // R2316: ISSUE-001 — 위험 패턴 블록리스트 (shell:true 입력검증)
+    const DANGEROUS = [
+      /\brm\s+-[^a-z]*r[^a-z]*f\b/i,   // rm -rf
+      /\bdel\s+\/[sqf]/i,               // del /s /q /f
+      /\brd\s+\/s\b/i,                  // rd /s
+      /\brmdir\s+\/s\b/i,               // rmdir /s
+      /\bformat\s+[a-z]:/i,             // format C:
+      /\bdd\s+if=/i,                    // dd if=
+      /:\(\)\{.*:\|:/,                  // fork bomb
+      />\s*\/dev\/sd[a-z]/i,            // disk overwrite
+      /\b(shutdown|reboot)\b/i,         // shutdown/reboot
+    ]
+    if (DANGEROUS.some(p => p.test(code))) {
+      return { ok: false, output: '보안 정책으로 차단된 명령어입니다.' }
+    }
     const { execSync } = require('child_process')
     try {
       const output = execSync(code, { timeout: 10000, encoding: 'utf8', shell: true })

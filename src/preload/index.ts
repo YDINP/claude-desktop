@@ -306,6 +306,12 @@ contextBridge.exposeInMainWorld('api', {
     modifiedRoot: import('../shared/ipc-schema').CCSceneNode
   ): Promise<{ success: boolean; backupPath?: string; error?: string; conflict?: boolean }> =>
     ipcRenderer.invoke('cc:file:saveScene', sceneFile, modifiedRoot),
+  // R2327: 다른 이름으로 저장 (Save As)
+  ccFileSaveAs: (
+    sceneFile: import('../shared/ipc-schema').CCSceneFile,
+    modifiedRoot: import('../shared/ipc-schema').CCSceneNode
+  ): Promise<{ success: boolean; canceled?: boolean; savedPath?: string; error?: string }> =>
+    ipcRenderer.invoke('cc:file:saveAs', sceneFile, modifiedRoot),
   // R1437: 충돌 무시 강제 덮어쓰기
   ccFileForceOverwrite: (
     sceneFile: import('../shared/ipc-schema').CCSceneFile,
@@ -581,6 +587,11 @@ declare global {
         sceneFile: import('../shared/ipc-schema').CCSceneFile,
         modifiedRoot: import('../shared/ipc-schema').CCSceneNode
       ) => Promise<{ success: boolean; backupPath?: string; error?: string; conflict?: boolean }>
+      // R2327
+      ccFileSaveAs?: (
+        sceneFile: import('../shared/ipc-schema').CCSceneFile,
+        modifiedRoot: import('../shared/ipc-schema').CCSceneNode
+      ) => Promise<{ success: boolean; canceled?: boolean; savedPath?: string; error?: string }>
       // R1437
       ccFileForceOverwrite: (
         sceneFile: import('../shared/ipc-schema').CCSceneFile,

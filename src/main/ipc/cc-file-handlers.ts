@@ -87,6 +87,25 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     return saveCCScene(sceneFile, modifiedRoot)
   })
 
+  /** R2327: 다른 이름으로 저장 (Save As) */
+  ipcMain.handle('cc:file:saveAs', async (
+    _e,
+    sceneFile: CCSceneFile,
+    modifiedRoot: CCSceneNode
+  ) => {
+    const win = BrowserWindow.getAllWindows()[0]
+    const ext = sceneFile.scenePath.endsWith('.fire') ? 'fire' : 'scene'
+    const result = await dialog.showSaveDialog(win, {
+      title: '다른 이름으로 저장',
+      defaultPath: sceneFile.scenePath,
+      filters: [{ name: 'CC Scene', extensions: [ext] }],
+    })
+    if (result.canceled || !result.filePath) return { success: false, canceled: true }
+    const newSceneFile: CCSceneFile = { ...sceneFile, scenePath: result.filePath }
+    const saveResult = saveCCScene(newSceneFile, modifiedRoot)
+    return { ...saveResult, savedPath: result.filePath }
+  })
+
   /** R1437: 충돌 무시 강제 덮어쓰기 */
   ipcMain.handle('cc:file:forceOverwrite', async (
     _e,

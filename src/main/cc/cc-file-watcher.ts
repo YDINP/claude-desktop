@@ -30,6 +30,8 @@ export class CCFileWatcher {
   private watchedPaths = new Set<string>()
   private pendingPaths: string[] = []
   private initializing = false
+  // R2313: ISSUE-004 — race condition 방지용 초기화 Promise
+  private _initPromise: Promise<void> | null = null
   // R1389: debounce 300ms
   private debounceTimers = new Map<string, ReturnType<typeof setTimeout>>()
   // R1389: 이전 파일 내용 캐시 (diff용)
@@ -51,39 +53,42 @@ export class CCFileWatcher {
     }
 
     if (this.initializing) {
+      // R2313: ISSUE-004 — 초기화 중이면 pendingPaths에 추가하고 진행 중인 Promise 반환
       this.pendingPaths.push(...newPaths)
-      return
+      return this._initPromise ?? undefined
     }
 
     this.initializing = true
-    try {
-      const { default: chokidar } = await import('chokidar')
-      const allPaths = [...newPaths, ...this.pendingPaths]
-      this.pendingPaths = []
+    this._initPromise = (async () => {
+      try {
+        const { default: chokidar } = await import('chokidar')
+        const allPaths = [...newPaths, ...this.pendingPaths]
+        this.pendingPaths = []
 
-      this.watcher = chokidar.watch(allPaths, {
-        persistent: true,
-        ignoreInitial: true,
-        awaitWriteFinish: {
-          stabilityThreshold: 200,
-          pollInterval: 80,
-        },
-        ignored: (filePath: string) => {
-          if (typeof filePath !== 'string') return false
-          const lower = filePath.toLowerCase()
-          if (!lower.includes('.')) return false
-          return !lower.endsWith('.fire') && !lower.endsWith('.scene') && !lower.endsWith('.prefab')
-        },
-      })
+        this.watcher = chokidar.watch(allPaths, {
+          persistent: true,
+          ignoreInitial: true,
+          // R2313: ISSUE-003 — chokidar v5는 awaitWriteFinish boolean만 지원
+          awaitWriteFinish: true,
+          ignored: (filePath: string) => {
+            if (typeof filePath !== 'string') return false
+            const lower = filePath.toLowerCase()
+            if (!lower.includes('.')) return false
+            return !lower.endsWith('.fire') && !lower.endsWith('.scene') && !lower.endsWith('.prefab')
+          },
+        })
 
-      this.watcher
-        .on('change', (p: string) => this.debouncedChange(p))
-        .on('add', (p: string) => this.emit({ type: 'add', path: p, timestamp: Date.now() }))
-        .on('unlink', (p: string) => this.emit({ type: 'unlink', path: p, timestamp: Date.now() }))
-        .on('error', (err: unknown) => console.error('[cc-file-watcher]', err))
-    } finally {
-      this.initializing = false
-    }
+        this.watcher
+          .on('change', (p: string) => this.debouncedChange(p))
+          .on('add', (p: string) => this.emit({ type: 'add', path: p, timestamp: Date.now() }))
+          .on('unlink', (p: string) => this.emit({ type: 'unlink', path: p, timestamp: Date.now() }))
+          .on('error', (err: unknown) => console.error('[cc-file-watcher]', err))
+      } finally {
+        this.initializing = false
+        this._initPromise = null
+      }
+    })()
+    return this._initPromise
   }
 
   // R1389: 300ms debounce change 이벤트
