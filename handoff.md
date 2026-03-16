@@ -12,14 +12,21 @@
 - [x] Phase 7: eslint.config.ts 추가 (@typescript-eslint + react-hooks)
 - [x] ISSUE-012: 리팩토링 로드맵 완료 처리 (Done/)
 
+## 완료 — 오케스트레이션 스프린트 (2026-03-16)
+- [x] ISSUE-008: claude-agent-sdk 0.1.75→0.2.76 업그레이드 (API 완전 호환)
+- [x] ISSUE-011: CC Editor 패널 UX — 탭 자동 로드, 씬/프리팹 분리, 레이아웃
+- [x] R2702: BatchInspector opacity 고정값 일괄 (0/64/128/192/255 프리셋)
+- [x] R2710: BatchInspector W/H 고정값 일괄 + 축 선택 + UITransform 동기화
+- [x] R2703: SceneView ⊕C 선택 노드 중심 팬 이동
+- QA: Critical 0, Warning 91, Pass 2606
+
 ## 미완료 / 다음 스프린트
 - [ ] Phase 2 나머지: ~525개 apply 함수 useBatchPatch 교체 (훅은 완성)
 - [ ] Phase 4: CocosPanel → BatchInspector/NodeInspector/SceneView 파일 분리
-- [ ] ISSUE-011: CC Editor 패널 (탭 클릭 시 Cocos 로드, 씬/프리팹 드롭다운, 노드 리스트)
-- [ ] ISSUE-007: npm audit 18 취약점 (devDep, electron 업그레이드 필요)
-- [ ] ISSUE-008: claude-agent-sdk 0.1.75 → 0.2.76 (agent-bridge.ts 호환성 확인 필요)
+- [ ] ISSUE-007: npm audit 18 취약점 (devDep, electron 업그레이드 필요, non-breaking fix 없음)
 - [ ] ISSUE-009: 번들 최적화 (low priority)
-- [ ] R2701-R2710: 10개 신규 기능 구현 (QA 스텁만 있음)
+- [ ] R2701: 마퀴 선택 (selBoxRef 이미 구현됨, Shift 키 보완만 필요)
+- [ ] R2704-R2709: 신규 기능 구현 (QA 스텁만 있음)
 
 ## 완료 (R2691-R2700) — 이번 세션 (계속)
 - [x] R2691: SceneView 노드 중심 점 마커 (showCenterDot, 빨간 점 · )
