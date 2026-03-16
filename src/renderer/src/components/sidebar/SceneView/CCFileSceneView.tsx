@@ -307,6 +307,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showZeroSizeWarn, setShowZeroSizeWarn] = useState(false)
   // R2698: 선택 노드 위치 가이드 십자선 오버레이
   const [showSelAxisLine, setShowSelAxisLine] = useState(false)
+  // R2700: 선택 노드 형제 강조 오버레이
+  const [showSiblingHighlight, setShowSiblingHighlight] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1886,6 +1888,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSelAxisLine ? '위치 가이드선 끄기 (R2698)' : '선택 노드 X/Y 위치 가이드 전체 선 표시 (R2698)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelAxisLine ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showSelAxisLine ? 'rgba(34,211,238,0.1)' : 'none', color: showSelAxisLine ? '#22d3ee' : 'var(--text-muted)' }}
         >╋</button>
+        {/* R2700: 선택 노드 형제 강조 토글 */}
+        <button
+          onClick={() => setShowSiblingHighlight(v => !v)}
+          title={showSiblingHighlight ? '형제 강조 끄기 (R2700)' : '선택 노드와 같은 부모를 가진 형제 노드 강조 (R2700)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSiblingHighlight ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showSiblingHighlight ? 'rgba(139,92,246,0.1)' : 'none', color: showSiblingHighlight ? '#8b5cf6' : 'var(--text-muted)' }}
+        >≡</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3569,6 +3577,29 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               <g style={{ pointerEvents: 'none' }}>
                 <line x1={left} y1={sp.y} x2={right} y2={sp.y} stroke="rgba(34,211,238,0.45)" strokeWidth={sw} strokeDasharray={`${5/view.zoom} ${3/view.zoom}`} />
                 <line x1={sp.x} y1={top} x2={sp.x} y2={bottom} stroke="rgba(34,211,238,0.45)" strokeWidth={sw} strokeDasharray={`${5/view.zoom} ${3/view.zoom}`} />
+              </g>
+            )
+          })()}
+          {/* R2700: 선택 노드 형제 강조 오버레이 */}
+          {showSiblingHighlight && selectedUuid && (() => {
+            const selFn = flatNodes.find(f => f.node.uuid === selectedUuid)
+            if (!selFn || !selFn.parentUuid) return null
+            const siblings = flatNodes.filter(f => f.parentUuid === selFn.parentUuid && f.node.uuid !== selectedUuid)
+            if (siblings.length === 0) return null
+            const sw = 1.5 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                {siblings.map(fn => {
+                  const sp2 = ccToSvg(fn.worldX, fn.worldY)
+                  const w2 = fn.node.size?.x ?? 0, h2 = fn.node.size?.y ?? 0
+                  const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+                  const rx = sp2.x - w2 * ax, ry = sp2.y - h2 * (1 - ay)
+                  return (
+                    <rect key={fn.node.uuid} x={rx} y={ry} width={w2} height={h2}
+                      fill="rgba(139,92,246,0.1)" stroke="rgba(139,92,246,0.7)" strokeWidth={sw}
+                      strokeDasharray={`${3/view.zoom} ${2/view.zoom}`} />
+                  )
+                })}
               </g>
             )
           })()}

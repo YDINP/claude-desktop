@@ -5709,6 +5709,27 @@ function CCFileBatchInspector({
           </div>
         )
       })()}
+      {/* R2699: 색상 리셋 (255,255,255,255) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyColorReset = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            return { ...n, color: { r: 255, g: 255, b: 255, a: 255 }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ color → 흰색 리셋 (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2699)</span>
+            <span onClick={applyColorReset} title="color → (255,255,255,255) 흰색 리셋 (R2699)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>⬜ 리셋</span>
+          </div>
+        )
+      })()}
       {/* R2693: 랜덤 색상 일괄 적용 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRandomColor = async () => {

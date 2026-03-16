@@ -29161,6 +29161,32 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1692: R2700 SceneView 형제 노드 강조 오버레이 ────────────────────
+console.log('\n## 1692. R2700 — SceneView 선택 노드 형제 강조')
+const s1692 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1692.includes('R2700') &&
+  s1692.includes('showSiblingHighlight') &&
+  s1692.includes('8b5cf6')
+) {
+  log('pass', 'R2700-siblingHl', 'R2700 형제 강조 오버레이 구현 완료')
+} else {
+  log('warning', 'R2700-siblingHl', 'R2700 형제 강조 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1691: R2699 BatchInspector 색상 리셋 ─────────────────────────────
+console.log('\n## 1691. R2699 — BatchInspector color 흰색 리셋')
+const s1691 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1691.includes('R2699') &&
+  s1691.includes('applyColorReset') &&
+  s1691.includes('흰색 리셋')
+) {
+  log('pass', 'R2699-colorReset', 'R2699 color 리셋 구현 완료')
+} else {
+  log('warning', 'R2699-colorReset', 'R2699 color 리셋 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1690: R2698 SceneView 선택 노드 위치 가이드 십자선 ───────────────
 console.log('\n## 1690. R2698 — SceneView 선택 노드 위치 가이드 십자선')
 const s1690 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
