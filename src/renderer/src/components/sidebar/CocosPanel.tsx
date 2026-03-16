@@ -5434,23 +5434,12 @@ function CCFileBatchInspector({
       })()}
       {/* R2613: size W 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
-        const applySzGrad = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
-            const newW = Math.round(szGradFromW + (szGradToW - szGradFromW) * t)
-            const sz = n.size as { x: number; y: number }
-            return { ...n, size: { ...sz, x: newW }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ size.W 분배 ${szGradFromW}→${szGradToW} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applySzGrad = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0
+          const newW = Math.round(szGradFromW + (szGradToW - szGradFromW) * t)
+          const sz = n.size as { x: number; y: number }
+          return { ...n, size: { ...sz, x: newW } }
+        }, `size.W 분배 ${szGradFromW}→${szGradToW} (${uuids.length}개)`)
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5469,23 +5458,12 @@ function CCFileBatchInspector({
       })()}
       {/* R2614: size H 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
-        const applySzGradH = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
-            const newH = Math.round(szGradFromH + (szGradToH - szGradFromH) * t)
-            const sz = n.size as { x: number; y: number }
-            return { ...n, size: { ...sz, y: newH }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ size.H 분배 ${szGradFromH}→${szGradToH} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applySzGradH = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0
+          const newH = Math.round(szGradFromH + (szGradToH - szGradFromH) * t)
+          const sz = n.size as { x: number; y: number }
+          return { ...n, size: { ...sz, y: newH } }
+        }, `size.H 분배 ${szGradFromH}→${szGradToH} (${uuids.length}개)`)
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5604,23 +5582,12 @@ function CCFileBatchInspector({
       })()}
       {/* R2616: position Z 균등 분배 (CC3.x) */}
       {sceneFile.root && uuids.length >= 2 && (() => {
-        const applyPosZGrad = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
-            const newZ = Math.round(posZFrom + (posZTo - posZFrom) * t)
-            const p = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...p, z: newZ }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ pos.Z 분배 ${posZFrom}→${posZTo} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applyPosZGrad = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0
+          const newZ = Math.round(posZFrom + (posZTo - posZFrom) * t)
+          const p = n.position as { x: number; y: number; z?: number }
+          return { ...n, position: { ...p, z: newZ } }
+        }, `pos.Z 분배 ${posZFrom}→${posZTo} (${uuids.length}개)`)
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5639,23 +5606,12 @@ function CCFileBatchInspector({
       })()}
       {/* R2618: position X 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
-        const applyPosXGrad = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
-            const newX = Math.round(posXFrom + (posXTo - posXFrom) * t)
-            const p = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...p, x: newX }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ pos.X 분배 ${posXFrom}→${posXTo} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applyPosXGrad = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0
+          const newX = Math.round(posXFrom + (posXTo - posXFrom) * t)
+          const p = n.position as { x: number; y: number; z?: number }
+          return { ...n, position: { ...p, x: newX } }
+        }, `pos.X 분배 ${posXFrom}→${posXTo} (${uuids.length}개)`)
         const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5674,23 +5630,12 @@ function CCFileBatchInspector({
       })()}
       {/* R2619: position Y 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
-        const applyPosYGrad = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
-            const newY = Math.round(posYFrom + (posYTo - posYFrom) * t)
-            const p = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...p, y: newY }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ pos.Y 분배 ${posYFrom}→${posYTo} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applyPosYGrad = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0
+          const newY = Math.round(posYFrom + (posYTo - posYFrom) * t)
+          const p = n.position as { x: number; y: number; z?: number }
+          return { ...n, position: { ...p, y: newY } }
+        }, `pos.Y 분배 ${posYFrom}→${posYTo} (${uuids.length}개)`)
         const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5869,17 +5814,7 @@ function CCFileBatchInspector({
           setBatchMsg(`✓ 이름 ${ns.length}개 번호 매기기 완료`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        const applyStrip = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, name: n.name.replace(/_\d+$/, ''), children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg('✓ 접미어 제거 완료')
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applyStrip = () => patchNodes(n => ({ ...n, name: n.name.replace(/_\d+$/, '') }), '접미어 제거 완료')
         const bs: React.CSSProperties = { fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.3)', background: 'rgba(251,146,60,0.07)', color: '#fb923c', lineHeight: 1.6 }
         return (
           <div style={{ marginBottom: 6, padding: '3px 6px', background: 'rgba(251,146,60,0.04)', border: '1px solid rgba(251,146,60,0.15)', borderRadius: 4 }}>
@@ -6207,18 +6142,10 @@ function CCFileBatchInspector({
         function collectFlip(n: CCSceneNode) { if (uuidSet.has(n.uuid)) flipNodes.push(n); n.children.forEach(collectFlip) }
         collectFlip(sceneFile.root!)
         if (flipNodes.length === 0) return null
-        const applyFlip = async (axis: 'x' | 'y') => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            const sc = n.scale as { x: number; y: number; z?: number }
-            return { ...n, scale: { ...sc, [axis]: -(sc[axis] ?? 1) }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ scale${axis.toUpperCase()} flip (${flipNodes.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applyFlip = (axis: 'x' | 'y') => patchNodes(n => {
+          const sc = n.scale as { x: number; y: number; z?: number }
+          return { ...n, scale: { ...sc, [axis]: -(sc[axis] ?? 1) } }
+        }, `scale${axis.toUpperCase()} flip (${flipNodes.length}개)`)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>반전 (R2575)</span>
