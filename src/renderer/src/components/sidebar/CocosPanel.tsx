@@ -4032,6 +4032,8 @@ function CCFileBatchInspector({
   // R1856: 이름 find/replace
   const [batchFindStr, setBatchFindStr] = useState<string>('')
   const [batchReplaceStr, setBatchReplaceStr] = useState<string>('')
+  // R2708: 이름 정규식 필터 선택
+  const [batchNameRegexFilter, setBatchNameRegexFilter] = useState<string>('')
   // R2505: 컴포넌트 일괄 추가
   const [batchAddComp, setBatchAddComp] = useState<string>('')
   // R2506: 컴포넌트 일괄 제거
@@ -4105,6 +4107,13 @@ function CCFileBatchInspector({
   // R2676: 색상 블렌드
   const [colorBlendTarget, setColorBlendTarget] = useState<string>('#ff0000')
   const [colorBlendAmount, setColorBlendAmount] = useState<number>(50)
+  // R2704: 색상 채널 오프셋
+  const [colorDeltaR, setColorDeltaR] = useState<number>(0)
+  const [colorDeltaG, setColorDeltaG] = useState<number>(0)
+  const [colorDeltaB, setColorDeltaB] = useState<number>(0)
+  const [colorDeltaA, setColorDeltaA] = useState<number>(0)
+  // R2708: 이름 정규식 필터
+  const [nameRegexFilter, setNameRegexFilter] = useState<string>('')
   // R2678: opacity 배수
   const [opacityMult, setOpacityMult] = useState<number>(80)
   // R2702: opacity 고정값 일괄 설정
@@ -5497,6 +5506,40 @@ function CCFileBatchInspector({
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >블렌드</span>
+          </div>
+        )
+      })()}
+      {/* R2704: 색상 채널 오프셋 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyColorDelta = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const c = n.color ?? { r: 255, g: 255, b: 255, a: 255 }
+            return { ...n, color: { r: Math.min(255, Math.max(0, c.r + colorDeltaR)), g: Math.min(255, Math.max(0, c.g + colorDeltaG)), b: Math.min(255, Math.max(0, c.b + colorDeltaB)), a: Math.min(255, Math.max(0, (c.a ?? 255) + colorDeltaA)) }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ ΔColor R${colorDeltaR} G${colorDeltaG} B${colorDeltaB} A${colorDeltaA} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상오프셋 (R2704)</span>
+            <div style={{ display: 'flex', gap: 2, flex: 1, minWidth: 150 }}>
+              {([['R', colorDeltaR, setColorDeltaR], ['G', colorDeltaG, setColorDeltaG], ['B', colorDeltaB, setColorDeltaB], ['A', colorDeltaA, setColorDeltaA]] as const).map(([label, val, setter]) => (
+                <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <span style={{ fontSize: 9 }}>Δ{label}</span>
+                  <input type="number" min={-255} max={255} value={val}
+                    onChange={e => setter(Number(e.target.value))}
+                    style={{ width: 35, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }} />
+                </span>
+              })}
+            </div>
+            <span onClick={() => { setColorDeltaR(30); setColorDeltaG(30); setColorDeltaB(30) }} style={mkBtnS('#3a5a3a')} title="R/G/B +30">+밝게</span>
+            <span onClick={() => { setColorDeltaR(-30); setColorDeltaG(-30); setColorDeltaB(-30) }} style={mkBtnS('#3a3a5a')} title="R/G/B -30">-어둡게</span>
+            <span onClick={() => { setColorDeltaR(0); setColorDeltaG(0); setColorDeltaB(0); setColorDeltaA(0) }} style={mkBtnS('#555')} title="모든 델타 0으로 리셋">리셋</span>
+            <span onClick={applyColorDelta} style={mkBtnS('#2a4a6a')} title={`선택된 ${uuids.length}개 노드 색상 채널 오프셋 적용 (R2704)`}>적용</span>
           </div>
         )
       })()}
@@ -20343,6 +20386,50 @@ function CCFileBatchInspector({
             }}
             style={{ fontSize: 9, padding: '2px 6px', background: batchFindStr ? 'rgba(88,166,255,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchFindStr ? '#58a6ff' : 'var(--text-muted)', cursor: batchFindStr ? 'pointer' : 'default', flexShrink: 0 }}
           >치환</button>
+        </div>
+        {/* R2708: 이름 정규식 필터 선택 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+          <input
+            value={batchNameRegexFilter}
+            onChange={e => setBatchNameRegexFilter(e.target.value)}
+            placeholder="정규식 (예: Btn.*)"
+            style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+          />
+          <button
+            title="정규식으로 노드명 매칭하여 선택"
+            disabled={!batchNameRegexFilter}
+            onClick={() => {
+              if (!sceneFile.root || !batchNameRegexFilter) return
+              try {
+                const re = new RegExp(batchNameRegexFilter, 'i')
+                const matched: string[] = []
+                function walk(n: CCSceneNode) {
+                  if (re.test(n.name ?? '')) matched.push(n.uuid)
+                  n.children?.forEach(walk)
+                }
+                walk(sceneFile.root)
+                if (matched.length === 0) {
+                  setBatchMsg('⚠ 매칭 없음')
+                  setTimeout(() => setBatchMsg(null), 1500)
+                  return
+                }
+                onMultiSelectChange?.(matched)
+                setBatchMsg(`✓ ${matched.length}개 선택`)
+                setTimeout(() => setBatchMsg(null), 1500)
+              } catch {
+                setBatchMsg('⚠ 잘못된 정규식')
+                setTimeout(() => setBatchMsg(null), 1500)
+              }
+            }}
+            style={{ fontSize: 9, padding: '2px 6px', background: batchNameRegexFilter ? 'rgba(88,166,255,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchNameRegexFilter ? '#58a6ff' : 'var(--text-muted)', cursor: batchNameRegexFilter ? 'pointer' : 'default', flexShrink: 0 }}
+          >선택</button>
+          {['Button', 'Label', 'Sprite', 'Node', 'Panel'].map(q => (
+            <button
+              key={q}
+              onClick={() => setBatchNameRegexFilter(q)}
+              style={{ fontSize: 8, padding: '2px 4px', border: '1px solid rgba(107,114,128,0.4)', borderRadius: 2, background: 'rgba(107,114,128,0.05)', color: '#8b9dc3', cursor: 'pointer', flexShrink: 0 }}
+            >{q}</button>
+          ))}
         </div>
         {/* R1768: X/Y 균등 배치 (3개 이상 선택 시) */}
         {/* R1772: 선택 노드 정렬 (align) */}
