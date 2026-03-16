@@ -1,6 +1,43 @@
 # Handoff — claude-desktop
 > 마지막 업데이트: 2026-03-15
 
+## 완료 (R2691-R2700) — 이번 세션 (계속)
+- [x] R2691: SceneView 노드 중심 점 마커 (showCenterDot, 빨간 점 · )
+- [x] R2692: BatchInspector nudge ←→↑↓ 버튼 + step 입력 (nudgeStep)
+- [x] R2693: BatchInspector 🎲 랜덤 색상 일괄 적용 (applyRandomColor)
+- [x] R2694: SceneView ⚓ 비기본 앵커 강조 (showNonDefaultAnchor, 앵커값 텍스트)
+- [x] R2695: BatchInspector X/Y축 위치 선형 배치 (posGradFrom/To, applyPosGradient)
+- [x] R2696: SceneView ⚠ 크기 0 노드 경고 오버레이 (showZeroSizeWarn)
+- [x] R2697: BatchInspector opacity 선형 그라데이션 배치 (opGradFrom/To, applyOpGradient)
+- [x] R2698: SceneView ╋ 선택 노드 위치 가이드 십자선 (showSelAxisLine, 청록 점선)
+- [x] R2699: BatchInspector ⬜리셋 — color → (255,255,255,255) (applyColorReset)
+- [x] R2700: SceneView ≡ 형제 노드 강조 오버레이 (showSiblingHighlight, 보라)
+버그 수정: CocosPanel R2512 JSX 닫힘 누락, SceneView uuids 미정의, showSelBBox 중복
+
+## 완료 (R2681-R2690) — 이번 세션 (이전)
+- [x] R2681-R2690: [이하 생략]
+
+## 완료 (R2662-2680) — 이번 세션 (계속)
+- [x] R2662: BatchInspector rotation→0 리셋 (CC2.x 숫자/CC3.x {x,y,z} 공통)
+- [x] R2663: BatchInspector ±range 랜덤 위치 오프셋 (randomRange)
+- [x] R2664: BatchInspector ±range 랜덤 회전 오프셋 (randomRotRange, CC2/3 공통)
+- [x] R2665: SceneView 깊이 히트맵 (얕음=초록→깊음=빨강, maxDepthVal)
+- [x] R2666: SceneView opacity<255 노드에 α값 텍스트 오버레이 (showOpacityOverlay)
+- [x] R2667: BatchInspector 이름 대소문자 변환 (UPPER/lower/Title, applyNameCase)
+- [x] R2668: SceneView rotation≠0 노드에 각도 텍스트 오버레이 (showRotOverlay)
+- [x] R2669: BatchInspector 이름 공백 정리 trim + replace(/\s+/g,' ')
+- [x] R2670: SceneView 선택 노드 position(x,y) 텍스트 오버레이 (showPosText)
+- [x] R2671: BatchInspector 이름 find/replace (nameFind→nameReplace)
+- [x] R2672: SceneView scale≠1 노드에 scale 값 텍스트 오버레이 (showScaleText)
+- [x] R2673: SceneView 노드당 컴포넌트 수 배지 (showCompCountBadge, 기본 타입 제외)
+- [x] R2674: BatchInspector 절대 위치 직접 지정 (absPosX/Y + 축 checkbox)
+- [x] R2675: SceneView 노드 크기 히트맵 (큰=노란/작은=파란, maxNodeArea)
+- [x] R2676: BatchInspector 색상 블렌드 (현재→목표색 t% 혼합, colorBlendTarget/Amount)
+- [x] R2677: BatchInspector 색상 반전 (255-r, 255-g, 255-b, applyColorInvert)
+- [x] R2678: BatchInspector opacity 배수 (×N%, applyOpacityMult)
+- [x] R2679: BatchInspector 선택 그룹 중심을 (0,0)으로 이동 (applyMoveToCenter)
+- [x] R2680: SceneView 선택 그룹 중심 마커 (showSelCenter, 녹색 ⊕ 십자)
+
 ## 완료 (R2637-2650) — 이번 세션
 - [x] R2637: SceneView 씬 전체 바운딩박스 오버레이 (showSceneBBox, 적색 점선 + WxH)
 - [x] R2638: BatchInspector 회전 균등 분배 (rotGradFrom→rotGradTo, applyRotGrad)
