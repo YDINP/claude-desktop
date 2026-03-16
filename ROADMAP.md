@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1469 완료 — Phase DD19 진행 중, QA Pass 1359)
+> 마지막 업데이트: 2026-03-16 (R2710까지 완료 — 리팩토링 스프린트 + 이슈 클리어, QA Pass 2608 / Warning 89 / Critical 0)
 
 ## 개발 루프 실행 방식
 
@@ -887,3 +887,17 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | Round 1480 | QA Section 405-406 추가 (R1476-R1479 기능 체크, Pass 1371) | ✅ |
 | Round 2159 | BatchInspector cc.BoxCollider2D + CircleCollider2D 확장 (sensor/density/friction/restitution 배치에 포함, QA Pass 2082) | ✅ |
 | Round 2160 | BatchInspector cc.BoxCollider2D offset + CircleCollider2D offset 신규 배치 섹션 (QA Pass 2084) | ✅ |
+| R2691-R2700 | SceneView 오버레이 10종 (center dot/nudge/random color/non-default anchor/pos gradient/zero size warn/opacity gradient/axis crosshair/color reset/sibling highlight) | ✅ |
+| 리팩토링 스프린트 | qa.ts 31,802→81줄 (qa-checks/분리), useBatchPatch 훅, cocos-utils.ts 분리, mkBtnS/mkNiS 팩토리, ESLint, Phantom State 65쌍 제거 | ✅ |
+| ISSUE-001 | shell:exec execSync→execFileAsync 보안 수정 | ✅ |
+| ISSUE-007 | npm audit overrides (high 10→0, 18→11개) | ✅ |
+| ISSUE-008 | claude-agent-sdk 0.1.75→0.2.76 (API 호환) | ✅ |
+| ISSUE-009 | react-syntax-highlighter PrismLight (~500kB 절감) | ✅ |
+| ISSUE-011 | CC Editor 패널 UX — 탭 자동 로드, 씬/프리팹 드롭다운 분리 | ✅ |
+| ISSUE-012 | 리팩토링 로드맵 Phase 1-7 실행 완료 | ✅ |
+| R2702 | BatchInspector opacity 고정값 일괄 (프리셋 0/64/128/192/255) | ✅ |
+| R2703 | SceneView ⊕C 선택 노드 중심 팬 이동 | ✅ |
+| R2704 | BatchInspector ΔR/ΔG/ΔB/ΔA 색상 채널 오프셋 | ✅ |
+| R2708 | BatchInspector 이름 정규식 필터 다중 선택 | ✅ |
+| R2709 | SceneView W:H 커스텀 비율 가이드 오버레이 (노란 점선) | ✅ |
+| R2710 | BatchInspector W/H 고정값 일괄 + UITransform 동기화 | ✅ |
