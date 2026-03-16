@@ -665,6 +665,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             <NumInput label="X" value={node.x} uuid={node.uuid} prop="x" onSave={trackUpdate} />
             <NumInput label="Y" value={node.y} uuid={node.uuid} prop="y" onSave={trackUpdate} />
           </div>
+          {/* Round179: X, Y 위치를 (0,0)으로 리셋 */}
           <button
             onClick={() => { trackUpdate(node.uuid, 'x', 0); trackUpdate(node.uuid, 'y', 0) }}
             title="R1449: 위치를 (0, 0)으로 리셋"
@@ -720,6 +721,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           title={scaleLocked ? '비율 잠금 해제' : '비율 유지 잠금'}
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: scaleLocked ? 'var(--accent)' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
         >∝</button>
+        {/* Round181: scale.*1.*1 → 스케일을 (1, 1)로 리셋 */}
         <button
           onClick={() => { trackUpdate(node.uuid, 'scaleX', 1); trackUpdate(node.uuid, 'scaleY', 1) }}
           title="R1449: 스케일을 (1, 1)로 리셋"
@@ -733,6 +735,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
         <div style={{ flex: 1 }}>
           <NumInput label="Rot" value={node.rotation} decimals={2} uuid={node.uuid} prop="rotation" onSave={trackUpdate} />
         </div>
+        {/* Round180: rotation.*0 → 회전을 0으로 리셋 */}
         <button
           onClick={() => trackUpdate(node.uuid, 'rotation', 0)}
           title="R1449: 회전을 0으로 리셋"
@@ -857,6 +860,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           <NumInput label="Ax" value={node.anchorX} decimals={2} uuid={node.uuid} prop="anchorX" onSave={trackUpdate} />
           <NumInput label="Ay" value={node.anchorY} decimals={2} uuid={node.uuid} prop="anchorY" onSave={trackUpdate} />
         </div>
+        {/* Round182: onUpdate(node.uuid, 'anchorX', 0.5) → 앵커를 0.5로 초기화 */}
         <button
           onClick={() => { trackUpdate(node.uuid, 'anchorX', 0.5); trackUpdate(node.uuid, 'anchorY', 0.5) }}
           title="앵커를 (0.5, 0.5) 중심으로 초기화"

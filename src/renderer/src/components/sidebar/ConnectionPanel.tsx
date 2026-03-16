@@ -154,6 +154,11 @@ export function ConnectionPanel() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>MCP 서버</span>
+          {servers.length > 0 && (
+            <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 8, background: 'var(--bg-hover)', color: 'var(--text-muted)', fontWeight: 600 }}>
+              {servers.length}
+            </span>
+          )}
           {servers.length > 0 && servers.some(s => s.status !== 'unknown') && (() => {
             const pinged = servers.filter(s => s.status !== 'unknown' && s.status !== 'checking').length
             const alive = servers.filter(s => s.status === 'alive').length
