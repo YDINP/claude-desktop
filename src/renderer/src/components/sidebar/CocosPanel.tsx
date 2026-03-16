@@ -4131,6 +4131,10 @@ function CCFileBatchInspector({
   const [batchAnchorCompensate, setBatchAnchorCompensate] = useState(true)
   // R2712: Label fontSize 사용자 정의 입력
   const [customFontSize, setCustomFontSize] = useState<number>(24)
+  // R2719: 격자 스냅 (nearestGridSnap)
+  const [nearestGridSnap, setNearestGridSnap] = useState<number>(16)
+  // R2721: Label 폰트 색상
+  const [labelFontColor, setLabelFontColor] = useState<string>('#ffffff')
   // -- style factories (btnS/niS 반복 제거) --
   const mkBtnS = (color: string, extra?: React.CSSProperties): React.CSSProperties => ({
     fontSize: 9, padding: '1px 5px', cursor: 'pointer',
@@ -4642,6 +4646,38 @@ function CCFileBatchInspector({
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}
               >{step}</span>
             ))}
+          </div>
+        )
+      })()}
+      {/* R2719: 격자 스냅 (nearestGridSnap) — position XY를 N px 배수로 반올림 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyGridSnapNearest = async () => {
+          const g = nearestGridSnap
+          if (g < 1) return
+          await patchNodes(n => {
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...p, x: Math.round(p.x / g) * g, y: Math.round(p.y / g) * g } }
+          }, `⊹ ${g}px 스냅 (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>⊹px 스냅 (R2719)</span>
+            {([1, 8, 16, 32, 64] as const).map(v => (
+              <span key={v} onClick={() => setNearestGridSnap(v)}
+                title={`스냅 크기 ${v}px로 설정`}
+                style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
+                  border: nearestGridSnap === v ? '1px solid #f59e0b' : '1px solid rgba(245,158,11,0.4)',
+                  color: nearestGridSnap === v ? '#f59e0b' : '#fbbf24',
+                  background: nearestGridSnap === v ? 'rgba(245,158,11,0.1)' : 'none',
+                  userSelect: 'none' }}
+              >{v}</span>
+            ))}
+            <span onClick={applyGridSnapNearest}
+              title={`선택된 ${uuids.length}개 노드 position XY를 ${nearestGridSnap}px 배수로 반올림 (R2719)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#f59e0b', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#f59e0b')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >⊹</span>
           </div>
         )
       })()}
@@ -8848,6 +8884,43 @@ function CCFileBatchInspector({
                 style={{ width: 14, height: 14, borderRadius: 2, background: c, cursor: 'pointer',
                   border: '1px solid var(--border)', display: 'inline-block' }} />
             ))}
+          </div>
+        )
+      })()}
+      {/* R2721: cc.Label/RichText 폰트 색상 일괄 설정 */}
+      {commonCompTypes.includes('cc.Label') && (() => {
+        const applyLabelFontColor = async () => {
+          if (!sceneFile.root) return
+          const hex = labelFontColor
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
+          const colorObj = { r, g, b, a: 255 }
+          function patchLabelFontColor(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(patchLabelFontColor)
+            if (!uuidSet.has(n.uuid)) return { ...n, children }
+            const updComps = n.components.map(c => {
+              if (c.type !== 'cc.Label' && c.type !== 'cc.RichText') return c
+              // CC2.x: color prop as {r,g,b,a}; CC3.x: fontColor as hex string
+              return { ...c, props: { ...c.props, color: colorObj, _color: colorObj, fontColor: hex, _fontColor: hex } }
+            })
+            return { ...n, components: updComps, children }
+          }
+          await saveScene({ ...sceneFile, root: patchLabelFontColor(sceneFile.root) })
+          setBatchMsg(`✓ Label fontColor=${hex} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>폰트색 (R2721)</span>
+            <input type="color" value={labelFontColor}
+              onChange={e => setLabelFontColor(e.target.value)}
+              style={{ width: 28, height: 18, padding: 0, border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', background: 'none' }}
+              title="Label/RichText 폰트 색상 선택" />
+            <span onClick={applyLabelFontColor}
+              title={`선택된 ${uuids.length}개 노드 Label fontColor → ${labelFontColor} (R2721)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#58a6ff', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#58a6ff')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >적용</span>
           </div>
         )
       })()}

@@ -323,6 +323,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSiblingHighlight, setShowSiblingHighlight] = useState(false)
   // R2717: 선택 노드 opacity HUD 배지
   const [showOpacityHud, setShowOpacityHud] = useState(false)
+  // R2718: 선택 노드 uuid 참조 화살표 오버레이
+  const [showRefArrows, setShowRefArrows] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -440,6 +442,29 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   // 다중 선택 UUID 배열 (multiSelected Set → string[])
   const uuids = useMemo(() => Array.from(multiSelected), [multiSelected])
+
+  // R2718: uuid → FlatNode 맵
+  const nodeMap = useMemo(() => {
+    const m = new Map<string, FlatNode>()
+    flatNodes.forEach(fn => m.set(fn.node.uuid, fn))
+    return m
+  }, [flatNodes])
+
+  // R2718: 선택 노드 컴포넌트 props에서 uuid 참조 수집
+  const UUID_RE = /^[0-9a-f]{14,36}$/
+  const refUuids = useMemo(() => {
+    const selFn = selectedUuid ? nodeMap.get(selectedUuid) : null
+    if (!selFn || !showRefArrows) return []
+    const refs: string[] = []
+    for (const comp of selFn.node.components) {
+      for (const v of Object.values(comp.props ?? {})) {
+        if (typeof v === 'string' && UUID_RE.test(v) && nodeMap.has(v) && v !== selectedUuid) {
+          refs.push(v)
+        }
+      }
+    }
+    return [...new Set(refs)]
+  }, [selectedUuid, showRefArrows, nodeMap])
 
   // R2651: 선택 노드 부모 UUID 집합
   const parentUuidSet = useMemo(() => {
@@ -2032,6 +2057,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showOpacityHud ? 'opacity HUD 끄기 (R2717)' : '선택 노드 opacity 값 배지 표시 (R2717)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityHud ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityHud ? 'rgba(251,191,36,0.1)' : 'none', color: showOpacityHud ? '#fbbf24' : 'var(--text-muted)' }}
         >op</button>
+        {/* R2718: 선택 노드 uuid 참조 화살표 토글 */}
+        <button
+          onClick={() => setShowRefArrows(v => !v)}
+          title={showRefArrows ? 'uuid 참조 화살표 끄기 (R2718)' : '선택 노드 컴포넌트 props의 uuid 참조 화살표 표시 (R2718)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRefArrows ? 'rgba(249,115,22,0.5)' : 'var(--border)'}`, background: showRefArrows ? 'rgba(249,115,22,0.1)' : 'none', color: showRefArrows ? '#f97316' : 'var(--text-muted)' }}
+        >🔗</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2430,6 +2461,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {/* R2610: rotation 화살표 마커 */}
           <marker id="rot-arrow" markerWidth={6} markerHeight={6} refX={5} refY={3} orient="auto">
             <path d="M0,0 L6,3 L0,6 Z" fill="rgba(236,72,153,0.9)" />
+          </marker>
+          {/* R2718: uuid 참조 화살표 마커 */}
+          <marker id="ref-arrow" markerWidth={8} markerHeight={8} refX={6} refY={3} orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#f97316" />
           </marker>
           {/* R2326: 체크무늬 배경 패턴 */}
           {bgPattern === 'checker' && (() => {
@@ -3788,6 +3823,29 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <rect key={fn.node.uuid} x={rx} y={ry} width={w2} height={h2}
                       fill="rgba(139,92,246,0.1)" stroke="rgba(139,92,246,0.7)" strokeWidth={sw}
                       strokeDasharray={`${3/view.zoom} ${2/view.zoom}`} />
+                  )
+                })}
+              </g>
+            )
+          })()}
+          {/* R2718: 선택 노드 uuid 참조 화살표 오버레이 */}
+          {showRefArrows && selectedUuid && refUuids.length > 0 && (() => {
+            const selFn = nodeMap.get(selectedUuid)
+            if (!selFn) return null
+            const fromSvg = ccToSvg(selFn.worldX, selFn.worldY)
+            const sw = 1.5 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                {refUuids.map(refUuid => {
+                  const toFn = nodeMap.get(refUuid)
+                  if (!toFn) return null
+                  const toSvg = ccToSvg(toFn.worldX, toFn.worldY)
+                  return (
+                    <line key={refUuid}
+                      x1={fromSvg.x} y1={fromSvg.y}
+                      x2={toSvg.x} y2={toSvg.y}
+                      stroke="#f97316" strokeWidth={sw} opacity={0.8}
+                      markerEnd="url(#ref-arrow)" />
                   )
                 })}
               </g>
