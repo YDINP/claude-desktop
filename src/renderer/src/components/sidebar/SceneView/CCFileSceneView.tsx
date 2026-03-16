@@ -268,7 +268,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R2646: 계층 구조 연결선 오버레이
   const [showHierarchyLines, setShowHierarchyLines] = useState(false)
   // R2647: 선택 노드 그룹 바운딩박스
-  const [showSelBBox, setShowSelBBox] = useState(false)
+  const [showSelGroupBBox, setShowSelGroupBBox] = useState(false)
   // R2651: 선택 노드 부모 하이라이트
   const [showParentHighlight, setShowParentHighlight] = useState(false)
   // R2652: 비활성 노드 반투명 오버레이
@@ -299,6 +299,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSpriteName, setShowSpriteName] = useState(false)
   // R2688: UUID 앞 8자리 배지
   const [showUuidBadge, setShowUuidBadge] = useState(false)
+  // R2691: 노드 중심 점 마커
+  const [showCenterDot, setShowCenterDot] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -401,6 +403,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     return result
   }, [sceneFile])
+
+  // 다중 선택 UUID 배열 (multiSelected Set → string[])
+  const uuids = useMemo(() => Array.from(multiSelected), [multiSelected])
 
   // R2651: 선택 노드 부모 UUID 집합
   const parentUuidSet = useMemo(() => {
@@ -1757,9 +1762,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         >⊣</button>
         {/* R2647: 선택 노드 그룹 바운딩박스 토글 */}
         <button
-          onClick={() => setShowSelBBox(v => !v)}
-          title={showSelBBox ? '선택 BBox 끄기 (R2647)' : '선택 노드 그룹 경계 박스 표시 (R2647)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelBBox ? '#60a5fa' : 'var(--text-muted)' }}
+          onClick={() => setShowSelGroupBBox(v => !v)}
+          title={showSelGroupBBox ? '선택 BBox 끄기 (R2647)' : '선택 노드 그룹 경계 박스 표시 (R2647)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelGroupBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelGroupBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelGroupBBox ? '#60a5fa' : 'var(--text-muted)' }}
         >▣</button>
         {/* R2651: 선택 노드 부모 하이라이트 토글 */}
         <button
@@ -1851,6 +1856,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showUuidBadge ? 'UUID 배지 끄기 (R2688)' : '노드 UUID 앞 8자리 배지 표시 (R2688)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showUuidBadge ? 'rgba(100,116,139,0.5)' : 'var(--border)'}`, background: showUuidBadge ? 'rgba(100,116,139,0.1)' : 'none', color: showUuidBadge ? '#64748b' : 'var(--text-muted)' }}
         >ID</button>
+        {/* R2691: 노드 중심 점 마커 토글 */}
+        <button
+          onClick={() => setShowCenterDot(v => !v)}
+          title={showCenterDot ? '중심점 끄기 (R2691)' : '각 노드 중심에 점 마커 표시 (R2691)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCenterDot ? 'rgba(248,113,113,0.5)' : 'var(--border)'}`, background: showCenterDot ? 'rgba(248,113,113,0.1)' : 'none', color: showCenterDot ? '#f87171' : 'var(--text-muted)' }}
+        >·</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2972,6 +2983,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       style={{ pointerEvents: 'none', userSelect: 'none' }}>{short}</text>
                   )
                 })()}
+                {/* R2691: 노드 중심 점 마커 */}
+                {showCenterDot && (
+                  <circle cx={svgPos.x} cy={svgPos.y} r={2.5 / view.zoom}
+                    fill="rgba(248,113,113,0.8)" stroke="rgba(255,255,255,0.6)" strokeWidth={0.8 / view.zoom}
+                    style={{ pointerEvents: 'none' }} />
+                )}
                 {/* R2675: 노드 크기 히트맵 */}
                 {showSizeHeat && w > 0 && h > 0 && (() => {
                   const area = w * h
@@ -3530,7 +3547,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })()}
           {/* R2647: 선택 노드 그룹 바운딩박스 */}
-          {showSelBBox && uuids.length >= 1 && (() => {
+          {showSelGroupBBox && uuids.length >= 1 && (() => {
             const selFlat = flatNodes.filter(fn => uuids.includes(fn.node.uuid))
             if (selFlat.length === 0) return null
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity

@@ -29161,6 +29161,32 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1684: R2692 BatchInspector nudge 버튼 ────────────────────────────
+console.log('\n## 1684. R2692 — BatchInspector nudge ←→↑↓ 버튼')
+const s1684 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1684.includes('R2692') &&
+  s1684.includes('nudgeStep') &&
+  s1684.includes('nudge Δ')
+) {
+  log('pass', 'R2692-nudge', 'R2692 nudge 버튼 구현 완료')
+} else {
+  log('warning', 'R2692-nudge', 'R2692 nudge 버튼 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1683: R2691 SceneView 노드 중심 점 마커 ──────────────────────────
+console.log('\n## 1683. R2691 — SceneView 노드 중심 점 마커')
+const s1683 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1683.includes('R2691') &&
+  s1683.includes('showCenterDot') &&
+  s1683.includes('f87171')
+) {
+  log('pass', 'R2691-centerDot', 'R2691 중심점 마커 구현 완료')
+} else {
+  log('warning', 'R2691-centerDot', 'R2691 중심점 마커 미구현', 'CCFileSceneView.tsx')
+}
+
 // ── Section 1682: R2690 BatchInspector scale 절대값 지정 ─────────────────────
 console.log('\n## 1682. R2690 — BatchInspector scale 절대값 지정')
 const s1682 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')

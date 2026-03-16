@@ -4363,6 +4363,7 @@ function CCFileBatchInspector({
   // R2690: 절대 scale 값
   const [absScaleX, setAbsScaleX] = useState<number>(1)
   const [absScaleY, setAbsScaleY] = useState<number>(1)
+  const [nudgeStep, setNudgeStep] = useState<number>(1)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -4553,7 +4554,7 @@ function CCFileBatchInspector({
             onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
             onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
           >⎘ JSON</span>
-        )
+        )}
         {/* R2510: 같은 이름 노드 일괄 선택 */}
         {onMultiSelectChange && sceneFile.root && uuids.length === 1 && (() => {
           const ns: CCSceneNode[] = []
@@ -4921,6 +4922,36 @@ function CCFileBatchInspector({
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>Y=0</span>
             <span onClick={() => applyPosReset('both')} title="position XY → 0,0 (R2654)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>XY=0</span>
+          </div>
+        )
+      })()}
+      {/* R2692: 방향 nudge 버튼 ←→↑↓ */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const nudge = async (dx: number, dy: number) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...p, x: p.x + dx, y: p.y + dy }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ nudge Δ(${dx >= 0 ? '+' : ''}${dx},${dy >= 0 ? '+' : ''}${dy}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 1500)
+        }
+        const btnS: React.CSSProperties = { fontSize: 10, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#34d399', userSelect: 'none', lineHeight: 1.2 }
+        const niS: React.CSSProperties = { width: 36, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>nudge (R2692)</span>
+            <span onClick={() => nudge(-nudgeStep, 0)} style={btnS} title={`←  X-${nudgeStep}`}>←</span>
+            <span onClick={() => nudge(nudgeStep, 0)} style={btnS} title={`→  X+${nudgeStep}`}>→</span>
+            <span onClick={() => nudge(0, nudgeStep)} style={btnS} title={`↑  Y+${nudgeStep}`}>↑</span>
+            <span onClick={() => nudge(0, -nudgeStep)} style={btnS} title={`↓  Y-${nudgeStep}`}>↓</span>
+            <input type="number" value={nudgeStep} min={1} max={100} step={1}
+              onChange={e => setNudgeStep(Math.max(1, parseInt(e.target.value) || 1))}
+              style={niS} title="nudge 단위 (px)" />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
           </div>
         )
       })()}
