@@ -238,7 +238,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   const [favProjects, setFavProjects] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem(CC_FAV_KEY) ?? '[]') } catch { return [] }
   })
-  const [showFavMenu, setShowFavMenu] = useState(false)
+  // ISSUE-011: showFavMenu removed — favProjects now shown as tab bar
   const isFav = projectInfo?.projectPath ? favProjects.includes(projectInfo.projectPath) : false
   const toggleFav = () => {
     const path = projectInfo?.projectPath
@@ -2013,33 +2013,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           >
             {loading ? '로드 중...' : projectInfo?.detected ? '📂 다른 프로젝트 열기' : '📂 CC 프로젝트 열기'}
           </button>
-          {/* R2317: 즐겨찾기 토글 버튼 */}
-          <div style={{ position: 'relative' }}>
-            <button
-              title={isFav ? '즐겨찾기 해제' : (projectInfo?.projectPath ? '즐겨찾기 추가' : '즐겨찾기 목록')}
-              onClick={() => {
-                if (projectInfo?.projectPath) toggleFav()
-                else setShowFavMenu(v => !v)
-              }}
-              style={{ padding: '4px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 4, fontSize: 13, cursor: 'pointer', color: isFav ? '#fbbf24' : 'var(--text-muted)' }}
-            >{isFav ? '★' : '☆'}</button>
-            {/* 즐겨찾기 드롭다운 (목록) */}
-            {showFavMenu && favProjects.length > 0 && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 200, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 4, minWidth: 220, boxShadow: '0 4px 12px rgba(0,0,0,0.4)', overflow: 'hidden' }}>
-                {favProjects.map(path => (
-                  <div key={path}
-                    onClick={() => { detectProject?.(path); setShowFavMenu(false) }}
-                    style={{ padding: '5px 10px', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--border)' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--hover)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = '')}
-                  >
-                    <span>📁</span>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={path}>{path.split(/[\\/]/).pop()}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* R2317/ISSUE-011: 즐겨찾기 토글 버튼 */}
+          <button
+            title={isFav ? '즐겨찾기 해제' : (projectInfo?.projectPath ? '즐겨찾기 추가' : '')}
+            onClick={() => { if (projectInfo?.projectPath) toggleFav() }}
+            disabled={!projectInfo?.projectPath}
+            style={{ padding: '4px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 4, fontSize: 13, cursor: projectInfo?.projectPath ? 'pointer' : 'default', color: isFav ? '#fbbf24' : 'var(--text-muted)', opacity: projectInfo?.projectPath ? 1 : 0.4 }}
+          >{isFav ? '★' : '☆'}</button>
           {/* R1461: 새 프로젝트 생성 마법사 */}
           <button
             onClick={() => { setShowProjectWizard(true); setWizardStep(1); setWizardError(null) }}
@@ -2053,6 +2033,31 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           </button>
         </div>
 
+        {/* ISSUE-011: 즐겨찾기 프로젝트 탭 바 — 클릭 시 해당 프로젝트 전환 + 마지막 씬 자동 로드 */}
+        {favProjects.length > 0 && (
+          <div style={{ display: 'flex', gap: 0, marginTop: 6, marginBottom: 4, overflowX: 'auto', flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
+            {favProjects.map(path => {
+              const isActive = projectInfo?.projectPath === path
+              const label = path.split(/[\\/]/).pop() ?? path
+              return (
+                <button key={path}
+                  onClick={() => { if (!isActive) detectProject?.(path) }}
+                  title={path}
+                  style={{
+                    padding: '4px 10px', fontSize: 10, border: 'none', cursor: isActive ? 'default' : 'pointer',
+                    background: isActive ? 'var(--bg-primary)' : 'transparent',
+                    color: isActive ? 'var(--accent)' : 'var(--text-muted)',
+                    borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+                    fontWeight: isActive ? 600 : 400,
+                    whiteSpace: 'nowrap', flexShrink: 0,
+                    transition: 'color 0.15s, border-bottom 0.15s',
+                  }}
+                >{label}</button>
+              )
+            })}
+          </div>
+        )}
+
         {/* 감지된 프로젝트 정보 */}
         {projectInfo?.detected && (
           <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.6 }}>
@@ -2064,10 +2069,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
             </div>
             <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
               title={projectInfo.projectPath}>
-              📁 {projectInfo.projectPath}
+              {projectInfo.projectPath}
             </div>
             <div style={{ marginTop: 2 }}>
-              씬 파일: <strong>{projectInfo.scenes?.length ?? 0}개</strong>
+              씬 파일: <strong>{(projectInfo.scenes?.filter(s => !s.endsWith('.prefab'))?.length ?? 0)}개</strong>
+              {(projectInfo.scenes?.filter(s => s.endsWith('.prefab'))?.length ?? 0) > 0 && (
+                <span style={{ marginLeft: 6 }}>프리팹: <strong>{projectInfo.scenes?.filter(s => s.endsWith('.prefab'))?.length}개</strong></span>
+              )}
             </div>
           </div>
         )}
@@ -2223,10 +2231,10 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           </div>
         )}
 
-        {/* 씬 선택 드롭다운 */}
-        {projectInfo?.scenes && projectInfo.scenes.length > 0 && (
+        {/* ISSUE-011: 씬/프리팹 별도 드롭다운 */}
+        {projectInfo?.scenes && projectInfo.scenes.filter(s => !s.endsWith('.prefab')).length > 0 && (
           <select
-            value={selectedScene}
+            value={selectedScene.endsWith('.prefab') ? '' : selectedScene}
             onChange={e => handleSceneChange(e.target.value)}
             style={{
               width: '100%', marginTop: 6, padding: '3px 6px', fontSize: 10,
@@ -2234,22 +2242,26 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
               border: '1px solid var(--border)', borderRadius: 4,
             }}
           >
-            <option value="">씬/프리팹 선택...</option>
-            {/* R1472: 씬/프리팹 그룹 분리 */}
-            {projectInfo.scenes.filter(s => !s.endsWith('.prefab')).length > 0 && (
-              <optgroup label="씬">
-                {projectInfo.scenes.filter(s => !s.endsWith('.prefab')).map(s => (
-                  <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
-                ))}
-              </optgroup>
-            )}
-            {projectInfo.scenes.filter(s => s.endsWith('.prefab')).length > 0 && (
-              <optgroup label="🧩 프리팹">
-                {projectInfo.scenes.filter(s => s.endsWith('.prefab')).map(s => (
-                  <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
-                ))}
-              </optgroup>
-            )}
+            <option value="">씬 선택...</option>
+            {projectInfo.scenes.filter(s => !s.endsWith('.prefab')).map(s => (
+              <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
+            ))}
+          </select>
+        )}
+        {projectInfo?.scenes && projectInfo.scenes.filter(s => s.endsWith('.prefab')).length > 0 && (
+          <select
+            value={selectedScene.endsWith('.prefab') ? selectedScene : ''}
+            onChange={e => handleSceneChange(e.target.value)}
+            style={{
+              width: '100%', marginTop: 4, padding: '3px 6px', fontSize: 10,
+              background: 'var(--bg-input)', color: '#a78bfa',
+              border: '1px solid rgba(167,139,250,0.3)', borderRadius: 4,
+            }}
+          >
+            <option value="" style={{ color: 'var(--text-primary)' }}>프리팹 선택...</option>
+            {projectInfo.scenes.filter(s => s.endsWith('.prefab')).map(s => (
+              <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
+            ))}
           </select>
         )}
 
@@ -2702,7 +2714,7 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
           onMouseMove={e => {
             if (hDividerDragRef.current) {
               const dx = e.clientX - hDividerDragRef.current.startX
-              const newW = Math.max(100, Math.min(320, hDividerDragRef.current.startW + dx))
+              const newW = Math.max(100, Math.min(400, hDividerDragRef.current.startW + dx))
               setHierarchyWidth(newW)
               localStorage.setItem('cc-hierarchy-width', String(newW))
             }
