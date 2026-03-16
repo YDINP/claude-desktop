@@ -1316,59 +1316,44 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
     })
   }, [selectedNode?.uuid])
 
+  const patchNodes = useCallback(
+    async (patcher: (n: CCSceneNode) => CCSceneNode, _label?: string) => {
+      if (!sceneFile?.root) return
+      function walk(n: CCSceneNode): CCSceneNode {
+        return { ...patcher(n), children: n.children.map(walk) }
+      }
+      await saveScene(walk(sceneFile.root))
+    },
+    [sceneFile, saveScene]
+  )
+
   const handleNodeMove = useCallback(async (uuid: string, x: number, y: number) => {
-    if (!sceneFile?.root) return
-    function updatePos(n: CCSceneNode): CCSceneNode {
-      if (n.uuid === uuid) return { ...n, position: { ...n.position, x, y } }
-      return { ...n, children: n.children.map(updatePos) }
-    }
-    await saveScene(updatePos(sceneFile.root))
-  }, [sceneFile, saveScene])
+    await patchNodes(n => n.uuid === uuid ? { ...n, position: { ...n.position, x, y } } : n, 'position')
+  }, [patchNodes])
 
   const handleNodeResize = useCallback(async (uuid: string, w: number, h: number) => {
-    if (!sceneFile?.root) return
-    function updateSize(n: CCSceneNode): CCSceneNode {
-      if (n.uuid === uuid) return { ...n, size: { x: Math.round(w), y: Math.round(h) } }
-      return { ...n, children: n.children.map(updateSize) }
-    }
-    await saveScene(updateSize(sceneFile.root))
-  }, [sceneFile, saveScene])
+    await patchNodes(n => n.uuid === uuid ? { ...n, size: { x: Math.round(w), y: Math.round(h) } } : n, 'size')
+  }, [patchNodes])
 
   const handleNodeRotate = useCallback(async (uuid: string, angle: number) => {
-    if (!sceneFile?.root) return
     const rounded = Math.round(angle * 10) / 10
-    function updateRot(n: CCSceneNode): CCSceneNode {
-      if (n.uuid === uuid) {
-        const rot = typeof n.rotation === 'number'
-          ? rounded
-          : { ...(n.rotation as object), z: rounded }
-        return { ...n, rotation: rot }
-      }
-      return { ...n, children: n.children.map(updateRot) }
-    }
-    await saveScene(updateRot(sceneFile.root))
-  }, [sceneFile, saveScene])
+    await patchNodes(n => {
+      if (n.uuid !== uuid) return n
+      const rot = typeof n.rotation === 'number' ? rounded : { ...(n.rotation as object), z: rounded }
+      return { ...n, rotation: rot }
+    }, 'rotation')
+  }, [patchNodes])
 
   // R2476: 씬뷰 HUD opacity 인라인 편집
   const handleNodeOpacity = useCallback(async (uuid: string, opacity: number) => {
-    if (!sceneFile?.root) return
-    function updateOp(n: CCSceneNode): CCSceneNode {
-      if (n.uuid === uuid) return { ...n, opacity }
-      return { ...n, children: n.children.map(updateOp) }
-    }
-    await saveScene(updateOp(sceneFile.root))
-  }, [sceneFile, saveScene])
+    await patchNodes(n => n.uuid === uuid ? { ...n, opacity } : n, 'opacity')
+  }, [patchNodes])
 
   // R1506: 앵커 포인트 드래그 편집 (SceneView ◇ 핸들)
   const handleAnchorMove = useCallback(async (uuid: string, ax: number, ay: number) => {
-    if (!sceneFile?.root) return
     const clamped = { x: Math.max(0, Math.min(1, Math.round(ax * 100) / 100)), y: Math.max(0, Math.min(1, Math.round(ay * 100) / 100)) }
-    function updateAnchor(n: CCSceneNode): CCSceneNode {
-      if (n.uuid === uuid) return { ...n, anchor: clamped }
-      return { ...n, children: n.children.map(updateAnchor) }
-    }
-    await saveScene(updateAnchor(sceneFile.root))
-  }, [sceneFile, saveScene])
+    await patchNodes(n => n.uuid === uuid ? { ...n, anchor: clamped } : n, 'anchor')
+  }, [patchNodes])
 
   const handleMultiMove = useCallback(async (moves: Array<{ uuid: string; x: number; y: number }>) => {
     if (!sceneFile?.root) return
@@ -1526,13 +1511,8 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
 
   // R1565: H — 선택 노드 active 토글
   const handleToggleActive = useCallback(async (uuid: string) => {
-    if (!sceneFile?.root) return
-    function toggle(n: CCSceneNode): CCSceneNode {
-      if (n.uuid === uuid) return { ...n, active: !n.active }
-      return { ...n, children: n.children.map(toggle) }
-    }
-    await saveScene(toggle(sceneFile.root))
-  }, [sceneFile, saveScene])
+    await patchNodes(n => n.uuid === uuid ? { ...n, active: !n.active } : n, 'active')
+  }, [patchNodes])
 
   // R1563: Ctrl+D — 선택 노드 + 하위 트리 복제 (새 UUID 부여)
   const handleDuplicate = useCallback(async (uuid: string) => {
@@ -1724,22 +1704,13 @@ function CCFileProjectUI({ fileProject, selectedNode, onSelectNode }: CCFileProj
   }, [sceneFile, saveScene])
 
   const handleTreeToggleActive = useCallback(async (nodeUuid: string) => {
-    if (!sceneFile?.root) return
-    function toggle(n: CCSceneNode): CCSceneNode {
-      if (n.uuid === nodeUuid) return { ...n, active: !n.active }
-      return { ...n, children: n.children.map(toggle) }
-    }
-    await saveScene(toggle(sceneFile.root))
-  }, [sceneFile, saveScene])
+    await patchNodes(n => n.uuid === nodeUuid ? { ...n, active: !n.active } : n, 'active')
+  }, [patchNodes])
 
   const handleRenameInView = useCallback(async (nodeUuid: string, newName: string) => {
-    if (!sceneFile?.root || !newName.trim()) return
-    function rename(n: CCSceneNode): CCSceneNode {
-      if (n.uuid === nodeUuid) return { ...n, name: newName.trim() }
-      return { ...n, children: n.children.map(rename) }
-    }
-    await saveScene(rename(sceneFile.root))
-  }, [sceneFile, saveScene])
+    if (!newName.trim()) return
+    await patchNodes(n => n.uuid === nodeUuid ? { ...n, name: newName.trim() } : n, 'rename')
+  }, [patchNodes])
 
   // R2463: 노드를 프리팹 파일로 저장
   const handleSaveAsPrefab = useCallback(async (uuid: string) => {
