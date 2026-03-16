@@ -4364,6 +4364,8 @@ function CCFileBatchInspector({
   const [absScaleX, setAbsScaleX] = useState<number>(1)
   const [absScaleY, setAbsScaleY] = useState<number>(1)
   const [nudgeStep, setNudgeStep] = useState<number>(1)
+  const [posGradFrom, setPosGradFrom] = useState<number>(-200)
+  const [posGradTo, setPosGradTo] = useState<number>(200)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -5506,6 +5508,45 @@ function CCFileBatchInspector({
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color리셋 (R2656)</span>
             <span onClick={applyColorReset} title="선택 노드 color를 흰색(255,255,255)으로 리셋 (R2656)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(255,255,255,0.3)', color: '#e2e8f0', userSelect: 'none', background: 'rgba(255,255,255,0.05)' }}>⬜ 흰색</span>
+          </div>
+        )
+      })()}
+      {/* R2695: 위치 선형 그라데이션 배치 — X/Y 축으로 from→to 균등 배치 */}
+      {uuids.length >= 2 && sceneFile.root && (() => {
+        const applyPosGradient = async (axis: 'x' | 'y', from: number, to: number) => {
+          if (!sceneFile.root) return
+          const selNodes: CCSceneNode[] = []
+          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
+          collect(sceneFile.root)
+          if (selNodes.length < 2) return
+          const sorted = [...selNodes].sort((a, b) => {
+            const pa = a.position as { x: number; y: number }, pb = b.position as { x: number; y: number }
+            return (axis === 'x' ? pa.x : pa.y) - (axis === 'x' ? pb.x : pb.y)
+          })
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            const idx = sorted.findIndex(s => s.uuid === n.uuid)
+            if (idx < 0) return { ...n, children: ch }
+            const t = sorted.length > 1 ? idx / (sorted.length - 1) : 0
+            const val = from + (to - from) * t
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: axis === 'x' ? { ...p, x: val } : { ...p, y: val }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 위치 그라데이션 ${axis.toUpperCase()} ${from}→${to} (${selNodes.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>위치분포 (R2695)</span>
+            <input type="number" value={posGradFrom} onChange={e => setPosGradFrom(parseFloat(e.target.value) || 0)} style={niS} title="시작 좌표" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={posGradTo} onChange={e => setPosGradTo(parseFloat(e.target.value) || 0)} style={niS} title="끝 좌표" />
+            <span onClick={() => applyPosGradient('x', posGradFrom, posGradTo)} title={`X축 ${posGradFrom}→${posGradTo} 선형 배치 (R2695)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>X배치</span>
+            <span onClick={() => applyPosGradient('y', posGradFrom, posGradTo)} title={`Y축 ${posGradFrom}→${posGradTo} 선형 배치 (R2695)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>Y배치</span>
           </div>
         )
       })()}

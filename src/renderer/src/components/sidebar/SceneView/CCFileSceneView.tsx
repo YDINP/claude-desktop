@@ -303,6 +303,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showCenterDot, setShowCenterDot] = useState(false)
   // R2694: 비기본 앵커 강조 오버레이 (anchor ≠ 0.5,0.5)
   const [showNonDefaultAnchor, setShowNonDefaultAnchor] = useState(false)
+  // R2696: 크기 0 노드 경고 오버레이
+  const [showZeroSizeWarn, setShowZeroSizeWarn] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -1870,6 +1872,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showNonDefaultAnchor ? '비기본 앵커 끄기 (R2694)' : '앵커 ≠ (0.5,0.5) 노드 강조 표시 (R2694)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNonDefaultAnchor ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showNonDefaultAnchor ? 'rgba(251,191,36,0.1)' : 'none', color: showNonDefaultAnchor ? '#fbbf24' : 'var(--text-muted)' }}
         >⚓</button>
+        {/* R2696: 크기 0 노드 경고 토글 */}
+        <button
+          onClick={() => setShowZeroSizeWarn(v => !v)}
+          title={showZeroSizeWarn ? '크기 0 경고 끄기 (R2696)' : 'width 또는 height = 0인 노드 경고 표시 (R2696)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showZeroSizeWarn ? 'rgba(239,68,68,0.5)' : 'var(--border)'}`, background: showZeroSizeWarn ? 'rgba(239,68,68,0.1)' : 'none', color: showZeroSizeWarn ? '#ef4444' : 'var(--text-muted)' }}
+        >⚠</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -3469,6 +3477,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })}
 
+          {/* R2696: 크기 0 노드 경고 오버레이 */}
+          {showZeroSizeWarn && flatNodes.map(fn => {
+            if ((fn.node.size?.x ?? 0) !== 0 && (fn.node.size?.y ?? 0) !== 0) return null
+            const sp = ccToSvg(fn.worldX, fn.worldY)
+            const fs = Math.max(8, 11 / view.zoom)
+            return (
+              <g key={`zw-${fn.node.uuid}`} style={{ pointerEvents: 'none' }}>
+                <text x={sp.x} y={sp.y + fs * 0.4} textAnchor="middle" fontSize={fs}
+                  fill="rgba(239,68,68,0.9)" style={{ userSelect: 'none' }}>⚠</text>
+              </g>
+            )
+          })}
           {/* R2645: 선택 노드 순서 연결선 오버레이 */}
           {showSelPolyline && uuids.length >= 2 && (() => {
             const ordered: { x: number; y: number }[] = []

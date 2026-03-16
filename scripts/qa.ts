@@ -29161,6 +29161,32 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1688: R2696 SceneView 크기 0 노드 경고 오버레이 ──────────────────
+console.log('\n## 1688. R2696 — SceneView 크기 0 노드 경고')
+const s1688 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
+if (
+  s1688.includes('R2696') &&
+  s1688.includes('showZeroSizeWarn') &&
+  s1688.includes('ef4444')
+) {
+  log('pass', 'R2696-zeroSize', 'R2696 크기 0 노드 경고 오버레이 구현 완료')
+} else {
+  log('warning', 'R2696-zeroSize', 'R2696 크기 0 노드 경고 미구현', 'CCFileSceneView.tsx')
+}
+
+// ── Section 1687: R2695 BatchInspector 위치 선형 배치 ───────────────────────
+console.log('\n## 1687. R2695 — BatchInspector 위치 선형 그라데이션 배치')
+const s1687 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1687.includes('R2695') &&
+  s1687.includes('posGradFrom') &&
+  s1687.includes('applyPosGradient')
+) {
+  log('pass', 'R2695-posGradient', 'R2695 위치 선형 배치 구현 완료')
+} else {
+  log('warning', 'R2695-posGradient', 'R2695 위치 선형 배치 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1686: R2694 SceneView 비기본 앵커 오버레이 ───────────────────────
 console.log('\n## 1686. R2694 — SceneView 비기본 앵커 강조')
 const s1686 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
