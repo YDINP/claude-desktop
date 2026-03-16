@@ -623,10 +623,14 @@ export function registerFsHandlers(_win: unknown) {
     if (DANGEROUS.some(p => p.test(code))) {
       return { ok: false, output: '보안 정책으로 차단된 명령어입니다.' }
     }
-    const { execSync } = require('child_process')
     try {
-      const output = execSync(code, { timeout: 10000, encoding: 'utf8', shell: true })
-      return { ok: true, output: String(output).slice(0, 4000) }
+      const { stdout } = await execFileAsync(code, [], {
+        timeout: 10000,
+        encoding: 'utf8',
+        shell: true,
+        maxBuffer: 1024 * 1024,
+      })
+      return { ok: true, output: String(stdout).slice(0, 4000) }
     } catch (e: any) {
       return { ok: false, output: e.message?.slice(0, 2000) ?? 'Error' }
     }
