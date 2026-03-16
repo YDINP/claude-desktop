@@ -4789,22 +4789,11 @@ function CCFileBatchInspector({
       })()}
       {/* R2525: 오파시티 그라디언트 — 선택 노드에 from→to 선형 투명도 적용 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
-        const applyOpGrad = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
-            const op = Math.round(opGradFrom + (opGradTo - opGradFrom) * t)
-            return { ...n, opacity: Math.max(0, Math.min(255, op)), children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 오파시티 그라디언트 ${opGradFrom}→${opGradTo} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applyOpGrad = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0
+          const op = Math.round(opGradFrom + (opGradTo - opGradFrom) * t)
+          return { ...n, opacity: Math.max(0, Math.min(255, op)) }
+        }, `오파시티 그라디언트 ${opGradFrom}→${opGradTo} (${uuids.length}개)`)
         const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4823,19 +4812,11 @@ function CCFileBatchInspector({
       })()}
       {/* R2621: opacity 스냅 — 선택 노드 불투명도를 N 배수로 반올림 */}
       {sceneFile.root && uuids.length >= 1 && (() => {
-        const applyOpSnap = async (step: number) => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const cur = n.opacity ?? 255
-            const snapped = Math.max(0, Math.min(255, Math.round(cur / step) * step))
-            return { ...n, opacity: snapped, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ opacity 스냅 ${step} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applyOpSnap = (step: number) => patchNodes(n => {
+          const cur = n.opacity ?? 255
+          const snapped = Math.max(0, Math.min(255, Math.round(cur / step) * step))
+          return { ...n, opacity: snapped }
+        }, `opacity 스냅 ${step} (${uuids.length}개)`)
         const btnS = mkBtnS('#c084fc')
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4853,23 +4834,14 @@ function CCFileBatchInspector({
       })()}
       {/* R2596: 색상(tint) 그라디언트 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
-        const applyColorGrad = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
+        const applyColorGrad = () => {
           const parseHex = (hex: string) => ({ r: parseInt(hex.slice(1,3),16), g: parseInt(hex.slice(3,5),16), b: parseInt(hex.slice(5,7),16) })
           const from = parseHex(colorGradFrom)
           const to = parseHex(colorGradTo)
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
-            return { ...n, color: { r: Math.round(from.r + (to.r - from.r) * t), g: Math.round(from.g + (to.g - from.g) * t), b: Math.round(from.b + (to.b - from.b) * t), a: (n.color?.a ?? 255) }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 색상 그라디언트 ${colorGradFrom}→${colorGradTo} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          return patchOrdered((n, idx, total) => {
+            const t = total > 1 ? idx / (total - 1) : 0
+            return { ...n, color: { r: Math.round(from.r + (to.r - from.r) * t), g: Math.round(from.g + (to.g - from.g) * t), b: Math.round(from.b + (to.b - from.b) * t), a: (n.color?.a ?? 255) } }
+          }, `색상 그라디언트 ${colorGradFrom}→${colorGradTo} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -4918,10 +4890,7 @@ function CCFileBatchInspector({
       })()}
       {/* R2626: 무지개 색상 분배 — 선택 노드를 HSL 균등 색조로 채색 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
-        const applyRainbow = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
+        const applyRainbow = () => {
           // HSL→RGB 변환
           function hslToRgb(h: number, s: number, l: number) {
             const q = l < 0.5 ? l * (1 + s) : l + s - l * s
@@ -4935,17 +4904,11 @@ function CCFileBatchInspector({
             }
             return { r: Math.round(hue2rgb(h + 1/3) * 255), g: Math.round(hue2rgb(h) * 255), b: Math.round(hue2rgb(h - 1/3) * 255) }
           }
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const hue = idx / count  // 균등 색조 분배 (0~1, 마지막은 첫번째와 다른 색)
+          return patchOrdered((n, idx, total) => {
+            const hue = idx / total  // 균등 색조 분배 (0~1, 마지막은 첫번째와 다른 색)
             const rgb = hslToRgb(hue, 1, 0.6)
-            return { ...n, color: { ...rgb, a: n.color?.a ?? 255 }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 무지개 색상 (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, color: { ...rgb, a: n.color?.a ?? 255 } }
+          }, `무지개 색상 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5106,24 +5069,11 @@ function CCFileBatchInspector({
       })()}
       {/* R2697: opacity 선형 그라데이션 — 선택 노드 순서대로 opacity from→to */}
       {uuids.length >= 2 && sceneFile.root && (() => {
-        const applyOpGradient = async () => {
-          if (!sceneFile.root) return
-          const selNodes: CCSceneNode[] = []
-          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
-          collect(sceneFile.root)
-          if (selNodes.length < 2) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            const idx = selNodes.findIndex(s => s.uuid === n.uuid)
-            if (idx < 0) return { ...n, children: ch }
-            const t = selNodes.length > 1 ? idx / (selNodes.length - 1) : 0
-            const op = Math.round(opGradFrom + (opGradTo - opGradFrom) * t)
-            return { ...n, opacity: Math.max(0, Math.min(255, op)), children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ opacity 그라데이션 ${opGradFrom}→${opGradTo} (${selNodes.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applyOpGradient = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0
+          const op = Math.round(opGradFrom + (opGradTo - opGradFrom) * t)
+          return { ...n, opacity: Math.max(0, Math.min(255, op)) }
+        }, `opacity 그라데이션 ${opGradFrom}→${opGradTo} (${uuids.length}개)`)
         const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5138,18 +5088,12 @@ function CCFileBatchInspector({
       })()}
       {/* R2678: opacity 배수 곱하기 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
-        const applyOpacityMult = async () => {
-          if (!sceneFile.root) return
+        const applyOpacityMult = () => {
           const mult = Math.max(0, Math.min(200, opacityMult)) / 100
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          return patchNodes(n => {
             const op = Math.max(0, Math.min(255, Math.round((n.opacity ?? 255) * mult)))
-            return { ...n, opacity: op, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ opacity ×${opacityMult}% (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, opacity: op }
+          }, `opacity ×${opacityMult}% (${uuids.length}개)`)
         }
         const niS = mkNiS(36)
         return (
@@ -5197,17 +5141,10 @@ function CCFileBatchInspector({
       })()}
       {/* R2656: 색상 흰색 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
-        const applyColorReset = async () => {
-          if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, color: { r: 255, g: 255, b: 255, a: n.color?.a ?? 255 }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ color 흰색 리셋 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
+        const applyColorReset = () => patchNodes(
+          n => ({ ...n, color: { r: 255, g: 255, b: 255, a: n.color?.a ?? 255 } }),
+          `color 흰색 리셋 (${uuids.length}개)`
+        )
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color리셋 (R2656)</span>
@@ -5218,29 +5155,17 @@ function CCFileBatchInspector({
       })()}
       {/* R2695: 위치 선형 그라데이션 배치 — X/Y 축으로 from→to 균등 배치 */}
       {uuids.length >= 2 && sceneFile.root && (() => {
-        const applyPosGradient = async (axis: 'x' | 'y', from: number, to: number) => {
-          if (!sceneFile.root) return
-          const selNodes: CCSceneNode[] = []
-          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
-          collect(sceneFile.root)
-          if (selNodes.length < 2) return
-          const sorted = [...selNodes].sort((a, b) => {
+        const applyPosGradient = (axis: 'x' | 'y', from: number, to: number) =>
+          patchOrdered((n, idx, total) => {
+            const t = total > 1 ? idx / (total - 1) : 0
+            const val = from + (to - from) * t
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: axis === 'x' ? { ...p, x: val } : { ...p, y: val } }
+          }, `위치 그라데이션 ${axis.toUpperCase()} ${from}→${to} (${uuids.length}개)`,
+          (a, b) => {
             const pa = a.position as { x: number; y: number }, pb = b.position as { x: number; y: number }
             return (axis === 'x' ? pa.x : pa.y) - (axis === 'x' ? pb.x : pb.y)
           })
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            const idx = sorted.findIndex(s => s.uuid === n.uuid)
-            if (idx < 0) return { ...n, children: ch }
-            const t = sorted.length > 1 ? idx / (sorted.length - 1) : 0
-            const val = from + (to - from) * t
-            const p = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: axis === 'x' ? { ...p, x: val } : { ...p, y: val }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 위치 그라데이션 ${axis.toUpperCase()} ${from}→${to} (${selNodes.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
         const niS = mkNiS(52)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -5346,7 +5271,7 @@ function CCFileBatchInspector({
       })()}
       {/* R2679: 선택 노드 (0,0) 이동 — 선택 노드 그룹 중심을 캔버스 원점으로 이동 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
-        const applyMoveToCenter = async () => {
+        const applyMoveToCenter = () => {
           if (!sceneFile.root) return
           const selNodes: CCSceneNode[] = []
           function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selNodes.push(n); n.children.forEach(collect) }
@@ -5356,15 +5281,10 @@ function CCFileBatchInspector({
           const ys = selNodes.map(n => (n.position as { y: number }).y)
           const cx = (Math.min(...xs) + Math.max(...xs)) / 2
           const cy = (Math.min(...ys) + Math.max(...ys)) / 2
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          return patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, x: Math.round(pos.x - cx), y: Math.round(pos.y - cy) }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 중심 이동 Δ(${-Math.round(cx)}, ${-Math.round(cy)}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: Math.round(pos.x - cx), y: Math.round(pos.y - cy) } }
+          }, `중심 이동 Δ(${-Math.round(cx)}, ${-Math.round(cy)}) (${uuids.length}개)`)
         }
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }
         return (

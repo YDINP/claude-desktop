@@ -139,6 +139,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R1705: 선택 이력 (Alt+← / Alt+→)
   const selHistoryRef = useRef<string[]>([])
   const selHistoryIdxRef = useRef(-1)
+  // R2707: 선택 히스토리 팝업
+  const [histPopupOpen, setHistPopupOpen] = useState(false)
+  const histPopupBtnRef = useRef<HTMLButtonElement | null>(null)
   // R1623: 와이어프레임 모드 (선만 표시)
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
@@ -1155,6 +1158,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     selHistoryIdxRef.current = 0
   }, [selectedUuid])
 
+  // R2707: 히스토리 팝업 외부 클릭 닫기
+  useEffect(() => {
+    if (!histPopupOpen) return
+    const handler = (e: MouseEvent) => {
+      if (histPopupBtnRef.current && histPopupBtnRef.current.contains(e.target as Node)) return
+      setHistPopupOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [histPopupOpen])
+
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
   // R1708: Shift+클릭 → PNG 로컬 다운로드
   const handleScreenshotAI = useCallback((e?: React.MouseEvent) => {
@@ -1610,6 +1624,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             title="다음 선택으로 (Alt+→)"
             style={{ padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: selHistoryIdxRef.current <= 0 ? 'default' : 'pointer', border: '1px solid var(--border)', background: 'none', color: selHistoryIdxRef.current <= 0 ? 'var(--text-muted)' : 'var(--text-primary)', opacity: selHistoryIdxRef.current <= 0 ? 0.3 : 1 }}
           >→</button>
+          {/* R2707: 선택 히스토리 팝업 버튼 */}
+          <span style={{ position: 'relative' }}>
+            <button
+              ref={histPopupBtnRef}
+              onClick={() => setHistPopupOpen(prev => !prev)}
+              title="선택 히스토리 (R2707)"
+              style={{ padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: `1px solid ${histPopupOpen ? '#58a6ff' : 'var(--border)'}`, background: histPopupOpen ? 'rgba(88,166,255,0.12)' : 'none', color: histPopupOpen ? '#58a6ff' : 'var(--text-muted)' }}
+            >⏱</button>
+            {histPopupOpen && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, zIndex: 250, minWidth: 160, maxWidth: 260, boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+                {selHistoryRef.current.slice(0, 8).map((uuid, i) => {
+                  const fn = flatNodes.find(f => f.node.uuid === uuid)
+                  const label = fn ? fn.node.name : uuid.slice(0, 8)
+                  return (
+                    <div
+                      key={uuid}
+                      onClick={() => { onSelect(uuid); setHistPopupOpen(false) }}
+                      style={{ padding: '4px 10px', cursor: 'pointer', fontSize: 11, color: uuid === selectedUuid ? 'var(--text)' : 'var(--text-muted)', background: uuid === selectedUuid ? 'rgba(88,166,255,0.1)' : 'transparent', borderBottom: i < Math.min(selHistoryRef.current.length, 8) - 1 ? '1px solid var(--border)' : 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(88,166,255,0.15)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = uuid === selectedUuid ? 'rgba(88,166,255,0.1)' : 'transparent' }}
+                    >
+                      <span style={{ color: 'var(--text-muted)', marginRight: 6, fontSize: 9 }}>{i + 1}</span>{label}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </span>
         </>)}
         {/* R1623: 와이어프레임 모드 */}
         <button
