@@ -257,6 +257,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSafeZone, setShowSafeZone] = useState(false)
   // R2630: 삼분법(Rule of Thirds) 가이드 오버레이
   const [showRuleOfThirds, setShowRuleOfThirds] = useState(false)
+  // R2709: 커스텀 비율 가이드 오버레이
+  const [showCustomRatio, setShowCustomRatio] = useState(false)
+  const [customRatioW, setCustomRatioW] = useState(16)
+  const [customRatioH, setCustomRatioH] = useState(9)
   // R2636: 캔버스 경계 초과 노드 강조 오버레이
   const [showOOBHighlight, setShowOOBHighlight] = useState(false)
   // R2637: 씬 전체 바운딩박스 오버레이
@@ -1770,6 +1774,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showRuleOfThirds ? '삼분법 가이드 끄기 (R2630)' : '3×3 Rule of Thirds 가이드 표시 (R2630)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRuleOfThirds ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showRuleOfThirds ? 'rgba(167,139,250,0.12)' : 'none', color: showRuleOfThirds ? '#a78bfa' : 'var(--text-muted)' }}
         >⊞</button>
+        {/* R2709: 커스텀 비율 가이드 토글 */}
+        <button
+          onClick={() => setShowCustomRatio(v => !v)}
+          title={showCustomRatio ? '커스텀 비율 가이드 끄기 (R2709)' : '커스텀 비율 가이드 표시 (R2709)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCustomRatio ? 'rgba(234,179,8,0.5)' : 'var(--border)'}`, background: showCustomRatio ? 'rgba(234,179,8,0.12)' : 'none', color: showCustomRatio ? '#eab308' : 'var(--text-muted)' }}
+        >⊞R</button>
+        <input type="number" min={1} value={customRatioW}
+          onChange={e => setCustomRatioW(Math.max(1, Number(e.target.value)))}
+          style={{ width: 30, fontSize: 9, padding: '1px 2px' }} title="가이드 비율 W" />
+        <span style={{fontSize:9, color:'var(--text-muted)', margin: '0 2px'}}>:</span>
+        <input type="number" min={1} value={customRatioH}
+          onChange={e => setCustomRatioH(Math.max(1, Number(e.target.value)))}
+          style={{ width: 30, fontSize: 9, padding: '1px 2px' }} title="가이드 비율 H" />
         {/* R2636: 캔버스 경계 초과 노드 강조 토글 */}
         <button
           onClick={() => setShowOOBHighlight(v => !v)}
@@ -3751,6 +3768,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   fontSize={fs} fill="rgba(96,165,250,0.6)" fontFamily="monospace"
                   style={{ pointerEvents: 'none', userSelect: 'none' }}>16:9</text>
               </>
+            )
+          })()}
+          {/* R2709: 커스텀 비율 가이드 오버레이 */}
+          {showCustomRatio && customRatioW > 0 && customRatioH > 0 && (() => {
+            const cw = effectiveW, ch = effectiveH
+            const svgLeft = cx - cw / 2, svgTop = cy - ch / 2
+            const scale = Math.min(cw / customRatioW, ch / customRatioH)
+            const rw = customRatioW * scale
+            const rh = customRatioH * scale
+            const rx = cx - rw / 2
+            const ry = cy - rh / 2
+            const sw = 1.5 / view.zoom
+            const dash = 6 / view.zoom
+            const fs = Math.max(5, 8 / view.zoom)
+            return (
+              <g>
+                <rect x={rx} y={ry} width={rw} height={rh}
+                  fill="none"
+                  stroke="rgba(234,179,8,0.7)"
+                  strokeWidth={sw}
+                  strokeDasharray={`${dash} ${dash}`}
+                  style={{ pointerEvents: 'none' }} />
+                <text x={rx + 2/view.zoom} y={ry - 3/view.zoom}
+                  fill="rgba(234,179,8,0.8)"
+                  fontSize={fs}
+                  fontFamily="monospace"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}>{customRatioW}:{customRatioH}</text>
+              </g>
             )
           })()}
           {/* R2637: 씬 전체 바운딩박스 */}
