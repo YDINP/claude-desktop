@@ -4358,6 +4358,11 @@ function CCFileBatchInspector({
   const [evenSpacing, setEvenSpacing] = useState<number>(10)
   // R2685: 절대 회전값
   const [absRotValue, setAbsRotValue] = useState<number>(45)
+  // R2689: size 배수 스케일
+  const [sizeFactor, setSizeFactor] = useState<number>(1.5)
+  // R2690: 절대 scale 값
+  const [absScaleX, setAbsScaleX] = useState<number>(1)
+  const [absScaleY, setAbsScaleY] = useState<number>(1)
   // R2674: 절대 위치 지정
   const [absPosX, setAbsPosX] = useState<number>(0)
   const [absPosY, setAbsPosY] = useState<number>(0)
@@ -6911,6 +6916,69 @@ function CCFileBatchInspector({
               <span key={mode} onClick={() => applyMatchSize(mode)} title={`첫 번째 노드(${ref.name}) ${label}=${mode === 'w' ? refW : mode === 'h' ? refH : `${refW}×${refH}`} 맞추기`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>{label}</span>
             ))}
+          </div>
+        )
+      })()}
+      {/* R2689: 크기 배수 스케일 (W×factor, H×factor) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyScaleBySize = async (factor: number) => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sz = n.size as { x: number; y: number } | undefined
+            if (!sz) return { ...n, children: ch }
+            const newSz = { x: Math.round(sz.x * factor), y: Math.round(sz.y * factor) }
+            // UITransform contentSize도 함께 업데이트
+            const comps = n.components.map(c => {
+              if (c.type === 'cc.UITransform') return { ...c, props: { ...c.props, '_contentSize': { width: newSz.x, height: newSz.y } } }
+              return c
+            })
+            return { ...n, size: newSz, components: comps, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ 크기 ×${factor} (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(34,211,238,0.4)', color: '#22d3ee', userSelect: 'none' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기배수 (R2689)</span>
+            <input type="number" value={sizeFactor} min={0.1} max={10} step={0.1} onChange={e => setSizeFactor(parseFloat(e.target.value) || 1)} style={niS} title="크기 배수" />
+            <span onClick={() => applyScaleBySize(sizeFactor)} title={`W/H ×${sizeFactor} (R2689)`} style={bs}>확대</span>
+            <span onClick={() => applyScaleBySize(1 / sizeFactor)} title={`W/H ×${(1/sizeFactor).toFixed(2)} 축소 (R2689)`} style={bs}>축소</span>
+          </div>
+        )
+      })()}
+      {/* R2690: scale 절대값 지정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyAbsScale = async () => {
+          if (!sceneFile.root) return
+          function patch(n: CCSceneNode): CCSceneNode {
+            const ch = n.children.map(patch)
+            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, x: absScaleX, y: absScaleY }, children: ch }
+          }
+          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          setBatchMsg(`✓ scale = (${absScaleX}, ${absScaleY}) (${uuids.length}개)`)
+          setTimeout(() => setBatchMsg(null), 2000)
+        }
+        const niS: React.CSSProperties = { width: 40, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale지정 (R2690)</span>
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>X</span>
+            <input type="number" value={absScaleX} min={-10} max={10} step={0.1} onChange={e => setAbsScaleX(parseFloat(e.target.value) || 1)} style={niS} title="절대 scaleX" />
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>Y</span>
+            <input type="number" value={absScaleY} min={-10} max={10} step={0.1} onChange={e => setAbsScaleY(parseFloat(e.target.value) || 1)} style={niS} title="절대 scaleY" />
+            <span onClick={applyAbsScale}
+              title={`scale = (${absScaleX}, ${absScaleY}) (R2690)`}
+              style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >지정</span>
           </div>
         )
       })()}

@@ -29161,6 +29161,34 @@ if (
   log('warning', 'R2521-world-pos', 'R2521 세계 좌표 표시 미구현', 'CCFileSceneView.tsx')
 }
 
+// ── Section 1682: R2690 BatchInspector scale 절대값 지정 ─────────────────────
+console.log('\n## 1682. R2690 — BatchInspector scale 절대값 지정')
+const s1682 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1682.includes('R2690') &&
+  s1682.includes('applyAbsScale') &&
+  s1682.includes('absScaleX') &&
+  s1682.includes('scale지정')
+) {
+  log('pass', 'R2690-absScale', 'R2690 scale 절대값 지정 구현 완료')
+} else {
+  log('warning', 'R2690-absScale', 'R2690 scale 절대값 지정 미구현', 'CocosPanel.tsx')
+}
+
+// ── Section 1681: R2689 BatchInspector 크기 배수 스케일 ──────────────────────
+console.log('\n## 1681. R2689 — BatchInspector 크기 배수 스케일')
+const s1681 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/CocosPanel.tsx'), 'utf-8')
+if (
+  s1681.includes('R2689') &&
+  s1681.includes('applyScaleBySize') &&
+  s1681.includes('sizeFactor') &&
+  s1681.includes('크기배수')
+) {
+  log('pass', 'R2689-sizeScale', 'R2689 크기 배수 스케일 구현 완료')
+} else {
+  log('warning', 'R2689-sizeScale', 'R2689 크기 배수 스케일 미구현', 'CocosPanel.tsx')
+}
+
 // ── Section 1680: R2688 SceneView UUID 배지 ──────────────────────────────────
 console.log('\n## 1680. R2688 — SceneView UUID 배지')
 const s1680 = readFileSync(join(ROOT, 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx'), 'utf-8')
