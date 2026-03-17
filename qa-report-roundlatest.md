@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-16T08:39:53.061Z
+> 2026-03-17T06:22:13.363Z
 
 ## Critical
 _없음_
@@ -9,7 +9,7 @@ _없음_
 
 ## Pass
 - tsc --noEmit 오류 없음
-- 111개 소스 파일 검사 완료
+- 154개 소스 파일 검사 완료
 - package.json 파싱 성공 (name: claude-desktop)
 - preload expose 메서드 337개 확인
 - ipcMain.handle 등록: 13개 이상
@@ -2589,6 +2589,7 @@ _없음_
 - R2718 uuid 참조 화살표 오버레이 구현 완료
 - R2719 격자 스냅 구현 완료
 - R2721 Label 폰트 색상 일괄 구현 완료
+- R2725 BatchInspector 일괄 lock/unlock 구현 완료
 - 파일 탭 미저장 ● 인디케이터 존재
 - UndoEntry prop 타입 지원 (Inspector 속성 변경 undo)
 - 씬뷰 노드 검색 하이라이트 존재

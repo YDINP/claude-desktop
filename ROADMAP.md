@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-16 (R2710까지 완료 — 리팩토링 스프린트 + 이슈 클리어, QA Pass 2608 / Warning 89 / Critical 0)
+> 마지막 업데이트: 2026-03-17 (R2725까지 완료 — 아키텍처 리팩토링 Phase A-D.2 완료, QA Pass 2615 / Warning 0 / Critical 0)
 
 ## 개발 루프 실행 방식
 
@@ -903,3 +903,17 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2708 | BatchInspector 이름 정규식 필터 다중 선택 | ✅ |
 | R2709 | SceneView W:H 커스텀 비율 가이드 오버레이 (노란 점선) | ✅ |
 | R2710 | BatchInspector W/H 고정값 일괄 + UITransform 동기화 | ✅ |
+| R2711 | SceneView 노드 잠금 툴바 버튼 (🔒 토글) | ✅ |
+| R2712 | BatchInspector Label fontSize 일괄 강화 | ✅ |
+| R2714 | BatchInspector 조건부 active 토글 (비활성→활성 / 활성→비활성) | ✅ |
+| R2715 | SceneView 단축키 팝업 (? 키, 전체 단축키 목록) | ✅ |
+| R2716 | SceneView 이름 찾기+바꾸기 (regex 지원) | ✅ |
+| R2717 | SceneView Opacity HUD 배지 | ✅ |
+| R2718 | SceneView UUID 참조 화살표 시각화 | ✅ |
+| R2719 | SceneView 격자 스냅 (grid snap) | ✅ |
+| R2721 | BatchInspector Label 폰트 색상 일괄 설정 | ✅ |
+| R2722 | SceneView 선택 히스토리 breadcrumb | ✅ |
+| R2723 | BatchInspector 이름 접두사 자동 그룹 선택 | ✅ |
+| R2725 | BatchInspector 선택 노드 일괄 lock/unlock | ✅ |
+| 아키텍처 리팩토링 | Phase A(Kernel) + B(Chat 도메인) + C(Cocos Plugin System) + D(App.tsx 훅 추출 1898→961줄) + D.2(JSX→AppLayout 961→448줄) — commit ddf3bff7 | ✅ |
+| electron 업그레이드 | 33→35.7.5 (ASAR Integrity Bypass 취약점 수정) | ✅ |
