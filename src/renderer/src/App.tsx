@@ -5,8 +5,10 @@ import { ResourceBar } from './components/hq/ResourceBar'
 import { OpsFeed } from './components/hq/OpsFeed'
 import './styles/hq.css'
 import { ProjectProvider, useProject } from './stores/project-store'
-import { useChatStore } from './stores/chat-store'
-import { ChatMessage } from './stores/chat-store'
+import { useChatStore } from './domains/chat/store'
+import type { ChatMessage } from './domains/chat/domain'
+import { initChatAdapter } from './domains/chat/adapter'
+import { registerChatCommands } from './domains/chat/commands'
 import { Sidebar } from './components/sidebar/Sidebar'
 import type { SidebarTab } from './components/sidebar/Sidebar'
 import type { ChangedFile } from './components/sidebar/ChangedFilesPanel'
@@ -581,7 +583,6 @@ function AppContent() {
 
   // ── Sound enabled ref + state for palette display ──
   const soundEnabledRef = useRef(true)
-  const isDeltaStreamingRef = useRef(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [compactMode, setCompactMode] = useState(false)
 
@@ -1075,112 +1076,30 @@ function AppContent() {
     }
   }, [chat.isStreaming])
 
-  // ── Claude IPC ──
+  // ── Claude IPC (Chat Adapter) ──
   useEffect(() => {
-    if (!window.api) return
-    window.api.onClaudeMessage((event: unknown) => {
-      const ev = event as { type: string; [k: string]: unknown }
-      if (ev.type === 'init') {
-        chat.setSessionId(ev.sessionId as string)
-      } else if (ev.type === 'text') {
-        if (isDeltaStreamingRef.current) {
-          chat.reconcileText(ev.text as string)
-        } else {
-          chat.ensureAssistantMessage()
-          chat.appendText(ev.text as string)
-        }
-      } else if (ev.type === 'tool_start') {
-        chat.ensureAssistantMessage()
-        chat.addToolUse(ev.toolId as string, ev.toolName as string, ev.toolInput)
-        if (ev.toolName === 'Write' || ev.toolName === 'Edit') {
-          trackChangedFile(ev.toolName as string, ev.toolInput)
-        }
-        if (ev.toolName === 'Task') {
-          const input = ev.toolInput as Record<string, unknown> | undefined
-          const desc = (input?.description ?? input?.prompt ?? 'Task') as string
-          setActiveAgents(prev => [...prev, {
-            id: ev.toolId as string,
-            description: desc.slice(0, 100),
-            status: 'running',
-            startTime: Date.now(),
-          }])
-        }
-      } else if (ev.type === 'tool_end') {
-        chat.updateToolUse(ev.toolId as string, ev.toolOutput as string, ev.isError as boolean)
+    registerChatCommands()
+    return initChatAdapter({
+      onToolWrite: (toolName, toolInput) => trackChangedFile(toolName, toolInput),
+      onTaskStart: (toolId, description) => {
+        setActiveAgents(prev => [...prev, { id: toolId, description, status: 'running', startTime: Date.now() }])
+      },
+      onTaskEnd: (toolId, output, isError) => {
         setActiveAgents(prev => prev.map(a =>
-          a.id === (ev.toolId as string)
-            ? { ...a, status: (ev.isError as boolean) ? 'error' : 'completed', output: (ev.toolOutput as string)?.slice(0, 200) }
+          a.id === toolId
+            ? { ...a, status: isError ? 'error' : 'completed', output: output?.slice(0, 200) }
             : a
         ))
-      } else if (ev.type === 'result') {
+      },
+      onResult: (cost, inputTokens, outputTokens) => {
         setTimeout(() => setActiveAgents([]), 5000)
-        project.addCost(
-          (ev.costUsd as number) ?? 0,
-          (ev.inputTokens as number) ?? 0,
-          (ev.outputTokens as number) ?? 0,
-        )
-        recordCost(
-          (ev.costUsd as number) ?? 0,
-          (ev.inputTokens as number) ?? 0,
-          (ev.outputTokens as number) ?? 0,
-        )
-        chat.addUsage(
-          (ev.inputTokens as number) ?? 0,
-          (ev.outputTokens as number) ?? 0,
-          project.selectedModel,
-        )
-        isDeltaStreamingRef.current = false
-        chat.finishStreaming()
-        if (soundEnabledRef.current) {
-          playCompletionSound()
-        }
-      } else if (ev.type === 'thinking') {
-        // Extended Thinking 전체 블록 (non-streaming fallback)
-        if (ev.text) { chat.ensureAssistantMessage(); chat.appendThinking(ev.text as string) }
-      } else if (ev.type === 'thinking_delta') {
-        // thinking 스트리밍 delta
-        if (ev.text) { chat.ensureAssistantMessage(); chat.appendThinking(ev.text as string) }
-      } else if (ev.type === 'text_delta') {
-        isDeltaStreamingRef.current = true
-        chat.ensureAssistantMessage()
-        chat.appendText(ev.text as string)
-      } else if (ev.type === 'input_json_delta') {
-        // tool input 스트리밍 — 현재는 무시
-      } else if (ev.type === 'usage') {
-        // message_delta usage 업데이트
-        chat.addUsage(
-          (ev.inputTokens as number) ?? 0,
-          (ev.outputTokens as number) ?? 0,
-        )
-      } else if (ev.type === 'tool_progress') {
-        // 툴 실행 중 — 현재는 무시 (향후 진행 표시 UI에 활용 가능)
-      } else if (ev.type === 'status') {
-        // compacting 상태 — 현재는 무시
-      } else if (ev.type === 'interrupted') {
-        setActiveAgents([])
-        chat.finishStreaming()
-      } else if (ev.type === 'error') {
-        chat.ensureAssistantMessage()
-        const errMsg = String(ev.message ?? '')
-        const isApiKeyError = /401|api_key|authentication|invalid_api_key|x-api-key/i.test(errMsg)
-        if (isApiKeyError) {
-          chat.appendText(`\n⚠️ API 키가 유효하지 않습니다. ANTHROPIC_API_KEY 환경변수를 확인해주세요.\n\n원인: ${errMsg}`)
-        } else {
-          chat.appendText(`\n[Error: ${errMsg}]`)
-        }
-        chat.markLastMessageError()
-        chat.finishStreaming()
-      }
-
-      if (['run_started', 'step_started', 'step_finished', 'run_finished'].includes(ev.type)) {
-        aguiDispatch(ev)
-      }
+        project.addCost(cost, inputTokens, outputTokens)
+        recordCost(cost, inputTokens, outputTokens)
+        if (soundEnabledRef.current) playCompletionSound()
+      },
+      onAguiEvent: (ev) => aguiDispatch(ev),
     })
-    window.api.onClaudePermission((req: unknown) => {
-      const r = req as { requestId: string; toolName: string; input: unknown }
-      chat.setPendingPermission(r)
-    })
-    return () => window.api.removeClaudeListeners()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // ── Ctrl+W: close active file tab ──
@@ -1758,7 +1677,7 @@ function AppContent() {
                         onMouseLeave={e => { if (!isAgentBayDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                       />
                       <div style={{ flex: 1, overflow: 'hidden', borderLeft: '1px solid var(--border)' }}>
-                        <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
+                        <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
                       </div>
                     </div>
                     <OpsFeed
@@ -1768,7 +1687,7 @@ function AppContent() {
                     />
                   </div>
                 ) : (
-                  <ChatPanel chat={chat} project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onTogglePin={(id) => chat.togglePin(id)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
+                  <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
                 )}
               </div>
 

@@ -161,9 +161,9 @@ function ModelSelector({ value, onChange }: { value: string; onChange: (v: strin
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { MessageBubble } from './MessageBubble'
 import { InputBar } from './InputBar'
-import type { useChatStore } from '../../stores/chat-store'
+import { useChatStore } from '../../domains/chat/store'
 import type { useProject } from '../../stores/project-store'
-import type { ChatMessage } from '../../stores/chat-store'
+import type { ChatMessage } from '../../domains/chat/domain'
 import { getActiveTerminalId } from '../../stores/terminal-store'
 import { WelcomeScreen } from '../shared/WelcomeScreen'
 import { useCCContext } from '../../hooks/useCCContext'
@@ -291,7 +291,6 @@ function CopyConversationButton({ messages }: { messages: ChatMessage[] }) {
 }
 
 interface ChatPanelProps {
-  chat: ReturnType<typeof useChatStore>
   project: ReturnType<typeof useProject>
   focusTrigger?: number
   onImageClick?: (src: string, alt?: string) => void
@@ -303,7 +302,6 @@ interface ChatPanelProps {
   onCompressContext?: () => void
   pendingInsert?: string
   onPendingInsertConsumed?: () => void
-  onTogglePin?: (id: string) => void
   onReplyToMessage?: (text: string) => void
   suggestions?: string[]
   onDismissSuggestions?: () => void
@@ -470,7 +468,8 @@ const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, total
   )
 })
 
-export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onTogglePin, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ, onOpenPromptChain }: ChatPanelProps) {
+export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ, onOpenPromptChain }: ChatPanelProps) {
+  const chat = useChatStore()
   const ccCtx = useCCContext()
   const ccFileCtx = useCCFileContext()
   const projectSummary = useProjectContext(project.currentPath ?? null)
@@ -1273,9 +1272,8 @@ export function ChatPanel({ chat, project, focusTrigger, searchTrigger, scrollTo
     const msg = chat.messages.find(m => m.id === messageId)
     const pinnedCount = chat.messages.filter(m => m.pinned).length
     if (!msg?.pinned && pinnedCount >= 3) return
-    if (onTogglePin) onTogglePin(messageId)
-    else chat.togglePin(messageId)
-  }, [onTogglePin, chat.togglePin, chat.messages])
+    chat.togglePin(messageId)
+  }, [chat.togglePin, chat.messages])
 
   const handleReaction = useCallback((messageId: string, emoji: string) => {
     chat.toggleReaction(messageId, emoji)
