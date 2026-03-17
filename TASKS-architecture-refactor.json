@@ -1,0 +1,253 @@
+{
+  "project": "claude-desktop Architecture Refactor",
+  "created": "2026-03-17",
+  "prd": "PRD-architecture-refactor.md",
+  "phases": [
+    {
+      "id": "phase-a",
+      "name": "Phase A — Kernel 구축",
+      "status": "pending",
+      "priority": "high",
+      "description": "IPC 경계를 Typed Message Bus로 추상화. 기존 코드 무수정.",
+      "tasks": [
+        {
+          "id": "A1",
+          "title": "AppCommands / AppEvents 타입 정의",
+          "file": "src/renderer/src/kernel/types.ts",
+          "status": "pending",
+          "details": "모든 Command/Event를 discriminated union으로 선언. cocos/chat/session/fs/terminal 도메인 커버"
+        },
+        {
+          "id": "A2",
+          "title": "EventBus 구현",
+          "file": "src/renderer/src/kernel/eventBus.ts",
+          "status": "pending",
+          "details": "타입 안전 on(type, handler) / emit(event) / off(). AppEvents 제네릭 활용"
+        },
+        {
+          "id": "A3",
+          "title": "CommandBus 구현",
+          "file": "src/renderer/src/kernel/commandBus.ts",
+          "status": "pending",
+          "details": "register(type, handler) / dispatch(command). async 핸들러 지원"
+        },
+        {
+          "id": "A4",
+          "title": "IPC Bridge 구현",
+          "file": "src/renderer/src/kernel/ipcBridge.ts",
+          "status": "pending",
+          "details": "window.api.onXxx 이벤트 → EventBus.emit() 연결. CommandBus 핸들러 → window.api.xxx() 호출"
+        },
+        {
+          "id": "A5",
+          "title": "useKernel 훅 + index.ts export",
+          "file": "src/renderer/src/kernel/index.ts",
+          "status": "pending",
+          "details": "useKernel() = useCommandBus dispatch. useKernelEvent(type, handler) subscription 훅"
+        },
+        {
+          "id": "A6",
+          "title": "tsc 검증 + QA",
+          "status": "pending",
+          "details": "npx tsc --noEmit && npm run qa — 기존 동작 유지 확인"
+        }
+      ]
+    },
+    {
+      "id": "phase-b",
+      "name": "Phase B — Chat 도메인 이전",
+      "status": "pending",
+      "priority": "high",
+      "description": "App.tsx chat 관련 상태/로직 → domains/chat/. App.tsx 1,978줄 → ~400줄 목표",
+      "dependencies": ["phase-a"],
+      "tasks": [
+        {
+          "id": "B1",
+          "title": "chat/domain.ts 순수 타입 정의",
+          "file": "src/renderer/src/domains/chat/domain.ts",
+          "status": "pending",
+          "details": "ChatMessage, ChatSession, ChatChunk 등 순수 타입. 외부 의존 없음"
+        },
+        {
+          "id": "B2",
+          "title": "chat/store.ts zustand 전환",
+          "file": "src/renderer/src/domains/chat/store.ts",
+          "status": "pending",
+          "details": "현재 chat-store.ts (useState) → 실제 zustand global store. messages/isStreaming/sessions 상태"
+        },
+        {
+          "id": "B3",
+          "title": "chat/adapter.ts IPC 연결",
+          "file": "src/renderer/src/domains/chat/adapter.ts",
+          "status": "pending",
+          "details": "Kernel 이벤트 구독 → store 업데이트. chat:send Command → window.api.sendMessage 호출"
+        },
+        {
+          "id": "B4",
+          "title": "chat/commands.ts CommandBus 등록",
+          "file": "src/renderer/src/domains/chat/commands.ts",
+          "status": "pending",
+          "details": "chat:send / chat:stop / chat:newSession 핸들러 등록"
+        },
+        {
+          "id": "B5",
+          "title": "App.tsx chat 상태 제거 (store 구독으로 교체)",
+          "file": "src/renderer/src/App.tsx",
+          "status": "pending",
+          "details": "App.tsx의 chat 관련 useState 40여 개 제거. ChatPanel이 chatStore 직접 구독"
+        },
+        {
+          "id": "B6",
+          "title": "ChatPanel/InputBar prop 정리",
+          "status": "pending",
+          "details": "App.tsx → ChatPanel prop drilling 제거. store 직접 구독으로 전환"
+        },
+        {
+          "id": "B7",
+          "title": "tsc + QA 검증",
+          "status": "pending",
+          "details": "App.tsx 줄 수 50% 이상 감소 확인"
+        }
+      ]
+    },
+    {
+      "id": "phase-c",
+      "name": "Phase C — Cocos 도메인 + Batch Plugin System",
+      "status": "pending",
+      "priority": "high",
+      "description": "BatchInspector.tsx 14,775줄 → ~50줄. 플러그인 아키텍처 도입.",
+      "dependencies": ["phase-a"],
+      "tasks": [
+        {
+          "id": "C1",
+          "title": "BatchPlugin interface 정의",
+          "file": "src/renderer/src/domains/cocos/plugins/types.ts",
+          "status": "pending",
+          "details": "id / group / title / applies(nodes, ctx) / render(props) interface. BatchPluginProps 타입 포함"
+        },
+        {
+          "id": "C2",
+          "title": "transform 플러그인 (10개)",
+          "file": "src/renderer/src/domains/cocos/plugins/transform/",
+          "status": "pending",
+          "details": "positionReset / nudge / gridSnap / posGradient / sizeReset / scaleReset / rotReset / absPosSet / posSpread / alignCanvas. 각 30~80줄"
+        },
+        {
+          "id": "C3",
+          "title": "color 플러그인 (8개)",
+          "file": "src/renderer/src/domains/cocos/plugins/color/",
+          "status": "pending",
+          "details": "colorReset / colorGrad / randomColor / opacityFixed / opacityGrad / colorBlend / solidColor / channelOffset. 각 30~60줄"
+        },
+        {
+          "id": "C4",
+          "title": "component 플러그인 (15개+)",
+          "file": "src/renderer/src/domains/cocos/plugins/component/",
+          "status": "pending",
+          "details": "labelFontSize / labelColor / labelStyle / spriteType / audioVolume / toggleActive / buttonInteractable 등"
+        },
+        {
+          "id": "C5",
+          "title": "name 플러그인 (5개)",
+          "file": "src/renderer/src/domains/cocos/plugins/name/",
+          "status": "pending",
+          "details": "nameCase / nameFindReplace / namePrefix / nameTrim / nameRegexSelect"
+        },
+        {
+          "id": "C6",
+          "title": "plugin registry",
+          "file": "src/renderer/src/domains/cocos/plugins/registry.ts",
+          "status": "pending",
+          "details": "모든 플러그인 import + 배열로 export. useApplicablePlugins(uuids) 훅"
+        },
+        {
+          "id": "C7",
+          "title": "BatchInspector.tsx 재작성",
+          "file": "src/renderer/src/components/sidebar/CocosPanel/BatchInspector.tsx",
+          "status": "pending",
+          "details": "14,775줄 → ~50줄. plugin registry 기반 렌더링. 기존 기능 100% 유지"
+        },
+        {
+          "id": "C8",
+          "title": "cocos/store.ts zustand",
+          "file": "src/renderer/src/domains/cocos/store.ts",
+          "status": "pending",
+          "details": "sceneFile / selectedNode / lockedUuids / pinnedUuids 등 전역 상태"
+        },
+        {
+          "id": "C9",
+          "title": "cocos/adapter.ts IPC 연결",
+          "file": "src/renderer/src/domains/cocos/adapter.ts",
+          "status": "pending",
+          "details": "ccFile* IPC → Kernel 이벤트 발행. Command 핸들러 → window.api 호출"
+        },
+        {
+          "id": "C10",
+          "title": "tsc + QA 검증",
+          "status": "pending",
+          "details": "QA 2615 Pass 유지. BatchInspector.tsx 100줄 미만 확인"
+        }
+      ]
+    },
+    {
+      "id": "phase-d",
+      "name": "Phase D — 나머지 도메인 + 최종 정리",
+      "status": "pending",
+      "priority": "medium",
+      "description": "session/filesystem/terminal 도메인. App.tsx 최종 정리. preload namespacing.",
+      "dependencies": ["phase-b", "phase-c"],
+      "tasks": [
+        {
+          "id": "D1",
+          "title": "session 도메인",
+          "file": "src/renderer/src/domains/session/",
+          "status": "pending"
+        },
+        {
+          "id": "D2",
+          "title": "filesystem 도메인",
+          "file": "src/renderer/src/domains/filesystem/",
+          "status": "pending"
+        },
+        {
+          "id": "D3",
+          "title": "terminal 도메인",
+          "file": "src/renderer/src/domains/terminal/",
+          "status": "pending"
+        },
+        {
+          "id": "D4",
+          "title": "preload 도메인별 namespacing",
+          "file": "src/preload/index.ts",
+          "status": "pending",
+          "details": "window.api.cocos.* / window.api.chat.* / window.api.session.* 분리"
+        },
+        {
+          "id": "D5",
+          "title": "App.tsx 최종 정리 (200줄 이하)",
+          "file": "src/renderer/src/App.tsx",
+          "status": "pending"
+        },
+        {
+          "id": "D6",
+          "title": "전체 QA + 통합 검증",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "metrics": {
+    "before": {
+      "AppTsx": 1978,
+      "BatchInspectorTsx": 14775,
+      "preloadIndex": 621,
+      "chatStoreTsx": 370
+    },
+    "targets": {
+      "AppTsx": 200,
+      "BatchInspectorTsx": 50,
+      "preloadIndex": "도메인별 분리",
+      "chatStoreTsx": "domains/chat/store.ts로 대체"
+    }
+  }
+}
