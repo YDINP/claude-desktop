@@ -21,35 +21,39 @@
 - `src/renderer/src/domains/chat/` — domain.ts, store.ts, adapter.ts, commands.ts, index.ts
 
 ### Phase C — Cocos Plugin System ✅ DONE (commit: 2d24a08a)
-- `src/renderer/src/domains/cocos/plugins/` — color.tsx, component.tsx, distribution.tsx, misc.tsx, name.tsx, transform.tsx, registry.ts, types.ts
+- `src/renderer/src/domains/cocos/plugins/` — 8개 파일
 - BatchInspector.tsx 14,774 → 66줄 (thin shell)
 
 ### Phase D — App.tsx 도메인 훅 추출 ✅ DONE (commit: 87db531e)
 - App.tsx 1898→961줄 (49% 감소)
-- 5 hooks: useWorkspaceManager, useSessionManager, useSettingsSync, useResizeHandlers, useKeyboardShortcuts
-- 3 components: WelcomeScreen, WorkspaceTabBar, FileTabBar
+- 5 hooks + 3 components 분리
 
 ### Phase D.2 — JSX → AppLayout 추출 ✅ DONE (commit: ddf3bff7)
 - App.tsx 961→448줄 (총 77% 감소)
-- AppLayout.tsx 신규 (675줄) — 모든 렌더링 JSX
-- `.claude/CLAUDE.md` 신규 — 아키텍처 설계 규격 문서
+- AppLayout.tsx 신규 (675줄)
+
+### Phase E — CocosPanel/index.tsx 분리 ✅ DONE (commit: 0689fd08)
+- index.tsx 3,220→138줄
+- 6개 파일 분리: BuildTab, SceneTab, HierarchyPanel, ProjectHeader, ProjectToolbar, useCCFileProjectUI
+
+### Phase F — NodeInspector.tsx 분리 ✅ DONE (commits: 1ba6de35, 986711d4)
+- NodeInspector.tsx 9,198줄 → NodeInspector/ 디렉토리 (21개 파일)
+- 구조:
+  - index.tsx (17줄) — thin shell
+  - constants.tsx (75줄) — COMP_ICONS, COMP_DESCRIPTIONS, SpriteThumb
+  - useNodeInspector.tsx (816줄) — controller hook (전체 state + handlers)
+  - NodeInspectorHeader.tsx (794줄) — 헤더/breadcrumb/stats/버튼
+  - NodeTransformSection.tsx (779줄) — 트랜스폼 편집
+  - NodeInspectorView.tsx (656줄) — 컴포넌트 목록 shell
+  - ComponentQuickEdit.tsx (92줄) — 렌더러 라우터
+  - GenericPropertyEditor.tsx (537줄) — 범용 속성 편집기
+  - renderers/ (10개 파일) — 타입별 Quick Edit 렌더러
 
 ---
 
 ## 최근 완료 라운드 (R2711~R2725)
 
-- [x] R2711 — SceneView 노드 잠금 툴바 버튼
-- [x] R2712 — BatchInspector Label fontSize 일괄 강화
-- [x] R2714 — BatchInspector 조건부 active 토글
-- [x] R2715 — SceneView 단축키 팝업
-- [x] R2716 — SceneView 이름 찾기+바꾸기 (regex)
-- [x] R2717 — SceneView Opacity HUD 배지
-- [x] R2718 — SceneView UUID 참조 화살표 시각화
-- [x] R2719 — SceneView 격자 스냅
-- [x] R2721 — BatchInspector Label 폰트 색상 일괄
-- [x] R2722 — SceneView 선택 히스토리 breadcrumb
-- [x] R2723 — BatchInspector 이름 접두사 자동 그룹 선택
-- [x] R2725 — BatchInspector 선택 노드 일괄 lock/unlock
+- [x] R2711~R2725 — SceneView/BatchInspector 기능 추가 (ROADMAP 참조)
 
 ---
 
@@ -57,20 +61,22 @@
 
 | 파일 | 줄 수 | 비고 |
 |------|-------|------|
-| `src/renderer/src/App.tsx` | 448 | Phase D.2 완료 (1898→448, 77% 감소) |
-| `src/renderer/src/components/shared/AppLayout.tsx` | 675 | Phase D.2 신규 — 모든 렌더링 JSX |
+| `src/renderer/src/App.tsx` | 448 | Phase D.2 완료 (77% 감소) |
+| `src/renderer/src/components/shared/AppLayout.tsx` | 675 | 렌더링 JSX |
 | `CocosPanel/BatchInspector.tsx` | 66 | Phase C 완료 (thin shell) |
-| `CocosPanel/NodeInspector.tsx` | 9,198 | 향후 분리 검토 |
-| `CocosPanel/index.tsx` | 3,220 | 향후 분리 검토 |
-| `src/preload/index.ts` | 621 | Phase D namespacing 예정 |
+| `CocosPanel/index.tsx` | 138 | Phase E 완료 (3,220→138) |
+| `CocosPanel/useCCFileProjectUI.ts` | 1,719 | Phase E — 상태/핸들러 훅 |
+| `CocosPanel/NodeInspector/index.tsx` | 17 | Phase F 완료 (9,198→분리) |
+| `CocosPanel/NodeInspector/useNodeInspector.tsx` | 816 | Phase F — controller hook |
+| `CocosPanel/NodeInspector/renderers/*.tsx` | 10개 | Phase F — 타입별 렌더러 |
+| `src/preload/index.ts` | 621 | namespacing 예정 |
 
 ---
 
 ## QA 상태
 
 - **현재**: 2615 Pass, 0 Warning, 0 Critical
-- check-rounds.ts: readCached 디렉토리 경로 자동 병합 지원
-- check-ipc.ts: handleSave 체크 → CocosPanel/index.tsx 기준
+- check-ipc.ts: handleSave 체크 → useCCFileProjectUI.ts 기준으로 업데이트됨
 
 ---
 
@@ -78,4 +84,5 @@
 
 - BatchInspector 잔여 38개 `await saveScene: result.success` 처리 / Z-sort 특수 케이스
 - npm audit 잔여 10개 low: electron-builder 체인 (빌드툴 전용, 런타임 무관)
-- 다음 라운드 제안: R2726+ (BatchInspector/SceneView/NodeInspector 추가 기능)
+- 다음 라운드 제안: R2726+ (BatchInspector/SceneView 기능 추가)
+- useCCFileProjectUI.ts (1,719줄) — 추가 분리 가능하나 현재 단계에서는 허용
