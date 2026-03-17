@@ -1,197 +1,110 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-interface WelcomeScreenProps {
-  onSelectPrompt: (prompt: string) => void
-  recentSessions?: Array<{ id: string; title: string }>
-  onSelectSession?: (id: string) => void
-}
+interface RecentSession { id: string; title: string; cwd: string; updatedAt: number }
 
-const QUICK_CARDS = [
-  {
-    icon: '📝',
-    title: '코드 작성 도움받기',
-    desc: '코드 리뷰, 디버깅, 최적화',
-    prompt: '코드 리뷰를 부탁드립니다',
-  },
-  {
-    icon: '🔍',
-    title: '문서 분석하기',
-    desc: '파일을 드래그하거나 내용을 붙여넣으세요',
-    prompt: '이 문서를 분석해주세요',
-  },
-  {
-    icon: '💡',
-    title: '아이디어 탐구하기',
-    desc: '브레인스토밍, 글쓰기, 분석',
-    prompt: '다음 아이디어에 대한 피드백을 주세요:',
-  },
-]
+export function WelcomeScreen({ onOpenFolder, onOpenPath, onOpenSession }: {
+  onOpenFolder: () => void
+  onOpenPath: (p: string) => void
+  onOpenSession: (id: string, path: string) => void
+}) {
+  const [recents, setRecents] = useState<string[]>([])
+  const [recentSessions, setRecentSessions] = useState<RecentSession[]>([])
 
-const SHORTCUTS = [
-  { key: 'Ctrl+N', label: '새 세션' },
-  { key: 'Ctrl+K', label: '커맨드' },
-  { key: 'Ctrl+/', label: '단축키' },
-]
-
-export function WelcomeScreen({ onSelectPrompt, recentSessions, onSelectSession }: WelcomeScreenProps) {
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
-  const [hoveredSession, setHoveredSession] = useState<number | null>(null)
-
-  const visibleSessions = recentSessions?.slice(0, 3) ?? []
+  useEffect(() => {
+    window.api?.getRecentProjects().then(setRecents)
+    window.api?.sessionList().then(list => {
+      const sessions = (list as RecentSession[])
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+        .slice(0, 4)
+      setRecentSessions(sessions)
+    })
+  }, [])
 
   return (
     <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100%',
-      padding: '40px 24px',
-      gap: 32,
-      boxSizing: 'border-box',
-    }}>
-      {/* Logo + title */}
-      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-        <div style={{
-          fontSize: 48,
-          background: 'linear-gradient(135deg, var(--accent) 0%, #9B6DFF 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          lineHeight: 1,
-          userSelect: 'none',
-        }}>
-          ✦
-        </div>
-        <div style={{
-          fontSize: 24,
-          fontWeight: 700,
-          color: 'var(--text-primary)',
-          letterSpacing: '-0.3px',
-        }}>
-          Claude Desktop
-        </div>
-        <div style={{
-          fontSize: 14,
-          color: 'var(--text-muted)',
-          marginTop: 2,
-        }}>
-          AI와 함께 더 스마트하게 작업하세요
-        </div>
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      height: '100vh', background: 'var(--bg-primary)', gap: 32,
+      WebkitAppRegion: 'drag',
+    } as React.CSSProperties}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 32, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>Claude Desktop</div>
+        <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>AI 코딩 어시스턴트</div>
       </div>
 
-      {/* Quick start cards */}
-      <div style={{
-        display: 'flex',
-        gap: 12,
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        maxWidth: 700,
-        width: '100%',
-      }}>
-        {QUICK_CARDS.map((card, i) => (
-          <button
-            key={i}
-            onClick={() => onSelectPrompt(card.prompt)}
-            onMouseEnter={() => setHoveredCard(i)}
-            onMouseLeave={() => setHoveredCard(null)}
-            style={{
-              background: hoveredCard === i
-                ? 'var(--bg-hover)'
-                : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${hoveredCard === i ? 'var(--accent-dim)' : 'rgba(255,255,255,0.08)'}`,
-              borderRadius: 12,
-              padding: 16,
-              cursor: 'pointer',
-              textAlign: 'left',
-              flex: '1 1 180px',
-              minWidth: 160,
-              maxWidth: 220,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
-              transition: 'background 0.15s, border-color 0.15s',
-              outline: 'none',
-            }}
-          >
-            <span style={{ fontSize: 20 }}>{card.icon}</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
-              {card.title}
-            </span>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.4 }}>
-              {card.desc}
-            </span>
-          </button>
-        ))}
-      </div>
+      <button
+        onClick={onOpenFolder}
+        style={{
+          padding: '10px 28px', background: 'var(--accent)', color: '#fff',
+          borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer',
+          WebkitAppRegion: 'no-drag',
+        } as React.CSSProperties}
+      >
+        폴더 열기
+      </button>
 
-      {/* Recent sessions */}
-      {visibleSessions.length > 0 && onSelectSession && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 480, width: '100%' }}>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-            최근 세션
+      <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', width: '100%', maxWidth: 720, justifyContent: 'center' }}>
+        {recentSessions.length > 0 && (
+          <div style={{ flex: 1, maxWidth: 340 }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              최근 대화
+            </div>
+            {recentSessions.map(s => (
+              <div
+                key={s.id}
+                onClick={() => onOpenSession(s.id, s.cwd)}
+                style={{
+                  padding: '8px 12px', borderRadius: 6, cursor: 'pointer',
+                  color: 'var(--text-secondary)', fontSize: 12,
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  WebkitAppRegion: 'no-drag',
+                } as React.CSSProperties}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              >
+                <span style={{ opacity: 0.5 }}>💬</span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
+                    {s.title || '대화'}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {s.cwd.split(/[\\/]/).slice(-2).join('/')}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          {visibleSessions.map((s, i) => (
-            <button
-              key={s.id}
-              onClick={() => onSelectSession(s.id)}
-              onMouseEnter={() => setHoveredSession(i)}
-              onMouseLeave={() => setHoveredSession(null)}
-              style={{
-                background: hoveredSession === i ? 'rgba(255,255,255,0.05)' : 'transparent',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: 8,
-                padding: '8px 12px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                color: 'var(--text-secondary)',
-                fontSize: 13,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                transition: 'background 0.12s',
-                outline: 'none',
-              }}
-            >
-              <span style={{ fontSize: 14, opacity: 0.5 }}>💬</span>
-              <span style={{
-                flex: 1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}>
-                {s.title}
-              </span>
-              <span style={{ fontSize: 11, opacity: 0.4 }}>→</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Keyboard shortcut hints */}
-      <div style={{
-        display: 'flex',
-        gap: 16,
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        marginTop: 4,
-      }}>
-        {SHORTCUTS.map(({ key, label }) => (
-          <span key={key} style={{ fontSize: 11, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <kbd style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 4,
-              padding: '1px 6px',
-              fontSize: 10,
-              fontFamily: 'monospace',
-              color: 'var(--text-muted)',
-            }}>
-              {key}
-            </kbd>
-            {label}
-          </span>
-        ))}
+        )}
+        {recents.length > 0 && (
+          <div style={{ flex: 1, maxWidth: 340 }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              최근 프로젝트
+            </div>
+            {recents.slice(0, 6).map(p => (
+              <div
+                key={p}
+                onClick={() => onOpenPath(p)}
+                style={{
+                  padding: '8px 12px', borderRadius: 6, cursor: 'pointer',
+                  color: 'var(--text-secondary)', fontSize: 12,
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  WebkitAppRegion: 'no-drag',
+                } as React.CSSProperties}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              >
+                <span style={{ opacity: 0.5 }}>⬡</span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {p.split(/[\\/]/).pop()}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {p}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

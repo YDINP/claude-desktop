@@ -28,368 +28,22 @@ import { CocosPanel } from './components/sidebar/CocosPanel'
 import { playCompletionSound } from './utils/sound'
 import { recordCost } from './utils/cost-tracker'
 import { aguiDispatch } from './utils/agui-store'
-import { applyCustomCSS } from './utils/css'
 import { ToastContainer } from './components/shared/ToastContainer'
 import { toast } from './utils/toast'
 
+// Extracted hooks & components
+import { useWorkspaceManager } from './hooks/useWorkspaceManager'
+import { useSessionManager } from './hooks/useSessionManager'
+import { useSettingsSync } from './hooks/useSettingsSync'
+import { useResizeHandlers } from './hooks/useResizeHandlers'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { WelcomeScreen } from './components/shared/WelcomeScreen'
+import { WorkspaceTabBar } from './components/shared/WorkspaceTabBar'
+import { FileTabBar } from './components/shared/FileTabBar'
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type FileTab = string  // file path
-type MainTab = 'chat' | 'scene' | 'preview' | FileTab
 type CCLayoutMode = 'tab' | 'split' | 'detach'
-
-interface ActiveAgent {
-  id: string
-  description: string
-  status: 'running' | 'completed' | 'error'
-  startTime: number
-  output?: string
-}
-
-interface WorkspaceSnapshot {
-  messages: ChatMessage[]
-  sessionId: string | null
-  openTabs: MainTab[]
-  activeTab: MainTab
-  ccPort?: number
-  webPreviewUrl?: string
-}
-
-interface Workspace {
-  id: string
-  path: string
-  snapshot: WorkspaceSnapshot
-}
-
-const EMPTY_SNAPSHOT: WorkspaceSnapshot = {
-  messages: [],
-  sessionId: null,
-  openTabs: ['chat'],
-  activeTab: 'chat',
-}
-
-// ── WelcomeScreen ────────────────────────────────────────────────────────────
-
-interface RecentSession { id: string; title: string; cwd: string; updatedAt: number }
-
-function WelcomeScreen({ onOpenFolder, onOpenPath, onOpenSession }: {
-  onOpenFolder: () => void
-  onOpenPath: (p: string) => void
-  onOpenSession: (id: string, path: string) => void
-}) {
-  const [recents, setRecents] = useState<string[]>([])
-  const [recentSessions, setRecentSessions] = useState<RecentSession[]>([])
-
-  useEffect(() => {
-    window.api?.getRecentProjects().then(setRecents)
-    window.api?.sessionList().then(list => {
-      const sessions = (list as RecentSession[])
-        .sort((a, b) => b.updatedAt - a.updatedAt)
-        .slice(0, 4)
-      setRecentSessions(sessions)
-    })
-  }, [])
-
-  return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      height: '100vh', background: 'var(--bg-primary)', gap: 32,
-      WebkitAppRegion: 'drag',
-    } as React.CSSProperties}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 32, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>Claude Desktop</div>
-        <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>AI 코딩 어시스턴트</div>
-      </div>
-
-      <button
-        onClick={onOpenFolder}
-        style={{
-          padding: '10px 28px', background: 'var(--accent)', color: '#fff',
-          borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer',
-          WebkitAppRegion: 'no-drag',
-        } as React.CSSProperties}
-      >
-        폴더 열기
-      </button>
-
-      <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', width: '100%', maxWidth: 720, justifyContent: 'center' }}>
-        {recentSessions.length > 0 && (
-          <div style={{ flex: 1, maxWidth: 340 }}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              최근 대화
-            </div>
-            {recentSessions.map(s => (
-              <div
-                key={s.id}
-                onClick={() => onOpenSession(s.id, s.cwd)}
-                style={{
-                  padding: '8px 12px', borderRadius: 6, cursor: 'pointer',
-                  color: 'var(--text-secondary)', fontSize: 12,
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  WebkitAppRegion: 'no-drag',
-                } as React.CSSProperties}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-              >
-                <span style={{ opacity: 0.5 }}>💬</span>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
-                    {s.title || '대화'}
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {s.cwd.split(/[\\/]/).slice(-2).join('/')}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {recents.length > 0 && (
-          <div style={{ flex: 1, maxWidth: 340 }}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              최근 프로젝트
-            </div>
-            {recents.slice(0, 6).map(p => (
-              <div
-                key={p}
-                onClick={() => onOpenPath(p)}
-                style={{
-                  padding: '8px 12px', borderRadius: 6, cursor: 'pointer',
-                  color: 'var(--text-secondary)', fontSize: 12,
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  WebkitAppRegion: 'no-drag',
-                } as React.CSSProperties}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-              >
-                <span style={{ opacity: 0.5 }}>⬡</span>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {p.split(/[\\/]/).pop()}
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {p}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ── Accent color helper ──────────────────────────────────────────────────────
-
-function hexToRgb(hex: string): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `${r},${g},${b}`
-}
-
-// ── WorkspaceTabBar ──────────────────────────────────────────────────────────
-
-function WorkspaceTabBar({ workspaces, activeId, workspaceNames, onSelect, onClose, onAdd, onRename }: {
-  workspaces: Workspace[]
-  activeId: string
-  workspaceNames: Record<string, string>
-  onSelect: (id: string) => void
-  onClose: (id: string) => void
-  onAdd: () => void
-  onRename: (id: string, name: string) => void
-}) {
-  const [tabMenu, setTabMenu] = useState<{ tabId: string; x: number; y: number } | null>(null)
-  const [renamingTab, setRenamingTab] = useState<string | null>(null)
-  const [renameValue, setRenameValue] = useState('')
-
-  const getTabName = (id: string) => {
-    const ws = workspaces.find(w => w.id === id)
-    return workspaceNames[id] ?? (ws ? (ws.path.split(/[\\/]/).pop() ?? ws.path) : id)
-  }
-
-  const applyRename = (id: string, value: string) => {
-    const trimmed = value.trim()
-    if (trimmed) onRename(id, trimmed)
-  }
-
-  return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'stretch',
-      background: 'var(--bg-secondary)',
-      borderBottom: '1px solid var(--border)',
-      flexShrink: 0,
-      height: 28,
-      overflowX: 'auto',
-    }}>
-      {workspaces.map(ws => {
-        const name = getTabName(ws.id)
-        const isActive = ws.id === activeId
-        const isRenaming = renamingTab === ws.id
-        return (
-          <div
-            key={ws.id}
-            onClick={() => onSelect(ws.id)}
-            onContextMenu={e => { e.preventDefault(); setTabMenu({ tabId: ws.id, x: e.clientX, y: e.clientY }) }}
-            title={ws.path}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '0 10px', flexShrink: 0,
-              fontSize: 12, cursor: 'pointer', userSelect: 'none',
-              color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
-              background: isActive ? 'var(--bg-primary)' : 'transparent',
-              borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
-            }}
-            onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
-            onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-          >
-            <span style={{ fontSize: 10, opacity: 0.7 }}>⬡</span>
-            {isRenaming ? (
-              <input
-                autoFocus
-                value={renameValue}
-                onChange={e => setRenameValue(e.target.value)}
-                onBlur={() => { applyRename(renamingTab!, renameValue); setRenamingTab(null) }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') { applyRename(renamingTab!, renameValue); setRenamingTab(null) }
-                  if (e.key === 'Escape') setRenamingTab(null)
-                  e.stopPropagation()
-                }}
-                onClick={e => e.stopPropagation()}
-                style={{ width: 80, background: 'var(--bg-primary)', color: 'inherit', border: '1px solid var(--accent)', borderRadius: 3, padding: '1px 4px', fontSize: 12 }}
-              />
-            ) : (
-              <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {name}
-              </span>
-            )}
-            {workspaces.length > 1 && (
-              <span
-                onClick={e => { e.stopPropagation(); onClose(ws.id) }}
-                style={{ opacity: 0.4, fontSize: 14, lineHeight: 1, padding: '0 1px' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.4' }}
-              >×</span>
-            )}
-          </div>
-        )
-      })}
-      <div
-        onClick={onAdd}
-        title="Open folder in new workspace"
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          width: 28, flexShrink: 0, cursor: 'pointer',
-          color: 'var(--text-muted)', fontSize: 16,
-        }}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
-      >+</div>
-
-      {tabMenu && (
-        <div
-          style={{
-            position: 'fixed', top: tabMenu.y, left: tabMenu.x, zIndex: 9999,
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            borderRadius: 6, minWidth: 140, boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          }}
-          onMouseLeave={() => setTabMenu(null)}
-        >
-          {[
-            {
-              label: '이름 변경',
-              action: () => { setRenamingTab(tabMenu.tabId); setRenameValue(getTabName(tabMenu.tabId)); setTabMenu(null) },
-            },
-            {
-              label: '탭 닫기',
-              action: () => { onClose(tabMenu.tabId); setTabMenu(null) },
-            },
-            {
-              label: '새 탭',
-              action: () => { onAdd(); setTabMenu(null) },
-            },
-          ].map(item => (
-            <div
-              key={item.label}
-              onClick={item.action}
-              style={{ padding: '8px 16px', cursor: 'pointer', fontSize: 13 }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover, #2a2a2a)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '' }}
-            >
-              {item.label}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── FileTabBar ───────────────────────────────────────────────────────────────
-
-function FileTabBar({ tabs, active, onSelect, onClose, dirtyTabs }: {
-  tabs: MainTab[]
-  active: MainTab
-  onSelect: (t: MainTab) => void
-  onClose: (t: MainTab) => void
-  dirtyTabs?: Set<string>
-}) {
-  return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'stretch',
-      background: 'var(--bg-secondary)',
-      borderBottom: '1px solid var(--border)',
-      flexShrink: 0,
-      height: 28,
-      overflowX: 'auto',
-    }}>
-      {tabs.map(t => {
-        const isActive = t === active
-        const label = t === 'chat' ? 'Claude'
-          : t === 'scene' ? '⬡ 씬뷰'
-          : t === 'preview' ? '🌐 프리뷰'
-          : (t.split(/[\\/]/).pop() ?? t)
-        return (
-          <div
-            key={t}
-            onClick={() => onSelect(t)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 4,
-              padding: '0 12px', flexShrink: 0,
-              fontSize: 12, cursor: 'pointer', userSelect: 'none',
-              color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
-              background: isActive ? 'var(--bg-primary)' : 'transparent',
-              borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
-              maxWidth: 160,
-            }}
-            onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
-            onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-          >
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {label}
-            </span>
-            {dirtyTabs?.has(t) && (
-              <span style={{ color: 'var(--accent)', fontSize: 8, flexShrink: 0 }}>●</span>
-            )}
-            {t !== 'chat' && t !== 'scene' && t !== 'preview' && (
-              <span
-                onClick={e => { e.stopPropagation(); onClose(t) }}
-                style={{ opacity: 0.4, fontSize: 14, lineHeight: 1, padding: '0 1px', flexShrink: 0 }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.4' }}
-              >×</span>
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-// ── AppContent ───────────────────────────────────────────────────────────────
 
 // ── CC Editor Detached Window ─────────────────────────────────────────────
 
@@ -401,29 +55,81 @@ function CCEditorWindow() {
   )
 }
 
+// ── AppContent ───────────────────────────────────────────────────────────────
+
 function AppContent() {
   const project = useProject()
   const chat = useChatStore()
 
-  // ── Workspace state ──
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [activeWsId, setActiveWsId] = useState<string>('')
-  const [workspaceNames, setWorkspaceNames] = useState<Record<string, string>>(() => {
-    try { return JSON.parse(localStorage.getItem('workspace-names') ?? '{}') } catch { return {} }
+  // ── Domain hooks ──
+  const workspace = useWorkspaceManager({
+    chatHydrate: chat.hydrate,
+    chatClearMessages: chat.clearMessages,
+    chatSetSessionId: chat.setSessionId,
+    chatMessages: chat.messages,
+    chatSessionId: chat.sessionId,
+    projectSetProject: project.setProject,
+    projectCurrentPath: project.currentPath,
   })
-  const updateWorkspaceNames = (updater: (prev: Record<string, string>) => Record<string, string>) => {
-    setWorkspaceNames(prev => {
-      const next = updater(prev)
-      localStorage.setItem('workspace-names', JSON.stringify(next))
-      return next
-    })
-  }
-  const wsStateRef = useRef<WorkspaceSnapshot>(EMPTY_SNAPSHOT)
+  const {
+    workspaces, activeWsId, workspaceNames, updateWorkspaceNames,
+    openTabs, setOpenTabs, activeTab, setActiveTab, activeTabRef,
+    wsCCPort, setWsCCPort, wsWebPreviewUrl, setWsWebPreviewUrl,
+    wsCCConnected, setWsCCConnected,
+    handleOpenFolder, switchWorkspace, closeWorkspace, createOrSwitchWorkspace,
+  } = workspace
 
-  // ── File tabs (per workspace, stored in snapshot) ──
-  const [openTabs, setOpenTabs] = useState<MainTab[]>(['chat'])
-  const [activeTab, setActiveTab] = useState<MainTab>('chat')
-  const activeTabRef = useRef<MainTab>('chat')
+  const session = useSessionManager({
+    messages: chat.messages,
+    isStreaming: chat.isStreaming,
+    sessionId: chat.sessionId,
+    currentPath: project.currentPath,
+    selectedModel: project.selectedModel,
+  })
+  const { sessionTitle, setSessionTitle, sessionCreatedAt, setSessionCreatedAt, suggestions, setSuggestions } = session
+
+  const settings = useSettingsSync()
+  const {
+    hqMode, handleToggleHQ: _toggleHQ,
+    activeAgents, setActiveAgents,
+    focusMode, setFocusMode,
+    theme, toggleTheme,
+    soundEnabled, soundEnabledRef, handleToggleSound,
+    compactMode, handleToggleCompact,
+    chatFontSize,
+  } = settings
+
+  const resize = useResizeHandlers()
+  const {
+    terminalOpen, setTerminalOpen,
+    bottomHeight, isDragging, handleSplitterMouseDown,
+    sidebarCollapsed, setSidebarCollapsed,
+    sidebarWidth, setSidebarWidth,
+    isSidebarDragging, handleSidebarDragMouseDown,
+    agentBayWidth, setAgentBayWidth,
+    isAgentBayDragging, setIsAgentBayDragging,
+    agentBayDragStartX, agentBayDragStartW,
+  } = resize
+
+  // handleToggleHQ wrapper (needs setActiveTab from workspace)
+  const handleToggleHQ = useCallback(() => _toggleHQ(() => setActiveTab('chat')), [_toggleHQ, setActiveTab])
+
+  // ── CC Layout mode (stays in AppContent) ──
+  const [ccLayout, setCCLayout] = useState<CCLayoutMode>(() =>
+    (localStorage.getItem('cc-layout-mode') as CCLayoutMode) ?? 'tab'
+  )
+  const [ccTab, setCCTab] = useState<'claude' | 'editor'>('claude')
+  const [ccSplitRatio, setCCSplitRatio] = useState(0.5)
+  const ccSplitRatioRef = useRef(0.5)
+
+  // ── Chat UI triggers ──
+  const [chatFocusTrigger, setChatFocusTrigger] = useState(0)
+  const [chatSearchTrigger, setChatSearchTrigger] = useState(0)
+  const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null)
+  const [splitFilePath, setSplitFilePath] = useState<string | null>(null)
+  const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
+
+  // ── File dirty tracking ──
   const [dirtyTabs, setDirtyTabs] = useState<Set<string>>(new Set())
   const setTabDirty = useCallback((path: string, dirty: boolean) => {
     setDirtyTabs(prev => {
@@ -434,70 +140,8 @@ function AppContent() {
     })
   }, [])
 
-  // ── Per-workspace CC / Preview state ──
-  const [wsCCPort, setWsCCPort] = useState<number>(9090)
-  const [wsWebPreviewUrl, setWsWebPreviewUrl] = useState<string>('')
-  const [wsCCConnected, setWsCCConnected] = useState(false)
-
-  // ── CC Layout mode ──
-  const [ccLayout, setCCLayout] = useState<CCLayoutMode>(() =>
-    (localStorage.getItem('cc-layout-mode') as CCLayoutMode) ?? 'tab'
-  )
-  const [ccTab, setCCTab] = useState<'claude' | 'editor'>('claude')
-  const [ccSplitRatio, setCCSplitRatio] = useState(0.5)
-  const ccSplitRatioRef = useRef(0.5)
-
-  // CC 연결 상태에 따라 scene + preview 탭 추가/제거
-  useEffect(() => {
-    if (!wsCCConnected) {
-      // [M-13] setActiveTab을 updater 바깥에서 호출
-      if (activeTabRef.current === 'scene' || activeTabRef.current === 'preview') {
-        activeTabRef.current = 'chat'
-        setActiveTab('chat')
-      }
-    }
-    setOpenTabs(prev => {
-      if (wsCCConnected) {
-        let next = prev
-        if (!next.includes('scene')) {
-          next = ['chat', 'scene', ...next.filter(t => t !== 'chat')]
-        }
-        if (!next.includes('preview')) {
-          const sceneIdx = next.indexOf('scene')
-          if (sceneIdx !== -1) {
-            next = [...next.slice(0, sceneIdx + 1), 'preview', ...next.slice(sceneIdx + 1)]
-          } else {
-            next = ['chat', 'preview', ...next.filter(t => t !== 'chat')]
-          }
-        }
-        return next
-      }
-      // 연결 해제 시
-      return prev.filter(t => t !== 'scene' && t !== 'preview')
-    })
-  }, [wsCCConnected])
-
-  // ── Terminal ──
-  const [terminalOpen, setTerminalOpen] = useState(false)
-  const [bottomHeight, setBottomHeight] = useState(240)
-  const [isDragging, setIsDragging] = useState(false)
-  const dragStartY = useRef(0)
-  const dragStartH = useRef(0)
-
-  // ── Chat focus trigger ──
-  const [chatFocusTrigger, setChatFocusTrigger] = useState(0)
-  const [chatSearchTrigger, setChatSearchTrigger] = useState(0)
-  const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null)
-
-  // ── Split view ──
-  const [splitFilePath, setSplitFilePath] = useState<string | null>(null)
-
-  // ── Lightbox ──
-  const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
-
   // ── Changed files tracking ──
   const [changedFiles, setChangedFiles] = useState<ChangedFile[]>([])
-
   const trackChangedFile = (toolName: string, toolInput: unknown) => {
     const input = toolInput as { file_path?: string }
     if (!input?.file_path) return
@@ -515,325 +159,25 @@ function AppContent() {
     })
   }
 
-  // ── Command palette ──
+  // ── UI overlays ──
   const [paletteOpen, setPaletteOpen] = useState(false)
-  const paletteOpenRef = useRef(false)
-  paletteOpenRef.current = paletteOpen
-
-  // ── Keyboard shortcuts overlay ──
   const [shortcutsOpen, setShortcutsOpen] = useState(false)
-
-  // ── Settings panel ──
   const [settingsOpen, setSettingsOpen] = useState(false)
-
-  // ── HQ mode ──
-  const [hqMode, setHqMode] = useState(false)
-  const [activeAgents, setActiveAgents] = useState<ActiveAgent[]>([])
-  const [agentBayWidth, setAgentBayWidth] = useState(260)
-  const [isAgentBayDragging, setIsAgentBayDragging] = useState(false)
-  const agentBayDragStartX = useRef(0)
-  const agentBayDragStartW = useRef(0)
-
-  useEffect(() => {
-    window.api?.settingsGet().then((s: Record<string, unknown>) => {
-      if (s?.hqMode) setHqMode(true)
-    }).catch(() => {})
-  }, [])
-
-  const handleToggleHQ = useCallback(() => {
-    setHqMode(prev => {
-      const next = !prev
-      if (next) setActiveTab('chat')  // HQ 켤 때 chat 탭으로 전환
-      window.api?.settingsGet().then(settings => {
-        window.api?.settingsSave({ ...settings, hqMode: next })
-      }).catch(() => {})
-      return next
-    })
-  }, [])
-
-  // ── Focus mode ──
-  const [focusMode, setFocusMode] = useState(false)
-
-  // ── Theme toggle ──
-  const [theme, setTheme] = useState<'dark' | 'light' | 'system'>(() =>
-    (localStorage.getItem('theme') as 'dark' | 'light' | 'system') ?? 'dark'
-  )
-
-  const applyTheme = useCallback((t: 'dark' | 'light' | 'system', isDark?: boolean) => {
-    const effective = t === 'system'
-      ? (isDark !== undefined ? isDark : window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ? 'dark' : 'light'
-      : t
-    document.documentElement.setAttribute('data-theme', effective)
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem('theme', theme)
-    if (theme !== 'system') {
-      applyTheme(theme)
-      return
-    }
-    // system: 초기값 + 변경 구독
-    window.api?.getNativeTheme?.().then(({ isDark }) => applyTheme('system', isDark))
-    const unsub = window.api?.onNativeThemeChanged?.((isDark) => applyTheme('system', isDark))
-    return () => unsub?.()
-  }, [theme, applyTheme])
-
-  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : t === 'light' ? 'dark' : 'dark')
-
-  // ── Sound enabled ref + state for palette display ──
-  const soundEnabledRef = useRef(true)
-  const [soundEnabled, setSoundEnabled] = useState(true)
-  const [compactMode, setCompactMode] = useState(false)
-
-  // ── Chat font size (Ctrl+=/- shortcut) ──
-  const [chatFontSize, setChatFontSize] = useState(() =>
-    Number(localStorage.getItem('chat-font-size') ?? '13')
-  )
-  useEffect(() => {
-    document.documentElement.style.setProperty('--chat-font-size', `${chatFontSize}px`)
-    localStorage.setItem('chat-font-size', String(chatFontSize))
-  }, [chatFontSize])
-  useEffect(() => {
-    const unsub = window.api?.onFontSizeShortcut?.((delta, reset) => {
-      setChatFontSize(prev => {
-        if (reset) return 13
-        return Math.min(18, Math.max(11, prev + delta))
-      })
-    })
-    return () => unsub?.()
-  }, [])
-  useEffect(() => {
-    const onFontSizeChange = (e: Event) => {
-      const { size } = (e as CustomEvent).detail as { size: number }
-      setChatFontSize(size)
-    }
-    window.addEventListener('font-size-change', onFontSizeChange)
-    return () => window.removeEventListener('font-size-change', onFontSizeChange)
-  }, [])
-
-  // ── Sidebar tab switcher ref ──
-  const sidebarSwitchTabRef = useRef<((tab: SidebarTab) => void) | null>(null)
-  const [activeSidebarIconTab, setActiveSidebarIconTab] = useState<SidebarTab | null>(null)
-
-  // ── Session metadata for StatusBar ──
-  const [sessionTitle, setSessionTitle] = useState<string | undefined>(undefined)
-  const [sessionCreatedAt, setSessionCreatedAt] = useState<number | undefined>(undefined)
-
-  // ── Follow-up suggestions ──
-  const [suggestions, setSuggestions] = useState<string[]>([])
-
-  // ── Snippet insert ──
   const [pendingInsert, setPendingInsert] = useState<string | undefined>(undefined)
-
   const handleReplyToMessage = useCallback((text: string) => {
     const quoted = text.split('\n').map(line => `> ${line}`).join('\n')
     setPendingInsert(quoted + '\n\n')
   }, [])
 
-  // ── Apply saved accent color + compact mode on startup ──
-  useEffect(() => {
-    const savedAccent = localStorage.getItem('accent-color')
-    if (savedAccent) {
-      document.documentElement.style.setProperty('--accent', savedAccent)
-      try { document.documentElement.style.setProperty('--accent-rgb', hexToRgb(savedAccent)) } catch { /* ignore */ }
-    }
-    window.api?.settingsGet().then(settings => {
-      if (settings.accentColor) {
-        document.documentElement.style.setProperty('--accent', settings.accentColor)
-        try { document.documentElement.style.setProperty('--accent-rgb', hexToRgb(settings.accentColor)) } catch { /* ignore */ }
-      }
-      const compact = !!settings.compactMode
-      if (compact) document.documentElement.setAttribute('data-compact', 'true')
-      setCompactMode(compact)
-      const sound = settings.soundEnabled !== false
-      soundEnabledRef.current = sound
-      setSoundEnabled(sound)
-      if (settings.customCSS) {
-        applyCustomCSS(settings.customCSS)
-      }
-    })
-  }, [])
-
-  // ── Sync accent color from SettingsPanel ──
-  useEffect(() => {
-    const onAccentChange = (e: Event) => {
-      const { color } = (e as CustomEvent).detail as { color: string }
-      document.documentElement.style.setProperty('--accent', color)
-      try { document.documentElement.style.setProperty('--accent-rgb', hexToRgb(color)) } catch { /* ignore */ }
-    }
-    window.addEventListener('accent-change', onAccentChange)
-    return () => window.removeEventListener('accent-change', onAccentChange)
-  }, [])
-
-  // ── Sync soundEnabledRef when settings are saved ──
-  useEffect(() => {
-    const onSettingsChanged = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { soundEnabled?: boolean; compactMode?: boolean; theme?: string }
-      const sound = detail.soundEnabled !== false
-      soundEnabledRef.current = sound
-      setSoundEnabled(sound)
-      if (detail.compactMode !== undefined) setCompactMode(!!detail.compactMode)
-      if (detail.theme) setTheme(detail.theme as 'dark' | 'light' | 'system')
-    }
-    window.addEventListener('settings:changed', onSettingsChanged)
-    return () => window.removeEventListener('settings:changed', onSettingsChanged)
-  }, [])
-
-  // R1444: CocosPanel 스크립트 편집기 연동 — 글로벌 이벤트로 파일 탭 열기
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const path = (e as CustomEvent<string>).detail
-      if (path) openFile(path)
-    }
-    window.addEventListener('cc:open-file', handler)
-    return () => window.removeEventListener('cc:open-file', handler)
-  }, [])
-
-  // ── Sidebar resize & collapse ──
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    () => localStorage.getItem('sidebar-collapsed') === 'true'
-  )
-  const [sidebarWidth, setSidebarWidth] = useState(
-    () => Number(localStorage.getItem('sidebar-width')) || 220
-  )
-  useEffect(() => { localStorage.setItem('sidebar-collapsed', String(sidebarCollapsed)) }, [sidebarCollapsed])
-  useEffect(() => { localStorage.setItem('sidebar-width', String(sidebarWidth)) }, [sidebarWidth])
-  const [isSidebarDragging, setIsSidebarDragging] = useState(false)
-  const sidebarDragStartX = useRef(0)
-  const sidebarDragStartW = useRef(0)
-
-  // ── Tab cycling ref ──
-  const openTabsRef = useRef(openTabs)
-  openTabsRef.current = openTabs
-
-  // ── Workspace cycling refs ──
-  const workspacesRef = useRef(workspaces)
-  workspacesRef.current = workspaces
-  const activeWsIdRef = useRef(activeWsId)
-  activeWsIdRef.current = activeWsId
+  // ── Sidebar ──
+  const sidebarSwitchTabRef = useRef<((tab: SidebarTab) => void) | null>(null)
+  const [activeSidebarIconTab, setActiveSidebarIconTab] = useState<SidebarTab | null>(null)
 
   // ── Project ref (stable reference for event handlers) ──
   const projectRef = useRef(project)
   projectRef.current = project
 
-  // Keep wsStateRef in sync for snapshot saving
-  wsStateRef.current = { messages: chat.messages, sessionId: chat.sessionId, openTabs, activeTab, ccPort: wsCCPort, webPreviewUrl: wsWebPreviewUrl }
-
-  // Init: restore all saved workspaces
-  useEffect(() => {
-    if (!window.api) return
-    window.api.getOpenWorkspaces().then(({ workspaces: saved, activePath }) => {
-      if (saved.length === 0) {
-        // Legacy fallback: load single current project
-        window.api.getCurrentProject().then(path => {
-          if (path) createOrSwitchWorkspace(path, true)
-        })
-        return
-      }
-      // Restore all workspaces with saved tab state
-      const newWorkspaces: Workspace[] = saved.map((ws, i) => ({
-        id: `ws-${Date.now()}-${i}`,
-        path: ws.path,
-        snapshot: {
-          messages: [],
-          sessionId: null,
-          openTabs: ws.openTabs.length > 0 ? ws.openTabs.filter((t: string) => t !== 'preview' && t !== 'scene') : ['chat'],
-          activeTab: ws.activeTab || 'chat',
-        },
-      }))
-      const targetPath = activePath ?? saved[saved.length - 1].path
-      const targetWs = newWorkspaces.find(w => w.path === targetPath) ?? newWorkspaces[newWorkspaces.length - 1]
-      setWorkspaces(newWorkspaces)
-      setActiveWsId(targetWs.id)
-      window.api?.setProject(targetWs.path)
-      project.setProject(targetWs.path)
-      // Apply the active workspace's saved tabs
-      setOpenTabs(targetWs.snapshot.openTabs)
-      activeTabRef.current = targetWs.snapshot.activeTab
-      setActiveTab(targetWs.snapshot.activeTab)
-    })
-  }, [])
-
-  // ── Workspace helpers ──
-
-  const saveCurrentSnapshot = () => {
-    if (!activeWsId) return
-    const cur = wsStateRef.current
-    // [C-2] scene/preview는 CC 연결 상태 의존 탭 → 스냅샷에서 제외
-    const safeTabs = cur.openTabs.filter(t => t !== 'preview' && t !== 'scene')
-    const safeActive: MainTab = cur.activeTab === 'scene' || cur.activeTab === 'preview'
-      ? (safeTabs[0] ?? 'chat')
-      : cur.activeTab
-    // [SEC-C9] messages는 스냅샷에 저장 안 함 — sessionId로 복원
-    const snap: WorkspaceSnapshot = { ...cur, openTabs: safeTabs, activeTab: safeActive, messages: [] }
-    setWorkspaces(prev => prev.map(ws => ws.id === activeWsId ? { ...ws, snapshot: snap } : ws))
-  }
-
-  const applySnapshot = (snap: WorkspaceSnapshot, path: string) => {
-    chat.hydrate(snap.messages, snap.sessionId)
-    const safeTabs = snap.openTabs.filter(t => t !== 'preview' && t !== 'scene')
-    // [C-1] activeTab이 scene/preview이면 'chat'으로 폴백
-    const safeActive: MainTab = snap.activeTab === 'scene' || snap.activeTab === 'preview'
-      ? 'chat'
-      : snap.activeTab
-    setOpenTabs(safeTabs)
-    activeTabRef.current = safeActive
-    setActiveTab(safeActive)
-    setWsCCPort(snap.ccPort ?? 9090)
-    setWsWebPreviewUrl(snap.webPreviewUrl ?? '')
-    setWsCCConnected(false)
-    window.api?.setProject(path)
-    project.setProject(path)
-  }
-
-  const createOrSwitchWorkspace = (path: string, skipSave = false) => {
-    const existing = workspaces.find(ws => ws.path === path)
-    if (existing) {
-      // Switch to existing workspace
-      if (!skipSave && activeWsId && activeWsId !== existing.id) {
-        saveCurrentSnapshot()
-      }
-      setActiveWsId(existing.id)
-      applySnapshot(existing.snapshot, path)
-    } else {
-      // Create new workspace
-      if (!skipSave && activeWsId) saveCurrentSnapshot()
-      const id = `ws-${Date.now()}`
-      const snap = { ...EMPTY_SNAPSHOT }
-      setWorkspaces(prev => [...prev, { id, path, snapshot: snap }])
-      setActiveWsId(id)
-      applySnapshot(snap, path)
-    }
-  }
-
-  const handleOpenFolder = async () => {
-    const path = await window.api?.openFolder()
-    if (!path) return
-    createOrSwitchWorkspace(path)
-  }
-
-  const switchWorkspace = (id: string) => {
-    if (id === activeWsId) return
-    saveCurrentSnapshot()
-    const target = workspaces.find(ws => ws.id === id)
-    if (!target) return
-    setActiveWsId(id)
-    applySnapshot(target.snapshot, target.path)
-  }
-
-  const closeWorkspace = (id: string) => {
-    const next = workspaces.filter(ws => ws.id !== id)
-    setWorkspaces(next)
-    if (activeWsId === id && next.length > 0) {
-      const fallback = next[next.length - 1]
-      setActiveWsId(fallback.id)
-      applySnapshot(fallback.snapshot, fallback.path)
-    }
-  }
-
-  // ── File tabs helpers ──
-
+  // ── File tab helpers ──
   const openFile = (path: string) => {
     const normalizedPath = path.toLowerCase().replace(/\\/g, '/')
     setOpenTabs(prev => {
@@ -864,11 +208,11 @@ function AppContent() {
     })
   }
 
-  const closeActiveFileTab = () => {
+  const closeActiveFileTab = useCallback(() => {
     const cur = activeTabRef.current
     // [M-6] scene/preview 탭은 CC 연결 의존 탭 → Ctrl+W로 닫기 불가
     if (cur !== 'chat' && cur !== 'scene' && cur !== 'preview') closeFileTab(cur)
-  }
+  }, [])
 
   // ── CC layout helpers ──
   const handleCCSplitDragStart = (e: React.MouseEvent) => {
@@ -903,32 +247,6 @@ function AppContent() {
     localStorage.setItem('cc-layout-mode', mode)
   }
 
-  // ── Sound toggle (from palette) ──
-  const handleToggleSound = async () => {
-    const settings = await window.api?.settingsGet()
-    if (!settings) return
-    const newVal = !soundEnabledRef.current
-    await window.api?.settingsSave({ ...settings, soundEnabled: newVal })
-    soundEnabledRef.current = newVal
-    setSoundEnabled(newVal)
-    window.dispatchEvent(new CustomEvent('settings:changed', { detail: { ...settings, soundEnabled: newVal } }))
-  }
-
-  // ── Compact mode toggle (from palette) ──
-  const handleToggleCompact = async () => {
-    const settings = await window.api?.settingsGet()
-    if (!settings) return
-    const newVal = !compactMode
-    await window.api?.settingsSave({ ...settings, compactMode: newVal })
-    if (newVal) {
-      document.documentElement.setAttribute('data-compact', 'true')
-    } else {
-      document.documentElement.removeAttribute('data-compact')
-    }
-    setCompactMode(newVal)
-    window.dispatchEvent(new CustomEvent('settings:changed', { detail: { ...settings, compactMode: newVal } }))
-  }
-
   // ── Export current session as markdown ──
   const handleExportMarkdown = async () => {
     if (!chat.sessionId) return
@@ -937,146 +255,41 @@ function AppContent() {
     else if (result?.error) toast('내보내기 실패: ' + result.error, 'error')
   }
 
-  // ── Persist workspace list (with tab state) ──
-  useEffect(() => {
-    if (workspaces.length === 0) return
-    const wsData = workspaces.map(w => {
-      if (w.id === activeWsId) {
-        const safeTabs = openTabs.filter(t => t !== 'scene' && t !== 'preview')
-        const safeActive = activeTab === 'scene' || activeTab === 'preview' ? 'chat' : activeTab
-        return { path: w.path, openTabs: safeTabs, activeTab: safeActive }
-      }
-      return { path: w.path, openTabs: w.snapshot.openTabs, activeTab: w.snapshot.activeTab }
-    })
-    const activePath = workspaces.find(w => w.id === activeWsId)?.path ?? null
-    window.api?.setOpenWorkspaces(wsData, activePath)
-  }, [workspaces, activeWsId, openTabs, activeTab])
+  // ── Keyboard shortcuts ──
+  useKeyboardShortcuts({
+    setPaletteOpen,
+    paletteOpen,
+    shortcutsOpen,
+    setShortcutsOpen,
+    setSettingsOpen,
+    setSidebarCollapsed,
+    setTerminalOpen,
+    setFocusMode,
+    handleToggleHQ,
+    chatClearMessages: chat.clearMessages,
+    switchToChat,
+    setChatSearchTrigger,
+    openTabs,
+    activeTabRef,
+    setActiveTab,
+    switchWorkspace,
+    closeWorkspace,
+    workspaces,
+    activeWsId,
+    setProjectModel: project.setModel,
+  })
 
-  // ── Smart early title: generate title from first user message (non-blocking) ──
-  const earlyTitledSessionsRef = useRef<Set<string>>(new Set())
-  const prevMessageCountRef = useRef(0)
+  // ── cc:open-file event ──
   useEffect(() => {
-    const userMsgs = chat.messages.filter(m => m.role === 'user')
-    const prevCount = prevMessageCountRef.current
-    prevMessageCountRef.current = chat.messages.length
-    // Trigger only when transitioning to exactly 1 user message (first send)
-    if (userMsgs.length !== 1 || prevCount !== 0) return
-    const sid = chat.sessionId
-    if (!sid || earlyTitledSessionsRef.current.has(sid)) return
-    earlyTitledSessionsRef.current.add(sid)
-    const userMessage = userMsgs[0].text
-    window.api?.generateTitle({ userMessage })
-      .then(title => {
-        if (title && sid) {
-          window.api?.sessionRename(sid, title)
-            .then(() => window.dispatchEvent(new CustomEvent('session:saved')))
-        }
-      })
-      .catch(() => { /* silent: post-streaming fallback will handle */ })
-  }, [chat.messages, chat.sessionId])
-
-  // ── Auto-save session ──
-  const prevIsStreamingRef = useRef(false)
-  const autoTitledSessionsRef = useRef<Set<string>>(new Set())
-  const autoTaggedSessionsRef = useRef<Set<string>>(new Set())
-  useEffect(() => {
-    const wasStreaming = prevIsStreamingRef.current
-    prevIsStreamingRef.current = chat.isStreaming
-    if (!wasStreaming && chat.isStreaming) {
-      setSuggestions([])
+    const handler = (e: Event) => {
+      const path = (e as CustomEvent<string>).detail
+      if (path) openFile(path)
     }
-    if (wasStreaming && !chat.isStreaming && chat.sessionId && project.currentPath && chat.messages.length > 0) {
-      const firstUser = chat.messages.find(m => m.role === 'user')
-      const title = firstUser ? firstUser.text.replace(/\n/g, ' ').slice(0, 60) : 'Untitled'
+    window.addEventListener('cc:open-file', handler)
+    return () => window.removeEventListener('cc:open-file', handler)
+  }, [])
 
-      // Auto-title: 첫 번째 응답 완료 시 Haiku API로 제목 생성
-      const userMsgs = chat.messages.filter(m => m.role === 'user')
-      const assistantMsgs = chat.messages.filter(m => m.role === 'assistant')
-      if (
-        userMsgs.length === 1 && assistantMsgs.length === 1 &&
-        !autoTitledSessionsRef.current.has(chat.sessionId) &&
-        !earlyTitledSessionsRef.current.has(chat.sessionId)
-      ) {
-        const sid = chat.sessionId
-        autoTitledSessionsRef.current.add(sid)
-        const userText = userMsgs[0].text
-        const assistantText = assistantMsgs[0].text
-        window.api?.sessionGenerateTitle(userText, assistantText)
-          .then(({ title }) => {
-            if (title && sid) {
-              window.api?.sessionRename(sid, title)
-                .then(() => window.dispatchEvent(new CustomEvent('session:saved')))
-            }
-          })
-          .catch(() => {
-            // fallback: user 메시지 앞 30자
-            const rawText = userText.replace(/\n/g, ' ').trim()
-            let fallbackTitle = rawText
-            if (rawText.length > 30) {
-              const truncated = rawText.slice(0, 30)
-              const lastSpace = truncated.lastIndexOf(' ')
-              fallbackTitle = lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated
-            }
-            if (fallbackTitle && sid) {
-              window.api?.sessionRename(sid, fallbackTitle)
-                .then(() => window.dispatchEvent(new CustomEvent('session:saved')))
-            }
-          })
-
-        // 자동 태그 생성
-        if (!autoTaggedSessionsRef.current.has(sid)) {
-          autoTaggedSessionsRef.current.add(sid)
-          window.api?.sessionGenerateTags(userText, assistantText)
-            .then(({ tags }) => {
-              if (tags.length > 0 && sid) {
-                window.api?.sessionTag(sid, tags)
-                  .then(() => window.dispatchEvent(new CustomEvent('session:saved')))
-              }
-            })
-            .catch(() => { /* 태그 생성 실패 시 무시 */ })
-        }
-      }
-
-      const sessionCreated = chat.messages[0]?.timestamp ?? Date.now()
-      setSessionTitle(title)
-      setSessionCreatedAt(sessionCreated)
-      window.api?.sessionSave({
-        id: chat.sessionId, title,
-        cwd: project.currentPath,
-        model: project.selectedModel,
-        messages: chat.messages,
-        createdAt: sessionCreated,
-        updatedAt: Date.now(),
-      }).then(() => window.dispatchEvent(new CustomEvent('session:saved')))
-
-      // Desktop notification on session complete
-      if ('Notification' in window) {
-        const last = chat.messages.filter(m => m.role === 'assistant').pop()
-        const preview = last?.text?.slice(0, 100)?.replace(/\n/g, ' ') ?? '응답이 완료되었습니다'
-        if (Notification.permission === 'granted') {
-          new window.Notification('클로드', { body: preview, silent: false })
-        } else if (Notification.permission === 'default') {
-          Notification.requestPermission().then(perm => {
-            if (perm === 'granted') {
-              new window.Notification('클로드', { body: preview, silent: false })
-            }
-          })
-        }
-      }
-
-      // Follow-up suggestions
-      const lastAssistant = chat.messages.filter(m => m.role === 'assistant').pop()
-      const lastUser = chat.messages.filter(m => m.role === 'user').pop()
-      if (lastAssistant?.text && lastUser?.text) {
-        setSuggestions([])
-        window.api?.suggestFollowUps?.(lastAssistant.text, lastUser.text)
-          .then(result => { setSuggestions(result ?? []) })
-          .catch(() => { /* silent */ })
-      }
-    }
-  }, [chat.isStreaming])
-
-  // ── Claude IPC (Chat Adapter) ──
+  // ── Chat adapter ──
   useEffect(() => {
     registerChatCommands()
     return initChatAdapter({
@@ -1093,7 +306,7 @@ function AppContent() {
       },
       onResult: (cost, inputTokens, outputTokens) => {
         setTimeout(() => setActiveAgents([]), 5000)
-        project.addCost(cost, inputTokens, outputTokens)
+        projectRef.current.addCost(cost, inputTokens, outputTokens)
         recordCost(cost, inputTokens, outputTokens)
         if (soundEnabledRef.current) playCompletionSound()
       },
@@ -1107,153 +320,6 @@ function AppContent() {
     if (!window.api) return
     return window.api.onCloseTab(closeActiveFileTab)
   }, [closeActiveFileTab])
-
-  // ── Keyboard shortcuts ──
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'p') {
-        e.preventDefault()
-        setPaletteOpen(o => !o)
-      } else if (e.key === 'Escape' && paletteOpenRef.current) {
-        setPaletteOpen(false)
-      } else if (e.ctrlKey && (e.key === 'k' || e.key === 'n')) {
-        e.preventDefault()
-        chat.clearMessages()
-        window.api?.claudeClose()
-        switchToChat(true)
-      } else if (e.ctrlKey && e.key === 'Tab') {
-        e.preventDefault()
-        const tabs = openTabsRef.current
-        const cur = activeTabRef.current
-        const idx = tabs.indexOf(cur)
-        const next = e.shiftKey
-          ? tabs[(idx - 1 + tabs.length) % tabs.length]
-          : tabs[(idx + 1) % tabs.length]
-        activeTabRef.current = next
-        setActiveTab(next)
-      } else if (e.ctrlKey && e.key === 'b') {
-        e.preventDefault()
-        setSidebarCollapsed(c => !c)
-      } else if (e.ctrlKey && e.key === 't') {
-        e.preventDefault()
-        setTerminalOpen(o => !o)
-      } else if (e.ctrlKey && (e.key === '?' || (e.shiftKey && e.key === '/'))) {
-        e.preventDefault()
-        setShortcutsOpen(o => !o)
-      } else if (e.key === '?' && !e.ctrlKey && !e.altKey) {
-        const tag = (document.activeElement as HTMLElement)?.tagName
-        const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement as HTMLElement)?.isContentEditable
-        if (!isEditable) {
-          e.preventDefault()
-          setShortcutsOpen(o => !o)
-        }
-      } else if (e.key === 'Escape' && shortcutsOpen) {
-        setShortcutsOpen(false)
-      } else if (e.ctrlKey && e.key === '1') {
-        e.preventDefault()
-        projectRef.current.setModel('claude-opus-4-6')
-      } else if (e.ctrlKey && e.key === '2') {
-        e.preventDefault()
-        projectRef.current.setModel('claude-sonnet-4-6')
-      } else if (e.ctrlKey && e.key === '3') {
-        e.preventDefault()
-        projectRef.current.setModel('claude-haiku-4-5-20251001')
-      } else if (e.ctrlKey && e.shiftKey && e.key === 'F') {
-        e.preventDefault()
-        setFocusMode(f => !f)
-      } else if (e.ctrlKey && e.key === 'f') {
-        e.preventDefault()
-        if (activeTabRef.current === 'chat') {
-          setChatSearchTrigger(n => n + 1)
-        }
-      } else if (e.ctrlKey && e.key === ',') {
-        e.preventDefault()
-        setSettingsOpen(o => !o)
-      } else if (e.ctrlKey && e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
-        e.preventDefault()
-        const wsList = workspacesRef.current
-        if (wsList.length <= 1) return
-        const curId = activeWsIdRef.current
-        const idx = wsList.findIndex(ws => ws.id === curId)
-        const nextIdx = e.key === 'ArrowLeft'
-          ? (idx - 1 + wsList.length) % wsList.length
-          : (idx + 1) % wsList.length
-        switchWorkspace(wsList[nextIdx].id)
-      } else if (e.ctrlKey && e.shiftKey && e.key === 'H') {
-        e.preventDefault()
-        handleToggleHQ()
-      } else if (e.ctrlKey && e.shiftKey && e.key === 'W') {
-        e.preventDefault()
-        const wsList = workspacesRef.current
-        if (wsList.length > 1) {
-          closeWorkspace(activeWsIdRef.current)
-        }
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [chat.clearMessages, shortcutsOpen, handleToggleHQ])
-
-  // ── Sidebar drag ──
-  const handleSidebarDragMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault()
-    setIsSidebarDragging(true)
-    sidebarDragStartX.current = e.clientX
-    sidebarDragStartW.current = sidebarWidth
-  }
-  useEffect(() => {
-    if (!isSidebarDragging) return
-    document.body.style.userSelect = 'none'
-    document.body.style.cursor = 'col-resize'
-    const onMove = (e: MouseEvent) => {
-      const delta = e.clientX - sidebarDragStartX.current
-      setSidebarWidth(Math.max(160, Math.min(500, sidebarDragStartW.current + delta)))
-    }
-    const onUp = () => {
-      setIsSidebarDragging(false)
-      document.body.style.userSelect = ''
-      document.body.style.cursor = ''
-    }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-    return () => {
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
-      document.body.style.userSelect = ''
-      document.body.style.cursor = ''
-    }
-  }, [isSidebarDragging])
-
-  // ── AgentBay resize drag ──
-  useEffect(() => {
-    if (!isAgentBayDragging) return
-    const onMove = (e: MouseEvent) => {
-      const delta = e.clientX - agentBayDragStartX.current
-      setAgentBayWidth(Math.max(180, Math.min(480, agentBayDragStartW.current + delta)))
-    }
-    const onUp = () => setIsAgentBayDragging(false)
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
-  }, [isAgentBayDragging])
-
-  // ── Splitter drag ──
-  const handleSplitterMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true)
-    dragStartY.current = e.clientY
-    dragStartH.current = bottomHeight
-  }
-  useEffect(() => {
-    if (!isDragging) return
-    const onMove = (e: MouseEvent) => {
-      const delta = dragStartY.current - e.clientY
-      setBottomHeight(Math.max(80, Math.min(600, dragStartH.current + delta)))
-    }
-    const onUp = () => setIsDragging(false)
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
-  }, [isDragging])
 
   // ── Edit & resend ──
   const handleEditResend = useCallback((messageId: string, newText: string) => {
@@ -1488,7 +554,7 @@ function AppContent() {
           </div>
         </div>
 
-        {/* Sidebar resize handle — 사이드바 밖, 메인 영역 앞 */}
+        {/* Sidebar resize handle */}
         {!sidebarCollapsed && !focusMode && (
           <div
             onMouseDown={handleSidebarDragMouseDown}
@@ -1502,13 +568,11 @@ function AppContent() {
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(82,139,255,0.3)' }}
             onMouseLeave={e => { if (!isSidebarDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
           >
-            {/* 경계선 */}
             <div style={{
               position: 'absolute', top: 0, bottom: 0, left: 2, width: 1,
               background: isSidebarDragging ? 'var(--accent)' : 'var(--border)',
               pointerEvents: 'none',
             }} />
-            {/* 드래그 중 width 툴팁 */}
             {isSidebarDragging && (
               <div style={{
                 position: 'absolute', top: 8, left: 8,
