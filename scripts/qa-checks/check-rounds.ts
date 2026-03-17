@@ -40,6 +40,20 @@ export type LogFn = (level: 'pass' | 'warning' | 'critical', category: string, m
 // File content cache to avoid reading the same file multiple times
 const fileCache = new Map<string, string | null>()
 
+function readDirAll(dirPath: string): string {
+  const entries = readdirSync(dirPath, { withFileTypes: true })
+  let result = ''
+  for (const e of entries) {
+    const ep = join(dirPath, e.name)
+    if (e.isDirectory()) {
+      result += readDirAll(ep)
+    } else if (e.name.endsWith('.ts') || e.name.endsWith('.tsx')) {
+      result += readFileSync(ep, 'utf-8') + '\n'
+    }
+  }
+  return result
+}
+
 function readCached(root: string, relPath: string): string | null {
   const fullPath = join(root, relPath)
   if (fileCache.has(fullPath)) return fileCache.get(fullPath)!
@@ -49,19 +63,6 @@ function readCached(root: string, relPath: string): string | null {
   }
   // 디렉토리인 경우 모든 .ts/.tsx 파일을 합쳐서 반환 (재귀)
   if (statSync(fullPath).isDirectory()) {
-    function readDirAll(dirPath: string): string {
-      const entries = readdirSync(dirPath, { withFileTypes: true })
-      let result = ''
-      for (const e of entries) {
-        const ep = join(dirPath, e.name)
-        if (e.isDirectory()) {
-          result += readDirAll(ep)
-        } else if (e.name.endsWith('.ts') || e.name.endsWith('.tsx')) {
-          result += readFileSync(ep, 'utf-8') + '\n'
-        }
-      }
-      return result
-    }
     let content = readDirAll(fullPath)
     // CocosPanel 디렉토리 읽기 시 도메인 플러그인도 포함
     if (relPath.includes('CocosPanel')) {

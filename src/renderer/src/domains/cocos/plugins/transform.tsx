@@ -510,6 +510,381 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
           </div>
         )
       })()}
+      {/* R1706: 일괄 회전 편집 */}
+      {sceneFile.root && (() => {
+        const applyBatchRot = async () => {
+          const v = parseFloat(batchRot)
+          if (isNaN(v)) return
+          await patchNodes(n => {
+            if (typeof n.rotation === 'number') return { ...n, rotation: v }
+            return { ...n, rotation: { x: 0, y: 0, z: v } }
+          }, `회전 °=${v} (${uuids.length}개) R1706`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전 ° (R1706)</span>
+            <input type="text" value={batchRot} onChange={e => setBatchRot(e.target.value)}
+              style={mkNiS(44)} placeholder="batchRot" title="일괄 회전값 (도)" />
+            <span onClick={applyBatchRot} style={mkBtnS('#a78bfa')}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            >적용</span>
+          </div>
+        )
+      })()}
+
+      {/* R1737: 앵커 일괄 설정 */}
+      {sceneFile.root && (() => {
+        const applyAnchor = async (ax: number, ay: number) => {
+          await patchNodes(n => {
+            const compensate = batchAnchorCompensate
+            if (compensate && n.size) {
+              const oldAx = n.anchor?.x ?? 0.5, oldAy = n.anchor?.y ?? 0.5
+              const w = n.size.x ?? n.size.width ?? 0, h = n.size.y ?? n.size.height ?? 0
+              const pos = n.position as { x: number; y: number; z?: number }
+              const dx = (ax - oldAx) * w, dy = (ay - oldAy) * h
+              return { ...n, anchor: { x: ax, y: ay }, position: { ...pos, x: pos.x + dx, y: pos.y + dy } }
+            }
+            return { ...n, anchor: { x: ax, y: ay } }
+          }, `앵커 일괄 설정 (${ax},${ay}) R1737`)
+        }
+        const presets: [string, number, number][] = [
+          ['TL',0,1],['TC',0.5,1],['TR',1,1],
+          ['ML',0,0.5],['MC',0.5,0.5],['MR',1,0.5],
+          ['BL',0,0],['BC',0.5,0],['BR',1,0],
+        ]
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>batchAnchor (R1737)</span>
+            {presets.map(([label, ax, ay]) => (
+              <span key={label} onClick={() => applyAnchor(ax, ay)}
+                style={mkBtnS('#fb923c')} title={`앵커 일괄 설정 (${ax},${ay})`}>{label}</span>
+            ))}
+            <label style={{ fontSize: 8, color: '#94a3b8', cursor: 'pointer' }}>
+              <input type="checkbox" checked={batchAnchorCompensate}
+                onChange={e => setBatchAnchorCompensate(e.target.checked)} style={{ marginRight: 2 }} />보정
+            </label>
+          </div>
+        )
+      })()}
+
+      {/* R1776: 회전 일괄 정규화 (0~360) */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyNormRot = async () => {
+          await patchNodes(n => {
+            if (typeof n.rotation === 'number') {
+              return { ...n, rotation: ((n.rotation % 360) + 360) % 360 }
+            }
+            const r = n.rotation as { x: number; y: number; z: number }
+            return { ...n, rotation: { ...r, z: ((r.z % 360) + 360) % 360 } }
+          }, `회전 정규화 0~360 (${uuids.length}개) R1776`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전 정규화 (R1776)</span>
+            <span onClick={applyNormRot} style={mkBtnS('#a78bfa')} title="회전값 0~360° 정규화">정규화</span>
+          </div>
+        )
+      })()}
+
+      {/* R1780: 크기배율 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyMult1780 = async (m: number) => {
+          await patchNodes(n => {
+            const sz = n.size as { x: number; y: number } | undefined
+            if (!sz) return n
+            return { ...n, size: { x: Math.round(sz.x * m), y: Math.round(sz.y * m) } }
+          }, `크기배율 ×${m} (${uuids.length}개) R1780`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기배율 (R1780)</span>
+            {[0.5, 2, 1.5, 0.75].map(m => (
+              <span key={m} onClick={() => applyMult1780(m)} style={mkBtnS('#22d3ee')} title={`크기배율 ×${m}`}>×{m}</span>
+            ))}
+          </div>
+        )
+      })()}
+
+      {/* R1781: 정수화 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyInt = async () => {
+          await patchNodes(n => {
+            const pos = n.position as { x: number; y: number; z?: number }
+            const sz = n.size as { x: number; y: number } | undefined
+            return {
+              ...n,
+              position: { ...pos, x: Math.round(pos.x), y: Math.round(pos.y) },
+              ...(sz ? { size: { x: Math.round(sz.x), y: Math.round(sz.y) } } : {}),
+            }
+          }, `정수화 pos+size (${uuids.length}개) R1781`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>정수화 (R1781)</span>
+            <span onClick={applyInt} style={mkBtnS('#34d399')} title="위치/크기 정수화">⊹int</span>
+          </div>
+        )
+      })()}
+
+      {/* R1809: 커스텀 배율 applyMult */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyMult = async () => {
+          const m = parseFloat(sizeMulInput)
+          if (isNaN(m) || m === 0) return
+          await patchNodes(n => {
+            const sz = n.size as { x: number; y: number } | undefined
+            if (!sz) return n
+            return { ...n, size: { x: Math.round(sz.x * m), y: Math.round(sz.y * m) } }
+          }, `커스텀 배율 ×${m} (${uuids.length}개) R1809`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>커스텀 배율 (R1809)</span>
+            <input type="text" value={sizeMulInput} onChange={e => setSizeMulInput(e.target.value)}
+              style={mkNiS(40)} title="배율 입력" />
+            <span onClick={applyMult} style={mkBtnS('#22d3ee')} title="applyMult 크기배율 적용">적용</span>
+          </div>
+        )
+      })()}
+
+      {/* R2494: 회전 델타 applyRotDelta */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const [rotDelta, setRotDelta] = useState<number>(15)
+        const applyRotDelta = async (dir: 1 | -1) => {
+          const d = rotDelta * dir
+          await patchNodes(n => {
+            if (typeof n.rotation === 'number') return { ...n, rotation: n.rotation + d }
+            const r = n.rotation as { x: number; y: number; z: number }
+            return { ...n, rotation: { ...r, z: r.z + d } }
+          }, `회전± ${d > 0 ? '+' : ''}${d}° (${uuids.length}개) R2494`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전± (R2494)</span>
+            <span onClick={() => applyRotDelta(-1)} style={mkBtnS('#a78bfa')} title="applyRotDelta -">-</span>
+            <input type="number" value={rotDelta} min={1} max={360} step={5}
+              onChange={e => setRotDelta(parseFloat(e.target.value) || 15)} style={mkNiS(40)} title="회전 델타 (°)" />
+            <span onClick={() => applyRotDelta(1)} style={mkBtnS('#a78bfa')} title="applyRotDelta +">+</span>
+          </div>
+        )
+      })()}
+
+      {/* R2495: 그리드 스냅 applySnap snapGrid 스냅px */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const [snapGrid, setSnapGrid2] = useState<number>(16)
+        const applySnap = async () => {
+          const g = snapGrid
+          if (g < 1) return
+          await patchNodes(n => {
+            const p = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...p, x: Math.round(p.x / g) * g, y: Math.round(p.y / g) * g } }
+          }, `스냅px=${g} (${uuids.length}개) R2495`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>snapGrid (R2495)</span>
+            <input type="number" value={snapGrid} min={1} max={256}
+              onChange={e => setSnapGrid2(Math.max(1, parseInt(e.target.value) || 16))} style={mkNiS(38)} title="스냅px 크기" />
+            <span onClick={applySnap} style={mkBtnS('#34d399')} title="applySnap 그리드 스냅">스냅</span>
+          </div>
+        )
+      })()}
+
+      {/* R2527: 스케일 X/Y 링크 토글 scaleLinked */}
+      {sceneFile.root && (() => {
+        const applyBatchScale = async () => {
+          const sx = parseFloat(batchScaleX), sy = parseFloat(batchScaleY)
+          if (isNaN(sx) && isNaN(sy)) return
+          await patchNodes(n => {
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, x: isNaN(sx) ? sc.x : sx, y: isNaN(sy) ? sc.y : sy } }
+          }, `scale (${batchScaleX}, ${batchScaleY}) (${uuids.length}개) R2527`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale (R2527)</span>
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>X</span>
+            <input type="text" value={batchScaleX}
+              onChange={e => { setBatchScaleX(e.target.value); if (scaleLinked) setBatchScaleY(e.target.value) }}
+              style={mkNiS(36)} title="scaleX" />
+            <label style={{ fontSize: 8, color: '#94a3b8', cursor: 'pointer' }}>
+              <input type="checkbox" checked={scaleLinked}
+                onChange={e => setScaleLinked(e.target.checked)} style={{ marginRight: 1 }} />🔗
+            </label>
+            <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>Y</span>
+            <input type="text" value={batchScaleY}
+              onChange={e => setBatchScaleY(e.target.value)}
+              style={mkNiS(36)} title="scaleY" />
+            <span onClick={applyBatchScale} style={mkBtnS('#fb923c')} title="스케일 적용">적용</span>
+          </div>
+        )
+      })()}
+
+      {/* R2528: 스케일 배율 버튼 applyScaleMult */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyScaleMult = async (m: number) => {
+          await patchNodes(n => {
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, x: sc.x * m, y: sc.y * m } }
+          }, `scale ×${m} (${uuids.length}개) R2528`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sc배율 (R2528)</span>
+            {[0.5, 0.75, 1.5, 2].map(m => (
+              <span key={m} onClick={() => applyScaleMult(m)} style={mkBtnS('#fb923c')} title={`applyScaleMult sc.x * m = ${m}`}>×{m}</span>
+            ))}
+          </div>
+        )
+      })()}
+
+      {/* R2536: 미러(flip) applyFlip ↔H ↕V */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyFlip = async (axis: 'x' | 'y') => {
+          await patchNodes(n => {
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, [axis]: -(sc[axis] ?? 1) } }
+          }, `flip ${axis} (${uuids.length}개) R2536`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>flip (R2536)</span>
+            <span onClick={() => applyFlip('x')} style={mkBtnS('#a78bfa')} title="applyFlip ↔H">↔H</span>
+            <span onClick={() => applyFlip('y')} style={mkBtnS('#a78bfa')} title="applyFlip ↕V">↕V</span>
+          </div>
+        )
+      })()}
+
+      {/* R2541: 스케일/회전 리셋 applyReset ↺1:1 ∠0° */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyReset = async (what: 'scale' | 'rot') => {
+          await patchNodes(n => {
+            if (what === 'scale') return { ...n, scale: { x: 1, y: 1, z: 1 } }
+            return { ...n, rotation: typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 } }
+          }, `${what} 리셋 (${uuids.length}개) R2541`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>리셋 (R2541)</span>
+            <span onClick={() => applyReset('scale')} style={mkBtnS('#fb923c')} title="applyReset scale">↺1:1</span>
+            <span onClick={() => applyReset('rot')} style={mkBtnS('#fb923c')} title="applyReset rotation">∠0°</span>
+          </div>
+        )
+      })()}
+
+      {/* R2542: 사이즈 정수화 applySzInt ⊹sz */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applySzInt = async () => {
+          await patchNodes(n => {
+            const sz = n.size as { x: number; y: number } | undefined
+            if (!sz) return n
+            return { ...n, size: { x: Math.round(sz.x), y: Math.round(sz.y) } }
+          }, `사이즈 정수화 (${uuids.length}개) R2542`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>사이즈 정수화 (R2542)</span>
+            <span onClick={applySzInt} style={mkBtnS('#34d399')} title="applySzInt ⊹sz">⊹sz</span>
+          </div>
+        )
+      })()}
+
+      {/* R2593: 랜덤 회전 applyRandRot 🎲rot */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyRandRot = async () => {
+          await patchNodes(n => {
+            const r = Math.floor(Math.random() * 360)
+            if (typeof n.rotation === 'number') return { ...n, rotation: r }
+            return { ...n, rotation: { x: 0, y: 0, z: r } }
+          }, `🎲rot 랜덤 회전 (${uuids.length}개) R2593`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤rot (R2593)</span>
+            <span onClick={applyRandRot} style={mkBtnS('#a78bfa')} title="applyRandRot 🎲rot">🎲rot</span>
+          </div>
+        )
+      })()}
+
+      {/* R2594: 랜덤 스케일 applyRandScale 🎲sc */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyRandScale = async () => {
+          await patchNodes(n => {
+            const sc = n.scale as { x: number; y: number; z?: number }
+            const factor = 0.5 + Math.random() * 1.5
+            return { ...n, scale: { ...sc, x: parseFloat((sc.x * factor).toFixed(2)), y: parseFloat((sc.y * factor).toFixed(2)) } }
+          }, `🎲sc 랜덤 스케일 (${uuids.length}개) R2594`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤sc (R2594)</span>
+            <span onClick={applyRandScale} style={mkBtnS('#fb923c')} title="applyRandScale 🎲sc">🎲sc</span>
+          </div>
+        )
+      })()}
+
+      {/* R2597: scale 배수 적용 scaleMulInput applyScaleMul ×0.5 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyScaleMul = async () => {
+          const m = parseFloat(scaleMulInput)
+          if (isNaN(m) || m === 0) return
+          await patchNodes(n => {
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, x: parseFloat((sc.x * m).toFixed(3)), y: parseFloat((sc.y * m).toFixed(3)) } }
+          }, `scale ×${m} (${uuids.length}개) R2597`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sc배수 (R2597)</span>
+            <input type="text" value={scaleMulInput} onChange={e => setScaleMulInput(e.target.value)}
+              style={mkNiS(40)} title="scaleMulInput 배수" />
+            <span onClick={applyScaleMul} style={mkBtnS('#fb923c')} title="applyScaleMul scale 배수 적용">적용</span>
+            <span onClick={() => { setScaleMulInput('0.5') }} style={mkBtnS('#94a3b8')} title="×0.5 프리셋">×0.5</span>
+          </div>
+        )
+      })()}
+
+      {/* R2608: rotation 스냅 applyRotSnap rot스냅 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const applyRotSnap = async (step: number) => {
+          await patchNodes(n => {
+            if (typeof n.rotation === 'number') return { ...n, rotation: Math.round(n.rotation / step) * step }
+            const r = n.rotation as { x: number; y: number; z: number }
+            return { ...n, rotation: { ...r, z: Math.round(r.z / step) * step } }
+          }, `rot스냅 ${step}° (${uuids.length}개) R2608`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot스냅 (R2608)</span>
+            {[15, 30, 45, 90].map(step => (
+              <span key={step} onClick={() => applyRotSnap(step)} style={mkBtnS('#a78bfa')} title={`applyRotSnap ${step}°`}>{step}°</span>
+            ))}
+          </div>
+        )
+      })()}
+
+      {/* R2612: rotation 오프셋 rotOffsetInput addRot rot+= (R2612) */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const [rotOffsetInput, setRotOffsetInput] = useState<string>('15')
+        const addRot = async () => {
+          const d = parseFloat(rotOffsetInput)
+          if (isNaN(d)) return
+          await patchNodes(n => {
+            if (typeof n.rotation === 'number') return { ...n, rotation: n.rotation + d }
+            const r = n.rotation as { x: number; y: number; z: number }
+            return { ...n, rotation: { ...r, z: r.z + d } }
+          }, `rot+= (R2612) ${d > 0 ? '+' : ''}${d}° (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot+= (R2612)</span>
+            <input type="text" value={rotOffsetInput} onChange={e => setRotOffsetInput(e.target.value)}
+              style={mkNiS(40)} title="rotOffsetInput 오프셋" />
+            <span onClick={addRot} style={mkBtnS('#a78bfa')} title="addRot rotation 오프셋 적용">적용</span>
+          </div>
+        )
+      })()}
     </div>
   )
 }

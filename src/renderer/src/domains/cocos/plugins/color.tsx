@@ -9,6 +9,11 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
   const { patchNodes, patchOrdered } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
 
+  // R1575: 색상 일괄 편집
+  const [batchColor, setBatchColor] = useState<string>('')
+  // R1745: 불투명도 퀵 프리셋
+  const [batchOpacity, setBatchOpacity] = useState<string>('')
+
   const [opGradFrom, setOpGradFrom] = useState<number>(255)
   const [opGradTo, setOpGradTo] = useState<number>(0)
   const [colorGradFrom, setColorGradFrom] = useState<string>('#ffffff')
@@ -33,9 +38,112 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
     color: 'var(--text-primary)', textAlign: 'center',
   })
 
+  // R1575: 색상 일괄 변경
+  const colorRgb = (() => {
+    if (!batchColor) return null
+    const m = batchColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+    if (m) return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16), a: 255 }
+    return null
+  })()
+
   return (
     <div>
       {batchMsg && <div style={{ fontSize: 9, color: '#4ade80', marginBottom: 4 }}>{batchMsg}</div>}
+
+      {/* R1575: 색상 일괄 설정 — 모든 선택 노드 색상 일괄 변경 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>색상</span>
+        <input type="color"
+          value={batchColor || '#ffffff'}
+          onChange={e => setBatchColor(e.target.value)}
+          style={{ width: 28, height: 22, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+          title="모든 선택 노드 색상 일괄 변경"
+        />
+        <input type="text" placeholder="#rrggbb (비워두면 유지)"
+          value={batchColor}
+          onChange={e => setBatchColor(e.target.value)}
+          style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
+        />
+        {batchColor && colorRgb && <span onClick={() => patchNodes(n => ({ ...n, color: colorRgb! }), `색상 적용 (${uuids.length}개)`)}
+          style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>적용</span>}
+        {batchColor && <span onClick={() => setBatchColor('')} style={{ fontSize: 9, padding: '1px 4px', cursor: 'pointer', color: 'var(--text-muted)' }}>✕</span>}
+      </div>
+
+      {/* R1745: 불투명도 퀵 프리셋 */}
+      <div style={{ display: 'flex', gap: 3, marginBottom: 4, alignItems: 'center' }}>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>Opacity</span>
+        {([0, 64, 128, 191, 255] as const).map(v => (
+          <span key={v}
+            onClick={() => { setBatchOpacity(String(v)); patchNodes(n => ({ ...n, opacity: v }), `opacity=${v} (${uuids.length}개)`) }}
+            title={`opacity ${Math.round(v / 255 * 100)}%`}
+            style={{ fontSize: 8, padding: '0 3px', borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', color: batchOpacity === String(v) ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+          >{Math.round(v / 255 * 100)}%</span>
+        ))}
+      </div>
+
+      {/* R1751: 색상 퀵 프리셋 */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 6, flexWrap: 'wrap' }}>
+        {([['#ffffff', '흰'], ['#000000', '검'], ['#ff0000', '빨'], ['#00ff00', '초'], ['#0000ff', '파'], ['#ffff00', '노']] as [string, string][]).map(([hex, label]) => (
+          <span key={hex}
+            onClick={() => {
+              setBatchColor(hex)
+              const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16)
+              patchNodes(n => ({ ...n, color: { r, g, b, a: n.color?.a ?? 255 } }), `색상 ${label} (${uuids.length}개)`)
+            }}
+            title={hex}
+            style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', background: batchColor === hex ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${batchColor === hex ? '#888' : '#333'}`, borderRadius: 2, color: '#aaa', userSelect: 'none' }}
+          >{label}</span>
+        ))}
+      </div>
+
+      {/* R1756: 전체 필드 초기화 버튼 */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+        <span onClick={() => { setBatchOpacity(''); setBatchColor('') }}
+          title="모든 배치 입력 필드 초기화"
+          style={{ fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}>↺ 초기화</span>
+      </div>
+
+      {/* R2538: 랜덤 색상 할당 — 각 선택 노드에 서로 다른 색상 적용 */}
+      {sceneFile.root && uuids.length >= 1 && (() => {
+        const palette = ['#ff6b6b','#ffa94d','#ffd43b','#69db7c','#38d9a9','#4dabf7','#748ffc','#da77f2','#f783ac','#a9e34b']
+        const applyRandColor = async () => {
+          if (!sceneFile.root) return
+          const collected: CCSceneNode[] = []
+          function collectRC(n: CCSceneNode) { if (uuidSet.has(n.uuid)) collected.push(n); n.children.forEach(collectRC) }
+          collectRC(sceneFile.root)
+          const colorMap = new Map<string, { r: number; g: number; b: number; a: number }>()
+          collected.forEach((n, i) => {
+            const hex = palette[i % palette.length]
+            const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16)
+            colorMap.set(n.uuid, { r, g, b, a: 255 })
+          })
+          await patchNodes(n => {
+            const c = colorMap.get(n.uuid)
+            return c ? { ...n, color: c } : { ...n }
+          }, `랜덤 색상 (${collected.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 4, marginBottom: 4, alignItems: 'center' }}>
+            <span onClick={applyRandColor} title={`각 선택 노드에 서로 다른 색상 할당 (R2538)`}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(217,119,6,0.5)', color: '#fbbf24', userSelect: 'none', background: 'rgba(217,119,6,0.05)' }}>🎲 색상</span>
+          </div>
+        )
+      })()}
+
+      {/* R2699: color 리셋 (255,255,255,255) */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyColorReset = async () => {
+          if (!sceneFile.root) return
+          await patchNodes(n => ({ ...n, color: { r: 255, g: 255, b: 255, a: 255 } }), `color → 흰색 리셋 (${uuids.length}개)`)
+        }
+        return (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2699)</span>
+            <span onClick={applyColorReset} title="color → (255,255,255,255) 흰색 리셋 (R2699)"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>리셋</span>
+          </div>
+        )
+      })()}
 
       {/* R2525: 오파시티 그라디언트 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
@@ -175,10 +283,13 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
 
       {/* R2657: opacity 255 일괄 리셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyOpacityReset = async () => {
+          await patchNodes(n => ({ ...n, opacity: 255 }), `op리셋 (${uuids.length}개)`)
+        }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op리셋 (R2657)</span>
-            <span onClick={() => patchNodes(n => ({ ...n, opacity: 255 }), `opacity 255 리셋 (${uuids.length}개)`)}
+            <span onClick={applyOpacityReset}
               title="선택 노드 opacity를 255(불투명)으로 리셋 (R2657)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>op=255</span>
           </div>
@@ -245,10 +356,13 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
 
       {/* R2693: 랜덤 색상 일괄 적용 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyRandomColor = async () => {
+          await patchNodes(n => ({ ...n, color: { r: Math.round(Math.random() * 255), g: Math.round(Math.random() * 255), b: Math.round(Math.random() * 255), a: n.color?.a ?? 255 } }), `랜덤 색상 (${uuids.length}개)`)
+        }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2693)</span>
-            <span onClick={() => patchNodes(n => ({ ...n, color: { r: Math.round(Math.random() * 255), g: Math.round(Math.random() * 255), b: Math.round(Math.random() * 255), a: n.color?.a ?? 255 } }), `랜덤 색상 (${uuids.length}개)`)}
+            <span onClick={applyRandomColor}
               title="각 노드에 랜덤 RGB 색상 적용 (R2693)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(251,113,133,0.4)', color: '#fb7185', userSelect: 'none' }}>랜덤</span>
           </div>
@@ -257,13 +371,16 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
 
       {/* R2677: 색상 반전 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyColorInvert = async () => {
+          await patchNodes(n => {
+            const c = n.color ?? { r: 255, g: 255, b: 255, a: 255 }
+            return { ...n, color: { r: 255 - c.r, g: 255 - c.g, b: 255 - c.b, a: c.a } }
+          }, `color 반전 (${uuids.length}개)`)
+        }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color반전 (R2677)</span>
-            <span onClick={() => patchNodes(n => {
-              const c = n.color ?? { r: 255, g: 255, b: 255, a: 255 }
-              return { ...n, color: { r: 255 - c.r, g: 255 - c.g, b: 255 - c.b, a: c.a } }
-            }, `color 반전 (${uuids.length}개)`)}
+            <span onClick={applyColorInvert}
               title="색상 반전 (255-r, 255-g, 255-b) (R2677)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(244,114,182,0.4)', color: '#f472b6', userSelect: 'none' }}>반전</span>
           </div>
