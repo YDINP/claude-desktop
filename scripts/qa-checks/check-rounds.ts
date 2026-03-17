@@ -47,10 +47,27 @@ function readCached(root: string, relPath: string): string | null {
     fileCache.set(fullPath, null)
     return null
   }
-  // 디렉토리인 경우 모든 .ts/.tsx 파일을 합쳐서 반환
+  // 디렉토리인 경우 모든 .ts/.tsx 파일을 합쳐서 반환 (재귀)
   if (statSync(fullPath).isDirectory()) {
-    const files = readdirSync(fullPath).filter(f => f.endsWith('.ts') || f.endsWith('.tsx'))
-    const content = files.map(f => readFileSync(join(fullPath, f), 'utf-8')).join('\n')
+    function readDirAll(dirPath: string): string {
+      const entries = readdirSync(dirPath, { withFileTypes: true })
+      let result = ''
+      for (const e of entries) {
+        const ep = join(dirPath, e.name)
+        if (e.isDirectory()) {
+          result += readDirAll(ep)
+        } else if (e.name.endsWith('.ts') || e.name.endsWith('.tsx')) {
+          result += readFileSync(ep, 'utf-8') + '\n'
+        }
+      }
+      return result
+    }
+    let content = readDirAll(fullPath)
+    // CocosPanel 디렉토리 읽기 시 도메인 플러그인도 포함
+    if (relPath.includes('CocosPanel')) {
+      const pluginsPath = join(root, 'src/renderer/src/domains/cocos/plugins')
+      if (existsSync(pluginsPath)) content += readDirAll(pluginsPath)
+    }
     fileCache.set(fullPath, content)
     return content
   }
