@@ -5,7 +5,7 @@
 
 ## 현재 이슈
 
-없음 (QA 2615 Pass / 0 Warning / 0 Critical)
+없음 (QA 2616 Pass / 0 Warning / 0 Critical)
 
 ---
 
@@ -33,27 +33,29 @@
 - AppLayout.tsx 신규 (675줄)
 
 ### Phase E — CocosPanel/index.tsx 분리 ✅ DONE (commit: 0689fd08)
+
 - index.tsx 3,220→138줄
 - 6개 파일 분리: BuildTab, SceneTab, HierarchyPanel, ProjectHeader, ProjectToolbar, useCCFileProjectUI
 
-### Phase F — NodeInspector.tsx 분리 ✅ DONE (commits: 1ba6de35, 986711d4)
-- NodeInspector.tsx 9,198줄 → NodeInspector/ 디렉토리 (21개 파일)
-- 구조:
-  - index.tsx (17줄) — thin shell
-  - constants.tsx (75줄) — COMP_ICONS, COMP_DESCRIPTIONS, SpriteThumb
-  - useNodeInspector.tsx (816줄) — controller hook (전체 state + handlers)
-  - NodeInspectorHeader.tsx (794줄) — 헤더/breadcrumb/stats/버튼
-  - NodeTransformSection.tsx (779줄) — 트랜스폼 편집
-  - NodeInspectorView.tsx (656줄) — 컴포넌트 목록 shell
-  - ComponentQuickEdit.tsx (92줄) — 렌더러 라우터
-  - GenericPropertyEditor.tsx (537줄) — 범용 속성 편집기
+### Phase F(NodeInspector) + useCCFileProjectUI 훅 분리 ✅ DONE (commits: 1ba6de35, 986711d4, 2cb2df45)
+- `NodeInspector/` 디렉토리 21개 파일 분리
+  - useNodeInspector.tsx 816→683줄 (useNodeClipboards, useNodePresets 추가 분리)
   - renderers/ (10개 파일) — 타입별 Quick Edit 렌더러
+- `useCCFileProjectUI.ts` 1,719→532줄
+  - useHierarchyPanel.ts (88줄), useNodeSelection.ts (117줄)
+  - useKeyboardShortcuts.ts (283줄), useSceneActions.ts (249줄), useNodeOperations.ts (611줄)
+
+### /ultrawork 리팩토링 ✅ DONE (commit: 888662e6)
+- AssetBrowser.tsx 880→639줄 (assetUtils.ts, AssetThumbnailPopup.tsx, TreeSearch.tsx 분리)
+- SceneTree.tsx 530→360줄 (GroupPanel.tsx 분리)
+- useNodeInspector.tsx 816→683줄 (useNodeClipboards.ts, useNodePresets.ts 분리)
 
 ---
 
-## 최근 완료 라운드 (R2711~R2725)
+## 최근 완료 라운드 (R2711~R2726)
 
 - [x] R2711~R2725 — SceneView/BatchInspector 기능 추가 (ROADMAP 참조)
+- [x] R2726 — SceneView collapsedUuids 연동 (commit: ef81874a)
 
 ---
 
@@ -65,24 +67,24 @@
 | `src/renderer/src/components/shared/AppLayout.tsx` | 675 | 렌더링 JSX |
 | `CocosPanel/BatchInspector.tsx` | 66 | Phase C 완료 (thin shell) |
 | `CocosPanel/index.tsx` | 138 | Phase E 완료 (3,220→138) |
-| `CocosPanel/useCCFileProjectUI.ts` | 1,719 | Phase E — 상태/핸들러 훅 |
+| `CocosPanel/useCCFileProjectUI.ts` | 532 | Phase F 완료 (1,719→532) |
 | `CocosPanel/NodeInspector/index.tsx` | 17 | Phase F 완료 (9,198→분리) |
-| `CocosPanel/NodeInspector/useNodeInspector.tsx` | 816 | Phase F — controller hook |
+| `CocosPanel/NodeInspector/useNodeInspector.tsx` | 683 | /ultrawork 추가 분리 |
 | `CocosPanel/NodeInspector/renderers/*.tsx` | 10개 | Phase F — 타입별 렌더러 |
+| `SceneView/AssetBrowser.tsx` | 639 | /ultrawork 리팩토링 |
+| `SceneView/SceneTree.tsx` | 360 | /ultrawork 리팩토링 |
 | `src/preload/index.ts` | 621 | namespacing 예정 |
 
 ---
 
 ## QA 상태
 
-- **현재**: 2615 Pass, 0 Warning, 0 Critical
+- **현재**: 2616 Pass, 0 Warning, 0 Critical
 - check-ipc.ts: handleSave 체크 → useCCFileProjectUI.ts 기준으로 업데이트됨
 
 ---
 
 ## 참고사항
 
-- BatchInspector 잔여 38개 `await saveScene: result.success` 처리 / Z-sort 특수 케이스
+- 다음 작업 후보: A(BatchInspector Z-order 일괄), D(BatchInspector 필터+액션 프리셋), R2727+(신기능)
 - npm audit 잔여 10개 low: electron-builder 체인 (빌드툴 전용, 런타임 무관)
-- 다음 라운드 제안: R2726+ (BatchInspector/SceneView 기능 추가)
-- useCCFileProjectUI.ts (1,719줄) — 추가 분리 가능하나 현재 단계에서는 허용

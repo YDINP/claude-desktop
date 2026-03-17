@@ -2644,6 +2644,7 @@ export const ROUND_CHECKS: RoundCheck[] = [
   { round: 'R2721-labelFontColor', file: 'src/renderer/src/components/sidebar/CocosPanel', keywords: ['labelFontColor', 'applyLabelFontColor'], operator: 'and', failLevel: 'warning', passMsg: 'R2721 Label 폰트 색상 일괄 구현 완료', failMsg: 'R2721 Label 폰트 색상 미구현', failFile: 'CocosPanel.tsx' },
   { round: 'R2725-batchLock', file: 'src/renderer/src/components/sidebar/CocosPanel', keywords: ['일괄 잠금', 'lockedUuids', 'onSetLockedUuids'], operator: 'and', failLevel: 'warning', passMsg: 'R2725 BatchInspector 일괄 lock/unlock 구현 완료', failMsg: 'R2725 BatchInspector 일괄 잠금 미구현', failFile: 'CocosPanel.tsx' },
   { round: 'R2726-collapsedSync', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['collapsedUuids', 'R2726'], operator: 'and', failLevel: 'warning', passMsg: 'R2726 SceneView collapsedUuids 연동 구현 완료', failMsg: 'R2726 SceneView 그룹 접기 미구현', failFile: 'CCFileSceneView.tsx' },
+  { round: 'R2727-batchPreset', file: 'src/renderer/src/domains/cocos/plugins/preset.tsx', keywords: ['R2727', 'ActionPreset', 'applyPreset', 'STORAGE_KEY'], operator: 'and', failLevel: 'warning', passMsg: 'R2727 BatchInspector 액션 프리셋 저장/불러오기 구현 완료', failMsg: 'R2727 액션 프리셋 미구현', failFile: 'preset.tsx' },
 ]
 
 export const MULTI_FILE_CHECKS: MultiFileCheck[] = [

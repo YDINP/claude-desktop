@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-17 (R2725까지 완료 — 아키텍처 리팩토링 Phase A-D.2 완료, QA Pass 2615 / Warning 0 / Critical 0)
+> 마지막 업데이트: 2026-03-17 (R2726까지 완료 — 아키텍처 리팩토링 Phase A-F + /ultrawork 리팩토링 완료, QA Pass 2616 / Warning 0 / Critical 0)
 
 ## 개발 루프 실행 방식
 
@@ -916,4 +916,9 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2723 | BatchInspector 이름 접두사 자동 그룹 선택 | ✅ |
 | R2725 | BatchInspector 선택 노드 일괄 lock/unlock | ✅ |
 | 아키텍처 리팩토링 | Phase A(Kernel) + B(Chat 도메인) + C(Cocos Plugin System) + D(App.tsx 훅 추출 1898→961줄) + D.2(JSX→AppLayout 961→448줄) — commit ddf3bff7 | ✅ |
+| 리팩토링 Phase E | CocosPanel/index.tsx 3,220→138줄 (6개 파일 분리: BuildTab, SceneTab, HierarchyPanel, ProjectHeader, ProjectToolbar, useCCFileProjectUI) — commit 0689fd08 | ✅ |
+| 리팩토링 Phase C | NodeInspector.tsx 9,198줄 → NodeInspector/ 디렉토리 21개 파일 (useNodeInspector, NodeInspectorHeader, NodeTransformSection, renderers/ 10개) — commits 1ba6de35, 986711d4 | ✅ |
+| 리팩토링 Phase F | useCCFileProjectUI.ts 1,719→532줄 (useHierarchyPanel, useNodeSelection, useKeyboardShortcuts, useSceneActions, useNodeOperations 분리) — commit 2cb2df45 | ✅ |
+| R2726 | SceneView collapsedUuids 연동 — 씬 트리에서 접힌 노드 자식을 SceneView에서도 숨김 (flatNodes useMemo + collapsedUuids prop) | ✅ |
+| /ultrawork 리팩토링 | AssetBrowser.tsx 880→639줄(assetUtils/AssetThumbnailPopup/TreeSearch 분리), SceneTree.tsx 530→360줄(GroupPanel 분리), useNodeInspector.tsx 816→683줄(useNodeClipboards/useNodePresets 분리) — commit 888662e6 | ✅ |
 | electron 업그레이드 | 33→35.7.5 (ASAR Integrity Bypass 취약점 수정) | ✅ |

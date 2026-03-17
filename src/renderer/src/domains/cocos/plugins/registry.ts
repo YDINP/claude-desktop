@@ -8,6 +8,7 @@ import { DistributionPlugin } from './distribution'
 import { NamePlugin } from './name'
 import { ComponentPlugin } from './component'
 import { MiscPlugin } from './misc'
+import { PresetPlugin } from './preset'
 
 /** 등록된 모든 배치 플러그인 */
 export const BATCH_PLUGINS: BatchPlugin[] = [
@@ -52,6 +53,13 @@ export const BATCH_PLUGINS: BatchPlugin[] = [
     title: '기타',
     minNodes: 1,
     Component: MiscPlugin,
+  },
+  {
+    id: 'preset-group',
+    group: 'misc',
+    title: '프리셋',
+    minNodes: 1,
+    Component: PresetPlugin,
   },
 ]
 
