@@ -31,6 +31,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
     handleLabelEdit, handleAddNode, handleDuplicate, handleToggleActive,
     handleGroupNodes, handleAltDrag,
     nodeHistory,
+    collapsedUuids,
   } = ctx
 
   if (!sceneFile?.root) return null
@@ -136,6 +137,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
                 onReorderExtreme={handleReorderExtreme}
                 onAltDrag={handleAltDrag}
                 pulseUuid={pulseUuid}
+                collapsedUuids={collapsedUuids}
                 onSelect={uuid => {
                   if (!uuid) { onSelectNode(null); return }
                   const findNode = (n: CCSceneNode): CCSceneNode | null => {

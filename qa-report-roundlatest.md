@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-17T07:35:09.169Z
+> 2026-03-17T08:17:51.205Z
 
 ## Critical
 _없음_
@@ -2590,6 +2590,7 @@ _없음_
 - R2719 격자 스냅 구현 완료
 - R2721 Label 폰트 색상 일괄 구현 완료
 - R2725 BatchInspector 일괄 lock/unlock 구현 완료
+- R2726 SceneView collapsedUuids 연동 구현 완료
 - 파일 탭 미저장 ● 인디케이터 존재
 - UndoEntry prop 타입 지원 (Inspector 속성 변경 undo)
 - 씬뷰 노드 검색 하이라이트 존재

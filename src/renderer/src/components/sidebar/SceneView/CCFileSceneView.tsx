@@ -50,6 +50,8 @@ interface CCFileSceneViewProps {
   onReorderExtreme?: (uuid: string, to: 'first' | 'last') => void
   /** R2705: Alt+drag 노드 복제 — 원본 uuid + 드래그 목적지 x/y */
   onAltDrag?: (uuid: string, x: number, y: number) => void
+  /** R2726: 씬 트리 접힌 노드 — 자식을 SceneView에서 숨김 */
+  collapsedUuids?: Set<string>
 }
 
 /**
@@ -62,7 +64,7 @@ function sceneViewKey(scenePath: string) {
   return 'sv-view2-' + scenePath.replace(/[^a-zA-Z0-9]/g, '_').slice(-60)
 }
 
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme, onAltDrag }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme, onAltDrag, collapsedUuids }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>(() => {
     // R2486: 씬 전환 시 이전 뷰 상태 복원
@@ -429,6 +431,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const x = worldX + (typeof node.position === 'object' ? (node.position as { x: number }).x : 0)
       const y = worldY + (typeof node.position === 'object' ? (node.position as { y: number }).y : 0)
       result.push({ node, worldX: x, worldY: y, depth, parentUuid, siblingIdx, siblingTotal })
+      // R2726: 씬 트리에서 접힌 노드는 자식을 SceneView에서도 숨김
+      if (collapsedUuids?.has(node.uuid)) return
       for (let i = 0; i < node.children.length; i++) {
         walk(node.children[i], x, y, depth + 1, node.uuid, i, node.children.length)
       }
@@ -438,7 +442,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       walk(sceneFile.root.children[i], 0, 0, 0, null, i, sceneFile.root.children.length)
     }
     return result
-  }, [sceneFile])
+  }, [sceneFile, collapsedUuids])
 
   // 다중 선택 UUID 배열 (multiSelected Set → string[])
   const uuids = useMemo(() => Array.from(multiSelected), [multiSelected])
