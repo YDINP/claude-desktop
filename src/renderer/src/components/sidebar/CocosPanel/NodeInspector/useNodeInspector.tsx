@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import type { CCSceneNode, CCSceneFile } from '@shared/ipc-schema'
 import { type TransformSnapshot } from '../types'
-import { NOTES_KEY, RECENT_COMPS_KEY, INSPECTOR_COLLAPSED_KEY, COLLAPSED_COMPS_KEY, PROP_HISTORY_KEY, STYLE_PRESETS_KEY, FAV_PROPS_KEY } from './constants'
+import { NOTES_KEY, RECENT_COMPS_KEY, INSPECTOR_COLLAPSED_KEY, COLLAPSED_COMPS_KEY, PROP_HISTORY_KEY } from './constants'
+import { ScrubLabel } from '../utils'
+import { useNodeClipboards } from './useNodeClipboards'
+import { useNodePresets, type StylePreset } from './useNodePresets'
 
 interface UseNodeInspectorProps {
   node: CCSceneNode
@@ -60,18 +63,6 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   const [compOrder, setCompOrder] = useState<string[]>([])
   const [draggedComp, setDraggedComp] = useState<string | null>(null)
   const [colorPickerProp, setColorPickerProp] = useState<string | null>(null)
-  const [nodePresets, setNodePresets] = useState<Array<{ name: string; props: Record<string, unknown> }>>(() => {
-    try { return JSON.parse(localStorage.getItem('node-presets') ?? '[]') } catch { return [] }
-  })
-  const [nodePresetOpen, setNodePresetOpen] = useState(false)
-  const [nodePresetCategories, setNodePresetCategories] = useState<Record<string, string[]>>({})
-  const [selectedPresetCategory, setSelectedPresetCategory] = useState<string>('all')
-  const [favoriteNodes, setFavoriteNodes] = useState<Array<{ uuid: string; name: string }>>(() => {
-    try { return JSON.parse(localStorage.getItem('favorite-nodes') ?? '[]') } catch { return [] }
-  })
-  const [favoritesOpen, setFavoritesOpen] = useState(false)
-  const [favoriteTags, setFavoriteTags] = useState<string[]>(() => JSON.parse(localStorage.getItem('fav-tags') ?? '[]'))
-  const [showFavTags, setShowFavTags] = useState(false)
   const [changeHistory, setChangeHistory] = useState<Array<{ timestamp: number; prop: string; oldVal: unknown; newVal: unknown }>>([])
   const [showHistory, setShowHistory] = useState(false)
   const [redoStack, setRedoStack] = useState<Partial<CCSceneNode>[]>([])
@@ -90,27 +81,6 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   const [jsonEditErr, setJsonEditErr] = useState('')
   const [lockScale, setLockScale] = useState(false)
   const [lockSize, setLockSize] = useState(false)  // R1593: 크기 비율 잠금
-  // R1617: 트랜스폼 복사/붙여넣기 클립보드
-  const transformClipboard = useRef<{ position: CCSceneNode['position']; rotation: CCSceneNode['rotation']; scale: CCSceneNode['scale']; size: CCSceneNode['size'] } | null>(null)
-  const [transformClipFilled, setTransformClipFilled] = useState(false)
-  // R2552: 위치 전용 클립보드
-  const posClipboard = useRef<{ x: number; y: number } | null>(null)
-  const [posClipFilled, setPosClipFilled] = useState(false)
-  // R2553: 크기 전용 클립보드
-  const sizeClipboard = useRef<{ w: number; h: number } | null>(null)
-  const [sizeClipFilled, setSizeClipFilled] = useState(false)
-  // R2562: 색상 전용 클립보드
-  const colorClipboard = useRef<{ r: number; g: number; b: number } | null>(null)
-  const [colorClipFilled, setColorClipFilled] = useState(false)
-  // R2563: 회전 전용 클립보드
-  const rotClipboard = useRef<number | null>(null)
-  const [rotClipFilled, setRotClipFilled] = useState(false)
-  // R2564: 스케일 전용 클립보드
-  const scaleClipboard = useRef<{ x: number; y: number } | null>(null)
-  const [scaleClipFilled, setScaleClipFilled] = useState(false)
-  // R2574: 불투명도 전용 클립보드
-  const opacityClipboard = useRef<number | null>(null)
-  const [opacityClipFilled, setOpacityClipFilled] = useState(false)
   // R2554: 앵커 변경 시 position 자동 보정 토글
   const [anchorCompensate, setAnchorCompensate] = useState(false)
   const [sceneDepsTree, setSceneDepsTree] = useState<Record<string, string[]>>({})
@@ -246,67 +216,9 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   // R2337: N-복제 카운트
   const [dupeCount, setDupeCount] = useState(1)
 
-  // Round 611: prop 변경 히스토리
+  // Round 611: prop 변경 히스토리 type (orchestrator에서 직접 사용)
   type PropHistoryEntry = { id: string; propKey: string; nodeName: string; oldValue: unknown; newValue: unknown; ts: number }
-  const [propHistory, setPropHistory] = useState<PropHistoryEntry[]>(() => {
-    try { return JSON.parse(localStorage.getItem(PROP_HISTORY_KEY) ?? '[]') }
-    catch { return [] }
-  })
-  const [historyOpen, setHistoryOpen] = useState(false)
 
-  // Round 631: 스타일 프리셋
-  type StylePreset = {
-    id: string
-    name: string
-    position: CCSceneNode['position']
-    rotation: CCSceneNode['rotation']
-    scale: CCSceneNode['scale']
-    size: CCSceneNode['size']
-    anchor: CCSceneNode['anchor']
-    opacity: number
-  }
-  const [stylePresets, setStylePresets] = useState<StylePreset[]>(() => {
-    try { return JSON.parse(localStorage.getItem(STYLE_PRESETS_KEY) ?? '[]') }
-    catch { return [] }
-  })
-  const [presetDropdownOpen, setPresetDropdownOpen] = useState(false)
-
-  const saveStylePreset = useCallback(() => {
-    const rawName = window.prompt('프리셋 이름', `${draft.name}-${Date.now()}`)
-    if (rawName === null) return
-    const name = rawName.trim() || `${draft.name}-${Date.now()}`
-    const preset: StylePreset = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      name,
-      position: draft.position,
-      rotation: draft.rotation,
-      scale: draft.scale,
-      size: draft.size,
-      anchor: draft.anchor,
-      opacity: draft.opacity,
-    }
-    setStylePresets(prev => {
-      const next = [preset, ...prev].slice(0, 10)
-      localStorage.setItem(STYLE_PRESETS_KEY, JSON.stringify(next))
-      return next
-    })
-  }, [draft])
-
-  const [favProps, setFavProps] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem(FAV_PROPS_KEY) ?? '[]')) }
-    catch { return new Set() }
-  })
-  const toggleFavProp = useCallback((compType: string, propKey: string) => {
-    const id = `${compType}:${propKey}`
-    setFavProps(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      localStorage.setItem(FAV_PROPS_KEY, JSON.stringify([...next]))
-      return next
-    })
-  }, [])
-  const [showFavPropsOnly, setShowFavPropsOnly] = useState(false)
   const [depMap, setDepMap] = useState<Record<string, string[]>>({})
   const [compFilter, setCompFilter] = useState('')
   const [compFilterFocus, setCompFilterFocus] = useState(false)
@@ -375,6 +287,9 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
     setTimeout(() => setMsg(null), 2000)
   }, [saveScene, onUpdate])
 
+  // useNodePresets에서 setPropHistory를 참조하기 위한 임시 ref — applyAndSave에서 사용
+  const setPropHistoryRef = useRef<React.Dispatch<React.SetStateAction<PropHistoryEntry[]>> | null>(null)
+
   // 노드 값 패치 후 씬 저장 (draft는 즉시 반영, saveScene은 50ms debounce)
   const applyAndSave = useCallback((patch: Partial<CCSceneNode>) => {
     if (!sceneFile.root) return
@@ -418,11 +333,13 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
         newValue,
         ts: Date.now(),
       }
-      setPropHistory(prev => {
-        const next = [entry, ...prev].slice(0, 15)
-        localStorage.setItem(PROP_HISTORY_KEY, JSON.stringify(next))
-        return next
-      })
+      if (setPropHistoryRef.current) {
+        setPropHistoryRef.current(prev => {
+          const next = [entry, ...prev].slice(0, 15)
+          localStorage.setItem(PROP_HISTORY_KEY, JSON.stringify(next))
+          return next
+        })
+      }
     }
 
     // sceneFile.root에서 uuid 찾아 교체
@@ -471,6 +388,18 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
 
   // Round 635: Transform 복사/붙여넣기
   const [copyDone, setCopyDone] = useState(false)
+
+  // --- Sub-hooks ---
+  const clipboards = useNodeClipboards()
+  const presets = useNodePresets({
+    nodeUuid: node.uuid,
+    nodeName: node.name,
+    draft,
+  })
+
+  // setPropHistoryRef 연결 (applyAndSave에서 사용)
+  setPropHistoryRef.current = presets.setPropHistory as React.Dispatch<React.SetStateAction<PropHistoryEntry[]>>
+
   const handleCopyTransform = useCallback(async () => {
     const snap: TransformSnapshot = {
       position: draft.position,
@@ -480,13 +409,13 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
       anchor: draft.anchor,
       opacity: draft.opacity,
     }
-    transformClipboard.current = snap
+    clipboards.transformClipboard.current = snap
     try {
       await navigator.clipboard.writeText(JSON.stringify(snap))
     } catch { /* fallback already set */ }
     setCopyDone(true)
     setTimeout(() => setCopyDone(false), 1500)
-  }, [draft])
+  }, [draft, clipboards.transformClipboard])
 
   const handlePasteTransform = useCallback(async () => {
     let snap: TransformSnapshot | null = null
@@ -497,7 +426,7 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
         snap = parsed as TransformSnapshot
       }
     } catch { /* ignore, try fallback */ }
-    if (!snap && transformClipboard.current) snap = transformClipboard.current
+    if (!snap && clipboards.transformClipboard.current) snap = clipboards.transformClipboard.current
     if (!snap) return
     applyAndSave({
       position: snap.position,
@@ -507,9 +436,9 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
       anchor: snap.anchor,
       opacity: snap.opacity,
     })
-  }, [applyAndSave])
+  }, [applyAndSave, clipboards.transformClipboard])
 
-  // Round 631: 프리셋 적용 / 삭제 (applyAndSave 이후 정의)
+  // Round 631: 프리셋 적용 (applyAndSave 이후 정의)
   const applyStylePreset = useCallback((preset: StylePreset) => {
     applyAndSave({
       position: preset.position,
@@ -519,65 +448,14 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
       anchor: preset.anchor,
       opacity: preset.opacity,
     })
-    setPresetDropdownOpen(false)
-  }, [applyAndSave])
+    presets.setPresetDropdownOpen(false)
+  }, [applyAndSave, presets.setPresetDropdownOpen])
 
-  const deleteStylePreset = useCallback((id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setStylePresets(prev => {
-      const next = prev.filter(p => p.id !== id)
-      localStorage.setItem(STYLE_PRESETS_KEY, JSON.stringify(next))
-      return next
-    })
-  }, [])
-
-  // R673: 노드 프리셋 저장 / 적용 / 삭제
-  const saveNodePreset = useCallback(() => {
-    const rawName = window.prompt('프리셋 이름', `${draft.name}-${Date.now()}`)
-    if (rawName === null) return
-    const name = rawName.trim() || `${draft.name}-${Date.now()}`
-    const props: Record<string, unknown> = {
-      position: draft.position,
-      rotation: draft.rotation,
-      scale: draft.scale,
-      size: draft.size,
-      anchor: draft.anchor,
-      opacity: draft.opacity,
-      active: draft.active,
-      color: draft.color,
-    }
-    setNodePresets(prev => {
-      const next = [{ name, props }, ...prev].slice(0, 20)
-      localStorage.setItem('node-presets', JSON.stringify(next))
-      return next
-    })
-  }, [draft])
-
+  // R673: 노드 프리셋 적용
   const applyNodePreset = useCallback((preset: { name: string; props: Record<string, unknown> }) => {
     applyAndSave(preset.props as Partial<CCSceneNode>)
-    setNodePresetOpen(false)
-  }, [applyAndSave])
-
-  const deleteNodePreset = useCallback((idx: number, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setNodePresets(prev => {
-      const next = prev.filter((_, i) => i !== idx)
-      localStorage.setItem('node-presets', JSON.stringify(next))
-      return next
-    })
-  }, [])
-
-  // R691: 노드 즐겨찾기 토글
-  const toggleFavoriteNode = useCallback(() => {
-    setFavoriteNodes(prev => {
-      const exists = prev.some(f => f.uuid === node.uuid)
-      const next = exists
-        ? prev.filter(f => f.uuid !== node.uuid)
-        : [...prev, { uuid: node.uuid, name: node.name }]
-      localStorage.setItem('favorite-nodes', JSON.stringify(next))
-      return next
-    })
-  }, [node.uuid, node.name])
+    presets.setNodePresetOpen(false)
+  }, [applyAndSave, presets.setNodePresetOpen])
 
   const numInput = (
     label: string,
@@ -764,31 +642,17 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
     origSnapUuidRef, origSnapRef, draft, setDraft, msg, setMsg, saving, setSaving,
     isDirty, setIsDirty, savedToast, setSavedToast, undoStack, setUndoStack,
     compOrder, setCompOrder, draggedComp, setDraggedComp, colorPickerProp, setColorPickerProp,
-    nodePresets, setNodePresets, nodePresetOpen, setNodePresetOpen,
-    nodePresetCategories, setNodePresetCategories, selectedPresetCategory, setSelectedPresetCategory,
-    favoriteNodes, setFavoriteNodes, favoritesOpen, setFavoritesOpen,
-    favoriteTags, setFavoriteTags, showFavTags, setShowFavTags,
     changeHistory, setChangeHistory, showHistory, setShowHistory,
     redoStack, setRedoStack, collapsed, setCollapsed, collapsedComps, setCollapsedComps,
     expandedArrayProps, setExpandedArrayProps, jsonEditMode, setJsonEditMode,
     jsonEditText, setJsonEditText, jsonEditErr, setJsonEditErr,
     lockScale, setLockScale, lockSize, setLockSize,
-    transformClipboard, transformClipFilled, setTransformClipFilled,
-    posClipboard, posClipFilled, setPosClipFilled,
-    sizeClipboard, sizeClipFilled, setSizeClipFilled,
-    colorClipboard, colorClipFilled, setColorClipFilled,
-    rotClipboard, rotClipFilled, setRotClipFilled,
-    scaleClipboard, scaleClipFilled, setScaleClipFilled,
-    opacityClipboard, opacityClipFilled, setOpacityClipFilled,
     anchorCompensate, setAnchorCompensate, sceneDepsTree, setSceneDepsTree,
     worldPos, showSceneDepsTree, setShowSceneDepsTree,
     cliVal, setCliVal, cliMsg, setCliMsg, secHeader,
     // Handlers
     handleAddChild, handleDelete, handleDuplicate,
     propSearch, setPropSearch, showPropSearch, setShowPropSearch, dupeCount, setDupeCount,
-    propHistory, setPropHistory, historyOpen, setHistoryOpen,
-    stylePresets, setStylePresets, presetDropdownOpen, setPresetDropdownOpen,
-    saveStylePreset, favProps, toggleFavProp, showFavPropsOnly, setShowFavPropsOnly,
     depMap, setDepMap, compFilter, setCompFilter, compFilterFocus, setCompFilterFocus,
     scriptLogs, setScriptLogs, changeNotifications, setChangeNotifications,
     exportedTemplates, setExportedTemplates, previewCache, setPreviewCache,
@@ -806,11 +670,14 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
     sameCompPopup, setSameCompPopup, showPct, setShowPct, rotation,
     applyAndSave, handleUndo, handleRedo,
     jsonCopyDone, handleCopyNodeJson, copyDone, handleCopyTransform, handlePasteTransform,
-    applyStylePreset, deleteStylePreset, saveNodePreset, applyNodePreset, deleteNodePreset,
-    toggleFavoriteNode, numInput, nodePath, siblings, inactiveAncestors,
+    applyStylePreset, applyNodePreset, numInput, nodePath, siblings, inactiveAncestors,
     zOrderInfo, totalDescendants, sameNameNodes, sameNameCount, showSameNameMenu, setShowSameNameMenu,
     compTypeCountMap, handleZOrder, handleZOrderEdge, zOrderEditing, setZOrderEditing,
     zOrderInputVal, setZOrderInputVal, handleZOrderTo,
     flushSave,
+    // --- from useNodeClipboards ---
+    ...clipboards,
+    // --- from useNodePresets ---
+    ...presets,
   }
 }

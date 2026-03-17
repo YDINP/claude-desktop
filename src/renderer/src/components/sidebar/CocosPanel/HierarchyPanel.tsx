@@ -1,7 +1,7 @@
 import React from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { CCFileSceneTree } from './SceneTree'
-import { TreeSearch } from './AssetBrowser'
+import { TreeSearch } from './TreeSearch'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
 
 interface HierarchyPanelProps {

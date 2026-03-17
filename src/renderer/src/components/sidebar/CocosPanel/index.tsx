@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useCCFileProject } from '../../../hooks/useCCFileProject'
 import type { CCSceneNode } from '@shared/ipc-schema'
-import { GroupPanel } from './SceneTree'
+import { GroupPanel } from './GroupPanel'
 import { CCFileAssetBrowser } from './AssetBrowser'
 import { BuildTabContent } from './BuildTab'
 import { SceneTabContent } from './SceneTab'
