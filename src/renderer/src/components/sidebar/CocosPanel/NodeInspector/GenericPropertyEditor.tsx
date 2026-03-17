@@ -1,0 +1,537 @@
+import React from 'react'
+import type { CCSceneNode } from '@shared/ipc-schema'
+
+interface GenericPropertyEditorProps {
+  comp: CCSceneNode['components'][number]
+  draft: CCSceneNode
+  applyAndSave: (patch: Partial<CCSceneNode>) => void
+  origIdx: number
+  ci: number
+  propSearch: string
+  setPropSearch: (v: string) => void
+  favProps: Set<string>
+  toggleFavProp: (compType: string, propKey: string) => void
+  expandedArrayProps: Set<string>
+  setExpandedArrayProps: React.Dispatch<React.SetStateAction<Set<string>>>
+  origSnapRef: React.MutableRefObject<CCSceneNode | null>
+  collapsedComps: Set<string>
+  typeMatchedComps: Array<{ comp: CCSceneNode['components'][number]; origIdx: number }> | null
+}
+
+/** Generic property editor for component props — renders typed inputs for each property */
+export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, propSearch, setPropSearch, favProps, toggleFavProp, expandedArrayProps, setExpandedArrayProps, origSnapRef, collapsedComps, typeMatchedComps }: GenericPropertyEditorProps): React.ReactElement | null {
+  if (!((!collapsedComps.has(comp.type) || typeMatchedComps !== null))) return null
+            const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
+            const allProps = Object.entries(comp.props).filter(([k]) => {
+              if (HIDDEN.has(k)) return false
+              return true
+            })
+            const showFilter = allProps.length >= 3
+            // 타입 매칭 시 전체 prop 표시, 아닐 때만 prop 이름 필터
+            const isTypeMatch = typeMatchedComps !== null
+            const baseFiltered = (propSearch && !isTypeMatch)
+              ? allProps.filter(([k]) => k.toLowerCase().includes(propSearch.toLowerCase()))
+              : allProps
+            // 즐겨찾기 prop을 맨 앞으로 정렬
+            const filteredProps = [
+              ...baseFiltered.filter(([k]) => favProps.has(`${comp.type}:${k}`)),
+              ...baseFiltered.filter(([k]) => !favProps.has(`${comp.type}:${k}`)),
+            ]
+            return (
+              <>
+                {showFilter && (
+                  <input
+                    placeholder="Filter properties..."
+                    value={propSearch}
+                    onChange={e => setPropSearch(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Escape') setPropSearch('') }}
+                    style={{
+                      width: '100%', boxSizing: 'border-box', marginBottom: 4,
+                      background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px', fontSize: 9,
+                    }}
+                  />
+                )}
+                {/* R1536: PropSearch 하이라이트 */}
+                {filteredProps.map(([k, v]) => {
+            const isFavProp = favProps.has(`${comp.type}:${k}`)
+            // R1673: 원본 대비 변경된 prop 감지
+            const origComp = origSnapRef.current?.components[origIdx]
+            const origVal = origComp?.props[k]
+            const isPropChanged = origComp !== undefined && JSON.stringify(v) !== JSON.stringify(origVal)
+            // R1536: propSearch 매칭 시 키 이름 하이라이트
+            const propKeyLabel = (key: string): React.ReactNode => {
+              const baseLabel = (() => {
+                if (!propSearch) return key
+                const lk = key.toLowerCase(), lq = propSearch.toLowerCase()
+                const i = lk.indexOf(lq)
+                if (i < 0) return key
+                return <>{key.slice(0, i)}<mark style={{ background: 'rgba(250,204,21,0.25)', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{key.slice(i, i + propSearch.length)}</mark>{key.slice(i + propSearch.length)}</>
+              })()
+              return isPropChanged
+                ? <><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: '#fbbf24', marginRight: 3, flexShrink: 0, verticalAlign: 'middle' }} title="변경됨" />{baseLabel}</>
+                : baseLabel
+            }
+            const favBtn = (
+              <span
+                key="fav"
+                className={isFavProp ? 'prop-fav is-fav' : 'prop-fav'}
+                title={isFavProp ? '즐겨찾기 해제' : '즐겨찾기'}
+                onClick={e => { e.stopPropagation(); toggleFavProp(comp.type, k) }}
+                style={{
+                  cursor: 'pointer', fontSize: 9, flexShrink: 0,
+                  color: '#fbbf24',
+                  opacity: isFavProp ? 1 : 0,
+                  transition: 'opacity 0.1s',
+                  paddingLeft: 2,
+                }}
+              >{isFavProp ? '★' : '☆'}</span>
+            )
+            if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
+              const uuid = (v as { __uuid__: string }).__uuid__
+              return (
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                  <span style={{
+                    flex: 1, fontSize: 9, color: '#888', fontFamily: 'monospace',
+                    background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '2px 5px',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    title: uuid,
+                  }} title={uuid}>
+                    {uuid.slice(0, 8)}…
+                  </span>
+                </div>
+              )
+            }
+            // 벡터 타입 {x,y} 또는 {x,y,z} → 인라인 숫자 인풋
+            if (v && typeof v === 'object' && !('__uuid__' in (v as object)) && !('__id__' in (v as object))) {
+              const vobj = v as Record<string, unknown>
+              const numKeys = Object.keys(vobj).filter(k => typeof vobj[k] === 'number')
+              // RGBA 컬러 피커: r/g/b 키가 모두 있는 객체 (cc.Color 포함)
+              const hasRgb = ['r', 'g', 'b'].every(c => c in vobj && typeof vobj[c] === 'number')
+              if (hasRgb) {
+                const r = Math.round(Math.min(255, Math.max(0, Number(vobj.r ?? 0))))
+                const g = Math.round(Math.min(255, Math.max(0, Number(vobj.g ?? 0))))
+                const b = Math.round(Math.min(255, Math.max(0, Number(vobj.b ?? 0))))
+                const hasAlpha = 'a' in vobj && typeof vobj.a === 'number'
+                const a = hasAlpha ? Math.round(Math.min(255, Math.max(0, Number(vobj.a ?? 255)))) : undefined
+                const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+                return (
+                  <div key={k} className="prop-row" style={{ marginBottom: 3 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                      <input
+                        type="color"
+                        value={hex}
+                        onChange={e => {
+                          const h = e.target.value
+                          const r2 = parseInt(h.slice(1, 3), 16)
+                          const g2 = parseInt(h.slice(3, 5), 16)
+                          const b2 = parseInt(h.slice(5, 7), 16)
+                          applyAndSave({
+                            components: draft.components.map((c, i) =>
+                              i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, r: r2, g: g2, b: b2 } } } : c
+                            )
+                          })
+                        }}
+                        style={{ width: 36, height: 20, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
+                      />
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                        {r},{g},{b}{hasAlpha ? `,${a}` : ''}
+                      </span>
+                    </div>
+                    {hasAlpha && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, paddingLeft: 56 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 8 }}>A</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={255}
+                          value={a}
+                          onChange={e => {
+                            const newA = Number(e.target.value)
+                            applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, a: newA } } } : c
+                              )
+                            })
+                          }}
+                          style={{ flex: 1, accentColor: 'var(--accent)', height: 4 }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 22, textAlign: 'right' }}>{a}</span>
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+              const isVec2 = vobj.__type__ === 'cc.Vec2'
+              const isVec3 = vobj.__type__ === 'cc.Vec3'
+              const isVecType = isVec2 || isVec3
+              const vecAxes = isVec2 ? ['x', 'y'] : isVec3 ? ['x', 'y', 'z'] : null
+              const axisColor: Record<string, string> = { x: '#e05555', y: '#55b055', z: '#4488dd' }
+              if (isVecType && vecAxes) {
+                return (
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                    <div style={{ display: 'flex', gap: 3, flex: 1 }}>
+                      {vecAxes.map(axis => (
+                        <div key={axis} style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, color: axisColor[axis] ?? 'var(--text-muted)',
+                            marginRight: 2, flexShrink: 0, userSelect: 'none',
+                          }}>{axis.toUpperCase()}</span>
+                          <input type="number" defaultValue={Number(vobj[axis])}
+                            title={axis}
+                            onChange={e => {
+                              const val = parseFloat(e.target.value)
+                              if (!isNaN(val)) applyAndSave({
+                                components: draft.components.map((c, i) =>
+                                  i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
+                                )
+                              })
+                            }}
+                            onBlur={e => applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
+                              )
+                            })}
+                            onWheel={e => {
+                              e.preventDefault()
+                              const el = e.target as HTMLInputElement
+                              const current = parseFloat(el.value)
+                              if (isNaN(current)) return
+                              const delta = e.deltaY < 0 ? 1 : -1
+                              const multiplier = e.shiftKey ? 10 : 1
+                              const newVal = current + delta * multiplier
+                              el.value = String(newVal)
+                              applyAndSave({
+                                components: draft.components.map((c, i) =>
+                                  i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: newVal } } } : c
+                                )
+                              })
+                            }}
+                            style={{
+                              flex: 1, minWidth: 0, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                              color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px', fontSize: 9,
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+              if (numKeys.length >= 2 && numKeys.length <= 3) {
+                return (
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                    <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                    <div style={{ display: 'flex', gap: 2, flex: 1 }}>
+                      {numKeys.map(axis => (
+                        <input key={axis} type="number" defaultValue={Number(vobj[axis])}
+                          title={axis}
+                          onChange={e => {
+                            const val = parseFloat(e.target.value)
+                            if (!isNaN(val)) applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
+                              )
+                            })
+                          }}
+                          onBlur={e => applyAndSave({
+                            components: draft.components.map((c, i) =>
+                              i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
+                            )
+                          })}
+                          onWheel={e => {
+                            e.preventDefault()
+                            const el = e.target as HTMLInputElement
+                            const current = parseFloat(el.value)
+                            if (isNaN(current)) return
+                            const delta = e.deltaY < 0 ? 1 : -1
+                            const multiplier = e.shiftKey ? 10 : 1
+                            const newVal = current + delta * multiplier
+                            el.value = String(newVal)
+                            applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: newVal } } } : c
+                              )
+                            })
+                          }}
+                          style={{
+                            flex: 1, minWidth: 0, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px', fontSize: 9,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+              return null
+            }
+            // 배열 타입 — 펼치기/접기 토글 + 요소별 편집
+            if (Array.isArray(v)) {
+              const arrKey = `${comp.type}:${k}:${ci}`
+              const isExpanded = expandedArrayProps.has(arrKey)
+              const arr = v as unknown[]
+              return (
+                <div key={k} className="prop-row" style={{ marginBottom: 3 }}>
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', userSelect: 'none' }}
+                    onClick={() => setExpandedArrayProps(prev => {
+                      const next = new Set(prev)
+                      if (next.has(arrKey)) next.delete(arrKey)
+                      else next.add(arrKey)
+                      return next
+                    })}
+                  >
+                    <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>{isExpanded ? '▾' : '▸'}</span>
+                    <span style={{ width: 48, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                    <span style={{ fontSize: 9, color: '#666' }}>[{arr.length}]</span>
+                  </div>
+                  {isExpanded && arr.map((elem, elemIdx) => {
+                    const elemLabel = `[${elemIdx}]`
+                    if (elem !== null && typeof elem === 'object' && '__type__' in (elem as object)) {
+                      return (
+                        <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
+                          <span style={{ width: 44, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                          <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '1px 4px' }}>
+                            {String((elem as Record<string, unknown>).__type__)}
+                          </span>
+                        </div>
+                      )
+                    }
+                    if (typeof elem === 'number') {
+                      return (
+                        <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
+                          <span style={{ width: 44, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                          <input
+                            type="number"
+                            defaultValue={elem}
+                            onBlur={e => {
+                              const val = parseFloat(e.target.value)
+                              if (isNaN(val)) return
+                              const newArr = [...arr]
+                              newArr[elemIdx] = val
+                              applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                            }}
+                            onWheel={e => {
+                              e.preventDefault()
+                              const el = e.target as HTMLInputElement
+                              const current = parseFloat(el.value)
+                              if (isNaN(current)) return
+                              const delta = e.deltaY < 0 ? 1 : -1
+                              const newVal = current + delta * (e.shiftKey ? 10 : 1)
+                              el.value = String(newVal)
+                              const newArr = [...arr]
+                              newArr[elemIdx] = newVal
+                              applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                            }}
+                            style={{ flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 9 }}
+                          />
+                        </div>
+                      )
+                    }
+                    if (typeof elem === 'string') {
+                      return (
+                        <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
+                          <span style={{ width: 44, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                          <input
+                            type="text"
+                            defaultValue={elem}
+                            onBlur={e => {
+                              const newArr = [...arr]
+                              newArr[elemIdx] = e.target.value
+                              applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                            }}
+                            style={{ flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 9 }}
+                          />
+                        </div>
+                      )
+                    }
+                    return (
+                      <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
+                        <span style={{ width: 44, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                        <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace' }}>{JSON.stringify(elem)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            }
+            if (typeof v !== 'string' && typeof v !== 'number' && typeof v !== 'boolean') return null
+            const isBool = typeof v === 'boolean'
+            const isText = typeof v === 'string'
+            // fontStyle → 드롭다운
+            if (k === 'fontStyle' && typeof v === 'number') {
+              return (
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                  <select
+                    value={Number(v)}
+                    onChange={e => applyAndSave({
+                      components: draft.components.map((c, i) =>
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: Number(e.target.value) } } : c
+                      )
+                    })}
+                    style={{ flex: 1, fontSize: 10, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                  >
+                    <option value={0}>Normal</option>
+                    <option value={1}>Bold</option>
+                    <option value={2}>Italic</option>
+                    <option value={3}>BoldItalic</option>
+                  </select>
+                </div>
+              )
+            }
+            // 알려진 Cocos enum → 드롭다운
+            const COCOS_ENUM_MAP: Record<string, Record<number, string>> = {
+              overflow:        { 0: 'None', 1: 'Clamp', 2: 'Shrink', 3: 'Resize Height' },
+              horizontalAlign: { 0: 'Left', 1: 'Center', 2: 'Right' },
+              verticalAlign:   { 0: 'Top',  1: 'Center', 2: 'Bottom' },
+              wrapMode:        { 0: 'Default', 1: 'Normal', 2: 'Loop', 3: 'PingPong', 4: 'ClampForever' },
+              // R1487: cc.Button enum
+              transition:      { 0: 'None', 1: 'Color', 2: 'Sprite', 3: 'Scale' },
+              // R1487: cc.Layout enum
+              type:            { 0: 'None', 1: 'Horizontal', 2: 'Vertical', 3: 'Grid' },
+              resizeMode:      { 0: 'None', 1: 'Children', 2: 'Container' },
+              axisDirection:   { 0: 'Horizontal', 1: 'Vertical' },
+              verticalDirection:  { 0: 'Bottom to Top', 1: 'Top to Bottom' },
+              horizontalDirection: { 0: 'Left to Right', 1: 'Right to Left' },
+              // cc.Mask / cc.ScrollView
+              _type:           { 0: 'Rect', 1: 'Ellipse', 2: 'Image Stencil' },
+              movementType:    { 0: 'Unrestricted', 1: 'Elastic', 2: 'Clamped' },
+            }
+            if (k in COCOS_ENUM_MAP && typeof v === 'number') {
+              const enumOptions = COCOS_ENUM_MAP[k]
+              return (
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                  <select
+                    value={Number(v)}
+                    onChange={e => applyAndSave({
+                      components: draft.components.map((c, i) =>
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: Number(e.target.value) } } : c
+                      )
+                    })}
+                    style={{ flex: 1, fontSize: 10, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                  >
+                    {Object.entries(enumOptions).map(([val, label]) => (
+                      <option key={val} value={Number(val)}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+              )
+            }
+            return (
+              <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                {isBool ? (
+                  <BoolToggle
+                    value={Boolean(v)}
+                    onChange={checked => applyAndSave({
+                      components: draft.components.map((c, i) =>
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: checked } } : c
+                      )
+                    })}
+                  />
+                ) : isText ? (
+                  (() => {
+                    const strV = String(v)
+                    const isColor = strV.startsWith('#') || strV.startsWith('rgb')
+                    const toHex = (s: string): string => {
+                      if (s.startsWith('#')) return s.slice(0, 7)
+                      const m = s.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+                      if (m) return '#' + [m[1], m[2], m[3]].map(n => parseInt(n).toString(16).padStart(2, '0')).join('')
+                      return '#000000'
+                    }
+                    return (
+                      <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+                        {isColor && (
+                          <div style={{ position: 'relative', flexShrink: 0 }}>
+                            <div
+                              className="colorSwatch"
+                              onClick={() => setColorPickerProp(colorPickerProp === k ? null : k)}
+                              style={{
+                                width: 14, height: 14, borderRadius: 2, border: '1px solid var(--border)',
+                                background: strV, cursor: 'pointer', marginTop: 3, flexShrink: 0,
+                              }}
+                            />
+                            {colorPickerProp === k && (
+                              <input
+                                type="color"
+                                value={toHex(strV)}
+                                onChange={e => applyAndSave({
+                                  components: draft.components.map((c, i) =>
+                                    i === origIdx ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
+                                  )
+                                })}
+                                style={{
+                                  position: 'absolute', top: 18, left: 0, zIndex: 100,
+                                  width: 40, height: 24, padding: 0, border: 'none', cursor: 'pointer',
+                                }}
+                              />
+                            )}
+                          </div>
+                        )}
+                        <textarea
+                          rows={2}
+                          defaultValue={strV}
+                          onBlur={e => applyAndSave({
+                            components: draft.components.map((c, i) =>
+                              i === origIdx ? { ...c, props: { ...c.props, [k]: e.target.value } } : c
+                            )
+                          })}
+                          style={{
+                            flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+                            resize: 'vertical', fontFamily: 'inherit',
+                          }}
+                        />
+                      </div>
+                    )
+                  })()
+                ) : (
+                  <input
+                    type="number"
+                    defaultValue={Number(v)}
+                    onChange={e => {
+                      const val = parseFloat(e.target.value)
+                      if (!isNaN(val)) applyAndSave({
+                        components: draft.components.map((c, i) =>
+                          i === origIdx ? { ...c, props: { ...c.props, [k]: val } } : c
+                        )
+                      })
+                    }}
+                    onBlur={e => applyAndSave({
+                      components: draft.components.map((c, i) =>
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: parseFloat(e.target.value) || 0 } } : c
+                      )
+                    })}
+                    onWheel={e => {
+                      e.preventDefault()
+                      const el = e.target as HTMLInputElement
+                      const current = parseFloat(el.value)
+                      if (isNaN(current)) return
+                      const delta = e.deltaY < 0 ? 1 : -1
+                      const multiplier = e.shiftKey ? 10 : 1
+                      const newVal = current + delta * multiplier
+                      el.value = String(newVal)
+                      applyAndSave({
+                        components: draft.components.map((c, i) =>
+                          i === origIdx ? { ...c, props: { ...c.props, [k]: newVal } } : c
+                        )
+                      })
+                    }}
+                    style={{
+                      flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+                    }}
+                  />
+                )}
+              </div>
+            )
+                })}
+              </>
+            )
+}
